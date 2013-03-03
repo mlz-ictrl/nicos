@@ -44,6 +44,7 @@ except ImportError:
     matplotlib = None
 
 from nicos.core import Param
+from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
 
 
@@ -189,7 +190,8 @@ class Monitor(BaseMonitor):
     def closeGui(self):
         pass
 
-    def initColors(self):
+    def initGui(self):
+        self._content = []
         self._bgcolor = 'inherit'
         self._black = 'black'
         self._yellow = 'yellow'
@@ -197,9 +199,6 @@ class Monitor(BaseMonitor):
         self._red = 'red'
         self._gray = 'gray'
         self._white = 'white'
-
-    def initGui(self):
-        self._content = []
 
         add = self._content.append
 
@@ -238,30 +237,30 @@ class Monitor(BaseMonitor):
                         else:
                             blk.add('<tr><td class="center">')
                             for field in row:
-                                self.updateKeymap(field)
                                 blk.add('\n      <table class="field"><tr><td>')
-                                if field['plot'] and matplotlib:
-                                    p = self._plots.get(field['plot'])
+                                if field.plot and matplotlib:
+                                    p = self._plots.get(field.plot)
                                     if not p:
-                                        p = Plot(field['plotinterval'],
-                                                 field['width'], field['height'])
-                                        self._plots[field['plot']] = p
+                                        p = Plot(field.plotinterval,
+                                                 field.width, field.height)
+                                        self._plots[field.plot] = p
                                         blk.add(p)
-                                    field['plotcurve'] = p.addcurve(field['name'])
+                                    field._plotcurve = p.addcurve(field.name)
                                 else:
                                     # deactivate plots if unavailable
-                                    field['plot'] = None
+                                    field.plot = None
                                     # create name label
-                                    flabel = Label('name', field['width'],
-                                                   escape(field['name']))
-                                    field['namelabel'] = flabel
+                                    flabel = Label('name', field.width,
+                                                   escape(field.name))
+                                    field._namelabel = flabel
                                     blk.add(flabel)
                                     blk.add('</td></tr><tr><td>')
                                     # create value label
                                     cls = 'value'
-                                    if field['istext']: cls += ' istext'
-                                    field['valuelabel'] = Label(cls)
-                                    blk.add(field['valuelabel'])
+                                    if field.istext:
+                                        cls += ' istext'
+                                    field._valuelabel = Label(cls)
+                                    blk.add(field._valuelabel)
                                 blk.add('</td></tr></table> ')
                             blk.add('\n    </td></tr>')
                     blk.add('</table>\n  </div>')
@@ -276,28 +275,52 @@ class Monitor(BaseMonitor):
         add(self._warnlabel)
         add('</body></html>\n')
 
-    def setLabelText(self, label, text):
-        label.text = escape(text) or '&nbsp;'
+    def updateTitle(self, text):
+        self._timelabel.text = text
 
-    def setLabelUnitText(self, label, text, unit, fixed):
-        label.text = escape(text) + ' <span class="unit">%s</span><span ' \
+    def signal(self, field, signal, *args):
+        if field.plot:
+            if signal == 'newValue':
+                self._plots[field.plot].updatevalues(field._plotcurve,
+                                                     args[0], args[1])
+            return
+        if signal == 'newValue':
+            field._valuelabel.text = args[2] or '&nbsp;'
+        elif signal == 'metaChanged':
+            field._namelabel.text = self._labelunittext(field.name, field.unit,
+                                                        field.fixed)
+        elif signal == 'statusChanged':
+            status = args[0]
+            if status == OK:
+                field._valuelabel.fore = self._green
+            elif status in (BUSY, PAUSED):
+                field._valuelabel.fore = self._yellow
+            elif status in (ERROR, NOTREACHED):
+                field._valuelabel.fore = self._red
+            else:
+                field._valuelabel.fore = self._white
+        elif signal == 'expireChanged':
+            if args[0]:
+                field._valuelabel.back = self._gray
+            else:
+                field._valuelabel.back = self._black
+        elif signal == 'rangeChanged':
+            if args[0] == 0:
+                field._namelabel.back = self._bgcolor
+            else:
+                field._namelabel.back = self._red
+
+    def _labelunittext(self, text, unit, fixed):
+        return escape(text) + ' <span class="unit">%s</span><span ' \
             'class="fixed">%s</span> ' % (escape(unit), fixed)
 
-    def setForeColor(self, label, fore):
-        label.fore = fore
-
-    def setBackColor(self, label, back):
-        label.back = back
-
-    def setBothColors(self, label, fore, back):
-        label.fore = fore
-        label.back = back
-
-    def updatePlot(self, field, x, y):
-        self._plots[field['plot']].updatevalues(field['plotcurve'], x, y)
-
     def switchWarnPanel(self, off=False):
-        pass
+        if off:
+            self._timelabel.back = self._bgcolor
+            self._timelabel.fore = self._gray
+        else:
+            self._timelabel.back = self._red
+            self._timelabel.fore = self._black
 
     def reconfigureBoxes(self):
         for setup, boxes in self._onlymap.iteritems():

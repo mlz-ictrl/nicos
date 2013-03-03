@@ -37,14 +37,65 @@ from time import sleep, strftime, time as currenttime
 
 from nicos import session
 from nicos.core import listof, Param, Override
-from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
+from nicos.core.status import BUSY
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
 
 
-class Field(dict):
-    def __hash__(self):
-        return id(self)
+class Field(object):
+    # what to display
+    key = ''         # main key (displayed value)
+    item = -1        # item to display of value, -1 means whole value
+    name = ''        # name of value
+    statuskey = ''   # key for value status
+    unitkey = ''     # key for value unit
+    formatkey = ''   # key for value format string
+    fixedkey = ''    # key for value fixed-ness
+
+    # how to display it
+    widget = ''      # which widget to use (empty for default)
+    width = 8        # width of the widget (in characters, usually)
+    height = 8       # height of the widget
+    istext = False   # true if not a number but plain text
+    maxlen = None    # max length of displayed text before cutoff
+    min = None       # minimum value
+    max = None       # maximum value; if out of range display in red
+
+    # current values
+    value = None     # current value
+    strvalue = None  # current value as string
+    status = None    # current status
+    expired = False  # is value expired?
+    exptime = 0      # time when value expired
+    changetime = 0   # time of last change to value
+    fixed = ''       # current fixed status
+    unit = ''        # unit for display
+    format = '%s'    # format string for display
+
+    # for plots
+    plot = None           # which plot to plot this value in
+    plotinterval = 3600   # time span of plot
+
+    def __init__(self, prefix, desc):
+        if isinstance(desc, str):
+            desc = {'dev': desc}
+        if 'dev' in desc:
+            dev = desc.pop('dev')
+            if 'name' not in desc:
+                desc['name'] = dev
+            desc['key'] =       dev + '/value'
+            desc['statuskey'] = dev + '/status'
+            desc['fixedkey'] =  dev + '/fixed'
+            if 'unit' not in desc:
+                desc['unitkey'] = dev + '/unit'
+            if 'format' not in desc:
+                desc['formatkey'] = dev + '/fmtstr'
+        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
+            if kn in desc:
+                desc[kn] = (prefix + desc[kn]).lower()
+        if 'name' not in desc:
+            desc['name'] = desc['key']
+        self.__dict__.update(desc)
 
 
 class Monitor(BaseCacheClient):
@@ -80,41 +131,26 @@ class Monitor(BaseCacheClient):
 
     # methods to be implemented in concrete implementations
 
-    def initColors(self):
-        raise NotImplementedError
-
     def initGui(self):
-        raise NotImplementedError
+        raise NotImplementedError('Implement initGui() in subclasses')
 
     def mainLoop(self):
-        raise NotImplementedError
+        raise NotImplementedError('Implement mainLoop() in subclasses')
 
     def closeGui(self):
-        raise NotImplementedError
+        raise NotImplementedError('Implement closeGui() in subclasses')
+
+    def signal(self, field, signal, *args):
+        raise NotImplementedError('Implement signal() in subclasses')
 
     def switchWarnPanel(self, off=False):
-        raise NotImplementedError
+        raise NotImplementedError('Implement switchWarnPanel() in subclasses')
 
     def reconfigureBoxes(self):
-        raise NotImplementedError
+        raise NotImplementedError('Implement reconfigureBoxes() in subclasses')
 
-    def setLabelText(self, label, text):
-        raise NotImplementedError
-
-    def setLabelUnitText(self, label, text, unit, fixed=''):
-        raise NotImplementedError
-
-    def setForeColor(self, label, color):
-        raise NotImplementedError
-
-    def setBackColor(self, label, color):
-        raise NotImplementedError
-
-    def setBothColors(self, label, fore, back):
-        raise NotImplementedError
-
-    def updatePlot(self, field, time, value):
-        raise NotImplementedError
+    def updateTitle(self, text):
+        raise NotImplementedError('Implement updateTitle() in subclasses')
 
     def start(self, options):
         self.log.info('monitor starting up, creating main window')
@@ -161,7 +197,6 @@ class Monitor(BaseCacheClient):
         checker.start()
 
         self.initLayout()
-        self.initColors()
         self.initGui()
 
         # now start the worker thread
@@ -198,23 +233,8 @@ class Monitor(BaseCacheClient):
         self._stoprequest = True
 
     def initLayout(self):
-        field_defaults = {
-            # display/init properties
-            'name': '', 'dev': '', 'width': 8, 'istext': False, 'maxlen': None,
-            'min': None, 'max': None, 'unit': ' ', 'item': -1, 'format': '%s',
-            'plot': None, 'plotinterval': 3600, 'height': 8,
-            # current values
-            'value': None, 'strvalue': None, 'expired': 0, 'status': None,
-            'changetime': 0, 'exptime': 0, 'fixed': '',
-            'plotx': None, 'ploty': None,
-            # key names
-            'key': '', 'statuskey': '', 'unitkey': '', 'formatkey': '',
-            'fixedkey': '',
-            # widgets
-            'namelabel': None, 'valuelabel': None, 'plotcurve': None,
-        }
-
-        # convert configured layout to internal structure
+        # convert configured layout to internal structure and register keys for
+        # further processing
         self._layout = []
         for superrowdesc in self.layout:
             columns = []
@@ -228,20 +248,12 @@ class Monitor(BaseCacheClient):
                             continue
                         fields = []
                         for fielddesc in rowdesc:
-                            field = Field(field_defaults)
-                            if isinstance(fielddesc, str):
-                                fielddesc = {'dev': fielddesc}
-                            field.update(fielddesc)
-                            if not field['name']:
-                                field['name'] = field['dev']
-                            if field['plot']:
-                                field['plotx'] = []
-                                field['ploty'] = []
-                            field['key'] = field['key'].lower()
+                            field = Field(self._prefix, fielddesc)
                             fields.append(field)
+                            self.updateKeymap(field)
                         rows.append(fields)
                     block = ({'name': blockdesc[0], 'visible': True,
-                              'labelframe': None, 'only': None}, rows)
+                              'only': None}, rows)
                     if len(blockdesc) > 2:
                         block[0]['only'] = blockdesc[2]
                     blocks.append(block)
@@ -249,29 +261,11 @@ class Monitor(BaseCacheClient):
             self._layout.append(columns)
 
     def updateKeymap(self, field):
-        prefix = self._prefix
         # store reference from key to field for updates
-        def _ref(name, key):
-            field[name] = key
-            self._keymap.setdefault(key, []).append(field)
-        if field['dev']:
-            _ref('key', prefix + field['dev'].lower() + '/value')
-            _ref('statuskey', prefix + field['dev'].lower() + '/status')
-            _ref('fixedkey', prefix + field['dev'].lower() + '/fixed')
-            if field['unit'] == ' ':  # explicit unit has preference
-                _ref('unitkey', prefix + field['dev'].lower() + '/unit')
-            if field['format'] == '%s':  # explicit format has preference
-                _ref('formatkey', prefix + field['dev'].lower() + '/fmtstr')
-        else:
-            _ref('key', prefix + field['key'])
-            if field['statuskey']:
-                _ref('statuskey', prefix + field['statuskey'])
-            if field['fixedkey']:
-                _ref('fixedkey', prefix + field['dev'].lower() + '/fixed')
-            if field['unitkey']:
-                _ref('unitkey', prefix + field['unitkey'])
-            if field['formatkey']:
-                _ref('formatkey', prefix + field['formatkey'])
+        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
+            key = getattr(field, kn)
+            if key:
+                self._keymap.setdefault(key, []).append(field)
 
     def _connect_action(self):
         BaseCacheClient._connect_action(self)
@@ -280,41 +274,39 @@ class Monitor(BaseCacheClient):
 
     # called between connection attempts
     def _wait_retry(self):
-        self.setLabelText(self._timelabel,
-                          'Disconnected (%s)' % strftime('%d.%m.%Y %H:%M:%S'))
+        self.updateTitle('Disconnected (%s)' % strftime('%d.%m.%Y %H:%M:%S'))
         sleep(1)
 
     # called while waiting for data
     def _wait_data(self):
         # update current time
-        self.setLabelText(self._timelabel, '%s (%s)%s' %
-                          (self.title, strftime('%d.%m.%Y %H:%M:%S'),
-                           '' if self._masteractive else ', no master active'))
+        self.updateTitle('%s (%s)%s' %
+                         (self.title, strftime('%d.%m.%Y %H:%M:%S'),
+                          '' if self._masteractive else ', no master active'))
 
         # adjust the colors of status displays
         newwatch = set()
         for field in self._watch:
-            vlabel, status = field['valuelabel'], field['status']
-            if not vlabel:
-                continue
+            status = field.status
+            value = field.value
 
-            value = field['value']
+            # determined if value limits are hit (typically displayed as a red
+            # background color)
 
-            # set name label background color: determined by the value limits
-
-            if field['min'] is not None and value < field['min']:
-                self.setBackColor(field['namelabel'], self._red)
-            elif field['max'] is not None and value > field['max']:
-                self.setBackColor(field['namelabel'], self._red)
+            if field.min is not None and value < field.min:
+                self.signal(field, 'rangeChanged', -1)
+            elif field.max is not None and value > field.max:
+                self.signal(field, 'rangeChanged', +1)
             else:
-                self.setBackColor(field['namelabel'], self._bgcolor)
+                self.signal(field, 'rangeChanged', 0)
 
-            # set the foreground color: determined by the status
+            # determine the status (typically displayed as the color of the
+            # displayed value)
 
             time = currenttime()
-            valueage = time - field['changetime']
+            valueage = time - field.changetime
             if valueage < 2:
-                self.setForeColor(vlabel, self._yellow)
+                self.signal(field, 'statusChanged', BUSY)
                 newwatch.add(field)
             else:
                 # if we have a status
@@ -322,27 +314,21 @@ class Monitor(BaseCacheClient):
                     const = status[0]
                 except (TypeError, ValueError):
                     const = status
-                if const == OK:
-                    self.setForeColor(vlabel, self._green)
-                elif const in (BUSY, PAUSED):
-                    self.setForeColor(vlabel, self._yellow)
-                elif const in (ERROR, NOTREACHED):
-                    self.setForeColor(vlabel, self._red)
-                else:
-                    self.setForeColor(vlabel, self._white)
+                self.signal(field, 'statusChanged', const)
 
-            # set the background color: determined by the value's up-to-dateness
+            # determine by the value's up-to-dateness (typically displayed as
+            # a background color of the value)
 
             if value is None:
-                self.setBackColor(vlabel, self._gray)
-            elif field['expired']:
-                if time - field['exptime'] > 0.7:
-                    self.setBackColor(vlabel, self._gray)
+                self.signal(field, 'expireChanged', True)
+            elif field.expired:
+                if time - field.exptime > 0.7:
+                    self.signal(field, 'expireChanged', True)
                 else:
-                    self.setBackColor(vlabel, self._black)
+                    self.signal(field, 'expireChanged', False)
                     newwatch.add(field)
             else:
-                self.setBackColor(vlabel, self._black)
+                self.signal(field, 'expireChanged', False)
         self._watch = newwatch
         #self.log.debug('newwatch has %s items' % len(newwatch))
 
@@ -387,71 +373,70 @@ class Monitor(BaseCacheClient):
         fields = self._keymap.get(key, [])
         for field in fields:
             self._watch.add(field)
-            if key == field['key']:
-                field['expired'] = expired
+            if key == field.key:
+                field.expired = expired
                 if expired:
-                    field['exptime'] = time
-                if field['item'] >= 0 and value is not None:
+                    field.exptime = time
+                if field.item >= 0 and value is not None:
                     try:
-                        fvalue = value[field['item']]
-                    except IndexError:
+                        fvalue = value[field.item]
+                    except Exception:
                         fvalue = value
                 else:
                     fvalue = value
                 if value is None:
                     strvalue = '----'
                 else:
-                    if isinstance(fvalue, list): fvalue = tuple(fvalue)
+                    if isinstance(fvalue, list):
+                        fvalue = tuple(fvalue)
                     try:
-                        strvalue = field['format'] % fvalue
+                        strvalue = field.format % fvalue
                     except Exception:
                         strvalue = str(fvalue)
-                if field['strvalue'] != strvalue:
-                    field['changetime'] = time
-                field['strvalue'] = strvalue
-                field['value'] = value
-                if field['plot']:
-                    self.updatePlot(field, time, value)
-                else:
-                    self.setLabelText(field['valuelabel'],
-                                      strvalue[:field['maxlen']])
-            elif key == field['statuskey']:
+                if field.strvalue != strvalue:
+                    field.changetime = time
+                field.strvalue = strvalue
+                field.value = value
+                self.signal(field, 'newValue', time, value, strvalue)
+            elif key == field.formatkey:
                 if value is not None:
-                    if field['status'] != value:
-                        field['changetime'] = time
-                    field['status'] = value
-            elif key == field['unitkey'] and not field['plot']:
-                if value is not None:
-                    if field['item'] >= 0:
+                    field.format = value
+                    fvalue = field.value
+                    if field.item >= 0 and fvalue is not None:
                         try:
-                            value = value.split()[field['item']]
-                        except IndexError:
+                            fvalue = fvalue[field.item]
+                        except Exception:
                             pass
-                    field['unit'] = value
-                    self.setLabelUnitText(field['namelabel'],
-                                          field['name'], value, field['fixed'])
-            elif key == field['formatkey'] and not field['plot']:
+                    if fvalue is None:
+                        strvalue = '----'
+                    else:
+                        if isinstance(fvalue, list):
+                            fvalue = tuple(fvalue)
+                        try:
+                            strvalue = field.format % fvalue
+                        except Exception:
+                            strvalue = str(fvalue)
+                    self.signal(field, 'newValue', time, field.value, strvalue)
+            elif key == field.statuskey:
                 if value is not None:
-                    field['format'] = value
-                if field['value'] is not None and field['item'] < 0:
-                    fvalue = field['value']
-                    if isinstance(fvalue, list): fvalue = tuple(fvalue)
-                    try:
-                        self.setLabelText(field['valuelabel'], field['format'] %
-                                          fvalue)
-                    except Exception:
-                        self.setLabelText(field['valuelabel'], str(fvalue))
-            elif key == field['fixedkey'] and not field['plot']:
-                field['fixed'] = ' (F)' if value else ''
-                self.setLabelUnitText(field['namelabel'], field['name'],
-                                      field['unit'], field['fixed'])
+                    if field.status != value:
+                        field.changetime = time
+                    field.status = value
+            elif key == field.unitkey:
+                if value is not None:
+                    if field.item >= 0:
+                        try:
+                            value = value.split()[field.item]
+                        except Exception:
+                            pass
+                    field.unit = value
+                    self.signal(field, 'metaChanged')
+            elif key == field.fixedkey:
+                field.fixed = ' (F)' if value else ''
+                self.signal(field, 'metaChanged')
 
     def _process_warnings(self, warnings):
         #self.log.debug('new warnings: %s' % warnings)
         self._currwarnings = warnings
-        if warnings:
-            self.setBothColors(self._timelabel, self._black, self._red)
-            self.setLabelText(self._warnlabel, self._currwarnings)
-        else:
-            self.setBothColors(self._timelabel, self._gray, self._bgcolor)
+        if not warnings:
             self.switchWarnPanel(off=True)

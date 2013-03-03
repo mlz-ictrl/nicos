@@ -30,20 +30,21 @@ import threading
 from cgi import escape
 from time import time as currenttime, sleep
 
+from PyQt4.QtCore import QSize, QVariant, QTimer, Qt, SIGNAL
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
-     QCursor, QStackedWidget, QPen, QBrush
-from PyQt4.QtCore import QSize, QVariant, QTimer, Qt, SIGNAL
+     QCursor, QStackedWidget, QPen, QBrush, QWidget
 
 try:
     from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
          QwtPlotZoomer
     from nicos.clients.gui.plothelpers import TimeScaleEngine, TimeScaleDraw
 except (ImportError, RuntimeError):
-    QwtPlot = None
+    QwtPlot = QWidget
 
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.core.status import statuses
+from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 
 
 class MonitorWindow(QMainWindow):
@@ -52,24 +53,11 @@ class MonitorWindow(QMainWindow):
             self.close()
         return QMainWindow.keyPressEvent(self, event)
 
-class SMLabel(QLabel):
-    """A label with default event handlers for setting text and colors."""
-    def __init__(self, text, parent):
-        QLabel.__init__(self, text, parent)
-        self.connect(self, SIGNAL('settext'), self.setText)
-        self.connect(self, SIGNAL('setcolors'), self.setColors)
-    def setColors(self, fore, back):
-        pal = self.palette()
-        if fore is not None:
-            pal.setColor(QPalette.WindowText, fore)
-        if back is not None:
-            pal.setColor(QPalette.Window, back)
-        self.setPalette(pal)
 
-class SensitiveLabel(SMLabel):
+class SensitiveSMLabel(QLabel):
     """A label that calls back when entered/left by the mouse."""
     def __init__(self, text, parent, enter, leave):
-        SMLabel.__init__(self, text, parent)
+        QLabel.__init__(self, text, parent)
         self._enter = enter
         self._leave = leave
     def enterEvent(self, event):
@@ -77,97 +65,227 @@ class SensitiveLabel(SMLabel):
     def leaveEvent(self, event):
         self._leave(self, event)
 
-if QwtPlot:
-    class SMPlot(QwtPlot):
-        colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.magenta, Qt.cyan, Qt.darkGray]
-        def __init__(self, parent, interval, minv=None, maxv=None):
-            QwtPlot.__init__(self, parent)
-            self.ncurves = 0
-            self.interval = interval
-            self.minv = minv
-            self.maxv = maxv
-            self.ctimers = {}
 
-            # appearance setup
-            self.setCanvasBackground(Qt.white)
+def labelunittext(name, unit, fixed):
+    return escape(name) + ' <font color="#888888">%s</font>' \
+        '<font color="#0000ff">%s</font> ' % (escape(unit), fixed)
 
-            # axes setup
-            self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
-            showdate = interval > 24*3600
-            showsecs = interval < 300
-            self.setAxisScaleDraw(QwtPlot.xBottom,
-                TimeScaleDraw(showdate=showdate, showsecs=showsecs))
-            self.setAxisLabelAlignment(QwtPlot.xBottom,
-                                       Qt.AlignBottom | Qt.AlignLeft)
-            self.setAxisLabelRotation(QwtPlot.xBottom, -45)
 
-            # subcomponents: grid, legend, zoomer
-            grid = QwtPlotGrid()
-            grid.setPen(QPen(QBrush(Qt.gray), 1, Qt.DotLine))
-            grid.attach(self)
-            self.legend = QwtLegend(self)
-            self.legend.setMidLineWidth(100)
-            self.insertLegend(self.legend, QwtPlot.TopLegend)
-            self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
-                                        self.canvas())
+class SMDefaultDisplay(QWidget):
+    """Default value display widget with two labels."""
+    def __init__(self, parent, main, field):
+        QWidget.__init__(self, parent)
+        self.maxlen = field.maxlen
+        self.field = field
+        self.main = main
 
-            # additional curves setup
-            self.mincurve = self.maxcurve = None
-            if self.minv is not None:
-                self.mincurve = QwtPlotCurve()
-                self.mincurve.setItemAttribute(QwtPlotCurve.AutoScale, 0)
-                self.mincurve.setItemAttribute(QwtPlotCurve.Legend, 0)
-                self.mincurve.attach(self)
-            if self.maxv is not None:
-                self.maxcurve = QwtPlotCurve()
-                self.maxcurve.setItemAttribute(QwtPlotCurve.AutoScale, 0)
-                self.maxcurve.setItemAttribute(QwtPlotCurve.Legend, 0)
-                self.maxcurve.attach(self)
+        layout = QVBoxLayout()
+        namelabel = QLabel(' ' + escape(field.name) + ' ', self)
+        if field.unit:
+            namelabel.setText(labelunittext(field.name, field.unit, field.fixed))
+        namelabel.setFont(main._labelfont)
+        namelabel.setAlignment(Qt.AlignHCenter)
+        namelabel.setAutoFillBackground(True)
+        namelabel.setTextFormat(Qt.RichText)
+        self.namelabel = namelabel
 
-            self.connect(self, SIGNAL('updateplot'), self.updateplot)
+        valuelabel = SensitiveSMLabel('----', self, self._label_entered,
+                                      self._label_left)
+        if field.istext:
+            valuelabel.setFont(main._labelfont)
+        else:
+            valuelabel.setFont(main._valuefont)
+            valuelabel.setAlignment(Qt.AlignHCenter)
+        valuelabel.setFrameShape(QFrame.Panel)
+        valuelabel.setFrameShadow(QFrame.Sunken)
+        valuelabel.setAutoFillBackground(True)
+        valuelabel.setLineWidth(2)
+        valuelabel.setMinimumSize(QSize(main._onechar * (field.width + .5), 0))
+        valuelabel.setProperty('assignedField', QVariant(field))
+        self.valuelabel = valuelabel
 
-        def setFont(self, font):
-            QwtPlot.setFont(self, font)
-            self.legend.setFont(font)
-            self.setAxisFont(QwtPlot.yLeft, font)
-            self.setAxisFont(QwtPlot.xBottom, font)
+        layout.addWidget(namelabel)
+        tmplayout = QHBoxLayout()
+        tmplayout.addStretch()
+        tmplayout.addWidget(valuelabel)
+        tmplayout.addStretch()
+        layout.addLayout(tmplayout)
+        self.setLayout(layout)
 
-        def addcurve(self, field, title):
-            curve = QwtPlotCurve(title)
-            curve.setPen(QPen(self.colors[self.ncurves % 6], 2))
-            self.ncurves += 1
-            curve.attach(self)
-            curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
-            self.legend.find(curve).setIdentifierWidth(30)
-            self.ctimers[curve] = QTimer()
-            self.ctimers[curve].setSingleShot(True)
-            # record the current value at least every 5 seconds, to avoid curves
-            # not updating if the value doesn't change
-            def update():
-                field['plotx'].append(currenttime())
-                field['ploty'].append(field['ploty'][-1])
+        self.connect(self, SIGNAL('newValue'), self.on_newValue)
+        self.connect(self, SIGNAL('metaChanged'), self.on_metaChanged)
+        self.connect(self, SIGNAL('statusChanged'), self.on_statusChanged)
+        self.connect(self, SIGNAL('expireChanged'), self.on_expireChanged)
+        self.connect(self, SIGNAL('rangeChanged'), self.on_rangeChanged)
+
+    def on_newValue(self, time, value, strvalue):
+        self.valuelabel.setText(strvalue[:self.maxlen])
+
+    def on_metaChanged(self):
+        self.namelabel.setText(labelunittext(self.field.name, self.field.unit,
+                                             self.field.fixed))
+
+    def on_statusChanged(self, status):
+        pal = self.valuelabel.palette()
+        if status == OK:
+            pal.setColor(QPalette.WindowText, self.main._green)
+        elif status in (BUSY, PAUSED):
+            pal.setColor(QPalette.WindowText, self.main._yellow)
+        elif status in (ERROR, NOTREACHED):
+            pal.setColor(QPalette.WindowText, self.main._red)
+        else:
+            pal.setColor(QPalette.WindowText, self.main._white)
+        self.valuelabel.setPalette(pal)
+
+    def on_expireChanged(self, expired):
+        pal = self.valuelabel.palette()
+        if expired:
+            pal.setColor(QPalette.Window, self.main._gray)
+        else:
+            pal.setColor(QPalette.Window, self.main._black)
+        self.valuelabel.setPalette(pal)
+
+    def on_rangeChanged(self, inout):
+        pal = self.namelabel.palette()
+        if inout == 0:
+            pal.setColor(QPalette.Window, self.main._bgcolor)
+        else:
+            pal.setColor(QPalette.Window, self.main._red)
+        self.namelabel.setPalette(pal)
+
+    def _label_entered(self, widget, event):
+        field = self.field
+        statustext = '%s = %s' % (field.name, self.valuelabel.text())
+        if field.unit:
+            statustext += ' %s' % field.unit
+        if field.status:
+            try:
+                const, msg = field.status
+            except ValueError:
+                const, msg = field.status, ''
+            statustext += ', status is %s: %s' % (statuses.get(const, '?'), msg)
+        if field.changetime:
+            statustext += ', changed %s ago' % (
+                nicedelta(currenttime() - field.changetime))
+        self.main._statuslabel.setText(statustext)
+        self.main._statustimer = threading.Timer(1,
+            lambda: self._label_entered(widget, event))
+        self.main._statustimer.start()
+
+    def _label_left(self, widget, event):
+        self.main._statuslabel.setText('')
+        if self.main._statustimer:
+            self.main._statustimer.cancel()
+            self.main._statustimer = None
+
+
+class SMPlot(QwtPlot):
+    colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.magenta, Qt.cyan, Qt.darkGray]
+
+    def __init__(self, parent, interval, minv=None, maxv=None):
+        QwtPlot.__init__(self, parent)
+        self.ncurves = 0
+        self.interval = interval
+        self.minv = minv
+        self.maxv = maxv
+        self.ctimers = {}
+        self.plotcurves = {}
+        self.plotx = {}
+        self.ploty = {}
+
+        # appearance setup
+        self.setCanvasBackground(Qt.white)
+
+        # axes setup
+        self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
+        showdate = interval > 24*3600
+        showsecs = interval < 300
+        self.setAxisScaleDraw(QwtPlot.xBottom,
+            TimeScaleDraw(showdate=showdate, showsecs=showsecs))
+        self.setAxisLabelAlignment(QwtPlot.xBottom,
+                                   Qt.AlignBottom | Qt.AlignLeft)
+        self.setAxisLabelRotation(QwtPlot.xBottom, -45)
+
+        # subcomponents: grid, legend, zoomer
+        grid = QwtPlotGrid()
+        grid.setPen(QPen(QBrush(Qt.gray), 1, Qt.DotLine))
+        grid.attach(self)
+        self.legend = QwtLegend(self)
+        self.legend.setMidLineWidth(100)
+        self.insertLegend(self.legend, QwtPlot.TopLegend)
+        self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
+                                    self.canvas())
+
+        # additional curves setup
+        self.mincurve = self.maxcurve = None
+        if self.minv is not None:
+            self.mincurve = QwtPlotCurve()
+            self.mincurve.setItemAttribute(QwtPlotCurve.AutoScale, 0)
+            self.mincurve.setItemAttribute(QwtPlotCurve.Legend, 0)
+            self.mincurve.attach(self)
+        if self.maxv is not None:
+            self.maxcurve = QwtPlotCurve()
+            self.maxcurve.setItemAttribute(QwtPlotCurve.AutoScale, 0)
+            self.maxcurve.setItemAttribute(QwtPlotCurve.Legend, 0)
+            self.maxcurve.attach(self)
+
+        self.connect(self, SIGNAL('newValue'), self.on_newValue)
+        self.connect(self, SIGNAL('updateplot'), self.updateplot)
+
+    def setFont(self, font):
+        QwtPlot.setFont(self, font)
+        self.legend.setFont(font)
+        self.setAxisFont(QwtPlot.yLeft, font)
+        self.setAxisFont(QwtPlot.xBottom, font)
+
+    def addcurve(self, field, title):
+        curve = QwtPlotCurve(title)
+        curve.setPen(QPen(self.colors[self.ncurves % 6], 2))
+        self.ncurves += 1
+        curve.attach(self)
+        curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
+        self.legend.find(curve).setIdentifierWidth(30)
+        self.ctimers[curve] = QTimer()
+        self.ctimers[curve].setSingleShot(True)
+
+        self.plotcurves[field] = curve
+        self.plotx[field] = []
+        self.ploty[field] = []
+
+        # record the current value at least every 5 seconds, to avoid curves
+        # not updating if the value doesn't change
+        def update():
+            if self.plotx[field]:
+                self.plotx[field].append(currenttime())
+                self.ploty[field].append(self.ploty[field][-1])
                 self.emit(SIGNAL('updateplot'), field, curve)
-            self.connect(self.ctimers[curve], SIGNAL('timeout()'), update)
-            return curve
+        self.connect(self.ctimers[curve], SIGNAL('timeout()'), update)
 
-        def updateplot(self, field, curve):
-            ll = len(field['plotx'])
-            i = 0
-            limit = currenttime() - self.interval
-            while i < ll and field['plotx'][i] < limit:
-                i += 1
-            xx = field['plotx'] = field['plotx'][i:]
-            yy = field['ploty'] = field['ploty'][i:]
-            curve.setData(xx, yy)
-            if self.mincurve:
-                self.mincurve.setData([xx[0], xx[-1]], [self.minv, self.minv])
-            if self.maxcurve:
-                self.maxcurve.setData([xx[0], xx[-1]], [self.maxv, self.maxv])
-            if self.zoomer.zoomRect() == self.zoomer.zoomBase():
-                self.zoomer.setZoomBase(True)
-            else:
-                self.replot()
-            self.ctimers[curve].start(5000)
+    def updateplot(self, field, curve):
+        xx, yy = self.plotx[field], self.ploty[field]
+        ll = len(xx)
+        i = 0
+        limit = currenttime() - self.interval
+        while i < ll and xx[i] < limit:
+            i += 1
+        xx = self.plotx[field] = xx[i:]
+        yy = self.ploty[field] = yy[i:]
+        curve.setData(xx, yy)
+        if self.mincurve:
+            self.mincurve.setData([xx[0], xx[-1]], [self.minv, self.minv])
+        if self.maxcurve:
+            self.maxcurve.setData([xx[0], xx[-1]], [self.maxv, self.maxv])
+        if self.zoomer.zoomRect() == self.zoomer.zoomBase():
+            self.zoomer.setZoomBase(True)
+        else:
+            self.replot()
+        self.ctimers[curve].start(5000)
+
+    def on_newValue(self, field, time, value, strvalue):
+        self.plotx[field].append(time)
+        self.ploty[field].append(value)
+        curve = self.plotcurves[field]
+        self.updateplot(field, curve)
 
 
 class BlockBox(QFrame):
@@ -223,14 +341,10 @@ class Monitor(BaseMonitor):
     def closeGui(self):
         self._master.close()
 
-    def initColors(self):
-        self._bgcolor = QColor('gray')
-        self._black = QColor('black')
-        self._yellow = QColor('yellow')
-        self._green = QColor('#00ff00')
-        self._red = QColor('red')
-        self._gray = QColor('gray')
-        self._white = QColor('white')
+    def _class_import(self, clsname):
+        modname, member = clsname.rsplit('.', 1)
+        mod = __import__(modname, None, None, [member])
+        return getattr(mod, member)
 
     def initGui(self):
         self._qtapp = QApplication(['qtapp', '-style', 'windows'])
@@ -244,16 +358,24 @@ class Monitor(BaseMonitor):
             w, h, x, y = self._geometry
             master.setGeometry(x, y, w, h)
 
+        self._bgcolor = QColor('gray')
+        self._black = QColor('black')
+        self._yellow = QColor('yellow')
+        self._green = QColor('#00ff00')
+        self._red = QColor('red')
+        self._gray = QColor('gray')
+        self._white = QColor('white')
+
         master.setWindowTitle(self.title)
         self._bgcolor = master.palette().color(QPalette.Window)
 
         timefont  = QFont(self.font, self._fontsizebig + self._fontsize)
         blockfont = QFont(self.font, self._fontsizebig)
-        labelfont = QFont(self.font, self._fontsize)
+        self._labelfont = QFont(self.font, self._fontsize)
         stbarfont = QFont(self.font, int(self._fontsize * 0.8))
-        valuefont = QFont(self.valuefont or self.font, self._fontsize)
+        self._valuefont = QFont(self.valuefont or self.font, self._fontsize)
 
-        onechar = QFontMetrics(valuefont).width('0')
+        self._onechar = QFontMetrics(self._valuefont).width('0')
         blheight = QFontMetrics(blockfont).height()
         tiheight = QFontMetrics(timefont).height()
 
@@ -262,14 +384,18 @@ class Monitor(BaseMonitor):
         # first the timeframe:
         masterframe = QFrame(master)
         masterlayout = QVBoxLayout()
-        self._timelabel = SMLabel('', master)
-        self._timelabel.setFont(timefont)
-        self.setForeColor(self._timelabel, self._gray)
-        self._timelabel.setAutoFillBackground(True)
-        self._timelabel.setAlignment(Qt.AlignHCenter)
-        self._timelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self._titlelabel = QLabel('', master)
+        self._titlelabel.setFont(timefont)
+        pal = self._titlelabel.palette()
+        pal.setColor(QPalette.WindowText, self._gray)
+        self._titlelabel.setPalette(pal)
+        self._titlelabel.setAutoFillBackground(True)
+        self._titlelabel.setAlignment(Qt.AlignHCenter)
+        self._titlelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        masterframe.connect(self._titlelabel, SIGNAL('updatetitle'),
+                            self._titlelabel.setText)
 
-        masterlayout.addWidget(self._timelabel)
+        masterlayout.addWidget(self._titlelabel)
         masterlayout.addSpacing(0.2 * tiheight)
 
         self._stacker = QStackedWidget(masterframe)
@@ -280,60 +406,34 @@ class Monitor(BaseMonitor):
         self._plots = {}
 
         def _create_field(groupframe, field):
-            self.updateKeymap(field)
-
-            fieldlayout = QVBoxLayout()
-
-            if field['plot'] and QwtPlot:
-                w = self._plots.get(field['plot'])
-                if w:
-                    field['plotcurve'] = w.addcurve(field, field['name'])
-                    return
-                w = SMPlot(groupframe, field['plotinterval'],
-                           field['min'], field['max'])
-                self._plots[field['plot']] = w
-                w.setFont(labelfont)
-                w.setMinimumSize(QSize(onechar * (field['width'] + .5),
-                                       onechar * (field['height'] + .5)))
-                field['plotcurve'] = w.addcurve(field, field['name'])
+            if field.widget:
+                widget_class = self._class_import(field.widget)
+                instance = widget_class(groupframe, self, field)
+                field._widget = instance
+                return instance
+            elif field.plot and (QwtPlot is not QWidget):
+                plotwidget = self._plots.get(field.plot)
+                if plotwidget:
+                    field._widget = plotwidget
+                    plotwidget.addcurve(field, field.name)
+                    return None
+                plotwidget = SMPlot(groupframe, field.plotinterval,
+                                    field.min, field.max)
+                field._widget = plotwidget
+                self._plots[field.plot] = plotwidget
+                plotwidget.setFont(self._labelfont)
+                plotwidget.setMinimumSize(QSize(self._onechar * (field.width + .5),
+                                                self._onechar * (field.height + .5)))
+                plotwidget.addcurve(field, field.name)
+                return plotwidget
             else:
                 # deactivate plot if QwtPlot unavailable
-                if field['plot']:
+                if field.plot:
                     self.log.warning('cannot create plots, Qwt5 unavailable')
-                    field['plot'] = None
-                # now put describing label and view label into subframe
-                nl = SMLabel(' ' + escape(field['name']) + ' ', groupframe)
-                if field['unit']:
-                    self.setLabelUnitText(nl, field['name'], field['unit'])
-                nl.setFont(labelfont)
-                nl.setAlignment(Qt.AlignHCenter)
-                nl.setAutoFillBackground(True)
-                nl.setTextFormat(Qt.RichText)
-                field['namelabel'] = nl
-                fieldlayout.addWidget(nl)
-
-                w = SensitiveLabel('----', groupframe,
-                                   self._label_entered, self._label_left)
-                if field['istext']:
-                    w.setFont(labelfont)
-                else:
-                    w.setFont(valuefont)
-                    w.setAlignment(Qt.AlignHCenter)
-                w.setFrameShape(QFrame.Panel)
-                w.setFrameShadow(QFrame.Sunken)
-                w.setAutoFillBackground(True)
-                w.setLineWidth(2)
-                w.setMinimumSize(QSize(onechar * (field['width'] + .5), 0))
-                w.setProperty('assignedField', QVariant(field))
-                field['valuelabel'] = w
-
-            tmplayout = QHBoxLayout()
-            tmplayout.addStretch()
-            tmplayout.addWidget(w)
-            tmplayout.addStretch()
-            fieldlayout.addLayout(tmplayout)
-
-            return fieldlayout
+                    field.plot = None
+                display = SMDefaultDisplay(groupframe, self, field)
+                field._widget = display
+                return display
 
         # now iterate through the layout and create the widgets to display it
         displaylayout = QVBoxLayout()
@@ -352,7 +452,6 @@ class Monitor(BaseMonitor):
                     blocklayout.addSpacing(0.5 * blheight)
                     blockbox = BlockBox(displayframe, block[0]['name'],
                                         blockfont)
-                    block[0]['labelframe'] = blockbox
                     for row in block[1]:
                         if row is None:
                             blocklayout.addSpacing(12)
@@ -361,9 +460,9 @@ class Monitor(BaseMonitor):
                             rowlayout.addStretch()
                             rowlayout.addSpacing(self._padding)
                             for field in row:
-                                fieldframe = _create_field(blockbox, field)
-                                if fieldframe:
-                                    rowlayout.addLayout(fieldframe)
+                                fieldwidget = _create_field(blockbox, field)
+                                if fieldwidget:
+                                    rowlayout.addWidget(fieldwidget)
                                     rowlayout.addSpacing(self._padding)
                             rowlayout.addStretch()
                             blocklayout.addLayout(rowlayout)
@@ -392,7 +491,7 @@ class Monitor(BaseMonitor):
         lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         lbl.setFont(timefont)
         warningslayout.addWidget(lbl)
-        self._warnlabel = SMLabel('', self._warnpanel)
+        self._warnlabel = QLabel('', self._warnpanel)
         self._warnlabel.setFont(blockfont)
         warningslayout.addWidget(self._warnlabel)
         warningslayout.addStretch()
@@ -413,34 +512,30 @@ class Monitor(BaseMonitor):
         master.statusBar().addWidget(self._statuslabel)
         self._statustimer = None
 
-    def setLabelText(self, label, text):
-        label.emit(SIGNAL('settext'), text)
+    def signal(self, field, signal, *args):
+        if field.plot:
+            field._widget.emit(SIGNAL(signal), field, *args)
+        else:
+            field._widget.emit(SIGNAL(signal), *args)
 
-    def setLabelUnitText(self, label, text, unit, fixed=''):
-        label.emit(SIGNAL('settext'), escape(text) + ' <font color="#888888">%s'
-                   '</font><font color="#0000ff">%s</font> ' %
-                   (escape(unit), fixed))
-
-    def setForeColor(self, label, fore):
-        label.emit(SIGNAL('setcolors'), fore, None)
-
-    def setBackColor(self, label, back):
-        label.emit(SIGNAL('setcolors'), None, back)
-
-    def setBothColors(self, label, fore, back):
-        label.emit(SIGNAL('setcolors'), fore, back)
-
-    def updatePlot(self, field, x, y):
-        field['plotx'].append(x)
-        field['ploty'].append(y)
-        curve = field['plotcurve']
-        curve.plot().emit(SIGNAL('updateplot'), field, curve)
+    def updateTitle(self, title):
+        self._titlelabel.emit(SIGNAL('updatetitle'), title)
 
     def switchWarnPanel(self, off=False):
         if self._stacker.currentIndex() == 1 or off:
             self._warnpanel.emit(SIGNAL('setindex'), 0)
+            if off:
+                pal = self._titlelabel.palette()
+                pal.setColor(QPalette.WindowText, self._gray)
+                pal.setColor(QPalette.Window, self._bgcolor)
+                self._titlelabel.setPalette(pal)
         else:
             self._warnpanel.emit(SIGNAL('setindex'), 1)
+            pal = self._titlelabel.palette()
+            pal.setColor(QPalette.WindowText, self._black)
+            pal.setColor(QPalette.Window, self._red)
+            self._titlelabel.setPalette(pal)
+            self._warnlabel.setText(self._currwarnings)
 
     def reconfigureBoxes(self):
         for setup, boxes in self._onlymap.iteritems():
@@ -457,30 +552,3 @@ class Monitor(BaseMonitor):
             sleep(1)
             self._master.emit(SIGNAL('resizeToMinimum'))
         threading.Thread(target=emitresize, name='emitresize').start()
-
-    # special feature: mouse-over status bar text
-
-    def _label_entered(self, widget, event):
-        field = widget.property('assignedField').toPyObject()
-        statustext = '%s = %s' % (field['name'], field['valuelabel'].text())
-        if field['unit']:
-            statustext += ' %s' % field['unit']
-        if field['status']:
-            try:
-                const, msg = field['status']
-            except ValueError:
-                const, msg = field['status'], ''
-            statustext += ', status is %s: %s' % (statuses.get(const, '?'), msg)
-        if field['changetime']:
-            statustext += ', changed %s ago' % (
-                nicedelta(currenttime() - field['changetime']))
-        self._statuslabel.setText(statustext)
-        self._statustimer = threading.Timer(1, lambda:
-                                            self._label_entered(widget, event))
-        self._statustimer.start()
-
-    def _label_left(self, widget, event):
-        self._statuslabel.setText('')
-        if self._statustimer:
-            self._statustimer.cancel()
-            self._statustimer = None
