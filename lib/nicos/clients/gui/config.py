@@ -39,6 +39,10 @@ class vsplit(tuple):
     def __new__(cls, *children):
         return tuple.__new__(cls, children)
 
+class tabbed(tuple):
+    def __new__(cls, *children):
+        return tuple.__new__(cls, children)
+
 class panel(tuple):
     def __new__(cls, type, **settings):
         return tuple.__new__(cls, (type, settings))

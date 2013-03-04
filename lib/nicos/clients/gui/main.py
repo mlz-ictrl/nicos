@@ -149,7 +149,8 @@ class MainWindow(QMainWindow, DlgUtils):
             self.loadSettings(settings)
 
         windowconfig = self.profiles[self.curprofile][1]
-        createWindowItem(windowconfig[0], self, self.centralLayout)
+        widget = createWindowItem(windowconfig[0], self)
+        self.centralLayout.addWidget(widget)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):

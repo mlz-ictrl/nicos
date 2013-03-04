@@ -30,12 +30,12 @@ __version__ = "$Revision$"
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-     QColorDialog
+     QColorDialog, QTabWidget
 
 from nicos.utils import importString
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
     loadBasicWindowSettings
-from nicos.clients.gui.config import hsplit, vsplit, panel
+from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel
 
 
 class AuxiliaryWindow(QMainWindow):
@@ -56,7 +56,8 @@ class AuxiliaryWindow(QMainWindow):
             loadBasicWindowSettings(self, settings)
 
         self.setWindowTitle(config[0])
-        createWindowItem(config[3], self, self.centralLayout)
+        widget = createWindowItem(config[3], self)
+        self.centralLayout.addWidget(widget)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
@@ -138,7 +139,7 @@ class Panel(QWidget, DlgUtils):
         pass
 
 
-def createWindowItem(item, window, container):
+def createWindowItem(item, window):
     if isinstance(item, panel):
         cls = importString(item[0])
         p = cls(window, window.client)
@@ -157,16 +158,24 @@ def createWindowItem(item, window, container):
             else:
                 window.menuBar().addMenu(menu)
         p.setCustomStyle(window.user_font, window.user_color)
-        container.addWidget(p)
+        return p
     elif isinstance(item, hsplit):
         sp = QSplitter(Qt.Horizontal)
         window.splitters.append(sp)
         for subitem in item:
-            createWindowItem(subitem, window, sp)
-        container.addWidget(sp)
+            sub = createWindowItem(subitem, window)
+            sp.addWidget(sub)
+        return sp
     elif isinstance(item, vsplit):
         sp = QSplitter(Qt.Vertical)
         window.splitters.append(sp)
         for subitem in item:
-            createWindowItem(subitem, window, sp)
-        container.addWidget(sp)
+            sub = createWindowItem(subitem, window)
+            sp.addWidget(sub)
+        return sp
+    elif isinstance(item, tabbed):
+        tw = QTabWidget()
+        for (title, subitem) in item:
+            sub = createWindowItem(subitem, window)
+            tw.addTab(sub, title)
+        return tw
