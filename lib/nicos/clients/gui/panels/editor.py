@@ -512,12 +512,12 @@ class EditorPanel(Panel):
     @qtsig('')
     def on_actionRun_triggered(self):
         script = self.validateScript()
+        if script is None:
+            return
         if self.current_status != 'idle':
             if not self.askQuestion('A script is currently running, do you '
                                     'want to queue this script?', True):
                 return
-        if script is None:
-            return
         self.client.tell('queue', self.filenames[self.currentEditor], script)
 
     @qtsig('')
