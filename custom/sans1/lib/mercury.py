@@ -37,7 +37,7 @@ from nicos.devices.taco.core import TacoDevice
 
 
 class OxfordMercury(HasLimits, TacoDevice, Moveable):
-    """Class for the readout of a Mcc2-coder"""
+    """Class for the readout of a Oxford Mercury iPS power supply"""
 
     taco_class = StringIO
 
