@@ -251,9 +251,9 @@ class ScanTool(QDialog):
                 '[%(dh)s, %(dk)s, %(dl)s, %(dE)s], %(n)s' % d
 
             if self.presetTime.isChecked():
-                scan += 't=%s' % d['t']
+                scan += ', t=%s)' % d['t']
             else:
-                scan += 'm1=%s' % d['m']
+                scan += ', m1=%s)' % d['m']
 
             cmd = timeest(self.calc_qscan())
             cmd += scan
