@@ -124,7 +124,7 @@ class ELogPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_newSample_clicked(self):
-        name = str(self.sampleName.text())
+        name = unicode(self.sampleName.text())
         if not name:
             return
         self.client.ask('eval', 'NewSample(%r)' % name)
@@ -132,7 +132,7 @@ class ELogPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_addRemark_clicked(self):
-        remark = str(self.remarkText.text())
+        remark = unicode(self.remarkText.text())
         if not remark:
             return
         self.client.ask('eval', 'Remark(%r)' % remark)
@@ -142,7 +142,7 @@ class ELogPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_addFreeForm_clicked(self):
-        freeform = str(self.freeFormText.toPlainText())
+        freeform = unicode(self.freeFormText.toPlainText())
         if not freeform:
             return
         self.client.ask('eval', 'LogEntry(%r)' % freeform)
@@ -157,13 +157,13 @@ class ELogPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_addFile_clicked(self):
-        fname = str(self.fileName.text())
+        fname = unicode(self.fileName.text())
         if not path.isfile(fname):
             return self.showError('The given file name is not a valid file.')
-        newname = str(self.fileRename.text())
+        newname = unicode(self.fileRename.text())
         if not newname:
             newname = path.basename(fname)
-        desc = str(self.fileDesc.text())
+        desc = unicode(self.fileDesc.text())
         filecontent = open(fname, 'rb').read()
         # file content may contain \x1e characters; encode to base64
         remotefn = self.client.ask('transfer', filecontent.encode('base64'))

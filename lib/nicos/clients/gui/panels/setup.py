@@ -89,9 +89,9 @@ class SetupPanel(Panel, DlgUtils):
     def applyChanges(self):
         code = ''
         prop = str(self.proposalNum.text())
-        title = str(self.expTitle.text())
-        users = str(self.users.text())
-        local = str(self.localContact.text())
+        title = unicode(self.expTitle.text())
+        users = unicode(self.users.text())
+        local = unicode(self.localContact.text())
         if prop:
             args = {'proposal': prop}
             if local:

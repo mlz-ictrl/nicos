@@ -164,9 +164,12 @@ class DeviceMeta(type):
                     try:
                         value = pconv(value)
                     except (ValueError, TypeError), err:
-                        raise ConfigurationError(
-                            self, '%r is an invalid value for parameter '
-                            '%s: %s' % (value, param, err))
+                        if pconv is str and isinstance(value, unicode):
+                            value = value.encode('utf-8')
+                        else:
+                            raise ConfigurationError(
+                                self, '%r is an invalid value for parameter '
+                                '%s: %s' % (value, param, err))
                     if self._mode == 'slave':
                         raise ModeError('setting parameter %s not possible in '
                                         'slave mode' % param)
