@@ -35,7 +35,7 @@ from nicos import session
 from nicos.core import status
 from nicos.core.utils import formatStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
-     anytype, none_or, limits
+     anytype, none_or, limits, dictof
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError
@@ -1042,6 +1042,8 @@ class Moveable(Readable):
         'fixed':  Param('None if the device is not fixed, else a string '
                         'describing why', settable=True, userparam=False,
                         type=str),
+        'requires': Param('Access requirements for moving the device',
+                          type=dictof(str, anytype)),
     }
 
     # The type of the device value, used for typechecking in doStart().
@@ -1121,6 +1123,11 @@ class Moveable(Readable):
                 pass
             self.log.warning('device fixed, not moving: %s' % self.fixed)
             return
+        if self.requires:
+            try:
+                session.checkAccess(self.requires)
+            except AccessError, err:
+                raise AccessError(self, 'cannot start device: %s' % err)
         try:
             pos = self.valuetype(pos)
         except (ValueError, TypeError), err:
@@ -1226,6 +1233,11 @@ class Moveable(Readable):
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_active:
             return
+        if self.requires:
+            try:
+                session.checkAccess(self.requires)
+            except AccessError, err:
+                raise AccessError(self, 'cannot start device: %s' % err)
         if hasattr(self, 'doStop'):
             self.doStop()
         if self._cache:

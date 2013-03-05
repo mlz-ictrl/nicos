@@ -159,9 +159,18 @@ class DaemonSession(NoninteractiveSession):
         if 'level' in required:
             script = self.daemon_device.current_script()
             rlevel = required['level']
-            if script and rlevel <= script.userlevel:
-                raise AccessError('user level not sufficient: %s access is '
-                    'required' % ACCESS_LEVELS.get(rlevel, str(rlevel)))
+            if isinstance(rlevel, str):
+                for k, v in ACCESS_LEVELS.iteritems():
+                    if v == rlevel:
+                        rlevel = k
+                        break
+                else:
+                    raise AccessError('invalid access level name: %r' % rlevel)
+            if script and rlevel > script.userlevel:
+                raise AccessError('%s access is not sufficient: %s access '
+                    'is required' % (
+                    ACCESS_LEVELS.get(script.userlevel, str(script.userlevel)),
+                    ACCESS_LEVELS.get(rlevel, str(rlevel))))
         return NoninteractiveSession.checkAccess(self, required)
 
     def showHelp(self, obj=None):

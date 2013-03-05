@@ -91,5 +91,6 @@ devices = dict(
                      ),
     msw      = device('devices.generic.ManualSwitch',
                       states = ['unknown', 'on', 'off'],
+                      requires = {'level': 10},
                      ),
 )
