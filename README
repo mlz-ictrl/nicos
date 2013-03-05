@@ -42,17 +42,11 @@ Requirements
   - matplotlib (optional, for resolution plots)
   - gnuplot (optional, for plots in the electronig logbook)
 
-* For the GUI:
+* For the GUI and status monitor:
   - PyQt4
   - numpy
-  - PyQwt (optional, for liveplot display)
+  - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
-
-* For the status monitor: one of
-  - PyQt4
-  - PyGTK
-  - PyFLTK
-  - Tkinter
 
 * To run the test suite:
   - nose
