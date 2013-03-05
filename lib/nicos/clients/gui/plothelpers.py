@@ -618,7 +618,7 @@ class NicosPlot(QwtPlot, DlgUtils):
             x, y, title, labelx, labely, interesting, lineinfo = \
                 self.fitcallbacks[0](args)
         except FitError, err:
-            self.window.statusBar.showMessage('Fitting failed: %s.' % err)
+            self.showInfo('Fitting failed: %s.' % err)
             if self.fitPicker:
                 self.fitPicker.setEnabled(False)
                 self.fitPicker = None
