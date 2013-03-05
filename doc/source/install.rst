@@ -41,13 +41,11 @@ Requirements
   - python-xmpp (optional, for Jabber notifications)
   - pyserial (optional, for TACO-less serial line communication)
 
-* For the status monitor: one of PyQt4, PyGTK, PyFLTK or Tkinter
-
-* For the client-server GUI:
+* For the client-server GUI and status monitor:
 
   - PyQt4
   - numpy
-  - PyQwt (optional, for liveplot display)
+  - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
 
 
