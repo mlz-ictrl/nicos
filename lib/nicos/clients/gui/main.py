@@ -30,6 +30,7 @@ __version__ = "$Revision$"
 
 import time
 import subprocess
+from os import path
 import cPickle as pickle
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
@@ -54,9 +55,6 @@ from nicos.protocols.cache import cache_load
 from nicos.protocols.daemon import DAEMON_EVENTS, DEFAULT_PORT, \
      STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
 
-# the default profile
-from nicos.clients.gui.defconfig import default_profile_config, default_profile_uid
-
 
 class NicosGuiClient(NicosClient, QObject):
     siglist = ['connected', 'disconnected', 'broken', 'failed', 'error'] + \
@@ -71,7 +69,7 @@ class NicosGuiClient(NicosClient, QObject):
 
 
 class MainWindow(QMainWindow, DlgUtils):
-    def __init__(self):
+    def __init__(self, configfile):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
@@ -113,6 +111,14 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # load profiles and current profile
         self.pgroup = SettingGroup('Application')
+
+        with open(configfile, 'rb') as fp:
+            configcode = fp.read()
+        ns = {}
+        exec configcode in ns
+        default_profile_uid = ns['default_profile_uid']
+        default_profile_config = ns['default_profile_config']
+
         with self.pgroup as settings:
             profiles = str(settings.value('profiles').toString())
             if not profiles:
@@ -611,7 +617,14 @@ def main(argv):
     app.setOrganizationName('nicos')
     app.setApplicationName('gui')
 
-    mainwindow = MainWindow()
+    # XXX implement proper argument parsing
+    configfile = path.join(path.dirname(__file__), 'defconfig.py')
+    if '-c' in argv:
+        idx = argv.index('-c')
+        configfile = argv[idx+1]
+        del argv[idx:idx+2]
+
+    mainwindow = MainWindow(configfile)
 
     if len(argv) > 1:
         cdata = parseConnectionString(argv[1], DEFAULT_PORT)
