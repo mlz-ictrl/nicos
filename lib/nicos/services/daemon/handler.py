@@ -438,7 +438,7 @@ class ConnectionHandler(BaseRequestHandler):
         """Simulate a named script by forking into simulation mode."""
         self.log.debug('running simulation\n%s' % code)
         try:
-            self.controller.simulate_script(code, name or None)
+            self.controller.simulate_script(code, name or None, self.user)
         except Exception, err:
             self.log.exception('exception in simulate command')
             self.write(NAK, 'exception raised running simulation: %s' % err)

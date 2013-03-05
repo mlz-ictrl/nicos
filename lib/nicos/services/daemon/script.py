@@ -416,8 +416,10 @@ class ExecutionController(Controller):
         finally:
             self.last_handler = None
 
-    def simulate_script(self, code, name):
-        session.forkSimulation(code, wait=False)
+    def simulate_script(self, code, name, user):
+        req = ScriptRequest(code, name, user)
+        req.parse(False)
+        session.forkSimulation(req.code[0], wait=False)
 
     def add_watch_expression(self, val):
         self.watchlock.acquire()
