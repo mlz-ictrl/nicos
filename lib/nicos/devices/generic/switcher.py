@@ -85,6 +85,9 @@ class Switcher(Moveable):
         self._adevs['moveable'].start(target)
         self._adevs['moveable'].wait()
 
+    def doStop(self):
+        self._adevs['moveable'].stop()
+
     def doRead(self, maxage=0):
         pos = self._adevs['moveable'].read(maxage)
         prec = self.precision
