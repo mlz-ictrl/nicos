@@ -33,9 +33,10 @@ default_profile_config = ('Default', [
         vsplit(
             hsplit(
                 panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-                panel('nicos.clients.gui.panels.watch.WatchPanel')),
-                panel('nicos.clients.gui.panels.console.ConsolePanel'),
+                panel('nicos.clients.gui.panels.watch.WatchPanel'),
             ),
+            panel('nicos.clients.gui.panels.console.ConsolePanel'),
+        ),
         window('Setup', 'setup', True,
             panel('nicos.clients.gui.panels.setup.SetupPanel')),
         window('Editor', 'editor', True,
