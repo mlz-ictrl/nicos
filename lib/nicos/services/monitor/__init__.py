@@ -314,7 +314,8 @@ class Monitor(BaseCacheClient):
                     const = status[0]
                 except (TypeError, ValueError):
                     const = status
-                self.signal(field, 'statusChanged', const)
+                if const is not None:
+                    self.signal(field, 'statusChanged', const)
 
             # determine by the value's up-to-dateness (typically displayed as
             # a background color of the value)

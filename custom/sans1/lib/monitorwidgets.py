@@ -87,11 +87,11 @@ class BeamOption(QWidget):
         self.width = main._onechar * field.width
         self.titleheight = self.field.name and main._onechar * 2.5 or 0
 
-        self.curval = 0
         self.curstr = ''
         self.curstatus = OK
         self.connect(self, SIGNAL('newValue'), self.on_newValue)
         self.connect(self, SIGNAL('statusChanged'), self.on_statusChanged)
+        self.connect(self, SIGNAL('expireChanged'), self.on_expireChanged)
 
     def sizeHint(self):
         return QSize(self.width, self.height + self.titleheight)
@@ -114,10 +114,14 @@ class BeamOption(QWidget):
                          Qt.AlignCenter, self.curstr)
 
     def on_newValue(self, time, value, strvalue):
-        self.curval = value
         self.curstr = strvalue
         self.update()
 
     def on_statusChanged(self, status):
         self.curstatus = status
+        self.update()
+
+    def on_expireChanged(self, expired):
+        if expired:
+            self.curstr = ''
         self.update()
