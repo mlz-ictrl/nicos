@@ -5,7 +5,4 @@ omit =
 	lib/nicos/devices/tango/*
 	lib/nicos/devices/vendor/*
 	lib/nicos/services/monitor/qt.py
-	lib/nicos/services/monitor/gtk.py
-	lib/nicos/services/monitor/fl.py
-	lib/nicos/services/monitor/tk.py
 parallel = true

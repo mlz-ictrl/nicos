@@ -172,11 +172,7 @@ Backends
 
 In the example setup above, the Monitor device is confiugred with the class
 ``nicos.services.monitor.qt.Monitor``.  This selects the Qt backend, which displays the
-monitor as a window using the Qt GUI toolkit.  Other backends exist:
-
-* ``nicos.services.monitor.gtk.Monitor`` -- GUI monitor using Gtk
-
-* ``nicos.services.monitor.tk.Monitor`` -- GUI monitor using Tkinter (not recommended)
+monitor as a window using the Qt GUI toolkit.  Another backend exists:
 
 * ``nicos.services.monitor.html.Monitor`` -- writing a HTML file periodically.  You have
   to configure two additional parameters:
