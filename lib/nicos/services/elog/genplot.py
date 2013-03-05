@@ -29,7 +29,11 @@ __version__ = "$Revision$"
 import subprocess
 
 def plotDataset(dataset, fn):
-    gpProcess = subprocess.Popen('gnuplot', shell=True, stdin=subprocess.PIPE, stdout=None)
+    if not dataset.xresults:
+        raise ValueError('no points in dataset')
+
+    gpProcess = subprocess.Popen('gnuplot', shell=True, stdin=subprocess.PIPE,
+                                 stdout=None)
     gpStdin = gpProcess.stdin
     gpStdin.write('set terminal svg size 600,400 dashed\n')
     gpStdin.write('set xlabel "%s (%s)"\n' % (dataset.xnames[dataset.xindex],

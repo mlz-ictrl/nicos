@@ -460,7 +460,7 @@ class Handler(object):
         try:
             plotDataset(dataset, path.join(self.logdir, 'scan-%d' % scannumber))
         except Exception:
-            self.log.warning('error generating plot svg', exc=1)
+            self.log.warning('could not generate svg plot', exc=1)
             html.append('<td>&mdash;</td>')
         else:
             html.append('<td><a href="scan-%d-lin.svg">Lin</a> / '
