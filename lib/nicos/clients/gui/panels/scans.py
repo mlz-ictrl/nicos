@@ -662,11 +662,13 @@ class DataSetPlot(NicosPlot):
         for i in curves:
             curve = self.plotcurves[visible_curves[i]]
             if isinstance(curve, ErrorBarPlotCurve):
-                new_y = [eval(op, {'x': v}) for v in curve._y]
+                new_y = [eval(op, {'x': v1, 'y': v2})
+                         for (v1, v2) in zip(curve._x, curve._y)]
                 curve.setData(curve._x, new_y, curve._dx, curve._dy)
             else:
                 curve.setData(curve.xData(),
-                              [eval(op, {'x': v}) for v in curve.yData()])
+                    [eval(op, {'x': v1, 'y': v2})
+                     for (v1, v2) in zip(curve.xData(), curve.yData())])
         self.replot()
 
     def selectCurve(self):

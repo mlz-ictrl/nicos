@@ -17,7 +17,7 @@
    <item row="3" column="1" colspan="2">
     <widget class="QLineEdit" name="operation">
      <property name="text">
-      <string>x</string>
+      <string>y</string>
      </property>
     </widget>
    </item>
@@ -43,7 +43,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>x =</string>
+      <string>y =</string>
      </property>
     </widget>
    </item>
@@ -74,7 +74,7 @@
    <item row="2" column="0" colspan="3">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Operation:                 //  Examples: x*2, sqrt(x)</string>
+      <string>Operation:                 //  Examples: y*2, sqrt(y), y + 1/x</string>
      </property>
     </widget>
    </item>
