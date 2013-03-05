@@ -31,36 +31,32 @@ from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
 default_profile_uid = '07139e62-d244-11e0-b94b-00199991c245'
 default_profile_config = ('Default', [
         tabbed(
-            ('Tomography',
-                panel('nicos.pgaa.gui.panels.pgaa.TomographyPanel'),
-            ),
-            ('Expert mode',
-                vsplit(
-                    hsplit(
-                        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-                        panel('nicos.clients.gui.panels.watch.WatchPanel')
-                    ),
-                    panel('nicos.clients.gui.panels.console.ConsolePanel'),
+            ('Setup',
+             panel('nicos.clients.gui.panels.setup.SetupPanel')),
+            ('Tomography', panel('nicos.pgaa.gui.panels.pgaa.TomographyPanel')),
+            ('Expert mode', vsplit(
+                hsplit(
+                    panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+                    panel('nicos.clients.gui.panels.watch.WatchPanel')
                 ),
-            ),
+                panel('nicos.clients.gui.panels.console.ConsolePanel'),
+            )),
+            ('Errors && Warnings',
+             panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+            ('Logbook',
+             panel('nicos.clients.gui.panels.elog.ELogPanel')),
         ),
-        window('Setup', 'setup', True,
-            panel('nicos.clients.gui.panels.setup.SetupPanel')),
         window('Editor', 'editor', True,
             panel('nicos.clients.gui.panels.editor.EditorPanel',
                   tools = [
                       tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
                   ])),
-        window('Scans', 'plotter', True,
-            panel('nicos.clients.gui.panels.scans.ScansPanel')),
-        window('History', 'find', True,
-            panel('nicos.clients.gui.panels.history.HistoryPanel')),
-        window('Logbook', 'table', True,
-            panel('nicos.clients.gui.panels.elog.ELogPanel')),
-        window('Errors', 'errors', True,
-            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-        window('Live data', 'live', True,
-            panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+        window('Device History', 'plotter', True,
+             panel('nicos.clients.gui.panels.history.HistoryPanel')),
+#        window('Scans', 'plotter', True,
+#            panel('nicos.clients.gui.panels.scans.ScansPanel')),
+#        window('Live data', 'live', True,
+#            panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     ], [
         tool('Calculator',
              'nicos.clients.gui.tools.calculator.CalculatorTool'),
