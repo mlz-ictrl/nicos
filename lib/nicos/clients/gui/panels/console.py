@@ -103,9 +103,9 @@ class ConsolePanel(Panel):
         self.commandInput.update()
         self.commandInput.setEnabled(status != 'disconnected')
 
-    def completeInput(self, startstring):
+    def completeInput(self, fullstring, lastword):
         try:
-            return self.client.ask('complete', str(startstring))
+            return self.client.ask('complete', fullstring, lastword)
         except Exception:
             return []
 

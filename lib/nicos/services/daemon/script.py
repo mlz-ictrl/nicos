@@ -493,10 +493,10 @@ class ExecutionController(Controller):
         else:
             sys.settrace(None)
 
-    def complete_line(self, prefix, line):
+    def complete_line(self, line, lastword):
         if not session._spmode:
-            return self.completer.get_matches(prefix, line)
-        spmatches = session._spmhandler.complete(line, prefix)
+            return self.completer.get_matches(lastword, line)
+        spmatches = session._spmhandler.complete(lastword, line)
         return [m + ' ' for m in spmatches]
 
     def add_estop_function(self, func, args):

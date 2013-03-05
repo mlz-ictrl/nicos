@@ -28,9 +28,13 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
+import re
+
 from PyQt4.QtGui import QApplication, QKeyEvent, QLineEdit, QCompleter, \
      QStringListModel
 from PyQt4.QtCore import Qt, SIGNAL, QEvent
+
+wordsplit_re = re.compile(r'[ \t\n\"\\\'`@$><=;|&{(\[]')
 
 
 class HistoryLineEdit(QLineEdit):
@@ -54,11 +58,20 @@ class HistoryLineEdit(QLineEdit):
     def event(self, event):
         # need to reimplement the general event handler to enable catching Tab
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
-            matches = self.completion_callback(self.text())
-            if len(matches) == 1:
-                self.setText(matches[0])
+            fullstring = str(self.text())
+            lastword = wordsplit_re.split(fullstring)[-1]
+            matches = self.completion_callback(fullstring, lastword)
+            if matches is None:
+                return True
+            if lastword:
+                startstring = fullstring[:-len(lastword)]
             else:
-                self._completer.setModel(QStringListModel(matches, self))
+                startstring = fullstring
+            fullmatches = [startstring + m for m in matches]
+            if len(fullmatches) == 1:
+                self.setText(fullmatches[0])
+            else:
+                self._completer.setModel(QStringListModel(fullmatches, self))
                 self._completer.complete()
             return True
         return QLineEdit.event(self, event)
