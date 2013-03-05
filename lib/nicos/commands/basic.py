@@ -477,6 +477,12 @@ def SetSimpleMode(enable):
     >>> SetSimpleMode(True)
     """
     session.setSPMode(enable)
+    if enable:
+        printinfo('Simple parameter mode is now enabled. '
+                  'Use "SetSimpleMode false" to disable.')
+    else:
+        printinfo('Simple parameter mode is now disabled. '
+                  'Use "SetSimpleMode(True)" to enable.')
 
 
 @usercommand
