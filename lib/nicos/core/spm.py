@@ -210,7 +210,7 @@ class DevParam(Token):
         try:
             dev = session.getDevice(argsofar[-2])
             return [p for p in dev.parameters if p.startswith(text)]
-        except Exception, err:
+        except Exception:
             return []
 
 DevParam = DevParam()
@@ -296,7 +296,7 @@ class SPMHandler(object):
                 return []
             return self.complete_command(cmdobj, tokens[1:], word)
         except Exception, err:
-            print err
+            self.session.log.debug('error during completion: %s' % err)
             return []
 
     def complete_command(self, command, args, word):
@@ -338,7 +338,10 @@ class SPMHandler(object):
                 raise
         return compiler('\n'.join(lines))
 
-    def handle_line(self, command, compiler):
+    def handle_line(self, command, original_compiler):
+        def compiler(s):
+            self.session.log.debug('spm code translation: %r' % s)
+            return original_compiler(s)
         if command.startswith('#'):
             # Comments (only in script files)
             return compiler('pass')
