@@ -46,13 +46,17 @@ def _count(detlist, preset, result):
     """
     # put detectors in a set and discard them when completed
     detset = set(detlist)
-    for det in detlist:
-        det.start(**preset)
-    i = 0
     delay = (getattr(session.instrument, 'countloopdelay', 0.025)
              if session.mode != 'simulation' else 0.0)
-    sleep(delay)
     session.beginActionScope('Counting')
+    try:
+        for det in detlist:
+            det.start(**preset)
+    except:
+        session.endActionScope()
+        raise
+    sleep(delay)
+    i = 0
     try:
         while True:
             i += 1
