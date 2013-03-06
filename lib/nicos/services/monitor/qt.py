@@ -406,6 +406,12 @@ class Monitor(BaseMonitor):
         self._plots = {}
 
         def _create_field(groupframe, field):
+            if isinstance(field, tuple):
+                widget_class = self._class_import(field[0])
+                instance = widget_class(groupframe, self, field[1], field[2])
+                for f in field[2].itervalues():
+                    f._widget = instance
+                return instance
             if field.widget:
                 widget_class = self._class_import(field.widget)
                 instance = widget_class(groupframe, self, field)

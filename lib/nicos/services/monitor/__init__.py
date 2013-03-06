@@ -248,9 +248,19 @@ class Monitor(BaseCacheClient):
                             continue
                         fields = []
                         for fielddesc in rowdesc:
-                            field = Field(self._prefix, fielddesc)
-                            fields.append(field)
-                            self.updateKeymap(field)
+                            # XXX stopgap solution!
+                            if 'multiwidget' in fielddesc:
+                                subfields = dict(
+                                    (k, Field(self._prefix, f))
+                                    for (k, f) in fielddesc['fields'].items())
+                                for f in subfields.itervalues():
+                                    self.updateKeymap(f)
+                                mwidget = fielddesc['multiwidget']
+                                fields.append((mwidget, fielddesc, subfields))
+                            else:
+                                field = Field(self._prefix, fielddesc)
+                                fields.append(field)
+                                self.updateKeymap(field)
                         rows.append(fields)
                     block = ({'name': blockdesc[0], 'visible': True,
                               'only': None}, rows)

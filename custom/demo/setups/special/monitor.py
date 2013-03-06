@@ -41,6 +41,15 @@ _tasblock = Block(
               Field(dev='mono', name='ki'),
               Field(dev='ana', name='kf'),
               Field(key='tas/energytransferunit', name='Unit')),
+     BlockRow(Field(multiwidget='nicos.demo.monitorwidgets.VTas',
+                    width=40, height=30,
+                    fields={'mth': 'mth',
+                            'mtt': 'mtt',
+                            'sth': 'psi',
+                            'stt': 'phi',
+                            'ath': 'ath',
+                            'att': 'att',
+                            'tas': 'tas'})),
     ],
     'tas')
 
