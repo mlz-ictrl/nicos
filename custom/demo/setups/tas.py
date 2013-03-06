@@ -29,6 +29,7 @@ devices = dict(
     phi      = device('devices.generic.VirtualMotor',
                       abslimits = (-180, 180),
                       unit = 'deg',
+                      speed = 1,
                      ),
 
     alpha    = device('devices.generic.VirtualMotor',
@@ -39,6 +40,7 @@ devices = dict(
     psi      = device('devices.generic.VirtualMotor',
                       abslimits = (0, 360),
                       unit = 'deg',
+                      speed = 2,
                      ),
 
     mono     = device('devices.tas.Monochromator',
@@ -55,12 +57,14 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-90, 0),
                       precision = 0.05,
+                      speed = 0.5,
                      ),
 
     mtt      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 0),
                       precision = 0.05,
+                      speed = 0.5,
                      ),
 
     ana      = device('devices.tas.Monochromator',
@@ -77,12 +81,14 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-90, 90),
                       precision = 0.05,
+                      speed = 0.5,
                      ),
 
     att      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
+                      speed = 0.5,
                      ),
 
     ki       = device('devices.tas.Wavevector',
@@ -186,13 +192,18 @@ devices = dict(
 startupcode = '''
 SetMode('master')
 if mth() == 0:
+    mth.speed = mtt.speed = ath.speed = att.speed = psi.speed = phi.speed = 0
     mono(1.55)
     kf(1.55)
     tas(1,0,0,0)
+    mth.speed = mtt.speed = 0.5
+    psi.speed = 2
+    phi.speed = 1
+    ath.speed = att.speed = 0.5
 SetDetectors(vdet)
 AddEnvironment(T)
 printinfo("============================================================")
-printinfo("Welcome to the NICOS demo setups.")
+printinfo("Welcome to the NICOS triple-axis demo setup.")
 printinfo("This demo is configured as a virtual triple-axis instrument.")
 printinfo("Try doing an elastic scan over a Bragg peak, e.g.")
 printinfo("  qcscan((1, 0, 0, 0), (0.002, 0, 0, 0), 10, t=1, kf=1.55)")

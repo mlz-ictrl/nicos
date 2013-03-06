@@ -68,11 +68,14 @@ _leftcolumn = Column(_tasblock)#, _tempblock)
 _sansblock = Block(
     'SANS',
     [BlockRow(
-        Field(dev='guide', name='Guide', widget='nicos.sans1.monitorwidgets.BeamOption',
+        Field(dev='guide', name='Guide',
+              widget='nicos.sans1.monitorwidgets.BeamOption',
               width=10, height=4),
-        Field(dev='coll', name='Collimation', widget='nicos.sans1.monitorwidgets.BeamOption',
+        Field(dev='coll', name='Collimation',
+              widget='nicos.sans1.monitorwidgets.BeamOption',
               width=10, height=4),
-        Field(dev='tube', name='Tube', widget='nicos.sans1.monitorwidgets.Tube', width=30, height=10)),
+        Field(dev='det_pos', name='Detector position',
+              widget='nicos.sans1.monitorwidgets.Tube', width=30, height=10)),
     ],
     'sans')
 

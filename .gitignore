@@ -16,6 +16,7 @@ data/cache/*
 data/201?/*
 data/current
 data/logbook
+data/2ddata
 
 doc/build/
 doc/source/auto

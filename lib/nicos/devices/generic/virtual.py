@@ -29,11 +29,15 @@ __version__ = "$Revision$"
 import time
 import random
 import threading
+from os import path
 from math import exp
 
+import numpy as np
+
+from nicos import session
 from nicos.core import status, Readable, HasOffset, Param, Override, tacodev, \
-     tupleof, floatrange
-from nicos.devices.abstract import Motor, Coder
+     tupleof, floatrange, Measurable, Moveable, Value
+from nicos.devices.abstract import Motor, Coder, ImageStorage
 from nicos.devices.taco.detector import FRMTimerChannel, FRMCounterChannel
 
 
@@ -280,3 +284,40 @@ class VirtualTemperature(VirtualMotor):
         if abs(cval - end) < self.jitter:
             return end
         return cval
+
+
+class Virtual2DDetector(ImageStorage, Measurable):
+
+    attached_devices = {
+        'spotsize':   (Moveable, 'determines the virtual spot size'),
+    }
+
+    def doInit(self, mode):
+        self._lastcounts = 0
+
+    def doStart(self, **preset):
+        self._newFile()
+        array = self._generate().astype('<I4')
+        buf = buffer(array)
+        session.updateLiveData('', self.lastfilename, '<I4', 128, 128, 1, 1, buf)
+        self._lastcounts = array.sum()
+        self._writeFile(buf)
+
+    def doStop(self):
+        pass
+
+    def doRead(self, maxage=0):
+        return [self._lastcounts, path.abspath(self.lastfilename)]
+
+    def valueInfo(self):
+        return (Value(self.name + '.sum', unit='cts', type='counter',
+                      errors='sqrt', fmtstr='%d'),
+                Value(self.name + '.file', type='info', fmtstr='%s'))
+
+    def doIsCompleted(self):
+        return True
+
+    def _generate(self):
+        spotsize = self._adevs['spotsize'].read()
+        xx, yy = np.meshgrid(np.linspace(-64, 63, 128), np.linspace(-64, 63, 128))
+        return 10000 * np.exp(-xx**2 * spotsize**2/1000) * np.exp(-yy**2 * spotsize**2/1000)
