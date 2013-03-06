@@ -93,7 +93,9 @@ _sansblock = Block(
               width=10, height=4),
         Field(dev='det_pos', name='Detector position',
               widget='nicos.sans1.monitorwidgets.Tube', width=30, height=10)),
-    ],
+     BlockRow(
+        Field(dev='det_HV', name='Detector HV', format='%d'),
+    )],
     'sans')
 
 _sanscolumn = Column(_sansblock)

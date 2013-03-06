@@ -50,6 +50,14 @@ devices = dict(
                       collimation = 'coll',
                       subdir = '2ddata',
                      ),
+
+    det_HV   = device('devices.generic.VirtualMotor',
+                      requires = {'level': 'admin'},
+                      abslimits = (0, 1000),
+                      unit = 'V',
+                      initval = 1000,
+                      speed = 10,
+                     ),
 )
 
 startupcode = '''
