@@ -300,7 +300,7 @@ class Virtual2DDetector(ImageStorage, Measurable):
         array = self._generate().astype('<I4')
         buf = buffer(array)
         session.updateLiveData('', self.lastfilename, '<I4', 128, 128, 1, 1, buf)
-        self._lastcounts = array.sum()
+        self._lastcounts = long(array.sum())
         self._writeFile(buf)
 
     def doStop(self):

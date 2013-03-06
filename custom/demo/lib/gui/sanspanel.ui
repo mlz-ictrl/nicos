@@ -85,8 +85,11 @@
         <property name="suffix">
          <string> m</string>
         </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
         <property name="maximum">
-         <double>100000.000000000000000</double>
+         <double>10.000000000000000</double>
         </property>
        </widget>
       </item>
