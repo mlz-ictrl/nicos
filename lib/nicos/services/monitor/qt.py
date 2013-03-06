@@ -118,14 +118,14 @@ class SMDefaultDisplay(QWidget):
         self.connect(self, SIGNAL('expireChanged'), self.on_expireChanged)
         self.connect(self, SIGNAL('rangeChanged'), self.on_rangeChanged)
 
-    def on_newValue(self, time, value, strvalue):
+    def on_newValue(self, field, time, value, strvalue):
         self.valuelabel.setText(strvalue[:self.maxlen])
 
-    def on_metaChanged(self):
+    def on_metaChanged(self, field):
         self.namelabel.setText(labelunittext(self.field.name, self.field.unit,
                                              self.field.fixed))
 
-    def on_statusChanged(self, status):
+    def on_statusChanged(self, field, status):
         pal = self.valuelabel.palette()
         if status == OK:
             pal.setColor(QPalette.WindowText, self.main._green)
@@ -137,7 +137,7 @@ class SMDefaultDisplay(QWidget):
             pal.setColor(QPalette.WindowText, self.main._white)
         self.valuelabel.setPalette(pal)
 
-    def on_expireChanged(self, expired):
+    def on_expireChanged(self, field, expired):
         pal = self.valuelabel.palette()
         if expired:
             pal.setColor(QPalette.Window, self.main._gray)
@@ -145,7 +145,7 @@ class SMDefaultDisplay(QWidget):
             pal.setColor(QPalette.Window, self.main._black)
         self.valuelabel.setPalette(pal)
 
-    def on_rangeChanged(self, inout):
+    def on_rangeChanged(self, field, inout):
         pal = self.namelabel.palette()
         if inout == 0:
             pal.setColor(QPalette.Window, self.main._bgcolor)
@@ -513,10 +513,7 @@ class Monitor(BaseMonitor):
         self._statustimer = None
 
     def signal(self, field, signal, *args):
-        if field.plot:
-            field._widget.emit(SIGNAL(signal), field, *args)
-        else:
-            field._widget.emit(SIGNAL(signal), *args)
+        field._widget.emit(SIGNAL(signal), field, *args)
 
     def updateTitle(self, title):
         self._titlelabel.emit(SIGNAL('updatetitle'), title)

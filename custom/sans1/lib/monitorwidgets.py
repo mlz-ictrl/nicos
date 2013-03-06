@@ -66,12 +66,12 @@ class Tube(QWidget):
                          self.height + 10 + yoff, 200, 30, Qt.AlignCenter,
                          self.curstr + ' ' + self.field.unit)
 
-    def on_newValue(self, time, value, strvalue):
+    def on_newValue(self, field, time, value, strvalue):
         self.curval = value
         self.curstr = strvalue
         self.update()
 
-    def on_statusChanged(self, status):
+    def on_statusChanged(self, field, status):
         self.curstatus = status
         self.update()
 
@@ -113,15 +113,15 @@ class BeamOption(QWidget):
         painter.drawText(2, 2 + yoff, self.width - 4, self.height - 4,
                          Qt.AlignCenter, self.curstr)
 
-    def on_newValue(self, time, value, strvalue):
+    def on_newValue(self, field, time, value, strvalue):
         self.curstr = strvalue
         self.update()
 
-    def on_statusChanged(self, status):
+    def on_statusChanged(self, field, status):
         self.curstatus = status
         self.update()
 
-    def on_expireChanged(self, expired):
+    def on_expireChanged(self, field, expired):
         if expired:
             self.curstr = ''
         self.update()
