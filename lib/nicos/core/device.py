@@ -1237,7 +1237,7 @@ class Moveable(Readable):
             try:
                 session.checkAccess(self.requires)
             except AccessError, err:
-                raise AccessError(self, 'cannot start device: %s' % err)
+                raise AccessError(self, 'cannot stop device: %s' % err)
         if hasattr(self, 'doStop'):
             self.doStop()
         if self._cache:
