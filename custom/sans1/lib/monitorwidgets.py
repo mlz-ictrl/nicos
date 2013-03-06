@@ -58,13 +58,14 @@ class Tube(QWidget):
                                                5 + yoff + self.height)
         painter.drawEllipse(self.width - 45, 5 + yoff, 50, self.height)
 
-        painter.setBrush(statusbrush[self.curstatus])
-        painter.drawRect(60 + self.curval*self.scale, 15 + yoff,
-                         10, self.height - 20)
-        painter.setFont(self.valuefont)
-        painter.drawText(60 + self.curval*self.scale + 5 - 100,
-                         self.height + 10 + yoff, 200, 30, Qt.AlignCenter,
-                         self.curstr + ' ' + self.field.unit)
+        if self.curval is not None:
+            painter.setBrush(statusbrush[self.curstatus])
+            painter.drawRect(60 + self.curval*self.scale, 15 + yoff,
+                             10, self.height - 20)
+            painter.setFont(self.valuefont)
+            painter.drawText(60 + self.curval*self.scale + 5 - 100,
+                             self.height + 10 + yoff, 200, 30, Qt.AlignCenter,
+                             self.curstr + ' ' + self.field.unit)
 
     def on_newValue(self, field, time, value, strvalue):
         self.curval = value
