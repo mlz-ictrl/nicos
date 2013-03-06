@@ -102,7 +102,8 @@ class NicosClient(object):
                 raise ProtocolError('daemon uses protocol %d, but we expect %d'
                                     % (daemon_proto, PROTO_VERSION))
         except Exception, err:
-            self.signal('failed', 'Server handshake failed: %s.' % err)
+            self.signal('failed', 'Server (%s:%d) handshake failed: %s.'
+                         % (conndata['host'], conndata['port'], err))
             return
 
         # log-in sequence
