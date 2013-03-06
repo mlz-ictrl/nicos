@@ -11,6 +11,23 @@ _expcolumn = Column(
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=30,
                        istext=True),
+                 Field(name='Last file', key='filesink/lastfilenumber'))], 'tas'),
+    Block('Experiment', [
+        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
+                 Field(name='Title',    key='exp/title',    width=20,
+                       istext=True, maxlen=20),
+                 Field(name='Current status', key='exp/action', width=30,
+                       istext=True),
+                 Field(name='Last file', key='det/lastfilenumber'))], 'sans'),
+)
+
+_expcolumn = Column(
+    Block('Experiment', [
+        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
+                 Field(name='Title',    key='exp/title',    width=20,
+                       istext=True, maxlen=20),
+                 Field(name='Current status', key='exp/action', width=30,
+                       istext=True),
                  Field(name='Last file', key='filesink/lastfilenumber'))]),
 )
 

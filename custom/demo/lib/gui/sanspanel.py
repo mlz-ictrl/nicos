@@ -33,18 +33,16 @@ import time
 from os import path
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
-from PyQt4.QtCore import pyqtSignature as qtsig, QSize
-from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
-     QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont, \
-     QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame, QPushButton, \
-     QStyle, QDialogButtonBox
-from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
-     QwtPlotMarker, QwtSymbol
+from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
+     QStatusBar, QSizePolicy, QListWidgetItem, QPushButton, QStyle, \
+     QDialogButtonBox, QColor
 
-from nicos.clients.gui.utils import loadUi, dialogFromUi
+from nicos.clients.gui.utils import loadUi, dialogFromUi, setBackgroundColor
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.livewidget import LWWidget, LWData, Logscale, \
-     MinimumMaximum, BrightnessContrast, Integrate, Histogram, CreateProfile
+     MinimumMaximum, Integrate, Histogram, CreateProfile
+from nicos.protocols.cache import cache_load
 
 DATATYPES = frozenset(('<I4', '<i4', '>I4', '>i4', '<I2', '<i2', '>I2', '>i2',
                        'I1', 'i1', 'f8', 'f4'))
@@ -67,7 +65,11 @@ class SANSPanel(Panel):
         self._filename = ''
         self._nx = self._ny = 128
         self._nz = 1
+        self._last_data = '\x00' * 128*128*4
         self.current_status = None
+
+        self._green = QColor('#99FF99')
+        self._red = QColor('#FF9999')
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
@@ -76,14 +78,12 @@ class SANSPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.widgetLayout.addWidget(QLabel('test'))
-
         self.widget = LWWidget(self)
         self.widget.setAxisLabels('pixels x', 'pixels y')
         self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.widget.setKeepAspect(False)
-        self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
-                                Integrate | Histogram | CreateProfile)
+        self.widget.setControls(Logscale | MinimumMaximum | Integrate |
+                                Histogram | CreateProfile)
         self.widgetLayout.addWidget(self.widget)
 
         self.liveitem = QListWidgetItem('<Live>', self.fileList)
@@ -97,6 +97,7 @@ class SANSPanel(Panel):
         if client.connected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(client, SIGNAL('cache'), self.on_client_cache)
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
                      self.widget, SLOT("setLog10(bool)"))
@@ -141,6 +142,10 @@ class SANSPanel(Panel):
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
+        if status == 'idle':
+            setBackgroundColor(self.curstatus, self._green)
+        else:
+            setBackgroundColor(self.curstatus, self._red)
 
     def on_widget_customContextMenuRequested(self, point):
         self.menu.popup(self.mapToGlobal(point))
@@ -166,8 +171,16 @@ class SANSPanel(Panel):
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
 
+    def on_client_cache(self, (time, key, op, value)):
+        if key == 'exp/action':
+            self.curstatus.setText(cache_load(value) or 'Idle')
+
     def on_client_connected(self):
-        pass
+        self.fileList.clear()
+        self.liveitem = QListWidgetItem('<Live>', self.fileList)
+        self.liveitem.setData(32, '')
+        self.liveitem.setData(33, '')
+
         datapath = self.client.eval('session.experiment.datapath', [])
         caspath = path.join(datapath[0], '2ddata')
         if path.isdir(caspath):
@@ -193,7 +206,7 @@ class SANSPanel(Panel):
         if not self._no_direct_display:
             self.widget.setData(
                 LWData(self._nx, self._ny, self._nz, self._format, data))
-        if self._filename:# and path.isfile(self._filename):
+        if self._filename:
             self.add_to_flist(self._filename, self._format)
 
     def add_to_flist(self, filename, fformat, scroll=True):
@@ -207,12 +220,19 @@ class SANSPanel(Panel):
 
     @qtsig('')
     def on_start_clicked(self):
-        detpos = self.detpos.value()
+        dpos = []
+        for dp, cb in zip([1, 2, 5, 10, 20],
+                          [self.dp1m, self.dp2m, self.dp5m, self.dp10m, self.dp20m]):
+            if cb.isChecked():
+                dpos.append(dp)
+        if not dpos:
+            self.showInfo('Select at least one detector position!')
+            return
         ctime = self.ctime.value()
         coll = self.coll10.isChecked() and '10m' or \
             (self.coll15.isChecked() and '15m' or '20m')
-        code = 'move(coll, %r)\nmove(det_pos, %r)\nwait(coll, det_pos)\ncount(%s)\n' % \
-            (coll, detpos, ctime)
+        code = 'maw(coll, %r)\nscan(det_pos, [%s], det, t=%.1f)\n' % \
+            (coll, ', '.join(str(x) for x in dpos), ctime)
         self.execScript(code)
 
     @qtsig('')

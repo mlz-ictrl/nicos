@@ -287,27 +287,41 @@ class VirtualTemperature(VirtualMotor):
 
 
 class Virtual2DDetector(ImageStorage, Measurable):
+    """A virtual 2-dimensional detector that generates a direct beam and
+    four peaks of scattering intensity."""
 
     attached_devices = {
-        'spotsize':   (Moveable, 'determines the virtual spot size'),
+        'distance':    (Moveable, 'the detector distance for simulation'),
+        'collimation': (Readable, 'the collimation'),
     }
 
-    def doInit(self, mode):
-        self._lastcounts = 0
+    parameters = {
+        'lastcounts': Param('Current total number of counts', settable=True,
+                            type=int),
+    }
+
+    def doSetPreset(self, **preset):
+        self._lastpreset = preset
 
     def doStart(self, **preset):
+        if preset:
+            self._lastpreset = preset
         self._newFile()
-        array = self._generate().astype('<I4')
-        buf = buffer(array)
+        t = self._lastpreset.get('t', 1)
+        for i in range(int(t)):
+            array = self._generate(i+1).astype('<I4')
+            buf = buffer(array)
+            session.updateLiveData('', '', '<I4', 128, 128, 1, 1, buf)
+            self.lastcounts = array.sum()
+            time.sleep(1)
         session.updateLiveData('', self.lastfilename, '<I4', 128, 128, 1, 1, buf)
-        self._lastcounts = long(array.sum())
         self._writeFile(buf)
 
     def doStop(self):
         pass
 
     def doRead(self, maxage=0):
-        return [self._lastcounts, path.abspath(self.lastfilename)]
+        return [self.lastcounts, path.abspath(self.lastfilename)]
 
     def valueInfo(self):
         return (Value(self.name + '.sum', unit='cts', type='counter',
@@ -317,7 +331,14 @@ class Virtual2DDetector(ImageStorage, Measurable):
     def doIsCompleted(self):
         return True
 
-    def _generate(self):
-        spotsize = self._adevs['spotsize'].read()
+    def _generate(self, t):
+        dst = self._adevs['distance'].read() * 5
+        coll = self._adevs['collimation'].read()
         xx, yy = np.meshgrid(np.linspace(-64, 63, 128), np.linspace(-64, 63, 128))
-        return 10000 * np.exp(-xx**2 * spotsize**2/1000) * np.exp(-yy**2 * spotsize**2/1000)
+        beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
+        sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)
+        beam += t * 30 * np.exp(-(xx-dst)**2/sigma2) * np.exp(-yy**2/sigma2) + \
+            t * 30 * np.exp(-(xx+dst)**2/sigma2) * np.exp(-yy**2/sigma2) + \
+            t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy-dst)**2/sigma2) + \
+            t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy+dst)**2/sigma2)
+        return np.random.poisson(beam)

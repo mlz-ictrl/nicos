@@ -46,7 +46,8 @@ devices = dict(
                      ),
 
     det      = device('devices.generic.virtual.Virtual2DDetector',
-                      spotsize = 'det_pos',
+                      distance = 'det_pos',
+                      collimation = 'coll',
                       subdir = '2ddata',
                      ),
 )
