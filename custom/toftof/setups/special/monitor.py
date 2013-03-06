@@ -103,5 +103,6 @@ devices = dict(
                      padding = 5,
                      layout = [[_expcolumn], [_col1, _col2, _col3]],
                      warnings = _warnings,
-                     notifiers = [])
+                     notifiers = [],
+                    )
 )
