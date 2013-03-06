@@ -15,6 +15,7 @@ data/filecounter
 data/cache/*
 data/201?/*
 data/current
+data/logbook
 
 doc/build/
 doc/source/auto
