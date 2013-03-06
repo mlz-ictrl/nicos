@@ -13,10 +13,10 @@ modules = ['nicos.commands.taco']
 devices = dict(
     Sample   = device('devices.tas.TASSample'),
 
-    Exp      = device('frm2.experiment.Experiment',
+    Exp      = device('devices.experiment.Experiment',
                       dataroot = 'data',
                       sendmail = True,
-                      managerights = True,
+                      managerights = False,
                       cycle = '0',
                       serviceexp = '0',
                       sample = 'Sample'
