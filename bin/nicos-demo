@@ -19,7 +19,7 @@ sleep 0.5
 bin/nicos-monitor >/dev/null &
 MONIPID=$!
 echo -n '...'
-if [ ! "x$1" = "x-c" ]; then
+if [ ! "x$1" = "x-t" ]; then
 	bin/nicos-daemon >/dev/null &
 	DAEMONPID=$!
 	echo -n '...'
