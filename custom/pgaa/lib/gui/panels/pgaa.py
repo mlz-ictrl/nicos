@@ -80,6 +80,9 @@ class TomographyPanel(Panel):
 #       return [menu]
         return []
 
+    def updateStatus(self, status, exception=False):
+        self.current_status = status
+
     def on_client_connected(self):
 #       self.outView._currentuser = self.client.login
         pass
@@ -125,12 +128,23 @@ class TomographyPanel(Panel):
         pass
 
     def on_setButton_clicked(self):
-        pass
+        x = self.xValue.value()
+        y = self.yValue.value()
+        z = self.zValue.value()
+        phi = self.phiValue.value()
+        code = 'move(x, %r)\nmove(y, %r)\nmove(z, %r)\nmove(phi, %r)\nwait()\n'\
+                % (x, y, z, phi)
+        self.execScript(code)
 
     def on_getPositions_clicked(self):
-        pass
+        ret = self.client.eval('[x.read(), y.read(), z.read(), phi.read()]')
+        if ret:
+            self.xValue.setValue(float(ret[0]))
+            self.yValue.setValue(float(ret[1]))
+            self.zValue.setValue(float(ret[2]))
+            self.phiValue.setValue(float(ret[3]))
 
-    def executeScript(self, script):
+    def execScript(self, script):
         if not script:
             return
         sscript = script = str(script).strip()

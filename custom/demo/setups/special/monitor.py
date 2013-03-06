@@ -98,6 +98,22 @@ _sansblock = Block(
 
 _sanscolumn = Column(_sansblock)
 
+_pgaablock = Block(
+    'PGAA', 
+    [BlockRow(
+        Field(dev='x', name='X',
+             ),
+        Field(dev='y', name='Y',
+             ),
+        Field(dev='z', name='Z',
+             ),
+        Field(dev='phi', name='Phi',
+             ),
+     ),
+    ],
+    'pgaa')
+
+_pgaacolumn = Column(_pgaablock)
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
@@ -108,6 +124,7 @@ devices = dict(
                      valuefont = 'Consolas',
                      padding = 0,
                      layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn),
-                               Row(_sanscolumn)],
+                               Row(_sanscolumn),
+                               Row(_pgaacolumn),],
                      notifiers = [])
 )
