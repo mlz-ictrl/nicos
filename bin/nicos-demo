@@ -26,7 +26,7 @@ if [ ! "x$1" = "x-c" ]; then
 	sleep 1
 	echo
 	echo 'Background daemons started, starting GUI...'
-	bin/nicos-gui guest@localhost ''
+	bin/nicos-gui guest@localhost '' "$@"
 else
 	echo
 	echo 'Background daemons started, starting console...'
