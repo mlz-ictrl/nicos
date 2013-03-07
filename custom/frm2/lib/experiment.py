@@ -114,7 +114,7 @@ class Experiment(BaseExperiment):
 
     def _start_editor(self):
         """Open all existing script files in an editor."""
-        filelist = [fn for fn in os.listdir(self._expdir('current', 'scripts'))
+        filelist = [fn for fn in os.listdir(self.scriptdir)
                     if fn.endswith('.py')]
         # sort filelist to have the start_*.py as the last file
         for fn in filelist:
@@ -124,7 +124,7 @@ class Experiment(BaseExperiment):
                 break
         def preexec():
             os.setpgrp()  # create new process group -> doesn't get Ctrl-C
-            os.chdir(self._expdir('current', 'scripts'))
+            os.chdir(self.scriptdir)
         # start it and forget it
         s = subprocess.Popen([self.editor] + filelist,
             close_fds=True,
@@ -138,7 +138,7 @@ class Experiment(BaseExperiment):
                 time.sleep(1)
                 s.poll()
         # something needs to check the return value, if the process ends
-        thread = threading.Thread(target=checker, name='Editor')
+        thread = threading.Thread(target=checker, name='Checking Editor')
         # don't block on closing python if the editor is still running...
         thread.setDaemon(True)
         thread.start()
