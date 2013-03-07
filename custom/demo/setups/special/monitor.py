@@ -73,14 +73,14 @@ _tasblock = Block(
 _tempblock = Block(
     'Temperature',
     [BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
-#     BlockRow(Field(dev='T', plot='T', interval=300, width=50),
-#              Field(key='t/setpoint', name='SetP', plot='T', interval=300))
+     BlockRow(Field(dev='T', plot='T', interval=300, width=50),
+              Field(key='t/setpoint', name='SetP', plot='T', interval=300))
     ],
-    'temperature')
+    'cryo')
 
-_rightcolumn = Column(_axisblock, _detectorblock)
+_rightcolumn = Column(_axisblock, _tempblock)
 
-_leftcolumn = Column(_tasblock)#, _tempblock)
+_leftcolumn = Column(_tasblock)
 
 _sansblock = Block(
     'SANS',

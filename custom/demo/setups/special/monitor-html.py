@@ -50,7 +50,7 @@ _tempblock = Block(
      BlockRow(Field(dev='T', plot='T', interval=300, width=50, height=40),
               Field(key='t/setpoint', name='SetP', plot='T', interval=300))
     ],
-    'temperature')
+    'cryo')
 
 _rightcolumn = Column(_axisblock, _detectorblock)
 

@@ -6,6 +6,7 @@ sysconfig = dict(
 )
 
 excludes = ['tas']
+includes = ['cryo']
 
 devices = dict(
     sans     = device('devices.instrument.Instrument',

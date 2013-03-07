@@ -3,7 +3,7 @@ group = 'basic'
 
 modules = ['nicos.commands.tas']
 
-includes = ['temperature']
+includes = ['cryo']
 
 sysconfig = dict(
     instrument = 'tas',

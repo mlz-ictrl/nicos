@@ -1,4 +1,4 @@
-# This setup overrides entries from subdir/temperature.py.
+# This setup overrides entries from subdir/cryo.py.
 
 devices = dict(
     T        = device('devices.generic.VirtualTemperature',

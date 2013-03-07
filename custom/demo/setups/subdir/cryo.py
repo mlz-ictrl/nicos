@@ -1,4 +1,4 @@
-# This file is has overrides from another "temperature.py" in the parent dir.
+# This file is has overrides from another "cryo.py" in the parent dir.
 
 description = 'virtual temperature device'
 group = 'basic'
