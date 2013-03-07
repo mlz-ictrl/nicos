@@ -307,6 +307,8 @@ class Experiment(Device):
         # second: loop through all the files
         for fn in filelist:
             # translate '.template' files
+            if self.mailtemplate and fn.endswith(self.mailtemplate):
+                continue # neither copy nor translate the mailtemplate
             if not fn.endswith('.template'):
                 if path.isfile(path.join(self.scriptdir, fn)):
                     self.log.info('file %s already exists, not overwriting' %
