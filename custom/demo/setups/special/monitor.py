@@ -78,10 +78,6 @@ _tempblock = Block(
     ],
     'cryo')
 
-_rightcolumn = Column(_axisblock, _tempblock)
-
-_leftcolumn = Column(_tasblock)
-
 _sansblock = Block(
     'SANS',
     [BlockRow(
@@ -98,7 +94,9 @@ _sansblock = Block(
     )],
     'sans')
 
-_sanscolumn = Column(_sansblock)
+_rightcolumn = Column(_axisblock, _tempblock)
+
+_leftcolumn = Column(_tasblock, _sansblock)
 
 _pgaablock = Block(
     'PGAA', 
@@ -126,7 +124,6 @@ devices = dict(
                      valuefont = 'Consolas',
                      padding = 0,
                      layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn),
-                               Row(_sanscolumn),
                                Row(_pgaacolumn),],
                      notifiers = [])
 )
