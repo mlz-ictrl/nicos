@@ -39,6 +39,7 @@ from nicos.core import vec3
 
 from sc_scan_new import HuberScan #pylint: disable=F0401
 from goniometer import position
+import math
 
 class ResiPositionProxy(object):
     """
@@ -49,33 +50,37 @@ class ResiPositionProxy(object):
     __hardware = None
     pos = None
 
-    def __init__(self,pos):
+    def __init__(self, pos):
         #super(ResiPositionProxy, self).__init__(pos)
         self.pos = pos
 
     @classmethod
-    def SetHardware(cls,hw):
+    def SetHardware(cls, hw):
         ResiPositionProxy.__hardware = hw
 
-    def __getattr__(self,name):
-        return getattr(self.pos,name)
-    def __setattr__(self,name,value):
+    def __getattr__(self, name):
+        return getattr(self.pos, name)
+    def __setattr__(self, name, value):
         if name == 'pos':
-            self.__dict__[name]=value
+            self.__dict__[name] = value
         elif self.pos:
-            return setattr(self.pos,name,value)
+            return setattr(self.pos, name, value)
 
     def __repr__(self):
         return self.pos.__repr__()
 
     def __getstate__(self):
         return self.pos.storable()
-    def __setstate__(self,state):
+    def __setstate__(self, state):
         self.pos = position.PositionFromStorage(ResiPositionProxy.__hardware, state)
 
 class ResiDevice(Moveable):
     '''
-    classdocs
+    Main device for RESI
+
+     * talks to the HUBER controller for all 4 axes.
+     * handles cell calculations
+
     '''
     name = None
 
@@ -83,10 +88,14 @@ class ResiDevice(Moveable):
         '''
         Constructor
         '''
-
+        # the hardware will use a dummy driver if no hardware is detected
         self._hardware = HuberScan()
-        self._hardware.LoadRmat()
-        #    self._hardware.SetCellParam(a=4.9287, b=4.9287, c=5.3788, alpha=90.000, beta=90.000, gamma=120.000)
+        try:
+            self._hardware.LoadRmat()
+        except RuntimeError, e:
+            print e
+            print 'Setting a default cell (quartz): 4.9287,4.9827,5.3788, 90,90,120'
+            self._hardware.SetCellParam(a=4.9287, b=4.9287, c=5.3788, alpha=90.000, beta=90.000, gamma=120.000)
         self._hardware.cell.conventionalsystem = 'triclinic'
         self._hardware.cell.standardize = 0
         self._hardware.cell.pointgroup = '1'
@@ -95,17 +104,20 @@ class ResiDevice(Moveable):
         #self.loglevel='debug'
 
     def doRead(self, maxage=0):
-        return ResiPositionProxy(self._hardware.GetPosition())
+        return ResiPositionProxy(self._hardware.GetPosition(maxage))
 
-    def doMove(self, *kw, **args):
-        return self._hardware.Goto(*kw, **args)
+    def doStart(self, args):
+        print 'args:', args
+        self._hardware.Goto(**args)
 
-    def doStart(self,*kw, **args):
-        self._hardware.Center(*kw, **args)
+    def doStatus(self):
+        statustext = {0:'idle', 1:'moving'}
+        hwstatus = self._hardware.hw.isrunning()
+        return hwstatus, statustext[hwstatus]
 
     def doInfo(self):
         info = list()
-        info.append(('experiment', 'position',  ResiPositionProxy(self._hardware.GetPosition())))
+        info.append(('experiment', 'position', ResiPositionProxy(self._hardware.GetPosition())))
         info.append(('experiment', 'reflex', self._hardware.current_reflex))
         info.append(('sample', 'cell', self._hardware.cell))
         return info
@@ -115,15 +127,35 @@ class ResiDevice(Moveable):
         self._hardware.Finish()
 
     def dogetScanDataSet(self, **kw):
-        ''' Get a list of reflections to scna from the unit cell infomation
+        ''' Get a list of reflections to scan from the unit cell infomation
 
         arguments: either thmin/thmax  or dmin/dmax have to be specified
         '''
         return self._hardware.getScanDataset(**kw)
 
+class ResiVAxis(Moveable):
+    """ResiVAxis: Virtual single axes for RESI
+
+    this device exports a single axis from the resi device
+
+    """
+    attached_devices = { 'basedevice': (ResiDevice, 'the base device')}
+    parameters = {'mapped_axis': Param('Mapped axis', type=str, mandatory=True)}
+    def doStart(self, value):
+        self._adevs['basedevice'].doStart({self.mapped_axis:value})
+    def doRead(self, maxage=0):
+        return math.degrees(getattr(self._adevs['basedevice'].read(maxage), self.mapped_axis))
+    def doWait(self):
+        # the moves are currently blocking due to restrictions in the underlying hardware access layer.
+        pass
+    def doStatus(self):
+        return self._adevs['basedevice'].status()
+    def doStop(self):
+        return self._adevs['basedevice'].stop()
+
 class ResiSample(Sample):
     """Cell object representing sample geometry."""
-    attached_devices  = { 'basedevice': (ResiDevice, 'the base device')}
+    attached_devices = { 'basedevice': (ResiDevice, 'the base device')}
     parameters = {
         'lattice': Param('Lattice constants', type=vec3, settable=True,
                          default=[5, 5 , 5], unit='A',
@@ -133,3 +165,4 @@ class ResiSample(Sample):
     }
     def doRead(self, maxage=0):
         return repr(self._adevs['basedevice'].cell)
+
