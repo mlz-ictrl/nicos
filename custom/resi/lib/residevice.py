@@ -34,6 +34,9 @@ import sys
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/home/pedersen/Eclispe_projects/nonius_new/app')
 from nicos.core import Moveable, Param #@UnusedImport  pylint: disable=W0611
+from nicos.devices.experiment import Sample
+from nicos.core import vec3
+
 from sc_scan_new import HuberScan #pylint: disable=F0401
 from goniometer import position
 
@@ -110,3 +113,23 @@ class ResiDevice(Moveable):
     def doStop(self):
         self._hardware.hw.Abort()
         self._hardware.Finish()
+
+    def dogetScanDataSet(self, **kw):
+        ''' Get a list of reflections to scna from the unit cell infomation
+
+        arguments: either thmin/thmax  or dmin/dmax have to be specified
+        '''
+        return self._hardware.getScanDataset(**kw)
+
+class ResiSample(Sample):
+    """Cell object representing sample geometry."""
+    attached_devices  = { 'basedevice': (ResiDevice, 'the base device')}
+    parameters = {
+        'lattice': Param('Lattice constants', type=vec3, settable=True,
+                         default=[5, 5 , 5], unit='A',
+                         category='sample'),
+        'angles':  Param('Lattice angles', type=vec3, settable=True,
+                         default=[90, 90, 90], unit='deg', category='sample'),
+    }
+    def doRead(self, maxage=0):
+        return repr(self._adevs['basedevice'].cell)

@@ -3,11 +3,11 @@ group = 'basic'
 includes = ['system']#, 'lakeshore', 'cascade', 'detector']
 
 devices = dict(
-    Sample = device('devices.tas.TASSample'),
-
     resi = device('resi.residevice.ResiDevice',
-                      unit = 'special'
-                      ),
+                      unit = 'special'),
+
+    Sample = device('resi.residevice.ResiSample',
+                            basedevice = 'resi'),
 )
 
 startupcode = 'hw=resi._hardware'
