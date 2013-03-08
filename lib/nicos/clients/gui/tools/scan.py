@@ -27,7 +27,7 @@
 __version__ = "$Revision$"
 
 from PyQt4.QtCore import SIGNAL
-from PyQt4.QtGui import QDialog, QDoubleValidator, QIntValidator
+from PyQt4.QtGui import QDialog, QDoubleValidator, QIntValidator, QButtonGroup
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
 
@@ -57,6 +57,45 @@ class ScanTool(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'scan.ui', 'tools')
 
+        self.scanButtonGroup = QButtonGroup()
+        self.scanButtonGroup.addButton(self.scanSingle)
+        self.scanButtonGroup.addButton(self.scanCentered)
+        self.qscanButtonGroup = QButtonGroup()
+        self.qscanButtonGroup.addButton(self.qscanSingle)
+        self.qscanButtonGroup.addButton(self.qscanCentered)
+        self.qscanButtonGroup.addButton(self.qscanRandom)
+        self.qscanButtonGroup.addButton(self.qscanLong)
+        self.qscanButtonGroup.addButton(self.qscanTrans)
+        self.presetButtonGroup = QButtonGroup()
+        self.presetButtonGroup.addButton(self.presetTime)
+        self.presetButtonGroup.addButton(self.presetMonitor)
+
+        self.connect(self.scanButtonGroup, SIGNAL('buttonClicked(int)'), self.updateCommand)
+        self.connect(self.qscanButtonGroup, SIGNAL('buttonClicked(int)'), self.updateCommand)
+        self.connect(self.presetButtonGroup, SIGNAL('buttonClicked(int)'), self.updateCommand)
+        self.connect(self.stepsInput, SIGNAL('valueChanged(int)'), self.updateCommand)
+        self.connect(self.timeInput, SIGNAL('valueChanged(int)'), self.updateCommand)
+        self.connect(self.monitorInput, SIGNAL('valueChanged(int)'), self.updateCommand)
+
+        self.connect(self.deviceList, SIGNAL('itemSelectionChanged ()'), self.updateCommand)
+
+        self.connect(self.scanPreset, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.scanNumsteps, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.scanStep, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.scanStart, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.deviceName, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.scanRange, SIGNAL('textChanged(QString)'), self.updateCommand)
+
+        self.connect(self.hInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.kInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.lInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.EInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.deltahInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.deltakInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.deltalInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.deltaEInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+        self.connect(self.deltaqInput, SIGNAL('textChanged(QString)'), self.updateCommand)
+
         self.connect(self.generateBtn, SIGNAL('clicked()'), self.createCommand)
         self.connect(self.clearAllBtn, SIGNAL('clicked()'), self.clearAll)
         self.connect(self.quitBtn, SIGNAL('clicked()'), self.close)
@@ -75,6 +114,7 @@ class ScanTool(QDialog):
             'if name in session.explicit_devices and hasattr(dev, "maw")]',
             []))
 
+        self.tabWidget.setTabEnabled(0, self._devices != [])
         for name, unit in self._devices:
             self.deviceList.addItem("%s [%s]" % (name, unit))
 
@@ -146,9 +186,9 @@ class ScanTool(QDialog):
             self.deltalInput.setEnabled(False)
             self.deltaqInput.setEnabled(True)
         elif self.qscanRandom.isChecked():
-            self.label_dh.setText('<b>u</b>')
-            self.label_dk.setText('<b>v</b>')
-            self.label_dl.setText('<b>w</b>')
+            self.label_dh.setText(u'<b>u</b>')
+            self.label_dk.setText(u'<b>v</b>')
+            self.label_dl.setText(u'<b>w</b>')
             self.deltahInput.setEnabled(True)
             self.deltakInput.setEnabled(True)
             self.deltalInput.setEnabled(True)
@@ -189,12 +229,12 @@ class ScanTool(QDialog):
 
         if self.scanSingle.isChecked():
             endpos = startpos + (stepsize - 1) * numstep
-            self.scanRange.setText("- %.2f" % endpos)
+            self.scanRange.setText('- %.2f' % endpos)
             seconds = (movetime + preset) * numstep
         else:
             lowerend = startpos - stepsize * numstep
             upperend = startpos + stepsize * numstep
-            self.scanRange.setText("%.2f - %.2f" % (lowerend, upperend))
+            self.scanRange.setText('%.2f - %.2f' % (lowerend, upperend))
             seconds = (movetime + preset) * (2 * numstep + 1)
 
         self.scanEstimation.setText(fmt_time(seconds))
@@ -204,7 +244,7 @@ class ScanTool(QDialog):
         numstep = toint(self.stepsInput.text())
         if self.qscanCentered.isChecked() or self.qscanLong.isChecked() or \
                self.qscanTrans.isChecked():
-            numstep = 2*numstep + 1
+            numstep = 2 * numstep + 1
         if self.presetTime.isChecked():
             preset = tofloat(self.timeInput.text())
             seconds = numstep * preset
@@ -214,7 +254,10 @@ class ScanTool(QDialog):
             self.qscanEstimation.setText('no estimation possible')
             return 0
 
-    def createCommand(self):
+    def updateCommand(self):
+        self.cmdResult.setText(u'<b>%s</b>' % self._getCommand())
+
+    def _getCommand(self):
         tab = self.tabWidget.currentIndex()
 
         def timeest(secs):
@@ -278,6 +321,8 @@ class ScanTool(QDialog):
                 params.append(str(val))
 
             cmd = timeest(self.calc_scan())
-            cmd += '%s(%s)\n' % (cmdname, ', '.join(params))
+            cmd += '%s(%s)' % (cmdname, ', '.join(params))
+        return cmd + '\n'
 
-        self.emit(SIGNAL('addCode'), cmd)
+    def createCommand(self):
+        self.emit(SIGNAL('addCode'), self._getCommand())

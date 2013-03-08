@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
-    <height>563</height>
+    <width>550</width>
+    <height>575</height>
    </rect>
   </property>
   <property name="font">
@@ -52,8 +52,70 @@
        <string>Single device scan</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="groupBox10">
+         <property name="title">
+          <string>Scan parameters</string>
+         </property>
+         <layout class="QGridLayout">
+          <property name="margin">
+           <number>9</number>
+          </property>
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <item row="3" column="0">
+           <widget class="QLabel" name="tL_sscan_Preset">
+            <property name="text">
+             <string>&lt;b&gt;Preset:&lt;/b&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="tL_sscan_PresetS">
+            <property name="text">
+             <string>sec</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="scanPreset"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="tL_sscan_Start">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Start/Center:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="tL_sscan_Step">
+            <property name="text">
+             <string>&lt;b&gt;Step size:&lt;/b&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="tL_sscan_NStep">
+            <property name="text">
+             <string>&lt;b&gt;Number of steps:&lt;/b&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QLineEdit" name="scanNumsteps"/>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QLineEdit" name="scanStep"/>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="QLineEdit" name="scanStart"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="0" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="scanType">
          <property name="title">
           <string>Scan type</string>
          </property>
@@ -147,68 +209,6 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0">
-        <widget class="QGroupBox" name="groupBox10">
-         <property name="title">
-          <string>Scan parameters</string>
-         </property>
-         <layout class="QGridLayout">
-          <property name="margin">
-           <number>9</number>
-          </property>
-          <property name="spacing">
-           <number>6</number>
-          </property>
-          <item row="3" column="0">
-           <widget class="QLabel" name="tL_sscan_Preset">
-            <property name="text">
-             <string>&lt;b&gt;Preset:&lt;/b&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="tL_sscan_PresetS">
-            <property name="text">
-             <string>sec</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="scanPreset"/>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QLineEdit" name="scanStart"/>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="tL_sscan_Start">
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Start/Center:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="tL_sscan_Step">
-            <property name="text">
-             <string>&lt;b&gt;Step size:&lt;/b&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="tL_sscan_NStep">
-            <property name="text">
-             <string>&lt;b&gt;Number of steps:&lt;/b&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QLineEdit" name="scanNumsteps"/>
-          </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QLineEdit" name="scanStep"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="2" column="1">
         <widget class="QGroupBox" name="groupBox11">
          <property name="title">
@@ -261,19 +261,6 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>578</width>
-           <height>13</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="TabPage">
@@ -282,7 +269,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="qscanType">
          <property name="title">
           <string>Scan type</string>
          </property>
@@ -733,21 +720,15 @@
          </layout>
         </widget>
        </item>
-       <item>
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="cmdResult">
+     <property name="text">
+      <string/>
+     </property>
     </widget>
    </item>
    <item>
