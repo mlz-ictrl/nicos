@@ -71,7 +71,7 @@ fwhm_to_sigma = 2*sqrt(2*log(2))
 
 def gauss(beta, x):
     # beta: [background, height, center, sigma]
-    return beta[0] + beta[1]*exp(-(x-beta[2])**2 / (2*beta[3]**2))
+    return abs(beta[0]) + beta[1]*exp(-(x-beta[2])**2 / (2*beta[3]**2))
 
 def fit_gauss(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw)):
     beta0 = [yb, abs(y0-yb), x0, abs(x0-xw)/fwhm_to_sigma]
@@ -81,7 +81,7 @@ def fit_gauss(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw)):
 def pseudo_voigt(beta, x):
     # beta: [background, height, center, width, eta]
     eta = beta[4] % 1.0
-    return beta[0] + beta[1] * (
+    return abs(beta[0]) + beta[1] * (
         # Lorentzian
         eta / (1 + ((x-beta[2]) / beta[3])**2) +
         # Gaussian
@@ -95,7 +95,7 @@ def fit_pseudo_voigt(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw)):
 def pearson_vii(beta, x):
     # beta: [background, height, center, width, m]
     #eta = beta[4] % 1.0
-    return beta[0] + beta[1] / \
+    return abs(beta[0]) + beta[1] / \
            (1 + (2**(1/beta[4]) - 1)*((x-beta[2]) / beta[3])**2) ** beta[4]
 
 def fit_pearson_vii(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw)):
