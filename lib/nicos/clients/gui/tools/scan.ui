@@ -45,7 +45,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -821,14 +821,26 @@
  </widget>
  <layoutdefault spacing="15" margin="15"/>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>scanSingle</tabstop>
+  <tabstop>scanCentered</tabstop>
+  <tabstop>deviceList</tabstop>
+  <tabstop>deviceName</tabstop>
   <tabstop>scanStart</tabstop>
   <tabstop>scanStep</tabstop>
   <tabstop>scanNumsteps</tabstop>
   <tabstop>scanPreset</tabstop>
+  <tabstop>scanMovetime</tabstop>
   <tabstop>scanCalc</tabstop>
   <tabstop>scanRange</tabstop>
   <tabstop>scanEstimation</tabstop>
+  <tabstop>generateBtn</tabstop>
+  <tabstop>clearAllBtn</tabstop>
+  <tabstop>quitBtn</tabstop>
+  <tabstop>qscanSingle</tabstop>
+  <tabstop>qscanCentered</tabstop>
+  <tabstop>qscanRandom</tabstop>
+  <tabstop>qscanLong</tabstop>
+  <tabstop>qscanTrans</tabstop>
   <tabstop>hInput</tabstop>
   <tabstop>kInput</tabstop>
   <tabstop>lInput</tabstop>
@@ -837,10 +849,15 @@
   <tabstop>deltakInput</tabstop>
   <tabstop>deltalInput</tabstop>
   <tabstop>deltaEInput</tabstop>
+  <tabstop>deltaqInput</tabstop>
   <tabstop>stepsInput</tabstop>
-  <tabstop>generateBtn</tabstop>
-  <tabstop>clearAllBtn</tabstop>
-  <tabstop>quitBtn</tabstop>
+  <tabstop>presetTime</tabstop>
+  <tabstop>timeInput</tabstop>
+  <tabstop>presetMonitor</tabstop>
+  <tabstop>monitorInput</tabstop>
+  <tabstop>qscanCalc</tabstop>
+  <tabstop>qscanEstimation</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections/>
