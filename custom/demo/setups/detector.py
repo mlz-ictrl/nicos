@@ -1,5 +1,5 @@
 description = 'virtual detector'
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['system']
 
