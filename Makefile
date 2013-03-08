@@ -158,8 +158,8 @@ main-install:
 		cp -pr $(VOPT) custom/frm2/lib/* $(ROOTDIR)/lib/nicos/frm2; \
 		echo "============================================================="; \
 	fi
-	@echo "Installing setups (not overwriting existing files)..."
-	cp -pri $(VOPT) $(INSTRDIR)/setups/* $(ROOTDIR)/setups < /dev/null 2> /dev/null
+	@echo "Installing setups (backing up existing files)..."
+	tools/copysetup $(INSTRDIR)/setups/ $(ROOTDIR)/setups
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
 		echo "Installing FRM II specific setups (overwriting existing files!)..."; \
