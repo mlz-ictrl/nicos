@@ -30,5 +30,6 @@ includes = ['system',
             'pressure',
             'reactor',
             'sample',
+            'pilz',
 ]
 
