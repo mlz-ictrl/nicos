@@ -70,6 +70,8 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
                            unit='s', settable=True, chatty=True),
         'timeoutaction':  Param('What to do when a timeout occurs',
                                 type=oneof('continue', 'raise'), settable=True),
+        'heaterpower':    Param('Current heater power', unit='W',
+                                category='general'),
         'controlchannel': Param('Control channel, possible values depend '
                                 'on the type of device',
                                 type=str, category='general', settable=True,
@@ -153,8 +155,10 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
     def doPoll(self, n):
         if self.ramp:
             self._pollParam('setpoint', 1)
-        if n % 100 == 0:
-            self._pollParam('setpoint', 100)
+            self._pollParam('heaterpower', 1)
+        if n % 50 == 0:
+            self._pollParam('setpoint', 60)
+            self._pollParam('heaterpower', 60)
             self._pollParam('p')
             self._pollParam('i')
             self._pollParam('d')
@@ -173,6 +177,10 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
 
     def doReadRamp(self):
         return self._taco_guard(self._dev.ramp)
+
+    def doReadHeaterpower(self):
+        # despite the name this gives the current heater output in Watt
+        return self._taco_guard(self._dev.manualHeaterOutput)
 
     def doReadTolerance(self):
         return float(self._taco_guard(self._dev.deviceQueryResource,
