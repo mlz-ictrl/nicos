@@ -55,6 +55,10 @@ default_profile_config = ('Default', [
             panel('nicos.clients.gui.panels.errors.ErrorPanel')),
         window('Live data', 'live', True,
             panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+        window('TAS status', 'table', True,
+            panel('nicos.clients.gui.panels.generic.GenericPanel',
+                  uifile='custom/demo/gui/tasaxes.ui',
+                  dir='../../../..')),
     ], [
         tool('Calculator',
              'nicos.clients.gui.tools.calculator.CalculatorTool'),

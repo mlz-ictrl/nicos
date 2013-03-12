@@ -501,11 +501,17 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(STX, serialize(history))
 
     @command()
-    def getcachekeys(self, substring):
-        """Return a wildcard cache key query result, if available."""
+    def getcachekeys(self, query):
+        """Return a cache key query result, if available.
+
+        XXX document this better
+        """
         if not session.cache:
             self.write(STX, serialize([]))
-        result = session.cache.query_db(substring)
+        if ',' in query:
+                result = session.cache.query_db(query.split(','))
+        else:
+                result = session.cache.query_db(query)
         self.write(STX, serialize(result))
 
     @command()

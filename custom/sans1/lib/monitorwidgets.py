@@ -1,7 +1,9 @@
-from PyQt4.QtCore import SIGNAL, QSize, Qt
+from PyQt4.QtCore import QSize, Qt
 from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
+
+from nicos.guisupport.widget import DisplayWidget
 
 _magenta = QBrush(QColor('#A12F86'))
 _yellow = QBrush(QColor('yellow'))
@@ -16,35 +18,49 @@ statusbrush = {
 }
 
 
-class Tube(QWidget):
+class Tube(DisplayWidget, QWidget):
 
-    def __init__(self, parent, main, field):
+    def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.field = field
-        self.labelfont = main._labelfont
-        self.valuefont = main._valuefont
-        self.height = main._onechar * field.height
-        self.width = main._onechar * field.width
-        self.scale = (self.width - 120.) / (field.max or 100)
-        self.titleheight = self.field.name and main._onechar * 2.5 or 0
+        DisplayWidget.__init__(self)
 
         self.curval = 0
         self.curstr = ''
         self.curstatus = OK
-        self.connect(self, SIGNAL('newValue'), self.on_newValue)
-        self.connect(self, SIGNAL('statusChanged'), self.on_statusChanged)
 
     def sizeHint(self):
         return QSize(self.width + 10, self.height + self.titleheight + 40)
+
+    def setConfig(self, config, labelfont, valuefont, scale):
+        self.device = config['dev']
+        self.title = config.get('name', '')
+        self.labelfont = labelfont
+        self.valuefont = valuefont
+        self.height = scale * config.get('height', 10)
+        self.width = scale * config.get('width', 30)
+        self.scale = (self.width - 120.) / (config.get('max', 100))
+        self.titleheight = self.title and scale * 2.5 or 0
+
+    def registerKeys(self):
+        self.registerDevice(self.device)
+
+    def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
+        self.curval = value
+        self.curstr = unitvalue
+        self.update()
+
+    def on_devStatusChange(self, dev, code, status, expired):
+        self.curstatus = code
+        self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setBrush(_magenta)
         painter.setRenderHint(QPainter.Antialiasing)
-        if self.field.name:
+        if self.title:
             painter.setFont(self.labelfont)
             painter.drawText(5, 0, self.width, self.titleheight, Qt.AlignCenter,
-                             self.field.name)
+                             self.title)
             yoff = self.titleheight
         else:
             yoff = 0
@@ -65,46 +81,49 @@ class Tube(QWidget):
             painter.setFont(self.valuefont)
             painter.drawText(60 + self.curval*self.scale + 5 - 100,
                              self.height + 10 + yoff, 200, 30, Qt.AlignCenter,
-                             self.curstr + ' ' + self.field.unit)
-
-    def on_newValue(self, field, time, value, strvalue):
-        self.curval = value
-        self.curstr = strvalue
-        self.update()
-
-    def on_statusChanged(self, field, status):
-        self.curstatus = status
-        self.update()
+                             self.curstr)
 
 
-class BeamOption(QWidget):
+class BeamOption(DisplayWidget, QWidget):
 
-    def __init__(self, parent, main, field):
+    def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.field = field
-        self.labelfont = main._labelfont
-        self.valuefont = main._valuefont
-        self.height = main._onechar * field.height
-        self.width = main._onechar * field.width
-        self.titleheight = self.field.name and main._onechar * 2.5 or 0
+        DisplayWidget.__init__(self)
 
         self.curstr = ''
         self.curstatus = OK
-        self.connect(self, SIGNAL('newValue'), self.on_newValue)
-        self.connect(self, SIGNAL('statusChanged'), self.on_statusChanged)
-        self.connect(self, SIGNAL('expireChanged'), self.on_expireChanged)
+
+    def setConfig(self, config, labelfont, valuefont, scale):
+        self.device = config['dev']
+        self.title = config.get('name', '')
+        self.labelfont = labelfont
+        self.valuefont = valuefont
+        self.height = scale * config.get('height', 4)
+        self.width = scale * config.get('width', 10)
+        self.titleheight = config.get('name') and scale * 2.5 or 0
+
+    def registerKeys(self):
+        self.registerDevice(self.device)
 
     def sizeHint(self):
         return QSize(self.width, self.height + self.titleheight)
+
+    def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
+        self.curstr = unitvalue
+        self.update()
+
+    def on_devStatusChange(self, dev, code, status, expired):
+        self.curstatus = code
+        self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setBrush(_magenta)
         painter.setRenderHint(QPainter.Antialiasing)
-        if self.field.name:
+        if self.title:
             painter.setFont(self.labelfont)
             painter.drawText(0, 0, self.width, self.titleheight, Qt.AlignCenter,
-                             self.field.name)
+                             self.title)
             yoff = self.titleheight
         else:
             yoff = 0
@@ -113,16 +132,3 @@ class BeamOption(QWidget):
         painter.setFont(self.valuefont)
         painter.drawText(2, 2 + yoff, self.width - 4, self.height - 4,
                          Qt.AlignCenter, self.curstr)
-
-    def on_newValue(self, field, time, value, strvalue):
-        self.curstr = strvalue
-        self.update()
-
-    def on_statusChanged(self, field, status):
-        self.curstatus = status
-        self.update()
-
-    def on_expireChanged(self, field, expired):
-        if expired:
-            self.curstr = ''
-        self.update()

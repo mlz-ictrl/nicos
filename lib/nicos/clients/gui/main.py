@@ -614,7 +614,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
 def main(argv):
     # Import the compiled resource file to register resources
-    import nicos.clients.gui.gui_rc #pylint: disable=W0612
+    import nicos.guisupport.gui_rc #pylint: disable=W0612
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 

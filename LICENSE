@@ -1,3 +1,21 @@
+LICENSE INFO for NICOS
+======================
+
+* The external modules under lib/ are copyrighted by their respective authors
+  and distributed under the licenses given in the source files.
+
+* The images under resources/icons are from the Tango Desktop project
+  (http://tango.freedesktop.org/) and released to the Public Domain.
+
+* The images under resources/leds are from the Taurus widgets project
+  (http://packages.python.org/taurus), created by the ALBA/CELLS Synchrotron,
+  Bellaterra, Spain, and distributed under the Creative Commons Attribution 3.0
+  License.  See: <http://creativecommons.org/licenses/by/3.0/>
+
+* All the rest of the NICOS sources is distributed under the GNU
+  General Public License version 2, as reproduced below.
+
+
                     GNU GENERAL PUBLIC LICENSE
                        Version 2, June 1991
 

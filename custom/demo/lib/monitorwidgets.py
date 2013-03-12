@@ -1,9 +1,10 @@
 from math import sin, cos, pi
 
-from PyQt4.QtCore import SIGNAL, QSize, QPointF, QPoint
+from PyQt4.QtCore import QSize, QPointF, QPoint
 from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QPolygonF
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
+from nicos.guisupport.widget import DisplayWidget
 
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))
@@ -34,14 +35,13 @@ anatablebrush = QBrush(QColor('#6666ff'))
 dettablebrush = QBrush(QColor('#ff66ff'))
 
 
-class VTas(QWidget):
+class VTas(DisplayWidget, QWidget):
 
-    def __init__(self, parent, main, config, fields):
+    def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.width = config['width'] * main._onechar
-        self.height = config['height'] * main._onechar
+        DisplayWidget.__init__(self)
 
-        # default values (used when no )
+        # default values (used when no such devices are configured)
         self.values = {
             'mth': -45,
             'mtt': -90,
@@ -61,14 +61,30 @@ class VTas(QWidget):
             'ath': OK,
             'att': OK,
         }
-        self.keymap = {}
-        self.statuskeymap = {}
-        for myname, f in fields.iteritems():
-            self.keymap[f.key] = myname
-            self.statuskeymap[f.statuskey] = myname
+        self._fields = {}
+        self._keymap = {}
+        self._statuskeymap = {}
 
-        self.connect(self, SIGNAL('newValue'), self.on_newValue)
-        self.connect(self, SIGNAL('statusChanged'), self.on_statusChanged)
+    def setConfig(self, config, labelfont, valuefont, scale):
+        self._fields = config['fields']
+        self.width = config.get('width', 40) * scale
+        self.height = config.get('height', 30) * scale
+
+    def registerKeys(self):
+        for dev in ['mth', 'mtt', 'sth', 'stt', 'ath', 'att', 'Lms', 'Lsa', 'Lad']:
+            if dev in self._fields:
+                k1 = self._source.register(self, self._fields[dev] + '/value')
+                self._keymap[k1] = dev
+                k2 = self._source.register(self, self._fields[dev] + '/status')
+                self._statuskeymap[k2] = dev
+
+    def on_keyChange(self, key, value, time, expired):
+        if key in self._keymap and not expired:
+            self.values[self._keymap[key]] = value
+            self.update()
+        elif key in self._statuskeymap and not expired:
+            self.status[self._statuskeymap[key]] = value[0]
+            self.update()
 
     def sizeHint(self):
         return QSize(self.width+2, self.height+2)
@@ -184,13 +200,3 @@ class VTas(QWidget):
         # draw beam
         painter.setPen(beampen)
         painter.drawPolyline(beam)
-
-    def on_newValue(self, field, time, value, strvalue):
-        if field.key in self.keymap and value is not None:
-            self.values[self.keymap[field.key]] = value
-            self.update()
-
-    def on_statusChanged(self, field, status):
-        if field.statuskey in self.statuskeymap:
-            self.status[self.statuskeymap[field.statuskey]] = status
-            self.update()

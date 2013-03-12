@@ -608,8 +608,12 @@ class CacheClient(BaseCacheClient):
     def unlock(self, key, sessionid=None):
         return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)
 
-    def query_db(self, substring):
-        return [(k, self._db[k][0]) for k in self._db if substring in k]
+    def query_db(self, query):
+        if isinstance(query, str):
+            return [(k, self._db[k][0]) for k in self._db if query in k]
+        else:
+            query = set(query)
+            return [(k, self._db[k][0]) for k in self._db if k in query]
 
 
 class DaemonCacheClient(CacheClient):

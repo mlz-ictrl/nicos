@@ -78,6 +78,62 @@ table { font-family: inherit; font-size: 100%%; }
 <body>
 '''
 
+class Field(object):
+    # what to display
+    key = ''         # main key (displayed value)
+    item = -1        # item to display of value, -1 means whole value
+    name = ''        # name of value
+    statuskey = ''   # key for value status
+    unitkey = ''     # key for value unit
+    formatkey = ''   # key for value format string
+    fixedkey = ''    # key for value fixed-ness
+
+    # how to display it
+    width = 8        # width of the widget (in characters, usually)
+    height = 8       # height of the widget
+    istext = False   # true if not a number but plain text
+    min = None       # minimum value
+    max = None       # maximum value; if out of range display in red
+
+    # current values
+    value = ''       # current value
+    fixed = ''       # current fixed status
+    unit = ''        # unit for display
+    format = '%s'    # format string for display
+
+    # for plots
+    plot = None           # which plot to plot this value in
+    plotinterval = 3600   # time span of plot
+
+    def __init__(self, prefix, desc):
+        if isinstance(desc, str):
+            desc = {'dev': desc}
+        if 'dev' in desc:
+            dev = desc.pop('dev')
+            if 'name' not in desc:
+                desc['name'] = dev
+            desc['key'] =       dev + '/value'
+            desc['statuskey'] = dev + '/status'
+            desc['fixedkey'] =  dev + '/fixed'
+            if 'unit' not in desc:
+                desc['unitkey'] = dev + '/unit'
+            if 'format' not in desc:
+                desc['formatkey'] = dev + '/fmtstr'
+        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
+            if kn in desc:
+                desc[kn] = (prefix + desc[kn]).replace('.', '/').lower()
+        if 'name' not in desc:
+            desc['name'] = desc['key']
+        self.__dict__.update(desc)
+
+    def updateKeymap(self, keymap):
+        # store reference from key to field for updates
+        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
+            key = getattr(self, kn)
+            if key:
+                keymap.setdefault(key, []).append(self)
+
+
 class Block(object):
     def __init__(self):
         self.enabled = True
@@ -97,6 +153,7 @@ class Label(object):
         self.text = text
         self.fore = fore
         self.back = back
+
     def __str__(self):
         return ('<div class="%s" style="color: %s; min-width: %sex; '
                 'background-color: %s">%s</div>' %
@@ -120,11 +177,13 @@ class Plot(object):
             fmt = fmt[:-3]
         ax.xaxis.set_major_formatter(mpldate.DateFormatter(fmt))
         self.curves = []
+
     def addcurve(self, name):
         self.curves.append(self.figure.gca().plot([], [], lw=2, label=name)[0])
         self.data.append([[], [], []])
         self.figure.gca().legend(loc=2, prop={'size': 'small'}).draw_frame(0)
         return len(self.curves) - 1
+
     def updatevalues(self, curve, x, y):
         # we have to guard modifications to self.data, since otherwise the
         # __str__ method below may see inconsistent X and Y lists, which will
@@ -140,6 +199,7 @@ class Plot(object):
             while i < ll and ts[i] < limit:
                 i += 1
             self.data[curve][:] = [ts[i:], dt[i:], yy[i:]]
+
     def __str__(self):
         with self.lock:
             for i, (d, c) in enumerate(zip(self.data, self.curves)):
@@ -221,15 +281,42 @@ class Monitor(BaseMonitor):
 
         self._plots = {}
 
-        for superrow in self._layout:
+        def _create_field(blk, config):
+            if 'widget' in config or 'gui' in config:
+                self.log.warning('ignoring "widget" or "gui" element in HTML '
+                                 'monitor configuration')
+                return
+            field = Field(self._prefix, config)
+            field.updateKeymap(self._keymap)
+            if field.plot and matplotlib:
+                p = self._plots.get(field.plot)
+                if not p:
+                    p = Plot(field.plotinterval, field.width, field.height)
+                    self._plots[field.plot] = p
+                    blk.add(p)
+                field._plotcurve = p.addcurve(field.name)
+            else:
+                # deactivate plots
+                field.plot = None
+                # create name label
+                flabel = field._namelabel = Label('name', field.width, escape(field.name))
+                blk.add(flabel)
+                blk.add('</td></tr><tr><td>')
+                # create value label
+                cls = 'value'
+                if field.istext:
+                    cls += ' istext'
+                vlabel = field._valuelabel = Label(cls, fore='white')
+                blk.add(vlabel)
+
+        for superrow in self.layout:
             add('<tr><td class="center">\n')
             for column in superrow:
                 add('  <table class="column"><tr><td>')
                 for block in column:
                     blk = Block()
                     blk.add('<div class="block">')
-                    blk.add('<div class="blockhead">%s</div>' %
-                            escape(block[0]['name']))
+                    blk.add('<div class="blockhead">%s</div>' % escape(block[0]))
                     blk.add('\n    <table class="blocktable">')
                     for row in block[1]:
                         if row is None:
@@ -238,36 +325,13 @@ class Monitor(BaseMonitor):
                             blk.add('<tr><td class="center">')
                             for field in row:
                                 blk.add('\n      <table class="field"><tr><td>')
-                                if field.plot and matplotlib:
-                                    p = self._plots.get(field.plot)
-                                    if not p:
-                                        p = Plot(field.plotinterval,
-                                                 field.width, field.height)
-                                        self._plots[field.plot] = p
-                                        blk.add(p)
-                                    field._plotcurve = p.addcurve(field.name)
-                                else:
-                                    # deactivate plots if unavailable
-                                    field.plot = None
-                                    # create name label
-                                    flabel = Label('name', field.width,
-                                                   escape(field.name))
-                                    field._namelabel = flabel
-                                    blk.add(flabel)
-                                    blk.add('</td></tr><tr><td>')
-                                    # create value label
-                                    cls = 'value'
-                                    if field.istext:
-                                        cls += ' istext'
-                                    field._valuelabel = Label(cls)
-                                    blk.add(field._valuelabel)
+                                _create_field(blk, field)
                                 blk.add('</td></tr></table> ')
                             blk.add('\n    </td></tr>')
                     blk.add('</table>\n  </div>')
                     add(blk)
-                    if block[0]['only']:
-                        self._onlymap.setdefault(block[0]['only'],
-                                                 []).append(blk)
+                    if len(block) > 2 and block[2]:
+                        self._onlymap.setdefault(block[2], []).append(blk)
                 add('</td></tr></table>\n')
             add('</td></tr>')
         add('</table>\n')
@@ -278,19 +342,43 @@ class Monitor(BaseMonitor):
     def updateTitle(self, text):
         self._timelabel.text = text
 
-    def signal(self, field, signal, *args):
+    def signal(self, field, signal, key, value, time, expired):
         if field.plot:
-            if signal == 'newValue':
-                self._plots[field.plot].updatevalues(field._plotcurve,
-                                                     args[0], args[1])
+            if key == field.key:
+                self._plots[field.plot].updatevalues(field._plotcurve, time, value)
             return
-        if signal == 'newValue':
-            field._valuelabel.text = args[2] or '&nbsp;'
-        elif signal == 'metaChanged':
-            field._namelabel.text = self._labelunittext(field.name, field.unit,
-                                                        field.fixed)
-        elif signal == 'statusChanged':
-            status = args[0]
+        if key == field.key:
+            # apply item selection
+            field.value = value
+            if field.item >= 0 and value is not None:
+                try:
+                    fvalue = value[field.item]
+                except Exception:
+                    fvalue = value
+            else:
+                fvalue = value
+            if field.min is not None and fvalue < field.min:
+                field._namelabel.back = self._red
+            elif field.max is not None and fvalue > field.max:
+                field._namelabel.back = self._red
+            else:
+                field._namelabel.back = self._bgcolor
+            if expired:
+                field._valuelabel.back = self._gray
+            else:
+                field._valuelabel.back = self._black
+            if fvalue is None:
+                strvalue = '----'
+            else:
+                if isinstance(fvalue, list):
+                    fvalue = tuple(fvalue)
+                try:
+                    strvalue = field.format % fvalue
+                except Exception:
+                    strvalue = str(fvalue)
+            field._valuelabel.text = strvalue or '&nbsp;'
+        elif key == field.statuskey:
+            status = value[0]
             if status == OK:
                 field._valuelabel.fore = self._green
             elif status in (BUSY, PAUSED):
@@ -299,16 +387,17 @@ class Monitor(BaseMonitor):
                 field._valuelabel.fore = self._red
             else:
                 field._valuelabel.fore = self._white
-        elif signal == 'expireChanged':
-            if args[0]:
-                field._valuelabel.back = self._gray
-            else:
-                field._valuelabel.back = self._black
-        elif signal == 'rangeChanged':
-            if args[0] == 0:
-                field._namelabel.back = self._bgcolor
-            else:
-                field._namelabel.back = self._red
+        elif key == field.unitkey:
+            field.unit = value
+            field._namelabel.text = self._labelunittext(field.name, field.unit,
+                                                        field.fixed)
+        elif key == field.fixedkey:
+            field.fixed = value and ' (F)' or ''
+            field._namelabel.text = self._labelunittext(field.name, field.unit,
+                                                        field.fixed)
+        elif key == field.formatkey:
+            field.format = value
+            self.signal(field, 'keyChange', field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):
         return escape(text) + ' <span class="unit">%s</span><span ' \

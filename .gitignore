@@ -17,6 +17,7 @@ data/201?/*
 data/current
 data/logbook
 data/2ddata
+data/status.html
 
 doc/build/
 doc/source/auto

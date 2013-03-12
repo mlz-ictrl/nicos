@@ -46,4 +46,16 @@
     <file alias="emergency">icons/process-stop.png</file>
     <file alias="close">icons/emblem-unreadable.png</file>
   </qresource>
+  <qresource prefix="leds">
+    <file alias="blue_on">leds/ledblue.png</file>
+    <file alias="blue_off">leds/ledblueoff.png</file>
+    <file alias="green_on">leds/ledgreen.png</file>
+    <file alias="green_off">leds/ledgreenoff.png</file>
+    <file alias="orange_on">leds/ledorange.png</file>
+    <file alias="orange_off">leds/ledorangeoff.png</file>
+    <file alias="red_on">leds/ledred.png</file>
+    <file alias="red_off">leds/ledredoff.png</file>
+    <file alias="yellow_on">leds/ledyellow.png</file>
+    <file alias="yellow_off">leds/ledyellowoff.png</file>
+  </qresource>
 </RCC>

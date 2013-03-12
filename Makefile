@@ -12,13 +12,13 @@ all:
 	$(PYTHON) etc/set_version.py build/lib*
 	-make custom-all
 
-gui: lib/nicos/clients/gui/gui_rc.py
+gui: lib/nicos/guisupport/gui_rc.py
 	$(PYTHON) setup.py $(QOPT) build -e "/usr/bin/env python"
 	$(PYTHON) etc/set_version.py build/lib*
 	-make custom-gui
 
-lib/nicos/clients/gui/gui_rc.py: resources/nicos-gui.qrc
-	-$(RCC) -o lib/nicos/clients/gui/gui_rc.py resources/nicos-gui.qrc
+lib/nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
+	-$(RCC) -o lib/nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
 
 clean:
 	rm -rf build

@@ -37,65 +37,8 @@ from time import sleep, strftime, time as currenttime
 
 from nicos import session
 from nicos.core import listof, Param, Override
-from nicos.core.status import BUSY
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
-
-
-class Field(object):
-    # what to display
-    key = ''         # main key (displayed value)
-    item = -1        # item to display of value, -1 means whole value
-    name = ''        # name of value
-    statuskey = ''   # key for value status
-    unitkey = ''     # key for value unit
-    formatkey = ''   # key for value format string
-    fixedkey = ''    # key for value fixed-ness
-
-    # how to display it
-    widget = ''      # which widget to use (empty for default)
-    width = 8        # width of the widget (in characters, usually)
-    height = 8       # height of the widget
-    istext = False   # true if not a number but plain text
-    maxlen = None    # max length of displayed text before cutoff
-    min = None       # minimum value
-    max = None       # maximum value; if out of range display in red
-
-    # current values
-    value = None     # current value
-    strvalue = None  # current value as string
-    status = None    # current status
-    expired = False  # is value expired?
-    exptime = 0      # time when value expired
-    changetime = 0   # time of last change to value
-    fixed = ''       # current fixed status
-    unit = ''        # unit for display
-    format = '%s'    # format string for display
-
-    # for plots
-    plot = None           # which plot to plot this value in
-    plotinterval = 3600   # time span of plot
-
-    def __init__(self, prefix, desc):
-        if isinstance(desc, str):
-            desc = {'dev': desc}
-        if 'dev' in desc:
-            dev = desc.pop('dev')
-            if 'name' not in desc:
-                desc['name'] = dev
-            desc['key'] =       dev + '/value'
-            desc['statuskey'] = dev + '/status'
-            desc['fixedkey'] =  dev + '/fixed'
-            if 'unit' not in desc:
-                desc['unitkey'] = dev + '/unit'
-            if 'format' not in desc:
-                desc['formatkey'] = dev + '/fmtstr'
-        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
-            if kn in desc:
-                desc[kn] = (prefix + desc[kn]).lower()
-        if 'name' not in desc:
-            desc['name'] = desc['key']
-        self.__dict__.update(desc)
 
 
 class Monitor(BaseCacheClient):
@@ -176,8 +119,6 @@ class Monitor(BaseCacheClient):
 
         # timeout for select() call
         self._selecttimeout = 0.2
-        # list of fields to watch
-        self._watch = set()
         # maps keys to field-dicts defined in self.layout (see above)
         self._keymap = {}
         # maps "only" entries to block boxes to hide
@@ -196,7 +137,6 @@ class Monitor(BaseCacheClient):
         checker.setDaemon(True)
         checker.start()
 
-        self.initLayout()
         self.initGui()
 
         # now start the worker thread
@@ -232,51 +172,6 @@ class Monitor(BaseCacheClient):
         self.closeGui()
         self._stoprequest = True
 
-    def initLayout(self):
-        # convert configured layout to internal structure and register keys for
-        # further processing
-        self._layout = []
-        for superrowdesc in self.layout:
-            columns = []
-            for columndesc in superrowdesc:
-                blocks = []
-                for blockdesc in columndesc:
-                    rows = []
-                    for rowdesc in blockdesc[1]:
-                        if rowdesc == '---':
-                            rows.append(None)
-                            continue
-                        fields = []
-                        for fielddesc in rowdesc:
-                            # XXX stopgap solution!
-                            if 'multiwidget' in fielddesc:
-                                subfields = dict(
-                                    (k, Field(self._prefix, f))
-                                    for (k, f) in fielddesc['fields'].items())
-                                for f in subfields.itervalues():
-                                    self.updateKeymap(f)
-                                mwidget = fielddesc['multiwidget']
-                                fields.append((mwidget, fielddesc, subfields))
-                            else:
-                                field = Field(self._prefix, fielddesc)
-                                fields.append(field)
-                                self.updateKeymap(field)
-                        rows.append(fields)
-                    block = ({'name': blockdesc[0], 'visible': True,
-                              'only': None}, rows)
-                    if len(blockdesc) > 2:
-                        block[0]['only'] = blockdesc[2]
-                    blocks.append(block)
-                columns.append(blocks)
-            self._layout.append(columns)
-
-    def updateKeymap(self, field):
-        # store reference from key to field for updates
-        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
-            key = getattr(field, kn)
-            if key:
-                self._keymap.setdefault(key, []).append(field)
-
     def _connect_action(self):
         BaseCacheClient._connect_action(self)
         # also subscribe to all watchdog events
@@ -294,60 +189,16 @@ class Monitor(BaseCacheClient):
                          (self.title, strftime('%d.%m.%Y %H:%M:%S'),
                           '' if self._masteractive else ', no master active'))
 
-        # adjust the colors of status displays
-        newwatch = set()
-        for field in self._watch:
-            status = field.status
-            value = field.value
-
-            # determined if value limits are hit (typically displayed as a red
-            # background color)
-
-            if field.min is not None and value < field.min:
-                self.signal(field, 'rangeChanged', -1)
-            elif field.max is not None and value > field.max:
-                self.signal(field, 'rangeChanged', +1)
-            else:
-                self.signal(field, 'rangeChanged', 0)
-
-            # determine the status (typically displayed as the color of the
-            # displayed value)
-
-            time = currenttime()
-            valueage = time - field.changetime
-            if valueage < 2:
-                self.signal(field, 'statusChanged', BUSY)
-                newwatch.add(field)
-            else:
-                # if we have a status
-                try:
-                    const = status[0]
-                except (TypeError, ValueError):
-                    const = status
-                if const is not None:
-                    self.signal(field, 'statusChanged', const)
-
-            # determine by the value's up-to-dateness (typically displayed as
-            # a background color of the value)
-
-            if value is None:
-                self.signal(field, 'expireChanged', True)
-            elif field.expired:
-                if time - field.exptime > 0.7:
-                    self.signal(field, 'expireChanged', True)
-                else:
-                    self.signal(field, 'expireChanged', False)
-                    newwatch.add(field)
-            else:
-                self.signal(field, 'expireChanged', False)
-        self._watch = newwatch
-        #self.log.debug('newwatch has %s items' % len(newwatch))
-
         # check if warnings need to be shown
         if self._currwarnings:
             if currenttime() > self._warningswitchtime + 10:
                 self.switchWarnPanel()
                 self._warningswitchtime = currenttime()
+
+    def register(self, widget, key):
+        key = self._prefix + key.lower().replace('.', '/')
+        self._keymap.setdefault(key, []).append(widget)
+        return key
 
     # called to handle an incoming protocol message
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
@@ -381,70 +232,9 @@ class Monitor(BaseCacheClient):
         expired = value is None or op == OP_TELLOLD
 
         # now check if we need to update something
-        fields = self._keymap.get(key, [])
-        for field in fields:
-            self._watch.add(field)
-            if key == field.key:
-                field.expired = expired
-                if expired:
-                    field.exptime = time
-                if field.item >= 0 and value is not None:
-                    try:
-                        fvalue = value[field.item]
-                    except Exception:
-                        fvalue = value
-                else:
-                    fvalue = value
-                if value is None:
-                    strvalue = '----'
-                else:
-                    if isinstance(fvalue, list):
-                        fvalue = tuple(fvalue)
-                    try:
-                        strvalue = field.format % fvalue
-                    except Exception:
-                        strvalue = str(fvalue)
-                if field.strvalue != strvalue:
-                    field.changetime = time
-                field.strvalue = strvalue
-                field.value = value
-                self.signal(field, 'newValue', time, value, strvalue)
-            elif key == field.formatkey:
-                if value is not None:
-                    field.format = value
-                    fvalue = field.value
-                    if field.item >= 0 and fvalue is not None:
-                        try:
-                            fvalue = fvalue[field.item]
-                        except Exception:
-                            pass
-                    if fvalue is None:
-                        strvalue = '----'
-                    else:
-                        if isinstance(fvalue, list):
-                            fvalue = tuple(fvalue)
-                        try:
-                            strvalue = field.format % fvalue
-                        except Exception:
-                            strvalue = str(fvalue)
-                    self.signal(field, 'newValue', time, field.value, strvalue)
-            elif key == field.statuskey:
-                if value is not None:
-                    if field.status != value:
-                        field.changetime = time
-                    field.status = value
-            elif key == field.unitkey:
-                if value is not None:
-                    if field.item >= 0:
-                        try:
-                            value = value.split()[field.item]
-                        except Exception:
-                            pass
-                    field.unit = value
-                    self.signal(field, 'metaChanged')
-            elif key == field.fixedkey:
-                field.fixed = ' (F)' if value else ''
-                self.signal(field, 'metaChanged')
+        objs = self._keymap.get(key, [])
+        for obj in objs:
+            self.signal(obj, 'keyChange', key, value, time, expired)
 
     def _process_warnings(self, warnings):
         #self.log.debug('new warnings: %s' % warnings)

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>239</width>
+    <height>256</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Value</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>mth (A1)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="ValueDisplay" name="valueDisplay_2">
+     <property name="key" stdset="0">
+      <string>mth.target</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Target</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="ValueDisplay" name="valueDisplay">
+     <property name="device" stdset="0">
+      <string>mth</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>mtt (A2)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>phi (A4)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>psi (A3)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>ath (A5)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>att (A6)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_3">
+     <property name="device" stdset="0">
+      <string>mtt</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_5">
+     <property name="device" stdset="0">
+      <string>psi</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_4">
+     <property name="device" stdset="0">
+      <string>phi</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_6">
+     <property name="device" stdset="0">
+      <string>ath</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_7">
+     <property name="device" stdset="0">
+      <string>att</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="ValueDisplay" name="valueDisplay_8">
+     <property name="key" stdset="0">
+      <string>mtt.target</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="ValueDisplay" name="valueDisplay_9">
+     <property name="key" stdset="0">
+      <string>psi.target</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="ValueDisplay" name="valueDisplay_10">
+     <property name="key" stdset="0">
+      <string>phi.target</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="ValueDisplay" name="valueDisplay_11">
+     <property name="key" stdset="0">
+      <string>ath.target</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="ValueDisplay" name="valueDisplay_12">
+     <property name="key" stdset="0">
+      <string>att.target</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ValueDisplay</class>
+   <extends>QWidget</extends>
+   <header>nicos.guisupport.display</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
