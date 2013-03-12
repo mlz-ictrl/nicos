@@ -180,9 +180,7 @@ class MainWindow(QMainWindow, DlgUtils):
             self.connect(action, SIGNAL('triggered(bool)'), tool_callback)
 
         # timer for reconnecting
-        self.reconnectTimer = QTimer()
-        self.reconnectTimer.setSingleShot(True)
-        self.connect(self.reconnectTimer, SIGNAL('timeout()'), self._reconnect)
+        self.reconnectTimer = QTimer(singleShot=True, timeout=self._reconnect)
         self._reconnecting = False
 
         # setup tray icon
@@ -200,10 +198,8 @@ class MainWindow(QMainWindow, DlgUtils):
                      lambda hide: self.setVisible(not hide))
         self.trayIcon.setContextMenu(self.trayMenu)
 
-        self.statusLabel = QLabel('', self)
-        self.statusLabel.setPixmap(QPixmap(':/disconnected'))
-        self.statusLabel.setMargin(5)
-        self.statusLabel.setMinimumSize(QSize(30, 10))
+        self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
+                                  margin=5, minimumSize=QSize(30, 10))
         self.toolBarMain.addWidget(self.statusLabel)
 
         # help window
@@ -613,9 +609,7 @@ def main(argv):
     # Import the compiled resource file to register resources
     import nicos.clients.gui.gui_rc #pylint: disable=W0612
 
-    app = QApplication(argv)
-    app.setOrganizationName('nicos')
-    app.setApplicationName('gui')
+    app = QApplication(argv, organizationName='nicos', applicationName='gui')
 
     # XXX implement proper argument parsing
     configfile = path.join(path.dirname(__file__), 'defconfig.py')

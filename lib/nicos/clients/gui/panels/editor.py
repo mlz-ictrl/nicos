@@ -160,9 +160,7 @@ class EditorPanel(Panel):
             self.recentf_actions.append(action)
             self.menuRecent.addAction(action)
 
-        self.tabber = QTabWidget(self)
-        self.tabber.setTabsClosable(True)
-        self.tabber.setDocumentMode(True)
+        self.tabber = QTabWidget(self, tabsClosable=True, documentMode=True)
         self.connect(self.tabber, SIGNAL('currentChanged(int)'),
                      self.on_tabber_currentChanged)
         self.connect(self.tabber, SIGNAL('tabCloseRequested(int)'),

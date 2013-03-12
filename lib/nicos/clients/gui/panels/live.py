@@ -60,7 +60,7 @@ class LiveDataPanel(Panel):
         self._no_direct_display = False
         self._range_active = False
 
-        self.statusBar = QStatusBar(self)
+        self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
         policy.setVerticalPolicy(QSizePolicy.Fixed)
         self.statusBar.setSizePolicy(policy)

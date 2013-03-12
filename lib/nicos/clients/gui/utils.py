@@ -73,8 +73,7 @@ def loadBasicWindowSettings(window, settings):
 
 def enumerateWithProgress(seq, text, every=1, parent=None, total=None):
     total = total or len(seq)
-    pd = QProgressDialog(parent)
-    pd.setLabelText(text)
+    pd = QProgressDialog(parent, labelText=text)
     pd.setRange(0, total)
     pd.setCancelButton(None)
     if total > every:

@@ -45,9 +45,7 @@ class ELogPanel(Panel, DlgUtils):
         loadUi(self, 'elog.ui', 'panels')
         self.stacker.setCurrentIndex(0)
 
-        self.timer = QTimer(self)
-        self.timer.setSingleShot(True)
-        self.connect(self.timer, SIGNAL('timeout()'), self.on_timer_timeout)
+        self.timer = QTimer(self, singleShot=True, timeout=self.on_timer_timeout)
 
         if self.client.connected:
             self.on_client_connected()

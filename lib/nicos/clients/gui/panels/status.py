@@ -42,9 +42,7 @@ class ScriptQueue(object):
         self._no2item = {}   # mapping from request number to list widget item
         self._frame = frame
         self._view = view
-        self._timer = QTimer()
-        self._timer.setSingleShot(True)
-        self._timer.connect(self._timer, SIGNAL('timeout()'), self._timeout)
+        self._timer = QTimer(singleShot=True, timeout=self._timeout)
 
     def _format_item(self, request):
         script = request['script']

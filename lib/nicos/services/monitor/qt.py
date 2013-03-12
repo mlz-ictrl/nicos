@@ -80,13 +80,11 @@ class SMDefaultDisplay(QWidget):
         self.main = main
 
         layout = QVBoxLayout()
-        namelabel = QLabel(' ' + escape(field.name) + ' ', self)
+        namelabel = QLabel(' ' + escape(field.name) + ' ', self,
+                           font=main._labelfont, autoFillBackground=True,
+                           alignment=Qt.AlignHCenter, textFormat=Qt.RichText)
         if field.unit:
             namelabel.setText(labelunittext(field.name, field.unit, field.fixed))
-        namelabel.setFont(main._labelfont)
-        namelabel.setAlignment(Qt.AlignHCenter)
-        namelabel.setAutoFillBackground(True)
-        namelabel.setTextFormat(Qt.RichText)
         self.namelabel = namelabel
 
         valuelabel = SensitiveSMLabel('----', self, self._label_entered,
@@ -245,8 +243,7 @@ class SMPlot(QwtPlot):
         curve.attach(self)
         curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
         self.legend.find(curve).setIdentifierWidth(30)
-        self.ctimers[curve] = QTimer()
-        self.ctimers[curve].setSingleShot(True)
+        self.ctimers[curve] = QTimer(singleShot=True)
 
         self.plotcurves[field] = curve
         self.plotx[field] = []
@@ -293,15 +290,12 @@ class BlockBox(QFrame):
     definite frame around it.
     """
     def __init__(self, parent, text, font):
-        QFrame.__init__(self, parent)
-        self._label = QLabel(' ' + text + ' ', parent)
-        self._label.setAutoFillBackground(True)
-        self._label.setFont(font)
+        QFrame.__init__(self, parent, frameShape=QFrame.Panel,
+                        frameShadow=QFrame.Raised, lineWidth=2)
+        self._label = QLabel(' ' + text + ' ', parent, autoFillBackground=True,
+                             font=font)
         self._label.resize(self._label.sizeHint())
         self._label.show()
-        self.setFrameShape(QFrame.Panel)
-        self.setFrameShadow(QFrame.Raised)
-        self.setLineWidth(2)
         self.connect(self, SIGNAL('enableDisplay'), self.enableDisplay)
     def moveEvent(self, event):
         self._repos()
@@ -384,13 +378,11 @@ class Monitor(BaseMonitor):
         # first the timeframe:
         masterframe = QFrame(master)
         masterlayout = QVBoxLayout()
-        self._titlelabel = QLabel('', master)
-        self._titlelabel.setFont(timefont)
+        self._titlelabel = QLabel('', master,
+            font=timefont, autoFillBackground=True, alignment=Qt.AlignHCenter)
         pal = self._titlelabel.palette()
         pal.setColor(QPalette.WindowText, self._gray)
         self._titlelabel.setPalette(pal)
-        self._titlelabel.setAutoFillBackground(True)
-        self._titlelabel.setAlignment(Qt.AlignHCenter)
         self._titlelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         masterframe.connect(self._titlelabel, SIGNAL('updatetitle'),
                             self._titlelabel.setText)
@@ -442,15 +434,12 @@ class Monitor(BaseMonitor):
                 return display
 
         # now iterate through the layout and create the widgets to display it
-        displaylayout = QVBoxLayout()
-        displaylayout.setSpacing(20)
+        displaylayout = QVBoxLayout(spacing=20)
         for superrow in self._layout:
-            boxlayout = QHBoxLayout()
-            boxlayout.setSpacing(20)
+            boxlayout = QHBoxLayout(spacing=20)
             boxlayout.setContentsMargins(10, 10, 10, 10)
             for column in superrow:
-                columnlayout = QVBoxLayout()
-                columnlayout.setSpacing(blheight * 0.8)
+                columnlayout = QVBoxLayout(spacing=0.8*blheight)
                 for block in column:
                     blocklayout_outer = QHBoxLayout()
                     blocklayout_outer.addStretch()
@@ -492,13 +481,11 @@ class Monitor(BaseMonitor):
                        self._stacker.setCurrentIndex)
 
         warningslayout = QVBoxLayout()
-        lbl = QLabel('Warnings', self._warnpanel)
-        lbl.setAlignment(Qt.AlignHCenter)
+        lbl = QLabel('Warnings', self._warnpanel, alignment=Qt.AlignHCenter,
+                     font=timefont)
         lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        lbl.setFont(timefont)
         warningslayout.addWidget(lbl)
-        self._warnlabel = QLabel('', self._warnpanel)
-        self._warnlabel.setFont(blockfont)
+        self._warnlabel = QLabel('', self._warnpanel, font=blockfont)
         warningslayout.addWidget(self._warnlabel)
         warningslayout.addStretch()
         self._warnpanel.setLayout(warningslayout)
@@ -513,8 +500,7 @@ class Monitor(BaseMonitor):
         master.connect(master, SIGNAL('resizeToMinimum'), resizeToMinimum)
 
         # initialize status bar
-        self._statuslabel = QLabel()
-        self._statuslabel.setFont(stbarfont)
+        self._statuslabel = QLabel(font=stbarfont)
         master.statusBar().addWidget(self._statuslabel)
         self._statustimer = None
 

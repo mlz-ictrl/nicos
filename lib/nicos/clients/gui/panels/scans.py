@@ -82,11 +82,10 @@ class ScansPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'scans.ui', 'panels')
 
-        self.statusBar = QStatusBar(self)
+        self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
         policy.setVerticalPolicy(QSizePolicy.Fixed)
         self.statusBar.setSizePolicy(policy)
-        self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
         quickfit = QShortcut(QKeySequence("G"), self)

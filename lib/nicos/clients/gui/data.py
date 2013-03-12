@@ -96,8 +96,8 @@ class DataHandler(QObject):
 
     def on_client_connected(self):
         # retrieve datasets and put them into the scans window
-        pd = QProgressDialog()
-        pd.setLabelText('Transferring datasets, please wait...')
+        pd = QProgressDialog(self,
+                             labelText='Transferring datasets, please wait...')
         pd.setRange(0, 1)
         pd.setCancelButton(None)
         pd.show()
