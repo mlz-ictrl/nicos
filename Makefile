@@ -1,6 +1,6 @@
 .PHONY: all gui install clean inplace test lint jenkinslintall jenkinslint changelint \
 	check test-coverage install main-install install-gui main-install-gui release \
-	xfixsmb help custom-all custom-inplace custom-install custom-clean custom-gui
+	fixsmb help custom-all custom-inplace custom-install custom-clean custom-gui
 
 SHELL=/bin/bash
 
@@ -211,6 +211,7 @@ fixsmb:
 	chmod +x etc/create_nicosconf.py
 	chmod +x etc/nicos-system
 	chmod +x custom/panda/bin/pausebutton
+	chmod +x tools/check_setups
 
 help:
 	@echo "Important targets:"
