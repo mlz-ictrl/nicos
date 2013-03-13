@@ -792,6 +792,10 @@ class Readable(Device):
         'pollinterval': Param('Polling interval for value and status (or None '
                               'to disable polling)', unit='s', settable=True,
                               type=none_or(floatrange(0.5, 24*3600)), default=5),
+        'warnlimits':   Param('Range in which the device value should be '
+                              'in normal operation; warnings may be triggered '
+                              'when it is outside', settable=True, chatty=True,
+                              type=none_or(tupleof(anytype, anytype))),
     }
 
     def init(self):
