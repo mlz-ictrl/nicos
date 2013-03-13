@@ -596,8 +596,15 @@ def ListParams(dev):
     """
     dev = session.getDevice(dev, Device)
     dev.log.info('Device parameters:')
-    devunit = getattr(dev, 'unit', '')
     items = []
+    aliasdev = getattr(dev, 'alias', None)
+    if aliasdev is not None:
+        aliasdev = session.getDevice(aliasdev, Device)
+        items.append((dev.name + '.alias',
+                      '-> ' + aliasdev.name, '', 'yes',
+                      'Aliased device, parameters of that device follow'))
+        dev = aliasdev
+    devunit = getattr(dev, 'unit', '')
     for name, info in sorted(dev.parameters.iteritems()):
         if not info.userparam:
             continue
