@@ -209,8 +209,12 @@ class ConnectionHandler(BaseRequestHandler):
 
     def handle(self):
         """Handle a single connection."""
-        host, aliases, addrlist = socket.gethostbyaddr(self.client_address[0])
-        self.clientnames = [host] + aliases + addrlist
+        try:
+            host, aliases, addrlist = socket.gethostbyaddr(self.client_address[0])
+        except socket.herror:
+            self.clientnames = [self.client_address[0]]
+        else:
+            self.clientnames = [host] + aliases + addrlist
         self.log.debug('connection from %s' % self.clientnames)
 
         # check trusted hosts list, if nonempty
