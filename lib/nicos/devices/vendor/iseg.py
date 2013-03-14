@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 from IO import StringIO
 
 from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
-     NicosError, CommunicationError
+     NicosError, CommunicationError, ConfigurationError
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -43,8 +43,9 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
     parameters = {
         'channel':  Param('Channel of the Iseg HV (1 = A, 2 = B)',
                           type=intrange(1, 2), mandatory=True),
-        'ramp':     Param('Voltage ramp', unit='main/s',
-                          type=intrange(1, 255), settable=True),
+        'ramp':     Param('Voltage ramp', unit='main/min',
+                          # Iseg ramps are set in V/s from 1 to 255
+                          type=intrange(60, 15300), settable=True),
     }
 
     parameter_overrides = {
@@ -135,9 +136,13 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
 
     def doReadRamp(self):
         resp = self._taco_guard(self._dev.communicate, 'V%d' % self.channel)
-        return int(resp)
+        return int(resp) * 60
 
     def doWriteRamp(self, ramp):
+        ramp = int(ramp / 60.)
+        if ramp == 0:
+            raise ConfigurationError(self, 'ramp is too small; must be at '
+                                     'least 60 V/min')
         resp = self._taco_guard(self._dev.communicate,
                                 'V%d=%03d' % (self.channel, ramp))
         if resp:
@@ -147,4 +152,4 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
         if resp:
             raise CommunicationError(self, 'could not save ramp, reply from '
                                      'device: %r' % resp)
-        self.log.info('ramp set to %d V/s and stored in EEPROM' % ramp)
+        self.log.info('ramp set to %d V/min and stored in EEPROM' % (ramp*60))
