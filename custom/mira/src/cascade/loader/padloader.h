@@ -27,7 +27,7 @@
 
 #include "../config/globals.h"
 #include "basicimage.h"
-#include "../aux/roi.h"
+#include "../auxiliary/roi.h"
 #include "tofloader.h"
 #include "conf.h"
 

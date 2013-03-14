@@ -1228,7 +1228,7 @@ void ContrastsVsImagesDlg::DeleteFile_underground()
 
 
 #ifdef USE_XML
-	#include "../aux/xml.h"
+	#include "../auxiliary/xml.h"
 #endif
 
 void ContrastsVsImagesDlg::LoadList()

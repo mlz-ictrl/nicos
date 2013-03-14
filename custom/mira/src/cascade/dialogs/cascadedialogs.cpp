@@ -24,9 +24,9 @@
 
 #include "../dialogs/cascadedialogs.h"
 #include "../main/cascadewidget.h"
-#include "../aux/helper.h"
-#include "../aux/logger.h"
-#include "../aux/gc.h"
+#include "../auxiliary/helper.h"
+#include "../auxiliary/logger.h"
+#include "../auxiliary/gc.h"
 #include "../config/globals.h"
 
 #include <stdio.h>

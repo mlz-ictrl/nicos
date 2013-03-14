@@ -502,7 +502,7 @@ void CountsVsImagesDlg::DeleteFile()
 }
 
 #ifdef USE_XML
-	#include "../aux/xml.h"
+	#include "../auxiliary/xml.h"
 #endif
 
 void CountsVsImagesDlg::LoadList()

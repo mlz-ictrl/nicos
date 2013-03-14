@@ -27,8 +27,8 @@
 #include <stdlib.h>
 #include "../config/config.h"
 #include "../config/globals.h"
-#include "../aux/helper.h"
-#include "../aux/logger.h"
+#include "../auxiliary/helper.h"
+#include "../auxiliary/logger.h"
 
 #define WAIT_DELAY 5000
 

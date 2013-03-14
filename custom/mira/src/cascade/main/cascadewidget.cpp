@@ -26,8 +26,8 @@
 #include "../plot/tofdata.h"
 #include "../plot/bins.h"
 #include "../dialogs/cascadedialogs.h"
-#include "../aux/helper.h"
-#include "../aux/logger.h"
+#include "../auxiliary/helper.h"
+#include "../auxiliary/logger.h"
 
 #include <QPrinter>
 #include <iostream>

@@ -64,7 +64,7 @@
 #include "../config/globals.h"
 #include "../loader/tofloader.h"
 #include "../plot/ErrorBarPlotCurve.h"
-#include "../aux/roi.h"
+#include "../auxiliary/roi.h"
 
 class CascadeWidget;
 

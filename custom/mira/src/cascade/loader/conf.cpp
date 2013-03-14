@@ -22,7 +22,7 @@
 // *****************************************************************************
 
 #include "conf.h"
-#include "../aux/helper.h"
+#include "../auxiliary/helper.h"
 #include <iostream>
 
 CascConf::CascConf()

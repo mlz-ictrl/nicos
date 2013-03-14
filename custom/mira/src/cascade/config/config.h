@@ -26,7 +26,7 @@
 
 #include <string>
 
-#include "../aux/xml.h"
+#include "../auxiliary/xml.h"
 
 /**
  * \brief (Singleton) class for reading xml files

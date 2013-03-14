@@ -33,9 +33,9 @@
 #include <limits>
 #include <iomanip>
 
-#include "../aux/logger.h"
-#include "../aux/helper.h"
-#include "../aux/gc.h"
+#include "../auxiliary/logger.h"
+#include "../auxiliary/helper.h"
+#include "../auxiliary/gc.h"
 
 
 PadImage::PadImage(const char *pcFileName, bool bExternalMem,

@@ -8,15 +8,15 @@ FORMS += ../ui/batchdlg.ui ../ui/commanddlg.ui ../ui/gcdlg.ui ../ui/rangedlg.ui 
 
 INCLUDEPATH += . /usr/include/qwt /usr/include/qwt5 /usr/include/libxml2 /usr/include/qwt-qt4
 
-HEADERS += ../loader/tofloader.h ../aux/fourier.h ../loader/padloader.h ../loader/basicimage.h \
+HEADERS += ../loader/tofloader.h ../auxiliary/fourier.h ../loader/padloader.h ../loader/basicimage.h \
 	../config/globals.h   ../plot/tofdata.h   ../main/cascadewidget.h  ../dialogs/cascadedialogs.h \
-	../plot/bins.h   ../plot/histogram_item.h ../aux/helper.h ../aux/logger.h ../aux/roi.h \
-	../config/config.h ../aux/fit.h ../aux/gc.h ../plot/plotter.h ../loader/conf.h
+	../plot/bins.h   ../plot/histogram_item.h ../auxiliary/helper.h ../auxiliary/logger.h ../auxiliary/roi.h \
+	../config/config.h ../auxiliary/fit.h ../auxiliary/gc.h ../plot/plotter.h ../loader/conf.h
 
-SOURCES += ../loader/tofloader.cpp ../aux/fourier.cpp ../loader/padloader.cpp ../config/globals.cpp \
+SOURCES += ../loader/tofloader.cpp ../auxiliary/fourier.cpp ../loader/padloader.cpp ../config/globals.cpp \
  	   ../plot/tofdata.cpp ../main/cascadewidget.cpp ../dialogs/cascadedialogs.cpp \
-	../plot/bins.cpp ../plot/histogram_item.cpp ../aux/helper.cpp ../aux/logger.cpp \
-	../aux/roi.cpp ../config/config.cpp ../aux/fit.cpp ../aux/gc.cpp ../plot/plotter.cpp \
+	../plot/bins.cpp ../plot/histogram_item.cpp ../auxiliary/helper.cpp ../auxiliary/logger.cpp \
+	../auxiliary/roi.cpp ../config/config.cpp ../auxiliary/fit.cpp ../auxiliary/gc.cpp ../plot/plotter.cpp \
 	../loader/conf.cpp
 
 LIBS += -lMinuit2 -lgomp -lQtNetwork -lqwt -lxml++-2.6

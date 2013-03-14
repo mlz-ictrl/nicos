@@ -23,8 +23,8 @@
 
 #include "../config/globals.h"
 #include "../config/config.h"
-#include "../aux/logger.h"
-#include "../aux/helper.h"
+#include "../auxiliary/logger.h"
+#include "../auxiliary/helper.h"
 
 #include <string.h>
 #include <stdio.h>

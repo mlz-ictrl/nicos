@@ -49,7 +49,7 @@ cascade: cascade.o cascadedialogs.o bins.o cascadewidget.o tofloader.o tofdata.o
 
 ###################### CPP-Dateien ######################
 cascade.o: main/cascade.cpp main/cascade.moc dialogs/cascadedialogs_moc.cpp dialogs/cascadedialogs.moc \
-		plot/bins.h aux/parse.h plot/ErrorBarPlotCurve.h plot/tofdata.h dialogs/cascadedialogs.h
+		plot/bins.h auxiliary/parse.h plot/ErrorBarPlotCurve.h plot/tofdata.h dialogs/cascadedialogs.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o cascade.o main/cascade.cpp
 
 cascadedialogs.o: dialogs/cascadedialogs_moc.cpp dialogs/cascadedialogs.h dialogs/cascadedialogs.moc \
@@ -74,8 +74,8 @@ padloader.o: loader/padloader.cpp loader/padloader.h
 tofdata.o: plot/tofdata.cpp plot/tofdata.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o tofdata.o plot/tofdata.cpp
 
-fourier.o: aux/fourier.cpp aux/fourier.h
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o fourier.o aux/fourier.cpp
+fourier.o: auxiliary/fourier.cpp auxiliary/fourier.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o fourier.o auxiliary/fourier.cpp
 
 config.o: config/config.cpp config/config.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o config.o config/config.cpp
@@ -83,8 +83,8 @@ config.o: config/config.cpp config/config.h
 casc_conf.o: loader/conf.cpp loader/conf.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o casc_conf.o loader/conf.cpp
 
-xml.o: aux/xml.cpp aux/xml.h
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o xml.o aux/xml.cpp
+xml.o: auxiliary/xml.cpp auxiliary/xml.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o xml.o auxiliary/xml.cpp
 
 histogram_item.o: plot/histogram_item.cpp plot/histogram_item.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o histogram_item.o plot/histogram_item.cpp
@@ -92,26 +92,26 @@ histogram_item.o: plot/histogram_item.cpp plot/histogram_item.h
 client.o: client/client_moc.cpp client/client.h client/client.moc
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o client.o client/client_moc.cpp
 
-helper.o: aux/helper.cpp aux/helper.h
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o helper.o aux/helper.cpp
+helper.o: auxiliary/helper.cpp auxiliary/helper.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o helper.o auxiliary/helper.cpp
 
-logger.o: aux/logger.cpp aux/logger.h
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o logger.o aux/logger.cpp
+logger.o: auxiliary/logger.cpp auxiliary/logger.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o logger.o auxiliary/logger.cpp
 
 globals.o: config/globals.cpp config/globals.h
 	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o globals.o config/globals.cpp
 
-parse.o: aux/parse.cpp aux/parse.h
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o parse.o aux/parse.cpp
+parse.o: auxiliary/parse.cpp auxiliary/parse.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o parse.o auxiliary/parse.cpp
 
-roi.o: aux/roi.cpp aux/roi.h
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o roi.o aux/roi.cpp
+roi.o: auxiliary/roi.cpp auxiliary/roi.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o roi.o auxiliary/roi.cpp
 
-fit.o: aux/fit.cpp aux/fit.h
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o fit.o aux/fit.cpp
+fit.o: auxiliary/fit.cpp auxiliary/fit.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o fit.o auxiliary/fit.cpp
 
-gc.o: aux/gc.cpp aux/gc.h
-	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o gc.o aux/gc.cpp
+gc.o: auxiliary/gc.cpp auxiliary/gc.h
+	$(COMPILER) $(FLAGS) $(INCLUDES) -c -o gc.o auxiliary/gc.cpp
 #########################################################
 
 
@@ -168,7 +168,7 @@ clean_qt:
 	rm -f ui_*.h
 	rm -f ui/ui_*.h
 
-	rm -f *~ aux/*~ client/*~ config/*~ dialogs/*~ loader/*~ main/*~ plot/*~ ui/*~
+	rm -f *~ auxiliary/*~ client/*~ config/*~ dialogs/*~ loader/*~ main/*~ plot/*~ ui/*~
 	rm -f *.o
 	rm -f cascade
 

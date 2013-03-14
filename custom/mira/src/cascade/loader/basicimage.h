@@ -24,7 +24,7 @@
 #ifndef __BASICIMAGE__
 #define __BASICIMAGE__
 
-#include "../aux/roi.h"
+#include "../auxiliary/roi.h"
 
 /**
  * \brief minimal interface for images

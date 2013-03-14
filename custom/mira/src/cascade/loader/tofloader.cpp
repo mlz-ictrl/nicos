@@ -33,11 +33,11 @@
 #include <limits>
 #include <iomanip>
 
-#include "../aux/logger.h"
-#include "../aux/helper.h"
-#include "../aux/fit.h"
-#include "../aux/gc.h"
-#include "../aux/fourier.h"
+#include "../auxiliary/logger.h"
+#include "../auxiliary/helper.h"
+#include "../auxiliary/fit.h"
+#include "../auxiliary/gc.h"
+#include "../auxiliary/fourier.h"
 
 #include "tofloader_graph.cpp"
 #include "tofloader_image.cpp"

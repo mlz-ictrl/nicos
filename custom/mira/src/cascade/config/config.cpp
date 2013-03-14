@@ -28,8 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../aux/logger.h"
-#include "../aux/helper.h"
+#include "../auxiliary/logger.h"
+#include "../auxiliary/helper.h"
 
 Config::Config() {}
 Config::~Config() {}

@@ -27,7 +27,7 @@
 #include <iostream>
 
 #include "tofdata.h"
-#include "../aux/helper.h"
+#include "../auxiliary/helper.h"
 
 MainRasterData::MainRasterData(const QwtDoubleRect& rect)
 				: QwtRasterData(rect), m_bLog(1),

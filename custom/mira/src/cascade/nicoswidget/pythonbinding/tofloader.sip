@@ -23,7 +23,7 @@ class BasicImage
 class Roi
 {
 %TypeHeaderCode
-#include "../../aux/roi.h"
+#include "../../auxiliary/roi.h"
 %End
 
 	public:
