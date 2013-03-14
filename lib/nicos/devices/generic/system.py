@@ -27,10 +27,12 @@
 __version__ = "$Revision$"
 
 import os
+import ctypes
 
 from nicos import session
 from nicos.core import Readable, Param, Override, status, none_or
 from nicos.core.errors import NicosError
+
 
 class FreeSpace(Readable):
     """This is a readable device that returns the free space on a filesystem.
@@ -62,10 +64,16 @@ class FreeSpace(Readable):
         else:
             path = self.path
         try:
-            st = os.statvfs(path)
+            if os.name == 'nt':
+                free = ctypes.c_ulonglong(0)
+                ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                    ctypes.c_wchar_p(path), None, None, ctypes.pointer(free))
+                return free.value / (1024 * 1024 * 1024.)
+            else:
+                st = os.statvfs(path)
+                return (st.f_bsize * st.f_bavail) / (1024 * 1024 * 1024.)
         except OSError, err:
             raise NicosError(self, 'could not determine free space: %s' % err)
-        return (st.f_bsize * st.f_bavail) / (1024 * 1024 * 1024.)
 
     def doStatus(self, maxage=0):
         free = self.read()

@@ -28,8 +28,6 @@ __version__ = "$Revision$"
 
 import os
 import re
-import grp
-import pwd
 import sys
 import errno
 import signal
@@ -41,6 +39,12 @@ import ConfigParser
 from os import path
 from time import time as currenttime, strftime, strptime, localtime, mktime
 from itertools import islice, chain
+
+try:
+    import grp
+    import pwd
+except ImportError:
+    grp = pwd = None
 
 from nicos import session
 
@@ -473,12 +477,12 @@ def daemonize():
 
     # switch user
     user, group = Session.config.user, Session.config.group
-    if group:
+    if group and grp is not None:
         group = grp.getgrnam(group).gr_gid
         # use setegid to be later able to recover root rights if previously given
         # use setgid to irreversibly destroy root rights
         os.setgid(group)
-    if Session.config.user:
+    if Session.config.user and pwd is not None:
         user = pwd.getpwnam(user).pw_uid
         # use seteuid to be later able to recover root rights if previously given
         # use setuid to irreversibly destroy root rights
@@ -500,15 +504,15 @@ def setuser():
     """Do not daemonize, but at least set the current user and group correctly
     to the configured values if started as root.
     """
-    if os.geteuid() != 0:
+    if hasattr(os, 'geteuid') and os.geteuid() != 0:
         return
     # switch user
     from nicos.core.sessions import Session
     user, group = Session.config.user, Session.config.group
-    if group:
+    if group and grp is not None:
         group = grp.getgrnam(group).gr_gid
         os.setegid(group)
-    if Session.config.user:
+    if Session.config.user and pwd is not None:
         user = pwd.getpwnam(user).pw_uid
         os.seteuid(user)
         if 'HOME' in os.environ:
@@ -611,6 +615,14 @@ def nocolor():
     for key in _codes.keys():
         _codes[key] = ''
 
+if os.name == 'nt':
+    try:
+        # colorama provides ANSI-colored console output support under Windows
+        import colorama
+    except ImportError:
+        nocolor()
+    else:
+        colorama.init()
 
 # nice formatting for an exit status
 

@@ -111,7 +111,8 @@ def test_experiment():
     # has the zip file been created?
     assert path.isfile(datapath('p999.zip'))
     # have the access rights been revoked?
-    assert not os.access(datapath('p999'), os.X_OK)
+    if os.name != 'nt':
+        assert not os.access(datapath('p999'), os.X_OK)
 
     # did we switch back to service proposal?
     assert exp.proposal == 'service'

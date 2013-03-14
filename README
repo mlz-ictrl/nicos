@@ -48,6 +48,11 @@ Requirements
   - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
 
+* Under Windows:
+
+  - pyreadline (optional, for the console to work)
+  - colorama (optional, for colored console output)
+
 * To run the test suite:
   - nose
   - coverage (optional)

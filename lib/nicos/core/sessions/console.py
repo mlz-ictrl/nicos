@@ -32,8 +32,12 @@ import sys
 import code
 import time
 import signal
-import readline
 import traceback
+
+try:
+    import readline
+except ImportError:  # on Windows (without pyreadline)
+    readline = None
 
 from nicos import session, nicos_version
 from nicos.core import AccessError
@@ -65,13 +69,19 @@ class NicosInteractiveConsole(code.InteractiveConsole):
     """
 
     def __init__(self, session, global_ns, local_ns):
+        if readline is None:
+            raise RuntimeError('The NICOS console cannot run on platforms '
+                               'without readline or pyreadline installed.')
         self.session = session
         self.log = session.log
         code.InteractiveConsole.__init__(self, global_ns)
         self.globals = global_ns
         self.locals = local_ns
         for line in DEFAULT_BINDINGS.splitlines():
-            readline.parse_and_bind(line)
+            try:
+                readline.parse_and_bind(line)
+            except IndexError:  # raised by pyreadline if the key is unknown
+                pass
         readline.set_completer(session.completefn)
         readline.set_history_length(10000)
         self.histfile = os.path.expanduser('~/.nicoshistory')

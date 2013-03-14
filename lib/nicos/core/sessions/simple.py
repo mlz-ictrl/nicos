@@ -82,8 +82,9 @@ class NoninteractiveSession(Session):
                 maindev.statusinfo()
         signal.signal(signal.SIGINT, quit_handler)
         signal.signal(signal.SIGTERM, quit_handler)
-        signal.signal(signal.SIGUSR1, reload_handler)
-        signal.signal(signal.SIGUSR2, status_handler)
+        if hasattr(signal, 'SIGUSR1'):
+            signal.signal(signal.SIGUSR1, reload_handler)
+            signal.signal(signal.SIGUSR2, status_handler)
 
         if pidfile:
             writePidfile(appname)

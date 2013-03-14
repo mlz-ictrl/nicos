@@ -189,7 +189,7 @@ class Poller(Device):
             return self._start_master()
         self.log.info('%s poller starting' % setup)
 
-        if setup == '<dummy>':
+        if setup == '[dummy]':
             return
 
         session.loadSetup(setup)
@@ -209,6 +209,8 @@ class Poller(Device):
 
     def wait(self):
         if self._setup is None:
+            if os.name == 'nt':
+                return self._wait_master_nt()
             return self._wait_master()
         while not self._stoprequest:
             sleep(1)
@@ -291,7 +293,7 @@ class Poller(Device):
         if not self._setups:
             # if no pollers are running, this would terminate the _wait_master
             # loop instantly, so wait here until there are some setups
-            self._setups.add('<dummy>')
+            self._setups.add('[dummy]')
 
         for setup in self._setups:
             self._start_child(setup)
@@ -312,7 +314,7 @@ class Poller(Device):
         new_setups.difference_update(self.neverpoll)
         new_setups.update(self.alwayspoll)
         if not new_setups:  # setup list shouldn't be empty, see above
-            new_setups.add('<dummy>')
+            new_setups.add('[dummy]')
         self._setups = new_setups
 
         for setup in old_setups - new_setups:
@@ -326,7 +328,11 @@ class Poller(Device):
                 os.path.join(session.config.control_path, 'bin', 'nicos-poller'))
         else:
             poller_script = 'nicos-poller'
-        process = subprocess.Popen([poller_script, setup])
+        if os.name == 'nt':
+            execute = [sys.executable, poller_script, setup]
+        else:
+            execute = [poller_script, setup]
+        process = subprocess.Popen(execute)
         # we need to keep a reference to the Popen object, since it calls
         # os.wait() itself in __del__
         self._children[setup] = process
@@ -348,16 +354,38 @@ class Poller(Device):
                 raise
             else:
                 # a process exited; restart if necessary
-                setup = self._childpids[pid]
+                setup = self._childpids.pop(pid)
+                del self._children[setup]
                 if setup in self._setups and not self._stoprequest:
                     session.log.warning('%s poller terminated with %s, '
                                         'restarting' % (setup, whyExited(ret)))
-                    del self._children[setup]
-                    del self._childpids[pid]
                     self._start_child(setup)
                 else:
                     session.log.info('%s poller terminated with %s' %
                                      (setup, whyExited(ret)))
+        session.log.info('all pollers terminated')
+
+    def _wait_master_nt(self):
+        # this is the same as _wait_master, but with active polling instead
+        # of using os.wait(), which does not exist on Windows
+        while True:
+            sleep(0.5)
+            if not self._children:
+                break
+            for setup, ch in self._children.items():
+                ret = ch.poll()
+                if ret is not None:
+                    # a process exited; restart if necessary
+                    del self._childpids[ch.pid]
+                    del self._children[setup]
+                    if setup in self._setups and not self._stoprequest:
+                        session.log.warning('%s poller terminated with %s, '
+                                            'restarting' % (setup, ret))
+                        self._start_child(setup)
+                        break
+                    else:
+                        session.log.info('%s poller terminated with %s' %
+                                         (setup, ret))
         session.log.info('all pollers terminated')
 
     def _quit_master(self):

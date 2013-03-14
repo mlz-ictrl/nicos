@@ -229,7 +229,7 @@ class Experiment(Device):
         if self.managerights:
             enableDirectory(new_proposaldir)
             self.log.debug('enabled directory %s' % new_proposaldir)
-        if symlink:
+        if symlink and hasattr(os, 'symlink'):
             self.log.debug('setting symlink %s to %s' %
                            (symlink, path.abspath(new_proposaldir)))
             os.symlink(path.abspath(new_proposaldir), symlink)

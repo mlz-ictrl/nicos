@@ -175,6 +175,11 @@ from nicos.protocols.cache import msg_pattern, line_pattern, \
      DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
      OP_TELLOLD, OP_LOCK, OP_REWRITE
 
+try:  # Windows compatibility: it does not provide os.link
+    os_link = os.link
+except AttributeError:
+    os_link = lambda a, b: None
+
 
 class Entry(object):
     __slots__ = ('time', 'ttl', 'value', 'expired')
@@ -857,7 +862,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         ensureDirectory(bycat)
         linkname = path.join(bycat, self._currday)
         if not path.isfile(linkname):
-            os.link(filename, linkname)
+            os_link(filename, linkname)
         return fd
 
     def ask(self, key, ts, time, ttl):

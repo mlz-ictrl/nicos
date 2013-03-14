@@ -31,10 +31,14 @@ import re
 import time
 import socket
 import keyword
-import readline
 import exceptions
 import rlcompleter
 import __builtin__
+
+try:
+    import readline
+except ImportError:
+    readline = None
 
 from nicos import session
 from nicos.core import Device, UsageError
@@ -202,7 +206,7 @@ class NicosCompleter(object):
         defined in self.namespace that match.
         """
         if line is None:
-            line = readline.get_line_buffer()
+            line = readline and readline.get_line_buffer() or ''
         if '(' in line:
             command = line[:line.index('(')].lstrip()
             if command in self.special_device:

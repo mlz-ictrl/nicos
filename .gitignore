@@ -38,6 +38,7 @@ test/root/
 *.moc
 *.so
 *.so.*
+*.pyd
 *~
 *.sbf
 *.exp
