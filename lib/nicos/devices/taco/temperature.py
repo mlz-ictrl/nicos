@@ -149,6 +149,14 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
                     return
             time.sleep(delay)
 
+    def doTime(self, oldvalue, newvalue):
+        if self.ramp:
+            ramptime = 60 * abs(newvalue - oldvalue) / self.ramp
+        else:
+            # XXX what to do here?  we cannot really make a good guess...
+            ramptime = 0
+        return ramptime + self.window
+
     def doReset(self):
         self._taco_guard(self._dev.deviceReset)
 
