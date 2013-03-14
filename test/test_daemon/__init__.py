@@ -42,8 +42,8 @@ def setup_package():
                                path.join(rootdir, '..', 'daemon.py')])
     start = time.time()
     wait = 5
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while time.time() < start + wait:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect(('localhost', 14874))
         except socket.error:

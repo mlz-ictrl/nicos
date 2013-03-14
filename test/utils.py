@@ -237,8 +237,8 @@ def startCache(setup='cache', wait=5):
                               path.join(rootdir, '..', 'cache.py'), setup])
     if wait:
         start = time.time()
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         while time.time() < start + wait:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 s.connect(('localhost', 14877))
             except socket.error:
