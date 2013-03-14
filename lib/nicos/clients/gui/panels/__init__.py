@@ -30,7 +30,9 @@ __version__ = "$Revision$"
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-     QColorDialog, QTabWidget
+     QColorDialog
+
+from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
 from nicos.utils import importString
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
@@ -174,7 +176,7 @@ def createWindowItem(item, window):
             sp.addWidget(sub)
         return sp
     elif isinstance(item, tabbed):
-        tw = QTabWidget()
+        tw = TearOffTabWidget()
         for (title, subitem) in item:
             sub = createWindowItem(subitem, window)
             tw.addTab(sub, title)
