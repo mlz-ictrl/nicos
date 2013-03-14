@@ -393,6 +393,9 @@ class Wavevector(Moveable):
             tas.log.info('scan mode is now %s at %s' %
                          (self.scanmode, self.format(pos, unit=True)))
 
+    def doWait(self):
+        self._adevs['base'].wait()
+
 
 class Energy(Moveable):
     """
@@ -442,3 +445,6 @@ class Energy(Moveable):
 
     def doReadUnit(self):
         return self._adevs['tas'].energytransferunit
+
+    def doWait(self):
+        self._adevs['base'].wait()
