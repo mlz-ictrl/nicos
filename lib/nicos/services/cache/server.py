@@ -153,6 +153,22 @@ all incoming keys with prefix "nicos/tcryo" will be set in the cache with prefix
 is configured for that).
 
 Response: none.
+
+Optional Flags
+--------------
+
+Optional Flags can be put between a key and the operator, i.e. they append
+the key. So far only one Flag is defined:
+
+FLAG_NO_STORE ('#')
+avoids storing the update in the on-disk-database. The flag is removed by the
+cache-server before any updates are handled, i.e. no client will ever see this.
+It's use is intented for particular noisy actions which don't need to be store
+on disk. Only the updates with this Flag will not be stored, so a client can
+select this feature for each request.
+
+Works only with the tell-op. This Flag makes no sense otherwise.
+
 """
 
 from __future__ import with_statement
@@ -173,7 +189,7 @@ from nicos.core import Device, Param, ConfigurationError, intrange
 from nicos.utils import loggers, closeSocket, ensureDirectory, allDays
 from nicos.protocols.cache import msg_pattern, line_pattern, \
      DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
-     OP_TELLOLD, OP_LOCK, OP_REWRITE
+     OP_TELLOLD, OP_LOCK, OP_REWRITE, FLAG_NO_STORE
 
 try:  # Windows compatibility: it does not provide os.link
     os_link = os.link
@@ -589,6 +605,9 @@ class MemoryCacheDatabase(CacheDatabase):
             # deletes cannot have a TTL
             ttl = None
         send_update = True
+        # remove no-store flag
+        if key.endswith(FLAG_NO_STORE):
+            key = key[:-len(FLAG_NO_STORE)]
         try:
             category, subkey = key.rsplit('/', 1)
         except ValueError:
@@ -648,6 +667,9 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
             # deletes cannot have a TTL
             ttl = None
         send_update = True
+        # remove no-store flag
+        if key.endswith(FLAG_NO_STORE):
+            key = key[:-len(FLAG_NO_STORE)]
         try:
             category, subkey = key.rsplit('/', 1)
         except ValueError:
@@ -1001,6 +1023,10 @@ class FlatfileCacheDatabase(CacheDatabase):
             ttl = None
         if time is None:
             time = currenttime()
+        store_on_disk = True
+        if key.endswith(FLAG_NO_STORE):
+            key = key[:-len(FLAG_NO_STORE)]
+            store_on_disk = False
         with self._cat_lock:
             if currenttime() > self._nextmidnight:
                 self._rollover()
@@ -1030,11 +1056,12 @@ class FlatfileCacheDatabase(CacheDatabase):
                         update = False
                 if update:
                     db[subkey] = Entry(time, ttl, value)
-                    fd.write('%s\t%s\t%s\t%s\n' % (
-                        subkey, time,
-                        ttl and '-' or (value and '+' or '-'),
-                        value or '-'))
-                    fd.flush()
+                    if store_on_disk:
+                        fd.write('%s\t%s\t%s\t%s\n' % (
+                            subkey, time,
+                            ttl and '-' or (value and '+' or '-'),
+                            value or '-'))
+                        fd.flush()
             if update:
                 key = newcat + '/' + subkey
                 for client in self._server._connected.values():

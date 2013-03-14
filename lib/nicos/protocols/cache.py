@@ -42,6 +42,9 @@ OP_TELLOLD = '!'
 OP_LOCK = '$'
 OP_REWRITE = '~'
 
+# put flags between key and op...
+FLAG_NO_STORE = '#'
+
 # regular expression matching a cache protocol message
 msg_pattern = re.compile(r'''
     ^ (?:

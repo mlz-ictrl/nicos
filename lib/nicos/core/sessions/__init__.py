@@ -52,6 +52,7 @@ from nicos.utils.loggers import initLoggers, NicosLogger, \
      ColoredConsoleHandler, NicosLogfileHandler
 from nicos.devices.instrument import Instrument
 from nicos.devices.cacheclient import CacheClient, CacheLockError, SyncCacheClient
+from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
      NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES
 
@@ -1058,7 +1059,7 @@ class Session(object):
         # NOTE: simulation mode is disconnected from cache, therefore no elog
         # events will be sent in simulation mode
         if self.cache:
-            self.cache.put_raw('logbook/' + eventtype, data)
+            self.cache.put_raw('logbook/' + eventtype + FLAG_NO_STORE, data)
 
     # -- Action logging --------------------------------------------------------
 
@@ -1067,20 +1068,20 @@ class Session(object):
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action', joined)
+            self.cache.put(self.experiment, 'action' + FLAG_NO_STORE, joined)
 
     def endActionScope(self):
         self._actionStack.pop()
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action', joined)
+            self.cache.put(self.experiment, 'action' + FLAG_NO_STORE, joined)
 
     def action(self, what):
         joined = ' :: '.join(self._actionStack + [what])
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action', joined)
+            self.cache.put(self.experiment, 'action' + FLAG_NO_STORE, joined)
 
     # -- Session-specific behavior ---------------------------------------------
 
