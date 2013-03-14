@@ -33,7 +33,8 @@ default_profile_config = ('Default', [
         vsplit(
             hsplit(
                 panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-                panel('nicos.clients.gui.panels.watch.WatchPanel'),
+#                panel('nicos.clients.gui.panels.watch.WatchPanel'),
+                panel('nicos.clients.gui.panels.devices.DevicesPanel'),
             ),
             panel('nicos.clients.gui.panels.console.ConsolePanel'),
         ),
