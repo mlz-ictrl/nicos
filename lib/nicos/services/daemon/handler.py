@@ -501,6 +501,14 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(STX, serialize(history))
 
     @command()
+    def getcachekeys(self, substring):
+        """Return a wildcard cache key query result, if available."""
+        if not session.cache:
+            self.write(STX, serialize([]))
+        result = session.cache.query_db(substring)
+        self.write(STX, serialize(result))
+
+    @command()
     def gettrace(self):
         """Return current execution status as a stacktrace."""
         self.write(STX, serialize(self.controller.current_location(True)))

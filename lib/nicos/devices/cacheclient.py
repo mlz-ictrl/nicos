@@ -608,6 +608,9 @@ class CacheClient(BaseCacheClient):
     def unlock(self, key, sessionid=None):
         return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)
 
+    def query_db(self, substring):
+        return [(k, self._db[k][0]) for k in self._db if substring in k]
+
 
 class DaemonCacheClient(CacheClient):
     def _propagate(self, args):
