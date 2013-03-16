@@ -128,8 +128,9 @@ class Session(object):
             path.join(self.config.control_path, 'custom/demo/setups')):
             self._setup_path = path.join(self.config.control_path,
                                          'custom/demo/setups')
-        # devices failed in the current setup process
+        # devices failed and succeeded to create in the current setup process
         self._failed_devices = None
+        self._success_devices = None
         # info about all loadable setups
         self._setup_info = {}
         # namespace to place user-accessible items in
@@ -630,6 +631,8 @@ class Session(object):
                            list(self.explicit_setups))
             self.elog_event('setup', list(self.explicit_setups))
 
+        self.setupCallback(list(self.loaded_setups),
+                           list(self.explicit_setups))
         if setupnames:
             self.log.info('setups loaded: %s' % ', '.join(setupnames))
 
@@ -650,6 +653,8 @@ class Session(object):
                     self.unexport(dev.name, warn=False)
                     dev.shutdown()
                     devs.remove(dev)
+        self.deviceCallback('destroy', list(already_shutdown))
+        self.setupCallback([], [])
         self.devices.clear()
         self.configured_devices.clear()
         self.explicit_devices.clear()
@@ -824,10 +829,13 @@ class Session(object):
         and again during one setup process.
         """
         self._failed_devices = set()
+        self._success_devices = []
 
     def endMultiCreate(self):
         """Mark the end of a multi-create."""
         self._failed_devices = None
+        self.deviceCallback('create', self._success_devices)
+        self._success_devices = None
 
     def getDevice(self, dev, cls=None, source=None):
         """Return a device *dev* from the current setup.
@@ -902,6 +910,10 @@ class Session(object):
             if self._failed_devices is not None:
                 self._failed_devices.add(devname)
             raise
+        if self._success_devices is not None:
+            self._success_devices.append(devname)
+        else:
+            self.deviceCallback('create', [devname])
         if explicit:
             self.explicit_devices.add(devname)
             self.export(devname, dev)
@@ -915,6 +927,7 @@ class Session(object):
         self.log.info('shutting down device %r...' % devname)
         dev = self.devices[devname]
         dev.shutdown()
+        self.deviceCallback('destroy', [devname])
         if devname in self.namespace:
             self.unexport(devname)
 
@@ -1112,6 +1125,12 @@ class Session(object):
     def clientExec(self, func, args):
         """Execute a function client-side."""
         raise NotImplementedError('clientExec is missing for this session')
+
+    def deviceCallback(self, action, devnames):
+        """Callback when devices were created or shut down."""
+
+    def setupCallback(self, setupnames, explicit):
+        """Callback when setups were loaded or unloaded."""
 
 
 # must be imported after class definitions due to module interdependencies
