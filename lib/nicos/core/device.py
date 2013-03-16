@@ -35,7 +35,7 @@ from nicos import session
 from nicos.core import status
 from nicos.core.utils import formatStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
-     anytype, none_or, limits, dictof
+     anytype, none_or, limits, dictof, listof
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError
@@ -257,6 +257,8 @@ class Device(object):
     # A dictionary mapping parameter names to parameter descriptions, given as
     # Param objects.
     parameters = {
+        'classes':     Param('Names of device class and all its base classes',
+                             type=listof(str), settable=False, userparam=False),
         'description': Param('A description of the device', type=str,
                              settable=True),
         'lowlevel':    Param('Whether the device is not interesting to users',
@@ -351,6 +353,9 @@ class Device(object):
             raise UsageError(self, 'device has no parameter %s, use '
                              'ListParams(%s) to show all' % (name, self))
         setattr(self, name.lower(), value)
+
+    def doReadClasses(self):
+        return [c.__module__ + '.' + c.__name__ for c in self.__class__.__mro__]
 
     def doUpdateLoglevel(self, value):
         self.log.setLevel(loggers.loglevels[value])
