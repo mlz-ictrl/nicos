@@ -257,6 +257,8 @@ class Device(object):
     # A dictionary mapping parameter names to parameter descriptions, given as
     # Param objects.
     parameters = {
+        'name':        Param('The name of the device', type=str, settable=False,
+                             userparam=False),
         'classes':     Param('Names of device class and all its base classes',
                              type=listof(str), settable=False, userparam=False),
         'description': Param('A description of the device', type=str,
@@ -284,7 +286,7 @@ class Device(object):
                 raise ProgrammingError('device with name %s already exists' % name)
             session.devices[name] = self
 
-        self.__dict__['name'] = name
+        self._name = name
         # _config: device configuration (all parameter names lower-case)
         self._config = dict((name.lower(), value)
                             for (name, value) in config.items())
@@ -324,21 +326,21 @@ class Device(object):
             object.__setattr__(self, name, value)
 
     def __str__(self):
-        return self.name
+        return self._name
 
     def __repr__(self):
         if not self.description:
-            return '<device %s (a %s.%s)>' % (self.name,
+            return '<device %s (a %s.%s)>' % (self._name,
                                               self.__class__.__module__,
                                               self.__class__.__name__)
-        return '<device %s "%s" (a %s.%s)>' % (self.name,
+        return '<device %s "%s" (a %s.%s)>' % (self._name,
                                                self.description,
                                                self.__class__.__module__,
                                                self.__class__.__name__)
 
     def __reduce__(self):
         # Used for pickling the device e.g. when sending between daemon and GUI
-        return (str, (self.name,))
+        return (str, (self._name,))
 
     def getPar(self, name):
         """Get a parameter of the device."""
@@ -353,6 +355,9 @@ class Device(object):
             raise UsageError(self, 'device has no parameter %s, use '
                              'ListParams(%s) to show all' % (name, self))
         setattr(self, name.lower(), value)
+
+    def doReadName(self):
+        return self._name
 
     def doReadClasses(self):
         return [c.__module__ + '.' + c.__name__ for c in self.__class__.__mro__]
@@ -425,7 +430,7 @@ class Device(object):
                             self, 'device %r item %d has wrong type (should be '
                             '%s' % (aname, i, cls.__name__))
                     devlist.append(dev)
-                    dev._sdevs.add(self.name)
+                    dev._sdevs.add(self._name)
             else:
                 dev = session.getDevice(value, source=self)
                 if not isinstance(dev, cls):
@@ -433,12 +438,12 @@ class Device(object):
                         self, 'device %r has wrong type (should be %s)' %
                         (aname, cls.__name__))
                 self._adevs[aname] = dev
-                dev._sdevs.add(self.name)
+                dev._sdevs.add(self._name)
 
         self._cache = self._getCache()
         lastconfig = None
         if self._cache:
-            lastconfig = self._cache.get('_lastconfig_', self.name, None)
+            lastconfig = self._cache.get('_lastconfig_', self._name, None)
 
         def _init_param(param, paraminfo):
             param = param.lower()
@@ -522,7 +527,7 @@ class Device(object):
                     self._subscriptions.append(param)
 
         if self._cache:
-            self._cache.put('_lastconfig_', self.name, self._config)
+            self._cache.put('_lastconfig_', self._name, self._config)
 
         # call custom initialization
         if hasattr(self, 'doInit'):
@@ -684,11 +689,11 @@ class Device(object):
         for adev in self._adevs.values():
             if isinstance(adev, list):
                 for real_adev in adev:
-                    real_adev._sdevs.discard(self.name)
+                    real_adev._sdevs.discard(self._name)
             elif adev is not None:
-                adev._sdevs.discard(self.name)
-        session.devices.pop(self.name, None)
-        session.explicit_devices.discard(self.name)
+                adev._sdevs.discard(self._name)
+        session.devices.pop(self._name, None)
+        session.explicit_devices.discard(self._name)
 
     @usermethod
     def version(self):
@@ -722,7 +727,7 @@ class Device(object):
         start = currenttime()
         while True:
             try:
-                self._cache.lock(self.name)
+                self._cache.lock(self._name)
             except CacheLockError:
                 if currenttime() > start + timeout:
                     raise CommunicationError(self, 'device locked in cache')
@@ -744,7 +749,7 @@ class Device(object):
         if not self._cache:
             return
         try:
-            self._cache.unlock(self.name)
+            self._cache.unlock(self._name)
         except CacheLockError:
             raise CommunicationError(self, 'device locked by other instance')
 
