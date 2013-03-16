@@ -24,8 +24,11 @@
 
 """NICOS GUI history log window."""
 
+from __future__ import with_statement
+
 __version__ = "$Revision$"
 
+import os
 import sys
 import time
 import cPickle as pickle
@@ -590,10 +593,11 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         descr = str(newdlg.description.text())
         fname = str(newdlg.filename.text())
         pathname = self.currentPlot.savePng()
-        remotefn = self.client.ask('transfer',
-                        open(pathname, 'rb').read().encode('base64'))
+        with open(pathname, 'rb') as fp:
+            remotefn = self.client.ask('transfer', fp.read().encode('base64'))
         self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
                         (descr, remotefn, fname))
+        os.unlink(pathname)
 
 
 class ViewPlot(NicosPlot):
