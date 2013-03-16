@@ -340,7 +340,8 @@ class ConnectionHandler(BaseRequestHandler):
     def update(self, newcode):
         """Update the currently running script."""
         try:
-            self.controller.current_script.update(newcode, self.controller)
+            self.controller.current_script.update(newcode,
+                                                  self.controller, self.user)
         except ScriptError, err:
             self.write(NAK, str(err))
             return

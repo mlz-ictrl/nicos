@@ -172,7 +172,7 @@ class ScriptRequest(Request):
             if self.name:
                 session.elog_event('scriptend', self.name)
 
-    def update(self, text, controller):
+    def update(self, text, controller, user):
         """Update the code with a new script.
 
         This method is called from a different thread than execute(),
@@ -200,6 +200,9 @@ class ScriptRequest(Request):
                                       'part of the code')
             # everything is ok, replace the script and the remaining blocks
             self.text = text
+            # also set the updating user as the new user of the script
+            # (but the old userlevel remains)
+            self.user = user.name
             if session.experiment and session.mode == 'master':
                 scr = session.experiment.scripts
                 scr[self._exp_script_index] = self.text
