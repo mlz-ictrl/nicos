@@ -123,7 +123,7 @@ class ConsolePanel(Panel):
             self.label.setText('>>')
 
     def on_client_initstatus(self, state):
-        self.on_client_mode(state[2])
+        self.on_client_mode(state['mode'])
         messages = self.client.ask('getmessages', '10000')
         self.outView.clear()
         total = len(messages) // 2500 + 1

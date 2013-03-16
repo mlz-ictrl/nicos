@@ -185,11 +185,11 @@ class ScriptStatusPanel(Panel):
             self.script_queue.remove(reqno)
 
     def on_client_initstatus(self, state):
-        self.setScript(state[1])
-        self.current_request['script'] = state[1]
+        self.setScript(state['script'])
+        self.current_request['script'] = state['script']
         self.current_request['reqno'] = None
-        self.on_client_status(state[0])
-        for req in state[5]:
+        self.on_client_status(state['status'])
+        for req in state['requests']:
             self.on_client_request(req)
 
     def on_client_status(self, data):

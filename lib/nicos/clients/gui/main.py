@@ -105,6 +105,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connect(self.client, SIGNAL('clientexec'), self.on_client_clientexec)
         self.connect(self.client, SIGNAL('plugplay'), self.on_client_plugplay)
         self.connect(self.client, SIGNAL('watchdog'), self.on_client_watchdog)
+        self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
 
         # data handling setup
         self.data = DataHandler(self.client)
@@ -422,9 +423,9 @@ class MainWindow(QMainWindow, DlgUtils):
         # get all server status info
         initstatus = self.client.ask('getstatus')
         # handle setups
-        self.setTitlebar(True, initstatus[4])
+        self.setTitlebar(True, initstatus['setups'][1])
         # handle initial status
-        self.on_client_status(initstatus[0])
+        self.on_client_status(initstatus['status'])
         # propagate info to all components
         self.client.signal('initstatus', initstatus)
 
@@ -432,6 +433,9 @@ class MainWindow(QMainWindow, DlgUtils):
         for panel in self.panels:
             if isinstance(panel, ConsolePanel) and panel.hasinput:
                 panel.commandInput.setFocus()
+
+    def on_client_setup(self, data):
+        self.setTitlebar(True, data[1])
 
     def on_client_status(self, data):
         status = data[0]
@@ -512,10 +516,6 @@ class MainWindow(QMainWindow, DlgUtils):
                 time.strftime('%Y-%m-%d %H:%S', time.localtime(data[1])))
             w.messagelabel.setText('Executing action:\n' + data[2])
         dlg.show()
-
-    def on_client_cache(self, (time, key, op, value)):
-        if key == 'session/mastersetupexplicit':
-            self.setTitlebar(True, cache_load(value))
 
     def on_trayIcon_activated(self, reason):
         if reason == QSystemTrayIcon.Trigger:

@@ -57,7 +57,7 @@ class WatchPanel(Panel):
         self.oneShotEval.setEnabled(isconnected)
 
     def on_client_initstatus(self, state):
-        self.on_client_watch(state[3])
+        self.on_client_watch(state['watch'])
 
     def on_client_watch(self, data):
         values = data

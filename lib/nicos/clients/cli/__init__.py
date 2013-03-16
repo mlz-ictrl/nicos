@@ -263,7 +263,6 @@ class NicosCmdClient(NicosClient):
         state = self.ask('getstatus')
         if state is None:
             return
-        status, script, mode, _watch, setups, reqqueue = state[:6]
         if not self.quiet_connect:
             self.put_client(
                 'Connected to %s:%s as %s. '
@@ -275,21 +274,21 @@ class NicosCmdClient(NicosClient):
             if not self.tip_shown:
                 self.put_client('Loaded setups: %s. Enter "/help" for help '
                                 'with the client commands.' %
-                                (', '.join(setups) or '(none)'))
+                                (', '.join(state['setups'][1]) or '(none)'))
                 self.tip_shown = True
             else:
                 self.put_client('Loaded setups: %s.' %
-                                (', '.join(setups) or '(none)'))
+                                (', '.join(state['setups'][1]) or '(none)'))
         else:
             self.put_client('Connected to %s:%s as %s. ' %
                             (self.host, self.port, self.conndata['login']))
-        self.signal('processing', {'script': script, 'reqno': 0})
-        self.signal('status', status)
-        self.current_mode = mode
+        self.signal('processing', {'script': state['script'], 'reqno': 0})
+        self.signal('status', state['status'])
+        self.current_mode = state['mode']
         self.scriptdir = self.eval('session.experiment.scriptdir', '.')
         self.instrument = self.eval('session.instrument.instrument',
                                     self.instrument)
-        for req in reqqueue:
+        for req in state['requests']:
             self.pending_requests[req['reqno']] = req
         self.set_status(self.status)
 

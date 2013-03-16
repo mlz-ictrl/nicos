@@ -72,7 +72,7 @@ def test_simple():
     while True:
         time.sleep(0.05)
         st = client.ask('getstatus')
-        if st[0][0] == STATUS_IDLE:
+        if st['status'][0] == STATUS_IDLE:
             break
 
     # eval/exec
@@ -87,20 +87,20 @@ def test_simple():
 
     # getstatus
     status = client.ask('getstatus')
-    assert status[0] == (STATUS_IDLE, -1)   # execution status
-    assert status[1] == 'printinfo 1'       # current script
-    assert status[2] == 'master'            # current mode
-    assert status[3] == {}                  # no watch expressions
-    assert status[4] == ['daemonmain']      # explicit setups
-    assert status[5] == []                  # no requests queued
+    assert status['status'] == (STATUS_IDLE, -1)   # execution status
+    assert status['script'] == 'printinfo 1'       # current script
+    assert status['mode']   == 'master'            # current mode
+    assert status['watch']  == {}                  # no watch expressions
+    assert status['setups'][1] == ['daemonmain']   # explicit setups
+    assert status['requests'] == []                # no requests queued
 
     # queue/unqueue/emergency
     client.tell('queue', '', 'sleep 0.1')
     client.tell('queue', '', 'printinfo 2')
     status = client.ask('getstatus')
-    assert status[5][-1]['script'] == 'printinfo 2'
-    assert status[5][-1]['user'] == 'user'
-    client.tell('unqueue', str(status[5][-1]['reqno']))
+    assert status['requests'][-1]['script'] == 'printinfo 2'
+    assert status['requests'][-1]['user'] == 'user'
+    client.tell('unqueue', str(status['requests'][-1]['reqno']))
 
     # wait until command is done
     while True:

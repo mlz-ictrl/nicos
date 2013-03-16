@@ -468,14 +468,15 @@ class ConnectionHandler(BaseRequestHandler):
         """Return all important status info."""
         current_script = self.controller.current_script
         request_queue = self.controller.get_queue()
-        self.write(STX, serialize(
-                ((self.controller.status, self.controller.lineno),
-                 current_script and current_script.text or '',
-                 session.mode,
-                 self.controller.eval_watch_expressions(),
-                 session.explicit_setups,
-                 request_queue,
-                 )))
+        self.write(STX, serialize(dict(
+            status   = (self.controller.status, self.controller.lineno),
+            script   = current_script and current_script.text or '',
+            watch    = self.controller.eval_watch_expressions(),
+            requests = request_queue,
+            mode     = session.mode,
+            setups   = (session.loaded_setups, session.explicit_setups),
+            devices  = session.devices,
+        )))
 
     @command()
     def getmessages(self, n):

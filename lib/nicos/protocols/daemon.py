@@ -34,7 +34,7 @@ DEFAULT_PORT = 1301
 
 # protocol version
 
-PROTO_VERSION = 1
+PROTO_VERSION = 2
 
 # message serialization/deserialization
 
@@ -106,4 +106,8 @@ DAEMON_EVENTS = {
     'debugging': True,
     # a plug-and-play/sample-environment event occurred
     'plugplay': True,
+    # a setup was loaded or unloaded
+    'setup': True,
+    # a device was created or destroyed
+    'device': True,
 }

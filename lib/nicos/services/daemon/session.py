@@ -50,6 +50,9 @@ class DaemonSession(NoninteractiveSession):
     autocreate_devices = True
     cache_class = DaemonCacheClient
 
+    # later overwritten to send events to the client
+    emitfunc = lambda self, event, args: None
+
     # to set a point where the "break" command can break, it suffices to execute
     # some piece of code in a frame with the filename starting with "<break>";
     # these objects are such a piece of code (the number designates the level)
@@ -190,6 +193,12 @@ class DaemonSession(NoninteractiveSession):
         """Execute a function client-side."""
         self.emitfunc_private('clientexec', ('%s.%s' %
             (func.__module__, func.__name__),) + args)
+
+    def setupCallback(self, setupnames, explicit):
+        self.emitfunc('setup', (setupnames, explicit))
+
+    def deviceCallback(self, action, devnames):
+        self.emitfunc('device', (action, devnames))
 
     def pnpEvent(self, event, *data):
         self.emitfunc('plugplay', (event,) + data)
