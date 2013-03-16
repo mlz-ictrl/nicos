@@ -19,370 +19,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QStackedWidget" name="stacker">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="page">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="1" column="0">
-            <widget class="QLineEdit" name="sampleName"/>
-           </item>
-           <item row="1" column="1">
-            <widget class="QPushButton" name="newSample">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Set</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="2">
-            <widget class="QLabel" name="label_12">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>New sample:</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="1" column="0">
-            <widget class="QLineEdit" name="remarkText"/>
-           </item>
-           <item row="1" column="1">
-            <widget class="QPushButton" name="addRemark">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Add</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="2">
-            <widget class="QLabel" name="label_5">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Add a &amp;Remark (current experiment status):</string>
-             </property>
-             <property name="buddy">
-              <cstring>remarkText</cstring>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_7">
-           <item>
-            <widget class="QLabel" name="label_3">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Attach a file:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>&amp;File:</string>
-               </property>
-               <property name="buddy">
-                <cstring>fileName</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="fileName"/>
-             </item>
-             <item>
-              <widget class="QPushButton" name="fileSelect">
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="../../../../../resources/nicos-gui.qrc">
-                 <normaloff>:/open</normaloff>:/open</iconset>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <item>
-              <widget class="QLabel" name="label_2">
-               <property name="text">
-                <string>Re&amp;name to:</string>
-               </property>
-               <property name="buddy">
-                <cstring>fileRename</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="fileRename"/>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QLabel" name="label_4">
-               <property name="text">
-                <string>&amp;Description:</string>
-               </property>
-               <property name="buddy">
-                <cstring>fileRename</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="fileDesc"/>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="addFile">
-               <property name="text">
-                <string>Add</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QLabel" name="creoleLabel">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Add &amp;amp;comment, Creole formatted (&lt;a href=&quot;help&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;help&lt;/span&gt;&lt;/a&gt;):</string>
-           </property>
-           <property name="buddy">
-            <cstring>freeFormText</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPlainTextEdit" name="freeFormText"/>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QPushButton" name="addFreeForm">
-             <property name="text">
-              <string>Add</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="page_2">
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <widget class="QLabel" name="label_7">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Creole markup overview</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>== Heading level 2
-=== Heading level 3
-
-* Bullet list
-* Bullet list
-
-# Enumerated list
-# Enumerated list
-
-**bold text**
-//italic text//</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>|= table|= heading|
-| table  | contents |
-| table  | contents |
-
-[[305]]  link to scan
-
-[[http://example.com][external link]]</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_10">
-         <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="creoleDone">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Done</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="refreshLabel">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Log preview: &amp;nbsp; &lt;a href=&quot;refresh&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;refresh&lt;/span&gt;&lt;/a&gt; &amp;nbsp; &lt;a href=&quot;back&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;back&lt;/span&gt;&lt;/a&gt; &amp;nbsp; &lt;a href=&quot;forward&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;forward&lt;/span&gt;&lt;/a&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -407,110 +43,63 @@
     </widget>
    </item>
   </layout>
-  <action name="actionPrint">
+  <action name="actionBack">
    <property name="icon">
     <iconset resource="../../../../../resources/nicos-gui.qrc">
-     <normaloff>:/print</normaloff>:/print</iconset>
+     <normaloff>:/previous</normaloff>:/previous</iconset>
    </property>
    <property name="text">
-    <string>&amp;Print...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+P</string>
+    <string>Back</string>
    </property>
   </action>
-  <action name="actionClose">
+  <action name="actionForward">
    <property name="icon">
     <iconset resource="../../../../../resources/nicos-gui.qrc">
-     <normaloff>:/quit</normaloff>:/quit</iconset>
+     <normaloff>:/next</normaloff>:/next</iconset>
    </property>
    <property name="text">
-    <string>&amp;Close window</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Q</string>
+    <string>Forward</string>
    </property>
   </action>
-  <action name="actionUnzoom">
+  <action name="actionRefresh">
    <property name="icon">
     <iconset resource="../../../../../resources/nicos-gui.qrc">
-     <normaloff>:/viewfull</normaloff>:/viewfull</iconset>
+     <normaloff>:/refresh</normaloff>:/refresh</iconset>
    </property>
    <property name="text">
-    <string>&amp;Unzoom</string>
+    <string>Refresh</string>
    </property>
   </action>
-  <action name="actionPDF">
-   <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
-     <normaloff>:/save</normaloff>:/save</iconset>
-   </property>
+  <action name="actionAddComment">
    <property name="text">
-    <string>&amp;Save as PDF...</string>
+    <string>Add comment</string>
    </property>
    <property name="toolTip">
-    <string>Save plot as PDF</string>
+    <string>Add a free-form comment entry to the logbook</string>
    </property>
   </action>
-  <action name="actionLogScale">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
+  <action name="actionAddRemark">
    <property name="text">
-    <string>&amp;Logarithmic Y scale</string>
-   </property>
-   <property name="iconText">
-    <string>Log Scale</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+L</string>
-   </property>
-  </action>
-  <action name="actionCloseView">
-   <property name="text">
-    <string>Close view</string>
-   </property>
-   <property name="iconText">
-    <string>Close</string>
+    <string>Add Remark</string>
    </property>
    <property name="toolTip">
-    <string>Close plot for this view</string>
+    <string>Add a remark (instrument configuration header) to the logbook</string>
    </property>
   </action>
-  <action name="actionLegend">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
+  <action name="actionAttachFile">
    <property name="text">
-    <string>L&amp;egend</string>
-   </property>
-  </action>
-  <action name="actionDeleteView">
-   <property name="text">
-    <string>Delete view</string>
-   </property>
-   <property name="iconText">
-    <string>Delete</string>
+    <string>Attach file</string>
    </property>
    <property name="toolTip">
-    <string>Delete view</string>
+    <string>Attach a file to the logbook</string>
    </property>
   </action>
-  <action name="actionResetView">
+  <action name="actionNewSample">
    <property name="text">
-    <string>Reset</string>
+    <string>New Sample</string>
    </property>
-  </action>
-  <action name="actionNew">
-   <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
-     <normaloff>:/new</normaloff>:/new</iconset>
-   </property>
-   <property name="text">
-    <string>New view</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
+   <property name="toolTip">
+    <string>Enter a new sample name</string>
    </property>
   </action>
  </widget>
@@ -527,22 +116,5 @@
  <resources>
   <include location="../../../../../resources/nicos-gui.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>actionClose</sender>
-   <signal>triggered()</signal>
-   <receiver>ElogWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>321</x>
-     <y>230</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

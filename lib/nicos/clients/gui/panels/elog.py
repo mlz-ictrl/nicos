@@ -30,10 +30,11 @@ from os import path
 from cgi import escape
 
 from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
-from PyQt4.QtGui import QMainWindow, QTextEdit
+from PyQt4.QtGui import QMainWindow, QTextEdit, QDialog, QInputDialog, QMenu, \
+     QToolBar
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, DlgUtils, setBackgroundColor
+from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 
 
 class ELogPanel(Panel, DlgUtils):
@@ -43,7 +44,6 @@ class ELogPanel(Panel, DlgUtils):
         Panel.__init__(self, parent, client)
         DlgUtils.__init__(self, 'Logbook')
         loadUi(self, 'elog.ui', 'panels')
-        self.stacker.setCurrentIndex(0)
 
         self.timer = QTimer(self, singleShot=True, timeout=self.on_timer_timeout)
 
@@ -55,6 +55,35 @@ class ELogPanel(Panel, DlgUtils):
         self.connect(self.preview.page(),
                      SIGNAL('unsupportedContent(QNetworkReply *)'),
                      self.on_page_unsupportedContent)
+
+    def getMenus(self):
+        menu1 = QMenu('&Browser', self)
+        menu1.addAction(self.actionBack)
+        menu1.addAction(self.actionForward)
+        menu1.addSeparator()
+        menu1.addAction(self.actionRefresh)
+        menu2 = QMenu('&Logbook', self)
+        menu2.addAction(self.actionAddComment)
+        menu2.addAction(self.actionAddRemark)
+        menu2.addSeparator()
+        menu2.addAction(self.actionAttachFile)
+        menu2.addSeparator()
+        menu2.addAction(self.actionNewSample)
+        return [menu1, menu2]
+
+    def getToolbars(self):
+        bar = QToolBar('Logbook')
+        bar.addAction(self.actionBack)
+        bar.addAction(self.actionForward)
+        bar.addSeparator()
+        bar.addAction(self.actionRefresh)
+        bar.addSeparator()
+        bar.addAction(self.actionAddComment)
+        bar.addAction(self.actionAddRemark)
+        bar.addSeparator()
+        bar.addAction(self.actionNewSample)
+        bar.addAction(self.actionAttachFile)
+        return [bar]
 
     def on_timer_timeout(self):
         sig = SIGNAL('loadFinished(bool)')
@@ -116,72 +145,72 @@ class ELogPanel(Panel, DlgUtils):
         elif link == 'forward':
             self.preview.forward()
 
-    def setCustomStyle(self, font, back):
-        self.freeFormText.setFont(font)
-        setBackgroundColor(self.freeFormText, back)
+    @qtsig('')
+    def on_actionRefresh_triggered(self):
+        self.on_timer_timeout()
 
     @qtsig('')
-    def on_newSample_clicked(self):
-        name = unicode(self.sampleName.text())
-        if not name:
+    def on_actionBack_triggered(self):
+        self.preview.back()
+
+    @qtsig('')
+    def on_actionForward_triggered(self):
+        self.preview.forward()
+
+    @qtsig('')
+    def on_actionNewSample_triggered(self):
+        name, ok = QInputDialog.getText(self, 'New sample',
+            'Please enter the new sample name:')
+        if not ok or not name:
             return
+        name = unicode(name)
         self.client.ask('eval', 'NewSample(%r)' % name)
         self.timer.start(750)
 
     @qtsig('')
-    def on_addRemark_clicked(self):
-        remark = unicode(self.remarkText.text())
-        if not remark:
+    def on_actionAddRemark_triggered(self):
+        remark, ok = QInputDialog.getText(self, 'New remark',
+            'Please enter the remark.  The remark will be add to the logbook '
+            'as a heading and will also appear in the data files.')
+        if not ok or not remark:
             return
+        remark = unicode(remark)
         self.client.ask('eval', 'Remark(%r)' % remark)
-        self.remarkText.setText('')
-        self.remarkText.setFocus()
         self.timer.start(750)
 
     @qtsig('')
-    def on_addFreeForm_clicked(self):
-        freeform = unicode(self.freeFormText.toPlainText())
-        if not freeform:
+    def on_actionAddComment_triggered(self):
+        dlg = dialogFromUi(self, 'elog_comment.ui', 'panels')
+        dlg.helpFrame.setVisible(False)
+        dlg.creoleLabel.linkActivated.connect(
+            lambda link: dlg.helpFrame.setVisible(True))
+        if dlg.exec_() != QDialog.Accepted:
             return
-        self.client.ask('eval', 'LogEntry(%r)' % freeform)
-        self.freeFormText.clear()
-        self.freeFormText.setFocus()
+        text = unicode(dlg.freeFormText.toPlainText())
+        if not text:
+            return
+        self.client.ask('eval', 'LogEntry(%r)' % text)
         self.timer.start(750)
 
     @qtsig('')
-    def on_fileSelect_clicked(self):
-        self.selectInputFile(self.fileName, 'Choose a file to attach')
-        self.fileRename.setFocus()
-
-    @qtsig('')
-    def on_addFile_clicked(self):
-        fname = unicode(self.fileName.text())
+    def on_actionAttachFile_triggered(self):
+        dlg = dialogFromUi(self, 'elog_attach.ui', 'panels')
+        def on_fileSelect_clicked():
+            self.selectInputFile(dlg.fileName, 'Choose a file to attach')
+            dlg.fileRename.setFocus()
+        dlg.fileSelect.clicked.connect(on_fileSelect_clicked)
+        if dlg.exec_() != QDialog.Accepted:
+            return
+        fname = unicode(dlg.fileName.text())
         if not path.isfile(fname):
             return self.showError('The given file name is not a valid file.')
-        newname = unicode(self.fileRename.text())
+        newname = unicode(dlg.fileRename.text())
         if not newname:
             newname = path.basename(fname)
-        desc = unicode(self.fileDesc.text())
+        desc = unicode(dlg.fileDesc.text())
         filecontent = open(fname, 'rb').read()
         # file content may contain \x1e characters; encode to base64
         remotefn = self.client.ask('transfer', filecontent.encode('base64'))
         self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
                         (desc, remotefn, newname))
-        self.fileName.setFocus()
         self.timer.start(750)
-
-    def on_creoleLabel_linkActivated(self, link):
-        self.stacker.setCurrentIndex(1)
-
-    @qtsig('')
-    def on_creoleDone_clicked(self):
-        self.stacker.setCurrentIndex(0)
-
-    def on_remarkText_returnPressed(self):
-        self.addRemark.click()
-
-    def on_fileName_returnPressed(self):
-        self.addFile.click()
-
-    def on_fileRename_returnPressed(self):
-        self.addFile.click()
