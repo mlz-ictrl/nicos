@@ -145,6 +145,8 @@ class EditorPanel(Panel):
         self.custom_font = None
         self.custom_back = None
 
+        self.connect(parent, SIGNAL('codeGenerated'), self.on_codeGenerated)
+
         if not has_scintilla:
             self.actionComment.setEnabled(False)
             self.actionUncomment.setEnabled(False)
@@ -339,6 +341,16 @@ class EditorPanel(Panel):
             action.setEnabled(on)
         for action in [self.actionComment, self.actionUncomment]:
             action.setEnabled(on and has_scintilla)
+
+    def on_codeGenerated(self, code):
+        if self.currentEditor:
+            if self.currentEditor.text() and \
+                self.askQuestion('Overwrite the current code?'):
+                self.currentEditor.setText(code)
+            else:
+                self.currentEditor.append(code)
+        else:
+            self.showError('No script is opened at the moment.')
 
     def on_tabber_currentChanged(self, index):
         self.enableFileActions(index >= 0)
@@ -702,7 +714,7 @@ class EditorPanel(Panel):
         self.saveFile(self.currentEditor)
         self.window.setWindowTitle('%s[*] - %s editor' %
             (self.filenames[self.currentEditor], self.mainwindow.instrument))
- 
+
     @qtsig('')
     def on_actionSaveAs_triggered(self):
         self.saveFileAs(self.currentEditor)
