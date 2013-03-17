@@ -135,13 +135,14 @@ class Fit(object):
                 continue
             if self.xmax is not None and v > self.xmax:
                 continue
-            xn.append(v)
-            yn.append(y[i])
-            dyn.append(dy[i])
+            if dy[i] > 0:
+                xn.append(v)
+                yn.append(y[i])
+                dyn.append(dy[i])
         xn, yn, dyn = array(xn), array(yn), array(dyn)
         try:
             popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn)
-            parerrors = sqrt(diagonal(pcov))
+            parerrors = sqrt(abs(diagonal(pcov)))
         except (RuntimeError, ValueError):
             return self.result(name, None, xn, yn, dyn, None, None)
         return self.result(name, 'ODR', xn, yn, dyn, popt, parerrors)
