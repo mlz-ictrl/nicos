@@ -58,8 +58,9 @@ class AuxiliaryWindow(QMainWindow):
             loadBasicWindowSettings(self, settings)
 
         self.setWindowTitle(config[0])
-        widget = createWindowItem(config[3], self)
+        widget = createWindowItem(config[3], self, self)
         self.centralLayout.addWidget(widget)
+        self.centralLayout.setContentsMargins(0, 0, 0, 0)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
@@ -141,43 +142,49 @@ class Panel(QWidget, DlgUtils):
         pass
 
 
-def createWindowItem(item, window):
+def createWindowItem(item, window, menuwindow):
     if isinstance(item, panel):
         cls = importString(item[0])
-        p = cls(window, window.client)
+        p = cls(menuwindow, window.client)
         p.setOptions(item[1])
         window.panels.append(p)
         for toolbar in p.getToolbars():
             # this helps for serializing window state
             toolbar.setObjectName(toolbar.windowTitle())
-            if hasattr(window, 'toolBarWindows'):
-                window.insertToolBar(window.toolBarWindows, toolbar)
+            if hasattr(menuwindow, 'toolBarWindows'):
+                menuwindow.insertToolBar(menuwindow.toolBarWindows, toolbar)
             else:
-                window.addToolBar(toolbar)
+                menuwindow.addToolBar(toolbar)
         for menu in p.getMenus():
-            if hasattr(window, 'menuWindows'):
-                window.menuBar().insertMenu(window.menuWindows.menuAction(), menu)
+            if hasattr(menuwindow, 'menuWindows'):
+                menuwindow.menuBar().insertMenu(
+                    menuwindow.menuWindows.menuAction(), menu)
             else:
-                window.menuBar().addMenu(menu)
+                menuwindow.menuBar().addMenu(menu)
         p.setCustomStyle(window.user_font, window.user_color)
         return p
     elif isinstance(item, hsplit):
         sp = QSplitter(Qt.Horizontal)
         window.splitters.append(sp)
         for subitem in item:
-            sub = createWindowItem(subitem, window)
+            sub = createWindowItem(subitem, window, menuwindow)
             sp.addWidget(sub)
         return sp
     elif isinstance(item, vsplit):
         sp = QSplitter(Qt.Vertical)
         window.splitters.append(sp)
         for subitem in item:
-            sub = createWindowItem(subitem, window)
+            sub = createWindowItem(subitem, window, menuwindow)
             sp.addWidget(sub)
         return sp
     elif isinstance(item, tabbed):
         tw = TearOffTabWidget()
         for (title, subitem) in item:
-            sub = createWindowItem(subitem, window)
-            tw.addTab(sub, title)
+            subwindow = QMainWindow(tw)
+            subwindow.mainwindow = window.mainwindow
+            subwindow.curprofile = window.curprofile
+            subwindow.user_color = window.user_color
+            item = createWindowItem(subitem, window, subwindow)
+            subwindow.setCentralWidget(item)
+            tw.addTab(subwindow, title)
         return tw
