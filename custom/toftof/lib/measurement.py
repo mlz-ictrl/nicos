@@ -35,7 +35,7 @@ from time import strftime, asctime, localtime, time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import Measurable, Param, Value, Override, NicosError, \
+from nicos.core import Measurable, Device, Param, Value, Override, NicosError, \
      intrange, listof, status
 from nicos.devices.abstract import ImageStorage
 
