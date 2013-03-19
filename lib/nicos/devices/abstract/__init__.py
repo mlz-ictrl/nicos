@@ -116,6 +116,9 @@ class ImageStorage(Device, NeedsDatapath):
                               type=str, settable=True),
         'lastfilenumber': Param('File number of the last measurement',
                                 type=int, settable=True),
+        'filecounter':  Param('File path to write the current file counter '
+                              '(or empty to use a default file path)',
+                              type=str),
     }
 
     def doUpdateDatapath(self, value):
@@ -124,7 +127,8 @@ class ImageStorage(Device, NeedsDatapath):
         self._readCurrentCounter()
 
     def _readCurrentCounter(self):
-        self._counter = readFileCounter(path.join(self._datapath, 'counter'))
+        self._counter = readFileCounter(self.filecounter or
+                                        path.join(self._datapath, 'counter'))
         self._setROParam('lastfilenumber', self._counter)
         self._setROParam('lastfilename', self._getFilename(self._counter))
 
@@ -139,7 +143,8 @@ class ImageStorage(Device, NeedsDatapath):
             self._readCurrentCounter()
         if increment:
             self._counter += 1
-        updateFileCounter(path.join(self._datapath, 'counter'), self._counter)
+        updateFileCounter(self.filecounter or
+                          path.join(self._datapath, 'counter'), self._counter)
         self.lastfilename = path.join(self._datapath,
                                       self._getFilename(self._counter))
         self.lastfilenumber = self._counter
