@@ -10,7 +10,7 @@ devices = dict(
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DB',
-                    server = 'cpci1.toftof.frm2',
+                    server = 'tofhw.toftof.frm2',
                     loglevel = 'info',
                    ),
 )

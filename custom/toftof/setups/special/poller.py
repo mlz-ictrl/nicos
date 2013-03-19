@@ -3,14 +3,16 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'cpci1.toftof.frm2'
+    cache = 'tofhw.toftof.frm2'
 )
 
 devices = dict(
     Poller = device('services.poller.Poller',
                     autosetup = False,  # important! do not poll everything
-                    poll = ['chopper', 'reactor', 'vacuum', 'voltage'] +
-                           ['he3', 'htf', 'ls', 'biofurnace', 'cryo_ccr', 'pressure'],
+                    poll = ['chopper', 'reactor', 'vacuum', 'voltage', 'table'] +
+                           ['slit', 'safety', 'system'] +
+                           ['he3', 'htf', 'ls', 'biofurnace', 'cryo_ccr'] +
+                           ['pressure'],
                     alwayspoll = [],
                     blacklist = []),
 )

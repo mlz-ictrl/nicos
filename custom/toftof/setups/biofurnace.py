@@ -4,9 +4,11 @@ group = 'optional'
 
 includes = ['system']
 
+nethost = 'toftofsrv'
+
 devices = dict(
     bio = device('toftof.julabo.Julabo',
-                 tacodevice = '//toftofsrv/toftof/rs232/ifbiofurnace',
+                 tacodevice = '//%s/toftof/rs232/ifbiofurnace' % (nethost,),
                  intern_extern = 0,
                  userlimits = (-40, 160),
                  abslimits = (-50, 200),

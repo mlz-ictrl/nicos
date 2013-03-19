@@ -1,7 +1,9 @@
 description = 'NICOS system setup'
 
+group = 'lowlevel'
+
 sysconfig = dict(
-    cache = 'cpci1.toftof.frm2',
+    cache = 'tofhw.toftof.frm2',
     instrument = 'TOFTOF',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -14,11 +16,17 @@ devices = dict(
 
     Sample   = device('devices.experiment.Sample'),
 
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('frm2.experiment.Experiment',
                       dataroot = '/users/data',
+                      responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>, ' \
+                                    'G. Simeoni <giovanna.simeoni@frm2.tum.de>',
                       sample = 'Sample',
-                      localcontact = 'M. Mustermann',
-                      elog = False),
+                      localcontact = 'W. Lohstroh, G. Simeoni',
+                      serviceexp = '0',
+                      sendmail = True,
+                      mailsender = 'nicos.toftof@frm2.tum.de',
+                      propdb = 'useroffice@tacodb.taco.frm2:useroffice',
+                      elog = True),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
                       prefix = '/users/data'),
@@ -28,8 +36,9 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink'),
 
     emailer  = device('devices.notifiers.Mailer',
-                      sender = 'nicos@cpci1.toftof.frm2',
-                      copies = [],
+                      sender = 'nicos.toftof@frm2.tum.de',
+                      copies = ['wiebke.lohstroh@frm2.tum.de',
+                                'giovanna.simeoni@frm2.tum.de'],
                       subject = 'TOFTOF'),
 
     smser    = device('devices.notifiers.SMSer',
