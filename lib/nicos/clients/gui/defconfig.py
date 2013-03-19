@@ -30,13 +30,13 @@ from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool
 
 default_profile_uid = '07139e62-d244-11e0-b94b-00199991c245'
 default_profile_config = ('Default', [
-        vsplit(
-            hsplit(
+        hsplit(
+            vsplit(
                 panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
 #                panel('nicos.clients.gui.panels.watch.WatchPanel'),
-                panel('nicos.clients.gui.panels.devices.DevicesPanel'),
+                panel('nicos.clients.gui.panels.console.ConsolePanel'),
             ),
-            panel('nicos.clients.gui.panels.console.ConsolePanel'),
+            panel('nicos.clients.gui.panels.devices.DevicesPanel'),
         ),
         window('Setup', 'setup', True,
             panel('nicos.clients.gui.panels.setup.SetupPanel')),
