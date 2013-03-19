@@ -378,6 +378,9 @@ class Wavevector(Moveable):
     def doRead(self, maxage=0):
         return self._adevs['base']._readInvAng(maxage)
 
+    def doStatus(self, maxage=0):
+        return self._adevs['base'].status(maxage)
+
     def doStart(self, pos):
         # first drive there, to determine if it is within limits
         self._adevs['base']._startInvAng(pos)
@@ -395,6 +398,9 @@ class Wavevector(Moveable):
 
     def doWait(self):
         self._adevs['base'].wait()
+
+    def doStop(self):
+        self._adevs['base'].stop()
 
 
 class Energy(Moveable):
@@ -425,6 +431,9 @@ class Energy(Moveable):
         lam = mono._tolambda(mono.read(maxage))
         return mono._fromlambda(lam, self._adevs['tas'].energytransferunit)
 
+    def doStatus(self, maxage=0):
+        return self._adevs['base'].status(maxage)
+
     def doStart(self, pos_e):
         # first drive there, to determine if it is within limits
         tas = self._adevs['tas']
@@ -448,3 +457,6 @@ class Energy(Moveable):
 
     def doWait(self):
         self._adevs['base'].wait()
+
+    def doStop(self):
+        self._adevs['base'].stop()
