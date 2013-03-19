@@ -37,7 +37,7 @@ import threading
 from SocketServer import TCPServer
 
 from nicos import nicos_version
-from nicos.core import listof, tupleof, oneof, Device, Param
+from nicos.core import listof, tupleof, oneof, Device, Param, ACCESS_LEVELS
 from nicos.utils import closeSocket
 
 from nicos.services.daemon.user import Authenticator
@@ -158,6 +158,30 @@ class Server(TCPServer):
         self.daemon.log.exception('exception while handling request')
 
 
+def auth_entry(val=None):
+    val = list(val)
+    if len(val) != 3:
+        raise ValueError('auth entry needs to be a 3-tuple '
+                         '(name, password, accesslevel)')
+    if not isinstance(val[0], str):
+        raise ValueError('user name must be a string')
+    if not isinstance(val[1], str):
+        raise ValueError('user password must be a string')
+    if isinstance(val[2], str):
+        for i, name in ACCESS_LEVELS.iteritems():
+            if name == val[2]:
+                val[2] = i
+                break
+        else:
+            raise ValueError('access level must be "guest", "user" or '
+                             '"admin"')
+    elif not isinstance(val[2], int):
+        # for backwards compatibility: allow integer values as well
+        raise ValueError('access level must be "guest", "user" or '
+                         '"admin"')
+    return tuple(val)
+
+
 class NicosDaemon(Device):
     """
     This class abstracts the main daemon process.
@@ -177,7 +201,7 @@ class NicosDaemon(Device):
         'authmethod':     Param('Authentication method',
                                 type=oneof('none', 'list', 'pam')),
         'passwd':         Param('User/password list for authmethod "list"',
-                                type=listof(tupleof(str, str, int))),
+                                type=listof(auth_entry)),
         'simmode':        Param('Whether to always start in simulation mode',
                                 type=bool),
     }
