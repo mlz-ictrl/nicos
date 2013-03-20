@@ -134,8 +134,7 @@ class DevicesPanel(Panel):
 
         state = self.client.ask('getstatus')
         devlist = sorted(state['devices'])
-
-        self._read_setup_info()
+        self._read_setup_info(state)
 
         for devname in devlist:
             self._create_device_item(devname)
@@ -145,11 +144,16 @@ class DevicesPanel(Panel):
             self.tree.addTopLevelItem(self._catitems[cat])
             self._catitems[cat].setExpanded(True)
 
-    def _read_setup_info(self):
+    def _read_setup_info(self, state=None):
+        if state is None:
+            state = self.client.ask('getstatus')
+        loaded_setups = set(state['setups'][0])
         self._dev2setup = {}
         #setupinfo = self.client.ask('getcachekeys', '_setupinfo_/')
         setupinfo = self.client.eval('session.getSetupInfo()', {})
         for setupname, value in setupinfo.iteritems():
+            if setupname not in loaded_setups:
+                continue
             #setupname = key.split('/')[1]
             for devname in value['devices']:
                 self._dev2setup[devname] = setupname
