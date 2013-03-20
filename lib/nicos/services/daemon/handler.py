@@ -475,7 +475,7 @@ class ConnectionHandler(BaseRequestHandler):
             requests = request_queue,
             mode     = session.mode,
             setups   = (session.loaded_setups, session.explicit_setups),
-            devices  = session.devices,
+            devices  = session.devices.keys(),
         )))
 
     @command()
