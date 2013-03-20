@@ -48,8 +48,8 @@ default_profile_config = ('Default', [
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find', True,
            panel('nicos.clients.gui.panels.history.HistoryPanel')),
-    window('Errors', 'errors', True,
-           panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+    window('Devices', 'table', True,
+           panel('nicos.clients.gui.panels.devices.DevicesPanel')),
     window('Logbook', 'table', True,
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
     ], [
