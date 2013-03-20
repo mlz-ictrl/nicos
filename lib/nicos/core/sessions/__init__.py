@@ -652,7 +652,10 @@ class Session(object):
                 if dev._sdevs <= already_shutdown:
                     already_shutdown.add(dev.name)
                     self.unexport(dev.name, warn=False)
-                    dev.shutdown()
+                    try:
+                        dev.shutdown()
+                    except Exception:
+                        dev.log.warning('exception while shutting down', exc=1)
                     devs.remove(dev)
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
@@ -927,7 +930,10 @@ class Session(object):
             return
         self.log.info('shutting down device %r...' % devname)
         dev = self.devices[devname]
-        dev.shutdown()
+        try:
+            dev.shutdown()
+        except Exception:
+            dev.log.warning('exception while shutting down', exc=1)
         self.deviceCallback('destroy', [devname])
         if devname in self.namespace:
             self.unexport(devname)
