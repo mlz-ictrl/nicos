@@ -243,7 +243,7 @@ class TacoDevice(object):
                     tries -= 1
                     try:
                         ret = function(*args)
-                        self.log.debug('TACO return: %r' % ret)
+                        self.log.debug('TACO return: %r' % (ret,))
                         return ret
                     except TACOError, err:
                         if tries == 0:
@@ -252,7 +252,7 @@ class TacoDevice(object):
                                          function.__name__, exc=1)
             self._raise_taco(err)
         else:
-            self.log.debug('TACO return: %r' % ret)
+            self.log.debug('TACO return: %r' % (ret,))
             return ret
         finally:
             self.__lock.release()
