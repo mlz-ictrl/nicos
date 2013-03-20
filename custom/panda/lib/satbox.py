@@ -27,13 +27,18 @@
 __version__ = "$Revision$"
 
 #from nicos.core import *
+<<<<<<< HEAD
 from nicos.core import status, InvalidValueError, Moveable, Param, convdoc, floatrange
+=======
+from nicos.core import status, InvalidValueError, Moveable, Param, listof
+>>>>>>> PANDA: Move sat to a modbus-taco-server
 from nicos.panda.wechsler import Beckhoff
 
 from Modbus import Modbus
 
 from nicos.devices.taco import TacoDevice
 
+<<<<<<< HEAD
 class positive_float(object):
     ''' Checker for floats >= 0'''
 
@@ -73,6 +78,8 @@ class checkedlistof(object):
             raise ValueError('value needs to be a list')
         return checkedlist(self.conv,map(self.conv, val))
 
+=======
+>>>>>>> PANDA: Move sat to a modbus-taco-server
 class SatBox(TacoDevice, Moveable):
     """
     Device Object for PANDA's Attenuator, controlled by a WUT-device via a ModBusTCP interface.
@@ -83,7 +90,11 @@ class SatBox(TacoDevice, Moveable):
 
     parameters = {
         'blades': Param('Thickness of the blades, starting with lowest bit',
+<<<<<<< HEAD
                          type=checkedlistof(floatrange(0,1000)), mandatory=True),
+=======
+                         type=listof(int), mandatory=True),
+>>>>>>> PANDA: Move sat to a modbus-taco-server
         'slave_addr': Param('Modbus-slave-addr (Beckhoff=0,WUT=1)',
                        type=int,mandatory=True),
         'addr_out': Param('Base Address for activating Coils',
@@ -92,6 +103,13 @@ class SatBox(TacoDevice, Moveable):
                            #~ type=int, mandatory=True),
     }
 
+<<<<<<< HEAD
+=======
+    @property
+    def _blades_sum(self):
+        return sum(map(lambda x: int(x) if x else 0, self.blades))
+
+>>>>>>> PANDA: Move sat to a modbus-taco-server
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
         if mode != 'simulation':
@@ -100,6 +118,7 @@ class SatBox(TacoDevice, Moveable):
 
     def doRead(self, maxage=0):
         # just read back the OUTPUT values, scale with bladethickness and sum up
+<<<<<<< HEAD
         return sum(b*r for b, r in zip(self.blades,
                     self._taco_guard(
                         self._dev.readCoils, (self.slave_addr, self.addr_out, len(self.blades))))
@@ -114,6 +133,24 @@ class SatBox(TacoDevice, Moveable):
         # start with biggest blade and work downwards, ignoring disabled blades
         for i, bladewidth in reversed(enumerate(self.blades)):
             if bladewidth and pos >= bladewidth:
+=======
+        # ignore bladethickness of 0 or None (=disabled blades)
+        return sum([b*r for b, r in zip(self.blades,
+                    self._taco_guard(
+                        self._dev.readCoils, (self.slave_addr, self.addr_out, len(self.blades))))
+                    if (b and r)])
+
+    def doStart(self, rpos):
+        if rpos > self._blades_sum:
+            raise InvalidValueError(self, 'Value %d too big!, maximum is %d'
+                                            % (rpos, self._blades_sum))
+        which = [0] * len(self.blades)
+        pos = rpos
+        # start with biggest blade and work downwards, ignoring disabled blades
+        for i, blade in sorted(zip(range(len(self.blades)), self.blades),
+                                key=lambda x: -x[1] if x[1] else 0):
+            if blade and pos >= blade:
+>>>>>>> PANDA: Move sat to a modbus-taco-server
                 which[i] = 1
                 pos -= bladewidth
         if pos != 0:
@@ -131,5 +168,59 @@ class SatBox(TacoDevice, Moveable):
             return False, 'Value outside range 0..%d'%self._blades_sum
         if int(target) != target:
             return False, 'Value must be an integer !'
+<<<<<<< HEAD
         return True, ''
 
+=======
+        return True, 'Ok'
+
+
+#~ class SatBox(Moveable):
+    #~ attached_devices = {
+        #~ 'bus': (Beckhoff, 'modbus'),
+    #~ }
+
+    #~ valuetype = int
+    #~ _blades = [1, 2, 5, 10, 20]
+
+    #~ def doRead(self, maxage=0):
+        #~ inx = self._adevs['bus'].ReadBitsOutput(0x1020, len(self._blades))
+        #~ width = sum( [inx[i] * blade for i, blade in enumerate(self._blades)])
+        # currently the input bits dont work, since the magnetic field of the monoburg switches them all on
+#~ #        inx = self._adevs['bus'].ReadBitsInput(0x1000, 2*len(self._blades))
+#~ #        self.log.debug('position: %s' % inx)
+#~ #        width = 0
+#~ #        for i, blade in enumerate( self._blades):
+#~ #            if not inx[i*2]:
+#~ #                if inx[i*2+1]:
+#~ #                    width += blade
+#~ #                else:
+#~ #                    self.log.warning('%d mm blade in inconsistent state' % blade)
+        #~ return width
+
+    #~ def doStatus(self, maxage=0):
+        # currently the input bits dont work, since the magnetic field of the monoburg switches them all on
+#~ #        inx = self._adevs['bus'].ReadBitsInput(0x1000, 2*len(self._blades))
+#~ #        for i, blade in enumerate( self._blades):
+#~ #            if inx[i*2] and inx[i*2+1]:
+#~ #                return status.BUSY, '%d mm blade moving' % blade
+        #~ return status.OK, ''
+
+    #~ def doStart(self, rpos):
+        #~ if rpos > sum(self._blades):
+            #~ raise InvalidValueError(self, 'Value %d too big!, maximum is %d' % (rpos,sum(self._blades)))
+        #~ which = [0] * len(self._blades)
+        #~ pos = rpos
+        #~ for i in xrange(len(self._blades)-1,-1,-1):
+            #~ blade = self._blades[i]
+            #~ if not blade:
+                #~ continue        # skip disabled (0 or None) blades
+            #~ if pos >= blade:
+                #~ which[i] = 1
+                #~ pos -= blade
+        #~ if pos != 0:
+            #~ self.log.warning('Value %d impossible, trying %d instead!'%(rpos,rpos+1))
+            #~ return self.doStart( rpos+1)
+        #~ self.log.debug('setting blades: %s' % [ which[i] * blade for i,blade in enumerate(which)])
+        #~ self._adevs['bus'].WriteBitsOutput(0x1020, which)
+>>>>>>> PANDA: Move sat to a modbus-taco-server
