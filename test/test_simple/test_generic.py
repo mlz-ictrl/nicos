@@ -66,7 +66,6 @@ def test_manual_switch():
 
 def test_manual_switch_2():
     assert raises(ConfigurationError, session.getDevice, 'm2')
-    assert raises(ConfigurationError, session.getDevice, 'm3')
 
 def test_switcher():
     sw = session.getDevice('sw')
@@ -90,8 +89,6 @@ def test_switcher():
     v3.maw(1.2)
     assert raises(PositionError, sw.read, 0)
     assert sw.status(0)[0] == status.NOTREACHED
-
-    assert raises(ConfigurationError, session.getDevice, 'broken_sw')
 
     rsw = session.getDevice('rsw')
     assert raises(PositionError, rsw.read, 0)

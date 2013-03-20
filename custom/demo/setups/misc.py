@@ -46,8 +46,7 @@ devices = dict(
 
     sw       = device('devices.generic.Switcher',
                       moveable = 'a2',
-                      states = ['in', 'out'],
-                      values = [1, 0],
+                      mapping = {'in': 1, 'out': 0},
                       precision = 0,
                      ),
 

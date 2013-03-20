@@ -49,10 +49,10 @@ devices = dict(
                        tacodevice = 'mira/io/shutteropen',
                        pollinterval = 1,
                        output = 'mira/io/closeshutter',
-                       mapping = {0: 'closed', 1: 'open'}),
+                       mapping = {'closed': 0, 'open': 1}),
 
     Cooling   = device('devices.taco.NamedDigitalInput',
-                       mapping = {0: 'refill', 1: 'okay'},
+                       mapping = {'refill': 0, 'okay': 1},
                        pollinterval = 10,
                        maxage = 30,
                        tacodevice = 'mira/io/cooling'),

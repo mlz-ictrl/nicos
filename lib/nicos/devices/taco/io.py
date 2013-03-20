@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 import IO
 
 from nicos.core import dictof, Readable, Moveable, HasLimits, Param, Override, \
-     NicosError, waitForStatus
+     NicosError, waitForStatus, oneof
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -82,13 +82,16 @@ class NamedDigitalInput(DigitalInput):
     """A DigitalInput with numeric values mapped to names."""
 
     parameters = {
-        'mapping': Param('A dictionary mapping integer values to names',
-                         type=dictof(int, str)),
+        'mapping': Param('A dictionary mapping state names to integers',
+                         type=dictof(str, int)),
     }
+
+    def doInit(self, mode):
+        self._reverse = dict((v, k) for (k, v) in self.mapping)
 
     def doRead(self, maxage=0):
         value = self._taco_guard(self._dev.read)
-        return self.mapping.get(value, value)
+        return self._reverse.get(value, value)
 
 
 class PartialDigitalInput(NamedDigitalInput):
@@ -102,11 +105,12 @@ class PartialDigitalInput(NamedDigitalInput):
     }
 
     def doInit(self, mode):
+        NamedDigitalInput.doInit(self, mode)
         self._mask = ((1 << self.bitwidth) - 1) << self.startbit
 
     def doRead(self, maxage=0):
         value = self._taco_guard(self._dev.read) & self._mask
-        return self.mapping.get(value, value)
+        return self._reverse.get(value, value)
 
 
 class DigitalOutput(TacoDevice, Moveable):
@@ -130,20 +134,21 @@ class NamedDigitalOutput(DigitalOutput):
     """A DigitalOutput with numeric values mapped to names."""
 
     parameters = {
-        'mapping': Param('A dictionary mapping integer values to names',
-                         type=dictof(int, str)),
+        'mapping': Param('A dictionary mapping state names to integer values',
+                         type=dictof(str, int), mandatory=True),
     }
 
     def doInit(self, mode):
-        self._reverse = dict((v, k) for (k, v) in self.mapping.iteritems())
+        self._reverse = dict((v, k) for (k, v) in self.mapping)
+        self.valuetype = oneof(*(self.mapping.items() + self.mapping.values()))
 
     def doStart(self, target):
-        value = self._reverse.get(target, target)
+        value = self.mapping.get(target, target)
         self._taco_guard(self._dev.write, value)
 
     def doRead(self, maxage=0):
         value = self._taco_guard(self._dev.read)
-        return self.mapping.get(value, value)
+        return self._reverse.get(value, value)
 
 
 class PartialDigitalOutput(NamedDigitalOutput):
@@ -163,17 +168,17 @@ class PartialDigitalOutput(NamedDigitalOutput):
     def doRead(self, maxage=0):
         value = int(self._taco_guard(self._dev.read))
         value = (value >> self.startbit) & self._max
-        return self.mapping.get(value, value)
+        return self._reverse.get(value, value)
 
     def doStart(self, target):
-        value = self._reverse.get(target, target)
+        value = self.mapping.get(target, target)
         curvalue = self._taco_guard(self._dev.read)
         newvalue = (curvalue & ~(self._max << self.startbit)) | \
                    (value << self.startbit)
         self._taco_guard(self._dev.write, newvalue)
 
     def doIsAllowed(self, target):
-        value = self._reverse.get(target, target)
+        value = self.mapping.get(target, target)
         if value < 0 or value > self._max:
             return False, '%d outside range [0, %d]' % (value, self._max)
         return True, ''

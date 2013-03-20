@@ -85,11 +85,12 @@ class BeckhoffNamedDigitalOutput(NamedDigitalOutput):
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
         NamedDigitalOutput.doInit(self, mode)
 
-    def doRead(self, maxage=0):
-        value = self._taco_guard(self._dev.readCoils, (0, self.startoffset, 1))[0]
-        return self.mapping.get(value, value)
+    def doStart(self, target):
+        value = self.mapping.get(target, target)
+        self._taco_guard(self._dev.writeMultipleCoils,
+                         (0, self.startoffset) + (value,))
 
-    def doStart(self, value):
-        value = self._reverse.get(target, target)
-        self._taco_guard(self._dev.writeMultipleCoils, (0,
-                         self.startoffset) + (value,))
+    def doRead(self, maxage=0):
+        value = self._taco_guard(self._dev.readCoils,
+                                 (0, self.startoffset, 1))[0]
+        return self._reverse.get(value, value)

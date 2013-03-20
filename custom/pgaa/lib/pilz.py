@@ -29,7 +29,7 @@ __version__ = "$Revision$"
 import IO
 import time
 
-from nicos.core import tacodev, Param
+from nicos.core import tacodev, Param, status
 from nicos.devices.taco.io import NamedDigitalOutput
 
 class Switch(NamedDigitalOutput):
@@ -86,4 +86,3 @@ class Switch(NamedDigitalOutput):
             return status.OK, 'idle'
         else:
             return status.ERROR, 'target not reached'
-

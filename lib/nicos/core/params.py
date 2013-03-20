@@ -452,17 +452,3 @@ def vec3(val=None):
     if len(ret) != 3:
         raise ValueError('value needs to be a 3-element vector')
     return ret
-
-class statelist(object):
-
-    def __init__(self, conv):
-        self.__doc__ = 'a state list of %s' % convdoc(conv)
-        self.conv = conv
-
-    def __call__(self, val=None):
-        if val is None:
-            return [self.conv()]
-        if not isinstance(val, list) or len(val) < 2:
-            raise ValueError('value needs to be a list with at least 2 elements')
-        return map(self.conv, val)
-

@@ -26,8 +26,8 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import anytype, statelist, ConfigurationError, PositionError, \
-     NicosError, Moveable, Readable, Param, Override, status
+from nicos.core import anytype, dictof, ConfigurationError, PositionError, \
+     NicosError, Moveable, Readable, Param, Override, status, oneof
 
 
 class Switcher(Moveable):
@@ -55,13 +55,11 @@ class Switcher(Moveable):
     }
 
     parameters = {
-        'states':    Param('List of state names.', type=statelist(str),
-                           mandatory=True),
-        'values':    Param('List of values to move to', type=statelist(anytype),
-                           mandatory=True),
-        'precision': Param('Precision for comparison', mandatory=True),
+        'mapping':      Param('Map of state names to values',
+                              type=dictof(str, anytype), mandatory=True),
+        'precision':    Param('Precision for comparison', mandatory=True),
         'blockingmove': Param('Should we wait for the move to finish?',
-                              mandatory=False, default=True, settable=True, type=bool),
+                              type=bool, default=True, settable=True),
     }
 
     parameter_overrides = {
@@ -71,19 +69,14 @@ class Switcher(Moveable):
     hardware_access = False
 
     def doInit(self, mode):
-        states = self.states
-        values = self.values
-        if len(states) != len(values):
-            raise ConfigurationError(self, 'Switcher states and values must be '
-                                     'of equal length')
-        self._switchlist = dict(zip(states, values))
+        self.valuetype = oneof(*self.mapping)
 
     def doStart(self, target):
-        if target not in self._switchlist:
-            positions = ', '.join(repr(pos) for pos in self.states)
+        if target not in self.mapping:
+            positions = ', '.join(repr(pos) for pos in self.mapping)
             raise NicosError(self, '%r is an invalid position for this device; '
-                            'valid positions are %s' % (target, positions))
-        target = self._switchlist[target]
+                             'valid positions are %s' % (target, positions))
+        target = self.mapping[target]
         self._adevs['moveable'].start(target)
         if self.blockingmove:
             self._adevs['moveable'].wait()
@@ -97,13 +90,12 @@ class Switcher(Moveable):
     def doRead(self, maxage=0):
         pos = self._adevs['moveable'].read(maxage)
         prec = self.precision
-        for name, value in self._switchlist.iteritems():
+        for name, value in self.mapping.iteritems():
             if prec:
                 if abs(pos - value) <= prec:
                     return name
-            else:
-                if pos == value:
-                    return name
+            elif pos == value:
+                return name
         raise PositionError(self, 'unknown position of %s' %
                             self._adevs['moveable'])
 
@@ -130,10 +122,8 @@ class ReadonlySwitcher(Readable):
     }
 
     parameters = {
-        'states':    Param('List of state names.', type=statelist(str),
-                           mandatory=True),
-        'values':    Param('List of values to move to', type=statelist(anytype),
-                           mandatory=True),
+        'mapping':   Param('Map of state names to values',
+                           type=dictof(str, anytype), mandatory=True),
         'precision': Param('Precision for comparison', type=float, default=0),
     }
 
@@ -144,23 +134,17 @@ class ReadonlySwitcher(Readable):
     hardware_access = False
 
     def doInit(self, mode):
-        states = self.states
-        values = self.values
-        if len(states) != len(values):
-            raise ConfigurationError(self, 'Switcher states and values must be '
-                                     'of equal length')
-        self._switchlist = dict(zip(states, values))
+        pass
 
     def doRead(self, maxage=0):
         pos = self._adevs['readable'].read(maxage)
         prec = self.precision
-        for name, value in self._switchlist.iteritems():
+        for name, value in self.mapping.iteritems():
             if prec:
                 if abs(pos - value) <= prec:
                     return name
-            else:
-                if pos == value:
-                    return name
+            elif pos == value:
+                return name
         raise PositionError(self, 'unknown position of %s' %
                             self._adevs['readable'])
 

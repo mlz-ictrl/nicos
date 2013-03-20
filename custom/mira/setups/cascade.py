@@ -22,7 +22,7 @@ devices = dict(
                     fmtstr = '%d'),
 
     PSDGas = device('devices.taco.NamedDigitalInput',
-                    mapping = {0: 'empty', 1: 'okay'},
+                    mapping = {'empty': 0, 'okay': 1},
                     pollinterval = 10,
                     maxage = 30,
                     tacodevice = 'mira/io/psdgas'),

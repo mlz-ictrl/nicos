@@ -38,7 +38,7 @@ devices = dict(
                      readback = '//%s/pgaa/pilz/ishutter' % (nethost,),
                      error = '//%s/pgaa/pilz/eshutter' % (nethost,),
                      remote = '//%s/pgaa/pilz/erc' % (nethost,),
-                     mapping = {2: 'closed', 1: 'open'},
+                     mapping = {'closed': 2, 'open': 1},
                     ),
 
     att1 = device('pgaa.pilz.Switch',
@@ -47,7 +47,7 @@ devices = dict(
                    error = '//%s/pgaa/pilz/eatt1' % (nethost,),
                    readback = '//%s/pgaa/pilz/iatt1' % (nethost,),
                    remote = '//%s/pgaa/pilz/erc' % (nethost,),
-                   mapping = {0: 'out', 1: 'in'},
+                   mapping = {'out': 0, 'in': 1},
                   ),
 
     att2 = device('pgaa.pilz.Switch',
@@ -56,7 +56,7 @@ devices = dict(
                    error = '//%s/pgaa/pilz/eatt2' % (nethost,),
                    readback = '//%s/pgaa/pilz/iatt2' % (nethost,),
                    remote = '//%s/pgaa/pilz/erc' % (nethost,),
-                   mapping = {0: 'out', 1: 'in'},
+                   mapping = {'out': 0, 'in': 1},
                   ),
 
     att3 = device('pgaa.pilz.Switch',
@@ -65,6 +65,6 @@ devices = dict(
                    error = '//%s/pgaa/pilz/eatt3' % (nethost,),
                    readback = '//%s/pgaa/pilz/iatt3' % (nethost,),
                    remote = '//%s/pgaa/pilz/erc' % (nethost,),
-                   mapping = {0: 'out', 1: 'in'},
+                   mapping = {'out': 0, 'in': 1},
                   ),
 )

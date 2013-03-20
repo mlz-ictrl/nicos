@@ -172,14 +172,6 @@ etc.), but also do more validation of the parameter.
 
        Param(..., type=oneofdict({'up': 1, 'down': 0}))
 
-.. function:: statelist(element_converter)
-
-   Create a converter that accepts a list of 2 or more values which will be used
-   as allowed states of a device.  Examples::
-
-       Param(..., type=statelist(int))
-       Param(..., type=statelist(str))
-
 
 Status values
 =============

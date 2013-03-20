@@ -46,6 +46,7 @@ class Shutter(NamedDigitalInput):
     }
 
     def doInit(self, mode):
+        NamedDigitalInput.doInit(self, mode)
         if mode != 'simulation':
             self._outdev = self._create_client(self.output, IO.DigitalOutput)
 

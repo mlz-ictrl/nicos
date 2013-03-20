@@ -28,15 +28,15 @@ devices = dict(
                       tacodevice = 'mira/ccr/p1',
                       fmtstr = '%.3f'),
     ccr5_compressor_switch = device('devices.taco.NamedDigitalOutput',
-                      mapping = {0: 'off', 1: 'on'},
-                      tacodevice = 'mira/ccr/pump',),
+                                mapping = {'off': 0, 'on': 1},
+                                tacodevice = 'mira/ccr/pump',),
     ccr5_gas_switch = device('mira.ccr.GasValve',
-                      mapping = {0: 'off', 1: 'on'},
-                      tacodevice = 'mira/ccr/gas',
-                      timeout = 600),
+                                mapping = {'off': 0, 'on': 1},
+                                tacodevice = 'mira/ccr/gas',
+                                timeout = 600),
     ccr5_vacuum_switch = device('devices.taco.NamedDigitalOutput',
-                      mapping = {0: 'off', 1: 'on'},
-                      tacodevice = 'mira/ccr/vacuum'),
+                                mapping = {'off': 0, 'on': 1},
+                                tacodevice = 'mira/ccr/vacuum'),
 )
 
 startupcode = '''

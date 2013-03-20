@@ -26,8 +26,8 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import status, statelist, anytype, Moveable, Param, Override, \
-     HasLimits, PositionError
+from nicos.core import status, anytype, nonemptylistof, Moveable, Param, \
+     Override, HasLimits, PositionError
 
 
 class ManualMove(HasLimits, Moveable):
@@ -63,13 +63,12 @@ class ManualSwitch(Moveable):
     This is akin to the `ManualMove` device, but for instrument parameters that
     take only discrete values.
 
-    If the `states` parameter is not empty, it represents a list of all allowed
-    values of the device.  If it is empty, all values are allowed.
+    The `states` parameter must be a list of allowed values.
     """
 
     parameters = {
         'states': Param('List of allowed states',
-                        type=statelist(anytype), mandatory=True),
+                        type=nonemptylistof(anytype), mandatory=True),
     }
 
     parameter_overrides = {
