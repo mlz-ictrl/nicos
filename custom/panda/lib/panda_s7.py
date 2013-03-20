@@ -39,6 +39,10 @@ from nicos.devices.generic.axis import Axis
 
 from ProfibusDP import IO as ProfibusIO
 
+#~ from nicos.core import status, HasOffset, Override, ConfigurationError, \
+     #~ NicosError, PositionError, MoveError, waitForStatus, floatrange, \
+     #~ Param, usermethod
+
 class S7Bus(TacoDevice, Device):
     """Class for communication with S7 over Profibusetherserver."""
     taco_class = ProfibusIO
