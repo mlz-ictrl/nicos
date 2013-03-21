@@ -197,6 +197,8 @@ class DevicesPanel(Panel):
         if action == 'create':
             for devname in devlist:
                 self._create_device_item(devname, add_cat=True)
+            # XXX somehow the device list should be sorted again after
+            # inserting elements
         elif action == 'destroy':
             for devname in devlist:
                 if devname.lower() in self._devitems:
