@@ -27,7 +27,8 @@
 __version__ = "$Revision$"
 
 #from nicos.core import *
-from nicos.core import status, InvalidValueError, Moveable, Param, convdoc, floatrange
+from nicos.core import status, InvalidValueError, Moveable, Param, floatrange
+from nicos.core.params import convdoc
 from nicos.panda.wechsler import Beckhoff
 
 from Modbus import Modbus
@@ -108,13 +109,13 @@ class SatBox(TacoDevice, Moveable):
     def doStart(self, rpos):
         if rpos > sum(self.blades):
             raise InvalidValueError(self, 'Value %d too big!, maximum is %d'
-                                            % (rpos, sum(self.blades))
+                                            % (rpos, sum(self.blades)))
         which = [0] * len(self.blades)
         pos = rpos
         # start with biggest blade and work downwards, ignoring disabled blades
-        for i, bladewidth in reversed(enumerate(self.blades)):
+        for bladewidth in reversed(self.blades):
             if bladewidth and pos >= bladewidth:
-                which[i] = 1
+                which[self.blades.index(bladewidth)] = 1
                 pos -= bladewidth
         if pos != 0:
             self.log.warning('Value %d impossible, trying %d instead!' %
@@ -127,7 +128,7 @@ class SatBox(TacoDevice, Moveable):
                          self.addr_out) + tuple(which))
 
     def doIsAllowed(self, target):
-        if not (0<=target<=self._blades_sum):
+        if not (0<=target<=sum(self.blades)):
             return False, 'Value outside range 0..%d'%self._blades_sum
         if int(target) != target:
             return False, 'Value must be an integer !'

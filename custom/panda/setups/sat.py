@@ -5,7 +5,7 @@ description = 'setup for sample attenuator'
 includes = []
 
 devices = dict(
-    sat = device('panda.satbox.SatBox',
+    sat = device('nicos.panda.satbox.SatBox',
                   tacodevice = 'panda/modbus/sat',
                   unit = 'mm',
                   fmtstr = '%d',
