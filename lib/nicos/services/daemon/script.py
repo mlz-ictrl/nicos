@@ -284,8 +284,6 @@ class ExecutionController(Controller):
         self.current_script = None # currently executed script
         self.namespace = session.namespace
                                    # namespace in which scripts execute
-        self.session_ns = {'session': session}
-                                   # additional namespace for eval_expression()
         self.completer = NicosCompleter(self.namespace, session.local_namespace)
                                    # completer for the namespace
         self.watchexprs = set()    # watch expressions to evaluate
@@ -412,8 +410,10 @@ class ExecutionController(Controller):
 
     def eval_expression(self, expr, handler):
         self.last_handler = weakref.ref(handler)
+        ns = {'session': session}
+        ns.update(self.namespace)
         try:
-            return repr(eval(expr, self.namespace, self.session_ns))
+            return repr(eval(expr, ns))
         except Exception, err:
             return '<cannot be evaluated: %s>' % err
         finally:
