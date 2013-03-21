@@ -129,7 +129,7 @@ class SatBox(TacoDevice, Moveable):
 
     def doIsAllowed(self, target):
         if not (0<=target<=sum(self.blades)):
-            return False, 'Value outside range 0..%d'%self._blades_sum
+            return False, 'Value outside range 0..%d'%sum(self.blades)
         if int(target) != target:
             return False, 'Value must be an integer !'
         return True, ''
