@@ -166,7 +166,7 @@ class EditorPanel(Panel):
         self.connect(self.tabber, SIGNAL('tabCloseRequested(int)'),
                      self.on_tabber_tabCloseRequested)
 
-        hlayout = QHBoxLayout(self)
+        hlayout = QHBoxLayout()
         hlayout.setContentsMargins(0, 0, 0, 0)
         hlayout.addWidget(self.tabber)
         self.mainFrame.setLayout(hlayout)
