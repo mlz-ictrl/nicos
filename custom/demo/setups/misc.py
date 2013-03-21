@@ -1,8 +1,7 @@
 description = 'miscellaneous devices'
-group = 'basic'
+group = 'optional'
 
 includes = ['system']
-excludes = ['excluded']
 
 devices = dict(
     m1       = device('devices.generic.VirtualMotor',

@@ -1,3 +1,4 @@
+description = 'plug-and-play magnet sample environment'
 group = 'optional'
 
 devices = dict(

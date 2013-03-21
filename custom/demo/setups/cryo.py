@@ -1,4 +1,5 @@
 # This setup overrides entries from subdir/cryo.py.
+group = 'optional'
 
 devices = dict(
     T        = device('devices.generic.VirtualTemperature',
