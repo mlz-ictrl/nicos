@@ -356,10 +356,15 @@ class DevicesPanel(Panel):
             else:
                 dlg.limitMin.setText(str(params['userlimits'][0]))
                 dlg.limitMax.setText(str(params['userlimits'][1]))
-            if 'nicos.devices.generic.switcher.Switcher' in devinfo[5]:
+            if 'states' in params:
                 dlg.target.setVisible(False)
                 dlg.targetUnit.setVisible(False)
                 dlg.targetBox.addItems(params['states'])
+                is_switcher = True
+            elif 'mapping' in params:
+                dlg.target.setVisible(False)
+                dlg.targetUnit.setVisible(False)
+                dlg.targetBox.addItems(params['mapping'].values())
                 is_switcher = True
             else:
                 dlg.targetBox.setVisible(False)
