@@ -174,9 +174,16 @@ class Experiment(Device):
         if isinstance(proposal, (int, long)):
             proposal = '%s%d' % (self.propprefix, proposal)
         self.log.debug('new proposal real name is %s' % proposal)
+
         # check proposal type (can raise)
         proptype = self._getProposalType(proposal)
         self.log.debug('new proposal type is %s' % proptype)
+
+        # check if we should finish the experiment first
+        if self.serviceexp and proptype == self.proptype == 'user':
+            self.log.error('cannot switch directly to new user experiment, '
+                           'please use FinishExperiment first')
+            return
 
         symlink = self._getProposalSymlink()
 
