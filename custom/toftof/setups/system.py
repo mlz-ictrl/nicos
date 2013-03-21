@@ -25,7 +25,7 @@ devices = dict(
                       serviceexp = '0',
                       sendmail = True,
                       mailsender = 'nicos.toftof@frm2.tum.de',
-                      propdb = 'useroffice@tacodb.taco.frm2:useroffice',
+                      propdb = '/opt/nicos/setups/userdb',
                       elog = True),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',

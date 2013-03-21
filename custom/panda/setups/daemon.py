@@ -5,5 +5,6 @@ devices = dict(
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'localhost',
                     startupsetup = 'base',
-                    loglevel = 'debug'),
+                    loglevel = 'debug',
+                    authenticator = None),
 )

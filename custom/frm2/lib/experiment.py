@@ -46,7 +46,7 @@ class Experiment(BaseExperiment):
         'cycle':   Param('Current reactor cycle', type=str, settable=True),
         'editor':  Param('User editor for new scripts', type=str,
                          settable=True),
-        'propdb':  Param('user@host:dbname credentials for proposal DB',
+        'propdb':  Param('credentials file for proposal DB',
                          type=str, default='', userparam=False),
     }
 
@@ -58,7 +58,7 @@ class Experiment(BaseExperiment):
         if 'cycle' not in kwds:
             if self.propdb:
                 try:
-                    cycle, started = queryCycle(self.propdb)
+                    cycle, started = queryCycle()
                     kwds['cycle'] = cycle
                 except Exception:
                     self.log.error('cannot query reactor cycle', exc=1)
@@ -79,7 +79,7 @@ class Experiment(BaseExperiment):
         if not self.propdb:
             return
         try:
-            info = queryProposal(self.propdb, proposal)
+            info = queryProposal(proposal)
         except Exception:
             self.log.warning('unable to query proposal info', exc=1)
             return

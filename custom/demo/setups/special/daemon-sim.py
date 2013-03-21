@@ -7,10 +7,7 @@ devices = dict(
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'localhost:1302',
                     simmode = True,
-                    authmethod = 'list',
-                    passwd = [('guest', '', 0),
-                              ('user', hashlib.sha1('user').hexdigest(), 10),
-                              ('admin', hashlib.sha1('admin').hexdigest(), 20)],
+                    authenticator = None,
                     loglevel = 'debug',
                    ),
 )

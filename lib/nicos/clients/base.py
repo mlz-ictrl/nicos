@@ -109,8 +109,11 @@ class NicosClient(object):
         # log-in sequence
         if password is None:
             password = conndata['passwd']
-        if not banner.get('plain_pw', False):
+        pw_hashing = banner.get('pw_hashing', 'sha1')
+        if pw_hashing == 'sha1':
             password = hashlib.sha1(password).hexdigest()
+        elif pw_hashing == 'md5':
+            password = hashlib.md5(password).hexdigest()
         if not self.tell(conndata['login'], password, conndata['display']):
             return
 

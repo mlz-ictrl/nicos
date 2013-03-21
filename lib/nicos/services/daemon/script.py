@@ -39,7 +39,7 @@ import ast
 
 from nicos import session
 from nicos.utils.loggers import INPUT
-from nicos.services.daemon.user import system_user
+from nicos.services.daemon.auth import system_user
 from nicos.services.daemon.utils import format_exception_cut_frames, format_script, \
      fixup_script, update_linecache
 from nicos.services.daemon.pyctl import Controller, ControlStop

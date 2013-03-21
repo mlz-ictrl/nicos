@@ -28,11 +28,14 @@ group = 'special'
 import hashlib
 
 devices = dict(
+    Auth   = device('services.daemon.auth.ListAuthenticator',  # or 'frm2.auth.Frm2Authenticator'
+                     # first entry is the user name, second the hashed password, third the user level
+                     passwd = [('guest', '', 'guest'),
+                               ('user', hashlib.sha1('user').hexdigest(), 'user'),
+                               ('admin', hashlib.sha1('admin').hexdigest(), 'admin')],
+                   ),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'localhost',
-                    authmethod = 'list',
-                    passwd = [('guest', '', 0),
-                              ('user', hashlib.sha1('user').hexdigest(), 10),
-                              ('admin', hashlib.sha1('admin').hexdigest(), 20)],
+                    authenticator = 'Auth',
                     loglevel = 'debug'),
 )

@@ -28,6 +28,7 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
+import os
 import datetime
 
 try:
@@ -37,10 +38,16 @@ except ImportError:
 
 from nicos import session
 from nicos.core import ConfigurationError, InvalidValueError
+from nicos.utils import readFile
 
 
 class ProposalDB(object):
-    def __init__(self, credentials):
+    def __init__(self):
+        if not session.experiment or not session.experiment.propdb:
+            credentials = readFile(os.getenv('HOME') + '/.nicos/credentials')
+        else:
+            credentials = readFile(session.experiment.propdb)
+        credentials = credentials[0]
         try:
             self.user, hostdb = credentials.split('@')
             self.host, self.db = hostdb.split(':')
@@ -60,10 +67,10 @@ class ProposalDB(object):
         self.conn.close()
 
 
-def queryCycle(credentials):
+def queryCycle():
     """Query the FRM-II proposal database for the current cycle."""
     today = datetime.date.today()
-    with ProposalDB(credentials) as cur:
+    with ProposalDB() as cur:
         cur.execute('''
             SELECT value, xname FROM Cycles, Cycles_members, Cycles_values
             WHERE mname = "_CM_START" AND value <= %s
@@ -76,7 +83,7 @@ def queryCycle(credentials):
     return cycle, startdate
 
 
-def queryProposal(credentials, pnumber):
+def queryProposal(pnumber):
     """Query the FRM-II proposal database for information about the given
     proposal number.
     """
@@ -85,7 +92,7 @@ def queryProposal(credentials, pnumber):
     if session.instrument is None:
         raise InvalidValueError('cannot query proposals, no instrument '
                                 'configured')
-    with ProposalDB(credentials) as cur:
+    with ProposalDB() as cur:
         # get proposal title and properties
         cur.execute('''
             SELECT xname, mname, value
@@ -121,3 +128,17 @@ def queryProposal(credentials, pnumber):
         if value:
             info[key] = value
     return info
+
+def queryUser(user):
+    """Query the FRM-II proposal database for the user ID and password hash."""
+    with ProposalDB() as cur:
+        count = cur.execute('''
+            SELECT user_id, user_password FROM nuke_users WHERE username=%s
+            ''', (user,))
+        if count == 0:
+            raise InvalidValueError('user %s does not exist in the user office '
+                                    'database' % (user,))
+        row = cur.fetchone()
+    uid = int(row[0])
+    passwd = row[1]
+    return uid, passwd

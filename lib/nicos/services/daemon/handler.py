@@ -37,7 +37,7 @@ from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
 from nicos.core import ADMIN, ConfigurationError, SPMError
-from nicos.services.daemon.user import AuthenticationError
+from nicos.services.daemon.auth import AuthenticationError, User
 from nicos.services.daemon.utils import LoggerWrapper
 from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
      ScriptError, RequestError
@@ -224,7 +224,7 @@ class ConnectionHandler(BaseRequestHandler):
         # announce version and authentication modality
         self.write(STX, serialize(dict(
             daemon_version = nicos_version,
-            plain_pw = self.daemon._auth.needs_plain_pw(),
+            pw_hashing = self.daemon.get_authenticator().pw_hashing(),
             protocol_version = PROTO_VERSION,
         )))
 
@@ -238,12 +238,16 @@ class ConnectionHandler(BaseRequestHandler):
 
         # check login data according to configured authentication
         self.log.info('auth request: login=%r display=%r' % (login, display))
-        try:
-            self.user = self.daemon._auth.authenticate(login, passw)
-        except AuthenticationError, err:
-            self.log.error('authentication failed: %s' % err)
-            self.write(NAK, 'credentials not accepted')
-            raise CloseConnection
+        authenticator = self.daemon.get_authenticator()
+        if authenticator is not None:
+            try:
+                self.user = authenticator.authenticate(login, passw)
+            except AuthenticationError, err:
+                self.log.error('authentication failed: %s' % err)
+                self.write(NAK, 'credentials not accepted')
+                raise CloseConnection
+        else:
+            self.user = User(login, ADMIN)
 
         # of course this only works for the client that logged in last
         os.environ['DISPLAY'] = display

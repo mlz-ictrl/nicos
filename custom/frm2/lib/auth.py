@@ -18,24 +18,38 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'setup for the execution daemon'
-group = 'special'
+"""NICOS FRM II specific authentication."""
 
-import hashlib
+__version__ = "$Revision$"
 
-devices = dict(
-    Auth   = device('services.daemon.auth.ListAuthenticator',  # or 'frm2.auth.Frm2Authenticator'
-                     # first entry is the user name, second the hashed password, third the user level
-                     passwd = [('guest', '', 'guest'),
-                               ('user', hashlib.sha1('user').hexdigest(), 'user'),
-                               ('admin', hashlib.sha1('admin').hexdigest(), 'admin')],
-                   ),
-    Daemon = device('services.daemon.NicosDaemon',
-                    server = 'localhost',
-                    authenticator = 'Auth',
-                    loglevel = 'debug'),
-)
+from nicos.core import USER, InvalidValueError
+from nicos.services.daemon.auth import User, ListAuthenticator, \
+     AuthenticationError
+from nicos.frm2.proposaldb import queryUser
+
+
+class Frm2Authenticator(ListAuthenticator):
+    """
+    Authenticates against the FRM-II user office database.
+    """
+
+    def pw_hashing(self):
+        return 'md5'
+
+    def authenticate(self, username, password):
+        try:
+            uid, passwd = queryUser(username)
+            if passwd != password:
+                raise AuthenticationError('wrong password')
+            return User(username, USER)
+        except InvalidValueError:
+            return ListAuthenticator.authenticate(self, username, password)
+        except AuthenticationError:
+            raise
+        except Exception, err:
+            raise AuthenticationError('exception during authenticate(): %s'
+                                      % err)
