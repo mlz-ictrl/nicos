@@ -36,16 +36,15 @@ import cPickle as pickle
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
      QFontDialog, QColorDialog, QDialogButtonBox, QWidget, QFrame, QVBoxLayout
-from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, QStringList, \
-     SIGNAL
+from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
 from nicos.utils import parseConnectionString, importString
 from nicos.clients.base import NicosClient
 from nicos.clients.gui.data import DataHandler
-from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadBasicWindowSettings, \
-     getXDisplay, dialogFromUi, loadUi
+from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \
+     loadBasicWindowSettings, getXDisplay, loadUi
 from nicos.clients.gui.config import window, panel
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
@@ -81,7 +80,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # set-up the initial connection data
         self.connectionData = dict(
-            host    = '',
+            host    = 'localhost',
             port    = 1301,
             login   = '',
             display = getXDisplay(),
@@ -271,13 +270,14 @@ class MainWindow(QMainWindow, DlgUtils):
 
         self.autoconnect = settings.value('autoconnect').toBool()
 
-        self.connectionData['host'] = str(settings.value(
-            'host', QVariant('localhost')).toString())
-        self.connectionData['port'] = settings.value(
-            'port', QVariant(DEFAULT_PORT)).toInt()[0]
-        self.connectionData['login'] = str(settings.value(
-            'login', QVariant('guest')).toString())
-        self.servers = settings.value('servers').toStringList()
+        self.connpresets = dict((str(k), v) for (k, v) in
+            (settings.value('connpresets').toPyObject() or {}).iteritems())
+        self.lastpreset = str(settings.value('lastpreset').toString())
+        if self.lastpreset in self.connpresets:
+            cdata = self.connpresets[self.lastpreset]
+            self.connectionData['host']  = str(cdata[0])
+            self.connectionData['port']  = int(cdata[1])
+            self.connectionData['login'] = str(cdata[2])
 
         self.instrument = settings.value('instrument').toString()
         self.confirmexit = settings.value('confirmexit',
@@ -304,8 +304,8 @@ class MainWindow(QMainWindow, DlgUtils):
                 auxstate.append(wtype)
         settings.setValue('auxwindows', QVariant(auxstate))
         settings.setValue('autoconnect', QVariant(self.client.connected))
-        servers = sorted(set(map(str, self.servers)))
-        settings.setValue('servers', QVariant(QStringList(servers)))
+        settings.setValue('connpresets', self.connpresets)
+        settings.setValue('lastpreset', self.lastpreset)
         settings.setValue('font', QVariant(self.user_font))
         settings.setValue('color', QVariant(self.user_color))
 
@@ -553,38 +553,18 @@ class MainWindow(QMainWindow, DlgUtils):
             self.client.disconnect()
             return
 
-        addr = self.connectionData['host']
-        if self.connectionData['port'] != DEFAULT_PORT:
-            addr += ':%s' % self.connectionData['port']
-
         self.actionConnect.setChecked(False)  # gets set by connection event
-        authdlg = dialogFromUi(self, 'auth.ui')
-        authdlg.userName.setText(self.connectionData['login'])
-        authdlg.serverAddr.addItems(self.servers)
-        authdlg.serverAddr.setEditText(addr)
-        authdlg.password.setFocus()
-        ret = authdlg.exec_()
-        if ret != QDialog.Accepted:
+        new_name, new_data, passwd, save = ConnectionDialog.getConnectionData(
+            self, self.connpresets, self.lastpreset, self.connectionData)
+        if new_data is None:
             return
-        new_addr = str(authdlg.serverAddr.currentText())
-        if new_addr != addr:
-            try:
-                host, port = new_addr.split(':')
-                port = int(port)
-            except ValueError:
-                host = new_addr
-                port = DEFAULT_PORT
-            self.connectionData['host'] = host
-            self.connectionData['port'] = port
-            self.servers.append('%s:%s' % (host, port))
-        if authdlg.saveDefault.isChecked():
-            with self.sgroup as settings:
-                settings.setValue('host', QVariant(self.connectionData['host']))
-                settings.setValue('port', QVariant(self.connectionData['port']))
-                settings.setValue('login',
-                                  QVariant(self.connectionData['login']))
-        self.connectionData['login'] = str(authdlg.userName.text())
-        passwd = str(authdlg.password.text())
+        if save:
+            self.lastpreset = save
+            self.connpresets[save] = \
+                [new_data['host'], new_data['port'], new_data['login']]
+        else:
+            self.lastpreset = new_name
+        self.connectionData.update(new_data)
         self.client.connect(self.connectionData, passwd)
         self.lastpasswd = passwd
 
@@ -612,6 +592,67 @@ class MainWindow(QMainWindow, DlgUtils):
         for panel in self.panels:
             panel.setCustomStyle(self.user_font, color)
         self.user_color = color
+
+
+class ConnectionDialog(QDialog):
+
+    @classmethod
+    def getConnectionData(cls, parent, connpresets, lastpreset, lastdata):
+        self = cls(parent, connpresets, lastpreset, lastdata)
+        ret = self.exec_()
+        if ret != QDialog.Accepted:
+            return None, None, None, None
+        new_addr = str(self.presetOrAddr.currentText())
+        new_data = {}
+        new_name = preset_name = ''
+        if new_addr in connpresets:
+            cdata = connpresets[new_addr]
+            new_name = new_addr
+            new_data['host'] = str(cdata[0])
+            new_data['port'] = int(cdata[1])
+            if self.userName.text() == '':
+                new_data['login'] = str(cdata[2])
+            else:
+                new_data['login'] = str(self.userName.text())
+        else:
+            try:
+                host, port = new_addr.split(':')
+                port = int(port)
+            except ValueError:
+                host = new_addr
+                port = DEFAULT_PORT
+            new_data['host'] = host
+            new_data['port'] = port
+            new_data['login'] = str(self.userName.text())
+        passwd = str(self.password.text())
+        if not new_name:
+            preset_name = str(self.newPresetName.text())
+        return new_name, new_data, passwd, preset_name
+
+    def __init__(self, parent, connpresets, lastpreset, lastdata):
+        QDialog.__init__(self, parent)
+        loadUi(self, 'auth.ui')
+        self.connpresets = connpresets
+
+        self.presetOrAddr.addItems(connpresets.keys())
+        self.presetOrAddr.setEditText(lastpreset)
+        if not lastpreset:
+            # if we have no stored last preset connection, put in the raw data
+            self.presetOrAddr.setEditText(
+                '%s:%s' % (lastdata['host'], lastdata['port']))
+        if lastdata['login']:
+            self.userName.setText(lastdata['login'])
+        self.password.setFocus()
+        self.presetFrame.hide()
+        self.resize(QSize(self.width(), self.minimumSize().height()))
+
+    def on_presetOrAddr_editTextChanged(self, text):
+        if str(text) in self.connpresets:
+            conn = self.connpresets[str(text)]
+            self.userName.setText(conn[2])
+            self.presetFrame.hide()
+        else:
+            self.presetFrame.show()
 
 
 def main(argv):
