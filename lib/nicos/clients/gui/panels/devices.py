@@ -264,6 +264,10 @@ class DevicesPanel(Panel):
         elif subkey == 'fixed':
             devinfo[4] = bool(cache_load(value))
             devitem.setForeground(1, fixedBrush[devinfo[4]])
+            if ldevname in self._control_dialogs:
+                dlg = self._control_dialogs[ldevname]
+                dlg.movebtn.setEnabled(not devinfo[4])
+                dlg.movebtn.setText(devinfo[4] and '(fixed)' or 'Move')
         elif subkey == 'classes':
             devinfo[5] = set(cache_load(value))
 
@@ -388,7 +392,11 @@ class DevicesPanel(Panel):
                 is_switcher = False
             dlg.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
             dlg.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
-            dlg.moveBtns.addButton('Move', QDialogButtonBox.AcceptRole)
+            dlg.movebtn = dlg.moveBtns.addButton('Move',
+                                                 QDialogButtonBox.AcceptRole)
+            if params.get('fixed'):
+                dlg.movebtn.setEnabled(False)
+                dlg.movebtn.setText('(fixed)')
             def callback(button):
                 if button.text() == 'Reset':
                     self.client.tell('queue', '', 'reset(%s)' % devname)
