@@ -6,14 +6,40 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>239</width>
-    <height>256</height>
+    <width>180</width>
+    <height>199</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="2">
+    <widget class="ValueDisplay" name="valueDisplay_2">
+     <property name="key" stdset="0">
+      <string>mth.target</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="0" column="1">
     <widget class="QLabel" name="label">
      <property name="text">
@@ -28,19 +54,6 @@
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>mth (A1)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="ValueDisplay" name="valueDisplay_2">
-     <property name="key" stdset="0">
-      <string>mth.target</string>
-     </property>
-     <property name="showName" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="formatString" stdset="0">
-      <string>%.3f</string>
      </property>
     </widget>
    </item>
@@ -74,28 +87,28 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>phi (A4)</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>psi (A3)</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_7">
      <property name="text">
       <string>ath (A5)</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="label_8">
      <property name="text">
       <string>att (A6)</string>
@@ -115,7 +128,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="ValueDisplay" name="valueDisplay_5">
      <property name="device" stdset="0">
       <string>psi</string>
@@ -128,7 +141,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="5" column="1">
     <widget class="ValueDisplay" name="valueDisplay_4">
      <property name="device" stdset="0">
       <string>phi</string>
@@ -141,7 +154,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="6" column="1">
     <widget class="ValueDisplay" name="valueDisplay_6">
      <property name="device" stdset="0">
       <string>ath</string>
@@ -154,7 +167,20 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="4" column="2">
+    <widget class="ValueDisplay" name="valueDisplay_9">
+     <property name="key" stdset="0">
+      <string>psi.target</string>
+     </property>
+     <property name="showName" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="formatString" stdset="0">
+      <string>%.3f</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
     <widget class="ValueDisplay" name="valueDisplay_7">
      <property name="device" stdset="0">
       <string>att</string>
@@ -180,20 +206,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
-    <widget class="ValueDisplay" name="valueDisplay_9">
-     <property name="key" stdset="0">
-      <string>psi.target</string>
-     </property>
-     <property name="showName" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="formatString" stdset="0">
-      <string>%.3f</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
+   <item row="5" column="2">
     <widget class="ValueDisplay" name="valueDisplay_10">
      <property name="key" stdset="0">
       <string>phi.target</string>
@@ -206,7 +219,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="2">
+   <item row="6" column="2">
     <widget class="ValueDisplay" name="valueDisplay_11">
      <property name="key" stdset="0">
       <string>ath.target</string>
@@ -219,7 +232,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="2">
+   <item row="7" column="2">
     <widget class="ValueDisplay" name="valueDisplay_12">
      <property name="key" stdset="0">
       <string>att.target</string>
@@ -231,6 +244,19 @@
       <string>%.3f</string>
      </property>
     </widget>
+   </item>
+   <item row="2" column="3">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
