@@ -44,6 +44,20 @@
       </widget>
      </item>
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Filter:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="filter"/>
+       </item>
+      </layout>
+     </item>
+     <item>
       <widget class="QTreeWidget" name="tree">
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>

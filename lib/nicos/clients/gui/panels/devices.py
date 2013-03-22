@@ -30,7 +30,8 @@ __version__ = "$Revision$"
 
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
 from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
-     QInputDialog, QDialogButtonBox, QPalette, QDoubleValidator
+     QInputDialog, QDialogButtonBox, QPalette, QDoubleValidator, \
+     QTreeWidgetItemIterator
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
 from nicos.clients.gui.panels import Panel
@@ -282,6 +283,23 @@ class DevicesPanel(Panel):
                 self.devmenu.popup(self.tree.viewport().mapToGlobal(point))
             elif 'nicos.core.device.Readable' in self._devinfo[ldevname][5]:
                 self.devmenu_ro.popup(self.tree.viewport().mapToGlobal(point))
+
+    def on_filter_textChanged(self, text):
+        text = text.toLower()
+        # QTreeWidgetItemIterator: an ugly Qt C++ API translated to an even
+        # uglier Python API...
+        it = QTreeWidgetItemIterator(self.tree,
+                                     QTreeWidgetItemIterator.NoChildren)
+        while it.value():
+            it.value().setHidden(text not in it.value().text(0).toLower())
+            it += 1
+        it = QTreeWidgetItemIterator(self.tree,
+                                     QTreeWidgetItemIterator.HasChildren)
+        while it.value():
+            item = it.value()
+            item.setHidden(not any(not item.child(i).isHidden()
+                                   for i in range(item.childCount())))
+            it += 1
 
     @qtsig('')
     def on_actionReset_triggered(self):
