@@ -27,6 +27,7 @@ devices = dict(
                      ),
 
     phi      = device('devices.generic.VirtualMotor',
+                      description = 'sample scattering angle',
                       abslimits = (-180, 180),
                       unit = 'deg',
                       speed = 1,
@@ -38,12 +39,14 @@ devices = dict(
                      ),
 
     psi      = device('devices.generic.VirtualMotor',
+                      description = 'sample rotation angle',
                       abslimits = (0, 360),
                       unit = 'deg',
                       speed = 2,
                      ),
 
     mono     = device('devices.tas.Monochromator',
+                      description = 'monochromator wavevector',
                       unit = 'A-1',
                       dvalue = 3.355,
                       theta = 'mth',
@@ -54,6 +57,7 @@ devices = dict(
                      ),
 
     mth      = device('devices.generic.VirtualMotor',
+                      description = 'monochromator rocking angle',
                       unit = 'deg',
                       abslimits = (-90, 0),
                       precision = 0.05,
@@ -61,6 +65,7 @@ devices = dict(
                      ),
 
     mtt      = device('devices.generic.VirtualMotor',
+                      description = 'monochromator scattering angle',
                       unit = 'deg',
                       abslimits = (-180, 0),
                       precision = 0.05,
@@ -68,6 +73,7 @@ devices = dict(
                      ),
 
     ana      = device('devices.tas.Monochromator',
+                      description = 'analyzer wavevector',
                       unit = 'A-1',
                       dvalue = 3.355,
                       theta = 'ath',
@@ -78,6 +84,7 @@ devices = dict(
                      ),
 
     ath      = device('devices.generic.VirtualMotor',
+                      description = 'analyzer rocking angle',
                       unit = 'deg',
                       abslimits = (-90, 90),
                       precision = 0.05,
@@ -85,6 +92,7 @@ devices = dict(
                      ),
 
     att      = device('devices.generic.VirtualMotor',
+                      description = 'analyzer scattering angle',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
@@ -92,6 +100,7 @@ devices = dict(
                      ),
 
     ki       = device('devices.tas.Wavevector',
+                      description = 'incoming wavevector',
                       unit = 'A-1',
                       base = 'mono',
                       tas = 'tas',
@@ -100,6 +109,7 @@ devices = dict(
                      ),
 
     kf       = device('devices.tas.Wavevector',
+                      description = 'outgoing wavevector',
                       unit = 'A-1',
                       base = 'ana',
                       tas = 'tas',
@@ -108,6 +118,7 @@ devices = dict(
                      ),
 
     Ei       = device('devices.tas.Energy',
+                      description = 'incoming energy',
                       unit = 'meV',
                       base = 'mono',
                       tas = 'tas',
@@ -115,6 +126,7 @@ devices = dict(
                       abslimits = (0.1, 200)),
 
     Ef       = device('devices.tas.Energy',
+                      description = 'outgoing energy',
                       unit = 'meV',
                       base = 'ana',
                       tas = 'tas',
@@ -142,6 +154,7 @@ devices = dict(
                       unit = 'mm',
                      ),
     ss       = device('devices.generic.Slit',
+                      description = 'sample slit',
                       left = 'ssl',
                       right = 'ssr',
                       bottom = 'ssb',
@@ -155,6 +168,7 @@ devices = dict(
                      ),
 
     ec       = device('devices.tas.EulerianCradle',
+                      description = 'Eulerian cradle',
                       cell = 'Sample',
                       tas = 'tas',
                       chi = 'echi',
@@ -176,6 +190,7 @@ devices = dict(
                       lowlevel = True,
                      ),
     mfh         = device('nicos.panda.rot_axis.RotAxis',
+                      description = 'horizontal focus for the monochromator',
                       abslimits = (-360, 360),
                       unit = 'deg',
                       refpos = 220,

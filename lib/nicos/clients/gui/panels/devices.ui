@@ -97,15 +97,6 @@
     <string>Reset</string>
    </property>
   </action>
-  <action name="actionChangePar">
-   <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
-     <normaloff>:/editor</normaloff>:/editor</iconset>
-   </property>
-   <property name="text">
-    <string>Change value</string>
-   </property>
-  </action>
   <action name="actionFix">
    <property name="text">
     <string>Fix...</string>
@@ -128,6 +119,15 @@
   <action name="actionHelp">
    <property name="text">
     <string>Help</string>
+   </property>
+  </action>
+  <action name="actionPlotHistory">
+   <property name="icon">
+    <iconset resource="../../../../../resources/nicos-gui.qrc">
+     <normaloff>:/find</normaloff>:/find</iconset>
+   </property>
+   <property name="text">
+    <string>Plot history...</string>
    </property>
   </action>
  </widget>

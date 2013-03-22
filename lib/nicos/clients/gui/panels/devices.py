@@ -101,11 +101,7 @@ class DevicesPanel(Panel):
         self.devmenu_ro.addSeparator()
         self.devmenu_ro.addAction(self.actionHelp)
 
-        self.parmenu = QMenu(self)
-        self.parmenu.addAction(self.actionChangePar)
-
         self._menu_dev = None   # device for which context menu is shown
-        self._menu_par = None
 
         self._control_dialogs = {}
 
@@ -164,6 +160,8 @@ class DevicesPanel(Panel):
         devkeys = dict(self.client.ask('getcachekeys', ldevname + '/'))
         if devkeys.get(ldevname + '/lowlevel'):
             return
+        if 'nicos.core.data.DataSink' in devkeys.get(ldevname + '/classes', []):
+            return
 
         cat = self._dev2setup.get(devname)
         if cat is None:   # device is not in any setup? reread setup info
@@ -185,6 +183,7 @@ class DevicesPanel(Panel):
         # create a tree node for the device
         devitem = QTreeWidgetItem(catitem, [devname, '', ''], 1001)
         devitem.setIcon(0, QIcon(':/sunny'))
+        devitem.setToolTip(0, devkeys.get(ldevname + '/description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
         self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', '', []]
@@ -338,6 +337,11 @@ class DevicesPanel(Panel):
             param = key.split('/')[1]
             QTreeWidgetItem(dlg.paramList, [param, str(value)])
             params[param] = value
+
+        if params.get('description'):
+            dlg.description.setText(params['description'])
+        else:
+            dlg.description.setVisible(False)
 
         if 'nicos.core.device.Readable' not in devinfo[5]:
             dlg.valueFrame.setVisible(False)

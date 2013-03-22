@@ -33,6 +33,7 @@ devices = dict(
                       unit = 'deg',
                      ),
     coll     = device('devices.generic.Switcher',
+                      description = 'collimation',
                       moveable = 'coll_m',
                       states = ['10m', '15m', '20m'],
                       values = [0, 5, 10],
@@ -40,6 +41,7 @@ devices = dict(
                      ),
 
     det_pos  = device('devices.generic.VirtualMotor',
+                      description = 'detector position in the tube',
                       abslimits = (1, 50),
                       speed = 0.5,
                       unit = 'm',
@@ -53,6 +55,7 @@ devices = dict(
                      ),
 
     det_HV   = device('devices.generic.VirtualMotor',
+                      description = 'high voltage at the detector',
                       requires = {'level': 'admin'},
                       abslimits = (0, 1000),
                       unit = 'V',
