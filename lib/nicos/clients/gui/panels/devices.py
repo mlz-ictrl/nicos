@@ -94,10 +94,14 @@ class DevicesPanel(Panel):
         self.devmenu.addAction(self.actionFix)
         self.devmenu.addAction(self.actionRelease)
         self.devmenu.addSeparator()
+        self.devmenu.addAction(self.actionPlotHistory)
+        self.devmenu.addSeparator()
         self.devmenu.addAction(self.actionHelp)
 
         self.devmenu_ro = QMenu(self)
         self.devmenu_ro.addAction(self.actionReset)
+        self.devmenu_ro.addSeparator()
+        self.devmenu_ro.addAction(self.actionPlotHistory)
         self.devmenu_ro.addSeparator()
         self.devmenu_ro.addAction(self.actionHelp)
 
@@ -309,6 +313,12 @@ class DevicesPanel(Panel):
     def on_actionHelp_triggered(self):
         if self._menu_dev:
             self.client.tell('exec', 'help(%s)' % self._menu_dev)
+
+    @qtsig('')
+    def on_actionPlotHistory_triggered(self):
+        if self._menu_dev and self.mainwindow.history_wintype:
+            win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
+            win.panels[0].showNewDialog(self._menu_dev)
 
     def on_tree_itemActivated(self, item, column):
         if item.type() != 1001:

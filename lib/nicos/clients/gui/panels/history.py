@@ -350,7 +350,11 @@ class BaseHistoryWindow(object):
 
     @qtsig('')
     def on_actionNew_triggered(self):
+        self.showNewDialog()
+
+    def showNewDialog(self, devices=''):
         newdlg = NewViewDialog(self)
+        newdlg.devices.setText(devices)
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return

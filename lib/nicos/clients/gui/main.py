@@ -136,12 +136,19 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # determine if there is an editor window type, because we would like to
         # have a way to open files from a console panel later
+        # XXX this must be redesigned
         self.editor_wintype = None
         for i, winconfig in enumerate(self.profiles[self.curprofile][1]):
             if isinstance(winconfig, window) and \
                isinstance(winconfig[3], panel) and \
                winconfig[3][0] == 'nicos.clients.gui.panels.editor.EditorPanel':
                 self.editor_wintype = i - 1
+        self.history_wintype = None
+        for i, winconfig in enumerate(self.profiles[self.curprofile][1]):
+            if isinstance(winconfig, window) and \
+               isinstance(winconfig[3], panel) and \
+               winconfig[3][0] == 'nicos.clients.gui.panels.history.HistoryPanel':
+                self.history_wintype = i - 1
 
         # additional panels
         self.panels = []
