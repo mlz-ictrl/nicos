@@ -109,11 +109,8 @@ class Monitor(BaseMonitor):
 
         self._bgcolor = QColor('gray')
         self._black = QColor('black')
-        self._yellow = QColor('yellow')
-        self._green = QColor('#00ff00')
         self._red = QColor('red')
         self._gray = QColor('gray')
-        self._white = QColor('white')
 
         master.setWindowTitle(self.title)
         self._bgcolor = master.palette().color(QPalette.Window)
