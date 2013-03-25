@@ -90,6 +90,9 @@ class ExpInfoPanel(Panel):
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
 
+    def hideTitle(self):
+        self.titleLbl.setVisible(False)
+
     def on_client_connected(self):
         values = self.client.eval('session.experiment.name, '
                                   'session.experiment.sample.name, '

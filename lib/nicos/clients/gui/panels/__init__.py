@@ -25,7 +25,7 @@
 """NICOS GUI application package."""
 
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-     QColorDialog, QVBoxLayout
+     QColorDialog, QVBoxLayout, QDockWidget
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
@@ -34,7 +34,7 @@ from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
     loadBasicWindowSettings
-from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel
+from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel, docked
 
 
 class AuxiliaryWindow(QMainWindow):
@@ -141,6 +141,14 @@ class Panel(QWidget, DlgUtils):
     def getMenus(self):
         return []
 
+    def hideTitle(self):
+        """Called when the panel is shown in a dock or tab widget, which
+        provides its own place for the panel title.
+
+        If the panel has a title widget, it should hide it in this method.
+        """
+        pass
+
     def requestClose(self):
         return True
 
@@ -194,8 +202,27 @@ def createWindowItem(item, window, menuwindow):
             central = QWidget(subwindow)
             layout = QVBoxLayout()
             item = createWindowItem(subitem, window, subwindow)
+            if isinstance(item, Panel):
+                item.hideTitle()
             layout.addWidget(item)
             central.setLayout(layout)
             subwindow.setCentralWidget(central)
             tw.addTab(subwindow, title)
         return tw
+    elif isinstance(item, docked):
+        mainitem, dockitems = item
+        main = createWindowItem(mainitem, window, menuwindow)
+        for title, item in dockitems:
+            dw = QDockWidget(title, window)
+            # prevent closing the dock widget
+            dw.setFeatures(QDockWidget.DockWidgetMovable |
+                           QDockWidget.DockWidgetFloatable)
+            # make the dock title bold
+            dw.setStyleSheet('QDockWidget { font-weight: bold; }')
+            dw.setObjectName(title)
+            sub = createWindowItem(item, window, menuwindow)
+            if isinstance(sub, Panel):
+                sub.hideTitle()
+            dw.setWidget(sub)
+            menuwindow.addDockWidget(Qt.LeftDockWidgetArea, dw)
+        return main

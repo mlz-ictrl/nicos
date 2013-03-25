@@ -24,19 +24,21 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool
+from nicos.clients.gui.config import vsplit, window, panel, tool, docked
 
 config = ('Default', [
-        hsplit(
+        docked(
             vsplit(
                 panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
 #                panel('nicos.clients.gui.panels.watch.WatchPanel'),
                 panel('nicos.clients.gui.panels.console.ConsolePanel'),
             ),
-            vsplit(
-                panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
-                panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True),
+            ('NICOS devices',
+             panel('nicos.clients.gui.panels.devices.DevicesPanel',
+                   icons=True,
+                  )
             ),
+            ('Experiment info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
         ),
         window('Setup', 'setup', True,
             panel('nicos.clients.gui.panels.setup.SetupPanel')),

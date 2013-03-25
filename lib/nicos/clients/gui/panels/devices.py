@@ -137,6 +137,9 @@ class DevicesPanel(Panel):
     def loadSettings(self, settings):
         self._headerstate = settings.value('headers').toByteArray()
 
+    def hideTitle(self):
+        self.titleLbl.setVisible(False)
+
     def clear(self):
         self._catitems = {}
         # map lowercased devname -> tree widget item
