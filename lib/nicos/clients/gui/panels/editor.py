@@ -188,7 +188,7 @@ class EditorPanel(Panel):
         self.splitter.restoreState(self.splitterstate)
         self.treeModel = QFileSystemModel()
         idx = self.treeModel.setRootPath('/')
-        self.treeModel.setNameFilters(['*.py'])
+        self.treeModel.setNameFilters(['*.py', '*.txt'])
         self.treeModel.setNameFilterDisables(False)  # hide them
         self.fileTree.setModel(self.treeModel)
         self.fileTree.header().hideSection(1)
@@ -639,7 +639,7 @@ class EditorPanel(Panel):
         else:
             initialdir = self.client.eval('session.experiment.scriptdir', '')
         fn = QFileDialog.getOpenFileName(self, 'Open script', initialdir,
-                                         'Script files (*.py)')
+                                         'Script files (*.py *.txt)')
         if fn.isEmpty():
             return
         self.openFile(unicode(fn).encode(sys.getfilesystemencoding()))
@@ -744,14 +744,19 @@ class EditorPanel(Panel):
         if self.filenames[editor]:
             initialdir = path.dirname(self.filenames[editor])
         else:
-            initialdir = self.client.eval('session.experiment.scriptdir', '')
-        fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir,
-                                         'Script files (*.py)')
+            initialdir = self.client.eval('session.experiment.scriptdir', 'xx')
+        if self.client.eval('session.spMode', False):
+            defaultext = '.txt'
+            flt = 'Script files (*.txt *.py)'
+        else:
+            defaultext = '.py'
+            flt = 'Script files (*.py *.txt)'
+        fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir, flt)
         fn = unicode(fn).encode(sys.getfilesystemencoding())
         if fn == '':
             return False
         if '.' not in fn:
-            fn += '.py'
+            fn += defaultext
         self.addToRecentf(fn)
         self.watchers[editor].removePath(self.filenames[editor])
         self.filenames[editor] = fn
