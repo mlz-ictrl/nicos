@@ -36,7 +36,7 @@ from Queue import Queue
 from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
-from nicos.core import ADMIN, ConfigurationError
+from nicos.core import ADMIN, ConfigurationError, SPMError
 from nicos.services.daemon.user import AuthenticationError
 from nicos.services.daemon.utils import LoggerWrapper
 from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
@@ -444,6 +444,8 @@ class ConnectionHandler(BaseRequestHandler):
         self.log.debug('running simulation\n%s' % code)
         try:
             self.controller.simulate_script(code, name or None, self.user)
+        except SPMError, err:
+            self.write(NAK, 'syntax error in script: %s' % err)
         except Exception, err:
             self.log.exception('exception in simulate command')
             self.write(NAK, 'exception raised running simulation: %s' % err)

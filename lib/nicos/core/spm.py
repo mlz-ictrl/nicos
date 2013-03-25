@@ -335,7 +335,8 @@ class SPMHandler(object):
             try:
                 lines.append(self.handle_line(command))
             except SPMError, err:
-                err.args = ('in %s, line %d: ' % (fn, lineno + 1) + err.args[0],)
+                err.args = ('in %s, line %d: ' % (fn or 'unnamed',
+                                                  lineno + 1) + err.args[0],)
                 raise
         return '\n'.join(lines)
 
