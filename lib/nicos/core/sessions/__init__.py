@@ -770,16 +770,16 @@ class Session(object):
         if command.startswith('#'):
             return compiler('LogEntry(%r)' % command[1:].strip())
         if self._spmode:
-            return self._spmhandler.handle_line(command, compiler)
+            return compiler(self._spmhandler.handle_line(command))
         try:
             return compiler(command)
         except SyntaxError:
             # shortcut for integrated help
             if command.endswith('?') or command.startswith('?'):
                 return compiler('help(%s)' % command.strip('?'))
-            # shortcut for calling commands/devices without parens
+            # shortcut for running commands in simple mode
             if command.startswith('.'):
-                return self._spmhandler.handle_line(command[1:], compiler)
+                return compiler(self._spmhandler.handle_line(command[1:]))
             # shortcut for simulation mode
             if command.startswith(':'):
                 return compiler('Simulate(%r)' % command[1:].rstrip())
@@ -787,8 +787,9 @@ class Session(object):
 
     def scriptHandler(self, script, filename, compiler):
         """This method should be called to process/handle a script."""
-        if filename.endswith('.txt') or (self._spmode and not filename.endswith('.py')):
-            return self._spmhandler.handle_script(script, filename, compiler)
+        if filename.endswith('.txt') or \
+                (self._spmode and not filename.endswith('.py')):
+            return compiler(self._spmhandler.handle_script(script, filename))
         return compiler(script)
 
     def showHelp(self, obj=None):

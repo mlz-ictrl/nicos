@@ -55,7 +55,7 @@ id_re = re.compile('[a-zA-Z_][a-zA-Z0-9_]*$')
 string1_re = re.compile(r"'(\\\\|\\'|[^'])*'")
 string2_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 spaces_re  = re.compile(r'\s+')
-nospace_re = re.compile(r'\S+')
+nospace_re = re.compile(r'[^ \t;]+')
 
 
 def srepr(u):
@@ -268,7 +268,7 @@ class SPMHandler(object):
     def __init__(self, session):
         self.session = session
 
-    def error(self, msg, compiler):
+    def error(self, msg):
         raise SPMError(msg)
 
     def complete(self, command, word):
@@ -280,7 +280,8 @@ class SPMHandler(object):
                 return []
             if command.startswith(':'):
                 return self.complete(command[1:].strip(), word)
-            tokens = self.tokenize(command, partial=True)
+            commands = self.tokenize(command, partial=True)
+            tokens = commands[-1]  # only last command is interesting
             if not word:
                 tokens.append('')
             command = tokens[0]
@@ -328,53 +329,54 @@ class SPMHandler(object):
                     return options[optname].complete(word, self.session, args)
                 return []
 
-    def handle_script(self, code, fn, compiler):
+    def handle_script(self, code, fn):
         lines = []
         for lineno, command in enumerate(code.splitlines()):
             try:
-                lines.append(self.handle_line(command, lambda c: c))
+                lines.append(self.handle_line(command))
             except SPMError, err:
                 err.args = ('in %s, line %d: ' % (fn, lineno + 1) + err.args[0],)
                 raise
-        return compiler('\n'.join(lines))
+        return '\n'.join(lines)
 
-    def handle_line(self, command, original_compiler):
-        def compiler(s):
-            self.session.log.debug('spm code translation: %r' % s)
-            return original_compiler(s)
+    def handle_line(self, command):
         if command.startswith('#'):
             # Comments (only in script files)
-            return compiler('pass')
+            return 'pass'
         if command.startswith('!'):
             # Python escape
-            return compiler(command[1:].strip())
+            return command[1:].strip()
         if command.startswith('?') or command.endswith('?'):
             # Help escape
-            return compiler('help(%s)' % command.strip('?'))
+            return 'help(%s)' % command.strip('?')
         if command.startswith(':'):
             # Simulation escape
-            return self.handle_line(command[1:],
-                                    lambda c: compiler('Simulate(%r)' % c))
+            code = self.handle_line(command[1:])
+            return 'Simulate(%r)' % code
         try:
-            tokens = self.tokenize(command)
+            commands = self.tokenize(command)
         except NoParse, err:
             return self.error('could not parse starting at %s, expected %s' %
-                              (srepr(err.token), err.expected), compiler)
-        if not tokens:
-            return compiler('pass')
-        command = tokens[0]
-        cmdobj = self.session.namespace.get(command)
-        if hasattr(cmdobj, 'is_usercommand'):
-            return self.handle_command(cmdobj, tokens[1:], compiler)
-        elif isinstance(cmdobj, Device):
-            return self.handle_device(cmdobj, tokens[1:], compiler)
-        else:
-            return self.error('no such command or device: %s' % srepr(command),
-                              compiler)
+                              (srepr(err.token), err.expected))
+        code = []
+        for tokens in commands:
+            if not tokens:
+                code.append('pass')
+            command = tokens[0]
+            cmdobj = self.session.namespace.get(command)
+            if hasattr(cmdobj, 'is_usercommand'):
+                code.append(self.handle_command(cmdobj, tokens[1:]))
+            elif isinstance(cmdobj, Device):
+                code.append(self.handle_device(cmdobj, tokens[1:]))
+            else:
+                return self.error('no such command or device: %s' %
+                                  srepr(command))
+        return '; '.join(code)
 
     def tokenize(self, command, partial=False):
         rest = command
-        tokens = []
+        commands = [[]]
+        tokens = commands[0]
         while rest:
             if rest.startswith("'"):
                 m = string1_re.match(rest)
@@ -423,21 +425,25 @@ class SPMHandler(object):
             elif rest[0].isspace():
                 m = spaces_re.match(rest)
                 rest = rest[m.end():]
+            elif rest.startswith(';'):
+                # serial command execution
+                commands.append([])
+                tokens = commands[-1]
+                rest = rest[1:]
             else:
                 m = nospace_re.match(rest)
                 tokens.append(m.group())
                 rest = rest[m.end():]
-        return tokens
+        return commands
 
-    def handle_device(self, device, args, compiler):
+    def handle_device(self, device, args):
         if not args:
-            return compiler('read(%s)' % device)
+            return 'read(%s)' % device
         elif len(args) == 1:
-            return compiler('maw(%s, %s)' % (device, args[0]))
-        return self.error('too many arguments for simple device command',
-                          compiler)
+            return 'maw(%s, %s)' % (device, args[0])
+        return self.error('too many arguments for simple device command')
 
-    def handle_command(self, command, args, compiler):
+    def handle_command(self, command, args):
         syntax = getattr(command, 'spmsyntax', None)
         if syntax is None:
             syntax = ((Bare,) * len(args), {})
@@ -455,13 +461,13 @@ class SPMHandler(object):
             if not args:
                 if nargs < posargs or (nargs - posargs) % multargs != 0:
                     return self.error('premature end of command, expected %s'
-                                      % element.desc, compiler)
+                                      % element.desc)
                 break
             try:
                 parg = element.handle(args[0], self.session)
             except NoParse, err:
                 return self.error('invalid argument at %s, expected %s' %
-                                  (srepr(err.token), err.expected), compiler)
+                                  (srepr(err.token), err.expected))
             cmdargs.append(parg)
             args = args[1:]
             nargs += 1
@@ -469,21 +475,21 @@ class SPMHandler(object):
         cmdopts = {}
         if len(args) % 2:
             return self.error('too many arguments at %s, expected end of '
-                              'command' % srepr(args[-1]), compiler)
+                              'command' % srepr(args[-1]))
         while args:
             opt, val = args[:2]
             args = args[2:]
             if not id_re.match(opt):
                 return self.error('invalid syntax at %s, expected option name'
-                                  % srepr(opt), compiler)
+                                  % srepr(opt))
             if opt in options:
                 try:
                     val = options[opt].handle(val, self.session)
                 except NoParse, err:
                     return self.error('invalid argument at %s, expected %s' %
-                                      (srepr(err.token), err.expected), compiler)
+                                      (srepr(err.token), err.expected))
             else:
                 val = bare(val)
             cmdopts[opt] = val
         # now nothing should be left
-        return compiler(command.__name__ + '(*%s, **%s)' % (cmdargs, cmdopts))
+        return command.__name__ + '(*%s, **%s)' % (cmdargs, cmdopts)
