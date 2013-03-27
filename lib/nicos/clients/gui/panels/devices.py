@@ -107,6 +107,7 @@ class DevicesPanel(Panel):
         self.devmenu_ro.addAction(self.actionHelp)
 
         self._menu_dev = None   # device for which context menu is shown
+        self._dev2setup = {}
 
         self._control_dialogs = {}
 
