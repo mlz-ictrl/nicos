@@ -28,7 +28,7 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
-from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
+from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
      QInputDialog, QDialogButtonBox, QPalette, QDoubleValidator, \
      QTreeWidgetItemIterator
@@ -286,13 +286,14 @@ class DevicesPanel(Panel):
                 self.devmenu_ro.popup(self.tree.viewport().mapToGlobal(point))
 
     def on_filter_textChanged(self, text):
+        rx = QRegExp(text);
         text = text.toLower()
         # QTreeWidgetItemIterator: an ugly Qt C++ API translated to an even
         # uglier Python API...
         it = QTreeWidgetItemIterator(self.tree,
                                      QTreeWidgetItemIterator.NoChildren)
         while it.value():
-            it.value().setHidden(text not in it.value().text(0).toLower())
+            it.value().setHidden(rx.indexIn(it.value().text(0)) == -1)
             it += 1
         it = QTreeWidgetItemIterator(self.tree,
                                      QTreeWidgetItemIterator.HasChildren)
