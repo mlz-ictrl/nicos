@@ -42,8 +42,8 @@ class WebSession(Session):
     application environment.
     """
 
-    def _initLogging(self):
-        Session._initLogging(self)
+    def _initLogging(self, prefix=None):
+        Session._initLogging(self, prefix)
         sys.displayhook = self._displayhook
 
     def _displayhook(self, value):
