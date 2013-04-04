@@ -1,5 +1,4 @@
-# - encoding: utf8 -
-
+#  -*- coding: utf-8 -*-
 
 from PyQt4.QtCore import QSize, Qt
 from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QFont
