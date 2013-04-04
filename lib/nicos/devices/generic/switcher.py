@@ -60,6 +60,8 @@ class Switcher(Moveable):
         'values':    Param('List of values to move to', type=statelist(anytype),
                            mandatory=True),
         'precision': Param('Precision for comparison', mandatory=True),
+        'blockingmove': Param('Should we wait for the move to finish?',
+                              mandatory=False, default=True, settable=True, type=bool),
     }
 
     parameter_overrides = {
@@ -83,6 +85,10 @@ class Switcher(Moveable):
                             'valid positions are %s' % (target, positions))
         target = self._switchlist[target]
         self._adevs['moveable'].start(target)
+        if self.blockingmove:
+            self._adevs['moveable'].wait()
+
+    def doWait(self):
         self._adevs['moveable'].wait()
 
     def doStop(self):
