@@ -1462,7 +1462,6 @@ class Measurable(Readable):
     * doStart(**preset)
     * doStop()
     * doIsCompleted()
-    * doSave()
 
     Subclasses *can* implement:
 
