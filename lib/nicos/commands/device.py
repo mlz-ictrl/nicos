@@ -388,8 +388,8 @@ def fix(dev, reason=''):
     >>> fix(phi, 'will drive into the wall')
     """
     dev = session.getDevice(dev, Moveable)
-    dev.fix(reason)
-    dev.log.info(reason and 'now fixed: ' + reason or 'now fixed')
+    if dev.fix(reason):
+        dev.log.info(reason and 'now fixed: ' + reason or 'now fixed')
 
 @usercommand
 @helparglist('dev, ...')
@@ -405,8 +405,8 @@ def release(*devlist):
         raise UsageError('at least one device argument is required')
     for dev in devlist:
         dev = session.getDevice(dev, Moveable)
-        dev.release()
-        dev.log.info('released')
+        if dev.release():
+            dev.log.info('released')
 
 @usercommand
 @helparglist('dev, value[, newvalue]')

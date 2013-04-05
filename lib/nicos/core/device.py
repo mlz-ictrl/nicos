@@ -33,9 +33,9 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
-from nicos.core.utils import formatStatus
+from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
-     anytype, none_or, limits, dictof, listof
+     anytype, none_or, limits, dictof, listof, tupleof
 from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError
@@ -1050,8 +1050,10 @@ class Moveable(Readable):
         'target': Param('Last target position of a start() action',
                         unit='main', type=anytype, default='unknown'),
         'fixed':  Param('None if the device is not fixed, else a string '
-                        'describing why', settable=True, userparam=False,
+                        'describing why', settable=False, userparam=False,
                         type=str),
+        'fixedby':  Param('Who fixed it?', settable=False, userparam=False,
+                        type=none_or(tupleof(str,int)), default=None),
         'requires': Param('Access requirements for moving the device',
                           type=dictof(str, anytype)),
     }
@@ -1260,13 +1262,28 @@ class Moveable(Readable):
 
         This blocks :meth:`start` or :meth:`stop` when called on the device.
         """
-        self.fixed = reason or 'fixed'
+        eu = getExecutingUser()
+        if (self.fixedby is not None) and not( checkUserLevel(eu, self.fixedby[1])):
+            # fixed and not enough rights
+            self.log.error('Device was fixed by a \'%s\' already!'%self.fixedby[0])
+            return False
+        else:
+            self._setROParam('fixed', (reason + ' fixed by a \'%s\''%eu.name).strip())
+            self._setROParam('fixedby', (eu.name, eu.level))
+            return True
 
     @usermethod
     def release(self):
         """Release the device, i.e. undo the effect of fix()."""
-        self.fixed = ''
-
+        eu = getExecutingUser()
+        if (self.fixedby is not None) and not( checkUserLevel(eu, self.fixedby[1])):
+            # fixed and not enough rights
+            self.log.error('Device was fixed by a \'%s\' and you have not enough rights!'%self.fixedby[0])
+            return False
+        else:
+            self._setROParam('fixed', '')
+            self._setROParam('fixedby', None)
+            return True
 
 class HasLimits(Moveable):
     """
@@ -1445,6 +1462,7 @@ class Measurable(Readable):
     * doStart(**preset)
     * doStop()
     * doIsCompleted()
+    * doSave()
 
     Subclasses *can* implement:
 

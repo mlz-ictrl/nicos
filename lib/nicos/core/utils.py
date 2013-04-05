@@ -29,6 +29,7 @@ __version__ = "$Revision$"
 
 from time import sleep, time as currenttime
 
+from nicos import session
 from nicos.core import status
 from nicos.core.errors import TimeoutError, MoveError, PositionError
 
@@ -96,3 +97,16 @@ def formatStatus(st):
     const, message = st
     const = status.statuses.get(const, str(const))
     return const + (message and ': ' + message or '')
+
+def getExecutingUser():
+    ''' returns a valid authenticated User object or a default User if running in the console'''
+    from nicos.services.daemon.user import system_user, User  #Ugly, but avoids an import loop
+    try:
+        u = session.daemon_device.current_script() # get all connection handlers
+        user = User(u.user, u.userlevel)
+    except AttributeError:
+        user = system_user
+    return user
+
+def checkUserLevel( user, level = 0):
+    return user.level >= level
