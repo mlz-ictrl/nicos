@@ -1053,7 +1053,7 @@ class Moveable(Readable):
                         'describing why', settable=False, userparam=False,
                         type=str),
         'fixedby':  Param('Who fixed it?', settable=False, userparam=False,
-                        type=none_or(tupleof(str,int)), default=None),
+                          type=none_or(tupleof(str, int)), default=None),
         'requires': Param('Access requirements for moving the device',
                           type=dictof(str, anytype)),
     }
@@ -1263,12 +1263,16 @@ class Moveable(Readable):
         This blocks :meth:`start` or :meth:`stop` when called on the device.
         """
         eu = getExecutingUser()
-        if (self.fixedby is not None) and not( checkUserLevel(eu, self.fixedby[1])):
+        if self.fixedby and not checkUserLevel(eu, self.fixedby[1]):
             # fixed and not enough rights
-            self.log.error('Device was fixed by a \'%s\' already!'%self.fixedby[0])
+            self.log.error('Device was fixed by %r already' % self.fixedby[0])
             return False
         else:
-            self._setROParam('fixed', (reason + ' fixed by a \'%s\''%eu.name).strip())
+            if reason:
+                reason += ' (fixed by %r)' % eu.name
+            else:
+                reason = 'fixed by %r' % eu.name
+            self._setROParam('fixed', reason)
             self._setROParam('fixedby', (eu.name, eu.level))
             return True
 
@@ -1276,14 +1280,16 @@ class Moveable(Readable):
     def release(self):
         """Release the device, i.e. undo the effect of fix()."""
         eu = getExecutingUser()
-        if (self.fixedby is not None) and not( checkUserLevel(eu, self.fixedby[1])):
+        if self.fixedby and not checkUserLevel(eu, self.fixedby[1]):
             # fixed and not enough rights
-            self.log.error('Device was fixed by a \'%s\' and you have not enough rights!'%self.fixedby[0])
+            self.log.error('Device was fixed by %r and you are not allowed '
+                           'to release' % self.fixedby[0])
             return False
         else:
             self._setROParam('fixed', '')
             self._setROParam('fixedby', None)
             return True
+
 
 class HasLimits(Moveable):
     """

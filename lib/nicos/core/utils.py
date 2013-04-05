@@ -98,15 +98,20 @@ def formatStatus(st):
     const = status.statuses.get(const, str(const))
     return const + (message and ': ' + message or '')
 
+
 def getExecutingUser():
-    ''' returns a valid authenticated User object or a default User if running in the console'''
-    from nicos.services.daemon.user import system_user, User  #Ugly, but avoids an import loop
+    """Returns a valid authenticated User object or a default User, if running
+    in the console.
+    """
+    # ugly, but avoids an import loop
+    from nicos.services.daemon.user import system_user, User
     try:
-        u = session.daemon_device.current_script() # get all connection handlers
-        user = User(u.user, u.userlevel)
-    except AttributeError:
+        s = session.daemon_device.current_script()
+        user = User(s.user, s.userlevel)
+    except AttributeError:  # no daemon_device
         user = system_user
     return user
 
-def checkUserLevel( user, level = 0):
+
+def checkUserLevel(user, level=0):
     return user.level >= level
