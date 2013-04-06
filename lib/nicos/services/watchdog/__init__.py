@@ -118,10 +118,10 @@ class Watchdog(BaseCacheClient):
                     key = node.id.replace('_', '/').lower()
                     self._keymap[self._prefix + key] = entry
 
-    def _put_message(self, type, message, timestamp=True):
+    def _put_message(self, msgtype, message, timestamp=True):
         if timestamp:
             message = [currenttime(), message]
-        self._queue.put('watchdog/%s%s%s\n' % (type, OP_TELL,
+        self._queue.put('watchdog/%s%s%s\n' % (msgtype, OP_TELL,
                                                cache_dump(message)))
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):

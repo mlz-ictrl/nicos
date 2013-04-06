@@ -273,7 +273,7 @@ class BaseCacheClient(Device):
             except Exception:
                 self.log.debug('exception while sending last batch of updates',
                                exc=1)
-                pass  # we'll disconnect below anyways
+                # no reraise, we'll disconnect below anyways
             for _ in range(itemcount):
                 self._queue.task_done()
 
@@ -571,6 +571,7 @@ class CacheClient(BaseCacheClient):
         self.log.debug('invalidating %s' % dbkey)
         self._db.pop(dbkey, None)
 
+    #pylint: disable=W0221
     def history(self, dev, key, fromtime, totime):
         """History query: opens a separate connection since it is otherwise not
         possible to determine which response lines belong to it.

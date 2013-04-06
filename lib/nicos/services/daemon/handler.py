@@ -511,9 +511,9 @@ class ConnectionHandler(BaseRequestHandler):
         if not session.cache:
             self.write(STX, serialize([]))
         if ',' in query:
-                result = session.cache.query_db(query.split(','))
+            result = session.cache.query_db(query.split(','))
         else:
-                result = session.cache.query_db(query)
+            result = session.cache.query_db(query)
         self.write(STX, serialize(result))
 
     @command()

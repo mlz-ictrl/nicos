@@ -91,6 +91,7 @@ class ScriptRequest(Request):
     can be done with the script: execute it, and update it.
     """
 
+    #pylint: disable=W0622
     def __init__(self, text, name=None, user=None, quiet=False,
                  settrace=None, handler=None, format=None):
         Request.__init__(self, user)
@@ -324,7 +325,7 @@ class ExecutionController(Controller):
             self.log.info('calling break function %r...' %
                           getattr(brfunc, '__name__', ''))
             try:
-                brfunc() #pylint: disable=E1102
+                brfunc()  #pylint: disable=E1102
             except Exception:
                 self.log.exception('break function raised error')
         # if arg is not None, stop immediately with given arg
@@ -355,7 +356,7 @@ class ExecutionController(Controller):
                 self.log.info('calling continue function %r...' %
                               getattr(contfunc, '__name__', ''))
                 try:
-                    contfunc() #pylint: disable=E1102
+                    contfunc()  #pylint: disable=E1102
                 except Exception:
                     self.log.exception('continue function raised error')
 
@@ -588,9 +589,9 @@ class ExecutionController(Controller):
                         self.execute_estop(err.args[1])
                     else:
                         session.log.info('Script stopped by %s' % (err.args[1],))
-                except BdbQuit, err:
+                except BdbQuit, err:  #pylint: disable=E0701
                     session.log.error('Script stopped through debugger')
-                except Exception, err:
+                except Exception, err:  #pylint: disable=E0701
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     session.logUnhandledException(cut_frames=2)

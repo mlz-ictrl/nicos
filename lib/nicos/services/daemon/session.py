@@ -130,7 +130,7 @@ class DaemonSession(NoninteractiveSession):
                 self.addLogHandler(pipesender)
                 self.setMode('simulation')
                 exec code in self.namespace
-            except:  # really *all* exceptions
+            except:  # really *all* exceptions -- pylint: disable=W0702
                 self.log.exception()
             finally:
                 pipesender.finish()

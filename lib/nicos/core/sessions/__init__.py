@@ -529,7 +529,7 @@ class Session(object):
         load_setupnames = setupnames[:]
         if autoload_system and 'system' in self._setup_info and \
            'system' not in self.loaded_setups:
-           load_setupnames.insert(0, 'system')
+            load_setupnames.insert(0, 'system')
         for setupname in load_setupnames:
             self.log.info('loading setup %r (%s)' %
                 (setupname, self._setup_info[setupname]['description']))

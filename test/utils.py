@@ -228,7 +228,7 @@ def cleanup():
     os.mkdir(rootdir + '/pid')
 
 def startCache(setup='cache', wait=5):
-    global cache # pylint: disable=W0603
+    global cache  #pylint: disable=W0603
     sys.stderr.write(' [cache start... ')
 
     # start the cache server

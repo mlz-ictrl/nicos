@@ -56,7 +56,7 @@ CO_DIVISION = 0x2000
 
 @usercommand
 @helparglist('[object]')
-def help(obj=None): #pylint: disable=W0622
+def help(obj=None):  #pylint: disable=W0622
     """Show help for a command, for a device or for any other object.
 
     For commands, the command help and usage will be shown.  For devices, the
@@ -77,7 +77,7 @@ __builtin__.__orig_dir = __builtin__.dir
 
 @hiddenusercommand
 @helparglist('[object]')
-def dir(obj=None): #pylint: disable=W0622
+def dir(obj=None):  #pylint: disable=W0622
     """Show all public attributes for the given object."""
     if obj is None:
         return sorted(sys._getframe(2).f_locals)

@@ -98,6 +98,7 @@ typedisplay = {
 @usercommand
 def TacoStatus(server=''):
     """List all TACO devices and check their status."""
+    # "unused" locals -- pylint: disable=W0612
     def check_IOCounter(dev, client, state):
         return state in [st.COUNTING, st.STOPPED]
     def check_IOTimer(dev, client, state):

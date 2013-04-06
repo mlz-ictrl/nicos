@@ -162,6 +162,7 @@ class GraceSink(DataSink):
         if not self._plotter.addFitCurve(dataset, title, xvalues, yvalues):
             self.log.warning('could not add curve to Grace')
 
+    #pylint: disable=W0221
     @usermethod
     def history(self, dev, key='value', fromtime=None, totime=None):
         """Plot history of the given key and time interval in a Grace window.

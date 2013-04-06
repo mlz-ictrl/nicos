@@ -41,7 +41,7 @@ else:
     # black magic to make `cmd` into links
     from docutils import nodes, utils
     from docutils.parsers.rst import roles
-    def std_role(typ, raw, text, lineno, inliner, options={}, content=[]):
+    def std_role(typ, raw, text, lineno, inliner, options=None, content=None):
         text = utils.unescape(text)
         reftext = text
         if reftext.endswith('()'): reftext = reftext[:-2]

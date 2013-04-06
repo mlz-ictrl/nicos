@@ -628,6 +628,7 @@ class ViewPlot(NicosPlot):
         if self.view.yfrom is not None:
             return (self.view.yfrom, self.view.yto)
 
+    #pylint: disable=W0221
     def on_picker_moved(self, point, strf=time.strftime, local=time.localtime):
         # overridden to show the correct timestamp
         tstamp = local(int(self.invTransform(QwtPlot.xBottom, point.x())))
@@ -763,7 +764,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 class StandaloneHistoryApp(CacheClient):
 
     def doInit(self, mode):
-        import nicos.clients.gui.gui_rc #pylint: disable=W0612
+        import nicos.guisupport.gui_rc  #pylint: disable=W0612
 
         self._qtapp = QApplication(sys.argv)
         self._qtapp.setOrganizationName('nicos')

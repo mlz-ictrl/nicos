@@ -476,8 +476,8 @@ class QScan(Scan):
         comps = []
         if len(self._positions) > 1:
             for i in range(4):
-                    if self._positions[0][0][i] != self._positions[1][0][i]:
-                        comps.append('HKLE'[i])
+                if self._positions[0][0][i] != self._positions[1][0][i]:
+                    comps.append('HKLE'[i])
         if 'number' in self.dataset.sinkinfo:
             return 'Scan %s #%s' % (','.join(comps) or 'Q',
                                     self.dataset.sinkinfo['number'])

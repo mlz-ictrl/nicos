@@ -34,7 +34,7 @@ from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
 
 # Import resources file
-import nicos.guisupport.gui_rc #pylint: disable=W0612
+import nicos.guisupport.gui_rc  #pylint: disable=W0611
 
 
 class NicosListener(object):

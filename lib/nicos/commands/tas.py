@@ -194,7 +194,7 @@ _Q = Q
 
 @usercommand
 @helparglist('[h, k, l, E]')
-def Q(*args, **kwds): # pylint: disable=E0102
+def Q(*args, **kwds):  #pylint: disable=E0102
     """A Q-E vector object that can be used for calculations.
 
     Use as follows:

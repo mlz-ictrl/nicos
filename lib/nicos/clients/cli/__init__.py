@@ -395,6 +395,7 @@ class NicosCmdClient(NicosClient):
                                    levels[levelno] + ': ' + msg[3].rstrip())
         self.put(msg[5] + newtext)
 
+    #pylint: disable=W0221
     def signal(self, name, data=None, exc=None):
         """Handles any kind of signal/event sent by the daemon."""
         try:
@@ -814,7 +815,7 @@ class NicosCmdClient(NicosClient):
                 # this catches an empty arg as well
                 try:
                     arg = int(arg)
-                    self.pending_requests[arg]
+                    self.pending_requests[arg]  #pylint: disable=W0104
                 except (ValueError, KeyError):
                     self.put_error('Need a pending request number '
                                    '(see "/pending") or "*" to clear all.')

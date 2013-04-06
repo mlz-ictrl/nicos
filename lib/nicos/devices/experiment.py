@@ -385,7 +385,7 @@ class Experiment(Device):
             zf = zipfile.ZipFile(zipname, 'w', zipfile.ZIP_DEFLATED, True)
             nfiles = 0
             try:
-                for root, dirs, files in os.walk(self.proposaldir):
+                for root, _dirs, files in os.walk(self.proposaldir):
                     xroot = root[len(self.proposaldir):].strip('/') + '/'
                     for fn in files:
                         zf.write(path.join(root, fn), xroot + fn)

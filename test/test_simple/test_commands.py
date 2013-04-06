@@ -34,7 +34,7 @@ from nicos.commands.device import move, maw, drive, switch, wait, read, \
      status, stop, reset, set, get, getall, setall, fix, release, adjust, \
      version, history, info, limits, resetlimits, ListParams, ListMethods, \
      ListDevices
-from nicos.commands.basic import help, dir #pylint: disable=W0622
+from nicos.commands.basic import help, dir  #pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
      CreateDevice, DestroyDevice, CreateAllDevices, \

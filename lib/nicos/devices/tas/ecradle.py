@@ -95,7 +95,7 @@ class EulerianCradle(Moveable):
         ang = self.euler_angles(r1, r2, 2, 2, sense,
                                 self._adevs['chi'].userlimits,
                                 self._adevs['omega'].userlimits)
-        psi, chi, om, phi = ang
+        psi, chi, om, _phi = ang
         self.log.debug('euler angles: %s' % ang)
         self.log.info('moving %s to %12s, %s to %12s' % (self._adevs['chi'],
                          self._adevs['chi'].format(chi, unit=True),
@@ -136,7 +136,7 @@ class EulerianCradle(Moveable):
                          self._adevs['omega'].format(ang[2], unit=True)))
 
     def euler_angles(self, target_q, another, ki, kf, sense,
-                     chilimits=[-180, 180], omlimits=[-180, 180]):
+                     chilimits=(-180, 180), omlimits=(-180, 180)):
         """Calculates the eulerian angles of *target_q* with the condition
         that the scattering plane is spanned by q and the *another* vector.
 

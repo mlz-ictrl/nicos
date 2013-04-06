@@ -29,7 +29,7 @@ from nicos import session
 from test.utils import startCache, killCache
 
 def setup_package():
-    global cache #pylint: disable=W0603
+    global cache  #pylint: disable=W0603
     cache = startCache()
 
 def teardown_package():

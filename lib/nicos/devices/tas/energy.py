@@ -38,7 +38,7 @@ class Energy(object):
 
     def __init__(self, value, unit=None):
         if isinstance(value, Energy):
-            return value.__class__(value.value, value.unit)
+            value, unit = value.value, value.unit
         if unit not in UNITS:
             raise ValueError('unknown energy unit: %r' % unit)
         self.value = value

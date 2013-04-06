@@ -223,7 +223,7 @@ class DeviceMeta(type):
 
         return newtype
 
-    def __instancecheck__(cls, inst): # pylint: disable=C0203
+    def __instancecheck__(cls, inst):  #pylint: disable=C0203
         from nicos.devices.generic import DeviceAlias, NoDevice
         if inst.__class__ == DeviceAlias and inst._initialized:
             if isinstance(inst._obj, NoDevice):
@@ -1515,7 +1515,7 @@ class Measurable(Readable):
             return
         self.doStart(**preset)
 
-    def __call__(self, pos=None):
+    def __call__(self, pos=None):  #pylint: disable=W0221
         """Allow dev(), but not dev(pos)."""
         if pos is None:
             return self.read()

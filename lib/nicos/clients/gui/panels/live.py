@@ -135,12 +135,12 @@ class LiveDataPanel(Panel):
     def on_widget_customContextMenuRequested(self, point):
         self.menu.popup(self.mapToGlobal(point))
 
-    def on_widget_profileUpdate(self, type, nbins, x, y):
+    def on_widget_profileUpdate(self, proftype, nbins, x, y):
         if self._instrument != 'toftof':
             return
         if self._toftof_profile is None:
             self._toftof_profile = ToftofProfileWindow(self)
-        self._toftof_profile.update(type, nbins, x, y)
+        self._toftof_profile.update(proftype, nbins, x, y)
         self._toftof_profile.show()
 
     def on_client_connected(self):
@@ -269,7 +269,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
     def scaleChanged(self, scale):
         self.update(self._type, self._orig_nbins, self._orig_x, self._orig_y)
 
-    def update(self, type, nbins, x, y):
+    def update(self, proftype, nbins, x, y):
         self._orig_x = x
         self._orig_y = y
         self._orig_nbins = nbins
@@ -277,7 +277,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         y.setsize(8 * nbins)
         xs = struct.unpack('d' * nbins, x)
         ys = struct.unpack('d' * nbins, y)
-        if type == 0:
+        if proftype == 0:
             if self.scale.currentIndex() == 0:
                 xs = xs
             elif self.scale.currentIndex() == 1:
@@ -299,11 +299,11 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self.plot.setAxisAutoScale(QwtPlot.yLeft)
         self.marker.setVisible(False)
         self.zoomer.setZoomBase(True)
-        self._type = type
-        if type == 0:
+        self._type = proftype
+        if proftype == 0:
             self.setWindowTitle('Single detector view (time-channel integrated)')
             self.scaleframe.setVisible(True)
-        elif type == 1:
+        elif proftype == 1:
             self.setWindowTitle('Time channel view (detector integrated)')
             self.scaleframe.setVisible(False)
         else:

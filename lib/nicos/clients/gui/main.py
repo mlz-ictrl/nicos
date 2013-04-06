@@ -51,7 +51,6 @@ from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.helpwin import HelpWindow
 from nicos.clients.gui.settings import SettingsDialog
-from nicos.protocols.cache import cache_load
 from nicos.protocols.daemon import DAEMON_EVENTS, DEFAULT_PORT, \
      STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
 
@@ -614,7 +613,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
 def main(argv):
     # Import the compiled resource file to register resources
-    import nicos.guisupport.gui_rc #pylint: disable=W0612
+    import nicos.guisupport.gui_rc  #pylint: disable=W0612
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 

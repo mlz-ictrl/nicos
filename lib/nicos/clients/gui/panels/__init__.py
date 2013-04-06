@@ -40,14 +40,14 @@ from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel
 
 class AuxiliaryWindow(QMainWindow):
 
-    def __init__(self, parent, type, config, profile):
+    def __init__(self, parent, wintype, config, profile):
         QMainWindow.__init__(self, parent)
         loadUi(self, 'auxwindow.ui')
         self.mainwindow = parent
         self.client = parent.client
         self.curprofile = profile
 
-        self.type = type
+        self.type = wintype
         self.panels = []
         self.splitters = []
 

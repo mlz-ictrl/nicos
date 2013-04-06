@@ -53,6 +53,7 @@ class TrendPlot(QwtPlot, DisplayWidget):
 
     colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.magenta, Qt.cyan, Qt.darkGray]
 
+    #pylint: disable=W0231
     def __init__(self, parent, designMode=False):
         self.ncurves = 0
         self.ctimers = {}

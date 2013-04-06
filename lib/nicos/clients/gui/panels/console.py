@@ -221,8 +221,8 @@ class ConsolePanel(Panel):
         script = str(self.commandInput.text().toUtf8())
         if not script:
             return
-        sscript = script.strip()
         # XXX: this does not apply in SPM mode
+        # sscript = script.strip()
         # if not (sscript.startswith(('#', '?', '.', ':')) or sscript.endswith('?')):
         #     try:
         #         compile(script+'\n', 'script', 'single')

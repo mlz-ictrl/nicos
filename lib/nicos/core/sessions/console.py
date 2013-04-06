@@ -119,7 +119,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
 
         return False
 
-    def raw_input(self, prompt):
+    def raw_input(self, prompt=''):
         sys.stdout.write(colorcode(self.session._pscolor))
         self.session._prompting = True
         try:
@@ -309,7 +309,7 @@ class ConsoleSession(Session):
                 self.log.manager.globalprefix = '(sim) '
                 self.setMode('simulation')
                 exec code in self.namespace
-            except:  # really *all* exceptions
+            except: # really *all* exceptions -- pylint: disable=W0702
                 self.log.exception()
             finally:
                 sys.exit()

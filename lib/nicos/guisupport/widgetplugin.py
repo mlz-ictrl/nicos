@@ -54,6 +54,7 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
 
     def createWidget(self, parent):
         try:
+            #pylint: disable=E1102
             return self.widget_class(parent, designMode=True)
         except Exception, e:
             name = self.widget_class.__name__
@@ -95,7 +96,7 @@ from nicos.guisupport.plots import TrendPlot
 
 
 for cls in [ValueDisplay, StatusLed, ValueLed, TrendPlot]:
-    class Plugin(NicosPluginBase):
+    class Plugin(NicosPluginBase):  #pylint: disable=R0923
         widget_class = cls
     Plugin.__name__ = cls.__name__ + 'Plugin'
     globals()[Plugin.__name__] = Plugin

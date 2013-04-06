@@ -59,7 +59,7 @@ class Dev2(HasLimits, HasOffset, Moveable):
 
     def doInit(self, mode):
         if self.failinit:
-            1/0 # pylint: disable=W0104
+            1/0  #pylint: disable=W0104
         self._val = 0
         methods_called.add('doInit')
 

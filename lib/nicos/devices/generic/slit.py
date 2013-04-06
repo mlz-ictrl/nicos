@@ -155,7 +155,7 @@ class Slit(Moveable):
         tl, tr, tb, tt = positions
         # determine which axes to move first, so that the blades can
         # not touch when one moves first
-        cl, cr, cb, ct = map(lambda d: d.read(0), self._axes)
+        cl, cr, cb, ct = [d.read(0) for d in self._axes]
         cl *= f
         cb *= f
         al, ar, ab, at = self._axes
@@ -200,7 +200,7 @@ class Slit(Moveable):
             ax.stop()
 
     def _doReadPositions(self, maxage):
-        cl, cr, cb, ct = map(lambda d: d.read(maxage), self._axes)
+        cl, cr, cb, ct = [d.read(maxage) for d in self._axes]
         if self.coordinates == 'opposite':
             cr *= -1
             cb *= -1
@@ -236,7 +236,7 @@ class Slit(Moveable):
                    Value('%s.top' % self, unit=self.unit, fmtstr='%.2f')
 
     def doStatus(self, maxage=0):
-        svalues = map(lambda d: d.status(maxage), self._axes)
+        svalues = [d.status(maxage) for d in self._axes]
         return max(s[0] for s in svalues), 'axis status: ' + \
                ', '.join('%s=%s' % (n, s[1])
                          for (s, n) in zip(svalues, self._axnames))

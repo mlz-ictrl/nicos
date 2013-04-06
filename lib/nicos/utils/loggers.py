@@ -305,7 +305,7 @@ class ELogHandler(Handler):
     def filter(self, record):
         return not self.disabled
 
-    def emit(self, record, entries=TRANSMIT_ENTRIES):
+    def emit(self, record, entries=TRANSMIT_ENTRIES):  #pylint: disable=W0221
         if record.levelno == ACTION or record.filename:
             # do not write ACTIONs to logfiles, they're only informative
             # also do not write messages from simulation mode

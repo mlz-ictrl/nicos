@@ -86,6 +86,7 @@ class Server(TCPServer):
         self.__serving = False
         self.__is_shut_down.wait()
 
+    #pylint: disable=W0221
     def process_request(self, request, client_address, client_id):
         """Process a "request", that is, a client connection."""
         # mostly copied from ThreadingMixIn but without the import,

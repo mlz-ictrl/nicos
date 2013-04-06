@@ -44,9 +44,9 @@ class tabbed(tuple):
         return tuple.__new__(cls, children)
 
 class panel(tuple):
-    def __new__(cls, type, **settings):
-        return tuple.__new__(cls, (type, settings))
+    def __new__(cls, clsname, **settings):
+        return tuple.__new__(cls, (clsname, settings))
 
 class tool(tuple):
-    def __new__(cls, name, type, **settings):
-        return tuple.__new__(cls, (name, type, settings))
+    def __new__(cls, name, clsname, **settings):
+        return tuple.__new__(cls, (name, clsname, settings))

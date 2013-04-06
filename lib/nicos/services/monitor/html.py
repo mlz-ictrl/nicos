@@ -342,10 +342,12 @@ class Monitor(BaseMonitor):
     def updateTitle(self, text):
         self._timelabel.text = text
 
+    #pylint: disable=W0221
     def signal(self, field, signal, key, value, time, expired):
         if field.plot:
             if key == field.key:
-                self._plots[field.plot].updatevalues(field._plotcurve, time, value)
+                self._plots[field.plot].updatevalues(field._plotcurve,
+                                                     time, value)
             return
         if key == field.key:
             # apply item selection
