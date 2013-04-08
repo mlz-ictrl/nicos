@@ -35,9 +35,10 @@ from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
      HasLimits, UsageError, formatStatus, INFO_CATEGORIES
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
+from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
-from nicos.commands.output import printinfo
+from nicos.commands.output import printinfo, printerror
 
 
 def _devposlist(dev_pos_list, cls):
@@ -584,6 +585,25 @@ def resetlimits(*devlist):
             dev.log.info('limits reset to absolute limits, new range: %8s --- %8s %s'
                          % (dev.format(dev.userlimits[0]),
                             dev.format(dev.userlimits[1]), dev.unit))
+
+@usercommand
+@spmsyntax(Dev(CanReference))
+def reference(dev, *args):
+    """Do a reference drive of the device, if possible.
+
+    How the reference drive is done depends on the device settings.
+    Example:
+
+    >>> reference(phi)
+    """
+    try:
+        dev = session.getDevice(dev, CanReference)
+    except UsageError:
+        printerror('%s has no reference function' % dev)
+        return
+    newpos = dev.reference(*args)
+    dev.log.info('reference drive complete, position is now ' +
+                 dev.format(newpos, unit=True))
 
 @usercommand
 @spmsyntax(AnyDev)

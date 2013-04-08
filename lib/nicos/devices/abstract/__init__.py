@@ -102,6 +102,30 @@ class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
     }
 
 
+class CanReference(object):
+    """
+    Mixin class for axis devices that want to provide a 'reference' method.
+
+    Concrete implementations must provide a 'doReference' method.  It can
+    return the new current position after referencing or None.
+    """
+
+    @usermethod
+    def reference(self, *args):
+        """Do a reference drive of the axis."""
+        if self._mode == 'slave':
+            raise ModeError(self, 'referencing not possible in slave mode')
+        elif self._sim_active:
+            return
+        elif hasattr(self, 'fixed') and self.fixed:
+            self.log.error('device fixed, not referencing: %s' % self.fixed)
+            return
+        newpos = self.doReference(*args)
+        if newpos is None:
+            newpos = self.read(0)
+        return newpos
+
+
 class ImageStorage(Device, NeedsDatapath):
     """
     Mixin for detectors that store images in their own directory.

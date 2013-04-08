@@ -105,6 +105,7 @@ Device commands
 .. autofunction:: release
 
 .. autofunction:: adjust
+.. autofunction:: reference
 
 .. autofunction:: history
 

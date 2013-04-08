@@ -32,11 +32,11 @@ from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
      NicosError, PositionError, MoveError, waitForStatus, floatrange, \
-     Param, usermethod
-from nicos.devices.abstract import Axis as BaseAxis, Motor, Coder
+     Param
+from nicos.devices.abstract import Axis as BaseAxis, Motor, Coder, CanReference
 
 
-class Axis(BaseAxis):
+class Axis(BaseAxis, CanReference):
     """Axis implemented in Python, with NICOS devices for motor and coders."""
 
     attached_devices = {
@@ -191,18 +191,14 @@ class Axis(BaseAxis):
             self.log.info('reset done; use %s.reference() to do a reference '
                           'drive' % self)
 
-    @usermethod
-    def reference(self, force=False):
+    def doReference(self):
         """Do a reference drive, if the motor supports it."""
-        if self.fixed:
-            self.log.error('device fixed, not referencing: %s' % self.fixed)
+        if self._hascoder:
+            self.log.error('this is an encoded axis, '
+                           'referencing makes no sense')
             return
-        if self._hascoder and not force:
-            self.log.warning('this is an encoded axis; use '
-                             '%s.reference(True) to force reference drive'
-                             % self)
         motor = self._adevs['motor']
-        if hasattr(motor, 'reference'):
+        if isinstance(motor, CanReference):
             motor.reference()
         else:
             self.log.error('motor %s does not have a reference routine' % motor)

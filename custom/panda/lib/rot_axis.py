@@ -69,8 +69,7 @@ class RotAxis(Axis):
             self.reference(target)    # WARNING: This takes a while !
         return Axis.doStart(self, target)
 
-    @usermethod
-    def reference(self, gotopos = None):
+    def doReference(self, gotopos = None):
         ''' references this axis by finding the reference switch and then setting current position to refpos.
         1) Finding the refswitch by going backwards until the refswitch (=negative limit switch) fires,
         2) then go forward a little until the switch is not active,

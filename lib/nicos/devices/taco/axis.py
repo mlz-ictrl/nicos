@@ -36,11 +36,11 @@ from Motor import Motor as TACOMotor
 
 from nicos.core import status, tupleof, anytype, usermethod, Moveable, Param, \
      NicosError, ModeError, waitForStatus
-from nicos.devices.abstract import Axis as BaseAxis
+from nicos.devices.abstract import Axis as BaseAxis, CanReference
 from nicos.devices.taco.core import TacoDevice
 
 
-class Axis(TacoDevice, BaseAxis):
+class Axis(TacoDevice, BaseAxis, CanReference):
     """Interface for TACO Axis server devices."""
 
     taco_class = TACOMotor
@@ -107,14 +107,8 @@ class Axis(TacoDevice, BaseAxis):
         client = TACOMotor(motorname)
         return client
 
-    @usermethod
-    def reference(self):
+    def doReference(self):
         """Do a reference drive of the axis (do not use with encoded axes)."""
-        if self._mode == 'slave':
-            raise ModeError(self, 'referencing not possible in slave mode')
-        elif self._sim_active:
-            self.setPosition(self.refpos)
-            return
         client = self._getMotor()
         self.log.info('referencing the axis, please wait...')
         self._taco_guard(client.deviceReset)
@@ -123,8 +117,6 @@ class Axis(TacoDevice, BaseAxis):
             sleep(0.3)
         self._taco_guard(client.deviceOn)
         self.setPosition(self.refpos)
-        self.log.info('reference drive complete, position is now ' +
-                      self.format(self.read(0), unit=True))
 
     def _reset_phytron(self):
         motor = self._getMotor()

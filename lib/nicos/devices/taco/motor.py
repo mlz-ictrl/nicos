@@ -62,8 +62,7 @@ class Motor(TacoDevice, BaseMotor):
         if self._taco_guard(self._dev.isDeviceOff):
             self._taco_guard(self._dev.deviceOn)
 
-    @usermethod
-    def reference(self):
+    def doReference(self):
         self._taco_guard(self._dev.deviceReset)
         self.doWait()
 
