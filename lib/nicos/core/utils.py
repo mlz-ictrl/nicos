@@ -104,7 +104,7 @@ def getExecutingUser():
     in the console.
     """
     # ugly, but avoids an import loop
-    from nicos.services.daemon.user import system_user, User
+    from nicos.services.daemon.auth import system_user, User
     try:
         s = session.daemon_device.current_script()
         user = User(s.user, s.userlevel)
