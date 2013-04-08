@@ -30,7 +30,8 @@ import numpy
 class ImageStorageFits(ImageStorage):
 
     def _readImageFromHw(self):
-        return numpy.array()
+        raise NotImplementedError('please implement _readImageFromHw() in %s'
+                                  % self.__class__.__name__)
 
     def doRead(self, maxage=0):
         return self.lastfilename
