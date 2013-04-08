@@ -28,15 +28,17 @@ __version__ = "$Revision$"
 
 from nicos.utils import lazy_property
 
-from nicos.core import anytype, none_or, floatrange, listof, ConfigurationError, PositionError, \
-     NicosError, Moveable, Param, Override, status
+from nicos.core import anytype, none_or, floatrange, listof, dictof, status, \
+     ConfigurationError, PositionError, NicosError, Moveable, Param, Override
+
 
 class MultiSwitcher(Moveable):
     """The switcher is a device that maps switch states onto discrete values of
     a set of (continuously) moveable device.
 
     This is useful if you have for example two motors that only every moves to
-    certain discrete positions for selected 'configurations', e.g. a monochromator changer.
+    certain discrete positions for selected 'configurations', e.g. a
+    monochromator changer.
     Then you can control both using ::
 
         move(changer_switch, 'up')
@@ -55,10 +57,8 @@ class MultiSwitcher(Moveable):
     }
 
     parameters = {
-        'states':    Param('List of state names.', type=listof(anytype),
-                           mandatory=True),
-        'values':    Param('List of values to move to', type=listof(listof(anytype)),
-                           mandatory=True),
+        'mapping':   Param('Mapping of state names to values to move to',
+                           type=dictof(anytype, listof(anytype)), mandatory=True),
         'precision': Param('Used for evaluating position, use None to disable',
                            mandatory=True, type=none_or(floatrange(0., 360.))),
         'blockingmove': Param('Should we wait for the move to finish?',
@@ -76,24 +76,18 @@ class MultiSwitcher(Moveable):
         return self._adevs['moveables']
 
     def doInit(self, mode):
-        states = self.states
-        values = self.values
-        if len(states) != len(values):
-            raise ConfigurationError(self, 'Switcher states and values must be '
-                                     'of equal length')
-        for t in values:
+        for t in self.mapping.itervalues():
             if len(t) != len(self.devices):
-                raise ConfigurationError(self, 'Switcher state entries and moveable '
-                                    'must be of equal length')
-        self._switchlist = dict(zip(states, values))
+                raise ConfigurationError(self, 'Switcher state entries and '
+                                         'moveables list must be of equal length')
 
     def doStart(self, target):
-        if target not in self._switchlist:
-            positions = ', '.join(repr(pos) for pos in self.states)
+        if target not in self.mapping:
+            positions = ', '.join(repr(pos) for pos in self.mapping)
             raise NicosError(self, '%r is an invalid position for this device; '
-                            'valid positions are %s' % (target, positions))
-        for d,t in zip( self.devices, self._switchlist[target]):
-            self.log.debug('moving %r to %r'%(d,t))
+                             'valid positions are %s' % (target, positions))
+        for d,t in zip(self.devices, self.mapping[target]):
+            self.log.debug('moving %r to %r' % (d, t))
             d.start(t)
         for d in self.devices:
             self.log.debug('waiting for %r'%d)
@@ -104,27 +98,25 @@ class MultiSwitcher(Moveable):
             d.stop()
 
     def doRead(self, maxage=0):
-        pos = []
-        for d in self.devices:
-            pos.append(d.read(maxage))
-        hasprec = self.precision is not None
-        for name, value in self._switchlist.iteritems():
+        pos = [d.read(maxage) for d in self.devices]
+        hasprec = bool(self.precision)
+        for name, values in self.mapping.iteritems():
             if hasprec:
-                for d, p, v in zip(self.devices, pos, value):
+                for d, p, v in zip(self.devices, pos, values):
                     if abs(p - v) > d.getattr(d, 'precision', self.precision):
                         break
                 else: # if there was no break we end here...
                     return name
             else:
-                if tuple(pos) == tuple(value):
+                if tuple(pos) == tuple(values):
                     return name
         raise PositionError(self, 'unknown position of %s' %
-                            ', '.join(repr(d) for d in self.devices))
+                            ', '.join(str(d) for d in self.devices))
 
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
         # reflect its status
-        move_status = (0,'X')
+        move_status = (0, 'X')
         for d in self.devices:
             s = d.status(maxage)
             if move_status[0] < s[0]:

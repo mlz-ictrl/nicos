@@ -66,16 +66,15 @@ devices = dict(
                       blockingmove = False,
                      ),
     guide    = device('sans1.sans1switcher.MultiSwitcher',
-                      moveable = ['guide1', 'guide2', 'guide3', 'guide4'],
-                      states = ['off', '1m', '2m', '4m', '6m', 'P3', 'P4'],
-                      values = [ ['off', 'off', 'off', 'off'],  # off
-                                 ['off', 'off', 'off', 'ng' ],  # 1m
-                                 ['off', 'off', 'ng',  'ng' ],  # 2m
-                                 ['off', 'ng',  'ng',  'ng' ],  # 4m
-                                 ['ng',  'ng',  'ng',  'ng' ],  # 6m
-                                 ['P3',  'P3',  'P3',  'P3' ],  # P3
-                                 ['P4',  'P4',  'P4',  'P4' ],  # P4
-                                ],
+                      moveables = ['guide1', 'guide2', 'guide3', 'guide4'],
+                      mapping = {'off': ['off', 'off', 'off', 'off'],
+                                 '1m':  ['off', 'off', 'off', 'ng' ],
+                                 '2m':  ['off', 'off', 'ng',  'ng' ],
+                                 '4m':  ['off', 'ng',  'ng',  'ng' ],
+                                 '6m':  ['ng',  'ng',  'ng',  'ng' ],
+                                 'P3':  ['P3',  'P3',  'P3',  'P3' ],
+                                 'P4':  ['P4',  'P4',  'P4',  'P4' ],
+                                 },
                       precision = 0,
                      ),
 
