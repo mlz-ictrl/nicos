@@ -30,7 +30,6 @@ __version__ = "$Revision$"
 import threading
 from time import sleep
 
-import IO
 import TACOStates
 from Motor import Motor as TACOMotor
 
@@ -117,14 +116,6 @@ class Axis(TacoDevice, BaseAxis, CanReference):
             sleep(0.3)
         self._taco_guard(client.deviceOn)
         self.setPosition(self.refpos)
-
-    def _reset_phytron(self):
-        motor = self._getMotor()
-        iodev = self._taco_guard(motor.deviceQueryResource, 'iodev')
-        addr = self._taco_guard(motor.deviceQueryResource, 'address')
-        client = IO.StringIO(iodev)
-        self._taco_guard(client.communicate, '\x02%sCR' % addr)
-        self.log.info('Phytron reset complete')
 
     def doReadSpeed(self):
         return self._taco_guard(self._dev.speed)

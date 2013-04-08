@@ -1,7 +1,7 @@
 description = 'analyzer table'
 
 devices = dict(
-#    ath      = device('devices.taco.Axis',
+#    ath      = device('mira.axis.PhytronAxis',
 #                      description = 'analyzer theta',
 #                      tacodevice = 'mira/axis/ath',
 #                      abslimits = (90 - 90, 90 + 90),
@@ -24,7 +24,7 @@ devices = dict(
                       switchvalues = (0, 1),
                       fmtstr = '%.3f'),
 
-#    att      = device('devices.taco.Axis',
+#    att      = device('mira.axis.PhytronAxis',
 #                      description = 'analyzer two-theta',
 #                      tacodevice = 'mira/axis/att',
 #                      abslimits = (-90 - 135, -90 + 135),
@@ -44,7 +44,7 @@ devices = dict(
                       dvalue = 3.355,
                       scatteringsense = -1),
 
-#    adr      = device('devices.taco.Axis',
+#    adr      = device('mira.axis.PhytronAxis',
 #                      description = 'analyzer detector rotation',
 #                      tacodevice = 'mira/axis/adr',
 #                      abslimits = (-180, 180),

@@ -27,7 +27,7 @@ devices = dict(
                     maxage = 30,
                     tacodevice = 'mira/io/psdgas'),
 
-    dtx    = device('devices.taco.Axis',
+    dtx    = device('mira.axis.PhytronAxis',
                     tacodevice = 'mira/axis/dtx',
                     abslimits = (0, 1490),
                     pollinterval = 5,
