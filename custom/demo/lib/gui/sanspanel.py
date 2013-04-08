@@ -44,8 +44,8 @@ from nicos.clients.gui.livewidget import LWWidget, LWData, Logscale, \
      MinimumMaximum, Integrate, Histogram, CreateProfile
 from nicos.protocols.cache import cache_load
 
-DATATYPES = frozenset(('<I4', '<i4', '>I4', '>i4', '<I2', '<i2', '>I2', '>i2',
-                       'I1', 'i1', 'f8', 'f4'))
+DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
+                       'u1', 'i1', 'f8', 'f4'))
 
 
 my_uipath = path.dirname(__file__)
@@ -58,7 +58,7 @@ class SANSPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'sanspanel.ui', my_uipath)
 
-        self._format = '<I4'
+        self._format = '<u4'
         self._runtime = 0
         self._no_direct_display = False
         self._range_active = False

@@ -276,7 +276,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         buf = buffer(data, 4)
         # send image to live plots
         session.updateLiveData(
-            'cascade', filename, '<I4', self._xres, self._yres,
+            'cascade', filename, '<u4', self._xres, self._yres,
             self._tres, elapsedtime, buf)
         # determine total and roi counts
         total = self._client.counts(data)

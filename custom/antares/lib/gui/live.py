@@ -33,15 +33,14 @@ from os import path
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
-from PyQt4.QtGui import QLabel, QVBoxLayout, QPrinter, QPrintDialog, QDialog, \
-     QMenu, QToolBar
+from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.livewidget import LWWidget, LWData
 
-DATATYPES = frozenset(('<I4', '<i4', '>I4', '>i4', '<I2', '<i2', '>I2', '>i2',
-                       'I1', 'i1', 'f8', 'f4'))
+DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
+                       'u1', 'i1', 'f8', 'f4'))
 
 
 class LiveDataPanel(Panel):

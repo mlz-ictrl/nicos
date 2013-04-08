@@ -31,8 +31,8 @@ x.bind(('', 1234))
 x.listen(1)
 ts = 0
 
-#ram = numpy.ones(128 * 128 * 128, '<I4')
-ram = numpy.random.randint(0, 10000, 128 * 128 * 128).astype('<I4')
+#ram = numpy.ones(128 * 128 * 128, '<u4')
+ram = numpy.random.randint(0, 10000, 128 * 128 * 128).astype('<u4')
 
 #ram = 'IMAG' + ''.join((chr(i) + '\x00\x00\x00') * 128 for i in range(128))
 while True:

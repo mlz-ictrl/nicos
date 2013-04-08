@@ -123,21 +123,21 @@ LWData::LWData(int width, int height, int depth,
     // XXX currently, we interpret signed types as unsigned
 
     // the easy case
-    if (!strcmp(format, "<I4") || !strcmp(format, "<i4") ||
-        !strcmp(format, "I4")  || !strcmp(format, "i4")) {
+    if (!strcmp(format, "<u4") || !strcmp(format, "<i4") ||
+        !strcmp(format, "u4")  || !strcmp(format, "i4")) {
         initFromBuffer(data);
         return;
     }
 
     initFromBuffer(NULL);
-    if (!strcmp(format, ">I4") || !strcmp(format, ">i4")) {
+    if (!strcmp(format, ">u4") || !strcmp(format, ">i4")) {
         COPY_LOOP_CONVERTED(uint32_t, bswap_32);
-    } else if (!strcmp(format, "<I2") || !strcmp(format, "<i2") ||
-               !strcmp(format, "I2")  || !strcmp(format, "i2")) {
+    } else if (!strcmp(format, "<u2") || !strcmp(format, "<i2") ||
+               !strcmp(format, "u2")  || !strcmp(format, "i2")) {
         COPY_LOOP(uint16_t);
-    } else if (!strcmp(format, ">I2") || !strcmp(format, ">i2")) {
+    } else if (!strcmp(format, ">u2") || !strcmp(format, ">i2")) {
         COPY_LOOP_CONVERTED(uint16_t, bswap_16);
-    } else if (!strcmp(format, "I1") || !strcmp(format, "i1")) {
+    } else if (!strcmp(format, "u1") || !strcmp(format, "i1")) {
         COPY_LOOP(uint8_t);
     } else if (!strcmp(format, "<f8") || !strcmp(format, "f8")) {
         COPY_LOOP(double);

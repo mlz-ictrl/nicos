@@ -44,8 +44,8 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.livewidget import LWWidget, LWData, Logscale, \
      MinimumMaximum, BrightnessContrast, Integrate, Histogram
 
-DATATYPES = frozenset(('<I4', '<i4', '>I4', '>i4', '<I2', '<i2', '>I2', '>i2',
-                       'I1', 'i1', 'f8', 'f4'))
+DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
+                       'u1', 'i1', 'f8', 'f4'))
 
 
 class LiveDataPanel(Panel):

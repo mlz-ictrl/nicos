@@ -190,7 +190,7 @@ class AndorDetector(Measurable, NeedsDatapath):
                 roi = self.roi
                 width = (roi[2] - roi[0] + 1) / self.binning[0]
                 height = (roi[3] - roi[1] + 1) / self.binning[1]
-                session.updateLiveData('ccd', '<I2', width, height, 1,
+                session.updateLiveData('ccd', '<u2', width, height, 1,
                                        self._last_preset, buffer(data))
                 self._dev.DevCCDReadImageTif(self.lastfilename)
             except Exception, err:

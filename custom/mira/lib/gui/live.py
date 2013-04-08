@@ -155,7 +155,7 @@ class LiveDataPanel(Panel):
         tag, filename, dtype, nx, ny, nt, runtime = params
         self._runtime = runtime
         self._filename = filename
-        if dtype == '<I4' and nx == 128 and ny == 128:
+        if dtype == '<u4' and nx == 128 and ny == 128:
             if nt == 1:
                 self._format = 'pad'
                 return

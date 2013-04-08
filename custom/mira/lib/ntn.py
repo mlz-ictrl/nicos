@@ -102,4 +102,3 @@ class FUG(TacoDevice, HasLimits, Moveable):
             time.sleep(0.5)
             if abs(self.doRead() - value) > value*self.variance + 0.2:
                 raise NicosError(self, 'power supply failed to set current value')
-

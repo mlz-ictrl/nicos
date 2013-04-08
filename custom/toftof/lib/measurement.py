@@ -405,9 +405,9 @@ class TofTofMeasurement(Measurable, ImageStorage):
             np.savetxt(fp, counts, '%d')
             os.fsync(fp)
         try:
-            treated = counts[self._anglemap, :].astype('<I4')
+            treated = counts[self._anglemap, :].astype('<u4')
             ndet, ntime = treated.shape
-            session.updateLiveData('toftof', self.lastfilename, '<I4',
+            session.updateLiveData('toftof', self.lastfilename, '<u4',
                                    ntime, ndet, 1, meastime, buffer(treated))
         except Exception:
             pass
