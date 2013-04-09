@@ -26,11 +26,13 @@ from nicos.core import Param
 from nicos.core import status
 from nicos.core import tupleof
 from nicos.core import oneof
+from nicos.core import Override
 
 from nicos.antares.detector.pytangodevice import PyTangoDevice
 from nicos.antares.detector import ImageStorageFits
 
 import numpy
+from os import path
 
 
 class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
@@ -60,6 +62,10 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                   'pgain' : Param('Preamplifier gain (max:-1)', type=int,
                                            settable=True, default= -1),
                   }
+
+    parameter_overrides = {
+                           'subdir' : Override(settable=True)
+                           }
 
     def doPreinit(self, mode):
         PyTangoDevice.doPreinit(self, mode)
@@ -174,6 +180,10 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
 
     def doWritePgain(self, value):
         self._tangoFuncGuard(self._hwDev.__setattr__, 'p_gain', value)
+
+    def doWriteSubdir(self, value):
+        self._datapath = path.join(self.datapath[0], value)
+        self._readCurrentCounter()
 
     def _readImageFromHw(self):
         response = self._tangoFuncGuard(self._dev.readImage, 0)
