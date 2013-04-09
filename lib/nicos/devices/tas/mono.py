@@ -294,6 +294,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         new_umax = self._fromlambda(self._tolambda(self.userlimits[1]), value)
         if new_umin > new_umax:
             new_umin, new_umax = new_umax, new_umin
+        new_umin = max(new_umin, new_absmin)
+        new_umax = min(new_umax, new_absmax)
         self.userlimits = (new_umin, new_umax)
 
     def _fromlambda(self, value, unit=None):
