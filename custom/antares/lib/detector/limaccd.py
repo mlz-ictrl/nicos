@@ -38,6 +38,11 @@ from os import path
 
 class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
 
+    HSSPEEDS = [5, 3, 1, 0.05]  # Values for camera manual
+    VSSPEEDS = [38.55, 76.95]  # Values for camera manual
+    PGAINS = [1, 2, 4]  # Values for camera manual
+
+
     parameters = {
                   'hwdevice' : Param('Hardware device name', type=str, mandatory=True, preinit=True),
                   'imagewidth'     : Param('Image width', type=int, volatile=True),
@@ -58,18 +63,18 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                            type=oneof('always_open',
                                                       'always_closed', 'auto'),
                                            settable=True, default='auto'),
-                  'hsspeed' : Param('Horizontal shift speed (max:-1)', type=int,
-                                           settable=True, default= -1),
-                  'vsspeed' : Param('Vertical shift speed (max:-1)', type=int,
-                                           settable=True, default= -1),
-                  'pgain' : Param('Preamplifier gain (max:-1)', type=int,
-                                           settable=True, default= -1),
+                  'hsspeed' : Param('Horizontal shift speed %r' % HSSPEEDS,
+                                           type=oneof(*HSSPEEDS), settable=True, default=5,
+                                           unit='MHz'),
+                  'vsspeed' : Param('Vertical shift speed %r' % VSSPEEDS, type=oneof(*VSSPEEDS),
+                                           settable=True, default=76.95, unit='ms/shift'),
+                  'pgain' : Param('Preamplifier gain %r' % PGAINS, type=oneof(*PGAINS),
+                                           settable=True, default=4),
                   }
 
     parameter_overrides = {
                            'subdir' : Override(settable=True)
                            }
-
     def doPreinit(self, mode):
         PyTangoDevice.doPreinit(self, mode)
 
@@ -198,22 +203,41 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
             self._tangoFuncGuard(self._dev.closeShutterManual)
 
     def doReadHsspeed(self):
-        return self._tangoFuncGuard(self._hwDev.__getattr__, 'adc_speed')
+        index = self._tangoFuncGuard(self._hwDev.__getattr__, 'adc_speed')
+
+        try:
+            return self.HSSPEEDS[index]
+        except IndexError:
+            raise ConfigurationError(self, 'Camera uses unknown hs speed (index: %d)' % index)
 
     def doWriteHsspeed(self, value):
-        self._tangoFuncGuard(self._hwDev.__setattr__, 'adc_speed', value)
+        index = self.HSSPEEDS.index(value)  # value can only be valid thanks to param validation
+        self._tangoFuncGuard(self._hwDev.__setattr__, 'adc_speed', index)
 
     def doReadVsspeed(self):
-        return self._tangoFuncGuard(self._hwDev.__getattr__, 'vs_speed')
+        index = self._tangoFuncGuard(self._hwDev.__getattr__, 'vs_speed')
+
+        try:
+            return self.VSSPEEDS[index]
+        except IndexError:
+            raise ConfigurationError(self, 'Camera uses unknown vs speed (index: %d)' % index)
+
 
     def doWriteVsspeed(self, value):
-        self._tangoFuncGuard(self._hwDev.__setattr__, 'vs_speed', value)
+        index = self.VSSPEEDS.index(value)  # value can only be valid thanks to param validation
+        self._tangoFuncGuard(self._hwDev.__setattr__, 'vs_speed', index)
 
     def doReadPgain(self):
-        return self._tangoFuncGuard(self._hwDev.__getattr__, 'p_gain')
+        index = self._tangoFuncGuard(self._hwDev.__getattr__, 'p_gain')
+
+        try:
+            return self.PGAINS[index]
+        except IndexError:
+            raise ConfigurationError(self, 'Camera uses unknown preamplifier gain (index: %d)' % index)
 
     def doWritePgain(self, value):
-        self._tangoFuncGuard(self._hwDev.__setattr__, 'p_gain', value)
+        index = self.PGAINS.index(value)  # value can only be valid thanks to param validation
+        self._tangoFuncGuard(self._hwDev.__setattr__, 'p_gain', index)
 
     def doWriteSubdir(self, value):
         self._datapath = path.join(self.datapath[0], value)
