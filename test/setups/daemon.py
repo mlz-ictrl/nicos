@@ -35,5 +35,5 @@ devices = dict(
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'localhost:14874',
                     loglevel = 'debug',
-                    authenticator = 'Auth'),
+                    authenticators = ['Auth']),
 )

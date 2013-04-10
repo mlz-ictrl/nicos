@@ -6,14 +6,16 @@ group = 'special'
 import hashlib
 
 devices = dict(
-    Auth   = device('services.daemon.auth.ListAuthenticator',  # or 'frm2.auth.Frm2Authenticator'
-                     # first entry is the user name, second the hashed password, third the user level
-                     passwd = [('guest', '', 'guest'),
-                               ('user', hashlib.sha1('user').hexdigest(), 'user'),
-                               ('admin', hashlib.sha1('admin').hexdigest(), 'admin')],
+    UserDB = device('frm2.auth.Frm2Authenticator'),
+    Auth   = device('services.daemon.auth.ListAuthenticator',
+                    hashing = 'md5',
+                    # first entry is the user name, second the hashed password, third the user level
+                    passwd = [('guest', '', 'guest'),
+                              ('user', hashlib.md5('user').hexdigest(), 'user'),
+                              ('admin', hashlib.md5('admin').hexdigest(), 'admin')],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'localhost',
-                    authenticator = 'Auth',
+                    authenticators = ['Auth'], # or ['UserDB', 'Auth']
                     loglevel = 'debug'),
 )

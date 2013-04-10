@@ -26,13 +26,12 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import USER, InvalidValueError
-from nicos.services.daemon.auth import User, ListAuthenticator, \
-     AuthenticationError
+from nicos.core import USER
+from nicos.services.daemon.auth import User, Authenticator, AuthenticationError
 from nicos.frm2.proposaldb import queryUser
 
 
-class Frm2Authenticator(ListAuthenticator):
+class Frm2Authenticator(Authenticator):
     """
     Authenticates against the FRM-II user office database.
     """
@@ -46,8 +45,6 @@ class Frm2Authenticator(ListAuthenticator):
             if passwd != password:
                 raise AuthenticationError('wrong password')
             return User(username, USER)
-        except InvalidValueError:
-            return ListAuthenticator.authenticate(self, username, password)
         except AuthenticationError:
             raise
         except Exception, err:

@@ -2,8 +2,10 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
+    Auth   = device('services.daemon.auth.Authenticator'),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'pumahw.puma.frm2',
                     loglevel = 'info',
-                    authenticator = None),
+                    authenticators = ['Auth'],
+                   ),
 )

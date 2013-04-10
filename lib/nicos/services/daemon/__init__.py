@@ -37,7 +37,7 @@ import threading
 from SocketServer import TCPServer
 
 from nicos import nicos_version
-from nicos.core import listof, Device, Param
+from nicos.core import listof, Device, Param, ConfigurationError
 from nicos.utils import closeSocket
 
 from nicos.services.daemon.auth import Authenticator
@@ -165,7 +165,7 @@ class NicosDaemon(Device):
     """
 
     attached_devices = {
-        'authenticator':  (Authenticator, 'The authenticator device to use '
+        'authenticators': ([Authenticator], 'The authenticator devices to use '
                            'for validating users and passwords'),
     }
 
@@ -189,6 +189,18 @@ class NicosDaemon(Device):
         # the controller represents the internal script execution machinery
         self._controller = ExecutionController(self.log, self.emit_event,
                                                'startup', self.simmode)
+
+        # check that all configured authenticators use the same hashing method
+        self._pw_hashing = 'sha1'
+        auths = self._adevs['authenticators']
+        if auths:
+            self._pw_hashing = auths[0].pw_hashing()
+            for auth in auths[1:]:
+                if self._pw_hashing != auth.pw_hashing():
+                    raise ConfigurationError(
+                        self, 'incompatible hash methods for authenticators: '
+                        '%s requires %r, while %s requires %r' %
+                        (auths[0], self._pw_hashing, auth, auth.pw_hashing()))
 
         # log messages emitted so far
         self._messages = []
@@ -277,5 +289,5 @@ class NicosDaemon(Device):
     def current_script(self):
         return self._controller.current_script
 
-    def get_authenticator(self):
-        return self._adevs['authenticator']
+    def get_authenticators(self):
+        return self._adevs['authenticators'], self._pw_hashing

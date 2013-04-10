@@ -26,7 +26,8 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import Device, Param, listof, GUEST, USER, ADMIN, ACCESS_LEVELS
+from nicos.core import Device, Param, listof, oneof, GUEST, USER, ADMIN, \
+     ACCESS_LEVELS
 
 
 class User(object):
@@ -92,9 +93,14 @@ class ListAuthenticator(Authenticator):
     """
 
     parameters = {
-        'passwd': Param('User/password/userlevel list',
-                        type=listof(auth_entry)),
+        'hashing': Param('Type of hash used for the password (sha1 or md5)',
+                         type=oneof('sha1', 'md5')),
+        'passwd':  Param('List of (username, password_hash, userlevel) tuples',
+                         type=listof(auth_entry)),
     }
+
+    def pw_hashing(self):
+        return self.hashing
 
     def authenticate(self, username, password):
         entry = None

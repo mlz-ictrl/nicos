@@ -4,10 +4,11 @@ group = 'special'
 import hashlib
 
 devices = dict(
+    Auth   = device('services.daemon.auth.Authenticator'),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'localhost:1302',
                     simmode = True,
-                    authenticator = None,
+                    authenticators = ['Auth'],
                     loglevel = 'debug',
                    ),
 )

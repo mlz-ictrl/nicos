@@ -4,7 +4,8 @@ group = 'special'
 import hashlib
 
 devices = dict(
-    Auth   = device('services.daemon.auth.ListAuthenticator',  # or 'frm2.auth.Frm2Authenticator'
+    Auth   = device('services.daemon.auth.ListAuthenticator',
+                    hashing = 'sha1',
                     # first entry is the user name, second the hashed password, third the user level
                     passwd = [('guest', '', 'guest'),
                               ('user', hashlib.sha1('user').hexdigest(), 'user'),
@@ -12,7 +13,7 @@ devices = dict(
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'localhost',
-                    authenticator = 'Auth',
+                    authenticators = ['Auth'],
                     loglevel = 'debug',
                    ),
 )

@@ -221,10 +221,12 @@ class ConnectionHandler(BaseRequestHandler):
         if self.daemon.trustedhosts:
             self.check_host()
 
+        authenticators, hashing = self.daemon.get_authenticators()
+
         # announce version and authentication modality
         self.write(STX, serialize(dict(
             daemon_version = nicos_version,
-            pw_hashing = self.daemon.get_authenticator().pw_hashing(),
+            pw_hashing = hashing,
             protocol_version = PROTO_VERSION,
         )))
 
@@ -238,11 +240,14 @@ class ConnectionHandler(BaseRequestHandler):
 
         # check login data according to configured authentication
         self.log.info('auth request: login=%r display=%r' % (login, display))
-        authenticator = self.daemon.get_authenticator()
-        if authenticator is not None:
-            try:
-                self.user = authenticator.authenticate(login, passw)
-            except AuthenticationError, err:
+        if authenticators:
+            for auth in authenticators:
+                try:
+                    self.user = auth.authenticate(login, passw)
+                    break
+                except AuthenticationError, err:
+                    continue
+            else:  # no "break": all authenticators failed
                 self.log.error('authentication failed: %s' % err)
                 self.write(NAK, 'credentials not accepted')
                 raise CloseConnection
