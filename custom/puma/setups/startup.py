@@ -1,6 +1,7 @@
 description = 'minimal NICOS startup setup'
-group = 'lowlevel'
+group = 'startup'
 
-sysconfig = dict(
-    cache = 'pumahw',
-)
+
+includes = ['system']
+
+devices = dict()

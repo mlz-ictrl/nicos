@@ -1,9 +1,14 @@
+#  -*- coding: utf-8 -*-
+
+description = 'Atenuator and PGFilter'
+
+
+includes = ['system', 'motorbus8']
+
+
+
 devices = dict(
-#   motorbus8 = device('devices.vendor.ipc.IPCModBusTaco',
-#                      tacodevice = 'puma/rs485/io',
-#                      lowlevel = True),
-   motorbus8 = device('devices.vendor.ipc.IPCModBusSerial',
-                port='/dev/ttyS0'),
+
    att_sw = device('devices.vendor.ipc.Input',
                 description = '...',
                 bus = 'motorbus8',
@@ -30,5 +35,25 @@ devices = dict(
                 io_press = 'att_press',
                 abslimits = (0, 38),
                 unit = 'mm'),
+
+   fpg_sw = device('devices.vendor.ipc.Input',
+                description = '...',
+                bus = 'motorbus8',
+                addr = 103,
+                first = 14,
+                last = 15,
+                unit = ''),
+
+   fpg_set = device('devices.vendor.ipc.Output',
+                bus = 'motorbus8',
+                addr = 114,
+                first = 2,
+                last = 2,
+                unit = ''),
+
+   fpg = device('puma.pgfilter.PGFilter',
+                io_status = 'fpg_sw',
+                io_set = 'fpg_set',
+                unit = ''),
 )
 

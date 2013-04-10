@@ -1,7 +1,6 @@
-description = 'PANDA triple-axis setup'
+description = 'PUMA triple-axis setup'
 
-includes = ['virtualtas', 'sampletable', 'analyser', 'power', 'detector',
-            'lengths']
+includes = ['virtualtas', 'sampletable', 'power', 'detector', 'monochromator', 'analyser', 'ios']
 
 modules = ['nicos.commands.tas']
 
@@ -40,21 +39,23 @@ devices = dict(
                       theta = 'mth',
                       twotheta = 'mtt',
                       reltheta = True,
-                      focush = None,
-                      focusv = None,
-                      abslimits = (1, 5),
+                      focush = 'mfhpg',
+                      focusv = 'mfvpg',
+                      hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
+                      vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
+                      abslimits = (1, 6),
                       dvalue = 3.355),
 
     ana     = device('devices.tas.Monochromator',
                       unit = 'A-1',
-                      theta = 'ath_raw',
+                      theta = 'ath',
                       twotheta = 'att',
-                      reltheta = -1,
-                      focush = 'afh',
+                      reltheta = True,
+                      focush = 'afpg',
                       focusv = None,
+                      hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
                       abslimits = (1, 5),
                       dvalue = 3.355),
-
 )
 
 startupcode = '''
