@@ -27,6 +27,7 @@ from nicos.core import status
 from nicos.core import tupleof
 from nicos.core import oneof
 from nicos.core import Override
+from nicos.core import ConfigurationError
 
 from nicos.antares.detector.pytangodevice import PyTangoDevice
 from nicos.antares.detector import ImageStorageFits
@@ -53,8 +54,10 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                            settable=True, default=0),
                   'shutterclosetime' : Param('Shutter open time', type=float,
                                            settable=True, default=0),
-                  'shuttermode' : Param('Shutter mode', type=oneof('MANUAL', 'AUTO_FRAME', 'AUTO_SEQUENCE'),
-                                           settable=True, default='AUTO_FRAME'),
+                  'shuttermode' : Param('Shutter mode',
+                                           type=oneof('always_open',
+                                                      'always_closed', 'auto'),
+                                           settable=True, default='auto'),
                   'hsspeed' : Param('Horizontal shift speed (max:-1)', type=int,
                                            settable=True, default= -1),
                   'vsspeed' : Param('Vertical shift speed (max:-1)', type=int,
@@ -158,10 +161,41 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         self._tangoSetAttrGuard('shutter_close_time', value)
 
     def doReadShuttermode(self):
-        return self._tangoGetAttrGuard('shutter_mode')
+        internalMode = self._tangoGetAttrGuard('shutter_mode')
+
+        if internalMode in ['AUTO_FRAME', 'AUTO_SEQUENCE']:
+            # this detector is only used in single acq mode,
+            # so AUTO_FRAME and AUTO_SEQUENCE have the same
+            # behaviour
+            return 'auto'
+        elif internalMode == 'MANUAL':
+            shutterState = self._tangoGetAttrGuard('shutter_manual_state')
+
+            if shutterState == 'OPEN':
+                return 'always_open'
+            elif shutterState == 'CLOSED':
+                return 'always_closed'
+            else:
+                raise ConfigurationError(self, 'Camera shutter has unknown '
+                                         + 'state in manual mode (%s)'
+                                         % shutterState)
+        else:
+            raise ConfigurationError(self,
+                                     'Camera has unknown shutter mode (%s)'
+                                     % internalMode)
+
+
 
     def doWriteShuttermode(self, value):
-        self._tangoSetAttrGuard('shutter_mode', value)
+
+        if value == 'auto':
+            self._tangoSetAttrGuard('shutter_mode', 'AUTO_FRAME')
+        elif value == 'always_open':
+            self._tangoSetAttrGuard('shutter_mode', 'MANUAL')
+            self._tangoFuncGuard(self._dev.openShutterManual)
+        elif value == 'always_closed':
+            self._tangoSetAttrGuard('shutter_mode', 'MANUAL')
+            self._tangoFuncGuard(self._dev.closeShutterManual)
 
     def doReadHsspeed(self):
         return self._tangoFuncGuard(self._hwDev.__getattr__, 'adc_speed')
