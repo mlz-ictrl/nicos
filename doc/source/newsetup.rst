@@ -22,20 +22,19 @@ Preparations
 Setting up the new instrument customization
 -------------------------------------------
 
-* Create a ``custom/instname`` directory and set up ``lib`` and ``setups``
-  directories there.  Create an empty ``lib/__init__.py`` file (the directory
-  has to be a Python package when you add modules later).
+* Copy the ``custom/skeleton`` directory to ``custom/instname``.
 
-* Create the basic setups for the daemons.  You can use
-  ``custom/demo/setups/special`` files as templates, but make sure "localhost"
-  is replaced by the proper host name.  See :doc:`services/index` for more
-  reference.
+* Adapt the ``custom/instname/make.conf`` file.  It has comments what could be
+  changed.
 
-* Create the basic system setups.  Again, use the demo directory for
-  inspiration.
+* Adapt the basic setups for the daemons in ``custom/instname/setups/special``;
+  in particular, replace "localhost" by the instrument specific hostname.  See
+  :doc:`services/index` for more reference.
 
-* Create a ``make.conf`` in the custom directory.  ``custom/demo/make.conf``
-  can be used as a template.
+* Adapt the basic system setup in ``custom/instname/setups/system.py``.  Make
+  sure the data root on the "Exp" object is set correctly.
+
+* Create more instrument setups as needed.
 
 * For instruments that use the 2-D live data display, see
   ``custom/toftof/make.conf`` as a template how to set up the Make rules.
