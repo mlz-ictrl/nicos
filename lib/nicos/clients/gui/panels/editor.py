@@ -212,8 +212,8 @@ class EditorPanel(Panel):
         else:
             self.newFile()
 
-    def setSettings(self, settings):
-        self.toolconfig = settings.get('tools', '')
+    def setOptions(self, options):
+        self.toolconfig = options.get('tools', '')
 
     def getMenus(self):
         menuFile = QMenu('&File', self)

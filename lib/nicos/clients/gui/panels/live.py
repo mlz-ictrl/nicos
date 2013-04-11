@@ -98,8 +98,8 @@ class LiveDataPanel(Panel):
 
         self._toftof_profile = None
 
-    def setSettings(self, settings):
-        self._instrument = settings.get('instrument', '')
+    def setOptions(self, options):
+        self._instrument = options.get('instrument', '')
         self.widget.setInstrumentOption(self._instrument)
 
     def loadSettings(self, settings):

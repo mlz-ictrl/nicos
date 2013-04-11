@@ -67,8 +67,8 @@ class ConsolePanel(Panel):
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
-    def setSettings(self, settings):
-        self.hasinput = bool(settings.get('hasinput', True))
+    def setOptions(self, options):
+        self.hasinput = bool(options.get('hasinput', True))
         self.inputFrame.setVisible(self.hasinput)
 
     def loadSettings(self, settings):

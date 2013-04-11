@@ -45,9 +45,9 @@ class GenericPanel(Panel):
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self._reg_keys = {}
 
-    def setSettings(self, settings):
+    def setOptions(self, options):
         # XXX standard dir?
-        loadUi(self, settings['uifile'], settings.get('dir', ''))
+        loadUi(self, options['uifile'], options.get('dir', ''))
 
         for ch in self.findChildren(DisplayWidget):
             if isinstance(ch, InteractiveWidget):
