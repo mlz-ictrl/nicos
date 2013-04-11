@@ -26,8 +26,8 @@
 
 __version__ = "$Revision$"
 
-from nicos.core import anytype, dictof, ConfigurationError, PositionError, \
-     NicosError, Moveable, Readable, Param, Override, status, oneof
+from nicos.core import anytype, dictof, PositionError, NicosError, Moveable, \
+     Readable, Param, Override, status, oneof
 
 
 class Switcher(Moveable):
