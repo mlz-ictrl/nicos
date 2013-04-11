@@ -61,6 +61,7 @@ class ConsolePanel(Panel):
         self.outView.setActionLabel(self.actionLabel)
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput
+        self.grepNoMatch.setVisible(False)
 
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('message'), self.on_client_message)
@@ -197,7 +198,8 @@ class ConsolePanel(Panel):
         st = str(self.grepText.text())
         if not st:
             return
-        self.outView.findNext(st, self.grepRegex.isChecked())
+        found = self.outView.findNext(st, self.grepRegex.isChecked())
+        self.grepNoMatch.setVisible(not found)
 
     @qtsig('')
     def on_grepOccur_clicked(self):

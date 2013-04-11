@@ -209,6 +209,7 @@ class OutputView(QTextBrowser):
         else:
             newcurs = self.document().find(what, cursor)
         self.setTextCursor(newcurs)
+        return not newcurs.isNull()
 
     def occur(self, what, regex=False):
         if regex:
