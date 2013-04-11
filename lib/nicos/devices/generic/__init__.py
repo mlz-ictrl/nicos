@@ -27,12 +27,11 @@
 __version__ = "$Revision$"
 
 from nicos.devices.generic.axis import Axis
-from nicos.devices.generic.detector import MultiChannelDetector
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
 from nicos.devices.generic.alias import DeviceAlias, NoDevice
 from nicos.devices.generic.paramdev import ParamDevice
 from nicos.devices.generic.slit import Slit
 from nicos.devices.generic.switcher import Switcher, ReadonlySwitcher
 from nicos.devices.generic.system import FreeSpace
-from nicos.devices.generic.virtual import VirtualMotor, VirtualCoder, \
-     VirtualTimer, VirtualCounter, VirtualTemperature
+from nicos.devices.generic.virtual import VirtualMotor, VirtualCoder, VirtualTimer, \
+     VirtualCounter, VirtualTemperature

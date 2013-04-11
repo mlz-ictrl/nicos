@@ -35,10 +35,10 @@ from math import exp
 import numpy as np
 
 from nicos import session
-from nicos.core import status, Readable, HasOffset, Param, Override, \
-     oneof, tupleof, floatrange, Measurable, Moveable, Value
+from nicos.core import status, Readable, HasOffset, Param, Override, tacodev, \
+     tupleof, floatrange, Measurable, Moveable, Value
 from nicos.devices.abstract import Motor, Coder, ImageStorage
-from nicos.devices.generic.detector import Channel
+from nicos.devices.taco.detector import FRMTimerChannel, FRMCounterChannel
 
 
 class VirtualMotor(Motor, HasOffset):
@@ -141,13 +141,19 @@ class VirtualCoder(Coder, HasOffset):
         pass
 
 
-class VirtualTimer(Channel):
-    """A virtual timer channel for use together with
-    `nicos.devices.generic.detector.MultiChannelDetector`.
-    """
+class VirtualTimer(FRMTimerChannel):
+    """A virtual timer channel for use together with `nicos.devices.taco.Detector`."""
+
+    parameters = {
+        'tacodevice': Param('(not used)', type=tacodev, default=None),
+    }
 
     def doInit(self, mode):
         self.__finish = False
+
+    def nothing(self, *args):
+        pass
+    doPreinit = doPause = doResume = doReset = nothing
 
     def doStart(self):
         if self.ismaster:
@@ -177,32 +183,40 @@ class VirtualTimer(Channel):
             return self.preselection
         return random.randint(0, 1000)
 
-    def doSimulate(self, preset):
-        return [self.doRead()]
+    def doReadPreselection(self):
+        return 0
+
+    def doReadIsmaster(self):
+        return False
+
+    def doReadMode(self):
+        return 0
+
+    def doWritePreselection(self, value):
+        pass
+
+    def doWriteIsmaster(self, value):
+        pass
+
+    def doWriteMode(self, value):
+        pass
 
     def doReadUnit(self):
-        return 's'
-
-    def valueInfo(self):
-        return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
-
-    def doTime(self, preset):
-        if self.ismaster:
-            return self.preselection
-        else:
-            return 0
+        return 'sec'
 
 
-class VirtualCounter(Channel):
-    """A virtual counter channel for use together with
-    `nicos.devices.generic.detector.MultiChannelDetector`.
-    """
+class VirtualCounter(FRMCounterChannel):
+    """A virtual counter channel for use together with `nicos.devices.taco.Detector`."""
 
     parameters = {
         'countrate':  Param('The maximum countrate', default=1000),
-        'type':       Param('Type of channel: monitor or counter',
-                            type=oneof('monitor', 'counter'), mandatory=True),
+        'tacodevice': Param('(not used)', type=tacodev, default=None),
     }
+
+    def nothing(self, *args):
+        pass
+    doPreinit = doInit = doStart = doPause = doResume = doStop = doWait = \
+                doReset = nothing
 
     def doStatus(self, maxage=0):
         return status.OK, ''
@@ -212,18 +226,29 @@ class VirtualCounter(Channel):
             return self.preselection
         return random.randint(0, self.countrate)
 
-    def doSimulate(self, preset):
-        return [self.doRead()]
-
     def doIsCompleted(self):
         return True
 
-    def doReadUnit(self):
-        return 'cts'
+    def doReadPreselection(self):
+        return 0
 
-    def valueInfo(self):
-        return Value(self.name, unit='cts', errors='sqrt', type=self.type,
-                     fmtstr='%d'),
+    def doReadIsmaster(self):
+        return False
+
+    def doReadMode(self):
+        return 0
+
+    def doWritePreselection(self, value):
+        pass
+
+    def doWriteIsmaster(self, value):
+        pass
+
+    def doWriteMode(self, value):
+        pass
+
+    def doReadUnit(self):
+        return 'counts'
 
 
 class VirtualTemperature(VirtualMotor):

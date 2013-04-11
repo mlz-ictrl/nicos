@@ -31,22 +31,26 @@ import IOCommon
 import TACOStates
 from IO import Timer, Counter
 
-from nicos.core import Param, Override, Value, status, oneof, oneofdict
+from nicos.core import Measurable, Param, Value, status, oneof, oneofdict
 from nicos.devices.taco.core import TacoDevice
-from nicos.devices.generic.detector import Channel, MultiChannelDetector
 
 
-class FRMChannel(TacoDevice, Channel):
+class FRMChannel(TacoDevice, Measurable):
     """Base class for one channel of the FRM-II counter card.
 
     Use one of the concrete classes `FRMTimerChannel` or `FRMCounterChannel`.
     """
 
-    parameter_overrides = {
-        'mode': Override(type=oneofdict({
-                             IOCommon.MODE_NORMAL: 'normal',
-                             IOCommon.MODE_RATEMETER: 'ratemeter',
-                             IOCommon.MODE_PRESELECTION: 'preselection'})),
+    parameters = {
+        'mode': Param('Channel mode: normal, ratemeter, or preselection',
+                      type=oneofdict({
+                          IOCommon.MODE_NORMAL: 'normal',
+                          IOCommon.MODE_RATEMETER: 'ratemeter',
+                          IOCommon.MODE_PRESELECTION: 'preselection'}),
+                      default='preselection', settable=True),
+        'ismaster':     Param('If this channel is a master', type=bool,
+                              settable=True),
+        'preselection': Param('Preselection for this channel', settable=True),
     }
 
     def doStart(self):
@@ -155,5 +159,105 @@ class FRMCounterChannel(FRMChannel):
         return [0]
 
 
-# backwards compatibility alias
-FRMDetector = MultiChannelDetector
+class FRMDetector(Measurable):
+    """The standard detector at FRM-II, using the FRM-II counter card."""
+
+    attached_devices = {
+        'timer':    (FRMChannel, 'Timer channel'),
+        'monitors': ([FRMChannel], 'Monitor channels'),
+        'counters': ([FRMChannel], 'Counter channels')
+    }
+
+    hardware_access = False
+
+    def doPreinit(self, mode):
+        self._counters = []
+        self._presetkeys = {}
+
+        if self._adevs['timer'] is not None:
+            self._counters.append(self._adevs['timer'])
+            self._presetkeys['t'] = self._presetkeys['time'] = \
+                self._adevs['timer']
+        for i, mdev in enumerate(self._adevs['monitors']):
+            self._counters.append(mdev)
+            self._presetkeys['mon%d' % (i+1)] = mdev
+        for i, cdev in enumerate(self._adevs['counters']):
+            self._counters.append(cdev)
+            self._presetkeys['det%d' % (i+1)] = \
+                self._presetkeys['ctr%d' % (i+1)] = cdev
+        self._getMasters()
+
+    def doReadFmtstr(self):
+        return ', '.join('%s %%s' % ctr.name for ctr in self._counters)
+
+    def _getMasters(self):
+        """Internal method to collect all masters from the card."""
+        self._masters = []
+        self._slaves = []
+        for counter in self._counters:
+            if counter.ismaster:
+                self._masters.append(counter)
+            else:
+                self._slaves.append(counter)
+
+    def doSetPreset(self, **preset):
+        for master in self._masters:
+            master.ismaster = False
+            master.mode = 'normal'
+        for name in preset:
+            if name in self._presetkeys:
+                dev = self._presetkeys[name]
+                dev.ismaster = True
+                dev.mode = 'preselection'
+                dev.preselection = preset[name]
+        self._getMasters()
+
+    def doStart(self, **preset):
+        self.doStop()
+        if preset:
+            self.doSetPreset(**preset)
+        for slave in self._slaves:
+            slave.start()
+        for master in self._masters:
+            master.start()
+
+    def doPause(self):
+        for master in self._masters:
+            master.doPause()
+        return True
+
+    def doResume(self):
+        for master in self._masters:
+            master.doResume()
+
+    def doStop(self):
+        for master in self._masters:
+            master.stop()
+
+    def doRead(self, maxage=0):
+        return sum((ctr.read() for ctr in self._counters), [])
+
+    def doStatus(self, maxage=0):
+        for master in self._masters:
+            masterstatus = master.status(maxage)
+            if masterstatus[0] == status.BUSY:
+                return masterstatus
+        return status.OK, 'idle'
+
+    def doIsCompleted(self):
+        for master in self._masters:
+            if master.isCompleted():
+                return True
+        if not self._masters:
+            return True
+        return False
+
+    def doReset(self):
+        for counter in self._counters:
+            counter.reset()
+
+    def valueInfo(self):
+        return sum((ctr.valueInfo() for ctr in self._counters), ())
+
+    def presetInfo(self):
+        return set(self._presetkeys)

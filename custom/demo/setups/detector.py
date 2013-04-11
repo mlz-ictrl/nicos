@@ -14,10 +14,12 @@ devices = dict(
                       countrate = 1000,
                      ),
 
-    ctr1     = device('devices.generic.VirtualCounter',
+    # use the showcase TAS counter that simulates Bragg peaks and phonons
+    ctr1     = device('devices.generic.virtual.VirtualTasCounter',
                       lowlevel = True,
                       type = 'counter',
                       countrate = 5,
+                      tas = 'tas',
                      ),
 
     ctr2     = device('devices.generic.VirtualCounter',
@@ -26,7 +28,7 @@ devices = dict(
                       countrate = 1,
                      ),
 
-    det      = device('devices.generic.MultiChannelDetector',
+    det      = device('devices.taco.FRMDetector',
                       timer = 'timer',
                       monitors = ['mon1'],
                       counters = ['ctr1', 'ctr2'],

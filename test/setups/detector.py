@@ -49,7 +49,7 @@ devices = dict(
                       countrate = 120,
                      ),
 
-    det      = device('devices.generic.MultiChannelDetector',
+    det      = device('devices.taco.FRMDetector',
                       timer = 'timer',
                       monitors = ['mon1'],
                       counters = ['ctr1', 'ctr2'],
