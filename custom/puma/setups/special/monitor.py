@@ -24,6 +24,14 @@ _axisblock = Block(
     'puma')  # this is the name of a setup that must be loaded in the
             # NICOS master instance for this block to be displayed
 
+_sampletable = Block(
+    'Sampletable',
+    [
+     BlockRow('sgx','sgy'),
+     BlockRow('sat'),
+    ],
+)
+
 _detectorblock = Block(
     'Detector',
     [BlockRow(Field(name='timer', dev='timer'),
@@ -63,15 +71,19 @@ _tasblock = Block(
 
 _tempblock = Block(
     'Temperature',
-    [BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
-     BlockRow(Field(dev='T', plot='T', interval=300, width=50),
-              Field(key='t/setpoint', name='SetP', plot='T', interval=300))
+    [BlockRow(Field(name='Control',dev='t_ls340'), Field(key='t_ls340/setpoint', name='Setpoint')),
+     BlockRow(Field(name='ChannelA',dev='t_ls340_a'),
+              Field(name='ChannelB',dev='t_ls340_b')),
+
+
+#     BlockRow(Field(dev='T', plot='T', interval=300, width=50),
+#              Field(key='t/setpoint', name='SetP', plot='T', interval=300))
     ],
-    'cryo')
+    'lakeshore')
 
 
-_leftcolumn = Column(_axisblock, _tempblock)
-
+_leftcolumn = Column(_axisblock, _sampletable)
+_middlecolumn = Column(_detectorblock, _tempblock)
 _rightcolumn = Column(_tasblock)
 
 
@@ -83,6 +95,6 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
-                     layout = [Row(_expcolumn), Row(_leftcolumn, Column(_detectorblock), _rightcolumn)],
+                     layout = [Row(_expcolumn), Row(_leftcolumn, _middlecolumn, _rightcolumn)],
                      notifiers = [])
 )
