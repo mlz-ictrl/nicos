@@ -59,8 +59,6 @@ class ConsolePanel(Panel):
         self.grepText.scrollWidget = self.outView
         self.actionLabel.hide()
         self.outView.setActionLabel(self.actionLabel)
-        if not self.hasinput:
-            self.inputFrame.setVisible(False)
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput
 
@@ -69,12 +67,14 @@ class ConsolePanel(Panel):
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
+    def setSettings(self, settings):
+        self.hasinput = bool(settings.get('hasinput', True))
+        self.inputFrame.setVisible(self.hasinput)
+
     def loadSettings(self, settings):
-        self.hasinput = not settings.value('noinput').toBool()
         self.cmdhistory = list(settings.value('cmdhistory').toStringList())
 
     def saveSettings(self, settings):
-        settings.setValue('noinput', not self.hasinput)
         # only save 100 entries of the history
         cmdhistory = self.commandInput.history[-100:]
         settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
