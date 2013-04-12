@@ -33,7 +33,8 @@ from os import path
 from PyQt4 import uic
 from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
      QPushButton, QTreeWidgetItem, QPalette, QFont, QClipboard, QDialogButtonBox, \
-     QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, QVBoxLayout, QColor
+     QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, QVBoxLayout, QColor, \
+     QStyle
 from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
 
 
@@ -235,6 +236,33 @@ def showTraceback(tb, parent, fontwidget):
         for var, value in bindings.iteritems():
             QTreeWidgetItem(item, ['', var, value])
     dlg.show()
+
+
+class ScriptExecQuestion(QMessageBox):
+    """Special QMessageBox for asking what to do when a script is running."""
+
+    def __init__(self):
+        QMessageBox.__init__(self, QMessageBox.Information, 'Error',
+                    'A script is currently running.  What do you want to do?',
+                    QMessageBox.NoButton)
+        self.b0 = self.addButton('Cancel', QMessageBox.RejectRole)
+        self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
+        self.b1 = self.addButton('Queue script', QMessageBox.YesRole)
+        self.b1.setIcon(self.style().standardIcon(QStyle.SP_DialogOkButton))
+        self.b2 = self.addButton('Execute now!', QMessageBox.ApplyRole)
+        self.b2.setIcon(self.style().standardIcon(QStyle.SP_MessageBoxWarning))
+
+    def exec_(self):
+        # According to the docs, exec_() returns an "opaque value" if using
+        # non-standard buttons, so we have to check clickedButton(). Do that
+        # here and return a valid QMessageBox button constant.
+        QMessageBox.exec_(self)
+        btn = self.clickedButton()
+        if btn == self.b2:
+            return QMessageBox.Apply  # Execute now
+        elif btn == self.b1:
+            return QMessageBox.Yes    # Queue
+        return QMessageBox.Cancel     # Cancel
 
 
 class DlgPresets(object):
