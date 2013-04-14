@@ -444,6 +444,11 @@ class Device(object):
         lastconfig = None
         if self._cache:
             lastconfig = self._cache.get('_lastconfig_', self._name, None)
+            old_classes = self._cache.get(self, 'classes')
+            if old_classes and old_classes != self.doReadClasses():
+                self.log.warning('device changed class, clearing all cached '
+                                 'parameter values')
+                self._cache.clear(self)
 
         def _init_param(param, paraminfo):
             param = param.lower()
