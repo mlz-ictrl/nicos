@@ -75,6 +75,7 @@ class DeviceAlias(Device):
     }
 
     _ownattrs = ['_obj', '_mode', '_cache', 'alias']
+    _ownparams = set(['alias', 'name', 'classes', 'devclass'])
     _initialized = False
 
     def doUpdateAlias(self, devname):
@@ -82,6 +83,7 @@ class DeviceAlias(Device):
             self._obj = NoDevice(str(self))
             if self._cache:
                 self._cache.unsetRewrite(str(self))
+                self._cache.clear(str(self), exclude=self._ownparams)
         else:
             try:
                 newdev = session.getDevice(devname, (self._cls, DeviceAlias),
@@ -97,9 +99,11 @@ class DeviceAlias(Device):
                     raise
             if newdev is self:
                 raise NicosError(self, 'cannot set alias pointing to itself')
-            self._obj = newdev
-            if self._cache:
-                self._cache.setRewrite(str(self), devname)
+            if newdev != self._obj:
+                self._obj = newdev
+                if self._cache:
+                    self._cache.setRewrite(str(self), devname)
+                    self._cache.clear(str(self), exclude=self._ownparams)
 
     def valueInfo(self):
         # override to replace name of the aliased device with the alias' name

@@ -542,12 +542,14 @@ class CacheClient(BaseCacheClient):
             del self._inv_rewrites[newprefix]
             self._queue.put(self._prefix + newprefix + OP_REWRITE + '\n')
 
-    def clear(self, dev):
+    def clear(self, dev, exclude=()):
         """Clear all cache subkeys belonging to the given device."""
         time = currenttime()
         devprefix = str(dev).lower() + '/'
         for dbkey in self._db.keys():
             if dbkey.startswith(devprefix):
+                if exclude and dbkey.rsplit('/', 1)[-1] in exclude:
+                    continue
                 msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)
