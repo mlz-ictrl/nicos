@@ -217,6 +217,7 @@ class HoveringAxis(Axis):
 
     def doInit(self, mode):
         self._poll_thread = None
+        self._wait_exception = None
 
     def doStart(self, target):
         if self._poll_thread:
@@ -226,6 +227,7 @@ class HoveringAxis(Axis):
         self._poll_thread = threading.Thread(target=self._pollthread,
                                              name='%s polling thread' % self)
         self._poll_thread.setDaemon(True)
+        self._wait_exception = None
         self._adevs['switch'].move(self.switchvalues[1])
         try:
             sleep(self.startdelay)
@@ -239,6 +241,9 @@ class HoveringAxis(Axis):
         sleep(0.1)
         try:
             waitForStatus(self, 0.2)
+        except Exception, err:
+            self._wait_exception = err
+            raise
         finally:
             sleep(self.stopdelay)
             try:
@@ -249,6 +254,10 @@ class HoveringAxis(Axis):
     def doWait(self):
         while self._poll_thread:
             sleep(0.2)
+        if self._wait_exception:
+            exc = self._wait_exception
+            self._wait_exception = None
+            raise exc
 
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
@@ -267,3 +276,4 @@ class HoveringAxis(Axis):
     def doReset(self):
         Axis.doReset(self)
         self._poll_thread = None
+        self._wait_exception = None
