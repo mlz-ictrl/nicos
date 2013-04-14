@@ -60,7 +60,10 @@ def multiStatus(devices, maxage=None):
         if dev is None:
             continue
         state, text = dev.status(maxage)
-        rettext.append('%s=%s' % (devname, text))
+        if '=' in text:
+            rettext.append('%s=(%s)' % (devname, text))
+        else:
+            rettext.append('%s=%s' % (devname, text))
         if state > retstate:
             retstate = state
     return retstate, ', '.join(rettext)
