@@ -415,8 +415,17 @@ class Session(object):
     def _nicos_import(self, modname, member='*'):
         try:
             mod = __import__('nicos.' + modname, None, None, [member])
-        except ImportError:
-            mod = __import__(modname, None, None, [member])
+        except ImportError, err1:
+            try:
+                mod = __import__(modname, None, None, [member])
+            except ImportError, err2:
+                # handle ImportError due to missing dependencies of the
+                # requested module smartly: if the module name starts with
+                # "nicos.", the more useful exception is the second one,
+                # otherwise it's the first
+                if modname.startswith('nicos.'):
+                    raise err2
+                raise err1
         if member == '*':
             return mod
         return getattr(mod, member)
