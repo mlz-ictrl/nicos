@@ -1488,6 +1488,11 @@ class Measurable(Readable):
         'unit':  Override(description='(not used)', mandatory=False),
     }
 
+    def _setMode(self, mode):
+        # overwritten from Readable: don't read out detectors, it's not useful
+        self._sim_active = mode == 'simulation' and self.hardware_access
+        Device._setMode(self, mode)
+
     @usermethod
     def setPreset(self, **preset):
         """Set the new standard preset for this detector."""
