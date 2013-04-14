@@ -620,12 +620,12 @@ class _ScriptScope(object):
         self.code = code
     def __enter__(self):
         session.beginActionScope(self.filename)
-        if session.experiment and session.mode == 'master':
+        if session.experiment and session.mode in ('master', 'simulation'):
             session.experiment.scripts += [self.code]
         session.elog_event('scriptbegin', self.filename)
     def __exit__(self, *args):
         session.endActionScope()
-        if session.experiment and session.mode == 'master':
+        if session.experiment and session.mode in ('master', 'simulation'):
             session.experiment.scripts = session.experiment.scripts[:-1]
         session.elog_event('scriptend', self.filename)
 
@@ -653,6 +653,10 @@ def _RunScript(filename, statdevices, debug=False):
         raise NicosError('cannot open script %r: %s' % (filename, e))
     with fp:
         code = unicode(fp.read(), 'utf-8')
+        # quick guard against self-recursion
+        if session.experiment and session.experiment.scripts and \
+                code.strip() == session.experiment.scripts[-1].strip():
+            raise NicosError('script %r would call itself, aborting' % filename)
         compiler = lambda src: compile(src + '\n', fn, 'exec', CO_DIVISION)
         compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
