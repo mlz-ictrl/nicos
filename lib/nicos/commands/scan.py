@@ -35,6 +35,11 @@ from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
 from nicos.commands import usercommand, helparglist
 
 
+__all__ = [
+    'scan', 'cscan', 'timescan', 'sweep', 'twodscan', 'contscan',
+    'manualscan', 'appendscan',
+]
+
 def _fixType(dev, args, mkpos):
     if not args:
         raise UsageError('at least two arguments are required')

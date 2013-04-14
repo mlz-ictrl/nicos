@@ -39,6 +39,10 @@ import TACOClient
 import TACOStates as st
 import TACOCommands as cmds
 
+
+__all__ = ['TacoRes', 'TacoStatus']
+
+
 def _client(dev):
     if isinstance(dev, TacoDevice):
         return dev._dev

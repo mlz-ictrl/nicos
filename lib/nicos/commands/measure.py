@@ -34,6 +34,14 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
 
 
+__all__ = [
+    'count', 'preset',
+    'SetDetectors', 'AddDetector', 'ListDetectors',
+    'SetEnvironment', 'AddEnvironment', 'ListEnvironment',
+    'avg', 'minmax'
+]
+
+
 def _count(detlist, preset, result):
     """Low-level counting function.
 

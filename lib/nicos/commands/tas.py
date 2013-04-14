@@ -44,6 +44,13 @@ from nicos.commands.output import printinfo, printwarning
 from nicos.commands.analyze import gauss
 
 
+__all__ = [
+    'qscan', 'qcscan', 'Q', 'calpos', 'pos', 'rp',
+    'acc_bragg', 'ho_spurions', 'alu', 'copper',
+    'rescal', 'resplot', 'hklplot', 'checkalign',
+]
+
+
 def _getQ(v, name):
     try:
         if len(v) == 4:

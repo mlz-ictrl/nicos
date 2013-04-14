@@ -41,6 +41,14 @@ from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo, printerror
 
 
+__all__ = [
+    'move', 'drive', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
+    'reset', 'set', 'get', 'getall', 'setall', 'info', 'fix', 'release',
+    'adjust', 'version', 'history', 'limits', 'resetlimits', 'reference',
+    'ListParams', 'ListMethods', 'ListDevices',
+]
+
+
 def _devposlist(dev_pos_list, cls):
     devlist = []
     poslist = []

@@ -40,6 +40,12 @@ from nicos.commands.device import maw
 from nicos.commands.output import printinfo, printwarning
 
 
+__all__ = [
+    'center_of_mass', 'fwhm', 'root_mean_square', 'poly', 'gauss',
+    'center', 'checkoffset', 'findpeaks',
+]
+
+
 def _getData(columns):
     if not session.experiment._last_datasets:
         raise NicosError('no latest dataset has been stored')

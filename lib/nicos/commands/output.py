@@ -30,6 +30,11 @@ from nicos import session
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 
 
+__all__ = [
+    'printdebug', 'printinfo', 'printwarning', 'printerror', 'printexception',
+]
+
+
 @hiddenusercommand
 @helparglist('message, ...')
 def printdebug(*msgs, **kwds):

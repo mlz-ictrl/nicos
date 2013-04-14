@@ -52,6 +52,21 @@ from nicos.commands.output import printinfo, printwarning, printerror, \
 CO_DIVISION = 0x2000
 
 
+__all__ = [
+    'help', 'dir', 'ListCommands', 'sleep',
+    'NewSetup', 'AddSetup', 'RemoveSetup', 'ListSetups',
+    '_Restart', 'Keep',
+    'CreateDevice', 'DestroyDevice', 'CreateAllDevices',
+    'NewExperiment', 'FinishExperiment', 'AddUser', 'NewSample',
+    'Remark', 'Remember', 'SetMode', 'SetSimpleMode',
+    'sync', 'ClearCache', 'UserInfo',
+    'edit', 'run', 'sim',
+    'notify', 'SetMailReceivers', 'SetSMSReceivers',
+    'SaveSimulationSetup',
+    'LogEntry', 'LogAttach',
+]
+
+
 # -- help and introspection ----------------------------------------------------
 
 @usercommand

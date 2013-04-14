@@ -40,6 +40,9 @@ from nicos.core import UsageError
 from nicos.commands import usercommand, helparglist
 
 
+__all__ = ['floatrange', 'RangeListLog', 'RangeListGeneral']
+
+
 def RangeListByStep(start, end=None, inc=None):
     """Generate a list of points within [from;to]
 
