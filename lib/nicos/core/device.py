@@ -804,6 +804,7 @@ class Readable(Device):
     }
 
     def init(self):
+        self._info_errcount = 0
         self._sim_active = False
         Device.init(self)
         # value in simulation mode
@@ -1025,12 +1026,17 @@ class Readable(Device):
             val = self.read()
             yield ('general', 'value', self.format(val, unit=True))
         except Exception, err:
-            self.log.warning('error reading device for info()', exc=err)
+            self._info_errcount += 1
+            # only display the message for the first 5 times and then
+            # every 20 measurements
+            if self._info_errcount <= 5 or self._info_errcount % 20 == 0:
+                self.log.warning('error reading device for info()', exc=err)
             yield ('general', 'value', 'Error: %s' % err)
+        else:
+            self._info_errcount = 0
         try:
             st = self.status()
         except Exception, err:
-            self.log.warning('error getting status for info()', exc=err)
             yield ('status', 'status', 'Error: %s' % err)
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
