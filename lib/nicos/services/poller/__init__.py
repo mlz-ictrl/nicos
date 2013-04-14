@@ -41,6 +41,7 @@ from nicos import session
 from nicos.core import status, listof, Device, Readable, Param, NicosError, \
      ConfigurationError
 from nicos.utils import whyExited
+from nicos.devices.generic.alias import DeviceAlias
 
 
 class Poller(Device):
@@ -159,6 +160,9 @@ class Poller(Device):
                         dev = session.getDevice(devname)
                     if not isinstance(dev, Readable):
                         self.log.debug('%s is not a readable' % dev)
+                        return
+                    if isinstance(dev, DeviceAlias):
+                        self.log.debug('%s is an alias, not polling' % dev)
                         return
                     # keep track of some parameters via cache callback
                     session.cache.addCallback(dev, 'target', reconfigure)
