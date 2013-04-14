@@ -219,9 +219,11 @@ class MainWindow(QMainWindow, DlgUtils):
         self.setStatus('disconnected')
 
     def createWindow(self, wtype):
-        wconfig = self.profiles[self.curprofile][1][wtype+1]
-        #if wconfig[2] and self.windows.get(wtype):  # we don't support
-                                                     # multi-instance anymore
+        try:
+            wconfig = self.profiles[self.curprofile][1][wtype+1]
+        except IndexError:
+            # config outdated, window type doesn't exist
+            return
         if self.windows.get(wtype):
             iter(self.windows[wtype]).next().activateWindow()
             return
