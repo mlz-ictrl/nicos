@@ -41,7 +41,6 @@ class NoninteractiveSession(Session):
     """
 
     autocreate_devices = False
-    auto_modules = []
 
     def _beforeStart(self, maindev):
         pass

@@ -23,12 +23,6 @@ include the management of
 
       A singleton for settings read from ``nicos.conf``.  See :ref:`nicosconf`.
 
-   .. attribute:: auto_modules
-
-      A list of modules with user commands to be imported in every setup.  By
-      default, all modules under :mod:`nicos.commands` are imported, but this
-      can be overridden in subclasss that do not need user commands.
-
    .. attribute:: autocreate_devices
 
       A boolean that determines if the session automatically creates all

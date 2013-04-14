@@ -9,7 +9,7 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.taco']
+modules = ['nicos.commands.standard', 'nicos.commands.taco']
 
 devices = dict(
     Sample   = device('devices.tas.TASSample'),

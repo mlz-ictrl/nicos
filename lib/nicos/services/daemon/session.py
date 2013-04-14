@@ -32,7 +32,6 @@ import signal
 import __builtin__
 
 from nicos.core import AccessError, ACCESS_LEVELS
-from nicos.core.sessions import Session
 from nicos.utils.loggers import OUTPUT
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
@@ -99,9 +98,6 @@ class DaemonSession(NoninteractiveSession):
         # but afterwards we have to automatically import objects again
         self.namespace['__builtins__'] = __builtin__.__dict__
         self.initNamespace()
-
-        # load all default modules from now on
-        self.auto_modules = Session.auto_modules
 
         self._exported_names.clear()
         self._helper = HelpGenerator()

@@ -33,7 +33,7 @@ sysconfig = dict(
     datasinks = ['testsink'],
 )
 
-modules = ['nicos.commands.tas']
+modules = ['nicos.commands.standard', 'nicos.commands.tas']
 
 
 devices = dict(

@@ -32,6 +32,8 @@ sysconfig = dict(
     notifiers = [],
 )
 
+modules = ['nicos.commands.standard']
+
 devices = dict(
     Sample   = device('devices.experiment.Sample'),
 

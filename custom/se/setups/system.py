@@ -8,6 +8,8 @@ sysconfig = dict(
     notifiers = ['emailer', 'smser'],
 )
 
+modules = ['nicos.commands.standard']
+
 devices = dict(
     SE   = device('devices.instrument.Instrument',
                       instrument = 'SE'),

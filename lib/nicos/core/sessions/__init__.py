@@ -75,14 +75,6 @@ class Session(object):
     always be used in concrete applications.
     """
 
-    auto_modules = [
-        'nicos.commands.basic',
-        'nicos.commands.device',
-        'nicos.commands.output',
-        'nicos.commands.measure',
-        'nicos.commands.scan',
-        'nicos.commands.analyze',
-    ]
     autocreate_devices = True
 
     class config(object):
@@ -472,7 +464,7 @@ class Session(object):
             if modname in self.user_modules:
                 return
             self.user_modules.add(modname)
-            self.log.debug('importing module %s... ' % modname)
+            self.log.info('importing module %s... ' % modname)
             try:
                 mod = self._nicos_import(modname)
             except Exception, err:
@@ -480,6 +472,10 @@ class Session(object):
                 return
             for name, command in mod.__dict__.iteritems():
                 if getattr(command, 'is_usercommand', False):
+                    if name.startswith('_') and command.__name__ != name:
+                        # it's a usercommand, but imported under a different
+                        # name to be used by another module, don't export it
+                        continue
                     self.export(name, usercommandWrapper(command))
                 elif getattr(command, 'is_userobject', False):
                     self.export(name, command)
@@ -529,10 +525,6 @@ class Session(object):
             startupcode.append(info['startupcode'])
 
             return sysconfig, devlist, startupcode
-
-        # always load nicos.commands in interactive mode
-        for modname in self.auto_modules:
-            load_module(modname)
 
         sysconfig, devlist, startupcode = {}, {}, []
         load_setupnames = setupnames[:]

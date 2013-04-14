@@ -22,38 +22,15 @@
 #
 # *****************************************************************************
 
-description = 'system setup'
+"""Package for importing all normally used NICOS commands."""
 
-sysconfig = dict(
-    cache = 'localhost',
-    instrument = 'REFSANS',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'], # , 'liveplot'],
-    notifiers = [],
-)
+__version__ = "$Revision$"
 
-modules = ['nicos.commands.standard']
-
-devices = dict(
-    REFSANS   = device('devices.instrument.Instrument',
-                      instrument = 'REFSANS'),
-
-    Sample   = device('devices.experiment.Sample'),
-
-    Exp      = device('devices.experiment.Experiment',
-                      dataroot = '/users/data',
-                      sample = 'Sample',
-                      elog = False),
-
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
-
-    conssink = device('devices.datasinks.ConsoleSink'),
-
-    daemonsink = device('devices.datasinks.DaemonSink'),
-
-#   liveplot = device('devices.datasinks.GraceSink'),
-
-    Space    = device('devices.generic.FreeSpace',
-                      path = 'data',
-                      minfree = 5),
-)
+#pylint: disable=W0401
+#pylint: disable=W0622
+from nicos.commands.basic import *
+from nicos.commands.output import *
+from nicos.commands.device import *
+from nicos.commands.measure import *
+from nicos.commands.scan import *
+from nicos.commands.analyze import *

@@ -9,6 +9,8 @@ sysconfig = dict(
     datasinks = ['conssink', 'filesink', 'dmnsink', 'gracesink'],
 )
 
+modules = ['nicos.commands.standard', 'nicos.commands.taco']
+
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'rgeorgii@frm2.tum.de',

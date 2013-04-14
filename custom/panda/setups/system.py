@@ -12,6 +12,8 @@ sysconfig = dict(
     notifiers = [],
 )
 
+modules = ['nicos.commands.standard']
+
 devices = dict(
     panda = device('devices.instrument.Instrument',
                     instrument='Panda',
