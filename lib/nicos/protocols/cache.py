@@ -31,6 +31,7 @@ from ast import parse, Str, Num, Tuple, List, Dict, BinOp, UnaryOp, \
      Add, Sub, USub, Name, Call
 from base64 import b64encode, b64decode
 
+from nicos.utils import readonlylist, readonlydict
 
 DEFAULT_CACHE_PORT = 14869
 
@@ -112,10 +113,10 @@ def ast_eval(node):
         elif isinstance(node, Tuple):
             return tuple(map(_convert, node.elts))
         elif isinstance(node, List):
-            return list(map(_convert, node.elts))
+            return readonlylist(map(_convert, node.elts))
         elif isinstance(node, Dict):
-            return dict((_convert(k), _convert(v)) for k, v
-                        in zip(node.keys, node.values))
+            return readonlydict((_convert(k), _convert(v)) for k, v
+                                in zip(node.keys, node.values))
         elif isinstance(node, Name):
             if node.id in _safe_names:
                 return _safe_names[node.id]

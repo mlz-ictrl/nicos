@@ -42,12 +42,15 @@ def test_listof():
     assert listof(int)([0., 1, '2']) == [0, 1, 2]
     assert listof(int)() == []
     assert raises(ValueError, listof(int), (1, 2, 3))
+    # assert that the list is read-only
+    assert raises(TypeError, listof(int)([0, 1, 2]).__setitem__, 0, 1)
 
 def test_nonemptylistof():
     assert nonemptylistof(int)(['1']) == [1]
     assert nonemptylistof(int)() == [0]
     assert raises(ValueError, nonemptylistof(int), [])
     assert raises(ValueError, nonemptylistof(int), (1, 2))
+    assert raises(TypeError, nonemptylistof(int)([0, 1, 2]).__setitem__, 0, 1)
 
 def test_tupleof():
     assert tupleof(int, str, float)((1.0, 1.0, 1.0)) == (1, '1.0', 1.0)
@@ -63,6 +66,8 @@ def test_dictof():
     assert dictof(int, str)() == {}
     assert raises(ValueError, dictof(int, str), ('a', 'b'))
     assert raises(ValueError, dictof(int, str), {'x': 'y'})
+    # test that the dict is read-only
+    assert raises(TypeError, dictof(int, str)({1: 'x'}).pop, 1)
 
 def test_tacodev():
     assert tacodev('test/custom/device') == 'test/custom/device'
@@ -86,6 +91,8 @@ def test_vec3():
     assert vec3() == [0., 0., 0.]
     assert raises(ValueError, vec3, [1, 0])
     assert raises(ValueError, vec3, ['x', 'y', 'z'])
+    # assert that the list is read-only
+    assert raises(TypeError, vec3([0, 1, 2]).__setitem__, 0, 1)
 
 def test_intrange():
     assert intrange(0, 10)(10) == 10

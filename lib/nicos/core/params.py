@@ -31,6 +31,7 @@ import re
 import copy
 
 from nicos import session
+from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError
 
 
@@ -257,10 +258,10 @@ class listof(object):
         self.conv = conv
 
     def __call__(self, val=None):
-        val = val if val is not None else list()
+        val = val if val is not None else []
         if not isinstance(val, list):
             raise ValueError('value needs to be a list')
-        return map(self.conv, val)
+        return readonlylist(map(self.conv, val))
 
 class nonemptylistof(object):
 
@@ -270,10 +271,10 @@ class nonemptylistof(object):
 
     def __call__(self, val=None):
         if val is None:
-            return [self.conv()]
+            return readonlylist([self.conv()])
         if not isinstance(val, list) or len(val) < 1:
             raise ValueError('value needs to be a nonempty list')
-        return map(self.conv, val)
+        return readonlylist(map(self.conv, val))
 
 class tupleof(object):
 
@@ -310,13 +311,13 @@ class dictof(object):
         self.valconv = valconv
 
     def __call__(self, val=None):
-        val = val if val is not None else dict()
+        val = val if val is not None else {}
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         ret = {}
         for k, v in val.iteritems():
             ret[self.keyconv(k)] = self.valconv(v)
-        return ret
+        return readonlydict(ret)
 
 class intrange(object):
 
@@ -448,8 +449,8 @@ def anytype(val=None):
 
 def vec3(val=None):
     """a 3-vector"""
-    val = val if val is not  None else [0,0,0]
+    val = val if val is not None else [0, 0, 0]
     ret = map(float, val)
     if len(ret) != 3:
         raise ValueError('value needs to be a 3-element vector')
-    return ret
+    return readonlylist(ret)

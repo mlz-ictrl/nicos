@@ -62,6 +62,22 @@ class lazy_property(object):
         return obj.__dict__[self.__name__]
 
 
+class readonlylist(list):
+    def _no(self, *args, **kwds):
+        raise TypeError('individual list values can not be changed')
+    __delitem__ = __setitem__ = append = extend = insert = pop = remove = \
+        reverse = sort = _no
+    # NOTE: __iadd__ and __imul__ are good because their invocation is always
+    # connected to a re-assignment
+
+
+class readonlydict(dict):
+    def _no(self, *args, **kwds):
+        raise TypeError('individual dict values can not be changed')
+    __setitem__ = __delitem__ = clear = pop = popitem = setdefault = \
+        update = _no
+
+
 class Repeater(object):
     def __init__(self, obj):
         self.object = obj
