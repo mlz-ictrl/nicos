@@ -29,14 +29,13 @@ from __future__ import with_statement
 __version__ = "$Revision$"
 
 import time
-import codecs
 
 from PyQt4.QtCore import QVariant, QStringList, SIGNAL
 from PyQt4.QtGui import QStyle, QColor, QDialogButtonBox, QPushButton
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, setBackgroundColor, setForegroundColor, \
-     showTraceback, dialogFromUi
+from nicos.clients.gui.utils import loadUi, dialogFromUi, setBackgroundColor, \
+     setForegroundColor
 
 
 class CommandLinePanel(Panel):
