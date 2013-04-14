@@ -286,8 +286,7 @@ class DevicesPanel(Panel):
                 self.devmenu_ro.popup(self.tree.viewport().mapToGlobal(point))
 
     def on_filter_textChanged(self, text):
-        rx = QRegExp(text);
-        text = text.toLower()
+        rx = QRegExp(text)
         # QTreeWidgetItemIterator: an ugly Qt C++ API translated to an even
         # uglier Python API...
         it = QTreeWidgetItemIterator(self.tree,
