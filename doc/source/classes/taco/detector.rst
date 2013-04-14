@@ -8,5 +8,3 @@ Taco FRM-II detector classes
 .. autoclass:: FRMTimerChannel()
 
 .. autoclass:: FRMCounterChannel()
-
-.. autoclass:: FRMDetector()

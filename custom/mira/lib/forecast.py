@@ -27,12 +27,12 @@
 __version__ = "$Revision$"
 
 from nicos.core import status, Readable, Override
-from nicos.devices.taco.detector import FRMDetector
+from nicos.devices.generic import MultiChannelDetector
 
 
 class Forecast(Readable):
     attached_devices = {
-        'det': (FRMDetector, 'The detector to forecast values.'),
+        'det': (MultiChannelDetector, 'The detector to forecast values.'),
     }
 
     parameter_overrides = {

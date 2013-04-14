@@ -58,7 +58,7 @@ devices = dict(
                       fmtstr = '%d',
                       ),
 
-    det      = device('devices.taco.FRMDetector',
+    det      = device('devices.generic.MultiChannelDetector',
                       timer  = 'timer',
                       monitors = ['mon1', 'mon2'],
                       counters = ['det1', 'det2', 'det3', 'det4', 'det5'],

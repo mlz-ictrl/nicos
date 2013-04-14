@@ -33,17 +33,17 @@ from time import sleep, time as currenttime
 from nicos import session
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
-     CommunicationError, TimeoutError, NicosError, Readable, INFO_CATEGORIES
+     CommunicationError, TimeoutError, NicosError, Readable
 from nicos.mira import cascadeclient
 from nicos.devices.abstract import ImageStorage, AsyncDetector
-from nicos.devices.taco.detector import FRMDetector
+from nicos.devices.generic import MultiChannelDetector
 
 
 class CascadeDetector(AsyncDetector, ImageStorage):
 
     attached_devices = {
-        'master':    (FRMDetector, 'Master to control measurement time '
-                      'in slave mode and to read monitor counts'),
+        'master':    (MultiChannelDetector, 'Master to control measurement time'
+                      ' in slave mode and to read monitor counts'),
         'mono':      (Monochromator, 'Monochromator device to read out'),
         'sampledet': (Readable, 'Sample-detector distance readout'),
     }
