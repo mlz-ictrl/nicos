@@ -196,7 +196,7 @@ class Poller(Device):
         if setup == '[dummy]':
             return
 
-        session.loadSetup(setup)
+        session.loadSetup(setup, allow_startupcode=False)
         for devname in session.getSetupInfo()[setup]['devices']:
             if devname in self.blacklist:
                 self.log.debug('not polling %s, it is blacklisted' % devname)
