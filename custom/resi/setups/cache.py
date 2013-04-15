@@ -4,14 +4,14 @@ description = 'setup for the cache server'
 group = 'special'
 
 devices = dict(
-    DB     = device('services.cache.server.MemoryCacheDatabase',
-                    storepath = '/tmp/data/cache',
-                    maxcached = 20,
-                    granularity = 3,
+    DBmem     = device('services.cache.server.MemoryCacheDatabase',
+                    loglevel = 'warning'),
+    DBfile     = device('services.cache.server.FlatfileCacheDatabase',
+                    storepath = '/home/resi/pedersen/nicos-cache',
                     loglevel = 'warning'),
 
     Server = device('services.cache.server.CacheServer',
-                    db = 'DB',
+                    db = 'DBmem',
                     server = 'resi1',
                     loglevel = 'info'),
 )

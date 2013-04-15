@@ -23,7 +23,7 @@ devices = dict(
     Exp = device('resi.experiment.ResiExperiment',
                       sample = 'Sample',
                       dataroot = '/tmp/data/testdata',
-                      _propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
+                      ),
 
     resiInstrument = device('devices.instrument.Instrument',
                        instrument = 'RESI',

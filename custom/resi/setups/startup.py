@@ -5,3 +5,5 @@ group = 'lowlevel'
 sysconfig = dict(
     cache = 'resi1',
 )
+
+includes = ['base']
