@@ -613,7 +613,7 @@ class CacheClient(BaseCacheClient):
 
     def query_db(self, query):
         if isinstance(query, str):
-            return [(k, self._db[k][0]) for k in self._db if query in k]
+            return [(k, self._db[k][0]) for k in self._db if k.startswith(query)]
         else:
             query = set(query)
             return [(k, self._db[k][0]) for k in self._db if k in query]
