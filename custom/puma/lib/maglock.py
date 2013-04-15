@@ -57,7 +57,7 @@ class MagLock(Moveable):
     def doStart(self, position):
         magpos = self._readMag()
         if magpos not in [0, 1, 2, 3]:
-            raise NicosError('magazin at unknown position')
+            raise NicosError(self, 'magazin at unknown position')
 
         if position == self.doRead(0):
             return
@@ -72,21 +72,21 @@ class MagLock(Moveable):
 
         time.sleep(2)
         if self.doRead (0) != position:
-            raise NicosError('maglock returned wrong position!')
+            raise NicosError(self, 'maglock returned wrong position!')
 
     def doRead(self, maxage=0):
 
         magpos = self._readMag()
 
 #        if magpos == 4:
-#            raise NicosError('magazin at unknown position')
+#            raise NicosError(self, 'magazin at unknown position')
 #            return
 
         try:
             s = (((self._adevs['io_open'].read(0) >> magpos) & 1) << 1) + \
                   ((self._adevs['io_closed'].read (0) >> magpos) & 1)
         except Exception:
-            raise NicosError('cannot read position of maglock!')
+            raise NicosError(self, 'cannot read position of maglock!')
         s = s - 1
 
         if s == 0:
@@ -94,7 +94,7 @@ class MagLock(Moveable):
         elif s == 1:
             return 'open'
         else:
-            raise NicosError('Magazin magnet switches in undefined status;'
+            raise NicosError(self, 'Magazin magnet switches in undefined status;'
                              ' check switches')
 
     def doStatus(self, maxage=0):

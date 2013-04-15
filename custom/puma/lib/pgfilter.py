@@ -14,7 +14,7 @@ class PGFilter(Moveable):
         try:
 
             if self.doStatus()[0] != status.OK:
-                raise NicosError('filter returned wrong position')
+                raise NicosError(self, 'filter returned wrong position')
 
             if position == self.read(0):
                 return
@@ -30,7 +30,7 @@ class PGFilter(Moveable):
             time.sleep(2)
 
             if self.doStatus()[0] == status.ERROR:
-                raise NicosError('PG filter is not readable, check device!')
+                raise NicosError(self, 'PG filter is not readable, check device!')
         finally:
             self.log.info('PG filter: ', self.read(0))
 
@@ -41,7 +41,7 @@ class PGFilter(Moveable):
         elif result == 2:
             return 'out'
         else:
-            raise NicosError('PG filter is not readable, check device!')
+            raise NicosError(self, 'PG filter is not readable, check device!')
 
 
     def doStatus(self, maxage=0):

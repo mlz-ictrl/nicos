@@ -84,4 +84,3 @@ class Magazin(Moveable):
 
     def doStatus(self, maxage=0):
         return self._adevs['moveable'].status(maxage)
-
