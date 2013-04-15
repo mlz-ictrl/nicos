@@ -158,7 +158,7 @@ class OutputView(QTextBrowser):
             text = levels[levelno] + format_time_full(message[1]) + \
                 name + message[3]
             fmt = redbold
-        if message[4]:
+        if message[4] and fmt:
             # don't show traceback info by default, but on click
             fmt.setAnchor(True)
             fmt.setAnchorHref('trace:' + message[4])
