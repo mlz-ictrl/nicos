@@ -53,8 +53,8 @@ backgroundBrush = {
     BUSY:       QBrush(Qt.yellow),
     PAUSED:     QBrush(Qt.yellow),
     UNKNOWN:    QBrush(),
-    ERROR:      QBrush(Qt.red),
-    NOTREACHED: QBrush(Qt.red),
+    ERROR:      QBrush(QColor('#ff3322')),
+    NOTREACHED: QBrush(QColor('#ff3322')),
 }
 
 fixedBrush = {
@@ -192,7 +192,7 @@ class DevicesPanel(Panel):
         devitem.setToolTip(0, devkeys.get(ldevname + '/description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
-        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', '', []]
+        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', '', [], None, None]
 
         # let the cache handler process all properties
         for key, value in devkeys.iteritems():
@@ -238,6 +238,11 @@ class DevicesPanel(Panel):
             if ldevname in self._control_dialogs:
                 self._control_dialogs[ldevname].valuelabel.setText(
                     fmted + ' ' + devinfo[3])
+            if (devinfo[6] is not None and devinfo[0] < devinfo[6]) or \
+               (devinfo[7] is not None and devinfo[0] > devinfo[7]):
+                devitem.setBackground(1, backgroundBrush[ERROR])
+            else:
+                devitem.setBackground(1, backgroundBrush[OK])
         elif subkey == 'status':
             status = cache_load(value)
             devinfo[1] = status
@@ -270,6 +275,15 @@ class DevicesPanel(Panel):
                 dlg = self._control_dialogs[ldevname]
                 dlg.movebtn.setEnabled(not devinfo[4])
                 dlg.movebtn.setText(devinfo[4] and '(fixed)' or 'Move')
+        elif subkey == 'warnlimits':
+            value = cache_load(value)
+            st = OK
+            if value:
+                devinfo[6], devinfo[7] = value
+                if (devinfo[6] is not None and devinfo[0] < devinfo[6]) or \
+                   (devinfo[7] is not None and devinfo[0] > devinfo[7]):
+                   st = ERROR
+            devitem.setBackground(1, backgroundBrush[st])
         elif subkey == 'classes':
             devinfo[5] = set(cache_load(value))
 
