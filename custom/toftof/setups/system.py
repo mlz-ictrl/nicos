@@ -12,14 +12,14 @@ sysconfig = dict(
 
 devices = dict(
     TOFTOF   = device('devices.instrument.Instrument',
+                      responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>, ' \
+                                    'G. Simeoni <giovanna.simeoni@frm2.tum.de>',
                       instrument = 'TOFTOF'),
 
     Sample   = device('devices.experiment.Sample'),
 
     Exp      = device('frm2.experiment.Experiment',
                       dataroot = '/users/data',
-                      responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>, ' \
-                                    'G. Simeoni <giovanna.simeoni@frm2.tum.de>',
                       sample = 'Sample',
                       localcontact = 'W. Lohstroh, G. Simeoni',
                       serviceexp = '0',
@@ -28,8 +28,7 @@ devices = dict(
                       propdb = '/opt/nicos/setups/userdb',
                       elog = True),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
-                      prefix = '/users/data'),
+    filesink = device('devices.datasinks.AsciiDatafileSink'),
 
     conssink = device('devices.datasinks.ConsoleSink'),
 
