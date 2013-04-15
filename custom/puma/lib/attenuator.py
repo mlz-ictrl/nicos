@@ -1,9 +1,10 @@
 
-from nicos.core import Moveable, Readable, status, NicosError
-
 import time
 
-class Attenuator(Moveable):
+from nicos.core import Moveable, Readable, status, NicosError, HasLimits
+
+
+class Attenuator(HasLimits, Moveable):
 
     attached_devices = {
         'io_status':    (Readable, 'readout for the status'),

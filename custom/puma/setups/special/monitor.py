@@ -36,14 +36,14 @@ _detectorblock = Block(
     'Detector',
     [BlockRow(Field(name='timer', dev='timer'),
               Field(name='mon1',  dev='mon1'),
-              Field(name='mon2',  dev='mon2')
-	      ),
+              Field(name='mon2',  dev='mon2'),
+     ),
      BlockRow(Field(name='det1',  dev='det1'),
               Field(name='det2',  dev='det2'),
               Field(name='det3',  dev='det3'),
               Field(name='det4',  dev='det4'),
               Field(name='det5',  dev='det5'),
-	      ),
+    ),
     ],
 )
 
@@ -96,5 +96,5 @@ devices = dict(
                      valuefont = 'Consolas',
                      padding = 0,
                      layout = [Row(_expcolumn), Row(_leftcolumn, _middlecolumn, _rightcolumn)],
-                     notifiers = [])
+                    ),
 )

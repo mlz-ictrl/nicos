@@ -56,4 +56,3 @@ devices = dict(
                 io_set = 'fpg_set',
                 unit = ''),
 )
-

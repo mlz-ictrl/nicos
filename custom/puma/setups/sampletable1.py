@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'Sample table'
+description = 'Sample table'
 
 includes = ['motorbus1', 'motorbus2', 'motorbus4', 'motorbus11',]
 

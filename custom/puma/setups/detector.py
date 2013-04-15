@@ -2,7 +2,7 @@
 
 description = 'single detector'
 
-group = 'internal'
+group = 'lowlevel'
 
 devices = dict(
     timer    = device('devices.taco.FRMTimerChannel',
