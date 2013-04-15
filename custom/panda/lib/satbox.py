@@ -27,52 +27,12 @@
 __version__ = "$Revision$"
 
 #from nicos.core import *
-from nicos.core import status, InvalidValueError, Moveable, Param, floatrange
-from nicos.core.params import convdoc
-from nicos.panda.wechsler import Beckhoff
+from nicos.core import status, InvalidValueError, Moveable, Param, floatrange, listof
 
 from Modbus import Modbus
 
 from nicos.devices.taco import TacoDevice
 
-class positive_float(object):
-    ''' Checker for floats >= 0'''
-
-    def __init__(self):
-        self.__doc__ = 'a float >=0'
-
-    def __call__(self, val=None):
-        if val is None:
-            return 0.
-        val = float(val)
-        if not val >= 0:
-            raise ValueError('value needs to be >= 0')
-        return val
-
-class checkedlist(list):
-    def __init__(self, conv, *args):
-        self._conv=conv
-        list.__init__(self,*args)
-    def __setitem__(self, idx, val):
-        list.__setitem__(self, idx, self._conv(val))
-    def append(self, what):
-        list.append(self, self._conv(what))
-    def extend(self,l):
-        for v in l:
-            self.append(l)
-    def insert(self, idx, val):
-        list.insert(self, idx, self._conv(val))
-
-class checkedlistof(object):
-    def __init__(self, conv):
-        self.__doc__ = 'a list of %s' % convdoc(conv)
-        self.conv = conv
-
-    def __call__(self, val=None):
-        val = val if val is not None else list()
-        if not isinstance(val, list):
-            raise ValueError('value needs to be a list')
-        return checkedlist(self.conv,map(self.conv, val))
 
 class SatBox(TacoDevice, Moveable):
     """
@@ -84,7 +44,7 @@ class SatBox(TacoDevice, Moveable):
 
     parameters = {
         'blades': Param('Thickness of the blades, starting with lowest bit',
-                         type=checkedlistof(floatrange(0,1000)), mandatory=True),
+                         type=listof(floatrange(0, 1000)), mandatory=True),
         'slave_addr': Param('Modbus-slave-addr (Beckhoff=0,WUT=1)',
                        type=int,mandatory=True),
         'addr_out': Param('Base Address for activating Coils',
