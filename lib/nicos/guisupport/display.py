@@ -32,6 +32,7 @@ import ast
 from cgi import escape
 from time import time as currenttime
 
+import sip
 from PyQt4.QtCore import Qt, pyqtProperty, QSize, QTimer, SIGNAL
 from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
      QHBoxLayout, QFontMetrics
@@ -103,6 +104,7 @@ class ValueDisplay(QWidget, DisplayWidget):
         self._charwidth = 8
         self._minvalue = None
         self._maxvalue = None
+        self._horizontal = False
 
         # other current values
         self._isfixed = ''
@@ -118,16 +120,13 @@ class ValueDisplay(QWidget, DisplayWidget):
         DisplayWidget.__init__(self)
 
     def initUi(self):
-        layout = QVBoxLayout()
-        namelabel = QLabel(' ', self, alignment=Qt.AlignHCenter,
-                           textFormat=Qt.RichText)
-        self.namelabel = namelabel
+        self.namelabel = QLabel(' ', self, textFormat=Qt.RichText)
         self.update_namelabel()
 
         valuelabel = SensitiveSMLabel('----', self, self._label_entered,
                                       self._label_left)
-        valuelabel.setAlignment(Qt.AlignHCenter)
         valuelabel.setFrameShape(QFrame.Panel)
+        valuelabel.setAlignment(Qt.AlignHCenter)
         valuelabel.setFrameShadow(QFrame.Sunken)
         valuelabel.setAutoFillBackground(True)
         setBackgroundColor(valuelabel, _black)
@@ -136,13 +135,28 @@ class ValueDisplay(QWidget, DisplayWidget):
         self.valuelabel = valuelabel
         self.charWidth = 8
 
-        layout.addWidget(namelabel)
-        tmplayout = QHBoxLayout()
-        tmplayout.addStretch()
-        tmplayout.addWidget(valuelabel)
-        tmplayout.addStretch()
-        layout.addLayout(tmplayout)
-        self.setLayout(layout)
+        self.reinitLayout()
+
+    def reinitLayout(self):
+        # reinitialize UI after switching horizontal/vertical layout
+        if self._horizontal:
+            new_layout = QHBoxLayout()
+            new_layout.addWidget(self.namelabel)
+            new_layout.addStretch()
+            new_layout.addWidget(self.valuelabel)
+            self.namelabel.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        else:
+            new_layout = QVBoxLayout()
+            new_layout.addWidget(self.namelabel)
+            tmplayout = QHBoxLayout()
+            tmplayout.addStretch()
+            tmplayout.addWidget(self.valuelabel)
+            tmplayout.addStretch()
+            new_layout.addLayout(tmplayout)
+            self.namelabel.setAlignment(Qt.AlignHCenter)
+        if self.layout():
+            sip.delete(self.layout())
+        self.setLayout(new_layout)
 
     def setConfig(self, config, labelfont, valuefont, scale):
         self.pyqtConfigure(
@@ -391,3 +405,13 @@ class ValueDisplay(QWidget, DisplayWidget):
         self.valueFont = self.font()
     valueFont = pyqtProperty('QFont', get_valueFont, set_valueFont,
                              reset_valueFont)
+
+    def get_horizontal(self):
+        return self._horizontal
+    def set_horizontal(self, value):
+        self._horizontal = value
+        self.reinitLayout()
+    def reset_horizontal(self):
+        self.horizontal = False
+    horizontal = pyqtProperty(bool, get_horizontal, set_horizontal,
+                              reset_horizontal)
