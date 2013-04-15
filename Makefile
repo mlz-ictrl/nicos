@@ -167,6 +167,9 @@ main-install:
 		cp -pr $(VOPT) custom/frm2/setups/* $(ROOTDIR)/setups/frm2; \
 	fi
 	@echo "============================================================="
+	@echo "Running setup check..."
+	-PYTHONPATH=$(ROOTDIR)/lib tools/check_setups $(ROOTDIR)/setups
+	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "============================================================="
 	@echo "Trying to create system-wide symbolic links..."

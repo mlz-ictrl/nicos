@@ -2,47 +2,143 @@
 
 import os
 import sys
+import logging
 import traceback
 from os import path
 
-SETUP_GROUPS = set([
-    'basic', 'optional', 'lowlevel', 'simulated', 'special'
-])
+try:
+    import nicos
+except ImportError:
+    thisfile = path.abspath(__file__)
+    sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
+
+from nicos import session
+from nicos.core.sessions import Session, SETUP_GROUPS
+from nicos.utils.loggers import ColoredConsoleHandler
+
+# patch the session config (the "control_path_relative" param type requires a
+# valid Session.config, but "session" is currently just a bare object)
+session.config = Session.config
 
 devs_seen = {}
 
+class Handler(ColoredConsoleHandler):
+    def emit(self, record):
+        # reintroduce standard logging behavior that the Nicos logger overrides
+        record.message = record.getMessage()
+        # remove this, the Nicos handler uses it differently
+        record.filename = ''
+        ColoredConsoleHandler.emit(self, record)
+
+def nicos_import(clspath):
+    modname, clsname = clspath.rsplit('.', 1)
+    try:
+        mod =  __import__('nicos.' + modname, None, None, [clsname])
+    except ImportError:
+        mod =  __import__(modname, None, None, [clsname])
+    return getattr(mod, clsname)
+
+def log_exception(log):
+    formatted_lines = traceback.format_exc().splitlines()
+    log.error(formatted_lines[-3])
+    log.error(formatted_lines[-2])
+    log.error(formatted_lines[-1])
+    return False
+
 def check_setupfile(filename):
+    log = logging.getLogger(filename)
+    good = True
     namespace = {'device': lambda c, **kw: (c, kw)}
+    # check syntax
     try:
         execfile(filename, namespace)
     except SyntaxError, e:
-        print '%s ... not ok' % (e.filename, )
-        print 'SyntaxError: %s' % (e.msg, )
-        print ' line %d : %s' % (e.lineno, e.text, )
+        log.error('SyntaxError: %s', e.msg)
+        log.error(' line %d : %s', e.lineno, e.text)
         return False
     except Exception, e:
-        print '%s ... not ok' % (filename, )
-        formatted_lines = traceback.format_exc().splitlines()
-        print formatted_lines[-3]
-        print formatted_lines[-1]
-        print formatted_lines[-2]
-        return False
-    print '%s ... syntax ok' % (filename, )
+        log.error('error while executing:')
+        return log_exception(log)
+    log.info('syntax ok')
+    # check for valid group
     group = namespace.get('group', 'optional')
     if group not in SETUP_GROUPS:
-        print '%s warning: invalid group %r' % (filename, group)
+        log.error('invalid setup group %r', group)
+        good = False
+    # check for a description
     description = namespace.get('description', None)
     if description in (None, '') and group in ('basic', 'optional'):
-        print '%s warning: missing user-friendly description' % (filename, )
+        log.error('missing user-friendly setup description')
+        good = False
+    # check if devices are duplicated
     if group != 'special':
         devs = namespace.get('devices', {})
         for devname in devs:
             if devname in devs_seen:
-                print '%s warning: device name %s duplicate: also in %s' % \
-                    (filename, devname, devs_seen[devname])
+                log.warning('device name %s duplicate: also in %s',
+                            devname, devs_seen[devname])
             else:
                 devs_seen[devname] = filename
-    return True
+    # check for valid device classes (if importable) and parameters
+    for devname, devconfig in namespace.get('devices', {}).iteritems():
+        # try to import the device class
+        try:
+            cls = nicos_import(devconfig[0])
+        except (ImportError, RuntimeError):  # the latter for SIP
+            log.info('device class %r for %r not importable',
+                     devconfig[0], devname)
+            continue
+        except Exception, e:
+            log.error('could not get device class %r for %r:',
+                      devconfig[0], devname)
+            log_exception(log)
+            good = False
+            continue
+        # check missing and unsupported parameter config entries
+        config = devconfig[1]
+        for aname, ainfo in cls.attached_devices.iteritems():
+            if aname in config:
+                if isinstance(ainfo[0], list) and not (
+                        isinstance(config[aname], list) or config[aname] is None):
+                    log.error('%s: attached device %r value %r is not a list '
+                              'when it should be', devname, aname, config[aname])
+                    good = False
+                elif not isinstance(ainfo[0], list) and isinstance(config[aname], list):
+                    log.error('%s: attached device %r value %r is a list when '
+                              'it should not be', devname, aname, config[aname])
+                    good = False
+                del config[aname]
+            else:
+                log.error('%s: attached device %r missing', devname, aname)
+                good = False
+        for pname, pinfo in cls.parameters.iteritems():
+            if pname in config:
+                try:
+                    pinfo.type(config[pname])
+                except ValueError, e:
+                    log.error('%s: parameter %r value %r is invalid: %s',
+                              devname, pname, config[pname], e)
+                    good = False
+                del config[pname]
+            elif pinfo.mandatory:
+                log.error('%s: mandatory parameter %r missing', devname, pname)
+                good = False
+        if config:
+            log.error('%s: configured parameters not accepted by the device '
+                      'class: %s', devname, ', '.join(config))
+            good = False
+    return good
+
+logging.basicConfig()
+root_log = logging.getLogger()
+root_log.removeHandler(root_log.handlers[0])
+root_log.addHandler(Handler())
+
+if '-v' in sys.argv:
+    root_log.setLevel(logging.INFO)
+    sys.argv.remove('-v')
+else:
+    root_log.setLevel(logging.WARNING)
 
 ret = True
 for p in sys.argv[1:]:
