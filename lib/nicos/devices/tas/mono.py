@@ -89,9 +89,13 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         'hfocuspars': Param('horizontal focus polynomial coefficients',
                             type=listof(float), default=[0.], settable=True,
                             category='instrument'),
+        'hfocusflat': Param('horizontal focus value for flat mono',
+                            type=float, default=0, settable=True),
         'vfocuspars': Param('vertical focus polynomial coefficients',
                             type=listof(float), default=[0.], settable=True,
                             category='instrument'),
+        'vfocusflat': Param('vertical focus value for flat mono',
+                            type=float, default=0, settable=True),
         'warninterval': Param('interval between warnings about theta/two-theta '
                               'mismatch', unit='s', default=5),
         'scatteringsense': Param('default scattering sense when not used '
@@ -168,19 +172,19 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         focusv, focush = self._adevs['focusv'], self._adevs['focush']
         if focmode == 'flat':
             if focusv:
-                focusv.move(0)
+                focusv.move(self.vfocusflat)
             if focush:
-                focush.move(0)
+                focush.move(self.hfocusflat)
         elif focmode == 'horizontal':
             if focusv:
-                focusv.move(0)
+                focusv.move(self.vfocusflat)
             if focush:
                 focush.move(self._calfocus(lam, hfocuspars))
         elif focmode == 'vertical':
             if focusv:
                 focusv.move(self._calfocus(lam, vfocuspars))
             if focush:
-                focush.move(0)
+                focush.move(self.hfocusflat)
         elif focmode == 'double':
             if focusv:
                 focusv.move(self._calfocus(lam, vfocuspars))
