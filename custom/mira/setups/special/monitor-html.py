@@ -1,129 +1,173 @@
-description = 'setup for the status monitor'
+description = 'setup for the HTML status monitor'
 group = 'special'
 
-_expcolumn = [
-    ('Experiment', [
-        [{'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
-         {'name': 'Title', 'key': 'exp/title', 'width': 15,
-          'istext': True, 'maxlen': 15},
-         {'name': 'Sample', 'key': 'sample/samplename', 'width': 15,
-          'istext': True, 'maxlen': 15},
-         {'name': 'Remark', 'key': 'exp/remark', 'width': 30,
-          'istext': True, 'maxlen': 30},
-         {'name': 'Current status', 'key': 'exp/action', 'width': 30,
-          'istext': True},
-         {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
-]
+Row = Column = Block = BlockRow = lambda *args: args
+Field = lambda *args, **kwds: args or kwds
 
-_column3 = [
-    ('Analyzer', [[{'dev': 'ath'}, {'dev': 'att'}, {'dev': 'adr'}]],
-     'analyzer'),
-    ('Detector', [
-        ['timer', 'mon1', 'mon2'],
-        '---',
-        ['ctr1',
-         {'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
-         {'dev': 'DetHV', 'name': 'Det HV', 'min': 840, 'width': 5}],
-        ],
-     '!cascade'),
-    ('Cascade', [
-        [{'key': 'psd/lastcounts', 'name': 'ROI', 'item': 0, 'width': 9},
-         {'key': 'psd/lastcounts', 'name': 'Total', 'item': 1, 'width': 9},
-         {'key': 'psd/lastcontrast', 'name': 'MIEZE', 'item': 0, 'format': '%.3f', 'width': 6},
-         {'key': 'psd/lastfilenumber', 'name': 'Last image'}],
-        ['timer', 'mon1', 'mon2'],
-        [{'dev': 'MonHV', 'name': 'Mon HV', 'min': 490, 'width': 5},
-         {'dev': 'PSDGas', 'name': 'Gas', 'min': 'okay', 'width': 6},
-         {'dev': 'PSDHV', 'name': 'HV', 'max': -2800, 'width': 5},
-         {'dev': 'dtx', 'name': 'dtx'},
-         ]
-        ],
-     'cascade'),
-    ('3He cell', [
-        [{'dev': 'pol', 'name': 'Polarization', 'width': 7},
-         {'dev': 'He_GF', 'name': 'Guide field'}],
-        ],
-     'helios'),
-    ('MIEZE', [
-    #    [{'dev': 'mieze', 'item': 0, 'name': 'Setting', 'istext': True},
-    #     {'dev': 'mieze', 'item': 1, 'name': 'Fourier time', 'unit': 'ps'},
-    #     {'key': 'mieze/tuning', 'name': 'Tuning', 'istext': True}],
-        ['freq1', 'amp1', 'coilamp1'],
-        ['freq2', 'amp2', 'coilamp2'],
-        ['fp1', 'fp2', {'dev': 'rp1', 'max': 20}, {'dev': 'rp2', 'max': 20}],
-        ['dc1', 'dc2', 'freq3', {'dev': 'amp3', 'min': 4.999, 'max': 5.001}],
-    ], 'mieze'),
-#    ('X-Z table axes', [[{'dev': 'mx'}, {'dev': 'my'}]], 'gauss'),
-    ('TAS', [
-        [{'dev': 'mira', 'name': 'H', 'item': 0, 'format': '%.3f', 'unit': ' '},
-         {'dev': 'mira', 'name': 'K', 'item': 1, 'format': '%.3f', 'unit': ' '},
-         {'dev': 'mira', 'name': 'L', 'item': 2, 'format': '%.3f', 'unit': ' '},
-         {'dev': 'mira', 'name': 'E', 'item': 3, 'format': '%.3f', 'unit': ' '}],
-        [{'key': 'mira/scanmode', 'name': 'Mode'},
-         {'dev': 'mono', 'name': 'ki'}, {'dev': 'ana', 'name': 'kf'}, {'key': 'mira/energytransferunit', 'name': 'Unit'},],
-    ], 'tas'),
-    ('MIRA Magnet', [[{'dev': 'I', 'name': 'I'}]], 'miramagnet'),
-]
-
-_column2 = [
-    ('Slits', [[{'dev': 'ss1', 'name': 'Sample slit 1', 'width': 24, 'istext': True}],
-               [{'dev': 'ss2', 'name': 'Sample slit 2', 'width': 24, 'istext': True}]],
-     'slits'),
-    ('Sample', [[{'dev': 'om'}, {'dev': 'srot'}, {'dev': 'phi'},],
-                [{'dev': 'stx'}, {'dev': 'sty'}, {'dev': 'stz'}],
-                [{'dev': 'sgx'}, {'dev': 'sgy'}]],
-     'sample'),
-    ('Sample environment', [
-        [{'key': 't/setpoint', 'name': 'Setpoint', 'unitkey': 't/unit'},
-         {'dev': 'TA', 'name': 'Sample'}, 'TB', 'TC'],
-        [{'key': 't/p', 'name': 'P'}, {'key': 't/i', 'name': 'I'},
-         {'key': 't/d', 'name': 'D'}, {'dev': 'Pcryo', 'name': 'p'}],
-        ],
-     'lakeshore'),
-    ('FRM Magnet', [[{'dev': 'B'}],
-                    [{'dev': 'Tm1', 'max': 4.1}, {'dev': 'Tm2', 'max': 4.1},
-                     {'dev': 'Tm3', 'max': 4.9}, {'dev': 'Tm4', 'max': 4.5}, 
-                     {'dev': 'Tm8', 'max': 4.1}]], 'frm2magnet'),
-    ('TTi', [['dct1', 'dct2'], ['dct3', 'dct4']], 'tti'),
-    ('Relays', [['relay1', 'relay2']], 'relay'),
-]
-
-_column1 = [
-    ('MIRA1', [[{'dev': 'FOL', 'name': 'FOL', 'width': 4},
-                {'dev': 'flip1', 'name': 'Flip', 'width': 4}],
-               ['mth', 'mtt'],
-               ['mtx', 'mty'],
-               ['mgx', {'dev': 'mchanger', 'name': 'mch'}],],
-     'mono1'),
-    ('MIRA2', [['m2th', 'm2tt'],
-               ['m2tx', 'm2ty', 'm2gx'],
-               ['m2fv', {'dev': 'atten1', 'name': 'Att1', 'width': 4},
-                {'dev': 'atten2', 'name': 'Att2', 'width': 4},
-                {'dev': 'flip2', 'name': 'Flip', 'width': 4}],
-               [{'dev': 'lamfilter', 'name': 'Be', 'width': 4},
-                {'dev': 'TBe', 'name': 'Be Temp', 'width': 6, 'max': 65},
-                {'dev': 'PBe', 'name': 'Be P', 'width': 7, 'max': 1e-5, 'min': 1e-8}],
-               [{'dev': 'ms2pos', 'name': 'Pos', 'width': 4, 'max': 'in'},
-                {'dev': 'ms2', 'name': 'Mono slit 2', 'width': 20, 'istext': True}],
-              ],
-     'mono2'),
-    ('Environment', [
-        [{'dev': 'Power', 'name': 'Power', 'min': 19, 'format': '%.1f', 'width': 7},
-         {'dev': 'Sixfold', 'name': '6-fold', 'min': 'open', 'width': 7},
-         {'dev': 'NL6', 'name': 'NL6', 'min': 'open', 'width': 7}],
-        [{'dev': 'Shutter', 'min': 'open', 'width': 7},
-         {'dev': 'Cooling', 'max': 'okay', 'width': 7},
-         {'dev': 'Crane', 'min': 10, 'width': 7}],
-    ], 'reactor'),
-]
-
-_column4 = [
-    ('Temperature plots', [
-         [{'dev': 'TA', 'plotinterval': 12*3600, 'plot': 'T', 'width': 100, 'height': 40},
-          {'dev': 'TB', 'plot': 'T'}, {'dev': 'TC', 'plot': 'T'},
-          {'dev': 'TBe', 'name': 'Filter', 'plot': 'T'}]
+_expcolumn = Column(
+    Block('Experiment', [
+        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
+                 Field(name='Title',    key='exp/title',    width=15,
+                       istext=True, maxlen=15),
+                 Field(name='Sample',   key='sample/samplename', width=15,
+                       istext=True, maxlen=15),
+                 Field(name='Remark',   key='exp/remark',   width=30,
+                       istext=True, maxlen=30),
+                 Field(name='Current status', key='exp/action', width=30,
+                       istext=True),
+                 Field(name='Last file', key='filesink/lastfilenumber')),
     ]),
-]
+)
+
+_column3 = Column(
+    Block('Analyzer', [BlockRow('ath', 'att')], 'analyzer'),
+    Block('Detector', [
+        BlockRow('timer', 'mon2', 'ctr1'),
+        BlockRow(Field(dev='det_fore', item=0, name='Forecast', format='%.2f'),
+                 Field(dev='det_fore', item=2, name='Forecast', format='%d'),
+                 Field(dev='det_fore', item=3, name='Forecast', format='%d')),
+        BlockRow(Field(dev='MonHV', min=490, width=5),
+                 Field(dev='DetHV', min=840, width=5)),
+    ], '!cascade'),
+    Block('Cascade', [
+        BlockRow(Field(name='ROI',   key='psd/lastcounts', item=0, width=9),
+                 Field(name='Total', key='psd/lastcounts', item=1, width=9),
+                 #Field(name='MIEZE', key='psd/lastcontrast', item=0, format='%.3f', width=6),
+                 Field(name='Last image', key='psd/lastfilenumber')),
+        BlockRow('timer', 'mon2', 'ctr1'),
+        BlockRow(Field(dev='MonHV', min=490, width=5),
+                 Field(dev='PSDGas', min='okay', width=6),
+                 Field(dev='PSDHV', max=-2800, width=5),
+                 Field(dev='dtx')),
+    ], 'cascade'),
+    Block('3He cell', [
+        BlockRow(Field(name='Polarization', dev='pol', width=7),
+                 Field(name='Guide field', dev='He_GF')),
+    ], 'helios'),
+    Block('MIEZE', [
+        #BlockRow(Field(name='Setting', dev='mieze', item=0, istext=True),
+        #         Field(name='Fourier time', dev='mieze', item=1, unit='ps'),
+        #         Field(name='Tuning', key='mieze/tuning', istext=True)),
+        BlockRow('freq1', 'amp1', 'coilamp1'),
+        BlockRow('freq2', 'amp2', 'coilamp2'),
+        BlockRow('fp1', 'fp2', Field(dev='rp1', max=20), Field(dev='rp2', max=20)),
+        BlockRow('dc1', 'dc2', 'freq3', Field(dev='amp3', min=4.999, max=5.001)),
+    ], 'mieze'),
+#    Block('X-Z table axes', [BlockRow('mx', 'my')], 'gauss'),
+    Block('TAS', [
+        BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=''),
+                 Field(name='K', dev='mira', item=1, format='%.3f', unit=''),
+                 Field(name='L', dev='mira', item=2, format='%.3f', unit=''),
+                 Field(name='E', dev='mira', item=3, format='%.3f', unit='')),
+        BlockRow(Field(name='Mode', key='mira/scanmode'),
+                 Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
+                 Field(name='Unit', key='mira/energytransferunit')),
+    ], 'tas'),
+    Block('Diffraction', [
+        BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=''),
+                 Field(name='K', dev='mira', item=1, format='%.3f', unit=''),
+                 Field(name='L', dev='mira', item=2, format='%.3f', unit='')),
+        BlockRow(Field(name='ki', dev='mono')),
+    ], 'diff'),
+    Block('MIRA Magnet', [BlockRow('I')], 'miramagnet'),
+)
+
+_column2 = Column(
+    Block('Slits', [
+        BlockRow(Field(dev='ss1', name='Sample slit 1 (ss1)', width=24, istext=True)),
+        BlockRow(Field(dev='ss2', name='Sample slit 2 (ss2)', width=24, istext=True)),
+    ], 'slits'),
+    Block('Sample', [
+        BlockRow('om', 'srot', 'phi'),
+        BlockRow('stx', 'sty', 'stz'),
+        BlockRow('sgx', 'sgy'),
+    ], 'sample'),
+    Block('Eulerian cradle', [
+        BlockRow('echi', 'ephi'),
+        BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
+    ], 'euler'),
+    Block('Sample environment', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
+                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr11_B'),
+                 Field(name='C', dev='T_ccr5_C')),
+        BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
+                 Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
+    ], 'ccr5'),
+    Block('FRM Magnet', [
+        BlockRow('B', Field(name='sth', dev='sth_m7T5_stick'),
+                 Field(name='T1', dev='m7T5_T1', max=4.3, width=6),
+                 Field(name='T2', dev='m7T5_T2', max=4.3, width=6)),
+        BlockRow(Field(name='T3', dev='m7T5_T3', max=5.1, width=6),
+                 Field(name='T4', dev='m7T5_T4', max=4.7, width=6),
+                 Field(name='T8', dev='m7T5_T8', max=4.3, width=6)),
+    ], 'magnet75'),
+    Block('SANS-1 Magnet', [
+        BlockRow('B', Field(name='T2', dev='m5T_T2', max=4.4, width=6),
+                 Field(name='T3', dev='m5T_T3', max=4.4, width=6)),
+        BlockRow(Field(name='T4', dev='m5T_T4', max=4.4, width=6),
+                 Field(name='T5', dev='m5T_T5', max=4.4, width=6),
+                 Field(name='T6', dev='m5T_T6', max=4.4, width=6)),
+    ], 'magnet5'),
+    Block('TTi + Huber', [
+        BlockRow('dct1', 'dct2', Field(dev='flip', width=5)),
+        BlockRow('tbl1', 'tbl2'),
+    ], 'tti'),
+    Block('Relays', [BlockRow('relay1', 'relay2')], 'relay'),
+)
+
+_column1 = Column(
+    Block('MIRA1', [
+        BlockRow('FOL', 'flip1'),
+        BlockRow('mth', 'mtt'),
+        BlockRow('mtx', 'mty'),
+        BlockRow('mgx', 'mch'),
+    ], 'mono1'),
+    Block('MIRA2', [
+        BlockRow('m2th', 'm2tt'),
+        BlockRow('m2tx', 'm2ty', 'm2gx'),
+        BlockRow('m2fv', Field(dev='atten1', width=4, min='out'),
+                 Field(dev='atten2', width=4, min='out'),
+                 Field(dev='flip2', width=4)),
+        BlockRow(Field(dev='lamfilter', width=4, max='in'),
+                 Field(dev='TBe', width=6, max=65),
+                 Field(dev='PBe', width=7, max=1e-5, min=1e-8)),
+        BlockRow(Field(dev='ms2pos', width=4, max='in'),
+                 Field(dev='ms2', name='Mono slit 2 (ms2)', width=20, istext=True)),
+    ], 'mono2'),
+    Block('Environment', [
+        BlockRow(Field(name='Power', dev='ReactorPower', min=19, format='%.1f', width=7),
+                 Field(name='6-fold', dev='Sixfold', min='open', width=7),
+                 Field(dev='NL6', min='open', width=7)),
+        BlockRow(Field(dev='Shutter', min='open', width=7),
+                 Field(dev='Cooling', max='okay', width=6),
+                 Field(dev='CoolTemp', max=30, width=6, format='%.1f'),
+                 Field(dev='Crane', min=10, width=7)),
+    ], 'reactor'),
+)
+
+_column4 = Column(
+    Block('Temperature plots', [
+        BlockRow(Field(dev='T', plot='T',
+                       plotinterval=12*3600, width=100, height=40),
+                 Field(dev='Ts', plot='T'), Field(dev='TBe', name='Filter', plot='T')),
+    ], 'ccr5'),
+    Block('Magnet temp. plots', [
+        BlockRow(Field(dev='m7T5_T1', name='T1', plot='Tm',
+                       plotinterval=24*3600, width=100, height=40),
+                 Field(dev='m7T5_T2', name='T2', plot='Tm'),
+                 Field(dev='m7T5_T3', name='T3', plot='Tm'),
+                 Field(dev='m7T5_T4', name='T4', plot='Tm'),
+                 Field(dev='B', plot='Tm')),
+    ], 'magnet75'),
+    Block('Magnet temp. plots', [
+        BlockRow(Field(dev='m5T_T2', name='T2', plot='Tm5',
+                       plotinterval=24*3600, width=100, height=40),
+                 Field(dev='m5T_T3', name='T3', plot='Tm5'),
+                 Field(dev='m5T_T4', name='T4', plot='Tm5'),
+                 Field(dev='m5T_T5', name='T5', plot='Tm5'),
+                 Field(dev='m5T_T6', name='T6', plot='Tm5')),
+    ], 'magnet5'),
+)
 
 
 devices = dict(
