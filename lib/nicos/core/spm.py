@@ -363,6 +363,7 @@ class SPMHandler(object):
         for tokens in commands:
             if not tokens:
                 code.append('pass')
+                continue
             command = tokens[0]
             cmdobj = self.session.namespace.get(command)
             if hasattr(cmdobj, 'is_usercommand'):
