@@ -8,6 +8,7 @@ devices = dict(
     ReactorPower = device('devices.taco.AnalogInput',
                           description = 'FRM-II reactor power',
                           tacodevice = '//%s/frm2/reactor/power' % (nethost, ),
+                          warnlimits = (19, 21),
                           fmtstr = '%.1f',
                           pollinterval = 60,
                           tacotimeout = 0.5,

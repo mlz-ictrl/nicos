@@ -54,7 +54,7 @@ _tasblock = Block(
               Field(dev='puma', item=2, name='L', format='%.3f', unit=' '),
               Field(dev='puma', item=3, name='E', format='%.3f', unit=' ')),
      BlockRow(Field(key='puma/scanmode', name='Mode'),
-              Field(dev='mono', name='ki', min=1.55, max=1.6),
+              Field(dev='mono', name='ki'),
               Field(dev='ana', name='kf'),
               Field(key='puma/energytransferunit', name='Unit')),
      BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas',

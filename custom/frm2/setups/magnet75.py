@@ -26,21 +26,15 @@ devices = dict(
                            ),
 )
 
-descriptions = ['',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-               ]
+descriptions = ['', '', '', '', '', '', '', '', '']
+# Maximum temeratures for field operation above 80A (6.6T) taken from the manual
+maxtemps = [None, 4.3, 4.3, 5.1, 4.7, None, None, None, 4.3]
 
 for i in range(1, 9):
     devices['m7T5_T%d' % i] = device('devices.taco.TemperatureSensor',
                                      description = '7.5T magnet temperature sensor %d (%s)' % (i, descriptions[i]),
                                      tacodevice = '//%s/magnet/ls218/sens%d' % (nethost, i),
+                                     warnlimits = (0, maxtemps[i]),
                                      pollinterval = 30,
                                      unit = 'K',
                                     )

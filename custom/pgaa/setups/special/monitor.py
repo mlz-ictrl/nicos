@@ -29,7 +29,7 @@ _pressuresample = (
     'Sample ',
     [
         [
-            {'name': 'Vacuum', 'dev': 'sample_p1', 'max' : 1},
+            {'name': 'Vacuum', 'dev': 'sample_p1'},
         ],
     ],
 #   '',

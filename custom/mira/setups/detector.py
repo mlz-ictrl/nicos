@@ -44,6 +44,7 @@ devices = dict(
                        pollinterval = 10,
                        maxage = 20,
                        abslimits = (0, 950),
+                       warnlimits = (840, 860),
                        fmtstr = '%d',
                        ),
 
@@ -51,6 +52,7 @@ devices = dict(
                        tacodevice = 'mira/network/rs7_4',
                        channel = 1,
                        abslimits = (0, 500),
+                       warnlimits = (490, 510),
                        pollinterval = 10,
                        maxage = 30,
                        fmtstr = '%d',

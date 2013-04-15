@@ -134,6 +134,7 @@ devices = dict(
                       description = 'high voltage at the detector',
                       requires = {'level': 'admin'},
                       abslimits = (0, 1000),
+                      warnlimits = (990, 1010),
                       unit = 'V',
                       curvalue = 1000,
                       speed = 10,

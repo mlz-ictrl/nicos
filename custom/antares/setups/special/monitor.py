@@ -22,7 +22,7 @@ _axisblock = (
 _detectorblock = (
     'Detector devices',
     [[{'name': 'timer', 'dev': 'timer'},
-      {'name': 'ctr1', 'dev': 'ctr1', 'min': 100, 'max': 500},
+      {'name': 'ctr1', 'dev': 'ctr1'},
       {'name': 'ctr2', 'dev': 'ctr2'}]],
     'detector')
 

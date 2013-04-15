@@ -39,5 +39,6 @@ devices = dict(
                        fmtstr = '%9.2E',
                        pollinterval = 15,
                        maxage = 60,
+                       warnlimits = (None, 1),
                    ),
 )

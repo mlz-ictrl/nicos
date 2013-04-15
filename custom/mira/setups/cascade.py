@@ -15,6 +15,7 @@ devices = dict(
     PSDHV  = device('devices.vendor.iseg.IsegHV',
                     tacodevice = 'mira/network/rs12_4',
                     abslimits = (-3000, 0),
+                    warnlimits = (-3000, -2800),
                     pollinterval = 10,
                     maxage = 20,
                     channel = 1,
@@ -23,6 +24,7 @@ devices = dict(
 
     PSDGas = device('devices.taco.NamedDigitalInput',
                     mapping = {'empty': 0, 'okay': 1},
+                    warnlimits = ('okay', 'okay'),
                     pollinterval = 10,
                     maxage = 30,
                     tacodevice = 'mira/io/psdgas'),

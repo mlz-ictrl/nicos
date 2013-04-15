@@ -15,6 +15,7 @@ devices = dict(
                       abslimits = (0, 1)),
     amp3     = device('mira.rfcircuit.GeneratorDevice',
                       tacodevice = 'mira/hp33220a_3/amp',
+                      warnlimits = (4.999, 5.001),
                       abslimits = (0, 5)),
 
     freq1    = device('mira.rfcircuit.GeneratorDevice',
@@ -94,11 +95,13 @@ devices = dict(
     fp1       = device('devices.taco.AnalogInput',
                        tacodevice = 'mira/ag1016/fp1'),
     rp1       = device('devices.taco.AnalogInput',
-                       tacodevice = 'mira/ag1016/rp1'),
+                       tacodevice = 'mira/ag1016/rp1',
+                       warnlimits = (0, 20)),
     fp2       = device('devices.taco.AnalogInput',
                        tacodevice = 'mira/ag1016/fp2'),
     rp2       = device('devices.taco.AnalogInput',
-                       tacodevice = 'mira/ag1016/rp2'),
+                       tacodevice = 'mira/ag1016/rp2',
+                       warnlimits = (0, 20)),
 
     Cbox1     = device('mira.beckhoff.BeckhoffDigitalOutput',
                        tacodevice = 'mira/modbus/beckhoff',

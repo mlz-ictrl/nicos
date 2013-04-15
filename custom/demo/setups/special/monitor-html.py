@@ -26,7 +26,7 @@ _axisblock = Block(
 _detectorblock = Block(
     'Detector',
     [BlockRow(Field(name='timer', dev='timer'),
-              Field(name='ctr1',  dev='ctr1', min=100, max=500),
+              Field(name='ctr1',  dev='ctr1'),
               Field(name='ctr2',  dev='ctr2')),
     ],
     'detector')

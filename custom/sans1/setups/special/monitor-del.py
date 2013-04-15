@@ -29,8 +29,8 @@ _interfaceboxtop = (
     'Interface Box (top)',
     [
         [
-            {'name' : 'Humidity',    'dev': 'tub_h1', 'min': 0, 'max': 30},
-            {'name' : 'Temperature', 'dev': 'tub_t6', 'max' : 30, },
+            {'name' : 'Humidity',    'dev': 'tub_h1'},
+            {'name' : 'Temperature', 'dev': 'tub_t6'},
         ],
     ],
 #
@@ -44,8 +44,8 @@ _interfaceboxbottom = (
     'Interface Box (bottom)',
     [
         [
-            {'name' : 'Humidity',    'dev': 'tub_h2', 'min': 0, 'max': 30},
-            {'name' : 'Temperature', 'dev': 'tub_t7', 'max' : 30,},
+            {'name' : 'Humidity',    'dev': 'tub_h2'},
+            {'name' : 'Temperature', 'dev': 'tub_t7'},
         ],
     ],
 #   'tube_environment',
@@ -55,8 +55,8 @@ _nim_voltage = (
     'Voltage Detector NIM',
     [
         [
-            {'name' : '+', 'dev' : 'tub_v1', 'min' : 5.75, },
-            {'name' : '-', 'dev' : 'tub_v2', 'max' : -5.75, },
+            {'name' : '+', 'dev' : 'tub_v1'},
+            {'name' : '-', 'dev' : 'tub_v2'},
         ],
     ],
 #   'tube_environment',
@@ -66,9 +66,9 @@ _electronicsbox = (
     'Temperature Electronics Box',
     [
          [
-             {'name' : 'left',   'dev' : 'tub_t1', 'max' : 40,},
-             {'name' : 'middle', 'dev' : 'tub_t2', 'max' : 40,},
-             {'name' : 'right',  'dev' : 'tub_t3', 'max' : 40,},
+             {'name' : 'left',   'dev' : 'tub_t1'},
+             {'name' : 'middle', 'dev' : 'tub_t2'},
+             {'name' : 'right',  'dev' : 'tub_t3'},
          ],
     ],
 #   'tube_environment',

@@ -28,26 +28,29 @@ devices = dict(
  #                    pollinterval = 30),
     m5T_T2  = device('devices.taco.TemperatureSensor',
                      tacodevice = 'mira/ls218/s2',
+                     warnlimits = (0, 4.4),
                      maxage = 45,
                      pollinterval = 30),
     m5T_T3  = device('devices.taco.TemperatureSensor',
                      tacodevice = 'mira/ls218/s3',
+                     warnlimits = (0, 4.4),
                      maxage = 45,
                      pollinterval = 30),
     m5T_T4  = device('devices.taco.TemperatureSensor',
                      tacodevice = 'mira/ls218/s4',
+                     warnlimits = (0, 4.4),
                      maxage = 45,
                      pollinterval = 30),
     m5T_T5  = device('devices.taco.TemperatureSensor',
                      tacodevice = 'mira/ls218/s5',
+                     warnlimits = (0, 4.4),
                      maxage = 45,
                      pollinterval = 30),
     m5T_T6  = device('devices.taco.TemperatureSensor',
                      tacodevice = 'mira/ls218/s6',
+                     warnlimits = (0, 4.4),
                      maxage = 45,
                      pollinterval = 30),
 
 
 )
-
-

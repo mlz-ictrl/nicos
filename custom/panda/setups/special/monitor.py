@@ -14,7 +14,7 @@ expcolumn = [
 
 filters = ('Primary Beam/Filters', [
     ['Saph', 'Power', 'Shutter', 'ms1'],
-    [{'dev': 'befilter', 'name': 'Be'}, dict(dev='tbefilter', name= 'BeT',max=70),
+    [{'dev': 'befilter', 'name': 'Be'}, dict(dev='tbefilter', name= 'BeT'),
      {'dev': 'beofilter', 'name': 'BeO'}, {'dev': 'pgfilter', 'name': 'PG'}],
 ])
 
@@ -146,14 +146,14 @@ magnet75 = ('7T Magnet', [
 magnet75supp = ('Magnet', [
     [dict(dev='sth_B7T5_Taco_motor',name='motor'),
     dict(dev='sth_B7T5_Taco_coder',name='coder')],
-    [dict(dev='m7T5_T1',max=4.3),       # Maximum temeratures for field operation above  80A (6.6T) taken from the manual
-    dict(dev='m7T5_T2',max=4.3)],
-    [dict(dev='m7T5_T3',max=5.1),
-    dict(dev='m7T5_T4',max=4.7)],
+    [dict(dev='m7T5_T1'),
+    dict(dev='m7T5_T2')],
+    [dict(dev='m7T5_T3'),
+    dict(dev='m7T5_T4')],
     [dict(dev='m7T5_T5'),
     dict(dev='m7T5_T6')],
     [dict(dev='m7T5_T7'),
-    dict(dev='m7T5_T8',max=4.3)],
+    dict(dev='m7T5_T8')],
 ],'magnet75')
 
 # for setup magnet PANDA-setup
