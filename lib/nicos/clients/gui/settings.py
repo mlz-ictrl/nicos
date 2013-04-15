@@ -28,11 +28,8 @@ from __future__ import with_statement
 
 __version__ = "$Revision$"
 
-import uuid
-
-from PyQt4.QtCore import Qt, QVariant, pyqtSignature as qtsig
-from PyQt4.QtGui import QDialog, QTreeWidgetItem, QInputDialog, \
-     QWidget, QListWidgetItem
+from PyQt4.QtCore import QVariant, pyqtSignature as qtsig
+from PyQt4.QtGui import QDialog, QTreeWidgetItem, QListWidgetItem
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 
@@ -44,13 +41,9 @@ class SettingsDialog(QDialog, DlgUtils):
         loadUi(self, 'settings.ui')
         self.main = main
         self.sgroup = main.sgroup
-        self.pgroup = main.pgroup
-        self.local_profiles = main.profiles.copy()
 
         genitem = QTreeWidgetItem(self.settingsTree, ['General'], -2)
         QTreeWidgetItem(self.settingsTree, ['Connection presets'], -1)
-        #self.pitem = QTreeWidgetItem(self.settingsTree, ['Layout profiles'], 0)
-        #self.pitem.setExpanded(True)
         self.settingsTree.setCurrentItem(genitem)
         self.stacker.setCurrentIndex(0)
 
@@ -65,12 +58,6 @@ class SettingsDialog(QDialog, DlgUtils):
         for setting, cdata in main.connpresets.iteritems():
             QListWidgetItem(setting + ' (%s:%s)' % (cdata[0], cdata[1]),
                             self.settinglist).setData(32, setting)
-
-        # profiles page
-        #for (uid, (name, wconfig, tconfig)) in self.local_profiles.iteritems():
-        #    QTreeWidgetItem(self.pitem, [name], 1).setData(0, 32, uid)
-        #    QListWidgetItem(name, self.profileList).setData(32, uid)
-        #    self.profileCombo.addItem(name)
 
     def saveSettings(self):
         self.main.instrument = self.instrument.text()
@@ -142,55 +129,3 @@ class SettingsDialog(QDialog, DlgUtils):
             self.stacker.setCurrentIndex(1)
         elif item.type() == 0:
             self.stacker.setCurrentIndex(2)
-        else:
-            widget = QWidget(self)
-            loadUi(widget, 'profile.ui')
-            uid = str(item.data(0, 32).toString())
-            name = self.local_profiles[uid][0]
-            widget.groupBox.setTitle('Profile configuration (%s)' % name)
-            # XXX populate widget
-            self.stacker.addWidget(widget)
-            self.stacker.setCurrentWidget(widget)
-
-    def on_createProfile_released(self):
-        name, ok = QInputDialog.getText(self, 'Add profile', 'Profile name:')
-        if not ok:
-            return
-        newname = str(name)
-        if any(newname == v[0] for v in self.local_profiles.values()):
-            return self.showError('Profile already exists')
-        uid = str(uuid.uuid1())
-        QListWidgetItem(newname, self.profileList).setData(32, uid)
-        self.profileCombo.addItem(newname)
-        newitem = QTreeWidgetItem(self.pitem, [newname], 1)
-        newitem.setData(0, 32, uid)
-        self.local_profiles[uid] = [newname, []]
-        self.settingsTree.setCurrentItem(newitem)
-        self.on_settingsTree_itemActivated(newitem, 0)
-
-    def on_deleteProfile_released(self):
-        item = self.profileList.currentItem()
-        if item is None:
-            return
-        uid = str(item.data(32).toString())
-        if not self.askQuestion('Really delete this profile?', True):
-            return
-        name = self.local_profiles.pop(uid)[0]
-        self.profileCombo.removeItem(self.profileCombo.findText(name))
-        for item in self.settingsTree.findItems(
-                        name, Qt.MatchExactly|Qt.MatchRecursive):
-            self.pitem.removeChild(item)
-        for item in self.profileList.findItems(name, Qt.MatchExactly):
-            self.profileList.takeItem(self.profileList.row(item))
-
-    def on_editProfile_released(self):
-        item = self.profileList.currentItem()
-        if item is None:
-            return
-        uid = str(item.data(32).toString())
-        name = self.local_profiles[uid][0]
-        for item in self.settingsTree.findItems(
-                        name, Qt.MatchExactly|Qt.MatchRecursive):
-            self.settingsTree.setCurrentItem(item)
-            self.on_settingsTree_itemActivated(item, 0)
-            return

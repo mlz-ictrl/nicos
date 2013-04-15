@@ -31,7 +31,6 @@ __version__ = "$Revision$"
 import time
 import subprocess
 from os import path
-import cPickle as pickle
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
@@ -109,41 +108,28 @@ class MainWindow(QMainWindow, DlgUtils):
         # data handling setup
         self.data = DataHandler(self.client)
 
-        # load profiles and current profile
-        self.pgroup = SettingGroup('Application')
-
+        # load panel configuration
         with open(configfile, 'rb') as fp:
             configcode = fp.read()
         ns = {}
         exec configcode in ns
-        default_profile_uid = ns['default_profile_uid']
-        default_profile_config = ns['default_profile_config']
-
-        with self.pgroup as settings:
-            profiles = str(settings.value('profiles').toString())
-            if not profiles:
-                profiles = {}
-            else:
-                profiles = pickle.loads(profiles)
-            if default_profile_uid not in profiles:
-                profiles[default_profile_uid] = default_profile_config
-            self.profiles = profiles
-            curprofile = str(settings.value('curprofile').toString())
-            if not curprofile or curprofile not in self.profiles:
-                curprofile = default_profile_uid
-            self.curprofile = curprofile
+        if 'default_profile_config' in ns:
+            # backward compatibility
+            self.panel_conf = ns['default_profile_config']
+        else:
+            self.panel_conf = ns['config']
 
         # determine if there is an editor window type, because we would like to
         # have a way to open files from a console panel later
         # XXX this must be redesigned
         self.editor_wintype = None
-        for i, winconfig in enumerate(self.profiles[self.curprofile][1]):
+        for i, winconfig in enumerate(self.panel_conf[1]):
             if isinstance(winconfig, window) and \
                isinstance(winconfig[3], panel) and \
                winconfig[3][0] == 'nicos.clients.gui.panels.editor.EditorPanel':
                 self.editor_wintype = i - 1
         self.history_wintype = None
-        for i, winconfig in enumerate(self.profiles[self.curprofile][1]):
+        for i, winconfig in enumerate(self.panel_conf[1]):
             if isinstance(winconfig, window) and \
                isinstance(winconfig[3], panel) and \
                winconfig[3][0] == 'nicos.clients.gui.panels.history.HistoryPanel':
@@ -156,12 +142,12 @@ class MainWindow(QMainWindow, DlgUtils):
         self.windows = {}
         self.mainwindow = self
 
-        # load saved settings for current profile
-        self.sgroup = SettingGroup('MainWindow-' + self.curprofile)
+        # load saved settings for panel config
+        self.sgroup = SettingGroup('MainWindow')
         with self.sgroup as settings:
             self.loadSettings(settings)
 
-        windowconfig = self.profiles[self.curprofile][1]
+        windowconfig = self.panel_conf[1]
         widget = createWindowItem(windowconfig[0], self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
@@ -179,7 +165,7 @@ class MainWindow(QMainWindow, DlgUtils):
             self.connect(action, SIGNAL('triggered(bool)'), window_callback)
 
         # load tools menu
-        toolconfig = self.profiles[self.curprofile][2]
+        toolconfig = self.panel_conf[2]
         for i, tconfig in enumerate(toolconfig):
             action = QAction(tconfig[0], self)
             self.menuTools.addAction(action)
@@ -220,14 +206,14 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def createWindow(self, wtype):
         try:
-            wconfig = self.profiles[self.curprofile][1][wtype+1]
+            wconfig = self.panel_conf[1][wtype+1]
         except IndexError:
             # config outdated, window type doesn't exist
             return
         if self.windows.get(wtype):
             iter(self.windows[wtype]).next().activateWindow()
             return
-        window = AuxiliaryWindow(self, wtype, wconfig, self.curprofile)
+        window = AuxiliaryWindow(self, wtype, wconfig)
         window.setWindowIcon(QIcon(':/' + wconfig[1]))
         self.windows.setdefault(wtype, set()).add(window)
         self.connect(window, SIGNAL('closed'), self.on_auxWindow_closed)
@@ -240,7 +226,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.windows[window.type].discard(window)
 
     def runTool(self, ttype):
-        tconfig = self.profiles[self.curprofile][2][ttype]
+        tconfig = self.panel_conf[2][ttype]
         try:
             # either it's a class name
             toolclass = importString(tconfig[1])

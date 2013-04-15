@@ -42,18 +42,17 @@ from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel
 
 class AuxiliaryWindow(QMainWindow):
 
-    def __init__(self, parent, wintype, config, profile):
+    def __init__(self, parent, wintype, config):
         QMainWindow.__init__(self, parent)
         loadUi(self, 'auxwindow.ui')
         self.mainwindow = parent
         self.client = parent.client
-        self.curprofile = profile
 
         self.type = wintype
         self.panels = []
         self.splitters = []
 
-        self.sgroup = SettingGroup(config[0] + '-' + profile)
+        self.sgroup = SettingGroup(config[0])
         with self.sgroup as settings:
             loadBasicWindowSettings(self, settings)
 
@@ -113,7 +112,7 @@ class Panel(QWidget, DlgUtils):
         self.parentwindow = parent
         self.client = client
         self.mainwindow = parent.mainwindow
-        self.sgroup = SettingGroup(self.panelName + '-' + parent.curprofile)
+        self.sgroup = SettingGroup(self.panelName)
         with self.sgroup as settings:
             self.loadSettings(settings)
 
@@ -182,7 +181,6 @@ def createWindowItem(item, window, menuwindow):
         for (title, subitem) in item:
             subwindow = QMainWindow(tw)
             subwindow.mainwindow = window.mainwindow
-            subwindow.curprofile = window.curprofile
             subwindow.user_color = window.user_color
             item = createWindowItem(subitem, window, subwindow)
             subwindow.setCentralWidget(item)

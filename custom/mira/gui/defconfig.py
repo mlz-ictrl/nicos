@@ -27,8 +27,7 @@ MIEZE_settings = [
     '280_420',
 ]
 
-default_profile_uid = '07139e62-d244-11e0-b94b-00199991c246'
-default_profile_config = ('Default', [
+config = ('Default', [
     vsplit(
         hsplit(
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),

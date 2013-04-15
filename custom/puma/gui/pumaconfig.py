@@ -28,8 +28,7 @@ __version__ = "$Revision$"
 
 from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
 
-default_profile_uid = '87139e62-d344-12e0-b44b-00199991c249'
-default_profile_config = ('Default', [
+config = ('Default', [
         tabbed(('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel')),
                ('Expert mode',
                 vsplit(
