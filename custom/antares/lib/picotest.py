@@ -30,10 +30,10 @@ import os
 import time
 
 from nicos.core import status, Moveable, Param, CommunicationError, \
-     floatrange, oneof
+     floatrange, oneof, HasLimits
 
 
-class G5100A(Moveable):
+class G5100A(HasLimits, Moveable):
 
     parameters = {
         'device':    Param('USB device name', type=str, mandatory=True),

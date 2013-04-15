@@ -68,6 +68,5 @@ devices = dict(
                      valuefont = 'Consolas',
                      fontsize = 17,
                      layout = [[_expcolumn], [_rightcolumn, _leftcolumn]],
-                     warnings = [('timer/value', '> 1', 'timer overflow')],
-                     notifiers = [])
+                    ),
 )

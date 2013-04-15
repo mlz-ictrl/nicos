@@ -106,6 +106,5 @@ devices = dict(
 #                                  [_expcolumn], 
                                   [_leftcolumn, _rightcolumn, ]
                               ],
-                     warnings = _warnings,
-                     notifiers = [])
+                    ),
 )

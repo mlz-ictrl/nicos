@@ -13,10 +13,6 @@ _expcolumn = [
          {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
 ]
 
-_warnings = [
-    ('a1/value', '> 20', 'a1 value > 20'),
-]
-
 _axisblock = (
     'Axis devices',
     [['a1', 'm1', 'c1'],
@@ -55,7 +51,5 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Monospace',
                      padding = 5,
-                     layout = [[_expcolumn], [_rightcolumn, _leftcolumn]],
-                     warnings = _warnings,
-                     notifiers = [])
+                     layout = [[_expcolumn], [_rightcolumn, _leftcolumn]]),
 )

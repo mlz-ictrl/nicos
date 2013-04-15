@@ -18,7 +18,6 @@ devices = dict(
                       dataroot = 'data',
                       sendmail = True,
                       managerights = False,
-                      cycle = '0',
                       serviceexp = '0',
                       sample = 'Sample'
                      ),

@@ -48,9 +48,6 @@ _pressurecoll = (
     ],
 )
 
-_warnings = [
-]
-
 _leftcolumn = [
     _pressuretube,
 ]
@@ -73,6 +70,5 @@ devices = dict(
                                   [[_pressuretube,], [_pressurecoll,], ]
 #                                  [_leftcolumn, _rightcolumn, ]
                               ],
-                     warnings = _warnings,
-                     notifiers = [])
+                    ),
 )

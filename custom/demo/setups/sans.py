@@ -97,7 +97,7 @@ devices = dict(
                       abslimits = (0, 21),
                       speed = 0.5,
                       unit = 'm',
-                      initval = 1,
+                      curvalue = 1,
                      ),
 
     det_pos1_x  = device('devices.generic.VirtualMotor',
@@ -105,7 +105,7 @@ devices = dict(
                       abslimits = (-1, 5),
                       speed = 0.5,
                       unit = 'm',
-                      initval = 0,
+                      curvalue = 0,
                      ),
 
     det_pos1_tilt  = device('devices.generic.VirtualMotor',
@@ -113,7 +113,7 @@ devices = dict(
                       abslimits = (-40, 40),
                       speed = 0.5,
                       unit = 'deg',
-                      initval = 0,
+                      curvalue = 0,
                      ),
 
     det_pos2  = device('devices.generic.VirtualMotor',
@@ -121,7 +121,7 @@ devices = dict(
                       abslimits = (1, 22),
                       speed = 0.5,
                       unit = 'm',
-                      initval = 10,
+                      curvalue = 10,
                      ),
 
     det      = device('devices.generic.virtual.Virtual2DDetector',
@@ -135,7 +135,7 @@ devices = dict(
                       requires = {'level': 'admin'},
                       abslimits = (0, 1000),
                       unit = 'V',
-                      initval = 1000,
+                      curvalue = 1000,
                       speed = 10,
                      ),
 )

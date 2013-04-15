@@ -138,5 +138,5 @@ devices = dict(
                      padding = 0,
                      layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn),
                                Row(_pgaacolumn),],
-                     notifiers = [])
+                    ),
 )

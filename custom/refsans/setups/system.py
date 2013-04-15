@@ -43,8 +43,7 @@ devices = dict(
                       sample = 'Sample',
                       elog = False),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
-                      prefix = 'data'),
+    filesink = device('devices.datasinks.AsciiDatafileSink'),
 
     conssink = device('devices.datasinks.ConsoleSink'),
 

@@ -87,10 +87,6 @@ _col3 = [
 #    _stickblock,
 ]
 
-_warnings = [
-#    ('reactorpower/value', '< 20', 'Reactor off!'),
-]
-
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
@@ -101,6 +97,5 @@ devices = dict(
                      valuefont = 'DejaVu Sans Mono',
                      padding = 5,
                      layout = [[_expcolumn], [_col1, _col2, _col3]],
-                     warnings = _warnings,
-                     notifiers = [])
+                    ),
 )

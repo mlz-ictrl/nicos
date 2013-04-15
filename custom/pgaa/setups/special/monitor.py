@@ -35,10 +35,6 @@ _pressuresample = (
 #   '',
 )
 
-_warnings = [
-#    ('sample_p1/value', '> 0.1', 'Vacuum in sample chamber is too high'),
-]
-
 _leftcolumn = [
     _pressuresample,
 ]
@@ -60,6 +56,5 @@ devices = dict(
                                   [[_pressuresample,],]
 #                                  [_leftcolumn, _rightcolumn, ]
                               ],
-                     warnings = _warnings,
-                     notifiers = [])
+                    ),
 )

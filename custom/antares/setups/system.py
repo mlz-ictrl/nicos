@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'system setup'
+description = 'system setup'
 
 sysconfig = dict(
     cache = 'localhost',
@@ -15,17 +15,17 @@ devices = dict(
 
     Exp      = device('devices.experiment.Experiment',
                       dataroot = '/home/antares/nicos-core/data',
-                      sample = 'Sample', _propdb='useroffice@tacodb.taco.frm2:useroffice'),
+                      sample = 'Sample'),
 
-    ANTARES  = device('devices.instrument.Instrument', instrument='ANTARES'),
+    ANTARES  = device('devices.instrument.Instrument',
+                      instrument='ANTARES'),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
-                      prefix = 'data'),
+    filesink = device('devices.datasinks.AsciiDatafileSink'),
 
     conssink = device('devices.datasinks.ConsoleSink'),
     daemonsink = device('devices.datasinks.DaemonSink'),
 
-    Space    = device('devices.datasinks.FreeSpace',
+    Space    = device('devices.generic.FreeSpace',
                       path = '/',
                       minfree = 5),
 )

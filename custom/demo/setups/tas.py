@@ -104,8 +104,7 @@ devices = dict(
                       unit = 'A-1',
                       base = 'mono',
                       tas = 'tas',
-                      scanmode = 'CKI',
-                      abslimits = (0.1, 10),
+                      scanmode = 'CKI'
                      ),
 
     kf       = device('devices.tas.Wavevector',
@@ -114,7 +113,6 @@ devices = dict(
                       base = 'ana',
                       tas = 'tas',
                       scanmode = 'CKF',
-                      abslimits = (0.1, 10),
                      ),
 
     Ei       = device('devices.tas.Energy',
@@ -123,7 +121,7 @@ devices = dict(
                       base = 'mono',
                       tas = 'tas',
                       scanmode = 'CKI',
-                      abslimits = (0.1, 200)),
+                     ),
 
     Ef       = device('devices.tas.Energy',
                       description = 'outgoing energy',
@@ -131,7 +129,7 @@ devices = dict(
                       base = 'ana',
                       tas = 'tas',
                       scanmode = 'CKF',
-                      abslimits = (0.1, 200)),
+                     ),
 
     ssl      = device('devices.generic.VirtualMotor',
                       abslimits = (-20, 40),
