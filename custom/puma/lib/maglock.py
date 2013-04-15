@@ -22,12 +22,13 @@
 #
 # *****************************************************************************
 
-# Magnetic Lock
+"""Magnetic Lock."""
 
-from nicos.core import Moveable, Readable, status, NicosError
+__version__ = "$Revision$"
 
 import time
 
+from nicos.core import Moveable, Readable, status, NicosError
 
 
 class MagLock(Moveable):
@@ -48,8 +49,6 @@ class MagLock(Moveable):
 #                           mandatory=True),
 #        'precision': Param('Precision for comparison', mandatory=True),
 #    }
-
-
 
     def doInit(self, mode):
         return

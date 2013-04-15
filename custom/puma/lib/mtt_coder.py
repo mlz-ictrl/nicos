@@ -24,8 +24,11 @@
 
 """Special Class for coders that don't support reading of the confbyte."""
 
+__version__ = "$Revision$"
+
 from nicos.utils import lazy_property
 from nicos.devices.vendor.ipc import Coder as IPC_Coder
+
 
 class SpecialCoder(IPC_Coder):
     def doInit(self, mode):

@@ -22,10 +22,12 @@
 #
 # *****************************************************************************
 
+"""Special axis for monochromator lift."""
 
 __version__ = "$Revision$"
 
 from nicos.devices.generic.axis import Axis
+
 
 class LIFT_Axis(Axis):
     """Axis implemented in Python, with NICOS devices for motor and coders."""

@@ -22,17 +22,16 @@
 #
 # *****************************************************************************
 
-"""MTT class for PUMA. Takes into account the mobilblock and the additional shielding block change """
+"""MTT class for PUMA.
+
+Takes into account the mobilblock and the additional shielding block change."""
 
 __version__ = "$Revision$"
 
 import threading
 from time import sleep
 
-from nicos.core import status, MoveError, waitForStatus, Param
-
-from nicos.devices.abstract import Readable, Moveable
-
+from nicos.core import status, MoveError, waitForStatus, Param, Readable, Moveable
 from nicos.devices.generic.axis import Axis
 
 
