@@ -201,7 +201,8 @@ class HelpGenerator(object):
         ret.append('</table>')
         ret.append('<h4>Device parameters</h4>')
         ret.append('<table width="100%"><tr><th>Name</th><th>Current value</th>'
-                   '<th>Unit</th><th>Settable?</th><th>Description</th></tr>')
+                   '<th>Unit</th><th>Settable?</th><th>Value type</th>'
+                   '<th>Description</th></tr>')
         devunit = getattr(dev, 'unit', '')
         for name, info in sorted(dev.parameters.iteritems()):
             if not info.userparam:
@@ -216,10 +217,14 @@ class HelpGenerator(object):
                 vstr = vstr[:47] + '...'
             settable = info.settable and 'yes' or 'no'
             name = dev.name + '.' + name
+            if isinstance(info.type, type):
+                ptype = info.type.__name__
+            else:
+                ptype = info.type.__doc__ or '?'
             ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td>'
-                       '<td>%s</td><td>%s</td></tr>' %
+                       '<td>%s</td><td>%s</td><td>%s</td></tr>' %
                        (name, escape(vstr), escape(unit), settable,
-                        escape(info.description)))
+                        escape(ptype), escape(info.description)))
         ret.append('</table>')
         return ''.join(ret)
 

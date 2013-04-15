@@ -291,7 +291,7 @@ class tupleof(object):
         return tuple(t(v) for (t, v) in zip(self.types, val))
 
 def limits(val=None):
-    """ a tuple of lower and upper limit """
+    """a tuple of lower and upper limit"""
     val = val if val is not None else (0, 0)
     if not isinstance(val, (list, tuple)) or len(val) != 2:
         raise ValueError('value must be a list or tuple and have 2 elements')

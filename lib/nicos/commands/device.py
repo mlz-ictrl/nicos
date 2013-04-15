@@ -646,8 +646,12 @@ def ListParams(dev):
             vstr = vstr[:37] + '...'
         settable = info.settable and 'yes' or 'no'
         name = dev.name + '.' + name
-        items.append((name, vstr, unit, settable, info.description))
-    printTable(('name', 'value', 'unit', 'r/w?', 'description'),
+        if isinstance(info.type, type):
+            ptype = info.type.__name__
+        else:
+            ptype = info.type.__doc__ or '?'
+        items.append((name, vstr, unit, settable, ptype, info.description))
+    printTable(('name', 'value', 'unit', 'r/w?', 'value type', 'description'),
                items, printinfo)
 
 @usercommand
