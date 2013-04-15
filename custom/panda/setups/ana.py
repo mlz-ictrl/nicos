@@ -105,7 +105,7 @@ devices = dict(
             coder = 'ath_enc',
             obs = [],
             precision = 0.03,
-            maxtry = 50,
+            maxtries = 50,
             offset = -2.209,
             #~ rotary = True,
     ),

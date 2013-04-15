@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'Sampletable complete'
+description = 'Sampletable complete'
 
 includes = ['system']
 

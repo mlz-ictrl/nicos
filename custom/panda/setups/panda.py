@@ -30,15 +30,13 @@ devices = dict(
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'panda',
-                    scanmode = 'CKI',
-                    abslimits = (1, 10)),
+                    scanmode = 'CKI'),
 
     kf     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'panda',
-                    scanmode = 'CKF',
-                    abslimits = (1, 10)),
+                    scanmode = 'CKF'),
 
     mono     = device('devices.tas.Monochromator',
                       unit = 'A-1',
