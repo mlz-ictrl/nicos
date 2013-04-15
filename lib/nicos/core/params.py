@@ -439,6 +439,7 @@ def mailaddress(val=None):
     return val
 
 def control_path_relative(val=''):
+    """a file path"""
     return os.path.join(session.config.control_path, str(val))
 
 def anytype(val=None):
