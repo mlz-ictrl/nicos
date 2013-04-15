@@ -1,3 +1,5 @@
+description = 'fully virtual TAS setup'
+
 includes = ['base']
 
 modules = ['nicos.commands.tas']
@@ -15,6 +17,7 @@ devices = dict(
                     psi = 'om',
                     mono = 'mono',
                     ana = 'ana',
+                    alpha = None,
                     scatteringsense = (-1, 1, -1)),
 
     mono   = device('devices.tas.Monochromator',
@@ -55,14 +58,11 @@ devices = dict(
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'mira',
-                    scanmode = 'CKI',
-                    abslimits = (0, 10)),
+                    scanmode = 'CKI'),
 
     kf     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'mira',
-                    scanmode = 'CKF',
-                    abslimits = (0, 10)),
+                    scanmode = 'CKF'),
 )
-

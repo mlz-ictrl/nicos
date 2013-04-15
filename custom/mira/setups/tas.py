@@ -29,29 +29,25 @@ devices = dict(
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'mira',
-                    scanmode = 'CKI',
-                    abslimits = (0, 10)),
+                    scanmode = 'CKI'),
 
     kf     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'mira',
-                    scanmode = 'CKF',
-                    abslimits = (0, 10)),
+                    scanmode = 'CKF'),
 
     Ei     = device('devices.tas.Energy',
                     unit = 'meV',
                     base = 'mono',
                     tas = 'mira',
-                    scanmode = 'CKI',
-                    abslimits = (0, 10)),
+                    scanmode = 'CKI'),
 
     Ef     = device('devices.tas.Energy',
                     unit = 'meV',
                     base = 'ana',
                     tas = 'mira',
-                    scanmode = 'CKF',
-                    abslimits = (0, 10)),
+                    scanmode = 'CKF'),
 )
 
 startupcode = '''

@@ -137,7 +137,5 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      fontsize = 17,
-                     layout = [[_expcolumn], [_column1, _column2, _column3], [_column4]],
-                     warnings = [],
-                     notifiers = [])
+                     layout = [[_expcolumn], [_column1, _column2, _column3], [_column4]]),
 )

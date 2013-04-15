@@ -137,15 +137,6 @@ _warnings = [
 ]
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'nicos@mira1',
-                      receivers = ['rgeorgii@frm2.tum.de'],
-                      subject = 'MIRA'),
-
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = ['01719251564']),
-
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'MIRA Status monitor',
                      loglevel = 'info',
@@ -155,7 +146,5 @@ devices = dict(
                      valuefont = 'Consolas',
                      fontsize = 12,
                      padding = 5,
-                     layout = [[_expcolumn], [_column1, _column2, _column3]],
-                     warnings = _warnings,
-                     notifiers = ['smser', 'email'])
+                     layout = [[_expcolumn], [_column1, _column2, _column3]])
 )

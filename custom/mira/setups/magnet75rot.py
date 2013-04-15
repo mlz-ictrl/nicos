@@ -1,5 +1,7 @@
 TACOBASE = '//magnet/magnet/'
 
+description = 'Phytron device for 7.5 T magnet rotation'
+
 devices = dict(
     # Nicos based access to phytron in magnet rack
     magnetmotorbus=device( 'panda.mcc2.TacoSerial',

@@ -38,20 +38,19 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
-                      initval = 35),
+                      curvalue = 35),
 
     vatt      = device('devices.generic.VirtualMotor',
                       unit = 'deg',
                       abslimits = (-180, 180),
                       precision = 0.05,
-                      initval = 70),
+                      curvalue = 70),
 
     ki     = device('devices.tas.Wavevector',
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'mira',
-                    scanmode = 'CKI',
-                    abslimits = (0, 10)),
+                    scanmode = 'CKI'),
 )
 
 startupcode = '''
