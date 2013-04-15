@@ -178,17 +178,12 @@ class ValueDisplay(QWidget, DisplayWidget):
             setBackgroundColor(self.valuelabel, _gray)
         else:
             setBackgroundColor(self.valuelabel, _black)
-        # check min/max values
-        if (self._minvalue is not None and value < self._minvalue) or \
-            (self._maxvalue is not None and value > self._maxvalue):
-            self.namelabel.setAutoFillBackground(True)
-            setBackgroundColor(self.namelabel, _red)
-        else:
-            self.namelabel.setAutoFillBackground(False)
+        self._applywarncolor(value)
         if self._textcutoff > -1:
             self.valuelabel.setText(strvalue[:self._textcutoff])
         else:
             self.valuelabel.setText(strvalue)
+        self._lastvalue = value
         self._lastchange = currenttime()
         setForegroundColor(self.valuelabel, statusColor[BUSY])
         QTimer.singleShot(1000, self._applystatuscolor)
@@ -196,16 +191,27 @@ class ValueDisplay(QWidget, DisplayWidget):
     def _applystatuscolor(self):
         setForegroundColor(self.valuelabel, self._statuscolor)
 
+    def _applywarncolor(self, value):
+        # check min/max values
+        if (self._minvalue is not None and value < self._minvalue) or \
+            (self._maxvalue is not None and value > self._maxvalue):
+            self.namelabel.setAutoFillBackground(True)
+            setBackgroundColor(self.namelabel, _red)
+        else:
+            self.namelabel.setAutoFillBackground(False)
+
     def on_devStatusChange(self, dev, code, status, expired):
         if self._showstatus:
             self._statuscolor = statusColor[code]
             self._laststatus = code, status
             self._applystatuscolor()
 
-    def on_devMetaChange(self, dev, fmtstr, unit, fixed):
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
         self._isfixed = fixed and ' (F)'
         self.formatString = fmtstr
         self.valueUnit = unit
+        self.minValue = str(minval)
+        self.maxValue = str(maxval)
 
     def update_namelabel(self):
         name = self._valuename or self._device or self._key
@@ -349,6 +355,7 @@ class ValueDisplay(QWidget, DisplayWidget):
             self._minvalue = None
         else:
             self._minvalue = ast.literal_eval(str(value))
+        self._applywarncolor(self._lastvalue)
     def reset_minValue(self):
         self._minvalue = None
     minValue = pyqtProperty(str, get_minValue, set_minValue, reset_minValue)
@@ -360,6 +367,7 @@ class ValueDisplay(QWidget, DisplayWidget):
             self._maxvalue = None
         else:
             self._maxvalue = ast.literal_eval(str(value))
+        self._applywarncolor(self._lastvalue)
     def reset_maxValue(self):
         self._maxvalue = None
     maxValue = pyqtProperty(str, get_maxValue, set_maxValue, reset_maxValue)
