@@ -151,7 +151,6 @@ class DevicesPanel(Panel):
             state = self.client.ask('getstatus')
         loaded_setups = set(state['setups'][0])
         self._dev2setup = {}
-        #setupinfo = self.client.ask('getcachekeys', '_setupinfo_/')
         setupinfo = self.client.eval('session.getSetupInfo()', {})
         for setupname, value in setupinfo.iteritems():
             if setupname not in loaded_setups:
@@ -163,7 +162,10 @@ class DevicesPanel(Panel):
     def _create_device_item(self, devname, add_cat=False):
         ldevname = devname.lower()
         # get all cache keys pertaining to the device
-        devkeys = dict(self.client.ask('getcachekeys', ldevname + '/'))
+        devkeys = self.client.ask('getcachekeys', ldevname + '/')
+        if devkeys is None:
+            return
+        devkeys = dict(devkeys)
         if devkeys.get(ldevname + '/lowlevel'):
             return
         if 'nicos.core.data.DataSink' in devkeys.get(ldevname + '/classes', []):
@@ -379,7 +381,8 @@ class DevicesPanel(Panel):
         # now get all cache keys pertaining to the device and set the
         # properties we want
         params = {}
-        devkeys = self.client.ask('getcachekeys', ldevname + '/')
+        devkeys = self.client.ask('getcachekeys', ldevname + '/') or []
+
         for key, value in sorted(devkeys):
             param = key.split('/')[1]
             QTreeWidgetItem(dlg.paramList, [param, str(value)])

@@ -66,9 +66,10 @@ class GenericPanel(Panel):
     def on_client_connected(self):
         # request initial value for all keys we have registered
         values = self.client.ask('getcachekeys', ','.join(self._reg_keys))
-        for key, value in values:
-            for widget in self._reg_keys[key]:
-                widget.on_keyChange(key, value, 0, False)
+        if values is not None:
+            for key, value in values:
+                for widget in self._reg_keys[key]:
+                    widget.on_keyChange(key, value, 0, False)
 
     def on_client_cache(self, (time, key, op, value)):
         if key in self._reg_keys:
