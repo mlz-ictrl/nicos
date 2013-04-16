@@ -39,12 +39,12 @@ from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
-from nicos.utils import parseConnectionString, importString
+from nicos.utils import parseConnectionString, importString, enumerate_start
 from nicos.clients.base import NicosClient
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \
      loadBasicWindowSettings, getXDisplay, loadUi
-from nicos.clients.gui.config import window, panel
+from nicos.clients.gui.config import panel_config
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.helpwin import HelpWindow
@@ -115,25 +115,16 @@ class MainWindow(QMainWindow, DlgUtils):
         exec configcode in ns
         if 'default_profile_config' in ns:
             # backward compatibility
-            self.panel_conf = ns['default_profile_config']
+            self.panel_conf = panel_config(ns['default_profile_config'])
         else:
-            self.panel_conf = ns['config']
+            self.panel_conf = panel_config(ns['config'])
 
         # determine if there is an editor window type, because we would like to
         # have a way to open files from a console panel later
-        # XXX this must be redesigned
-        self.editor_wintype = None
-        for i, winconfig in enumerate(self.panel_conf[1]):
-            if isinstance(winconfig, window) and \
-               isinstance(winconfig[3], panel) and \
-               winconfig[3][0] == 'nicos.clients.gui.panels.editor.EditorPanel':
-                self.editor_wintype = i - 1
-        self.history_wintype = None
-        for i, winconfig in enumerate(self.panel_conf[1]):
-            if isinstance(winconfig, window) and \
-               isinstance(winconfig[3], panel) and \
-               winconfig[3][0] == 'nicos.clients.gui.panels.history.HistoryPanel':
-                self.history_wintype = i - 1
+        self.editor_wintype = self.panel_conf.find_panel(
+            'nicos.clients.gui.panels.editor.EditorPanel')
+        self.history_wintype = self.panel_conf.find_panel(
+            'nicos.clients.gui.panels.history.HistoryPanel')
 
         # additional panels
         self.panels = []
@@ -147,8 +138,7 @@ class MainWindow(QMainWindow, DlgUtils):
         with self.sgroup as settings:
             self.loadSettings(settings)
 
-        windowconfig = self.panel_conf[1]
-        widget = createWindowItem(windowconfig[0], self, self)
+        widget = createWindowItem(self.panel_conf.windows[0], self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -156,7 +146,7 @@ class MainWindow(QMainWindow, DlgUtils):
             for sp, st in zip(self.splitters, self.splitstate):
                 sp.restoreState(st.toByteArray())
 
-        for i, wconfig in enumerate(windowconfig[1:]):
+        for i, wconfig in enumerate_start(self.panel_conf.windows[1:], 1):
             action = QAction(QIcon(':/' + wconfig[1]), wconfig[0], self)
             self.toolBarWindows.addAction(action)
             self.menuWindows.addAction(action)
@@ -165,8 +155,7 @@ class MainWindow(QMainWindow, DlgUtils):
             self.connect(action, SIGNAL('triggered(bool)'), window_callback)
 
         # load tools menu
-        toolconfig = self.panel_conf[2]
-        for i, tconfig in enumerate(toolconfig):
+        for i, tconfig in enumerate(self.panel_conf.tools):
             action = QAction(tconfig[0], self)
             self.menuTools.addAction(action)
             def tool_callback(on, i=i):
@@ -206,16 +195,17 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def createWindow(self, wtype):
         try:
-            wconfig = self.panel_conf[1][wtype+1]
+            wconfig = self.panel_conf.windows[wtype]
         except IndexError:
             # config outdated, window type doesn't exist
             return
-        if self.windows.get(wtype):
-            iter(self.windows[wtype]).next().activateWindow()
-            return
+        if wtype in self.windows:
+            window = self.windows[wtype]
+            window.activateWindow()
+            return window
         window = AuxiliaryWindow(self, wtype, wconfig)
         window.setWindowIcon(QIcon(':/' + wconfig[1]))
-        self.windows.setdefault(wtype, set()).add(window)
+        self.windows[wtype] = window
         self.connect(window, SIGNAL('closed'), self.on_auxWindow_closed)
         for panel in window.panels:
             panel.updateStatus(self.current_status)
@@ -223,7 +213,7 @@ class MainWindow(QMainWindow, DlgUtils):
         return window
 
     def on_auxWindow_closed(self, window):
-        self.windows[window.type].discard(window)
+        del self.windows[window.type]
 
     def runTool(self, ttype):
         tconfig = self.panel_conf[2][ttype]
@@ -277,8 +267,8 @@ class MainWindow(QMainWindow, DlgUtils):
 
         self.update()
 
-        auxstate = settings.value('auxwindows').toList()
-        for wtype in [x.toInt()[0] for x in auxstate]:
+        open_wintypes = settings.value('auxwindows').toList()
+        for wtype in [x.toInt()[0] for x in open_wintypes]:
             self.createWindow(wtype)
 
     def saveSettings(self, settings):
@@ -286,11 +276,8 @@ class MainWindow(QMainWindow, DlgUtils):
         settings.setValue('windowstate', QVariant(self.saveState()))
         settings.setValue('splitstate',
                           QVariant([sp.saveState() for sp in self.splitters]))
-        auxstate = []
-        for wtype, windows in self.windows.iteritems():
-            for _win in windows:
-                auxstate.append(wtype)
-        settings.setValue('auxwindows', QVariant(auxstate))
+        open_wintypes = self.windows.keys()
+        settings.setValue('auxwindows', QVariant(open_wintypes))
         settings.setValue('autoconnect', QVariant(self.client.connected))
         settings.setValue('connpresets', self.connpresets)
         settings.setValue('lastpreset', self.lastpreset)
@@ -315,11 +302,10 @@ class MainWindow(QMainWindow, DlgUtils):
             with panel.sgroup as settings:
                 panel.saveSettings(settings)
 
-        for windows in self.windows.values():
-            for window in list(windows):
-                if not window.close():
-                    event.ignore()
-                    return
+        for window in self.windows.values():
+            if not window.close():
+                event.ignore()
+                return
 
         if self.helpWindow:
             self.helpWindow.close()
@@ -375,10 +361,9 @@ class MainWindow(QMainWindow, DlgUtils):
         # propagate to panels
         for panel in self.panels:
             panel.updateStatus(status, exception)
-        for wlist in self.windows.itervalues():
-            for win in wlist:
-                for panel in win.panels:
-                    panel.updateStatus(status, exception)
+        for window in self.windows.itervalues():
+            for panel in window.panels:
+                panel.updateStatus(status, exception)
 
     def on_client_error(self, problem, exc=None):
         if exc is not None:

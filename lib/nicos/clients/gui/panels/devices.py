@@ -357,7 +357,7 @@ class DevicesPanel(Panel):
     def on_actionPlotHistory_triggered(self):
         if self._menu_dev and self.mainwindow.history_wintype:
             win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
-            win.panels[0].showNewDialog(self._menu_dev)
+            win.getPanel('History viewer').showNewDialog(self._menu_dev)
 
     def on_tree_itemActivated(self, item, column):
         if item.type() != 1001:

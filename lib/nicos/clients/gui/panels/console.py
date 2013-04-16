@@ -149,7 +149,7 @@ class ConsolePanel(Panel):
             if not self.mainwindow.editor_wintype:
                 return
             win = self.mainwindow.createWindow(self.mainwindow.editor_wintype)
-            win.panels[0].openFile(url[5:])
+            win.getPanel('User editor').openFile(url[5:])
         elif url.startswith('trace:'):
             showTraceback(url[6:], self, self.outView)
         else:

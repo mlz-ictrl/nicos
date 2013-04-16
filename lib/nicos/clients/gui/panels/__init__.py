@@ -65,6 +65,11 @@ class AuxiliaryWindow(QMainWindow):
             for sp, st in zip(self.splitters, self.splitstate):
                 sp.restoreState(st.toByteArray())
 
+    def getPanel(self, panelName):
+        for panelobj in self.panels:
+            if panelobj.panelName == panelName:
+                return panelobj
+
     def closeEvent(self, event):
         for pnl in self.panels:
             if not pnl.requestClose():
