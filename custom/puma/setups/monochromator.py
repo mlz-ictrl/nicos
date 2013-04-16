@@ -2,6 +2,8 @@
 
 description = 'Monochromator'
 
+group = 'lowlevel'
+
 includes = ['system', 'motorbus1','motorbus4', 'motorbus7', 'motorbus8']
 
 
@@ -75,17 +77,22 @@ devices = dict(
                     addr = 102,
                     first = 9,
                     last = 9,
-                    unit = ''),
+                    unit = '',
+                    lowlevel = True,
+                    ),
 
     polyswitch = device('devices.vendor.ipc.Output',
                     bus = 'motorbus8',
                     addr = 115,
                     first = 0,
                     last = 0,
-                    unit = ''),
+                    unit = '',
+                    lowlevel = True,
+                    ),
 
 
     mtt    = device('puma.mtt.MTT_Axis',
+                    description  = 'Monochromator Two Theta',
                     motor = 'st_mtt',
                     coder = 'co_mtt',
                     io_flag = 'io_flag',
@@ -96,6 +103,7 @@ devices = dict(
                     maxtries = 10,
                     ),
     mth    = device('devices.generic.Axis',
+                    description = 'Monochromator Theta',
                     motor = 'st_mth',
                     coder = 'co_mth',
                     obs = [],
@@ -124,6 +132,7 @@ devices = dict(
                     ),
 
    mfhpg   = device('puma.focus.focus_Axis',
+                   description = 'Horizontal focus of PG-Monochromator',
                    motor = 'st_mfhpg',
                    coder = 'co_mfhpg',
                    obs = [],
@@ -154,6 +163,7 @@ devices = dict(
                     lowlevel = True,
                     ),
    mfvpg   = device('puma.focus.focus_Axis',
+                   description = 'Vertical focus of PG-Monochromator',
                    motor = 'st_mfvpg',
                    coder = 'co_mfvpg',
                    obs = [],
@@ -183,11 +193,11 @@ devices = dict(
                     slope = 36.37,
                     zerosteps = 17,
                     unit = 'mm',
-                    loopdelay = 0.5,
                     lowlevel = True,
                     ),
 
     mty    = device('devices.generic.Axis',
+                    description = 'Translation of Monochromator (corrects depth of crystals',
                     motor = 'st_mty',
                     coder = 'co_mty',
                     obs = [],
@@ -208,6 +218,7 @@ devices = dict(
                    ),
 
     mgx   = device('devices.generic.Axis',
+                    description = 'tilt of monochromator (up/down)',
                     motor = 'st_mgx',
                     coder = 'st_mgx',
                     obs = [],
@@ -228,6 +239,7 @@ devices = dict(
                    ),
 
     mgy   = device('devices.generic.Axis',
+                    description = 'tilt of monochromator',
                     motor = 'st_mgy',
                     coder = 'st_mgy',
                     obs = [],

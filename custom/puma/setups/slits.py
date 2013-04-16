@@ -2,6 +2,7 @@
 
 description = 'Sample Slits'
 
+group = 'optional'
 
 includes = ['system', 'motorbus9']
 
@@ -152,7 +153,7 @@ devices = dict(
                        obs = None),
 
     slit2     = device('devices.generic.Slit',
-                       description = 'sample slit 1',
+                       description = 'sample slit 2',
                        left = 'ss2_l',
                        right = 'ss2_r',
                        bottom = 'ss2_b',

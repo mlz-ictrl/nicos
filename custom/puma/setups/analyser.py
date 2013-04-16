@@ -3,21 +3,10 @@
 description = 'Analysator'
 
 includes = ['system', 'motorbus2', 'motorbus6', 'motorbus1']
- 
+
+group = 'lowlevel'
 
 devices = dict(
-#    ath      = device('nicos.generic.VirtualMotor',
-#                      unit = 'deg',
-#                      abslimits = (-180, 180),
-#                      precision = 0.05,
-#                      initval = 35),
-
-#    att      = device('nicos.generic.VirtualMotor',
-#                      unit = 'deg',
-#                      abslimits = (-180, 180),
-#                      precision = 0.05,
-#                      initval = 70),
-
 # Att and ATH
      st_att = device('devices.vendor.ipc.Motor',
                     bus = 'motorbus2',
@@ -59,6 +48,7 @@ devices = dict(
                     ),
 
     att    = device('devices.generic.Axis',
+                    description = 'Scattering angle two-theta of analyser',
                     motor = 'st_att',
                     coder = 'co_att',
                     obs = [],
@@ -69,6 +59,7 @@ devices = dict(
                     ),
 
     ath    = device('devices.generic.Axis',
+                    description = 'Rocking angle theta of analyser',
                     motor = 'st_ath',
                     coder = 'co_ath',
                     obs = [],
@@ -99,6 +90,7 @@ devices = dict(
                     lowlevel = True,
                     ),
    afpg   = device('puma.focus.focus_Axis',
+                   description = 'Horizontal focus of PG-analyser',
                    motor = 'st_afpg',
                    coder = 'co_afpg',
                    obs = [],
@@ -134,6 +126,7 @@ devices = dict(
                     ),
 
     atx    = device('devices.generic.Axis',
+                    description = 'Translation of analyser',
                     motor = 'st_atx',
                     coder = 'co_atx',
                     obs = [],
@@ -164,6 +157,7 @@ devices = dict(
                     ),
 
     aty    = device('devices.generic.Axis',
+                    description = 'Translation of analyser (corrects depth of pg-crystals)',
                     motor = 'st_aty',
                     coder = 'co_aty',
                     obs = [],
@@ -184,6 +178,7 @@ devices = dict(
                    ),
 
     agx   = device('devices.generic.Axis',
+                    description = 'Tilt of analyser (up/down scattering)',
                     motor = 'st_agx',
                     coder = 'st_agx',
                     obs = [],
@@ -204,6 +199,7 @@ devices = dict(
                    ),
 
     agy   = device('devices.generic.Axis',
+                    description = 'Tilt of analyser',
                     motor = 'st_agy',
                     coder = 'st_agy',
                     obs = [],

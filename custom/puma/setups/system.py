@@ -2,11 +2,13 @@
 
 description = 'system setup for PUMA'
 
+group = 'lowlevel'
+
 #includes = ['puma']
 
 sysconfig = dict(
     cache = 'pumahw',
-    instrument = 'puma',
+    #~ instrument = 'puma',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
@@ -15,10 +17,10 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    puma = device('devices.instrument.Instrument',
-                    instrument = 'PUMA',
-                    responsible = 'O. Sobolev',
-                    ),
+    #~ puma = device('devices.instrument.Instrument',
+                    #~ instrument = 'PUMA',
+                    #~ responsible = 'O. Sobolev',
+                    #~ ),
     Exp      = device('panda.experiment.PandaExperiment',
                       sample = 'Sample',
                       dataroot = '/data',

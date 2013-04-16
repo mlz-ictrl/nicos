@@ -4,6 +4,7 @@ group = 'lowlevel'
 devices = dict(
     motorbus1 = device('devices.vendor.ipc.IPCModBusTaco',
                        tacodevice = 'puma/rs485/mc',
-                       timeout = 0.5,
+                       tacotimeout = 0.5,
+                       lowlevel = True,
                        ),
 )

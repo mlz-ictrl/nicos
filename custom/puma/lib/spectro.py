@@ -22,17 +22,20 @@
 #
 # *****************************************************************************
 
-"""Custom TAS instrument class for PANDA."""
+"""Custom TAS instrument class for PUMA."""
+# derived from the PANDA one ....
+
+# !!! keep in sync with the custom/puma/setups/lengths.py setup file !!!
 
 from nicos import session
-from nicos.devices.tas.spectro import TAS
+from devices.tas import TAS
 
 
-class PANDA(TAS):
+class PUMA(TAS):
 
     def _getCollimation(self):
-        ret = [6000]
-        for devname in ['ca2', 'ca3', 'ca4']:
+        ret = []
+        for devname in ['ca1','ca2', 'ca3', 'ca4']:
             try:
                 dev = session.getDevice(devname)
                 coll = dev.read()
@@ -41,15 +44,18 @@ class PANDA(TAS):
                 coll = 'none'
             if coll == 'none':
                 ret.append(6000)
-            elif coll == '15m':
-                ret.append(15)
-            elif coll == '40m':
-                ret.append(40)
-            elif coll == '60m':
-                ret.append(60)
+            elif coll.endswith('m'):
+                try:
+                    ret.append(float(coll[:-1]))
+                except Exception:
+                    self.log.warning('unknown collimation setting %r for %s' %
+                                 (coll, devname))
+                    ret.append(6000)
             else:
                 self.log.warning('unknown collimation setting %r for %s' %
-                                 (coll, devname))
+                             (coll, devname))
+                ret.append(6000)
+
         for devname in ['cb1', 'cb2', 'cb3', 'cb4']:
             try:
                 dev = session.getDevice(devname)
@@ -95,7 +101,7 @@ class PANDA(TAS):
 
         return [
             1,    # circular (0) or rectangular (1) source
-            13.5, # width of source / diameter (cm)
+            14.0, # width of source / diameter (cm)
             9.0,  # height of source / diameter (cm)
             0,    # no guide (0) or guide (1)
             1,    # horizontal guide divergence (min/AA)
@@ -107,15 +113,16 @@ class PANDA(TAS):
             1.0,  # sample height (cm)
 
             1,    # circular (0) or rectangular (1) detector
-            2.5,  # width / diameter of the detector (cm)
+            2.54,  # width / diameter of the detector (cm)
             10.0, # height / diameter of the detector (cm)
 
+            # may need to depend on the actual monochromator !
             0.2,  # thickness of monochromator (cm)
-            23.1, # width of monochromator (cm)
-            19.8, # height of monochromator (cm)
+            26.0, # width of monochromator (cm)
+            16.2, # height of monochromator (cm)
 
             0.2,  # thickness of analyzer (cm)
-            17.0, # width of analyzer (cm)
+            21.0, # width of analyzer (cm)
             15.0, # height of analyzer (cm)
 
             lengths['lsm'], # distance source - monochromator (cm)
@@ -128,7 +135,7 @@ class PANDA(TAS):
             curv_ana_h,     # horizontal curvature of analyzer (1/cm)
             curv_ana_v,     # vertical curvature of analyzer (1/cm)
 
-            100,  # distance monochromator - monitor (cm) XXX
+            110,  # distance monochromator - monitor (cm) XXX
             4.0,  # width of monitor (cm)
             10.0, # height of monitor (cm)
         ]

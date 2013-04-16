@@ -2,6 +2,7 @@
 
 description = 'Monochanger'
 
+group = 'optional'
 
 includes = ['system', 'motorbus1', 'motorbus4', 'motorbus7']
 
@@ -119,7 +120,7 @@ devices = dict(
                    unit = '',
                    ),
 
-    mlock   = device('nicos.puma.maglock.MagLock',
+    mlock   = device('puma.maglock.MagLock',
                    magazin = 'magazin',
                    io_open = 'mlock_op',
                    io_closed = 'mlock_cl',

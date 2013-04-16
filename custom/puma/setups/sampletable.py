@@ -35,6 +35,7 @@ devices = dict(
                     ),
 
     phi    = device('devices.generic.Axis',
+                    description = 'Sample scattering angle Two Theta',
                     motor = 'st_phi',
                     coder = 'co_phi',
                     obs = [],
@@ -66,6 +67,7 @@ devices = dict(
                     ),
 
     psi    = device('devices.generic.Axis',
+                    description = 'Sample rocking angle Theta',
                     motor = 'st_psi',
                     coder = 'co_psi',
                     obs = [],
@@ -117,6 +119,7 @@ devices = dict(
                     ),
 
     sgx    = device('devices.generic.Axis',
+                    description = 'Sample tilt around X',
                     motor = 'st_sgx',
                     coder = 'co_sgx',
                     obs = [],
@@ -127,6 +130,7 @@ devices = dict(
                     ),
 
     sgy    = device('devices.generic.Axis',
+                    description = 'Sample tilt around Y',
                     motor = 'st_sgy',
                     coder = 'co_sgy',
                     obs = [],
@@ -177,6 +181,7 @@ devices = dict(
                     ),
 
     stx    = device('devices.generic.Axis',
+                    description = 'Sample translation along X',
                     motor = 'st_stx',
                     coder = 'co_stx',
                     obs = [],
@@ -188,6 +193,7 @@ devices = dict(
                     ),
 
     sty    = device('devices.generic.Axis',
+                    description = 'Sample translation along Y',
                     motor = 'st_sty',
                     coder = 'co_sty',
                     obs = [],
@@ -218,6 +224,7 @@ devices = dict(
                     ),
 
     stz    = device('devices.generic.Axis',
+                    description = 'Sample translation along Z',
                     motor = 'st_stz',
                     coder = 'co_stz',
                     obs = [],
@@ -227,64 +234,4 @@ devices = dict(
                     maxtries = 10,
                     loopdelay = 2,
                     ),
-
-
-#    st_echi= device('devices.vendor.ipc.Motor',
-#                    bus = 'motorbus2',
-#                    addr = 61,
-#                    slope = 200,
-#                    unit = 'deg',
-#                    abslimits = (-355, 355),
-#                    zerosteps = 500000,
-#                    lowlevel = True,
-#                    ),
-#    st_ephi= device('devices.vendor.ipc.Motor',
-#                    bus = 'motorbus5',
-#                    addr = 84,
-#                    slope = -200,
-#                    unit = 'deg',
-#                    abslimits = (-180, 180),
-#                    zerosteps = 500000,
-#                    lowlevel = True,
-#                    ),
-
-
-#    co_echi= device('devices.vendor.ipc.Coder',
-#                    bus = 'motorbus1',
-#                    addr = 132,
-#                    slope = -8192.5,
-#                    zerosteps = 5334445,
-#                    unit = 'deg',
-#                    lowlevel = True,
-#                    ),
-#    co_ephi= device('devices.vendor.ipc.Coder',
-#                    bus = 'motorbus1',
-#                    addr = 133,
-#                    slope = 4096,
-#                    zerosteps = 9059075,
-#                    unit = 'deg',
-#                    circular = -360, # map values to -180..0..180 degree
-#                    lowlevel = True,
-#                    ),
-
-
-#    echi   = device('devices.generic.Axis',
-#                    motor = 'st_echi',
-#                    coder = 'co_echi',
-#                    obs = [],
-#                    precision = 0.01,
-#                    offset = -189.99926762282576,
-#                    fmtstr = '%.3f',
-#                    maxtries = 5,
-#                    ),
-#    ephi   = device('devices.generic.Axis',
-#                    motor = 'st_ephi',
-#                    coder = 'co_ephi',
-#                    obs = [],
-#                    precision = 0.01,
-#                    offset = 0,
-#                    fmtstr = '%.3f',
-#                    maxtries = 5,
-#                    ),
-
 )

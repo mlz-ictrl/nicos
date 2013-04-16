@@ -1,6 +1,6 @@
 description = 'minimal NICOS startup setup'
-group = 'lowlevel'
 
+group = 'lowlevel'
 
 includes = ['system']
 
