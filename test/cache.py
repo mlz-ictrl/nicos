@@ -26,7 +26,6 @@
 
 __version__ = "$Revision$"
 
-import os
 import sys
 import logging
 from os import path

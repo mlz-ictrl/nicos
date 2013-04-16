@@ -27,7 +27,6 @@
 __version__ = "$Revision$"
 
 import os
-import sys
 import logging
 from os import path
 
@@ -59,7 +58,7 @@ class TestDaemonSession(DaemonSession):
         handler.setFormatter(
             logging.Formatter('[DAEMON] %(name)s: %(message)s'))
         self.log.addHandler(handler)
-        log_path = path.join(path.dirname(__file__),'root','log')
+        log_path = path.join(path.dirname(__file__), 'root', 'log')
         try:
             if prefix == 'nicos':
                 self.log.addHandler(loggers.NicosLogfileHandler(

@@ -109,7 +109,10 @@ def test_simple():
             break
 
 def test_htmlhelp():
-    client.tell('queue', '', 'help')
+    # NOTE: everything run with 'queue' will not show up in the coverage report,
+    # since the _pyctl trace function replaces the trace function from coverage,
+    # so if we want HTML help generation to get into the report we use 'exec'
+    client.tell('exec', 'help')
     time.sleep(0.1)
     for sig in client._signals:
         if sig[0] == 'showhelp':
