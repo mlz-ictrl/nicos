@@ -761,7 +761,7 @@ class Session(object):
                 self.loadSetup(setups)
             except NicosError:
                 self.log.warning('could not load previous setups, falling '
-                                 'back to startup setup')
+                                 'back to startup setup', exc=1)
                 self.loadSetup(setup)
 
     def commandHandler(self, command, compiler):
