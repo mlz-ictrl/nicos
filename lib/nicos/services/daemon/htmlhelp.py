@@ -107,7 +107,8 @@ class HelpGenerator(object):
     def gen_helpindex(self):
         ret = ['<p class="menu">'
                '<a href="#commands">Commands</a>&nbsp;&nbsp;|&nbsp;&nbsp;'
-               '<a href="#devices">Devices</a></p>']
+               '<a href="#devices">Devices</a>&nbsp;&nbsp;|&nbsp;&nbsp;'
+               '<a href="#setups">Setups</a></p>']
         ret.append('<p>Welcome to the NICOS interactive help!</p>')
         cmds = []
         for name, obj in session.getExportedObjects():
@@ -154,6 +155,25 @@ class HelpGenerator(object):
                        '<td>%s</td><td>%s</td><td>%s</td>' %
                        (dev, dev, dev.__class__.__name__,
                         devsetups.get(devname, ''), escape(dev.description)))
+        ret.append('</table>')
+        ret.append(self.gen_heading('Setups', 'setups'))
+        ret.append('<p>These are the available setups.  Use '
+                   '<a href="cmd:AddSetup">AddSetup()</a> to load an '
+                   'additional setup or <a href="cmd:NewSetup">NewSetup()</a>'
+                   ' to load one or more completely new ones.</p>')
+        setups = []
+        for setupname, info in session.getSetupInfo().iteritems():
+            if info['group'] in ('special', 'simulated', 'lowlevel'):
+                continue
+            setups.append('<tr><td><tt>%s</tt></td><td>%s</td>'
+                          '<td>%s</td><td>%s</td></tr>' %
+                          (setupname,
+                           setupname in session.loaded_setups and 'yes' or '',
+                           escape(info['description']),
+                           escape(', '.join(sorted(info['devices'])))))
+        ret.append('<table width="100%"><tr><th>Name</th><th>Loaded</th>'
+                   '<th>Description</th><th>Devices</th></tr>')
+        ret.extend(setups)
         ret.append('</table>')
         return ''.join(ret)
 
