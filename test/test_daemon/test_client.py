@@ -107,3 +107,15 @@ def test_simple():
         time.sleep(0.05)
         if client._estatus == STATUS_IDLE:
             break
+
+def test_htmlhelp():
+    client.tell('queue', '', 'help')
+    time.sleep(0.1)
+    for sig in client._signals:
+        if sig[0] == 'showhelp':
+            # default help page is the index page
+            assert sig[1][0] == 'index'
+            assert sig[1][1].startswith('<html>')
+            break
+    else:
+        assert False, 'help request not arrived'

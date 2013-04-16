@@ -77,8 +77,9 @@ pre.literal-block, pre.doctest-block
 class HelpGenerator(object):
 
     def __init__(self):
-        self.header = '<style type="text/css">%s</style>' % STYLE
-        self.footer = ''
+        self.header = ('<html><head><style type="text/css">%s</style>'
+                       '</head>\n<body>' % STYLE)
+        self.footer = '</body></html>'
         self.strin = StringIO()
         self.strout = StringIO()
         self.lock = threading.Lock()
