@@ -9,7 +9,11 @@ group = 'special'
 # 'gracetime' -- time in sec allowed for the condition to be true without
 #    emitting a warning (default 5 sec)
 # 'message' -- warning message to display
-# 'priority' -- 1 or 2, where 2 is more severe (default 1)
+# 'priority' -- normal priorities are 1 or 2, where 2 is more severe (default 1)
+#     priority 0 does not emit warnings (useful together with 'pausecount'
+#     for conditions that should block counting but are not otherwise errors)
+# 'pausecount' -- if True, the count loop should be paused on the condition
+#     (default False)
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
@@ -21,6 +25,16 @@ watchlist = [
     dict(condition = 'phi_value < 40 and 1.3 < mono_value < 1.6',
          message = 'phi angle too low for current mono setting',
          gracetime = 5),
+    dict(condition = 'tbefilter_value > 75',
+         priority = 1,
+         pausecount = True,
+         message = 'Beryllium filter temperature too high',
+         gracetime = 0),
+    dict(condition = 'shutter_value == "closed"',
+         priority = 0,
+         pausecount = True,
+         message = 'Instrument shutter is closed',
+         gracetime = 0),
 ]
 
 

@@ -998,6 +998,9 @@ class Session(object):
         # value[0] is a timestamp, value[1] a string
         if key.endswith(('/warning', '/action')):
             self.watchdogEvent(key.rsplit('/')[-1], value[0], value[1])
+        elif key.endswith('/pausecount'):
+            if self.experiment and self.mode == 'master':
+                self.experiment.pausecount = value
 
     def watchdogEvent(self, event, time, data):
         if event == 'warning':

@@ -148,6 +148,8 @@ class Experiment(Device):
                               'experiment', type=str),
         'servicescript': Param('Script to run for service time', type=str,
                                default='', settable=True),
+        'pausecount':   Param('Reason for pausing the count loop', type=str,
+                              settable=True),
     }
 
     attached_devices = {

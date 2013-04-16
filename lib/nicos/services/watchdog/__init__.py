@@ -57,6 +57,7 @@ class Entry(object):
     gracetime = 5
     message = ''
     priority = 1
+    pausecount = False
     action = ''
 
     def __init__(self, values):
@@ -93,8 +94,12 @@ class Watchdog(BaseCacheClient):
         self._watch_expired = {}
         # mapping entry ids to entrys that are in grace time period
         self._watch_grace = {}
+        # current conditions: all entry ids where the condition is true
+        self._conditions = set()
         # current warnings: mapping entry ids to the string description
         self._warnings = OrderedDict()
+        # current count loop pause reasons: mapping like self._warnings
+        self._pausecount = OrderedDict()
         # dictionary of keys used to evaluate the conditions
         self._keydict = LCDict()
 
@@ -109,6 +114,10 @@ class Watchdog(BaseCacheClient):
                 continue
             entry = Entry(entryd)
             entry.id = i
+            if entry.priority not in (0, 1, 2):
+                self.log.error('condition %r priority is not valid, must be '
+                               '0, 1, or 2' % entry.condition)
+                continue
             self._entries[i] = entry
             # find all cache keys that the condition evaluates, to get a mapping
             # of cache key -> interesting watchlist entries
@@ -168,28 +177,45 @@ class Watchdog(BaseCacheClient):
                 self.log.info('condition %r went normal during gracetime' %
                               entry.condition)
                 del self._watch_grace[eid]
-            if eid not in self._warnings:
+            if eid not in self._conditions:
                 return
+            if entry.priority > 0:
+                del self._warnings[eid]
+                self._put_message('warnings', '\n'.join(self._warnings.values()),
+                                  timestamp=False)
+            if entry.pausecount:
+                del self._pausecount[eid]
+                self._put_message('pausecount',
+                                  ', '.join(self._pausecount.values()),
+                                  timestamp=False)
             self.log.info('condition %r normal again' % entry.condition)
-            del self._warnings[eid]
+            self._conditions.discard(eid)
         else:
-            if eid in self._warnings:
+            if eid in self._conditions:
                 # warning has already been given
                 return
+            self._conditions.add(eid)
             self.log.info('got a new warning for %r' % entry.condition)
-            self._put_message('warning', entry.message)
             warning_desc = strftime('%Y-%m-%d %H:%M') + ' -- ' + entry.message
             if entry.action:
                 warning_desc += ' -- executing %r' % entry.action
-            self._warnings[eid] = warning_desc
-            for notifier in self._adevs['notifiers_%d' % entry.priority]:
-                notifier.send('New warning from NICOS', warning_desc)
+            if entry.pausecount:
+                self._pausecount[eid] = entry.message
+                self._put_message('pausecount',
+                                  ', '.join(self._pausecount.values()),
+                                  timestamp=False)
+                warning_desc += ' -- counting paused'
+            if entry.priority > 0:
+                self._put_message('warning', entry.message)
+                for notifier in self._adevs['notifiers_%d' % entry.priority]:
+                    notifier.send('New warning from NICOS', warning_desc)
+                self._warnings[eid] = warning_desc
+                self._put_message('warnings', '\n'.join(self._warnings.values()),
+                                  timestamp=False)
             if entry.action:
                 self._put_message('action', entry.action)
                 self._spawn_action(entry.action)
-        self.log.debug('new warnings: %s' % self._warnings)
-        self._put_message('warnings', '\n'.join(self._warnings.values()),
-                          timestamp=False)
+        self.log.debug('new conditions: %s' % self._conditions)
 
     def _wait_data(self):
         t = currenttime()

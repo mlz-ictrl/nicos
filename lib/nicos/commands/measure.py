@@ -42,6 +42,19 @@ __all__ = [
 ]
 
 
+def _wait_for_pause(delay):
+    """Wait until the watchdog "pausecount" list is empty."""
+    exp = session.experiment
+    current_msg = exp.pausecount
+    session.log.warning('counting paused: ' + current_msg)
+    while exp.pausecount:
+        if exp.pausecount != current_msg:
+            current_msg = exp.pausecount
+            session.log.warning('counting paused: ' + current_msg)
+        sleep(delay)
+    session.log.info('counting resumed')
+
+
 def _count(detlist, preset, result):
     """Low-level counting function.
 
@@ -57,6 +70,8 @@ def _count(detlist, preset, result):
     delay = (session.instrument and session.instrument.countloopdelay or 0.025
              if session.mode != 'simulation' else 0.0)
     session.beginActionScope('Counting')
+    if session.experiment.pausecount:
+        _wait_for_pause(delay)
     try:
         for det in detlist:
             det.start(**preset)
@@ -76,6 +91,14 @@ def _count(detlist, preset, result):
             if not detset:
                 # all detectors finished measuring
                 break
+            if session.experiment.pausecount:
+                for det in detset:
+                    if not det.pause():
+                        session.log.warning(
+                            'detector %r could not be paused' % det)
+                _wait_for_pause(delay)
+                for det in detset:
+                    det.resume()
             sleep(delay)
         for det in detlist:
             try:

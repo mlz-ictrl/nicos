@@ -201,6 +201,16 @@ devices = dict(
                       coder = 'mfh_mot',
                       obs = [],
                      ),
+
+    TBeFilter   = device('devices.generic.VirtualTemperature',
+                         description = 'Beryllium filter temperature',
+                         abslimits = (0, 100),
+                         warnlimits = (0, 70),
+                         unit = 'K'),
+
+    Shutter     = device('devices.generic.ManualSwitch',
+                         description = 'Instrument shutter',
+                         states = ['open', 'closed']),
 )
 
 startupcode = '''
