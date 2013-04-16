@@ -103,7 +103,8 @@ _sansblock = Block(
         Field(dev='guide', name='Guide',
               widget='nicos.sans1.monitorwidgets.BeamOption',
               width=10, height=4),
-        Field(dev='det_HV', name='Detector HV', format='%d')),
+        Field(dev='det_HV', name='Detector HV', format='%d'),
+        Field(key='det/lastcounts', name='Counts on det', format='%d')),
     ],
     'sans')
 
