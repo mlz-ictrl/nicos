@@ -38,9 +38,9 @@ from os import path
 
 class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
 
-    HSSPEEDS = [5, 3, 1, 0.05]  # Values for camera manual
-    VSSPEEDS = [38.55, 76.95]  # Values for camera manual
-    PGAINS = [1, 2, 4]  # Values for camera manual
+    HSSPEEDS = [5, 3, 1, 0.05]  # Values from camera manual
+    VSSPEEDS = [38.55, 76.95]  # Values from camera manual
+    PGAINS = [1, 2, 4]  # Values from camera manual
 
 
     parameters = {
@@ -63,12 +63,12 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                            type=oneof('always_open',
                                                       'always_closed', 'auto'),
                                            settable=True, default='auto'),
-                  'hsspeed' : Param('Horizontal shift speed %r' % HSSPEEDS,
+                  'hsspeed' : Param('Horizontal shift speed',
                                            type=oneof(*HSSPEEDS), settable=True, default=5,
                                            unit='MHz'),
-                  'vsspeed' : Param('Vertical shift speed %r' % VSSPEEDS, type=oneof(*VSSPEEDS),
+                  'vsspeed' : Param('Vertical shift speed', type=oneof(*VSSPEEDS),
                                            settable=True, default=76.95, unit='ms/shift'),
-                  'pgain' : Param('Preamplifier gain %r' % PGAINS, type=oneof(*PGAINS),
+                  'pgain' : Param('Preamplifier gain', type=oneof(*PGAINS),
                                            settable=True, default=4),
                   }
 
