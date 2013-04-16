@@ -87,7 +87,7 @@ class SetupPanel(Panel, DlgUtils):
             self.parentwindow.close()
 
     def applyChanges(self):
-        code = ''
+        done = []
         prop = str(self.proposalNum.text())
         title = unicode(self.expTitle.text())
         users = unicode(self.users.text())
@@ -103,6 +103,7 @@ class SetupPanel(Panel, DlgUtils):
             code = 'NewExperiment(%s)\n' % ', '.join('%s=%r' % i
                                                      for i in args.items())
             self.client.tell('queue', '', code)
+            done.append('New experiment started.')
         setups = []
         cmd = 'NewSetup'
         basic = str(self.basicSetup.currentItem().text())
@@ -117,3 +118,6 @@ class SetupPanel(Panel, DlgUtils):
         if setups:
             self.client.tell('queue', '',
                              '%s(%s)\n' % (cmd, ', '.join(map(repr, setups))))
+            done.append('New setups loaded.')
+        if done:
+            self.showInfo('\n'.join(done))
