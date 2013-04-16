@@ -12,7 +12,7 @@ devices = dict(
 # overrides only needed stuff from frm2/magnt75.py
     # Magnet power supply. it is supposed to be able to switch polarity....
 
-    B_m7T5 =device( 'devices.panda.misc.PrecisionAnalogOut',
+    B_m7T5 =device( 'panda.misc.PrecisionAnalogOut',
                     precision = 0.02,
                     tacodevice = TACOBASE+'smc120/t',
                     description = '7.5T magnet field drive',

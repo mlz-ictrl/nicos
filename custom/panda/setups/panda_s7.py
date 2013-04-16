@@ -15,7 +15,6 @@ devices = dict(
                                     bus = 's7bus',
                                     startbyte = 4,	# 0 is endat-coder, 4 is incremental band
                                     unit = 'deg',
-                                    abslimits = (-132, -20),
                                     lowlevel = True,
                                     ),
     s7motor = device('panda.panda_s7.S7Motor',
@@ -27,7 +26,7 @@ devices = dict(
                                     ),
     #~ mtt = device('devices.generic.Axis',
     mtt = device('panda.panda_s7.Panda_mtt',
-                                    description = 'PANDA\'s main Axis, TwoTheta of Monochromator',
+                                    description = "PANDA's main Axis, TwoTheta of Monochromator",
                                     unit = 'deg',
                                     abslimits = (-132, -20),
                                     coder = 's7coder',

@@ -12,7 +12,7 @@ devices = dict(
     bus2 = device('devices.vendor.ipc.IPCModBusTaco',
             tacodevice='//pandasrv/panda/moxa/port2',
             loglevel='info',
-            timeout=0.5,
+            tacotimeout=0.5,
             lowlevel=True,
     ),
 
