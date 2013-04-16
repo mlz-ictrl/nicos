@@ -152,11 +152,13 @@ class DevicesPanel(Panel):
         loaded_setups = set(state['setups'][0])
         self._dev2setup = {}
         setupinfo = self.client.eval('session.getSetupInfo()', {})
-        for setupname, value in setupinfo.iteritems():
+        for setupname, info in setupinfo.iteritems():
+            if info is None:
+                continue
             if setupname not in loaded_setups:
                 continue
             #setupname = key.split('/')[1]
-            for devname in value['devices']:
+            for devname in info['devices']:
                 self._dev2setup[devname] = setupname
 
     def _create_device_item(self, devname, add_cat=False):

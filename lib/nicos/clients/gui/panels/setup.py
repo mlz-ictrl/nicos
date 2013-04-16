@@ -52,6 +52,8 @@ class SetupPanel(Panel, DlgUtils):
         keep = QListWidgetItem('<keep current>', self.basicSetup)
         if self._setupinfo is not None:
             for name, info in sorted(self._setupinfo.items()):
+                if info is None:
+                    continue
                 if info['group'] == 'basic':
                     QListWidgetItem(name, self.basicSetup)
                 elif info['group'] == 'optional':

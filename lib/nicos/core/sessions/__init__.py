@@ -368,7 +368,7 @@ class Session(object):
                     info['group'] = 'optional'
                 if modname in self._setup_info:
                     # setup already exists; override/extend with new values
-                    oldinfo = self._setup_info[modname]
+                    oldinfo = self._setup_info[modname] or {}
                     oldinfo['description'] = ns.get('description',
                                                     oldinfo['description'])
                     oldinfo['group'] = ns.get('group', oldinfo['group'])
@@ -401,6 +401,9 @@ class Session(object):
         of that dictionary are those present in the setup files: 'description',
         'group', 'sysconfig', 'includes', 'excludes', 'modules', 'devices',
         'startupcode', 'extended'.
+
+        If a setup file could not be read or parsed, the value for that key is
+        ``None``.
         """
         return self._setup_info.copy()
 
@@ -484,6 +487,11 @@ class Session(object):
             if name in self.loaded_setups:
                 return
             info = self._setup_info[name]
+            if info is None:
+                raise ConfigurationError(
+                    'Setup %s exists, but could not be read; '
+                    'please fix the file and try again'
+                    % setupname)
             if name not in setupnames:
                 self.log.debug('loading include setup %r (%s)' %
                                (name, info['description']))
@@ -884,6 +892,8 @@ class Session(object):
         if devname not in self.configured_devices:
             found_in = []
             for sname, info in self._setup_info.iteritems():
+                if info is None:
+                    continue
                 if devname in info['devices']:
                     found_in.append(sname)
             if found_in:
@@ -971,6 +981,7 @@ class Session(object):
         elif key.endswith('/nicos/setupname'):
             setupname = value
             if (setupname in self._setup_info and
+                self._setup_info[setupname] is not None and
                 self._setup_info[setupname]['group'] == 'optional' and
                 setupname not in self.loaded_setups):
                 description = self._pnp_cache['descriptions'].get(parts[1])

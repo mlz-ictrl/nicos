@@ -268,6 +268,9 @@ def ListSetups(listall=False):
     printinfo('Available setups:')
     items = []
     for name, info in session.getSetupInfo().iteritems():
+        if info is None:
+            items.append((name, '', '<could not be read, check syntax>', ''))
+            continue
         if info['group'] == 'special':
             continue
         if info['group'] in ('simulated', 'lowlevel') and not listall:

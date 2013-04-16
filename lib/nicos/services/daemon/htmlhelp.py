@@ -147,6 +147,8 @@ class HelpGenerator(object):
         setupinfo = session.getSetupInfo()
         devsetups = {}
         for sname, info in setupinfo.iteritems():
+            if info is None:
+                continue
             for devname in info['devices']:
                 devsetups[devname] = sname
         for devname in sorted(session.explicit_devices):
@@ -163,6 +165,8 @@ class HelpGenerator(object):
                    ' to load one or more completely new ones.</p>')
         setups = []
         for setupname, info in session.getSetupInfo().iteritems():
+            if info is None:
+                continue
             if info['group'] in ('special', 'simulated', 'lowlevel'):
                 continue
             setups.append('<tr><td><tt>%s</tt></td><td>%s</td>'
