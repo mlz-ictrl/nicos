@@ -29,6 +29,24 @@ description = 'sample table devices'
 nethost= 'pgaasrv.pgaa.frm2'
 
 devices = dict(
+    sample_motor  = device('devices.taco.motor.Motor',
+                           tacodevice = '//%s/pgaa/phytronixe/sample' % (nethost,),
+                           fmtstr = '%7.3f',
+                           abslimits = (-5, 356),
+                          ),
+    sample = device('devices.generic.Switcher',
+                    moveable = 'sample_motor',
+                    mapping  = {'1' : 4.00,
+                                '2' : 74.00,
+                                '3' : 144.00,
+                                '4' : 214.00,
+                                '5' : 284.00,
+                                '6' : 354.00,
+                               },
+                    precision = 0.1,
+                    blockingmove = False,
+                    unit = '',
+                   ),
     e1    = device('devices.taco.Coder',
                    tacodevice = '//%s/pgaa/phytronixe/e1' % (nethost,),
                    fmtstr = '%7.3f',
@@ -45,10 +63,5 @@ devices = dict(
     press2 = device('devices.taco.DigitalInput',
                     tacodevice = '//%s/pgaa/phytronixe/press2' % (nethost,),
                    ),
-    sample  = device('devices.taco.motor.Motor',
-                     tacodevice = '//%s/pgaa/phytronixe/sample' % (nethost,),
-                     fmtstr = '%7.3f',
-                     abslimits = (-5, 356),
-                    ),
 )
 
