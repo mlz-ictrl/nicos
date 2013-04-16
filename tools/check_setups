@@ -96,33 +96,41 @@ def check_setupfile(filename):
             continue
         # check missing and unsupported parameter config entries
         config = devconfig[1]
-        for aname, ainfo in cls.attached_devices.iteritems():
-            if aname in config:
-                if isinstance(ainfo[0], list) and not (
-                        isinstance(config[aname], list) or config[aname] is None):
-                    log.error('%s: attached device %r value %r is not a list '
-                              'when it should be', devname, aname, config[aname])
+        if getattr(cls,'attached_devices',None) is None:
+            log.warning("%s: Class %r which has no 'attached_devices'",
+                        devname, cls.__name__)
+        else:
+            for aname, ainfo in cls.attached_devices.iteritems():
+                if aname in config:
+                    if isinstance(ainfo[0], list) and not (
+                            isinstance(config[aname], list) or config[aname] is None):
+                        log.error('%s: attached device %r value %r is not a list '
+                                  'when it should be', devname, aname, config[aname])
+                        good = False
+                    elif not isinstance(ainfo[0], list) and isinstance(config[aname], list):
+                        log.error('%s: attached device %r value %r is a list when '
+                                  'it should not be', devname, aname, config[aname])
+                        good = False
+                    del config[aname]
+                else:
+                    log.error('%s: attached device %r missing', devname, aname)
                     good = False
-                elif not isinstance(ainfo[0], list) and isinstance(config[aname], list):
-                    log.error('%s: attached device %r value %r is a list when '
-                              'it should not be', devname, aname, config[aname])
+        if getattr(cls,'parameters',None) is None:
+            log.warning("%s: Class %r which has no 'parameters'",
+                        devname, cls.__name__)
+        else:
+            for pname, pinfo in cls.parameters.iteritems():
+                if pname in config:
+                    try:
+                        pinfo.type(config[pname])
+                    except ValueError, e:
+                        log.error('%s: parameter %r value %r is invalid: %s',
+                                  devname, pname, config[pname], e)
+                        good = False
+                    del config[pname]
+                elif pinfo.mandatory:
+                    log.error('%s: mandatory parameter %r missing', devname, pname)
                     good = False
-                del config[aname]
-            else:
-                log.error('%s: attached device %r missing', devname, aname)
-                good = False
-        for pname, pinfo in cls.parameters.iteritems():
-            if pname in config:
-                try:
-                    pinfo.type(config[pname])
-                except ValueError, e:
-                    log.error('%s: parameter %r value %r is invalid: %s',
-                              devname, pname, config[pname], e)
-                    good = False
-                del config[pname]
-            elif pinfo.mandatory:
-                log.error('%s: mandatory parameter %r missing', devname, pname)
-                good = False
         if config:
             log.error('%s: configured parameters not accepted by the device '
                       'class: %s', devname, ', '.join(config))
