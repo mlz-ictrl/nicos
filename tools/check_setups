@@ -96,8 +96,8 @@ def check_setupfile(filename):
             continue
         # check missing and unsupported parameter config entries
         config = devconfig[1]
-        if getattr(cls,'attached_devices',None) is None:
-            log.warning("%s: Class %r which has no 'attached_devices'",
+        if not hasattr(cls, 'attached_devices'):
+            log.warning("%s: class %r has no 'attached_devices'",
                         devname, cls.__name__)
         else:
             for aname, ainfo in cls.attached_devices.iteritems():
@@ -115,8 +115,8 @@ def check_setupfile(filename):
                 else:
                     log.error('%s: attached device %r missing', devname, aname)
                     good = False
-        if getattr(cls,'parameters',None) is None:
-            log.warning("%s: Class %r which has no 'parameters'",
+        if not hasattr(cls, 'parameters'):
+            log.warning("%s: class %r has no 'parameters'",
                         devname, cls.__name__)
         else:
             for pname, pinfo in cls.parameters.iteritems():
