@@ -1,7 +1,8 @@
 #!/bin/sh
 if [ ! "x$1" = "x-c" ]; then
-	echo 'Building...'
+	echo -n 'Building: '
 	make inplace > /dev/null
+	echo 'done.'
 fi
 echo -n 'Starting NICOS demo system, please wait: '
 bin/nicos-cache >/dev/null &
@@ -44,4 +45,4 @@ kill $POLLERPID
 kill $ELOGPID
 kill $WATCHDOGPID
 kill $CACHEPID
-echo 'All done.'
+echo 'NICOS demo finished.'
