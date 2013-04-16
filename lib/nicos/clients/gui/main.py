@@ -85,6 +85,7 @@ class MainWindow(QMainWindow, DlgUtils):
             login   = '',
             display = getXDisplay(),
         )
+        self.lastpasswd = None
 
         # state members
         self.current_status = None
@@ -257,7 +258,8 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connectionData['port'] = port
 
     def _reconnect(self):
-        self.client.connect(self.connectionData, self.lastpasswd)
+        if self.lastpasswd is not None:
+            self.client.connect(self.connectionData, self.lastpasswd)
 
     def show(self):
         QMainWindow.show(self)
