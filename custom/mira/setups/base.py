@@ -6,7 +6,6 @@ includes = ['system', 'slits', 'sample', 'nl6', 'fak40', 'reactor']
 devices = dict(
     MonoToni = device('mira.toni.ModBus',
                       tacodevice = 'mira/rs232/monotoni',
-                      tacolog = False,
                       lowlevel = True),
 
     atten1   = device('mira.toni.Valve',
