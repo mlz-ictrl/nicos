@@ -65,6 +65,38 @@ class NicosGuiClient(NicosClient, QObject):
         self.emit(SIGNAL(name), *args)
 
 
+class PnPSetupQuestion(QMessageBox):
+    """Special QMessageBox for asking what to do a new setup was detected."""
+
+    def __init__(self, parent, data, load_callback):
+        self.setup = data[1]
+        message = ('<b>New sample environment detected</b><br/>'
+                   'A new sample environment <b>%s</b> has been detected:<br/>%s'
+                   % (data[1], data[2] or ''))
+        QMessageBox.__init__(self, QMessageBox.Information, 'NICOS Plug & Play',
+                             message, QMessageBox.NoButton, parent)
+        self.setWindowModality(Qt.NonModal)
+        self.b0 = self.addButton('Ignore', QMessageBox.RejectRole)
+        self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
+        self.b1 = self.addButton('Load setup', QMessageBox.YesRole)
+        self.b1.setIcon(self.style().standardIcon(QStyle.SP_DialogOkButton))
+        self.b0.clicked.connect(self.on_ignore_clicked)
+        self.b1.clicked.connect(self.on_load_clicked)
+        self.b0.setFocus()
+        self.load_callback = load_callback
+
+    def on_ignore_clicked(self):
+        self.reject()
+
+    def on_load_clicked(self):
+        self.load_callback()
+        self.accept()
+
+    def closeEvent(self):
+        self.emit(SIGNAL('closed'))
+        return QMessageBox.closeEvent(self)
+
+
 class MainWindow(QMainWindow, DlgUtils):
     def __init__(self, configfile):
         QMainWindow.__init__(self)
@@ -189,6 +221,8 @@ class MainWindow(QMainWindow, DlgUtils):
         self.helpWindow = None
         # watchdog window
         self.watchdogWindow = None
+        # plug-n-play notification windows
+        self.pnpWindows = {}
 
         # create initial state
         self.setStatus('disconnected')
@@ -452,21 +486,18 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def on_client_plugplay(self, data):
         if data[0] == 'added':
-            window = dialogFromUi(self, 'plugplay.ui')
-            window.titlestring.setText('New sample environment detected')
-            window.message.setText(
-                'A new sample environment %shas been detected.  '
-                'Click Apply to load the corresponding setup (%s).'
-                % (data[2] and '(%s) ' % data[2] or '', data[1]))
-            def react(btn):
-                if btn is window.buttonBox.button(QDialogButtonBox.Ignore):
-                    window.reject()
-                else:
-                    self.client.tell('queue', '', 'AddSetup(%r)' % data[1])
-                    window.accept()
-            window.connect(window.buttonBox,
-                           SIGNAL('clicked(QAbstractButton*)'), react)
-            window.show()
+            setup = data[1]
+            if setup in self.pnpWindows:
+                self.pnpWindows[setup].activateWindow()
+            else:
+                window = PnPSetupQuestion(self, data, lambda:
+                    self.client.tell('queue', '', 'AddSetup(%r)' % setup))
+                self.pnpWindows[setup] = window
+                self.connect(window, SIGNAL('closed'), self.on_pnpWindow_closed)
+                window.show()
+
+    def on_pnpWindow_closed(self, window):
+        self.pnpWindows.pop(window.setup, None)
 
     def on_client_watchdog(self, data):
         if self.watchdogWindow is None:
