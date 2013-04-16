@@ -25,10 +25,11 @@
 """NICOS tests for some utility modules."""
 
 import sys
+import cPickle as pickle
 
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
      bitDescription, parseConnectionString, formatExtendedFrame, \
-     formatExtendedTraceback, formatExtendedStack
+     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict
 
 from test.utils import raises
 
@@ -44,6 +45,18 @@ def test_lazy_property():
     assert p.prop == 'ok'
     assert p.prop == 'ok'   # ask twice!
     assert len(asked) == 1  # but getter only called once
+
+def test_readonly_objects():
+    d = readonlydict({'a': 1, 'b': 2})
+    assert raises(TypeError, d.update, {})
+    unpickled = pickle.loads(pickle.dumps(d))
+    assert type(unpickled) is dict
+    assert len(unpickled) == 2
+    l = readonlylist([1, 2, 3])
+    assert raises(TypeError, l.append, 4)
+    unpickled = pickle.loads(pickle.dumps(l))
+    assert type(unpickled) is list
+    assert len(unpickled) == 3
 
 def test_repeater():
     r = Repeater(1)

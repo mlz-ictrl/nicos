@@ -70,12 +70,20 @@ class readonlylist(list):
     # NOTE: __iadd__ and __imul__ are good because their invocation is always
     # connected to a re-assignment
 
+    # unpickling a readonlylist will fail since the list is built incrementally
+    def __reduce__(self):
+        return (list, (), None, iter(self), None)
+
 
 class readonlydict(dict):
     def _no(self, *args, **kwds):
         raise TypeError('individual dict values can not be changed')
     __setitem__ = __delitem__ = clear = pop = popitem = setdefault = \
         update = _no
+
+    # unpickling a readonlydict will fail since the dict is built incrementally
+    def __reduce__(self):
+        return (dict, (), None, None, self.iteritems())
 
 
 class Repeater(object):
