@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ ! "x$1" = "x-c" ]; then
-	echo -n 'Building: '
+	echo -n 'Compiling in-place... '
 	make inplace > /dev/null
 	echo 'done.'
 fi
