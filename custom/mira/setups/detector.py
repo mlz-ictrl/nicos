@@ -38,7 +38,7 @@ devices = dict(
                       unit = '',
                       det = 'det'),
 
-    DetHV     = device('mira.iseg.IsegHV',
+    DetHV     = device('devices.vendor.iseg.IsegHV',
                        tacodevice = 'mira/network/rs12_2',
                        channel = 1,
                        pollinterval = 10,
@@ -47,7 +47,7 @@ devices = dict(
                        fmtstr = '%d',
                        ),
 
-    MonHV     = device('mira.iseg.IsegHV',
+    MonHV     = device('devices.vendor.iseg.IsegHV',
                        tacodevice = 'mira/network/rs7_4',
                        channel = 1,
                        abslimits = (0, 500),

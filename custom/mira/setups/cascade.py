@@ -12,7 +12,7 @@ devices = dict(
                     sampledet = 'sampledet',
                     mono = 'mono'),
 
-    PSDHV  = device('mira.iseg.IsegHV',
+    PSDHV  = device('devices.vendor.iseg.IsegHV',
                     tacodevice = 'mira/network/rs12_4',
                     abslimits = (-3000, 0),
                     pollinterval = 10,
