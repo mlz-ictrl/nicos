@@ -25,9 +25,12 @@
 """NICOS commands tests."""
 
 from __future__ import with_statement
+import os
+import __builtin__
 
 from nicos import session
 from nicos.core import UsageError, LimitError
+from nicos.utils import ensureDirectory
 
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw, drive, switch, wait, read, \
@@ -39,11 +42,11 @@ from nicos.commands.basic import ListCommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
      CreateDevice, DestroyDevice, CreateAllDevices, \
      NewExperiment, FinishExperiment, AddUser, NewSample, \
-     Remark, Remember, SetMode, ClearCache, UserInfo
+     Remark, Remember, SetMode, ClearCache, UserInfo, run, edit
 from nicos.commands.output import printdebug, printinfo, printwarning, \
      printerror, printexception
 
-from test.utils import ErrorLogged, raises
+from test.utils import ErrorLogged, raises, requires
 
 def setup_module():
     session.loadSetup('axis')
@@ -73,11 +76,14 @@ def test_basic_commands():
     assert 'start' in d
     assert 'doStart' not in d
     assert '_get_from_cache' not in d
+    d = dir()
+    assert 'd' in d
 
     sleep(0.1)
 
     ListSetups()
     NewSetup('axis')
+    AddSetup()  # should list all setups but not fail
     AddSetup('slit')
     assert 'slit' in session.configured_devices  # not autocreated
     RemoveSetup('slit')
@@ -88,6 +94,7 @@ def test_basic_commands():
     CreateDevice('motor')
     assert 'motor' in session.devices
     DestroyDevice('motor')
+    assert raises(UsageError, DestroyDevice)
     assert 'motor' not in session.devices
     CreateAllDevices()
     assert 'motor' in session.devices
@@ -114,10 +121,35 @@ def test_basic_commands():
     SetMode('master')
     assert raises(UsageError, SetMode, 'blah')
 
-    ClearCache('motor')
+    motor = session.getDevice('motor')
+    ClearCache('motor', motor)
 
     with UserInfo('userinfo'):
         assert 'userinfo' == session._actionStack[-1]
+
+@requires(os.name == 'posix')
+def test_edit_command():
+    ensureDirectory(session.experiment.scriptdir)
+    old_editor = os.environ.get('EDITOR')
+    old_raw_input = __builtin__.raw_input
+    os.environ['EDITOR'] = 'touch'
+    __builtin__.raw_input = lambda prompt: ''
+    try:
+        edit('test.py')
+    finally:
+        if old_editor:
+            os.environ['EDITOR'] = old_editor
+        __builtin__.raw_input = old_raw_input
+    testpath = os.path.join(session.experiment.scriptdir, 'test.py')
+    assert os.path.isfile(testpath)
+    os.unlink(testpath)
+
+def test_run_command():
+    # create a test script in the current scriptdir
+    ensureDirectory(session.experiment.scriptdir)
+    with open(os.path.join(session.experiment.scriptdir, 'test.py'), 'w') as f:
+        f.write('read()')
+    run('test')
 
 def test_device_commands():
     motor = session.getDevice('motor')

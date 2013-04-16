@@ -95,7 +95,7 @@ __builtin__.__orig_dir = __builtin__.dir
 def dir(obj=None):  #pylint: disable=W0622
     """Show all public attributes for the given object."""
     if obj is None:
-        return sorted(sys._getframe(2).f_locals)
+        return sorted(sys._getframe(1).f_locals)
     return [name for name in __builtin__.__orig_dir(obj)
             if not name.startswith(('_', 'do'))]
 
