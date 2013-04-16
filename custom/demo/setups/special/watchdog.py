@@ -7,27 +7,34 @@ group = 'special'
 # 'condition' -- condition for warning (a Python expression where cache keys
 #    can be used: t_value stands for t/value etc.
 # 'gracetime' -- time in sec allowed for the condition to be true without
-#    emitting a warning (default no gracetime)
+#    emitting a warning (default 5 sec)
 # 'message' -- warning message to display
 # 'priority' -- 1 or 2, where 2 is more severe (default 1)
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-    dict(condition = 't_value > 100',
-         message = 'Temperature too high',
-         priority = 1,
-         action = 'maw(T, 0)'),
-    dict(condition = 'phi_value > 100 and mono_value > 1.5',
-         message = 'phi angle too high for current mono setting',
+    dict(condition = 't_value > 300',
+         message = 'Temperature too high (exceeds 300 K)',
+         priority = 2,
+         gracetime = 1,
+         action = 'maw(T, 290)'),
+    dict(condition = 'phi_value < 40 and 1.3 < mono_value < 1.6',
+         message = 'phi angle too low for current mono setting',
          gracetime = 5),
 ]
 
 
+# The Watchdog device has two lists of notifiers, one for priority 1 and
+# one for priority 2.
+
 devices = dict(
+
+    notifier = device('demo.notifier.DBusNotifier'),
+
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'localhost:14869',
                       notifiers_1 = [],
-                      notifiers_2 = [],
+                      notifiers_2 = ['notifier'],
                       watch = watchlist,
                      ),
 )

@@ -54,7 +54,7 @@ class Entry(object):
     id = None
     setup = ''
     condition = ''
-    gracetime = 0
+    gracetime = 5
     message = ''
     priority = 1
     action = ''

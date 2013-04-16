@@ -3,39 +3,45 @@ if [ ! "x$1" = "x-c" ]; then
 	echo 'Building...'
 	make inplace > /dev/null
 fi
-echo 'Starting NICOS demo system, please wait...'
+echo -n 'Starting NICOS demo system, please wait: '
 bin/nicos-cache >/dev/null &
 CACHEPID=$!
-echo -n '...'
+echo -n 'cache '
 sleep 2
+bin/nicos-watchdog >/dev/null &
+WATCHDOGPID=$!
+echo -n 'watchdog '
+sleep 0.1
 bin/nicos-elog >/dev/null &
 ELOGPID=$!
-echo -n '...'
-sleep 0.5
+echo -n 'elog '
+sleep 0.1
 bin/nicos-poller >/dev/null &
 POLLERPID=$!
-echo -n '...'
-sleep 0.5
+echo -n 'poller '
+sleep 0.1
 bin/nicos-monitor >/dev/null &
 MONIPID=$!
-echo -n '...'
+echo -n 'monitor '
+sleep 0.1
 if [ ! "x$1" = "x-t" ]; then
 	bin/nicos-daemon >/dev/null &
 	DAEMONPID=$!
-	echo -n '...'
+	echo -n 'daemon'
 	sleep 1
-	echo
-	echo 'Background daemons started, starting GUI...'
+	echo '.'
+	echo 'Services started, starting GUI.'
 	bin/nicos-gui guest@localhost '' "$@"
 else
 	echo
-	echo 'Background daemons started, starting console...'
+	echo 'Services started, starting console.'
 	bin/nicos-console
 fi
-kill -9 $MONIPID 2>/dev/null
+kill -2 $MONIPID 2>/dev/null
 if [ ! -z "$DAEMONPID" ]; then kill $DAEMONPID; fi
 sleep 0.5
 kill $POLLERPID
 kill $ELOGPID
+kill $WATCHDOGPID
 kill $CACHEPID
 echo 'All done.'
