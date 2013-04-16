@@ -74,25 +74,6 @@ class PANDA(TAS):
                 l = 100
             lengths[devname] = l
 
-        curv_mono_h = curv_mono_v = 0
-        curv_ana_h = curv_ana_v = 0
-
-        monomode = self._adevs['mono'].focmode
-        if monomode == 'manual':
-            self.log.warning('mono focmode is manual, assuming flat')
-        if monomode == 'double' or monomode == 'horizontal':
-            curv_mono_h = 1.392
-        if monomode == 'double' or monomode == 'vertical':
-            curv_mono_v = 0.163
-
-        anamode = self._adevs['ana'].focmode
-        if anamode == 'manual':
-            self.log.warning('ana focmode is manual, assuming flat')
-        if anamode == 'double' or anamode == 'horizontal':
-            curv_ana_h = 1.710
-        if anamode == 'double' or anamode == 'vertical':
-            curv_ana_v = 0.563
-
         return [
             1,    # circular (0) or rectangular (1) source
             13.5, # width of source / diameter (cm)
@@ -123,10 +104,11 @@ class PANDA(TAS):
             lengths['lsa'], # distance sample - analyzer (cm)
             lengths['lad'], # distance analyzer - detector (cm)
 
-            curv_mono_h,    # horizontal curvature of monochromator (1/cm)
-            curv_mono_v,    # vertical curvature of monochromator (1/cm)
-            curv_ana_h,     # horizontal curvature of analyzer (1/cm)
-            curv_ana_v,     # vertical curvature of analyzer (1/cm)
+            # automatically calculated from focmode and ki if they are zero
+            0,    # horizontal curvature of monochromator (1/cm)
+            0,    # vertical curvature of monochromator (1/cm)
+            0,    # horizontal curvature of analyzer (1/cm)
+            0,    # vertical curvature of analyzer (1/cm)
 
             100,  # distance monochromator - monitor (cm) XXX
             4.0,  # width of monitor (cm)

@@ -24,7 +24,6 @@
 
 """Custom TAS instrument class for MIRA."""
 
-from nicos import session
 from nicos.devices.tas.spectro import TAS
 
 
@@ -61,8 +60,9 @@ class MIRA(TAS):
             116,  # distance sample - analyzer (cm)
             35,   # distance analyzer - detector (cm)
 
+            # automatically calculated from focmode and ki if they are zero
             0,    # horizontal curvature of monochromator (1/cm)
-            0.005,# vertical curvature of monochromator (1/cm)
+            0,    # vertical curvature of monochromator (1/cm)
             0,    # horizontal curvature of analyzer (1/cm)
             0,    # vertical curvature of analyzer (1/cm)
 
