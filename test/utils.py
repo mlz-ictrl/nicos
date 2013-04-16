@@ -35,8 +35,10 @@ import socket
 import subprocess
 from os import path
 from logging import ERROR, WARNING
+from functools import wraps
 
 from nose.tools import assert_raises
+from nose.plugins.skip import SkipTest
 
 from nicos.core import Moveable, HasLimits, DataSink, status
 from nicos.core.sessions import Session
@@ -48,6 +50,17 @@ rootdir = path.join(os.path.dirname(__file__), 'root')
 def raises(exc, *args, **kwds):
     assert_raises(exc, *args, **kwds)
     return True
+
+def requires(condition, message=''):
+    """Decorator to mark test functions as skips depending on a condition."""
+    def deco(func):
+        @wraps(func)
+        def new_func(*args, **kwds):
+            if not condition:
+                raise SkipTest(message or 'skipped due to condition')
+            return func(*args, **kwds)
+        return new_func
+    return deco
 
 def assert_response(resp, contains=None, matches=None):
     """Check for specific strings in a response array.
