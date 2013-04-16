@@ -43,6 +43,7 @@ STUBS = dict(
     Temperature = ['class Sensor', 'class Controller'],
     TMCS = ['class Channel', 'class Admin'],
     Modbus = ['class Modbus'],
+    ProfibusDP = ['class IO'],
 )
 
 def generate_stubs():
