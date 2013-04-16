@@ -4,6 +4,8 @@ description = 'Sampletable complete'
 
 includes = ['system']
 
+group = 'lowlevel'
+
  # sth,stt,sgx,sgy,stx,sty,stz,--
 
 devices = dict(

@@ -1,5 +1,6 @@
 description = 'minimal NICOS startup setup'
-group = 'optional'
+
+group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'pandasrv'

@@ -1,5 +1,7 @@
 description = 'collimators and lengths'
 
+group = 'lowlevel'
+
 devices = dict(
     lsm      = device('devices.generic.ManualMove',
                       description = 'distance source - mono',

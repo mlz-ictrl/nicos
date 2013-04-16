@@ -4,6 +4,7 @@ description = 'test setup for S7SPS on PANDA'
 
 includes = ['monoturm']
 
+group = 'lowlevel'
 
 devices = dict(
     s7bus = device('panda.panda_s7.S7Bus',

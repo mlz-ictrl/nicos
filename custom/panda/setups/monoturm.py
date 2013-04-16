@@ -2,8 +2,7 @@
 
 description = 'Monoturm, everything inside the Monochromator housing'
 
-#~ includes = ['system','panda_s7']
-#~ includes = ['system']
+group = 'lowlevel'
 
  # 5,mfh,mgx,mtx,mtx,mth,mtt,-,mfv
 

@@ -4,7 +4,7 @@ description = 'test setup for Monowechsler on PANDA'
 
 includes = ['system']
 
-#sysconfig = {'cache': None} # disables Cache completely
+group = 'optional'
 
 devices = dict(
             

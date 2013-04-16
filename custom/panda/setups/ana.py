@@ -2,16 +2,18 @@
 
 description = 'Analyser'
 
-includes = ['system', 'befilter']
+includes = ['system']
+
+group = 'lowlevel'
 
  # ath,att,agx,--,--,aty,--, afh
 
 devices = dict(
     bus1 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice='//pandasrv/panda/moxa/port1',
-            loglevel='info',
-            timeout=0.5,
-            lowlevel=True,
+            tacodevice = '//pandasrv/panda/moxa/port1',
+            loglevel = 'info',
+            timeout = 0.5,
+            lowlevel = True,
     ),
 
     # ATT is first device and has 1 stepper, 0 poti, 1 coder
@@ -43,7 +45,7 @@ devices = dict(
             lowlevel = True,
     ),
     anablocks_beckhoff = device('panda.wechsler.Beckhoff',
-            host='anablocks.panda.frm2',
+            host = 'anablocks.panda.frm2',
             lowlevel = True,
     ),
     anablocks = device('panda.ana.AnaBlocks',
@@ -52,7 +54,7 @@ devices = dict(
             lowlevel = True,
     ),
     att = device('panda.ana.ATT_Axis',
-            anablocks='anablocks',
+            anablocks = 'anablocks',
             windowsize = 11.5,
             blockwidth = 15.12,
             blockoffset = -7.7,
@@ -118,7 +120,7 @@ devices = dict(
             unit = 'deg',
             abslimits = (-5,5),
             zerosteps = 500000,
-            speed =100,
+            speed = 100,
             accel = 8,
             microstep = 16,
             startdelay = 0,
@@ -179,7 +181,7 @@ devices = dict(
             coder = 'aty_enc',
             obs = [],
             precision = 0.05,
-            fmtstr='%.1f',
+            fmtstr = '%.1f',
     ),
 
     # eigth device is unused
@@ -225,8 +227,7 @@ devices = dict(
             coder = 'afh_step',
             obs = [],
             precision = 1,
-            fmtstr='%.1f',
-            autoref=None, # disable autoref since there is no refswitch
+            fmtstr = '%.1f',
+            autoref = None, # disable autoref since there is no refswitch
     ),
-
 )

@@ -4,12 +4,13 @@ description = 'PANDA-version of a setup for the FRM2 7T5 Magnet'
 
 includes = ['alias_B']
 
+group = 'optional'
+
 TACOBASE = '//magnet.panda.frm2/magnet/'
 
 devices = dict(
 # overrides only needed stuff from frm2/magnt75.py
     # Magnet power supply. it is supposed to be able to switch polarity....
-
 
     B_m7T5 =device( 'devices.panda.misc.PrecisionAnalogOut',
                     precision = 0.02,
@@ -19,7 +20,7 @@ devices = dict(
                     abslimits = (-7.5, 7.5 ),
                     fmtstr = '%.2f',
                     unit = 'T',
-                    pollinterval=15,
+                    pollinterval = 15,
                     ),
 
     #~ B_m7T5 =device( 'devices.taco.AnalogOutput',
@@ -96,8 +97,8 @@ devices = dict(
                     ),
     sth_B7T5 = device('devices.generic.Axis',
             motor = 'sth_B7T5_Taco_motor',
-            #~ coder = 'sth_B7T5_Taco_coder',     # Coder working
-            coder = 'sth_B7T5_Taco_motor',     # Coder broken
+            coder = 'sth_B7T5_Taco_coder',     # Coder working
+            #~ coder = 'sth_B7T5_Taco_motor',     # Coder broken
             obs = [],
             precision = 0.01,
             backlash = -1,

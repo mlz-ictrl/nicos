@@ -2,6 +2,8 @@ description = 'LakeShore 340 cryo controller'
 
 includes = ['alias_T']
 
+group = 'optional'
+
 devices = dict(
     T_ls340   = device('devices.taco.TemperatureController',
                       tacodevice = 'panda/ls340/control',

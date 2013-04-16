@@ -2,23 +2,19 @@
 
 description = 'system setup for PANDA'
 
-includes = ['detector']
+group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'pandasrv',
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'liveplot'],
+    notifiers = [],
     instrument = 'panda',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'liveplot'],
-    notifiers = [],
 )
 
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    panda = device('devices.instrument.Instrument',
-                    instrument='Panda',
-                    responsible='R.esponsible R@espons.ible',
-                    ),
     Exp      = device('panda.experiment.PandaExperiment',
                       localcontact = 'Astrid.Schneidewind@frm2.tum.de',
                       sample = 'Sample',
@@ -30,12 +26,21 @@ devices = dict(
                       mailserver = 'smtp.frm2.tum.de',
                       mailsender = 'panda@frm2.tum.de',
                       serviceexp = 'service',
+                      editor = 'scite',
                       ),
+
+    panda = device('devices.instrument.Instrument',
+                    instrument = 'PANDA',
+                    responsible = 'Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>'),
     Sample   = device('devices.tas.TASSample'),
+    
     filesink = device('devices.datasinks.AsciiDatafileSink',
                       globalcounter = '/data/filecounter'),
+                      
     conssink = device('devices.datasinks.ConsoleSink'),
+    
+    daemonsink  = device('devices.datasinks.DaemonSink'),
+    
     liveplot = device('devices.datasinks.GraceSink'),
 )
 
-startupcode = 'Exp.detectors.append(det)'

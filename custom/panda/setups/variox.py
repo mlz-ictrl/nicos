@@ -4,6 +4,8 @@ description = 'Variox from Panda with labview-control'
 
 includes = ['alias_T']
 
+group = 'optional'
+
 devices = dict(
 
 # DONT change names or the labview part wont work anymore !!!!!

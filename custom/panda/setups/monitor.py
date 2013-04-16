@@ -1,4 +1,5 @@
 description = 'setup for the status monitor'
+
 group = 'special'
 
 expcolumn = [
@@ -143,8 +144,8 @@ magnet75 = ('7T Magnet', [
 ],'magnet75')
 
 magnet75supp = ('Magnet', [
-    [dict(dev='sth_B7T5',name='sth'),
-    dict(dev='sth_B7T5_coder',name='coder')],
+    [dict(dev='sth_B7T5_Taco_motor',name='motor'),
+    dict(dev='sth_B7T5_Taco_coder',name='coder')],
     [dict(dev='m7T5_T1',max=4.3),       # Maximum temeratures for field operation above  80A (6.6T) taken from the manual
     dict(dev='m7T5_T2',max=4.3)],
     [dict(dev='m7T5_T3',max=5.1),
@@ -162,8 +163,8 @@ magnet7t5 = ('7T Magnet', [
 ],'7T5')
 
 magnet7t5supp = ('Magnet', [
-    [dict(dev='sth_B7T5',name='sth'),
-    dict(dev='sth_B7T5_coder',name='coder')],
+    [dict(dev='sth_B7T5_Taco_motor',name='motor'),
+    dict(dev='sth_B7T5_Taco_coder',name='coder')],
     [dict(dev='m7T5_T1',max=4.3),       # Maximum temeratures for field operation above  80A (6.6T) taken from the manual
     dict(dev='m7T5_T2',max=4.3)],
     [dict(dev='m7T5_T3',max=5.1),
@@ -207,38 +208,19 @@ foki = ('Foki', [
   ['afh'],
 ])
 
-column2 = [collimation, detector_small, cryo3, cryo4, cryo5, lakeshore, magnet75, magnet7t5, ccr11, magnet14t5, vti, variox ]
+column2 = [collimation, detector, cryo3, cryo4, cryo5, lakeshore, magnet75, magnet7t5, ccr11, magnet14t5, vti, variox ]
 
 column3 = [cryo3supp, cryo4supp, cryo5supp, ccr11supp, magnet75supp, magnet7t5supp, kelvinox, foki]
 
-_warnings = [
-    ('Tccr1/value', '> 3.3', 'CCR too hot for 3He operation!','7T5_CCR_3He'),
-    ('Tccr1/value', '> 3.3', 'CCR too hot for 3He operation!'),
-    #('tbefilter/value', '> 70', 'Check Be filter temperature','befilter'),
-] #? dont work? (first string needs to be lower case!)
-
 devices = dict(
-    #~ email    = device('nicos.notify.Mailer',
-                      #~ sender = 'pandasrv',
-                      #~ receivers = ['aschneid@frm2.tum.de'],
-                      #~ subject = 'PANDA'),
-
-    #~ smser    = device('nicos.notify.SMSer',
-                      #~ server = 'triton.admin.frm2',
-                      #~ receivers = ['01xxxxxxxxx']),
-
-    Monitor = device('services.monitor.fl.Monitor',
+    Monitor = device('services.monitor.qt.Monitor',
                      title = 'PANDA status monitor',
                      loglevel = 'info',
                      cache = 'pandasrv.panda.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
-                     fontsize = 19,
+                     fontsize = 14,
                      valuefont = 'Luxi Mono',
                      layout = [[expcolumn], [column1, column2, column3]],
-                     #~ notifiers = ['smser', 'email'],
-                     notifiers = [],
-                     warnings = _warnings,
-#~                     server = 'pandasrv',
                      )
 )

@@ -2,15 +2,13 @@ description = 'PANDA triple-axis setup'
 
 group = 'basic'
 
-includes = ['sampletable', 'ana', 'detector','system','panda_s7', 'manual']
+includes = ['system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual']
 # monoturm is included by panda_s7
 
 #~ modules = ['nicos.commands.tas','nicos.panda.commands']
 modules = ['nicos.commands.tas']
 
 devices = dict(
-    Sample = device('devices.tas.TASSample'),
-
     panda = device('devices.tas.TAS',
                     instrument = 'PANDA',
                     responsible = 'Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>',
@@ -23,7 +21,6 @@ devices = dict(
                     scatteringsense = (-1, 1, -1),
                     energytransferunit ='meV',
 #                    countloopdelay = 0.2,
-#                    maxage = 1e-20, # to force a recalculation on every readout
     ),
 
     ki     = device('devices.tas.Wavevector',
@@ -61,16 +58,16 @@ devices = dict(
                       dvalue = 3.355),
 
     sth_virtual_dummy = device('devices.generic.VirtualMotor',
-        unit='deg',
-        abslimits=(0,360),
-        userlimits=(5,355),
-        description='Virtual device to startup the TAS-Device, DONT USE !',
-        lowlevel=True,
+                                                unit = 'deg',
+                                                abslimits = (0,360),
+                                                userlimits = (5,355),
+                                                description = 'Virtual device to startup the TAS-Device, DONT USE !',
+                                                lowlevel = True,
     ),
 
     sth = device('devices.generic.DeviceAlias',
-            alias='sth_virtual_dummy', # default alias, will be overwritten by other setup-startupcodes
-            description='Alias to currently used sth-device',
+            alias = 'sth_virtual_dummy', # default alias, will be overwritten by other setup-startupcodes
+            description = 'Alias to currently used sth-device',
     ),
 
 

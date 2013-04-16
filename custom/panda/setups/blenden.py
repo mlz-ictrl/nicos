@@ -2,6 +2,8 @@ description = 'IPC slit after mono shielding'
 
 includes = ['system']
 
+group = 'optional'
+
 devices = dict(
     ss1bus    = device('devices.vendor.ipc.IPCModBusTCP',
                        host = 'moxa-mono.panda.frm2',

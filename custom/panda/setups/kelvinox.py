@@ -2,6 +2,10 @@
 
 description = 'Kelvinox from Panda with labview-control'
 
+group = 'optional'
+
+includes = ['alias_T']
+
 devices = dict(
     # DONT CHANGE THESE NAMES OR THE LABVIEW PART WONT WORK ANYMORE !
     mc        = device('panda.cache.CacheWriter',
@@ -61,3 +65,8 @@ devices = dict(
                     maxage=30,
                 ),
 )
+
+startupcode = '''
+T.alias = 'mc'
+Ts.alias = 'mc'
+'''

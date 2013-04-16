@@ -2,7 +2,7 @@
 
 description = 'detectors'
 
-group = 'basic' # is included by panda.py
+group = 'lowlevel' # is included by panda.py
 
 includes = []
 
@@ -47,4 +47,4 @@ devices = dict(
                       pollinterval = 1),
 )
 
-startupcode = ''
+startupcode = 'SetDetectors(det)'

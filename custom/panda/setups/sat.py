@@ -4,8 +4,10 @@ description = 'setup for sample attenuator'
 
 includes = []
 
+group = 'optional'
+
 devices = dict(
-    sat = device('nicos.panda.satbox.SatBox',
+    sat = device('panda.satbox.SatBox',
                   tacodevice = 'panda/modbus/sat',
                   unit = 'mm',
                   fmtstr = '%d',
@@ -18,7 +20,6 @@ devices = dict(
 )
 
 startupcode="""
-printwarning('Disabling 1mm blade of sat as it gets stuck until repair....')
-sat.blades[0]=0
+printwarning('Disabled 1mm blade of sat as it gets stuck until repair....')
 """
 
