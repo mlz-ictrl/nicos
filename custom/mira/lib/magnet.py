@@ -157,7 +157,7 @@ class LambdaField(HasLimits, Moveable):
         for scan in scans:
             if scan.sinkinfo.get('number') not in scannumbers:
                 continue
-            if 'Bf' not in scan.ynames or 'I' not in scan.xnames:
+            if 'B' not in scan.ynames or 'I' not in scan.xnames:
                 self.log.info('%s is not a calibration scan'
                               % scan.sinkinfo['number'])
                 continue
