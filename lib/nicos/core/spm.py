@@ -353,7 +353,7 @@ class SPMHandler(object):
         if command.startswith(':'):
             # Simulation escape
             code = self.handle_line(command[1:])
-            return 'Simulate(%r)' % code
+            return 'sim(%r)' % code
         try:
             commands = self.tokenize(command)
         except NoParse, err:

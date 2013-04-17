@@ -59,10 +59,10 @@ __all__ = [
     'CreateDevice', 'DestroyDevice', 'CreateAllDevices',
     'NewExperiment', 'FinishExperiment', 'AddUser', 'NewSample',
     'Remark', 'Remember', 'SetMode', 'SetSimpleMode',
-    'sync', 'ClearCache', 'UserInfo',
+    'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode',
     'edit', 'run', 'sim',
     'notify', 'SetMailReceivers', 'SetSMSReceivers',
-    'SaveSimulationSetup',
+    'SaveSimulationSetup', '_SimulationRestore', '_trace', 'timer',
     'LogEntry', 'LogAttach',
 ]
 

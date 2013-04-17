@@ -792,7 +792,7 @@ class Session(object):
                 return compiler(self._spmhandler.handle_line(command[1:]))
             # shortcut for simulation mode
             if command.startswith(':'):
-                return compiler('Simulate(%r)' % command[1:].rstrip())
+                return compiler('sim(%r)' % command[1:].rstrip())
             raise
 
     def scriptHandler(self, script, filename, compiler):
