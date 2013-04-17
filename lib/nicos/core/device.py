@@ -308,13 +308,13 @@ class Device(object):
             # initialize device
             self.init()
         except:  # here, really *all* exceptions are intended
-            v = sys.exc_info()[1]
+            t, v, tb = sys.exc_info()
             try:
                 self.shutdown()
             except Exception:
                 self.log.warning('could not shutdown after creation failed',
                                  exc=1)
-            raise v
+            raise t, v, tb
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
