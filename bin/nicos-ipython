@@ -29,14 +29,15 @@ import IPython
 if not hasattr(IPython, 'Shell'):
     # IPython 0.11... heavy API changes there
     from IPython.frontend.terminal.embed import InteractiveShellEmbed
-    def startshell(banner, argv, namespace, help):
+    def startshell(banner, argv, namespace, helpfunc):
         shell = InteractiveShellEmbed(banner1=banner, user_ns=namespace)
+        namespace['help'] = helpfunc
         shell()
 else:
-    def startshell(banner, argv, namespace, help):
+    def startshell(banner, argv, namespace, helpfunc):
         shell = IPython.Shell.IPShellEmbed(banner=banner, argv=argv,
                                            user_ns=namespace)
-        namespace['help'] = help
+        namespace['help'] = helpfunc
         shell()
 
 class IPySession(ConsoleSession):
@@ -50,7 +51,7 @@ class IPySession(ConsoleSession):
         banner = ('NICOS IPython console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help on a command.'
                   % nicos_version)
-        help = self.namespace['help']   # save our help() command
-        startshell(banner, ipyargs, self.namespace, help)
+        helpfunc = self.namespace['help']   # save our help() command
+        startshell(banner, ipyargs, self.namespace, helpfunc)
 
 IPySession.run(args[0] if args else 'startup', opts.simulate)
