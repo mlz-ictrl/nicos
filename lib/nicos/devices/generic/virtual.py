@@ -46,9 +46,9 @@ class VirtualMotor(Motor, HasOffset):
 
     parameters = {
         'speed':     Param('Virtual speed of the device', settable=True,
-                           type=floatrange(0, 1e6)),
-        'jitter':    Param('Jitter of the read value', default=0),
-        'curvalue':  Param('Current value', settable=True),
+                           type=floatrange(0, 1e6), unit='main/s'),
+        'jitter':    Param('Jitter of the read value', default=0, unit='main'),
+        'curvalue':  Param('Current value', settable=True, unit='main'),
         'curstatus': Param('Current status', type=tupleof(int, str),
                            settable=True, default=(status.OK, 'idle')),
     }

@@ -107,3 +107,7 @@ def test_paramdev():
     assert pd() == v1.speed
     pd.maw(1)
     assert v1.speed == 1
+
+    print pd.unit
+    print v1.unit
+    assert pd.unit == v1.unit + '/s'
