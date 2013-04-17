@@ -71,6 +71,8 @@ class ParamDevice(Moveable):
         return status.OK, ''
 
     def doReadUnit(self):
-        if hasattr(self._adevs['device'], 'unit'):
-            return self._adevs['device'].unit
-        return ''
+        devunit = getattr(self._adevs['device'], 'unit', '')
+        parunit = self._adevs['device'].parameters[self.parameter].unit or ''
+        if devunit:
+            parunit = parunit.replace('main', devunit)
+        return parunit
