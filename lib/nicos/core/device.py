@@ -446,9 +446,13 @@ class Device(object):
             lastconfig = self._cache.get('_lastconfig_', self._name, None)
             old_classes = self._cache.get(self, 'classes')
             if old_classes and old_classes != self.doReadClasses():
-                self.log.warning('device changed class, clearing all cached '
-                                 'parameter values')
-                self._cache.clear(self)
+                # XXX: this will make problems if the same device is defined
+                # in the startup setup and the final loaded setup, e.g. for
+                # the Sample device
+                #self.log.warning('device changed class, clearing all cached '
+                #                 'parameter values')
+                #self._cache.clear(self)
+                pass
 
         def _init_param(param, paraminfo):
             param = param.lower()
