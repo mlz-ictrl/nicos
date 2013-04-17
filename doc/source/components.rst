@@ -76,3 +76,10 @@ instrument.
   special events such as "new sample" or "scan finished", and writes them to
   disk in an HTML file, which can serve as an electronic logbook of the
   experiment that is easier to read than a mere plain-text logfile.
+
+``nicos-watchdog``
+  This daemon reacts to cache events and checks against a configured list of
+  error conditions (e.g. cooling water overheating).  If an error condition is
+  detected, it can be configured to send notifications via email/short message,
+  to execute a NICOS command and/or to stop counting until the condition is
+  eliminated.
