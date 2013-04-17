@@ -83,7 +83,9 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
     def doInit(self, mode):
         self._fileCounter = 0
 
-    def doStart(self):
+    def doStart(self, **preset):
+        self.doSetPreset(**preset)
+
         self._tangoFuncGuard(self._dev.prepareAcq)
         self._tangoFuncGuard(self._dev.startAcq)
         self._newFile()
