@@ -80,6 +80,8 @@ class BaseCacheClient(Device):
         self._disconnect_warnings = 0
         # maps newprefix -> oldprefix without self._prefix prepended
         self._inv_rewrites = {}
+        # maps oldprefix -> newprefix without self._prefix prepended
+        self._rewrites = {}
         self._prefixcallbacks = {}
 
         self._stoprequest = False
@@ -504,12 +506,18 @@ class CacheClient(BaseCacheClient):
         ttlstr = ttl and '+%s' % ttl or ''
         dbkey = ('%s/%s' % (dev, key)).lower()
         self._db[dbkey] = (value, time)
-        value = cache_dump(value)
+        dvalue = cache_dump(value)
         msg = '%s%s@%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
-                                   OP_TELL, value)
+                                   OP_TELL, dvalue)
         #self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
-        self._propagate((time, dbkey, OP_TELL, value))
+        self._propagate((time, dbkey, OP_TELL, dvalue))
+        # we have to check rewrites here, since the cache server won't send
+        # us updates for a rewritten key if we sent the original key
+        if str(dev) in self._rewrites:
+            rdbkey = ('%s/%s' % (self._rewrites[str(dev)], key)).lower()
+            self._db[rdbkey] = (value, time)
+            self._propagate((time, rdbkey, OP_TELL, dvalue))
 
     def put_raw(self, key, value, time=None, ttl=None):
         """Put a key given by full name.
@@ -535,10 +543,12 @@ class CacheClient(BaseCacheClient):
         self._queue.put(self._prefix + newprefix + OP_REWRITE + \
                         self._prefix + oldprefix + '\n')
         self._inv_rewrites[newprefix] = oldprefix
+        self._rewrites[oldprefix] = newprefix
 
     def unsetRewrite(self, newprefix):
         newprefix = newprefix.lower()
         if newprefix in self._inv_rewrites:
+            del self._rewrites[self._inv_rewrites[newprefix]]
             del self._inv_rewrites[newprefix]
             self._queue.put(self._prefix + newprefix + OP_REWRITE + '\n')
 

@@ -29,13 +29,17 @@ __version__ = "$Revision$"
 import re
 
 from nicos import session
-from nicos.core import Device, Param, ConfigurationError, NicosError, none_or
+from nicos.core import Device, Param, ConfigurationError, NicosError, none_or, \
+     usermethod
 
 
 class NoDevice(object):
 
     def __init__(self, name):
         self.name = name
+
+    def __str__(self):
+        return '<none>'
 
     def __getattr__(self, name):
         raise ConfigurationError('alias %r does not point to any device' % self.name)
@@ -78,12 +82,25 @@ class DeviceAlias(Device):
     _ownparams = set(['alias', 'name', 'classes', 'devclass'])
     _initialized = False
 
+    def __init__(self, name, **config):
+        self._obj = None
+        devclass = config.get('devclass', 'nicos.core.Device')
+        try:
+            modname, clsname = devclass.rsplit('.', 1)
+            self._cls = session._nicos_import(modname, clsname)
+        except Exception:
+            self.log.warning('could not import class %r; using Device as the '
+                             'alias devclass', exc=1)
+            self._cls = Device
+        Device.__init__(self, name, **config)
+        self._initialized = True
+
     def doUpdateAlias(self, devname):
         if not devname:
             self._obj = NoDevice(str(self))
             if self._cache:
                 self._cache.unsetRewrite(str(self))
-                self._cache.clear(str(self), exclude=self._ownparams)
+                self._reinitParams()
         else:
             try:
                 newdev = session.getDevice(devname, (self._cls, DeviceAlias),
@@ -103,7 +120,23 @@ class DeviceAlias(Device):
                 self._obj = newdev
                 if self._cache:
                     self._cache.setRewrite(str(self), devname)
-                    self._cache.clear(str(self), exclude=self._ownparams)
+                    self._reinitParams()
+
+    def _reinitParams(self):
+        if self._mode != 'master':  # only in the copy that changed the alias
+            return
+        # clear all cached parameters
+        self._cache.clear(str(self), exclude=self._ownparams)
+        # put the parameters from the original device in the cache under the
+        # name of the alias
+        if not isinstance(self._obj, Device):
+            return
+        for pname in self._obj.parameters:
+            if pname in self._ownparams:
+                continue
+            self._cache.put(self, pname, getattr(self._obj, pname))
+
+    # Device methods that would not be alias-aware
 
     def valueInfo(self):
         # override to replace name of the aliased device with the alias' name
@@ -116,18 +149,21 @@ class DeviceAlias(Device):
             new_info.append(new_v)
         return tuple(new_info)
 
-    def __init__(self, name, **config):
-        self._obj = None
-        devclass = config.get('devclass', 'nicos.core.Device')
-        try:
-            modname, clsname = devclass.rsplit('.', 1)
-            self._cls = session._nicos_import(modname, clsname)
-        except Exception:
-            self.log.warning('could not import class %r; using Device as the '
-                             'alias devclass', exc=1)
-            self._cls = Device
-        Device.__init__(self, name, **config)
-        self._initialized = True
+    @usermethod
+    def info(self):
+        # override to use the object's "info" but add a note about the alias
+        if isinstance(self._obj, Device):
+            for v in self._obj.info():
+                yield v
+        yield ('instrument', 'alias', str(self._obj))
+
+    @usermethod
+    def version(self):
+        v = []
+        if isinstance(self._obj, Device):
+            v = self._obj.version()
+        v.extend(Device.version(self))
+        return v
 
     # these methods must not be proxied
 

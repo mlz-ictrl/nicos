@@ -89,7 +89,7 @@ def test_03unsetRewrite():
     assert cachedval1 == testval
     assert cachedval2[2] == testvalold[2]
     assert cachedval2[2] != Ellipsis
-    assert cachedval_rw == None
+    assert cachedval_rw == 'test2'  # still from test_02setRewrite
 
 def test_04writeToRewritten():
     cc = session.cache
