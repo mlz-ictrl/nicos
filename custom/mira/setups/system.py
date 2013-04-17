@@ -26,7 +26,7 @@ devices = dict(
                       serviceexp = '0',
                       sendmail = True,
                       mailsender = 'rgeorgii@frm2.tum.de',
-                      propdb = 'useroffice@tacodb.taco.frm2:useroffice'),
+                      propdb = '/etc/proposaldb'),
 
     Sample   = device('devices.experiment.Sample'),
 
