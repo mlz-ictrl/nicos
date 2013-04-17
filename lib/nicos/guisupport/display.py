@@ -229,7 +229,7 @@ class ValueDisplay(QWidget, DisplayWidget):
 
     def update_namelabel(self):
         name = self._valuename or self._device or self._key
-        self.namelabel.setText(escape(name) + ' <font color="#888888">%s</font>'
+        self.namelabel.setText(escape(unicode(name)) + ' <font color="#888888">%s</font>'
             '<font color="#0000ff">%s</font> ' % (escape(self._valueunit.strip()),
                                                   self._isfixed))
 
