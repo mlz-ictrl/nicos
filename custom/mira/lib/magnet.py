@@ -41,7 +41,7 @@ from nicos.devices.taco.io import DigitalOutput
 from nicos.utils.fitting import Fit
 
 
-class ESSController(HasLimits, TacoDevice, Moveable):
+class LambdaController(HasLimits, TacoDevice, Moveable):
 
     taco_class = CurrentControl
 
@@ -122,7 +122,7 @@ class ESSController(HasLimits, TacoDevice, Moveable):
         self._stopflag = True
 
 
-class ESSField(HasLimits, Moveable):
+class LambdaField(HasLimits, Moveable):
 
     attached_devices = {
         'controller':  (Moveable, 'The controller'),
@@ -143,6 +143,12 @@ class ESSField(HasLimits, Moveable):
 
     @usermethod
     def calibrate(self, *scannumbers):
+        """Calibrate the B to I conversion, argument is one or more scan numbers.
+        
+        Example:
+
+        >>> B_mira.calibrate(351)
+        """
         scans = session.experiment._last_datasets
         self.log.info('determining calibration from scans, please wait...')
         Is = []
