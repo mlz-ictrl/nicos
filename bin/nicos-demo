@@ -21,10 +21,14 @@ bin/nicos-poller >/dev/null &
 POLLERPID=$!
 echo -n 'poller '
 sleep 0.1
-bin/nicos-monitor >/dev/null &
-MONIPID=$!
-echo -n 'monitor '
-sleep 0.1
+if [ "x$1" = "x-N" ]; then
+	shift
+else
+	bin/nicos-monitor >/dev/null &
+	MONIPID=$!
+	echo -n 'monitor '
+	sleep 0.1
+fi
 if [ ! "x$1" = "x-t" ]; then
 	bin/nicos-daemon >/dev/null &
 	DAEMONPID=$!
