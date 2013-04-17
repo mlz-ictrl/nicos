@@ -108,8 +108,9 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
 
 
     def doSetPreset(self, **preset):
-        exposureTime = preset['t']
-        self._tangoSetAttrGuard('acq_expo_time', exposureTime)
+        if 't' in preset:
+            exposureTime = preset['t']
+            self._tangoSetAttrGuard('acq_expo_time', exposureTime)
 
     def doIsCompleted(self):
         if self.doStatus()[0] == status.BUSY:
