@@ -43,6 +43,7 @@
     <file alias="stop">icons/media-playback-stop.png</file>
     <file alias="continue">icons/media-playback-start.png</file>
     <file alias="break">icons/media-playback-pause.png</file>
+    <file alias="finish">icons/media-skip-forward.png</file>
     <file alias="emergency">icons/process-stop.png</file>
     <file alias="close">icons/emblem-unreadable.png</file>
   </qresource>

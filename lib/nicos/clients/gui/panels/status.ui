@@ -112,7 +112,10 @@
      <normaloff>:/break</normaloff>:/break</iconset>
    </property>
    <property name="text">
-    <string>&amp;Break</string>
+    <string>&amp;Pause</string>
+   </property>
+   <property name="toolTip">
+    <string>Pause the script</string>
    </property>
   </action>
   <action name="actionContinue">
@@ -123,6 +126,9 @@
    <property name="text">
     <string>&amp;Continue</string>
    </property>
+   <property name="toolTip">
+    <string>Continue script</string>
+   </property>
   </action>
   <action name="actionStop">
    <property name="icon">
@@ -132,6 +138,9 @@
    <property name="text">
     <string>&amp;Stop</string>
    </property>
+   <property name="toolTip">
+    <string>Stop script (in scan stop after current point)</string>
+   </property>
   </action>
   <action name="actionEmergencyStop">
    <property name="icon">
@@ -140,6 +149,18 @@
    </property>
    <property name="text">
     <string>&amp;Immediate Stop</string>
+   </property>
+  </action>
+  <action name="actionFinish">
+   <property name="icon">
+    <iconset resource="../../../../../resources/nicos-gui.qrc">
+     <normaloff>:/finish</normaloff>:/finish</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Finish</string>
+   </property>
+   <property name="toolTip">
+    <string>Finishes the current line and stops the script</string>
    </property>
   </action>
  </widget>

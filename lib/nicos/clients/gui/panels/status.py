@@ -118,6 +118,7 @@ class ScriptStatusPanel(Panel):
         bar.addAction(self.actionBreak)
         bar.addAction(self.actionContinue)
         bar.addAction(self.actionStop)
+        bar.addAction(self.actionFinish)
         bar.addAction(self.actionEmergencyStop)
         return [bar]
 
@@ -126,6 +127,7 @@ class ScriptStatusPanel(Panel):
         menu.addAction(self.actionBreak)
         menu.addAction(self.actionContinue)
         menu.addAction(self.actionStop)
+        menu.addAction(self.actionFinish)
         menu.addSeparator()
         menu.addAction(self.actionEmergencyStop)
         return [menu]
@@ -136,6 +138,7 @@ class ScriptStatusPanel(Panel):
         self.actionBreak.setVisible(status != 'interrupted')
         self.actionContinue.setVisible(status == 'interrupted')
         self.actionStop.setEnabled(isconnected and status != 'idle')
+        self.actionFinish.setEnabled(isconnected and status != 'idle')
         self.actionEmergencyStop.setEnabled(isconnected)
         if status == 'interrupted':
             self.statusLabel.setText('Script is interrupted.')
@@ -210,6 +213,11 @@ class ScriptStatusPanel(Panel):
     @qtsig('')
     def on_actionStop_triggered(self):
         self.client.tell('stop')
+        self.mainwindow.action_start_time = time.time()
+
+    @qtsig('')
+    def on_actionFinish_triggered(self):
+        self.client.tell('stop', '1')
         self.mainwindow.action_start_time = time.time()
 
     @qtsig('')
