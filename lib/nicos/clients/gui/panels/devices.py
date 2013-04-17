@@ -230,9 +230,12 @@ class DevicesPanel(Panel):
         devitem = self._devitems[ldevname]
         devinfo = self._devinfo[ldevname]
         if subkey == 'value':
-            fvalue = cache_load(value)
-            if isinstance(fvalue, list):
-                fvalue = tuple(fvalue)
+            if not value:
+                fvalue = ''
+            else:
+                fvalue = cache_load(value)
+                if isinstance(fvalue, list):
+                    fvalue = tuple(fvalue)
             devinfo[0] = fvalue
             try:
                 fmted = devinfo[2] % fvalue
@@ -248,7 +251,10 @@ class DevicesPanel(Panel):
             else:
                 devitem.setBackground(1, backgroundBrush[OK])
         elif subkey == 'status':
-            status = cache_load(value)
+            if not value:
+                status = (UNKNOWN, '?')
+            else:
+                status = cache_load(value)
             devinfo[1] = status
             devitem.setText(2, status[1])
             devitem.setForeground(2, foregroundBrush[status[0]])
@@ -259,6 +265,8 @@ class DevicesPanel(Panel):
                 setForegroundBrush(dlg.statuslabel, foregroundBrush[status[0]])
                 setBackgroundBrush(dlg.statuslabel, backgroundBrush[status[0]])
         elif subkey == 'fmtstr':
+            if not value:
+                return
             devinfo[2] = cache_load(value)
             try:
                 fmted = devinfo[2] % devinfo[0]
@@ -266,6 +274,8 @@ class DevicesPanel(Panel):
                 fmted = str(devinfo[0])
             devitem.setText(1, fmted + ' ' + devinfo[3])
         elif subkey == 'unit':
+            if not value:
+                value = "''"
             devinfo[3] = cache_load(value)
             try:
                 fmted = devinfo[2] % devinfo[0]
@@ -273,6 +283,8 @@ class DevicesPanel(Panel):
                 fmted = str(devinfo[0])
             devitem.setText(1, fmted + ' ' + devinfo[3])
         elif subkey == 'fixed':
+            if not value:
+                value = "''"
             devinfo[4] = bool(cache_load(value))
             devitem.setForeground(1, fixedBrush[devinfo[4]])
             if ldevname in self._control_dialogs:
@@ -280,6 +292,8 @@ class DevicesPanel(Panel):
                 dlg.movebtn.setEnabled(not devinfo[4])
                 dlg.movebtn.setText(devinfo[4] and '(fixed)' or 'Move')
         elif subkey == 'warnlimits':
+            if not value:
+                value = "None"
             value = cache_load(value)
             st = OK
             if value:
@@ -289,6 +303,8 @@ class DevicesPanel(Panel):
                    st = ERROR
             devitem.setBackground(1, backgroundBrush[st])
         elif subkey == 'classes':
+            if not value:
+                value = "[]"
             devinfo[5] = set(cache_load(value))
 
     def on_tree_customContextMenuRequested(self, point):
