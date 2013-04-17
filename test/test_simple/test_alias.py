@@ -43,50 +43,52 @@ def teardown_module():
 
 
 def test_alias_nodev():
-    px = session.getDevice('aliasDev', object)
+    alias = session.getDevice('aliasDev', object)
 
     # first, proxy without target
-    assert isinstance(px._obj, NoDevice)
-    assert px.alias == ''
+    assert isinstance(alias._obj, NoDevice)
+    assert alias.alias == ''
     # accesses raise ConfigurationError
-    assert raises(ConfigurationError, getattr, px, 'read')
-    assert raises(ConfigurationError, setattr, px, 'speed', 0)
-    assert raises(ConfigurationError, read, px)
+    assert raises(ConfigurationError, getattr, alias, 'read')
+    assert raises(ConfigurationError, setattr, alias, 'speed', 0)
+    assert raises(ConfigurationError, read, alias)
     # but stringification is still the name of the alias object
-    assert str(px) == 'aliasDev'
-    assert 'aliasDev' in repr(px)
+    assert str(alias) == 'aliasDev'
+    assert 'aliasDev' in repr(alias)
 
 def test_alias_dev():
-    px = session.getDevice('aliasDev', object)
+    alias = session.getDevice('aliasDev', object)
     # now set the alias to some object
     v1 = session.getDevice('v1')
     # "alias" is a chatty property, so it should emit something when changed
-    assert session.testhandler.emits_message(setattr, px, 'alias', v1)
+    assert session.testhandler.emits_message(setattr, alias, 'alias', v1)
     # check delegation of methods etc.
-    assert v1.read() == px.read()
+    assert v1.read() == alias.read()
     # check attribute access
-    px.speed = 5.1
+    alias.speed = 5.1
+    assert alias.speed == 5.1
     assert v1.speed == 5.1
     # check cache key rewriting
     sleep(0.5)
-    assert session.cache.get(px, 'speed') == 5.1
-    assert session.cache.get_explicit(px, 'speed')[2] == 5.1
+    assert session.cache.get(alias, 'speed') == 5.1
+    assert session.cache.get(v1, 'speed') == 5.1
+    assert session.cache.get_explicit(alias, 'speed')[2] == 5.1
     # check type restriction by devclass parameter
     slit = session.getDevice('slit')
-    assert raises(UsageError, setattr, px, 'alias', slit)
+    assert raises(UsageError, setattr, alias, 'alias', slit)
 
 def test_alias_valueinfo():
     # check the value info replacement
-    px = session.getDevice('aliasDev', object)
+    alias = session.getDevice('aliasDev', object)
     v1 = session.getDevice('v1')
-    px.alias = v1
-    vistr = str(px.valueInfo())
+    alias.alias = v1
+    vistr = str(alias.valueInfo())
     assert 'aliasDev' in vistr
-    assert 'aliasDev' == px.valueInfo()[0].name
+    assert 'aliasDev' == alias.valueInfo()[0].name
 
 def test_alias_valueinfo2():
     # check with multiple values, check setting from config
-    py = session.getDevice('aliasDev2', object)
+    alias = session.getDevice('aliasDev2', object)
     # check the value info replacement
-    vistr = str(py.valueInfo())
+    vistr = str(alias.valueInfo())
     assert 'aliasDev2.' in vistr
