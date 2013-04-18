@@ -50,7 +50,8 @@ class Forecast(Readable):
             p = m.preselection
             fraction_complete = max(fraction_complete, counter_values[m] / p)
         # scale all counter values by that fraction
-        return [v / fraction_complete for v in counter_values.itervalues()]
+        return [counter_values[c] / fraction_complete
+                for c in self._adevs['det']._counters]
 
     def doStatus(self, maxage=0):
         return status.OK, ''
