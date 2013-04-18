@@ -25,7 +25,7 @@
 
 """Generic 0-D channel detector classes for NICOS."""
 
-from nicos.core import Measurable, Param, oneof, status
+from nicos.core import Measurable, Readable, Param, Override, oneof, status
 
 
 class Channel(Measurable):
@@ -163,3 +163,41 @@ class MultiChannelDetector(Measurable):
 
     def presetInfo(self):
         return set(self._presetkeys)
+
+
+class DetectorForecast(Readable):
+    """Forecast device for a MultiChannelDetector.
+
+    It returns a list of values that gives the estimated final values at the end
+    of the current counting.
+    """
+
+    attached_devices = {
+        'det':  (MultiChannelDetector, 'The detector to forecast values.'),
+    }
+
+    parameter_overrides = {
+        'unit': Override(default='', mandatory=False),
+    }
+
+    hardware_access = False
+
+    def doRead(self, maxage=0):
+        # read all values of all counters and store them by device
+        counter_values = dict((c, c.read(maxage)[0])
+                              for c in self._adevs['det']._counters)
+        # go through the master channels and determine the one
+        # closest to the preselection
+        fraction_complete = 0
+        for m in self._adevs['det']._masters:
+            p = m.preselection
+            fraction_complete = max(fraction_complete, counter_values[m] / p)
+        # scale all counter values by that fraction
+        return [counter_values[ctr] / fraction_complete
+                for ctr in self._adevs['det']._counters]
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''
+
+    def valueInfo(self):
+        return self._adevs['det'].valueInfo()

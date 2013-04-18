@@ -32,7 +32,7 @@ devices = dict(
                       maxage = 2,
                       pollinterval = 0.5),
 
-    det_fore = device('mira.forecast.Forecast',
+    det_fore = device('devices.generic.DetectorForecast',
                       pollinterval = 0.5,
                       maxage = 2,
                       unit = '',

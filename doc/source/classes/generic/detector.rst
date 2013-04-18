@@ -6,3 +6,5 @@ Detector classes
 .. autoclass:: Channel()
 
 .. autoclass:: MultiChannelDetector()
+
+.. autoclass:: DetectorForecast()

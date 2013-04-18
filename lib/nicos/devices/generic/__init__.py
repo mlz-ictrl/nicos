@@ -25,7 +25,8 @@
 """Generic device classes using hardware-specific attached devices."""
 
 from nicos.devices.generic.axis import Axis
-from nicos.devices.generic.detector import MultiChannelDetector
+from nicos.devices.generic.detector import MultiChannelDetector, \
+     DetectorForecast
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
 from nicos.devices.generic.alias import DeviceAlias, NoDevice
 from nicos.devices.generic.paramdev import ParamDevice
