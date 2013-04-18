@@ -205,7 +205,7 @@ class ScriptRequest(Request):
             # (but the old userlevel remains)
             self.user = user.name
             if session.experiment and session.mode == 'master':
-                scr = session.experiment.scripts
+                scr = list(session.experiment.scripts)  # convert readonly list
                 scr[self._exp_script_index] = self.text
                 session.experiment.scripts = scr
             update_linecache('<script>', text)
