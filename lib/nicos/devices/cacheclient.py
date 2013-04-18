@@ -621,12 +621,20 @@ class CacheClient(BaseCacheClient):
     def unlock(self, key, sessionid=None):
         return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)
 
-    def query_db(self, query):
-        if isinstance(query, str):
-            return [(k, self._db[k][0]) for k in self._db if k.startswith(query)]
-        else:
-            query = set(query)
-            return [(k, self._db[k][0]) for k in self._db if k in query]
+    def query_db(self, query, tries=3):
+        try:
+            if isinstance(query, str):
+                return [(k, self._db[k][0]) for k in self._db if k.startswith(query)]
+            else:
+                query = set(query)
+                return [(k, self._db[k][0]) for k in self._db if k in query]
+        except RuntimeError:
+            # dictionary size changed during iteration, i.e. a new cache value
+            # arrived => try again up to 3 times
+            if tries == 0:
+                raise
+            sleep(0.1)
+            return self.query_db(query, tries-1)
 
 
 class DaemonCacheClient(CacheClient):
