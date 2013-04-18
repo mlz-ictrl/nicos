@@ -11,7 +11,7 @@ devices = dict(
                   tacodevice = '//%s/toftof/htf/control' % (nethost, ),
                   userlimits = (0, 2000),
                   abslimits = (0, 2000),
-                  rampRate = 0.1,
+                  ramp = 0.1,
                   unit = 'C',
                   fmtstr = '%.3f',
                  ),
