@@ -34,6 +34,8 @@ devices = dict(
                       path = None,
                       minfree = 5,
                      ),
+
+    UBahn    = device('frm2.ubahn.UBahn'),
 )
 
 startupcode = '''
