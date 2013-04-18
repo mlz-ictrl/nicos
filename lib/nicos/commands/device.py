@@ -28,7 +28,7 @@ import time
 import threading
 import __builtin__
 
-from nicos import session
+from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
      HasLimits, UsageError, formatStatus, INFO_CATEGORIES
@@ -449,12 +449,17 @@ def adjust(dev, value, newvalue=None):
 @helparglist('dev, ...')
 @spmsyntax(Multi(AnyDev))
 def version(*devlist):
-    """List version info of the device(s)."""
-    for dev in devlist:
-        dev = session.getDevice(dev, Device)
-        versions = dev.version()
-        dev.log.info('relevant versions for this device:')
-        printTable(('module/component', 'version'), versions, printinfo)
+    """List version info of the device(s).
+    If no device is given, the version of nicos-core is printed."""
+    if devlist:
+        for dev in devlist:
+            dev = session.getDevice(dev, Device)
+            versions = dev.version()
+            dev.log.info('relevant versions for this device:')
+            printTable(('module/component', 'version'), versions, printinfo)
+    else:
+        printinfo('NICOS version: %s (rev %s)' %
+                  (nicos_version, nicos_revision))
 
 @usercommand
 @helparglist('dev[, key][, fromtime]')
