@@ -1054,6 +1054,9 @@ class FlatfileCacheDatabase(CacheDatabase):
                         entry.time = time
                         entry.ttl = ttl
                         update = False
+                    elif value is None and entry.expired:
+                        # do not delete old value, it is already expired
+                        update = False
                 if update:
                     db[subkey] = Entry(time, ttl, value)
                     if store_on_disk:
