@@ -219,7 +219,7 @@ def try_float(x):
         return 0
 
 def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
-                    normalize=False, mcorr=False, xcolhint=None):
+                    normalize=False, mcorr=False, xcolhint=None, **kwargs):
     """Read NICOS data file."""
     for fpath in [filename,
                   '/data/exp/current/data/' + filename,
@@ -348,16 +348,17 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         monname = ''
 
     # search temperature
-    if 'sT' in colnames:
-        tcol = colnames.index('sT')
-    elif 'Ts' in colnames:
-        tcol = colnames.index('Ts')
-    elif 'T' in colnames:
-        tcol = colnames.index('T')
-    elif 'K' in colunits:
-        tcol = colunits.index('K')
-    else:
-        tcol = -1
+    tcol = kwargs.get('tcol','')
+    if type(tcol) != int:
+        for n in (kwargs.get('tcol','') + 'Ts:avg Ts T:avg T mc:avg mc vti sts sts:avg').split():
+            if n in colnames:
+                tcol = colnames.index(n)
+                break
+            else: # no match, try unit...
+                if 'K' in colunits:
+                    tcol = colunits.index('K')
+                else:
+                    tcol = -1
 
     # search field
     if 'B' in colnames:
@@ -469,6 +470,7 @@ Available options:
  - norm: normalizes all datapoints to a monitor of 1e5
  - mcorr: performs monitor correction (for higher harmonics)
  - merge: combines all given datafiles and treats the result as one
+ - tcol=<number_or_name>: overides automatic detection of temperature column
  - xcol=<number_or_name>: overides automatic detection of xcolumn
  - ycol=<number_or_name[,another_number_or_name ...]>:
    overrides automatic detection of ycolumn, plots several columns
@@ -514,15 +516,23 @@ ymax = None
 xmin = None
 xmax = None
 cascade = None
+kwargs={}
 
 for arg in sys.argv:
-    if arg[0:4] == 'xcol':
+    if arg[0:4] == 'tcol':
+        newtcol = arg.split('=')[1]
+        try:
+            newtcol = int(newtcol)
+        except:
+            pass
+        kwargs['tcol'] = newtcol
+    elif arg[0:4] == 'xcol':
         newxcol = arg.split('=')[1]
         try:
             newxcol = int(newxcol)
         except:
             pass
-    if arg[0:4] == 'ycol':
+    elif arg[0:4] == 'ycol':
         # add code for multicolumn for polarised mode
         newycols = arg.split('=')[1].split(',') # get stringlist
         for i in range(len(newycols)): # convert element-by-element to int
@@ -530,29 +540,29 @@ for arg in sys.argv:
                 newycols[i] = int(newycols[i])
             except:
                 pass
-    if arg[0:4] == 'xlim':
+    elif arg[0:4] == 'xlim':
         newxlims = arg.split('=')[1]
         if ',' in newxlims:
             xmin, xmax = map(float, newxlims.split(','))
         else:
             xmin = 0
             xmax = float(newxlims)
-    if arg[0:4] == 'xmax':
+    elif arg[0:4] == 'xmax':
         xmax = float(arg.split('=')[1])
-    if arg[0:4] == 'xmin':
+    elif arg[0:4] == 'xmin':
         xmin = float(arg.split('=')[1])
-    if arg[0:4] == 'ylim':
+    elif arg[0:4] == 'ylim':
         newylims = arg.split('=')[1]
         if ',' in newylims:
             ymin, ymax = map(float, newylims.split(','))
         else:
             ymin = 0
             ymax = float(newylims)
-    if arg[0:4] == 'ymax':
+    elif arg[0:4] == 'ymax':
         ymax = float(arg.split('=')[1])
-    if arg[0:4] == 'ymin':
+    elif arg[0:4] == 'ymin':
         ymin = float(arg.split('=')[1])
-    if arg[0:7] == 'cascade':
+    elif arg[0:7] == 'cascade':
         cascade = float(arg.split('=')[1])
 
 logflag   = 'log' in sys.argv
@@ -594,7 +604,7 @@ for filenumber in filelist:
         try:
             thedata = getdatafromfile(filename, fileprefix, newxcol, newycol,
                                       normflag,
-                                      monitorcorrection, xcolhint)
+                                      monitorcorrection, xcolhint, **kwargs)
         except Exception, err:
             print 'Could not read data file %r: %s' % (filename, err)
             sys.exit(1)
