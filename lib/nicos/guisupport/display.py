@@ -224,8 +224,8 @@ class ValueDisplay(QWidget, DisplayWidget):
         self._isfixed = fixed and ' (F)'
         self.formatString = fmtstr
         self.valueUnit = unit
-        self.minValue = str(minval)
-        self.maxValue = str(maxval)
+        self.minValue = repr(minval)
+        self.maxValue = repr(maxval)
 
     def update_namelabel(self):
         name = self._valuename or self._device or self._key
