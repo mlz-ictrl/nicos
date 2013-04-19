@@ -30,10 +30,10 @@ __version__ = "$Revision$"
 
 import os
 import sys
-import time
 import cPickle as pickle
+from time import time as currenttime, localtime, mktime, strftime
 
-from PyQt4.QtCore import QDateTime, Qt, SIGNAL
+from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, SIGNAL
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
      QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
@@ -50,9 +50,10 @@ from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
 
 
-class View(object):
+class View(QObject):
     def __init__(self, name, keys, interval, fromtime, totime,
                  yfrom, yto, window, dlginfo, query_func):
+        QObject.__init__(self)
         self.name = name
         self.dlginfo = dlginfo
         self.keys = keys
@@ -65,7 +66,7 @@ class View(object):
 
         if self.fromtime is not None:
             self.keydata = {}
-            totime = self.totime or time.time()
+            totime = self.totime or currenttime()
             for key in keys:
                 history = query_func(key, self.fromtime, totime)
                 if history is None:
@@ -90,6 +91,16 @@ class View(object):
 
         self.listitem = None
         self.plot = None
+        # add another point with the same value every interval time (but not
+        # more often than 10 seconds)
+        self.timer = QTimer(self, interval=max(interval, 10)*1000)
+        self.timer.timeout.connect(self.on_timer_timeout)
+        self.timer.start()
+
+    def on_timer_timeout(self):
+        for key, kd in self.keydata.iteritems():
+            if kd[0][kd[2]-1] < currenttime() - self.interval:
+                self.newValue(currenttime(), key, '=', kd[1][kd[2]-1])
 
     def newValue(self, time, key, op, value):
         if op != '=':
@@ -128,6 +139,8 @@ class View(object):
                 kd[0][0:n-i] = kd[0][i+1:n+1].copy()
                 kd[1][0:n-i] = kd[1][i+1:n+1].copy()
                 kd[2] -= i+1
+        if self.plot:
+            self.plot.pointsAdded(key)
 
 
 class NewViewDialog(QDialog, DlgUtils):
@@ -150,10 +163,12 @@ class NewViewDialog(QDialog, DlgUtils):
         self.toggleSimpleExt(True)
 
         self.connect(self.simpleTimeSpec,
-                     SIGNAL('textChanged(const QString&)'), self.setIntervalFromSimple)
+                     SIGNAL('textChanged(const QString&)'),
+                     self.setIntervalFromSimple)
 
         self.connect(self.helpButton, SIGNAL('clicked()'), self.showDeviceHelp)
-        self.connect(self.simpleHelpButton, SIGNAL('clicked()'), self.showSimpleHelp)
+        self.connect(self.simpleHelpButton, SIGNAL('clicked()'),
+                     self.showSimpleHelp)
 
         if info is not None:
             self.devices.setText(info['devices'])
@@ -291,8 +306,6 @@ class BaseHistoryWindow(object):
         value = cache_load(value)
         for view in self.keyviews[key]:
             view.newValue(time, key, op, value)
-            if view.plot:
-                view.plot.pointsAdded(key)
 
     def _createViewFromDialog(self, info):
         parts = [part.strip().lower().replace('.', '/')
@@ -311,17 +324,17 @@ class BaseHistoryWindow(object):
                 itime, _ = parseTimeSpec(info['simpleTimeSpec'])
             except ValueError:
                 return
-            fromtime = time.time() - itime
+            fromtime = currenttime() - itime
             totime = None
             if info['slidingWindow']:
                 window = itime
         else:
             if info['frombox']:
-                fromtime = time.mktime(time.localtime(info['fromdate']))
+                fromtime = mktime(localtime(info['fromdate']))
             else:
                 fromtime = None
             if info['tobox']:
-                totime = time.mktime(time.localtime(info['todate']))
+                totime = mktime(localtime(info['todate']))
             else:
                 totime = None
         try:
@@ -629,7 +642,7 @@ class ViewPlot(NicosPlot):
             return (self.view.yfrom, self.view.yto)
 
     #pylint: disable=W0221
-    def on_picker_moved(self, point, strf=time.strftime, local=time.localtime):
+    def on_picker_moved(self, point, strf=strftime, local=localtime):
         # overridden to show the correct timestamp
         tstamp = local(int(self.invTransform(QwtPlot.xBottom, point.x())))
         info = "X = %s, Y = %g" % (
