@@ -348,8 +348,12 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         monname = ''
 
     # search temperature
+    # also support some legacy stuff whose naming can't be changed easily:
+    # mc = mixing chamber of the dilution
+    # vti = preecooling of the dilution or the controler of the samplestick
+    # sts = samplestick
     tcol = kwargs.get('tcol','')
-    if type(tcol) != int:
+    if isinstance(tcol, int):
         for n in (kwargs.get('tcol','') + 'Ts:avg Ts T:avg T mc:avg mc vti sts sts:avg').split():
             if n in colnames:
                 tcol = colnames.index(n)
