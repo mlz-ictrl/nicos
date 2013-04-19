@@ -55,18 +55,18 @@ _column3 = Column(
     ], 'mieze'),
 #    Block('X-Z table axes', [BlockRow('mx', 'my')], 'gauss'),
     Block('TAS', [
-        BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=''),
-                 Field(name='K', dev='mira', item=1, format='%.3f', unit=''),
-                 Field(name='L', dev='mira', item=2, format='%.3f', unit=''),
-                 Field(name='E', dev='mira', item=3, format='%.3f', unit='')),
+        BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
+                 Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
+                 Field(name='L', dev='mira', item=2, format='%.3f', unit=' '),
+                 Field(name='E', dev='mira', item=3, format='%.3f', unit=' ')),
         BlockRow(Field(name='Mode', key='mira/scanmode'),
                  Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
                  Field(name='Unit', key='mira/energytransferunit')),
     ], 'tas'),
     Block('Diffraction', [
-        BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=''),
-                 Field(name='K', dev='mira', item=1, format='%.3f', unit=''),
-                 Field(name='L', dev='mira', item=2, format='%.3f', unit='')),
+        BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
+                 Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
+                 Field(name='L', dev='mira', item=2, format='%.3f', unit=' ')),
         BlockRow(Field(name='ki', dev='mono')),
     ], 'diff'),
     Block('CCR 11', [
@@ -101,7 +101,7 @@ _column2 = Column(
     ], 'euler'),
     Block('Sample environment', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
-                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr11_B'),
+                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
                  Field(name='C', dev='T_ccr5_C')),
         BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
                  Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
@@ -150,7 +150,7 @@ _column1 = Column(
                  Field(name='6-fold', dev='Sixfold', min='open', width=7),
                  Field(dev='NL6', min='open', width=7)),
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
-                 Field(dev='CoolTemp', width=6, format='%.1f'),
+                 Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7)),
     ], 'reactor'),
 )

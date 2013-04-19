@@ -20,6 +20,7 @@ watchlist = [
     dict(condition = 'psdgas_value == "empty"',
          message = 'PSD gas is empty, change bottle!',
          priority = 2,
+         setup = 'cascade',
     ),
     dict(condition = 'tbe_value > 70',
          message = 'Be filter temperature > 70 K, check cooling',
