@@ -156,6 +156,7 @@ class ValueDisplay(QWidget, DisplayWidget):
             self.namelabel.setAlignment(Qt.AlignHCenter)
         if self.layout():
             sip.delete(self.layout())
+        new_layout.setContentsMargins(1, 1, 1, 1)  # save space
         self.setLayout(new_layout)
 
     def setConfig(self, config, labelfont, valuefont, scale):
