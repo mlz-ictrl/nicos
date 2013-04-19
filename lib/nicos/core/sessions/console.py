@@ -295,7 +295,7 @@ class ConsoleSession(Session):
         finally:
             self._in_sigint = False
 
-    def forkSimulation(self, code, wait=True):
+    def forkSimulation(self, code, wait=True, prefix='(sim) '):
         try:
             pid = os.fork()
         except OSError:
@@ -306,7 +306,7 @@ class ConsoleSession(Session):
             self._manualscan = None  # allow simulating manualscans
             signal.alarm(600)        # kill forcibly after 10 minutes
             try:
-                self.log.manager.globalprefix = '(sim) '
+                self.log.manager.globalprefix = prefix
                 self.setMode('simulation')
                 exec code in self.namespace
             except: # really *all* exceptions -- pylint: disable=W0702

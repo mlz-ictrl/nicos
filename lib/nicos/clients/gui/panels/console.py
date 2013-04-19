@@ -133,7 +133,7 @@ class ConsolePanel(Panel):
         self.outView.scrollToBottom()
 
     def on_client_message(self, message):
-        if message[-1] == '(sim) ':
+        if message[-1] == '(editorsim) ':
             return
         self.outView.addMessage(message)
 

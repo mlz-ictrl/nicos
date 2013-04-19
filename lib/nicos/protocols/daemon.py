@@ -34,7 +34,7 @@ DEFAULT_PORT = 1301
 
 # protocol version
 
-PROTO_VERSION = 4
+PROTO_VERSION = 5
 
 # message serialization/deserialization
 

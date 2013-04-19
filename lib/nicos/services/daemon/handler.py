@@ -448,11 +448,12 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(STX, serialize(retval))
 
     @command(needcontrol=True)
-    def simulate(self, name, code):
+    def simulate(self, name, code, prefix):
         """Simulate a named script by forking into simulation mode."""
         self.log.debug('running simulation\n%s' % code)
         try:
-            self.controller.simulate_script(code, name or None, self.user)
+            self.controller.simulate_script(code, name or None, self.user,
+                                            prefix)
         except SPMError, err:
             self.write(NAK, 'syntax error in script: %s' % err)
         except Exception, err:

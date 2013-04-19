@@ -102,7 +102,12 @@ class DaemonSession(NoninteractiveSession):
         self._exported_names.clear()
         self._helper = HelpGenerator()
 
-    def forkSimulation(self, code, wait=True):
+    def forkSimulation(self, code, wait=True, prefix='(sim) '):
+        """Fork a simulation of *code*.
+
+        If *wait* is true, wait until the process is finished.  *prefix* is the
+        prefix given to all log messages.
+        """
         from nicos.services.daemon.utils import SimLogSender, SimLogReceiver
         rp, wp = os.pipe()
         receiver = SimLogReceiver(rp, self.daemon_device)
@@ -122,7 +127,7 @@ class DaemonSession(NoninteractiveSession):
             # but we have to stop putting events into their queues)
             self.daemon_device.clear_handlers()
             try:
-                self.log.manager.globalprefix = '(sim) '
+                self.log.manager.globalprefix = prefix
                 self.addLogHandler(pipesender)
                 self.setMode('simulation')
                 exec code in self.namespace
