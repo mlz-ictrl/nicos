@@ -26,8 +26,8 @@ _column3 = Column(
         BlockRow(Field(dev='det_fore', item=0, name='Forecast', format='%.2f'),
                  Field(dev='det_fore', item=2, name='Forecast', format='%d'),
                  Field(dev='det_fore', item=3, name='Forecast', format='%d')),
-        BlockRow(Field(dev='MonHV', width=5),
-                 Field(dev='DetHV', width=5)),
+#        BlockRow(Field(dev='MonHV', width=5),
+#                 Field(dev='DetHV', width=5)),
     ], '!cascade'),
     Block('Cascade', [
         BlockRow(Field(name='ROI',   key='psd/lastcounts', item=0, width=9),
@@ -56,12 +56,17 @@ _column3 = Column(
 #    Block('X-Z table axes', [BlockRow('mx', 'my')], 'gauss'),
     Block('TAS', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
+
                  Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
                  Field(name='L', dev='mira', item=2, format='%.3f', unit=' '),
                  Field(name='E', dev='mira', item=3, format='%.3f', unit=' ')),
         BlockRow(Field(name='Mode', key='mira/scanmode'),
                  Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
                  Field(name='Unit', key='mira/energytransferunit')),
+        BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas', width=30, height=15,
+                       fields={'mth': 'm2th', 'mtt': 'm2tt',
+                               'sth': 'om', 'stt': 'phi',
+                               'ath': 'ath', 'att': 'att', 'tas': 'mira'})),
     ], 'tas'),
     Block('Diffraction', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
@@ -148,7 +153,7 @@ _column1 = Column(
     Block('Environment', [
         BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=7),
                  Field(name='6-fold', dev='Sixfold', min='open', width=7),
-                 Field(dev='NL6', min='open', width=7)),
+                 Field(dev='NL6', min='open', width=7), Field(dev='UBahn', width=6)),
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
                  Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7)),
