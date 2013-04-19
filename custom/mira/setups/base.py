@@ -67,8 +67,6 @@ devices = dict(
                        pollinterval = 10,
                        maxage = 30),
 
-    UBahn     = device('frm2.ubahn.UBahn'),
-
     # LeckToni  = device('devices.vendor.toni.ModBus',
     #                    tacodevice = 'mira/rs232/lecktoni',
     #                    lowlevel = True),

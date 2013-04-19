@@ -20,7 +20,7 @@ _expcolumn = Column(
 )
 
 _column3 = Column(
-    Block('Analyzer', [BlockRow('ath', 'att')], 'analyzer'),
+#    Block('Analyzer', [BlockRow('ath', 'att')], 'analyzer'),
     Block('Detector', [
         BlockRow('timer', 'mon2', 'ctr1'),
         BlockRow(Field(dev='det_fore', item=0, name='Forecast', format='%.2f'),
@@ -63,10 +63,8 @@ _column3 = Column(
         BlockRow(Field(name='Mode', key='mira/scanmode'),
                  Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
                  Field(name='Unit', key='mira/energytransferunit')),
-        BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas', width=30, height=15,
-                       fields={'mth': 'm2th', 'mtt': 'm2tt',
-                               'sth': 'om', 'stt': 'phi',
-                               'ath': 'ath', 'att': 'att', 'tas': 'mira'})),
+        BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas', width=30, height=18,
+                       fields={'mth': 'm2th', 'mtt': 'm2tt', 'sth': 'om', 'stt': 'phi', 'ath': 'ath', 'att': 'att', 'tas': 'mira'})),
     ], 'tas'),
     Block('Diffraction', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
@@ -82,6 +80,10 @@ _column3 = Column(
         BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
                  Field(name='D', key='t/d'), Field(name='p', dev='ccr11_p1')),
     ], 'ccr11'),
+    Block('TTi + Huber', [
+        BlockRow('dct1', 'dct2', Field(dev='flip', width=5)),
+        BlockRow('tbl1', 'tbl2'),
+    ], 'tti'),
     Block('MIRA Magnet', [BlockRow('I')], 'miramagnet'),
     Block('HV Stick', [BlockRow('HV')], 'hv_stick'),
     #Block('Temp. plot', [
@@ -95,22 +97,42 @@ _column2 = Column(
         BlockRow(Field(dev='ss1', name='Sample slit 1 (ss1)', width=24, istext=True)),
         BlockRow(Field(dev='ss2', name='Sample slit 2 (ss2)', width=24, istext=True)),
     ], 'slits'),
-    Block('Sample', [
-        BlockRow('om', 'srot', 'phi'),
-        BlockRow('stx', 'sty', 'stz'),
-        BlockRow('sgx', 'sgy'),
+    Block('Sample + Analyzer', [
+        BlockRow('om', 'srot', 'phi', 'stz'),
+        BlockRow('stx', 'sty', 'sgx', 'sgy'),
+        BlockRow('ath', 'att'),
     ], 'sample'),
     Block('Eulerian cradle', [
         BlockRow('echi', 'ephi'),
         BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
     ], 'euler'),
-    Block('Sample environment', [
+#    Block('Sample environment', [
+#        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
+#                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
+#                 Field(name='C', dev='T_ccr5_C')),
+#        BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
+#                 Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
+#    ], 'ccr5'),
+#    Block('Sample environment (3He-4He)', [
+#        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
+#                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts'),
+#                 Field(name='CCR temp', dev='T_ccr5_C')),
+#        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+#                 Field(name='D', key='t/d', width=4),
+#                 Field(name='turbo', dev='cryo2_p1'),
+#                 Field(name='cycle', dev='cryo2_p4'),
+#                 ),
+#    ], 'cryo2'),
+   Block('Sample environment (3He)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
-                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
-                 Field(name='C', dev='T_ccr5_C')),
-        BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
-                 Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
-    ], 'ccr5'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts'),
+                 Field(name='CCR temp', dev='T_ccr5_C')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cryo5_p1'),
+                 Field(name='cycle', dev='cryo5_p4'),
+                 ),
+    ], 'cryo5'),
     Block('FRM Magnet', [
         BlockRow('B', Field(name='sth', dev='sth_m7T5_stick'),
                  Field(name='T1', dev='m7T5_T1', width=6),
@@ -126,19 +148,13 @@ _column2 = Column(
                  Field(name='T5', dev='m5T_T5', width=6),
                  Field(name='T6', dev='m5T_T6', width=6)),
     ], 'magnet5'),
-    Block('TTi + Huber', [
-        BlockRow('dct1', 'dct2', Field(dev='flip', width=5)),
-        BlockRow('tbl1', 'tbl2'),
-    ], 'tti'),
     Block('Relays', [BlockRow('relay1', 'relay2')], 'relay'),
 )
 
 _column1 = Column(
     Block('MIRA1', [
-        BlockRow('FOL', 'flip1'),
-        BlockRow('mth', 'mtt'),
-        BlockRow('mtx', 'mty'),
-        BlockRow('mgx', 'mch'),
+        BlockRow('mth', 'mtt', 'mch', Field(dev='FOL', width=3)),
+        BlockRow('mtx', 'mty', 'mgx', Field(dev='flip', width=3)),
     ], 'mono1'),
     Block('MIRA2', [
         BlockRow('m2th', 'm2tt'),

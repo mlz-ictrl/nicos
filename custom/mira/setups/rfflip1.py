@@ -1,4 +1,4 @@
-description = 'RF circuit devices for adiabatic flipper'
+description = 'RF circuit devices for adiabatic flipper on first table'
 group = 'optional'
 
 devices = dict(

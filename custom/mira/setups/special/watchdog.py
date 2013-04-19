@@ -13,7 +13,7 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-    dict(condition = 'cooltemp_value > 300',
+    dict(condition = 'cooltemp_value > 30',
          message = 'Cooling water temperature exceeds 30 C',
          priority = 2,
     ),
@@ -26,6 +26,11 @@ watchlist = [
          message = 'Be filter temperature > 70 K, check cooling',
          priority = 1,
     ),
+#    dict(condition = 'cryo2_p4_value > 1.5',
+#         message = 'Cycle pressure > 1.5',
+#         priority = 2,
+#         setup = 'cryo2',
+#    ),
 ]
 
 
