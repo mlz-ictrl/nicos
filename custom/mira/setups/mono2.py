@@ -28,7 +28,7 @@ devices = dict(
                       twotheta = 'm2tt',
                       focush = None,
                       focusv = 'm2fv',
-                      abslimits = (0, 10),
+                      abslimits = (0.1, 10),
                       # calibration 1/2013, valid from 1.2 to 1.4 ki
                       vfocuspars = [220.528, -40.485, 2.789],
                       scatteringsense = -1,

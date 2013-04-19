@@ -32,7 +32,7 @@ devices = dict(
                       twotheta = 'vatt',
                       focush = None,
                       focusv = None,
-                      abslimits = (0, 10)),
+                      abslimits = (0.1, 10)),
 
     vath      = device('devices.generic.VirtualMotor',
                       unit = 'deg',

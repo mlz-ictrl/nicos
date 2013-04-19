@@ -26,7 +26,7 @@ devices = dict(
                     twotheta = 'vmtt',
                     focush = None,
                     focusv = None,
-                    abslimits = (0, 10),
+                    abslimits = (0.1, 10),
                     dvalue = 3.325),
 
     ana    = device('devices.tas.Monochromator',
@@ -35,7 +35,7 @@ devices = dict(
                     twotheta = 'vatt',
                     focush = None,
                     focusv = None,
-                    abslimits = (0, 10),
+                    abslimits = (0.1, 10),
                     dvalue = 3.325),
 
     vmth   = device('devices.generic.VirtualMotor',

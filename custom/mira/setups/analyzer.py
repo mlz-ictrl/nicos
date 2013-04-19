@@ -40,7 +40,7 @@ devices = dict(
                       twotheta = 'att',
                       focush = None,
                       focusv = None,
-                      abslimits = (0, 10),
+                      abslimits = (0.1, 10),
                       dvalue = 3.355,
                       scatteringsense = -1),
 
