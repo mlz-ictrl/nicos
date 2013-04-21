@@ -24,8 +24,6 @@
 
 """NICOS-TACO base classes."""
 
-__version__ = "$Revision$"
-
 import os
 import sys
 import threading

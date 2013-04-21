@@ -26,8 +26,6 @@
 Qt designer plugin for NICOS UI widgets.
 """
 
-__version__ = "$Revision$"
-
 from PyQt4.QtGui import QIcon
 from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
 

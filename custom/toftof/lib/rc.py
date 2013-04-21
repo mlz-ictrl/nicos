@@ -25,8 +25,6 @@
 
 """Huber Motor Controller Protocol NICOS driver."""
 
-__version__ = "$Revision$"
-
 from time import sleep, time as currenttime
 
 from IO import StringIO

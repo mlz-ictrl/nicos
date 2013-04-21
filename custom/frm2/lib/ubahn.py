@@ -24,8 +24,6 @@
 
 """Show next U-Bahn departure from Garching Forschungszentrum."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Readable, Override, NicosError, status
 
 URL = ('http://www.mvg-live.de/ims/dfiStaticAnzeige.svc?'

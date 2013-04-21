@@ -24,8 +24,6 @@
 
 """Virtual devices for testing."""
 
-__version__ = "$Revision$"
-
 import time
 import random
 import threading

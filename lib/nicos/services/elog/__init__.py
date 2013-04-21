@@ -24,8 +24,6 @@
 
 """The NICOS electronic logbook."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Override
 from nicos.services.elog.handler import Handler
 from nicos.protocols.cache import OP_TELL, OP_ASK, OP_SUBSCRIBE, cache_load

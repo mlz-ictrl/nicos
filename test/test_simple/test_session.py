@@ -24,8 +24,6 @@
 
 """NICOS axis test suite."""
 
-__version__ = "$Revision$"
-
 from nicos import session
 from nicos.core import ConfigurationError
 

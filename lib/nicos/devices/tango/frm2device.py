@@ -29,7 +29,6 @@ from nicos.devices.tango.core import TangoDevice
 from nicos.core.device import Device
 from nicos.core.device import usermethod
 
-__version__ = "$Revision$"
 
 class FRM2Device(TangoDevice, Device):
     tango_class = FRM2DeviceClient
@@ -53,4 +52,3 @@ class FRM2Device(TangoDevice, Device):
     @usermethod
     def getErrorString(self):
         return self._tango_guard(self._dev.errorString)
-

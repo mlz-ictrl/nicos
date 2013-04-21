@@ -24,8 +24,6 @@
 
 """NICOS GUI utilities."""
 
-__version__ = "$Revision$"
-
 import os
 import socket
 from os import path

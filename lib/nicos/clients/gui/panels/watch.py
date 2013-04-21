@@ -24,8 +24,6 @@
 
 """NICOS GUI watch variable panel component."""
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QInputDialog, QMessageBox, QTreeWidgetItem

@@ -24,8 +24,6 @@
 
 """Multi-channel counter card class."""
 
-__version__ = "$Revision$"
-
 import TMCS
 import TACOStates
 

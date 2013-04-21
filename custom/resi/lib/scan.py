@@ -28,8 +28,6 @@ Created on 06.06.2011
 @author: pedersen
 """
 
-__version__ = "$Revision$"
-
 from nicos import session
 #from nicos.core.scan import Scan, TimeScan, ContinuousScan, ManualScan
 #from nicos.core import Device, Measurable, Moveable, Readable

@@ -24,8 +24,6 @@
 
 """Analysator stuff for PANDA"""
 
-__version__ = "$Revision$"
-
 from nicos.core import Param, usermethod, Moveable, status
 from nicos.devices.generic.axis import Axis
 

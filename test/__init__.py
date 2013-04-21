@@ -24,8 +24,6 @@
 
 """NICOS test suite."""
 
-__version__ = "$Revision$"
-
 import sys
 
 from nicos import session

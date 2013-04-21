@@ -24,8 +24,6 @@
 
 """NICOS core APIs and classes."""
 
-__version__ = "$Revision$"
-
 from nicos.core import status
 from nicos.core.errors import NicosError, ProgrammingError, \
      ConfigurationError, UsageError, InvalidValueError, ModeError, \

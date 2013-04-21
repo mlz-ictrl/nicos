@@ -24,8 +24,6 @@
 
 """Core data handling classes."""
 
-__version__ = "$Revision$"
-
 from nicos import session
 from nicos.core import Device, Param, listof, nonemptylistof
 from nicos.utils import lazy_property

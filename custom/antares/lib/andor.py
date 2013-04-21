@@ -22,11 +22,9 @@
 #
 # *****************************************************************************
 
-from __future__ import with_statement
-
 """Very simple class for CCD camera measurement and readout."""
 
-__version__ = "$Revision$"
+from __future__ import with_statement
 
 import array
 import threading

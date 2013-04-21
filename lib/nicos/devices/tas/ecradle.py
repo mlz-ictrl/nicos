@@ -26,8 +26,6 @@
 
 """Eulerian cradle calculations."""
 
-__version__ = "$Revision$"
-
 from numpy import array, cross, dot, cos, sin, sqrt, arctan2, zeros, identity
 from numpy.linalg import inv, norm
 

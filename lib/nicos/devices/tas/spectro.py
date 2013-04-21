@@ -25,8 +25,6 @@
 
 """NICOS triple-axis instrument devices."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, \
      ConfigurationError, ComputationError, oneof, tupleof, multiStatus
 from nicos.devices.tas.cell import Cell

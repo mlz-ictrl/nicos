@@ -24,8 +24,6 @@
 
 """NICOS data handlers test suite."""
 
-__version__ = "$Revision$"
-
 from os import path
 from logging import Handler
 

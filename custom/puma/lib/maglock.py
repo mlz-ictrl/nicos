@@ -24,8 +24,6 @@
 
 """Magnetic Lock."""
 
-__version__ = "$Revision$"
-
 import time
 
 from nicos.core import Moveable, Readable, status, NicosError

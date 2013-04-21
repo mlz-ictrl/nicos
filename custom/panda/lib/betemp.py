@@ -24,8 +24,6 @@
 
 """PANDA Beryllium filter readout."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Param, Override, status, none_or, oneof, Readable
 from nicos.devices.taco import AnalogInput
 

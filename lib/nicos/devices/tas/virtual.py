@@ -24,8 +24,6 @@
 
 """Virtual TAS devices."""
 
-__version__ = "$Revision$"
-
 from time import time as currenttime
 from numpy import random
 

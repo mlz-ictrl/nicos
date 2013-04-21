@@ -24,8 +24,6 @@
 
 """Focus class for PUMA. """
 
-__version__ = "$Revision$"
-
 import threading
 from time import sleep
 

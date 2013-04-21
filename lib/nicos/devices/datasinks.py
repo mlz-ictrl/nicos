@@ -24,8 +24,6 @@
 
 """Data sink classes for NICOS."""
 
-__version__ = "$Revision$"
-
 import os
 import time
 from os import path

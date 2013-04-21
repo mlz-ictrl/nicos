@@ -26,8 +26,6 @@
 The connection handler for the execution daemon, handling the protocol commands.
 """
 
-__version__ = "$Revision$"
-
 import os
 import errno
 import socket

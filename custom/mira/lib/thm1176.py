@@ -24,8 +24,6 @@
 
 """Class for THM 1176 magnetic field probe."""
 
-__version__ = "$Revision$"
-
 import os
 import math
 import time

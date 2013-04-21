@@ -24,8 +24,6 @@
 
 """PANDA's Attenuator controling device for NICOS."""
 
-__version__ = "$Revision$"
-
 #from nicos.core import *
 from nicos.core import status, InvalidValueError, Moveable, Param, floatrange, listof
 

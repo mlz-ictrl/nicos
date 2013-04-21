@@ -26,8 +26,6 @@
 NICOS value plot widget.
 """
 
-__version__ = "$Revision$"
-
 from time import time as currenttime, strftime, localtime
 
 from PyQt4.QtCore import Qt, pyqtProperty, SIGNAL, QTimer, QSize

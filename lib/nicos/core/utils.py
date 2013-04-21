@@ -25,8 +25,6 @@
 
 """NICOS core utility functions."""
 
-__version__ = "$Revision$"
-
 from time import sleep, time as currenttime
 
 from nicos import session

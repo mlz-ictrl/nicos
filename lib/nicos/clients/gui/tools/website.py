@@ -24,8 +24,6 @@
 
 """Browser GUI tool."""
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import SIGNAL, QUrl
 from PyQt4.QtGui import QDialog
 

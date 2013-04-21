@@ -24,8 +24,6 @@
 
 """Attenuator class for PUMA."""
 
-__version__ = "$Revision$"
-
 import time
 
 from nicos.core import Moveable, Readable, status, NicosError, HasLimits

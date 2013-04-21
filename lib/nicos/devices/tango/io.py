@@ -25,8 +25,6 @@
 
 """Implementation of TANGO I/O devices."""
 
-__version__ = "$Revision$"
-
 from AnalogInputClient import AnalogInputClient
 from AnalogOutputClient import AnalogOutputClient
 from DigitalInputClient import DigitalInputClient

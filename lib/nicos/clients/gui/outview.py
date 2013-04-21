@@ -24,8 +24,6 @@
 
 """A text control to display output."""
 
-__version__ = "$Revision$"
-
 import re
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL

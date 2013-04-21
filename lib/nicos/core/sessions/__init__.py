@@ -29,8 +29,6 @@ the NICOS runtime.
 Only for internal usage by functions and methods.
 """
 
-__version__ = "$Revision$"
-
 import os
 import imp
 import sys

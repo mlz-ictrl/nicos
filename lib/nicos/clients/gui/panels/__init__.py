@@ -26,8 +26,6 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
      QColorDialog

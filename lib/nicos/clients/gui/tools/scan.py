@@ -24,8 +24,6 @@
 
 """Graphical interface to prepare scan commands."""
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QDoubleValidator, QIntValidator, QButtonGroup
 

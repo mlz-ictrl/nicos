@@ -24,8 +24,6 @@
 
 """Exception classes for usage in NICOS."""
 
-__version__ = "$Revision$"
-
 WIKI_URL = 'https://trac.frm2.tum.de/projects/NICOS/wiki/NicosError/'
 
 

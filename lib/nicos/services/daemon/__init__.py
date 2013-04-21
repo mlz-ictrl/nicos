@@ -26,8 +26,6 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision$"
-
 import time
 import Queue
 import select

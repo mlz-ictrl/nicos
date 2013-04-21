@@ -24,8 +24,6 @@
 
 """Status code definitions."""
 
-__version__ = "$Revision$"
-
 # The status constants are ordered by ascending "severity": this way the status
 # constant for a combined device is very easily determined as the maximum of the
 # subordinate device values.

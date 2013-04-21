@@ -24,8 +24,6 @@
 
 """NICOS notification classes."""
 
-__version__ = "$Revision$"
-
 import os
 import threading
 import subprocess

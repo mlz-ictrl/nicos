@@ -24,8 +24,6 @@
 
 """Package for importing all normally used NICOS commands."""
 
-__version__ = "$Revision$"
-
 #pylint: disable=W0401
 #pylint: disable=W0622
 from nicos.commands.basic import *

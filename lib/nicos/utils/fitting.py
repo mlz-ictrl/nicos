@@ -24,8 +24,6 @@
 
 """Utilities for function fitting."""
 
-__version__ = "$Revision$"
-
 from numpy import array, power, linspace, isscalar, asarray, inf, diagonal, sqrt
 
 try:

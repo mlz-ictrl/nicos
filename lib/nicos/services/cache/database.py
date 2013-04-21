@@ -27,8 +27,6 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision$"
-
 import os
 import threading
 from os import path

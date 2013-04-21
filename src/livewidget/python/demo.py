@@ -24,8 +24,6 @@
 
 """Live widget demonstration."""
 
-__version__ = "$Revision$"
-
 import sys
 
 from PyQt4.QtCore import *

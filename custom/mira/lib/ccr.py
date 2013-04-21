@@ -24,8 +24,6 @@
 
 """DigitalOutput with timeout for CCR gas valve."""
 
-__version__ = "$Revision$"
-
 from threading import Timer
 
 from nicos.core import Param

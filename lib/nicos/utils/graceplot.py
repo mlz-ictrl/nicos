@@ -24,8 +24,6 @@
 
 """Utilities for plotting with Grace."""
 
-__version__ = "$Revision$"
-
 from os import path
 from math import sqrt
 from time import strftime

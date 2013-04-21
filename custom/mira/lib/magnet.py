@@ -26,8 +26,6 @@
 switches attached to digital IOs of a Phytron motor controller.
 """
 
-__version__ = "$Revision$"
-
 import threading
 from time import sleep
 

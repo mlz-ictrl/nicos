@@ -25,8 +25,6 @@
 
 """TOFTOF safety system readout."""
 
-__version__ = "$Revision$"
-
 from time import sleep
 
 from nicos.core import Readable, Moveable, Override, status, oneofdict

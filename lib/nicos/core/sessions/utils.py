@@ -24,8 +24,6 @@
 
 """Utilities for the session classes."""
 
-__version__ = "$Revision$"
-
 import os
 import re
 import time

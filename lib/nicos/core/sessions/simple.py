@@ -24,8 +24,6 @@
 
 """Session classes for simple and noninteractive use."""
 
-__version__ = "$Revision$"
-
 import sys
 import signal
 

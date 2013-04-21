@@ -27,8 +27,6 @@
 NICOS Resi Experiment.
 """
 
-__version__ = "$Revision$"
-
 import os
 from os import path
 

@@ -24,8 +24,6 @@
 
 """NICOS "switcher" device."""
 
-__version__ = "$Revision$"
-
 from nicos.core import anytype, dictof, PositionError, NicosError, Moveable, \
      Readable, Param, Override, status, oneof
 

@@ -24,8 +24,6 @@
 
 """NICOS Instrument device."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Device, Param
 
 

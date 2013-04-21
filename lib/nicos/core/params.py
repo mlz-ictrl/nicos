@@ -24,8 +24,6 @@
 
 """Parameter definition helpers and typechecking combinators."""
 
-__version__ = "$Revision$"
-
 import os
 import re
 import copy

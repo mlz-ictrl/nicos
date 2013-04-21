@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-__version__ = "$Revision$"
-
 from nicos.devices.generic.axis import Axis as GenericAxis
 from nicos.devices.vendor.ipc import IPCModBusTaco
 from nicos.devices.taco.io import DigitalInput

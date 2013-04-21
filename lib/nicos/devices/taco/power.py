@@ -24,8 +24,6 @@
 
 """TACO power supply classes."""
 
-__version__ = "$Revision$"
-
 from time import sleep
 
 import DEVERRORS

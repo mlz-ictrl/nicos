@@ -24,8 +24,6 @@
 
 """NICOS "switcher" device."""
 
-__version__ = "$Revision$"
-
 from nicos.utils import lazy_property
 
 from nicos.core import anytype, none_or, floatrange, listof, dictof, status, \

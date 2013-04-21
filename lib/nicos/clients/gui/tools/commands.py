@@ -24,8 +24,6 @@
 
 """Graphical maintenance command runner."""
 
-__version__ = "$Revision$"
-
 import time
 import subprocess
 

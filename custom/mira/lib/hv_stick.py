@@ -24,8 +24,6 @@
 
 """HV power supply for HV sample stick."""
 
-__version__ = "$Revision$"
-
 import time
 
 from IO import StringIO

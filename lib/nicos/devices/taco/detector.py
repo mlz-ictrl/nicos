@@ -25,8 +25,6 @@
 
 """Detector classes for NICOS."""
 
-__version__ = "$Revision$"
-
 import IOCommon
 import TACOStates
 from IO import Timer, Counter

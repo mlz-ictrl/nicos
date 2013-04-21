@@ -24,8 +24,6 @@
 
 """Base package for NICOS commands."""
 
-__version__ = "$Revision$"
-
 
 def usercommand(func):
     """Decorator that marks a function as a user command."""

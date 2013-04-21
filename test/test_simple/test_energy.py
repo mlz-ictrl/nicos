@@ -24,8 +24,6 @@
 
 """NICOS device class test suite."""
 
-__version__ = "$Revision$"
-
 from nicos.devices.tas import energy
 
 from test.utils import raises, assertAlmostEqual

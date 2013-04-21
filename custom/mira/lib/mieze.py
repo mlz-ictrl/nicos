@@ -24,8 +24,6 @@
 
 """Module for MIEZE operation."""
 
-__version__ = "$Revision$"
-
 import copy
 from itertools import chain
 

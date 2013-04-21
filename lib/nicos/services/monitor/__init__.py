@@ -25,8 +25,6 @@
 
 """Base class for instrument monitors."""
 
-__version__ = "$Revision$"
-
 import os
 import re
 import sys

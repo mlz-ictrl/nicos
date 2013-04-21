@@ -24,8 +24,6 @@
 
 """Device class to avoid driving the 7T5 magnet to the same field (crashes the TACOServer)"""
 
-__version__ = "$Revision$"
-
 from nicos.core import Param
 from nicos.devices.taco import AnalogOutput
 

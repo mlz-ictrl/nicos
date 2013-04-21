@@ -24,8 +24,6 @@
 
 """NICOS axis test suite."""
 
-__version__ = "$Revision$"
-
 from time import sleep
 
 from nicos import session

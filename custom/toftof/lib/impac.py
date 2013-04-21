@@ -25,8 +25,6 @@
 
 """IMPAC Pyrometer IGAR 12-LO"""
 
-__version__ = "$Revision$"
-
 from time import sleep, time
 
 from IO import StringIO

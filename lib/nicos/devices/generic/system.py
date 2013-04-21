@@ -24,8 +24,6 @@
 
 """System-related device classes for NICOS."""
 
-__version__ = "$Revision$"
-
 import os
 import ctypes
 

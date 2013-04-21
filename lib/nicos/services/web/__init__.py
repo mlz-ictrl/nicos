@@ -24,8 +24,6 @@
 
 """Session used for the NICOS web interface."""
 
-__version__ = "$Revision$"
-
 import sys
 from wsgiref.simple_server import make_server
 

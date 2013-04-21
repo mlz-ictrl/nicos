@@ -24,8 +24,6 @@
 
 """PANDA S7 Interface for NICOS."""
 
-__version__ = "$Revision$"
-
 import threading
 
 from time import sleep, time as currenttime

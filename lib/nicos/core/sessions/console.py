@@ -24,8 +24,6 @@
 
 """Session class for console interface."""
 
-__version__ = "$Revision$"
-
 import os
 import pdb
 import sys

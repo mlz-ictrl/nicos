@@ -24,8 +24,6 @@
 
 """NICOS test suite cache."""
 
-__version__ = "$Revision$"
-
 import os
 import logging
 from os import path

@@ -25,8 +25,6 @@
 
 """NICOS triple-axis instrument devices."""
 
-__version__ = "$Revision$"
-
 from math import pi, cos, sin, asin, radians, degrees, sqrt
 from time import time
 

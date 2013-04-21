@@ -24,8 +24,6 @@
 
 """Calculation GUI tool."""
 
-__version__ = "$Revision$"
-
 import re
 import math
 from os import path

@@ -28,8 +28,6 @@ Created on 30.05.2011
 @author: pedersen
 """
 
-__version__ = "$Revision$"
-
 import sys
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/usr/local/nonius_new/app')

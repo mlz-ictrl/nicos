@@ -24,8 +24,6 @@
 
 """Module for output/logging user commands."""
 
-__version__ = "$Revision$"
-
 from nicos import session
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 

@@ -25,8 +25,6 @@
 
 """TOFTOF chopper calculations and chopper control (MACCON)."""
 
-__version__ = "$Revision$"
-
 from time import sleep, time as currenttime
 
 import IO

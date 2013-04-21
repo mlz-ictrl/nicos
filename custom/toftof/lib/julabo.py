@@ -25,8 +25,6 @@
 
 """Haake/Julabo thermostat Protocol NICOS driver."""
 
-__version__ = "$Revision$"
-
 from time import sleep, time
 
 from IO import StringIO

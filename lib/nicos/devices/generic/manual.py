@@ -24,8 +24,6 @@
 
 """"Manual" moveable devices, to keep track of manual instrument changes."""
 
-__version__ = "$Revision$"
-
 from nicos.core import status, anytype, nonemptylistof, Moveable, Param, \
      Override, HasLimits, PositionError
 

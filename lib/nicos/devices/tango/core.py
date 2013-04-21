@@ -25,8 +25,6 @@
 
 """NICOS-TANGO base classes."""
 
-__version__ = "$Revision$"
-
 import sys
 import threading
 from time import sleep

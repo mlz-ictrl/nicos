@@ -25,8 +25,6 @@
 
 """Cache reader/writer devices."""
 
-__version__ = "$Revision$"
-
 from time import time as currenttime, sleep
 from collections import deque
 

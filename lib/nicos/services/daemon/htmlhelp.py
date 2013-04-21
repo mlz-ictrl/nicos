@@ -24,8 +24,6 @@
 
 """Utilities to generate HTML-format help for displaying in the GUI client."""
 
-__version__ = "$Revision$"
-
 import sys
 import pydoc
 import inspect

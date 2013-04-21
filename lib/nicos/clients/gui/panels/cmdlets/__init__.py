@@ -24,8 +24,6 @@
 
 """NICOS GUI command input widgets."""
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget
 

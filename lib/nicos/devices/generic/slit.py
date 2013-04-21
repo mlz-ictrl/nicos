@@ -24,8 +24,6 @@
 
 """NICOS slit device."""
 
-__version__ = "$Revision$"
-
 from time import sleep
 
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \

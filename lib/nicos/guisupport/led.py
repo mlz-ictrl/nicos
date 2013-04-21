@@ -26,8 +26,6 @@
 NICOS GUI LED class.
 """
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import Qt, pyqtProperty, QSize
 from PyQt4.QtGui import QLabel, QWidget, QPixmap
 

@@ -24,8 +24,6 @@
 
 """Heinzinger device."""
 
-__version__ = "$Revision$"
-
 import time
 
 from IO import StringIO

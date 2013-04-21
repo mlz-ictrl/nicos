@@ -24,8 +24,6 @@
 
 """Thread that executes user scripts."""
 
-__version__ = "$Revision$"
-
 import sys
 import time
 import weakref

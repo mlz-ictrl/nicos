@@ -25,8 +25,6 @@
 
 """TOFTOF histogram counter card Taco devices."""
 
-__version__ = "$Revision$"
-
 import numpy as np
 
 import threading

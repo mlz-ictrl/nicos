@@ -26,8 +26,6 @@
 NICOS value display widget.
 """
 
-__version__ = "$Revision$"
-
 import ast
 from cgi import escape
 from time import time as currenttime

@@ -24,9 +24,6 @@
 
 """NICOS generic devices test suite."""
 
-__version__ = "$Revision$"
-
-
 from nicos import session
 from nicos.core import PositionError, NicosError, LimitError, \
      ConfigurationError, status

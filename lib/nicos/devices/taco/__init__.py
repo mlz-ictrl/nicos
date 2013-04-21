@@ -24,8 +24,6 @@
 
 """Package for TACO device classes in NICOS."""
 
-__version__ = "$Revision$"
-
 from nicos.devices.taco.axis import Axis, HoveringAxis
 from nicos.devices.taco.coder import Coder
 from nicos.devices.taco.core import TacoDevice

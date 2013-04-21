@@ -24,9 +24,6 @@
 
 """NICOS demo notification class using the freedesktop notification protocol."""
 
-__version__ = "$Revision$"
-
-
 from PyQt4.QtDBus import QDBusInterface
 from PyQt4.QtCore import QVariant, QStringList
 

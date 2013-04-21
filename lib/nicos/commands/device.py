@@ -24,8 +24,6 @@
 
 """Module for simple device-related user commands."""
 
-__version__ = "$Revision$"
-
 import time
 import threading
 import __builtin__

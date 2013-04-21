@@ -24,8 +24,6 @@
 
 """NICOS test suite utilities."""
 
-__version__ = "$Revision$"
-
 import os
 import re
 import sys

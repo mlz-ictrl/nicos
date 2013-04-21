@@ -24,8 +24,6 @@
 
 """Session class used with the NICOS daemon."""
 
-__version__ = "$Revision$"
-
 import os
 import sys
 import signal

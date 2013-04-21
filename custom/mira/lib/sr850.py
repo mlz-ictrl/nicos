@@ -24,8 +24,6 @@
 
 """Class for Stanford Research SR850 lock-in amplifier."""
 
-__version__ = "$Revision$"
-
 from math import hypot, atan2, degrees
 from time import time
 

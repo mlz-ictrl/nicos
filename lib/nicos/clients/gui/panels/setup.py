@@ -24,8 +24,6 @@
 
 """NICOS GUI experiment setup window."""
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem
 

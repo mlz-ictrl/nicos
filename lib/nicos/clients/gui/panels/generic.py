@@ -26,8 +26,6 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel

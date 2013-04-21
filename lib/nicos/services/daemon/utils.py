@@ -24,8 +24,6 @@
 
 """Utilities for the NICOS daemon."""
 
-__version__ = "$Revision$"
-
 import os
 import re
 import sys

@@ -24,8 +24,6 @@
 
 """NICOS device class test suite."""
 
-__version__ = "$Revision$"
-
 from nicos import session
 from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
      ConfigurationError, ProgrammingError, LimitError, UsageError, \

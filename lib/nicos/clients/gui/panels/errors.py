@@ -24,8 +24,6 @@
 
 """NICOS GUI error and warning window."""
 
-__version__ = "$Revision$"
-
 from logging import WARNING
 
 from PyQt4.QtCore import SIGNAL

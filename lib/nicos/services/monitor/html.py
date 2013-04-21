@@ -26,8 +26,6 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision$"
-
 from cgi import escape
 from time import sleep, time as currenttime
 from datetime import datetime

@@ -24,8 +24,6 @@
 
 """ Classes to access to the switches via the Pilz Box """
 
-__version__ = "$Revision$"
-
 import IO
 import time
 

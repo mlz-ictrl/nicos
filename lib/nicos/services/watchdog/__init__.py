@@ -24,8 +24,6 @@
 
 """The NICOS watchdog daemon."""
 
-__version__ = "$Revision$"
-
 import subprocess
 from os import path
 from time import time as currenttime, strftime

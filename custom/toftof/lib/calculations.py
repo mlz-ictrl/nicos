@@ -25,8 +25,6 @@
 
 """TOFTOF chopper and resolution calculations."""
 
-__version__ = "$Revision$"
-
 from math import sqrt
 
 # *** general constants ***

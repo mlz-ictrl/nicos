@@ -26,5 +26,3 @@
 The nicos.guisupport package contains PyQt UI elements for use in graphical
 NICOS applications.
 """
-
-__version__ = "$Revision$"

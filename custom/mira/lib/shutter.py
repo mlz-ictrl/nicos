@@ -24,8 +24,6 @@
 
 """Class for MIRA shutter readout/operation."""
 
-__version__ = "$Revision$"
-
 import time
 
 import IO

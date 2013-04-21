@@ -24,8 +24,6 @@
 
 """CCR switch device classes."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Moveable, Override, status
 from nicos.devices.taco import DigitalInput, DigitalOutput
 

@@ -24,8 +24,6 @@
 
 """NICOS daemon authentication and user abstraction."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Device, Param, listof, oneof, GUEST, USER, ADMIN, \
      ACCESS_LEVELS
 

@@ -24,8 +24,6 @@
 
 """Varian Mini-TASK vacuum pump device."""
 
-__version__ = "$Revision$"
-
 from IO import StringIO
 
 from nicos.core import status, Readable, Override, CommunicationError

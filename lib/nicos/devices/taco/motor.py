@@ -25,8 +25,6 @@
 
 """Taco motor class for NICOS."""
 
-__version__ = "$Revision$"
-
 from Motor import Motor as TACOMotor
 import TACOStates
 

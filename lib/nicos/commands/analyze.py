@@ -24,8 +24,6 @@
 
 """Module for data analyzing user commands."""
 
-__version__ = "$Revision$"
-
 from math import sqrt
 
 import numpy as np

@@ -24,8 +24,6 @@
 
 """NICOS GUI data handler class."""
 
-__version__ = "$Revision$"
-
 import copy
 import uuid
 from itertools import chain

@@ -24,8 +24,6 @@
 
 """Forecast final values of a TACO detector."""
 
-__version__ = "$Revision$"
-
 from nicos.core import status, Readable, Override
 from nicos.devices.generic import MultiChannelDetector
 

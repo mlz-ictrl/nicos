@@ -24,8 +24,6 @@
 
 """PANDA rotary axis for NICOS."""
 
-__version__ = "$Revision$"
-
 #~ from time import sleep, time as currenttime
 
 from nicos.core import Param, NicosError, usermethod, none_or

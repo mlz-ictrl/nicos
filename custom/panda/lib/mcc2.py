@@ -24,8 +24,6 @@
 
 """PANDA Mcc2 Interface for 7T5 Magnet."""
 
-__version__ = "$Revision$"
-
 from time import sleep
 
 from IO import StringIO

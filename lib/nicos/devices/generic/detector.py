@@ -25,8 +25,6 @@
 
 """Generic 0-D channel detector classes for NICOS."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Measurable, Param, oneof, status
 
 

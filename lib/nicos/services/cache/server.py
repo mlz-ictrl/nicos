@@ -27,8 +27,6 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision$"
-
 import Queue
 import select
 import socket

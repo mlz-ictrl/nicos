@@ -24,8 +24,6 @@
 
 """Magazin for monochanger. Modified Switcher class."""
 
-__version__ = "$Revision$"
-
 from nicos.core import listof, anytype, ConfigurationError, PositionError, \
      NicosError, Moveable, Readable, Param, Override
 

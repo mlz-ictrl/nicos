@@ -25,8 +25,6 @@
 
 """Class for PUMA SR7 shutter control."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Moveable, Readable, PositionError, oneof, \
      status, waitForStatus, Override
 

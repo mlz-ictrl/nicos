@@ -24,8 +24,6 @@
 
 """Special axis for monochromator lift."""
 
-__version__ = "$Revision$"
-
 from nicos.devices.generic.axis import Axis
 
 

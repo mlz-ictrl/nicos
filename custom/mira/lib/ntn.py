@@ -24,8 +24,6 @@
 
 """FUG NTN14000m power supply special class."""
 
-__version__ = "$Revision$"
-
 import time
 
 from IO import StringIO

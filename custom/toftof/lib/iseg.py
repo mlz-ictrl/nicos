@@ -24,8 +24,6 @@
 
 """Iseg high voltage power supply device classes."""
 
-__version__ = "$Revision$"
-
 from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
      NicosError, CommunicationError
 

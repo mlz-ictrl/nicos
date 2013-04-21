@@ -24,8 +24,6 @@
 
 """Base device classes for usage in NICOS."""
 
-__version__ = "$Revision$"
-
 import sys
 import types
 import inspect

@@ -24,8 +24,6 @@
 
 """Detector classes for NICOS."""
 
-__version__ = "$Revision$"
-
 from DetectorClient import DetectorClient
 
 from nicos.devices.tango.frm2device import FRM2Device

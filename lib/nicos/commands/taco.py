@@ -24,8 +24,6 @@
 
 """TACO specific commands for NICOS."""
 
-__version__ = "$Revision$"
-
 import os
 import subprocess
 

@@ -24,8 +24,6 @@
 
 """Utilities for the other methods."""
 
-__version__ = "$Revision$"
-
 import os
 import re
 import sys

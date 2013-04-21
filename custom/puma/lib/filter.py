@@ -25,8 +25,6 @@
 
 """Class for PUMA PG filter."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Moveable, Readable, Param, PositionError, oneof, \
      status, waitForStatus, Override
 

@@ -24,8 +24,6 @@
 
 """NICOS GUI script status panel component."""
 
-__version__ = "$Revision$"
-
 import time
 
 from PyQt4.QtCore import Qt, QTimer, QVariant, SIGNAL

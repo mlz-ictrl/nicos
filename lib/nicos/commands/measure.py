@@ -24,8 +24,6 @@
 
 """Module for measuring user commands."""
 
-__version__ = "$Revision$"
-
 from time import sleep
 
 from nicos import session

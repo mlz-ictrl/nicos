@@ -24,8 +24,6 @@
 
 """Devices for the Beckhoff Busklemmensystem."""
 
-__version__ = "$Revision$"
-
 from Modbus import Modbus
 
 from nicos.core import Param

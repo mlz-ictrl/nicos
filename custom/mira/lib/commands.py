@@ -24,8 +24,6 @@
 
 """Module for MIRA specific commands."""
 
-__version__ = "$Revision$"
-
 import time
 
 from nicos import session

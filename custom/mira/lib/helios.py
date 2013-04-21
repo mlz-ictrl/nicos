@@ -24,8 +24,6 @@
 
 """Class for FRM-II Helios 3He polarizer operation."""
 
-__version__ = "$Revision$"
-
 import PowerSupply
 
 from nicos.core import Moveable, Param, Override, usermethod, oneof, UsageError

@@ -24,8 +24,6 @@
 
 """Taco coder class for NICOS."""
 
-__version__ = "$Revision$"
-
 from Encoder import Encoder
 
 from nicos.devices.abstract import Coder as BaseCoder

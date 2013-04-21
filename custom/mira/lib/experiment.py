@@ -24,8 +24,6 @@
 
 """NICOS MIRA Experiment."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Override
 from nicos.frm2.experiment import Experiment
 

@@ -24,8 +24,6 @@
 
 """NICOS GUI config helpers."""
 
-__version__ = "$Revision$"
-
 
 class window(tuple):
     def __new__(cls, title, icon, unique, child):

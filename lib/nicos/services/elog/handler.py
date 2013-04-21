@@ -24,8 +24,6 @@
 
 """The NICOS electronic logbook."""
 
-__version__ = "$Revision$"
-
 from os import path
 from cgi import escape
 from time import strftime, localtime

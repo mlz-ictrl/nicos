@@ -24,8 +24,6 @@
 
 """Class for Mezei spin flipper."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Moveable, Param, Override, oneof, tupleof, status
 
 

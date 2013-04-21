@@ -24,8 +24,6 @@
 
 """Package for TANGO device classes in NICOS."""
 
-__version__ = "$Revision$"
-
 from nicos.devices.tango.core import TangoDevice
 from nicos.devices.tango.frm2device import FRM2Device
 from nicos.devices.tango.io import AnalogInput, AnalogOutput, DigitalInput, \
@@ -33,4 +31,3 @@ from nicos.devices.tango.io import AnalogInput, AnalogOutput, DigitalInput, \
      NamedDigitalOutput, PartialDigitalOutput, BitsDigitalOutput, \
      MultiDigitalOutput
 from nicos.devices.tango.temperature import TemperatureSensor, TemperatureController
-

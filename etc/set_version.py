@@ -31,11 +31,8 @@ else:
     sys.path.insert(0, 'lib')
     current_version = __import__('nicos').nicos_version
 
-for root, dirs, files in os.walk(sys.argv[1]):
-    for file in files:
-        if file.endswith('.py'):
-            fpath = path.join(root, file)
-            contents = open(fpath, 'r').read()
-            new_contents = contents.replace('$Revision$', current_version)
-            if contents != new_contents:
-                open(fpath, 'w').write(new_contents)
+fpath = path.join(sys.argv[1], 'nicos', '__init__.py')
+contents = open(fpath, 'rb').read()
+new_contents = contents.replace('$Revision$', current_version)
+if contents != new_contents:
+    open(fpath, 'wb').write(new_contents)

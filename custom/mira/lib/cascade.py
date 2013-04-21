@@ -24,8 +24,6 @@
 
 """Class for CASCADE detector measurement and readout."""
 
-__version__ = "$Revision$"
-
 from os import path
 from math import pi
 from time import sleep, time as currenttime

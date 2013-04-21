@@ -24,8 +24,6 @@
 
 """NICOS GUI electronic logbook window."""
 
-__version__ = "$Revision$"
-
 from os import path
 from cgi import escape
 

@@ -25,8 +25,6 @@
 
 """NICOS axis classes."""
 
-__version__ = "$Revision$"
-
 import threading
 from time import sleep
 

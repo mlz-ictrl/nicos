@@ -24,8 +24,6 @@
 
 """Class for Picotest function generator."""
 
-__version__ = "$Revision$"
-
 import os
 import time
 

@@ -24,8 +24,6 @@
 
 """Generic device class for "moving" a parameter of another device."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Device, Moveable, Param, Override, status
 
 

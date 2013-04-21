@@ -24,8 +24,6 @@
 
 """Utilities for the electronic logbook daemon."""
 
-__version__ = "$Revision$"
-
 import time
 from cgi import escape
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL

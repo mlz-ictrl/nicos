@@ -27,8 +27,6 @@
 coordinates.
 """
 
-__version__ = "$Revision$"
-
 from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
      array, identity, zeros, cross, dot, sign
 from numpy.linalg import inv, norm

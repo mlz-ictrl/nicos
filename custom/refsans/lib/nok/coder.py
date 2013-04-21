@@ -24,8 +24,6 @@
 
 """REFSANS NOK coder class for NICOS."""
 
-__version__ = "$Revision$"
-
 import sys
 from Encoder import Encoder
 

@@ -23,5 +23,3 @@
 # *****************************************************************************
 
 """Device classes for vendor-specific hardware devices."""
-
-__version__ = "$Revision$"

@@ -24,8 +24,6 @@
 
 """NICOS FRM II specific authentication."""
 
-__version__ = "$Revision$"
-
 from nicos.core import USER
 from nicos.services.daemon.auth import User, Authenticator, AuthenticationError
 from nicos.frm2.proposaldb import queryUser

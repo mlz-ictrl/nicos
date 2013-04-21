@@ -24,8 +24,6 @@
 
 """Logging utilities specific to NICOS."""
 
-__version__ = "$Revision$"
-
 import os
 import sys
 import time

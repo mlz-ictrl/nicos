@@ -26,8 +26,6 @@
 A remote debugger for the NICOS daemon.
 """
 
-__version__ = "$Revision$"
-
 import sys
 from pdb import Pdb
 from Queue import Queue

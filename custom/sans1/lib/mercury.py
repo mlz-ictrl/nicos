@@ -25,8 +25,6 @@
 """Class for Oxford magnet consisting of the Mercury iPS power supply
 """
 
-__version__ = "$Revision$"
-
 # from PowerSupply import CurrentControl
 from IO import StringIO
 

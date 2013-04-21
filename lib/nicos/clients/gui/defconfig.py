@@ -24,8 +24,6 @@
 
 """NICOS GUI default configuration."""
 
-__version__ = "$Revision$"
-
 from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool
 
 config = ('Default', [

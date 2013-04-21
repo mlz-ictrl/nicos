@@ -26,8 +26,6 @@
 Base class for NICOS UI widgets.
 """
 
-__version__ = "$Revision$"
-
 from PyQt4.QtCore import SIGNAL
 
 from nicos.core.status import OK

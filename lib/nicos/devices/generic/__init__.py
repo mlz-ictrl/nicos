@@ -24,8 +24,6 @@
 
 """Generic device classes using hardware-specific attached devices."""
 
-__version__ = "$Revision$"
-
 from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.detector import MultiChannelDetector
 from nicos.devices.generic.manual import ManualMove, ManualSwitch

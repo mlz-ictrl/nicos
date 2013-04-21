@@ -24,8 +24,6 @@
 
 """Generic device classes using hardware-specific attached devices."""
 
-__version__ = "$Revision$"
-
 import re
 
 from nicos import session

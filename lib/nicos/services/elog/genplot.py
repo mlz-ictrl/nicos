@@ -24,8 +24,6 @@
 
 """Generate quick overview plots of scans, using Gnuplot."""
 
-__version__ = "$Revision$"
-
 import subprocess
 
 def plotDataset(dataset, fn):

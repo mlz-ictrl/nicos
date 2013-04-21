@@ -24,8 +24,6 @@
 
 """TAS commands for NICOS."""
 
-__version__ = "$Revision$"
-
 from math import asin, pi
 
 from numpy import ndarray

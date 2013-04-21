@@ -27,8 +27,6 @@ Python interface to the _pyctl module, to control the execution of Python
 code via a C trace function.
 """
 
-__version__ = "$Revision$"
-
 __all__ = ['LINENO_ALL', 'LINENO_TOPLEVEL', 'LINENO_NAME',
            'Controller', 'ControlStop']
 

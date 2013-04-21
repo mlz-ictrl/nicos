@@ -25,8 +25,6 @@
 
 """NICOS GUI plotting helpers."""
 
-__version__ = "$Revision$"
-
 import os
 import sys
 import time

@@ -24,8 +24,6 @@
 
 """TOFTOF focussing neutron guide device."""
 
-__version__ = "$Revision$"
-
 from nicos.common import Slit
 
 from nicos.core import oneof, HasPrecision, Override

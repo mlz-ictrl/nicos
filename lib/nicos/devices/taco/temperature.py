@@ -24,8 +24,6 @@
 
 """NICOS temperature controller classes."""
 
-__version__ = "$Revision$"
-
 import time
 
 import TACOStates

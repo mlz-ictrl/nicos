@@ -26,8 +26,6 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision$"
-
 import time
 
 from PyQt4.QtCore import QVariant, QStringList, SIGNAL

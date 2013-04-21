@@ -24,8 +24,6 @@
 
 """NICOS GUI fitting utilities."""
 
-__version__ = "$Revision$"
-
 from math import sqrt, log
 
 try:

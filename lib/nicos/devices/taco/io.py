@@ -24,8 +24,6 @@
 
 """Implementation of TACO I/O devices."""
 
-__version__ = "$Revision$"
-
 import IO
 
 from nicos.core import dictof, Readable, Moveable, HasLimits, Param, Override, \

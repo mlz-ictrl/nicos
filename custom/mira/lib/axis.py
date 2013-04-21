@@ -24,8 +24,6 @@
 
 """MIRA specific axis classes."""
 
-__version__ = "$Revision$"
-
 import IO
 
 from nicos.devices.taco.axis import Axis as TacoAxis

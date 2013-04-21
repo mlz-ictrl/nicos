@@ -24,8 +24,6 @@
 
 """Class for i7000 input/output modules."""
 
-__version__ = "$Revision$"
-
 import IO
 
 from nicos.core import Moveable, Param, status
