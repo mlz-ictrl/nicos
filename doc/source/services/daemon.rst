@@ -56,6 +56,21 @@ It also has a list attached devices, the ``authenticators``.  Authenticators
 determine if the login name and password presented in clients are accepted by
 the daemon, and which user level the user gets.
 
+There are several other parameters that can be configured, but the standard
+setting is usually sufficient:
+
+* ``maxlogins`` -- maximum number of simultaneous clients served, default 10
+* ``updateinterval`` -- interval in which watch expressions are checked and
+  updates sent to the clients, default 0.2 s
+* ``trustedhosts`` -- a list of host names or addresses that are allowed to log
+  in; the default is an empty list, which means that all hosts are allowed
+* ``simmode`` -- whether to start the daemon in simulation mode
+
+The ``simmode`` parameter is useful if you want to configure two daemon
+instances, one running normally and one running exclusively in simulation mode.
+For this purpose the possibility of multiple daemon setups (see above) also
+comes in handy.
+
 
 .. _userlevels:
 

@@ -58,11 +58,19 @@ man_pages = [
 autodoc_default_options = ['members']
 
 import new
+import inspect
+import keyword
+
 from sphinx import addnodes
-from nicos.core import Device
 from sphinx.domains import ObjType
 from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
 from sphinx.ext.autodoc import ClassDocumenter
+from sphinx.util.docstrings import prepare_docstring
+from sphinx.util.docfields import Field
+from docutils.statemachine import ViewList
+
+from nicos.core import Device
+from nicos.services.daemon.handler import ConnectionHandler
 
 class PyParameter(PyClassmember):
     def handle_signature(self, sig, signode):
@@ -236,8 +244,53 @@ class DeviceDocumenter(ClassDocumenter):
                           ', '.join('`~%s.%s`' % (info.classname or '', name)
                           for (name, info) in baseparaminfo), '<autodoc>')
 
+
+class DaemonCommand(PyModulelevel):
+    """Directive for daemon command description."""
+
+    def handle_signature(self, sig, signode):
+        if sig in keyword.kwlist:
+            # append '_' to Python keywords
+            self.object = getattr(ConnectionHandler, sig+'_').orig_function
+        else:
+            self.object = getattr(ConnectionHandler, sig).orig_function
+        args = inspect.getargspec(self.object)
+        del args[0][0]  # remove self
+        sig = '%s%s' % (sig, inspect.formatargspec(*args))
+        return PyModulelevel.handle_signature(self, sig, signode)
+
+    def needs_arglist(self):
+        return True
+
+    def get_index_text(self, modname, name_cls):
+        return '%s (daemon command)' % name_cls[0]
+
+    def before_content(self):
+        dstring = prepare_docstring(self.object.__doc__ or '')
+        # overwrite content of directive
+        self.content = ViewList(dstring)
+        PyModulelevel.before_content(self)
+
+
+class DaemonEvent(PyModulelevel):
+    """Directive for daemon command description."""
+
+    doc_field_types = [
+        Field('arg', label='Argument', has_arg=False, names=('arg',)),
+    ]
+
+    def needs_arglist(self):
+        return False
+
+    def get_index_text(self, modname, name_cls):
+        return '%s (daemon event)' % name_cls[0]
+
+
+
 def setup(app):
     app.add_directive_to_domain('py', 'parameter', PyParameter)
     app.add_autodocumenter(DeviceDocumenter)
+    app.add_directive('daemoncmd', DaemonCommand)
+    app.add_directive('daemonevt', DaemonEvent)
     PythonDomain.object_types['parameter'] = ObjType('parameter', 'attr', 'obj')
     generate_stubs()

@@ -22,11 +22,7 @@
 #
 # *****************************************************************************
 
-"""
-Daemon protocol documentation
-=============================
-
-"""
+"""NICOS daemon protocol helpers."""
 
 import struct
 import cPickle as pickle
@@ -71,6 +67,9 @@ STATUS_STOPPING = 2   # stop exception raised, waiting for propagation
 
 # key: event name
 # value: whether the event data is serialized
+
+# IMPORTANT: add new events to the documentation too!
+
 DAEMON_EVENTS = {
     # a new message arrived
     'message': True,

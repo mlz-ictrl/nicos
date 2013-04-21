@@ -85,6 +85,7 @@ def command(needcontrol=False, needscript=None, name=None):
                                    (name or func.__name__))
                 self.write(NAK, 'exception occurred executing command')
         wrapper.__name__ = func.__name__
+        wrapper.orig_function = func
         daemon_commands[name or func.__name__] = wrapper
         return wrapper
     return deco
@@ -305,7 +306,7 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=False)
     def start(self, name, code):
-        """Start a named script within the script thread
+        """Start a script within the script thread.
 
         Same as queue(), but will reject the command if a script is running.
         """
@@ -313,7 +314,12 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True)
     def queue(self, name, code):
-        """Start a named script, or queue it if the script thread is busy."""
+        """Start a script, or queue it if the script thread is busy.
+
+        :param name: name of the script (usually the filename) or ''
+        :param code: code of the script
+        :returns: ok or error
+        """
         if not name:
             name = None
         try:
@@ -330,6 +336,9 @@ class ConnectionHandler(BaseRequestHandler):
     def unqueue(self, reqno):
         """Mark the given request number (or all, if '*') so that it is not
         executed.
+
+        :param reqno: request number, or '*'
+        :returns: ok or error (e.g. if the given script is not in the queue)
         """
         if reqno == '*':
             blocked = range(self.controller.reqno_work + 1,
@@ -345,7 +354,11 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=True)
     def update(self, newcode):
-        """Update the currently running script."""
+        """Update the currently running script.
+
+        :param newcode: new code for the current script
+        :returns: ok or error (e.g. if the script differs in executing code)
+        """
         try:
             self.controller.current_script.update(newcode,
                                                   self.controller, self.user)
@@ -356,7 +369,10 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=True, name='break')
     def break_(self):
-        """Interrupt the current script at the next breakpoint."""
+        """Interrupt the current script at the next breakpoint.
+
+        :returns: ok or error (e.g. if script is already interrupted)
+        """
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
@@ -369,7 +385,10 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=True, name='continue')
     def continue_(self):
-        """Continue the interrupted script."""
+        """Continue the interrupted script.
+
+        :returns: ok or error (e.g. if script is not interrupted)
+        """
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'could not continue script')
         elif self.controller.status == STATUS_RUNNING:
@@ -381,7 +400,14 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=True)
     def stop(self, level=None):
-        """Abort the interrupted script."""
+        """Abort the interrupted script.
+
+        :param level: stop level as a string (default 2)
+
+           * '1' - stop after current scan/line in the script
+           * '2' - stop after scan step/breakpoint with level "2"
+        :returns: ok or error
+        """
         if level is None:
             level = 2  # which means after scan step, the default
         else:
@@ -399,7 +425,14 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True)
     def emergency(self):
-        """Stop the script unconditionally and run emergency stop functions."""
+        """Stop the script unconditionally and run emergency stop functions.
+
+        This throws an exception into the thread running the script, so that the
+        script is interrupted as soon as possible.  However, finalizers with
+        "try-finally" are still run and can e.g. record count results.
+
+        :returns: ok or error
+        """
         if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             # only execute emergency stop functions
             self.log.warning('immediate stop without script running')
@@ -422,7 +455,12 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, name='exec')
     def exec_(self, cmd):
-        """Execute a Python statement in the context of the running script."""
+        """Execute a Python statement in the context of the running script.
+
+        :param cmd: Python statement
+        :returns: ok or error (it is not an error if the script itself raised
+           an exception)
+        """
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is stopping')
             return
@@ -435,7 +473,11 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def eval(self, expr):
-        """Evaluate and return an expression."""
+        """Evaluate and return an expression.
+
+        :param expr: Python expression
+        :returns: result of evaluation or an error if exception raised
+        """
         self.log.debug('evaluating expresson in script context\n%s' % expr)
         try:
             retval = self.controller.eval_expression(expr, self)
@@ -447,7 +489,14 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True)
     def simulate(self, name, code, prefix):
-        """Simulate a named script by forking into simulation mode."""
+        """Simulate a named script by forking into simulation mode.
+
+        :param name: name of the script (typically the filename)
+        :param code: code of the script
+        :param prefix: prefix string for the log output of the simulation
+           process
+        :returns: ok or error (e.g. if simulation is not possible)
+        """
         self.log.debug('running simulation\n%s' % code)
         try:
             self.controller.simulate_script(code, name or None, self.user,
@@ -462,7 +511,12 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def complete(self, line, lastword):
-        """Get completions for the given prefix."""
+        """Get completions for the given prefix.
+
+        :param line: the whole entered line
+        :param lastword: the last word of the line
+        :returns: list of matches
+        """
         matches = sorted(set(self.controller.complete_line(line, lastword)))
         self.write(STX, serialize(matches))
 
@@ -470,12 +524,33 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def getversion(self):
-        """Return the daemon's version."""
+        """Return the daemon's version.
+
+        :returns: version string
+        """
         self.write(STX, serialize(nicos_version))
 
     @command()
     def getstatus(self):
-        """Return all important status info."""
+        """Return all important status info.
+
+        :returns: dict of status info with the following entries:
+
+           status
+              tuple of (status constant, line number)
+           script
+              current script or ''
+           watch
+              dict of current watch expressions
+           requests
+              current request queue (list of serialized requests)
+           mode
+              current mode of the session as a string ('master', 'slave', ...)
+           setups
+              tuple of (current loaded setups, explicitly loaded setups)
+           devices
+              list of names of all existing devices
+        """
         current_script = self.controller.current_script
         request_queue = self.controller.get_queue()
         self.write(STX, serialize(dict(
@@ -490,7 +565,11 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def getmessages(self, n):
-        """Return the last *n* messages (or all, if n is "*")."""
+        """Return the last *n* messages.
+
+        :param n: number of messages to transfer or '*' for all messages
+        :returns: list of messages (each message being a list of logging fields)
+        """
         if n == '*':
             self.write(STX, serialize(self.daemon._messages))
         else:
@@ -498,13 +577,22 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def getscript(self):
-        """Return the current script text, or an empty string."""
+        """Return the current script text, or an empty string.
+
+        :returns: code of the current script
+        """
         current_script = self.controller.current_script
         self.write(STX, serialize(current_script and current_script.text or ''))
 
     @command()
     def gethistory(self, key, fromtime, totime):
-        """Return history of a cache key, if available."""
+        """Return history of a cache key, if available.
+
+        :param key: cache key (without prefix) to query history
+        :param fromtime: start time as Unix timestamp
+        :param totime: end time as Unix timestamp
+        :returns: list of (time, value) tuples
+        """
         if not session.cache:
             self.write(STX, serialize([]))
         history = session.cache.history('', key, float(fromtime), float(totime))
@@ -515,6 +603,9 @@ class ConnectionHandler(BaseRequestHandler):
         """Return a cache key query result, if available.
 
         XXX document this better
+
+        :param query: input query
+        :returns: list of (time, value) tuples
         """
         if not session.cache:
             self.write(STX, serialize([]))
@@ -527,14 +618,21 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def gettrace(self):
-        """Return current execution status as a stacktrace."""
+        """Return current execution status as a stacktrace.
+
+        :returns: stack trace as a string
+        """
         self.write(STX, serialize(self.controller.current_location(True)))
 
     # -- Watch expression commands ---------------------------------------------
 
     @command(needcontrol=True)
     def watch(self, vallist):
-        """Add watch expressions."""
+        """Add watch expressions.
+
+        :param vallist: list of expressions to add
+        :returns: ack or error
+        """
         vallist = unserialize(vallist)
         if not isinstance(vallist, list):
             self.write(NAK, 'wrong argument type for add_values: %s' %
@@ -552,7 +650,11 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True)
     def unwatch(self, vallist):
-        """Delete watch expressions."""
+        """Delete watch expressions.
+
+        :param vallist: list of expressions to remove, or ['*'] to remove all
+        :returns: ack or error
+        """
         vallist = unserialize(vallist)
         if not isinstance(vallist, list):
             self.write(NAK, 'wrong argument type for del_values: %s' %
@@ -576,7 +678,12 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command()
     def getdataset(self, index):
-        """Get one or more datasets."""
+        """Get one or more datasets.
+
+        :param index: index of the dataset or '*' for all datasets
+        :returns: a list of datasets if index is '*', or a single dataset
+           otherwise; or None if the dataset does not exist
+        """
         if index == '*':
             try:
                 self.write(STX, serialize(session.experiment._last_datasets))
@@ -595,7 +702,15 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True)
     def debug(self, code=''):
-        """Start a pdb session in the script thread context."""
+        """Start a pdb session in the script thread context.  Experimental!
+
+        The daemon is put into debug mode.  Replies to pdb queries can be given
+        using the "debuginput" command.  Stopping the debugging (with "q" at the
+        pdb prompt or finishing the script) will exit debug mode.
+
+        :param code: code to start in debug mode
+        :returns: ack or error
+        """
         if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
             if not code:
                 self.write(NAK, 'no piece of code to debug given')
@@ -612,20 +727,32 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=True)
     def debuginput(self, line):
-        """Start a pdb session in the script thread context."""
+        """Feed input lines to pdb.
+
+        :param line: input to pdb
+        :returns: ack or error
+        """
         self.controller.debug_input(line)
         self.write(ACK)
 
     @command()
     def eventmask(self, events):
-        """Disable sending of certain events to the client."""
+        """Disable sending of certain events to the client.
+
+        :param events: a serialized list of event names
+        :returns: ack
+        """
         events = unserialize(events)
         self.event_mask.update(events)
         self.write(ACK)
 
     @command()
     def transfer(self, content):
-        """Transfer a file to the server, encoded in base64."""
+        """Transfer a file to the server, encoded in base64.
+
+        :param content: file content encoded with base64
+        :returns: file name
+        """
         fd, filename = tempfile.mkstemp(prefix='nicos')
         try:
             os.write(fd, content.decode('base64'))
@@ -635,13 +762,19 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True)
     def unlock(self):
-        """Give up control of the session."""
+        """Give up control of the session.
+
+        :returns: ack
+        """
         self.controller.controlling_user = None
         self.write(ACK)
 
     @command()
     def quit(self):
-        """Close the session."""
+        """Close the session.
+
+        :returns: ack and closes the connection
+        """
         if self.controller.controlling_user is self.user:
             self.controller.controlling_user = None
         self.log.info('disconnect')
