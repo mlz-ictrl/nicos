@@ -6,7 +6,7 @@ Starting points
 
 Start a basic system and experiment:
 
-  $ bin/nicos-cache & bin/nicos-console
+  $ bin/nicos-demo
 
 Documentation: for release packages look in doc/build/html.
 
@@ -30,17 +30,19 @@ Requirements
 
 * At least Python 2.5
 
-* For the basic system:
-  - numpy
-  - the TACO Python libraries (optional)
-  - scipy (optional, for fitting)
-  - simplejson (Python < 2.6, optional, for the web interface)
-  - gnuplot-py (optional, for liveplot display)
-  - MySQLdb (optional, for proposal DB query)
-  - python-xmpp (optional, for Jabber notifications)
-  - pyserial (optional, for TACO-less serial line communication)
-  - matplotlib (optional, for resolution plots)
-  - gnuplot (optional, for plots in the electronig logbook)
+* numpy
+
+* Optional for the basic system:
+  - the TACO Python libraries
+  - scipy (for fitting)
+  - gnuplot-py (for liveplot display)
+  - MySQLdb (for proposal DB query)
+  - python-xmpp (for Jabber notifications)
+  - pyserial (for TACO-less serial line communication)
+  - matplotlib (for resolution plots)
+  - gnuplot (for plots in the electronig logbook)
+  - Grace (for scanplot)
+  - simplejson (Python < 2.6, for the web interface)
 
 * For the GUI and status monitor:
   - PyQt4
@@ -49,7 +51,6 @@ Requirements
   - scipy (optional, for fitting)
 
 * Under Windows:
-
   - pyreadline (optional, for the console to work)
   - colorama (optional, for colored console output)
 

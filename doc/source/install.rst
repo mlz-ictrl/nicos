@@ -23,23 +23,30 @@ public key authentication is enabled.
 
 The bug tracker and project wiki are at
 
-  https://trac.frm2.tum.de/projects/NICOS/
+  https://trac.frm2.tum.de/projects/nicos/
 
+
+.. _requirements:
 
 Requirements
 ------------
 
 * At least Python 2.5
 
-* For the basic system:
+* numpy
 
-  - numpy
-  - the TACO Python libraries (optional)
-  - scipy (optional, for fitting and data analysis)
-  - gnuplot-py (optional, for liveplot display in gnuplot)
-  - MySQLdb (optional, for proposal DB query)
-  - python-xmpp (optional, for Jabber notifications)
-  - pyserial (optional, for TACO-less serial line communication)
+* Optional for the basic system:
+
+  - the TACO Python libraries
+  - scipy (for fitting and data analysis)
+  - gnuplot-py (for liveplot display in gnuplot)
+  - MySQLdb (for proposal DB query)
+  - matplotlib (for resolution plots)
+  - python-xmpp (for Jabber notifications)
+  - pyserial (for TACO-less serial line communication)
+  - gnuplot (for plots in the electronig logbook)
+  - Grace (for scanplot)
+  - simplejson (Python < 2.6, for the web interface)
 
 * For the client-server GUI and status monitor:
 
@@ -47,6 +54,16 @@ Requirements
   - numpy
   - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
+
+* Under Windows:
+
+  - pyreadline (optional, for the console to work)
+  - colorama (optional, for colored console output)
+
+* To run the test suite:
+
+  - nose
+  - coverage (optional)
 
 
 Configure and build in-place for experimenting

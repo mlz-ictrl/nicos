@@ -30,6 +30,7 @@ Developer related chapters:
    coreapi
    protocols/index
    auto/modules
+   newsetup
 
 General information:
 
