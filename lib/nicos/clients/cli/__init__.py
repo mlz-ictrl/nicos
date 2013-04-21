@@ -111,8 +111,8 @@ class NicosCmdClient(NicosClient):
         self.current_filename = ''
         # pending requests (i.e. scripts) in the daemon
         self.pending_requests = {}
-        # filename of last edited script
-        self.edit_filename = ''
+        # filename of last edited/simulated script
+        self.last_filename = ''
         # instrument name from NICOS, pre-filled with server name
         self.instrument = conndata['host'].split('.')[0]
         # script directory from NICOS
@@ -590,7 +590,7 @@ class NicosCmdClient(NicosClient):
         # if the editor exited successfully (and the file exists) we try to be
         # smart about offering the user a choice of running, simulating or
         # updating the current script
-        self.edit_filename = fpath
+        self.last_filename = fpath
         if self.status == 'running':
             if fpath == self.current_filename:
                 # current script edited: most likely we want to update it
@@ -744,12 +744,12 @@ class NicosCmdClient(NicosClient):
             if not arg:
                 # since we remember the last edited file, we can offer
                 # running it here
-                if self.edit_filename:
-                    reply = self.ask_question('Run last edited file %r?' %
-                                path.basename(self.edit_filename),
+                if self.last_filename:
+                    reply = self.ask_question('Run last used file %r?' %
+                                path.basename(self.last_filename),
                                 chars='yn', default='y')
                     if reply == 'y':
-                        self.command('run', self.edit_filename)
+                        self.command('run', self.last_filename)
                         return
                 self.put_error('Need a file name as argument.')
                 return
@@ -785,6 +785,7 @@ class NicosCmdClient(NicosClient):
                 self.put_error('Need a file name or code as argument.')
                 return
             fpath = path.join(self.scriptdir, arg)
+            self.last_filename = fpath
             # detect whether we have a filename or potential Python code
             if path.isfile(fpath) or fpath.endswith(('.py', '.txt')):
                 try:
