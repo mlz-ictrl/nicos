@@ -23,7 +23,167 @@
 #
 # *****************************************************************************
 
-"""NICOS cache protocol support."""
+"""
+Cache protocol documentation
+============================
+
+* The Cache server listens by default on TCP and UDP port 14869 (it will also
+  receive UDP broadcasts).
+
+* The protocol is line-based.  The basic syntax for a line (requests and
+  responses) is ::
+
+    [time1] [+|-] [time2] [@] key op [value] newline
+
+  The ``op`` is one character and decides the basic meaning of the request or
+  response.  Symbolic constants for the ``op`` are defined in the module
+  :mod:`nicos.protocols.cache`.
+
+  The ``newline`` can be LF or CRLF.
+
+* Keys are hierarchic, with levels separated by an arbitrary number of slashes.
+
+* All values are strings.  The cache server does not interpret them in any way,
+  but the NICOS clients do.
+
+Setting a key
+-------------
+
+Operation: ``OP_TELL`` or ``'='``
+
+- ``time1`` is the UNIX timestamp of the value.
+- ``time2`` is the TTL (time to live) in seconds, after which the key expires.
+- Both are optional: time1 defaults to current time, ttl to no expiration.
+- Instead of ``time+ttl@``, ``time-expirationtime@`` is also supported.
+  TTL is then ``expirationtime - time``.
+- Without any value, the key is deleted.
+
+Examples::
+
+  1327504784.71+5@nicos/temp/value=5.003     # explicit time and ttl given
+  nicos/temp/setpoint=5                      # no time and ttl given
+  +5@nicos/temp/value=1.102                  # only ttl given
+  nicos/temp/value=                          # key deletion
+
+Response: none.
+
+Querying a single key
+---------------------
+
+Operation: ``OP_ASK`` or ``'?'``
+
+- When an ``@`` is present, the timestamp is returned with the reply.
+- With ``time1-time2@`` or ``time1+timeinterval@``, a history query is made and
+  several values can be returned.
+- The value, if present, is ignored.
+
+Examples::
+
+  nicos/temp/value?                         # request only the value
+  @nicos/temp/value?                        # request value with timestamp
+  1327504780-1327504790@nicos/temp/value?   # request all values in time range
+
+Response: except for history queries, a single line in the form ``key=value``
+or ``time@key=value``, see below.  If the key is nonexistent or expired, the
+form is ``[time@]key!`` or ``[time@]key!value``.  For history queries, a number
+of lines of the same form.
+
+Querying with wildcard
+----------------------
+
+Operation: ``OP_WILDCARD`` or ``'*'``
+
+- Matching is done by a simple substring search: all keys for which the
+  requested key is a substring are returned.
+- History queries are not allowed.
+- Like for op '?', timestamps are returned if ``@`` is present.
+- The value, if present, is ignored.
+
+Examples::
+
+  nicos/temp/*                              # request only values
+  @nicos/temp/*                             # request values with timestamps
+
+Response: each value whose key contains the key given is returned as a single
+line as for single query.
+
+Subscribing to updates
+----------------------
+
+Operation: ``OP_SUBSCRIBE`` or ``':'``
+
+- Matching is done by a simple substring search: the subscription is for all
+  keys for which the requested key is a substring.
+- When a @ is present, the updates contain the timestamp.
+
+Response: none immediately, but every update matching the given key is sent to
+the client, either as ``[time@]key=value`` or ``[time@]key!value`` (if the key
+has expired).
+
+Locking
+-------
+
+Operation: ``OP_LOCK`` or ``'$'``
+
+The lock mechanism allows only one client at the same time to obtain a lock on a
+given identifier.  This can be used to synchronize access of multiple NICOS
+clients to a shared resource (but is slow!).
+
+- ``time1`` is the time when the lock is requested (default current time).
+- ``time2`` is the ttl for the lock.  It defaults to 1800 seconds.
+- ``key`` is the identifier for the lock.
+- ``value`` must be either ``+clientid`` (lock) or ``-clientid`` (unlock);
+  clientid is a string uniquely identifying the client.
+
+Response:
+
+- on lock: one of ::
+
+    key$otherclientid      # already locked by other client, request denied
+    key$                   # locked successfully
+
+- on unlock: one of ::
+
+    key$otherclientid      # not locked by this client, request denied
+    key$                   # unlocked successfully
+
+Key rewriting
+-------------
+
+Operation: ``OP_REWRITE`` or ``'~'``
+
+The cache supports storing incoming keys under multiple prefixes (definition of
+prefix: for "nicos/dev/value" the key prefix is "nicos/dev").
+
+- ``key`` is the additional prefix.
+- ``value`` is either ``+prefix`` or ``-prefix`` (add or remove a rewrite).
+
+For example, after ::
+
+    nicos/t~nicos/tcryo
+
+all incoming keys with prefix "nicos/tcryo" will be set in the cache with prefix
+"nicos/tcryo" and "nicos/t" (and also written in the store files, if the cache
+is configured for that).
+
+Response: none.
+
+Optional Flags
+--------------
+
+Optional flags can be put between a key and the operator, i.e. they append
+the key.  So far only one flag is defined:
+
+FLAG_NO_STORE (``'#'``)
+  Avoids storing the update in an on-disk-database.  The flag is removed by the
+  cache server before any updates are handled, i.e. no client will ever see it.
+  Its use is intented for particular noisy actions which don't need to be stored
+  on disk.  Only the updates with this flag will not be stored, so a client can
+  select this feature for each request.
+
+Works only with the "set a key" operator.  This flag makes no sense otherwise.
+
+"""
 
 import re
 import cPickle as pickle
