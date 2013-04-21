@@ -22,7 +22,11 @@
 #
 # *****************************************************************************
 
-"""NICOS daemon-client protocol support."""
+"""
+Daemon protocol documentation
+=============================
+
+"""
 
 import struct
 import cPickle as pickle

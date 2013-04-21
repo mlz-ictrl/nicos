@@ -129,12 +129,7 @@ The possible entries are:
 * Under the section ``[services]``:
 
   * ``services`` -- a comma-separated list of NICOS daemons to start and stop
-    with the provided init script (the file ``etc/nicos-system``, which should
-    be linked into ``/etc/init.d`` if integration of NICOS into the system
-    startup process is desired).
-
-    By default, this is ``cache,poller``.  Other services that can be started
-    are ``daemon`` and ``elog``.
+    with the provided :ref:`init script <initscript>`.
 
 * Under the section ``[environment]``:
 

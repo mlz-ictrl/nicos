@@ -4,6 +4,13 @@ Glossary
 
 .. glossary::
 
+   attached device
+      Each NICOS device can depend on other devices of which only the interface
+      is specified.  In this way, subcomponents with the same interface can be
+      replaced without a change of the device code.  Attached devices are
+      declared in device classes in an `.attached_devices` dictionary and
+      configured in setup files like regular parameters.
+
    cache
       The NICOS cache is a service that should run once for every instrument.
       It provides caching of values and parameters from NICOS devices, access
@@ -44,7 +51,10 @@ Glossary
 
    master
       The NICOS session that is currently in master mode (see :term:`execution
-      mode`).
+      mode`).  I.e. the session controlling the instrument.
+
+   parameter
+      A property/attribute of a NICOS device.
 
    session
       Each instance of a program that creates NICOS objects (and possibly allows

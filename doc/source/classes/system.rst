@@ -52,6 +52,8 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 .. autoclass:: DaemonSink()
 
 
+.. _notifiers:
+
 Notifiers
 ---------
 
@@ -62,7 +64,7 @@ example, in case of unhandled exceptions a notification is always sent if the
 script has run for more than a few seconds.
 
 Notifiers can be configured in setups like normal devices and are selected in
-:ref:`sysconfig`.
+:ref:`sysconfig`.  They are also used by the :ref:`watchdog <watchdog>` service.
 
 .. autoclass:: Notifier()
 

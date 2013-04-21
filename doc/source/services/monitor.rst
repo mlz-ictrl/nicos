@@ -3,19 +3,25 @@
 The NICOS status monitor
 ========================
 
+The NICOS status monitor is an application that displays current values of
+instrument positions and parameters obtained from the :ref:`cache <cache>`.  It
+supports several backends, such as a GUI and an HTML backend.
+
+
 Invocation
 ----------
 
-The NICOS Status Monitor is configured, like all other components, using a setup
-file.  The file must be named either ``monitor.py`` or
-:file:`monitor-{name}.py`, where ``name`` is a user-defined name.  On startup
-using the ``nicos-monitor`` executable, the setup loaded is either
-``monitor.py`` if started with no arguments, or ``monitor-name.py`` if started
-with argument ``name``.
+The status monitor is invoked with the ``nicos-monitor`` script.
 
-There are several command-line options that allow to display the same
-monitor setup on the personal screen, and on a big dedicated status display
-with bigger font.
+It is configured, like all other components, using a setup file.  The file must
+be named either ``monitor.py`` or :file:`monitor-{name}.py`, where ``name`` is a
+user-defined name.  On startup, the setup loaded is either ``monitor.py`` if
+started with no arguments, or ``monitor-name.py`` if started with argument
+``name``.  A device named ``Monitor`` is expected in the setup.
+
+There are several command-line options that allow to display the same monitor
+setup on the personal screen, and on a big dedicated status display with bigger
+font.
 
 * ``-g WxH+X+Y`` selects the window geometry with a string.  It can also be
   ``-g fullscreen``.
@@ -28,7 +34,7 @@ with bigger font.
 Setup file
 ----------
 
-A very simple setup file for the monitor could look like this::
+A simple setup file for the monitor could look like this::
 
   # this is not a setup with instrument devices
   group = 'special'
@@ -59,30 +65,29 @@ A very simple setup file for the monitor could look like this::
 
     Block('Detector',
       [BlockRow(Field(name='timer', dev='timer'),
-                Field(name='ctr1',  dev='ctr1', min=100, max=500),
+                Field(name='ctr1',  dev='ctr1'),
                 Field(name='ctr2',  dev='ctr2')),
       ],
-    'detector')
+    'detector'),
 
     Block('Triple-axis',
-      [BlockRow(Field(dev='tas', item=0, name='H', format='%.3f', unit=''),
-                Field(dev='tas', item=1, name='K', format='%.3f', unit=''),
-                Field(dev='tas', item=2, name='L', format='%.3f', unit=''),
-                Field(dev='tas', item=3, name='E', format='%.3f', unit='')),
+      [BlockRow(Field(dev='tas', item=0, name='H', format='%.3f', unit=' '),
+                Field(dev='tas', item=1, name='K', format='%.3f', unit=' '),
+                Field(dev='tas', item=2, name='L', format='%.3f', unit=' '),
+                Field(dev='tas', item=3, name='E', format='%.3f', unit=' ')),
        BlockRow(Field(key='tas/scanmode', name='Mode'),
                 Field(dev='mono', name='ki'),
                 Field(dev='ana', name='kf'),
-                Field(key='tas/energytransferunit', name='Unit'),
+                Field(key='tas/energytransferunit', name='Unit')),
       ],
-    'tas').
+    'tas'),
   )
 
   devices = dict(
       Monitor = device('nicos.services.monitor.qt.Monitor',
-                       title = 'NICOS status monitor',
+                       title = 'My status monitor',
                        cache = 'localhost:14869',
-                       layout = [Row(expcolumn), Row(devcolumn)],
-                       notifiers = [])
+                       layout = [Row(expcolumn), Row(devcolumn)]),
   )
 
 The layout of the status monitor consists of nested vertical and horizontal
@@ -132,17 +137,26 @@ The recognized keys are:
   after a certain number of characters.
 
 * ``min`` and ``max`` -- if set, the field will be marked in red if the value is
-  below/above the given value.  This is only for display purposes; device
-  limits should be enforced in NICOS.  See the "Detector" block in the example.
+  below/above the given value.  This is only for display purposes; device limits
+  should be enforced in NICOS.  These are now obsolete since every device has a
+  parameter named ``warnlimits`` (a tuple of ``(min, max)`` values) which is
+  used by the monitor.
 
 * ``unit`` -- if set, it overrides the displayed unit (normally, the unit of the
   device is used).  For example, in the "Triple Axis" block above, the unit for
-  H/K/L and E is set to an empty string to avoid displaying redundant "rlu".
+  H/K/L and E is set to a space (empty string would mean the default unit) to
+  avoid displaying redundant "rlu".
 
 * ``format`` -- if set, it overrides the format string of the displayed value
   (normally the foramt string of the device is used).  This is also useful for
   values with a ``key`` (which have no default format string) or ``item`` (where
   the devices' format string does not apply), see the "Triple Axis" block above.
+
+Special widgets
+^^^^^^^^^^^^^^^
+
+The Qt status monitor supports adding custom widgets and widget panels.  One of
+them is the "trend plot" widget, which is selected by giving a ``plot`` key:
 
 * ``plot`` -- if set, the value is not displayed as a number, but as a plot.
   This currently only works in the Qt backend.
@@ -166,27 +180,34 @@ The recognized keys are:
 
   will plot the ``TA`` and ``TB`` device values for the last 2 hours.
 
+Other widgets have to be specified by a key named ``widget``:
+
+* ``widget`` -- if set, this names a class (with fully-qualified module name)
+  such as ``nicos.demo.monitorwidgets.VTas`` that takes over the display for
+  this field.  The additional accepted keys are defined by the widget.
+
 
 Backends
 --------
 
 In the example setup above, the Monitor device is confiugred with the class
-``nicos.services.monitor.qt.Monitor``.  This selects the Qt backend, which displays the
-monitor as a window using the Qt GUI toolkit.  Another backend exists:
+``nicos.services.monitor.qt.Monitor``.  This selects the Qt backend, which
+displays the monitor as a window using the Qt GUI toolkit.  Another backend
+exists:
 
-* ``nicos.services.monitor.html.Monitor`` -- writing a HTML file periodically.  You have
-  to configure two additional parameters:
+* ``nicos.services.monitor.html.Monitor`` -- writing a HTML file periodically.
+  You have to configure two additional parameters:
 
   - ``filename``: the filename for the HTML file
   - ``interval``: the period, in seconds
+
+  The HTML monitor only supports the standard value display and the trend plot
+  widget, but no custom widgets (yet).
 
 
 Warnings
 --------
 
-To be written.
-
-Notifications
--------------
-
-To be written.
+The status monitor automatically displays the current warnings displayed by the
+:ref:`watchdog` daemon.  If there are any warnings, the title label turns red,
+and display alternates between a list of warnings and normal values.

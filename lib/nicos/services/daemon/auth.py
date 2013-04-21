@@ -88,6 +88,8 @@ def auth_entry(val=None):
 class ListAuthenticator(Authenticator):
     """Authenticates against the fixed list of usernames, passwords and
     user levels given in the "passwd" parameter.
+
+    An empty password means that any password is accepted.
     """
 
     parameters = {
@@ -116,7 +118,13 @@ class ListAuthenticator(Authenticator):
 
 
 class PamAuthenticator(Authenticator):
-    """Authenticates against PAM."""
+    """Authenticates against PAM.
+
+    This unfortunately only works against the local shadow database if the
+    daemon runs as the root user.
+
+    The access level info can be put into the "gecos" field.
+    """
 
     def pw_hashing(self):
         return 'plain'

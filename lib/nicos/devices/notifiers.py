@@ -44,7 +44,10 @@ NS_XHTML = 'http://www.w3.org/1999/xhtml'
 
 
 class Notifier(Device):
-    """Base class for all notification systems."""
+    """Base class for all notification systems.
+
+    Do not use directly.
+    """
 
     parameters = {
         'minruntime': Param('Minimum runtime of a command before a failure '
@@ -69,9 +72,9 @@ class Notifier(Device):
 
 
 class Jabberer(Notifier):
-    """Notifier to send Jabber notifications.
+    """Notifier to send Jabber/XMPP notifications.
 
-    Needs the xmpp module.
+    Needs the Python xmpp module.
     """
 
     parameters = {
@@ -115,7 +118,7 @@ class Jabberer(Notifier):
 
 
 class Mailer(Notifier):
-    """E-Mail notification handling.
+    """Sends notifications via e-mail.
 
     If a Mailer is configured as a notifier, the receiver addresses (not copies)
     can be set by `.SetMailReceivers`.
