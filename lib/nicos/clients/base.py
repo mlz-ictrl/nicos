@@ -151,13 +151,13 @@ class NicosClient(object):
         while 1:
             try:
                 # receive length
-                length = recv(4)
-                if len(length) != 4:
+                start = recv(5)
+                if len(start) != 5 or start[0] != STX:
                     if not self.disconnecting:
                         self.signal('broken', 'Server connection broken.')
                         self._close()
                     return
-                length, = LENGTH.unpack(length)
+                length, = LENGTH.unpack(start[1:])
                 got = 0
                 # buf = ''
                 # while got < length:

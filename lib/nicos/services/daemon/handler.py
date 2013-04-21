@@ -290,7 +290,7 @@ class ConnectionHandler(BaseRequestHandler):
                 continue
             try:
                 # first, send length header and event name
-                send(LENGTH.pack(len(event) + len(data) + 1) + event + RS)
+                send(STX + LENGTH.pack(len(event) + len(data) + 1) + event + RS)
                 # then, send data separately (doesn't create temporary strings)
                 send(data)
             except Exception, err:
