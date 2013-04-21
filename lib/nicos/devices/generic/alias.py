@@ -77,7 +77,7 @@ class DeviceAlias(Device):
     }
 
     _ownattrs = ['_obj', '_mode', '_cache', 'alias']
-    _ownparams = set(['alias', 'name', 'classes', 'devclass'])
+    _ownparams = set(['alias', 'name', 'devclass'])
     _initialized = False
 
     def __init__(self, name, **config):
