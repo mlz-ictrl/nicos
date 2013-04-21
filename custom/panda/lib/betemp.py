@@ -38,8 +38,6 @@ class KL320xTemp(Readable):
     }
 
     parameters = {
-        'warnlevel': Param('temperature that should not be exceeded',
-                           type=none_or(float), settable=True),
         'addr': Param('Adress of Control/Statusbyte in Beckhoff Busmapping (usually even)',
                            type=int, default=0, settable=True),
     }
@@ -115,8 +113,6 @@ class KL320xTemp(Readable):
 
     def doStatus(self, maxage=0):
         t = self.doRead(maxage)
-        if self.warnlevel and t > self.warnlevel and self.unit == 'K':
-            return (status.ERROR, 'filter temperature (%4.1f K) too high' % t)
         v = self.bhd.ReadWordInput(self.addr)
         if v & 0x01:
             return (status.ERROR, 'Underrange bit set!')
@@ -128,11 +124,6 @@ class KL320xTemp(Readable):
 
 
 class I7033Temp(AnalogInput):
-
-    parameters = {
-        'warnlevel': Param('temperature that should not be exceeded',
-                           type=none_or(float), settable=True),
-    }
 
     parameter_overrides = {
         'unit': Override(type=oneof('K', 'Ohm')),
@@ -150,8 +141,6 @@ class I7033Temp(AnalogInput):
 
     def doStatus(self, maxage=0):
         t = self._temperature(self._taco_guard(self._dev.read))
-        if self.warnlevel and t > self.warnlevel:
-            return (status.ERROR, 'filter temperature (%6.1f K) too high' % t)
         return (status.OK, '')
 
     def _temperature(self, r):
