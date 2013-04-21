@@ -54,7 +54,8 @@ class DaemonSession(NoninteractiveSession):
     # some piece of code in a frame with the filename starting with "<break>";
     # these objects are such a piece of code (the number designates the level)
     _bpcode = [None, compile("pass", "<break>1", "exec"),
-               compile("pass", "<break>2", "exec")]
+               compile("pass", "<break>2", "exec"),
+               compile("pass", "<break>3", "exec"),]
 
     def _initLogging(self, prefix=None):
         NoninteractiveSession._initLogging(self, prefix)

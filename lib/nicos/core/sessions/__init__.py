@@ -143,6 +143,8 @@ class Session(object):
         self.setSPMode(self.config.simple_mode)
         # plug&play info cache
         self._pnp_cache = {'descriptions': {}}
+        # intrinsic count pause request
+        self.should_pause_count = None
 
         # sysconfig devices
         self._def_sysconfig = {
@@ -999,6 +1001,8 @@ class Session(object):
         elif key.endswith('/pausecount'):
             if self.experiment and self.mode == 'master':
                 self.experiment.pausecount = value
+                if value:
+                    self.should_pause_count = value
 
     def watchdogEvent(self, event, time, data):
         if event == 'warning':

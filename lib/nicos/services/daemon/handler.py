@@ -368,19 +368,29 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(ACK)
 
     @command(needcontrol=True, needscript=True, name='break')
-    def break_(self):
+    def break_(self, level=None):
         """Interrupt the current script at the next breakpoint.
 
+        :param level: stop level of breakpoint as a string (default 2)
+
+           * '1' - pause after current scan/line in the script
+           * '2' - pause after scan step/breakpoint with level "2"
+           * '3' - pause in the middle of counting
         :returns: ok or error (e.g. if script is already interrupted)
         """
+        if level is None:
+            level = 2  # which means after scan step
+        else:
+            level = int(level)
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
             self.write(NAK, 'script is already interrupted')
         else:
-            self.controller.set_break(None)
+            self.controller.set_break(('break', level, self.user.name))
+            if level >= 3:
+                session.should_pause_count = 'Paused by %s' % self.user.name
             self.log.info('script interrupt request')
-            #time.sleep(0.01)
             self.write(ACK)
 
     @command(needcontrol=True, needscript=True, name='continue')
@@ -395,32 +405,37 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(NAK, 'script is not interrupted')
         else:
             self.log.info('script continue request')
-            self.controller.set_continue(False)
+            self.controller.set_continue(None)
             self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
     def stop(self, level=None):
         """Abort the interrupted script.
 
-        :param level: stop level as a string (default 2)
+        :param level: stop level as a string (default 3)
 
            * '1' - stop after current scan/line in the script
            * '2' - stop after scan step/breakpoint with level "2"
+           * '3' - stop in the middle of counting (but due to the special
+             way the breakpoint while counting is implemented, it will
+             actually just stop there if paused before, otherwise this is
+             equivalent to level '2')
         :returns: ok or error
         """
         if level is None:
-            level = 2  # which means after scan step, the default
+            level = 3  # which means normally after scan step, the default,
+                       # but when counting is paused, right now
         else:
             level = int(level)
         if self.controller.status == STATUS_STOPPING:
             self.write(ACK)
         elif self.controller.status == STATUS_RUNNING:
             self.log.info('script stop request while running')
-            self.controller.set_break((level, self.user.name))
+            self.controller.set_break(('stop', level, self.user.name))
             self.write(ACK)
         else:
             self.log.info('script stop request while in break')
-            self.controller.set_continue((level, self.user.name))
+            self.controller.set_continue(('stop', level, self.user.name))
             self.write(ACK)
 
     @command(needcontrol=True)
@@ -445,10 +460,10 @@ class ConnectionHandler(BaseRequestHandler):
         self.log.warning('immediate stop request in %s' %
                          self.controller.current_location(True))
         if self.controller.status == STATUS_RUNNING:
-            self.controller.set_stop(('emergency stop', self.user.name))
+            self.controller.set_stop(('emergency stop', 5, self.user.name))
         else:
             # in break
-            self.controller.set_continue(('emergency stop', self.user.name))
+            self.controller.set_continue(('emergency stop', 5, self.user.name))
         self.write(ACK)
 
     # -- Asynchronous script interaction ---------------------------------------

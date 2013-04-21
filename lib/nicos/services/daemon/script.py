@@ -296,8 +296,6 @@ class ExecutionController(Controller):
         self.last_handler = None   # handler of current exec/eval
         # only one user or admin can issue non-read-only commands
         self.controlling_user = None
-        # functions to execute when script goes in break and continues
-        self.breakfuncs = (None, None)
         Controller.__init__(self, break_only_in_filename='<script>')
         self.set_observer(self._observer)
 
@@ -316,47 +314,34 @@ class ExecutionController(Controller):
         # line with coding info, which is not present in the original script
         self.eventfunc('status', (status, lineno - 1))
 
-    def _breakfunc(self, frame, arg):
-        self.log.info('script interrupted in %s' % self.current_location())
-        brfunc, contfunc = self.breakfuncs
-        if brfunc:
-            self.log.info('calling break function %r...' %
-                          getattr(brfunc, '__name__', ''))
-            try:
-                brfunc()  #pylint: disable=E1102
-            except Exception:
-                self.log.exception('break function raised error')
-        # if arg is not None, stop immediately with given arg
-        if arg is not None:
-            self.set_continue(arg)
-        flag = self.wait_for_continue()
-        # check desired stop level
-        if isinstance(flag, tuple):
-            fn = frame.f_code.co_filename
-            # '<break>n' means stoplevel n
-            if fn.startswith('<break>'):
-                bplevel = int(fn[7:])
-            else:
-                bplevel = 1
-            reqlevel = flag[0]
-            if reqlevel < bplevel:
-                # not a desired break; re-set breakpoint to check again at the
-                # next call to breakpoint()
-                self.set_break(flag)
-                # continue execution
-                flag = None
-        if flag:
-            self.log.info('interrupted script stopped: %s' % (flag,))
-            self.set_stop(flag)
+    def _breakfunc(self, frame, flag):
+        # check level of breakpoint reached
+        fn = frame.f_code.co_filename
+        if fn.startswith('<break>'):  # '<break>n' means stoplevel n
+            bplevel = int(fn[7:])
         else:
+            bplevel = 1
+        # flag is a tuple (mode, required stoplevel, user name)
+        if flag[1] < bplevel or flag[0] == 'stop':
+            # don't pause/stop here...
+            self.set_continue(flag)
+        else:
+            self.log.info('script interrupted in %s' % self.current_location())
+            session.log.info('Script interrupted by %s' % flag[2])
+        new_flag = self.wait_for_continue()
+        # new_flag is either a flag coming from Handler.stop(), from
+        # Handler.continue() or the old one from above
+        if not new_flag:
+            # new_flag == None means continue
             self.log.info('interrupted script continued')
-            if contfunc:
-                self.log.info('calling continue function %r...' %
-                              getattr(contfunc, '__name__', ''))
-                try:
-                    contfunc()  #pylint: disable=E1102
-                except Exception:
-                    self.log.exception('continue function raised error')
+            session.log.info('Script continued by %s' % flag[2])
+        elif new_flag[1] < bplevel:
+            # didn't pause/stop here, try again on next breakpoint
+            self.set_break(new_flag)
+        elif new_flag[0] in ('stop', 'emergency stop'):
+            # we can stop here, do it
+            self.log.info('interrupted script stopped: %s' % (new_flag,))
+            self.set_stop(new_flag)
 
     def current_location(self, verbose=False):
         frame = self.currentframe
@@ -585,9 +570,9 @@ class ExecutionController(Controller):
                     self.block_requests(range(self.reqno_work + 1,
                                               self.reqno_latest + 1))
                     if err.args[0] == 'emergency stop':
-                        self.execute_estop(err.args[1])
+                        self.execute_estop(err.args[2])
                     else:
-                        session.log.info('Script stopped by %s' % (err.args[1],))
+                        session.log.info('Script stopped by %s' % (err.args[2],))
                 except BdbQuit, err:  #pylint: disable=E0701
                     session.log.error('Script stopped through debugger')
                 except Exception, err:  #pylint: disable=E0701

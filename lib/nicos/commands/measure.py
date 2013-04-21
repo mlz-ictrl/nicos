@@ -43,8 +43,12 @@ __all__ = [
 def _wait_for_pause(delay):
     """Wait until the watchdog "pausecount" list is empty."""
     exp = session.experiment
-    current_msg = exp.pausecount
+    current_msg = session.should_pause_count
+    session.should_pause_count = None
     session.log.warning('counting paused: ' + current_msg)
+    # allow the daemon to pause here, if we were paused by it
+    session.breakpoint(3)
+    # but after continue still check for other conditions
     while exp.pausecount:
         if exp.pausecount != current_msg:
             current_msg = exp.pausecount
@@ -89,7 +93,7 @@ def _count(detlist, preset, result):
             if not detset:
                 # all detectors finished measuring
                 break
-            if session.experiment.pausecount:
+            if session.should_pause_count:
                 for det in detset:
                     if not det.pause():
                         session.log.warning(
