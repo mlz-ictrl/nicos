@@ -113,16 +113,26 @@ class ScriptStatusPanel(Panel):
 
     def getToolbars(self):
         bar = QToolBar('Script control')
-        bar.addAction(self.actionBreak)
+        # unfortunately it is not wise to put a menu in its own dropdown menu,
+        # so we have to duplicate the actionBreak and actionStop...
+        dropdown1 = QMenu('', self)
+        dropdown1.addAction(self.actionBreak)
+        dropdown1.addAction(self.actionBreakCount)
+        self.actionBreak2.setMenu(dropdown1)
+        dropdown2 = QMenu('', self)
+        dropdown2.addAction(self.actionStop)
+        dropdown2.addAction(self.actionFinish)
+        self.actionStop2.setMenu(dropdown2)
+        bar.addAction(self.actionBreak2)
         bar.addAction(self.actionContinue)
-        bar.addAction(self.actionStop)
-        bar.addAction(self.actionFinish)
+        bar.addAction(self.actionStop2)
         bar.addAction(self.actionEmergencyStop)
         return [bar]
 
     def getMenus(self):
         menu = QMenu('&Script control', self)
         menu.addAction(self.actionBreak)
+        menu.addAction(self.actionBreakCount)
         menu.addAction(self.actionContinue)
         menu.addAction(self.actionStop)
         menu.addAction(self.actionFinish)
@@ -133,9 +143,12 @@ class ScriptStatusPanel(Panel):
     def updateStatus(self, status, exception=False):
         isconnected = status != 'disconnected'
         self.actionBreak.setEnabled(isconnected and status != 'idle')
-        self.actionBreak.setVisible(status != 'interrupted')
+        self.actionBreak2.setEnabled(isconnected and status != 'idle')
+        self.actionBreak2.setVisible(status != 'interrupted')
+        self.actionBreakCount.setEnabled(isconnected and status != 'idle')
         self.actionContinue.setVisible(status == 'interrupted')
         self.actionStop.setEnabled(isconnected and status != 'idle')
+        self.actionStop2.setEnabled(isconnected and status != 'idle')
         self.actionFinish.setEnabled(isconnected and status != 'idle')
         self.actionEmergencyStop.setEnabled(isconnected)
         if status == 'interrupted':
@@ -204,12 +217,27 @@ class ScriptStatusPanel(Panel):
         self.mainwindow.action_start_time = time.time()
 
     @qtsig('')
+    def on_actionBreak2_triggered(self):
+        self.client.tell('break')
+        self.mainwindow.action_start_time = time.time()
+
+    @qtsig('')
+    def on_actionBreakCount_triggered(self):
+        self.client.tell('break', '3')
+        self.mainwindow.action_start_time = time.time()
+
+    @qtsig('')
     def on_actionContinue_triggered(self):
         self.client.tell('continue')
         self.mainwindow.action_start_time = time.time()
 
     @qtsig('')
     def on_actionStop_triggered(self):
+        self.client.tell('stop')
+        self.mainwindow.action_start_time = time.time()
+
+    @qtsig('')
+    def on_actionStop2_triggered(self):
         self.client.tell('stop')
         self.mainwindow.action_start_time = time.time()
 
