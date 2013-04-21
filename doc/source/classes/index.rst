@@ -11,5 +11,4 @@ distribution.
    generic/index
    tas
    taco/index
-   ipc
-   toni
+   vendor/index

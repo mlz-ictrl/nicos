@@ -1,0 +1,14 @@
+Vendor-specific device classes
+==============================
+
+These devices are implementations of the communication with devices from a
+specific vendor.  There are not many such implementations in the NICOS core
+because most device-specific communication is handled by TACO servers, which
+present a standard interface to NICOS described :ref:`here <taco>`.
+
+.. toctree::
+
+   ipc
+   toni
+   iseg
+   frm2

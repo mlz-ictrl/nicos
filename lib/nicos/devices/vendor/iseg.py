@@ -32,10 +32,11 @@ from nicos.devices.taco.core import TacoDevice
 
 
 class IsegHV(TacoDevice, HasLimits, Moveable):
-    """
-    Device object for an iseg HVPS.
+    """Device class for an iseg HVPS.
+
     The channel parameter must be 1 for a HVS with only one output.
     """
+
     taco_class = StringIO
 
     parameters = {

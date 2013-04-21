@@ -29,8 +29,7 @@ from nicos.devices.taco import DigitalInput, DigitalOutput
 
 
 class CCRSwitch(Moveable):
-    """
-    Class for CCR box switches (gas/vacuum).
+    """Class for FRM-II sample environment CCR box switches (gas/vacuum).
     """
 
     attached_devices = {
