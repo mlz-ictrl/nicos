@@ -29,11 +29,11 @@ from __future__ import with_statement
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
      QInputDialog, QDialogButtonBox, QPalette, QDoubleValidator, \
-     QTreeWidgetItemIterator
+     QTreeWidgetItemIterator, QDialog
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, dialogFromUi
+from nicos.clients.gui.utils import loadUi
 from nicos.protocols.cache import cache_load, cache_dump
 
 
@@ -387,72 +387,83 @@ class DevicesPanel(Panel):
             if self._control_dialogs[ldevname].isVisible():
                 self._control_dialogs[ldevname].activateWindow()
                 return
-
-        dlg = dialogFromUi(self, 'devices_one.ui', 'panels')
-        self._control_dialogs[ldevname] = dlg
         devinfo = self._devinfo[ldevname]
-        dlg.devname.setText('Device: %s' % devname)
-        dlg.setWindowTitle('Control %s' % devname)
+        item = self._devitems[ldevname]
+        dlg = ControlDialog(self, devname, devinfo, item)
+        self._control_dialogs[ldevname] = dlg
+        dlg.show()
+
+
+class ControlDialog(QDialog):
+    """Dialog opened to control and view details for one device."""
+
+    def __init__(self, parent, devname, devinfo, devitem):
+        QDialog.__init__(self, parent)
+        loadUi(self, 'devices_one.ui', 'panels')
+
+        self.client = parent.client
+
+        self.devname.setText('Device: %s' % devname)
+        self.setWindowTitle('Control %s' % devname)
 
         # now get all cache keys pertaining to the device and set the
         # properties we want
         params = {}
-        devkeys = self.client.ask('getcachekeys', ldevname + '/') or []
+        devkeys = self.client.ask('getcachekeys', devname.lower() + '/') or []
 
         for key, value in sorted(devkeys):
             param = key.split('/')[1]
-            QTreeWidgetItem(dlg.paramList, [param, str(value)])
+            QTreeWidgetItem(self.paramList, [param, str(value)])
             params[param] = value
 
         if params.get('description'):
-            dlg.description.setText(params['description'])
+            self.description.setText(params['description'])
         else:
-            dlg.description.setVisible(False)
+            self.description.setVisible(False)
 
         if params.get('alias'):
             dlg.devname.setText(dlg.devname.text() +
                                 ' (alias for %s)' % params['alias'])
 
         if 'nicos.core.device.Readable' not in devinfo[5]:
-            dlg.valueFrame.setVisible(False)
+            self.valueFrame.setVisible(False)
         else:
-            item = self._devitems[ldevname]
-            dlg.valuelabel.setText(item.text(1))
-            dlg.statuslabel.setText(item.text(2))
-            setForegroundBrush(dlg.statuslabel, item.foreground(2))
-            setBackgroundBrush(dlg.statuslabel, item.background(2))
+            self.valuelabel.setText(devitem.text(1))
+            self.statuslabel.setText(devitem.text(2))
+            setForegroundBrush(self.statuslabel, devitem.foreground(2))
+            setBackgroundBrush(self.statuslabel, devitem.background(2))
 
         if 'nicos.core.device.Moveable' not in devinfo[5]:
-            dlg.controlGroup.setVisible(False)
+            self.controlGroup.setVisible(False)
         else:
             if 'nicos.core.device.HasLimits' not in devinfo[5]:
-                dlg.limitFrame.setVisible(False)
+                self.limitFrame.setVisible(False)
             else:
-                dlg.limitMin.setText(str(params['userlimits'][0]))
-                dlg.limitMax.setText(str(params['userlimits'][1]))
+                self.limitMin.setText(str(params['userlimits'][0]))
+                self.limitMax.setText(str(params['userlimits'][1]))
             if 'states' in params:
-                dlg.target.setVisible(False)
-                dlg.targetUnit.setVisible(False)
-                dlg.targetBox.addItems(params['states'])
+                self.target.setVisible(False)
+                self.targetUnit.setVisible(False)
+                self.targetBox.addItems(params['states'])
                 is_switcher = True
             elif 'mapping' in params:
-                dlg.target.setVisible(False)
-                dlg.targetUnit.setVisible(False)
-                dlg.targetBox.addItems(params['mapping'].values())
+                self.target.setVisible(False)
+                self.targetUnit.setVisible(False)
+                self.targetBox.addItems(params['mapping'].values())
                 is_switcher = True
             else:
-                dlg.targetBox.setVisible(False)
-                dlg.target.setValidator(QDoubleValidator(dlg.target))
-                dlg.target.setText(str(params.get('value', '')))
-                dlg.targetUnit.setText(params['unit'])
+                self.targetBox.setVisible(False)
+                self.target.setValidator(QDoubleValidator(self.target))
+                self.target.setText(str(params.get('value', '')))
+                self.targetUnit.setText(params['unit'])
                 is_switcher = False
-            dlg.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
-            dlg.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
-            dlg.movebtn = dlg.moveBtns.addButton('Move',
-                                                 QDialogButtonBox.AcceptRole)
+            self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
+            self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
+            self.movebtn = self.moveBtns.addButton('Move',
+                                                   QDialogButtonBox.AcceptRole)
             if params.get('fixed'):
-                dlg.movebtn.setEnabled(False)
-                dlg.movebtn.setText('(fixed)')
+                self.movebtn.setEnabled(False)
+                self.movebtn.setText('(fixed)')
             def callback(button):
                 if button.text() == 'Reset':
                     self.client.tell('queue', '', 'reset(%s)' % devname)
@@ -460,13 +471,11 @@ class DevicesPanel(Panel):
                     self.client.tell('exec', 'stop(%s)' % devname)
                 elif button.text() == 'Move':
                     if is_switcher:
-                        target = '"' + dlg.targetBox.currentText() + '"'
+                        target = '"' + self.targetBox.currentText() + '"'
                     else:
-                        target = dlg.target.text()
+                        target = self.target.text()
                         if not target:
                             return
                     self.client.tell('queue', '',
                                      'move(%s, %s)' % (devname, target))
-            dlg.moveBtns.clicked.connect(callback)
-
-        dlg.show()
+            self.moveBtns.clicked.connect(callback)
