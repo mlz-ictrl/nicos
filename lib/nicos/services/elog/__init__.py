@@ -26,12 +26,18 @@
 
 __version__ = "$Revision$"
 
+from nicos.core import Override
 from nicos.services.elog.handler import Handler
 from nicos.protocols.cache import OP_TELL, OP_ASK, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
 
 
 class Logbook(BaseCacheClient):
+
+    parameter_overrides = {
+        'prefix':  Override(default='logbook/', mandatory=False),
+    }
+
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
         # this is run in the main thread
