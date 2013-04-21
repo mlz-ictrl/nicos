@@ -53,7 +53,7 @@ HEAD = '''\
 <head>
 <meta http-equiv="refresh" content="%(intv)s">
 <style type="text/css">
-body { background-color: #cccccc;
+body { background-color: #e0e0e0;
        font-family: '%(ff)s', sans-serif; font-size: %(fs)spx; }
 table { font-family: inherit; font-size: 100%%; }
 .center { text-align: center; }
@@ -61,13 +61,13 @@ table { font-family: inherit; font-size: 100%%; }
 .timelabel { margin: 0.1em; padding: 0.2em; }
 .column { display: inline-block; vertical-align: middle; }
 .blockhead { font-size: %(fsb)spx; text-align: center; font-weight: bold; }
-.block { border: 2px outset #cccccc; padding: .5em; margin: .3em; }
+.block { border: 2px outset #e0e0e0; padding: .5em; margin: .3em; }
 .blocktable { width: 100%%; }
 .blocktable > tr { width: 100%%; }
 .field { display: inline-block; }
 .field td  { text-align: center; }
 .value { font-family: '%(ffm)s', monospace;
-         padding: .15em; border: 2px inset #cccccc; }
+         padding: .15em; border: 2px inset #e0e0e0; }
 .istext { font-family: '%(ff)s', sans-serif !important; }
 .unit   { color: #888888; }
 .fixed  { color: #0000ff; }
