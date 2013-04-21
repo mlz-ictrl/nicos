@@ -57,8 +57,9 @@ man_pages = [
 
 autodoc_default_options = ['members']
 
+import new
 from sphinx import addnodes
-from nicos.core import listof, Device
+from nicos.core import Device
 from sphinx.domains import ObjType
 from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
 from sphinx.ext.autodoc import ClassDocumenter
@@ -83,6 +84,50 @@ def new_handle_signature(self, sig, signode):
             signode.remove(node)
     return ret
 PyModulelevel.handle_signature = new_handle_signature
+
+# generate stub TACO modules as needed to be able to import nicos.devices.taco
+# modules and document them
+
+class NICOSTACOStub(object):
+    pass
+
+STUBS = dict(
+    TACOClient = ['class Client', 'exception TACOError'],
+    TACOStates = [],
+    TACOCommands = [],
+    DEVERRORS = [],
+    IOCommon = ['MODE_NORMAL=0', 'MODE_RATEMETER=1', 'MODE_PRESELECTION=2'],
+    IO = ['class AnalogInput', 'class AnalogOutput', 'class DigitalInput',
+          'class DigitalOutput', 'class StringIO', 'class Timer',
+          'class Counter'],
+    Encoder = ['class Encoder'],
+    Motor = ['class Motor'],
+    PowerSupply = ['class CurrentControl', 'class VoltageControl'],
+    RS485Client = ['class RS485Client'],
+    Temperature = ['class Sensor', 'class Controller'],
+    TMCS = ['class Channel', 'class Admin'],
+    Modbus = ['class Modbus'],
+    ProfibusDP = ['class IO'],
+)
+
+def generate_stubs():
+    for modname, content in STUBS.iteritems():
+        try:
+            __import__(modname)
+        except Exception:
+            pass  # generate stub below
+        else:
+            continue
+        mod = new.module(modname, "NICOS stub module")
+        for obj in content:
+            if obj.startswith('class '):
+                setattr(mod, obj[6:], type(obj[6:], (NICOSTACOStub,), {}))
+            elif obj.startswith('exception '):
+                setattr(mod, obj[10:], type(obj[10:], (Exception,), {}))
+            else:
+                name, value = obj.split('=')
+                setattr(mod, name, eval(value))
+        sys.modules[modname] = mod
 
 
 class DeviceDocumenter(ClassDocumenter):
@@ -195,3 +240,4 @@ def setup(app):
     app.add_directive_to_domain('py', 'parameter', PyParameter)
     app.add_autodocumenter(DeviceDocumenter)
     PythonDomain.object_types['parameter'] = ObjType('parameter', 'attr', 'obj')
+    generate_stubs()
