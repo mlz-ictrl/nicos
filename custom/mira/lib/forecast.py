@@ -32,7 +32,7 @@ from nicos.devices.generic import MultiChannelDetector
 
 class Forecast(Readable):
     attached_devices = {
-        'det': (MultiChannelDetector, 'The detector to forecast values.'),
+        'det': (MultiChannelDetector, 'The detector to forecast values'),
     }
 
     parameter_overrides = {

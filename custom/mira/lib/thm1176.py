@@ -41,7 +41,7 @@ USBTMC_IOCTL_RESET_CONF = 23298 + 9
 class THM(Measurable):
 
     parameters = {
-        'device': Param('USB device name', type=str, mandatory=True),
+        'device':       Param('USB device name', type=str, mandatory=True),
         'measurements': Param('Number of measurements to average over',
                               type=int, default=80, settable=True),
     }

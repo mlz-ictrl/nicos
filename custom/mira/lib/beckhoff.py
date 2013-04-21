@@ -41,8 +41,8 @@ class BeckhoffDigitalOutput(DigitalOutput):
     parameters = {
         'startoffset': Param('Starting offset of digital output values',
                              type=int, mandatory=True),
-        'bitwidth': Param('Number of bits to switch', type=int,
-                          mandatory=True),
+        'bitwidth':    Param('Number of bits to switch', type=int,
+                             mandatory=True),
     }
 
     def doInit(self, mode):

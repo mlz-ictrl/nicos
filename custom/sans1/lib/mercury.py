@@ -48,9 +48,9 @@ class OxfordMercury(HasLimits, TacoDevice, Moveable):
     parameters = {
         'ramp':       Param('Rate of ramping', type=floatrange(0, 2),
                             default=1.8, unit='main/min', settable=True),
-        'ramplimit' : Param('maximum ramp', type=float,
+        'ramplimit' : Param('Maximum ramp', type=float,
                             unit='main/min', settable=False),
-        'scale':      Param('conversion factor from T to A', type=float,
+        'scale':      Param('Conversion factor from T to A', type=float,
                             default=31.280, unit='', settable=False),
     }
 

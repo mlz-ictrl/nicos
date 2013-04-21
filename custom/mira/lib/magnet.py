@@ -144,7 +144,7 @@ class LambdaField(HasLimits, Moveable):
     @usermethod
     def calibrate(self, *scannumbers):
         """Calibrate the B to I conversion, argument is one or more scan numbers.
-        
+
         Example:
 
         >>> B_mira.calibrate(351)

@@ -46,7 +46,7 @@ class Experiment(BaseExperiment):
         'cycle':   Param('Current reactor cycle', type=str, settable=True),
         'editor':  Param('User editor for new scripts', type=str,
                          settable=True),
-        'propdb':  Param('credentials file for proposal DB',
+        'propdb':  Param('Filename with credentials string for proposal DB',
                          type=str, default='', userparam=False),
     }
 
