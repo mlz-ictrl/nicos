@@ -266,8 +266,6 @@ possible with the device:
 
    .. automethod:: valueInfo
 
-   .. automethod:: presetInfo
-
    .. method:: info()
 
       The default implementation of :meth:`Device.info` for Readables adds the
@@ -334,6 +332,20 @@ possible with the device:
       This parameter is set by :meth:`fix` and :meth:`release` to indicate if
       the device has been fixed.
 
+   .. parameter:: fixedby : None or tuple of (name, level), not shown to user
+
+      This parameter is set by :meth:`fix` and :meth:`release` to indicate which
+      user did the fixing.  Using the daemon-client shell, the :ref:`user level
+      <userlevels>` determines if another user may release a fixed device (so
+      that devices fixed by ADMIN users are not releasable by USERs).
+
+   .. parameter:: requires : dict
+
+      A dictionary of requirements, similar to the arguments of
+      :func:`.requires`.  For access control in the daemon-client shell,
+      e.g. you can use ``requires = {'level': 'admin'}`` to restrict write
+      actions to ADMIN users.
+
 
 ``Measurable``
 ==============
@@ -362,6 +374,8 @@ possible with the device:
    .. automethod:: save
 
    .. automethod:: valueInfo
+
+   .. automethod:: presetInfo
 
    All :meth:`Measurable.doRead` implementations must return tuples with values
    according to :meth:`valueInfo`.
