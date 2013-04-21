@@ -190,7 +190,7 @@ def printTable(headers, items, printfunc, minlen=0):
 
 
 def getVersions(obj):
-    """Return SVN Revision info for all modules where one of the object's
+    """Return Revision info for all modules where one of the object's
     class and base classes are in.
     """
     versions = []
