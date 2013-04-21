@@ -409,6 +409,10 @@ class DevicesPanel(Panel):
         else:
             dlg.description.setVisible(False)
 
+        if params.get('alias'):
+            dlg.devname.setText(dlg.devname.text() +
+                                ' (alias for %s)' % params['alias'])
+
         if 'nicos.core.device.Readable' not in devinfo[5]:
             dlg.valueFrame.setVisible(False)
         else:
