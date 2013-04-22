@@ -28,6 +28,7 @@ from __future__ import with_statement
 
 import time
 import subprocess
+import os
 from os import path
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
@@ -662,6 +663,10 @@ def main(argv):
     import nicos.guisupport.gui_rc  #pylint: disable=W0612
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
+    pathStyle = path.join(os.getenv("HOME"), ".config", "nicos", "style.qss")
+    if path.isfile(pathStyle):
+        with open(pathStyle, 'r') as fd:
+            app.setStyleSheet(fd.read())
 
     # XXX implement proper argument parsing
     configfile = path.join(path.dirname(__file__), 'defconfig.py')
