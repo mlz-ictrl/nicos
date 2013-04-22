@@ -48,7 +48,8 @@ class NicosListener(object):
         # value, valueindex, strvalue, strvalue with unit,
         # status, strvalue, fmtstr, unit, fixed, changetime, min, max
         self.devinfo[dev] = ['-', valueindex, '-', '-',
-                             (OK, ''), fmtstr or '%s', unit, '', 0, None, None]
+                             (OK, ''), fmtstr or '%s', unit, '', 0,
+                             None, None, True]
         self._devmap[self._source.register(self, dev+'/value')] = dev
         self._devmap[self._source.register(self, dev+'/status')] = dev
         self._devmap[self._source.register(self, dev+'/fixed')] = dev
@@ -61,9 +62,10 @@ class NicosListener(object):
     def registerKey(self, valuekey, statuskey='', valueindex=-1,
                     unit='', fmtstr=''):
         # value, valueindex, strvalue, strvalue with unit,
-        # status, strvalue, fmtstr, unit, fixed, changetime, min, max
+        # status, strvalue, fmtstr, unit, fixed, changetime, min, max, expired
         self.devinfo[valuekey] = ['-', valueindex, '-', '-',
-                                  (OK, ''), fmtstr or '%s', unit, '', 0, None, None]
+                                  (OK, ''), fmtstr or '%s', unit, '', 0,
+                                  None, None, True]
         self._devmap[self._source.register(self, valuekey)] = valuekey
         if statuskey:
             self._devmap[self._source.register(self, statuskey)] = valuekey
@@ -121,7 +123,7 @@ class NicosListener(object):
             devinfo[6] = value
             self.on_devMetaChange(self._devmap[key], devinfo[5],
                                   devinfo[6], devinfo[7], devinfo[9], devinfo[10])
-        else:
+        else:  # it's /value
             # apply item selection
             if devinfo[1] >= 0 and value is not None:
                 try:
@@ -142,8 +144,9 @@ class NicosListener(object):
                     strvalue = str(fvalue)
             devinfo[8] = time
             devinfo[3] = (strvalue + ' ' + devinfo[6]).strip()
-            if devinfo[2] != strvalue:
+            if devinfo[2] != strvalue or devinfo[11] != expired:
                 devinfo[2] = strvalue
+                devinfo[11] = expired
                 self.on_devValueChange(self._devmap[key], fvalue, strvalue,
                                        devinfo[3], expired)
 
