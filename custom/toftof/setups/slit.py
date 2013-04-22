@@ -1,6 +1,6 @@
 description = 'sample slit'
 
-group = 'basic'
+group = 'lowlevel'
 
 includes = ['system']
 

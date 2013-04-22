@@ -1,5 +1,7 @@
 description = 'FRM-II CCR box with LakeShore LS336 controller'
 
+group = 'optional'
+
 includes = ['system', 'alias_T']
 
 nethost = 'ccr17.toftof.frm2'

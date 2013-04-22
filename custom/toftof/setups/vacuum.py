@@ -1,6 +1,6 @@
 description = 'chopper vacuum readout'
 
-group = 'basic'
+group = 'lowlevel'
 
 includes = ['system']
 

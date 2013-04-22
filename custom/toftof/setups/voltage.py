@@ -1,6 +1,6 @@
 description = 'low and high voltage power supplies for detector'
 
-group = 'basic'
+group = 'lowlevel'
 
 includes = ['system']
 

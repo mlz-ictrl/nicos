@@ -1,6 +1,6 @@
 description = 'sample table and radial collimator'
 
-group = 'basic'
+group = 'lowlevel'
 
 includes = ['system']
 

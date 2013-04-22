@@ -1,6 +1,6 @@
 description = 'TOF counter device'
 
-group = 'basic'
+group = 'lowlevel'
 
 includes = ['system']
 

@@ -1,4 +1,7 @@
 description = 'chopper setup'
+
+group = 'lowlevel'
+
 includes = ['system']
 
 devices = dict(

@@ -1,6 +1,6 @@
 description = 'safety system and shutter'
 
-group = 'basic'
+group = 'lowlevel'
 
 includes = ['system']
 
