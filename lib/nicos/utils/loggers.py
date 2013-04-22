@@ -73,6 +73,9 @@ class NicosLogger(Logger):
                 exc_info = (type(exc), exc, None)
             elif exc:
                 exc_info = sys.exc_info()
+                # did an exception really occur?
+                if exc_info[0] is None:
+                    exc_info = None
         if exc_info:
             if msgs:
                 msgs += ('-',)
