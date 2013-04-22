@@ -13,6 +13,9 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
+      dict(condition = 'ch < 140',
+           message = 'Choppers are down! DO SOMETHING!',
+      ),
 #     dict(condition = 'cooltemp_value > 300',
 #          message = 'Cooling water temperature exceeds 30 C',
 #          priority = 2,
@@ -21,10 +24,6 @@ watchlist = [
 #          message = 'PSD gas is empty, change bottle!',
 #          priority = 2,
 #          setup = 'cascade',
-#     ),
-#     dict(condition = 'tbe_value > 70',
-#          message = 'Be filter temperature > 70 K, check cooling',
-#          priority = 1,
 #     ),
 ]
 
