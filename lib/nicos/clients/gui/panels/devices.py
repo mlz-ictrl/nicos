@@ -422,8 +422,8 @@ class ControlDialog(QDialog):
             self.description.setVisible(False)
 
         if params.get('alias'):
-            dlg.devname.setText(dlg.devname.text() +
-                                ' (alias for %s)' % params['alias'])
+            self.devname.setText(self.devname.text() +
+                                 ' (alias for %s)' % params['alias'])
 
         if 'nicos.core.device.Readable' not in devinfo[5]:
             self.valueFrame.setVisible(False)
