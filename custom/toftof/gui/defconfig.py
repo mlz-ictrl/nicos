@@ -29,22 +29,42 @@ __version__ = "$Revision$"
 from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool
 
 config = ('Default', [
-        vsplit(
-            hsplit(
+        hsplit(
+            vsplit(
                 panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-                panel('nicos.clients.gui.panels.watch.WatchPanel')),
+#                panel('nicos.clients.gui.panels.watch.WatchPanel'),
                 panel('nicos.clients.gui.panels.console.ConsolePanel'),
             ),
-        window('Errors/warnings', 'errors', True,
-            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+            panel('nicos.clients.gui.panels.devices.DevicesPanel'),
+        ),
+        window('Setup', 'setup', True,
+            panel('nicos.clients.gui.panels.setup.SetupPanel')),
         window('Editor', 'editor', True,
-            panel('nicos.clients.gui.panels.editor.EditorPanel')),
+            vsplit(
+#               panel('nicos.clients.gui.panels.cmdinput.CommandsPanel'),
+                panel('nicos.clients.gui.panels.editor.EditorPanel',
+                  tools = [
+#                     tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+                  ]))),
+#       window('Scans', 'plotter', True,
+#           panel('nicos.clients.gui.panels.scans.ScansPanel')),
         window('History', 'find', True,
             panel('nicos.clients.gui.panels.history.HistoryPanel')),
+        window('Logbook', 'table', True,
+            panel('nicos.clients.gui.panels.elog.ELogPanel')),
+        window('Errors', 'errors', True,
+            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
         window('Live data', 'live', True,
-            panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+            panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                  instrument = 'toftof')),
     ], [
         tool('Calculator',
-            'nicos.clients.gui.tools.calculator.CalculatorTool'),
+             'nicos.clients.gui.tools.calculator.CalculatorTool'),
+        tool('Neutron cross-sections',
+             'nicos.clients.gui.tools.website.WebsiteTool',
+             url='http://www.ncnr.nist.gov/resources/n-lengths/'),
+        tool('Neutron activation',
+             'nicos.clients.gui.tools.website.WebsiteTool',
+             url='http://www.wise-uranium.org/rnac.html'),
     ]
 )
