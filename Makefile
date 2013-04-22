@@ -57,10 +57,12 @@ testall:
 
 test-coverage:
 	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 0; fi
-	@COVERAGE_PROCESS_START=.coveragerc $(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos $(O);export RESULT=$$?;\
+	@COVERAGE_PROCESS_START=.coveragerc $(PYTHON) `which nosetests` $(T) -d --with-coverage --cover-package=nicos $(O); \
+	RESULT=$$?; \
 	`which coverage || which python-coverage` combine; \
 	`which coverage || which python-coverage` html -d cover; \
-	echo "nosetest: $$RESULT"; if [ $$(($$RESULT)) -gt 0 ];then exit 1; fi 
+	echo "nosetest: $$RESULT"; \
+	exit $$RESULT
 
 lint:
 	-PYTHONPATH=lib pylint --rcfile=./pylintrc lib/nicos/
@@ -68,19 +70,22 @@ lint:
 jenkinslintall: CUSTOMPYFILES = $(shell find custom/ -name \*.py)
 jenkinslintall:
 	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/
-	-if [[ -n "$(CUSTOMPYFILES)" ]] ; then \
-	                       pylint --rcfile=./pylintrc  --files-output=y  $(CUSTOMPYFILES) ; else echo 'no custom python files' ; fi
+	-if [[ -n "$(CUSTOMPYFILES)" ]]; then \
+		pylint --rcfile=./pylintrc --files-output=y $(CUSTOMPYFILES); \
+	else echo 'no custom python files'; fi
 
 
 jenkinslint: PYFILESCHANGED:= $(shell git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//' |grep ".py")
 jenkinslint:
 	-if [[ -n "$(PYFILESCHANGED)" ]] ; then \
-		pylint --rcfile=./pylintrc  --files-output=y  $(PYFILESCHANGED) ; else echo 'no python files changed' ; fi  
+		pylint --rcfile=./pylintrc --files-output=y $(PYFILESCHANGED); \
+	else echo 'no python files changed'; fi
 
 changelint: PYFILESCHANGED:= $(shell git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//'  | grep ".py")
 changelint:
-	-if [ -n "$(PYFILESCHANGED)" ] ; then \
-		pylint --rcfile=./pylintrc  $(PYFILESCHANGED) ; else echo 'no python files changed' ;fi
+	-if [[ -n "$(PYFILESCHANGED)" ]]; then \
+		pylint --rcfile=./pylintrc $(PYFILESCHANGED); \
+	else echo 'no python files changed'; fi
 
 check:
 	pyflakes lib/nicos custom/*/lib
