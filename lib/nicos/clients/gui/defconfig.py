@@ -33,7 +33,10 @@ config = ('Default', [
 #                panel('nicos.clients.gui.panels.watch.WatchPanel'),
                 panel('nicos.clients.gui.panels.console.ConsolePanel'),
             ),
-            panel('nicos.clients.gui.panels.devices.DevicesPanel'),
+            vsplit(
+                panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
+                panel('nicos.clients.gui.panels.devices.DevicesPanel'),
+            ),
         ),
         window('Setup', 'setup', True,
             panel('nicos.clients.gui.panels.setup.SetupPanel')),
