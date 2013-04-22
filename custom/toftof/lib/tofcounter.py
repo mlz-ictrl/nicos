@@ -25,9 +25,10 @@
 
 """TOFTOF histogram counter card Taco devices."""
 
-import numpy as np
-
 import threading
+from time import sleep
+
+import numpy as np
 
 class Local_Taco_Exception(Exception):
     pass

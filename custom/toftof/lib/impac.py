@@ -25,12 +25,11 @@
 
 """IMPAC Pyrometer IGAR 12-LO"""
 
-from time import sleep, time
-
 from IO import StringIO
 
 from nicos.core import status, intrange, Readable, Param
 from nicos.devices.taco.core import TacoDevice
+
 
 class ImpacPyrometer(TacoDevice, Readable):
 
