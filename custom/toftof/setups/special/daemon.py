@@ -16,7 +16,7 @@ devices = dict(
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'tofhw.toftof.frm2',
-                    authenticators = ['Auth'], # or ['UserDB', 'Auth']
+                    authenticators = ['UserDB', 'Auth'], # or ['UserDB', 'Auth']
                     loglevel = 'info',
                    ),
 )
