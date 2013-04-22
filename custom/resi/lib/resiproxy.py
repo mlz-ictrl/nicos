@@ -49,4 +49,4 @@ class ResiPositionProxy(NicosProxy):
     def __getstate__(self):
         return self._obj.storable()
     def __setstate__(self,state):
-        self._obj = position.PositionFromStorage(ResiPositionProxy.__hardware, state)
+        self._obj = PositionFromStorage(ResiPositionProxy.__hardware, state)
