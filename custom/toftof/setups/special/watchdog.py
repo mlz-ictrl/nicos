@@ -13,7 +13,7 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-      dict(condition = 'ch < 140',
+      dict(condition = 'ch_value < 140',
            message = 'Choppers are down! DO SOMETHING!',
       ),
 #     dict(condition = 'cooltemp_value > 300',
