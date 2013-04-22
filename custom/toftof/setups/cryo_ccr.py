@@ -79,11 +79,11 @@ devices = dict(
                     feedback = 'cryo_vr',), 
 
     cryo_p = device('devices.taco.AnalogInput',
-                    tacodevice = '//%s/ccr/plc/p1' % (nethost, )),
+                    tacodevice = '//%s/ccr/plc/p2' % (nethost, )),
 )
 
 startupcode = """
 T.alias = cryo
-Ts.alias = cryo_d
+Ts.alias = cryo_c
 AddEnvironment(T, Ts)
 """
