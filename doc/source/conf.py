@@ -12,7 +12,7 @@ master_doc = 'index'
 default_role = 'obj'
 
 project = u'NICOS'
-copyright = u'2009-2012, FRM-II / NICOS contributors'
+copyright = u'2009-2013, FRM II / NICOS contributors'
 version = nicos.nicos_version
 release = nicos.nicos_version
 
