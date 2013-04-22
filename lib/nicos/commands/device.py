@@ -31,7 +31,7 @@ import __builtin__
 from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
-     HasLimits, UsageError, formatStatus, INFO_CATEGORIES
+     HasLimits, UsageError, AccessError, formatStatus, INFO_CATEGORIES
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
 from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist
@@ -235,6 +235,9 @@ def stop(*devlist):
         def stopdev(dev):
             try:
                 dev.stop()
+            except AccessError:
+                pass  # do not warn about devices we cannot access if
+                      # they were not explicitly selected
             except Exception:
                 dev.log.warning('error while stopping', exc=1)
             finally:
