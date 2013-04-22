@@ -186,6 +186,16 @@ Other widgets have to be specified by a key named ``widget``:
   such as ``nicos.demo.monitorwidgets.VTas`` that takes over the display for
   this field.  The additional accepted keys are defined by the widget.
 
+Another possibility is to use Qt Designer to create a custom widget layout and
+use this in the monitor.  For this there exists a key:
+
+* ``gui`` -- if set, the field will be loaded from a Qt Designer ``.ui`` file
+  with the given file name.
+
+Use the ``bin/designer-nicos`` executable to start the designer.  Then you will
+have NICOS specific widgets available that automatically show values from the
+cache, such as a value display (label/value combination) and a trend plot.
+
 
 Backends
 --------
