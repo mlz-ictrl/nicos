@@ -24,8 +24,6 @@
 
 """Module for JCNS specific user commands."""
 
-__version__ = "$Revision$"
-
 from nicos.core import HasOffset, Readable
 from nicos.core.spm import spmsyntax, Dev, Bare, Multi, AnyDev, DevParam
 from nicos.commands import usercommand, helparglist

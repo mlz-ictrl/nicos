@@ -25,10 +25,10 @@
 
 """Script to plot and fit NICOS data files."""
 
-__version__ = "$Revision$"
-
-import sys, os
+import os
+import sys
 from os import path
+
 thisfile = path.abspath(__file__)
 while path.islink(thisfile):
     thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))

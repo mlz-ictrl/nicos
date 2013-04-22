@@ -124,8 +124,6 @@ making deviceQuery*
 
 """
 
-__revision__ = "$Revision: 1.6 $"
-
 from nicm_def import Moveable, HWGeneric
 from nicm_exceptions import OutofBoundsError, CommunicationError, ArgError
 from nicm_exceptions import PositionError
