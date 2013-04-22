@@ -475,10 +475,12 @@ class NicosCmdClient(NicosClient):
                     self.put_client('Simulated minimum runtime: %s '
                         '(finishes approximately %s). Device ranges:' %
                         (formatDuration(timing), formatEndtime(timing)))
-                    dnwidth = max(map(len, devinfo))
-                    for devname, (_, dmin, dmax) in sorted(devinfo.iteritems()):
-                        self.put('#   %-*s: %10s  <->  %-10s' %
-                                 (dnwidth, devname, dmin, dmax))
+                    if devinfo:
+                        dnwidth = max(map(len, devinfo))
+                        sorteditems = sorted(devinfo.iteritems())
+                        for devname, (_, dmin, dmax) in sorteditems:
+                            self.put('#   %-*s: %10s  <->  %-10s' %
+                                     (dnwidth, devname, dmin, dmax))
                 self.simulating = False
             elif name == 'mode':
                 self.current_mode = data
@@ -794,10 +796,10 @@ class NicosCmdClient(NicosClient):
                     self.put_error('Unable to open file: %s.' % e)
                     return
                 self.simulating = True
-                self.tell('simulate', fpath, code)
+                self.tell('simulate', fpath, code, 'sim')
             else:
                 self.simulating = True
-                self.tell('simulate', '', arg)
+                self.tell('simulate', '', arg, 'sim')
         elif cmd in ('e', 'edit'):
             self.edit_file(arg)
         elif cmd == 'break':
