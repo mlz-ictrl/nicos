@@ -100,31 +100,11 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="btnLayout">
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
             <string>New command:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="deviceCmds">
-           <property name="text">
-            <string>Device</string>
-           </property>
-           <property name="popupMode">
-            <enum>QToolButton::InstantPopup</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="scanCmds">
-           <property name="text">
-            <string>Scan</string>
-           </property>
-           <property name="popupMode">
-            <enum>QToolButton::InstantPopup</enum>
            </property>
           </widget>
          </item>

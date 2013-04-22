@@ -97,6 +97,7 @@ def showToolText(toolbar, action):
 def setBackgroundColor(widget, color):
     palette = widget.palette()
     palette.setColor(QPalette.Window, color)
+    palette.setColor(QPalette.Base, color)
     widget.setBackgroundRole(QPalette.Window)
     widget.setPalette(palette)
 
