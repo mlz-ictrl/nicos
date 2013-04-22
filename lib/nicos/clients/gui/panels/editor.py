@@ -448,6 +448,7 @@ class EditorPanel(Panel):
     def on_client_message(self, message):
         if message[-1] != '(editorsim) ':
             return
+        message = list(message)
         message[-1] = ''  # remove "editorsim" prefix for output
         if self.waiting_sim_result:
             self.simOutView.addMessage(message)
