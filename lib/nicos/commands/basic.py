@@ -35,7 +35,8 @@ import __builtin__
 from os import path
 
 from nicos import session
-from nicos.core import Device, Readable, ModeError, NicosError, UsageError
+from nicos.core import requires, Device, Readable, ModeError, NicosError, \
+     UsageError
 from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
      String, SetupName, DeviceName
 from nicos.core.sessions.utils import EXECUTIONMODES
@@ -446,6 +447,7 @@ def Remember(what):
 
 @usercommand
 @spmsyntax(Oneof(*EXECUTIONMODES))
+@requires(level='admin')
 def SetMode(mode):
     """Set the execution mode.
 
