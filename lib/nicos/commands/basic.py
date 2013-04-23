@@ -199,7 +199,7 @@ def NewSetup(*setupnames):
         session.loadSetup('startup')
     if current_mode == 'master':
         # need to refresh master status
-        SetMode('master')
+        session.setMode('master')
 
 @usercommand
 @helparglist('setup, ...')
