@@ -97,7 +97,7 @@ class PnPSetupQuestion(QMessageBox):
 
 
 class MainWindow(QMainWindow, DlgUtils):
-    def __init__(self, configfile):
+    def __init__(self, panel_conf):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
@@ -139,16 +139,8 @@ class MainWindow(QMainWindow, DlgUtils):
         # data handling setup
         self.data = DataHandler(self.client)
 
-        # load panel configuration
-        with open(configfile, 'rb') as fp:
-            configcode = fp.read()
-        ns = {}
-        exec configcode in ns
-        if 'default_profile_config' in ns:
-            # backward compatibility
-            self.panel_conf = panel_config(ns['default_profile_config'])
-        else:
-            self.panel_conf = panel_config(ns['config'])
+        # panel configuration
+        self.panel_conf = panel_conf
 
         # determine if there is an editor window type, because we would like to
         # have a way to open files from a console panel later
@@ -663,19 +655,34 @@ def main(argv):
     import nicos.guisupport.gui_rc  #pylint: disable=W0612
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
-    pathStyle = path.join(os.getenv("HOME"), ".config", "nicos", "style.qss")
-    if path.isfile(pathStyle):
-        with open(pathStyle, 'r') as fd:
-            app.setStyleSheet(fd.read())
 
     # XXX implement proper argument parsing
     configfile = path.join(path.dirname(__file__), 'defconfig.py')
+    stylefile = path.join(os.getenv('HOME'), '.config', 'nicos', 'style.qss')
     if '-c' in argv:
         idx = argv.index('-c')
         configfile = argv[idx+1]
+        stylefile = configfile.replace('.py', '.qss')
         del argv[idx:idx+2]
 
-    mainwindow = MainWindow(configfile)
+    with open(configfile, 'rb') as fp:
+        configcode = fp.read()
+    ns = {}
+    exec configcode in ns
+    if 'default_profile_config' in ns:
+        # backward compatibility
+        panel_conf = panel_config(ns['default_profile_config'])
+    else:
+        panel_conf = panel_config(ns['config'])
+
+    if path.isfile(stylefile):
+        try:
+            with open(stylefile, 'r') as fd:
+                app.setStyleSheet(fd.read())
+        except Exception, err:
+            print 'Error setting style sheet:', err
+
+    mainwindow = MainWindow(panel_conf)
 
     if len(argv) > 1:
         cdata = parseConnectionString(argv[1], DEFAULT_PORT)
