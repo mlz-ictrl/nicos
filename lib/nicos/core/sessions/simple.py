@@ -57,17 +57,6 @@ class NoninteractiveSession(Session):
         else:
             setuser()
 
-        session.__class__ = cls
-        try:
-            session.__init__(appname)
-            maindev = cls._get_maindev(appname, maindevname, setupname)
-        except Exception, err:
-            try:
-                session.log.exception('Fatal error while initializing')
-            finally:
-                print >> sys.stderr, 'Fatal error while initializing:', err
-            return 1
-
         def quit_handler(signum, frame):
             removePidfile(appname)
             maindev.quit()
@@ -77,16 +66,28 @@ class NoninteractiveSession(Session):
         def status_handler(signum, frame):
             if hasattr(maindev, 'statusinfo'):
                 maindev.statusinfo()
-        signal.signal(signal.SIGINT, quit_handler)
-        signal.signal(signal.SIGTERM, quit_handler)
-        if hasattr(signal, 'SIGUSR1'):
-            signal.signal(signal.SIGUSR1, reload_handler)
-            signal.signal(signal.SIGUSR2, status_handler)
 
-        if pidfile:
-            writePidfile(appname)
+        session.__class__ = cls
+        try:
+            session.__init__(appname)
+            maindev = cls._get_maindev(appname, maindevname, setupname)
 
-        session._beforeStart(maindev)
+            signal.signal(signal.SIGINT, quit_handler)
+            signal.signal(signal.SIGTERM, quit_handler)
+            if hasattr(signal, 'SIGUSR1'):
+                signal.signal(signal.SIGUSR1, reload_handler)
+                signal.signal(signal.SIGUSR2, status_handler)
+
+            if pidfile:
+                writePidfile(appname)
+
+            session._beforeStart(maindev)
+        except Exception, err:
+            try:
+                session.log.exception('Fatal error while initializing')
+            finally:
+                print >> sys.stderr, 'Fatal error while initializing:', err
+            return 1
 
         start_args = start_args or ()
         maindev.start(*start_args)
