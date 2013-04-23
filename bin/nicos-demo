@@ -1,8 +1,35 @@
 #!/bin/sh
-if [ ! "x$1" = "x-c" ]; then
-	echo -n 'Compiling in-place... '
-	make inplace > /dev/null
-	echo 'done.'
+CONSOLE=0
+NOCLIENT=0
+NOMONI=0
+NOCOMPILE=0
+GUICONFIG=""
+GUIUSER="guest@localhost"
+
+while getopts tNnCc:u: name; do
+    case "$name" in
+        t)
+          CONSOLE=1;;
+        n)
+          NOCLIENT=1;;
+        N)
+          NOMONI=1;;
+        C)
+          NOCOMPILE=1;;
+        c)
+          GUICONFIG="-c $OPTARG";;
+        u)
+          GUIUSER="$OPTARG";;
+       -)
+         break;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+if [ "$NOCOMPILE" = "0" ]; then
+    echo -n 'Compiling in-place... '
+    make inplace > /dev/null
+    echo 'done.'
 fi
 echo -n 'Starting NICOS demo system, please wait: '
 bin/nicos-cache >/dev/null &
@@ -21,26 +48,29 @@ bin/nicos-poller >/dev/null &
 POLLERPID=$!
 echo -n 'poller '
 sleep 0.1
-if [ "x$1" = "x-N" ]; then
-	shift
-else
-	bin/nicos-monitor >/dev/null &
-	MONIPID=$!
-	echo -n 'monitor '
-	sleep 0.1
+if [ "$NOMONI" = "0" ]; then
+    bin/nicos-monitor >/dev/null &
+    MONIPID=$!
+    echo -n 'monitor '
+    sleep 0.1
 fi
-if [ ! "x$1" = "x-t" ]; then
-	bin/nicos-daemon >/dev/null &
-	DAEMONPID=$!
-	echo -n 'daemon'
-	sleep 1
-	echo '.'
-	echo 'Services started, starting GUI.'
-	bin/nicos-gui guest@localhost '' "$@"
+if [ "$CONSOLE" = "1" ]; then
+    echo
+    echo 'Services started, starting console.'
+    bin/nicos-console
 else
-	echo
-	echo 'Services started, starting console.'
-	bin/nicos-console
+    bin/nicos-daemon >/dev/null &
+    DAEMONPID=$!
+    echo -n 'daemon'
+    sleep 1
+    echo '.'
+    if [ "$NOCLIENT" = "0" ]; then
+        echo 'Services started, starting GUI.'
+        bin/nicos-gui $GUIUSER '' $GUICONFIG "$@"
+    else
+        echo 'Services started, press Enter to stop them.'
+        read
+    fi
 fi
 kill -2 $MONIPID 2>/dev/null
 if [ ! -z "$DAEMONPID" ]; then kill $DAEMONPID; fi
