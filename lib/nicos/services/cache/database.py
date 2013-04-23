@@ -417,6 +417,10 @@ class FlatfileCacheDatabase(CacheDatabase):
             do_rollover = True
         # and if that doesn't exist, give up
         if not path.isdir(curdir):
+            # ... but at least set the symlink correctly for today
+            self.log.info('no previous values found, setting "lastday" link '
+                          'to %s/%s' % (self._year, self._currday))
+            self._set_lastday()
             return
         with self._cat_lock:
             for fn in os.listdir(curdir):
@@ -452,6 +456,10 @@ class FlatfileCacheDatabase(CacheDatabase):
                                                    entry.value))
             fd.flush()
         # set the 'lastday' symlink to the current day directory
+        self._set_lastday()
+        # old files could be compressed here, but it is probably not worth it
+
+    def _set_lastday(self):
         try:
             lname = path.join(self._basepath, 'lastday')
             if path.lexists(lname):
@@ -459,7 +467,6 @@ class FlatfileCacheDatabase(CacheDatabase):
             os.symlink(path.join(self._year, self._currday), lname)
         except Exception:
             self.log.warning('error setting "lastday" symlink', exc=1)
-        # old files could be compressed here, but it is probably not worth it
 
     def _create_fd(self, category):
         """Open the by-date output file for the current day for a given
