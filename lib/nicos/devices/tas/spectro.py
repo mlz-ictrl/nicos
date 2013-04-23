@@ -363,7 +363,7 @@ class Wavevector(Moveable):
     }
 
     parameter_overrides = {
-        'maxage':   Override(default=0),
+        'maxage':   Override(default=0.01),
     }
 
     attached_devices = {
@@ -413,7 +413,7 @@ class Energy(Moveable):
     }
 
     parameter_overrides = {
-        'maxage':   Override(default=0),
+        'maxage':   Override(default=0.01),
         'unit':     Override(volatile=True),
     }
 
