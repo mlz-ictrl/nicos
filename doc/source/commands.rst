@@ -83,6 +83,8 @@ Miscellaneous commands
 .. autofunction:: SaveSimulationSetup
 .. autofunction:: SetSimpleMode
 
+   .. XXX See :ref:`spm`.
+
 Device commands
 ---------------
 

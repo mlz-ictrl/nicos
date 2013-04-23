@@ -464,8 +464,8 @@ def SetMode(mode):
       as the basis of the simulation.  No hardware communication is possible in
       simulation mode.
 
-      It is not possible to switch back: use the `sim()` command for doing
-      one-off simulations.
+      It is currently not implemented to switch back: use the `sim()` command
+      for doing one-off simulations.
 
     * 'maintenance' mode is for instrument scientists only.
 
@@ -491,6 +491,9 @@ def SetSimpleMode(enable):
     """Enable or disable Simple Parameter Mode.  Example:
 
     >>> SetSimpleMode(True)
+
+    In Simple mode, commands are entered without parentheses and commas
+    separating the parameters.
     """
     session.setSPMode(enable)
     if enable:
@@ -505,8 +508,10 @@ def SetSimpleMode(enable):
 def sync():
     """Synchronize simulation copy with master copy.
 
-    This will fetch the current configuration of the actual instrument and apply
-    it to the simulated devices in the current NICOS instance.  Example:
+    This will fetch the current setups and state of the actual instrument and
+    apply it to the simulated devices in the current NICOS instance.  New setups
+    will be loaded, and the current values and parameters of simulated devices
+    will be updated.  Example:
 
     >>> sync()
     """
