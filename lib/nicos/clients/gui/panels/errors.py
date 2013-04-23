@@ -40,11 +40,22 @@ class ErrorPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'errpanel.ui', 'panels')
 
+        self.buttonBox.addButton('Clear', QDialogButtonBox.ResetRole)
+
+        if client.connected:
+            self.on_client_connected()
+        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('message'), self.on_client_message)
 
     def setCustomStyle(self, font, back):
         self.outView.setFont(font)
         setBackgroundColor(self.outView, back)
+
+    def on_client_connected(self):
+        messages = self.client.ask('getmessages', '10000')
+        self.outView.clear()
+        self.outView.addMessages([msg for msg in messages if msg[2] >= WARNING])
+        self.outView.scrollToBottom()
 
     def on_client_message(self, message):
         if message[2] >= WARNING:  # show if level is warning or higher
