@@ -156,7 +156,7 @@ The cache supports storing incoming keys under multiple prefixes (definition of
 prefix: for "nicos/dev/value" the key prefix is "nicos/dev").
 
 - ``key`` is the additional prefix.
-- ``value`` is either ``+prefix`` or ``-prefix`` (add or remove a rewrite).
+- ``value`` is either ``prefix`` (add rewrite) or nothing (remove rewrite).
 
 For example, after ::
 

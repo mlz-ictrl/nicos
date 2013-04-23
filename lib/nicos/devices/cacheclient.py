@@ -78,7 +78,7 @@ class BaseCacheClient(Device):
         self._disconnect_warnings = 0
         # maps newprefix -> oldprefix without self._prefix prepended
         self._inv_rewrites = {}
-        # maps oldprefix -> newprefix without self._prefix prepended
+        # maps oldprefix -> set of new prefixes without self._prefix prepended
         self._rewrites = {}
         self._prefixcallbacks = {}
 
@@ -516,9 +516,10 @@ class CacheClient(BaseCacheClient):
         # we have to check rewrites here, since the cache server won't send
         # us updates for a rewritten key if we sent the original key
         if str(dev) in self._rewrites:
-            rdbkey = ('%s/%s' % (self._rewrites[str(dev)], key)).lower()
-            self._db[rdbkey] = (value, time)
-            self._propagate((time, rdbkey, OP_TELL, dvalue))
+            for newprefix in self._rewrites[str(dev)]:
+                rdbkey = ('%s/%s' % (newprefix, key)).lower()
+                self._db[rdbkey] = (value, time)
+                self._propagate((time, rdbkey, OP_TELL, dvalue))
 
     def put_raw(self, key, value, time=None, ttl=None):
         """Put a key given by full name.
@@ -544,12 +545,15 @@ class CacheClient(BaseCacheClient):
         self._queue.put(self._prefix + newprefix + OP_REWRITE + \
                         self._prefix + oldprefix + '\n')
         self._inv_rewrites[newprefix] = oldprefix
-        self._rewrites[oldprefix] = newprefix
+        self._rewrites.setdefault(oldprefix, set()).add(newprefix)
 
     def unsetRewrite(self, newprefix):
         newprefix = newprefix.lower()
         if newprefix in self._inv_rewrites:
-            del self._rewrites[self._inv_rewrites[newprefix]]
+            old = self._inv_rewrites[newprefix]
+            self._rewrites[old].discard(newprefix)
+            if not self._rewrites[old]:
+                del self._rewrites[old]
             del self._inv_rewrites[newprefix]
             self._queue.put(self._prefix + newprefix + OP_REWRITE + '\n')
 

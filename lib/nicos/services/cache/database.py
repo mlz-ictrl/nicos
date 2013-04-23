@@ -69,7 +69,9 @@ class CacheDatabase(Device):
         self._lock_lock = threading.Lock()
         self._locks = {}
         self._rewrite_lock = threading.Lock()
+        # map incoming prefix -> set of new prefixes
         self._rewrites = {}
+        # map new prefix -> incoming prefix
         self._inv_rewrites = {}
 
     def initDatabase(self):
@@ -83,10 +85,12 @@ class CacheDatabase(Device):
         current = self._inv_rewrites.get(key)
         with self._rewrite_lock:
             if current is not None:
-                del self._rewrites[current]
+                self._rewrites[current].discard(key)
+                if not self._rewrites[current]:
+                    del self._rewrites[current]
                 del self._inv_rewrites[key]
             if value:
-                self._rewrites[value] = key
+                self._rewrites.setdefault(value, set()).add(key)
                 self._inv_rewrites[key] = value
 
     def lock(self, key, value, time, ttl):
@@ -200,7 +204,7 @@ class MemoryCacheDatabase(CacheDatabase):
             subkey = key
         newcats = [category]
         if category in self._rewrites:
-            newcats.append(self._rewrites[category])
+            newcats.extend(self._rewrites[category])
         for newcat in newcats:
             key = newcat + '/' + subkey
             with self._db_lock:
@@ -265,7 +269,7 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
             subkey = key
         newcats = [category]
         if category in self._rewrites:
-            newcats.append(self._rewrites[category])
+            newcats.extend(self._rewrites[category])
         for newcat in newcats:
             key = newcat + '/' + subkey
             with self._db_lock:
@@ -638,7 +642,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             subkey = key
         newcats = [category]
         if category in self._rewrites:
-            newcats.append(self._rewrites[category])
+            newcats.extend(self._rewrites[category])
         for newcat in newcats:
             with self._cat_lock:
                 if newcat not in self._cat:
