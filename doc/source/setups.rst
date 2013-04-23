@@ -40,8 +40,6 @@ A setup file can consist of the following entries, all of which are optional:
      but configures e.g. a NICOS service.  For each service, there is one
      special setup (e.g. "cache", "poller", "daemon").
 
-   * ``simulated`` means that this setup was written by `SaveSimulationSetup`.
-
 ``includes``
    A list of names of setups that this one requires to be loaded.  Using this
    function, setups can be constructed very modularly, usually without

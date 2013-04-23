@@ -29,15 +29,13 @@ from __future__ import with_statement
 import os
 import sys
 import time
-import shutil
 import inspect
 import traceback
 import __builtin__
 from os import path
 
 from nicos import session
-from nicos.core import Device, AutoDevice, Readable, ModeError, NicosError, \
-     UsageError
+from nicos.core import Device, Readable, ModeError, NicosError, UsageError
 from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
      String, SetupName, DeviceName
 from nicos.core.sessions.utils import EXECUTIONMODES
@@ -60,7 +58,7 @@ __all__ = [
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode',
     'edit', 'run', 'sim',
     'notify', 'SetMailReceivers', 'SetSMSReceivers',
-    'SaveSimulationSetup', '_SimulationRestore', '_trace', 'timer',
+    '_trace', 'timer',
     'LogEntry', 'LogAttach',
 ]
 
@@ -824,67 +822,6 @@ def SetSMSReceivers(*numbers):
                 printinfo('no SMS notifications will be sent')
             return
     printwarning('SMS notification is not configured in this setup')
-
-
-@usercommand
-@helparglist('filename, name')
-def SaveSimulationSetup(filename, name=None):
-    """Save the whole current setup as a file usable in simulation mode."""
-    if path.isfile(filename):
-        printwarning('The file %r already exists, making a backup at %r' %
-                     (filename, filename + '.bak'))
-        shutil.copy(filename, filename + '.bak')
-    with open(filename, 'w') as f:
-        f.write('name = %r\n\n' % (name or '+'.join(session.explicit_setups)))
-        f.write('group = %r\n\n' % 'simulated')
-        f.write('sysconfig = dict(\n')
-        if session.instrument is None:
-            f.write('    instrument = None,\n')
-        else:
-            f.write('    instrument = %r,\n' % session.instrument.name)
-        if session.experiment is None:
-            f.write('    experiment = None,\n')
-        else:
-            f.write('    experiment = %r,\n' % session.experiment.name)
-        f.write('    datasinks = %r,\n' % [s.name for s in session.datasinks])
-        f.write(')\n\n')
-        f.write('devices = dict(\n')
-        for devname, dev in session.devices.iteritems():
-            if isinstance(dev, AutoDevice):
-                continue
-            devcls = dev.__class__.__module__ + '.' + dev.__class__.__name__
-            f.write('    %s = device(%r,\n' % (devname, devcls))
-            for adevname in dev.attached_devices:
-                adev = dev._adevs[adevname]
-                if isinstance(adev, list):
-                    f.write('        %s = %r,\n' % (
-                        adevname, [sdev.name for sdev in adev]))
-                else:
-                    f.write('        %s = %r,\n' % (
-                        adevname, adev and str(adev) or None))
-            for param in dev.parameters:
-                f.write('        %s = %r,\n' % (param, getattr(dev, param)))
-            f.write('    ),\n')
-        f.write(')\n\n')
-        f.write('startupcode = """\n')
-        for dev in session.devices.itervalues():
-            if isinstance(dev, Readable) and dev.hardware_access:
-                if session.mode == 'simulation':
-                    value = dev._sim_value
-                else:
-                    value = dev.read()
-                f.write('_SimulationRestore(%r, %r)\n' % (dev.name, value))
-        f.write('"""\n')
-
-@usercommand
-def _SimulationRestore(devname, value):
-    """Restore value of a device in a simulation setup.
-
-    This needs to be a usercommand because it is executed in the user namespace,
-    but by prefixing the name with an underscore it is hidden from the user.
-    """
-    printinfo('Setting simulated value of device %s to %r' % (devname, value))
-    session.getDevice(devname)._sim_value = value
 
 
 @usercommand

@@ -80,7 +80,6 @@ Miscellaneous commands
 .. .. autofunction:: Keep
 .. autofunction:: ClearCache
 .. autofunction:: UserInfo
-.. autofunction:: SaveSimulationSetup
 .. autofunction:: SetSimpleMode
 
    .. XXX See :ref:`spm`.
