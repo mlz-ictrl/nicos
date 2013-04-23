@@ -494,7 +494,7 @@ class CacheClient(BaseCacheClient):
                     default)
         return (None, None, default)  # shouldn't happen
 
-    def put(self, dev, key, value, time=None, ttl=None):
+    def put(self, dev, key, value, time=None, ttl=None, flag=''):
         """Put a value for a given device and subkey.
 
         The value is serialized by this method using `cache_dump()`.
@@ -508,8 +508,8 @@ class CacheClient(BaseCacheClient):
         dbkey = ('%s/%s' % (dev, key)).lower()
         self._db[dbkey] = (value, time)
         dvalue = cache_dump(value)
-        msg = '%s%s@%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
-                                   OP_TELL, dvalue)
+        msg = '%s%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
+                                     flag, OP_TELL, dvalue)
         #self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, dvalue))

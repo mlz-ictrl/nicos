@@ -1093,20 +1093,20 @@ class Session(object):
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action' + FLAG_NO_STORE, joined)
+            self.cache.put(self.experiment, 'action', joined, flag=FLAG_NO_STORE)
 
     def endActionScope(self):
         self._actionStack.pop()
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action' + FLAG_NO_STORE, joined)
+            self.cache.put(self.experiment, 'action', joined, flag=FLAG_NO_STORE)
 
     def action(self, what):
         joined = ' :: '.join(self._actionStack + [what])
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action' + FLAG_NO_STORE, joined)
+            self.cache.put(self.experiment, 'action', joined, flag=FLAG_NO_STORE)
 
     # -- Session-specific behavior ---------------------------------------------
 
