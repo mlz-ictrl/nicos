@@ -22,7 +22,7 @@ A data frame on the command connection has one of three types: "ok", "error" or
 
 For "error" and "data" frames, the following four bytes encode the length of the
 payload (i.e. frame length excluding first byte and length) as a network-order
-unsigned 32-bit integer.
+(big-endian) unsigned 32-bit integer.
 
 For "error" frames, the payload is a simple string explaining the error.
 
@@ -31,8 +31,8 @@ serialized Python object.
 
 For "data" frames sent from the client to the daemon (commands), the command is
 separated from arguments by ASCII value RS (0x1E).  There can be any number of
-arguments, as long as the command accepts them.  Arguments are not serialized,
-so only strings are allowed.
+arguments separated by RS, as long as the command accepts them.  Arguments are
+not serialized, so only strings are allowed.
 
 **Event connection**
 
@@ -53,7 +53,8 @@ Serialization format is Python pickle format 2.
 Handshake
 ---------
 
-First, a client must generate a random 32-byte ID used as the client ID.
+First, a client must generate a random 32-byte ID used as the client ID (e.g.
+the MD5 of the host name and the current time, or 32 bytes of urandom data).
 
 Open a connection to the server port and send the client ID.  The daemon will
 check if the connecting host is allowed to connect, and then send a data frame
