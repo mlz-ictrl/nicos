@@ -1,0 +1,5 @@
+* { background-color: #dfe8f7 }
+QLineEdit, QTextEdit, QComboBox, QQutputView, QColumnView, QListView,
+QTreeView, QTreeWidget { background-color: white }
+QMenu, QPushButton { background-color: #c5d9f2 }
+QMenuBar { background-color: #eae6df }

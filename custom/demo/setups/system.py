@@ -1,17 +1,22 @@
 description = 'system setup'
+
 group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = None,
+    instrument = 'demo',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'liveplot'],
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard', 'nicos.commands.taco']
+modules = ['nicos.commands.standard'] # , 'jcns.commands']
 
 devices = dict(
+    demo     = device('devices.instrument.Instrument',
+                      instrument = 'DEMO',
+                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>'),
+
     Sample   = device('devices.tas.TASSample'),
 
     Exp      = device('devices.experiment.Experiment',
@@ -19,7 +24,7 @@ devices = dict(
                       sendmail = True,
                       managerights = False,
                       serviceexp = '0',
-                      sample = 'Sample'
+                      sample = 'Sample',
                      ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
@@ -39,7 +44,12 @@ devices = dict(
 )
 
 startupcode = '''
-if not Exp.proposal:
-    SetMode('master')
-    NewExperiment(0)
+try:
+    if not Exp.proposal:
+        SetMode('master')
+        NewExperiment(0, 'NICOS demo experiment', localcontact='N. N.')
+        AddUser('H. Maier-Leibnitz')
+        NewSample('Gd3CdB7')
+except Exception:
+    pass
 '''

@@ -78,24 +78,26 @@ devices = dict(
                       precision = 0,
                      ),
 
-    #~ coll_m   = device('devices.generic.VirtualMotor',
-                      #~ lowlevel = True,
-                      #~ abslimits = (0, 10),
-                      #~ speed = 1,
-                      #~ unit = 'deg',
-                     #~ ),
-    #~ coll     = device('devices.generic.Switcher',
-                      #~ description = 'collimation',
-                      #~ moveable = 'coll_m',
-                      #~ states = ['off','2m','P3','P4'],
-                      #~ values = [0, 2, 4, 8],
-                      #~ precision = 0,
-                     #~ ),
+    coll_m    = device('devices.generic.VirtualMotor',
+                       lowlevel = True,
+                       abslimits = (0, 10),
+                       speed = 1,
+                       unit = 'deg',
+                      ),
+    coll      = device('devices.generic.Switcher',
+                       description = 'collimation',
+                       moveable = 'coll_m',
+                       mapping = {'off': 0,
+                                  '10m': 2,
+                                  '15m': 4,
+                                  '20m': 8},
+                       precision = 0,
+                      ),
 
     det_pos1  = device('devices.generic.VirtualMotor',
                       description = 'detector1 position in the tube',
                       abslimits = (0, 21),
-                      speed = 0.5,
+                      speed = 1,
                       unit = 'm',
                       curvalue = 1,
                      ),
@@ -142,7 +144,6 @@ devices = dict(
 )
 
 startupcode = '''
-SetMode('master')
 SetDetectors(det)
 printinfo("============================================================")
 printinfo("Welcome to the NICOS SANS demo setup.")

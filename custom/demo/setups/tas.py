@@ -181,27 +181,6 @@ devices = dict(
                       unit = 'deg',
                      ),
 
-    mfh_mot = device('nicos.panda.rot_axis.VirtualRotAxisMotor',
-                      abslimits = (-360, 360),
-                      unit = 'deg',
-                      speed = 20,
-                      jitter = 0.1,
-                      lowlevel = True,
-                     ),
-    mfh         = device('nicos.panda.rot_axis.RotAxis',
-                      description = 'horizontal focus for the monochromator',
-                      abslimits = (-360, 360),
-                      unit = 'deg',
-                      refpos = 220,
-                      refspeed = 1,
-                      autoref = -10,
-                      wraparound = 360,
-                      precision = 0.1,
-                      motor = 'mfh_mot',
-                      coder = 'mfh_mot',
-                      obs = [],
-                     ),
-
     TBeFilter   = device('devices.generic.VirtualTemperature',
                          description = 'Beryllium filter temperature',
                          abslimits = (0, 100),
@@ -214,11 +193,11 @@ devices = dict(
 )
 
 startupcode = '''
-SetMode('master')
 if mth() == 0:
     mth.speed = mtt.speed = ath.speed = att.speed = psi.speed = phi.speed = 0
     mono(1.55)
     kf(1.55)
+    Sample.lattice = [3.5, 3.5, 3.5]
     tas(1,0,0,0)
     mth.speed = mtt.speed = 0.5
     psi.speed = 2
@@ -230,8 +209,8 @@ printinfo("============================================================")
 printinfo("Welcome to the NICOS triple-axis demo setup.")
 printinfo("This demo is configured as a virtual triple-axis instrument.")
 printinfo("Try doing an elastic scan over a Bragg peak, e.g.")
-printinfo("  qcscan((1, 0, 0, 0), (0.002, 0, 0, 0), 10, t=1, kf=1.55)")
+printinfo("  > qcscan((1, 0, 0, 0), (0.002, 0, 0, 0), 10, t=1, kf=1.4)")
 printinfo("or an energy scan, e.g.")
-printinfo("  qscan((1, 0.2, 0, 4), (0, 0, 0, 0.2), 21, t=1, kf=2)")
+printinfo("  > qscan((1, 0.2, 0, 4), (0, 0, 0, 0.2), 21, t=1, kf=1.55)")
 printinfo("============================================================")
 '''

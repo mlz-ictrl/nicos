@@ -18,34 +18,54 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Jens Krueger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
 """NICOS GUI default configuration."""
 
+__version__ = "$Revision$"
+
 from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
 
-config = ('Default', [
-        tabbed(('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel')),
-               ('Expert mode',
+default_profile_uid = '07139e62-d244-11e0-b94b-00199991c245'
+default_profile_config = ('Default', [
+        tabbed(
+#              ('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel')),
+               ('Demo instrument',
                 vsplit(
                     hsplit(
-                        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-                        panel('nicos.clients.gui.panels.watch.WatchPanel'),
+                        panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
+#                       panel('nicos.clients.gui.panels.watch.WatchPanel'),
+                        vsplit(
+                            panel('nicos.clients.gui.panels.commandline.CommandLinePanel'),
+                            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
                         ),
-                    panel('nicos.clients.gui.panels.console.ConsolePanel'),
-                )),
-               ('Setup', panel('nicos.clients.gui.panels.setup.SetupPanel')),
+                        panel('nicos.clients.gui.panels.devices.DevicesPanel'),
+                    ),
+#                   panel('nicos.clients.gui.panels.cmdinput.CommandsPanel'),
+                    panel('nicos.clients.gui.panels.console.ConsolePanel',
+                          hasinput=False,
+                         ),
+                ),
+               ),
+               ('Editor',
+                vsplit(
+                    panel('nicos.clients.gui.panels.cmdinput.CommandsPanel'),
+                    panel('nicos.clients.gui.panels.editor.EditorPanel',
+                       tools = [
+                          tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+                    ]),
+                ),
+               ),
         ),
-        window('Editor', 'editor', True,
-            panel('nicos.clients.gui.panels.editor.EditorPanel',
-                  tools = [
-                      tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
-                  ])),
-        #window('Scans', 'plotter', True,
-        #    panel('nicos.clients.gui.panels.scans.ScansPanel')),
-        window('Device History', 'find', True,
+        window('Setup', 'setup', True,
+            panel('nicos.clients.gui.panels.setup.SetupPanel')),
+        window('Scans', 'plotter', True,
+            panel('nicos.clients.gui.panels.scans.ScansPanel')),
+        window('Errors', 'errors', True,
+            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+        window('History', 'find', True,
             panel('nicos.clients.gui.panels.history.HistoryPanel')),
         window('Logbook', 'table', True,
             panel('nicos.clients.gui.panels.elog.ELogPanel')),
