@@ -115,6 +115,12 @@ class OutputView(QTextBrowser):
             text = name + message[3]
             fmt = grey
         elif levelno <= OUTPUT:
+            if message[3].startswith('  > '):
+                fmt = QTextCharFormat()
+                fmt.setFontWeight(QFont.Bold)
+                fmt.setAnchor(True)
+                fmt.setAnchorHref('exec:' + message[3][4:].strip())
+                return name + message[3], fmt
             text = name + message[3]
         elif levelno == INPUT:
             m = command_re.match(message[3])
