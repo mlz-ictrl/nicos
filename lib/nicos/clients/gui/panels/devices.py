@@ -454,7 +454,15 @@ class ControlDialog(QDialog):
             else:
                 self.targetBox.setVisible(False)
                 self.target.setValidator(QDoubleValidator(self.target))
-                self.target.setText(str(params.get('value', '')))
+                value = params.get('value', '')
+                if isinstance(value, float):
+                    try:
+                        self.target.setText(params['fmtstr'] % value)
+                    except (ValueError, KeyError):
+                        self.target.setText(str(value))
+                else:
+                    self.target.setText(str(value))
+                self.target.selectAll()
                 self.targetUnit.setText(params['unit'])
                 is_switcher = False
             self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
