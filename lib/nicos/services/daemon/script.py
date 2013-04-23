@@ -299,15 +299,16 @@ class ExecutionController(Controller):
         Controller.__init__(self, break_only_in_filename='<script>')
         self.set_observer(self._observer)
 
-    # this code is executed as the first thing when the daemon starts
-    setup_code = ('from nicos import session\n'
-                  'try:\n'
-                  '    session.handleInitialSetup(%r, %r)\n'
-                  'except:\n'
-                  '    session.log.warning("Error loading previous setups, '
-                  'loading startup setup", exc=1)\n'
-                  '    session.handleInitialSetup("startup", %r)\n'
-                  'del session\n')
+    def _setup(self):
+        # this code is executed as the first thing when the daemon starts
+        try:
+            session.handleInitialSetup(self.setup, self.simmode)
+        except: #pylint: disable=W0702
+            session.log.warning('Error loading previous setups, '
+                                'loading startup setup', exc=1)
+            session.handleInitialSetup('startup', self.simmode)
+        # remove this function from the user namespace after completion
+        self.namespace.pop('NicosSetup', None)
 
     def _observer(self, status, lineno):
         # subtract 1 from lineno since the compilation steps adds a comment
@@ -527,11 +528,9 @@ class ExecutionController(Controller):
         """
         self.log.debug('script_thread (re)started')
         try:
-            # generate startup code that sets up initial NICOS devices
-            setup_code = self.setup_code % (self.setup, self.simmode,
-                                            self.simmode)
+            self.namespace['NicosSetup'] = self._setup
             # and put it in the queue as the first request
-            request = ScriptRequest(setup_code, 'setting up NICOS',
+            request = ScriptRequest('NicosSetup()', 'setting up NICOS',
                                     system_user, quiet=True, format='py')
             self.new_request(request, notify=False)
 
