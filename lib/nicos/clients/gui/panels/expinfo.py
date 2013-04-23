@@ -47,6 +47,11 @@ class SqueezedLabel(QLabel):
         self._fulltext = text
         self._squeeze(text)
 
+    def minimumSizeHint(self):
+        sh = QLabel.minimumSizeHint(self)
+        sh.setWidth(-1)
+        return sh
+
     def _squeeze(self, text=None):
         if text is None:
             text = self.text()
