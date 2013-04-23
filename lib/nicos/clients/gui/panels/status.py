@@ -134,6 +134,7 @@ class ScriptStatusPanel(Panel):
         menu.addAction(self.actionBreak)
         menu.addAction(self.actionBreakCount)
         menu.addAction(self.actionContinue)
+        menu.addSeparator()
         menu.addAction(self.actionStop)
         menu.addAction(self.actionFinish)
         menu.addSeparator()
