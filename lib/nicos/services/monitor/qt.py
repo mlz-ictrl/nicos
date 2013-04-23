@@ -31,7 +31,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
-     QCursor, QStackedWidget
+     QCursor
 
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import DisplayWidget
@@ -115,6 +115,8 @@ class Monitor(BaseMonitor):
 
         timefont  = QFont(self.font, self._fontsizebig + self._fontsize)
         blockfont = QFont(self.font, self._fontsizebig)
+        warnfont  = QFont(self.font, self._fontsizebig)
+        warnfont.setBold(True)
         labelfont = QFont(self.font, self._fontsize)
         stbarfont = QFont(self.font, int(self._fontsize * 0.8))
         valuefont = QFont(self.valuefont or self.font, self._fontsize)
@@ -134,17 +136,27 @@ class Monitor(BaseMonitor):
         pal.setColor(QPalette.WindowText, self._gray)
         self._titlelabel.setPalette(pal)
         self._titlelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        masterframe.connect(self._titlelabel, SIGNAL('updatetitle'),
-                            self._titlelabel.setText)
+        master.connect(self._titlelabel, SIGNAL('updatetitle'),
+                       self._titlelabel.setText)
 
         masterlayout.addWidget(self._titlelabel)
         masterlayout.addSpacing(0.2 * tiheight)
 
-        self._stacker = QStackedWidget(masterframe)
-        masterlayout.addWidget(self._stacker)
-        displayframe = QFrame(self._stacker)
-        self._stacker.addWidget(displayframe)
+        self._warnpanel = QFrame(master)
+        self._warnpanel.setVisible(False)
 
+        warningslayout = QVBoxLayout()
+        lbl = QLabel('Warnings', self._warnpanel, font=warnfont)
+        lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        warningslayout.addWidget(lbl)
+        self._warnlabel = QLabel('', self._warnpanel, font=blockfont)
+        warningslayout.addWidget(self._warnlabel)
+        self._warnpanel.setLayout(warningslayout)
+        masterlayout.addWidget(self._warnpanel)
+        master.connect(self._warnpanel, SIGNAL('switchwarnpanel'),
+                       self._switch_warnpanel)
+
+        displayframe = QFrame(master)
         self._plots = {}
 
         def _create_field(groupframe, field):
@@ -233,20 +245,7 @@ class Monitor(BaseMonitor):
         for plot in self._plots.values():
             plot.setSource(self)
 
-        self._warnpanel = QFrame(self._stacker)
-        self._stacker.addWidget(self._warnpanel)
-        master.connect(self._warnpanel, SIGNAL('setindex'),
-                       self._stacker.setCurrentIndex)
-
-        warningslayout = QVBoxLayout()
-        lbl = QLabel('Warnings', self._warnpanel, alignment=Qt.AlignHCenter,
-                     font=timefont)
-        lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        warningslayout.addWidget(lbl)
-        self._warnlabel = QLabel('', self._warnpanel, font=blockfont)
-        warningslayout.addWidget(self._warnlabel)
-        warningslayout.addStretch()
-        self._warnpanel.setLayout(warningslayout)
+        masterlayout.addWidget(displayframe)
 
         masterframe.setLayout(masterlayout)
         master.setCentralWidget(masterframe)
@@ -271,21 +270,25 @@ class Monitor(BaseMonitor):
     def updateTitle(self, title):
         self._titlelabel.emit(SIGNAL('updatetitle'), title)
 
-    def switchWarnPanel(self, off=False):
-        if self._stacker.currentIndex() == 1 or off:
-            self._warnpanel.emit(SIGNAL('setindex'), 0)
-            if off:
-                pal = self._titlelabel.palette()
-                pal.setColor(QPalette.WindowText, self._gray)
-                pal.setColor(QPalette.Window, self._bgcolor)
-                self._titlelabel.setPalette(pal)
-        else:
-            self._warnpanel.emit(SIGNAL('setindex'), 1)
+    def switchWarnPanel(self, on):
+        self._warnpanel.emit(SIGNAL('switchwarnpanel'), on)
+
+    def _switch_warnpanel(self, on):
+        if on:
             pal = self._titlelabel.palette()
             pal.setColor(QPalette.WindowText, self._black)
             pal.setColor(QPalette.Window, self._red)
             self._titlelabel.setPalette(pal)
             self._warnlabel.setText(self._currwarnings)
+            self._warnpanel.setVisible(True)
+            self._master.update()
+        else:
+            self._warnpanel.setVisible(False)
+            pal = self._titlelabel.palette()
+            pal.setColor(QPalette.WindowText, self._gray)
+            pal.setColor(QPalette.Window, self._bgcolor)
+            self._titlelabel.setPalette(pal)
+            self._master.update()
 
     def reconfigureBoxes(self):
         for setup, boxes in self._onlymap.iteritems():

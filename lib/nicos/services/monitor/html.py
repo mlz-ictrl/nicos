@@ -69,7 +69,7 @@ table { font-family: inherit; font-size: 100%%; }
 .istext { font-family: '%(ff)s', sans-serif !important; }
 .unit   { color: #888888; }
 .fixed  { color: #0000ff; }
-.warnings { margin-top: 1em; background-color: red; font-size: 120%%; }
+.warnings { font-size: 120%%; }
 </style>
 <title>%(title)s</title>
 </head>
@@ -275,6 +275,9 @@ class Monitor(BaseMonitor):
             '<tr><td><div class="time">')
         self._timelabel = Label('timelabel')
         add(self._timelabel)
+        add('</div><div>')
+        self._warnlabel = Label('warnings', back='red', text='')
+        add(self._warnlabel)
         add('</div></td></tr>\n')
 
         self._plots = {}
@@ -333,8 +336,6 @@ class Monitor(BaseMonitor):
                 add('</td></tr></table>\n')
             add('</td></tr>')
         add('</table>\n')
-        self._warnlabel = Label('warnings')
-        add(self._warnlabel)
         add('</body></html>\n')
 
     def updateTitle(self, text):
@@ -403,13 +404,11 @@ class Monitor(BaseMonitor):
         return escape(text) + ' <span class="unit">%s</span><span ' \
             'class="fixed">%s</span> ' % (escape(unit), fixed)
 
-    def switchWarnPanel(self, off=False):
-        if off:
-            self._timelabel.back = self._bgcolor
-            self._timelabel.fore = self._gray
+    def switchWarnPanel(self, on):
+        if on:
+            self._warnlabel.text = escape(self._currwarnings)
         else:
-            self._timelabel.back = self._red
-            self._timelabel.fore = self._black
+            self._warnlabel.text = ''
 
     def reconfigureBoxes(self):
         for setup, boxes in self._onlymap.iteritems():

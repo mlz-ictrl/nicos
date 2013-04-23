@@ -84,7 +84,7 @@ class Monitor(BaseCacheClient):
     def signal(self, field, signal, *args):
         raise NotImplementedError('Implement signal() in subclasses')
 
-    def switchWarnPanel(self, off=False):
+    def switchWarnPanel(self, on):
         raise NotImplementedError('Implement switchWarnPanel() in subclasses')
 
     def reconfigureBoxes(self):
@@ -127,8 +127,6 @@ class Monitor(BaseCacheClient):
         self._masteractive = False
         # currently shown warnings
         self._currwarnings = ''
-        # time when warnings were last shown/hidden?
-        self._warningswitchtime = 0
 
         # start a thread checking for modification of the setup file
         checker = threading.Thread(target=self._checker, name='refresh checker')
@@ -187,12 +185,6 @@ class Monitor(BaseCacheClient):
                          (self.title, strftime('%d.%m.%Y %H:%M:%S'),
                           '' if self._masteractive else ', no master active'))
 
-        # check if warnings need to be shown
-        if self._currwarnings:
-            if currenttime() > self._warningswitchtime + 10:
-                self.switchWarnPanel()
-                self._warningswitchtime = currenttime()
-
     def register(self, widget, key):
         key = self._prefix + key.lower().replace('.', '/')
         self._keymap.setdefault(key, []).append(widget)
@@ -237,5 +229,4 @@ class Monitor(BaseCacheClient):
     def _process_warnings(self, warnings):
         #self.log.debug('new warnings: %s' % warnings)
         self._currwarnings = warnings
-        if not warnings:
-            self.switchWarnPanel(off=True)
+        self.switchWarnPanel(bool(warnings))
