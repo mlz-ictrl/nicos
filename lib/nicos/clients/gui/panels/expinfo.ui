@@ -219,7 +219,7 @@
       </font>
      </property>
      <property name="text">
-      <string>NICOS experiment info</string>
+      <string>Experiment info</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

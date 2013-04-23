@@ -84,6 +84,9 @@ class NicosListener(object):
             return
         devinfo = self.devinfo[self._devmap[key]]
         if key.endswith('/status'):
+            if value is None:
+                value = devinfo[4]
+                expired = True
             devinfo[4] = value
             devinfo[8] = time
             self.on_devStatusChange(self._devmap[key],

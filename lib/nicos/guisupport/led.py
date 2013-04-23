@@ -156,8 +156,10 @@ class ValueLed(BaseLed):
 
     def on_keyChange(self, key, value, time, expired):
         if expired:
-            self.setLedColor('grenoble')
-        elif value:
+            self.setLedStatus(False)
+        else:
+            self.setLedStatus(True)
+        if value:
             self.setLedColor('green')
         else:
             self.setLedColor('red')
@@ -186,6 +188,9 @@ class StatusLed(BaseLed):
     key = pyqtProperty(str, get_key, set_key, reset_key)
 
     def on_keyChange(self, key, value, time, expired):
+        if value is None:
+            expired = True
+            value = (OK, '')
         if expired:
             self.setLedStatus(False)
         else:

@@ -98,8 +98,8 @@ class ExpInfoPanel(Panel):
                                   'session.experiment.users, '
                                   'session.experiment.localcontact, '
                                   'session.experiment.remark, '
-                                  'session.experiment.sample.samplename', None)
-        if values is None:
+                                  'session.experiment.sample.samplename', '')
+        if not values:
             return
         self.expdevname = values[0].lower() + '/'
         self.sampledevname = values[1].lower() + '/'
