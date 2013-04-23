@@ -77,7 +77,7 @@ class NicosClient(object):
         try:
             self.socket.connect((conndata['host'], conndata['port']))
         except socket.error, err:
-            msg = err.args[1]
+            msg = err.args[1] if len(err.args) >= 2 else str(err)
             self.signal('failed', 'Server connection failed: %s.' % msg, err)
             return
         except Exception, err:
