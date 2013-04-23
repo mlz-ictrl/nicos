@@ -237,6 +237,7 @@ class VirtualTemperature(VirtualMotor):
     parameter_overrides = {
         'unit':      Override(mandatory=False, default='K'),
         'jitter':    Override(default=0.1),
+        'curvalue':  Override(default=10),
     }
 
     def doStart(self, pos):
