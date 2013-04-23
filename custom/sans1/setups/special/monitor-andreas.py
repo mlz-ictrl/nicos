@@ -86,12 +86,26 @@ _sans1magnet = (
     'Sans1Magnet',
     [
         [
-            _(name='Left Coil', dev='b_left'),
-            _(name='Right Coil', dev='b_right'),
+            _(name='Power Supply 1', dev='b_left'),
+            _(name='Power Supply 2', dev='b_right'),
             _(name='Field', dev='b_overall'),
         ]
     ],
-    'magnet_sans1'
+#    'magnet_sans1'
+)
+
+_temperatureccr12 = (
+    'CCR12',
+    [
+        [
+            _( name='Setpoint', key='t_setpoint/setpoint', unit='K',),
+        ],
+        [
+            _( name='Sensor a', dev='t_sensora'),
+            _( name='Sensor b', dev='t_sensorb'),
+            # _( name='Setpoint', key='t_setpoint/setpoint', unitkey='t_setpoint/unit',),
+        ],
+    ],
 )
 
 _htf02 = (
@@ -99,9 +113,9 @@ _htf02 = (
     [
         [
             _(name='Temperature', dev='t_htf02'),
-        ]
+        ],
     ],
-    'magnet_sans1'
+#    'magnet_sans1'
 )
 
 _sans1detector = (
@@ -109,15 +123,33 @@ _sans1detector = (
     [
         [
             _(name='Voltage',dev='hv'),#,width=8),
-            _(name='omega-1a',dev='det1_omega1a'),
-        ],
+            _(name='det1_omg-1a',dev='det1_omega1a'),
+        ], 
         [
-            _(name='x-1a',dev='det1_x1a'),
-            _(name='z-1a',dev='det1_z1a'),
+            _(name='det1_x-1a',dev='det1_x1a'),
+            _(name='det1_z-1a',dev='det1_z1a'),
+        ], 
+        [
+            _(name='bs1_x-1a',dev='bs1_x1a'),
+            _(name='bs1_y-1a',dev='bs1_y1a'),
         ],
     ]
 )
 
+_sans1sel = (
+    'Selector',
+    [
+        [
+            _( name='sel-ng-switch', dev='sel_ng_sw'),
+        ],
+        [
+            _( name='sel-ng', dev='sel_ng'),
+        ],
+        [
+            _(name='sel-tilt', dev='sel_tilt'),
+        ],
+    ],
+)
 
 _warnings = [
 ]
@@ -134,7 +166,14 @@ devices = dict(
                      fontsize = 12,
                      padding = 3,
                      layout = [
-                                  [[_table,], [_pressurecoll,_sans1detector], [_sans1magnet], [_htf02], [_pressuretube,],]
+                                  [
+                                   [_sans1sel,],
+                                   [_table,],
+                                   [_pressurecoll, _sans1detector ],
+                                   [_sans1magnet, _temperatureccr12 ],
+                                   [_htf02],
+                                   [_pressuretube,],
+                                  ],
                               ],
                     )
 )

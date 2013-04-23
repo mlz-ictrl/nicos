@@ -18,20 +18,38 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'setup for the poller'
-group = 'special'
+#
+# Ist noch als AnNA.tel device vorhanden!!! geht noch nicht!!!
+#
 
-sysconfig = dict(
-    cache = 'sans1ctrl.sans1.frm2'
-)
+description = 'Selector'
+
+includes = ['system']
+
+group = 'lowlevel'
+
+nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-   Poller = device('services.poller.Poller',
-                   alwayspoll = ['tube', 'collimation', 'table','magnet_sans1','htf02','detector','selector','ccr12'],
-                   blacklist = [],
+#   at    = device('devices.generic.Axis',
+#                  motor = 'atmot',
+#                  coder = 'atenc',
+#                  tacodevice = nethost + 'sel/sel/z',
+#                  fmtstr = '%.2f',
+#                  abslimits = (0, 500), #need to check
+#                 ),
+    atmot = device('devices.taco.motor.Motor',
+                   tacodevice ='//%s/sans1/z/motor' % (nethost, ),
+                   fmtstr = '%.2f',
+                   abslimits = (0, 500), #need to check
                   ),
+    atenc = device('devices.taco.coder.Coder',
+                   tacodevice = '//%s/sans1/z/enc' % (nethost, ),
+                   fmtstr = '%.2f',
+                  ),
+
 )

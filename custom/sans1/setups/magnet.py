@@ -26,7 +26,9 @@ description = '5T SANS-1 magnet devices'
 
 includes = ['system']
 
-nethost= 'taco61.taco.frm2'
+group = 'optional'
+
+nethost = 'taco61.taco.frm2'
 
 devices = dict(
     I     = device('sans1.mercury.OxfordMercury',

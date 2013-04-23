@@ -22,28 +22,125 @@
 #
 # *****************************************************************************
 
-description = 'detector related devices'
+description = 'detector related devices including beamstop'
 
-includes = ['system', 'tube_environ']
+includes = ['system']
 
-nethost= '//sans1srv.sans1.frm2/'
+group = 'lowlevel'
+
+nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
     hv_interlock = device('devices.taco.DigitalInput',
-                          tacodevice = nethost + 'sans1/interlock/hv',
+                          tacodevice = '//%s/sans1/interlock/hv' % (nethost, ),
+                          lowlevel = True,
                           ),
     hv_discharge_mode = device('devices.taco.DigitalInput',
-                               tacodevice = nethost + 'sans1/interlock/hv',
+                               tacodevice = '//%s/sans1/interlock/mode' % (nethost, ),
+                               lowlevel = True,
                               ),
     hv_discharge = device('devices.taco.DigitalOutput',
-                          tacodevice = nethost + 'sans1/interlock/discharge',
+                          tacodevice = '//%s/sans1/interlock/discharge' % (nethost, ),
+                          lowlevel = True,
                          ),
     hv = device('devices.taco.VoltageSupply',
-                tacodevice = nethost + 'sans1/iseg/hv',
+                tacodevice = '//%s/sans1/iseg/hv' % (nethost, ),
                 abslimits = [0, 1550],
+                maxage = 120,
+                pollinterval = 15,
+                fmtstr = '%d',
                ),
     hv_current = device('devices.taco.AnalogInput',
-                        tacodevice = nethost + 'sans1/iseg/hv-current',
+                        tacodevice = '//%s/sans1/iseg/hv-current' % (nethost, ),
+                        maxage = 120,
+                        pollinterval = 15,
                        ),
+
+    det1_x1a = device('devices.taco.axis.Axis',
+                      tacodevice = '//%s/sans1/detector1/x' % (nethost, ),
+                      fmtstr = '%.1f',
+                      abslimits = (4, 570),
+                      maxage = 120,
+                      pollinterval = 5,
+                     ),
+    det1_x1amot = device('devices.taco.motor.Motor',
+                         tacodevice = '//%s/sans1/detector1/xmot' % (nethost, ),
+                         fmtstr = '%.1f',
+                         abslimits = (4, 570),
+                       ),
+    det1_x1aenc = device('devices.taco.coder.Coder',
+                         tacodevice = '//%s/sans1/detector1/xenc' % (nethost, ),
+                         fmtstr = '%.1f',
+                        ),
+
+    det1_z1a = device('devices.taco.axis.Axis',
+                      tacodevice = '//%s/sans1/detector1/z' % (nethost, ),
+                      fmtstr = '%.1f',
+                      abslimits = (1100, 20000),
+                      maxage = 120,
+                      pollinterval = 5,
+                     ),
+    det1_z1amot = device('devices.taco.motor.Motor',
+                         tacodevice = '//%s/sans1/detector1/zmot' % (nethost, ),
+                         fmtstr = '%.1f',
+                         abslimits = (1100, 20000),
+                        ),
+    det1_z1aenc = device('devices.taco.coder.Coder',
+                         tacodevice = '//%s/sans1/detector1/zenc' % (nethost, ),
+                         fmtstr = '%.1f',
+                        ),
+
+    det1_omega1a = device('devices.taco.axis.Axis',
+                          tacodevice = '//%s/sans1/detector1/omega' % (nethost, ),
+                          fmtstr = '%.1f',
+                          abslimits = (-0.2, 21),
+                          maxage = 120,
+                          pollinterval = 5,
+                         ),
+    det1_omega1amot = device('devices.taco.motor.Motor',
+                             tacodevice = '//%s/sans1/detector1/omegamot' % (nethost, ),
+                             fmtstr = '%.1f',
+                             abslimits = (-0.2, 21),
+                            ),
+    det1_omega1aenc = device('devices.taco.coder.Coder',
+                             tacodevice = '//%s/sans1/detector1/omegaenc' % (nethost, ),
+                             fmtstr = '%.1f',
+                            ),
+
+    bs1_x1a    = device('nicos.devices.generic.Axis',
+                        motor = 'bs1_x1amot',
+                        coder = 'bs1_x1aenc',
+                        obs = [],
+                        precision = 0.1,
+                        fmtstr = '%.2f',
+                        abslimits = (480, 860), #need to check
+                       ),
+    bs1_x1amot = device('devices.taco.motor.Motor',
+                        tacodevice = '//%s/sans1/beamstop1/xmot' % (nethost, ),
+                        fmtstr = '%.2f',
+                        abslimits = (480, 860), #need to check
+                       ),
+    bs1_x1aenc = device('devices.taco.coder.Coder',
+                        tacodevice = '//%s/sans1/beamstop1/xenc' % (nethost, ),
+                        fmtstr = '%.1f',
+                       ),
+    bs1_y1a    = device('nicos.devices.generic.Axis',
+                        motor = 'bs1_y1amot',
+                        coder = 'bs1_y1aenc',
+                        obs = [],
+                        precision = 0.1,
+                        fmtstr = '%.2f',
+                        abslimits = (-120, 500), #need to check
+                       ),
+    bs1_y1amot = device('devices.taco.motor.Motor',
+                        tacodevice = '//%s/sans1/beamstop1/ymot' % (nethost, ),
+                        fmtstr = '%.1f',
+                        abslimits = (-120, 500), #need to check
+                       ),
+    bs1_y1aenc = device('devices.taco.coder.Coder',
+                        tacodevice = '//%s/sans1/beamstop1/yenc' % (nethost, ),
+                        fmtstr = '%.2f',
+                       ),
+
 )
 

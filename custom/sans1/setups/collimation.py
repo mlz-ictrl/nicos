@@ -18,20 +18,35 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'setup for the poller'
-group = 'special'
+description = 'Vacuum sensors of collimation tube'
 
-sysconfig = dict(
-    cache = 'sans1ctrl.sans1.frm2'
-)
+includes = ['system']
+
+group = 'lowlevel'
+
+nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-   Poller = device('services.poller.Poller',
-                   alwayspoll = ['tube', 'collimation', 'table','magnet_sans1','htf02','detector','selector','ccr12'],
-                   blacklist = [],
-                  ),
+    p_c_tube = device('devices.taco.AnalogInput',
+                     tacodevice = '//%s/sans1/coll/p1' % (nethost, ),
+                     fmtstr = '%.3f',
+                     pollinterval = 15,
+                     maxage = 60,
+                   ),
+    p_c_nose = device('devices.taco.AnalogInput',
+                     tacodevice = '//%s/sans1/coll/p2' % (nethost, ),
+                     fmtstr = '%.3f',
+                     pollinterval = 15,
+                     maxage = 60,
+                   ),
+    p_c_pump = device('devices.taco.AnalogInput',
+                     tacodevice = '//%s/sans1/coll/p3' % (nethost, ),
+                     fmtstr = '%.3f',
+                     pollinterval = 15,
+                     maxage = 60,
+                   ),
 )

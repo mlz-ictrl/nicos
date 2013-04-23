@@ -18,20 +18,13 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'setup for the poller'
-group = 'special'
+description = 'sans1 setup'
 
-sysconfig = dict(
-    cache = 'sans1ctrl.sans1.frm2'
-)
+includes = ['system', 'tube', 'collimation', 'detector']
 
 devices = dict(
-   Poller = device('services.poller.Poller',
-                   alwayspoll = ['tube', 'collimation', 'table','magnet_sans1','htf02','detector','selector','ccr12'],
-                   blacklist = [],
-                  ),
 )

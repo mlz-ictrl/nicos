@@ -26,41 +26,43 @@ description = 'Vacuum sensors of detector and collimation tube'
 
 includes = ['system']
 
-nethost= '//sans1srv.sans1.frm2/'
+group = 'lowlevel'
+
+nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
     tub_p1 = device('devices.taco.AnalogInput',
-                     tacodevice = nethost + 'sans1/tube/p1',
+                     tacodevice = '//%s/sans1/tube/p1' % (nethost, ),
                      fmtstr = '%9.2E',
                      pollinterval = 15,
                      maxage = 60,
                    ),
     tub_p2 = device('devices.taco.AnalogInput',
-                     tacodevice = nethost + 'sans1/tube/p2',
+                     tacodevice = '//%s/sans1/tube/p2' % (nethost, ),
                      fmtstr = '%9.2E',
                      pollinterval = 15,
                      maxage = 60,
                    ),
     tub_p3 = device('devices.taco.AnalogInput',
-                     tacodevice = nethost + 'sans1/tube/p3',
+                     tacodevice = '//%s/sans1/tube/p3' % (nethost, ),
                      fmtstr = '%9.2E',
                      pollinterval = 15,
                      maxage = 60,
                    ),
     coll_p1 = device('devices.taco.AnalogInput',
-                     tacodevice = nethost + 'sans1/coll/p1',
+                     tacodevice = '//%s/sans1/coll/p1' % (nethost, ),
                      fmtstr = '%9.2E',
                      pollinterval = 15,
                      maxage = 60,
                    ),
     coll_p2 = device('devices.taco.AnalogInput',
-                     tacodevice = nethost + 'sans1/coll/p2',
+                     tacodevice = '//%s/sans1/coll/p2' % (nethost, ),
                      fmtstr = '%9.2E',
                      pollinterval = 15,
                      maxage = 60,
                    ),
     coll_p3 = device('devices.taco.AnalogInput',
-                     tacodevice = nethost + 'sans1/coll/p3',
+                     tacodevice = '//%s/sans1/coll/p3' % (nethost, ),
                      fmtstr = '%9.2E',
                      pollinterval = 15,
                      maxage = 60,
