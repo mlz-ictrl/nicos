@@ -25,6 +25,11 @@ clean:
 	find -name '*.pyc' -exec rm -f {} +
 	-make custom-clean
 
+clean-demo: clean
+	-rm -rf data/cache/*
+	-rm -rf data/logbook data/20*
+	-rm data/current
+
 inplace:
 	rm -rf build
 	$(PYTHON) setup.py $(QOPT) build_ext
