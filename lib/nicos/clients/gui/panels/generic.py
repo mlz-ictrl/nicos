@@ -71,7 +71,10 @@ class GenericPanel(Panel):
 
     def on_client_cache(self, (time, key, op, value)):
         if key in self._reg_keys:
-            cvalue = cache_load(value)
+            try:
+                cvalue = cache_load(value)
+            except ValueError:
+                cvalue = None
             for widget in self._reg_keys[key]:
                 widget.on_keyChange(key, cvalue, time,
-                                    value is None or op == OP_TELLOLD)
+                                    not value or op == OP_TELLOLD)

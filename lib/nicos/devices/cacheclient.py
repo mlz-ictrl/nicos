@@ -416,7 +416,6 @@ class CacheClient(BaseCacheClient):
         #self.log.debug('got %s=%s' % (key, value))
         if not value or op == OP_TELLOLD:
             self._db.pop(key, None)
-            value = None
         else:
             value = cache_load(value)
             self._db[key] = (value, time)
@@ -681,7 +680,7 @@ class SyncCacheClient(BaseCacheClient):
         if op not in (OP_TELL, OP_TELLOLD) or not key.startswith(self._prefix):
             return
         key = key[len(self._prefix):]
-        if value is None:
+        if not value:
             self._db.pop(key, None)
         else:
             # even with TELLOLD; an old value is better than no value

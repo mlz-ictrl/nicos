@@ -201,7 +201,7 @@ class Monitor(BaseCacheClient):
         try:
             value = cache_load(value)
         except ValueError:
-            pass
+            value = None
 
         if key == 'watchdog/warnings':
             self._process_warnings(value)
