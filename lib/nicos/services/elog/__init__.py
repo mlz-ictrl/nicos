@@ -64,8 +64,8 @@ class Logbook(BaseCacheClient):
         time = time and float(time)
         #self.log.info('got %s=%r' % (key, value))
         if key in self._handler.handlers:
-            value = cache_load(value)
             try:
+                value = cache_load(value)
                 self._handler.handlers[key](time, value)
             except Exception:
                 self.log.exception('Error in handler for: %s=%r' % (key, value))

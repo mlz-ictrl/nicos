@@ -132,6 +132,8 @@ class Watchdog(BaseCacheClient):
                                                cache_dump(message)))
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
+        if not value:
+            return
         if key == self._prefix + 'session/mastersetup':
             self._setups = set(cache_load(value))
         # do we care for this key?
