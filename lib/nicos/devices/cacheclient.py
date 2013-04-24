@@ -414,7 +414,7 @@ class CacheClient(BaseCacheClient):
         time = time and float(time)
         self._propagate((time, key, op, value))
         #self.log.debug('got %s=%s' % (key, value))
-        if value is None or op == OP_TELLOLD:
+        if not value or op == OP_TELLOLD:
             self._db.pop(key, None)
             value = None
         else:
