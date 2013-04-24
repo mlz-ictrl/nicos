@@ -420,11 +420,11 @@ class CacheClient(BaseCacheClient):
         else:
             value = cache_load(value)
             self._db[key] = (value, time)
-        if key in self._callbacks and self._do_callbacks:
-            try:
-                self._callbacks[key](key, value, time)
-            except Exception:
-                self.log.warning('error in cache callback', exc=1)
+            if key in self._callbacks and self._do_callbacks:
+                try:
+                    self._callbacks[key](key, value, time)
+                except Exception:
+                    self.log.warning('error in cache callback', exc=1)
 
     def _propagate(self, args):
         pass
