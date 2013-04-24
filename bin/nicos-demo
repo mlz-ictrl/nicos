@@ -69,7 +69,7 @@ else
         bin/nicos-gui $GUIUSER '' $GUICONFIG "$@"
     else
         echo 'Services started, press Enter to stop them.'
-        read
+        read dummy
     fi
 fi
 kill -2 $MONIPID 2>/dev/null
