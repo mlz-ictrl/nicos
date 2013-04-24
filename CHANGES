@@ -3,6 +3,29 @@ Changelog for NICOS 2
 
 **Release 2.2.0**
 
+  - Updated documentation describing all NICOS services with configuration
+    examples.
+
+  - Setups now have more control over which commands are available to the user
+    because the standard commands are not automatically loaded anymore.  The
+    previous set of standard commands can be loaded via the module
+    "nicos.commands.standard".
+
+  - Added a "forecast" device that estimates the final number of counts when the
+    preset is reached for a counting with a single detector.
+
+  - The count loop can now be paused while counting (if the detector supports
+    this) by the user or by conditions detected by the watchdog.
+
+  - Added "warnlimits" to readable devices, a property that sets a range of
+    values outside of which the device value is shown as "out of range" e.g. in
+    the status monitor.
+
+  - Added a tool to statically check setup files for errors while installing
+    NICOS.
+
+  - GUI: multiple connection presets are now supported.
+
   - Added pluggable authentication for the NICOS daemon and a backend that
     authenticates against proposal system users.
 
@@ -11,7 +34,8 @@ Changelog for NICOS 2
 
   - GUI: added interactive command input panel.
 
-  - GUI: added "device overview/status" panel.
+  - GUI: added "device overview/status" panel with a list of all existing
+    devices and their values.
 
   - NICOS services and GUI client now run on Windows.
 
@@ -122,6 +146,8 @@ Changelog for NICOS 2
   - Renamed "server" parameter of CacheClient to "cache".
 
   - Added "findpeaks()" analyzing command.
+
+  - Changed module structure of the "nicos" Python package to be more logical.
 
 **Release 2.1.2**
 
@@ -248,7 +274,7 @@ Changelog for NICOS 2
     they will not move.
 
   - New command: "Remember()".
-  
+
   - Simplified TACO temperature classes: the temperature control device does
     not have "sample" and "control" channel properties anymore.
 
