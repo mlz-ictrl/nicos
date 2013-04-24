@@ -35,12 +35,11 @@ from os import path
 from logging import ERROR, WARNING
 from functools import wraps
 
-from nose.tools import assert_raises
+from nose.tools import assert_raises #pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
 from nicos.core import Moveable, HasLimits, DataSink, status
 from nicos.core.sessions import Session
-from nicos.core.sessions.console import ConsoleSession
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
@@ -136,7 +135,14 @@ class TestLogHandler(ColoredConsoleHandler):
     def warns(self, func, *args, **kwds):
         plen = len(self._warnings)
         func(*args, **kwds)
-        return len(self._warnings) == plen + 1
+        plen_after = len(self._warnings)
+        if plen == plen_after:
+            return False
+        if plen + 1 == plen_after:
+            return True
+        sys.stderr.write('More then one warning added')
+        print >> sys.stderr, plen, plen_after, self._warnings
+        return False
 
     def emits_message(self, func, *args, **kwds):
         before = self._messages
@@ -183,12 +189,12 @@ class TestDevice(HasLimits, Moveable):
         self._status_exception = None
 
     def doRead(self, maxage=0):
-        if self._read_exception:
+        if self._read_exception is not None:
             raise self._read_exception
         return self._value
 
     def doStart(self, target):
-        if self._start_exception and target != 0:
+        if self._start_exception is not None and target != 0:
             raise self._start_exception
         self._value = target
 
@@ -196,7 +202,7 @@ class TestDevice(HasLimits, Moveable):
         return self._value
 
     def doStatus(self, maxage=0):
-        if self._status_exception:
+        if self._status_exception is not None:
             raise self._status_exception
         return status.OK, 'fine'
 
