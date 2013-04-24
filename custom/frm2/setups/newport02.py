@@ -2,7 +2,7 @@ description = 'Newport sample stick rotator'
 
 group = 'optional'
 
-includes = ['system', 'alias_sth']
+includes = ['alias_sth']
 
 nethost = 'newport02'
 
