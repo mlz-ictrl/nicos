@@ -30,7 +30,7 @@
      <x>0</x>
      <y>0</y>
      <width>889</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -55,6 +55,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionNicosHelp"/>
+    <addaction name="actionNicosDocu"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
@@ -170,7 +171,12 @@
   </action>
   <action name="actionNicosHelp">
    <property name="text">
-    <string>NICOS help</string>
+    <string>NICOS online &amp;help</string>
+   </property>
+  </action>
+  <action name="actionNicosDocu">
+   <property name="text">
+    <string>Full NICOS &amp;documentation</string>
    </property>
   </action>
  </widget>

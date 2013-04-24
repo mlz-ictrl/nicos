@@ -530,6 +530,15 @@ class MainWindow(QMainWindow, DlgUtils):
         self.client.eval('session.showHelp("index")', None)
 
     @qtsig('')
+    def on_actionNicosDocu_triggered(self):
+        from nicos.clients.gui.tools.website import WebsiteTool
+        # XXX: change URL to current release version
+        dlg = WebsiteTool(self,
+            url='http://trac.frm2.tum.de/nicos/doc/nicos-master/index.html')
+        dlg.setWindowModality(Qt.NonModal)
+        dlg.show()
+
+    @qtsig('')
     def on_actionAbout_triggered(self):
         QMessageBox.information(
             self, 'About this application', 'NICOS GUI client version %s, '
