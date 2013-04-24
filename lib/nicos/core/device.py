@@ -1282,7 +1282,7 @@ class Moveable(Readable):
         eu = getExecutingUser()
         if self.fixedby and not checkUserLevel(eu, self.fixedby[1]):
             # fixed and not enough rights
-            self.log.error('Device was fixed by %r already' % self.fixedby[0])
+            self.log.error('device was fixed by %r already' % self.fixedby[0])
             return False
         else:
             if reason:
@@ -1299,8 +1299,8 @@ class Moveable(Readable):
         eu = getExecutingUser()
         if self.fixedby and not checkUserLevel(eu, self.fixedby[1]):
             # fixed and not enough rights
-            self.log.error('Device was fixed by %r and you are not allowed '
-                           'to release' % self.fixedby[0])
+            self.log.error('device was fixed by %r and you are not allowed '
+                           'to release it' % self.fixedby[0])
             return False
         else:
             self._setROParam('fixed', '')
