@@ -219,7 +219,7 @@ class MemoryCacheDatabase(CacheDatabase):
             if send_update:
                 for client in self._server._connected.values():
                     if client is not from_client and client.is_active():
-                        client.update(key, OP_TELL, value, time, ttl)
+                        client.update(key, OP_TELL, value or '', time, ttl)
 
 
 class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
@@ -283,7 +283,7 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
             if send_update:
                 for client in self._server._connected.values():
                     if client is not from_client and client.is_active():
-                        client.update(key, OP_TELL, value, time, ttl)
+                        client.update(key, OP_TELL, value or '', time, ttl)
 
 
 class FlatfileCacheDatabase(CacheDatabase):
@@ -674,4 +674,4 @@ class FlatfileCacheDatabase(CacheDatabase):
                 key = newcat + '/' + subkey
                 for client in self._server._connected.values():
                     if client is not from_client:
-                        client.update(key, OP_TELL, value, time, None)
+                        client.update(key, OP_TELL, value or '', time, None)
