@@ -27,12 +27,10 @@
 import os
 import sys
 import time
-import codecs
 import traceback
 from os import path
 from logging import addLevelName, Manager, Logger, LogRecord, Formatter, \
-     Handler, FileHandler, StreamHandler, DEBUG, INFO, WARNING, ERROR
-from logging.handlers import BaseRotatingHandler
+     Handler, DEBUG, INFO, WARNING, ERROR
 
 from nicos import session
 from nicos.core import NicosError
@@ -146,7 +144,7 @@ class NicosConsoleFormatter(Formatter):
             if os.name == 'nt':
                 return ''
             # special behavior for ACTION messages: use them as terminal title
-            fmtstr = '\033]0;%s%%(message)s\007' % namefmt
+            fmtstr = r'\033]0;%s%%(message)s\007' % namefmt
         else:
             if levelno <= DEBUG:
                 fmtstr = self.colorize('darkgray', '%s%%(message)s' % namefmt)
@@ -175,22 +173,6 @@ class NicosConsoleFormatter(Formatter):
         return s
 
 
-class ColoredConsoleHandler(StreamHandler):
-    """
-    A handler class that writes colorized records to standard output.
-    """
-
-    def __init__(self):
-        StreamHandler.__init__(self, sys.stdout)
-        self.setFormatter(NicosConsoleFormatter(
-            datefmt=DATEFMT, colorize=colorize))
-
-    def emit(self, record):
-        msg = self.format(record)
-        self.stream.write(msg)
-        self.stream.flush()
-
-
 class NicosLogfileFormatter(Formatter):
     """
     The standard Formatter does not support milliseconds with an explicit
@@ -215,7 +197,36 @@ class NicosLogfileFormatter(Formatter):
         return res
 
 
-class NicosLogfileHandler(BaseRotatingHandler):
+class StreamHandler(Handler):
+    """Reimplemented from logging: remove cruft, remove bare excepts."""
+
+    def __init__(self, stream=None):
+        Handler.__init__(self)
+        if stream is None:
+            stream = sys.stderr
+        self.stream = stream
+
+    def flush(self):
+        self.acquire()
+        try:
+            if self.stream and hasattr(self.stream, 'flush'):
+                self.stream.flush()
+        finally:
+            self.release()
+
+    def emit(self, record, fs='%s\n'):  #pylint: disable=W0221
+        try:
+            msg = self.format(record)
+            try:
+                self.stream.write(fs % msg)
+            except UnicodeError:
+                self.stream.write(fs % msg.encode('utf-8'))
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+
+class NicosLogfileHandler(StreamHandler):
     """
     Logs to log files with a date stamp appended, and rollover on midnight.
     """
@@ -235,7 +246,9 @@ class NicosLogfileHandler(BaseRotatingHandler):
                 '-' + filenamesuffix + '.log'
         else:
             basefn = self._pathnameprefix + '-' + time.strftime(dayfmt) + '.log'
-        BaseRotatingHandler.__init__(self, basefn, 'a')
+        self.baseFilename = path.abspath(basefn)
+        self.mode = 'a'
+        StreamHandler.__init__(self, self._open())
         # determine time of first midnight from now on
         t = time.localtime()
         self.rollover_at = time.mktime((t[0], t[1], t[2], 0, 0, 0,
@@ -243,10 +256,13 @@ class NicosLogfileHandler(BaseRotatingHandler):
         self.setFormatter(NicosLogfileFormatter(LOGFMT, DATEFMT))
         self.disabled = False
 
+    def _open(self):
+        return open(self.baseFilename, self.mode)
+
     def filter(self, record):
         return not self.disabled
 
-    def emit(self, record):
+    def emit(self, record): #pylint: disable=W0221
         if record.levelno == ACTION or record.filename:
             # do not write ACTIONs to logfiles, they're only informative
             # also do not write messages from simulation mode
@@ -255,7 +271,9 @@ class NicosLogfileHandler(BaseRotatingHandler):
             t = int(time.time())
             if t >= self.rollover_at:
                 self.doRollover()
-            FileHandler.emit(self, record)
+            if self.stream is None:
+                self.stream = self._open()
+            StreamHandler.emit(self, record)
         except Exception:
             self.handleError(record)
 
@@ -263,12 +281,21 @@ class NicosLogfileHandler(BaseRotatingHandler):
         if enabled:
             self.disabled = False
             self.stream.close()
-            if hasattr(self, 'encoding') and self.encoding:
-                self.stream = codecs.open(self.baseFilename, 'a', self.encoding)
-            else:
-                self.stream = open(self.baseFilename, 'a')
+            self.stream = self._open()
         else:
             self.disabled = True
+
+    def close(self):
+        self.acquire()
+        try:
+            if self.stream:
+                self.flush()
+                if hasattr(self.stream, 'close'):
+                    self.stream.close()
+                StreamHandler.close(self)
+                self.stream = None
+        finally:
+            self.release()
 
     def doRollover(self):
         self.stream.close()
@@ -279,19 +306,24 @@ class NicosLogfileHandler(BaseRotatingHandler):
         else:
             self.baseFilename = self._pathnameprefix + '-' + \
                 time.strftime(self._dayfmt) + '.log'
-        if hasattr(self, 'encoding') and self.encoding:
-            self.stream = codecs.open(self.baseFilename, 'w', self.encoding)
-        else:
-            self.stream = open(self.baseFilename, 'w')
+        self.stream = self._open()
         self.rollover_at += SECONDS_PER_DAY
 
-    def changeDirectory(self, directory):
-        directory = path.join(directory, self._filenameprefix)
-        self._pathnameprefix = path.join(directory, self._filenameprefix)
-        self.doRollover()
-        t = time.localtime()
-        self.rollover_at = time.mktime((t[0], t[1], t[2], 0, 0, 0,
-                                        t[6], t[7], t[8])) + SECONDS_PER_DAY
+
+class ColoredConsoleHandler(StreamHandler):
+    """
+    A handler class that writes colorized records to standard output.
+    """
+
+    def __init__(self):
+        StreamHandler.__init__(self, sys.stdout)
+        self.setFormatter(NicosConsoleFormatter(
+            datefmt=DATEFMT, colorize=colorize))
+
+    def emit(self, record): #pylint: disable=W0221
+        msg = self.format(record)
+        self.stream.write(msg)
+        self.stream.flush()
 
 
 TRANSMIT_ENTRIES = ('name', 'created', 'levelno', 'message', 'exc_text',
