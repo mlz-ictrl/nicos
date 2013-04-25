@@ -36,6 +36,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import Device, Param
 from nicos.utils import loggers, closeSocket
+#pylint: disable=W0611
 from nicos.services.cache.database import CacheDatabase, FlatfileCacheDatabase, \
      MemoryCacheDatabase, MemoryCacheDatabaseWithHistory
 from nicos.protocols.cache import msg_pattern, line_pattern, \
@@ -82,9 +83,9 @@ class CacheUDPConnection(object):
             if p == -1:
                 # line too long. cross your fingers and split SOMEWHERE
                 p = self.maxsize - 1
-            self.udpsocket.sendto(data[:p+1], self.remoteaddr)
-            self.log('UDP: sent %d bytes' % (p+1))
-            data = data[p+1:] # look at remaining data
+            self.udpsocket.sendto(data[:p + 1], self.remoteaddr)
+            self.log('UDP: sent %d bytes' % (p + 1))
+            data = data[p + 1:] # look at remaining data
         return datalen
 
 
@@ -109,6 +110,8 @@ class CacheWorker(object):
                  loglevel=None):
         self.db = db
         self.connection = connection
+        self.tcpmode = (hasattr(self.connection, 'fileno') and
+                        self.connection.fileno() > 0)
         self.name = name
         # timeout for send (recv is covered by select timeout)
         self.connection.settimeout(5)
@@ -173,12 +176,11 @@ class CacheWorker(object):
                         self.send_queue.put(''.join(ret))
                 # continue loop with next match
                 match = line_pattern.match(data)
-            # fileno is < 0 for UDP connections, where select isn't needed
-            if self.connection and self.connection.fileno() > 0:
+            if self.connection and self.tcpmode:
                 # wait for data with 1-second timeout
                 try:
                     res = select.select([self.connection], [], [], 1)
-                except select.error, err:
+                except (TypeError, select.error), err:
                     self.log.warning('error in select', exc=err)
                 if self.connection not in res[0]:
                     # no data arrived, wait some more
@@ -222,7 +224,7 @@ class CacheWorker(object):
             self.db.tell(key, value, time, ttl, self)
         elif op == OP_ASK:
             if ttl:
-                return self.db.ask_hist(key, time, time+ttl)
+                return self.db.ask_hist(key, time, time + ttl)
             else:
                 # although passed, time and ttl are ignored here
                 return self.db.ask(key, tsop, time, ttl)
@@ -248,14 +250,14 @@ class CacheWorker(object):
         return not self.stoprequest and self.receiver.isAlive()
 
     def closedown(self):
-        if not self.connection:
+        if self.connection is None:
             return
         self.stoprequest = True
         closeSocket(self.connection)
         self.connection = None
 
     def writeto(self, data):
-        if not self.connection:
+        if self.connection is None:
             return False
         try:
             self.connection.sendall(data)
@@ -272,7 +274,7 @@ class CacheWorker(object):
 
     def update(self, key, op, value, time, ttl):
         """Check if we need to send the update given."""
-        if not self.connection:
+        if self.connection is None:
             return
         # make sure line has at least a default timestamp
         for mykey in self.ts_updates_on:
