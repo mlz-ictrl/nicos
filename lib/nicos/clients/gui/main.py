@@ -569,8 +569,11 @@ def main(argv):
     if '-c' in argv:
         idx = argv.index('-c')
         configfile = argv[idx+1]
-        stylefile = configfile.replace('.py', '.qss')
+        styleRoot = path.splitext(configfile)[0]
+        stylefile = styleRoot + ".qss"
         del argv[idx:idx+2]
+    else:
+        styleRoot = path.splitext(stylefile)[0]
 
     with open(configfile, 'rb') as fp:
         configcode = fp.read()
@@ -581,6 +584,11 @@ def main(argv):
         panel_conf = panel_config(ns['default_profile_config'])
     else:
         panel_conf = panel_config(ns['config'])
+
+    # check whether platform specific style file is present
+    stylePlatform = styleRoot + '-' + sys.platform + ".qss"
+    if path.isfile(stylePlatform):
+        stylefile = stylePlatform
 
     if path.isfile(stylefile):
         try:

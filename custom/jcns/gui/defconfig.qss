@@ -1,0 +1,11 @@
+* { background-color: #dfe7f7 }
+QLineEdit, QTextEdit, QComboBox, QQutputView, QColumnView, QListView,
+QTreeView, QTreeWidget { background-color: white }
+QMenu, QPushButton { background-color: #c8dbf3 }
+QPushButton::hover {
+background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1,
+  stop: 0 #dae7f7, stop: 0.49 #ccdef4,
+  stop: 0.5 #aac6ee,
+  stop: 0.51 #b7ceef, stop: 1 #c8dbf3);
+}
+QMenuBar { background-color: native }
