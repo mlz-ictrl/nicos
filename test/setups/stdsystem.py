@@ -87,12 +87,14 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02,
+                      precision = 0.05,
                      ),
 
     t_mtt    = device('devices.generic.VirtualMotor',
                       curvalue = 20,
                       unit = 'deg',
                       abslimits = (-180, 180),
+                      precision = 0.05,
                      ),
 
     t_ana    = device('devices.tas.Monochromator',
@@ -111,12 +113,14 @@ devices = dict(
                       unit = 'deg',
                       abslimits = (-180, 180),
                       jitter = 0.02,
+                      precision = 0.05,
                      ),
 
     t_att    = device('devices.generic.VirtualMotor',
                       curvalue = -20,
                       unit = 'deg',
                       abslimits = (-180, 180),
+                      precision = 0.05,
                      ),
 
     t_ki     = device('devices.tas.Wavevector',
