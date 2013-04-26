@@ -45,6 +45,8 @@ Requirements
   - Grace (for scanplot)
   - lxml (for U-Bahn service)
   - pyfits (for the handling of FITS formatted files)
+  - rsa
+  - pyasn1
 
 * For the GUI and status monitor:
   - PyQt4

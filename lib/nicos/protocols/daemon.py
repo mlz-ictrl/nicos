@@ -36,12 +36,12 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 10
+PROTO_VERSION = 11
 
 # old versions with which the client is still compatible
-# none at present
+# 10 at present
 
-COMPATIBLE_PROTO_VERSIONS = []
+COMPATIBLE_PROTO_VERSIONS = [10]
 
 # message serialization/deserialization
 

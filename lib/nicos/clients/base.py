@@ -29,6 +29,10 @@ import time
 import socket
 import hashlib
 import threading
+try:
+    import rsa #pylint: disable=F0401
+except ImportError:
+    rsa = None
 
 import numpy as np
 
@@ -127,6 +131,16 @@ class NicosClient(object):
         if password is None:
             password = conndata['passwd']
         pw_hashing = banner.get('pw_hashing', 'sha1')
+
+        if pw_hashing[0:4] == 'rsa,':
+            if rsa is not None:
+                encodedkey = banner.get('rsakey', None)
+                if encodedkey is None:
+                    raise ProtocolError('rsa requested, but rsakey missing in banner')
+                pubkey = rsa.PublicKey.load_pkcs1(encodedkey.decode('base64'))
+                password = 'RSA:' + rsa.encrypt(password, pubkey).encode('base64')
+            else:
+                pw_hashing = pw_hashing[4:]
         if pw_hashing == 'sha1':
             password = hashlib.sha1(to_utf8(password)).hexdigest()
         elif pw_hashing == 'md5':

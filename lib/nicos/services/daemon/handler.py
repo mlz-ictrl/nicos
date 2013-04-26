@@ -30,6 +30,12 @@ import os
 import errno
 import socket
 import tempfile
+try:
+    import rsa #pylint: disable=F0401
+except ImportError:
+    rsa = None
+
+import hashlib
 
 from nicos import session, nicos_version
 from nicos.core import ADMIN, ConfigurationError, SPMError
@@ -233,11 +239,19 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.check_host()
 
         authenticators, hashing = self.daemon.get_authenticators()
+        if rsa is not None:
+            pubkey, privkey = rsa.newkeys(512)
+            pubkeyStr = pubkey.save_pkcs1().encode('base64')
+            bannerhashing = 'rsa,%s' % hashing
+        else:
+            pubkeyStr = ''
+            bannerhashing = hashing
 
         # announce version and authentication modality
         self.write(STX, dict(
             daemon_version = nicos_version,
-            pw_hashing = hashing,
+            pw_hashing = bannerhashing,
+            rsakey = pubkeyStr,
             protocol_version = PROTO_VERSION,
         ))
 
@@ -249,6 +263,16 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                            (cmd, credentials))
             self.write(NAK, 'invalid credentials')
             raise CloseConnection
+
+        passw = credentials['passwd']
+        if passw[0:4] == 'RSA:':
+            passw = passw[4:]
+            passw = rsa.decrypt(passw.decode('base64'), privkey)
+            if hashing == 'sha1':
+                passw = hashlib.sha1(passw).hexdigest()
+            elif hashing == 'md5':
+                passw = hashlib.md5(passw).hexdigest()
+
 
         # check login data according to configured authentication
         login = credentials['login']
