@@ -112,7 +112,7 @@
      <normaloff>:/break</normaloff>:/break</iconset>
    </property>
    <property name="text">
-    <string>&amp;Pause after current step</string>
+    <string>&amp;Pause after current scan point</string>
    </property>
    <property name="toolTip">
     <string>Pause the script</string>
@@ -136,10 +136,10 @@
      <normaloff>:/stop</normaloff>:/stop</iconset>
    </property>
    <property name="text">
-    <string>&amp;Stop after current step</string>
+    <string>&amp;Stop after current scan point</string>
    </property>
    <property name="toolTip">
-    <string>Stop script after current scan step or command</string>
+    <string>Stop script after current scan point or command</string>
    </property>
   </action>
   <action name="actionEmergencyStop">
@@ -168,7 +168,7 @@
     <string>Pause while counting</string>
    </property>
    <property name="toolTip">
-    <string>Pause during count, or after current step in script</string>
+    <string>Pause during count, or after current scan point in script</string>
    </property>
   </action>
   <action name="actionBreak2">
@@ -177,7 +177,7 @@
      <normaloff>:/break</normaloff>:/break</iconset>
    </property>
    <property name="text">
-    <string>&amp;Pause after current step</string>
+    <string>&amp;Pause after current scan point</string>
    </property>
    <property name="toolTip">
     <string>Pause the script</string>
@@ -189,10 +189,10 @@
      <normaloff>:/stop</normaloff>:/stop</iconset>
    </property>
    <property name="text">
-    <string>&amp;Stop after current step</string>
+    <string>&amp;Stop after current scan point</string>
    </property>
    <property name="toolTip">
-    <string>Stop after current scan step or command</string>
+    <string>Stop after current scan scan point or command</string>
    </property>
   </action>
  </widget>

@@ -1131,7 +1131,7 @@ class Session(object):
         """Allow breaking or stopping the script at a well-defined time.
 
         *level* can be 1 to indicate a breakpoint "after current scan" or 2 to
-        indicate a breakpoint "after current step".
+        indicate a breakpoint "after current scan point".
         """
 
     def clearExperiment(self):

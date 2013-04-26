@@ -264,7 +264,7 @@ class ConsoleSession(Session):
             self.log.info('== Keyboard interrupt (Ctrl-C) ==')
             self.log.info('Please enter how to proceed:')
             self.log.info('<I> ignore this interrupt')
-            self.log.info('<H> stop after current step')
+            self.log.info('<H> stop after current scan point')
             self.log.info('<L> stop after current scan')
             self.log.info('<S> immediate stop')
             try:

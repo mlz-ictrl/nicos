@@ -108,9 +108,9 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
 
 
 @usercommand
-@helparglist('Q, dQ, numsteps, ...')
+@helparglist('Q, dQ, numpoints, ...')
 @spmsyntax(Bare, Bare, Bare)
-def qscan(Q, dQ, numsteps, *args, **kwargs):
+def qscan(Q, dQ, numpoints, *args, **kwargs):
     """Perform a single-sided Q scan.
 
     The *Q* and *dQ* arguments can be lists of 3 or 4 components, or a `Q`
@@ -131,14 +131,14 @@ def qscan(Q, dQ, numsteps, *args, **kwargs):
     * plot='hkl'  -- plot position of scan points in scattering plane
     """
     Q, dQ = _getQ(Q, 'Q'), _getQ(dQ, 'dQ')
-    scanstr = _infostr('qscan', (Q, dQ, numsteps) + args, kwargs)
+    scanstr = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
     plotval = kwargs.pop('plot', None)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
             _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
-    if all(v == 0 for v in dQ) and numsteps > 1:
+    if all(v == 0 for v in dQ) and numpoints > 1:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
-               for i in range(numsteps)]
+               for i in range(numpoints)]
     if plotval == 'res':
         resscan(*(p[0] for p in values), kf=kwargs.get('kf'), ki=kwargs.get('ki'))
     elif plotval == 'hkl':
@@ -668,8 +668,8 @@ def hklplot(**kwds):
 
 
 @usercommand
-@helparglist('(h, k, l), step, numsteps, ...')
-def checkalign(hkl, step, numsteps, *args, **kwargs):
+@helparglist('(h, k, l), step, numpoints, ...')
+def checkalign(hkl, step, numpoints, *args, **kwargs):
     """Readjust Sample psi0 to the fitted center of a sample rocking scan.
 
     An additional a keyword "ycol" gives the Y column of the dataset to use for
@@ -692,11 +692,11 @@ def checkalign(hkl, step, numsteps, *args, **kwargs):
     tas.maw(target)
     psi = tas._adevs['psi']
     center = tas._calpos(target + (tas.scanconstant,), printout=False)[3]
-    cscan(psi, center, step, numsteps, 'align check', *args, **kwargs)
+    cscan(psi, center, step, numpoints, 'align check', *args, **kwargs)
     params, _ = gauss(ycol)
     # do not allow moving outside of the scanned region
-    minvalue = center - step*numsteps
-    maxvalue = center + step*numsteps
+    minvalue = center - step*numpoints
+    maxvalue = center + step*numpoints
     if params is None:
         printwarning('Gaussian fit failed, psi0 unchanged')
     elif not minvalue <= params[0] <= maxvalue:

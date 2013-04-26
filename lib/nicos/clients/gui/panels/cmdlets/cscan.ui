@@ -105,12 +105,12 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Number of steps per side:</string>
+        <string>Number of points per side:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="numsteps">
+      <widget class="QSpinBox" name="numpoints">
        <property name="maximum">
         <number>1000</number>
        </property>
@@ -185,7 +185,7 @@
   <tabstop>device</tabstop>
   <tabstop>start</tabstop>
   <tabstop>step</tabstop>
-  <tabstop>numsteps</tabstop>
+  <tabstop>numpoints</tabstop>
   <tabstop>seconds</tabstop>
   <tabstop>delBtn</tabstop>
  </tabstops>

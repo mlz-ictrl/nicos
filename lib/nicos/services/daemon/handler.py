@@ -374,12 +374,12 @@ class ConnectionHandler(BaseRequestHandler):
         :param level: stop level of breakpoint as a string (default 2)
 
            * '1' - pause after current scan/line in the script
-           * '2' - pause after scan step/breakpoint with level "2"
+           * '2' - pause after scan point/breakpoint with level "2"
            * '3' - pause in the middle of counting
         :returns: ok or error (e.g. if script is already interrupted)
         """
         if level is None:
-            level = 2  # which means after scan step
+            level = 2  # which means after scan point
         else:
             level = int(level)
         if self.controller.status == STATUS_STOPPING:
@@ -415,7 +415,7 @@ class ConnectionHandler(BaseRequestHandler):
         :param level: stop level as a string (default 3)
 
            * '1' - stop after current scan/line in the script
-           * '2' - stop after scan step/breakpoint with level "2"
+           * '2' - stop after scan point/breakpoint with level "2"
            * '3' - stop in the middle of counting (but due to the special
              way the breakpoint while counting is implemented, it will
              actually just stop there if paused before, otherwise this is
@@ -423,7 +423,7 @@ class ConnectionHandler(BaseRequestHandler):
         :returns: ok or error
         """
         if level is None:
-            level = 3  # which means normally after scan step, the default,
+            level = 3  # which means normally after scan point, the default,
                        # but when counting is paused, right now
         else:
             level = int(level)
