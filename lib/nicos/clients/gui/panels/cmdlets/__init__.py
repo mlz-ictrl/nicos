@@ -93,16 +93,19 @@ class Move(Cmdlet):
         return self.markValid(self.target, not self.target.text().isEmpty())
 
     def generate(self, mode):
-        args = (self.device.currentText(), self.target.text())
+        cmd = 'maw'
+        if not self.waitBox.isChecked():
+            cmd = 'move'
+        args = (cmd, self.device.currentText(), self.target.text())
         if mode == 'simple':
-            return 'maw %s %s\n' % args
-        return 'maw(%s, %s)\n' % args
+            return '%s %s %s\n' % args
+        return '%s(%s, %s)\n' % args
 
 
 class Count(Cmdlet):
 
     name = 'Count'
-    category = 'Device'
+    category = 'Scan'
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
