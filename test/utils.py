@@ -141,7 +141,9 @@ class TestLogHandler(ColoredConsoleHandler):
         if plen + 1 == plen_after:
             return True
         sys.stderr.write('More then one warning added')
-        print >> sys.stderr, plen, plen_after, self._warnings
+        print >> sys.stderr, plen, plen_after
+        for msg in self._warnings:
+            print >> sys.stderr, msg.getMessage()
         return False
 
     def emits_message(self, func, *args, **kwds):
