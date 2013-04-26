@@ -206,22 +206,6 @@ class HelpGenerator(object):
             clsdoc = '\n'.join(formatDocstring(dev.__class__.__doc__))
             ret.append('<p class="clsdesc">Device class description:</p>' +
                        '<blockquote>' + self.gen_markup(clsdoc) + '</blockquote>')
-        ret.append('<h4>Device methods</h4>')
-        ret.append('<table width="100%"><tr><th>Method</th><th>From class</th>'
-                   '<th>Description</th></tr>')
-        listed = set()
-        def _list(cls):
-            if cls in listed: return
-            listed.add(cls)
-            for name, (args, doc) in sorted(cls.commands.iteritems()):
-                ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
-                           (escape(dev.name + '.' + name + args), cls.__name__,
-                            escape(doc)))
-            for base in cls.__bases__:
-                if issubclass(base, Device):
-                    _list(base)
-        _list(dev.__class__)
-        ret.append('</table>')
         ret.append('<h4>Device parameters</h4>')
         ret.append('<table width="100%"><tr><th>Name</th><th>Current value</th>'
                    '<th>Unit</th><th>Settable?</th><th>Value type</th>'
@@ -248,6 +232,22 @@ class HelpGenerator(object):
                        '<td>%s</td><td>%s</td><td>%s</td></tr>' %
                        (name, escape(vstr), escape(unit), settable,
                         escape(ptype), escape(info.description)))
+        ret.append('</table>')
+        ret.append('<h4>Device methods</h4>')
+        ret.append('<table width="100%"><tr><th>Method</th><th>From class</th>'
+                   '<th>Description</th></tr>')
+        listed = set()
+        def _list(cls):
+            if cls in listed: return
+            listed.add(cls)
+            for name, (args, doc) in sorted(cls.commands.iteritems()):
+                ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
+                           (escape(dev.name + '.' + name + args), cls.__name__,
+                            escape(doc)))
+            for base in cls.__bases__:
+                if issubclass(base, Device):
+                    _list(base)
+        _list(dev.__class__)
         ret.append('</table>')
         return ''.join(ret)
 
