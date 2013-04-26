@@ -4,10 +4,12 @@ include Makefile
 include pylintrc
 include README
 
+
 recursive-include custom *
 recursive-include etc *
 recursive-include src *
 recursive-include resources *
+recursive-include tools *
 
 include log/README
 include pid/README
