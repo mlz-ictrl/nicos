@@ -107,9 +107,22 @@ class DeviceAlias(Device):
                 if not self._initialized:
                     # should not raise an error, otherwise the device cannot
                     # be created at all
+                    fromconfig = self._config.get('alias', 'nothing')
                     self.log.warning('could not find aliased device %s, pointing '
-                                     'to nothing for now' % devname)
-                    newdev = None
+                                     'to target from setup file (%s)' %
+                                     (devname, fromconfig))
+                    if 'alias' not in self._config:
+                        newdev = None
+                    else:
+                        try:
+                            newdev = session.getDevice(self._config['alias'],
+                                                       (self._cls, DeviceAlias),
+                                                       source=self)
+                        except NicosError:
+                            self.log.error('could not find target from setup '
+                                           'file either, pointing to nothing',
+                                           exc=1)
+                            newdev = None
                 else:
                     raise
             if newdev is self:
