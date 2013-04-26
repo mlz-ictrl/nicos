@@ -85,15 +85,17 @@ class PnPSetupQuestion(QMessageBox):
         self.load_callback = load_callback
 
     def on_ignore_clicked(self):
+        self.emit(SIGNAL('closed'), self)
         self.reject()
 
     def on_load_clicked(self):
         self.load_callback()
+        self.emit(SIGNAL('closed'), self)
         self.accept()
 
-    def closeEvent(self):
-        self.emit(SIGNAL('closed'))
-        return QMessageBox.closeEvent(self)
+    def closeEvent(self, event):
+        self.emit(SIGNAL('closed'), self)
+        return QMessageBox.closeEvent(self, event)
 
 
 class MainWindow(QMainWindow, DlgUtils):
