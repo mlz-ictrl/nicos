@@ -55,7 +55,7 @@ def _fixType(dev, args, mkpos):
         else:
             if len(args) < 3:
                 raise UsageError('at least four arguments are required in '
-                                 'start-step-numsteps scan command')
+                                 'start-step-numpoints scan command')
             if not (isinstance(args[0], list) and isinstance(args[1], list)):
                 raise UsageError('start and step must be lists')
             if not len(dev) == len(args[0]) == len(args[1]):
@@ -70,7 +70,7 @@ def _fixType(dev, args, mkpos):
         else:
             if len(args) < 3:
                 raise UsageError('at least four arguments are required in '
-                                 'start-step-numsteps scan command')
+                                 'start-step-numpoints scan command')
             values = mkpos([args[0]], [args[1]], args[2])
             restargs = args[3:]
     devs = [session.getDevice(d, Moveable) for d in devs]
@@ -122,12 +122,12 @@ def _infostr(fn, args, kwargs):
 
 
 @usercommand
-@helparglist('dev, [start, step, numsteps | listofpoints], ...')
+@helparglist('dev, [start, step, numpoints | listofpoints], ...')
 @spmsyntax(Dev(Moveable), Bare, Bare, Bare)
 def scan(dev, *args, **kwargs):
     """Scan over device(s) and count detector(s).
 
-    The general syntax is either to give start, step and number of steps:
+    The general syntax is either to give start, step and number of points:
 
     >>> scan(dev, 0, 1, 11)   # scans from 0 to 10 in steps of 1.
 
@@ -136,9 +136,9 @@ def scan(dev, *args, **kwargs):
     >>> scan(dev, [0, 1, 2, 3, 7, 8, 9])  # scans at the given positions.
 
     """
-    def mkpos(starts, steps, numsteps):
+    def mkpos(starts, steps, numpoints):
         return [[start + i*step for (start, step) in zip(starts, steps)]
-                for i in range(numsteps)]
+                for i in range(numpoints)]
     scanstr = _infostr('scan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, scaninfo, detlist, envlist, move, multistep  = \
@@ -152,11 +152,11 @@ def scan(dev, *args, **kwargs):
 def cscan(dev, *args, **kwargs):
     """Scan around center.
 
-    The general syntax is to give center, step and number of steps per side:
+    The general syntax is to give center, step and number of points per side:
 
     >>> cscan(dev, 0, 1, 5)   # scans from -5 to 5 in steps of 1.
 
-    The total number of steps is (2 * numperside) + 1.
+    The total number of points is (2 * numperside) + 1.
     """
     def mkpos(centers, steps, numperside):
         return [[center + (i-numperside)*step for (center, step)
@@ -169,13 +169,13 @@ def cscan(dev, *args, **kwargs):
 
 
 @usercommand
-@helparglist('numsteps, ...')
+@helparglist('numpoints, ...')
 @spmsyntax(Bare)
-def timescan(numsteps, *args, **kwargs):
+def timescan(numpoints, *args, **kwargs):
     """Count a number of times without moving devices.
 
-    "numsteps" can be -1 to scan for unlimited steps (break using Ctrl-C or the
-    GUI to quit).
+    "numpoints" can be -1 to scan for unlimited points (break using Ctrl-C or
+    the GUI to quit).
 
     Example:
 
@@ -186,16 +186,16 @@ def timescan(numsteps, *args, **kwargs):
 
     >>> timescan(500, t=2, delay=5)
     """
-    scanstr = _infostr('timescan', (numsteps,) + args, kwargs)
+    scanstr = _infostr('timescan', (numpoints,) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(args, kwargs, scanstr)
-    scan = SweepScan([], [], numsteps, move, multistep, detlist, envlist,
+    scan = SweepScan([], [], numpoints, move, multistep, detlist, envlist,
                      preset, scaninfo)
     scan.run()
 
 
 @usercommand
-@helparglist('dev, start, end, numsteps, ...')
+@helparglist('dev, start, end, numpoints, ...')
 @spmsyntax(Dev(Moveable), Bare, Bare)
 def sweep(dev, start, end, *args, **kwargs):
     """Do a sweep of *dev* from *start* to *end*, repeating the count as often
@@ -214,7 +214,7 @@ def sweep(dev, start, end, *args, **kwargs):
 
     >>> sweep(T, 10, 100, t=2, delay=5)
     """
-    # XXX: the SweepScan supports a) max #steps and b) multiple devices, but we
+    # XXX: the SweepScan supports a) max #points and b) multiple devices, but we
     # don't offer that in this simplified interface until it's actually needed
     scanstr = _infostr('sweep', (dev, start, end,) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
@@ -225,11 +225,11 @@ def sweep(dev, start, end, *args, **kwargs):
 
 
 @usercommand
-@helparglist('dev1, start1, step1, numsteps1, dev2, start2, step2, '
-             'numsteps2, ...')
+@helparglist('dev1, start1, step1, numpoints1, dev2, start2, step2, '
+             'numpoints2, ...')
 @spmsyntax(Dev(Moveable), Bare, Bare, Bare, Dev(Moveable), Bare, Bare, Bare)
-def twodscan(dev1, start1, step1, numsteps1,
-             dev2, start2, step2, numsteps2,
+def twodscan(dev1, start1, step1, numpoints1,
+             dev2, start2, step2, numpoints2,
              *args, **kwargs):
     """Two-dimensional scan of two devices.
 
@@ -238,12 +238,12 @@ def twodscan(dev1, start1, step1, numsteps1,
     >>> twodscan(phi, 0, 1, 10, psi, 0, 2, 10, t=1)
     """
     scanstr = _infostr('twodscan',
-                       (dev1, start1, step1, numsteps1,
-                        dev2, start2, step2, numsteps2) + args, kwargs)
+                       (dev1, start1, step1, numpoints1,
+                        dev2, start2, step2, numpoints2) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(args, kwargs, scanstr)
-    scan = TwoDimScan(dev1, start1, step1, numsteps1,
-                      dev2, start2, step2, numsteps2,
+    scan = TwoDimScan(dev1, start1, step1, numpoints1,
+                      dev2, start2, step2, numpoints2,
                       move, multistep, detlist, envlist, preset, scaninfo)
     scan.run()
 
@@ -395,10 +395,10 @@ def manualscan(*args, **kwargs):
 
 
 @usercommand
-def appendscan(numsteps=5, stepsize=None):
-    """Go on *numsteps* steps from the end of the last scan.
+def appendscan(numpoints=5, stepsize=None):
+    """Go on *numpoints* steps from the end of the last scan.
 
-    *numsteps* can also be negative to prepend scan points.
+    *numpoints* can also be negative to prepend scan points.
 
     Examples:
 
@@ -419,7 +419,7 @@ def appendscan(numsteps=5, stepsize=None):
             break
         i -= 1
     # XXX could use dslist[-1] to append to last appendscan, but then the
-    # numsteps < 0 case is broken
+    # numpoints < 0 case is broken
     scan = dslist[i]
     if len(scan.devices) != 1:
         raise NicosError('cannot append to scan with more than one device')
@@ -430,26 +430,26 @@ def appendscan(numsteps=5, stepsize=None):
     pos2 = scan.positions[-1][0]
     if isinstance(pos1, tuple):
         stepsizes = tuple((b - a) / (npos - 1) for (a, b) in zip(pos1, pos2))
-        if numsteps > 0:
+        if numpoints > 0:
             positions = [[tuple(b + j*s for (b, s) in zip(pos2, stepsizes))]
-                         for j in range(1, numsteps+1)]
+                         for j in range(1, numpoints+1)]
         else:
             positions = [[tuple(a - j*s for (a, s) in zip(pos1, stepsizes))]
-                         for j in range(1, -numsteps+1)]
-        numsteps = abs(numsteps)
+                         for j in range(1, -numpoints+1)]
+        numpoints = abs(numpoints)
     elif isinstance(pos1, (int, float)):
         if stepsize is None:
             stepsize = (pos2 - pos1) / (npos - 1)
-        if numsteps > 0:
+        if numpoints > 0:
             startpos = pos2 + stepsize
         else:
             stepsize = -stepsize
             startpos = pos1 + stepsize
-        numsteps = abs(numsteps)
-        positions = [[startpos + j*stepsize] for j in range(numsteps)]
+        numpoints = abs(numpoints)
+        positions = [[startpos + j*stepsize] for j in range(numpoints)]
     else:
         raise NicosError('cannot append to this scan')
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
-             scan.envlist, scan.preset, '%d more steps of last scan' % numsteps)
+             scan.envlist, scan.preset, '%d more steps of last scan' % numpoints)
     s.dataset.sinkinfo['continuation'] = ','.join(contuids)
     s.run()

@@ -288,8 +288,8 @@ gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
 
 
 @usercommand
-@helparglist('dev, center, step, numsteps, ...')
-def center(dev, center, step, numsteps, *args, **kwargs):
+@helparglist('dev, center, step, numpoints, ...')
+def center(dev, center, step, numpoints, *args, **kwargs):
     """Move the given device to the maximum of a Gaussian fit through a scan.
 
     The scan is performed around *center* with the given parameters.
@@ -300,11 +300,11 @@ def center(dev, center, step, numsteps, *args, **kwargs):
     parameter).
     """
     ycol = kwargs.pop('ycol', -1)
-    cscan(dev, center, step, numsteps, 'centering', *args, **kwargs)
+    cscan(dev, center, step, numpoints, 'centering', *args, **kwargs)
     params, _ = gauss(ycol)
     # do not allow moving outside of the scanned region
-    minvalue = center - step*numsteps
-    maxvalue = center + step*numsteps
+    minvalue = center - step*numpoints
+    maxvalue = center + step*numpoints
     if params is None:
         printwarning('Gaussian fit failed, no centering done')
     elif not minvalue <= params[0] <= maxvalue:
@@ -316,13 +316,13 @@ def center(dev, center, step, numsteps, *args, **kwargs):
 
 
 @usercommand
-@helparglist('dev, center, step, numsteps, ...')
-def checkoffset(dev, center, step, numsteps, *args, **kwargs):
+@helparglist('dev, center, step, numpoints, ...')
+def checkoffset(dev, center, step, numpoints, *args, **kwargs):
     """Readjust offset of the given device to the center of a scan.
 
     The adjustment is done so that afterwards, the given *center* coincides with
     the center of a Gaussian fit through the scan performed with the given
-    stepsize and number of steps.
+    stepsize and number of points.
 
     This supports all arguments and keyword arguments that `cscan()` supports,
     and additionally a keyword "ycol" that gives the Y column of the dataset to
@@ -330,11 +330,11 @@ def checkoffset(dev, center, step, numsteps, *args, **kwargs):
     parameter).
     """
     ycol = kwargs.pop('ycol', -1)
-    cscan(dev, center, step, numsteps, 'offset check', *args, **kwargs)
+    cscan(dev, center, step, numpoints, 'offset check', *args, **kwargs)
     params, _ = gauss(ycol)
     # do not allow moving outside of the scanned region
-    minvalue = center - step*numsteps
-    maxvalue = center + step*numsteps
+    minvalue = center - step*numpoints
+    maxvalue = center + step*numpoints
     if params is None:
         printwarning('Gaussian fit failed, offset unchanged')
     elif not minvalue <= params[0] <= maxvalue:

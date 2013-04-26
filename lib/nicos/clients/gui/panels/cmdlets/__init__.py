@@ -134,7 +134,7 @@ class Scan(Cmdlet):
         valid = [
             self.markValid(self.start, not self.start.text().isEmpty()),
             self.markValid(self.step, not self.step.text().isEmpty()),
-            self.markValid(self.numsteps, self.numsteps.value() > 0),
+            self.markValid(self.numpoints, self.numpoints.value() > 0),
             self.markValid(self.seconds, self.seconds.value() > 0),
         ]
         return all(valid)
@@ -144,7 +144,7 @@ class Scan(Cmdlet):
             self.device.currentText(),
             self.start.text(),
             self.step.text(),
-            self.numsteps.value(),
+            self.numpoints.value(),
             self.seconds.value(),
         )
         if mode == 'simple':
@@ -166,7 +166,7 @@ class CScan(Cmdlet):
         valid = [
             self.markValid(self.start, not self.start.text().isEmpty()),
             self.markValid(self.step, not self.step.text().isEmpty()),
-            self.markValid(self.numsteps, self.numsteps.value() > 0),
+            self.markValid(self.numpoints, self.numpoints.value() > 0),
             self.markValid(self.seconds, self.seconds.value() > 0),
         ]
         return all(valid)
@@ -176,7 +176,7 @@ class CScan(Cmdlet):
             self.device.currentText(),
             self.start.text(),
             self.step.text(),
-            self.numsteps.value(),
+            self.numpoints.value(),
             self.seconds.value(),
         )
         if mode == 'simple':

@@ -138,7 +138,7 @@ def count(*detlist, **preset):
     >>> count(psd, t=10)    # count 10 seconds with the psd detector
 
     Within a manual scan, this command is also used to perform the count as one
-    step of the manual scan.
+    point of the manual scan.
     """
     detectors = []
     for det in detlist:
@@ -247,7 +247,7 @@ def ListDetectors():
 def SetEnvironment(*devlist):
     """Select the device(s) to read during scans as "experiment environment".
 
-    Experiment environment devices are read out at every step of a scan.
+    Experiment environment devices are read out at every point of a scan.
 
     Examples:
 

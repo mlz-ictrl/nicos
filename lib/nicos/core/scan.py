@@ -319,24 +319,24 @@ class ElapsedTime(Readable):
 class SweepScan(Scan):
     """
     Special scan class for "sweeps" (i.e., start device(s) and scan until they
-    arrive at their targets.)  The number of steps, if > 0, is a maximum of
-    steps, after which the scan will stop.
+    arrive at their targets.)  The number of points, if > 0, is a maximum of
+    points, after which the scan will stop.
 
     If no devices are given, acts as a "time scan", i.e. just counts the given
-    number of steps (or indefinitely) with an elapsed time counter.
+    number of points (or indefinitely) with an elapsed time counter.
     """
 
-    def __init__(self, devices, startend, numsteps, firstmoves=None,
+    def __init__(self, devices, startend, numpoints, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
                  scaninfo=None, scantype=None):
         self._etime = ElapsedTime('etime', unit='s', fmtstr='%.1f')
         self._started = currenttime()
-        self._numsteps = numsteps
+        self._numpoints = numpoints
         self._sweepdevices = devices
-        if numsteps < 0:
-            steps = Repeater([])
+        if numpoints < 0:
+            points = Repeater([])
         else:
-            steps = [[]] * numsteps
+            points = [[]] * numpoints
         # start for sweep devices are "firstmoves"
         firstmoves = []
         self._sweeptargets = []
@@ -346,7 +346,7 @@ class SweepScan(Scan):
             self._sweeptargets.append((dev, end))
         # sweep scans support a special "delay" preset
         self._delay = preset.pop('delay', 0)
-        Scan.__init__(self, [], steps, firstmoves, multistep,
+        Scan.__init__(self, [], points, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
         if not devices:
             self._envlist.insert(0, self._etime)
@@ -396,11 +396,11 @@ class SweepScan(Scan):
                        for dev in self._sweepdevices):
                 raise StopScan
         if session.mode == 'simulation':
-            if self._numsteps > 1:
-                session.log.info('skipping %d steps...' % (self._numsteps - 1))
+            if self._numpoints > 1:
+                session.log.info('skipping %d points...' % (self._numpoints - 1))
                 duration = session.clock.time - self._sim_start
-                session.clock.tick(duration * (self._numsteps - 1))
-            elif self._numsteps < 0:
+                session.clock.tick(duration * (self._numpoints - 1))
+            elif self._numpoints < 0:
                 session.log.info('would scan indefinitely, skipping...')
             raise StopScan
 
@@ -577,23 +577,23 @@ class TwoDimScan(Scan):
     Special scan class for two-dimensional scans.
     """
 
-    def __init__(self, dev1, start1, step1, numsteps1,
-                 dev2, start2, step2, numsteps2,
+    def __init__(self, dev1, start1, step1, numpoints1,
+                 dev2, start2, step2, numpoints2,
                  firstmoves=None, multistep=None, detlist=None,
                  envlist=None, preset=None, scaninfo=None):
         scantype = '2D'
         devices = [dev1, dev2]
         positions = []
-        for i in range(numsteps1):
+        for i in range(numpoints1):
             dev1value = start1 + i*step1
             # move dev2 forward in one row, then move it back in the next row
             if i % 2 == 0:
                 positions.extend([dev1value, start2 + j*step2]
-                                 for j in range(numsteps2))
+                                 for j in range(numpoints2))
             else:
-                positions.extend([dev1value, start2 + (numsteps2-j-1)*step2]
-                                 for j in range(numsteps2))
-        self._pointsperrow = numsteps1
+                positions.extend([dev1value, start2 + (numpoints2-j-1)*step2]
+                                 for j in range(numpoints2))
+        self._pointsperrow = numpoints1
         Scan.__init__(self, devices, positions, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
 
