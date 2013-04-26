@@ -43,7 +43,7 @@ __all__ = [
 def _wait_for_pause(delay):
     """Wait until the watchdog "pausecount" list is empty."""
     exp = session.experiment
-    current_msg = session.should_pause_count
+    current_msg = session.should_pause_count or ''
     session.should_pause_count = None
     session.log.warning('counting paused: ' + current_msg)
     # allow the daemon to pause here, if we were paused by it
