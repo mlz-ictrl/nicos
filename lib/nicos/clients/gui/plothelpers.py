@@ -459,7 +459,7 @@ class NicosPlot(QwtPlot, DlgUtils):
                 self.setAxisScale(QwtPlot.yRight, scale[0], scale[1])
         self.zoomer.setZoomBase(True)   # does a replot
 
-    curvecolor = [Qt.black, Qt.red, Qt.green, Qt.blue,
+    curvecolor = [Qt.black, Qt.red, Qt.darkGreen, Qt.blue,
                   Qt.magenta, Qt.cyan, Qt.darkGray]
     numcolors = len(curvecolor)
 
