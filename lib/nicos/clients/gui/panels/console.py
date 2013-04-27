@@ -151,7 +151,7 @@ class ConsolePanel(Panel):
         elif url.startswith('trace:'):
             showTraceback(url[6:], self, self.outView)
         else:
-            print 'Strange anchor in outView: ' + url
+            self.log.warning('Strange anchor in outView: ' + url)
 
     @qtsig('')
     def on_actionPrint_triggered(self):

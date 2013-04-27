@@ -33,6 +33,7 @@ from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
 from nicos.utils import importString
+from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
     loadBasicWindowSettings
 from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel
@@ -115,6 +116,8 @@ class Panel(QWidget, DlgUtils):
         self.parentwindow = parent
         self.client = client
         self.mainwindow = parent.mainwindow
+        self.log = NicosLogger(self.panelName)
+        self.log.parent = self.mainwindow.log
         self.sgroup = SettingGroup(self.panelName)
         with self.sgroup as settings:
             self.loadSettings(settings)

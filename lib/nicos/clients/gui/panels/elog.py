@@ -88,7 +88,7 @@ class ELogPanel(Panel, DlgUtils):
         try:
             frame = self.preview.page().mainFrame().childFrames()[1]
         except IndexError:
-            print 'No logbook seems to be loaded.'
+            self.log.error('No logbook seems to be loaded.')
             self.on_client_connected()
             return
         scrollval = frame.scrollBarValue(Qt.Vertical)

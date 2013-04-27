@@ -105,8 +105,9 @@ class DataHandler(QObject):
             for dataset in datasets:
                 try:
                     self.on_client_dataset(dataset)
-                except Exception, err:
-                    print 'Error adding dataset:', err
+                except Exception:
+                    from nicos.clients.gui.main import log
+                    log.error('Error adding dataset', exc=1)
         self.bulk_adding = False
         pd.setValue(1)
         pd.close()

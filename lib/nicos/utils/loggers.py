@@ -230,8 +230,9 @@ class NicosLogfileHandler(StreamHandler):
     """
 
     def __init__(self, directory, filenameprefix='nicos', filenamesuffix=None,
-                 dayfmt=DATESTAMP_FMT):
-        directory = path.join(directory, filenameprefix)
+                 dayfmt=DATESTAMP_FMT, use_subdir=True):
+        if use_subdir:
+            directory = path.join(directory, filenameprefix)
         if not path.isdir(directory):
             os.makedirs(directory)
         self._filenameprefix = filenameprefix

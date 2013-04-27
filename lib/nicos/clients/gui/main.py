@@ -26,9 +26,11 @@
 
 from __future__ import with_statement
 
-import time
-import subprocess
 import os
+import sys
+import time
+import logging
+import subprocess
 from os import path
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
@@ -39,6 +41,8 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
 from nicos.utils import parseConnectionString, importString, enumerate_start
+from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
+     NicosLogger, initLoggers
 from nicos.clients.base import NicosClient
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \
@@ -65,10 +69,13 @@ class NicosGuiClient(NicosClient, QObject):
 
 
 class MainWindow(QMainWindow, DlgUtils):
-    def __init__(self, panel_conf):
+    def __init__(self, log, panel_conf):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
+
+        # our logger instance
+        self.log = log
 
         # window for displaying errors
         self.errorWindow = None
@@ -360,7 +367,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def on_client_error(self, problem, exc=None):
         if exc is not None:
-            print 'Exception:', exc
+            self.log.error('Error from daemon', exc=exc)
         problem = time.strftime('[%m-%d %H:%M:%S] ') + problem
         if self.errorWindow is None:
             self.errorWindow = QDialog(self)
@@ -440,8 +447,8 @@ class MainWindow(QMainWindow, DlgUtils):
             func = getattr(__import__(modname, None, None, [funcname]),
                            funcname)
             func(*data[1:])
-        except Exception, err:
-            print 'Error during clientexec:', err
+        except Exception:
+            self.log.exception('Error during clientexec')
 
     def on_client_plugplay(self, data):
         if data[0] == 'added':
@@ -666,11 +673,27 @@ def main(argv):
     # Import the compiled resource file to register resources
     import nicos.guisupport.gui_rc  #pylint: disable=W0612
 
+    userpath = path.join(os.getenv('HOME'), '.config', 'nicos')
+
+    # Set up logging for the GUI instance.
+    initLoggers()
+    log = NicosLogger('gui')
+    log.parent = None
+    log.setLevel(logging.INFO)
+    log.addHandler(ColoredConsoleHandler())
+    log.addHandler(NicosLogfileHandler(path.join(userpath, 'log'), 'gui',
+                                       use_subdir=False))
+
+    # set up logging for unhandled exceptions in Qt callbacks
+    def log_unhandled(*exc_info):
+        log.exception(exc_info=exc_info)
+    sys.excepthook = log_unhandled
+
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 
     # XXX implement proper argument parsing
     configfile = path.join(path.dirname(__file__), 'defconfig.py')
-    stylefile = path.join(os.getenv('HOME'), '.config', 'nicos', 'style.qss')
+    stylefile = path.join(userpath, 'style.qss')
     if '-c' in argv:
         idx = argv.index('-c')
         configfile = argv[idx+1]
@@ -691,10 +714,11 @@ def main(argv):
         try:
             with open(stylefile, 'r') as fd:
                 app.setStyleSheet(fd.read())
-        except Exception, err:
-            print 'Error setting style sheet:', err
+        except Exception:
+            log.warning('Error setting user style sheet from %s' % stylefile,
+                        exc=1)
 
-    mainwindow = MainWindow(panel_conf)
+    mainwindow = MainWindow(log, panel_conf)
 
     if len(argv) > 1:
         cdata = parseConnectionString(argv[1], DEFAULT_PORT)

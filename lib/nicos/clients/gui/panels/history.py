@@ -40,6 +40,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 import numpy as np
 
 from nicos.utils import safeFilename
+from nicos.clients.gui.main import log
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 from nicos.clients.gui.fitutils import fit_linear
@@ -68,7 +69,7 @@ class View(QObject):
             for key in keys:
                 history = query_func(key, self.fromtime, totime)
                 if history is None:
-                    print 'Error getting history.'
+                    log.error('Error getting history for %s.' % (keys,))
                     history = []
                 ltime = 0
                 interval = self.interval
@@ -133,7 +134,6 @@ class View(QObject):
                     break
                 i += 1
             if i >= 0:
-                # print 'sliding remove:', i+1
                 kd[0][0:n-i] = kd[0][i+1:n+1].copy()
                 kd[1][0:n-i] = kd[1][i+1:n+1].copy()
                 kd[2] -= i+1
