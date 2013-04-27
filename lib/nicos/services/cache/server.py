@@ -23,7 +23,17 @@
 #
 # *****************************************************************************
 
-"""NICOS cache server."""
+"""NICOS cache server.
+
+The NICOS cache is a network service that accepts TCP connections and UDP
+packets and stores received key-value pairs, sending updates back to interested
+clients.  All key-value pairs can have a timestamp and a time-to-live, after
+which they are considered "expired".
+
+Constants and functions needed to implement a cache clients are contained in the
+module `nicos.protocols.cache`.  It also contains the documentation of the used
+line protocol.
+"""
 
 from __future__ import with_statement
 
@@ -44,77 +54,21 @@ from nicos.protocols.cache import msg_pattern, line_pattern, \
      OP_TELLOLD, OP_LOCK, OP_REWRITE
 
 
-class CacheUDPConnection(object):
-    """
-    An UDP connection to use instead of a TCP connection in the CacheWorker.
-    """
-
-    def __init__(self, udpsocket, remoteaddr, log, maxsize=1496):
-        self.remoteaddr = remoteaddr
-        self.udpsocket = udpsocket
-        self.maxsize = maxsize
-        self.log = log
-
-    def fileno(self):
-        # provide a pseudo-fileno; the actual value doesn't matter as long as
-        # this is negative
-        return -self.udpsocket.fileno()
-
-    def close(self):
-        self.log('UDP: close')
-
-    def shutdown(self, how):
-        self.log('UDP: shutdown')
-
-    def recv(self, maxbytes):
-        # reading more is not supported
-        self.log('UDP: recv')
-        return ''
-
-    def settimeout(self, timeout):
-        self.udpsocket.settimeout(timeout)
-
-    def sendall(self, data):
-        datalen = len(data)
-        # split data into chunks which are less than self.maxsize
-        while data:
-            # find rightmost \n within first self.maxsize bytes
-            p = data[:self.maxsize].rfind('\n')
-            if p == -1:
-                # line too long. cross your fingers and split SOMEWHERE
-                p = self.maxsize - 1
-            self.udpsocket.sendto(data[:p + 1], self.remoteaddr)
-            self.log('UDP: sent %d bytes' % (p + 1))
-            data = data[p + 1:] # look at remaining data
-        return datalen
-
-
-class CacheUDPQueue(object):
-    """Pseudo-queue for synchronous writes to UDP connections."""
-    def __init__(self, conn):
-        self.conn = conn
-
-    def get(self):
-        return None
-
-    def put(self, msg):
-        self.conn.sendall(msg)
-
-
 class CacheWorker(object):
-    """
-    Worker thread class for the cache server.
+    """Worker thread class for the cache server.
+
+    One worker starts two threads: one for receiving data from the connection,
+    and one for sending.  Data to send must be posited in `self.send_queue`.
     """
 
-    def __init__(self, db, connection, name='', initstring='', initdata='',
-                 loglevel=None):
-        self.db = db
-        self.connection = connection
-        self.tcpmode = (hasattr(self.connection, 'fileno') and
-                        self.connection.fileno() > 0)
+    def __init__(self, db, sock, name, loglevel):
         self.name = name
+        # actual value handling is done by the database object
+        self.db = db
+        # the socket object
+        self.sock = sock
         # timeout for send (recv is covered by select timeout)
-        self.connection.settimeout(5)
+        self.sock.settimeout(5)
         # list of subscriptions
         self.updates_on = set()
         # list of subscriptions with timestamp requested
@@ -124,14 +78,12 @@ class CacheWorker(object):
         self.log = session.getLogger(name)
         self.log.setLevel(loggers.loglevels[loglevel])
 
+        # start sender thread (if necessary)
         self.start_sender(name)
 
-        if initstring:
-            if not self.writeto(initstring):
-                self.stoprequest = True
-                return
-        self.receiver = threading.Thread(None, self._worker_thread,
-                                         'receiver %s' % name, args=(initdata,))
+        # start receiver thread
+        self.receiver = threading.Thread(None, self._receiver_thread,
+                                         'receiver %s' % name, args=())
         self.receiver.setDaemon(True)
         self.receiver.start()
 
@@ -145,6 +97,17 @@ class CacheWorker(object):
     def __str__(self):
         return 'worker(%s)' % self.name
 
+    def is_active(self):
+        return not self.stoprequest and self.receiver.isAlive()
+
+    def closedown(self):
+        # try our best to close the connection gracefully
+        if self.sock is None:
+            return
+        self.stoprequest = True
+        closeSocket(self.sock)
+        self.sock = None
+
     def join(self):
         self.send_queue.put('end')   # to wake from blocking get()
         self.sender.join()
@@ -152,41 +115,38 @@ class CacheWorker(object):
 
     def _sender_thread(self):
         while not self.stoprequest:
-            self.writeto(self.send_queue.get())
-
-    def _worker_thread(self, initdata):
-        data = initdata
-        while not self.stoprequest:
-            # split data buffer into message lines and handle these
-            match = line_pattern.match(data)
-            while match:
-                line = match.group(1)
-                data = data[match.end():]
-                if not line:
-                    self.log.info('got empty line, closing connection')
-                    self.closedown()
-                    return
-                try:
-                    ret = self._handle_line(line)
-                except Exception, err:
-                    self.log.warning('error handling line %r' % line, exc=err)
-                else:
-                    #self.log.debug('return is %r' % ret)
-                    if ret:
-                        self.send_queue.put(''.join(ret))
-                # continue loop with next match
-                match = line_pattern.match(data)
-            if self.connection and self.tcpmode:
-                # wait for data with 1-second timeout
-                try:
-                    res = select.select([self.connection], [], [], 1)
-                except (TypeError, select.error), err:
-                    self.log.warning('error in select', exc=err)
-                if self.connection not in res[0]:
-                    # no data arrived, wait some more
-                    continue
+            data = self.send_queue.get()
+            if self.sock is None:  # connection already closed
+                return
             try:
-                newdata = self.connection.recv(8192)
+                self.sock.sendall(data)
+            except socket.timeout:
+                self.log.warning(self, 'send timed out, shutting down')
+                self.closedown()
+            except Exception:
+                # if we can't write (or it would be blocking), there is some
+                # serious problem: forget writing and close down
+                self.log.warning(self, 'other end closed, shutting down')
+                self.closedown()
+
+    def _receiver_thread(self):
+        data = ''
+        while not self.stoprequest:
+            data = self._process_data(data, self.send_queue.put)
+            # wait for data with 1-second timeout
+            try:
+                res = select.select([self.sock], [], [], 1)
+            except TypeError:
+                # TypeError is raised when the connection gets closed and set to
+                # None and select finds no fileno()
+                return
+            except select.error, err:
+                self.log.warning('error in select', exc=err)
+            if self.sock not in res[0]:
+                # no data arrived, wait some more
+                continue
+            try:
+                newdata = self.sock.recv(8192)
             except Exception:
                 newdata = ''
             if not newdata:
@@ -194,6 +154,28 @@ class CacheWorker(object):
                 break
             data += newdata
         self.closedown()
+
+    def _process_data(self, data, reply_callback):
+        # split data buffer into message lines and handle these
+        match = line_pattern.match(data)
+        while match:
+            line = match.group(1)
+            data = data[match.end():]
+            if not line:
+                self.log.info('got empty line, closing connection')
+                self.closedown()
+                return ''
+            try:
+                ret = self._handle_line(line)
+            except Exception, err:
+                self.log.warning('error handling line %r' % line, exc=err)
+            else:
+                #self.log.debug('return is %r' % ret)
+                if ret:
+                    reply_callback(''.join(ret))
+            # continue loop with next match
+            match = line_pattern.match(data)
+        return data
 
     def _handle_line(self, line):
         #self.log.debug('handling line: %s' % line)
@@ -211,15 +193,18 @@ class CacheWorker(object):
         try:
             time = float(time)
         except (TypeError, ValueError):
+            # some timestamp is required -- note that this assumes clocks not
+            # to be too far out of sync between server and clients
             time = currenttime()
         try:
             ttl = float(ttl)
         except (TypeError, ValueError):
             ttl = None
+        # acceptable syntax: either time1-time2 and time1+ttl; convert to ttl
         if ttlop == '-' and ttl:
             ttl = ttl - time
 
-        # dispatch operations
+        # dispatch operations to database object
         if op == OP_TELL:
             self.db.tell(key, value, time, ttl, self)
         elif op == OP_ASK:
@@ -239,43 +224,15 @@ class CacheWorker(object):
             else:
                 self.updates_on.add(key)
         elif op == OP_TELLOLD:
-            # the server shouldn't get TELLOLD
+            # the server shouldn't get TELLOLD, ignore it
             pass
         elif op == OP_LOCK:
             return self.db.lock(key, value, time, ttl)
         elif op == OP_REWRITE:
             self.db.rewrite(key, value)
 
-    def is_active(self):
-        return not self.stoprequest and self.receiver.isAlive()
-
-    def closedown(self):
-        if self.connection is None:
-            return
-        self.stoprequest = True
-        closeSocket(self.connection)
-        self.connection = None
-
-    def writeto(self, data):
-        if self.connection is None:
-            return False
-        try:
-            self.connection.sendall(data)
-        except socket.timeout:
-            self.log.warning(self, 'send timed out, shutting down')
-            self.closedown()
-        except Exception:
-            # if we can't write (or it would be blocking), there is some serious
-            # problem: forget writing and close down
-            self.log.warning(self, 'other end closed, shutting down')
-            self.closedown()
-            return False
-        return True
-
     def update(self, key, op, value, time, ttl):
         """Check if we need to send the update given."""
-        if self.connection is None:
-            return
         # make sure line has at least a default timestamp
         for mykey in self.ts_updates_on:
             # do a substring match on key
@@ -298,11 +255,51 @@ class CacheWorker(object):
 
 
 class CacheUDPWorker(CacheWorker):
+    """Special subclass for handling UDP requests."""
+
+    def __init__(self, db, sock, name, data, remoteaddr, loglevel):
+        # "data" is what we received over the UDP socket, "remoteaddr" is the
+        # address for replies
+        self.data = data
+        self.remoteaddr = remoteaddr
+        CacheWorker.__init__(self, db, sock, name, loglevel)
+
     def start_sender(self, name):
-        self.send_queue = CacheUDPQueue(self.connection)
+        pass
 
     def join(self):
         self.receiver.join()
+
+    def closedown(self):
+        # not closing self.sock here; it is the UDP server socket...
+        self.stoprequest = True
+        self.sock = None
+
+    def _receiver_thread(self):
+        # we will never read any more data: just process what we got and send
+        # any needed responses synchronously
+        try:
+            self._process_data(self.data, self._sendall)
+        except Exception, err:
+            self.log.warning('error handling UDP data %r' % self.data, exc=err)
+        self.closedown()
+
+    def _sendall(self, data, maxsize=1496):
+        """Replacement for sendall() on TCP sockets: send all data via UDP
+        in as many packets as needed.
+        """
+        datalen = len(data)
+        # split data into chunks which are less than maxsize
+        while data:
+            # find rightmost \n within first maxsize bytes
+            p = data[:maxsize].rfind('\n')
+            if p == -1:
+                # line too long. cross your fingers and split SOMEWHERE
+                p = maxsize - 1
+            self.sock.sendto(data[:p + 1], self.remoteaddr)
+            self.log.debug('UDP: sent %d bytes' % (p + 1))
+            data = data[p + 1:] # look at remaining data
+        return datalen
 
 
 class CacheServer(Device):
@@ -316,60 +313,65 @@ class CacheServer(Device):
     }
 
     attached_devices = {
-        'db': (CacheDatabase, 'The cache database instance'),
+        'db':       (CacheDatabase, 'The cache database instance'),
     }
 
     def doInit(self, mode):
         self._stoprequest = False
+        # TCP server address if bound to TCP
         self._boundto = None
+        # server sockets for TCP and UDP
         self._serversocket = None
         self._serversocket_udp = None
-        self._connected = {}  # worker connections
+        # worker connections
+        self._connected = {}
         self._adevs['db']._server = self
 
     def start(self):
         self._adevs['db'].initDatabase()
-        self._worker = threading.Thread(target=self._worker_thread,
+        self._worker = threading.Thread(target=self._server_thread,
                                         name='server')
         self._worker.start()
 
-    def _worker_thread(self):
-        self.log.info('server starting')
+    def _bind_to(self, address, proto='tcp'):
+        # bind to the address with the given protocol; return socket and address
+        if ':' not in address:
+            host = address
+            port = DEFAULT_CACHE_PORT
+        else:
+            host, port = address.split(':')
+            port = int(port)
+        serversocket = socket.socket(socket.AF_INET,
+            proto == 'tcp' and socket.SOCK_STREAM or socket.SOCK_DGRAM)
+        serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if proto == 'udp':
+            # we want to be able to receive UDP broadcasts
+            serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        try:
+            serversocket.bind((socket.gethostbyname(host), port))
+            if proto == 'tcp':
+                serversocket.listen(50) # max waiting connections....
+            return serversocket, (host, port)
+        except Exception:
+            serversocket.close()
+            return None, None     # failed, return None as indicator
 
-        def bind_to(address, proto='tcp'):
-            if ':' not in address:
-                host = address
-                port = DEFAULT_CACHE_PORT
-            else:
-                host, port = address.split(':')
-                port = int(port)
-            serversocket = socket.socket(socket.AF_INET,
-                proto == 'tcp' and socket.SOCK_STREAM or socket.SOCK_DGRAM)
-            serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            if proto == 'udp':
-                # we want to be able to receive UDP broadcasts
-                serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            try:
-                serversocket.bind((socket.gethostbyname(host), port))
-                if proto == 'tcp':
-                    serversocket.listen(50) # max waiting connections....
-                return serversocket, (host, port)
-            except Exception:
-                serversocket.close()
-                return None, (host, port)     # failed, return None as indicator
+    def _server_thread(self):
+        self.log.info('server starting')
 
         # now try to bind to one, include 'MUST WORK' standalone names
         for server in [self.server, socket.getfqdn(), socket.gethostname()]:
             self.log.debug('trying to bind to ' + server)
-            self._serversocket, self._boundto = bind_to(server)
+            self._serversocket, self._boundto = self._bind_to(server)
             if self._serversocket:
                 break             # we had success: exit this loop
 
         # bind UDP broadcast socket
-        self._serversocket_udp = bind_to('', 'udp')[0]
+        self._serversocket_udp = self._bind_to('', 'udp')[0]
         if self._serversocket_udp:
             self.log.info('UDP bound to broadcast')
 
+        # one of the must have worked, otherwise continuing makes no sense
         if not self._serversocket and not self._serversocket_udp:
             self._stoprequest = True
             self.log.error("couldn't bind to any location, giving up!")
@@ -379,6 +381,7 @@ class CacheServer(Device):
             self.log.warning('starting main loop only bound to UDP broadcast')
         else:
             self.log.info('TCP bound to %s:%s' % self._boundto)
+
         # now enter main serving loop
         while not self._stoprequest:
             # loop through connections, first to remove dead ones,
@@ -414,11 +417,9 @@ class CacheServer(Device):
                 data, addr = self._serversocket_udp.recvfrom(3072)
                 nice_addr = 'udp://%s:%d' % addr
                 self.log.info('new connection from %s' % nice_addr)
-                conn = CacheUDPConnection(self._serversocket_udp, addr,
-                                          log=self.log.debug)
                 self._connected[nice_addr] = CacheUDPWorker(
-                    self._adevs['db'], conn, name=nice_addr, initdata=data,
-                    loglevel=self.loglevel)
+                    self._adevs['db'], self._serversocket_udp, name=nice_addr,
+                    data=data, remoteaddr=addr, loglevel=self.loglevel)
         if self._serversocket:
             closeSocket(self._serversocket)
         self._serversocket = None
