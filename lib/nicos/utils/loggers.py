@@ -37,10 +37,8 @@ from nicos.core import NicosError
 from nicos.utils import colorize, formatExtendedTraceback
 
 
-LOGFMT = '%(asctime)s : %(name)-10s : %(levelname)-7s : %(message)s'
-USERLOGFMT = '%(asctime)s | %(name)-10s %(levelname)-7s : %(message)s'
+LOGFMT = '%(asctime)s : %(levelname)-7s : %(name)s: %(message)s'
 DATEFMT = '%H:%M:%S'
-LONGDATEFMT = '%Y-%m-%d %H:%M:%S'
 DATESTAMP_FMT = '%Y-%m-%d'
 SECONDS_PER_DAY = 60 * 60 * 24
 
