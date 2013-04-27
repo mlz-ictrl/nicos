@@ -81,6 +81,21 @@ At this time, the client can open a second connection to the server port and
 send the client ID.  This connection will be detected as the event connection,
 and the client can then start receiving data frames on this connection.
 
+
+Daemon functionality
+====================
+
+The daemon operates with several threads: one thread accepts new connections.
+Two threads are started per connection: one to receive and handle commands, and
+one to send new events (which are pushed to the thread via a Queue).  Another
+thread executes user scripts, and a last thread monitors "watch expressions"
+that can be set by the clients and are evaluated continuously during runtime.
+
+Execution of code in the "script thread" is subject to a Python trace function,
+which means that debugger-like functionality is available: scripts can be
+paused, stopped and updated at runtime.
+
+
 Commands
 ========
 
@@ -158,6 +173,10 @@ These are the events emitted by the daemon and transferred on the event
 connection.  The data is serialized (using pickle, see Serialization_) unless
 noted.
 
+The possible events are listed in the `nicos.protocols.daemon.DAEMON_EVENTS`
+dictionary, which maps the event name to a boolean indicating whether event data
+for this event should be serialized.
+
 .. daemonevt:: message
 
    A new log message has been emitted.
@@ -174,9 +193,23 @@ noted.
 
 .. daemonevt:: request
 
-   A new request has been sent to the daemon by some client.
+   A new request has been sent to the daemon by some client.  Requests are
+   generated either by new scripts to execute (via `queue`) or by calling
+   emergency stop while no script is running.
 
-   :arg: The request as a dictionary (XXX)
+   This event means that the request has been queued, but is not yet being
+   executed (see `processed` below).
+
+   Each request has a request number, which is used to identify the request in
+   subsequent commands (e.g. to cancel the request) or events.
+
+   :arg: The request as a dictionary.  The dictionary contents depend on the
+      request type:
+
+      - all requests have ``'reqno'`` (request number) and ``'user'`` (user name
+        who originated the request) keys
+      - script requests also have ``'name''`` (script name/filename) and
+        ``'script'`` (code to execute) keys
 
 .. daemonevt:: processing
 
@@ -194,7 +227,16 @@ noted.
 
    The status of the executing script changed.
 
-   :arg: A tuple of (status constant, line number).  XXX constants
+   :arg: A tuple of (status constant, line number).  Status constants are
+      defined in `nicos.protocols.daemon`:
+
+      - ``STATUS_IDLE`` -- nothing is running
+      - ``STATUS_IDLEEXC`` -- nothing is running, and last script raised an
+        unhandled exception
+      - ``STATUS_RUNNING`` -- a script is running
+      - ``STATUS_INBREAK`` -- execution is currently paused
+      - ``STATUS_STOPPING`` -- execution is stopping (the `ControlStop`
+        exception has been raised, but not yet propagated to toplevel)
 
 .. daemonevt:: watch
 
@@ -206,16 +248,21 @@ noted.
 
    The session's mode has changed.
 
-   :arg: The new mode (``master``, ``slave``, ``simulation`` or
-      ``maintenance``).
+   :arg: The new mode (``'master'``, ``'slave'``, ``'simulation'`` or
+      ``'maintenance'``).
 
 .. daemonevt:: cache
 
    A new cache value has arrived.
 
-   :arg: A tuple of (timestamp, key, operation, value).
+   :arg: A tuple of ``(timestamp, key, operation, value)``.
       The value is the raw cache value, for NICOS related values this is a
       repr-stringified value.
+
+      Key expiration and active deletion are signified by either by
+      ``operation`` being `~nicos.protocols.cache.OP_TELLOLD` or ``value`` being
+      an empty string, respectively (for the ``OP_`` constants see the
+      `nicos.protocols.cache` module).
 
 .. daemonevt:: dataset
 
@@ -227,19 +274,19 @@ noted.
 
    A new point has been added to the dataset.
 
-   :arg: A tuple of (xvalues, yvalues).
+   :arg: A tuple of sequences: ``(xvalues, yvalues)``.
 
 .. daemonevt:: datacurve
 
    A new data curve has been added to the dataset.
 
-   :arg: A tuple of (curve name, xvalues, yvalues).
+   :arg: A tuple of ``(curve name, xvalues, yvalues)``.
 
 .. daemonevt:: liveparams
 
    Set the data parameters for the next `livedata` event.
 
-   :arg: A tuple of (tag, filename, dtype, nx, ny, nt, time), where
+   :arg: A tuple of ``(tag, filename, dtype, nx, ny, nt, time)``, where
 
       - ``tag``: an application specific "tag" for the data format
       - ``filename``: (eventual) filename of the data being transferred
@@ -268,7 +315,9 @@ noted.
 
 .. daemonevt:: clientexec
 
-   The user requested something to be executed on the client side.
+   The user requested something to be executed on the client side.  This is
+   generally a NICOS library function that opens a GUI window, which cannot be
+   done on the server side.
 
    :arg: A tuple of (function name, arg1, ...).
 
