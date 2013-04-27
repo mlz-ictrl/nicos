@@ -49,9 +49,14 @@ def read_config():
         services = cfg.get('services', 'services')
     else:
         services = 'cache,poller'
-    return [svc.strip() for svc in services.split(',')]
+    if cfg.has_option('nicos', 'logging_path'):
+        log_path = cfg.get('nicos', 'logging_path')
+    else:
+        log_path = path.join(root_path, 'log')
+    services = [svc.strip() for svc in services.split(',')]
+    return services, log_path
 
-SERVICES = read_config()
+SERVICES, LOG_PATH = read_config()
 
 def usage():
     print >>sys.stderr, \
@@ -113,9 +118,10 @@ def start_daemon(name):
         procname, instname = name, ''
     executable = path.join(root_path, 'bin', 'nicos-%s' % procname)
     os.system('%s %s -d' % (executable, instname))
-    pid = read_pidfile(name, wait=20)
+    pid = read_pidfile(name, wait=10)
     if not pid:
-        print 'failed'
+        print 'failed, please look in the logfile at %s' % \
+            path.join(LOG_PATH, name, name + time.strftime('-%Y-%m-%d.log'))
         sys.exit(1)
     print 'pid =', pid
 
