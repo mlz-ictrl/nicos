@@ -64,40 +64,6 @@ class NicosGuiClient(NicosClient, QObject):
         self.emit(SIGNAL(name), *args)
 
 
-class PnPSetupQuestion(QMessageBox):
-    """Special QMessageBox for asking what to do a new setup was detected."""
-
-    def __init__(self, parent, data, load_callback):
-        self.setup = data[1]
-        message = ('<b>New sample environment detected</b><br/>'
-                   'A new sample environment <b>%s</b> has been detected:<br/>%s'
-                   % (data[1], data[2] or ''))
-        QMessageBox.__init__(self, QMessageBox.Information, 'NICOS Plug & Play',
-                             message, QMessageBox.NoButton, parent)
-        self.setWindowModality(Qt.NonModal)
-        self.b0 = self.addButton('Ignore', QMessageBox.RejectRole)
-        self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
-        self.b1 = self.addButton('Load setup', QMessageBox.YesRole)
-        self.b1.setIcon(self.style().standardIcon(QStyle.SP_DialogOkButton))
-        self.b0.clicked.connect(self.on_ignore_clicked)
-        self.b1.clicked.connect(self.on_load_clicked)
-        self.b0.setFocus()
-        self.load_callback = load_callback
-
-    def on_ignore_clicked(self):
-        self.emit(SIGNAL('closed'), self)
-        self.reject()
-
-    def on_load_clicked(self):
-        self.load_callback()
-        self.emit(SIGNAL('closed'), self)
-        self.accept()
-
-    def closeEvent(self, event):
-        self.emit(SIGNAL('closed'), self)
-        return QMessageBox.closeEvent(self, event)
-
-
 class MainWindow(QMainWindow, DlgUtils):
     def __init__(self, panel_conf):
         QMainWindow.__init__(self)
@@ -601,6 +567,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
 
 class ConnectionDialog(QDialog):
+    """A dialog to request connection parameters."""
 
     @classmethod
     def getConnectionData(cls, parent, connpresets, lastpreset, lastdata):
@@ -659,6 +626,40 @@ class ConnectionDialog(QDialog):
             self.presetFrame.hide()
         else:
             self.presetFrame.show()
+
+
+class PnPSetupQuestion(QMessageBox):
+    """Special QMessageBox for asking what to do a new setup was detected."""
+
+    def __init__(self, parent, data, load_callback):
+        self.setup = data[1]
+        message = ('<b>New sample environment detected</b><br/>'
+                   'A new sample environment <b>%s</b> has been detected:<br/>%s'
+                   % (data[1], data[2] or ''))
+        QMessageBox.__init__(self, QMessageBox.Information, 'NICOS Plug & Play',
+                             message, QMessageBox.NoButton, parent)
+        self.setWindowModality(Qt.NonModal)
+        self.b0 = self.addButton('Ignore', QMessageBox.RejectRole)
+        self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
+        self.b1 = self.addButton('Load setup', QMessageBox.YesRole)
+        self.b1.setIcon(self.style().standardIcon(QStyle.SP_DialogOkButton))
+        self.b0.clicked.connect(self.on_ignore_clicked)
+        self.b1.clicked.connect(self.on_load_clicked)
+        self.b0.setFocus()
+        self.load_callback = load_callback
+
+    def on_ignore_clicked(self):
+        self.emit(SIGNAL('closed'), self)
+        self.reject()
+
+    def on_load_clicked(self):
+        self.load_callback()
+        self.emit(SIGNAL('closed'), self)
+        self.accept()
+
+    def closeEvent(self, event):
+        self.emit(SIGNAL('closed'), self)
+        return QMessageBox.closeEvent(self, event)
 
 
 def main(argv):
