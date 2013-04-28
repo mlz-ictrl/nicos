@@ -195,5 +195,35 @@ class Sleep(Cmdlet):
         return 'sleep(%s)\n' % self.seconds.text()
 
 
-all_cmdlets = [Move, Count, Scan, CScan, Sleep]
+class Configure(Cmdlet):
+
+    name = 'Configure'
+    category = 'Device'
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client)
+        loadUi(self, 'configure.ui', 'panels/cmdlets')
+        self.device.addItems(self.client.getDeviceList())
+        self.on_device_change(self.device.currentText())
+        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
+                     self.on_device_change)
+
+    def on_device_change(self, text):
+        params = self.client.getDeviceParamInfo(str(text))
+        self.parameter.clear()
+        self.parameter.addItems(sorted(p for p in params
+                                       if params[p]['settable']))
+
+    def isValid(self):
+        return self.markValid(self.target, not self.target.text().isEmpty())
+
+    def generate(self, mode):
+        args = (self.device.currentText(), self.parameter.currentText(),
+                self.target.text())
+        if mode == 'simple':
+            return 'set %s %s %s\n' % args
+        return '%s.%s = %s\n' % args
+
+
+all_cmdlets = [Move, Count, Scan, CScan, Sleep, Configure]
 all_categories = ['Device', 'Scan', 'Other']

@@ -45,6 +45,7 @@ class NicosGuiClient(NicosClient, QObject):
 
     def getDeviceList(self, needs_class='nicos.core.device.Device',
                       only_explicit=True):
+        """Return list of devices."""
         query = 'list(dn for (dn, d) in session.devices.iteritems() ' \
                 'if %r in d.classes' % needs_class
         if only_explicit:
@@ -52,7 +53,14 @@ class NicosGuiClient(NicosClient, QObject):
         query += ')'
         return sorted(self.eval(query, []))
 
+    def getDeviceParamInfo(self, devname):
+        """Return info about all parameters of the device."""
+        query = 'dict((pn, pi.serialize()) for (pn, pi) in ' \
+                'session.getDevice(%r).parameters.iteritems())' % devname
+        return self.eval(query, {})
+
     def getDeviceParams(self, devname):
+        """Return values of all device parameters from cache."""
         params = {}
         devkeys = self.ask('getcachekeys', devname.lower() + '/') or []
         for key, value in devkeys:
