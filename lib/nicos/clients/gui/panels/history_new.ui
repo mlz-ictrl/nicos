@@ -19,9 +19,6 @@
      <item row="0" column="1" colspan="4">
       <widget class="QLineEdit" name="namebox"/>
      </item>
-     <item row="1" column="1" colspan="3">
-      <widget class="QLineEdit" name="devices"/>
-     </item>
      <item row="4" column="1" colspan="3">
       <widget class="QLineEdit" name="simpleTimeSpec">
        <property name="text">
@@ -166,6 +163,13 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="1" colspan="3">
+      <widget class="QComboBox" name="devices">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -272,7 +276,6 @@
  </widget>
  <layoutdefault spacing="15" margin="15"/>
  <tabstops>
-  <tabstop>devices</tabstop>
   <tabstop>helpButton</tabstop>
   <tabstop>simpleTimeSpec</tabstop>
   <tabstop>simpleHelpButton</tabstop>
@@ -314,22 +317,6 @@
     <hint type="sourcelabel">
      <x>241</x>
      <y>116</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>241</x>
-     <y>67</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>devices</sender>
-   <signal>returnPressed()</signal>
-   <receiver>LogViewerUI</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>304</x>
-     <y>18</y>
     </hint>
     <hint type="destinationlabel">
      <x>241</x>

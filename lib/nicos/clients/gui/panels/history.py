@@ -143,7 +143,7 @@ class View(QObject):
 
 class NewViewDialog(QDialog, DlgUtils):
 
-    def __init__(self, parent, info=None):
+    def __init__(self, parent, info=None, devlist=None):
         QDialog.__init__(self, parent)
         DlgUtils.__init__(self, 'History viewer')
         loadUi(self, 'history_new.ui', 'panels')
@@ -153,6 +153,9 @@ class NewViewDialog(QDialog, DlgUtils):
 
         self.connect(self.customY, SIGNAL('toggled(bool)'), self.toggleCustomY)
         self.toggleCustomY(False)
+
+        if devlist:
+            self.devices.addItems(devlist)
 
         self.connect(self.simpleTime, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
         self.connect(self.extTime, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
@@ -169,7 +172,7 @@ class NewViewDialog(QDialog, DlgUtils):
                      self.showSimpleHelp)
 
         if info is not None:
-            self.devices.setText(info['devices'])
+            self.devices.setEditText(info['devices'])
             self.namebox.setText(info['name'])
             self.simpleTime.setChecked(info['simpleTime'])
             self.simpleTimeSpec.setText(info['simpleTimeSpec'])
@@ -240,7 +243,7 @@ class NewViewDialog(QDialog, DlgUtils):
 
     def infoDict(self):
         return dict(
-            devices = str(self.devices.text()),
+            devices = str(self.devices.currentText()),
             name = str(self.namebox.text()),
             simpleTime = self.simpleTime.isChecked(),
             simpleTimeSpec = str(self.simpleTimeSpec.text()),
@@ -364,8 +367,13 @@ class BaseHistoryWindow(object):
         self.showNewDialog()
 
     def showNewDialog(self, devices=''):
-        newdlg = NewViewDialog(self)
-        newdlg.devices.setText(devices)
+        devlist = []
+        if hasattr(self, 'client'):
+            devlist = sorted(self.client.eval(
+                'list(dn for (dn, d) in session.devices.iteritems() if '
+                'dn in session.explicit_devices)', []))
+        newdlg = NewViewDialog(self, devlist=devlist)
+        newdlg.devices.setEditText(devices)
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
