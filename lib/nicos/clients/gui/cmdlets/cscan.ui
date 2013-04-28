@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>656</width>
-    <height>99</height>
+    <width>655</width>
+    <height>102</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,8 +24,14 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="label">
+       <property name="minimumSize">
+        <size>
+         <width>90</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
-        <string>Scan device:</string>
+        <string>&lt;b&gt;Scan&lt;/b&gt; device:</string>
        </property>
       </widget>
      </item>
@@ -57,7 +63,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../../../resources/nicos-gui.qrc">
          <normaloff>:/remove</normaloff>:/remove</iconset>
        </property>
       </widget>
@@ -84,6 +90,12 @@
      </item>
      <item>
       <widget class="QLabel" name="label_2">
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string>Center:</string>
        </property>
@@ -95,7 +107,7 @@
      <item>
       <widget class="QLabel" name="unit1">
        <property name="text">
-        <string/>
+        <string>mm</string>
        </property>
       </widget>
      </item>
@@ -109,8 +121,8 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>5</width>
-         <height>1</height>
+         <width>13</width>
+         <height>13</height>
         </size>
        </property>
       </spacer>
@@ -128,7 +140,7 @@
      <item>
       <widget class="QLabel" name="unit2">
        <property name="text">
-        <string/>
+        <string>mm</string>
        </property>
       </widget>
      </item>
@@ -142,23 +154,23 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>5</width>
-         <height>1</height>
+         <width>13</width>
+         <height>13</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="label_8">
        <property name="text">
-        <string>Number of points per side:</string>
+        <string>Edges:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="numpoints">
-       <property name="maximum">
-        <number>1000</number>
+      <widget class="QLabel" name="edgePos">
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </item>
@@ -183,7 +195,43 @@
       </spacer>
      </item>
      <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Number of points per side:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="numpoints">
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>5</width>
+         <height>1</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QLabel" name="label_5">
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string>Count</string>
        </property>
@@ -236,7 +284,7 @@
   <tabstop>delBtn</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>

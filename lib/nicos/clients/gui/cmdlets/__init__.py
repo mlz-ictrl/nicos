@@ -43,9 +43,16 @@ class Cmdlet(QWidget):
 
     @qtsig('')
     def on_delBtn_clicked(self):
+        self.removeSelf()
+
+    def removeSelf(self):
         self.emit(SIGNAL('cmdletRemoved'), self)
         self.parent().layout().removeWidget(self)
         self.hide()
+
+    def changed(self, *args):
+        """Should be emitted whenever any value in the cmdlet changes."""
+        self.emit(SIGNAL('dataChanged'))
 
     def markValid(self, ctl, condition):
         if condition:
@@ -84,10 +91,13 @@ class Move(Cmdlet):
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
+        self.target.textChanged.connect(self.changed)
+        self.waitBox.stateChanged.connect(self.changed)
 
     def on_device_change(self, text):
         unit = self.client.getDeviceParam(str(text), 'unit')
         self.unit.setText(unit or '')
+        self.changed()
 
     def isValid(self):
         return self.markValid(self.target, not self.target.text().isEmpty())
@@ -110,6 +120,7 @@ class Count(Cmdlet):
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
         loadUi(self, 'count.ui', 'cmdlets')
+        self.seconds.valueChanged.connect(self.changed)
 
     def isValid(self):
         return self.markValid(self.seconds, self.seconds.value() > 0)
@@ -132,11 +143,28 @@ class Scan(Cmdlet):
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
+        self.start.textChanged.connect(self.on_range_change)
+        self.step.textChanged.connect(self.on_range_change)
+        self.numpoints.valueChanged.connect(self.on_range_change)
+        self.seconds.valueChanged.connect(self.changed)
 
     def on_device_change(self, text):
         unit = self.client.getDeviceParam(str(text), 'unit')
         self.unit1.setText(unit or '')
         self.unit2.setText(unit or '')
+        self.changed()
+
+    def on_range_change(self, *args):
+        try:
+            start = float(self.start.text())
+            step = float(self.step.text())
+        except ValueError:
+            endpos = ''
+        else:
+            numpoints = self.numpoints.value()
+            endpos = '%.3f %s' % (start + (numpoints-1)*step, self.unit1.text())
+        self.endPos.setText(endpos)
+        self.changed()
 
     def isValid(self):
         # NOTE: cannot use "return markValid() and markValid() and ..." because
@@ -145,7 +173,6 @@ class Scan(Cmdlet):
         valid = [
             self.markValid(self.start, not self.start.text().isEmpty()),
             self.markValid(self.step, not self.step.text().isEmpty()),
-            self.markValid(self.numpoints, self.numpoints.value() > 0),
             self.markValid(self.seconds, self.seconds.value() > 0),
         ]
         return all(valid)
@@ -175,18 +202,35 @@ class CScan(Cmdlet):
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
+        self.start.textChanged.connect(self.on_range_change)
+        self.step.textChanged.connect(self.on_range_change)
+        self.numpoints.valueChanged.connect(self.on_range_change)
+        self.seconds.valueChanged.connect(self.changed)
 
     def on_device_change(self, text):
         unit = self.client.getDeviceParam(str(text), 'unit')
         self.unit1.setText(unit or '')
         self.unit2.setText(unit or '')
+        self.changed()
 
+    def on_range_change(self, *args):
+        try:
+            start = float(self.start.text())
+            step = float(self.step.text())
+        except ValueError:
+            edgepos = ''
+        else:
+            numpoints = self.numpoints.value()
+            edgepos = '%.3f - %.3f %s' % (start - numpoints*step,
+                                          start + numpoints*step,
+                                          self.unit1.text())
+        self.edgePos.setText(edgepos)
+        self.changed()
 
     def isValid(self):
         valid = [
             self.markValid(self.start, not self.start.text().isEmpty()),
             self.markValid(self.step, not self.step.text().isEmpty()),
-            self.markValid(self.numpoints, self.numpoints.value() > 0),
             self.markValid(self.seconds, self.seconds.value() > 0),
         ]
         return all(valid)
@@ -212,6 +256,7 @@ class Sleep(Cmdlet):
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
         loadUi(self, 'sleep.ui', 'cmdlets')
+        self.seconds.valueChanged.connect(self.changed)
 
     def isValid(self):
         return self.markValid(self.seconds, self.seconds.value() > 0)
@@ -234,12 +279,15 @@ class Configure(Cmdlet):
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
+        self.parameter.currentIndexChanged.connect(self.changed)
+        self.target.textChanged.connect(self.changed)
 
     def on_device_change(self, text):
         params = self.client.getDeviceParamInfo(str(text))
         self.parameter.clear()
         self.parameter.addItems(sorted(p for p in params
                                        if params[p]['settable']))
+        self.changed()
 
     def isValid(self):
         return self.markValid(self.target, not self.target.text().isEmpty())
