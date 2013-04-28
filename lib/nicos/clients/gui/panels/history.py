@@ -40,7 +40,6 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 import numpy as np
 
 from nicos.utils import safeFilename
-from nicos.clients.gui.main import log
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 from nicos.clients.gui.fitutils import fit_linear
@@ -69,6 +68,7 @@ class View(QObject):
             for key in keys:
                 history = query_func(key, self.fromtime, totime)
                 if history is None:
+                    from nicos.clients.gui.main import log
                     log.error('Error getting history for %s.' % (keys,))
                     history = []
                 ltime = 0

@@ -540,6 +540,8 @@ class MainWindow(QMainWindow, DlgUtils):
 
 
 def main(argv):
+    global log
+
     # Import the compiled resource file to register resources
     import nicos.guisupport.gui_rc  #pylint: disable=W0612
 
