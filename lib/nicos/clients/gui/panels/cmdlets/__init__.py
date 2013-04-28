@@ -81,6 +81,13 @@ class Move(Cmdlet):
         Cmdlet.__init__(self, parent, client)
         loadUi(self, 'move.ui', 'panels/cmdlets')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
+        self.on_device_change(self.device.currentText())
+        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
+                     self.on_device_change)
+
+    def on_device_change(self, text):
+        unit = self.client.getDeviceParam(str(text), 'unit')
+        self.unit.setText(unit or '')
 
     def isValid(self):
         return self.markValid(self.target, not self.target.text().isEmpty())
@@ -119,6 +126,14 @@ class Scan(Cmdlet):
         Cmdlet.__init__(self, parent, client)
         loadUi(self, 'scan.ui', 'panels/cmdlets')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
+        self.on_device_change(self.device.currentText())
+        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
+                     self.on_device_change)
+
+    def on_device_change(self, text):
+        unit = self.client.getDeviceParam(str(text), 'unit')
+        self.unit1.setText(unit or '')
+        self.unit2.setText(unit or '')
 
     def isValid(self):
         # NOTE: cannot use "return markValid() and markValid() and ..." because
@@ -154,6 +169,15 @@ class CScan(Cmdlet):
         Cmdlet.__init__(self, parent, client)
         loadUi(self, 'cscan.ui', 'panels/cmdlets')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
+        self.on_device_change(self.device.currentText())
+        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
+                     self.on_device_change)
+
+    def on_device_change(self, text):
+        unit = self.client.getDeviceParam(str(text), 'unit')
+        self.unit1.setText(unit or '')
+        self.unit2.setText(unit or '')
+
 
     def isValid(self):
         valid = [

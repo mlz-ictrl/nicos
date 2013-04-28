@@ -67,3 +67,10 @@ class NicosGuiClient(NicosClient, QObject):
             param = key.split('/')[1]
             params[param] = value
         return params
+
+    def getDeviceParam(self, devname, param):
+        """Return value of a specific device parameter from cache."""
+        key = self.ask('getcachekeys', devname.lower() + '/' + param)
+        if key:
+            return key[0][1]
+        return None
