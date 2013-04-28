@@ -28,7 +28,7 @@ from __future__ import with_statement
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-     QColorDialog
+     QColorDialog, QVBoxLayout
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
@@ -188,7 +188,13 @@ def createWindowItem(item, window, menuwindow):
             subwindow = QMainWindow(tw)
             subwindow.mainwindow = window.mainwindow
             subwindow.user_color = window.user_color
+            # we have to nest one step to get consistent layout spacing
+            # around the central widget
+            central = QWidget(subwindow)
+            layout = QVBoxLayout()
             item = createWindowItem(subitem, window, subwindow)
-            subwindow.setCentralWidget(item)
+            layout.addWidget(item)
+            central.setLayout(layout)
+            subwindow.setCentralWidget(central)
             tw.addTab(subwindow, title)
         return tw

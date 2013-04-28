@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""NICOS GUI command input widgets."""
+"""NICOS GUI multiple cmdlet script-builder input."""
 
 from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QMenu, QAction, QToolButton
@@ -33,7 +33,7 @@ from nicos.clients.gui.cmdlets import all_cmdlets, all_categories
 
 
 class CommandsPanel(Panel):
-    panelName = 'Script status'
+    panelName = 'Commands'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
