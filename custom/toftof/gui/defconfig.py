@@ -39,7 +39,7 @@ config = ('Default', [
             panel('nicos.clients.gui.panels.setup.SetupPanel')),
         window('Editor', 'editor', True,
             vsplit(
-#               panel('nicos.clients.gui.panels.cmdinput.CommandsPanel'),
+#               panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
                 panel('nicos.clients.gui.panels.editor.EditorPanel',
                   tools = [
 #                     tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')

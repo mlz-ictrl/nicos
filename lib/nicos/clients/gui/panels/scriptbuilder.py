@@ -37,7 +37,7 @@ class CommandsPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'cmdinput.ui', 'panels')
+        loadUi(self, 'scriptbuilder.ui', 'panels')
 
         self.window = parent
         self.runBtn.setVisible(False)
