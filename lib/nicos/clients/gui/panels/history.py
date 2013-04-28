@@ -44,7 +44,7 @@ from nicos.clients.gui.main import log
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 from nicos.clients.gui.fitutils import fit_linear
-from nicos.clients.gui.plothelpers import NicosPlot
+from nicos.clients.gui.widgets.plotting import NicosPlot
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
 

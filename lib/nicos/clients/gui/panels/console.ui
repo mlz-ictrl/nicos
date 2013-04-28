@@ -60,7 +60,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="OutputView" name="outView">
+      <widget class="MessageView" name="outView">
        <property name="autoFillBackground">
         <bool>true</bool>
        </property>
@@ -677,12 +677,12 @@
   <customwidget>
    <class>HistoryLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>nicos.clients.gui.histedit.h</header>
+   <header>nicos.clients.gui.widgets.histedit.h</header>
   </customwidget>
   <customwidget>
-   <class>OutputView</class>
+   <class>MessageView</class>
    <extends>QTextBrowser</extends>
-   <header>nicos.clients.gui.outview.h</header>
+   <header>nicos.clients.gui.widgets.messageview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

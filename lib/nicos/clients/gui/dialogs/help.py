@@ -35,7 +35,7 @@ class HelpWindow(QMainWindow):
 
     def __init__(self, parent, client):
         QMainWindow.__init__(self, parent)
-        loadUi(self, 'helpwin.ui')
+        loadUi(self, 'helpwin.ui', 'dialogs')
         self.client = client
         self.history = []
         self._next_scrollpos = None

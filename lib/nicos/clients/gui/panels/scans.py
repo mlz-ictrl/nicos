@@ -44,7 +44,8 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgPresets
 from nicos.clients.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
      fit_pseudo_voigt, fit_pearson_vii, fit_arby
-from nicos.clients.gui.plothelpers import NicosPlot, ErrorBarPlotCurve, cloneToGrace
+from nicos.clients.gui.widgets.plotting import NicosPlot, ErrorBarPlotCurve, \
+     cloneToGrace
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'

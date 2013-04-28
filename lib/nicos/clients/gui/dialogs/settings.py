@@ -36,7 +36,7 @@ class SettingsDialog(QDialog, DlgUtils):
     def __init__(self, main):
         QDialog.__init__(self, main)
         DlgUtils.__init__(self, 'Settings')
-        loadUi(self, 'settings.ui')
+        loadUi(self, 'settings.ui', 'dialogs')
         self.main = main
         self.sgroup = main.sgroup
 
@@ -75,7 +75,7 @@ class SettingsDialog(QDialog, DlgUtils):
 
     @qtsig('')
     def on_settingAdd_clicked(self):
-        dlg = dialogFromUi(self, 'settings_conn.ui')
+        dlg = dialogFromUi(self, 'settings_conn.ui', 'dialogs')
         if dlg.exec_() != QDialog.Accepted:
             return
         if dlg.name.text() == '':
@@ -102,7 +102,7 @@ class SettingsDialog(QDialog, DlgUtils):
         if item is None:
             return
         cdata = self.connpresets[str(item.data(32).toString())]
-        dlg = dialogFromUi(self, 'settings_conn.ui')
+        dlg = dialogFromUi(self, 'settings_conn.ui', 'dialogs')
         dlg.name.setText(item.data(32).toString())
         dlg.name.setEnabled(False)
         dlg.host.setText(cdata[0])

@@ -48,8 +48,8 @@ else:
 
 from nicos.utils import formatDuration, formatEndtime, importString
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import showToolText, loadUi, showTraceback, \
-     setBackgroundColor
+from nicos.clients.gui.utils import showToolText, loadUi, setBackgroundColor
+from nicos.clients.gui.dialogs.traceback import TracebackDialog
 
 COMMENT_STR = '##'
 
@@ -873,7 +873,7 @@ class EditorPanel(Panel):
     def on_simOutView_anchorClicked(self, url):
         url = str(url.toString())
         if url.startswith('trace:'):
-            showTraceback(url[6:], self, self.simOutView)
+            TracebackDialog(self, self.simOutView, url[6:]).show()
 
     def on_simOutViewErrors_anchorClicked(self, url):
         self.on_simOutView_anchorClicked(url)

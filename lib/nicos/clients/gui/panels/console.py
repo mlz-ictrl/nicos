@@ -38,7 +38,8 @@ from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QColor, \
 from nicos.utils import chunks
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, setBackgroundColor, setForegroundColor, \
-     enumerateWithProgress, showTraceback, ScriptExecQuestion
+     enumerateWithProgress, ScriptExecQuestion
+from nicos.clients.gui.dialogs.traceback import TracebackDialog
 
 
 class ConsolePanel(Panel):
@@ -149,7 +150,7 @@ class ConsolePanel(Panel):
             win = self.mainwindow.createWindow(self.mainwindow.editor_wintype)
             win.getPanel('User editor').openFile(url[5:])
         elif url.startswith('trace:'):
-            showTraceback(url[6:], self, self.outView)
+            TracebackDialog(self, self.outView, url[6:]).show()
         else:
             self.log.warning('Strange anchor in outView: ' + url)
 

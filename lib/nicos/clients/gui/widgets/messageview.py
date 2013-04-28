@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""A text control to display output."""
+"""A text control to display logging messages of the daemon."""
 
 import re
 from time import strftime, localtime
@@ -73,7 +73,7 @@ def format_time(timeval):
     return strftime('[%H:%M:%S] ', localtime(timeval))
 
 
-class OutputView(QTextBrowser):
+class MessageView(QTextBrowser):
 
     def __init__(self, parent):
         QTextBrowser.__init__(self, parent)

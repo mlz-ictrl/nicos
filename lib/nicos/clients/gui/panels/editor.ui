@@ -260,7 +260,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="OutputView" name="simOutView">
+              <widget class="MessageView" name="simOutView">
                <property name="autoFillBackground">
                 <bool>true</bool>
                </property>
@@ -286,7 +286,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="OutputView" name="simOutViewErrors">
+              <widget class="MessageView" name="simOutViewErrors">
                <property name="autoFillBackground">
                 <bool>true</bool>
                </property>
@@ -722,9 +722,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>OutputView</class>
+   <class>MessageView</class>
    <extends>QTextBrowser</extends>
-   <header>nicos.clients.gui.outview.h</header>
+   <header>nicos.clients.gui.widgets.messageview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

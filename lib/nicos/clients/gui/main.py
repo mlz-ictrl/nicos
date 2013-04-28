@@ -35,7 +35,7 @@ from os import path
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
-     QFontDialog, QColorDialog, QDialogButtonBox, QWidget, QFrame, QVBoxLayout
+     QFontDialog, QColorDialog
 from PyQt4.QtCore import Qt, QTimer, QSize, QVariant, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
@@ -45,13 +45,16 @@ from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
      NicosLogger, initLoggers
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
-from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \
-     loadBasicWindowSettings, getXDisplay, loadUi
+from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
+     loadBasicWindowSettings, getXDisplay
 from nicos.clients.gui.config import panel_config
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
-from nicos.clients.gui.helpwin import HelpWindow
-from nicos.clients.gui.settings import SettingsDialog
+from nicos.clients.gui.dialogs.auth import ConnectionDialog
+from nicos.clients.gui.dialogs.pnp import PnPSetupQuestion
+from nicos.clients.gui.dialogs.help import HelpWindow
+from nicos.clients.gui.dialogs.settings import SettingsDialog
+from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
      STATUS_IDLEEXC
 
@@ -455,34 +458,9 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def on_client_watchdog(self, data):
         if self.watchdogWindow is None:
-            dlg = self.watchdogWindow = dialogFromUi(self, 'watchdog.ui')
-            dlg.frame = QFrame(dlg)
-            dlg.scrollArea.setWidget(dlg.frame)
-            dlg.frame.setLayout(QVBoxLayout())
-            dlg.frame.layout().setContentsMargins(0, 0, 10, 0)
-            dlg.frame.layout().addStretch()
-            def btn(button):
-                if dlg.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
-                    for w in dlg.frame.children():
-                        if isinstance(w, QWidget):
-                            w.hide()
-                else:
-                    dlg.close()
-            dlg.connect(dlg.buttonBox, SIGNAL('clicked(QAbstractButton*)'), btn)
-        else:
-            dlg = self.watchdogWindow
-        w = QWidget(dlg.frame)
-        loadUi(w, 'watchdog_item.ui')
-        dlg.frame.layout().insertWidget(dlg.frame.layout().count()-1, w)
-        if data[0] == 'warning':
-            w.datelabel.setText('Watchdog alert - %s' %
-                time.strftime('%Y-%m-%d %H:%S', time.localtime(data[1])))
-            w.messagelabel.setText(data[2])
-        elif data[0] == 'action':
-            w.datelabel.setText('Watchdog action - %s' %
-                time.strftime('%Y-%m-%d %H:%S', time.localtime(data[1])))
-            w.messagelabel.setText('Executing action:\n' + data[2])
-        dlg.show()
+            self.watchdogWindow = WatchdogDialog(self)
+        self.watchdogWindow.addEvent(data)
+        self.watchdogWindow.show()
 
     def on_trayIcon_activated(self, reason):
         if reason == QSystemTrayIcon.Trigger:
@@ -559,102 +537,6 @@ class MainWindow(QMainWindow, DlgUtils):
         for panel in self.panels:
             panel.setCustomStyle(self.user_font, color)
         self.user_color = color
-
-
-class ConnectionDialog(QDialog):
-    """A dialog to request connection parameters."""
-
-    @classmethod
-    def getConnectionData(cls, parent, connpresets, lastpreset, lastdata):
-        self = cls(parent, connpresets, lastpreset, lastdata)
-        ret = self.exec_()
-        if ret != QDialog.Accepted:
-            return None, None, None, None
-        new_addr = str(self.presetOrAddr.currentText())
-        new_data = {}
-        new_name = preset_name = ''
-        if new_addr in connpresets:
-            cdata = connpresets[new_addr]
-            new_name = new_addr
-            new_data['host'] = str(cdata[0])
-            new_data['port'] = int(cdata[1])
-            if self.userName.text() == '':
-                new_data['login'] = str(cdata[2])
-            else:
-                new_data['login'] = str(self.userName.text())
-        else:
-            try:
-                host, port = new_addr.split(':')
-                port = int(port)
-            except ValueError:
-                host = new_addr
-                port = DEFAULT_PORT
-            new_data['host'] = host
-            new_data['port'] = port
-            new_data['login'] = str(self.userName.text())
-        passwd = str(self.password.text())
-        if not new_name:
-            preset_name = str(self.newPresetName.text())
-        return new_name, new_data, passwd, preset_name
-
-    def __init__(self, parent, connpresets, lastpreset, lastdata):
-        QDialog.__init__(self, parent)
-        loadUi(self, 'auth.ui')
-        self.connpresets = connpresets
-
-        self.presetOrAddr.addItems(connpresets.keys())
-        self.presetOrAddr.setEditText(lastpreset)
-        if not lastpreset:
-            # if we have no stored last preset connection, put in the raw data
-            self.presetOrAddr.setEditText(
-                '%s:%s' % (lastdata['host'], lastdata['port']))
-        if lastdata['login']:
-            self.userName.setText(lastdata['login'])
-        self.password.setFocus()
-        self.presetFrame.hide()
-        self.resize(QSize(self.width(), self.minimumSize().height()))
-
-    def on_presetOrAddr_editTextChanged(self, text):
-        if str(text) in self.connpresets:
-            conn = self.connpresets[str(text)]
-            self.userName.setText(conn[2])
-            self.presetFrame.hide()
-        else:
-            self.presetFrame.show()
-
-
-class PnPSetupQuestion(QMessageBox):
-    """Special QMessageBox for asking what to do a new setup was detected."""
-
-    def __init__(self, parent, data, load_callback):
-        self.setup = data[1]
-        message = ('<b>New sample environment detected</b><br/>'
-                   'A new sample environment <b>%s</b> has been detected:<br/>%s'
-                   % (data[1], data[2] or ''))
-        QMessageBox.__init__(self, QMessageBox.Information, 'NICOS Plug & Play',
-                             message, QMessageBox.NoButton, parent)
-        self.setWindowModality(Qt.NonModal)
-        self.b0 = self.addButton('Ignore', QMessageBox.RejectRole)
-        self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
-        self.b1 = self.addButton('Load setup', QMessageBox.YesRole)
-        self.b1.setIcon(self.style().standardIcon(QStyle.SP_DialogOkButton))
-        self.b0.clicked.connect(self.on_ignore_clicked)
-        self.b1.clicked.connect(self.on_load_clicked)
-        self.b0.setFocus()
-        self.load_callback = load_callback
-
-    def on_ignore_clicked(self):
-        self.emit(SIGNAL('closed'), self)
-        self.reject()
-
-    def on_load_clicked(self):
-        self.load_callback()
-        self.emit(SIGNAL('closed'), self)
-        self.accept()
-
-    def closeEvent(self, event):
-        self.emit(SIGNAL('closed'), self)
-        return QMessageBox.closeEvent(self, event)
 
 
 def main(argv):

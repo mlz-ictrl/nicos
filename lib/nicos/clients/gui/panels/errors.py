@@ -29,8 +29,9 @@ from logging import WARNING
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialogButtonBox
 
-from nicos.clients.gui.utils import loadUi, showTraceback, setBackgroundColor
+from nicos.clients.gui.utils import loadUi, setBackgroundColor
 from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.dialogs.traceback import TracebackDialog
 
 
 class ErrorPanel(Panel):
@@ -65,7 +66,7 @@ class ErrorPanel(Panel):
         """Called when the user clicks a link in the out view."""
         url = str(url.toString())
         if url.startswith('trace:'):
-            showTraceback(url[6:], self, self.outView)
+            TracebackDialog(self, self.outView, url[6:]).show()
 
     def on_buttonBox_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:

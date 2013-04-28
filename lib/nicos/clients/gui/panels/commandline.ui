@@ -84,7 +84,7 @@
   <customwidget>
    <class>HistoryLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>nicos.clients.gui.histedit.h</header>
+   <header>nicos.clients.gui.widgets.histedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>
