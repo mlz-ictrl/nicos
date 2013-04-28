@@ -79,7 +79,7 @@ class Move(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'move.ui', 'panels/cmdlets')
+        loadUi(self, 'move.ui', 'cmdlets')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -109,7 +109,7 @@ class Count(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'count.ui', 'panels/cmdlets')
+        loadUi(self, 'count.ui', 'cmdlets')
 
     def isValid(self):
         return self.markValid(self.seconds, self.seconds.value() > 0)
@@ -127,7 +127,7 @@ class Scan(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'scan.ui', 'panels/cmdlets')
+        loadUi(self, 'scan.ui', 'cmdlets')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -170,7 +170,7 @@ class CScan(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'cscan.ui', 'panels/cmdlets')
+        loadUi(self, 'cscan.ui', 'cmdlets')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -211,7 +211,7 @@ class Sleep(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'sleep.ui', 'panels/cmdlets')
+        loadUi(self, 'sleep.ui', 'cmdlets')
 
     def isValid(self):
         return self.markValid(self.seconds, self.seconds.value() > 0)
@@ -229,7 +229,7 @@ class Configure(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'configure.ui', 'panels/cmdlets')
+        loadUi(self, 'configure.ui', 'cmdlets')
         self.device.addItems(self.client.getDeviceList())
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),

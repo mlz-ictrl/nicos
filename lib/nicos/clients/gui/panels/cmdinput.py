@@ -29,7 +29,7 @@ from PyQt4.QtGui import QMenu, QAction, QToolButton
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.panels.cmdlets import all_cmdlets, all_categories
+from nicos.clients.gui.cmdlets import all_cmdlets, all_categories
 
 
 class CommandsPanel(Panel):
