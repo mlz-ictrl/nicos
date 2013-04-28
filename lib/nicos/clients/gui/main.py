@@ -36,15 +36,15 @@ from os import path
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
      QFontDialog, QColorDialog, QDialogButtonBox, QWidget, QFrame, QVBoxLayout
-from PyQt4.QtCore import Qt, QObject, QTimer, QSize, QVariant, SIGNAL
+from PyQt4.QtCore import Qt, QTimer, QSize, QVariant, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
 from nicos.utils import parseConnectionString, importString, enumerate_start
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
      NicosLogger, initLoggers
-from nicos.clients.base import NicosClient
 from nicos.clients.gui.data import DataHandler
+from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \
      loadBasicWindowSettings, getXDisplay, loadUi
 from nicos.clients.gui.config import panel_config
@@ -52,20 +52,8 @@ from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.helpwin import HelpWindow
 from nicos.clients.gui.settings import SettingsDialog
-from nicos.protocols.daemon import DAEMON_EVENTS, DEFAULT_PORT, \
-     STATUS_INBREAK, STATUS_IDLE, STATUS_IDLEEXC
-
-
-class NicosGuiClient(NicosClient, QObject):
-    siglist = ['connected', 'disconnected', 'broken', 'failed', 'error'] + \
-              DAEMON_EVENTS.keys()
-
-    def __init__(self, parent):
-        QObject.__init__(self, parent)
-        NicosClient.__init__(self)
-
-    def signal(self, name, *args):
-        self.emit(SIGNAL(name), *args)
+from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
+     STATUS_IDLEEXC
 
 
 class MainWindow(QMainWindow, DlgUtils):

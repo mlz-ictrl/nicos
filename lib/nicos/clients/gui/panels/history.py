@@ -369,9 +369,7 @@ class BaseHistoryWindow(object):
     def showNewDialog(self, devices=''):
         devlist = []
         if hasattr(self, 'client'):
-            devlist = sorted(self.client.eval(
-                'list(dn for (dn, d) in session.devices.iteritems() if '
-                'dn in session.explicit_devices)', []))
+            devlist = self.client.getDeviceList()
         newdlg = NewViewDialog(self, devlist=devlist)
         newdlg.devices.setEditText(devices)
         ret = newdlg.exec_()

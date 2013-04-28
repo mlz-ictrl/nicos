@@ -41,13 +41,6 @@ class Cmdlet(QWidget):
         self.client = client
         QWidget.__init__(self, parent)
 
-    def getdevlist(self):
-        # XXX
-        return sorted(self.client.eval(
-            'list(dn for (dn, d) in session.devices.iteritems() if '
-            '"nicos.core.device.Moveable" in d.classes and '
-            'dn in session.explicit_devices)', []))
-
     @qtsig('')
     def on_delBtn_clicked(self):
         self.emit(SIGNAL('cmdletRemoved'), self)
@@ -87,7 +80,7 @@ class Move(Cmdlet):
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
         loadUi(self, 'move.ui', 'panels/cmdlets')
-        self.device.addItems(self.getdevlist())
+        self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
 
     def isValid(self):
         return self.markValid(self.target, not self.target.text().isEmpty())
@@ -125,7 +118,7 @@ class Scan(Cmdlet):
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
         loadUi(self, 'scan.ui', 'panels/cmdlets')
-        self.device.addItems(self.getdevlist())
+        self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
 
     def isValid(self):
         # NOTE: cannot use "return markValid() and markValid() and ..." because
@@ -160,7 +153,7 @@ class CScan(Cmdlet):
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client)
         loadUi(self, 'cscan.ui', 'panels/cmdlets')
-        self.device.addItems(self.getdevlist())
+        self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
 
     def isValid(self):
         valid = [
