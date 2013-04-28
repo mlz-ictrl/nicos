@@ -162,13 +162,12 @@ class DevicesPanel(Panel):
     def _create_device_item(self, devname, add_cat=False):
         ldevname = devname.lower()
         # get all cache keys pertaining to the device
-        devkeys = self.client.ask('getcachekeys', ldevname + '/')
-        if devkeys is None:
+        params = self.client.getDeviceParams(devname)
+        if not params:
             return
-        devkeys = dict(devkeys)
-        if devkeys.get(ldevname + '/lowlevel'):
+        if params.get('lowlevel'):
             return
-        if 'nicos.core.data.DataSink' in devkeys.get(ldevname + '/classes', []):
+        if 'nicos.core.data.DataSink' in params.get('classes', []):
             return
 
         cat = self._dev2setup.get(devname)
@@ -191,14 +190,15 @@ class DevicesPanel(Panel):
         # create a tree node for the device
         devitem = QTreeWidgetItem(catitem, [devname, '', ''], 1001)
         devitem.setIcon(0, QIcon(':/sunny'))
-        devitem.setToolTip(0, devkeys.get(ldevname + '/description', ''))
+        devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
         self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', '', [], None, None]
 
         # let the cache handler process all properties
-        for key, value in devkeys.iteritems():
-            self.on_client_cache((None, key, None, cache_dump(value)))
+        for key, value in params.iteritems():
+            self.on_client_cache((None, ldevname + '/' + key, None,
+                                  cache_dump(value)))
 
     def on_client_device(self, (action, devlist)):
         if action == 'create':
@@ -408,13 +408,9 @@ class ControlDialog(QDialog):
 
         # now get all cache keys pertaining to the device and set the
         # properties we want
-        params = {}
-        devkeys = self.client.ask('getcachekeys', devname.lower() + '/') or []
-
-        for key, value in sorted(devkeys):
-            param = key.split('/')[1]
-            QTreeWidgetItem(self.paramList, [param, str(value)])
-            params[param] = value
+        params = self.client.getDeviceParams(devname)
+        for key, value in sorted(params.iteritems()):
+            QTreeWidgetItem(self.paramList, [key, str(value)])
 
         if params.get('description'):
             self.description.setText(params['description'])

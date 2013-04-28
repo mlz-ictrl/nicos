@@ -51,3 +51,11 @@ class NicosGuiClient(NicosClient, QObject):
             query += ' and dn in session.explicit_devices'
         query += ')'
         return sorted(self.eval(query, []))
+
+    def getDeviceParams(self, devname):
+        params = {}
+        devkeys = self.ask('getcachekeys', devname.lower() + '/') or []
+        for key, value in devkeys:
+            param = key.split('/')[1]
+            params[param] = value
+        return params
