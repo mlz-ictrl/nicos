@@ -92,8 +92,8 @@ class CalculatorTool(QDialog):
         self.presets = DlgPresets('nicoscalctool', [
             (self.tabWidget, 0),
             (self.mzwavelengthInput, '10'), (self.mzdistanceInput, '100'),
-            (self.inputLambda, '10'), (self.input2Theta, '0'),
-            (self.inputD, '0'), (self.inputN, '1'), (self.inputQ, '0'),
+            (self.inputLambda, '4.5'), (self.input2Theta, '0'),
+            (self.inputD, '10'), (self.inputN, '1'), (self.inputQ, '0'),
             (self.chkLambda, 1), (self.chk2Theta, 0), (self.chkN, 1),
             (self.chkD, 1), (self.chkQ, 0), (self.chkSampleDet, 1),
             (self.inputSampleDet, '0'),
