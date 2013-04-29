@@ -1,4 +1,5 @@
 #!/bin/sh
+MAKE=${MAKE:-"make"}
 CONSOLE=0
 NOCLIENT=0
 NOMONI=0
@@ -28,7 +29,7 @@ shift $(($OPTIND - 1))
 
 if [ "$NOCOMPILE" = "0" ]; then
     echo -n 'Compiling in-place... '
-    make inplace > /dev/null
+    ${MAKE} inplace > /dev/null
     echo 'done.'
 fi
 echo -n 'Starting NICOS demo system, please wait: '

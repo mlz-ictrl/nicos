@@ -10,12 +10,12 @@ PYTHON = /usr/bin/env python
 all:
 	$(PYTHON) setup.py $(QOPT) build -e "/usr/bin/env python"
 	$(PYTHON) etc/set_version.py build/lib*
-	-make custom-all
+	-${MAKE} custom-all
 
 gui: lib/nicos/guisupport/gui_rc.py
 	$(PYTHON) setup.py $(QOPT) build -e "/usr/bin/env python"
 	$(PYTHON) etc/set_version.py build/lib*
-	-make custom-gui
+	-${MAKE} custom-gui
 
 lib/nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
 	-$(RCC) -o lib/nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
@@ -23,7 +23,7 @@ lib/nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
 clean:
 	rm -rf build
 	find -name '*.pyc' -exec rm -f {} +
-	-make custom-clean
+	-${MAKE} custom-clean
 
 clean-demo: clean
 	-rm -rf data/cache/*
@@ -34,10 +34,10 @@ inplace:
 	rm -rf build
 	$(PYTHON) setup.py $(QOPT) build_ext
 	cp build/lib*/nicos/services/daemon/*.so lib/nicos/services/daemon
-	-make custom-inplace
+	-${MAKE} custom-inplace
 
 livewidget-gui:
-	cd src/livewidget/python && python configure.py && make
+	cd src/livewidget/python && python configure.py && ${MAKE}
 
 livewidget-inplace: livewidget-gui
 	-cp $(VOPT) src/livewidget/python/livewidget.so lib/nicos/clients/gui
@@ -48,7 +48,7 @@ livewidget-install-gui: livewidget-gui
 	cp $(VOPT) src/livewidget/python/livewidget.so $(ROOTDIR)/lib/nicos/clients/gui
 
 livewidget-clean:
-	cd src/livewidget && make clean
+	cd src/livewidget && ${MAKE} clean
 
 T = test
 
@@ -104,7 +104,7 @@ endif
 # check for install customizations
 ifeq "$(INSTRDIR)" ""
   INSTALL_ERR = $(error No customization found for instrument $(INSTRUMENT). \
-    If this is not the correct instrument, use 'make install INSTRUMENT=instname', \
+    If this is not the correct instrument, use '${MAKE} install INSTRUMENT=instname', \
     where instname can also be "demo")
   # dummy targets
   custom-all:
@@ -215,8 +215,8 @@ main-install-gui:
 	@echo "============================================================="
 
 release:
-	make test
-	cd doc; rm -r build/html; make html
+	${MAKE} test
+	cd doc; rm -r build/html; ${MAKE} html
 	python setup.py sdist
 
 fixsmb:
@@ -235,7 +235,7 @@ help:
 	@echo "  install       - install everything except GUI"
 	@echo "  install-gui   - install GUI"
 	@echo "    Customization autoselected for install: $(INSTRUMENT)"
-	@echo "    Use 'make INSTRUMENT=instname ...' to select a different one;"
+	@echo "    Use '${MAKE} INSTRUMENT=instname ...' to select a different one;"
 	@echo "    instname can also be test"
 	@echo
 	@echo "Development targets:"
