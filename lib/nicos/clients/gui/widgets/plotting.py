@@ -639,7 +639,9 @@ class NicosPlot(QwtPlot, DlgUtils):
         textmarker = QwtPlotMarker()
         textmarker.setYAxis(curve.yAxis())
         textmarker.setLabel(QwtText(
-            '\n'.join('%s: %g' % i for i in interesting)))
+            '\n'.join((n + ': ' if n else '') +
+                      (v if isinstance(v, str) else '%g' % v)
+                      for (n, v) in interesting)))
 
         # check that the given position is inside the viewport
         halign = Qt.AlignRight

@@ -715,7 +715,9 @@ class ViewPlot(NicosPlot):
         _x1, x2 = min(x), max(x)
         labelx = x2
         labely = beta[0]*x2 + beta[1]
-        interesting = [('Slope', beta[0])]
+        interesting = [('Slope', '%.3f /s' % beta[0]),
+                       ('', '%.3f /min' % (beta[0]*60)),
+                       ('', '%.3f /h' % (beta[0]*3600))]
         return x, y, title, labelx, labely, interesting, None
 
 
