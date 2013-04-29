@@ -332,7 +332,10 @@ class Monitor(BaseMonitor):
                     blk.add('</table>\n  </div>')
                     add(blk)
                     if len(block) > 2 and block[2]:
-                        self._onlymap.setdefault(block[2], []).append(blk)
+                        setupnames = [block[2]] if isinstance(block[2], str) \
+                                     else block[2]
+                        for setupname in setupnames:
+                            self._onlymap.setdefault(setupname, []).append(blk)
                 add('</td></tr></table>\n')
             add('</td></tr>')
         add('</table>\n')

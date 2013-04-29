@@ -229,8 +229,11 @@ class Monitor(BaseMonitor):
                             rowlayout.addStretch()
                             blocklayout.addLayout(rowlayout)
                     if len(block) > 2 and block[2]:
-                        self._onlymap.setdefault(block[2], []).append(
-                            (blocklayout_outer, blockbox))
+                        setupnames = [block[2]] if isinstance(block[2], str) \
+                                     else block[2]
+                        for setupname in setupnames:
+                            self._onlymap.setdefault(setupname, []).append(
+                                (blocklayout_outer, blockbox))
                     blocklayout.addSpacing(0.3 * blheight)
                     blockbox.setLayout(blocklayout)
                     blocklayout_outer.addWidget(blockbox)
