@@ -34,7 +34,8 @@ from PyQt4.QtGui import QWidget, QPen, QBrush
 try:
     from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
          QwtPlotZoomer, QwtPicker, QwtPlotPicker
-    from nicos.clients.gui.plothelpers import TimeScaleEngine, TimeScaleDraw, \
+    # XXX: move these to guisupport
+    from nicos.clients.gui.widgets.plotting import TimeScaleEngine, TimeScaleDraw, \
          ActivePlotPicker
     plot_available = True
 except (ImportError, RuntimeError):
