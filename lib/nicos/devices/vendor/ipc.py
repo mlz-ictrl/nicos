@@ -1032,6 +1032,8 @@ class IPCRelay(Moveable):
         'stepper': (Motor, 'The stepper card whose relay is controlled'),
     }
 
+    valuetype = oneofdict({0: 'off', 1: 'on'})
+
     def doStart(self, target):
         self._adevs['stepper'].relay = target
 
@@ -1101,6 +1103,8 @@ class Output(Input, Moveable):
 
     Shares parameters and doInit with `Input`.
     """
+
+    valuetype = int
 
     def doVersion(self):
         version = self._adevs['bus'].get(self.addr, 194)

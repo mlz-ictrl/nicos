@@ -49,18 +49,10 @@ class ParamDevice(Moveable):
     }
 
     def doInit(self, mode):
-        self._vtype = self._adevs['device'].parameters[self.parameter].type
+        self.valuetype = self._adevs['device'].parameters[self.parameter].type
 
     def doRead(self, maxage=0):
         return getattr(self._adevs['device'], self.parameter)
-
-    def doIsAllowed(self, value):
-        try:
-            self._vtype(value)
-        except ValueError, err:
-            return False, 'not allowed for %s.%s: %s' % \
-                (self._adevs['device'], self.parameter, str(err))
-        return True, ''
 
     def doStart(self, value):
         setattr(self._adevs['device'], self.parameter, value)

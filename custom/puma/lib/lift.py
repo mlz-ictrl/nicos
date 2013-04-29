@@ -25,7 +25,7 @@
 """Magazin for monochanger. Modified Switcher class."""
 
 from nicos.core import listof, anytype, ConfigurationError, PositionError, \
-     NicosError, Moveable, Param, Override
+     NicosError, Moveable, Param, Override, oneof
 
 
 class Lift(Moveable):
@@ -59,8 +59,10 @@ class Lift(Moveable):
                                      'of equal length')
         self._switchlist = dict(zip(states, values))
         self._swlist = dict(zip(states, sw_values))
+        self.valuetype = oneof(*self._switchlist)
 
     def doStart(self, target):
+        # shouldn't happen...
         if target not in self._switchlist:
             positions = ', '.join(repr(pos) for pos in self.states)
             raise NicosError(self, '%r is an invalid position for this device; '

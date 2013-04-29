@@ -46,6 +46,8 @@ class HePolarizer(TacoDevice, Moveable):
         'abslimits': Override(mandatory=False, default=('down', 'up')),
     }
 
+    valuetype = oneof('up', 'down')
+
     def doInit(self, mode):
         #self.current = 'up'
         pass

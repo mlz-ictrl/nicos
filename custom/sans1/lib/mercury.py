@@ -38,6 +38,7 @@ class OxfordMercury(HasLimits, TacoDevice, Moveable):
     """Class for the readout of a Oxford Mercury iPS power supply"""
 
     taco_class = StringIO
+    valuetype = float
 
     parameter_overrides = {
         'unit':       Override(type=oneof('A', 'T'), default='A', settable=False),

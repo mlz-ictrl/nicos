@@ -1320,6 +1320,9 @@ class HasLimits(Moveable):
                             type=limits, mandatory=True),
     }
 
+    # By default, something that has limits has a floating (analog) value.
+    valuetype = float
+
     def init(self):
         Moveable.init(self)
         if isinstance(self, HasOffset):

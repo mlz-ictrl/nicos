@@ -81,6 +81,8 @@ class TAS(Instrument, Moveable):
                            settable=True)
     }
 
+    valuetype = tupleof(float, float, float, float)
+
     hardware_access = False
 
     def doInit(self, mode):
@@ -337,6 +339,8 @@ class TASIndex(Moveable, AutoDevice):
         'tas': (TAS, 'The spectrometer to control'),
     }
 
+    valuetype = float
+
     hardware_access = False
 
     def doRead(self, maxage=0):
@@ -370,6 +374,8 @@ class Wavevector(Moveable):
         'base': (Moveable, 'Device to move (mono or ana)'),
         'tas':  (TAS, 'The spectrometer for setting scanmode'),
     }
+
+    valuetype = float
 
     hardware_access = False
 
@@ -421,6 +427,8 @@ class Energy(Moveable):
         'base': (Moveable, 'Device to move (mono or ana)'),
         'tas':  (TAS, 'The spectrometer for setting scanmode'),
     }
+
+    valuetype = float
 
     hardware_access = False
 

@@ -27,7 +27,8 @@
 from nicos.utils import lazy_property
 
 from nicos.core import anytype, none_or, floatrange, listof, dictof, status, \
-     ConfigurationError, PositionError, NicosError, Moveable, Param, Override
+     ConfigurationError, PositionError, NicosError, Moveable, Param, Override, \
+     oneof
 
 
 class MultiSwitcher(Moveable):
@@ -78,6 +79,7 @@ class MultiSwitcher(Moveable):
             if len(t) != len(self.devices):
                 raise ConfigurationError(self, 'Switcher state entries and '
                                          'moveables list must be of equal length')
+        self.valuetype = oneof(*self.mapping)
 
     def doStart(self, target):
         if target not in self.mapping:

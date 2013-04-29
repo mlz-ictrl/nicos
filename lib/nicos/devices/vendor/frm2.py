@@ -24,7 +24,7 @@
 
 """CCR switch device classes."""
 
-from nicos.core import Moveable, Override, status
+from nicos.core import Moveable, Override, status, oneofdict
 from nicos.devices.taco import DigitalInput, DigitalOutput
 
 
@@ -41,6 +41,8 @@ class CCRSwitch(Moveable):
         'fmtstr': Override(default='%d'),
         'unit'  : Override(default='', mandatory=False),
     }
+
+    valuetype = oneofdict({'on': 1, 'off': 0})
 
     def doStart(self, target):
         if self.read(0) != target:

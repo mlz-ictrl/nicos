@@ -27,7 +27,7 @@
 from time import sleep
 
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
-     AutoDevice, InvalidValueError
+     AutoDevice, InvalidValueError, tupleof
 
 
 class Slit(Moveable):
@@ -85,6 +85,8 @@ class Slit(Moveable):
         'fmtstr': Override(default='%.2f %.2f %.2f %.2f'),
         'unit': Override(mandatory=False),
     }
+
+    valuetype = tupleof(float, float, float, float)
 
     hardware_access = False
 
@@ -252,6 +254,12 @@ class Slit(Moveable):
         if self._cache:
             self._cache.invalidate(self, 'value')
 
+    def doUpdateOpmode(self, value):
+        if value == 'centered':
+            self.valuetype = tupleof(float, float)
+        else:
+            self.valuetype = tupleof(float, float, float, float)
+
 
 class SlitAxis(Moveable, AutoDevice):
     """
@@ -262,6 +270,8 @@ class SlitAxis(Moveable, AutoDevice):
     attached_devices = {
         'slit': (Slit, 'Slit whose axis is controlled'),
     }
+
+    valuetype = float
 
     hardware_access = False
 

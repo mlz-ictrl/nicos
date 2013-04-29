@@ -30,7 +30,7 @@ from time import sleep, time
 from IO import StringIO
 
 from nicos.core import status, intrange, listof, oneofdict, requires, ADMIN, \
-     Device, Readable, Moveable, Param, Override, NicosError, \
+     Device, Readable, Moveable, Param, Override, NicosError, oneof, \
      CommunicationError, InvalidValueError, ConfigurationError
 from nicos.devices.taco.core import TacoDevice
 
@@ -113,12 +113,10 @@ class Valve(Moveable):
         if len(self.states) != 2:
             raise ConfigurationError(self, 'Valve states must be a list of '
                                      'two strings for closed/open state')
+        self.valuetype = oneof(*self.states)
         self._timer = 0
 
     def doStart(self, value):
-        if value not in self.states:
-            raise InvalidValueError(self, 'value must be one of %s' %
-                                    ', '.join(repr(s) for s in self.states))
         value = self.states.index(value)
         self.doWait()
         self._timer = time()
@@ -327,6 +325,8 @@ class DelayBox(Moveable):
     parameter_overrides = {
         'fmtstr':  Override(default='%d'),
     }
+
+    valuetype = int
 
     def doRead(self, maxage=0):
         return self._adevs['bus'].communicate('D?', self.addr, expect_hex=4)

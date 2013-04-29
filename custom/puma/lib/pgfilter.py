@@ -26,7 +26,7 @@
 
 import time
 
-from nicos.core import Moveable, Readable, status, NicosError
+from nicos.core import Moveable, Readable, status, NicosError, oneof
 
 
 class PGFilter(Moveable):
@@ -35,6 +35,8 @@ class PGFilter(Moveable):
         'io_status':    (Readable, 'status of the limit switches'),
         'io_set':       (Moveable, 'output to set'),
     }
+
+    valuetype = oneof('in', 'out')
 
     def doStart(self, position):
         try:
@@ -50,6 +52,7 @@ class PGFilter(Moveable):
             elif position == 'out':
                 self._adevs['io_set'].move(0)
             else:
+                # shouldn't happen...
                 self.log.info('PG filter: illegal input')
                 return
 

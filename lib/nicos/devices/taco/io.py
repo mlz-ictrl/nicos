@@ -27,7 +27,7 @@
 import IO
 
 from nicos.core import dictof, Readable, Moveable, HasLimits, Param, Override, \
-     NicosError, waitForStatus, oneof
+     NicosError, waitForStatus, oneof, tupleof
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -122,6 +122,8 @@ class DigitalOutput(TacoDevice, Moveable):
         'fmtstr': Override(default='%d'),
     }
 
+    valuetype = int
+
     taco_class = IO.DigitalOutput
 
     def doStart(self, target):
@@ -192,8 +194,10 @@ class BitsDigitalOutput(DigitalOutput):
         'bitwidth': Param('Number of bits', type=int, default=1),
     }
 
+
     def doInit(self, mode):
         self._max = (1 << self.bitwidth) - 1
+        self.valuetype = tupleof(*(oneof(0, 1) for i in range(self.bitwidth)))
 
     def doReadFmtstr(self):
         return '[ ' + ', '.join(['%s'] * self.bitwidth) + ' ]'
@@ -234,6 +238,8 @@ class MultiDigitalOutput(Moveable):
         'outputs': ([DigitalOutput], 'A list of digital outputs to '
                     'switch simultaneously'),
     }
+
+    valuetype = int
 
     def doStart(self, target):
         for dev in self._adevs['outputs']:

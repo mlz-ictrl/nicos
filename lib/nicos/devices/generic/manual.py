@@ -25,7 +25,7 @@
 """"Manual" moveable devices, to keep track of manual instrument changes."""
 
 from nicos.core import status, anytype, nonemptylistof, Moveable, Param, \
-     Override, HasLimits, PositionError
+     Override, HasLimits, PositionError, oneof
 
 
 class ManualMove(HasLimits, Moveable):
@@ -75,16 +75,11 @@ class ManualSwitch(Moveable):
 
     hardware_access = False
 
+    def doInit(self, mode):
+        self.valuetype = oneof(*self.states)
+
     def doReadTarget(self):
         return self.states[0]
-
-    def doIsAllowed(self, target):
-        if target not in self.states:
-            positions = ', '.join(repr(pos) for pos in self.states)
-            return False, \
-                '%r is an invalid position for this device; ' \
-                'valid positions are %s' % (target, positions)
-        return True, ''
 
     def doStart(self, target):
         pass

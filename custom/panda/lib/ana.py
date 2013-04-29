@@ -38,6 +38,8 @@ class AnaBlocks(Moveable):
         'unit': Param('unit = ""', type=str, default='', settable=False),
     }
 
+    valuetype = int
+
     @property
     def bhd(self):  # BeckHoffDevice
         return self._adevs['beckhoff']

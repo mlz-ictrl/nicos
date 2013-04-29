@@ -26,7 +26,7 @@
 
 import time
 
-from nicos.core import Moveable, Readable, status, NicosError
+from nicos.core import Moveable, Readable, status, NicosError, oneof
 
 
 class MagLock(Moveable):
@@ -37,6 +37,8 @@ class MagLock(Moveable):
         'io_closed': (Readable, 'readout for the status'),
         'io_set': (Moveable, 'output to set'),
     }
+
+    valuetype = oneof('open', 'closed')
 
 #    parameters = {
 #        'states':    Param('List of state names.', type=listof(str),
