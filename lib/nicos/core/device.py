@@ -1408,7 +1408,12 @@ class HasLimits(Moveable):
             # value stays within them, but only after the new offset is applied
             return
         curval = self.read(0)
-        if not value[0] <= curval <= value[1]:
+        if isinstance(self, HasPrecision):
+            outoflimits = curval + self.precision < value[0] or \
+                          curval - self.precision > value[1]
+        else:
+            outoflimits = not (value[0] <= curval <= value[1])
+        if outoflimits:
             self.log.warning('current device value (%s) not within new '
                               'userlimits (%s, %s)' %
                               ((self.format(curval, unit=True),) + value))
