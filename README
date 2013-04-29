@@ -43,6 +43,7 @@ Requirements
   - gnuplot (for plots in the electronig logbook)
   - Grace (for scanplot)
   - simplejson (Python < 2.6, for the web interface)
+  - lxml (for U-Bahn service)
 
 * For the GUI and status monitor:
   - PyQt4
