@@ -62,9 +62,16 @@ class SetupPanel(Panel, DlgUtils):
                     item.setCheckState(Qt.Unchecked)
         self.basicSetup.setCurrentItem(keep)
 
+    def on_basicSetup_currentItemChanged(self, item, old):
+        if item.text() != '<keep current>':
+            self.showSetupInfo(item.text())
+
     def on_basicSetup_itemClicked(self, item):
         if item.text() != '<keep current>':
             self.showSetupInfo(item.text())
+
+    def on_optSetups_currentItemChanged(self, item, old):
+        self.showSetupInfo(item.text())
 
     def on_optSetups_itemClicked(self, item):
         self.showSetupInfo(item.text())
