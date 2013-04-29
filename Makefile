@@ -22,7 +22,7 @@ lib/nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
 
 clean:
 	rm -rf build
-	find -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyc' -print0 | xargs -0 rm -f
 	-${MAKE} custom-clean
 
 clean-demo: clean
