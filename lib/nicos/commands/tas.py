@@ -256,6 +256,39 @@ def Q(*args, **kwds):  #pylint: disable=E0102
     return q
 
 
+def _convert_qe_args(instr, args, funcname):
+    nargs = len(args)
+    try:
+        # is first arg a sequence?
+        narg1 = len(args[0])
+    except TypeError:
+        # no: expect 3 to 5 single number arguments
+        if nargs == 3:
+            return args + (0, instr.scanconstant)
+        elif nargs == 4:
+            return args + (instr.scanconstant,)
+        elif nargs == 5:
+            return args
+    else:
+        # yes: sequence with either 3 or 4 items
+        if narg1 == 3:
+            # only Q given: expect optional E and SC
+            if nargs == 1:
+                return tuple(args[0]) + (0, instr.scanconstant)
+            elif nargs == 2:
+                return tuple(args[0]) + (args[1], instr.scanconstant)
+            elif nargs == 3:
+                return tuple(args[0]) + args[1:]
+        elif narg1 == 4:
+            # Q-E tuple given, expect optional SC
+            if nargs == 1:
+                return tuple(args[0]) + (instr.scanconstant,)
+            elif nargs == 2:
+                return tuple(args[0]) + (args[1],)
+    # fallthrough for invalid combination
+    raise UsageError('invalid arguments for %s()' % funcname)
+
+
 @usercommand
 @helparglist('h, k, l, E[, SC]')
 def calpos(*args, **kwds):
@@ -279,20 +312,9 @@ def calpos(*args, **kwds):
     instr = session.instrument
     if not isinstance(instr, TAS):
         raise NicosError('your instrument device is not a triple axis device')
-    if len(args) == 1:
-        assert isinstance(args[0], (tuple, _Q))
-        pos = tuple(args[0]) + (instr.scanconstant,)
-    elif len(args) == 2:
-        assert isinstance(args[0], (tuple, _Q))
-        pos = tuple(args[0]) + (args[1],)
-    elif len(args) == 3:
-        pos = args + (0, instr.scanconstant)
-    elif len(args) == 4:
-        pos = args + (instr.scanconstant,)
-    elif len(args) == 5:
-        pos = args
-    else:
+    if not args:
         raise UsageError('calpos() takes at least one argument')
+    pos = _convert_qe_args(instr, args, 'calpos')
     sm = None
     if 'ki' in kwds:
         pos = list(pos)
@@ -329,20 +351,8 @@ def pos(*args):
             raise NicosError('pos() with no arguments moves to the last '
                              'position calculated by calpos(), but no such '
                              'position has been stored')
-    elif len(args) == 1:
-        assert isinstance(args[0], (tuple, _Q))
-        pos = tuple(args[0]) + (instr.scanconstant,)
-    elif len(args) == 2:
-        assert isinstance(args[0], (tuple, _Q))
-        pos = tuple(args[0]) + (args[1],)
-    elif len(args) == 3:
-        pos = args + (0, instr.scanconstant)
-    elif len(args) == 4:
-        pos = args + (instr.scanconstant,)
-    elif len(args) == 5:
-        pos = args
     else:
-        raise UsageError('pos() takes no arguments or 3-5 arguments')
+        pos = _convert_qe_args(instr, args, 'pos')
     if pos[-1] != instr.scanconstant:
         instr.scanconstant = pos[-1]
     maw(instr, pos[:-1])
