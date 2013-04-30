@@ -25,8 +25,8 @@
 
 """NICOS triple-axis instrument devices."""
 
-from nicos.core import Moveable, Param, Override, AutoDevice, Value, \
-     ConfigurationError, ComputationError, oneof, tupleof, multiStatus
+from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
+     ConfigurationError, ComputationError, LimitError, oneof, multiStatus
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV
 from nicos.devices.instrument import Instrument
@@ -216,18 +216,23 @@ class TAS(Instrument, Moveable):
                 ny *= THZ2MEV
         return [hkl[0], hkl[1], hkl[2], ny]
 
-    def _calpos(self, pos, printout=True, scanmode=None):
-        qh, qk, ql, ny, sc = pos
+    def _calpos(self, pos, printout=True, checkonly=True):
+        qh, qk, ql, ny, sc, sm = pos
         ny = self._thz(ny)
-        if scanmode is None:
-            scanmode = self.scanmode
+        if sm is None:
+            sm = self.scanmode
+        if sc is None:
+            sc = self.scanconstant
         try:
             angles = self._adevs['cell'].cal_angles(
-                [qh, qk, ql], ny, scanmode, sc,
+                [qh, qk, ql], ny, sm, sc,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError, err:
-            self.log.error('cannot calculate position: %s' % err)
-            return
+            if checkonly:
+                self.log.error('cannot calculate position: %s' % err)
+                return
+            else:
+                raise
         if not printout:
             return angles
         ok, why = True, ''
@@ -243,7 +248,6 @@ class TAS(Instrument, Moveable):
                 ok = False
                 why += 'target position %s outside limits for %s: %s -- ' % \
                     (dev.format(value, unit=True), dev, devwhy)
-        self._last_calpos = pos
         self.log.info('ki:            %8.3f A-1' % angles[0])
         self.log.info('kf:            %8.3f A-1' % angles[1])
         self.log.info('2theta sample: %8.3f deg' % angles[2])
@@ -251,9 +255,14 @@ class TAS(Instrument, Moveable):
         if self._adevs['alpha'] is not None:
             self.log.info('alpha:         %8.3f deg' % angles[4])
         if ok:
-            self.log.info('position allowed')
+            self._last_calpos = pos
+            if checkonly:
+                self.log.info('position allowed')
         else:
-            self.log.warning('position not allowed: ' + why[:-4])
+            if checkonly:
+                self.log.warning('position not allowed: ' + why[:-4])
+            else:
+                raise LimitError(self, 'position not allowed: ' + why[:-4])
 
     def _calhkl(self, angles):
         return self._adevs['cell'].angle2hkl(angles, self.axiscoupling)

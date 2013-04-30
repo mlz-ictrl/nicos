@@ -23,7 +23,8 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import UsageError, LimitError, ConfigurationError
+from nicos.core import UsageError, LimitError, ConfigurationError, \
+     ComputationError
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
      acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
 
@@ -178,6 +179,9 @@ def test_tas_commands():
     pos()  # still goes to last successful calpos()
     assertPos(tas(), [0.5, 0.5, 0.5, 0])
     rp()  # just check that it works
+
+    assert raises(ComputationError, pos, (1, 2, 3))
+    assert raises(LimitError, pos, (0.7, 0.7, 0.7))
 
     assert raises(UsageError, calpos, 1, 0, 0, 0, 0, 0)
     assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
