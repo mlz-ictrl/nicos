@@ -106,7 +106,7 @@ class Experiment(BaseExperiment):
             if proplist:
                 kwds['user'] += ', ' + ', '.join(proplist)
                 what.append('co-proposers')
-        if info.get('local_contact'):
+        if info.get('local_contact', '-1') != '-1':
             kwds['localcontact'] = info['local_contact'].replace('.', ' ')
             what.append('local contact')
         if what:
