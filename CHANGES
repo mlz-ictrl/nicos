@@ -1,6 +1,13 @@
 Changelog for NICOS 2
 =====================
 
+**Release 2.3.0**
+
+  - Added a combined interactive command-input and commandline GUI panel.
+
+  - The GUI client now writes a logfile so that unhandled exceptions can be
+    better diagnosed.
+
 **Release 2.2.0**
 
   - Updated documentation describing all NICOS services with configuration
