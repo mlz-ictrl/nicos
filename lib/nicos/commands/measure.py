@@ -159,6 +159,9 @@ def count(*detlist, **preset):
         return scan.step(**preset)
     if not detectors:
         detectors = session.experiment.detectors
+        if not detectors:
+            printwarning('counting without detector, use SetDetectors() '
+                         'to select which detector(s) you want to use')
     names = set(preset)
     for det in detectors:
         names.difference_update(det.presetInfo())
