@@ -85,7 +85,7 @@ devices = dict(
                 lowlevel = True,
                 ),
 
-    b1 = device('mephisto.blende.Blende',
+    b1 = device('devices.generic.Slit',
                 top = 'e1',
                 bottom = 'e2',
                 right = 'e3',
