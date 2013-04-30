@@ -101,5 +101,5 @@ class WatchPanel(Panel):
                                         'Expression to evaluate:')
         if not ok:
             return
-        ret = self.client.ask('eval', str(expr))
+        ret = self.client.eval(str(expr), stringify=True)
         QMessageBox.information(self, 'Result', ret)

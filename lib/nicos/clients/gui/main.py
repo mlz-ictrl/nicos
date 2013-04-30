@@ -468,7 +468,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
     @qtsig('')
     def on_actionNicosHelp_triggered(self):
-        self.client.eval('session.showHelp("index")', None)
+        self.client.eval('session.showHelp("index")')
 
     @qtsig('')
     def on_actionNicosDocu_triggered(self):

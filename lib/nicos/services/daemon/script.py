@@ -393,12 +393,15 @@ class ExecutionController(Controller):
         finally:
             self.last_handler = None
 
-    def eval_expression(self, expr, handler):
+    def eval_expression(self, expr, handler, stringify=False):
         self.last_handler = weakref.ref(handler)
         ns = {'session': session}
         ns.update(self.namespace)
         try:
-            return repr(eval(expr, ns))
+            ret = eval(expr, ns)
+            if stringify:
+                return repr(ret)
+            return ret
         except Exception, err:
             return '<cannot be evaluated: %s>' % err
         finally:

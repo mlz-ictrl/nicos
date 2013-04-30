@@ -74,7 +74,7 @@ class SetupPanel(Panel, DlgUtils):
             self.propdbInfo.setVisible(True)
 
         # fill setups
-        self._setupinfo = self.client.eval('session.getSetupInfo()', None)
+        self._setupinfo = self.client.eval('session.getSetupInfo()')
         self.basicSetup.clear()
         self.optSetups.clear()
         default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \

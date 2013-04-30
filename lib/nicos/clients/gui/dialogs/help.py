@@ -63,7 +63,7 @@ class HelpWindow(QMainWindow):
             frame.setScrollPosition(el.geometry().topLeft())
         else:
             target = str(url.toString())
-            self.client.eval('session.showHelp(%r)' % target, None)
+            self.client.eval('session.showHelp(%r)' % target)
 
     @qtsig('')
     def on_backBtn_clicked(self):
@@ -74,11 +74,11 @@ class HelpWindow(QMainWindow):
             return
         del self.history[-1]
         self._next_scrollpos = scrollpos
-        self.client.eval('session.showHelp(%r)' % target, None)
+        self.client.eval('session.showHelp(%r)' % target)
 
     @qtsig('')
     def on_contentsBtn_clicked(self):
-        self.client.eval('session.showHelp("index")', None)
+        self.client.eval('session.showHelp("index")')
 
     @qtsig('')
     def on_closeBtn_clicked(self):

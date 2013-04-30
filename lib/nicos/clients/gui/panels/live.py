@@ -247,10 +247,10 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
 
     def _retrieve_detinfo(self):
         if self._detinfo is None:
-            info = self.panel.client.eval('m._detinfo_parsed, m._anglemap', None)
-            if info is None:
+            info = self.panel.client.eval('m._detinfo_parsed, m._anglemap', '')
+            if not info:
                 return self.showError('Cannot retrieve detector info.')
-            self._lambda = self.panel.client.eval('chWL()', None)
+            self._lambda = self.panel.client.eval('chWL()')
             self._detinfo, self._anglemap = info
             self._inverse_anglemap = 0
             self._infowindow = QMainWindow(self)

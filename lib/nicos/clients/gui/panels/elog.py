@@ -106,7 +106,7 @@ class ELogPanel(Panel, DlgUtils):
         self.preview.reload()
 
     def on_client_connected(self):
-        proposaldir = self.client.eval('session.experiment.proposaldir', None)
+        proposaldir = self.client.eval('session.experiment.proposaldir', '')
         if not proposaldir:
             return
         logfile = path.join(proposaldir, 'logbook', 'logbook.html')
@@ -162,7 +162,7 @@ class ELogPanel(Panel, DlgUtils):
         if not ok or not name:
             return
         name = unicode(name)
-        self.client.ask('eval', 'NewSample(%r)' % name)
+        self.client.eval('NewSample(%r)' % name)
         self.timer.start(750)
 
     @qtsig('')
@@ -173,7 +173,7 @@ class ELogPanel(Panel, DlgUtils):
         if not ok or not remark:
             return
         remark = unicode(remark)
-        self.client.ask('eval', 'Remark(%r)' % remark)
+        self.client.eval('Remark(%r)' % remark)
         self.timer.start(750)
 
     @qtsig('')
@@ -187,7 +187,7 @@ class ELogPanel(Panel, DlgUtils):
         text = unicode(dlg.freeFormText.toPlainText())
         if not text:
             return
-        self.client.ask('eval', 'LogEntry(%r)' % text)
+        self.client.eval('LogEntry(%r)' % text)
         self.timer.start(750)
 
     @qtsig('')
@@ -209,6 +209,6 @@ class ELogPanel(Panel, DlgUtils):
         filecontent = open(fname, 'rb').read()
         # file content may contain \x1e characters; encode to base64
         remotefn = self.client.ask('transfer', filecontent.encode('base64'))
-        self.client.ask('eval', 'LogAttach(%r, [%r], [%r])' %
-                        (desc, remotefn, newname))
+        self.client.eval('LogAttach(%r, [%r], [%r])' %
+                         (desc, remotefn, newname))
         self.timer.start(750)

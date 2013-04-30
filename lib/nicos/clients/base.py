@@ -294,19 +294,13 @@ class NicosClient(object):
         except (Exception, KeyboardInterrupt), err:
             return self.handle_error(err)
 
-    def eval(self, expr, default=None):
-        result = self.ask('eval', expr, quiet=True)
-        if result is None:
-            return default
-        if result.startswith('<cannot be evaluated:'):
+    def eval(self, expr, default=None, stringify=False):
+        result = self.ask('eval', expr, stringify and '1' or '', quiet=True)
+        if isinstance(result, Exception):
             if default is not None:
                 return default
-            return result
-        try:
-            return ast.literal_eval(result)
-        except (Exception, KeyboardInterrupt), err:
-            print '!!! error evaluating eval() result %r:' % result, err
-            return default
+            raise result
+        return result
 
     def read(self):
         if not self.socket:

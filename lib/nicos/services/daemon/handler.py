@@ -487,7 +487,7 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(ACK)
 
     @command()
-    def eval(self, expr):
+    def eval(self, expr, stringify=''):
         """Evaluate and return an expression.
 
         :param expr: Python expression
@@ -495,7 +495,7 @@ class ConnectionHandler(BaseRequestHandler):
         """
         self.log.debug('evaluating expresson in script context\n%s' % expr)
         try:
-            retval = self.controller.eval_expression(expr, self)
+            retval = self.controller.eval_expression(expr, self, bool(stringify))
         except Exception, err:
             self.log.exception('exception in eval command')
             self.write(NAK, 'exception raised while evaluating: %s' % err)

@@ -745,7 +745,7 @@ class EditorPanel(Panel):
         if self.filenames[editor]:
             initialdir = path.dirname(self.filenames[editor])
         else:
-            initialdir = self.client.eval('session.experiment.scriptdir', 'xx')
+            initialdir = self.client.eval('session.experiment.scriptdir', '')
         if self.client.eval('session.spMode', False):
             defaultext = '.txt'
             flt = 'Script files (*.txt *.py)'
