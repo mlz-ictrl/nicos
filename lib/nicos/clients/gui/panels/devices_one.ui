@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="devname">
+    <widget class="QLabel" name="deviceName">
      <property name="font">
       <font>
        <weight>75</weight>
@@ -139,7 +139,7 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="targetLayout">
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
@@ -148,17 +148,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="target"/>
-        </item>
-        <item>
          <widget class="QLabel" name="targetUnit">
           <property name="text">
            <string>unit</string>
           </property>
          </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="targetBox"/>
         </item>
        </layout>
       </item>

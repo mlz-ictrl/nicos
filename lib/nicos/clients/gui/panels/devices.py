@@ -25,13 +25,13 @@
 """NICOS GUI panel with a list of all devices."""
 
 from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
-     QInputDialog, QDialogButtonBox, QPalette, QDoubleValidator, \
-     QTreeWidgetItemIterator, QDialog
+     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, QDialog
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
+from nicos.guisupport import typedvalue
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
 
 
@@ -232,6 +232,8 @@ class DevicesPanel(Panel):
         ldevname, subkey = key.split('/')
         if ldevname not in self._devinfo:
             return
+        if ldevname in self._control_dialogs:
+            self._control_dialogs[ldevname].on_cache(subkey, value)
         devitem = self._devitems[ldevname]
         devinfo = self._devinfo[ldevname]
         if subkey == 'value':
@@ -410,15 +412,21 @@ class ControlDialog(QDialog):
         loadUi(self, 'devices_one.ui', 'panels')
 
         self.client = parent.client
+        self.devname = devname
+        self.paramItems = {}
 
-        self.devname.setText('Device: %s' % devname)
+        self.deviceName.setText('Device: %s' % devname)
         self.setWindowTitle('Control %s' % devname)
 
         # now get all cache keys pertaining to the device and set the
         # properties we want
         params = self.client.getDeviceParams(devname)
+        self.paraminfo = self.client.getDeviceParamInfo(devname)
+        self.paramvalues = dict(params)
         for key, value in sorted(params.iteritems()):
-            QTreeWidgetItem(self.paramList, [key, str(value)])
+            if self.paraminfo.get(key) and self.paraminfo[key]['userparam']:
+                self.paramItems[key] = \
+                    QTreeWidgetItem(self.paramList, [key, str(value)])
 
         if params.get('description'):
             self.description.setText(params['description'])
@@ -426,8 +434,8 @@ class ControlDialog(QDialog):
             self.description.setVisible(False)
 
         if params.get('alias'):
-            self.devname.setText(self.devname.text() +
-                                 ' (alias for %s)' % params['alias'])
+            self.deviceName.setText(self.deviceName.text() +
+                                    ' (alias for %s)' % params['alias'])
 
         if 'nicos.core.device.Readable' not in devinfo[5]:
             self.valueFrame.setVisible(False)
@@ -445,30 +453,17 @@ class ControlDialog(QDialog):
             else:
                 self.limitMin.setText(str(params['userlimits'][0]))
                 self.limitMax.setText(str(params['userlimits'][1]))
-            if 'states' in params:
-                self.target.setVisible(False)
-                self.targetUnit.setVisible(False)
-                self.targetBox.addItems(params['states'])
-                is_switcher = True
-            elif 'mapping' in params:
-                self.target.setVisible(False)
-                self.targetUnit.setVisible(False)
-                self.targetBox.addItems(params['mapping'].values())
-                is_switcher = True
+            valuetype = self.client.eval('session.getDevice(%r).valuetype' %
+                                         devname)
+
+            if 'value' in params:
+                self.target = typedvalue.create(self, valuetype, params['value'],
+                                                params.get('fmtstr', '%s'))
             else:
-                self.targetBox.setVisible(False)
-                self.target.setValidator(QDoubleValidator(self.target))
-                value = params.get('value', '')
-                if isinstance(value, float):
-                    try:
-                        self.target.setText(params['fmtstr'] % value)
-                    except (ValueError, KeyError):
-                        self.target.setText(str(value))
-                else:
-                    self.target.setText(str(value))
-                self.target.selectAll()
-                self.targetUnit.setText(params['unit'])
-                is_switcher = False
+                self.target = typedvalue.create(self, valuetype, valuetype(),
+                                                params.get('fmtstr', '%s'))
+            self.targetLayout.insertWidget(1, self.target)
+            self.targetUnit.setText(params['unit'])
             self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
             self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
             self.movebtn = self.moveBtns.addButton('Move',
@@ -482,12 +477,40 @@ class ControlDialog(QDialog):
                 elif button.text() == 'Stop':
                     self.client.tell('exec', 'stop(%s)' % devname)
                 elif button.text() == 'Move':
-                    if is_switcher:
-                        target = '"' + self.targetBox.currentText() + '"'
-                    else:
-                        target = self.target.text()
-                        if not target:
-                            return
+                    try:
+                        target = self.target.getValue()
+                    except ValueError:
+                        return
                     self.client.tell('queue', '',
-                                     'move(%s, %s)' % (devname, target))
+                                     'move(%s, %r)' % (devname, target))
             self.moveBtns.clicked.connect(callback)
+
+    def on_cache(self, subkey, value):
+        if subkey not in self.paramItems:
+            return
+        value = cache_load(value)
+        self.paramvalues[subkey] = value
+        self.paramItems[subkey].setText(1, str(value))
+
+    def on_paramList_itemClicked(self, item):
+        pname = str(item.text(0))
+        if not self.paraminfo[pname]['settable']:
+            return
+        ptype = self.paraminfo[pname]['type']
+
+        dlg = dialogFromUi(self, 'devices_param.ui', 'panels')
+        dlg.target = typedvalue.create(self, ptype,
+                                       self.paramvalues[pname])
+        dlg.paramName.setText('Parameter: %s.%s' % (self.devname, pname))
+        dlg.paramDesc.setText(self.paraminfo[pname]['description'])
+        dlg.paramValue.setText(str(self.paramvalues[pname]))
+        dlg.targetLayout.addWidget(dlg.target)
+        dlg.resize(dlg.sizeHint())
+        if dlg.exec_() != QDialog.Accepted:
+            return
+        try:
+            new_value = dlg.target.getValue()
+        except ValueError:
+            return
+        self.client.tell('queue', '', '%s.%s = %r' %
+                         (self.devname, pname, new_value))

@@ -118,9 +118,7 @@ class Param(object):
         return '<Param info>'
 
     def serialize(self):
-        d = self.__dict__.copy()
-        del d['type']
-        return d
+        return self.__dict__
 
     def formatDoc(self):
         txt = 'Parameter: '
