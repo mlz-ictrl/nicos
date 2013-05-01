@@ -165,8 +165,12 @@ class TofCounter(Measurable):
                                  sum(arr[2:])]
 
     def read_full(self):
-        arr = np.array(self._taco_guard(self._counter.ReadULongArray))
-        ndata = np.reshape(arr[2:], (arr[1], arr[0]))
+        readout = self._taco_guard(self._counter.ReadULongArray)
+        if readout is not None:
+            arr = np.array(readout)
+            ndata = np.reshape(arr[2:], (arr[1], arr[0]))
+        else:
+            ndata = None
         return self._taco_guard(self._timer.ReadDouble), \
                                 self._taco_guard(self._monitor.ReadULong), \
                                 ndata

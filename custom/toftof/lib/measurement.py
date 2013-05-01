@@ -178,6 +178,9 @@ class TofTofMeasurement(Measurable, ImageStorage):
 
         # make sure to set the correct monitor input and number of time channels
         # in the TACO server
+        if ctr.timechannels is None:
+            # detector disconnected?
+            raise NicosError(self, 'detector device appears unavailable')
         ctr.timechannels = ctr.timechannels
         ctr.monitorchannel = ctr.monitorchannel
 
@@ -339,6 +342,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
     def _saveDataFile(self):
         try:
             timeleft, moncounts, counts = self._adevs['counter'].read_full()
+            if counts is None:
+                raise NicosError(self, 'detector returned no counts')
         except NicosError:
             self.log.exception('error reading measurement data')
             return 0, 0, 0, 0, 0, None
