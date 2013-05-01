@@ -34,7 +34,7 @@ from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.protocols.cache import cache_load, cache_dump
+from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
 
 
 foregroundBrush = {
@@ -58,6 +58,11 @@ backgroundBrush = {
 fixedBrush = {
     False:      QBrush(),
     True:       QBrush(Qt.blue),
+}
+
+expiredBrush = {
+    False:      QBrush(Qt.black),
+    True:       QBrush(QColor('#aaaaaa')),
 }
 
 
@@ -197,7 +202,7 @@ class DevicesPanel(Panel):
 
         # let the cache handler process all properties
         for key, value in params.iteritems():
-            self.on_client_cache((None, ldevname + '/' + key, None,
+            self.on_client_cache((None, ldevname + '/' + key, OP_TELL,
                                   cache_dump(value)))
 
     def on_client_device(self, (action, devlist)):
@@ -248,6 +253,7 @@ class DevicesPanel(Panel):
                 devitem.setBackground(1, backgroundBrush[ERROR])
             else:
                 devitem.setBackground(1, backgroundBrush[OK])
+            devitem.setForeground(1, expiredBrush[op != OP_TELL])
         elif subkey == 'status':
             if not value:
                 status = (UNKNOWN, '?')
