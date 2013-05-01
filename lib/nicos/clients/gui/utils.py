@@ -38,7 +38,7 @@ from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
 def getXDisplay():
     try:
         lhost = socket.getfqdn(socket.gethostbyaddr(socket.gethostname())[0])
-    except socket.gaierror:
+    except socket.error:
         return ''
     else:
         return lhost + os.environ.get('DISPLAY', ':0')
