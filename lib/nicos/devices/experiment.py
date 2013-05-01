@@ -524,7 +524,7 @@ class Experiment(Device):
                 receivers = None
                 if args:
                     receivers = args[0]
-                receivers = kwds.get('receivers', receivers)
+                receivers = kwds.get('receivers', kwds.get('email', receivers))
                 try:
                     if receivers:
                         self._mail(receivers, zipname)
