@@ -2,4 +2,6 @@ description = 'minimal NICOS startup setup'
 
 group = 'lowlevel'
 
-includes = ['measurement']
+sysconfig = dict(
+    cache = 'tofhw.toftof.frm2:14869',
+)
