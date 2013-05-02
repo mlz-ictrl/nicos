@@ -299,6 +299,21 @@ class Configure(Cmdlet):
             return 'set %s %s %s\n' % args
         return '%s.%s = %s\n' % args
 
+class NewSample(Cmdlet):
 
-all_cmdlets = [Move, Count, Scan, CScan, Sleep, Configure]
+    name = 'New sample'
+    category = 'Other'
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client)
+        loadUi(self, 'sample.ui', 'cmdlets')
+        self.samplename.textChanged.connect(self.changed)
+
+    def generate(self, mode):
+        if mode == 'simple':
+            return 'NewSample %r\n' % unicode(self.samplename.text())
+        return 'NewSample(%r)\n' % unicode(self.samplename.text())
+
+
+all_cmdlets = [Move, Count, Scan, CScan, Sleep, Configure, NewSample]
 all_categories = ['Device', 'Scan', 'Other']
