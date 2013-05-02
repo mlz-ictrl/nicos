@@ -94,6 +94,8 @@
   <tabstop>seconds</tabstop>
   <tabstop>delBtn</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../../../../resources/nicos-gui.qrc"/>
+ </resources>
  <connections/>
 </ui>
