@@ -390,9 +390,9 @@ class Session(object):
                 continue  # erroneous setup
             for include in info['includes']:
                 if not self._setup_info.get(include):
-                    raise ConfigurationError('Setup %s includes setup %s which '
-                                             'does not exist or has errors' %
-                                             (name, include))
+                    self.log.error('Setup %s includes setup %s which does not '
+                                   'exist or has errors' % (name, include))
+                    self._setup_info[name] = None
 
     def getSetupInfo(self):
         """Return information about all existing setups.
