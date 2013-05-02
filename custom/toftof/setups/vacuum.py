@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = ['system']
 
-nethost = 'toftofsrv'
+nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
 #   vacbus = device('devices.vendor.toni.ModBus',

@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['system']
 
-nethost = 'toftofsrv'
+nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
     bio = device('toftof.julabo.Julabo',

@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['system', 'alias_T']
 
-nethost = 'toftofsrv'
+nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
     T_stick   = device('devices.taco.TemperatureController',
