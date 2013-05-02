@@ -86,7 +86,8 @@ def _count(detlist, preset, result):
         while True:
             i += 1
             for det in list(detset):
-                det.duringMeasureHook(i)
+                if session.mode != 'simulation':
+                    det.duringMeasureHook(i)
                 # XXX implement pause logic
                 if det.isCompleted():
                     detset.discard(det)
