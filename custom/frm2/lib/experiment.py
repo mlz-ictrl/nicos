@@ -85,10 +85,10 @@ class Experiment(BaseExperiment):
         if info.get('title') and not kwds.get('title'):
             what.append('title')
             kwds['title'] = info['title']
-        if info.get('substance'):
+        if info.get('substance') and not kwds.get('sample'):
             what.append('sample name')
             kwds['sample'] = info['substance']
-        if info.get('user'):
+        if info.get('user') and not kwds.get('user'):
             newuser = info['user']
             email = info.get('user_email', '')
             if email:
@@ -97,16 +97,17 @@ class Experiment(BaseExperiment):
                 newuser += ' (%s)' % info['affiliation']
             kwds['user'] = newuser
             what.append('user')
-        if info.get('co_proposer'):
-            proplist = []
-            for coproposer in info['co_proposer'].splitlines():
-                coproposer = coproposer.strip()
-                if coproposer:
-                    proplist.append(coproposer)
-            if proplist:
-                kwds['user'] += ', ' + ', '.join(proplist)
-                what.append('co-proposers')
-        if info.get('local_contact', '-1') != '-1':
+            if info.get('co_proposer'):
+                proplist = []
+                for coproposer in info['co_proposer'].splitlines():
+                    coproposer = coproposer.strip()
+                    if coproposer:
+                        proplist.append(coproposer)
+                if proplist:
+                    kwds['user'] += ', ' + ', '.join(proplist)
+                    what.append('co-proposers')
+        if info.get('local_contact', '-1') != '-1' \
+                and not kwds.get('localcontact'):
             kwds['localcontact'] = info['local_contact'].replace('.', ' ')
             what.append('local contact')
         if what:
