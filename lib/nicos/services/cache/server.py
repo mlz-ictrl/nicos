@@ -359,22 +359,20 @@ class CacheServer(Device):
     def _server_thread(self):
         self.log.info('server starting')
 
-        # now try to bind to one, include 'MUST WORK' standalone names
-        for server in [self.server, socket.getfqdn(), socket.gethostname()]:
-            self.log.debug('trying to bind to ' + server)
-            self._serversocket, self._boundto = self._bind_to(server)
-            if self._serversocket:
-                break             # we had success: exit this loop
-
         # bind UDP broadcast socket
+        self.log.debug('trying to bind to UDP broadcast')
         self._serversocket_udp = self._bind_to('', 'udp')[0]
         if self._serversocket_udp:
             self.log.info('UDP bound to broadcast')
 
+        # now try to bind TCP socket, include 'MUST WORK' standalone names
+        self.log.debug('trying to bind to ' + self.server)
+        self._serversocket, self._boundto = self._bind_to(self.server)
+
         # one of the must have worked, otherwise continuing makes no sense
         if not self._serversocket and not self._serversocket_udp:
             self._stoprequest = True
-            self.log.error("couldn't bind to any location, giving up!")
+            self.log.error("couldn't bind any sockets, giving up!")
             return
 
         if not self._boundto:
