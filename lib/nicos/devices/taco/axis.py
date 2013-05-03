@@ -68,6 +68,12 @@ class Axis(TacoDevice, BaseAxis, CanReference):
         self._taco_guard(self._dev.deviceReset)
         self._taco_guard(self._dev.deviceOn)
 
+    def doTime(self, start, end):
+        s, v, a = abs(start - end), self.speed, self.accel
+        if s > v**2/a:  # do we reach nominal speed?
+            return s/v + v/a
+        return 2*(s/a)**0.5
+
     @usermethod
     def setPosition(self, pos):
         """Sets the current position of the axis to the target.
@@ -256,6 +262,9 @@ class HoveringAxis(Axis):
             exc = self._wait_exception
             self._wait_exception = None
             raise exc
+
+    def doTime(self, start, end):
+        return Axis.doTime(start, end) + self.startdelay + self.stopdelay
 
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
