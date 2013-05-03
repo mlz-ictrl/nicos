@@ -24,7 +24,7 @@
 
 from nicos import session
 from nicos.core import UsageError, LimitError, ConfigurationError, \
-     ComputationError
+     ComputationError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
      acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
 
@@ -47,6 +47,20 @@ def assertPos(pos1, pos2):
     for v1, v2 in zip(pos1, pos2):
         assertAlmostEqual(v1, v2, 3)
 
+def test_mono_device():
+    mono = session.getDevice('t_mono')
+    mth = session.getDevice('t_mth')
+    # unit switching
+    mono.unit = 'A-1'
+    mono.maw(1.4)
+    mono.unit = 'meV'
+    assertAlmostEqual(mono.read(0), 4.061, 3)
+    mono.unit = 'A-1'
+    assert mono.status()[0] == status.OK
+    # mth/mtt mismatch
+    mth.maw(mth()+5)
+    assert mono.status(0)[0] == status.NOTREACHED
+
 def test_tas_device():
     tas = session.getDevice('Tas')
     mono = session.getDevice('t_mono')
@@ -58,6 +72,7 @@ def test_tas_device():
 
     tas.scanmode = 'CKF'
     tas.scanconstant = 2.662
+    mono.unit = ana.unit = 'A-1'
 
     # test the correct driving of motors
     tas([1, 0, 0, 1])

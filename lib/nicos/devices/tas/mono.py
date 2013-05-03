@@ -29,7 +29,7 @@ from math import pi, cos, sin, asin, radians, degrees, sqrt
 from time import time
 
 from nicos.core import Moveable, HasLimits, HasPrecision, Param, Override, \
-     listof, oneof, ComputationError, LimitError, multiStatus
+     listof, oneof, ComputationError, LimitError, status, multiStatus
 
 THZ2MEV = 4.1356675
 ANG2MEV = 81.804165
@@ -129,10 +129,6 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             if self._adevs[drive]:
                 self._movelist.append(self._adevs[drive])
 
-    def doStatus(self, maxage=0):
-        return multiStatus(((name, self._adevs[name]) for name in
-                            ['theta', 'twotheta', 'focush', 'focusv']), maxage)
-
     def doStop(self):
         for device in self._movelist:
             device.stop()
@@ -214,7 +210,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 ttdev, ttdev.format(ttvalue, unit=True)) + why
         return True, ''
 
-    def doRead(self, maxage=0):
+    def _get_angles(self, maxage):
         tt = self._scatsense * self._adevs['twotheta'].read(maxage)
         th = self._adevs['theta'].read(maxage)
         # analyser scattering side
@@ -223,6 +219,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         if self.reltheta:
             # if theta is relative to twotheta then theta = - twotheta / 2
             th = -th
+        return tt, th
+
+    def doRead(self, maxage=0):
+        tt, th = self._get_angles(maxage)
         if abs(tt - 2.0*th) > self._axisprecision:
             if time() - self._lastwarn > self.warninterval:
                 self.log.warning('two theta and 2*theta axis mismatch: %s <-> '
@@ -234,6 +234,17 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
 
         # even on mismatch, the scattering angle is deciding
         return self._fromlambda(wavelength(self.dvalue, self.order, tt/2.0))
+
+    def doStatus(self, maxage=0):
+        const, text = multiStatus(((name, self._adevs[name]) for name in
+            ['theta', 'twotheta', 'focush', 'focusv']), maxage)
+        if const == status.OK:  # all idle; check also angle relation
+            tt, th = self._get_angles(maxage)
+            if abs(tt - 2.0*th) > self._axisprecision:
+                return status.NOTREACHED, \
+                    'two theta and 2*theta axis mismatch: %s <-> %s = 2 * %s' % \
+                    (tt, 2.0*th, th)
+        return const, text
 
     # methods used by the TAS class to ensure the correct unit is used: it
     # calculates all ki/kf in A-1
