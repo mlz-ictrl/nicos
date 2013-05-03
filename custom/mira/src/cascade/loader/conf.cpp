@@ -50,6 +50,8 @@ bool CascConf::Load(std::istream& istr)
 
 		if(strKey != "")
 		{
+            if(strKey.length()>0 && strKey[0]=='#')
+                continue;
 			//std::cout << "key: \"" << strKey << "\", val: \"" << strVal << "\"" << std::endl;
 			m_map[strKey] = strVal;
 		}

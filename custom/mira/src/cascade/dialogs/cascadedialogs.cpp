@@ -62,24 +62,45 @@ FileParamDlg::~FileParamDlg()
 
 void FileParamDlg::updateParams(const CascConf* pConf)
 {
+    if(!pConf) return;
 	const CascConf::t_map& params = pConf->GetMap();
 
 	tableWidget->setRowCount(params.size());
 
 	unsigned int iRow=0;
+
 	for(CascConf::t_map::const_iterator iter=params.begin(); iter!=params.end(); ++iter)
 	{
 		CascConf::t_map::value_type pair = *iter;
 		std::string strKey = pair.first;
 		std::string strVal = pair.second;
 
-        QTableWidgetItem *pItemKey = new QTableWidgetItem();
-        pItemKey->setText(strKey.c_str());
-        tableWidget->setItem(iRow,0,pItemKey);
+        //std::cout << strKey << " = " << strVal << std::endl;
 
-        QTableWidgetItem *pItemVal = new QTableWidgetItem();
+        QTableWidgetItem *pItemKey = tableWidget->item(iRow, 0);
+        bool bNew = 0;
+        if(!pItemKey)
+        {
+            pItemKey = new QTableWidgetItem();
+            bNew = 1;
+        }
+        pItemKey->setText(strKey.c_str());
+
+        if(bNew)
+            tableWidget->setItem(iRow,0,pItemKey);
+
+        QTableWidgetItem *pItemVal = tableWidget->item(iRow, 1); 
+        
+        bNew = 0;
+        if(!pItemVal) 
+        {
+            pItemVal = new QTableWidgetItem();
+            bNew = 1;
+        }
         pItemVal->setText(strVal.c_str());
-        tableWidget->setItem(iRow,1,pItemVal);
+
+        if(bNew)
+            tableWidget->setItem(iRow,1,pItemVal);
 
         ++iRow;
 	}

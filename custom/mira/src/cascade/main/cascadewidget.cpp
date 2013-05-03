@@ -191,9 +191,9 @@ bool CascadeWidget::LoadPadFile(const char* pcFile, bool bBinary)
 		UpdateGraph();
 		emit FileHasChanged(pcFile);
 	}
-	return iRet;
-
 	updateFileParams();
+
+	return iRet;
 }
 
 bool CascadeWidget::LoadPadFile(const char* pcFile)
@@ -1037,7 +1037,7 @@ bool CascadeWidget::updateFileParams()
 	if(IsTofLoaded())
 		pConf = &this->m_pTof->GetLocalConfig();
 	else if(IsPadLoaded())
-		pConf = &this->m_pTof->GetLocalConfig();
+		pConf = &this->m_pPad->GetLocalConfig();
 	else
 		return false;
 
