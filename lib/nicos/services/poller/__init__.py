@@ -276,6 +276,17 @@ class Poller(Device):
         if not self._cache:
             raise ConfigurationError('the poller needs a cache configured')
 
+        # wait for the cache connection (which might not yet be available if the
+        # cache server has been started directly before the poller): the poller
+        # is not useful if there is no cache connection, and if we connect later
+        # we miss the mastersetups
+        if not self._cache.is_connected():
+            self.log.info('waiting until cache is connected')
+            while not self._cache.is_connected():
+                if self._stoprequest:  # stopped while waiting?
+                    return
+                sleep(0.2)
+
         # by default, the polled devices always reflects the loaded setups
         # in the current NICOS master, but it can be configured to only
         # poll specific setups if loaded, or always:
