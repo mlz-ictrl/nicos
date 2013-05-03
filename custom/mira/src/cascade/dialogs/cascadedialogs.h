@@ -58,6 +58,7 @@
 #include "ui_contrastsvsimagesdlg.h"
 #include "ui_batchdlg.h"
 #include "ui_gcdlg.h"
+#include "ui_fileparamsdlg.h"
 
 #include "../plot/histogram_item.h"
 #include "../plot/bins.h"
@@ -71,6 +72,23 @@ class CascadeWidget;
 
 #define MODE_PAD 1
 #define MODE_TOF 2
+
+
+// *********************************************************************
+class FileParamDlg : public QDialog, public Ui::FileParamDlg
+{
+	Q_OBJECT
+
+protected:
+
+
+public:
+	FileParamDlg(QWidget *pParent);
+	virtual ~FileParamDlg();
+
+	void updateParams(const CascConf* pConf);
+};
+
 
 // *********************************************************************
 class CommandDlg : public QDialog, public Ui::CommandDlg

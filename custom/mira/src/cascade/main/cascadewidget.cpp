@@ -47,7 +47,8 @@ CascadeWidget::CascadeWidget(QWidget *pParent) : QWidget(pParent),
 												 m_pintdlg(0),
 												 m_pRangeDlg(0),
 												 m_pCountsVsImagesDlg(0),
-												 m_pContrastsVsImagesDlg(0)
+												 m_pContrastsVsImagesDlg(0),
+												 m_pparamdlg(0)
 {
 	m_pPlot = new Plot(this);
 
@@ -191,6 +192,8 @@ bool CascadeWidget::LoadPadFile(const char* pcFile, bool bBinary)
 		emit FileHasChanged(pcFile);
 	}
 	return iRet;
+
+	updateFileParams();
 }
 
 bool CascadeWidget::LoadPadFile(const char* pcFile)
@@ -223,6 +226,8 @@ bool CascadeWidget::LoadTofFile(const char* pcFile)
 		UpdateGraph();
 		emit FileHasChanged(pcFile);
 	}
+
+	updateFileParams();
 	return iRet;
 }
 
@@ -246,6 +251,8 @@ bool CascadeWidget::LoadPadMem(const char* pcMem, unsigned int uiLen)
 		UpdateGraph();
 		emit FileHasChanged("<memfile>");
 	}
+
+	updateFileParams();
 	return iRet;
 }
 
@@ -272,6 +279,8 @@ bool CascadeWidget::LoadTofMem(const char* pcMem, unsigned int uiLen)
 		UpdateGraph();
 		emit FileHasChanged("<memfile>");
 	}
+
+	updateFileParams();
 	return iRet;
 }
 
@@ -1016,6 +1025,37 @@ bool CascadeWidget::ToPDF(const char* pcDst) const
 
 	m_pPlot->print(printer);
 	return true;
+}
+
+bool CascadeWidget::updateFileParams()
+{
+	if(!m_pparamdlg)
+		return false;
+
+	const CascConf* pConf = 0;
+
+	if(IsTofLoaded())
+		pConf = &this->m_pTof->GetLocalConfig();
+	else if(IsPadLoaded())
+		pConf = &this->m_pTof->GetLocalConfig();
+	else
+		return false;
+
+	m_pparamdlg->updateParams(pConf);
+
+	return true;
+}
+
+void CascadeWidget::showFileParams()
+{
+	if(!m_pparamdlg)
+		m_pparamdlg = new FileParamDlg(this);
+
+	if(!updateFileParams())
+		return;
+
+	m_pparamdlg->show();
+	m_pparamdlg->activateWindow();
 }
 
 /*

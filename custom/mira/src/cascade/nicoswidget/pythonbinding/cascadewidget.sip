@@ -159,6 +159,7 @@ class CascadeWidget : QWidget
 		void showIntegrationDlg();
 		void showRangeDlg();
 		void showCountsVsImagesDlg();
+		void showFileParams();
 		/////////////////////////////////////////////
 
 		void SetLog10(bool bLog10);

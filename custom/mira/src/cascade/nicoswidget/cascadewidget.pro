@@ -3,7 +3,8 @@ TEMPLATE = lib
 
 FORMS += ../ui/batchdlg.ui ../ui/commanddlg.ui ../ui/gcdlg.ui ../ui/rangedlg.ui ../ui/serverdlg.ui \
 	../ui/browsedlg.ui ../ui/contrastsvsimagesdlg.ui ../ui/graphdlg.ui ../ui/roidlg.ui ../ui/sumdialog.ui \
-	../ui/calibrationdlg.ui ../ui/countsvsimagesdlg.ui ../ui/integrationdlg.ui ../ui/servercfgdlg.ui
+	../ui/calibrationdlg.ui ../ui/countsvsimagesdlg.ui ../ui/integrationdlg.ui ../ui/servercfgdlg.ui \
+	../ui/fileparamsdlg.ui
 
 
 INCLUDEPATH += . /usr/include/qwt /usr/include/qwt5 /usr/include/libxml2 /usr/include/qwt-qt4

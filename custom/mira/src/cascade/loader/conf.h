@@ -32,11 +32,13 @@
 
 class CascConf
 {
-	protected:
+	public:
 		typedef std::map<std::string, std::string> t_map;
 		typedef t_map::iterator t_iter;
 		typedef t_map::const_iterator t_constiter;
-		
+
+
+	protected:
 		t_map m_map;
 
 	public:
@@ -68,6 +70,8 @@ class CascConf
 		}
 
 		friend std::ostream& operator<<(std::ostream& ostr, const CascConf& conf);
+
+		const t_map& GetMap() const { return m_map; }
 };
 
 std::ostream& operator<<(std::ostream& ostr, const CascConf& conf);

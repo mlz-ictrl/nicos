@@ -1396,6 +1396,11 @@ class MainWindow : public QMainWindow
 						this);
 			actionLoadTof->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
+			QAction *actionShowFileParams = new QAction(
+					QIcon::fromTheme("document-properties"),
+					"Show &File Parameters...",
+					this);
+
 			QAction *actionSaveFile = new QAction(
 						QIcon::fromTheme("document-save-as"),
 						"&Save File...",
@@ -1551,6 +1556,7 @@ class MainWindow : public QMainWindow
 			menuFile->addAction(actionLoadTof);
 			menuFile->addSeparator();
 			menuFile->addAction(actionBrowseFiles);
+			menuFile->addAction(actionShowFileParams);
 			menuFile->addSeparator();
 			menuFile->addAction(actionSaveFile);
 			menuFile->addAction(actionSaveDatFile);
@@ -1824,6 +1830,8 @@ class MainWindow : public QMainWindow
 					this, SLOT(WriteXML()));
 			connect(actionPrint, SIGNAL(triggered()),
 					m_cascadewidget.GetPlot(), SLOT(printPlot()));
+			connect(actionShowFileParams, SIGNAL(triggered()),
+					&m_cascadewidget, SLOT(showFileParams()));
 
 			// Plot
 			connect(actionCountRange, SIGNAL(triggered()),

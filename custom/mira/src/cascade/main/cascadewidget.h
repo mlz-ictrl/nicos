@@ -65,6 +65,8 @@ Q_OBJECT
 		int m_iFolie, m_iZeitkanal;
 		bool m_bLog;
 
+		FileParamDlg* m_pparamdlg;
+
 		//GraphDlg* m_pGraphDlg;
 		RoiDlg* m_proidlg;
 		BrowseDlg* m_pbrowsedlg;
@@ -78,6 +80,8 @@ Q_OBJECT
 		std::vector<QwtPlotCurve*> m_vecRoiCurves;
 		void UpdateRoiVector();
 		void ClearRoiVector();
+
+		bool updateFileParams();
 
 	public:
 		void ClearRoi();
@@ -169,6 +173,8 @@ Q_OBJECT
 		void showRangeDlg();
 		void showCountsVsImagesDlg();
 		void showContrastsVsImagesDlg();
+
+		void showFileParams();
 		///////////////////////////////////////
 
 		void SetLog10(bool bLog10);

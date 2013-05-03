@@ -46,6 +46,46 @@
 #include "cascadedialogs_tof.cpp"
 #include "cascadedialogs_server.cpp"
 
+// ************************* File-Param-Dialog ********************************
+
+
+FileParamDlg::FileParamDlg(QWidget *pParent) : QDialog(pParent)
+{
+	setupUi(this);
+
+	tableWidget->setColumnWidth(0, 100);
+	tableWidget->setColumnWidth(1, 250);
+}
+
+FileParamDlg::~FileParamDlg()
+{}
+
+void FileParamDlg::updateParams(const CascConf* pConf)
+{
+	const CascConf::t_map& params = pConf->GetMap();
+
+	tableWidget->setRowCount(params.size());
+
+	unsigned int iRow=0;
+	for(CascConf::t_map::const_iterator iter=params.begin(); iter!=params.end(); ++iter)
+	{
+		CascConf::t_map::value_type pair = *iter;
+		std::string strKey = pair.first;
+		std::string strVal = pair.second;
+
+        QTableWidgetItem *pItemKey = new QTableWidgetItem();
+        pItemKey->setText(strKey.c_str());
+        tableWidget->setItem(iRow,0,pItemKey);
+
+        QTableWidgetItem *pItemVal = new QTableWidgetItem();
+        pItemVal->setText(strVal.c_str());
+        tableWidget->setItem(iRow,1,pItemVal);
+
+        ++iRow;
+	}
+}
+
+
 
 
 // ************************* Roi-Dlg *******************************************
