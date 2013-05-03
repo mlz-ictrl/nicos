@@ -67,6 +67,7 @@ class BaseCacheClient(Device):
         # from the cache have been received
         self._startup_done = threading.Event()
         self._address = (host, port)
+        self._connected = False
         self._socket = None
         self._secsocket = None
         self._sec_lock = threading.Lock()
@@ -113,11 +114,13 @@ class BaseCacheClient(Device):
                              (self._address + (err,)))
         else:
             self.log.info('now connected to %s:%s' % self._address)
+            self._connected = True
             self._disconnect_warnings = 0
         self._startup_done.set()
         self._do_callbacks = True
 
     def _disconnect(self, why=''):
+        self._connected = False
         self._startup_done.clear()
         if not self._socket:
             return
@@ -371,6 +374,9 @@ class CacheClient(BaseCacheClient):
         # make sure the interface is still usable but has no values to return
         self._db.clear()
         self._startup_done.set()
+
+    def is_connected(self):
+        return self._connected
 
     def _connect_action(self):
         # clear the local database of possibly outdated values
