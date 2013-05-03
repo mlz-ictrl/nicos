@@ -33,6 +33,7 @@ from nicos.core import status, Readable, Moveable, HasLimits, Param, \
 
 CACHE_NOSTATUS_STRING = 'no status found in cache'
 
+
 class CacheReader(Readable):
     """A readable device that gets values exclusively via cache.
 
@@ -62,6 +63,13 @@ class CacheReader(Readable):
                                  'no cache found')
 
     def doStatus(self, maxage=0):
+        if self._cache:
+            try:
+                val = self._cache.get_explicit(self, 'status')[2]
+            except CacheError:
+                val = None
+            if val is not None:
+                return val
         return status.UNKNOWN, CACHE_NOSTATUS_STRING
 
 
@@ -105,6 +113,13 @@ class CacheWriter(HasLimits, Moveable):
                                  'no cache found')
 
     def doStatus(self, maxage=0):
+        if self._cache:
+            try:
+                val = self._cache.get_explicit(self, 'status')[2]
+            except CacheError:
+                val = None
+            if val is not None:
+                return val
         return status.OK, CACHE_NOSTATUS_STRING
 
     def doStart(self, pos):
