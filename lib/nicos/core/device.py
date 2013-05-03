@@ -439,16 +439,18 @@ class Device(object):
                 devlist = []
                 self._adevs[aname] = devlist
                 for i, devname in enumerate(value):
-                    dev = session.getDevice(devname, source=self)
-                    if not isinstance(dev, cls):
+                    try:
+                        dev = session.getDevice(devname, cls, source=self)
+                    except UsageError:
                         raise ConfigurationError(
                             self, 'device %r item %d has wrong type (should be '
                             '%s' % (aname, i, cls.__name__))
                     devlist.append(dev)
                     dev._sdevs.add(self._name)
             else:
-                dev = session.getDevice(value, source=self)
-                if not isinstance(dev, cls):
+                try:
+                    dev = session.getDevice(value, source=self)
+                except UsageError:
                     raise ConfigurationError(
                         self, 'device %r has wrong type (should be %s)' %
                         (aname, cls.__name__))
