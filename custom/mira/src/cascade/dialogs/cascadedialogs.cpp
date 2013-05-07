@@ -55,6 +55,8 @@ FileParamDlg::FileParamDlg(QWidget *pParent) : QDialog(pParent)
 
 	tableWidget->setColumnWidth(0, 100);
 	tableWidget->setColumnWidth(1, 250);
+
+	tableWidget->verticalHeader()->setDefaultSectionSize(tableWidget->verticalHeader()->minimumSectionSize()+2);
 }
 
 FileParamDlg::~FileParamDlg()
@@ -74,8 +76,6 @@ void FileParamDlg::updateParams(const CascConf* pConf)
 		CascConf::t_map::value_type pair = *iter;
 		std::string strKey = pair.first;
 		std::string strVal = pair.second;
-
-        //std::cout << strKey << " = " << strVal << std::endl;
 
         QTableWidgetItem *pItemKey = tableWidget->item(iRow, 0);
         bool bNew = 0;
@@ -796,6 +796,7 @@ void BatchDlg::ConvertToPDF(const char* pcSrc, const char* pcDst)
 GcDlg::GcDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setupUi(this);
+	table->verticalHeader()->setDefaultSectionSize(table->verticalHeader()->minimumSectionSize()+2);
 
 	Update();
 }
