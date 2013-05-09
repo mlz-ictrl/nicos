@@ -363,6 +363,8 @@ class NicosCmdClient(NicosClient):
         """Handles the "message" signal."""
         if msg[5] == '(sim) ' and not self.simulating:
             return
+        elif msg[5] == '(editorsim) ':
+            return
         if msg[0] == 'nicos':
             namefmt = ''
         else:
