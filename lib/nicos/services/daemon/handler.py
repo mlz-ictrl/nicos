@@ -30,11 +30,12 @@ import os
 import errno
 import socket
 import tempfile
-from Queue import Queue
+from Queue import Queue, Full
 from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
 from nicos.core import ADMIN, ConfigurationError, SPMError
+from nicos.utils import closeSocket
 from nicos.services.daemon.auth import AuthenticationError, User
 from nicos.services.daemon.utils import LoggerWrapper
 from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
@@ -137,7 +138,12 @@ class ConnectionHandler(BaseRequestHandler):
             server.pending_clients.pop((client_address[0], client_id), None)
         except Exception:
             self.log.exception('unhandled exception')
-        self.event_queue.put(stop_queue)
+        try:
+            self.event_queue.put(stop_queue, False)
+        except Full:
+            # the event queue has already overflown because the event sender was
+            # already closed; so we can ignore this
+            pass
         server.unregister_handler(self.ident)
 
     def write(self, prefix, msg=None):
@@ -300,7 +306,7 @@ class ConnectionHandler(BaseRequestHandler):
                 self.log.exception('exception in event sender; event: %s, '
                                    'data: %s' % (event, repr(data)[:1000]))
         self.log.debug('closing event connection')
-        sock.close()
+        closeSocket(sock)
 
     # -- Script control commands ------------------------------------------------
 
