@@ -264,7 +264,7 @@ class HoveringAxis(Axis):
             raise exc
 
     def doTime(self, start, end):
-        return Axis.doTime(start, end) + self.startdelay + self.stopdelay
+        return Axis.doTime(self, start, end) + self.startdelay + self.stopdelay
 
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
