@@ -195,6 +195,8 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     parameters = {
         'maxtries': Param('Number of tries for sending and receiving',
                           type=int, default=3, settable=True),
+        'bustimeout': Param('Communication timeout for this device',
+                          type=floatrange(0.1, 1200), default=0.5, settable=True),
     }
 
     def send(self, addr, cmd, param=0, length=0, maxtries=None):
@@ -207,6 +209,16 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
 
     def ping(self, addr):
         return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
+
+    def doReadBustimeout(self):
+        if self._dev and hasattr(self._dev, 'timeout'):
+            return float(self._taco_guard(self._dev.timeout))
+        raise ProgrammingError(self, "TacoDevice has no 'timeout'!")
+
+    def doUpdateBustimeout(self, value):
+        if self._dev:
+           self._taco_update_resource('timeout',str(value))
+
 
 
 class IPCModBusRS232(IPCModBus):
