@@ -6,3 +6,5 @@ Switcher classes
 .. autoclass:: Switcher()
 
 .. autoclass:: ReadonlySwitcher()
+
+.. autoclass:: MultiSwitcher()

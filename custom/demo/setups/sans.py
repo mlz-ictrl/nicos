@@ -65,7 +65,7 @@ devices = dict(
                       precision = 0,
                       blockingmove = False,
                      ),
-    guide    = device('sans1.sans1switcher.MultiSwitcher',
+    guide    = device('devices.generic.MultiSwitcher',
                       moveables = ['guide1', 'guide2', 'guide3', 'guide4'],
                       mapping = {'off': ['off', 'off', 'off', 'off'],
                                  '1m':  ['off', 'off', 'off', 'ng' ],
@@ -75,7 +75,7 @@ devices = dict(
                                  'P3':  ['P3',  'P3',  'P3',  'P3' ],
                                  'P4':  ['P4',  'P4',  'P4',  'P4' ],
                                  },
-                      precision = 0,
+                      precision = [None,],
                      ),
 
     coll_m    = device('devices.generic.VirtualMotor',
