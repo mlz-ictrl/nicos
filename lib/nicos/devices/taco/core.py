@@ -33,8 +33,9 @@ from subprocess import Popen, PIPE
 import TACOStates
 from TACOClient import TACOError
 
-from nicos.core import status, tacodev, intrange, Param, Override, NicosError, \
-     ProgrammingError, CommunicationError, LimitError, InvalidValueError
+from nicos.core import status, tacodev, intrange, floatrange, Param, \
+     Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
+     InvalidValueError
 from nicos.utils import HardwareStub
 from nicos.protocols.cache import cache_dump, cache_load
 
@@ -87,8 +88,9 @@ class TacoDevice(object):
     parameters = {
         'tacodevice':  Param('TACO device name', type=tacodev, mandatory=True,
                              preinit=True),
-        'tacotimeout': Param('TACO client network timeout', unit='s',
-                             default=3, settable=True, preinit=True),
+        'tacotimeout': Param('TACO network timeout for this process', 
+                             unit='s', type=floatrange(0.0, 1200), default=3, 
+                             settable=True, preinit=True),
         'tacotries':   Param('Number of tries per TACO call', default=1,
                              type=intrange(1, 10), settable=True),
         'tacodelay':   Param('Delay between retries', unit='s', default=0.1,
