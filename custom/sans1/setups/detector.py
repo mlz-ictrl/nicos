@@ -24,13 +24,34 @@
 
 description = 'detector related devices including beamstop'
 
-includes = ['system']
+includes = []
 
 group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
+    # read_det1_t_ist = device('devices.generic.ParamDevice',
+    #                        device = 'det1_t_ist',
+    #                        parameter = 'preselectionDouble', #target
+    #                       ),
+
+    det1_t_ist = device('devices.taco.AnalogInput',
+                        tacodevice = '//%s/sans1/qmesydaq/det' % (nethost, ),
+                        fmtstr = '%.1f',
+                        pollinterval = 1,
+                        maxage = 3,
+                        #lowlevel = True,
+                       ),
+
+    det1_t_soll = device('devices.taco.FRMTimerChannel',
+                        tacodevice = '//%s/sans1/qmesydaq/timer' % (nethost, ),
+                        fmtstr = '%.1f',
+                        pollinterval = 5,
+                        maxage = 13,
+                        #lowlevel = True,
+                       ),
+
     hv_interlock = device('devices.taco.DigitalInput',
                           tacodevice = '//%s/sans1/interlock/hv' % (nethost, ),
                           lowlevel = True,

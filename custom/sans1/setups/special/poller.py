@@ -31,7 +31,11 @@ sysconfig = dict(
 
 devices = dict(
    Poller = device('services.poller.Poller',
-                   alwayspoll = ['tube', 'collimation', 'table','magnet_sans1','htf02','detector','selector','ccr12'],
+                   alwayspoll = ['tube', 'collimation', 'table','magnet_sans1',
+                                 'htf02','detector','selector','ccr12','fak40',
+                                 'guidehall','reactor','nl4a','spin_flipper',
+                                 'sc1',
+                                ],
                    blacklist = [],
                   ),
 )

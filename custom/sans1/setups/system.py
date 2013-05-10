@@ -34,6 +34,8 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
+includes = ['tube', 'collimation']
+
 devices = dict(
     Sample   = device('devices.experiment.Sample'),
 
