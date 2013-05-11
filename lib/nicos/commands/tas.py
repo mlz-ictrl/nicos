@@ -351,9 +351,7 @@ def pos(*args, **kwds):
                              'position has been stored')
     else:
         pos = _convert_qe_args(args, kwds, 'pos')
-        possible = instr._calpos(pos, checkonly=False)
-        if not possible:
-            return
+        instr._calpos(pos, checkonly=False)
     if pos[5] and pos[5] != instr.scanmode:
         instr.scanmode = pos[5]
     if pos[4] and pos[4] != instr.scanconstant:
