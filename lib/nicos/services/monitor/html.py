@@ -85,6 +85,7 @@ class Field(object):
     unitkey = ''     # key for value unit
     formatkey = ''   # key for value format string
     fixedkey = ''    # key for value fixed-ness
+    warnlkey = ''    # key for value warn-limits
 
     # how to display it
     width = 8        # width of the widget (in characters, usually)
@@ -113,11 +114,13 @@ class Field(object):
             desc['key'] =       dev + '/value'
             desc['statuskey'] = dev + '/status'
             desc['fixedkey'] =  dev + '/fixed'
+            desc['warnlkey'] =  dev + '/warnlimits'
             if 'unit' not in desc:
                 desc['unitkey'] = dev + '/unit'
             if 'format' not in desc:
                 desc['formatkey'] = dev + '/fmtstr'
-        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
+        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey',
+                   'warnlkey'):
             if kn in desc:
                 desc[kn] = (prefix + desc[kn]).replace('.', '/').lower()
         if 'name' not in desc:
@@ -126,7 +129,8 @@ class Field(object):
 
     def updateKeymap(self, keymap):
         # store reference from key to field for updates
-        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
+        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey',
+                   'warnlkey'):
             key = getattr(self, kn)
             if key:
                 keymap.setdefault(key, []).append(self)
@@ -210,8 +214,12 @@ class Plot(object):
                     # no data (yet)
                     pass
         ax = self.figure.gca()
-        ax.relim()
-        ax.autoscale_view()
+        try:
+            ax.relim()
+            ax.autoscale_view()
+        except Exception:
+            self.log.warning('error while determining limits', exc=1)
+            return ''
         try:
             mpl.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
         except Exception:
@@ -347,7 +355,7 @@ class Monitor(BaseMonitor):
     #pylint: disable=W0221
     def signal(self, field, signal, key, value, time, expired):
         if field.plot:
-            if key == field.key:
+            if key == field.key and value is not None:
                 self._plots[field.plot].updatevalues(field._plotcurve,
                                                      time, value)
             return
@@ -392,16 +400,22 @@ class Monitor(BaseMonitor):
             else:
                 field._valuelabel.fore = self._white
         elif key == field.unitkey:
-            field.unit = value
-            field._namelabel.text = self._labelunittext(field.name, field.unit,
-                                                        field.fixed)
+            if value is not None:
+                field.unit = value
+                field._namelabel.text = self._labelunittext(field.name, field.unit,
+                                                            field.fixed)
         elif key == field.fixedkey:
             field.fixed = value and ' (F)' or ''
             field._namelabel.text = self._labelunittext(field.name, field.unit,
                                                         field.fixed)
         elif key == field.formatkey:
-            field.format = value
-            self.signal(field, 'keyChange', field.key, field.value, 0, False)
+            if value is not None:
+                field.format = value
+                self.signal(field, 'keyChange', field.key, field.value, 0, False)
+        elif key == field.warnlkey:
+            if value:
+                field.min, field.max = value
+                self.signal(field, 'keyChange', field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):
         return escape(text) + ' <span class="unit">%s</span><span ' \
