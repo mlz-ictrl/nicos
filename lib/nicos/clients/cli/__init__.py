@@ -879,7 +879,7 @@ class NicosCmdClient(NicosClient):
         elif cmd == 'debug':
             self.tell('debug', arg)
         elif cmd == 'eval':
-            self.put('-> %r' % (self.eval(arg, stringify=True),))
+            self.put('-> %s' % (self.eval(arg, stringify=True),))
         elif cmd == 'spy':
             if not self.spy_mode:
                 self.put_client('Spy mode on: command execution disabled.')
