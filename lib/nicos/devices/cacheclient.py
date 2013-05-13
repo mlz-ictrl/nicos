@@ -358,6 +358,7 @@ class CacheClient(BaseCacheClient):
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
         self._db = {}
+        self._dblock = threading.Lock()
         self._callbacks = {}
 
         # the execution master lock needs to be refreshed every now and then
@@ -370,7 +371,8 @@ class CacheClient(BaseCacheClient):
     def doShutdown(self):
         BaseCacheClient.doShutdown(self)
         # make sure the interface is still usable but has no values to return
-        self._db.clear()
+        with self._dblock:
+            self._db.clear()
         self._startup_done.set()
 
     def is_connected(self):
@@ -378,7 +380,8 @@ class CacheClient(BaseCacheClient):
 
     def _connect_action(self):
         # clear the local database of possibly outdated values
-        self._db.clear()
+        with self._dblock:
+            self._db.clear()
         # get all current values from the cache
         BaseCacheClient._connect_action(self)
         # tell the server all our rewrites
@@ -419,10 +422,12 @@ class CacheClient(BaseCacheClient):
         self._propagate((time, key, op, value))
         #self.log.debug('got %s=%s' % (key, value))
         if not value or op == OP_TELLOLD:
-            self._db.pop(key, None)
+            with self._dblock:
+                self._db.pop(key, None)
         else:
             value = cache_load(value)
-            self._db[key] = (value, time)
+            with self._dblock:
+                self._db[key] = (value, time)
             if key in self._callbacks and self._do_callbacks:
                 try:
                     self._callbacks[key](key, value, time)
@@ -462,7 +467,8 @@ class CacheClient(BaseCacheClient):
         """
         self._startup_done.wait()
         dbkey = ('%s/%s' % (dev, key)).lower()
-        entry = self._db.get(dbkey)
+        with self._dblock:
+            entry = self._db.get(dbkey)
         if entry is None:
             if str(dev).lower() in self._inv_rewrites:
                 self.log.debug('%s not in cache, trying rewritten' % dbkey)
@@ -509,7 +515,8 @@ class CacheClient(BaseCacheClient):
             time = currenttime()
         ttlstr = ttl and '+%s' % ttl or ''
         dbkey = ('%s/%s' % (dev, key)).lower()
-        self._db[dbkey] = (value, time)
+        with self._dblock:
+            self._db[dbkey] = (value, time)
         dvalue = cache_dump(value)
         msg = '%s%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
                                      flag, OP_TELL, dvalue)
@@ -521,7 +528,8 @@ class CacheClient(BaseCacheClient):
         if str(dev) in self._rewrites:
             for newprefix in self._rewrites[str(dev)]:
                 rdbkey = ('%s/%s' % (newprefix, key)).lower()
-                self._db[rdbkey] = (value, time)
+                with self._dblock:
+                    self._db[rdbkey] = (value, time)
                 self._propagate((time, rdbkey, OP_TELL, dvalue))
 
     def put_raw(self, key, value, time=None, ttl=None):
@@ -564,23 +572,25 @@ class CacheClient(BaseCacheClient):
         """Clear all cache subkeys belonging to the given device."""
         time = currenttime()
         devprefix = str(dev).lower() + '/'
-        for dbkey in self._db.keys():
-            if dbkey.startswith(devprefix):
-                if exclude and dbkey.rsplit('/', 1)[-1] in exclude:
-                    continue
-                msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
-                self._db.pop(dbkey, None)
-                self._queue.put(msg)
-                self._propagate((time, dbkey, OP_TELL, ''))
+        with self._dblock:
+            for dbkey in self._db.keys():
+                if dbkey.startswith(devprefix):
+                    if exclude and dbkey.rsplit('/', 1)[-1] in exclude:
+                        continue
+                    msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
+                    self._db.pop(dbkey, None)
+                    self._queue.put(msg)
+                    self._propagate((time, dbkey, OP_TELL, ''))
 
     def clear_all(self):
         """Clear all cache keys."""
         time = currenttime()
-        for dbkey in self._db.keys():
-            msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
-            self._db.pop(dbkey, None)
-            self._queue.put(msg)
-            self._propagate((time, dbkey, OP_TELL, ''))
+        with self._dblock:
+            for dbkey in self._db.keys():
+                msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
+                self._db.pop(dbkey, None)
+                self._queue.put(msg)
+                self._propagate((time, dbkey, OP_TELL, ''))
 
     def invalidate(self, dev, key):
         """Locally invalidate device/subkey.  This does not touch the remote
@@ -589,7 +599,8 @@ class CacheClient(BaseCacheClient):
         """
         dbkey = ('%s/%s' % (dev, key)).lower()
         self.log.debug('invalidating %s' % dbkey)
-        self._db.pop(dbkey, None)
+        with self._dblock:
+            self._db.pop(dbkey, None)
 
     #pylint: disable=W0221
     def history(self, dev, key, fromtime, totime):
@@ -630,19 +641,12 @@ class CacheClient(BaseCacheClient):
         return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)
 
     def query_db(self, query, tries=3):
-        try:
+        with self._dblock:
             if isinstance(query, str):
                 return [(k, self._db[k][0]) for k in self._db if k.startswith(query)]
             else:
                 query = set(query)
                 return [(k, self._db[k][0]) for k in self._db if k in query]
-        except RuntimeError:
-            # dictionary size changed during iteration, i.e. a new cache value
-            # arrived => try again up to 3 times
-            if tries == 0:
-                raise
-            sleep(0.1)
-            return self.query_db(query, tries-1)
 
 
 class DaemonCacheClient(CacheClient):
