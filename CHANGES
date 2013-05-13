@@ -8,6 +8,12 @@ Changelog for NICOS 2
   - The GUI client now writes a logfile so that unhandled exceptions can be
     better diagnosed.
 
+  - Added a MultiSwitcher class to move multiple devices together to pre-
+    defined positions.
+
+  - Added the "nicos-collector" service that can be used to submit information
+    from multiple caches to a "supercache".
+
 **Release 2.2.0**
 
   - Updated documentation describing all NICOS services with configuration
