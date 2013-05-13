@@ -11,8 +11,7 @@ group = 'lowlevel'
 devices = dict(
     bus2 = device('devices.vendor.ipc.IPCModBusTaco',
             tacodevice='//pandasrv/panda/moxa/port2',
-            loglevel='info',
-            tacotimeout=0.5,
+            bustimeout = 0.1,
             lowlevel=True,
     ),
 

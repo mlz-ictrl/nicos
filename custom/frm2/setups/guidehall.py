@@ -17,7 +17,6 @@ devices = dict(
                       description = 'The position of the crane in the guide '
                                     'hall West from Western end',
                       tacodevice = '//%s/frm2/smc10/pos' % (nethost, ),
-                      tacotimeout = 0.5,
                       pollinterval = 5,
                       maxage = 30,
                       unit = 'm'

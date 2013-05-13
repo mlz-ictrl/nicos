@@ -11,7 +11,6 @@ devices = dict(
                           warnlimits = (19, 21),
                           fmtstr = '%.1f',
                           pollinterval = 60,
-                          tacotimeout = 0.5,
                           maxage = 3600,
                           unit = 'MW'),
 
