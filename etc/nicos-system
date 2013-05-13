@@ -25,6 +25,7 @@
 import os
 import sys
 import time
+import socket
 import signal
 import ConfigParser
 from os import path
@@ -39,13 +40,25 @@ class NicosConfigParser(ConfigParser.SafeConfigParser):
         return key
 
 def read_config():
+    hostname = ''
+    try:
+        hostname = socket.getfqdn().split('.')[0]
+    except socket.error as e:
+        print >>sys.stderr, \
+            'Could not figure out host name (%s).' % str(e)
+        print >>sys.stderr, \
+            'Continue with nonspecific services.'
+
+    host_spec_services = '%s_services' % hostname
     cfg = NicosConfigParser()
     cfg.read(path.join(root_path, 'nicos.conf'))
     if cfg.has_section('environment'):
         for name in cfg.options('environment'):
             value = cfg.get('environment', name)
             os.environ[name] = value
-    if cfg.has_option('services', 'services'):
+    if hostname and cfg.has_option('services', host_spec_services):
+        services = cfg.get('services', host_spec_services)
+    elif cfg.has_option('services', 'services'):
         services = cfg.get('services', 'services')
     else:
         services = 'cache,poller'
