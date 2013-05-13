@@ -33,6 +33,7 @@ import os
 import new
 import sys
 from os import path
+import distutils.util
 
 # Check for Python version 2.6+.
 if sys.version_info[:2] < (2, 6):
@@ -45,6 +46,10 @@ if path.isdir(pkgpath):
         mod = sys.modules['nicos.' + subdir] = new.module('nicos.' + subdir)
         mod.__path__ = [path.join(pkgpath, subdir, 'lib')]
         globals()[subdir] = mod
+
+# Add platform-specific directories (lib/plat-PLATFORM)
+sys.path.append(path.join(path.dirname(__file__), '..',
+                          'plat-%s' % distutils.util.get_platform()))
 
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.
