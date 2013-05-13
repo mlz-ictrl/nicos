@@ -92,6 +92,8 @@ def test_slit_opmodes():
     slit.opmode = '4blades'
     slit.maw([8, 9, 4, 5])
     assert slit.read() == [8, 9, 4, 5]
+    assert raises(InvalidValueError, slit._getPositions, [1, 2, 4])
+    assert raises(InvalidValueError, slit.start, [1, 2, 3])
     assert raises(InvalidValueError, slit.start, [800, 0])
     assert raises(LimitError, slit.start, [8, 8000, 4, 6])
     assert len(slit.valueInfo()) == 4
@@ -102,6 +104,7 @@ def test_slit_opmodes():
     slit.opmode = 'centered'
     assert session.testhandler.warns(slit.read)
     slit.maw([0, 0])
+    assert raises(InvalidValueError, slit._getPositions, [1, 2, 4])
     assert raises(InvalidValueError, slit.doStart, [800, 0, 0, 0])
     assert raises(LimitError, slit.start, [-2, 0])
     assert raises(LimitError, slit.start, [0, -2])
@@ -110,6 +113,8 @@ def test_slit_opmodes():
 
     slit.opmode = 'offcentered'
     assert slit.read() == [0, 0, 2, 3]
+    assert raises(InvalidValueError, slit._getPositions, [1, 2, 4])
+    assert raises(InvalidValueError, slit.start, [1, 2, 3])
     assert raises(InvalidValueError, slit.start, [800, 0])
     assert raises(LimitError, slit.start, [-1, -1, 1000, 0])
     slit.maw([5, 1, 4, 4])

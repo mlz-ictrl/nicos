@@ -26,7 +26,7 @@
 
 from nicos import session
 from nicos.core import PositionError, NicosError, LimitError, \
-     ConfigurationError, status
+     ConfigurationError, InvalidValueError, status
 from test.utils import raises
 
 
@@ -64,6 +64,13 @@ def test_manual_switch():
 def test_manual_switch_2():
     assert raises(ConfigurationError, session.getDevice, 'm2')
 
+def test_manual_switch_illegal_position():
+    m3 = session.getDevice('m3')
+    assert raises(InvalidValueError, m3.maw, 'inbetween')
+    # Enforce an illegal Position
+    m3._setROParam('target', 'inbetween')
+    assert raises(PositionError, m3.read, 0)
+
 def test_switcher():
     sw = session.getDevice('sw')
     v3 = session.getDevice('v3')
@@ -80,6 +87,8 @@ def test_switcher():
 
     assert raises(NicosError, sw.start, '#####')
     assert raises(LimitError, sw.start, 'outside')
+    assert raises(NicosError, sw.doStart, '#####')
+    sw.stop()
 
     v3.maw(1.01)
     assert sw.read(0) == 'left'
@@ -88,14 +97,39 @@ def test_switcher():
     assert sw.status(0)[0] == status.NOTREACHED
 
     rsw = session.getDevice('rsw')
+    rsw2 = session.getDevice('rsw2')
     assert raises(PositionError, rsw.read, 0)
 
     v3.maw(1)
     assert rsw.read(0) == 'left'
+    assert rsw2.read(0) == 'left'
     v3.maw(3)
     assert rsw.read(0) == 'right'
+    assert rsw2.read(0) == 'right'
 
     assert rsw.status()[0] == v3.status()[0]
+
+def test_switcher_noblockingmove():
+    sw2 = session.getDevice('sw2')
+    v3 = session.getDevice('v3')
+    sw2.maw('left')
+    assert sw2.read(0) == 'left'
+    sw2.move('right')
+    assert v3.read(0) == 3.0
+
+    # case 1: motor in position, but still busy
+    v3.curstatus = (status.BUSY, 'busy')
+    assert sw2.status(0)[0] != status.OK
+
+    #case 2: motor idle, but wrong position
+    v3.curstatus = (status.OK, 'on target')
+    v3.curvalue = 2.0
+    assert sw2.status(0)[0] != status.OK
+
+    # position and status ok
+    v3.curvalue = 3.0
+    assert sw2.status(0)[0] == status.OK
+    assert sw2.read(0) == 'right'
 
 def test_paramdev():
     v1 = session.getDevice('v1')
@@ -108,3 +142,4 @@ def test_paramdev():
     print pd.unit
     print v1.unit
     assert pd.unit == v1.unit + '/s'
+    assert pd.status()[0] == status.OK
