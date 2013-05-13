@@ -8,9 +8,10 @@ group = 'lowlevel'
 
 devices = dict(
     bus5 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice='//pandasrv/panda/moxa/port5',
+            tacodevice = '//pandasrv/panda/moxa/port5',
             bustimeout = 0.1,
-            lowlevel=True,
+            loglevel = 'info',
+            lowlevel = True,
     ),
 
     # MFH is first device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
@@ -46,9 +47,9 @@ devices = dict(
             coder = 'mfh_step',
             obs = [],
             precision = 1,
-            refpos=168.75+40,
-            refspeed=5,
-            autoref=-10, # autoref every 10 full turns
+            refpos = 168.75+40,
+            refspeed = 5,
+            autoref = -10, # autoref every 10 full turns
             #~ rotary = True,
     ),
 
@@ -118,7 +119,7 @@ devices = dict(
             coder = 'mtx_step',
             precision = 0.1,
             obs = ['mtx_poti'],
-            fmtstr='%.1f',
+            fmtstr = '%.1f',
     ),
 
     #
@@ -153,7 +154,7 @@ devices = dict(
             coder = 'mty_step',
             obs = ['mty_poti'],
             precision = 0.1,
-            fmtstr='%.1f',
+            fmtstr = '%.1f',
     ),
 
     #
@@ -221,10 +222,10 @@ devices = dict(
             zerosteps = 500000,
             #~ refpos = 496587,
             #~ refswitch = 'low',
-            speed=200,
-            accel=8,
-            divider=4,
-            microstep=16,
+            speed = 200,
+            accel = 8,
+            divider = 4,
+            microstep = 16,
             lowlevel = True,
     ),
     ms1_enc = device('devices.vendor.ipc.Coder',
@@ -256,7 +257,7 @@ devices = dict(
             confbyte = 8,
             speed = 50,
             accel = 8,
-            #power=0,
+            #power = 0,
             #~ current = 0.2,
             lowlevel = True,
     ),
@@ -274,9 +275,9 @@ devices = dict(
             coder = 'mfv_step',
             obs = [],
             precision = 1,
-            refpos=221.3,
-            refspeed=5,
-            autoref=-10, # autoref every 10 full turns
+            refpos = 221.3,
+            refspeed = 5,
+            autoref = -10, # autoref every 10 full turns
             #~ rotary = True,
     ),
 

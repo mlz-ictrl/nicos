@@ -10,9 +10,10 @@ group = 'lowlevel'
 
 devices = dict(
     bus2 = device('devices.vendor.ipc.IPCModBusTaco',
-            tacodevice='//pandasrv/panda/moxa/port2',
+            tacodevice = '//pandasrv/panda/moxa/port2',
             bustimeout = 0.1,
-            lowlevel=True,
+            loglevel = 'info',
+            lowlevel = True,
     ),
 
     # STT is first device and has 1 stepper, 0 poti, 1 coder
@@ -188,7 +189,7 @@ devices = dict(
             coder = 'stx_step',
             obs = ['stx_poti'],
             precision = 0.05,
-            fmtstr='%.1f',
+            fmtstr = '%.1f',
     ),
 
     # STY is sixth device and has 1 stepper, 1 poti, 0 coder
@@ -219,7 +220,7 @@ devices = dict(
             coder = 'sty_step',
             obs = ['sty_poti'],
             precision = 0.05,
-            fmtstr='%.1f',
+            fmtstr = '%.1f',
     ),
 
     # STZ is seventh device and has 1 stepper, 0 poti, 0 coder
@@ -251,5 +252,5 @@ devices = dict(
 )
 
 startupcode = '''
-sth.alias='sth_st'
+sth.alias = 'sth_st'
 '''
