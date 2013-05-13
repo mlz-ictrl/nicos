@@ -400,13 +400,17 @@ class TofTofMeasurement(Measurable, ImageStorage):
         head.append('Plattform: Linux\n')
         head.append('aDetInfo(%u,%u): \n' % (14, self._detinfolength))
         self.log.debug('saving data file')
-        with open(self.lastfilename, 'w') as fp:
+        # write into a different file, so that if the writing is interrupted,
+        # the original file with full contents is not overwritten
+        with open(self.lastfilename + '.new', 'w') as fp:
             fp.write(''.join(self._startheader))
             fp.write(''.join(head))
             fp.write(''.join(self._detinfo))
             fp.write('aData(%u,%u): \n' % (counts.shape[0], counts.shape[1]))
             np.savetxt(fp, counts, '%d')
             os.fsync(fp)
+        # and only if the write completed successfully, move the new file over
+        os.rename(self.lastfilename + '.new', self.lastfilename)
         try:
             treated = counts[self._anglemap, :].astype('<u4')
             ndet, ntime = treated.shape
