@@ -218,9 +218,10 @@ class MultiSwitcher(Moveable):
         for d,t in zip(self.devices, self.mapping[target]):
             self.log.debug('moving %r to %r' % (d, t))
             d.start(t)
-        for d in self.devices:
-            self.log.debug('waiting for %r'%d)
-            d.wait()
+        if self.blockingmove:
+            for d in self.devices:
+                self.log.debug('waiting for %r'%d)
+                d.wait()
 
     def doStop(self):
         for d in self.devices:
