@@ -497,11 +497,12 @@ class EditorPanel(Panel):
             printer.setDocName(self.filenames[self.currentEditor])
             #printer.setFullPage(True)
             if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
-                bgcolor = self.lexer.paper(0)
+                lexer = self.lexers[self.currentEditor]
+                bgcolor = lexer.paper(0)
                 # printer prints background color too, so set it to white
-                self.lexer.setPaper(Qt.white)
+                lexer.setPaper(Qt.white)
                 printer.printRange(self.currentEditor)
-                self.lexer.setPaper(bgcolor)
+                lexer.setPaper(bgcolor)
         else:
             printer = QPrinter()
             printer.setOutputFileName('')
