@@ -157,6 +157,9 @@ class TacoDevice(object):
 
     def doUpdateTacotimeout(self, value):
         if self._dev:
+            if value != 3.0:
+                self.log.warning('%r : client network timeout changed to: '
+                                 '%.2f s' % (self.tacodevice, value))
             self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
     def doUpdateLoglevel(self, value):
@@ -201,6 +204,9 @@ class TacoDevice(object):
 
         try:
             if timeout != 0:
+                if timeout != 3.0:
+                    self.log.warning('%r : client network timeout changed to: '
+                                     '%.2f s' % (devname, timeout))
                 dev.setClientNetworkTimeout(timeout)
         except TACOError, err:
             self.log.warning('Setting TACO network timeout failed: '
