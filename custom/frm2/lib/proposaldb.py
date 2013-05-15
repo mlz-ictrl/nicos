@@ -41,17 +41,22 @@ from nicos.utils import readFile
 
 class ProposalDB(object):
     def __init__(self):
-        if not session.experiment or not session.experiment.propdb:
-            credentials = readFile(os.getenv('HOME') + '/.nicos/credentials')
-        else:
-            credentials = readFile(session.experiment.propdb)
+        try:
+            if not session.experiment or not session.experiment.propdb:
+                credentials = readFile(os.getenv('HOME') + 
+                                       '/.nicos/credentials')
+            else:
+                credentials = readFile(session.experiment.propdb)
+        except IOError, e:
+            raise ConfigurationError('Can\'t read credentials '
+                                     'for propdb-access from file: %s' % e)
         credentials = credentials[0]
         try:
             self.user, hostdb = credentials.split('@')
             self.host, self.db = hostdb.split(':')
         except ValueError:
             raise ConfigurationError('%r is an invalid credentials string '
-                                     '(user "user@host:dbname")' % credentials)
+                                     '("user@host:dbname")' % credentials)
         if MySQLdb is None:
             raise ConfigurationError('MySQL adapter is not installed')
 
