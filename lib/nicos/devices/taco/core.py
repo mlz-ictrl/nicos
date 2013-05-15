@@ -32,6 +32,18 @@ from subprocess import Popen, PIPE
 
 import TACOStates
 from TACOClient import TACOError
+try:
+    from TACOErrors import DevErr_ExecutionDenied, DevErr_RangeError, \
+         DevErr_InvalidValue, DevErr_RuntimeError, DevErr_InternalError, \
+         DevErr_IOError, DevErr_SystemError
+except ImportError:
+    DevErr_ExecutionDenied = 4010
+    DevErr_RangeError      = 4017
+    DevErr_InvalidValue    = 4018
+    DevErr_RuntimeError    = 4019
+    DevErr_InternalError   = 4020
+    DevErr_IOError         = 4024
+    DevErr_SystemError     = 4025
 
 from nicos.core import status, tacodev, intrange, floatrange, Param, \
      Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
@@ -332,14 +344,12 @@ class TacoDevice(object):
         elif 400 <= code < 500:
             # error number 400-499: database system error messages
             cls = CommunicationError
-        elif code == 4017:
-            # range error
+        elif code == DevErr_RangeError:
             cls = LimitError
-        elif code == 4018:
-            # invalid value
+        elif code in (DevErr_InvalidValue, DevErr_ExecutionDenied):
             cls = InvalidValueError
-        elif code == 4024:
-            # IO error
+        elif code in (DevErr_IOError, DevErr_InternalError,
+                      DevErr_RuntimeError, DevErr_SystemError):
             cls = CommunicationError
         msg = '[TACO %d] %s' % (err.errcode, err)
         if addmsg is not None:
