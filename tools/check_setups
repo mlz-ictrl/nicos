@@ -167,7 +167,6 @@ def check_setupfile(filename):
             if not config.get('lowlevel', False):
                 if not config.get('description'):
                     log.warning("%s: device has no description", devname)
-                    good = False
             for pname, pinfo in cls.parameters.iteritems():
                 if pname in config:
                     try:
