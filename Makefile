@@ -82,14 +82,14 @@ jenkinslintall:
 
 jenkinslint:
 	PYFILESCHANGED=$$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//' |grep ".py"); \
-	if [[ -n "$(PYFILESCHANGED)" ]] ; then \
-		pylint --rcfile=./pylintrc --files-output=y $(PYFILESCHANGED); \
+	if [[ -n "$$PYFILESCHANGED" ]] ; then \
+		pylint --rcfile=./pylintrc --files-output=y $$PYFILESCHANGED; \
 	else echo 'no python files changed'; fi
 
 changelint:
 	PYFILESCHANGED=$$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//'  | grep ".py"); \
-	if [[ -n "$(PYFILESCHANGED)" ]]; then \
-		pylint --rcfile=./pylintrc $(PYFILESCHANGED); \
+	if [[ -n "$$PYFILESCHANGED" ]]; then \
+		pylint --rcfile=./pylintrc $$PYFILESCHANGED; \
 	else echo 'no python files changed'; fi
 
 check:
