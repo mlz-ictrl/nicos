@@ -25,28 +25,23 @@
 
 """TOFTOF histogram counter card Taco devices."""
 
-import threading
-from time import sleep
-
 import numpy as np
 
-class Local_Taco_Exception(Exception):
-    pass
+from SIS3400 import Timer, MonitorCounter, HistogramCounter
+import TACOStates
 
-import TacoDevice
+from nicos.core import Measurable, Param, Value, intrange, status, tacodev
+from nicos.devices.taco.core import TacoDevice
 
-# The TypeError will be thrown since the taco calls throw a string as exception
-TacoDevice.Dev_Exception = Local_Taco_Exception
+class TofCounter(TacoDevice, Measurable):
 
-from nicos.core import Measurable, Param, Value, intrange, status, \
-                       CommunicationError
-
-# This is not a nicos.devices.taco.TacoDevice subclass because it needs to use
-# the generic and outdated TacoDevice client library
-
-class TofCounter(Measurable):
+    taco_class = HistogramCounter
 
     parameters = {
+        'monitor':        Param('Monitor device',
+                                type=tacodev, mandatory=True, preinit=True),
+        'timer':          Param('Timer device',
+                                type=tacodev, mandatory=True, preinit=True),
         'timechannels':   Param('Number of time channels per detector channel',
                                 type=intrange(1, 4096), settable=True,
                                 default=1024, volatile=True,),
@@ -60,43 +55,7 @@ class TofCounter(Measurable):
         'channelwidth':   Param('Channel width', volatile=True),
         'numinputs':      Param('Number of detector channels', type=int,
                                 volatile=True),
-        'tacodelay':      Param('Delay between retries', unit='s', default=0.1,
-                                settable=True),
-        'tacotries':      Param('Number of tries per TACO call', default=3,
-                                type=intrange(1, 10), settable=True),
     }
-
-    def _create_dev(self, devname):
-        try:
-            dev = TacoDevice.TacoDevice(devname)
-            TacoDevice.dev_tcpudp(devname, 'tcp')
-            TacoDevice.dev_timeout(devname, 10.0)
-            return dev
-        except Local_Taco_Exception, e:
-            raise CommunicationError(self, 'Could not create device : %s (%s)'
-                                     % (devname, str(e)))
-
-    def _taco_guard(self, function, *args):
-        self.__lock.acquire()
-        try:
-            return function(*args)
-        except Local_Taco_Exception, e:
-            if self.tacotries > 1:
-                tries = self.tacotries - 1
-                self.log.warning('TACO %s failed, retrying up to %d times' %
-                                 (function.__name__, tries))
-                while True:
-                    sleep(self.tacodelay)
-                    tries -= 1
-                    try:
-                        return function(*args)
-                    except Local_Taco_Exception, e:
-                        if tries == 0:
-                            break  # and fall through to raise Comm...Error
-            raise CommunicationError(self, 'TACO %s call failed : %s'
-                                     % (function.__name__, str(e)))
-        finally:
-            self.__lock.release()
 
     def valueInfo(self):
         return Value('timer', unit='s', type='timer'), \
@@ -107,25 +66,35 @@ class TofCounter(Measurable):
         return ['t', 'm']
 
     def doPreinit(self, mode):
-        self.__lock = threading.Lock()
-        self._nethost = 'toftofsrv.toftof.frm2'
+        TacoDevice.doPreinit(self, mode)
         if mode != 'simulation':
-            self._counter = self._create_dev('//%s/toftof/tof/tofhistcntr'
-                                             % (self._nethost))
-            self._timer = self._create_dev('//%s/toftof/tof/toftimer'
-                                           % (self._nethost))
-            self._monitor = self._create_dev('//%s/toftof/tof/tofmoncntr'
-                                             % (self._nethost))
+            self._timer = self._create_client(devname=self.timer,
+                                              class_=Timer,
+                                              resetok=False,
+                                              timeout=None)
+            self._monitor = self._create_client(devname=self.monitor,
+                                                class_=MonitorCounter,
+                                                resetok=False,
+                                                timeout=None)
+
+    def doShutdown(self):
+        if self._monitor:
+            self._monitor.disconnectClient()
+            del self._monitor
+        if self._timer:
+            self._timer.disconnectClient()
+            del self._timer
+        TacoDevice.doShutdown(self)
 
     def doSetPreset(self, **preset):
         if 't' in preset:
-            self._taco_guard(self._monitor.EnableMaster, 0)
-            self._taco_guard(self._timer.EnableMaster, 1)
-            self._taco_guard(self._timer.SetPreselectionDouble, preset['t'])
+            self._taco_guard(self._monitor.enableMaster, 0)
+            self._taco_guard(self._timer.enableMaster, 1)
+            self._taco_guard(self._timer.setPreselection, preset['t'])
         elif 'm' in preset:
-            self._taco_guard(self._monitor.EnableMaster, 1)
-            self._taco_guard(self._timer.EnableMaster, 0)
-            self._taco_guard(self._monitor.SetPreselectionUlong, int(preset['m']))
+            self._taco_guard(self._monitor.enableMaster, 1)
+            self._taco_guard(self._timer.enableMaster, 0)
+            self._taco_guard(self._monitor.setPreselection, int(preset['m']))
 
     def doStart(self, **preset):
         # the deviceOn command on the server resets the delay time
@@ -135,17 +104,17 @@ class TofCounter(Measurable):
         # and reset the value back
         self.doWriteDelay(tmp)
         self.doSetPreset(**preset)
-        self._taco_guard(self._counter.Start)
-        self._taco_guard(self._timer.Start)
-        self._taco_guard(self._monitor.Start)
+        self._taco_guard(self._dev.start)
+        self._taco_guard(self._timer.start)
+        self._taco_guard(self._monitor.start)
 
     def doStop(self):
-        self._taco_guard(self._counter.DevOn)
-        self._taco_guard(self._timer.DevOn)
-        self._taco_guard(self._monitor.DevOn)
+        self._taco_guard(self._dev.deviceOn)
+        self._taco_guard(self._timer.deviceOn)
+        self._taco_guard(self._monitor.deviceOn)
 
     def doStatus(self, maxage=0):
-        state = ''.join(map(chr, self._taco_guard(self._counter.DevStatus)))
+        state = self._taco_guard(self._dev.deviceStatus)
         if state == 'counting':
             return status.BUSY, 'counting'
         elif state in ['init', 'unknown']:
@@ -154,52 +123,46 @@ class TofCounter(Measurable):
             return status.ERROR, state
 
     def doIsCompleted(self):
-        # DevStatus "counting"
-        return self._taco_guard(self._counter.DevStatus) != [99,111,117,110,
-                                                             116,105,110,103]
+        return self._taco_guard(self._dev.deviceState) != TACOStates.COUNTING
 
     def doRead(self, maxage=0):
-        arr = self._taco_guard(self._counter.ReadULongArray)
-        return [self._taco_guard(self._timer.ReadDouble),
-                                 self._taco_guard(self._monitor.ReadULong),
+        arr = self._taco_guard(self._dev.read)
+        return [self._taco_guard(self._timer.read),
+                                 self._taco_guard(self._monitor.read),
                                  sum(arr[2:])]
 
     def read_full(self):
-        readout = self._taco_guard(self._counter.ReadULongArray)
-        if readout is not None:
-            arr = np.array(readout)
-            ndata = np.reshape(arr[2:], (arr[1], arr[0]))
-        else:
-            ndata = None
-        return self._taco_guard(self._timer.ReadDouble), \
-                                self._taco_guard(self._monitor.ReadULong), \
+        arr = np.array(self._taco_guard(self._dev.read))
+        ndata = np.reshape(arr[2:], (arr[1], arr[0]))
+        return self._taco_guard(self._timer.read), \
+                                self._taco_guard(self._monitor.read), \
                                 ndata
 
     def doReset(self):
-        self._taco_guard(self._counter.DevOn)
-        self._taco_guard(self._timer.DevOn)
-        self._taco_guard(self._monitor.DevOn)
+        self._taco_guard(self._dev.deviceOn)
+        self._taco_guard(self._timer.deviceOn)
+        self._taco_guard(self._monitor.deviceOn)
 
     def doReadTimechannels(self):
-        return self._taco_guard(self._counter.TimeChannels)
+        return self._taco_guard(self._dev.timeChannels)
 
     def doWriteTimechannels(self, value):
-        self._taco_guard(self._counter.SetTimeChannels, value)
+        self._taco_guard(self._dev.setTimeChannels, value)
 
     def doReadTimeinterval(self):
-        return self._taco_guard(self._counter.TimeInterval)
+        return self._taco_guard(self._dev.timeInterval)
 
     def doWriteTimeinterval(self, value):
-        self._taco_guard(self._counter.SetTimeInterval, value)
+        self._taco_guard(self._dev.setTimeInterval, value)
 
     def doReadDelay(self):
-        return self._taco_guard(self._counter.GetDelay)
+        return self._taco_guard(self._dev.getDelay)
 
     def doWriteDelay(self, value):
-        self._taco_guard(self._counter.SetDelay, value)
+        self._taco_guard(self._dev.setDelay, value)
 
     def doReadChannelwidth(self):
-        return self._taco_guard(self._counter.ChannelWidth)
+        return self._taco_guard(self._dev.channelWidth)
 
     def doReadNuminputs(self):
-        return self._taco_guard(self._counter.NumInputs)
+        return self._taco_guard(self._dev.numInputs)
