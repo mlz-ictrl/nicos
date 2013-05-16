@@ -121,6 +121,11 @@ class TacoDevice(object):
         if mode != 'simulation':
             self._dev = self._create_client()
 
+    def doShutdown(self):
+        if self._dev:
+            self._dev.disconnectClient()
+            del self._dev
+
     def _setMode(self, mode):
         super(TacoDevice, self)._setMode(mode)
         # remove the TACO device on entering simulation mode, to prevent
