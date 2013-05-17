@@ -124,14 +124,32 @@ def check_setupfile(filename):
                             devname, devs_seen[devname])
             else:
                 devs_seen[devname] = filename
+    # check for common misspelling of "includes"
+    if 'include' in namespace:
+        log.error("'include' list should be called 'includes'")
+        good = False
+    # check for types of recognized variables
+    for (vname, vtype) in [('description', (str, unicode)),
+                           # group is already checked against a fixed list
+                           ('sysconfig', dict),
+                           ('includes', list),
+                           ('excludes', list),
+                           ('modules', list),
+                           ('devices', dict),
+                           ('startupcode', str),
+                           ('extended', dict)]:
+        if vname in namespace and not isinstance(namespace[vname], vtype):
+            log.error('%r must be of type %s (but is %s)' %
+                      (vname, vtype, type(namespace[vname])))
+            good = False
     # check for valid device classes (if importable) and parameters
     for devname, devconfig in namespace.get('devices', {}).iteritems():
         # try to import the device class
         try:
             cls = nicos_import(devconfig[0])
-        except (ImportError, RuntimeError):  # the latter for SIP
-            log.warning('device class %r for %r not importable',
-                        devconfig[0], devname)
+        except (ImportError, RuntimeError), err:  # the latter for SIP
+            log.warning('device class %r for %r not importable: %s',
+                        devconfig[0], devname, err)
             continue
         except Exception, e:
             log.error('could not get device class %r for %r:',
@@ -166,7 +184,7 @@ def check_setupfile(filename):
         else:
             if not config.get('lowlevel', False):
                 if not config.get('description'):
-                    log.warning("%s: device has no description", devname)
+                    log.warning('%s: device has no description', devname)
             for pname, pinfo in cls.parameters.iteritems():
                 if pname in config:
                     try:
