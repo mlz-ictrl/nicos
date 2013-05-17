@@ -25,5 +25,5 @@ devices = dict(
                      valuefont = 'Consolas',
                      padding = 0,
                      layout = [Row(_expcolumn),],
-                     notifiers = [])
+                    ),
 )
