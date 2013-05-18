@@ -220,9 +220,11 @@ class EditorPanel(Panel):
         menuFile.addAction(self.actionSave)
         menuFile.addAction(self.actionSaveAs)
         menuFile.addAction(self.actionReload)
-        menuFile.addAction(self.actionShowScripts)
         menuFile.addSeparator()
         menuFile.addAction(self.actionPrint)
+
+        menuView = QMenu('&View', self)
+        menuView.addAction(self.actionShowScripts)
 
         menuEdit = QMenu('&Edit', self)
         menuEdit.addAction(self.actionUndo)
@@ -244,7 +246,7 @@ class EditorPanel(Panel):
         menuScript.addSeparator()
         menuScript.addAction(self.actionGet)
 
-        ret = [menuFile, menuEdit, menuScript]
+        ret = [menuFile, menuView, menuEdit, menuScript]
         if self.toolconfig:
             menuTools = QMenu('&Tools', self)
             for i, tconfig in enumerate(self.toolconfig):

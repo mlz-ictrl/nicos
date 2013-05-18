@@ -702,10 +702,10 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show scripts</string>
+    <string>Show script browser</string>
    </property>
    <property name="toolTip">
-    <string>Show scripts browser</string>
+    <string>Show a side panel with all scripts for the current experiment</string>
    </property>
   </action>
  </widget>
