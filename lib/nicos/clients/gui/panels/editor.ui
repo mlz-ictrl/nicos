@@ -656,24 +656,13 @@
   </action>
   <action name="actionComment">
    <property name="text">
-    <string>Co&amp;mment</string>
+    <string>Toggle Co&amp;mment</string>
    </property>
    <property name="toolTip">
-    <string>Comment out selected code</string>
+    <string>Comment or uncomment selected code</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+#</string>
-   </property>
-  </action>
-  <action name="actionUncomment">
-   <property name="text">
-    <string>Uncomment</string>
-   </property>
-   <property name="toolTip">
-    <string>Uncomment selected code</string>
-   </property>
-   <property name="shortcut">
-    <string>Alt+#</string>
    </property>
   </action>
   <action name="actionUpdate">

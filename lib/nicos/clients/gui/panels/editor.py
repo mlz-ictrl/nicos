@@ -51,7 +51,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import showToolText, loadUi, setBackgroundColor
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 
-COMMENT_STR = '##'
+COMMENT_STR = '## '
 
 
 class QScintillaCompatible(QPlainTextEdit):
@@ -147,7 +147,6 @@ class EditorPanel(Panel):
 
         if not has_scintilla:
             self.actionComment.setEnabled(False)
-            self.actionUncomment.setEnabled(False)
 
         self.current_status = None
         self.recentf_actions = []
@@ -234,7 +233,6 @@ class EditorPanel(Panel):
         menuEdit.addAction(self.actionPaste)
         menuEdit.addSeparator()
         menuEdit.addAction(self.actionComment)
-        menuEdit.addAction(self.actionUncomment)
         menuEdit.addSeparator()
         menuEdit.addAction(self.actionFind)
 
@@ -337,7 +335,7 @@ class EditorPanel(Panel):
             self.actionSimulate, self.actionUpdate
         ]:
             action.setEnabled(on)
-        for action in [self.actionComment, self.actionUncomment]:
+        for action in [self.actionComment]:
             action.setEnabled(on and has_scintilla)
 
     def on_codeGenerated(self, code):
@@ -794,81 +792,51 @@ class EditorPanel(Panel):
 
     @qtsig('')
     def on_actionComment_triggered(self):
+        clen = len(COMMENT_STR)
+        # act on selection?
         if self.currentEditor.hasSelectedText():
-            # comment selection
-
             # get the selection boundaries
-            lineFrom, _, lineTo, indexTo = self.currentEditor.getSelection()
-            if indexTo == 0:
-                endLine = lineTo - 1
+            line1, index1, line2, index2 = self.currentEditor.getSelection()
+            if index2 == 0:
+                endLine = line2 - 1
             else:
-                endLine = lineTo
+                endLine = line2
+            assert endLine >= line1
 
             self.currentEditor.beginUndoAction()
             # iterate over the lines
-            for line in range(lineFrom, endLine+1):
-                self.currentEditor.insertAt(COMMENT_STR, line, 0)
-            # change the selection accordingly
-            self.currentEditor.setSelection(lineFrom, 0, endLine+1, 0)
+            action = []
+            for line in range(line1, endLine+1):
+                if self.currentEditor.text(line).startsWith(COMMENT_STR):
+                    self.currentEditor.setSelection(line, 0, line, clen)
+                    self.currentEditor.removeSelectedText()
+                    action.append(-1)
+                else:
+                    self.currentEditor.insertAt(COMMENT_STR, line, 0)
+                    action.append(1)
+            # adapt original selection boundaries
+            if index1 > 0:
+                if action[0] == 1:
+                    index1 += clen
+                else:
+                    index1 = max(0, index1 - clen)
+            if endLine > line1 and index2 > 0:
+                if action[-1] == 1:
+                    index2 += clen
+                else:
+                    index2 = max(0, index2 - clen)
+            # restore selection accordingly
+            self.currentEditor.setSelection(line1, index1, line2, index2)
             self.currentEditor.endUndoAction()
         else:
             # comment line
             line, _ = self.currentEditor.getCursorPosition()
             self.currentEditor.beginUndoAction()
-            self.currentEditor.insertAt(COMMENT_STR, line, 0)
-            self.currentEditor.endUndoAction()
-
-    @qtsig('')
-    def on_actionUncomment_triggered(self):
-        if self.currentEditor.hasSelectedText():
-            # uncomment selection
-
-            # get the selection boundaries
-            lineFrom, indexFrom, lineTo, indexTo = self.currentEditor.getSelection()
-            if indexTo == 0:
-                endLine = lineTo - 1
-            else:
-                endLine = lineTo
-
-            self.currentEditor.beginUndoAction()
-            # iterate over the lines
-            for line in range(lineFrom, endLine+1):
-                # check if line starts with our comment string (i.e. was commented
-                # by our comment...() slots
-                if not self.currentEditor.text(line).startsWith(COMMENT_STR):
-                    continue
-
-                self.currentEditor.setSelection(line, 0, line, len(COMMENT_STR))
+            if self.currentEditor.text(line).startsWith(COMMENT_STR):
+                self.currentEditor.setSelection(line, 0, line, clen)
                 self.currentEditor.removeSelectedText()
-
-                # adjust selection start
-                if line == lineFrom:
-                    indexFrom -= len(COMMENT_STR)
-                    if indexFrom < 0:
-                        indexFrom = 0
-
-                # adjust selection end
-                if line == lineTo:
-                    indexTo -= len(COMMENT_STR)
-                    if indexTo < 0:
-                        indexTo = 0
-
-            # change the selection accordingly
-            self.currentEditor.setSelection(lineFrom, indexFrom, lineTo, indexTo)
-            self.currentEditor.endUndoAction()
-        else:
-            # uncomment line
-            line, _ = self.currentEditor.getCursorPosition()
-
-            # check if line starts with our comment string (i.e. was commented
-            # by our comment...() slots
-            if not self.currentEditor.text(line).startsWith(COMMENT_STR):
-                return
-
-            # now remove the comment string
-            self.currentEditor.beginUndoAction()
-            self.currentEditor.setSelection(line, 0, line, len(COMMENT_STR))
-            self.currentEditor.removeSelectedText()
+            else:
+                self.currentEditor.insertAt(COMMENT_STR, line, 0)
             self.currentEditor.endUndoAction()
 
     def on_simOutView_anchorClicked(self, url):
