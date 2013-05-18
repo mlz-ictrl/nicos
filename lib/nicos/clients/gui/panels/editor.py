@@ -522,6 +522,8 @@ class EditorPanel(Panel):
         script = self.validateScript()
         if script is None:
             return
+        if not self.checkDirty(self.currentEditor, askonly=True):
+            return
         if self.current_status != 'idle':
             if not self.askQuestion('A script is currently running, do you '
                                     'want to queue this script?', True):
@@ -533,6 +535,8 @@ class EditorPanel(Panel):
         script = self.validateScript()
         if script is None:
             return
+        if not self.checkDirty(self.currentEditor, askonly=True):
+            return
         self.client.tell('simulate', self.filenames[self.currentEditor], script,
                          'editorsim')
         self.waiting_sim_result = True
@@ -542,8 +546,11 @@ class EditorPanel(Panel):
     @qtsig('')
     def on_actionUpdate_triggered(self):
         script = self.validateScript()
-        if script is not None:
-            self.client.tell('update', script)
+        if script is None:
+            return
+        if not self.checkDirty(self.currentEditor, askonly=True):
+            return
+        self.client.tell('update', script)
 
     @qtsig('')
     def on_actionGet_triggered(self):
@@ -562,7 +569,7 @@ class EditorPanel(Panel):
     def on_simErrorsOnly_toggled(self, on):
         self.simOutStack.setCurrentIndex(on)
 
-    def checkDirty(self, editor):
+    def checkDirty(self, editor, askonly=False):
         if not editor.isModified():
             return True
         if self.filenames[editor]:
@@ -570,12 +577,13 @@ class EditorPanel(Panel):
                 self.filenames[editor]
         else:
             message = 'Save new file before continuing?'
-        rc = QMessageBox.question(
-            self, 'User Editor', message,
-            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
-        if rc == QMessageBox.Save:
+        buttons = QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel
+        if askonly:
+            buttons = QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
+        rc = QMessageBox.question(self, 'User Editor', message, buttons)
+        if rc in (QMessageBox.Save, QMessageBox.Yes):
             return self.saveFile(editor)
-        elif rc == QMessageBox.Discard:
+        elif rc in (QMessageBox.Discard, QMessageBox.No):
             return True
         else:
             return False
