@@ -40,6 +40,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="simBtn">
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
        <property name="text">
         <string>Simulate</string>
        </property>
@@ -51,6 +54,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="runBtn">
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
        <property name="text">
         <string>Run</string>
        </property>
@@ -166,7 +172,7 @@
   <customwidget>
    <class>HistoryLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>nicos.clients.gui.widgets.histedit</header>
+   <header>nicos.clients.gui.widgets.histedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

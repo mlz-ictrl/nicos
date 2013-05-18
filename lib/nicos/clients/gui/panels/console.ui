@@ -61,6 +61,9 @@
      </item>
      <item>
       <widget class="MessageView" name="outView">
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
        <property name="autoFillBackground">
         <bool>true</bool>
        </property>
