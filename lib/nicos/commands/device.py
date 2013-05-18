@@ -167,7 +167,11 @@ def read(*devlist):
                    if isinstance(session.devices[devname], Readable)]
         devlist.sort(key=lambda dev: dev.name)
     for dev in devlist:
-        dev = session.getDevice(dev, Readable)
+        try:
+            dev = session.getDevice(dev, Readable)
+        except UsageError, err:
+            err.args = (err.args[0] + ', try info(%s)' % dev,)
+            raise
         try:
             value = dev.read()
         except Exception:
