@@ -28,7 +28,7 @@ and/or
 Requirements
 ------------
 
-* At least Python 2.5
+* At least Python 2.6
 
 * numpy
 
@@ -42,7 +42,6 @@ Requirements
   - matplotlib (for resolution plots)
   - gnuplot (for plots in the electronig logbook)
   - Grace (for scanplot)
-  - simplejson (Python < 2.6, for the web interface)
   - lxml (for U-Bahn service)
 
 * For the GUI and status monitor:

@@ -24,8 +24,6 @@
 
 """NICOS GUI command line input component."""
 
-from __future__ import with_statement
-
 import time
 
 from PyQt4.QtCore import QVariant, QStringList, SIGNAL

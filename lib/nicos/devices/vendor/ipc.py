@@ -25,8 +25,6 @@
 
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
-from __future__ import with_statement
-
 import socket
 import select
 from time import sleep

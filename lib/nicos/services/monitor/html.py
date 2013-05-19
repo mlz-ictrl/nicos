@@ -24,8 +24,6 @@
 
 """Instrument monitor that generates an HTML page."""
 
-from __future__ import with_statement
-
 from cgi import escape
 from time import sleep, time as currenttime
 from datetime import datetime

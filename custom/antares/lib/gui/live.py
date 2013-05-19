@@ -24,8 +24,6 @@
 
 """NICOS livewidget 2D data plot window/panel."""
 
-from __future__ import with_statement
-
 import os
 from os import path
 

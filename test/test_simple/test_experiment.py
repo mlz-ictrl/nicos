@@ -24,8 +24,6 @@
 
 """NICOS device class test suite."""
 
-from __future__ import with_statement
-
 import os
 import time
 from os import path

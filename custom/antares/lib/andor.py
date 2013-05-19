@@ -24,8 +24,6 @@
 
 """Very simple class for CCD camera measurement and readout."""
 
-from __future__ import with_statement
-
 import array
 import threading
 from os import path

@@ -24,8 +24,6 @@
 
 """Definition of abstract base device classes."""
 
-from __future__ import with_statement
-
 import sys
 import threading
 from os import path

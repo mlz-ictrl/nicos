@@ -34,9 +34,9 @@ import new
 import sys
 from os import path
 
-# Check for Python version 2.5+.
-if sys.version_info[:2] < (2, 5):
-    raise ImportError('NICOS requires Python 2.5 or higher')
+# Check for Python version 2.6+.
+if sys.version_info[:2] < (2, 6):
+    raise ImportError('NICOS requires Python 2.6 or higher')
 
 # Add instrument-specific directories to the package path.
 pkgpath = path.join(path.dirname(__file__), '..', '..', 'custom')

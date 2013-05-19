@@ -24,8 +24,6 @@
 
 """A line editor control with history stepping."""
 
-from __future__ import with_statement
-
 import re
 
 from PyQt4.QtGui import QApplication, QKeyEvent, QLineEdit, QCompleter, \

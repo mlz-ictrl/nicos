@@ -24,8 +24,6 @@
 
 """NICOS daemon package."""
 
-from __future__ import with_statement
-
 import time
 import Queue
 import select
@@ -52,22 +50,9 @@ class Server(TCPServer):
         self.handler_ident = 0
         self.pending_clients = {}
         TCPServer.__init__(self, address, handler)
-        self.__is_shut_down = threading.Event()
-        self.__serving = False
-
-    # serve_forever, shutdown and _handle_request_noblock are copied
-    # from 2.6 SocketServer, 2.5 doesn't support shutdown
-
-    def serve_forever(self,timeout=1.0):
-        self.__serving = True
-        self.__is_shut_down.clear()
-        while self.__serving:
-            r = select.select([self], [], [], timeout)[0]
-            if r:
-                self._handle_request_noblock()
-        self.__is_shut_down.set()
 
     def _handle_request_noblock(self):
+        # overwritten to support passing client_id to process_request
         try:
             request, client_address = self.get_request()
         except socket.error:
@@ -79,10 +64,6 @@ class Server(TCPServer):
             except Exception:
                 self.handle_error(request, client_address)
                 self.close_request(request)
-
-    def shutdown(self):
-        self.__serving = False
-        self.__is_shut_down.wait()
 
     #pylint: disable=W0221
     def process_request(self, request, client_address, client_id):

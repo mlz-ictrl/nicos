@@ -25,8 +25,6 @@
 
 """NICOS cache server."""
 
-from __future__ import with_statement
-
 import os
 import threading
 from os import path

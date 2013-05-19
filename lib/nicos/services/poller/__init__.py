@@ -24,8 +24,6 @@
 
 """Contains a process that polls devices automatically."""
 
-from __future__ import with_statement
-
 import os
 import sys
 import errno

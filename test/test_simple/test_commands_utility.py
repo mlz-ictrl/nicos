@@ -24,8 +24,6 @@
 
 """NICOS commands tests."""
 
-from __future__ import with_statement
-
 from nicos.core import UsageError
 
 from nicos.commands.utility import RangeListByStep, RangeListByCount, RangeListLog, \

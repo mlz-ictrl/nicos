@@ -24,8 +24,6 @@
 
 """Module for basic user commands."""
 
-from __future__ import with_statement
-
 import os
 import sys
 import time

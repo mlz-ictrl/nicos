@@ -24,15 +24,10 @@
 
 """Web interface for NICOS."""
 
-from __future__ import with_statement
-
 import os
 import sys
+import json
 import time
-try:
-    import json
-except ImportError:
-    import simplejson as json
 import logging
 import threading
 from cgi import escape

@@ -24,8 +24,6 @@
 
 """NICOS GUI PGAA panel components."""
 
-from __future__ import with_statement
-
 import time
 from os import path
 

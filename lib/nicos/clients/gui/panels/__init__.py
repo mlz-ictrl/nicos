@@ -24,8 +24,6 @@
 
 """NICOS GUI application package."""
 
-from __future__ import with_statement
-
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
      QColorDialog, QVBoxLayout

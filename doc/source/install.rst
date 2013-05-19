@@ -31,7 +31,7 @@ The bug tracker and project wiki are at
 Requirements
 ------------
 
-* At least Python 2.5
+* At least Python 2.6
 
 * numpy
 
@@ -46,7 +46,6 @@ Requirements
   - pyserial (for TACO-less serial line communication)
   - gnuplot (for plots in the electronig logbook)
   - Grace (for scanplot)
-  - simplejson (Python < 2.6, for the web interface)
   - lxml (for U-Bahn service)
 
 * For the client-server GUI and status monitor:

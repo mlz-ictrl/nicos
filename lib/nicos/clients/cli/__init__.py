@@ -24,8 +24,6 @@
 
 """Command-line client for the NICOS daemon."""
 
-from __future__ import with_statement
-
 import os
 import sys
 import glob

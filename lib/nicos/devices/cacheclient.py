@@ -25,8 +25,6 @@
 
 """NICOS cache clients."""
 
-from __future__ import with_statement
-
 import Queue
 import select
 import socket

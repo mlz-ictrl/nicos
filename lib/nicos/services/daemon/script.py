@@ -135,13 +135,13 @@ class ScriptRequest(Request):
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
         pycode = fixup_script(pycode)
-        if sys.version_info < (2, 6) or not splitblocks:
-            # Python < 2.6, no splitting possible
+        if not splitblocks:
+            # no splitting desired
             self.code = [compile('# coding: utf-8\n' + pycode + '\n',
                                  '<script>', 'exec', CO_DIVISION)]
             self.blocks = None
         else:
-            # long script, and can compile AST: split into blocks
+            # long script: split into blocks
             self.code, self.blocks = self._splitblocks(pycode)
 
     def execute(self, controller):

@@ -24,8 +24,6 @@
 
 """NICOS GUI virtual console panel component."""
 
-from __future__ import with_statement
-
 import sys
 import time
 import codecs

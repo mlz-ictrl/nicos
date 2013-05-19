@@ -24,8 +24,6 @@
 
 """The base class for communication with the NICOS server."""
 
-from __future__ import with_statement
-
 import os
 import ast
 import time

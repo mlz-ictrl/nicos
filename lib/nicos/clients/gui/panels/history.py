@@ -24,8 +24,6 @@
 
 """NICOS GUI history log window."""
 
-from __future__ import with_statement
-
 import os
 import sys
 import cPickle as pickle
