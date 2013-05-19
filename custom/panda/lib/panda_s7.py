@@ -24,22 +24,16 @@
 
 """PANDA S7 Interface for NICOS."""
 
-import threading
-
 from time import sleep, time as currenttime
 
-from nicos.core import status, intrange, oneof, anytype, Device, Param, \
-     Readable, Moveable, NicosError, ProgrammingError, TimeoutError, \
-     formatStatus, Override, floatrange, usermethod, MoveError
+from nicos.core import status, intrange, oneof, Device, Param, NicosError, \
+     ProgrammingError, TimeoutError, formatStatus, MoveError
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.generic.axis import Axis
 
 from ProfibusDP import IO as ProfibusIO
 
-#~ from nicos.core import status, HasOffset, Override, ConfigurationError, \
-     #~ NicosError, PositionError, MoveError, waitForStatus, floatrange, \
-     #~ Param, usermethod
 
 class S7Bus(TacoDevice, Device):
     """Class for communication with S7 over Profibusetherserver."""
@@ -164,7 +158,7 @@ class S7Motor(NicosMotor):
     def printstatusinfo(self):
         bus = self._adevs['bus']
         def m(s):
-            return '\033[7m'+s+'\033[0m'
+            return '\x1b[7m'+s+'\x1b[0m'
         #define a little helper
         def f(value, nonzero, zero):
             return nonzero if value else zero
@@ -223,7 +217,7 @@ class S7Motor(NicosMotor):
         sps_err = bus.read('byte', 27) + 256 * bus.read('byte', 26)
         if nc_err_flag:
             self.log.info(m('NC-Error:')+ ' '+hex(nc_err))
-        if sps_err!=0:
+        if sps_err != 0:
             self.log.info(m('SPS-Error:')+' '+hex(sps_err))
 
     def doStatus(self, maxage=0):
@@ -272,7 +266,7 @@ class S7Motor(NicosMotor):
 
         if nc_err_flag:
             self.log.debug('NC_ERR_FLAG SET, NC_ERR:'+hex(nc_err))
-        if sps_err!=0:
+        if sps_err != 0:
             self.log.debug('SPS_ERR:'+hex(sps_err))
 
         self.log.debug('Statusbytes=0x%02x:%02x:%02x:%02x:%02x, Wartungsmodus ' %
@@ -360,7 +354,6 @@ class S7Motor(NicosMotor):
 
     def doSetPosition(self, *args):
         self._ack()     # hack to automagically acknowledge sps-errors in positioning threads...
-        pass
 
     def doTime(self, pos1, pos2):
         return (abs( pos1 - pos2 ) *7   # 7 seconds per degree

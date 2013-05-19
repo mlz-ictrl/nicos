@@ -24,7 +24,6 @@
 from nicos.devices.abstract import ImageStorage
 
 import pyfits
-import numpy
 
 
 class ImageStorageFits(ImageStorage):

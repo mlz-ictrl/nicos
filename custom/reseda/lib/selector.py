@@ -24,8 +24,6 @@
 
 """Readout of the Astrium selector."""
 
-import time
-
 from IO import StringIO
 
 from nicos.core import Readable, Override, status

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 
 from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QFont
+from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
 
@@ -165,7 +165,8 @@ class Tube2(DisplayWidget, QWidget):
             shift_val = self.curval[1]
             shift_status = self.curstatus[1]
             shift_str = self.curstr[1]
-            tilt_val = self.curval[2]
+            # Not used at the moment, prepared for later use
+            # tilt_val = self.curval[2]
             tilt_status = self.curstatus[2]
             tilt_str = self.curstr[2]
             if tilt_str.endswith('deg'):
@@ -308,9 +309,9 @@ class CollimatorTable(DisplayWidget, QWidget):
 
         painter.setBrush(statusbrush[self.curstatus])
         try:
-            p=self.options.index( self.curstr )
+            p = self.options.index( self.curstr )
         except:
-            p=0
+            p = 0
 
         painter.setFont(self.valuefont)
 

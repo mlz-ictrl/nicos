@@ -26,8 +26,6 @@
 import os
 import sys
 import shutil
-import signal
-import subprocess
 from os import path
 
 def cleanup(rootdir):

@@ -26,7 +26,6 @@
 
 import sys
 import time
-#import subprocess
 from os import path
 from logging import WARNING
 

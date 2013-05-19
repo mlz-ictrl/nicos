@@ -26,7 +26,7 @@
 
 #~ from time import sleep, time as currenttime
 
-from nicos.core import Param, NicosError, usermethod, none_or
+from nicos.core import Param, NicosError, none_or
 from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.virtual import VirtualMotor
 
@@ -183,7 +183,8 @@ class VirtualRotAxisMotor(VirtualMotor):
     simulates a refswitch between 200 and 220
     '''
     def _refswitch(self):
-        return 200.%360. <= self.doRead()%360. <= 220.%360.
+        return 200. <= self.doRead() <= 220.
+
     def doStart( self, pos ):
         if self.curvalue > pos: # going backwards
             if self._refswitch():

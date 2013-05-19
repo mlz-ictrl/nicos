@@ -25,7 +25,6 @@
 """The base class for communication with the NICOS server."""
 
 import os
-import ast
 import time
 import socket
 import hashlib

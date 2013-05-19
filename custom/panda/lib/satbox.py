@@ -24,8 +24,7 @@
 
 """PANDA's Attenuator controling device for NICOS."""
 
-#from nicos.core import *
-from nicos.core import status, InvalidValueError, Moveable, Param, floatrange, listof
+from nicos.core import InvalidValueError, Moveable, Param, floatrange, listof
 
 from Modbus import Modbus
 
@@ -86,8 +85,8 @@ class SatBox(TacoDevice, Moveable):
                          self.addr_out) + tuple(which))
 
     def doIsAllowed(self, target):
-        if not (0<=target<=sum(self.blades)):
-            return False, 'Value outside range 0..%d'%sum(self.blades)
+        if not (0 <= target <= sum(self.blades)):
+            return False, 'Value outside range 0..%d' % sum(self.blades)
         if int(target) != target:
             return False, 'Value must be an integer !'
         return True, ''

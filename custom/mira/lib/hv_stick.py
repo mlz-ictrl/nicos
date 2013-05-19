@@ -28,8 +28,7 @@ import time
 
 from IO import StringIO
 
-from nicos.core import status, Moveable, HasLimits, Override, NicosError, Param, \
-    CommunicationError
+from nicos.core import status, Moveable, HasLimits, Override, CommunicationError
 from nicos.devices.taco.core import TacoDevice
 
 

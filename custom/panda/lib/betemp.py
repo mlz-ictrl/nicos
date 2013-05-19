@@ -24,10 +24,11 @@
 
 """PANDA Beryllium filter readout."""
 
-from nicos.core import Param, Override, status, none_or, oneof, Readable
+from nicos.core import Param, Override, status, oneof, Readable
 from nicos.devices.taco import AnalogInput
 
 from nicos.panda.wechsler import Beckhoff
+
 
 class KL320xTemp(Readable):
 
@@ -110,7 +111,8 @@ class KL320xTemp(Readable):
         return float( v )*0.1
 
     def doStatus(self, maxage=0):
-        t = self.doRead(maxage)
+        # why read value during the status detection ???
+        self.doRead(maxage)
         v = self.bhd.ReadWordInput(self.addr)
         if v & 0x01:
             return (status.ERROR, 'Underrange bit set!')
@@ -138,7 +140,8 @@ class I7033Temp(AnalogInput):
         return r
 
     def doStatus(self, maxage=0):
-        t = self._temperature(self._taco_guard(self._dev.read))
+        # why read value during the status detection ???
+        self._temperature(self._taco_guard(self._dev.read))
         return (status.OK, '')
 
     def _temperature(self, r):

@@ -27,11 +27,8 @@
 import time
 from os import path
 
-from PyQt4.QtCore import QVariant, QStringList, SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig
-from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QStyle, \
-     QColor, QPrinter, QPrintDialog, QAbstractPrintDialog, QDialogButtonBox, \
-     QPushButton
+from PyQt4.QtCore import SIGNAL
+from PyQt4.QtGui import QStyle, QColor, QDialogButtonBox, QPushButton
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
@@ -143,7 +140,6 @@ class TomographyPanel(Panel):
     def execScript(self, script):
         if not script:
             return
-        sscript = script = str(script).strip()
         action = 'queue'
         if self.current_status != 'idle':
             qwindow = dialogFromUi(self, 'question.ui', 'panels')

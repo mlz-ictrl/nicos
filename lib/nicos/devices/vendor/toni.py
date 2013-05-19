@@ -31,7 +31,7 @@ from IO import StringIO
 
 from nicos.core import status, intrange, listof, oneofdict, requires, ADMIN, \
      Device, Readable, Moveable, Param, Override, NicosError, oneof, \
-     CommunicationError, InvalidValueError, ConfigurationError
+     CommunicationError, ConfigurationError
 from nicos.devices.taco.core import TacoDevice
 
 
