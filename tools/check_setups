@@ -3,6 +3,7 @@
 import os
 import new
 import sys
+import getopt
 import logging
 import traceback
 from os import path
@@ -15,7 +16,7 @@ except ImportError:
 
 from nicos import session
 from nicos.core.sessions import Session, SETUP_GROUPS
-from nicos.utils.loggers import ColoredConsoleHandler
+from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 
 # patch the session config (the "control_path_relative" param type requires a
 # valid Session.config, but "session" is currently just a bare object)
@@ -67,13 +68,25 @@ def generate_stubs():
         root_log.info('generated TACO stub module %r' % modname)
 
 
-class Handler(ColoredConsoleHandler):
+class ConsoleHandler(ColoredConsoleHandler):
     def emit(self, record):
         # reintroduce standard logging behavior that the Nicos logger overrides
         record.message = record.getMessage()
         # remove this, the Nicos handler uses it differently
         record.filename = ''
         ColoredConsoleHandler.emit(self, record)
+
+class FileHandler(StreamHandler):
+    def __init__(self, *args):
+        StreamHandler.__init__(self, *args)
+        self.setFormatter(
+            logging.Formatter('! %(name)s: %(levelname)s: %(message)s'))
+    def emit(self, record):
+        # reintroduce standard logging behavior that the Nicos logger overrides
+        record.message = record.getMessage()
+        # remove this, the Nicos handler uses it differently
+        record.filename = ''
+        StreamHandler.emit(self, record)
 
 def nicos_import(clspath):
     modname, clsname = clspath.rsplit('.', 1)
@@ -83,11 +96,11 @@ def nicos_import(clspath):
         mod =  __import__(modname, None, None, [clsname])
     return getattr(mod, clsname)
 
-def log_exception(log):
+def log_exception(log, exception):
     formatted_lines = traceback.format_exc().splitlines()
-    log.error(formatted_lines[-3])
-    log.error(formatted_lines[-2])
-    log.error(formatted_lines[-1])
+    msg = 'Exception while executing: %s\n|' % str(exception)
+    msg += '\n|'.join(formatted_lines[-3:])
+    log.error(msg)
     return False
 
 def check_setupfile(filename):
@@ -98,12 +111,12 @@ def check_setupfile(filename):
     try:
         execfile(filename, namespace)
     except SyntaxError, e:
-        log.error('SyntaxError: %s', e.msg)
-        log.error(' line %d : %s', e.lineno, e.text)
+        msg = 'SyntaxError:\t%s' % e.msg
+        msg += '\n|line: %s : %s ' % (e.lineno, e.text.strip())
+        log.error(msg)
         return False
     except Exception, e:
-        log.error('error while executing:')
-        return log_exception(log)
+        return log_exception(log, e)
     log.info('syntax ok')
     # check for valid group
     group = namespace.get('group', 'optional')
@@ -154,7 +167,7 @@ def check_setupfile(filename):
         except Exception, e:
             log.error('could not get device class %r for %r:',
                       devconfig[0], devname)
-            log_exception(log)
+            log_exception(log, e)
             good = False
             continue
         # check missing and unsupported parameter config entries
@@ -203,22 +216,27 @@ def check_setupfile(filename):
             good = False
     return good
 
+opts, args = getopt.getopt(sys.argv[1:], 'vo:')
+
+
 logging.basicConfig()
 root_log = logging.getLogger()
 root_log.removeHandler(root_log.handlers[0])
-root_log.addHandler(Handler())
+root_log.addHandler(ConsoleHandler())
+root_log.setLevel(logging.WARNING)
 
-if '-v' in sys.argv:
-    root_log.setLevel(logging.INFO)
-    sys.argv.remove('-v')
-else:
-    root_log.setLevel(logging.WARNING)
+for opt, arg in opts:
+    if opt == '-v':
+        root_log.setLevel(logging.INFO)
+    elif opt == '-o':
+        outfile = open(arg, 'ab')
+        root_log.addHandler(FileHandler(outfile))
 
 generate_stubs()
 
 devs_seen = {}
 ret = True
-for p in sys.argv[1:]:
+for p in args:
     if path.isdir(p):
         for root, _dirs, files in os.walk(p):
             for f in files:
