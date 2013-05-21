@@ -28,12 +28,13 @@
 from Motor import Motor as TACOMotor
 import TACOStates
 
-from nicos.core import status, waitForStatus, Param, Override, oneof
+from nicos.core import status, waitForStatus, Param, Override, CanReference, \
+     oneof
 from nicos.devices.abstract import Motor as BaseMotor
 from nicos.devices.taco.core import TacoDevice
 
 
-class Motor(TacoDevice, BaseMotor):
+class Motor(CanReference, TacoDevice, BaseMotor):
     """TACO motor implementation class."""
 
     taco_class = TACOMotor
@@ -79,7 +80,7 @@ class Motor(TacoDevice, BaseMotor):
             return status.OK, 'idle'
         elif state == TACOStates.MOVING:
             return status.BUSY, 'moving'
-        elif state in (TACOStates.INIT, TACOStates.RESETTING) :
+        elif state in (TACOStates.INIT, TACOStates.RESETTING):
             return status.BUSY, 'referencing'
         else:
             return status.ERROR, TACOStates.stateDescription(state)
