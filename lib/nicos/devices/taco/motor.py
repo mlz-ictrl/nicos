@@ -28,9 +28,9 @@
 from Motor import Motor as TACOMotor
 import TACOStates
 
-from nicos.core import status, waitForStatus, Param, Override, CanReference, \
+from nicos.core import status, waitForStatus, Param, Override, \
      oneof
-from nicos.devices.abstract import Motor as BaseMotor
+from nicos.devices.abstract import CanReference, Motor as BaseMotor
 from nicos.devices.taco.core import TacoDevice
 
 
