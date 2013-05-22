@@ -499,7 +499,7 @@ class ConnectionHandler(BaseRequestHandler):
         :param expr: Python expression
         :returns: result of evaluation or an error if exception raised
         """
-        self.log.debug('evaluating expresson in script context\n%s' % expr)
+        self.log.debug('evaluating expression in script context\n%s' % expr)
         try:
             retval = self.controller.eval_expression(expr, self, bool(stringify))
         except Exception, err:
