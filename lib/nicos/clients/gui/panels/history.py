@@ -67,7 +67,7 @@ class View(QObject):
                 history = query_func(key, self.fromtime, totime)
                 if history is None:
                     from nicos.clients.gui.main import log
-                    log.error('Error getting history for %s.' % (keys,))
+                    log.error('Error getting history for %s.', key)
                     history = []
                 ltime = 0
                 interval = self.interval
