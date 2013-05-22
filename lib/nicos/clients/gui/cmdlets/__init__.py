@@ -37,9 +37,10 @@ class Cmdlet(QWidget):
     name = ''
     category = ''
 
-    def __init__(self, parent, client):
+    def __init__(self, parent, client, uifile):
         self.client = client
         QWidget.__init__(self, parent)
+        loadUi(self, uifile, 'cmdlets')
 
     @qtsig('')
     def on_delBtn_clicked(self):
@@ -85,8 +86,7 @@ class Move(Cmdlet):
     category = 'Device'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'move.ui', 'cmdlets')
+        Cmdlet.__init__(self, parent, client, 'move.ui')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -118,8 +118,7 @@ class Count(Cmdlet):
     category = 'Scan'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'count.ui', 'cmdlets')
+        Cmdlet.__init__(self, parent, client, 'count.ui')
         self.seconds.valueChanged.connect(self.changed)
 
     def isValid(self):
@@ -137,8 +136,7 @@ class Scan(Cmdlet):
     category = 'Scan'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'scan.ui', 'cmdlets')
+        Cmdlet.__init__(self, parent, client, 'scan.ui')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -196,8 +194,7 @@ class CScan(Cmdlet):
     category = 'Scan'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'cscan.ui', 'cmdlets')
+        Cmdlet.__init__(self, parent, client, 'cscan.ui')
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -254,8 +251,7 @@ class Sleep(Cmdlet):
     category = 'Other'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'sleep.ui', 'cmdlets')
+        Cmdlet.__init__(self, parent, client, 'sleep.ui')
         self.seconds.valueChanged.connect(self.changed)
 
     def isValid(self):
@@ -273,8 +269,7 @@ class Configure(Cmdlet):
     category = 'Device'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'configure.ui', 'cmdlets')
+        Cmdlet.__init__(self, parent, client, 'configure.ui')
         self.device.addItems(self.client.getDeviceList())
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -305,8 +300,7 @@ class NewSample(Cmdlet):
     category = 'Other'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client)
-        loadUi(self, 'sample.ui', 'cmdlets')
+        Cmdlet.__init__(self, parent, client, 'sample.ui')
         self.samplename.textChanged.connect(self.changed)
 
     def generate(self, mode):
