@@ -29,7 +29,8 @@ from os import path
 
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
-from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar
+from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar,\
+        QStatusBar, QSizePolicy, QDoubleSpinBox, QListWidgetItem
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -142,7 +143,7 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
     def on_client_liveparams(self, params):
-        tag, dtype, nx, ny, nz, runtime = params
+        _tag, dtype, nx, ny, nz, runtime = params
         self._runtime = runtime
         if dtype not in DATATYPES:
             self._format = None
