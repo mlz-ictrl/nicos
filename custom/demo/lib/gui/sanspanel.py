@@ -146,7 +146,7 @@ class SANSPanel(Panel):
     def on_widget_customContextMenuRequested(self, point):
         self.menu.popup(self.mapToGlobal(point))
 
-    def on_widget_profileUpdate(self, type, nbins, x, y):
+    def on_widget_profileUpdate(self, ptype, nbins, x, y):
         pass
 
     def on_fileList_itemClicked(self, item):
