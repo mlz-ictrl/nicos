@@ -302,7 +302,7 @@ class DevicesPanel(Panel):
                 devinfo[6], devinfo[7] = value
                 if (devinfo[6] is not None and devinfo[0] < devinfo[6]) or \
                    (devinfo[7] is not None and devinfo[0] > devinfo[7]):
-                   st = ERROR
+                    st = ERROR
             devitem.setBackground(1, backgroundBrush[st])
         elif subkey == 'classes':
             if not value:
