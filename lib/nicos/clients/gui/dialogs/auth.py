@@ -24,8 +24,8 @@
 
 """Dialog for entering authentication data."""
 
-from PyQt4.QtCore import QSize
 from PyQt4.QtGui import QDialog
+from PyQt4.QtCore import QSize
 
 from nicos.protocols.daemon import DEFAULT_PORT
 from nicos.clients.gui.utils import loadUi

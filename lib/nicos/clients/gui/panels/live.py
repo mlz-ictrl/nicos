@@ -27,13 +27,13 @@
 import struct
 from math import sin, radians, pi
 
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
-from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
      QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont, \
      QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
      QwtPlotMarker, QwtSymbol
+from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
+from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.clients.gui.panels import Panel

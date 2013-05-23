@@ -24,8 +24,8 @@
 
 """Browser GUI tool."""
 
-from PyQt4.QtCore import SIGNAL, QUrl
 from PyQt4.QtGui import QDialog
+from PyQt4.QtCore import SIGNAL, QUrl
 
 from nicos.clients.gui.utils import loadUi
 

@@ -28,11 +28,11 @@ import os
 import time
 from os import path
 
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
-from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
      QStatusBar, QSizePolicy, QListWidgetItem, QPushButton, QStyle, \
      QDialogButtonBox, QColor
+from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
+from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi, setBackgroundColor
 from nicos.clients.gui.panels import Panel

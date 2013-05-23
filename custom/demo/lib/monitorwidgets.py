@@ -1,7 +1,7 @@
 from math import sin, cos, pi
 
-from PyQt4.QtCore import QSize, QPointF, QPoint
 from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QPolygonF
+from PyQt4.QtCore import QSize, QPointF, QPoint
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
 from nicos.guisupport.widget import DisplayWidget

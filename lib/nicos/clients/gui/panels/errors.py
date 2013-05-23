@@ -26,8 +26,8 @@
 
 from logging import WARNING
 
-from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialogButtonBox
+from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
 from nicos.clients.gui.panels import Panel

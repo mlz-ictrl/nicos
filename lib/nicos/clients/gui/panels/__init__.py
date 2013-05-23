@@ -24,9 +24,9 @@
 
 """NICOS GUI application package."""
 
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
      QColorDialog, QVBoxLayout
+from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 

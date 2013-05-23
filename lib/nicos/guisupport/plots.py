@@ -28,8 +28,8 @@ NICOS value plot widget.
 
 from time import time as currenttime, strftime, localtime
 
-from PyQt4.QtCore import Qt, pyqtProperty, SIGNAL, QTimer, QSize
 from PyQt4.QtGui import QWidget, QPen, QBrush
+from PyQt4.QtCore import Qt, pyqtProperty, SIGNAL, QTimer, QSize
 
 try:
     from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \

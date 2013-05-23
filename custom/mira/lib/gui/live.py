@@ -27,11 +27,11 @@
 import os
 from os import path
 
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
-from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QPrintDialog, \
      QDialog, QMenu, QToolBar, QSizePolicy, QListWidgetItem, \
      QDoubleSpinBox, QLabel
+from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
+from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel

@@ -24,10 +24,10 @@
 
 """NICOS GUI panel with a list of all devices."""
 
-from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
      QInputDialog, QDialogButtonBox, QPalette, QDoubleValidator, \
      QTreeWidgetItemIterator, QDialog
+from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
 from nicos.clients.gui.panels import Panel

@@ -24,8 +24,8 @@
 
 """NICOS GUI settings window."""
 
-from PyQt4.QtCore import QVariant, pyqtSignature as qtsig
 from PyQt4.QtGui import QDialog, QTreeWidgetItem, QListWidgetItem
+from PyQt4.QtCore import QVariant, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 

@@ -24,8 +24,8 @@
 
 """NICOS GUI command input widgets."""
 
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QColor
+from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
 

@@ -27,8 +27,8 @@
 import time
 from os import path
 
-from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QStyle, QColor, QDialogButtonBox, QPushButton
+from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi

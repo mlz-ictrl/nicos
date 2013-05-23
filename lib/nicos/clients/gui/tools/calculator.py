@@ -28,8 +28,8 @@ import re
 import math
 from os import path
 
-from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem, QDoubleValidator
+from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
 

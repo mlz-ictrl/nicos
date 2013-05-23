@@ -24,8 +24,8 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QLabel
+from PyQt4.QtCore import SIGNAL, Qt
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi

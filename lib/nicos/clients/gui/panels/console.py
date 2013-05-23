@@ -28,10 +28,10 @@ import sys
 import time
 import codecs
 
-from PyQt4.QtCore import QVariant, QStringList, SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QColor, \
      QPrinter, QPrintDialog, QAbstractPrintDialog
+from PyQt4.QtCore import QVariant, QStringList, SIGNAL
+from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.utils import chunks
 from nicos.clients.gui.panels import Panel

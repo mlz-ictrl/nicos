@@ -24,8 +24,8 @@
 
 """Dialog for showing information about new plug-and-play events."""
 
-from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QMessageBox, QStyle
+from PyQt4.QtCore import Qt, SIGNAL
 
 
 class PnPSetupQuestion(QMessageBox):

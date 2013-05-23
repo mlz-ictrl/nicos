@@ -26,8 +26,8 @@
 
 import time
 
-from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig, QVariant, QStringList
 from PyQt4.QtGui import QMenu, QAction, QMessageBox, QColor
+from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig, QVariant, QStringList
 
 from nicos.clients.gui.utils import loadUi, setBackgroundColor, \
      ScriptExecQuestion

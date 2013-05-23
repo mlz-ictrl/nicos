@@ -27,8 +27,8 @@
 import time
 import subprocess
 
-from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QPushButton
+from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi
 
