@@ -32,12 +32,12 @@ import time
 from os import path
 from logging import WARNING
 
-from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
-     QStringList, QFileSystemWatcher
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
      QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
      QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
      QFileSystemModel, QTabWidget
+from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
+     QStringList, QFileSystemWatcher
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter

@@ -26,9 +26,9 @@
 
 from __future__ import with_statement
 
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
      QColorDialog
+from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 

@@ -24,8 +24,8 @@
 
 """Graphical interface to prepare scan commands."""
 
-from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QDoubleValidator, QIntValidator, QButtonGroup
+from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
 

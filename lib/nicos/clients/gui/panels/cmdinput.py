@@ -24,8 +24,8 @@
 
 """NICOS GUI command input widgets."""
 
-from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 from PyQt4.QtGui import QMenu, QAction, QToolButton
+from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel

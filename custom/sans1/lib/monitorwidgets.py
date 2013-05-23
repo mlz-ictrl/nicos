@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 
+from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush
 from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QFont
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
 

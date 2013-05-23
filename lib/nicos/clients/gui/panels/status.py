@@ -26,10 +26,10 @@
 
 import time
 
-from PyQt4.QtCore import Qt, QTimer, QVariant, SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig
 from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
      QPixmap, QColor
+from PyQt4.QtCore import Qt, QTimer, QVariant, SIGNAL
+from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, setBackgroundColor

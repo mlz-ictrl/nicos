@@ -28,10 +28,10 @@ import threading
 from time import sleep
 
 from PyQt4 import uic
-from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
      QCursor
+from PyQt4.QtCore import Qt, SIGNAL
 
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import DisplayWidget

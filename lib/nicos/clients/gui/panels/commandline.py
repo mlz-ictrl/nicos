@@ -28,8 +28,8 @@ from __future__ import with_statement
 
 import time
 
-from PyQt4.QtCore import QVariant, QStringList, SIGNAL
 from PyQt4.QtGui import QColor, QMessageBox
+from PyQt4.QtCore import QVariant, QStringList, SIGNAL
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, ScriptExecQuestion, \

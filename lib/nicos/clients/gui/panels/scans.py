@@ -29,10 +29,10 @@ from __future__ import with_statement
 import os
 import time
 
-from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
      QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
 from PyQt4.Qwt5 import QwtPlot, QwtPlotItem, QwtText, QwtLog10ScaleEngine
+from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np

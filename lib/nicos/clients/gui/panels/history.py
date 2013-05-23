@@ -31,10 +31,10 @@ import sys
 import cPickle as pickle
 from time import time as currenttime, localtime, mktime, strftime
 
-from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, SIGNAL
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
      QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
+from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np

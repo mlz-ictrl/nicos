@@ -24,9 +24,9 @@
 
 """NICOS GUI watch variable panel component."""
 
+from PyQt4.QtGui import QInputDialog, QMessageBox, QTreeWidgetItem
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
-from PyQt4.QtGui import QInputDialog, QMessageBox, QTreeWidgetItem
 
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
 from nicos.clients.gui.panels import Panel
