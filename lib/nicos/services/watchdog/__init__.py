@@ -122,7 +122,7 @@ class Watchdog(BaseCacheClient):
             cond_parse = ast.parse(entry.condition)
             for node in ast.walk(cond_parse):
                 if isinstance(node, ast.Name):
-                    key = node.id.replace('_', '/').lower()
+                    key = node.id[::-1].replace('_', '/', 1).lower()[::-1]
                     self._keymap[self._prefix + key] = entry
 
     def _put_message(self, msgtype, message, timestamp=True):
