@@ -1,4 +1,4 @@
-import cascadeclient
+import cascadeclient    #pylint: disable=F0401
 
 casc = cascadeclient.NicosClient()
 casc.connecttohost("cascade.mira.frm2",1234)

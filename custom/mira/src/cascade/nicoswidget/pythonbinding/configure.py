@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os
-import sipconfig
+#import sipconfig
 from PyQt4 import pyqtconfig
 
 build_file = "cascadewidget.sbf"
@@ -10,7 +10,9 @@ config = pyqtconfig.Configuration()
 pyqt_sip_flags = config.pyqt_sip_flags
 
 print "Running sip..."
-os.system(" ".join([config.sip_bin, "-t", "Qwt_5_2_0", "-c", ".", "-b", build_file, "-I", config.pyqt_sip_dir, pyqt_sip_flags, "cascadewidget.sip"]))
+os.system(" ".join([config.sip_bin, "-t", "Qwt_5_2_0", "-c", ".",
+                    "-b", build_file, "-I", config.pyqt_sip_dir, pyqt_sip_flags,
+                    "cascadewidget.sip"]))
 
 print "Generating makefile..."
 makefile = pyqtconfig.QtGuiModuleMakefile(configuration=config, build_file=build_file, debug=0)

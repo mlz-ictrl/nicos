@@ -3,7 +3,7 @@
 # author: tweber
 
 import numpy as np
-from scipy.fftpack import *
+from scipy.fftpack import fft, ifft
 import matplotlib.pyplot as plt
 
 samples = 64
