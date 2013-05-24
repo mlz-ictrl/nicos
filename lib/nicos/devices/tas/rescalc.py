@@ -32,7 +32,7 @@ Marc Janoschek.
 """
 
 from numpy import pi, radians, degrees, sin, cos, tan, arcsin, arccos, \
-     arctan2, abs, sqrt, real, matrix, diag, cross, dot, array, arange, \
+     arctan2, absolute, sqrt, real, matrix, diag, cross, dot, array, arange, \
      zeros, concatenate, reshape, delete, exp
 from numpy.linalg import inv, det, eig, norm
 from numpy.random import randn
@@ -304,7 +304,7 @@ class resmat(object):
         self.calc_popovici()
         self.calc_STrafo()
 
-    def calc_popovici(self):
+    def calc_popovici(self):  #pylint: disable=R0914,R0915
         """Performs the actual calculation."""
         # reset errors before new calculation
         self.ERROR = None
@@ -392,8 +392,8 @@ class resmat(object):
         # transfer in ang-1, are passed over.
 
         # Calculate ki and kf, thetam and thetaa
-        ki = abs(sqrt(kfix**2+(fx-1) * MEV2AA2 * w))  # kinematical equations.
-        kf = abs(sqrt(kfix**2-(2-fx) * MEV2AA2 * w))
+        ki = absolute(sqrt(kfix**2+(fx-1) * MEV2AA2 * w))  # kinematical equations.
+        kf = absolute(sqrt(kfix**2-(2-fx) * MEV2AA2 * w))
 
         # Test if scattering triangle is closed
 
@@ -606,7 +606,7 @@ class resmat(object):
             sqrt(det(F)/det((D*(S+T.transpose()*F*T)**(-1)*D.transpose())**(-1)+G)) #Popovici
         # Werner and Pynn correction
         # for mosaic spread of crystal.
-        R0 = abs(R0/(etas*sqrt(1/etas**2+q0**2*N[1,1])))
+        R0 = absolute(R0/(etas*sqrt(1/etas**2+q0**2*N[1,1])))
 
         #Transform prefactor to Chesser-Axe normalization
         RM_ = matrix(zeros((4,4)))
@@ -668,7 +668,7 @@ class resmat(object):
             self.ERROR = 'problem with matrix calculation'
             return
 
-        self.R0 = abs(R0)
+        self.R0 = absolute(R0)
         self.NP = NP
         #return (R0, NP, vi, vf, Error)
 
@@ -848,7 +848,7 @@ Resolution Info:
         bragg[2] = 2.3548/sqrt(M[2,2])
         _r, bragg[3] = self.calcPhonon(1, matrix([0, 0, 0, 1]))
         bragg[4] = 2.3548/sqrt(M[3,3])
-        return abs(bragg)
+        return absolute(bragg)
 
     def calcPhonon(self,r0,C):
         """resmat  routine to calculate the phonon width of a scan along a
@@ -907,7 +907,7 @@ Resolution Info:
         xys_x, xys_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         #----- 2. Qx, W plane
-        R0P, MP = GaussInt(1, R0, B)
+        _R0P, MP = GaussInt(1, R0, B)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
         xw_x, xw_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
@@ -917,7 +917,7 @@ Resolution Info:
         xws_x, xws_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
         #----- 3. Qy, W plane
-        R0P, MP = GaussInt(0, R0, B)
+        _R0P, MP = GaussInt(0, R0, B)
         hwhm_xp, hwhm_yp, theta = calcEllipseAxis(MP)
         yw_x, yw_y = ellipse_coords(hwhm_xp, hwhm_yp, theta)
 
@@ -1088,6 +1088,6 @@ def demosqw(qh, qk, ql, en, par, QE, sigma):
     q = sqrt(qqh**2 + qqk**2 + qql**2)
     omega = 10 * sin(q * pi)
     gamma = 0.05
-    Iph = 10 / max(abs(en), 0.1) * gamma * (
+    Iph = 10 / max(absolute(en), 0.1) * gamma * (
         1 / ((en - omega)**2 + gamma**2) + 1 / ((en + omega)**2 + gamma**2))
     return 1e6 * par[0] * (Ibr + Iph)

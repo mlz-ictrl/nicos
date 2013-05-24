@@ -370,7 +370,7 @@ class NicosCmdClient(NicosClient):
         levelno = msg[2]
         if levelno == ACTION:
             action = namefmt + msg[3].rstrip()
-            self.out.write('\033]0;NICOS%s\007' %
+            self.out.write('\x1b]0;NICOS%s\x07' %
                            (action and ' (%s)' % action or ''))
             return
         else:

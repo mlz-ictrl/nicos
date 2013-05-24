@@ -59,12 +59,12 @@ class MCC2Base(object):
     def _comm(self, cmd, forcechannel=True):
         if forcechannel:
             cmd = cmd.replace('X', self.channel).replace('Y', self.channel)
-        temp = self._adevs['bus'].communicate('\002' + hex(self.addr)[-1] +
-                                              cmd + '\003')
-        if len(temp) >= 2 and temp[0] == '\002':   # strip beginning STX
-            if temp[-1] == '\003': # strip optional ending ETX
+        temp = self._adevs['bus'].communicate('\x02' + hex(self.addr)[-1] +
+                                              cmd + '\x03')
+        if len(temp) >= 2 and temp[0] == '\x02':   # strip beginning STX
+            if temp[-1] == '\x03': # strip optional ending ETX
                 temp = temp[:-1]
-            if temp[1] == '\006':
+            if temp[1] == '\x06':
                 return temp[2:]
             # no ACK -> raise exception
             raise CommunicationError(self, 'NAK response to %r' % cmd)

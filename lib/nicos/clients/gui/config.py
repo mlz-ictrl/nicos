@@ -54,7 +54,7 @@ class panel_config(tuple):
     def __new__(cls, (_ignored, windows, tools)):
         return tuple.__new__(cls, (_ignored, windows, tools))
 
-    def __init__(self, *args):
+    def __init__(self, *args):  #pylint: disable=W0231
         self.windows = self[1]
         self.tools = self[2]
 

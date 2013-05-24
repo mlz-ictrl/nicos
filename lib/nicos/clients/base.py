@@ -296,7 +296,7 @@ class NicosClient(object):
         if isinstance(result, Exception):
             if default is not None:
                 return default
-            raise result
+            raise result  #pylint: disable=E0702
         return result
 
     def read(self):

@@ -185,7 +185,7 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
         self._adevs['ps2'].wait()
 
     def doRead(self, maxage=0):
-        maxfield, maxcurr1, maxcurr2 = self._scales[self.asymmetry]
+        maxfield, maxcurr1, _maxcurr2 = self._scales[self.asymmetry]
         return self._adevs['ps1'].read(maxage) / maxcurr1 * maxfield
 
     def doStatus(self, maxage=0):

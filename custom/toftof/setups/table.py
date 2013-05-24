@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = []
 
-nethost= 'toftofsrv.toftof.frm2'
+nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
     gx    = device('devices.taco.motor.Motor',
@@ -58,7 +58,7 @@ devices = dict(
                    std_speed = 120,
                    ref_speed = 100,
                    timeout = 120,
-#		   pollinterval = 5,
+                   # pollinterval = 5,
                    unit = 'deg',
                    fmtstr = '%.3f',
                   ),

@@ -54,7 +54,6 @@ def FlushCryo():
 @usercommand
 def SetCryoGas(target):
     CryoGas = session.getDevice('ccr5_gas_switch')
-    CryoVac = session.getDevice('ccr5_vacuum_switch')
     Pcryo = session.getDevice('ccr5_p1')
     move(CryoGas,'on')
     while Pcryo.read() < target:
@@ -63,7 +62,6 @@ def SetCryoGas(target):
 
 @usercommand
 def SetCryoVac(target):
-    CryoGas = session.getDevice('ccr5_gas_switch')
     CryoVac = session.getDevice('ccr5_vacuum_switch')
     Pcryo = session.getDevice('ccr5_p1')
     move(CryoVac,'on')

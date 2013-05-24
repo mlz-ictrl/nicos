@@ -87,7 +87,7 @@ class Amplifier(Measurable, TacoDevice):
     def doRead(self, maxage=0):
         xs, ys = [], []
         N = self.measurements
-        for i in range(N):
+        for _ in range(N):
             try:
                 newx = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
                 newy = float(self._taco_guard(self._dev.communicate, 'OUTP? 2'))

@@ -68,12 +68,12 @@ class MCC2Coder(NicosCoder):
     def comm(self, cmd, forcechannel=True):
         if forcechannel:
             cmd = cmd.replace('X', self.channel).replace('Y', self.channel)
-        temp = self.bus.communicate('\002' + hex(self.addr)[-1] + cmd + '\003')
-        if len(temp) >= 2 and temp[0] == '\002':   #strip beginning STX
+        temp = self.bus.communicate('\x02' + hex(self.addr)[-1] + cmd + '\x03')
+        if len(temp) >= 2 and temp[0] == '\x02':   #strip beginning STX
             temp = temp[1:]
-            if temp[-1] == '\003': #strip optional ending stx
+            if temp[-1] == '\x03': #strip optional ending stx
                 temp = temp[:-1]
-            if temp[0] == '\006':
+            if temp[0] == '\x06':
                 return temp[1:]
             else:
                 return None     # no ACK means nothing good!
@@ -149,13 +149,13 @@ class MCC2Motor(NicosMotor):
         if forcechannel:
             cmd = cmd.replace('X', self.channel).replace('Y', self.channel)
         self.log.debug('CMD is %r' % cmd)
-        temp = self.bus.communicate('\002' + hex(self.addr)[-1] + cmd + '\003')
+        temp = self.bus.communicate('\x02' + hex(self.addr)[-1] + cmd + '\x03')
         self.log.debug('Communicate yielded %r' % temp)
-        if len(temp) >= 2 and temp[0] == '\002':   #strip beginning STX
+        if len(temp) >= 2 and temp[0] == '\x02':   #strip beginning STX
             temp = temp[1:]
-            if temp[-1] == '\003': #strip optional ending stx
+            if temp[-1] == '\x03': #strip optional ending stx
                 temp = temp[:-1]
-            if temp[0] == '\006':
+            if temp[0] == '\x06':
                 return temp[1:]
             else:
                 return None     # no ACK means nothing good!

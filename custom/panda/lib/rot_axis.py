@@ -67,7 +67,7 @@ class RotAxis(Axis):
             self.reference(target)    # WARNING: This takes a while !
         return Axis.doStart(self, target)
 
-    def doReference(self, gotopos = None):
+    def doReference(self, gotopos=None):  #pylint: disable=W0221
         ''' references this axis by finding the reference switch and then setting current position to refpos.
         1) Finding the refswitch by going backwards until the refswitch (=negative limit switch) fires,
         2) then go forward a little until the switch is not active,

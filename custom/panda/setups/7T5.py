@@ -2,11 +2,11 @@
 
 description = 'PANDA-version of a setup for the FRM2 7T5 Magnet'
 
-includes=['alias_B']
+includes = ['alias_B']
 
 group = 'optional'
 
-TACOBASE='//magnet.panda.frm2/magnet/'
+TACOBASE = '//magnet.panda.frm2/magnet/'
 
 devices = dict(
     # There are 8 thermometers to check temperatures inside the magnet....
@@ -137,7 +137,7 @@ devices = dict(
 #                    ),
 )
 
-startupcode='''
+startupcode = '''
 B.alias='B_7T5'
 sth.alias='sth_B7T5'
 '''

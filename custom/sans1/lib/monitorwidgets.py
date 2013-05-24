@@ -121,7 +121,7 @@ class Tube2(DisplayWidget, QWidget):
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         try:
             idx = self.devices.index(dev)
-        except:
+        except ValueError:
             return
         self.curval[idx] = value
         self.curstr[idx] = unitvalue
@@ -130,7 +130,7 @@ class Tube2(DisplayWidget, QWidget):
     def on_devStatusChange(self, dev, code, status, expired):
         try:
             idx = self.devices.index(dev)
-        except:
+        except ValueError:
             return
         self.curstatus[idx] = code
         self.update()
@@ -309,8 +309,8 @@ class CollimatorTable(DisplayWidget, QWidget):
 
         painter.setBrush(statusbrush[self.curstatus])
         try:
-            p = self.options.index( self.curstr )
-        except:
+            p = self.options.index(self.curstr)
+        except ValueError:
             p = 0
 
         painter.setFont(self.valuefont)

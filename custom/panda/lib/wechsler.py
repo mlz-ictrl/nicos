@@ -173,7 +173,7 @@ class Beckhoff(Device):
 
     def WriteWordOutput( self, addr, value ):
         if addr < 0x800:
-            addr  =addr | 0x800 # beckhoff special....
+            addr |= 0x800 # beckhoff special....
         assert( 0x0000 <= value <= 0xffff ) # value is exactly 16 bits unsigned!
         request = pack('>HHHBBHH', random.getrandbits(16), 0, 6, self.addr, 6, addr, value ) # can write exactly 1 word !
         response = self.communicate( request )

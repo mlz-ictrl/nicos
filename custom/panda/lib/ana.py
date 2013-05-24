@@ -155,7 +155,7 @@ class ATT_Axis(Axis):
             if ubl >= lwl:  # block is not left to window
                 if lbl <= uwl:  # block is not right to window
                     blockup = 1
-            code += blockup<< j
+            code += blockup << j
         self._adevs['anablocks'].start(code)
 
     @usermethod

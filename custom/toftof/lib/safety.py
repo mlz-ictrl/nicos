@@ -30,16 +30,6 @@ from time import sleep
 from nicos.core import Readable, Moveable, Override, status, oneofdict
 from nicos.devices.taco import DigitalInput, DigitalOutput
 
-try:
-    bin
-except NameError:
-    def bin(x):
-        s = ''
-        while x:
-            s += str(x & 1)
-            x >>= 1
-        return '0b' + s[::-1]
-
 
 bit_description = [
     "door of chopper shielded area is closed (switch 1)",                                # bit 1-0

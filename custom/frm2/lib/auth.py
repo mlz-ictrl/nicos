@@ -39,7 +39,7 @@ class Frm2Authenticator(Authenticator):
 
     def authenticate(self, username, password):
         try:
-            uid, passwd = queryUser(username)
+            _uid, passwd = queryUser(username)
             if passwd != password:
                 raise AuthenticationError('wrong password')
             return User(username, USER)

@@ -10,9 +10,9 @@ devices = dict(
     P   = device('devices.taco.AnalogInput',
                  description = 'Pressure cell device',
                  tacodevice = '//%s/toftof/pressure/value' % (nethost,),
-		 unit = 'bar',
+                 unit = 'bar',
                  pollinterval = 120,
-		),
+    ),
 )
 
 startupcode = """

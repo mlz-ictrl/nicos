@@ -537,6 +537,8 @@ class MainWindow(QMainWindow, DlgUtils):
         self.user_color = color
 
 
+log = None
+
 def main(argv):
     global log
 

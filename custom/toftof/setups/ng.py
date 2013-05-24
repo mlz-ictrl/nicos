@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = []
 
-nethost= 'toftofsrv.toftof.frm2'
+nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
     ng_left    = device('devices.taco.Motor',

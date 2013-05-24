@@ -148,7 +148,7 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
     def on_client_liveparams(self, params):
-        tag, filename, dtype, nx, ny, nt, runtime = params
+        _tag, filename, dtype, nx, ny, nt, runtime = params
         self._runtime = runtime
         self._filename = filename
         if dtype == '<u4' and nx == 128 and ny == 128:

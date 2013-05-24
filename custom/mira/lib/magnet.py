@@ -81,8 +81,8 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
         stepwidth = 5
         # half a second is the communication time
         delay = (60 / self.ramp) * 5 - 0.5
-        steps, fraction = divmod(abs(diff), stepwidth)
-        for i in xrange(int(steps)):
+        steps, _fraction = divmod(abs(diff), stepwidth)
+        for _i in xrange(int(steps)):
             if self._stopflag:
                 self.log.debug('got stop flag, quitting ramp')
                 return

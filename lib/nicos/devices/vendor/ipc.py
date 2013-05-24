@@ -215,7 +215,7 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
 
     def doUpdateBustimeout(self, value):
         if self._dev:
-           self._taco_update_resource('timeout',str(value))
+            self._taco_update_resource('timeout',str(value))
 
 
 

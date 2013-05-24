@@ -53,7 +53,7 @@ class ModBusDriverHP(TacoDevice, Device):
                     hcmd = (j, self._huberCmds[j].index(i))
                     break
             if iexit:
-                 break
+                break
         if not iexit:
             # positioning command or unknown command
             if len(istr2) > 3:

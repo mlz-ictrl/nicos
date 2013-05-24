@@ -51,7 +51,7 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
         idn = self._taco_guard(self._dev.communicate, '*IDN?')
         if not idn.startswith('test_PTN'):
             raise CommunicationError(self, 'strange model for PTN3p: %r' % idn)
-        maxcur, maxvolt = map(float, idn[8:].split('-'))
+        maxcur, _maxvolt = map(float, idn[8:].split('-'))
         if maxcur < self.abslimits[1]:
             raise NicosError(self, 'absolute maximum bigger than device maximum')
         if mode == 'master':

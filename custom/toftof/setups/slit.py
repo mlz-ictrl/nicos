@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = []
 
-nethost= 'toftofsrv.toftof.frm2'
+nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
     SampleSlitMotVB = device('devices.taco.motor.Motor',

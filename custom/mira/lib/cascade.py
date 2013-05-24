@@ -96,7 +96,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         host, port = self.server.split(':')
         port = int(port)
         self.log.info('waiting for CASCADE server restart...')
-        for i in range(4):
+        for _ in range(4):
             sleep(0.5)
             if self._client.connecttohost(host, port):
                 break

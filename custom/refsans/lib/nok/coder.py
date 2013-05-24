@@ -186,7 +186,7 @@ class Coder(BaseCoder):
         RAWValue = 0
         self.log.debug(self, 'poti read enter while')
         while True:
-            exit = True
+            exit_ = True
             try:
                 ref = self._adevs['ref'].read() # due to resistors
             except Exception:
@@ -194,7 +194,7 @@ class Coder(BaseCoder):
                     ref = self._adevs['ref'].read() # due to resistors
                 except Exception:
                     self.log.error(self,  'readerror REF 2. (1/2));')
-                    exit = False
+                    exit_ = False
             try:
                 RAWValue = self._adevs['port'].read() # let it so the box must work
             except Exception:
@@ -202,8 +202,8 @@ class Coder(BaseCoder):
                     RAWValue = self._adevs['port'].read() # let it so the box must work
                 except Exception:
                     self.log.error('readerror RAWVALUE 2. (2/2);')
-                    exit = False
-            if exit:
+                    exit_ = False
+            if exit_:
                 break
         self.log.debug(self, 'raw value = %f reference value = %f', (RAWValue, ref))
         try:
