@@ -34,7 +34,7 @@ class CoderReference(AnalogInput) :
     """ NOK coder voltage reference """
 
     parameters = {
-        'refhigh' : Param('High reference', 
+        'refhigh' : Param('High reference',
                           type = float,
                           default = 19.8, # 2 * 9.9
                           settable = False,
@@ -57,7 +57,7 @@ class CoderReference(AnalogInput) :
             self.log.error(self,  'Reference voltage to high : %f > %f' % (ref, self.refhigh))
         if   abs(ref) <  self.reflow:
             self.log.error(self, 'Reference voltage to low : %f < %f' % (ref, self.reflow))
-        elif abs(ref) <  self.refwarn: 
+        elif abs(ref) <  self.refwarn:
             self.log.warning(self, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn))
         return ref
 
@@ -67,7 +67,7 @@ class CoderReference(AnalogInput) :
             return status.ERROR,  'Reference voltage to high : %f > %f' % (ref, self.refhigh)
         if   abs(ref) <  self.reflow:
             return status.ERROR, 'Reference voltage to low : %f < %f' % (ref, self.reflow)
-        elif abs(ref) <  self.refwarn: 
+        elif abs(ref) <  self.refwarn:
             return status.ERROR, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn)
         else:
             return status.OK, ''
@@ -166,7 +166,7 @@ class Coder(BaseCoder):
         else:
             if   lkorr == 'none':
                 tmp = data[0] # /E
-            elif lkorr ==  'mul': 
+            elif lkorr ==  'mul':
                 tmp = self.mul * data[0] #/E
             return (tmp, self.off + data[1])
 
@@ -175,7 +175,7 @@ class Coder(BaseCoder):
             return status.OK, ''
         else :
             return status.ERROR, self.phys #'Physically not connected or other problems. Ask instrument responsible'
-    
+
     def doRead (self, typ='POS') :
         """
         1. ref must be in a given range (depend on ADC)
@@ -187,35 +187,35 @@ class Coder(BaseCoder):
         self.log.debug(self, 'poti read enter while')
         while True:
             exit = True
-            try:        
+            try:
                 ref = self._adevs['ref'].read() # due to resistors
             except Exception:
-                try:    
+                try:
                     ref = self._adevs['ref'].read() # due to resistors
                 except Exception:
-                    self.log.error(self,  'readerror REF 2. (1/2));') 
+                    self.log.error(self,  'readerror REF 2. (1/2));')
                     exit = False
-            try:        
-                RAWValue = self._adevs['port'].read() # let it so the box must work 
-            except Exception: 
-                try:    
+            try:
+                RAWValue = self._adevs['port'].read() # let it so the box must work
+            except Exception:
+                try:
                     RAWValue = self._adevs['port'].read() # let it so the box must work
                 except Exception:
-                    self.log.error('readerror RAWVALUE 2. (2/2);') 
+                    self.log.error('readerror RAWVALUE 2. (2/2);')
                     exit = False
             if exit:
                 break
         self.log.debug(self, 'raw value = %f reference value = %f', (RAWValue, ref))
-        try:    
+        try:
             Position = self.__formula([RAWValue, ref], True)
             self.log.debug(self, 'okay')
-            if 'OFF'       == typ.upper(): 
+            if 'OFF'       == typ.upper():
                 return {'off':-RAWValue/ref}
-            elif 'POS'       == typ.upper(): 
+            elif 'POS'       == typ.upper():
                 return Position
-            elif 'PARAMETER' == typ.upper(): 
+            elif 'PARAMETER' == typ.upper():
                 return {'corr' : self.corr, 'off' : self.off, 'sensitivity' : self.sensitivity, 'mul' : self.mul, 'avg' : 'auto'}
-            else:                          
+            else:
                 return {'corr' : self.corr, 'RAWValue' : RAWValue, 'ref' : ref, 'Position' : Position}
         except Exception:
             self.log.error(self, 'calc.Error : %s' % (str(sys.exc_info()[1])))
