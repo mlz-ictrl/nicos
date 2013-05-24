@@ -291,7 +291,9 @@ class Monitor(BaseMonitor):
             pal.setColor(QPalette.WindowText, self._gray)
             pal.setColor(QPalette.Window, self._bgcolor)
             self._titlelabel.setPalette(pal)
-            self._master.update()
+            # resize to minimum
+            self.reconfigureBoxes()
+            #self._master.update()
 
     def reconfigureBoxes(self):
         for setup, boxes in self._onlymap.iteritems():

@@ -216,7 +216,7 @@ class Plot(object):
             ax.relim()
             ax.autoscale_view()
         except Exception:
-            self.log.warning('error while determining limits', exc=1)
+            print 'error while determining limits'
             return ''
         try:
             mpl.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
