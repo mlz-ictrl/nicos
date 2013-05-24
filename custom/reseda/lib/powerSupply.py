@@ -46,8 +46,8 @@ class PowerSupplyU(TacoDevice, Readable):
     def doRead(self, maxage=0):
         tmp = int (self._dev.communicate('INST:NSEL?'))
         if tmp == self.channel:
-           tmp = self._dev.communicate('meas:volt?')
-           return float (tmp)
+            tmp = self._dev.communicate('meas:volt?')
+            return float (tmp)
         raise NicosError (self, 'other channel selected')
 
     def doStatus(self, maxage=0):
