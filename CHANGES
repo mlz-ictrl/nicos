@@ -3,6 +3,8 @@ Changelog for NICOS 2
 
 **Release 2.3.0**
 
+  - NICOS now requires Python 2.6.
+
   - Added a combined interactive command-input and commandline GUI panel.
 
   - The GUI client now writes a logfile so that unhandled exceptions can be
