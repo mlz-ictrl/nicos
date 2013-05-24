@@ -58,49 +58,55 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
             self._dev.setRamp(0)
         self._thread = None
         self._stopflag = 0
+        self._errorflag = None
 
     def _move_to(self, value):
         self._stopflag = 0
-        if value != 0:
-            minus, plus = self._adevs['minusswitch'], self._adevs['plusswitch']
-            # select which switch must be on and which off
-            switch = value < 0 and minus or plus
-            other  = value < 0 and plus or minus
-            # if the switch values are not correct, drive to zero and switch
-            if switch.read() & 1 != 1:
-                self._move_to(0)
-                self.log.debug('adjusting polarity switches')
-                other.start(0)
-                switch.start(1)
-            # then, just continue ramping to the absolute value
-            value = abs(value)
-        self.log.debug('ramping to %.2f A' % value)
-        currentval = self._taco_guard(self._dev.read)
-        diff = value - currentval
-        direction = diff > 0 and 1 or -1
-        stepwidth = 5
-        # half a second is the communication time
-        delay = (60 / self.ramp) * 5 - 0.5
-        steps, _fraction = divmod(abs(diff), stepwidth)
-        for _i in xrange(int(steps)):
-            if self._stopflag:
-                self.log.debug('got stop flag, quitting ramp')
-                return
-            currentval += direction * stepwidth
-            self.log.debug('ramp step: %.2f A' % currentval)
-            self._taco_guard(self._dev.write, currentval)
-            sleep(delay)
-        self.log.debug('final step: %.2f A' % value)
-        self._taco_guard(self._dev.write, value)
-        self.log.debug('done')
-        if value == 0 and abs(self._taco_guard(self._dev.read)) < 5:
-            self.log.debug('switching off current')
-            self._adevs['plusswitch'].start(0)
-            self._adevs['minusswitch'].start(0)
+        try:
+            if value != 0:
+                minus, plus = self._adevs['minusswitch'], self._adevs['plusswitch']
+                # select which switch must be on and which off
+                switch = value < 0 and minus or plus
+                other  = value < 0 and plus or minus
+                # if the switch values are not correct, drive to zero and switch
+                if switch.read() & 1 != 1:
+                    self._move_to(0)
+                    self.log.debug('adjusting polarity switches')
+                    other.start(0)
+                    switch.start(1)
+                # then, just continue ramping to the absolute value
+                value = abs(value)
+            self.log.debug('ramping to %.2f A' % value)
+            currentval = self._taco_guard(self._dev.read)
+            diff = value - currentval
+            direction = diff > 0 and 1 or -1
+            stepwidth = 5
+            # half a second is the communication time
+            delay = (60 / self.ramp) * 5 - 0.5
+            steps, _fraction = divmod(abs(diff), stepwidth)
+            for _i in xrange(int(steps)):
+                if self._stopflag:
+                    self.log.debug('got stop flag, quitting ramp')
+                    return
+                currentval += direction * stepwidth
+                self.log.debug('ramp step: %.2f A' % currentval)
+                self._taco_guard(self._dev.write, currentval)
+                sleep(delay)
+            self.log.debug('final step: %.2f A' % value)
+            self._taco_guard(self._dev.write, value)
+            self.log.debug('done')
+            if value == 0 and abs(self._taco_guard(self._dev.read)) < 5:
+                self.log.debug('switching off current')
+                self._adevs['plusswitch'].start(0)
+                self._adevs['minusswitch'].start(0)
+        except Exception:
+            self.log.warning('could not move to %.2f A' % value, exc=1)
+            self._errorflag = 'ramping not successful'
 
     def doStart(self, value):
         if self._thread is not None:
             self._thread.join()
+        self._errorflag = None
         self._thread = threading.Thread(target=self._move_to, args=(value,))
         self._thread.setDaemon(True)
         self._thread.start()
@@ -118,6 +124,15 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
 
     def doStop(self):
         self._stopflag = True
+
+    def doStatus(self, maxage=0):
+        if self._errorflag:
+            return status.ERROR, self._errorflag
+        return TacoDevice.doStatus(self, maxage)
+
+    def doReset(self):
+        self._errorflag = None
+        return TacoDevice.doReset(self)
 
 
 class LambdaField(HasLimits, Moveable):
