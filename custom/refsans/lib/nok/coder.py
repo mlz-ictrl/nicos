@@ -25,10 +25,8 @@
 """REFSANS NOK coder class for NICOS."""
 
 import sys
-from Encoder import Encoder
 
-from nicos.core import Readable, Moveable, Override, status, oneofdict, \
-    oneof, Param, status
+from nicos.core import Override, status, oneofdict, oneof, Param
 from nicos.devices.abstract import Coder as BaseCoder
 from nicos.devices.taco.io import AnalogInput
 
@@ -157,16 +155,16 @@ class Coder(BaseCoder):
         tmp = E * data[0] / data[1]
         lkorr = self.corr
         if lkorr == 'table':
-            try:    
+            try:
                 return self.korrtable[data[0]]
-            except: 
+            except Exception:
                 lkorr = 'mul'
-        if direction: 
-            if lkorr ==  'mul':     
+        if direction:
+            if lkorr ==  'mul':
                 tmp *= self.mul
             return tmp + self.off
         else:
-            if   lkorr == 'none': 
+            if   lkorr == 'none':
                 tmp = data[0] # /E
             elif lkorr ==  'mul': 
                 tmp = self.mul * data[0] #/E
@@ -191,18 +189,18 @@ class Coder(BaseCoder):
             exit = True
             try:        
                 ref = self._adevs['ref'].read() # due to resistors
-            except:     
+            except Exception:
                 try:    
                     ref = self._adevs['ref'].read() # due to resistors
-                except: 
+                except Exception:
                     self.log.error(self,  'readerror REF 2. (1/2));') 
                     exit = False
             try:        
                 RAWValue = self._adevs['port'].read() # let it so the box must work 
-            except: 
+            except Exception: 
                 try:    
                     RAWValue = self._adevs['port'].read() # let it so the box must work
-                except: 
+                except Exception:
                     self.log.error('readerror RAWVALUE 2. (2/2);') 
                     exit = False
             if exit:
@@ -218,6 +216,6 @@ class Coder(BaseCoder):
             elif 'PARAMETER' == typ.upper(): 
                 return {'corr' : self.corr, 'off' : self.off, 'sensitivity' : self.sensitivity, 'mul' : self.mul, 'avg' : 'auto'}
             else:                          
-                return {'corr' : self.corr, 'RAWValue' : RAWValue, 'ref' : ref, 'Position' : Position, 'Status' : Status}
-        except: 
+                return {'corr' : self.corr, 'RAWValue' : RAWValue, 'ref' : ref, 'Position' : Position}
+        except Exception:
             self.log.error(self, 'calc.Error : %s' % (str(sys.exc_info()[1])))
