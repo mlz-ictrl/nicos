@@ -28,6 +28,7 @@ import os
 import sys
 import signal
 import __builtin__
+import threading
 
 from nicos.core import AccessError, ACCESS_LEVELS
 from nicos.utils.loggers import OUTPUT
@@ -125,6 +126,12 @@ class DaemonSession(NoninteractiveSession):
             # remove all pending client handlers (the threads are dead anyway,
             # but we have to stop putting events into their queues)
             self.daemon_device.clear_handlers()
+            # avoid using the same secondary socket at the same time as the daemon....
+            if self.cache is not None:
+                self.cache._secsocket = None
+                self.cache._sec_lock = threading.Lock()
+                self.cache._sync = False
+
             try:
                 self.log.manager.globalprefix = prefix
                 self.addLogHandler(pipesender)
