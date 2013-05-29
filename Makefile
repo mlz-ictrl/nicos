@@ -142,8 +142,8 @@ main-install:
 	# the next line can be removed once all installations use the new scheme
 	rm -f $(VOPT) $(ROOTDIR)/lib/nicos/services/daemon/_pyctl.so
 	# install the C module in a platform-specific directory
-	mkdir $(VOPT) $(ROOTDIR)/lib/plat-$(PYPLATFORM)
-	mv -pr $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/nicos/services/daemon/_pyctl.so $(ROOTDIR)/lib/plat-$(PYPLATFORM)
+	mkdir -p $(VOPT) $(ROOTDIR)/lib/plat-$(PYPLATFORM)
+	mv $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/nicos/services/daemon/_pyctl.so $(ROOTDIR)/lib/plat-$(PYPLATFORM)
 	cp -pr $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/* $(ROOTDIR)/lib
 	cp -pr $(VOPT) pid/README $(ROOTDIR)/pid
 	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/pid
