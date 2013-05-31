@@ -29,31 +29,34 @@ Requirements
 ------------
 
 * At least Python 2.6
+  - python-devel (headers and static library) (xbuntu 12.04: python-dev)
 
-* numpy
+* numpy (xbuntu 12.04: python-numpy)
 
 * Optional for the basic system:
   - the TACO Python libraries
-  - scipy (for fitting)
-  - gnuplot-py (for liveplot display)
-  - MySQLdb (for proposal DB query)
-  - python-xmpp (for Jabber notifications)
-  - pyserial (for TACO-less serial line communication)
-  - matplotlib (for resolution plots)
-  - gnuplot (for plots in the electronig logbook)
-  - Grace (for scanplot)
-  - lxml (for U-Bahn service)
+  - scipy (for fitting) (xbuntu 12.04: python-scipy)
+  - MySQLdb (for proposal DB query) (xbuntu 12.04: python-mysqldb)
+  - python-xmpp (for Jabber notifications (xbuntu 12.04: python-pyxmpp)
+  - pyserial (for TACO-less serial line communication) (xbuntu 12.04: python-serial)
+  - matplotlib (for resolution plots) (xbuntu 12.04: python-matplotlib)
+  - gnuplot-py (for liveplot display) (xbuntu 12.04: python-gnuplot)
+  - gnuplot (for plots in the electronig logbook) (xbuntu 12.04: gnuplot)
+  - Grace (for scanplot) (xbuntu 12.04: grace)
+  - lxml (for U-Bahn service) (xbuntu 12.04: python-lxml)
+  - pyfits (for the handling of FITS formatted files) (xbuntu 12.04 python-pyfits)
+  - sphinx (for generating doc) (xbuntu 12.04 python-sphinx)
 
 * For the GUI and status monitor:
-  - PyQt4
-  - numpy
-  - PyQwt (optional, for plots)
-  - scipy (optional, for fitting)
+  - PyQt4 (xbuntu 12.04: python-qt4 for developers: python-qt4-dev)
+  - numpy (xbuntu 12.04: python-numpy)
+  - PyQwt (optional, for plots) (xbuntu 12.04: python-qwt5-qt4 python-sip-dev)
+  - scipy (optional, for fitting) (xbuntu 12.04: python-scipy)
 
 * Under Windows:
   - pyreadline (optional, for the console to work)
   - colorama (optional, for colored console output)
 
 * To run the test suite:
-  - nose
-  - coverage (optional)
+  - nose (xbuntu 12.04: python-nose)
+  - coverage (optional) (xbuntu 12.04: python-coverage)
