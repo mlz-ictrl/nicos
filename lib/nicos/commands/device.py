@@ -262,7 +262,8 @@ def stop(*devlist):
         except Exception:
             dev.log.exception('error stopping device')
         else:
-            dev.log.info('stopped')
+            if not dev.fixed:
+                dev.log.info('stopped')
 
 @usercommand
 @helparglist('dev, ...')

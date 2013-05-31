@@ -1215,7 +1215,9 @@ class Moveable(Readable):
             return self._sim_value
         lastval = None
         try:
-            if hasattr(self, 'doWait'):
+            if self.fixed:
+                self.log.warning('device fixed, not waiting: %s' % self.fixed)
+            elif hasattr(self, 'doWait'):
                 session.beginActionScope('Waiting: %s -> %s' %
                                          (self, self.format(self.target)))
                 try:
@@ -1261,6 +1263,9 @@ class Moveable(Readable):
         if self._mode == 'slave':
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_active:
+            return
+        if self.fixed:
+            self.log.warning('device fixed, not stopping: %s' % self.fixed)
             return
         if self.requires:
             try:

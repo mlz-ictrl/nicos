@@ -177,14 +177,6 @@ def test_methods():
     assert 'doStop' in methods_called
     dev2.wait()
     assert 'doWait' in methods_called
-    # fixing and releasing
-    dev2.fix('blah')
-    try:
-        dev2.move(7)  # allowed, since we are at 7 already
-        assert session.testhandler.warns(dev2.move, 9)
-    finally:
-        dev2.release()
-    dev2.move(7)
     # test info() method
     keys = set(value[1] for value in dev2.info())
     assert 'testkey' in keys
@@ -199,6 +191,33 @@ def test_methods():
 
     # test access control (test session always returns False for access check)
     assert raises(AccessError, dev2.calibrate)
+
+def test_fix_and_release():
+    # fixing and releasing
+    dev2 = session.getDevice('t_mtt')
+    dev2.curvalue = 7
+    dev2.curstatus = (status.OK, '')
+    dev2.fix('blah')
+    try:
+        dev2.move(7)  # allowed, since we are at 7 already
+        assert session.testhandler.warns(dev2.move, 9)
+    finally:
+        dev2.release()
+    dev2.move(7)
+    # fixing and do not stop
+    dev2.curvalue = 9
+    dev2.curstatus = (status.BUSY, 'moving')
+    dev2.fix('do not stop in fixed mode')
+    assert dev2.status()[0] == status.BUSY
+    try:
+        assert session.testhandler.warns(dev2.stop)
+        assert dev2.status()[0] == status.BUSY
+        assert session.testhandler.warns(dev2.wait)
+        assert dev2.wait() == 9
+    finally:
+        dev2.release()
+    dev2.stop()
+    assert dev2.status()[0] == status.OK
 
 def test_limits():
     dev2 = session.getDevice('dev2_3')
