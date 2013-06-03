@@ -226,4 +226,3 @@ class RadialCollimator(Moveable):
         bus.write("ffast%d:%f" % (self.address, self.std_speed))
         sspeed = int(round(self.std_speed / 4.0))
         bus.write("frun%d:%f" % (self.address, sspeed))
-

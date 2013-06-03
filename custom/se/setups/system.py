@@ -38,7 +38,7 @@ devices = dict(
                       server = 'triton.admin.frm2'),
 
     Space    = device('devices.generic.FreeSpace',
-                      description = 'The free space on the data storage', 
+                      description = 'The free space on the data storage',
                       path = '/data',
                       minfree = 5),
 )

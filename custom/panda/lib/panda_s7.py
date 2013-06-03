@@ -426,4 +426,3 @@ class Panda_mtt(Axis):
         # for the arm to move to the right position
         self.log.debug('calculated Move-Timeout is %d seconds' % t)
         return t
-

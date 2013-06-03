@@ -34,7 +34,7 @@ _interfaceboxtop = (
         ],
     ],
 #
-# Only used if a master has this setup loaded, if missed it will be used 
+# Only used if a master has this setup loaded, if missed it will be used
 # unconditionally
 #
 #   'tube_environment',
@@ -103,7 +103,7 @@ devices = dict(
                      fontsize = 16,
                      padding = 5,
                      layout = [
-#                                  [_expcolumn], 
+#                                  [_expcolumn],
                                   [_leftcolumn, _rightcolumn, ]
                               ],
                     ),

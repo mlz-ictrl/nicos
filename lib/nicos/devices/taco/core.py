@@ -100,8 +100,8 @@ class TacoDevice(object):
     parameters = {
         'tacodevice':  Param('TACO device name', type=tacodev, mandatory=True,
                              preinit=True),
-        'tacotimeout': Param('TACO network timeout for this process', 
-                             unit='s', type=floatrange(0.0, 1200), default=3, 
+        'tacotimeout': Param('TACO network timeout for this process',
+                             unit='s', type=floatrange(0.0, 1200), default=3,
                              settable=True, preinit=True),
         'tacotries':   Param('Number of tries per TACO call', default=1,
                              type=intrange(1, 10), settable=True),

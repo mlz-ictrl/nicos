@@ -62,4 +62,3 @@ class ImpacPyrometer(TacoDevice, Readable):
 
     def doStatus (self, maxage=0):
         return status.OK, 'idle'
-

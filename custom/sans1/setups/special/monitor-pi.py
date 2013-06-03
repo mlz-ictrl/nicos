@@ -150,10 +150,12 @@ _sans1detector = (
         ], [
             _(name='Voltage',dev='hv'),#,width=8),
             _(name='det1_omg-1a',dev='det1_omega1a'),
-        ], [
+        ],
+        [
             _(name='det1_x-1a',dev='det1_x1a'),
             _(name='det1_z-1a',dev='det1_z1a'),
-        ], [
+        ],
+        [
             _(name='bs1_x-1a',dev='bs1_x1a'),
             _(name='bs1_y-1a',dev='bs1_y1a'),
         ]

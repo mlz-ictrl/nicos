@@ -173,6 +173,3 @@ def Eres1(li, w, st=0, crc=1, dL=0.0):
     res = h**3/mn**2/e * dt/lf**3/Lsd           # uncertainty in energy
 
     return (res, dt)
-
-
-

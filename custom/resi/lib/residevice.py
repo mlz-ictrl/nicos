@@ -165,4 +165,3 @@ class ResiSample(Sample):
     }
     def doRead(self, maxage=0):
         return repr(self._adevs['basedevice'].cell)
-

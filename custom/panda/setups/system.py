@@ -33,14 +33,13 @@ devices = dict(
                     instrument = 'PANDA',
                     responsible = 'Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>'),
     Sample   = device('devices.tas.TASSample'),
-    
+
     filesink = device('devices.datasinks.AsciiDatafileSink',
                       globalcounter = '/data/filecounter'),
-                      
+
     conssink = device('devices.datasinks.ConsoleSink'),
-    
+
     daemonsink  = device('devices.datasinks.DaemonSink'),
-    
+
     liveplot = device('devices.datasinks.GraceSink'),
 )
-

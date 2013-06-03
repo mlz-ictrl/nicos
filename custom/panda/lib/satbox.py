@@ -90,4 +90,3 @@ class SatBox(TacoDevice, Moveable):
         if int(target) != target:
             return False, 'Value must be an integer !'
         return True, ''
-

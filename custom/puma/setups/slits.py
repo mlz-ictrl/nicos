@@ -162,4 +162,3 @@ devices = dict(
                        pollinterval = 5,
                        maxage = 10),
 )
-

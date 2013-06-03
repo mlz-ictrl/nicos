@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-15 -*-
+# -*- coding: utf-8 -*-
 # *****************************************************************************
 # Module:
 #              $Id: refsans_nok.py,v 1.6 2006/04/06 18:25:14 jkrueger1 Exp $
@@ -6,12 +6,12 @@
 # Description:
 #               NICOSMethods for the REFSANS experiment
 #
-# Author:       Jens Krüger
+# Author:       Jens KrÃ¼ger
 #               $Author: jkrueger1 $
 #
 #   The basic NICOS methods for the NICOS daemon (http://nicos.sf.net)
 #
-#   Copyright (C) 2005   Jens Krüger (jens.krueger@frm2.tum.de),
+#   Copyright (C) 2005   Jens KrÃ¼ger (jens.krueger@frm2.tum.de),
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -118,7 +118,7 @@ yes!!!
 no .motor.
 tuple or []
 ablauf optimierung beide move starten dann einam warten!
- Zeit auîen log innen
+ Zeit auÃŸen log innen
 changeing setpos!!!
 making deviceQuery*
 
@@ -351,44 +351,44 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                           }
 
             if not self.__Debug:
-              try :
-                Taco = self.motor.deviceState()
-                if Debug:print TACOStates.stateDescription(Taco)
-                if Taco == TACOStates.FAULT :
-                    #self.motor.deviceReset()
-                    print 'is in FAULT'
-                if Taco != TACOStates.ON:
-                  if self.motor.isDeviceOff(): self.motor.deviceOn()
-                  if self.motor.isDeviceOff(): self.motor.deviceOn()
-                if self.enc.isDeviceOff():   self.enc.deviceOn()
-                if self.enc.isDeviceOff():   self.enc.deviceOn()
-                if self.sll.isDeviceOff():   self.sll.deviceOn()
-                if self.shl.isDeviceOff():   self.shl.deviceOn()
-                if self.sref.isDeviceOff():  self.sref.deviceOn()
-              except :
-                pass
-            else:
-                #if Debug: print 'new Achs init for startstyle'
                 try :
-                  if SSO(self.__startstyle,'quick'):
-                      if Debug: print 'Servertest',
-                      Taco = self.motor.deviceState()
-                      if Taco == TACOStates.FAULT :
-                          #self.motor.deviceReset()
-                          print 'is in FAULT'
-                  if SSO(self.__startstyle,'normal'):
-                      if Debug: print 'Server full',
-                      if Taco != TACOStates.ON:
+                    Taco = self.motor.deviceState()
+                    if Debug:print TACOStates.stateDescription(Taco)
+                    if Taco == TACOStates.FAULT :
+                    #self.motor.deviceReset()
+                        print 'is in FAULT'
+                    if Taco != TACOStates.ON:
                         if self.motor.isDeviceOff(): self.motor.deviceOn()
                         if self.motor.isDeviceOff(): self.motor.deviceOn()
-                      if self.enc.isDeviceOff():   self.enc.deviceOn()
-                      if self.enc.isDeviceOff():   self.enc.deviceOn()
-                      if self.sll.isDeviceOff():   self.sll.deviceOn()
-                      if self.shl.isDeviceOff():   self.shl.deviceOn()
-                      if self.sref.isDeviceOff():  self.sref.deviceOn()
-                  else: print TACOStates.stateDescription(Taco),
+                    if self.enc.isDeviceOff():   self.enc.deviceOn()
+                    if self.enc.isDeviceOff():   self.enc.deviceOn()
+                    if self.sll.isDeviceOff():   self.sll.deviceOn()
+                    if self.shl.isDeviceOff():   self.shl.deviceOn()
+                    if self.sref.isDeviceOff():  self.sref.deviceOn()
                 except :
-                  pass
+                    pass
+            else:
+                    #if Debug: print 'new Achs init for startstyle'
+                try :
+                    if SSO(self.__startstyle,'quick'):
+                        if Debug: print 'Servertest',
+                        Taco = self.motor.deviceState()
+                        if Taco == TACOStates.FAULT :
+                            #self.motor.deviceReset()
+                            print 'is in FAULT'
+                    if SSO(self.__startstyle,'normal'):
+                        if Debug: print 'Server full',
+                        if Taco != TACOStates.ON:
+                            if self.motor.isDeviceOff(): self.motor.deviceOn()
+                            if self.motor.isDeviceOff(): self.motor.deviceOn()
+                        if self.enc.isDeviceOff():   self.enc.deviceOn()
+                        if self.enc.isDeviceOff():   self.enc.deviceOn()
+                        if self.sll.isDeviceOff():   self.sll.deviceOn()
+                        if self.shl.isDeviceOff():   self.shl.deviceOn()
+                        if self.sref.isDeviceOff():  self.sref.deviceOn()
+                    else: print TACOStates.stateDescription(Taco),
+                except :
+                    pass
             self.no('_NOKAxis__','motor')
             if Debug: print 'Achse done>',
             #if Debug: print '2 self.encoder',self.encoder
@@ -410,35 +410,35 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             #25.02.2011 09:11:54 line = 'COM:encread'
             line = 'COM:motorread'
             if True:
-                    while True:
-                        try:
-                                val = self.motor.read()
-                                return float(val) #MP kurz und gut 27.06.2011 08:49:51 ja, besser!
-                        except:
-                                val = self.problem('read',sys)
-                                return float(val) #MP kurz und gut 27.06.2011 08:49:51 ja, besser!
+                while True:
+                    try:
+                        val = self.motor.read()
+                        return float(val) #MP kurz und gut 27.06.2011 08:49:51 ja, besser!
+                    except:
+                        val = self.problem('read',sys)
+                        return float(val) #MP kurz und gut 27.06.2011 08:49:51 ja, besser!
             else:
-              while True:
-                  try:
-                      f = self.motor.read() #MP from enc to motor 25.02.2011 09:11:48
-                      try:
-                          f = float(f)
-                          if line != 'COM:motorread': self.ll_log(line,True)
-                          return f  #MP 25.03.2011 14:20:09 hier knallt es warum?
-                      except:
-                          line += ' convert:>%s<%d>'%(str(f),Readcount)
-                  except:
-                      try:    st = self.motor.deviceStatus() #MP from enc to motor 25.02.2011
-                      except: st = 'ex'                      #MP 25.06.2011 21:47:17
-                      line += ' R:<%s>'%st
-                  time.sleep(Readcount)
-                  Readcount +=1
-                  if Readcount > maxRead:
-                      try:
-                          #self.news_spread('encread Disaster')
-                          pass
-                      except: pass
-                      break
+                while True:
+                    try:
+                        f = self.motor.read() #MP from enc to motor 25.02.2011 09:11:48
+                        try:
+                            f = float(f)
+                            if line != 'COM:motorread': self.ll_log(line,True)
+                            return f  #MP 25.03.2011 14:20:09 hier knallt es warum?
+                        except:
+                            line += ' convert:>%s<%d>'%(str(f),Readcount)
+                    except:
+                        try:    st = self.motor.deviceStatus() #MP from enc to motor 25.02.2011
+                        except: st = 'ex'                      #MP 25.06.2011 21:47:17
+                        line += ' R:<%s>'%st
+                    time.sleep(Readcount)
+                    Readcount +=1
+                    if Readcount > maxRead:
+                        try:
+                            #self.news_spread('encread Disaster')
+                            pass
+                        except: pass
+                        break
             self.ll_log(line,True)
             raise Error(line)
 
@@ -509,7 +509,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 Readcount +=1
                 if Readcount > maxRead:
                     try:
-                        #self.news_spread('motorstart Disaster')
+                    #self.news_spread('motorstart Disaster')
                         pass
                     except: pass
                     break
@@ -561,12 +561,12 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             line = TACOStates.stateDescription(Taco)
             if Taco == TACOStates.DEVICE_NORMAL or \
                Taco == TACOStates.ON:
-                   I = self.shl.read()
-                   if I: line += ' High:'+str(I)
-                   I = self.sref.read()
-                   if I: line += ' REF:' +str(I)
-                   I = self.sll.read()
-                   if I: line += ' LOW:' +str(I)
+                I = self.shl.read()
+                if I: line += ' High:'+str(I)
+                I = self.sref.read()
+                if I: line += ' REF:' +str(I)
+                I = self.sll.read()
+                if I: line += ' LOW:' +str(I)
             return line
 
         def readsteps(self):
@@ -726,23 +726,23 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             self.ll_log(line,Debug)
             time.sleep(1.0)
             if True or Debug:
-              if   '><'                                                              in line:
-                 print 'und?'             #ist zu sehen
-                 raise Error('Keybord!')  #wird abgefangen!
-              elif   'cannot execute command : Lost connection to the device server' in line: pass #self.serverlock()
-              elif   'RPC client call timed out'                                     in line: pass
-              if self.recursive_break > 5:
-                self.ll_log('recursive_break',True)
-                self.serverlock()
-              else:
-                self.recursive_break += 1
-                if    ort == 'status':res = self.state() #recursive infinite!
-                elif  ort == 'read':
-                                      self.state() #to catch FAULT
-                                      res = float(self.read())  #recursive infinite!
-                else:                 res = None
-                self.recursive_break = 0
-                return res
+                if   '><'                                                              in line:
+                    print 'und?'             #ist zu sehen
+                    raise Error('Keybord!')  #wird abgefangen!
+                elif   'cannot execute command : Lost connection to the device server' in line: pass #self.serverlock()
+                elif   'RPC client call timed out'                                     in line: pass
+                if self.recursive_break > 5:
+                    self.ll_log('recursive_break',True)
+                    self.serverlock()
+                else:
+                    self.recursive_break += 1
+                    if    ort == 'status':res = self.state() #recursive infinite!
+                    elif  ort == 'read':
+                        self.state() #to catch FAULT
+                        res = float(self.read())  #recursive infinite!
+                    else:                 res = None
+                    self.recursive_break = 0
+                    return res
 
         #-----------------------------------------------------------------------
         def serverlock (self):
@@ -874,60 +874,60 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             #self.typ = 'kanal' for NOKs  [A,  A] auch kanal kann masken habe: [NL RK TK VK]
             #self.typ = 'achse' wie gehabet compatible
             if Debug and False:
-               print #formal
-               print 'for Convert',Tmasktable
+                print #formal
+                print 'for Convert',Tmasktable
             try:
-              for k in Tmasktable.keys():
-                  if Debug: print 'mask %5s'%k,
-                  for a in range(len(Tmasktable[k])):Tmasktable[k][a] = float(Tmasktable[k][a])
-                  if Debug: print 'read',
-                  try:   open   = Tmasktable[k][2]
-                  except:open   = 0.0
-                  try:   offset = Tmasktable[k][3]
-                  except:offset = 0.0
-                  #if False: #wie gehabt
-                  if self.naxes == 1:
-                      if Debug: print 'extract',
-                      if True: #erweitern, alles speichern
-                          Tmasktable[k].append(Tmasktable[k][1])
-                          Tmasktable[k][1] = Tmasktable[k][0]
-                      if Debug: print 'calculate',
-                      Tmasktable[k][0] = Tmasktable[k][0] + offset
-                      """ die indizex:
-                      in geometrie.inf stehen die Werte 1 bis 2
-                      0 Wert for achse [0]
-                      1 offset for maske achse [0]
-                      2 korrektur high
-                      """
-                      #if not Debug:
-                      #    print 'Developing'
-                      #    raise Error('Developing')
-                  elif self.naxes == 2:
-                      if Debug: print 'extract',
-                      if True: #erweitern, alles speichern
-                          Tmasktable[k].append(Tmasktable[k][2])
-                          Tmasktable[k].append(Tmasktable[k][3])
-                          Tmasktable[k][2] = Tmasktable[k][0]
-                          Tmasktable[k][3] = Tmasktable[k][1]
-                      if Debug: print 'calculate',
-                      Tmasktable[k][0] = Tmasktable[k][0] + open/2 + offset
-                      Tmasktable[k][1] = Tmasktable[k][1] - open/2 + offset
-                      """ die indizex:
-                      in geometrie.inf stehen die Werte 2 bis 5
-                      0 Wert for achse [0]
-                      1 Wert for achse [1]
-                      2 offset for maske achse [0]
-                      3 offset for maske achse [1]
-                      4 korrektur open
-                      5 korrektur high
-                      """
-                  else:
-                      line = 'suspishus element %d'%self.naxes
-                      if Debug: print #formal
-                      print line
-                      raise Error(line)
-                  #while len(Tmasktable[k])>2:Tmasktable[k].pop()
-                  if Debug: print '<'
+                for k in Tmasktable.keys():
+                    if Debug: print 'mask %5s'%k,
+                    for a in range(len(Tmasktable[k])):Tmasktable[k][a] = float(Tmasktable[k][a])
+                    if Debug: print 'read',
+                    try:   open   = Tmasktable[k][2]
+                    except:open   = 0.0
+                    try:   offset = Tmasktable[k][3]
+                    except:offset = 0.0
+                    #if False: #wie gehabt
+                    if self.naxes == 1:
+                        if Debug: print 'extract',
+                        if True: #erweitern, alles speichern
+                            Tmasktable[k].append(Tmasktable[k][1])
+                            Tmasktable[k][1] = Tmasktable[k][0]
+                        if Debug: print 'calculate',
+                        Tmasktable[k][0] = Tmasktable[k][0] + offset
+                        """ die indizex:
+                        in geometrie.inf stehen die Werte 1 bis 2
+                        0 Wert for achse [0]
+                        1 offset for maske achse [0]
+                        2 korrektur high
+                        """
+                        #if not Debug:
+                        #    print 'Developing'
+                        #    raise Error('Developing')
+                    elif self.naxes == 2:
+                        if Debug: print 'extract',
+                        if True: #erweitern, alles speichern
+                            Tmasktable[k].append(Tmasktable[k][2])
+                            Tmasktable[k].append(Tmasktable[k][3])
+                            Tmasktable[k][2] = Tmasktable[k][0]
+                            Tmasktable[k][3] = Tmasktable[k][1]
+                        if Debug: print 'calculate',
+                        Tmasktable[k][0] = Tmasktable[k][0] + open/2 + offset
+                        Tmasktable[k][1] = Tmasktable[k][1] - open/2 + offset
+                        """ die indizex:
+                        in geometrie.inf stehen die Werte 2 bis 5
+                        0 Wert for achse [0]
+                        1 Wert for achse [1]
+                        2 offset for maske achse [0]
+                        3 offset for maske achse [1]
+                        4 korrektur open
+                        5 korrektur high
+                        """
+                    else:
+                        line = 'suspishus element %d'%self.naxes
+                        if Debug: print #formal
+                        print line
+                        raise Error(line)
+                    #while len(Tmasktable[k])>2:Tmasktable[k].pop()
+                    if Debug: print '<'
             except:
                 if Debug: print 'Fehler Convert config file'
             if Debug and False: print 'nach Convert',Tmasktable
@@ -936,11 +936,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
               Tmasktable    == self.masktable and \
               Twidth        == self.width     and \
               Tbeamtoleranz == self.beamtoleranz:# and not self.__Debug:
-                  maskchange = 2
+                maskchange = 2
             else:
-              if maskchange:
-                  old = self.do_get('read') #read extra but seldom
-                  #old = self.doget('read') #read extra but seldom
+                if maskchange:
+                    old = self.do_get('read') #read extra but seldom
+                    #old = self.doget('read') #read extra but seldom
             self.masktable    = Tmasktable
             self.width        = Twidth
             self.beamtoleranz = Tbeamtoleranz
@@ -982,11 +982,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         except: print 'NO parameters',
         dauer.read('Pfertig',Zeitmessung)
         if SSO(startstyle,'proof'):
-              info=' proof FAIL!'
-              if self.proof_resources(False): info=' proofed'
-              else:                           print
-              print info,
-              res += info
+            info=' proof FAIL!'
+            if self.proof_resources(False): info=' proofed'
+            else:                           print
+            print info,
+            res += info
         self.diary = self.doDiary
         return res
 
@@ -1035,9 +1035,9 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         if   usemask == False: usemask = 'achse'
         elif usemask == 'achse':pass
         elif (type(usemask) == type('')) and (usemask not in self.masktable.keys()):
-                        line = 'unknown mask >%s<'%usemask
-                        self.ll_log(line)
-                        raise Error(line)
+            line = 'unknown mask >%s<'%usemask
+            self.ll_log(line)
+            raise Error(line)
         if Debug: print 'naxes',self.naxes,'a_pos',a_pos,'usemask',usemask
 
 
@@ -1094,11 +1094,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #if Debug: print 'a_pos:',a_pos,get
         #-----------------------------------------------------------------------
         if len(a_pos) > 1:
-           diff = a_pos[1] - a_pos[0]
-           if self.posinclination > 0 and diff > 0 and diff > self.posinclination :
-               raise OutofBoundsError("Given target position would increase the positive inclination")
-           elif self.neginclination < 0 and diff < 0 and diff < self.neginclination :
-               raise OutofBoundsError("Given target position would decrease the negative inclination")
+            diff = a_pos[1] - a_pos[0]
+            if self.posinclination > 0 and diff > 0 and diff > self.posinclination :
+                raise OutofBoundsError("Given target position would increase the positive inclination")
+            elif self.neginclination < 0 and diff < 0 and diff < self.neginclination :
+                raise OutofBoundsError("Given target position would decrease the negative inclination")
         if Debug: print 'passed inclination Test'
         #-----------------------------------------------------------------------
         #-----------------------------------------------------------------------
@@ -1133,11 +1133,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #07.01.2010 08:59:04 MP
         #if False:
         if True:
-          if Debug: print 'and Wait'
-          self.doWait()
-          for i in range(len(self._axes)):
-            if (float(akt_pos[i]) - a_pos[i]) > 0.00125:
-                self.ll_log('move unreached'+str(i)+' '+str(akt_pos)+' '+str(a_pos)+' '+str(self.status()),True)
+            if Debug: print 'and Wait'
+            self.doWait()
+            for i in range(len(self._axes)):
+                if (float(akt_pos[i]) - a_pos[i]) > 0.00125:
+                    self.ll_log('move unreached'+str(i)+' '+str(akt_pos)+' '+str(a_pos)+' '+str(self.status()),True)
         #-----------------------------------------------------------------------
         self.exit_move()
         return
@@ -1165,47 +1165,47 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         self.ll_log('Enter STOP')
         S = ''
         while True:
-          time.sleep(1.0) #1 zu kurz
-          ok = True
-          l = ''
-          for axis in self._axes:
-            try:   S = axis.motor.deviceStatus() #status()
-            except:
-                notausgang -= 1
-                if Debug: print 'status notausgang -= 1'
-            l += S+' '
-            if S == 'moving':
-                movement = True
-                try:    axis.motor.stop()
+            time.sleep(1.0) #1 zu kurz
+            ok = True
+            l = ''
+            for axis in self._axes:
+                try:   S = axis.motor.deviceStatus() #status()
                 except:
                     notausgang -= 1
-                    if Debug: print 'STOP notausgang -= 1'
-                time.sleep(0.2)
-                ok = False
-          if Debug: print l
-          if ok:
-              min -= 1
-              if min <= 0:break
-          else: min = 2
-          if notausgang <= 0:
-              line = 'Notausgang in stop'
-              self.ll_log(line,True)
-              raise Error(line)
+                    if Debug: print 'status notausgang -= 1'
+                l += S+' '
+                if S == 'moving':
+                    movement = True
+                    try:    axis.motor.stop()
+                    except:
+                        notausgang -= 1
+                        if Debug: print 'STOP notausgang -= 1'
+                    time.sleep(0.2)
+                    ok = False
+            if Debug: print l
+            if ok:
+                min -= 1
+                if min <= 0:break
+            else: min = 2
+            if notausgang <= 0:
+                line = 'Notausgang in stop'
+                self.ll_log(line,True)
+                raise Error(line)
         self.ll_log('STOP performed. movement: %s'%str(movement),Debug)
 
     #---------------------------------------------------------------------------
     def doDump (self,log=False):
-       """Prelimanary. do not use this funcion, untill you know wath you are doing"""
-       """every dump-function should write Parameters from the controller
-       with can be changed by user or change in a file to get a backup
-       this is only usefull for parts how has so values eg not for the chopper
-       ofcours istrument does it for all parts from instrument.inf"""
-       ddata=[]
-       for axis in self._axes:
-           ddata.append(axis.MOTORctrl.ctrlDebug())
-       #if log: self.yes.dump(self.name,ddata)
-       if log: self.dump(self.name,ddata)
-       return ddata
+        """Prelimanary. do not use this funcion, untill you know wath you are doing"""
+        """every dump-function should write Parameters from the controller
+        with can be changed by user or change in a file to get a backup
+        this is only usefull for parts how has so values eg not for the chopper
+        ofcours istrument does it for all parts from instrument.inf"""
+        ddata=[]
+        for axis in self._axes:
+            ddata.append(axis.MOTORctrl.ctrlDebug())
+        #if log: self.yes.dump(self.name,ddata)
+        if log: self.dump(self.name,ddata)
+        return ddata
 
     #---------------------------------------------------------------------------
     def doSetPar (self,name,value):
@@ -1383,8 +1383,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         def equ (a,b):
             if type(b) != type([]): b = [b] #() lokal
             if len(b) == 1:
-               #raise 'equ aufblasen' #MP 01.03.2010 21:50:55
-               b = list(b[0] for n in range(len(a)))
+                #raise 'equ aufblasen' #MP 01.03.2010 21:50:55
+                b = list(b[0] for n in range(len(a)))
             if len(a) != len(b):
                 print 'a',a
                 print 'b',b
@@ -1483,12 +1483,12 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         if runtimetest: self.ll_log('runtimetest',True)
         #Notausgang
         try:
-              self.param['goodspeed']
-              self.param['fullspeed']
-              self.param['refspeed']
+            self.param['goodspeed']
+            self.param['fullspeed']
+            self.param['refspeed']
         except:
-              if speedswitch == True: self.ll_log('no speedswitch missing Parameter',Debug)
-              speedswitch = False
+            if speedswitch == True: self.ll_log('no speedswitch missing Parameter',Debug)
+            speedswitch = False
         #-----------------------------------------------------------------------
         #Variablen to work, ok it is Phyton, we do not need to declarate ;-)
         #if Debug:
@@ -1499,7 +1499,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         SWon       = list(1 for n in range(naxes))
         trys     = 1  #scale for somwath under ref depens on negES-usermin
         jumppoints = [[],[]]
-        #QAD die kleiner inlination gilt für beide
+        #QAD die kleiner inlination gilt fÃ¼r beide
         inclination = min([abs(self.posinclination),abs(self.neginclination)])
         #-----------------------------------------------------------------------
         #proof resources
@@ -1535,8 +1535,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 return 'moving, please try later (no Stop avilabl jet) '
             truePosold=get['achse']
             if use_encoder:
-               if 'encoder' in get.keys(): force_low     = False
-               self.ll_log('use_encoder force_low ='+str(force_low),True)
+                if 'encoder' in get.keys(): force_low     = False
+                self.ll_log('use_encoder force_low ='+str(force_low),True)
         else:
             temp = self.status() ###
             if (temp != tuple('on' for axis in self._axes)) and\
@@ -1595,9 +1595,9 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 self.ll_log('moving to close to minPos',True)
                 print 'aktSW',aktSW,'aktPOS',aktPOS,'minPos',minPos,'somewhat',somewhat
                 if not runtimetest:
-                  if max(aktSW)==0: self.__achsmove(add(minPos,somewhat))#,True)
-                  else:             self.__achsmove(choose(aktPOS,add(minPos,somewhat),aktSW))#,True)
-                  self.wait()
+                    if max(aktSW)==0: self.__achsmove(add(minPos,somewhat))#,True)
+                    else:             self.__achsmove(choose(aktPOS,add(minPos,somewhat),aktSW))#,True)
+                    self.wait()
                 aktPOS=self.__achsread()
                 restWay=add(restWay,aktPOS)
                 truePos=add(truePos,aktPOS)
@@ -1669,11 +1669,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                       ' END',Debug)
                 self.ll_log('START REF move',True)
                 if not runtimetest:
-                  if Multi: self._axes[Multiakt]._refmovestart()
-                  else:
-                      for axis in self._axes: axis._refmovestart()
-                  #if Debug: self.ll_log('wait',True)
-                  self.wait()
+                    if Multi: self._axes[Multiakt]._refmovestart()
+                    else:
+                        for axis in self._axes: axis._refmovestart()
+                    #if Debug: self.ll_log('wait',True)
+                    self.wait()
                 restWay=sub(restWay,self.__achsread())
                 self.ll_log(''+\
                       ' min:'+str(min(restWay))+\
@@ -1689,9 +1689,9 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     line=self.name+' N:'+str(nochmal)+' R:'+str([axis.sref.read() for axis in self._axes])
                     self.ll_log(line)
                     if False:
-                      try:
-                        self.news_spread(line)
-                      except: pass
+                        try:
+                            self.news_spread(line)
+                        except: pass
                 if runtimetest:break
             if Multi: self._axes[Multiakt].setpos(refPoint[Multiakt])  #.motor
             else:

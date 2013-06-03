@@ -48,4 +48,3 @@ devices = dict(
                    fmtstr = '%.3f'
                   ),
 )
-

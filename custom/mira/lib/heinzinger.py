@@ -120,4 +120,3 @@ class HeinzingerViaHPE(TacoDevice, HasLimits, Moveable):
         self._taco_guard(self._dev.writeLine, 'INSTRUMENT:NSELECT 2')
         time.sleep(1)
         self._taco_guard(self._dev.writeLine, 'VOLT %f' % (value / 8.))
-

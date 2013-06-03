@@ -182,7 +182,7 @@ class MTT_Axis(Axis):
             _, pos = self.poll()
             mstatus, mstatusinfo = self._adevs['motor'].status()
             if mstatus != status.BUSY:
-#	        print 'mstatus =', mstatus
+#               print 'mstatus =', mstatus
                 # motor stopped; check why
                 if self._stoprequest == 2:
                     self.log.debug('stop requested, leaving positioning')

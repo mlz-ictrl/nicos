@@ -61,4 +61,3 @@ devices = dict(
                       omega = 'ephi',
                       cell = 'Sample'),
 )
-

@@ -151,4 +151,3 @@ class CacheWriter(HasLimits, Moveable):
             mystat = self.status(0)
 
         return self.read(0)
-

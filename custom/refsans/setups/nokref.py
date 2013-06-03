@@ -1,6 +1,6 @@
 nethost = '//refsanssrv.refsans.frm2/'
 
-description = 'NOK reference voltage setup' 
+description = 'NOK reference voltage setup'
 
 devices = dict(
         nrefa1 = device('refsans.nok.CoderReference',
@@ -52,6 +52,3 @@ devices = dict(
                        refwarn = 17.0,
                        ),
         )
-
-
-

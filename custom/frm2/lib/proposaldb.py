@@ -41,7 +41,7 @@ class ProposalDB(object):
     def __init__(self):
         try:
             if not session.experiment or not session.experiment.propdb:
-                credentials = readFile(os.getenv('HOME') + 
+                credentials = readFile(os.getenv('HOME') +
                                        '/.nicos/credentials')
             else:
                 credentials = readFile(session.experiment.propdb)

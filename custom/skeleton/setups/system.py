@@ -80,4 +80,3 @@ devices = dict(
                       minfree = 5,
                      ),
 )
-

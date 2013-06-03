@@ -76,7 +76,7 @@ devices = dict(
 
     cryo_v = device('devices.vendor.frm2.CCRSwitch',
                     write = 'cryo_vs',
-                    feedback = 'cryo_vr',), 
+                    feedback = 'cryo_vr',),
 
     cryo_p = device('devices.taco.AnalogInput',
                     tacodevice = '//%s/ccr/plc/p2' % (nethost, )),

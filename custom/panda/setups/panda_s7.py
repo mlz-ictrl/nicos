@@ -13,7 +13,7 @@ devices = dict(
                                     ),
     s7coder = device('panda.panda_s7.S7Coder',
                                     bus = 's7bus',
-                                    startbyte = 4,	# 0 is endat-coder, 4 is incremental band
+                                    startbyte = 4,      # 0 is endat-coder, 4 is incremental band
                                     unit = 'deg',
                                     lowlevel = True,
                                     ),
@@ -34,8 +34,8 @@ devices = dict(
                                     obs = ['mtt_enc'],
                                     precision = 0.01,
                                     offset = 0.6,
-                                    dragerror = -1.,	# do not check drag errors as this is done in SPS
-                                    jitter = 0.5,	# work around a bug in S7
+                                    dragerror = -1.,    # do not check drag errors as this is done in SPS
+                                    jitter = 0.5,       # work around a bug in S7
                                     ),
 )
 

@@ -112,7 +112,7 @@ class Axis(GenericAxis) :
         state = self._adevs['motor']._dev.deviceState()
         line = self._adevs['sref']._dev.deviceStatus()
         if state in [TACOStates.DEVICE_NORMAL, TACOStates.ON] :
-             for i in ['sref', 'shl', 'shl'] :
-                 if self._adevs[i].read() :
-                      line += ' %s: 1' % (i.upper())
+            for i in ['sref', 'shl', 'shl'] :
+                if self._adevs[i].read() :
+                    line += ' %s: 1' % (i.upper())
         return line

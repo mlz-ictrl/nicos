@@ -78,7 +78,7 @@ devices = dict(
                     ),
     # Nicos based access to phytron in magnet rack
     magnetmotorbus=device( 'panda.mcc2.TacoSerial',
-                    tacodevice=TACOBASE+'rs232/phytron',	# new value as of 2012-07-30 EF
+                    tacodevice=TACOBASE+'rs232/phytron',        # new value as of 2012-07-30 EF
                     ),
     sth_B7T5_step = device( 'panda.mcc2.MCC2Motor',
                     bus = 'magnetmotorbus',
@@ -102,7 +102,7 @@ devices = dict(
     sth_B7T5_coder = device( 'panda.mcc2.MCC2Coder',
                     bus = 'magnetmotorbus',
                     fmtstr = '%.3f',
-                    #~ tacodevice = TACOBASE+'rs232/phytron',	# new value as of 2012-07-30 EF
+                    #~ tacodevice = TACOBASE+'rs232/phytron',   # new value as of 2012-07-30 EF
                     description = '7.5T magnet sample rotation CODER using only the RS232 TACOSERVER and talking to mcc2',
                     channel = 'Y',
                     addr = 0,
@@ -129,8 +129,8 @@ devices = dict(
 #                    unit = 'deg',
 #                    ),
 #    sth_B7T5_Taco_coder =device( 'devices.taco.Coder',
-#                    #~ tacodevice = TACOBASE+'phytron/coder',	# old value
-#                    tacodevice = TACOBASE+'phytron/encoder',	# new value as of 2012-07-30 EF
+#                    #~ tacodevice = TACOBASE+'phytron/coder',  # old value
+#                    tacodevice = TACOBASE+'phytron/encoder',   # new value as of 2012-07-30 EF
 #                    description = '7.5T magnet sample rotation TACO-coder',
 #                    fmtstr = '%.3f',
 #                    unit = 'deg',

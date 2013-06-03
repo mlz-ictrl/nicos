@@ -22,4 +22,3 @@ devices = dict(
 startupcode = """
 printwarning('Disabled 1mm blade of sat as it gets stuck until repair....')
 """
-

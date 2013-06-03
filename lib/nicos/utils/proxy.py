@@ -70,4 +70,3 @@ def ProxyFactory(obj, names, proxyclass=NicosProxy):
                 setattr(cls, name, getter(name))
     # Return instance.
     return cls(obj)
-

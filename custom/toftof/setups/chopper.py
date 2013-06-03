@@ -69,7 +69,7 @@ devices = dict(
                           requires = {'level': 'guest'},
                           bus = 'chdelaybus',
                           addr = 0xF1,
-                          unit = 'usec', 
+                          unit = 'usec',
                           fmtstr = '%d',
                          ),
 )

@@ -203,5 +203,3 @@ class VirtualRotAxisMotor(VirtualMotor):
                 self._stop = True       # force a stop
                 return self.curvalue
         return VirtualMotor._step(self, start, end, elapsed, speed)
-
-

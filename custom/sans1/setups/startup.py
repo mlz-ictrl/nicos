@@ -28,7 +28,7 @@ sysconfig = dict(
     cache = 'sans1ctrl.sans1.frm2',
 )
 
-includes = ['table', 
+includes = ['table',
             'detector',
             'tube',
             'collimation',
@@ -37,4 +37,3 @@ includes = ['table',
 #           'magnet_sans1',
 #           'htf02',
 ]
-

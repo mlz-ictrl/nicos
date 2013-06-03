@@ -79,8 +79,8 @@ devices = {
                               ),
          nok + 'axisr' : device('refsans.nok.Axis',
                                description = '%s Axis (reactor side)' % NOK,
-                               motor = nok + 'motorr', 
-                               coder = nok + 'motorr', 
+                               motor = nok + 'motorr',
+                               coder = nok + 'motorr',
                                obs = [nok + 'obsr', ],
                                bus = 'motorbus2',
                                sll = nok + 'sllr',
@@ -92,8 +92,8 @@ devices = {
                               ),
          nok + 'axiss' : device('refsans.nok.Axis',
                                description = '%s Axis (sample side)' % NOK,
-                               motor = nok + 'motors', 
-                               coder = nok + 'motors', 
+                               motor = nok + 'motors',
+                               coder = nok + 'motors',
                                obs = [nok + 'obss', ],
                                bus = 'motorbus2',
                                sll = nok + 'slls',
@@ -101,9 +101,9 @@ devices = {
                                sref = nok + 'srefs',
                                backlash = -2.0,
                                precision = 0.05,
-			       refpoint = -17.880,
+                               refpoint = -17.880,
                               ),
-#        nok         : device('refsans.nok.Nok', 
+#        nok         : device('refsans.nok.Nok',
 #                      unit = 'mm',
 #                      fmtstr = '%.5f',
 #                      bus = 'motorbus2',
@@ -119,6 +119,3 @@ devices = {
 #                      neginclination = 0,
 #                     ),
          }
-
-
-

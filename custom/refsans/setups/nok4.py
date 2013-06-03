@@ -9,7 +9,7 @@ includes = ['nokref', 'motorbus', ]
 devices = {
         nok + 'portr' : device('devices.taco.io.AnalogInput',
                                description = 'Voltage input of the %s coder (reactor side)' % (NOK),
-                               tacodevice = nethost + 'test/wb_a/2_0', 
+                               tacodevice = nethost + 'test/wb_a/2_0',
                                lowlevel = True,
                               ),
         nok + 'ports' : device('devices.taco.io.AnalogInput',
@@ -79,8 +79,8 @@ devices = {
                               ),
          nok + 'axisr' : device('refsans.nok.Axis',
                                description = '%s Axis (reactor side)' % NOK,
-                               motor = nok + 'motorr', 
-                               coder = nok + 'motorr', 
+                               motor = nok + 'motorr',
+                               coder = nok + 'motorr',
                                obs = [nok + 'obsr', ],
                                bus = 'motorbus2',
                                sll = nok + 'sllr',
@@ -92,8 +92,8 @@ devices = {
                               ),
          nok + 'axiss' : device('refsans.nok.Axis',
                                description = '%s Axis (sample side)' % NOK,
-                               motor = nok + 'motors', 
-                               coder = nok + 'motors', 
+                               motor = nok + 'motors',
+                               coder = nok + 'motors',
                                obs = [nok + 'obss', ],
                                bus = 'motorbus2',
                                sll = nok + 'slls',
@@ -103,7 +103,7 @@ devices = {
                                precision = 0.05,
                                refpoint = 9.703,
                               ),
-#       nok1 = device('refsans.nok.Nok', 
+#       nok1 = device('refsans.nok.Nok',
 #                      unit = 'mm',
 #                      fmtstr = '%.5f',
 #                      bus = 'motorbus2',
@@ -119,6 +119,3 @@ devices = {
 #                      neginclination = 0,
 #                     ),
          }
-
-
-

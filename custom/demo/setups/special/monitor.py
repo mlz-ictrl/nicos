@@ -96,7 +96,7 @@ _sansblock = Block(
               width=4,height=5),
         #~ Field(dev='det_pos', name='Detector position',
               #~ widget='nicos.sans1.monitorwidgets.Tube', width=30, height=10)),
-        Field(dev=['det_pos1', 'det_pos1_x','det_pos1_tilt', 'det_pos2'], 
+        Field(dev=['det_pos1', 'det_pos1_x','det_pos1_tilt', 'det_pos2'],
                 name='Detector position',
                 widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21)),
      BlockRow(

@@ -26,7 +26,7 @@ description = 'sample table devices'
 
 # includes = ['system']
 
-nethost= 'pgaasrv.pgaa.frm2'
+nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(
     sample_motor  = device('devices.taco.motor.Motor',
@@ -64,4 +64,3 @@ devices = dict(
                     tacodevice = '//%s/pgaa/phytronixe/press2' % (nethost,),
                    ),
 )
-

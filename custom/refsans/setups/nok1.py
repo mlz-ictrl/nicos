@@ -45,7 +45,7 @@ devices = {
          nok + 'axis' : device('refsans.nok.Axis',
                                description = '%s Axis ' % NOK,
                                motor = nok + 'motor', # TacoDevice('Motor', nethost + '')
-                               coder = nok + 'motor', 
+                               coder = nok + 'motor',
                                obs = [nok + 'obs', ],
                                bus = 'motorbus2',
                                sll = nok + 'sll',
@@ -56,7 +56,7 @@ devices = {
                                refpoint = -14.419,
                               ),
          }
-#        nok1 = device('refsans.nok.Nok', 
+#        nok1 = device('refsans.nok.Nok',
 #                      unit = 'mm',
 #                      fmtstr = '%.5f',
 #                      bus = 'motorbus2',
@@ -71,4 +71,3 @@ devices = {
 #                      posinclination = 0,
 #                      neginclination = 0,
 #                     ),
-

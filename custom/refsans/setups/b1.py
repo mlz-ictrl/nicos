@@ -9,7 +9,7 @@ includes = ['nokref',]
 devices = {
         nok + 'portr' : device('devices.taco.io.AnalogInput',
                                description = 'Voltage input of the %s coder (reactor side)' % (NOK),
-                               tacodevice = nethost + 'test/wb_a/2_2', 
+                               tacodevice = nethost + 'test/wb_a/2_2',
                                lowlevel = True,
                               ),
         nok + 'ports' : device('devices.taco.io.AnalogInput',
@@ -37,7 +37,7 @@ devices = {
                                port = nok + 'ports',
                                ref = 'nrefa2',
                               ),
-#       nok1 = device('refsans.nok.Nok', 
+#       nok1 = device('refsans.nok.Nok',
 #                      unit = 'mm',
 #                      fmtstr = '%.5f',
 #                      bus = 'motorbus2',
@@ -53,6 +53,3 @@ devices = {
 #                      neginclination = 0,
 #                     ),
          }
-
-
-
