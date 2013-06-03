@@ -37,8 +37,9 @@ from nicos.core import Moveable, Param #@UnusedImport  pylint: disable=W0611
 from nicos.devices.experiment import Sample
 from nicos.core import vec3
 
+# imports from the nonius libs
 from sc_scan_new import HuberScan  #pylint: disable=F0401
-from goniometer import position
+from goniometer import position    #pylint: disable=F0401
 
 class ResiPositionProxy(object):
     """
