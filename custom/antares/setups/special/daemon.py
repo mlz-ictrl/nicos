@@ -5,17 +5,21 @@ group = 'special'
 
 import hashlib
 
+
 devices = dict(
-    UserDB = device('frm2.auth.Frm2Authenticator'),
-    Auth   = device('services.daemon.auth.ListAuthenticator',
-                    hashing = 'md5',
-                    # first entry is the user name, second the hashed password, third the user level
-                    passwd = [('guest', '', 'guest'),
-                              ('user', hashlib.md5('user').hexdigest(), 'user'),
-                              ('admin', hashlib.md5('admin').hexdigest(), 'admin')],
+    Auth   = device('services.daemon.auth.ListAuthenticator',  # or 'frm2.auth.Frm2Authenticator'
+                     description = 'Authentication device',
+                     # first entry is the user name, second the hashed password, third the user level
+                     hashing = 'sha1',
+                     passwd = [('guest', '', 'guest'),
+                               ('user', hashlib.sha1('user').hexdigest(), 'user'),
+                               ('admin', hashlib.sha1('admin').hexdigest(), 'admin')],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'localhost',
-                    authenticators = ['Auth'], # or ['UserDB', 'Auth']
-                    loglevel = 'debug'),
+                     description = 'Daemon, executingcommands and scripts',
+                     server = '0.0.0.0',
+                     authenticators = ['Auth',],
+                     loglevel = 'debug',
+                   ),
 )
+

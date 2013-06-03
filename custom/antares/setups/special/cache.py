@@ -5,11 +5,15 @@ group = 'special'
 
 devices = dict(
     DB     = device('services.cache.server.FlatfileCacheDatabase',
-                    storepath = 'data/cache',
-                    loglevel = 'info'),
+                     description = 'On disk storage for Cache Server',
+                     storepath = 'data/cache',
+                     loglevel = 'info',
+                   ),
 
     Server = device('services.cache.server.CacheServer',
-                    db = 'DB',
-                    server = 'localhost',
-                    loglevel = 'info'),
+                     description = 'Value caching server',
+                     db = 'DB',
+                     server = 'antareshw.antares.frm2',
+                     loglevel = 'info',
+                   ),
 )

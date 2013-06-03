@@ -3,53 +3,74 @@
 name = 'setup for the status monitor'
 group = 'special'
 
-_expcolumn = [
-    ('Experiment', [
-        [{'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
-         {'name': 'Title', 'key': 'exp/title', 'width': 40,
-          'istext': True},
-         {'name': 'Current status', 'key': 'exp/action', 'width': 30,
-          'istext': True},
-         {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
-]
+Row = Column = Block = BlockRow = lambda *args: args
+Field = lambda *args, **kwds: args or kwds
 
-_axisblock = (
-    'Axis devices',
-    [['a1', 'm1', 'c1'],
-     ['a2', 'm2']],
-    'misc')
+_expcolumn = Column(
+    Block('Experiment', [
+        BlockRow(
+            Field(name='Proposal', key='exp/proposal', width=7),
+            Field(name='Title', key='exp/title', width=40, istext=True),
+            Field(name='Current status', key='exp/action', width=30, istext=True),
+            Field(name='Last file', key='filesink/lastfilenumber'),
+            ),
+        ],
+    ),
+)
 
-_detectorblock = (
-    'Detector devices',
-    [[{'name': 'timer', 'dev': 'timer'},
-      {'name': 'ctr1', 'dev': 'ctr1'},
-      {'name': 'ctr2', 'dev': 'ctr2'}]],
-    'detector')
+_axisblock = Block('Axis devices', [
+    BlockRow(
+        Field(dev='a1'), Field(dev='m1'), Field(dev='c1'),
+        ),
+    BlockRow(
+        Field(dev='a2'), Field(dev='m2'),
+        ),
+    ], 
+    'misc',
+)
 
-_otherblock = (
-    'Other devices',
-    [[{'dev': 'slit', 'width': 20, 'name': 'Slit'}],
-     [{'dev': 'sw', 'width': 4, 'name': 'Switcher'}],
-     [{'dev': 'freq', 'name': 'Frequency'}, {'unit': 'mV', 'key': 'freq/amplitude', 'name': 'Amplitude'}]],
-    'misc')
+_detectorblock = Block('Detector devices', [
+    BlockRow(
+        Field(dev='timer'), Field(dev='ctr1'), Field(dev='ctr2'),
+        ),
+    ],
+    'detector',
+)
 
-_rightcolumn = [
+_otherblock = Block('Other devices', [
+    BlockRow(
+        Field(dev='slit', name='Slit', width=20),
+        ),
+    BlockRow(
+        Field(dev='sw', name='Switcher', width=4),
+        ),
+    BlockRow(
+        Field(dev='freq', name='Frequency'),
+        Field(key='freq/amplitude', name='Amplitude', unit='mV'),
+        ),
+    ],
+    'misc',
+)
+
+_rightcolumn = Column(
     _axisblock,
     _detectorblock,
-]
+)
 
-_leftcolumn = [
+_leftcolumn = Column(
     _otherblock,
-]
+)
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
-                     title = 'Test status monitor',
-                     loglevel = 'info',
-                     cache = 'localhost:14869',
-                     prefix = 'nicos/',
-                     font = 'Luxi Sans',
-                     valuefont = 'Monospace',
-                     padding = 5,
-                     layout = [[_expcolumn], [_rightcolumn, _leftcolumn]]),
+                      description = 'Status Display',
+                      title = 'Test status monitor',
+                      loglevel = 'info',
+                      cache = 'antareshw.antares.frm2',
+                      prefix = 'nicos/',
+                      font = 'Luxi Sans',
+                      valuefont = 'Monospace',
+                      padding = 5,
+                      layout = [[_expcolumn], [_rightcolumn, _leftcolumn]],
+                    ),
 )

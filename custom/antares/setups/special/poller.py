@@ -4,11 +4,13 @@ name = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'localhost'
+    cache = 'antareshw.antares.frm2'
 )
 
 devices = dict(
     Poller = device('services.poller.Poller',
-                    alwayspoll = [],
-                    blacklist = ['tas']),
+                     description = 'Device polling service',
+                     alwayspoll = [],
+                     blacklist = ['tas'],
+                   ),
 )
