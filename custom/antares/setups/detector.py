@@ -10,7 +10,6 @@ devices = dict(
                   description = 'CCD Camera',
                   tangodevice = 'antares/detector/limaccd',
                   hwdevice = 'antares/detector/ikonl',
-                  maxage=1, #???
                   subdir='.',
 #                  subdir='test',
 #                  datapath=['/data/FRM-II/'],
@@ -19,10 +18,11 @@ devices = dict(
     ccdTemp = device('nicos.antares.detector.AndorTemperature',
                       description = 'Temperature of CCD-chip',
                       tangodevice = 'antares/detector/ikonl',
-                      maxage=1, #???
+                      maxage=12,
+                      pollinterval = 5,
                       abslimits=(-80,0),
                       userlimits=(-80,0),
-                      unit='°C',
+                      unit='C',
                       precision=1,
                     ),
 )

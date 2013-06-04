@@ -29,14 +29,10 @@ from nicos.core import status
 from nicos.devices.taco import Motor as TacoMotor
 
 # Just redefine doStatus as this doesn't work correctly with the ServoStarTacoServer
-class ServoStarMotor( TacoMotor ):
+class ServoStarMotor(TacoMotor):
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
-        if state in [TACOStates.DEVICE_NORMAL,TACOStates.DISABLED]:
+        if state == TACOStates.DISABLED:
             return status.OK, 'idle'
-        elif state == TACOStates.MOVING:
-            return status.BUSY, 'moving'
-        elif state in (TACOStates.INIT, TACOStates.RESETTING):
-            return status.BUSY, 'referencing'
         else:
-            return status.ERROR, TACOStates.stateDescription(state)
+            return TacoMotor.doStatus(self,maxage)
