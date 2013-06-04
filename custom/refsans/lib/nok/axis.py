@@ -100,14 +100,14 @@ class Axis(GenericAxis) :
         except TACOError:
             raise CommunicationError(self, 'Could not read steps')
 
-    def printstatus(self, type = 'TACO') :
-        if (type.upper() == 'TACO') :
+    def printstatus(self, what = 'TACO') :
+        if (what.upper() == 'TACO') :
             return self._adevs['motor']._dev.deviceStatus()
-        elif (type.upper() == 'HIGH') :
+        elif (what.upper() == 'HIGH') :
             return self._adevs['shl'].read()
-        elif (type.upper() == 'LOW') :
+        elif (what.upper() == 'LOW') :
             return self._adevs['sll'].read()
-        elif (type.upper() == 'REF') :
+        elif (what.upper() == 'REF') :
             return self._adevs['sref'].read()
         state = self._adevs['motor']._dev.deviceState()
         line = self._adevs['sref']._dev.deviceStatus()
