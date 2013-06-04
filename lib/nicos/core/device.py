@@ -82,7 +82,23 @@ def requires(**access):
     return decorator
 
 
-class DeviceMeta(type):
+class DeviceMixinMeta(type):
+    """
+    This class provides the __instancecheck__ method for non-Device derived
+    mixins.
+    """
+    def __instancecheck__(cls, inst):  #pylint: disable=C0203
+        from nicos.devices.generic import DeviceAlias, NoDevice
+        if inst.__class__ == DeviceAlias and inst._initialized:
+            if isinstance(inst._obj, NoDevice):
+                return issubclass(inst._cls, cls)
+            return isinstance(inst._obj, cls)
+        # does not work with Python 2.6!
+        #return type.__instancecheck__(cls, inst)
+        return issubclass(inst.__class__, cls)
+
+
+class DeviceMeta(DeviceMixinMeta):
     """
     A metaclass that automatically adds properties for the class' parameters,
     and determines a list of user methods ("commands").
@@ -220,17 +236,6 @@ class DeviceMeta(type):
             newtype.commands[methname] = (args, docline)
 
         return newtype
-
-    def __instancecheck__(cls, inst):  #pylint: disable=C0203
-        from nicos.devices.generic import DeviceAlias, NoDevice
-        if inst.__class__ == DeviceAlias and inst._initialized:
-            if isinstance(inst._obj, NoDevice):
-                return issubclass(inst._cls, cls)
-            return isinstance(inst._obj, cls)
-        # does not work with Python 2.6!
-        #return type.__instancecheck__(cls, inst)
-        return issubclass(inst.__class__, cls)
-
 
 class Device(object):
     """
@@ -1453,6 +1458,8 @@ class HasOffset(object):
     subtract/add self.offset in doRead()/doStart().
     """
 
+    __metaclass__ = DeviceMixinMeta
+
     parameters = {
         'offset':  Param('Offset of device zero to hardware zero', unit='main',
                          settable=True, category='offsets', chatty=True),
@@ -1480,6 +1487,8 @@ class HasPrecision(object):
     This is mainly useful for user info, and for high-level devices that have to
     work with limited-precision subordinate devices.
     """
+
+    __metaclass__ = DeviceMixinMeta
 
     parameters = {
         'precision': Param('Precision of the device value', unit='main',

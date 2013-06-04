@@ -29,7 +29,7 @@ from time import sleep
 from nicos import session
 from nicos.core import UsageError, ConfigurationError
 from nicos.devices.generic.alias import NoDevice
-from nicos.commands.device import read
+from nicos.commands.device import read, adjust
 from test.utils import raises
 
 
@@ -74,6 +74,22 @@ def test_alias_dev():
     # check type restriction by devclass parameter
     slit = session.getDevice('slit')
     assert raises(UsageError, setattr, alias, 'alias', slit)
+
+def test_adjust_alias():
+    alias = session.getDevice('aliasDev3', object)
+    # now set the alias to some object
+    axis = session.getDevice('axis')
+    # "alias" is a chatty property, so it should emit something when changed
+    assert session.testhandler.emits_message(setattr, alias, 'alias', axis)
+
+    alias.alias = axis
+    alias.offset = 0.0
+    ## # old behaviour
+    ## assert raises(UsageError, adjust, alias, 0)
+    ## # after fix of bug#870
+    adjust(alias, 1)
+    adjust(alias, 0)
+    alias.alias = ''
 
 def test_alias_valueinfo():
     # check the value info replacement

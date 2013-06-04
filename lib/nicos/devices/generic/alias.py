@@ -29,9 +29,12 @@ import re
 from nicos import session
 from nicos.core import Device, Param, ConfigurationError, NicosError, none_or, \
      usermethod
+from nicos.core.device import DeviceMixinMeta
 
 
 class NoDevice(object):
+
+    __metaclass__ = DeviceMixinMeta
 
     def __init__(self, name):
         self.name = name

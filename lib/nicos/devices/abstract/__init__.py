@@ -35,6 +35,7 @@ from nicos.core import status, Device, Readable, Moveable, Measurable, \
      ModeError, ProgrammingError
 from nicos.devices.datasinks import NeedsDatapath
 from nicos.utils import readFileCounter, updateFileCounter
+from nicos.core.device import DeviceMixinMeta
 
 
 class Coder(HasPrecision, Readable):
@@ -105,6 +106,8 @@ class CanReference(object):
     Concrete implementations must provide a 'doReference' method.  It can
     return the new current position after referencing or None.
     """
+
+    __metaclass__ = DeviceMixinMeta
 
     @usermethod
     def reference(self, *args):
