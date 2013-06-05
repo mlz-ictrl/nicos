@@ -21,10 +21,13 @@
 #
 # *****************************************************************************
 
-from nicos.devices.abstract import ImageStorage
-
 import pyfits
-import numpy
+from ordereddict import OrderedDict
+
+from nicos.devices.abstract import ImageStorage
+from nicos.devices.generic import FreeSpace
+from nicos.core import DataSink
+from nicos import session
 
 
 class ImageStorageFits(ImageStorage):
@@ -37,6 +40,48 @@ class ImageStorageFits(ImageStorage):
         return self.lastfilename
 
     def doSave(self):
-        data = self._readImageFromHw()
-        hdu = pyfits.PrimaryHDU(data)
+        # query data
+        headerData = self._collectHeaderData()
+        imgData = self._readImageFromHw()
+
+        # create hdu from image
+        hdu = pyfits.PrimaryHDU(imgData)
+
+        # add header entries
+        for key, value in headerData.iteritems():
+            # Add HIERARCH keyword to make long keys possible.
+            # To get a consistent looking header, add it to every key.
+            key = ('HIERARCH %s' % key).strip()
+            value = str(value).strip()
+
+            # Split the value into multiple header entries if necessary
+            maxValLen = 65 - len(key)
+            entries = [value[i:i + maxValLen] for i in range(0, len(value), maxValLen)]
+
+            # append header entries
+            for entry in entries:
+                hdu.header.append((key, entry))
+
+        # write fits file
         hdu.writeto(self.lastfilename)
+
+    def _collectHeaderData(self):
+        data = OrderedDict()
+
+        # session info
+        data['setups'] = [entry for entry in session.loaded_setups]
+        data['devices'] = session.devices.keys()
+
+        # Query parameters and current value of all interesting devices
+        for deviceName, device in session.devices.iteritems():
+
+            # Skip Experiment, DataSink, FreeSpace and lowlevel devices
+            if isinstance(device, (DataSink, FreeSpace)) \
+                or device.lowlevel:
+                continue
+
+            # Query important info
+            for _category, key, value in device.info():
+                data['%s_%s' % (deviceName, key)] = value
+
+        return data
