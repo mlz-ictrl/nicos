@@ -35,4 +35,4 @@ class ServoStarMotor(TacoMotor):
         if state == TACOStates.DISABLED:
             return status.OK, 'idle'
         else:
-            return TacoMotor.doStatus(self,maxage)
+            return TacoMotor.doStatus(self, maxage)
