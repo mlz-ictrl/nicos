@@ -2,7 +2,7 @@ description = 'PANDA triple-axis setup'
 
 group = 'basic'
 
-includes = ['system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual']
+includes = ['system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual', 'alias_sth']
 # monoturm is included by panda_s7
 
 #~ modules = ['nicos.commands.tas','nicos.panda.commands']
@@ -64,15 +64,9 @@ devices = dict(
                                                 description = 'Virtual device to startup the TAS-Device, DONT USE !',
                                                 lowlevel = True,
     ),
-
-    sth = device('devices.generic.DeviceAlias',
-            alias = 'sth_virtual_dummy', # default alias, will be overwritten by other setup-startupcodes
-            description = 'Alias to currently used sth-device',
-    ),
-
-
 )
 
 startupcode = '''
+sth.alias = 'sth_virtual_dummy'
 SetDetectors(det)
 '''
