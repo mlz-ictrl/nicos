@@ -352,17 +352,15 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
     # mc = mixing chamber of the dilution
     # vti = preecooling of the dilution or the controler of the samplestick
     # sts = samplestick
-    tcol = kwargs.get('tcol','')
-    if isinstance(tcol, int):
-        for n in (kwargs.get('tcol','') + 'Ts:avg Ts T:avg T mc:avg mc vti sts sts:avg').split():
-            if n in colnames:
-                tcol = colnames.index(n)
-                break
-            else: # no match, try unit...
-                if 'K' in colunits:
-                    tcol = colunits.index('K')
-                else:
-                    tcol = -1
+    for n in 'Ts:avg Ts T:avg T mc:avg mc vti sts sts:avg'.split():
+        if n in colnames:
+            tcol = colnames.index(n)
+            break
+        else: # no match, try unit...
+            if 'K' in colunits:
+                tcol = colunits.index('K')
+            else:
+                tcol = -1
 
     # search field
     if 'B' in colnames:
