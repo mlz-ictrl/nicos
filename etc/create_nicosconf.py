@@ -34,7 +34,7 @@ except KeyError:
 pythonpath = ':'.join(glob.glob(tacobase + '/lib*/python*/site-packages'))
 if not pythonpath:
     # set some working default, if the taco dir does not exist yet
-    print >>sys.stderr, '''\
+    print >> sys.stderr, '''\
 Warning: There seems to be no TACO installed in %s,
 setting up a default anyway.
 
@@ -45,6 +45,33 @@ set DSHOME to point to this directory.''' % tacobase
                           (libdir, pyversion[0], pyversion[1])
                           for libdir in ['lib', 'lib64'])
 
+# Transforms make.conf 'Makefile' style strings for service specification into
+# multiple lines usable in the '[services]' section of nicos.conf
+# WARNING: This is NO PARSER, but just a STRING TRANSFORMATION!
+# This transforms make.conf entries like:
+## SERVICES = fallback;host1:some_services;host2:some_other_services
+# or (the recommended version for readability)
+## SERVICES = fallback;\
+##      host1:some_services;\
+##      host2:some_other_services
+# into a '[services]' section in nicos.conf like:
+## [services]
+## services = fallback
+## host1_services = some_services
+## host2_services = some_other_services
+# first two translations contain the major transformation (line-splitting at ';' and replacing ':' to '_services')
+# the remaing entries serve for beautifications to improve readability
+services_replacements = (       # replace the first string with the second
+                         (';', '\n'),# enhance functionality
+                         (':', '_services='),
+                         (' ', ''),# beautify
+                         ('\t', ''),
+                         (',', ', '),
+                         ('=', ' = '),
+                        )
+for m, r in services_replacements:
+    services = services.replace(m, r)
+addvars = addvars.replace(';','\n')
 print '''\
 [nicos]
 # The system user to use for daemons.

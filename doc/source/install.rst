@@ -146,7 +146,15 @@ The possible entries are:
 * Under the section ``[services]``:
 
   * ``services`` -- a comma-separated list of NICOS daemons to start and stop
-    with the provided :ref:`init script <initscript>`.
+    with the provided :ref:`init script <initscript>`. If ``none`` is specified,
+    no services will be started. This is useful as a fallback and for getting
+    nicos up and running.
+
+  * ``<hostname>_services`` -- a comma-separated list of NICOS daemons to start
+    and stop with the provided :ref:`init script <initscript>` running on host
+    <hostname> (short name as output by `hostname -s`). If the script is executed
+    on a host for which there is no such entry, the entry ``services`` is used as
+    a fallback.
 
 * Under the section ``[environment]``:
 

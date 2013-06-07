@@ -66,7 +66,10 @@ def read_config():
         log_path = cfg.get('nicos', 'logging_path')
     else:
         log_path = path.join(root_path, 'log')
-    services = [svc.strip() for svc in services.split(',')]
+    if services.lower().strip() in ['', 'none']:
+        services = []
+    else:
+        services = [svc.strip() for svc in services.split(',')]
     return services, log_path
 
 SERVICES, LOG_PATH = read_config()
