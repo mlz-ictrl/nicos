@@ -38,7 +38,7 @@ class CurrentA(TacoDevice, Readable):
     }
 
     def doRead(self, maxage=0):
-        tmp = self._dev.communicate('N1')
+        tmp = self._taco_guard(self._dev.communicate,'N1')
         return float(tmp[:11].strip())
 
     def doStatus(self, maxage=0):
@@ -54,7 +54,7 @@ class CurrentU(TacoDevice, Readable):
     }
 
     def doRead(self, maxage=0):
-        tmp = self._dev.communicate('N0')
+        tmp = self._taco_guard(self._dev.communicate,'N0')
         return float(tmp[:11].strip())
 
     def doStatus(self, maxage=0):

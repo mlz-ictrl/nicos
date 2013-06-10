@@ -44,9 +44,11 @@ class PowerSupplyU(TacoDevice, Readable):
     }
 
     def doRead(self, maxage=0):
-        tmp = int (self._dev.communicate('INST:NSEL?'))
+        # INST:SEL 1;MEAS:VOLT?
+        # INST:SEL 2;MEAS:VOLT?
+        tmp = int (self._taco_guard(self._dev.communicate,'INST:NSEL?'))
         if tmp == self.channel:
-            tmp = self._dev.communicate('meas:volt?')
+            tmp = self._taco_guard(self._dev.communicate,'meas:volt?')
             return float (tmp)
         raise NicosError (self, 'other channel selected')
 
@@ -69,9 +71,9 @@ class PowerSupplyA(TacoDevice, Readable):
     }
 
     def doRead(self, maxage=0):
-        tmp = int(self._dev.communicate('INST:NSEL?'))
+        tmp = int(self._taco_guard(self._dev.communicate,'INST:NSEL?'))
         if tmp == self.channel:
-            tmp = self._dev.communicate('meas:curr?')
+            tmp = self._taco_guard(self._dev.communicate,'meas:curr?')
             return float (tmp)
         raise NicosError(self, 'other channel selected')
 

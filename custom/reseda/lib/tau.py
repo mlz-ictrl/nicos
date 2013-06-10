@@ -22,54 +22,70 @@
 #
 # *****************************************************************************
 
-"""Readout of the Astrium selector."""
-
-from IO import StringIO
-
 from nicos.core import Readable, Override, status
-from nicos.devices.taco.core import TacoDevice
 
+class tauTwoarms(Readable):
 
-class Selector(TacoDevice, Readable):
-    """
-    Device object for a astrium selector.
-    """
-    taco_class = StringIO
+    attached_devices = {
+        'current': (Readable, 'NSE'),
+        'frequency': (Readable, 'NRSE'),
+        'Fu0': (Readable, 'Compare'),
+        'wavelength': (Readable, 'Calculation')
+    }
+
 
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='rpm'),
+        'unit':  Override(mandatory=False, default='ns'),
     }
 
     def doRead(self, maxage=0):
-        tmp = self._taco_guard(self._dev.communicate,'FDR')
-        ##FDR                                             \RPM  22794
-        value = tmp[-6:].strip()
-        return float(value)
+
+        b22 = self._taco_guard(self._adevs['current'].read(maxage))
+        f0 = self._taco_guard(self._adevs['frequency'].read(maxage))
+        fu0 = self._taco_guard(self._adevs['Fu0'].read(maxage))
+        lam = self._taco_guard(self._adevs['wavelength'].read(maxage))
+
+        if fu0 <= 0.05:
+            tau = 2.6196 * (10**(-4)) * b22 *(lam**3)
+        else:
+            tau = 3.9806 * (10**(-8)) * f0 * (lam**3)
+
+        return tau
+
 
     def doStatus(self, maxage=0):
         return status.OK, ''
 
 
-class Wavelength(Readable):
+
+
+class tauMieze(Readable):
 
     attached_devices = {
-        'selector': (Readable, 'to calculate the wavelength'),
-        'tiltAngle': (Readable, 'calculation')
+        'length': (Readable, 'Readed from cache'),
+        'frequency0': (Readable, 'Calculation'),
+        'frequency1': (Readable, 'Calculation'),
+        'wavelength': (Readable, 'Calculation')
     }
 
+
     parameter_overrides = {
-        'unit':   Override(mandatory=False, default='A')
+        'unit':  Override(mandatory=False, default='ns'),
     }
 
     def doRead(self, maxage=0):
-        I = self._taco_guard(self._adevs['selector'].read(maxage))
-        Angle = self._taco_guard(self._adevs['tiltAngle'].read(maxage))
 
-        if Angle <= -7.5:
-            Lambda = 9.70 - (3.9536 * (10**-4) * I + 5.2364 * (10**-9) *(I**2))
-        else:
-            Lambda = 14.58 - 0.00057182 * I + 7.5893 * (10**-9) * (I**2)
-        return float(Lambda)
+        l = self._taco_guard(self._adevs['length'].read(maxage))
+        f0 = self._taco_guard(self._adevs['frequency0'].read(maxage))
+        f1 = self._taco_guard(self._adevs['frequency1'].read(maxage))
+        lam = self._taco_guard(self._adevs['wavelength'].read(maxage))
+
+        tau = 1.278 * (10**(-8)) * (f0-f1) * l * (lam**3)
+        if tau < 0:
+            tau = -tau
+
+        return tau
+
 
     def doStatus(self, maxage=0):
         return status.OK, ''

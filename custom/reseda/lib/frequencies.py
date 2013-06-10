@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Readout of FUG power supplies."""
+"""Readout of frequencies."""
 
 from IO import StringIO
 
@@ -39,7 +39,7 @@ class Frequencies(TacoDevice, Readable):
     }
 
     def doRead(self, maxage=0):
-        tmp = self._dev.communicate('meas:volt?')
+        tmp = self._taco_guard(self._dev.communicate,'meas:volt?')
         return float (tmp)
 
     def doStatus(self, maxage=0):

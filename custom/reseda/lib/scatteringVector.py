@@ -41,9 +41,9 @@ class ScatteringVector(Readable):
     }
 
     def doRead(self, maxage=0):
-        Lambda = self._adevs['wavelength'].read(maxage)
-        Degree = self._adevs['twotheta'].read(maxage)
-        Q = 4*math.pi/Lambda*math.sin(Degree/2*math.pi/180)
+        Lambda = self._taco_guard(self._adevs['wavelength'].read(maxage))
+        Degree = self._taco_guard(self._adevs['twotheta'].read(maxage))
+        Q = 4 * math.pi/ Lambda * math.sin(Degree / 2 * math.pi / 180)
         return Q
 
     def doStatus(self, maxage=0):
