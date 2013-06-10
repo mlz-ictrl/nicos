@@ -187,6 +187,18 @@ class DeviceAlias(Device):
     def __ne__(self, other):
         return self is not other
 
+    def shutdown(self):
+        # re-implemented from Device to avoid running doShutdown
+        # of the pointed-to device prematurely
+        self.log.debug('shutting down device')
+        if self._mode != 'simulation':
+            # remove subscriptions to parameter value updates
+            if self._cache:
+                for param in self._subscriptions:
+                    self._cache.removeCallback(self, param)
+        session.devices.pop(self._name, None)
+        session.explicit_devices.discard(self._name)
+
     # generic proxying of missing attributes to the object
 
     def __getattr__(self, name):
