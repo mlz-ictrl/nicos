@@ -24,6 +24,8 @@
 
 """Readout of FUG power supplies."""
 
+import time
+
 from IO import StringIO
 
 from nicos.core import Readable, Override, status, NicosError, Param
@@ -47,10 +49,12 @@ class PowerSupplyU(TacoDevice, Readable):
         # INST:SEL 1;MEAS:VOLT?
         # INST:SEL 2;MEAS:VOLT?
         tmp = int (self._taco_guard(self._dev.communicate,'INST:NSEL?'))
-        if tmp == self.channel:
-            tmp = self._taco_guard(self._dev.communicate,'meas:volt?')
-            return float (tmp)
-        raise NicosError (self, 'other channel selected')
+        if tmp != self.channel:
+            self._taco_guard(self._dev.writeLine('INST:NSEL %d' %
+                             (self.channel)))
+            time.sleep(0.05)
+        tmp = self._taco_guard(self._dev.communicate,'MEAS:VOLT?')
+        return float (tmp)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
@@ -72,10 +76,12 @@ class PowerSupplyA(TacoDevice, Readable):
 
     def doRead(self, maxage=0):
         tmp = int(self._taco_guard(self._dev.communicate,'INST:NSEL?'))
-        if tmp == self.channel:
-            tmp = self._taco_guard(self._dev.communicate,'meas:curr?')
-            return float (tmp)
-        raise NicosError(self, 'other channel selected')
+        if tmp != self.channel:
+            self._taco_guard(self._dev.writeLine('INST:NSEL %d' %
+                             (self.channel)))
+            time.sleep(0.05)
+        tmp = self._taco_guard(self._dev.communicate,'MEAS:CURR?')
+        return float (tmp)
 
     def doStatus(self, maxage=0):
         return status.OK, ''

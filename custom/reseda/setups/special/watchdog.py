@@ -4,21 +4,19 @@ group = 'special'
 
 
 watchlist = [
-    dict(condition = 'length_value < 100',
-         message = 'Length is messed up',
+    dict(condition = 'sel_value < 6000',
+         message = 'Problem with selector. Value below 6000rpm',
+         gracetime = 2,
          priority = 2),
 
-##    dict(condition = '',
-##         message = '',
-##         gracetime = 5),
 ]
 
 
 devices = dict(
 
     email    = device('devices.notifiers.Mailer',
-                      sender = 'awischol@frm2.tum.de',
-                      receivers = ['awischol@frm2.tum.de', 'awischol@frm2.tum.de'],
+                      sender = 'Nicolas.Martin@frm2.tum.de',
+                      receivers = ['awischol@frm2.tum.de',],
                       subject = 'Warning',
                      ),
 

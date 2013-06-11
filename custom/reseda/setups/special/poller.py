@@ -8,7 +8,10 @@ sysconfig = dict(
 devices = dict(
     Poller = device('services.poller.Poller',
                     autosetup = True,
-                    alwayspoll = [],
+                    alwayspoll = ['startup', 'powersupply', 'temperature',
+                                  'capacitance', 'attenuatorsSlits',
+                                  'frequencies',
+                                 ],
                     neverpoll = [],
                     blacklist = []),
 )
