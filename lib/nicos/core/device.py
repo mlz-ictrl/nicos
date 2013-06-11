@@ -98,6 +98,16 @@ class DeviceMixinMeta(type):
         return issubclass(inst.__class__, cls)
 
 
+class DeviceMixinBase(object):
+    """
+    Base class for all NICOS device mixin classes not derived from Device.
+
+    This class sets the correct metaclass and is easier to use than setting the
+    metaclass on each mixin class.
+    """
+    __metaclass__ = DeviceMixinMeta
+
+
 class DeviceMeta(DeviceMixinMeta):
     """
     A metaclass that automatically adds properties for the class' parameters,
@@ -768,7 +778,7 @@ class Device(object):
             raise CommunicationError(self, 'device locked by other instance')
 
 
-class AutoDevice(object):
+class AutoDevice(DeviceMixinBase):
     """Abstract mixin for devices that are created automatically as dependent
     devices of other devices.
     """
@@ -1445,7 +1455,7 @@ class HasLimits(Moveable):
         del self._new_offset
 
 
-class HasOffset(object):
+class HasOffset(DeviceMixinBase):
     """
     Mixin class for Readable or Moveable devices that want to provide an
     'offset' parameter and that can be adjusted via adjust().
@@ -1459,9 +1469,6 @@ class HasOffset(object):
     Instead, each class that provides an offset must inherit this mixin, and
     subtract/add self.offset in doRead()/doStart().
     """
-
-    __metaclass__ = DeviceMixinMeta
-
     parameters = {
         'offset':  Param('Offset of device zero to hardware zero', unit='main',
                          settable=True, category='offsets', chatty=True),
@@ -1481,7 +1488,7 @@ class HasOffset(object):
         session.elog_event('offset', (str(self), old_offset, value))
 
 
-class HasPrecision(object):
+class HasPrecision(DeviceMixinBase):
     """
     Mixin class for Readable and Moveable devices that want to provide a
     'precision' parameter.
@@ -1489,9 +1496,6 @@ class HasPrecision(object):
     This is mainly useful for user info, and for high-level devices that have to
     work with limited-precision subordinate devices.
     """
-
-    __metaclass__ = DeviceMixinMeta
-
     parameters = {
         'precision': Param('Precision of the device value', unit='main',
                            settable=True, category='precisions'),

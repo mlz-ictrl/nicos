@@ -25,7 +25,7 @@
 """Core data handling classes."""
 
 from nicos import session
-from nicos.core import Device, Param, listof, nonemptylistof
+from nicos.core import Device, DeviceMixinBase, Param, listof, nonemptylistof
 from nicos.utils import lazy_property
 
 
@@ -96,7 +96,7 @@ class Dataset(object):
         return [v.unit for v in self.yvalueinfo]
 
 
-class NeedsDatapath(object):
+class NeedsDatapath(DeviceMixinBase):
     """
     A mixin interface that specifies that a device needs the current
     datapath.

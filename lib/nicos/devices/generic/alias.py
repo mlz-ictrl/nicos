@@ -33,7 +33,9 @@ from nicos.core.device import DeviceMixinMeta
 
 
 class NoDevice(object):
-
+    """A class that represents "no device" attached."""
+    # Use the DeviceMixinMeta metaclass here to provide the instancecheck
+    # Not derived from DeviceMixinBase as this class is not a mixin.
     __metaclass__ = DeviceMixinMeta
 
     def __init__(self, name):

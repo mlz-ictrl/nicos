@@ -47,12 +47,12 @@ except ImportError:
 
 from nicos.core import status, tacodev, intrange, floatrange, Param, \
      Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
-     InvalidValueError
+     InvalidValueError, DeviceMixinBase
 from nicos.utils import HardwareStub
 from nicos.protocols.cache import cache_dump, cache_load
 
 
-class TacoDevice(object):
+class TacoDevice(DeviceMixinBase):
     """Mixin class for TACO devices.
 
     Use it in concrete device classes like this::

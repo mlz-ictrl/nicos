@@ -30,12 +30,11 @@ from os import path
 from time import time, sleep
 
 from nicos import session
-from nicos.core import status, Device, Readable, Moveable, Measurable, \
-     HasLimits, HasOffset, HasPrecision, Param, Override, usermethod, \
-     ModeError, ProgrammingError
+from nicos.core import status, Device, DeviceMixinBase, Readable, Moveable, \
+     Measurable, HasLimits, HasOffset, HasPrecision, Param, Override, \
+     usermethod, ModeError, ProgrammingError
 from nicos.devices.datasinks import NeedsDatapath
 from nicos.utils import readFileCounter, updateFileCounter
-from nicos.core.device import DeviceMixinMeta
 
 
 class Coder(HasPrecision, Readable):
@@ -99,16 +98,13 @@ class Axis(HasLimits, HasOffset, HasPrecision, Moveable):
     }
 
 
-class CanReference(object):
+class CanReference(DeviceMixinBase):
     """
     Mixin class for axis devices that want to provide a 'reference' method.
 
     Concrete implementations must provide a 'doReference' method.  It can
     return the new current position after referencing or None.
     """
-
-    __metaclass__ = DeviceMixinMeta
-
     @usermethod
     def reference(self, *args):
         """Do a reference drive of the axis."""
