@@ -20,6 +20,14 @@ gui: lib/nicos/guisupport/gui_rc.py
 lib/nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
 	-$(RCC) -o lib/nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
 
+clean-backups:
+	@if [[ -e "$(ROOTDIR)/bin.bak" ]]; then rm -rf "$(ROOTDIR)/bin.bak"; fi
+	@if [[ -e "$(ROOTDIR)/lib.bak" ]]; then rm -rf "$(ROOTDIR)/lib.bak"; fi
+	@if [[ -e "$(ROOTDIR)/bin.bak.~1~" ]]; then\
+		 rm -rf "$(ROOTDIR)/bin.bak.~*~"; fi
+	@if [[ -e "$(ROOTDIR)/lib.bak.~1~" ]]; then\
+		 rm -rf "$(ROOTDIR)/lib.bak.~*~"; fi
+
 clean:
 	rm -rf build
 	find . -name '*.pyc' -print0 | xargs -0 rm -f
@@ -133,6 +141,26 @@ endif
 
 install: all main-install custom-install
 
+clean-upgrade:
+	@echo "============================================================"
+	@if [[ -e "$(ROOTDIR)/bin.bak" ]]; then \
+		tools/mkbackup "${ROOTDIR)/bin.bak";fi
+	@if [[ -e "$(ROOTDIR)/lib.bak" ]]; then \
+		tools/mkbackup "${ROOTDIR)/lib.bak";fi
+	@echo "Backing up old dirs....."
+	@mv "$(ROOTDIR)/bin" "$(ROOTDIR)/bin.bak"
+	@mv "$(ROOTDIR)/lib" "$(ROOTDIR)/lib.bak"
+	@echo "Done ...."
+	@echo "============================================================"
+
+show-diff:
+	@echo "Changes after upgrade"
+	diff -ur $(ROOTDIR)/bin.bak $(ROOTDIR)/bin
+	diff -ur $(ROOTDIR)/lib.bak $(ROOTDIR)/lib
+
+
+upgrade: clean-upgrade install
+
 main-install:
 	$(INSTALL_ERR)
 	@echo "============================================================="
@@ -229,6 +257,7 @@ fixsmb:
 	chmod +x etc/nicos-system
 	chmod +x custom/panda/bin/pausebutton
 	chmod +x tools/check_setups
+	chmod +x tools/mkbackup
 
 help:
 	@echo "Important targets:"

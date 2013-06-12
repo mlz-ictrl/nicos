@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+# move the given file/directory out of the way
+# more stupid than copysetup
+#
+
+import sys
+import os
+from os import path
+
+
+def moveoutofway( dstname ):
+    if not path.exists(dstname):
+        print >> sys.stderr, 'Target file does not exist'
+        return
+    i = 0
+    while 1:
+        i += 1
+        renamename = dstname + '.~%d~' % i
+        if not path.exists(renamename):
+            try:
+                os.rename(dstname, renamename)
+                #print >> sys.stderr, 'Existing %s renamed to %s' % (dstname, renamename)
+                return renamename
+            except os.error:
+                print >> sys.stdout, 'Could not move existing %s out of the way' % dstname
+                return
+
+
+if __name__ == '__main__':
+
+    if len(sys.argv) < 1:
+        print "Usage: mkbackup dir1 ... dirn\n"
+        print "   moves the given filesystem objects out of the way by "
+        print "   renaming them to dir1.~#~ with a numeric #"
+        sys.exit(1)
+
+    for obj in sys.argv[1:]:
+        print moveoutofway( obj )

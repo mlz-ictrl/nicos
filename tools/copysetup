@@ -100,7 +100,7 @@ def copytreewithbackup(src, dst, symlinks=False, ignore=None):
         raise shutil.Error(errors)
 
 
-if __name__== '__main__':
+if __name__ == '__main__':
 
     if len(sys.argv) < 3:
         print "Usage: copysetup [-v] <srcdir> <targetdir>\n"
