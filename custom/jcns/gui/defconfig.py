@@ -43,7 +43,7 @@ default_profile_config = ('Default', [
                         ),
                         panel('nicos.clients.gui.panels.devices.DevicesPanel'),
                     ),
-#                   panel('nicos.clients.gui.panels.cmdinput.CommandsPanel'),
+#                   panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
                     panel('nicos.clients.gui.panels.console.ConsolePanel',
                           hasinput=False,
                          ),
@@ -51,7 +51,7 @@ default_profile_config = ('Default', [
                ),
                ('Editor',
                 vsplit(
-                    panel('nicos.clients.gui.panels.cmdinput.CommandsPanel'),
+                    panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
                     panel('nicos.clients.gui.panels.editor.EditorPanel',
                        tools = [
                           tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
