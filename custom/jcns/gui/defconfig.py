@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2012 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2013 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -38,12 +38,12 @@ default_profile_config = ('Default', [
                         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
 #                       panel('nicos.clients.gui.panels.watch.WatchPanel'),
                         vsplit(
-                            panel('nicos.clients.gui.panels.commandline.CommandLinePanel'),
+                            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
                             panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
                         ),
                         panel('nicos.clients.gui.panels.devices.DevicesPanel'),
                     ),
-#                   panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+#                   panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
                     panel('nicos.clients.gui.panels.console.ConsolePanel',
                           hasinput=False,
                          ),
@@ -51,7 +51,7 @@ default_profile_config = ('Default', [
                ),
                ('Editor',
                 vsplit(
-                    panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+                    panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
                     panel('nicos.clients.gui.panels.editor.EditorPanel',
                        tools = [
                           tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
