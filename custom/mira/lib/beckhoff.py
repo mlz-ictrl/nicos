@@ -26,7 +26,7 @@
 
 from Modbus import Modbus
 
-from nicos.core import Param
+from nicos.core import Param, listof
 from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput
 
 
@@ -35,6 +35,7 @@ class BeckhoffDigitalOutput(DigitalOutput):
     Device object for a digital output device via a Beckhoff modbus interface.
     """
     taco_class = Modbus
+    valuetype = listof(int)
 
     parameters = {
         'startoffset': Param('Starting offset of digital output values',
