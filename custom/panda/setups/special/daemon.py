@@ -1,8 +1,8 @@
 description = 'setup for the execution daemon'
 group = 'special'
 
-//import hashlib
-//hashlib.md5('plantextpassword').hexdigest() # gives the hashvalue to use
+## import hashlib
+## hashlib.md5('plantextpassword').hexdigest() # gives the hashvalue to use
 
 devices = dict(
     UserDBAuth = device('frm2.auth.Frm2Authenticator'),
