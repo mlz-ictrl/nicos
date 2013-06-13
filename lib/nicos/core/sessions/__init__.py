@@ -629,6 +629,8 @@ class Session(object):
         if failed_devs:
             self.log.error('the following devices could not be created:')
             self.log.error(', '.join(failed_devs))
+            self.log.info("use CreateDevice('device') or CreateAllDevices() "
+                          "later to retry")
 
         self.explicit_setups.extend(setupnames)
 
