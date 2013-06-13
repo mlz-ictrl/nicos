@@ -171,19 +171,19 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         return self._tangoGetAttrGuard('image_height')
 
     def doReadRoi(self):
-        return self._tangoGetAttrGuard('image_roi')
+        return tuple(self._tangoGetAttrGuard('image_roi').tolist())
 
     def doWriteRoi(self, value):
         self._tangoSetAttrGuard('image_roi', value)
 
     def doReadBin(self):
-        return self._tangoGetAttrGuard('image_bin')
+        return tuple(self._tangoGetAttrGuard('image_bin').tolist())
 
     def doWriteBin(self, value):
         self._tangoSetAttrGuard('image_bin', value)
 
     def doReadFlip(self):
-        return self._tangoGetAttrGuard('image_flip')
+        return tuple(self._tangoGetAttrGuard('image_flip').tolist())
 
     def doWriteFlip(self, value):
         self._tangoSetAttrGuard('image_flip', value)
