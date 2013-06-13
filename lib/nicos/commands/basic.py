@@ -366,6 +366,8 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
     When configured, proposal information will be automatically filled in from
     the proposal database.
     """
+    if session.mode == 'simulation':
+        return
     session.experiment.new(proposal, title, localcontact, user, **parameters)
 
 @usercommand
@@ -375,6 +377,8 @@ def FinishExperiment(*args, **kwargs):
 
     Which parameters are accepted depends on the individual instrument.
     """
+    if session.mode == 'simulation':
+        return
     session.experiment.finish(*args, **kwargs)
 
 @usercommand
@@ -386,6 +390,8 @@ def AddUser(name, email=None, affiliation=None):
 
     >>> AddUser('F. User', 'friendlyuser@frm2.tum.de', 'FRM II')
     """
+    if session.mode == 'simulation':
+        return
     session.experiment.addUser(name, email, affiliation)
 
 @usercommand
