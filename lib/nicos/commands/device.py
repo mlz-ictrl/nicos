@@ -103,7 +103,7 @@ def maw(*dev_pos_list):
         devs.append(dev)
     for dev in devs:
         value = dev.wait()
-        if value:
+        if value is not None:
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
 @hiddenusercommand
@@ -144,7 +144,7 @@ def wait(*devlist):
         except Exception:
             dev.log.exception('error waiting for device')
             continue
-        if value:
+        if value is not None:
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
 @usercommand
