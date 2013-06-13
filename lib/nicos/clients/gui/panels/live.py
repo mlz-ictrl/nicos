@@ -24,7 +24,9 @@
 
 """NICOS livewidget 2D data plot window/panel."""
 
+import os
 import struct
+from os import path
 from math import sin, radians, pi
 
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
@@ -38,10 +40,14 @@ from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.livewidget import LWWidget, LWData, Logscale, \
-     MinimumMaximum, BrightnessContrast, Integrate, Histogram
+     MinimumMaximum, BrightnessContrast, Integrate, Histogram, TYPE_FITS, \
+     ShowGrid, Grayscale, Normalize, Darkfield, Despeckle, CreateProfile
 
+# the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
-                       'u1', 'i1', 'f8', 'f4'))
+                       'u1', 'i1', 'f8', 'f4', ''))
+
+FILETYPES = {'fits': TYPE_FITS}
 
 
 class LiveDataPanel(Panel):
@@ -51,7 +57,9 @@ class LiveDataPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'live.ui', 'panels')
 
-        self._format = None
+        self._last_tag = None
+        self._last_fname = None
+        self._last_format = None
         self._runtime = 0
         self._no_direct_display = False
         self._range_active = False
@@ -64,9 +72,8 @@ class LiveDataPanel(Panel):
         self.layout().addWidget(self.statusBar)
 
         self.widget = LWWidget(self)
-        self.widget.setAxisLabels('time channels', 'detectors')
         self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.widget.setKeepAspect(False)
+        self.widget.setKeepAspect(True)
         self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
                                 Integrate | Histogram)
         self.widgetLayout.addWidget(self.widget)
@@ -79,8 +86,6 @@ class LiveDataPanel(Panel):
 
         self.connect(client, SIGNAL('livedata'), self.on_client_livedata)
         self.connect(client, SIGNAL('liveparams'), self.on_client_liveparams)
-        if client.connected:
-            self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
@@ -97,6 +102,15 @@ class LiveDataPanel(Panel):
     def setOptions(self, options):
         self._instrument = options.get('instrument', '')
         self.widget.setInstrumentOption(self._instrument)
+        if self._instrument == 'toftof':
+            self.widget.setAxisLabels('time channels', 'detectors')
+        elif self._instrument == 'antares':
+            self.widget.setControls(ShowGrid | Logscale | Grayscale |
+                                    Normalize | Darkfield | Despeckle |
+                                    CreateProfile | Histogram | MinimumMaximum)
+            self.widget.setStandardColorMap(True, False)
+        if self.client.connected:
+            self.on_client_connected()
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter').toByteArray()
@@ -140,36 +154,72 @@ class LiveDataPanel(Panel):
         self._toftof_profile.show()
 
     def on_client_connected(self):
-        pass
-    #     datapath = self.client.eval('session.experiment.datapath', [])
-    #     caspath = path.join(datapath[0], 'cascade')
-    #     if path.isdir(caspath):
-    #         for fn in sorted(os.listdir(caspath)):
-    #             if fn.endswith('.pad'):
-    #                 self.add_to_flist(path.join(caspath, fn), 'pad', False)
-    #             elif fn.endswith('tof'):
-    #                 self.add_to_flist(path.join(caspath, fn), 'tof', False)
+        datapath = self.client.eval('session.experiment.datapath', [])[0]
+        if not path.isdir(datapath):
+            return
+        if self._instrument == 'antares':
+            for fn in sorted(os.listdir(datapath)):
+                if fn.endswith('.fits'):
+                    self.add_to_flist(path.join(datapath, fn), '', 'fits', False)
 
     def on_client_liveparams(self, params):
-        _tag, _fname, dtype, nx, ny, nz, runtime = params
+        tag, fname, dtype, nx, ny, nz, runtime = params
         self._runtime = runtime
         if dtype not in DATATYPES:
-            self._format = None
+            self._last_format = self._last_fname = None
             self.log.warning('Unsupported live data format: %s' % (params,))
             return
-        self._format = dtype
+        self._last_tag = tag
+        self._last_fname = fname
+        self._last_format = dtype
         self._nx = nx
         self._ny = ny
         self._nz = nz
 
     def on_client_livedata(self, data):
-        if self._format:
+        if self._no_direct_display:
+            return
+        if self._last_format:
+            # we got live data with a specified format
             self.widget.setData(
-                LWData(self._nx, self._ny, self._nz, self._format, data))
+                LWData(self._nx, self._ny, self._nz, self._last_format, data))
+        elif self._last_fname:
+            # we got no live data, but a filename with the data
+            self.widget.setData(LWData(self._last_fname, FILETYPES[self._last_tag]))
+        if self._last_fname:
+            # in the case of a filename, we also add it to the list
+            self.add_to_flist(self._last_fname, self._last_format, self._last_tag)
 
-    #@qtsig('')
-    #def on_actionSetAsROI_triggered(self):
-    #    zoom = self.widget.plot().getZoomer().zoomRect()
+    def add_to_flist(self, filename, fformat, ftag, scroll=True):
+        shortname = path.basename(filename)
+        item = QListWidgetItem(shortname)
+        item.setData(32, filename)
+        item.setData(33, fformat)
+        item.setData(34, ftag)
+        self.fileList.insertItem(self.fileList.count()-1, item)
+        if scroll:
+            self.fileList.scrollToBottom()
+
+    def on_fileList_itemClicked(self, item):
+        if item is None:
+            return
+        fname = item.data(32).toString()
+        ftag = item.data(34).toString()
+        if fname == '':
+            # show always latest live image
+            if self._no_direct_display:
+                self._no_direct_display = False
+                if self._last_fname:
+                    d = LWData(self._last_fname, FILETYPES[str(self._last_tag)])
+                    self.widget.setData(d)
+        else:
+            # show image from file
+            self._no_direct_display = True
+            if fname:
+                self.widget.setData(LWData(fname, FILETYPES[str(ftag)]))
+
+    def on_fileList_currentItemChanged(self, item, previous):
+        self.on_fileList_itemClicked(item)
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):
