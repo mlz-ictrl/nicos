@@ -52,10 +52,10 @@ class ImageStorageFits(ImageStorage):
             # Add HIERARCH keyword to make long keys possible.
             # To get a consistent looking header, add it to every key.
             key = ('HIERARCH %s' % key).strip()
-            value = str(value).strip()
+            value = ''.join(char for char in str(value) if ord(char) < 128).strip()
 
             # Split the value into multiple header entries if necessary
-            maxValLen = 65 - len(key)
+            maxValLen = 63 - len(key)
             entries = [value[i:i + maxValLen] for i in range(0, len(value), maxValLen)]
 
             # append header entries
