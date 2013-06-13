@@ -200,7 +200,7 @@ class Slit(Moveable):
     def _doReadPositions(self, maxage):
         cl, cr, cb, ct = [d.read(maxage) for d in self._axes]
         if self.coordinates == 'opposite':
-            cr *= -1
+            cl *= -1
             cb *= -1
         return [cl, cr, cb, ct]
 
