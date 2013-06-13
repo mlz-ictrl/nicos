@@ -65,6 +65,10 @@ class ImageStorageFits(ImageStorage):
         # write fits file
         hdu.writeto(self.lastfilename)
 
+        # notify clients of new data (we only send the file name, not the actual
+        # data; the client has to get the data out of the file from the filesystem)
+        session.updateLiveData('fits', self.lastfilename, '', 0, 0, 0, 0, '')
+
     def _collectHeaderData(self):
         data = OrderedDict()
 
