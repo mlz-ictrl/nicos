@@ -98,7 +98,11 @@ class FRMChannel(TacoDevice, Channel):
         modes = {IOCommon.MODE_NORMAL: 'normal',
                  IOCommon.MODE_RATEMETER: 'ratemeter',
                  IOCommon.MODE_PRESELECTION: 'preselection'}
-        return modes[self._taco_guard(self._dev.mode)]
+        mode = self._taco_guard(self._dev.mode)
+        if mode not in modes:
+            self.log.warning('Unknown mode %r encountered!' % mode)
+            mode = IOCommon.MODE_NORMAL
+        return modes[mode]
 
     def doWriteMode(self, value):
         modes = {'normal': IOCommon.MODE_NORMAL,
