@@ -28,7 +28,7 @@ import time
 
 from IO import StringIO
 
-from nicos.core import Readable, Override, status, NicosError, Param
+from nicos.core import Readable, Override, status, Param
 from nicos.devices.taco.core import TacoDevice
 
 

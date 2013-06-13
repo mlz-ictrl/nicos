@@ -27,14 +27,15 @@
 import socket
 import logging
 import time
-import os.path
+from os import path
 
 loggerFormat = '[%(asctime)s][%(levelname)s]: %(message)s'
 logging.basicConfig(format=loggerFormat)
 logging.getLogger().setLevel(logging.INFO)
 
 
-class SimpeCacheClient(object):
+class SimpleCacheClient(object):
+
     def __init__(self, host, port, prefix=''):
         self._prefix = prefix
 
@@ -46,7 +47,7 @@ class SimpeCacheClient(object):
         if self._prefix:
             key = '%s/%s' % (self._prefix, key)
 
-        logging.info('Set key: %s => %s' % (key, str(value)))
+        logging.info('Set key: %s => %s', key, value)
 
         self.__write('%s=%s' % (key, str(value)))
 
@@ -55,34 +56,34 @@ class SimpeCacheClient(object):
         if self._prefix:
             key = '%s/%s' % (self._prefix, key)
 
-        logging.info('Read key: %s' % key)
+        logging.info('Read key: %s', key)
 
         self.__write('%s?' % key)
         response = self.__read('%s?' % key)
         value = response.split('=')[1]
 
-        logging.info('\t=> %s' % value)
+        logging.info('\t=> %s', value)
 
         return value
 
     def __write(self, msg):
         fullMsg = '%s\n' % msg
 
-        logging.debug('Write: %s' % fullMsg.encode('string-escape'))
+        logging.debug('Write: %r', fullMsg)
 
         self._socket.send(fullMsg)
 
     def __read(self, msg):
         response = self._socket.recv(1024)[:-1]
 
-        logging.debug('Read: %s' % response)
+        logging.debug('Read: %s', response)
 
         return response
 
 class FileToCache(object):
-    def __init__(self, host, port):
-        self._cache = SimpeCacheClient(host, port, 'nicos')
 
+    def __init__(self, host, port):
+        self._cache = SimpleCacheClient(host, port, 'nicos')
 
     def sendFileToCache(self, dataFile):
         with open(dataFile, 'r') as f:
@@ -93,12 +94,28 @@ class FileToCache(object):
 
 
 
+## host name where the cache is running
+cachehost = 'localhost'
+# used cacheport
+cacheport = 14869
+# used data file
+datafile = 'data.txt'
 
-function = FileToCache('localhost', 14869)	##Hostname vom Linux-Pc
-fileDir = os.path.dirname(__file__)
-dataFile = os.path.join(fileDir, 'data.txt')
+cw = FileToCache(cachehost, cacheport)
+fileDir = path.dirname(__file__)
+dataFile = path.join(fileDir, datafile)
 
-while True:
-	function.sendFileToCache(dataFile)
-	time.sleep(30)
+def checker():
+    if not path.isfile(dataFile):
+        logging.warning('setup watcher could not find %s', dataFile)
+        return
+    mtime = path.getmtime(dataFile)
+    while True:
+        if path.getmtime(dataFile) != mtime:
+            mtime = path.getmtime(dataFile)
+            logging.info('data file changed: Push data to cache')
+            cw.sendFileToCache(dataFile)
+        time.sleep(1)
 
+if __name__ == "__main__":
+    checker()
