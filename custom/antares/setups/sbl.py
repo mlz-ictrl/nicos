@@ -35,6 +35,7 @@ devices = dict(
                   top = 'sbl_t',
                   bottom = 'sbl_b',
                   opmode = '4blades',
+                  coordinates = 'opposite',
                   pollinterval = 5,
                   maxage = 10,
                 ),
