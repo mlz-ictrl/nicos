@@ -377,6 +377,10 @@ class Session(object):
                     oldinfo['excludes'].extend(info['excludes'])
                     oldinfo['modules'].extend(info['modules'])
                     oldinfo['devices'].update(info['devices'])
+                    # remove devices overridden by "None" entries completely
+                    for devname, value in oldinfo['devices'].items():
+                        if value is None:
+                            del oldinfo['devices'][devname]
                     oldinfo['startupcode'] += '\n' + info['startupcode']
                     oldinfo['extended'].update(info['extended'])
                     oldinfo['filename'] = path.join(root, filename)
