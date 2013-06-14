@@ -162,6 +162,11 @@ class HelpGenerator(object):
                    'additional setup or <a href="cmd:NewSetup">NewSetup()</a>'
                    ' to load one or more completely new ones.</p>')
         setups = []
+        def devlink(devname):
+            if devname in session.devices:
+                return '<a href="dev:%s">%s</a>' % (escape(devname),
+                                                    escape(devname))
+            return escape(devname)
         for setupname, info in session.getSetupInfo().iteritems():
             if info is None:
                 continue
@@ -172,7 +177,7 @@ class HelpGenerator(object):
                           (setupname,
                            setupname in session.loaded_setups and 'yes' or '',
                            escape(info['description']),
-                           escape(', '.join(sorted(info['devices'])))))
+                           ', '.join(map(devlink, sorted(info['devices'])))))
         ret.append('<table width="100%"><tr><th>Name</th><th>Loaded</th>'
                    '<th>Description</th><th>Devices</th></tr>')
         ret.extend(setups)
