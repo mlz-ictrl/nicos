@@ -161,27 +161,30 @@ class HelpGenerator(object):
                    '<a href="cmd:AddSetup">AddSetup()</a> to load an '
                    'additional setup or <a href="cmd:NewSetup">NewSetup()</a>'
                    ' to load one or more completely new ones.</p>')
-        setups = []
         def devlink(devname):
             if devname in session.devices:
                 return '<a href="dev:%s">%s</a>' % (escape(devname),
                                                     escape(devname))
             return escape(devname)
-        for setupname, info in session.getSetupInfo().iteritems():
-            if info is None:
-                continue
-            if info['group'] in ('special', 'simulated', 'lowlevel'):
-                continue
-            setups.append('<tr><td><tt>%s</tt></td><td>%s</td>'
-                          '<td>%s</td><td>%s</td></tr>' %
-                          (setupname,
-                           setupname in session.loaded_setups and 'yes' or '',
-                           escape(info['description']),
-                           ', '.join(map(devlink, sorted(info['devices'])))))
-        ret.append('<table width="100%"><tr><th>Name</th><th>Loaded</th>'
-                   '<th>Description</th><th>Devices</th></tr>')
-        ret.extend(setups)
-        ret.append('</table>')
+        def listsetups(group):
+            setups = []
+            for setupname, info in sorted(session.getSetupInfo().iteritems()):
+                if info is None or info['group'] != group:
+                    continue
+                setups.append('<tr><td><tt>%s</tt></td><td>%s</td>'
+                              '<td>%s</td><td>%s</td></tr>' %
+                              (setupname,
+                               setupname in session.loaded_setups and 'yes' or '',
+                               escape(info['description']),
+                               ', '.join(map(devlink, sorted(info['devices'])))))
+            ret.append('<table width="100%"><tr><th>Name</th><th>Loaded</th>'
+                       '<th>Description</th><th>Devices</th></tr>')
+            ret.extend(setups)
+            ret.append('</table>')
+        ret.append('<h4>Basic instrument setups</h4>')
+        listsetups('basic')
+        ret.append('<h4>Optional setups</h4>')
+        listsetups('optional')
         return ''.join(ret)
 
     def gen_funchelp(self, func):
