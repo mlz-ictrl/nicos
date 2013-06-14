@@ -125,8 +125,10 @@ class DeviceMeta(DeviceMixinMeta):
             newentry.update(attrs.get(entry, {}))
             setattr(newtype, entry, newentry)
         for param, info in newtype.parameters.iteritems():
-            # parameter names are always lowercased
-            param = param.lower()
+            # parameter names are always lowercased (enforce this)
+            if param != param.lower():
+                raise ProgrammingError('%r device: parameter name %r is not '
+                                       'all-lowercase' % (name, param))
             if not isinstance(info, Param):
                 raise ProgrammingError('%r device %r parameter info should be '
                                        'a Param object' % (name, param))
