@@ -208,11 +208,7 @@ class Mailer(Notifier):
 
 
 class SMSer(Notifier):
-    """SMS notifications via smslink client program.
-
-    If a SMSer is configured as a notifier, the receiver addresses (not copies)
-    can be set by `.SetSMSReceivers`.
-    """
+    """SMS notifications via smslink client program (sendsms)."""
 
     parameters = {
         'receivers': Param('SMS receiver phone numbers', type=listof(str),

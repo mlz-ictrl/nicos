@@ -16,6 +16,8 @@ Changelog for NICOS 2
   - Added the "nicos-collector" service that can be used to submit information
     from multiple caches to a "supercache".
 
+  - Removed the "SetSMSReceivers" command.
+
 **Release 2.2.0**
 
   - Updated documentation describing all NICOS services with configuration

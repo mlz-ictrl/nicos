@@ -39,7 +39,7 @@ from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
      String, SetupName, DeviceName
 from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.utils import formatDuration, printTable
-from nicos.devices.notifiers import Mailer, SMSer
+from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printerror, \
      printexception
@@ -56,8 +56,7 @@ __all__ = [
     'Remark', 'Remember', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode',
     'edit', 'run', 'sim',
-    'notify', 'SetMailReceivers', 'SetSMSReceivers',
-    '_trace', 'timer',
+    'notify', 'SetMailReceivers', '_trace', 'timer',
     'LogEntry', 'LogAttach',
 ]
 
@@ -762,8 +761,9 @@ Simulate = sim
 def notify(*args):
     """Send a message via email and/or SMS.
 
-    The receivers of the message can be selected by `SetMailReceivers()` and
-    `SetSMSReceivers()`.  Usage is one of these two:
+    The receivers of email messages can be selected by `SetMailReceivers()`.
+
+    Usage is one of these two:
 
     >>> notify('some text')
     >>> notify('subject', 'some text')
@@ -802,32 +802,6 @@ def SetMailReceivers(*emails):
                 printinfo('no email notifications will be sent')
             return
     printwarning('email notification is not configured in this setup')
-
-
-@usercommand
-@helparglist('phonenumber, ...')
-def SetSMSReceivers(*numbers):
-    """Set a list of mobile phone numbers for notifications.
-
-    These numbers will be notified on unhandled errors, and when the `Notify()`
-    command is used.
-
-    Note that all those phone numbers have to be registered with the IT
-    department before they can be used.
-
-    Example:
-
-    >>> SetSMSReceivers('01712345678')
-    """
-    for notifier in session.notifiers:
-        if isinstance(notifier, SMSer):
-            notifier.receivers = list(numbers)
-            if numbers:
-                printinfo('SMS will now be sent to ' + ', '.join(numbers))
-            else:
-                printinfo('no SMS notifications will be sent')
-            return
-    printwarning('SMS notification is not configured in this setup')
 
 
 @usercommand
