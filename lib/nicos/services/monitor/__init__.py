@@ -149,7 +149,7 @@ class Monitor(BaseCacheClient):
         setupname = session.explicit_setups[0]
         fn = session._setup_info[setupname]['filename']
         if not path.isfile(fn):
-            self.log.warning('setup watcher could not find %s.py' % setupname)
+            self.log.warning('setup watcher could not find %r' % fn)
             return
         mtime = path.getmtime(fn)
         while True:

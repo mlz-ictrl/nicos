@@ -31,6 +31,7 @@ import signal
 import traceback
 import threading
 import subprocess
+from os import path
 from time import time as currenttime, sleep
 
 from nicos import session
@@ -206,6 +207,25 @@ class Poller(Device):
             worker.setDaemon(True)
             worker.start()
             self._workers.append(worker)
+
+        # start a thread checking for modification of the setup file
+        checker = threading.Thread(target=self._checker, name='refresh checker',
+                                   args=(setup,))
+        checker.setDaemon(True)
+        checker.start()
+
+    def _checker(self, setupname):
+        fn = session._setup_info[setupname]['filename']
+        if not path.isfile(fn):
+            self.log.warning('setup watcher could not find %r' % fn)
+            return
+        mtime = path.getmtime(fn)
+        while True:
+            if path.getmtime(fn) != mtime:
+                self.log.info('setup file changed; restarting poller process')
+                self.quit()
+                return
+            sleep(1)
 
     def wait(self):
         if self._setup is None:
