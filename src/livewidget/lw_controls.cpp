@@ -18,6 +18,7 @@
 //
 // Module authors:
 //   Georg Brandl <georg.brandl@frm2.tum.de>
+//   Philipp Schmakat <philipp.schmakat@frm2.tum.de>
 //
 // *****************************************************************************
 
@@ -25,6 +26,8 @@
 #include <stdio.h>
 
 #include "lw_controls.h"
+#include "lw_widget.h"
+#include "lw_imageproc.h"
 
 
 LWControls::LWControls(QWidget *parent) : QWidget(parent)
@@ -34,7 +37,7 @@ LWControls::LWControls(QWidget *parent) : QWidget(parent)
     m_range_y[0] = m_range_y[1] = 0;
     memset(m_histogram_y, 0, sizeof(m_histogram_y));
 
-    profLine1 = profLine2 = 0;
+    profLine0 = profLine1 = profLine2 = 0;
     profWindow = 0;
     m_prof_x[0] = m_prof_x[1] = m_prof_y[0] = m_prof_y[1] = 0;
 
@@ -52,22 +55,78 @@ void LWControls::setupUi()
 
     mainLayout = new QVBoxLayout();
 
+    gridBox = new QCheckBox("show grid", this);
+    mainLayout->addWidget(gridBox);
+
     logscaleBox = new QCheckBox("logscale", this);
     mainLayout->addWidget(logscaleBox);
 
     grayscaleBox = new QCheckBox("grayscale", this);
     mainLayout->addWidget(grayscaleBox);
 
-    cyclicBox = new QCheckBox("cyclic", this);
+    cyclicBox = new QCheckBox("cyclic colormap", this);
     mainLayout->addWidget(cyclicBox);
 
-    profileButton = new QPushButton("create profile", this);
+    // ANTARES/imaging specific controls
+
+    darkfieldBox = new QCheckBox("subtract darkfield image", this);
+    mainLayout->addWidget(darkfieldBox);
+
+    normalizeBox = new QCheckBox("normalize to openbeam image", this);
+    mainLayout->addWidget(normalizeBox);
+
+    despeckleBox = new QCheckBox("remove gamma spots", this);
+    mainLayout->addWidget(despeckleBox);
+
+    hLayout = new QHBoxLayout();
+    despeckleValueLabel = new QLabel("despeckle value:", this);
+    hLayout->addWidget(despeckleValueLabel);
+    despeckleValue = new QSpinBox(this);
+    despeckleValue->setRange(1, 65536);
+    despeckleValue->setEnabled(false);
+    despeckleValue->setValue(3000);
+    hLayout->addWidget(despeckleValue);
+    mainLayout->addLayout(hLayout);
+
+    operationSelector = new QComboBox();
+    operationSelector->addItem("no operation selected");
+    operationSelector->addItem("normalize to openbeam image");
+    operationSelector->addItem("subtract darkimage");
+    operationSelector->addItem("stack average");
+    mainLayout->addWidget(operationSelector);
+
+    filterSelector = new QComboBox();
+    filterSelector->addItem("no filter selected");
+    filterSelector->addItem("3x3 standard median filter");
+    filterSelector->addItem("3x3 hybrid median filter");
+    filterSelector->addItem("3x3 despeckle filter");
+    mainLayout->addWidget(filterSelector);
+
+    // end of imaging specific controls
+
+    hLayout = new QHBoxLayout();
+    profileButton = new QPushButton("plot line profile", this);
     profileButton->setCheckable(true);
-    mainLayout->addWidget(profileButton);
+    hLayout->addWidget(profileButton);
+    profileHideButton = new QPushButton("hide profile line", this);
+    profileHideButton->setEnabled(false);
+    hLayout->addWidget(profileHideButton);
+    mainLayout->addLayout(hLayout);
+
+    // prepare a few lines to put on the widget for displaying the
+    // current profile line
+
+    profLine0 = new QwtPlotCurve();
+    profLine0->setRenderHint(QwtPlotCurve::RenderAntialiased);
+    profLine0->setPen(QPen(QBrush(QColor(255, 255, 255, 255)), 3,
+                           Qt::SolidLine, Qt::FlatCap));
+    profLine0->setData(QwtCPointerData(m_prof_x, m_prof_y, 2));
+    profLine0->setVisible(false);
+    profLine0->attach(m_widget->plot());
 
     profLine1 = new QwtPlotCurve();
     profLine1->setRenderHint(QwtPlotCurve::RenderAntialiased);
-    profLine1->setPen(QPen(QBrush(QColor(0, 0, 255, 255)), 1,
+    profLine1->setPen(QPen(QBrush(QColor(0, 255, 0, 255)), 3,
                            Qt::SolidLine, Qt::FlatCap));
     profLine1->setData(QwtCPointerData(m_prof_x, m_prof_y, 2));
     profLine1->setVisible(false);
@@ -75,7 +134,7 @@ void LWControls::setupUi()
 
     profLine2 = new QwtPlotCurve();
     profLine2->setRenderHint(QwtPlotCurve::RenderAntialiased);
-    profLine2->setPen(QPen(QBrush(QColor(0, 0, 255, 96)), 1,
+    profLine2->setPen(QPen(QBrush(QColor(0, 255, 0, 96)), 1,
                            Qt::SolidLine, Qt::FlatCap));
     profLine2->setData(QwtCPointerData(m_prof_x, m_prof_y, 2));
     profLine2->setVisible(false);
@@ -86,6 +145,7 @@ void LWControls::setupUi()
     hLayout->addWidget(profileWidthLabel);
     profileWidth = new QSpinBox(this);
     profileWidth->setRange(1, 65536);
+    profileWidth->setEnabled(false);
     hLayout->addWidget(profileWidth);
     mainLayout->addLayout(hLayout);
 
@@ -94,6 +154,7 @@ void LWControls::setupUi()
     hLayout->addWidget(profileBinsLabel);
     profileBins = new QSpinBox(this);
     profileBins->setRange(1, 256);
+    profileBins->setEnabled(false);
     hLayout->addWidget(profileBins);
     mainLayout->addLayout(hLayout);
 
@@ -102,13 +163,21 @@ void LWControls::setupUi()
     ysumButton = new QPushButton("integrate over y", this);
     mainLayout->addWidget(ysumButton);
 
+
     histoPlot = new QwtPlot(this);
     QSizePolicy plotSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     histoPlot->setSizePolicy(plotSizePolicy);
+    QFont newSmallFont(font());
+    QFont newLargeFont(font());
+    newLargeFont.setPointSize(font().pointSize() * 0.8);
+    newSmallFont.setPointSize(font().pointSize() * 0.8);
+    QwtText title;
+    title.setFont(newLargeFont);
+    title.setText("histogram", QwtText::AutoText);
+    histoPlot->setTitle(title);
     histoPlot->enableAxis(QwtPlot::yLeft, false);
-    QFont newFont(font());
-    newFont.setPointSize(newFont.pointSize() * 0.7);
-    histoPlot->setAxisFont(QwtPlot::xBottom, newFont);
+    histoPlot->setFixedHeight(180);
+    histoPlot->setAxisFont(QwtPlot::xBottom, newSmallFont);
 
     histogram = new LWHistogramItem();
     //histogram->setRenderHint(QwtPlotCurve::RenderAntialiased);
@@ -133,9 +202,12 @@ void LWControls::setupUi()
     QSizePolicy labelSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     labelSizePolicy.setHorizontalStretch(0);
     labelSizePolicy.setVerticalStretch(0);
-    QSizePolicy sliderSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    QSizePolicy sliderSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     sliderSizePolicy.setHorizontalStretch(0);
     sliderSizePolicy.setVerticalStretch(0);
+    QSizePolicy vSpacerPolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    vSpacerPolicy.setHorizontalStretch(0);
+    vSpacerPolicy.setVerticalStretch(0);
 
     gridLayout = new QGridLayout();
 
@@ -187,15 +259,31 @@ void LWControls::setupUi()
     gridLayout->addWidget(ctrSlider, 3, 1, 1, 1);
 
     mainLayout->addLayout(gridLayout);
+
+    mainLayout->addStretch();
     setLayout(mainLayout);
 
     QMetaObject::connectSlotsByName(this);
+    QObject::connect(gridBox, SIGNAL(toggled(bool)),
+                     this, SLOT(setGrid(bool)));
     QObject::connect(logscaleBox, SIGNAL(toggled(bool)),
                      this, SLOT(setLogscale(bool)));
     QObject::connect(grayscaleBox, SIGNAL(toggled(bool)),
                      this, SLOT(setColorMap()));
     QObject::connect(cyclicBox, SIGNAL(toggled(bool)),
                      this, SLOT(setColorMap()));
+    QObject::connect(normalizeBox, SIGNAL(toggled(bool)),
+                     this, SLOT(setNormalize(bool)));
+    QObject::connect(darkfieldBox, SIGNAL(toggled(bool)),
+                     this, SLOT(setDarkfieldSubtract(bool)));
+    QObject::connect(despeckleBox, SIGNAL(toggled(bool)),
+                     this, SLOT(setDespeckle(bool)));
+    QObject::connect(despeckleValue, SIGNAL(valueChanged(int)),
+                     this, SLOT(updateDespeckleValue(int)));
+    QObject::connect(operationSelector, SIGNAL(activated(int)),
+                     this, SLOT(updateOperationSelector(int)));
+    QObject::connect(filterSelector, SIGNAL(activated(int)),
+                     this, SLOT(updateFilterSelector(int)));
     QObject::connect(histoPicker, SIGNAL(selected(const QwtDoubleRect &)),
                      this, SLOT(pickRange(const QwtDoubleRect &)));
     QObject::connect(minSlider, SIGNAL(valueChanged(int)),
@@ -210,6 +298,8 @@ void LWControls::setupUi()
                      this, SLOT(dataUpdated(LWData *)));
     QObject::connect(profileButton, SIGNAL(released()),
                      this, SLOT(pickProfile()));
+    QObject::connect(profileHideButton, SIGNAL(released()),
+                     this, SLOT(hideProfileLine()));
     QObject::connect(profileWidth, SIGNAL(valueChanged(int)),
                      this, SLOT(updateProfWidth(int)));
     QObject::connect(profileBins, SIGNAL(valueChanged(int)),
@@ -351,9 +441,30 @@ void LWControls::updateContrast(int level)
     }
 }
 
+void LWControls::setGrid(bool on)
+{
+    m_widget->setGrid(on);
+}
+
 void LWControls::setLogscale(bool on)
 {
     m_widget->setLog10(on);
+}
+
+void LWControls::setNormalize(bool on)
+{
+    m_widget->setNormalized(on);
+}
+
+void LWControls::setDarkfieldSubtract(bool on)
+{
+    m_widget->setDarkfieldSubtracted(on);
+}
+
+void LWControls::setDespeckle(bool on)
+{
+    m_widget->setDespeckled(on);
+    despeckleValue->setEnabled(on);
 }
 
 void LWControls::setColorMap()
@@ -380,15 +491,19 @@ void LWControls::showProfWindow(const char *title)
                        profileWidth->value(), profileBins->value(),
                        m_prof_type);
     profWindow->setWindowTitle(title);
-    if (!m_widget->instrument() == INSTR_TOFTOF)
+    if (!m_widget->instrument() == INSTR_TOFTOF) {
         profWindow->show();
+        profileHideButton->setEnabled(true);
+        profileWidth->setEnabled(true);
+        profileBins->setEnabled(true);
+    }
 }
 
 void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
 {
     m_widget->plot()->getPicker()->setEnabled(false);
     m_widget->plot()->getZoomer()->setEnabled(true);
-    profileButton->setText("create profile");
+    profileButton->setText("plot line profile");
     profileButton->setChecked(false);
     if (points.size() != 2)
         return;
@@ -398,12 +513,26 @@ void LWControls::createProfile(const QwtArray<QwtDoublePoint> &points)
     m_prof_y[1] = points[1].y();
     m_prof_type = 2;
 
+    profLine0->setVisible(true);
     profLine1->setVisible(true);
     profLine2->setVisible(true);
     updateProfLineWidth(profileWidth->value());  // does replot
 
     showProfWindow("Line profile");
 }
+
+void LWControls::hideProfileLine()
+{
+    profLine0->setVisible(false);
+    profLine1->setVisible(false);
+    profLine2->setVisible(false);
+    profWindow->close();
+    profileHideButton->setEnabled(false);
+    profileWidth->setEnabled(false);
+    profileBins->setEnabled(false);
+    m_widget->plot()->replot();
+}
+
 
 void LWControls::createYSum()
 {
@@ -465,13 +594,47 @@ void LWControls::updateProfBins(int b)
                            profileWidth->value(), b, m_prof_type);
 }
 
+
+void LWControls::updateOperationSelector(int comboBoxValue)
+{
+    if (m_widget->isImageOperation() != LWImageOperations(comboBoxValue))
+        m_widget->setImageOperation(LWImageOperations(comboBoxValue));
+}
+
+
+void LWControls::updateFilterSelector(int comboBoxValue)
+{
+    if (m_widget->isImageFilter() != LWImageFilters(comboBoxValue))
+        m_widget->setImageFilter(LWImageFilters(comboBoxValue));
+
+    despeckleValue->setEnabled(comboBoxValue == DespeckleFilter);
+}
+
+
+void LWControls::updateDespeckleValue(int value)
+{
+    m_widget->setDespeckleValue(value);
+}
+
+
 void LWControls::setControls(LWCtrl which)
 {
+    gridBox->setVisible(which & ShowGrid);
     logscaleBox->setVisible(which & Logscale);
     grayscaleBox->setVisible(which & Grayscale);
     cyclicBox->setVisible(which & Cyclic);
 
+    darkfieldBox->setVisible(which & Darkfield);
+    normalizeBox->setVisible(which & Normalize);
+    despeckleBox->setVisible(which & Despeckle);
+    despeckleValueLabel->setVisible(which & Despeckle);
+    despeckleValue->setVisible(which & Despeckle);
+
+    filterSelector->setVisible(which & ImageOperations);
+    operationSelector->setVisible(which & ImageOperations);
+
     profileButton->setVisible(which & CreateProfile);
+    profileHideButton->setVisible(which & CreateProfile);
     profileWidth->setVisible(which & CreateProfile);
     profileBins->setVisible(which & CreateProfile);
     profileWidthLabel->setVisible(which & CreateProfile);
@@ -479,9 +642,9 @@ void LWControls::setControls(LWCtrl which)
 
     xsumButton->setVisible(which & Integrate);
     ysumButton->setVisible(which & Integrate);
-    
+
     histoPlot->setVisible(which & Histogram);
-    
+
     minSlider->setVisible(which & MinimumMaximum);
     maxSlider->setVisible(which & MinimumMaximum);
     minSliderLabel->setVisible(which & MinimumMaximum);

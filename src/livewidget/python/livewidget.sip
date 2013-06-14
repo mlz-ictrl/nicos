@@ -38,6 +38,7 @@ class LWData
     LWData(int width, int height, int depth, const char *data);
     LWData(int width, int height, int depth,
            const char *format, const char *data);
+    LWData(const char *filename, LWFiletype filetype);
 
     int width() const;
     int height() const;
@@ -86,10 +87,14 @@ class LWPlot : QwtPlot
     void updateRange();
     LWZoomer *getZoomer();
     QwtPlotPanner *getPanner();
+    QwtPlotPicker *getPicker();
     const QwtRasterData *getData() const;
 
     void setData(QwtRasterData *data);
+    void setGrid(bool val);
     void setColorMap(QwtColorMap &map);
+
+    bool hasGrid();
 
   public slots:
     void printPlot();
@@ -113,18 +118,24 @@ class LWWidget : QWidget
     LWData *data();
     void setData(LWData *data /Transfer/);
 
+    bool hasGrid() const;
     bool isLog10() const;
-    bool keepAspect() const;
+    bool isKeepAspect() const;
     bool controlsVisible() const;
 
     void setCustomRange(double lower, double upper);
     void setStandardColorMap(bool greyscale, bool cyclic);
     void setAxisLabels(const char *xaxis, const char *yaxis);
 
+  protected:
+    virtual void resizeEvent(QResizeEvent *event);
+
   public slots:
+    void setGrid(bool val);
     void setLog10(bool val);
     void setKeepAspect(bool val);
     void setControlsVisible(bool val);
+    void setControls(LWCtrl which);
 
     void updateGraph();
     void updateLabels();
@@ -139,14 +150,25 @@ class LWWidget : QWidget
 #include "../lw_common.h"
 %End
 
-enum LWCtrl
-{
-    Logscale,
-    Grayscale,
-    Cyclic,
-    CreateProfile,
-    Histogram,
-    MinimumMaximum,
-    BrightnessContrast,
-    Integrate
+enum LWFiletype {
+    TYPE_CASCADE            = 0,
+    TYPE_FITS               = 1,
+    TYPE_TOFTOF             = 2
 };
+
+enum LWCtrl {
+    Logscale                = 0x001,
+    Grayscale               = 0x002,
+    Cyclic                  = 0x004,
+    CreateProfile           = 0x008,
+    Histogram               = 0x010,
+    MinimumMaximum          = 0x020,
+    BrightnessContrast      = 0x040,
+    Integrate               = 0x080,
+    ImageOperations         = 0x100,
+    Despeckle               = 0x200,
+    Normalize               = 0x400,
+    Darkfield               = 0x800,
+    ShowGrid                = 0x1000
+};
+

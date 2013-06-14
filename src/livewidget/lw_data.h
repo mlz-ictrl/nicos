@@ -29,6 +29,11 @@
 
 #include <qwt_plot_spectrogram.h>
 
+#include "lw_common.h"
+
+// undefine to remove timing console messages
+#define CLOCKING
+
 // data type used for single pixel count values
 typedef uint32_t data_t;
 
@@ -38,12 +43,15 @@ class LWData
   private:
     virtual void updateRange();
     virtual void initFromBuffer(const char *data);
+    void _dummyInit();
+    bool _readFits(const char *filename);
 
   protected:
     // concerning the data
+    data_t *m_data;   // processed data
+    data_t *m_clone;  // original data without filters/processing applied
     bool m_data_owned;
     int m_width, m_height, m_depth;
-    data_t *m_data;
     double m_min, m_max;
 
     // concerning the display
@@ -52,18 +60,28 @@ class LWData
     bool m_custom_range;
     double m_range_min, m_range_max;
 
+    // image filtering and processing
+    bool m_normalized;
+    bool m_darkfieldsubtracted;
+    bool m_despeckled;
+    LWImageFilters m_filter;
+    LWImageOperations m_operation;
+    float m_despecklevalue;
+
     data_t data(int x, int y, int z) const;
     int size() const { return m_width * m_height * m_depth; }
 
   public:
     LWData();
     LWData(int width, int height, int depth, const char *data);
-    LWData(int width, int height, int depth,
-           const char *format, const char *data);
+    LWData(int width, int height, int depth, const char *format, const char *data);
+    LWData(const char* filename, LWFiletype filetype);
     LWData(const LWData &other);
+
     virtual ~LWData();
 
     const data_t *buffer() const { return m_data; }
+    const data_t *buffer_clone() const { return m_clone; }
 
     int width() const { return m_width; }
     int height() const { return m_height; }
@@ -76,6 +94,23 @@ class LWData
 
     bool isLog10() const { return m_log10; }
     virtual void setLog10(bool val);
+
+    bool isNormalized() const { return m_normalized; }
+    virtual void setNormalized(bool val);
+    bool isDarkfieldSubtracted() const { return m_darkfieldsubtracted; }
+    virtual void setDarkfieldSubtracted(bool val);
+    bool isDespeckled() const { return m_despeckled; }
+    virtual void setDespeckled(bool val);
+
+    virtual void setDespeckleValue(float value);
+
+    LWImageFilters isImageFilter() const { return m_filter; }
+    virtual void setImageFilter(LWImageFilters which);
+
+    LWImageOperations isImageOperation() const { return m_operation; }
+    virtual void setImageOperation(LWImageOperations which);
+
+    void saveAsFitsImage(float *data, char *fits_filename);
 
     bool hasCustomRange() const { return m_custom_range; }
     double customRangeMin() const;
@@ -95,6 +130,7 @@ class LWData
     /// Same, but creates QVectors of doubles (callable from Python).
     virtual void histogram(int bins, QVector<double> **xs,
                            QVector<double> **ys) const;
+
 };
 
 
@@ -105,7 +141,7 @@ class LWRasterData : public QwtRasterData
 
   public:
     LWRasterData() :
-        QwtRasterData(QwtDoubleRect(0, 1, 0, 0)),
+        QwtRasterData(QwtDoubleRect(0, 1, 0, 1)),
         m_data(new LWData()) {
     }
     LWRasterData(const LWData *data) :

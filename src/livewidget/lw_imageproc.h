@@ -17,44 +17,31 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Module authors:
-//   Georg Brandl <georg.brandl@frm2.tum.de>
 //   Philipp Schmakat <philipp.schmakat@frm2.tum.de>
+//   Georg Brandl <georg.brandl@frm2.tum.de>
 //
 // *****************************************************************************
 
-// Demo application, currently for testing purposes only.
+#ifndef LW_IMAGEPROC_H
+#define LW_IMAGEPROC_H
 
-#include <QApplication>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <vector>
+#include <string>
 
-#include "lw_widget.h"
+#include "lw_common.h"
 
-int main(int argc, char *argv[])
+typedef std::vector<std::string> str_vec;
+
+class LWImageProc
 {
-     QApplication app(argc, argv);
-     QMainWindow mainWin;
+  public:
+    static void medianFilter(float* image, int width, int height);
+    static void hybridmedianFilter(float* image, int width, int height);
+    static void despeckleFilter(float* image, float delta, int width, int height);
+    static void pixelwiseSubtractImages(float* image_A, float* image_B, int width, int height);
+    static void pixelwiseDivideImages(float* image_A, float* image_B, int width, int height);
+    static void pixelwiseAverage(float* averageImage, str_vec filenameList, int width, int height);
 
-     LWWidget widget(&mainWin);
-     LWData *raw_data;
+};
 
-     if (argc == 1)
-         raw_data = new LWData("data/raw/hd_000.000.fits", TYPE_FITS);
-     else
-         raw_data = new LWData(argv[1], TYPE_FITS);
-
-     widget.setData(raw_data);
-     widget.setControls((LWCtrl)(ShowGrid | Logscale | Grayscale |
-                                 Normalize | Darkfield | Despeckle | //ImageOperations |
-                                 CreateProfile | Histogram | MinimumMaximum));
-     widget.setKeepAspect(true);
-     widget.setStandardColorMap(true,false);
-
-     mainWin.setCentralWidget(&widget);
-     mainWin.setMinimumHeight(800);
-     mainWin.setMinimumWidth(1400);
-     mainWin.show();
-
-     return app.exec();
-}
+#endif

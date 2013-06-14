@@ -24,15 +24,49 @@
 #ifndef LW_COMMON_H
 #define LW_COMMON_H
 
+enum LWFiletype {
+    TYPE_NONE               = 0,
+    TYPE_CASCADE            = 1,
+    TYPE_FITS               = 2,
+    TYPE_TOFTOF             = 3
+};
+
 enum LWCtrl {
-    Logscale             = 0x001,
-    Grayscale            = 0x002,
-    Cyclic               = 0x004,
-    CreateProfile        = 0x008,
-    Histogram            = 0x010,
-    MinimumMaximum       = 0x020,
-    BrightnessContrast   = 0x080,
-    Integrate            = 0x100,
+    Logscale                = 0x0001,
+    Grayscale               = 0x0002,
+    Cyclic                  = 0x0004,
+    CreateProfile           = 0x0008,
+    Histogram               = 0x0010,
+    MinimumMaximum          = 0x0020,
+    BrightnessContrast      = 0x0040,
+    Integrate               = 0x0080,
+    ImageOperations         = 0x0100,
+    Despeckle               = 0x0200,
+    Normalize               = 0x0400,
+    Darkfield               = 0x0800,
+    ShowGrid                = 0x1000
+};
+
+enum LWImageFilters {
+    NoImageFilter           = 0,
+    MedianFilter            = 1,
+    HybridMedianFilter      = 2,
+    DespeckleFilter         = 3
+};
+
+enum LWImageOperations {
+    NoImageOperation        = 0,
+    OpenBeamNormalization   = 1,
+    DarkImageSubtraction    = 2,
+    StackAverage            = 3,
+    ImageMultiplyByFloat    = 4,
+    PixelwiseAddition       = 5,
+    PixelwiseSubtraction    = 6,
+    PixelwiseDivision       = 7,
+    PixelwiseMultiplication = 8,
+    StackMedian             = 9,
+    StackMinimum            = 10,
+    StackMaximum            = 11
 };
 
 #endif

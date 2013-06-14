@@ -28,7 +28,6 @@
 
 #include "lw_widget.h"
 
-
 /** LWWidget ******************************************************************/
 
 LWWidget::LWWidget(QWidget *parent) : QWidget(parent), m_data(NULL)
@@ -36,12 +35,20 @@ LWWidget::LWWidget(QWidget *parent) : QWidget(parent), m_data(NULL)
     m_instr = INSTR_NONE;
 
     m_plot = new LWPlot(this);
+    m_plot->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+
     setStandardColorMap(false, false);
 
     m_controls = new LWControls(this);
+    m_controls->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+
+    QFrame *verticalLine = new QFrame(this);
+    verticalLine->setFrameStyle(QFrame::VLine);
+    verticalLine->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(m_plot);
+    layout->addWidget(m_plot, 0, Qt::AlignLeft);
+    layout->addWidget(verticalLine);
     layout->addWidget(m_controls);
     this->setLayout(layout);
 }
@@ -55,21 +62,43 @@ void LWWidget::setInstrumentOption(const char *instr)
 {
     if (strcmp(instr, "toftof") == 0)
         m_instr = INSTR_TOFTOF;
+    else if (strcmp(instr, "antares") == 0)
+        m_instr = INSTR_IMAGING;
     else
         m_instr = INSTR_NONE;
 }
 
 void LWWidget::unload()
 {
+    // XXX why was this removed?
+    /*
     if (m_data) {
         delete m_data;
         m_data = NULL;
     }
+    */
+}
+
+void LWWidget::resizeEvent(QResizeEvent *event)
+{
+    if (isKeepAspect()) {
+        // approximate the width of the axes and colorbar and keep
+        // widget square shaped
+        m_plot->setFixedWidth(m_plot->height() + 140);
+    }
+
+    QWidget::resizeEvent(event);
 }
 
 void LWWidget::setData(LWData *data)
 {
     bool prev_log10 = false;
+    /*
+    bool prev_despeckled = false;
+    bool prev_darkimagesubtracted = false;
+    bool prev_normalized = false;
+    */
+
     double prev_min = -1, prev_max = -1;
     if (m_data) {
         prev_log10 = m_data->isLog10();
@@ -79,12 +108,39 @@ void LWWidget::setData(LWData *data)
         }
         unload();
     }
+
+    // apply image operations here
+    // ...
     m_data = data;
+
     m_data->setLog10(prev_log10);
     if (prev_min != -1 || prev_max != -1)
         m_data->setCustomRange(prev_min, prev_max);
+
     updateGraph(true);
-    m_plot->getZoomer()->setZoomBase();
+    if (m_plot->getZoomer()->zoomRectIndex() == 0) {
+        // re-set zoom base only if not zoomed
+        m_plot->getZoomer()->setZoomBase();
+    }
+}
+
+void LWWidget::setGrid(bool val)
+{
+    if (m_showgrid != val) {
+        if (m_plot) {
+            m_plot->setGrid(val);
+            m_showgrid = val;
+            updateGraph(true);
+        }
+    }
+}
+
+bool LWWidget::hasGrid() const
+{
+    if (m_plot) {
+        return m_plot->hasGrid();
+    }
+    return false;
 }
 
 void LWWidget::setLog10(bool val)
@@ -103,6 +159,98 @@ bool LWWidget::isLog10() const
     return false;
 }
 
+void LWWidget::setNormalized(bool val)
+{
+    if (m_data) {
+        m_data->setNormalized(val);
+        updateGraph(true);
+    }
+}
+
+bool LWWidget::isNormalized() const
+{
+    if (m_data) {
+        return m_data->isNormalized();
+    }
+    return false;
+}
+
+void LWWidget::setDarkfieldSubtracted(bool val)
+{
+    if (m_data) {
+        m_data->setDarkfieldSubtracted(val);
+        updateGraph(true);
+    }
+}
+
+bool LWWidget::isDarkfieldSubtracted() const
+{
+    if (m_data) {
+        return m_data->isDarkfieldSubtracted();
+    }
+    return false;
+}
+
+void LWWidget::setDespeckled(bool val)
+{
+    if (m_data) {
+        m_data->setDespeckled(val);
+        updateGraph(true);
+    }
+}
+
+bool LWWidget::isDespeckled() const
+{
+    if (m_data) {
+        return m_data->isDespeckled();
+    }
+    return false;
+}
+
+void LWWidget::setDespeckleValue(float value)
+{
+    if (m_data) {
+        m_data->setDespeckleValue(value);
+        updateGraph(true);
+    }
+}
+
+void LWWidget::setImageFilter(LWImageFilters which)
+{
+    if (m_data) {
+        m_data->setImageFilter(which);
+        updateGraph(true);
+    }
+}
+
+
+
+LWImageFilters LWWidget::isImageFilter() const
+{
+    if (m_data) {
+        return m_data->isImageFilter();
+    }
+    return NoImageFilter;
+}
+
+
+void LWWidget::setImageOperation(LWImageOperations which)
+{
+    if (m_data) {
+        m_data->setImageOperation(which);
+        updateGraph(true);
+    }
+}
+
+LWImageOperations LWWidget::isImageOperation() const
+{
+    if (m_data) {
+        return m_data->isImageOperation();
+    }
+    return NoImageOperation;
+}
+
+
 void LWWidget::setKeepAspect(bool val)
 {
     if (m_plot->getZoomer()) {
@@ -110,10 +258,10 @@ void LWWidget::setKeepAspect(bool val)
     }
 }
 
-bool LWWidget::keepAspect() const
+bool LWWidget::isKeepAspect() const
 {
     if (m_plot->getZoomer()) {
-        return m_plot->getZoomer()->keepAspect();
+        return m_plot->getZoomer()->isKeepAspect();
     }
     return false;
 }
@@ -174,6 +322,7 @@ void LWWidget::updateGraph(bool newdata)
 {
     if (m_data) {
         m_plot->setData(new LWRasterData(m_data));
+
         updateLabels();
         if (newdata)
             emit dataUpdated(m_data);
@@ -185,6 +334,11 @@ void LWWidget::updateLabels()
     if (m_data)
         m_plot->axisWidget(QwtPlot::yRight)->setTitle(
             m_data->isLog10() ? "log Counts" : "Counts");
+}
+
+void LWWidget::hideProfileLine()
+{
+    m_controls->hideProfileLine();
 }
 
 void LWWidget::setControls(LWCtrl which)

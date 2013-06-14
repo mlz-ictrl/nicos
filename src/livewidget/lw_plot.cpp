@@ -109,8 +109,21 @@ void LWPlot::initPlot()
 {
     deinitPlot();
 
-    axisWidget(QwtPlot::xBottom)->setTitle("x pixels");
-    axisWidget(QwtPlot::yLeft)->setTitle("y pixels");
+    QFont newLargeFont(font());
+    QFont newSmallFont(font());
+    newLargeFont.setPointSize(font().pointSize() * 0.9);
+    newLargeFont.setBold(true);
+    newSmallFont.setPointSize(font().pointSize() * 0.8);
+
+    QwtText title;
+    title.setFont(newLargeFont);
+
+    title.setText("X (pixel)", QwtText::AutoText);
+    axisWidget(QwtPlot::xBottom)->setTitle(title);
+    axisWidget(QwtPlot::xBottom)->setFont(newSmallFont);
+    title.setText("Y (pixel)", QwtText::AutoText);
+    axisWidget(QwtPlot::yLeft)->setTitle(title);
+    axisWidget(QwtPlot::yLeft)->setFont(newSmallFont);
 
     m_spectro = new QwtPlotSpectrogram();
     m_spectro->setData(LWRasterData());   // dummy object
@@ -121,7 +134,10 @@ void LWPlot::initPlot()
     setCanvasBackground(Qt::white);
 
     enableAxis(QwtPlot::yRight);
+    title.setText("Counts", QwtText::AutoText);
+    axisWidget(QwtPlot::yRight)->setTitle(title);
     axisWidget(QwtPlot::yRight)->setColorBarEnabled(true);
+    axisWidget(QwtPlot::yRight)->setFont(newSmallFont);
 
     updateRange();
 
@@ -142,15 +158,34 @@ void LWPlot::initPlot()
 
     QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
     axisScaleDraw(QwtPlot::yLeft)->setMinimumExtent(fm.width("100."));
+
+    m_grid = new QwtPlotGrid();
+    m_grid->setPen(QPen(Qt::gray, 0.0, Qt::DotLine));
+    m_grid->enableX(true);
+    m_grid->enableXMin(true);
+    m_grid->enableY(true);
+    m_grid->enableYMin(true);
+    m_grid->hide();
+    m_grid->attach(this);
+}
+
+void LWPlot::setGrid(bool val)
+{
+    if (m_grid->isVisible() != val) {
+        if (val)
+            m_grid->show();
+        else
+            m_grid->hide();
+    }
 }
 
 void LWPlot::deinitPlot()
 {
-    if (m_zoomer) { delete m_zoomer; m_zoomer = 0; }
-    if (m_panner) { delete m_panner; m_panner = 0; }
-    if (m_picker) { delete m_picker; m_picker = 0; }
+    if (m_zoomer)   { delete m_zoomer; m_zoomer = 0; }
+    if (m_panner)   { delete m_panner; m_panner = 0; }
+    if (m_picker)   { delete m_picker; m_picker = 0; }
     if (m_rescaler) { delete m_rescaler; m_rescaler = 0; }
-    if (m_spectro) { delete m_spectro; m_spectro = 0; }
+    if (m_spectro)  { delete m_spectro; m_spectro = 0; }
 }
 
 void LWPlot::updateRange()

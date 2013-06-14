@@ -31,9 +31,9 @@ class LWControls;
 #include "lw_controls.h"
 #include "lw_common.h"
 
-#define INSTR_NONE    0
-#define INSTR_TOFTOF  1
-
+#define INSTR_NONE      0
+#define INSTR_TOFTOF    1
+#define INSTR_IMAGING   2
 
 class LWWidget : public QWidget
 {
@@ -52,7 +52,14 @@ class LWWidget : public QWidget
     LWPlot *m_plot;
     LWControls *m_controls;
 
+    bool m_showgrid;
     bool m_log10;
+    bool m_normalized;
+    bool m_darkfieldsubtracted;
+    bool m_despeckled;
+    float m_despecklevalue;
+
+    virtual void resizeEvent(QResizeEvent *event);
 
   public:
     LWWidget(QWidget *parent = NULL);
@@ -66,19 +73,34 @@ class LWWidget : public QWidget
     LWData *data() { return m_data; }
     void setData(LWData *data);
 
+    bool hasGrid() const;
     bool isLog10() const;
-    bool keepAspect() const;
+    bool isKeepAspect() const;
+    bool isNormalized() const;
+    bool isDarkfieldSubtracted() const;
+    bool isDespeckled() const;
     bool controlsVisible() const;
+
+    LWImageFilters isImageFilter() const;
+    LWImageOperations isImageOperation() const;
 
     void setCustomRange(double lower, double upper);
     void setStandardColorMap(bool greyscale, bool cyclic);
     void setAxisLabels(const char *xaxis, const char *yaxis);
 
   public slots:
+    void setGrid(bool val);
     void setLog10(bool val);
+    void setImageFilter(LWImageFilters which);
+    void setImageOperation(LWImageOperations which);
+    void setDespeckleValue(float value);
     void setKeepAspect(bool val);
+    void setNormalized(bool val);
+    void setDarkfieldSubtracted(bool val);
+    void setDespeckled(bool val);
     void setControlsVisible(bool val);
     void setControls(LWCtrl which);
+    void hideProfileLine();
 
     void updateGraph(bool newdata=true);
     void updateLabels();

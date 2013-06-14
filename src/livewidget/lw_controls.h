@@ -18,6 +18,7 @@
 //
 // Module authors:
 //   Georg Brandl <georg.brandl@frm2.tum.de>
+//   Philipp Schmakat <philipp.schmakat@frm2.tum.de>
 //
 // *****************************************************************************
 
@@ -30,6 +31,14 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
+#include <QComboBox>
+#include <QFileInfoList>
+#include <QFileInfo>
+#include <QDir>
+#include <QFile>
+#include <QLineEdit>
+#include <QListView>
+#include <QStandardItemModel>
 
 #include "qwt_plot_curve.h"
 
@@ -39,7 +48,7 @@ class LWProfileWindow;
 #include "lw_histogram.h"
 #include "lw_profile.h"
 #include "lw_common.h"
-
+#include "lw_imageproc.h"
 
 class LWControls : public QWidget
 {
@@ -56,6 +65,14 @@ class LWControls : public QWidget
     double m_range_x[2];
     double m_range_y[2];
 
+    LWImageFilters m_filter;
+    LWImageOperations m_operation;
+
+    float m_normalized;
+    float m_darkfieldsubtracted;
+    float m_despeckled;
+    float m_despecklevalue;
+
     double m_histogram_x[257];
     double m_histogram_y[257];
 
@@ -68,11 +85,21 @@ class LWControls : public QWidget
   protected:
     QVBoxLayout *mainLayout;
 
+    QCheckBox *gridBox;
     QCheckBox *logscaleBox;
     QCheckBox *grayscaleBox;
     QCheckBox *cyclicBox;
+    QCheckBox *normalizeBox;
+    QCheckBox *darkfieldBox;
+    QCheckBox *despeckleBox;
+    QLabel *despeckleValueLabel;
+    QSpinBox *despeckleValue;
+
+    QComboBox *filterSelector;
+    QComboBox *operationSelector;
 
     QPushButton *profileButton;
+    QPushButton *profileHideButton;
     QSpinBox *profileWidth;
     QLabel *profileWidthLabel;
     QSpinBox *profileBins;
@@ -95,6 +122,9 @@ class LWControls : public QWidget
     QwtPlotCurve *histoRange;
     QwtPlotPicker *histoPicker;
 
+    QLabel *spacerLabel;
+
+    QwtPlotCurve *profLine0;
     QwtPlotCurve *profLine1;
     QwtPlotCurve *profLine2;
     LWProfileWindow *profWindow;
@@ -108,10 +138,18 @@ class LWControls : public QWidget
     void updateMinMax();
     void updateBrightness(int);
     void updateContrast(int);
+    void updateDespeckleValue(int value);
+    void updateFilterSelector(int comboBoxValue);
+    void updateOperationSelector(int comboBoxValue);
     void setLogscale(bool);
     void setColorMap();
+    void setGrid(bool);
+    void setNormalize(bool);
+    void setDarkfieldSubtract(bool);
+    void setDespeckle(bool);
     void dataUpdated(LWData *);
     void pickProfile();
+    void hideProfileLine();
     void createProfile(const QwtArray<QwtDoublePoint> &);
     void updateProfWidth(int);
     void updateProfBins(int);

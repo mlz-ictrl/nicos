@@ -72,15 +72,17 @@ makefile = pyqtconfig.QtGuiModuleMakefile(
 dist = platform.linux_distribution()[0]
 if dist in ('openSUSE', 'openSUSE ') :
     makefile.extra_include_dirs = ["/usr/include/qwt5",
-                                   "/usr/include/qwt"]
-    makefile.extra_libs = ["qwt"]
+                                   "/usr/include/qwt",
+                                   "/usr/include/libcfitsio0",
+                                   "/usr/include/cfitsio"]
+    makefile.extra_libs = ["qwt", "cfitsio"]
 elif dist == 'Ubuntu':
     makefile.extra_include_dirs = ["/usr/include/qwt-qt4"]
-    makefile.extra_libs = ["qwt-qt4"]
+    makefile.extra_libs = ["qwt-qt4", "cfitsio"]
 else:
     print "WARNING: Don't know where to find Qwt headers and libraries for your distribution"
     # still try to build with useable defaults
     makefile.extra_include_dirs = ["/usr/include/qwt"]
-    makefile.extra_libs = ["qwt"]
+    makefile.extra_libs = ["qwt", "cfitsio"]
 
 makefile.generate()

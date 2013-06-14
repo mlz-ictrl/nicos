@@ -1,3 +1,4 @@
+
 // *****************************************************************************
 // NICOS-NG, the Networked Instrument Control System of the FRM-II
 // Copyright (c) 2009-2011 by the NICOS-NG contributors (see AUTHORS)
@@ -35,6 +36,7 @@
 #include <qwt_plot_rescaler.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_plot_zoomer.h>
+#include <qwt_plot_grid.h>
 #include <qwt_scale_widget.h>
 
 #include "lw_data.h"
@@ -52,7 +54,7 @@ class LWZoomer : public QwtPlotZoomer
     LWZoomer(QwtPlotCanvas *canvas, const QwtPlotSpectrogram *spectro);
     virtual ~LWZoomer();
 
-    bool keepAspect() const { return m_aspect; }
+    bool isKeepAspect() const { return m_aspect; }
     void setKeepAspect(bool val);
 
     virtual void zoom(const QwtDoubleRect &rect);
@@ -73,6 +75,7 @@ class LWPlot : public QwtPlot
     QwtPlotPanner *m_panner;
     QwtPlotPicker *m_picker;
     QwtPlotRescaler *m_rescaler;
+    QwtPlotGrid *m_grid;
     LWZoomer *m_zoomer;
     int m_scale_width;
     int m_scale_height;
@@ -88,7 +91,10 @@ class LWPlot : public QwtPlot
     const QwtRasterData *getData() const { return &m_spectro->data(); }
 
     void setData(QwtRasterData *data);
+    void setGrid(bool val);
     void setColorMap(QwtColorMap &map);
+
+    bool hasGrid() { return m_grid->isVisible(); }
 
   public slots:
     void printPlot();
