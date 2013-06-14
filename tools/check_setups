@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 import new
 import sys
 import getopt
@@ -102,6 +103,28 @@ def log_exception(log, exception):
     msg += '\n|'.join(formatted_lines[-3:])
     log.error(msg)
     return False
+
+interpol_re = re.compile(r'%[-#0 +]*(?:[0-9]+)?(?:\.(?:[0-9]+))?'
+                         r'[hlL]?[diouxXeEfFgGcrs%]')
+
+def check_parameter(log, devname, name, value):
+    # for format strings, check interpolations for syntax errors
+    if name == 'fmtstr':
+        if '%' not in value:
+            log.error('%s: parameter fmtstr has a value without any '
+                      'interpolation placeholders', devname)
+            return False
+        else:
+            # split() returns all pieces not part of a string
+            # interpolation placeholder, so they must not contain
+            # any % signs
+            pieces = interpol_re.split(value)
+            for piece in pieces:
+                if '%' in piece:
+                    log.error('%s: parameter fmtstr has an invalid '
+                              'placeholder (%r)', devname, piece)
+                    return False
+    return True
 
 def check_setupfile(filename):
     log = logging.getLogger(filename)
@@ -205,6 +228,9 @@ def check_setupfile(filename):
                     except ValueError, e:
                         log.error('%s: parameter %r value %r is invalid: %s',
                                   devname, pname, config[pname], e)
+                        good = False
+                    # check value of certain parameters
+                    if not check_parameter(log, devname, pname, config[pname]):
                         good = False
                     del config[pname]
                 elif pinfo.mandatory:
