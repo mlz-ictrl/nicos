@@ -260,6 +260,23 @@ void LWControls::setupUi()
 
     mainLayout->addLayout(gridLayout);
 
+    // list of "previous" files -- this needs to be cleaned up
+
+    filelistLabel = new QLabel("directory", this);
+    mainLayout->addWidget(filelistLabel);
+
+    filelistDirectory = new QLineEdit("../livewidget/data/darkimage/", this);
+    mainLayout->addWidget(filelistDirectory);
+
+    filelistView = new QListView(this);
+    filelistModel = new QStandardItemModel(this);
+    filelistItem = new QStandardItem();
+
+    filelistView->setModel(filelistModel);
+    mainLayout->addWidget(filelistView);
+
+    listFiles();
+
     mainLayout->addStretch();
     setLayout(mainLayout);
 
@@ -314,6 +331,10 @@ void LWControls::setupUi()
     QObject::connect(m_widget->plot()->getZoomer(),
                      SIGNAL(zoomed(const QwtDoubleRect &)), this,
                      SLOT(zoomAdjusted()));
+    QObject::connect(filelistDirectory, SIGNAL(returnPressed()),
+                     this, SLOT(listFiles()));
+    QObject::connect(filelistView, SIGNAL(clicked(QModelIndex)),
+                     this, SLOT(selectFile(QModelIndex)));
 }
 
 void LWControls::dataUpdated(LWData *data)
@@ -653,6 +674,10 @@ void LWControls::setControls(LWCtrl which)
     ctrSlider->setVisible(which & BrightnessContrast);
     brtSliderLabel->setVisible(which & BrightnessContrast);
     ctrSliderLabel->setVisible(which & BrightnessContrast);
+
+    filelistLabel->setVisible(which & Filelist);
+    filelistDirectory->setVisible(which & Filelist);
+    filelistView->setVisible(which & Filelist);
 }
 
 void LWControls::setAxisNames(const char *xaxis, const char *yaxis)
@@ -663,4 +688,33 @@ void LWControls::setAxisNames(const char *xaxis, const char *yaxis)
     tmp2 += yaxis;
     xsumButton->setText(tmp1);
     ysumButton->setText(tmp2);
+}
+
+
+void LWControls::listFiles()
+{
+    filelistModel->clear();
+
+    QString location = filelistDirectory->text();
+    QDir dir(location);
+
+    if (dir.exists()) {
+        QFileInfoList entries = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files);
+        foreach (QFileInfo entryInfo, entries) {
+            QString path = entryInfo.absoluteFilePath();
+            filelistItem->setText(path);
+            filelistModel->appendRow(filelistItem->clone());
+        }
+    }
+}
+
+void LWControls::selectFile(QModelIndex index)
+{
+    QString filename = filelistModel->itemFromIndex(index)->text();
+    QByteArray char_array = filename.toLatin1();
+    const char *pFilename = char_array.data();
+
+    LWData *data;
+    data = new LWData(pFilename, TYPE_FITS);
+    m_widget->setData(data);
 }

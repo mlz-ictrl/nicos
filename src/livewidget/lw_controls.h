@@ -124,6 +124,12 @@ class LWControls : public QWidget
 
     QLabel *spacerLabel;
 
+    QLabel *filelistLabel;
+    QLineEdit *filelistDirectory;
+    QListView *filelistView;
+    QStandardItemModel *filelistModel;
+    QStandardItem *filelistItem;
+
     QwtPlotCurve *profLine0;
     QwtPlotCurve *profLine1;
     QwtPlotCurve *profLine2;
@@ -157,6 +163,8 @@ class LWControls : public QWidget
     void zoomAdjusted();
     void createXSum();
     void createYSum();
+    void listFiles();
+    void selectFile(QModelIndex);
 
   public:
     LWControls(QWidget *parent = NULL);

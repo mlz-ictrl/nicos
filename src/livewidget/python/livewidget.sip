@@ -169,6 +169,7 @@ enum LWCtrl {
     Despeckle               = 0x200,
     Normalize               = 0x400,
     Darkfield               = 0x800,
-    ShowGrid                = 0x1000
+    ShowGrid                = 0x1000,
+    Filelist                = 0x2000
 };
 

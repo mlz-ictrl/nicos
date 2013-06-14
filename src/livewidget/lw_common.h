@@ -44,7 +44,8 @@ enum LWCtrl {
     Despeckle               = 0x0200,
     Normalize               = 0x0400,
     Darkfield               = 0x0800,
-    ShowGrid                = 0x1000
+    ShowGrid                = 0x1000,
+    Filelist                = 0x2000
 };
 
 enum LWImageFilters {

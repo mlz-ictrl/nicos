@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
          raw_data = new LWData(argv[1], TYPE_FITS);
 
      widget.setData(raw_data);
-     widget.setControls((LWCtrl)(ShowGrid | Logscale | Grayscale |
+     widget.setControls((LWCtrl)(ShowGrid | Logscale | Grayscale | Filelist |
                                  Normalize | Darkfield | Despeckle | //ImageOperations |
                                  CreateProfile | Histogram | MinimumMaximum));
      widget.setKeepAspect(true);
