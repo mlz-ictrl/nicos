@@ -403,7 +403,9 @@ class ExecutionController(Controller):
                 return repr(ret)
             return ret
         except Exception, err:
-            return '<cannot be evaluated: %s>' % err
+            if stringify:
+                return '<cannot be evaluated: %s>' % err
+            return err
         finally:
             self.last_handler = None
 
