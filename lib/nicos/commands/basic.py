@@ -408,9 +408,7 @@ def NewSample(name, **parameters):
 
     >>> NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
     """
-    session.experiment.sample.samplename = name
-    for param, value in parameters.iteritems():
-        setattr(session.experiment.sample, param, value)
+    session.experiment.newSample(name, parameters)
 
 @usercommand
 @spmsyntax(String)

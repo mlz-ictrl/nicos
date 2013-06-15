@@ -382,6 +382,13 @@ class Experiment(Device):
             self.users = self.users + ', ' + user
         self.log.info('User "%s" added' % user)
 
+    @usermethod
+    def newSample(self, name, parameters):
+        """Called by `.NewSample`."""
+        self.sample.samplename = name
+        for param, value in parameters.iteritems():
+            setattr(self.sample, param, value)
+
     def _zip(self):
         """Zip all files in the current experiment folder into a .zip file."""
         self.log.info('zipping experiment data, please wait...')
