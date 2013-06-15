@@ -25,5 +25,6 @@ devices = dict(
                       notifiers_1 = ['email'],
                       notifiers_2 = ['email'],
                       watch = watchlist,
+                      mailreceiverkey = 'email/receivers',
                      ),
 )

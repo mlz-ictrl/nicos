@@ -51,5 +51,6 @@ devices = dict(
 #                                    'smser',
                                     ],
                       watch = watchlist,
+                      mailreceiverkey = 'email/receivers',
                      ),
 )

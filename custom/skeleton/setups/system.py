@@ -50,8 +50,8 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = None,
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'liveplot'],
-    notifiers = [],
+    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    notifiers = ['email', 'smser'],
 )
 
 # devices: Contains all device definitions.
@@ -61,6 +61,7 @@ sysconfig = dict(
 devices = dict(
     Sample   = device('devices.experiment.Sample'),
 
+    # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
                       dataroot = 'data',
                       sendmail = True,
@@ -79,4 +80,16 @@ devices = dict(
                       path = None,
                       minfree = 5,
                      ),
+
+    # Configure source and copy addresses to an existing address.
+    email    = device('devices.notifiers.Mailer',
+                      sender = 'nobody@frm2.tum.de',
+                      copies = ['nobody@frm2.tum.de'],
+                      subject = 'NICOS'),
+
+    # Configure SMS receivers if wanted and registered with IT.
+    smser    = device('devices.notifiers.SMSer',
+                      server = 'triton.admin.frm2',
+                      receivers = [],
+                      ),
 )

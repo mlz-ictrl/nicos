@@ -29,12 +29,14 @@ watchlist = [
 ]
 
 devices = dict(
+    # Configure source and copy addresses to an existing address.
     email    = device('devices.notifiers.Mailer',
                       sender = 'me@frm2.tum.de',
                       receivers = ['me@frm2.tum.de', 'you@frm2.tum.de'],
                       subject = 'NICOS Warning',
                      ),
 
+    # Configure SMS receivers if wanted and registered with IT.
     smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = [],
@@ -44,6 +46,7 @@ devices = dict(
                       cache = 'localhost:14869',
                       notifiers_1 = ['mailer'],  # notifiers for prio 1
                       notifiers_2 = ['mailer', 'smser'],
+                      mailreceiverkey = 'email/receivers',
                       watch = watchlist,
                      ),
 )

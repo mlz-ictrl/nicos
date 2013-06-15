@@ -49,5 +49,6 @@ devices = dict(
                       notifiers_1 = ['email'],
                       notifiers_2 = ['email', 'smser'],
                       watch = watchlist,
+                      mailreceiverkey = 'email/receivers',
                      ),
 )

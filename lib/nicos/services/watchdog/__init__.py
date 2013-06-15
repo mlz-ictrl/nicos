@@ -34,7 +34,7 @@ from ordereddict import OrderedDict
 from nicos import session
 from nicos.core import Param, Override, listof, dictof, anytype
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
-from nicos.devices.notifiers import Notifier
+from nicos.devices.notifiers import Notifier, Mailer
 from nicos.devices.cacheclient import BaseCacheClient
 
 
@@ -67,6 +67,9 @@ class Watchdog(BaseCacheClient):
     parameters = {
         'watch':   Param('The configuration of things to watch',
                          type=listof(dictof(str, anytype))),
+        'mailreceiverkey': Param('Cache key that updates the receivers for '
+                                 'any mail notifiers we have configured',
+                                 type=str),
     }
 
     parameter_overrides = {
@@ -136,6 +139,9 @@ class Watchdog(BaseCacheClient):
             return
         if key == self._prefix + 'session/mastersetup':
             self._setups = set(cache_load(value))
+        if key == self._prefix + self.mailreceiverkey:
+            self._update_mailreceivers(cache_load(value))
+            return
         # do we care for this key?
         if key not in self._keymap:
             return
@@ -169,6 +175,13 @@ class Watchdog(BaseCacheClient):
                                           value]
             else:
                 self._process_warning(entry, value)
+
+    def _update_mailreceivers(self, emails):
+        self.log.info('updating any Mailer receivers to %s' % emails)
+        for notifier in self._adevs['notifiers_1'] + self._adevs['notifiers_2']:
+            if isinstance(notifier, Mailer):
+                # we're in slave mode, so _setROParam is necessary to set params
+                notifier._setROParam('receivers', emails)
 
     def _process_warning(self, entry, value):
         eid = entry.id
