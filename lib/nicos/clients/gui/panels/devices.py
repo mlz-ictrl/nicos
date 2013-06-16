@@ -190,6 +190,10 @@ class DevicesPanel(Panel):
         else:
             catitem = self._catitems[cat]
 
+        # remove still-existing previous item for the same device name
+        if ldevname in self._devitems:
+            self.on_client_device(('destroy', [devname]))
+
         # create a tree node for the device
         devitem = QTreeWidgetItem(catitem, [devname, '', ''], 1001)
         devitem.setIcon(0, QIcon(':/sunny'))
