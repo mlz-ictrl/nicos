@@ -2,27 +2,54 @@
 MAKE=${MAKE:-"make"}
 CONSOLE=0
 NOCLIENT=0
-NOMONI=0
 NOCOMPILE=0
+MONI=1
+ELOG=1
+DAEMON=1
 GUICONFIG=""
 GUIUSER="guest@localhost"
 
-while getopts tNnCc:u: name; do
+help() {
+    echo "Usage: $0 [options]"
+    echo "  options:"
+    echo "     -h            display this help"
+    echo
+    echo "     -C            do not (re-)compile before starting"
+    echo "     -D            disable daemon"
+    echo "     -E            disable eletronic logbook"
+    echo "     -M            do not start status monitor"
+    echo "     -m monitor    use the 'monitor' setup instead of the default monitor setup"
+    echo "     -N            do not start any client"
+    echo "     -t            use nicos console instead of gui"
+    echo "     -c file       use 'file' instead of the default GUI config file"
+    echo "     -u user       use the 'user' for the gui login"
+    exit 1
+}
+
+while getopts CDEtNMc:u:m:h name; do
     case "$name" in
         t)
           CONSOLE=1;;
-        n)
-          NOCLIENT=1;;
         N)
-          NOMONI=1;;
+          NOCLIENT=1;;
+        M)
+          MONI=0;;
         C)
           NOCOMPILE=1;;
         c)
           GUICONFIG="-c $OPTARG";;
         u)
           GUIUSER="$OPTARG";;
-       -)
-         break;;
+        m)
+          MONITOR="$OPTARG";;
+	E)
+	  ELOG=0;;
+	D)
+	  DAEMON=0;;
+	h)
+	  help;;
+        -)
+          break;;
     esac
 done
 shift $(($OPTIND - 1))
@@ -32,34 +59,47 @@ if [ "$NOCOMPILE" = "0" ]; then
     ${MAKE} inplace > /dev/null
     echo 'done.'
 fi
+
 echo -n 'Starting NICOS demo system, please wait: '
 bin/nicos-cache >/dev/null &
 CACHEPID=$!
 echo -n 'cache '
 sleep 2
+
 bin/nicos-watchdog >/dev/null &
 WATCHDOGPID=$!
 echo -n 'watchdog '
 sleep 0.1
-bin/nicos-elog >/dev/null &
-ELOGPID=$!
-echo -n 'elog '
-sleep 0.1
+
+if [ "$ELOG" = "1" ] ; then
+    bin/nicos-elog >/dev/null &
+    ELOGPID=$!
+    echo -n 'elog '
+    sleep 0.1
+fi
+
 bin/nicos-poller >/dev/null &
 POLLERPID=$!
 echo -n 'poller '
 sleep 0.1
-if [ "$NOMONI" = "0" ]; then
-    bin/nicos-monitor >/dev/null &
-    MONIPID=$!
-    echo -n 'monitor '
-    sleep 0.1
+
+if [ "$MONI" = "1" ]; then
+    if [ "$DAEMON" = "1" ]; then
+        bin/nicos-monitor $MONITOR >/dev/null &
+        MONIPID=$!
+        echo -n 'monitor '
+        sleep 0.1
+    else
+        bin/nicos-monitor $MONITOR >/dev/null
+        MONIPID=$!
+    fi
 fi
+
 if [ "$CONSOLE" = "1" ]; then
     echo
     echo 'Services started, starting console.'
     bin/nicos-console
-else
+elif [ "$DAEMON" = "1" ]; then
     bin/nicos-daemon >/dev/null &
     DAEMONPID=$!
     echo -n 'daemon'
@@ -73,11 +113,11 @@ else
         read dummy
     fi
 fi
-kill -2 $MONIPID 2>/dev/null
+if [ ! -z "$MONIPID" ]; then kill -INT $MONIPID 2>/dev/null; fi
 if [ ! -z "$DAEMONPID" ]; then kill $DAEMONPID; fi
 sleep 0.5
 kill $POLLERPID
-kill $ELOGPID
+if [ ! -z "$ELOGPID" ]; then kill $ELOGPID; fi
 kill $WATCHDOGPID
 kill $CACHEPID
 echo 'NICOS demo finished.'
