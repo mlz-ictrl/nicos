@@ -48,7 +48,6 @@ configured in setups like normal devices and selected in :ref:`sysconfig`.
 .. autoclass:: ConsoleSink()
 .. autoclass:: AsciiDatafileSink()
 .. autoclass:: GraceSink()
-.. autoclass:: GnuplotSink()
 .. autoclass:: DaemonSink()
 
 

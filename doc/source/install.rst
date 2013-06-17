@@ -39,7 +39,6 @@ Requirements
 
   - the TACO Python libraries
   - scipy (for fitting and data analysis)
-  - gnuplot-py (for liveplot display in gnuplot)
   - MySQLdb (for proposal DB query)
   - matplotlib (for resolution plots)
   - python-xmpp (for Jabber notifications)

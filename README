@@ -40,7 +40,6 @@ Requirements
   - python-xmpp (for Jabber notifications (xbuntu 12.04: python-pyxmpp)
   - pyserial (for TACO-less serial line communication) (xbuntu 12.04: python-serial)
   - matplotlib (for resolution plots) (xbuntu 12.04: python-matplotlib)
-  - gnuplot-py (for liveplot display) (xbuntu 12.04: python-gnuplot)
   - gnuplot (for plots in the electronig logbook) (xbuntu 12.04: gnuplot)
   - Grace (for scanplot) (xbuntu 12.04: grace)
   - lxml (for U-Bahn service) (xbuntu 12.04: python-lxml)
