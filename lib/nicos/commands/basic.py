@@ -240,8 +240,8 @@ def RemoveSetup(*setupnames):
         try:
             current.remove(setupname)
         except ValueError:
-            printwarning('the setup %r is not currently explicitly loaded' %
-                         setupname)
+            printwarning('the setup %r cannot be unloaded on its own '
+                         'because another setup includes it' % setupname)
     if current == original:
         return
     NewSetup(*current)
