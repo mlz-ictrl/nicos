@@ -235,6 +235,7 @@ class NicosLogfileHandler(StreamHandler):
             directory = path.join(directory, filenameprefix)
         if not path.isdir(directory):
             os.makedirs(directory)
+        self._currentsymlink = path.join(directory, 'current')
         self._filenameprefix = filenameprefix
         self._filenamesuffix = filenamesuffix
         self._pathnameprefix = path.join(directory, filenameprefix)
@@ -256,6 +257,15 @@ class NicosLogfileHandler(StreamHandler):
         self.disabled = False
 
     def _open(self):
+        # update 'current' symlink upon open
+        try:
+            os.remove(self._currentsymlink)
+        except OSError:
+            # if the symlink does not (yet) exist, OSError is raised.
+            # should happen at most once per installation....
+            pass
+        os.symlink(path.basename(self.baseFilename), self._currentsymlink)
+        # finally open the new logfile....
         return open(self.baseFilename, self.mode)
 
     def filter(self, record):
