@@ -82,11 +82,14 @@ class BlockBox(QFrame):
 class Monitor(BaseMonitor):
     """Qt specific implementation of instrument monitor."""
 
+    _master = None
+
     def mainLoop(self):
         self._qtapp.exec_()
 
     def closeGui(self):
-        self._master.close()
+        if self._master:
+            self._master.close()
 
     def _class_import(self, clsname):
         modname, member = clsname.rsplit('.', 1)
