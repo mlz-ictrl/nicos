@@ -54,7 +54,7 @@ class Experiment(BaseExperiment):
         if 'cycle' not in kwds:
             if self.propdb:
                 try:
-                    cycle, started = queryCycle()
+                    cycle, _started = queryCycle()
                     kwds['cycle'] = cycle
                 except Exception:
                     self.log.error('cannot query reactor cycle', exc=1)
