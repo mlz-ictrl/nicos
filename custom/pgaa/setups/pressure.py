@@ -30,7 +30,7 @@ group = 'basic'
 # includes = ['system']
 includes = []
 
-nethost= 'pgaasrv.pgaa.frm2'
+nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(
     chamber_pressure = device('devices.taco.AnalogInput',
