@@ -28,7 +28,7 @@
 # !!! keep in sync with the custom/puma/setups/lengths.py setup file !!!
 
 from nicos import session
-from devices.tas import TAS
+from nicos.devices.tas import TAS
 
 
 class PUMA(TAS):
