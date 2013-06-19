@@ -28,8 +28,6 @@ devices = dict(
                     base = 'mono',
                     tas = 'puma',
                     scanmode = 'CKI',
-                    abslimits = (1, 10),
-# Cu220                   abslimits = (2, 10),
                     ),
 
     kf     = device('devices.tas.Wavevector',
