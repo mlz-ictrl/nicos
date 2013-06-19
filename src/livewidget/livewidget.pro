@@ -1,8 +1,10 @@
 CONFIG += qt debug
 #TEMPLATE = lib
 
-INCLUDEPATH += . /usr/include/qwt5 /usr/include/qwt-qt4
+INCLUDEPATH += . /usr/include/qwt5 /usr/include/qwt-qt4 /usr/include/qwt
 LIBS += -lqwt-qt4
+
+TARGET = livewidget
 
 HEADERS += \
     lw_widget.h \

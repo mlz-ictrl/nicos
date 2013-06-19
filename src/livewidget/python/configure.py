@@ -70,8 +70,9 @@ makefile = pyqtconfig.QtGuiModuleMakefile(
     debug='-r' not in sys.argv)
 
 dist = platform.linux_distribution()[0]
-if dist == 'openSUSE':
-    makefile.extra_include_dirs = ["/usr/include/qwt5"]
+if dist in ('openSUSE', 'openSUSE ') :
+    makefile.extra_include_dirs = ["/usr/include/qwt5",
+                                   "/usr/include/qwt"]
     makefile.extra_libs = ["qwt"]
 elif dist == 'Ubuntu':
     makefile.extra_include_dirs = ["/usr/include/qwt-qt4"]
