@@ -88,11 +88,12 @@ class View(QObject):
 
         self.listitem = None
         self.plot = None
-        # add another point with the same value every interval time (but not
-        # more often than 10 seconds)
-        self.timer = QTimer(self, interval=max(interval, 10)*1000)
-        self.timer.timeout.connect(self.on_timer_timeout)
-        self.timer.start()
+        if self.totime is None:
+            # add another point with the same value every interval time (but not
+            # more often than 10 seconds)
+            self.timer = QTimer(self, interval=max(interval, 10)*1000)
+            self.timer.timeout.connect(self.on_timer_timeout)
+            self.timer.start()
 
     def on_timer_timeout(self):
         for key, kd in self.keydata.iteritems():
