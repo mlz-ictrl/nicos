@@ -15,9 +15,10 @@ _expcolumn = Column(
 )
 
 _axisblock = Block(
-    'Axes',
+    'Axes angles',
     [
      BlockRow('mth', 'mtt'),
+     BlockRow(Field(name='Focus', key='mono/focmode'),'mfhpg'),
      BlockRow('psi', 'phi'),
      BlockRow('ath', 'att'),
     ],
@@ -27,8 +28,23 @@ _axisblock = Block(
 _sampletable = Block(
     'Sampletable',
     [
-     BlockRow('sgx','sgy'),
-     BlockRow('sat'),
+     BlockRow('sgx','sgy','stz'),
+     BlockRow('atn','fpg'),
+    ],
+)
+
+_slits = Block(
+    'Slits',
+    [BlockRow(Field(name='left',dev='slit1.left'),
+		Field(name='right',dev='slit1.right'),
+		Field(name='bottom',dev='slit1.bottom'),
+		Field(name='top',dev='slit1.top'),
+	      ),
+     BlockRow(Field(name='left',dev='slit2.left'),
+		Field(name='right',dev='slit2.right'),
+		Field(name='bottom',dev='slit2.bottom'),
+		Field(name='top',dev='slit2.top'),
+	      ),
     ],
 )
 
@@ -57,15 +73,15 @@ _tasblock = Block(
               Field(dev='mono', name='ki'),
               Field(dev='ana', name='kf'),
               Field(key='puma/energytransferunit', name='Unit')),
-     BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas',
-                    width=40, height=30,
-                    fields={'mth': 'mth',
-                            'mtt': 'mtt',
-                            'sth': 'psi',
-                            'stt': 'phi',
-                            'ath': 'ath',
-                            'att': 'att',
-                            'tas': 'puma'})),
+#     BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas',
+#                    width=40, height=30,
+#                    fields={'mth': 'mth',
+#                            'mtt': 'mtt',
+#                            'sth': 'psi',
+#                            'stt': 'phi',
+#                            'ath': 'ath',
+#                            'att': 'att',
+#                            'tas': 'puma'})),
     ],
     'puma')
 
@@ -84,7 +100,7 @@ _tempblock = Block(
 
 _leftcolumn = Column(_axisblock, _sampletable)
 _middlecolumn = Column(_detectorblock, _tempblock)
-_rightcolumn = Column(_tasblock)
+_rightcolumn = Column(_tasblock, _slits)
 
 
 devices = dict(

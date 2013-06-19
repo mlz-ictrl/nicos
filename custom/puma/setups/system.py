@@ -17,14 +17,14 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    #~ puma = device('devices.instrument.Instrument',
-                    #~ instrument = 'PUMA',
-                    #~ responsible = 'O. Sobolev',
-                    #~ ),
+#    puma = device('devices.instrument.Instrument',
+#                    instrument = 'PUMA',
+#                    responsible = 'O. Sobolev, J. T. Park, A. Teichert',
+#                    ),
     Exp      = device('panda.experiment.PandaExperiment',
                       sample = 'Sample',
                       dataroot = '/data',
-                      propdb = 'useroffice@tacodb.taco.frm2:useroffice',
+                      propdb = '/pumacontrol2/propdb',
                       managerights = True,
                       sendmail = True,
                       zipdata = True,

@@ -28,6 +28,8 @@ devices = dict(
                     base = 'mono',
                     tas = 'puma',
                     scanmode = 'CKI',
+                    abslimits = (1, 10),
+# Cu220                   abslimits = (2, 10),
                     ),
 
     kf     = device('devices.tas.Wavevector',
@@ -68,7 +70,8 @@ devices = dict(
                       hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
                       vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901], # focus value should equal mth (for arcane reasons...)
                       abslimits = (1, 6),
-                      dvalue = 3.355),
+                      dvalue = 3.355,
+                      ),
 
     mono_pg004     = device('devices.tas.Monochromator',
                       description = 'PG-002 used as 004 monochromator',
@@ -79,10 +82,17 @@ devices = dict(
                       reltheta = True,
                       focush = 'mfhpg',
                       focusv = 'mfvpg',
+#                      focush = 'mfhcu',
+#                      focusv = 'mfvcu',
                       hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
-                      vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901], # strangely the same values.... ???
-                      abslimits = (1, 6),
-                      dvalue = 3.355),
+                      vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
+#                      hfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
+#                      vfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
+#                      abslimits = (1, 6),
+                      abslimits = (1, 10),
+                      dvalue = 3.355,
+#                      dvalue = 1.278,
+                      ),
 
     ana     = device('devices.tas.Monochromator',
                       unit = 'A-1',
@@ -93,7 +103,8 @@ devices = dict(
                       focusv = None,
                       hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
                       abslimits = (1, 5),
-                      dvalue = 3.355),
+                      dvalue = 3.355,
+                      ),
 )
 
 startupcode = '''

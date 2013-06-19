@@ -52,10 +52,10 @@ devices = dict(
                     motor = 'st_att',
                     coder = 'co_att',
                     obs = [],
-                    precision = 0.005,
-                    offset = 0.612, # focused
+                    precision = 0.01,
+                    offset = 0.379, # focused
  #                   offset = 0.307, # with collimator
-                    maxtries = 8,
+                    maxtries = 10,
                     ),
 
     ath    = device('devices.generic.Axis',
@@ -65,7 +65,7 @@ devices = dict(
                     obs = [],
                     precision = 0.01,
 #                   offset = -0.678, #with collimator
-                    offset = -0.8332, #focussed
+                    offset = -0.719, #focussed
                     maxtries = 8,
                     ),
 
