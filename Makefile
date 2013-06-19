@@ -21,12 +21,12 @@ lib/nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
 	-$(RCC) -o lib/nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
 
 clean-backups:
-	@if [[ -e "$(ROOTDIR)/bin.bak" ]]; then rm -rf "$(ROOTDIR)/bin.bak"; fi
-	@if [[ -e "$(ROOTDIR)/lib.bak" ]]; then rm -rf "$(ROOTDIR)/lib.bak"; fi
+	@if [[ -e "$(ROOTDIR)/bin.bak" ]]; then rm -rI "$(ROOTDIR)/bin.bak"; fi
+	@if [[ -e "$(ROOTDIR)/lib.bak" ]]; then rm -rI "$(ROOTDIR)/lib.bak"; fi
 	@if [[ -e "$(ROOTDIR)/bin.bak.~1~" ]]; then\
-		 rm -rf "$(ROOTDIR)/bin.bak.~*~"; fi
+		 rm -rf $(ROOTDIR)/bin.bak.~*~; fi
 	@if [[ -e "$(ROOTDIR)/lib.bak.~1~" ]]; then\
-		 rm -rf "$(ROOTDIR)/lib.bak.~*~"; fi
+		 rm -rf $(ROOTDIR)/lib.bak.~*~; fi
 
 clean:
 	rm -rf build
