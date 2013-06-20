@@ -143,6 +143,10 @@ class TacoDevice(DeviceMixinBase):
         # remove the TACO device on entering simulation mode, to prevent
         # accidental access to the hardware
         if mode == 'simulation':
+            # keep the device instance around to avoid destruction (which can
+            # mess with the TACO connections in the main process if simulation
+            # has been forked off)
+            self._orig_dev = self._dev
             self._dev = HardwareStub(self)
 
     def doVersion(self):
