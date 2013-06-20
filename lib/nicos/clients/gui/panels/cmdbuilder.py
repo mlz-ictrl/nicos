@@ -148,8 +148,8 @@ class CommandPanel(Panel):
             elif result == QMessageBox.Apply:
                 action = 'execute'
         if action == 'queue':
-            self.client.tell('queue', '', script)
             self.mainwindow.action_start_time = time.time()
+            self.client.tell('queue', '', script)
         else:
             self.client.tell('exec', script)
         self.commandInput.selectAll()

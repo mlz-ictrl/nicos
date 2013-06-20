@@ -214,43 +214,41 @@ class ScriptStatusPanel(Panel):
 
     @qtsig('')
     def on_actionBreak_triggered(self):
-        self.client.tell('break')
         self.mainwindow.action_start_time = time.time()
+        self.client.tell('break')
 
     @qtsig('')
     def on_actionBreak2_triggered(self):
-        self.client.tell('break')
-        self.mainwindow.action_start_time = time.time()
+        self.on_actionBreak_triggered()
 
     @qtsig('')
     def on_actionBreakCount_triggered(self):
-        self.client.tell('break', '3')
         self.mainwindow.action_start_time = time.time()
+        self.client.tell('break', '3')
 
     @qtsig('')
     def on_actionContinue_triggered(self):
-        self.client.tell('continue')
         self.mainwindow.action_start_time = time.time()
+        self.client.tell('continue')
 
     @qtsig('')
     def on_actionStop_triggered(self):
-        self.client.tell('stop')
         self.mainwindow.action_start_time = time.time()
+        self.client.tell('stop')
 
     @qtsig('')
     def on_actionStop2_triggered(self):
-        self.client.tell('stop')
-        self.mainwindow.action_start_time = time.time()
+        self.on_actionStop_triggered()
 
     @qtsig('')
     def on_actionFinish_triggered(self):
-        self.client.tell('stop', '1')
         self.mainwindow.action_start_time = time.time()
+        self.client.tell('stop', '1')
 
     @qtsig('')
     def on_actionEmergencyStop_triggered(self):
-        self.client.tell('emergency')
         self.mainwindow.action_start_time = time.time()
+        self.client.tell('emergency')
 
     @qtsig('')
     def on_clearQueue_clicked(self):
