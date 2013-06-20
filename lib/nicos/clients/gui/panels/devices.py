@@ -25,7 +25,8 @@
 """NICOS GUI panel with a list of all devices."""
 
 from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
-     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, QDialog
+     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
+     QDialog, QMessageBox
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
@@ -399,7 +400,7 @@ class DevicesPanel(Panel):
                 return
         devinfo = self._devinfo[ldevname]
         item = self._devitems[ldevname]
-        dlg = ControlDialog(self, devname, devinfo, item)
+        dlg = ControlDialog(self, devname, devinfo, item, self.log)
         self._control_dialogs[ldevname] = dlg
         dlg.show()
 
@@ -407,9 +408,10 @@ class DevicesPanel(Panel):
 class ControlDialog(QDialog):
     """Dialog opened to control and view details for one device."""
 
-    def __init__(self, parent, devname, devinfo, devitem):
+    def __init__(self, parent, devname, devinfo, devitem, log):
         QDialog.__init__(self, parent)
         loadUi(self, 'devices_one.ui', 'panels')
+        self.log = log
 
         self.client = parent.client
         self.devname = devname
@@ -511,6 +513,11 @@ class ControlDialog(QDialog):
         try:
             new_value = dlg.target.getValue()
         except ValueError:
+            self.log.exception('invalid value for typed value')
+            # shouldn't happen, but if it does, at least give an indication that
+            # something went wrong
+            QMessageBox.warning(self, 'Error', 'The entered value is invalid '
+                                'for this parameter.')
             return
         self.client.tell('queue', '', '%s.%s = %r' %
                          (self.devname, pname, new_value))

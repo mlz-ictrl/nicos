@@ -31,7 +31,8 @@ from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
      QCheckBox, QWidget, QComboBox, QHBoxLayout, QLabel
 
-from nicos.core import params
+from nicos.core import params, anytype
+from nicos.protocols.cache import cache_dump, cache_load
 
 
 # XXX unit?
@@ -66,8 +67,10 @@ def create(parent, typ, curvalue, fmtstr=''):
                  params.control_path_relative):
         # XXX validate via regexp
         return EditWidget(parent, str, curvalue)
+    elif typ == anytype:
+        return ExprWidget(parent, curvalue)
     return MissingWidget(parent, curvalue)
-    # XXX missing: listof, nonemptylistof, dictof, ANYTYPE (->expression)
+    # XXX missing: listof, nonemptylistof, dictof
 
 
 class MultiWidget(QWidget):
@@ -125,6 +128,15 @@ class EditWidget(QLineEdit):
     #     sh = QLineEdit.sizeHint(self)
     #     sh.setWidth(sh.width()/2)
     #     return sh
+
+class ExprWidget(QLineEdit):
+
+    def __init__(self, parent, curvalue):
+        QLineEdit.__init__(self, parent)
+        self.setText(cache_dump(curvalue))
+
+    def getValue(self):
+        return cache_load(str(self.text()))
 
 class CheckWidget(QWidget):
 
