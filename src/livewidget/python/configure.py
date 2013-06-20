@@ -44,7 +44,8 @@ config = pyqtconfig.Configuration()
 pyqt_sip_flags = config.pyqt_sip_flags
 
 print "Running sip..."
-os.system(" ".join([config.sip_bin, "-t", "Qwt_5_2_0", "-c", ".", "-b", build_file, "-I", config.pyqt_sip_dir, pyqt_sip_flags, "livewidget.sip"]))
+os.system(" ".join([config.sip_bin, "-t", "Qwt_5_2_0", "-c", ".", "-b", build_file,
+                    "-I", config.pyqt_sip_dir, pyqt_sip_flags, "livewidget.sip"]))
 
 # set up including the livewidget sources directly in the build
 print "Fixing build file to include livewidget sources..."
