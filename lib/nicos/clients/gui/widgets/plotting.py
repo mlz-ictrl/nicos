@@ -604,7 +604,7 @@ class NicosPlot(QwtPlot, DlgUtils):
     def _finishFit(self):
         try:
             if self.fitcallbacks[1]:
-                if not self.fitcallbacks[1]():
+                if not self.fitcallbacks[1]():  #pylint: disable=E1102
                     raise FitError('Aborted.')
             curve = self.fitcurve
             if isinstance(curve, ErrorBarPlotCurve):
@@ -614,7 +614,7 @@ class NicosPlot(QwtPlot, DlgUtils):
                 args = [asarray(d.xData()), asarray(d.yData()), None] + \
                     self.fitvalues
             x, y, title, labelx, labely, interesting, lineinfo = \
-                self.fitcallbacks[0](args)
+                self.fitcallbacks[0](args)  #pylint: disable=E1102
         except FitError, err:
             self.showInfo('Fitting failed: %s.' % err)
             if self.fitPicker:
