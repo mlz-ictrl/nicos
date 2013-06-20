@@ -389,6 +389,12 @@ class BaseHistoryWindow(object):
         if newdlg.savePreset.isChecked() and self.hasPresets:
             self.presetdict[str(info['name'])] = pickle.dumps(info)
 
+    def newView(self, devices):
+        newdlg = NewViewDialog(self)
+        newdlg.devices.setEditText(devices)
+        info = newdlg.infoDict()
+        self._createViewFromDialog(info)
+
     def openView(self, view):
         if not view.plot:
             view.plot = ViewPlot(self.plotFrame, self, view)

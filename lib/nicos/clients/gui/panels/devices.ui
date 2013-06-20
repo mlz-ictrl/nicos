@@ -144,7 +144,7 @@
      <normaloff>:/find</normaloff>:/find</iconset>
    </property>
    <property name="text">
-    <string>Plot history...</string>
+    <string>Plot history</string>
    </property>
   </action>
  </widget>

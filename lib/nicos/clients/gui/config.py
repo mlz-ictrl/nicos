@@ -68,18 +68,18 @@ class panel_config(tuple):
         self.windows = self[1]
         self.tools = self[2]
 
-    def _has_panel(self, config, panel_class):
+    def _has_panel(self, config, panel_classes):
         """Return True if the config contains a panel with the given class."""
         if isinstance(config, window):
-            return self._has_panel(config[3], panel_class)
+            return self._has_panel(config[3], panel_classes)
         elif isinstance(config, (hsplit, vsplit, tabbed)):
             for child in config:
-                if self._has_panel(child, panel_class):
+                if self._has_panel(child, panel_classes):
                     return True
         elif isinstance(config, panel):
-            return panel_class == config[0]
+            return config[0] in panel_classes
 
-    def find_panel(self, panel_class):
+    def find_panel(self, panel_classes):
         for i, winconfig in enumerate(self.windows):
-            if self._has_panel(winconfig, panel_class):
+            if self._has_panel(winconfig, panel_classes):
                 return i
