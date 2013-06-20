@@ -538,6 +538,11 @@ def limits(*devlist):
     Example:
 
     >>> limits(phi)    # shows the absolute and user limits of phi
+
+    To set userlimits, use one of these commands:
+
+    >>> set(phi, 'userlimits', (low, high))
+    >>> phi.userlimits = (low, high)
     """
     if not devlist:
         devlist = [session.devices[dev] for dev in session.explicit_devices
