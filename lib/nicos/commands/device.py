@@ -259,11 +259,12 @@ def stop(*devlist):
         dev = session.getDevice(dev, (Moveable, Measurable))
         try:
             dev.stop()
+            if hasattr(dev, 'fixed'):
+                if dev.fixed:
+                    continue # skip fixed devices.
+            dev.log.info('stopped')
         except Exception:
             dev.log.exception('error stopping device')
-        else:
-            if not dev.fixed:
-                dev.log.info('stopped')
 
 @usercommand
 @helparglist('dev, ...')
