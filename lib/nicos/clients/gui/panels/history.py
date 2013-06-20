@@ -60,10 +60,13 @@ class View(QObject):
         self.yfrom = yfrom
         self.yto = yto
 
+        self.keyinfo = {}
+
         if self.fromtime is not None:
             self.keydata = {}
             totime = self.totime or currenttime()
             for key in keys:
+                string_mapping = {}
                 history = query_func(key, self.fromtime, totime)
                 if history is None:
                     from nicos.clients.gui.main import log
@@ -76,12 +79,19 @@ class View(QObject):
                 for vtime, value in history:
                     if value is not None and vtime > ltime + interval:
                         x[i] = max(vtime, fromtime)
+                        if isinstance(value, str):
+                            # create a new unique integer value for the string
+                            value = string_mapping.setdefault(
+                                value, len(string_mapping))
                         y[i] = value
                         ltime = x[i]
                         i += 1
                 x.resize((2*i or 100,))
                 y.resize((2*i or 100,))
                 self.keydata[key] = [x, y, i]
+                if string_mapping:
+                    self.keyinfo[key] = ', '.join('%s=%s' % (v, k) for (k, v) in
+                                                  string_mapping.iteritems())
         else:
             self.keydata = dict((key, [np.zeros(500), np.zeros(500), 0])
                                 for key in keys)
@@ -655,7 +665,11 @@ class ViewPlot(NicosPlot):
 
     def addCurve(self, i, key, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
-        plotcurve = QwtPlotCurve(key)
+        curvename = key
+        keyinfo = self.view.keyinfo.get(key)
+        if keyinfo:
+            curvename += ' (' + keyinfo + ')'
+        plotcurve = QwtPlotCurve(curvename)
         plotcurve.setPen(pen)
         plotcurve.setSymbol(self.nosymbol)
         plotcurve.setStyle(QwtPlotCurve.Lines)
