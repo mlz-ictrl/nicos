@@ -38,7 +38,7 @@ from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
      QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
      QwtText, QwtLegend, QwtScaleDraw, QwtLinearScaleEngine, QwtScaleDiv, \
-     QwtDoubleInterval, QwtPlotMarker
+     QwtDoubleInterval, QwtPlotMarker, QwtPlotPanner
 
 try:
     from PyQt4.Qwt5.grace import GraceProcess
@@ -356,9 +356,13 @@ class NicosPlot(QwtPlot, DlgUtils):
         # setup zooming and unzooming
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
                                     self.canvas())
-        self.zoomer.initMousePattern(3)
+        self.zoomer.initMousePattern(2)  # this will avoid the middle button,
+                                         # which we use for panning
         self.connect(self.zoomer, SIGNAL('zoomed(const QwtDoubleRect &)'),
                      self.on_zoomer_zoomed)
+
+        self.panner = QwtPlotPanner(self.canvas())
+        self.panner.setMouseButton(Qt.MiddleButton)
 
         # setup picking and mouse tracking of coordinates
         self.picker = ActivePlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,

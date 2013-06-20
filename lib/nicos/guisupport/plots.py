@@ -33,7 +33,7 @@ from PyQt4.QtCore import Qt, pyqtProperty, SIGNAL, QTimer, QSize
 
 try:
     from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
-         QwtPlotZoomer, QwtPicker, QwtPlotPicker
+         QwtPlotZoomer, QwtPicker, QwtPlotPicker, QwtPlotPanner
     # XXX: move these to guisupport
     from nicos.clients.gui.widgets.plotting import TimeScaleEngine, TimeScaleDraw, \
          ActivePlotPicker
@@ -89,6 +89,10 @@ class TrendPlot(QwtPlot, DisplayWidget):
         self.insertLegend(self.legend, QwtPlot.TopLegend)
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
                                     self.canvas())
+        self.zoomer.initMousePattern(2)  # don't bind middle button
+
+        self.panner = QwtPlotPanner(self.canvas())
+        self.panner.setMouseButton(Qt.MiddleButton)
 
         self.picker = ActivePlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
                                        QwtPicker.PointSelection |
