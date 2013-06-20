@@ -268,24 +268,24 @@ bool LWData::_readFits(const char *filename)
     int num_dimensions, bitpix, any_null, hdutype;
     float null_value = 0.;
 
-    int x, y, total_pixel;
+    int total_pixel;
     long dimensions[3];
 
     float *float_data;
-    char *data;
+    data_t *data;
 
     if (!fits_open_file(&file_pointer, filename, READONLY, &status)) {
         if (!fits_get_img_param(file_pointer, max_dimensions, &bitpix,
                                 &num_dimensions, dimensions, &status)) {
             if (fits_get_hdu_type(file_pointer, &hdutype, &status) ||
-                    hdutype != IMAGE_HDU || num_dimensions != 3) {
+                hdutype != IMAGE_HDU || !(num_dimensions == 2 || num_dimensions == 3)) {
                 std::cerr << "This .fits file does not contain valid image data!" << std::endl;
                 fits_close_file(file_pointer, &status);
                 return false;
             } else {
                 m_width  = (int) dimensions[0];
                 m_height = (int) dimensions[1];
-                m_depth  = (int) dimensions[2];
+                m_depth  = 1;
 
                 total_pixel = m_height * m_width;
 
@@ -297,7 +297,7 @@ bool LWData::_readFits(const char *filename)
                     return false;
                 }
 
-                data = (char *) malloc(total_pixel * sizeof(data_t));  // 32bit integer values
+                data = (data_t *) malloc(total_pixel * sizeof(data_t));  // 32bit integer values
 
                 if (!data) {
                     std::cerr << "Memory allocation for data arrays failed!" << std::endl;
@@ -317,9 +317,9 @@ bool LWData::_readFits(const char *filename)
 
                 fits_close_file(file_pointer, &status);
 
-                for (y = 0; y < m_height; ++y)
-                    for (x = 0; x < m_width; ++x)
-                        data[2*x + 2*y*m_width] = (data_t)float_data[x + y*m_width];
+                for (int y = 0; y < m_height; ++y)
+                    for (int x = 0; x < m_width; ++x)
+                        data[x + y*m_width] = (data_t)float_data[x + y*m_width];
             }
         }
     } else {
@@ -327,7 +327,7 @@ bool LWData::_readFits(const char *filename)
         return false;
     }
 
-    initFromBuffer(data);
+    initFromBuffer((char *)data);
     updateRange();
 
     free(float_data);
