@@ -273,6 +273,7 @@ class TacoDevice(DeviceMixinBase):
                             break  # and fall through to _raise_taco
                         self.log.warning('TACO %s failed again' %
                                          function.__name__, exc=1)
+            self.log.debug('TACO exception: %r' % err)
             self._raise_taco(err)
         else:
             self.log.debug('TACO return: %r' % (ret,))
