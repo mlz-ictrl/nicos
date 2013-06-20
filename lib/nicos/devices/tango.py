@@ -23,25 +23,17 @@
 
 """
 This module contains the NICOS - TANGO integration.
-All NICOS - TANGO devices do only support devices which fulfill the official
-FRM-II/JCNS TANGO interface for StringIO devices.
+
+All NICOS - TANGO devices only support devices which fulfill the official
+FRM-II/JCNS TANGO interface for the respective device classes.
 """
 
 import PyTango
 
-from nicos.core import Param
-from nicos.core import Override
-from nicos.core import NicosError
-from nicos.core import status
-from nicos.core import waitForStatus
-from nicos.core import Readable
-from nicos.core import Moveable
-from nicos.core import HasLimits
-from nicos.core import Device
-from nicos.core import tangodev
-from nicos.devices.abstract import Coder
-from nicos.devices.abstract import Motor as NicosMotor
-from nicos.devices.abstract import CanReference
+from nicos.core import Param, Override, NicosError, status, waitForStatus, \
+     Readable, Moveable, HasLimits, Device, tangodev, DeviceMixinBase
+from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
+from nicos.utils import HardwareStub
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = ['AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
@@ -55,7 +47,7 @@ DEFAULT_STATUS_MAPPING = {
 }
 
 
-class PyTangoDevice(object):
+class PyTangoDevice(DeviceMixinBase):
     """
     Basic PyTango device.
 
@@ -80,7 +72,7 @@ class PyTangoDevice(object):
         if mode != 'simulation':
             self._dev = self._createPyTangoDevice(self.tangodevice)
 
-    def doStatus(self, maxage=0, mapping=DEFAULT_STATUS_MAPPING):
+    def doStatus(self, maxage=0, mapping=DEFAULT_STATUS_MAPPING):  #pylint: disable=W0102
         # Query status code and string
         tangoState = self._dev.State()
         tangoStatus = self._dev.Status()
@@ -93,6 +85,20 @@ class PyTangoDevice(object):
     def doWait(self):
         waitForStatus(self)
 
+    def doVersion(self):
+        return [(self.tangodevice, self._dev.version)]
+
+    def doReset(self):
+        self._dev.Reset()
+        # XXX do we need to "if isOff(): On()" dance?
+
+    def _setMode(self, mode):
+        super(PyTangoDevice, self)._setMode(mode)
+        # remove the TACO device on entering simulation mode, to prevent
+        # accidental access to the hardware
+        if mode == 'simulation':
+            self._dev = HardwareStub(self)
+
     def _getProperty(self, name, dev=None):
         """
         Utility function for getting a property by name easily.
@@ -101,7 +107,7 @@ class PyTangoDevice(object):
             dev = self._dev
         return dev.GetProperties((name, 'device'))[2]
 
-    def _createPyTangoDevice(self, address):  # pylint: disable=E0202
+    def _createPyTangoDevice(self, address):  #pylint: disable=E0202
         """
         Creates the PyTango DeviceProxy and wraps command execution and
         attribute operations with logging and exception mapping.
