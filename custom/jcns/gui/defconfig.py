@@ -31,24 +31,31 @@ from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
 default_profile_uid = '07139e62-d244-11e0-b94b-00199991c245'
 default_profile_config = ('Default', [
         tabbed(
-#              ('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel')),
-               ('Demo instrument',
-                vsplit(
-                    hsplit(
-                        panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
-#                       panel('nicos.clients.gui.panels.watch.WatchPanel'),
-                        vsplit(
-                            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
-                            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+               ('JCNS instrument',
+                hsplit(
+                    vsplit(
+                        hsplit(
+                            panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
+                            vsplit(
+                                panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+                                panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+                            ),
+                        ),
+                    tabbed(
+                         ('All output',
+                          panel('nicos.clients.gui.panels.console.ConsolePanel',
+                          hasinput=False, hasmenu=False,
+                          ),
+                         ),
+                         ('Errors/Warnings',
+                           panel('nicos.clients.gui.panels.errors.ErrorPanel'),
+                         ),
+                         ),
                         ),
                         panel('nicos.clients.gui.panels.devices.DevicesPanel'),
                     ),
-#                   panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-                    panel('nicos.clients.gui.panels.console.ConsolePanel',
-                          hasinput=False,
-                         ),
-                ),
                ),
+#              panel('nicos.clients.gui.panels.watch.WatchPanel'),
                ('Editor',
                 vsplit(
                     panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
@@ -63,8 +70,6 @@ default_profile_config = ('Default', [
             panel('nicos.clients.gui.panels.setup.SetupPanel')),
         window('Scans', 'plotter', True,
             panel('nicos.clients.gui.panels.scans.ScansPanel')),
-        window('Errors', 'errors', True,
-            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
         window('History', 'find', True,
             panel('nicos.clients.gui.panels.history.HistoryPanel')),
         window('Logbook', 'table', True,
