@@ -183,6 +183,9 @@ class DevicesPanel(Panel):
 
         if cat not in self._catitems:
             catitem = QTreeWidgetItem([cat, '', ''], 1000)
+            f = catitem.font(0)
+            f.setBold(True)
+            catitem.setFont(0, f)
             catitem.setIcon(0, QIcon(':/setup'))
             self._catitems[cat] = catitem
             if add_cat:
