@@ -50,8 +50,17 @@ backgroundBrush = {
     BUSY:       QBrush(Qt.yellow),
     PAUSED:     QBrush(Qt.yellow),
     UNKNOWN:    QBrush(),
-    ERROR:      QBrush(QColor('#ff3322')),
-    NOTREACHED: QBrush(QColor('#ff3322')),
+    ERROR:      QBrush(QColor('#ff6655')),
+    NOTREACHED: QBrush(QColor('#ff6655')),
+}
+
+statusIcon = {
+    OK:         QIcon(':/leds/status_green'),
+    BUSY:       QIcon(':/leds/status_yellow'),
+    PAUSED:     QIcon(':/leds/status_yellow'),
+    UNKNOWN:    QIcon(':/leds/status_white'),
+    ERROR:      QIcon(':/leds/status_red'),
+    NOTREACHED: QIcon(':/leds/status_red'),
 }
 
 fixedBrush = {
@@ -200,7 +209,7 @@ class DevicesPanel(Panel):
 
         # create a tree node for the device
         devitem = QTreeWidgetItem(catitem, [devname, '', ''], 1001)
-        devitem.setIcon(0, QIcon(':/sunny'))
+        devitem.setIcon(0, statusIcon[OK])
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
@@ -269,11 +278,13 @@ class DevicesPanel(Panel):
                 status = cache_load(value)
             devinfo[1] = status
             devitem.setText(2, status[1])
+            devitem.setIcon(0, statusIcon[status[0]])
             devitem.setForeground(2, foregroundBrush[status[0]])
             devitem.setBackground(2, backgroundBrush[status[0]])
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 dlg.statuslabel.setText(status[1])
+                dlg.statusimage.setPixmap(statusIcon[status[0]].pixmap(16, 16))
                 setForegroundBrush(dlg.statuslabel, foregroundBrush[status[0]])
                 setBackgroundBrush(dlg.statuslabel, backgroundBrush[status[0]])
         elif subkey == 'fmtstr':
@@ -447,6 +458,7 @@ class ControlDialog(QDialog):
         else:
             self.valuelabel.setText(devitem.text(1))
             self.statuslabel.setText(devitem.text(2))
+            self.statusimage.setPixmap(devitem.icon(0).pixmap(16, 16))
             setForegroundBrush(self.statuslabel, devitem.foreground(2))
             setBackgroundBrush(self.statuslabel, devitem.background(2))
 

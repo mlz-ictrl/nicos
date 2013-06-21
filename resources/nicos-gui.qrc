@@ -50,6 +50,10 @@
     <file alias="close">icons/emblem-unreadable.png</file>
   </qresource>
   <qresource prefix="leds">
+    <file alias="status_white">leds/simplewhite.png</file>
+    <file alias="status_green">leds/simplegreen.png</file>
+    <file alias="status_red">leds/simplered.png</file>
+    <file alias="status_yellow">leds/simpleyellow.png</file>
     <file alias="blue_on">leds/ledblue.png</file>
     <file alias="blue_off">leds/ledblueoff.png</file>
     <file alias="green_on">leds/ledgreen.png</file>
