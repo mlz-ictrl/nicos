@@ -123,6 +123,9 @@ class Panel(QWidget, DlgUtils):
     def setOptions(self, options):
         pass
 
+    def setExpertMode(self, expert):
+        pass
+
     def loadSettings(self, settings):
         pass
 

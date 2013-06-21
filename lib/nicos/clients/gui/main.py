@@ -464,6 +464,13 @@ class MainWindow(QMainWindow, DlgUtils):
         if reason == QSystemTrayIcon.Trigger:
             self.activateWindow()
 
+    def on_actionExpert_toggled(self, on):
+        for panel in self.panels:
+            panel.setExpertMode(on)
+        for window in self.windows.values():
+            for panel in window.panels:
+                panel.setExpertMode(on)
+
     @qtsig('')
     def on_actionNicosHelp_triggered(self):
         self.client.eval('session.showHelp("index")')

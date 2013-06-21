@@ -68,6 +68,10 @@ class ConsolePanel(Panel):
         self.hasinput = bool(options.get('hasinput', True))
         self.inputFrame.setVisible(self.hasinput)
 
+    def setExpertMode(self, expert):
+        if not self.hasinput:
+            self.inputFrame.setVisible(expert)
+
     def loadSettings(self, settings):
         self.cmdhistory = list(settings.value('cmdhistory').toStringList())
 
@@ -139,7 +143,7 @@ class ConsolePanel(Panel):
         url = str(url.toString().toUtf8())
         if url.startswith('exec:'):
             # Direct execution is too dangerous. Just insert it in the editor.
-            if self.hasinput:
+            if self.inputFrame.isVisible():
                 self.commandInput.setText(url[5:].decode('utf8'))
                 self.commandInput.setFocus()
         elif url.startswith('edit:'):
