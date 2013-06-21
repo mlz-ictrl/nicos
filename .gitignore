@@ -65,8 +65,13 @@ src/livewidget/python/Makefile
 src/livewidget/python/lw_*.cpp
 src/livewidget/python/lw_*.h
 
-.cproject
+
+#Eclipse:
 .project
 .pydevproject
+.cproject
 .settings/
 TAGS
+
+#SCITE
+SciTEDirectory.properties
