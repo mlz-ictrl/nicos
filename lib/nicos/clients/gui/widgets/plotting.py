@@ -362,7 +362,7 @@ class NicosPlot(QwtPlot, DlgUtils):
                      self.on_zoomer_zoomed)
 
         self.panner = QwtPlotPanner(self.canvas())
-        self.panner.setMouseButton(Qt.MiddleButton)
+        self.panner.setMouseButton(Qt.MidButton)
 
         # setup picking and mouse tracking of coordinates
         self.picker = ActivePlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,

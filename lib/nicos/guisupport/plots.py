@@ -92,7 +92,7 @@ class TrendPlot(QwtPlot, DisplayWidget):
         self.zoomer.initMousePattern(2)  # don't bind middle button
 
         self.panner = QwtPlotPanner(self.canvas())
-        self.panner.setMouseButton(Qt.MiddleButton)
+        self.panner.setMouseButton(Qt.MidButton)
 
         self.picker = ActivePlotPicker(QwtPlot.xBottom, QwtPlot.yLeft,
                                        QwtPicker.PointSelection |

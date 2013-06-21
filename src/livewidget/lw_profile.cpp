@@ -111,7 +111,7 @@ LWProfileWindow::LWProfileWindow(QWidget *parent, LWWidget *widget) :
     m_picker = new QwtPlotPicker(m_plot->canvas());
     m_picker->setSelectionFlags(QwtPicker::PointSelection |
                                 QwtPicker::ClickSelection);
-    m_picker->setMousePattern(QwtPicker::MouseSelect1, Qt::MiddleButton);
+    m_picker->setMousePattern(QwtPicker::MouseSelect1, Qt::MidButton);
     QObject::connect(m_picker, SIGNAL(selected(const QwtDoublePoint &)),
                      this, SLOT(pickerSelected(const QwtDoublePoint &)));
     setCentralWidget(m_plot);

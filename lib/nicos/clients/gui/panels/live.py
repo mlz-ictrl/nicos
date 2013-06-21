@@ -258,7 +258,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         self.picker.setSelectionFlags(QwtPlotPicker.PointSelection |
                                       QwtPlotPicker.ClickSelection)
         self.picker.setMousePattern(QwtPlotPicker.MouseSelect1,
-                                    Qt.MiddleButton)
+                                    Qt.MidButton)
         self.connect(self.picker, SIGNAL('selected(const QwtDoublePoint&)'),
                      self.pickerSelected)
         layout2 = QHBoxLayout()
