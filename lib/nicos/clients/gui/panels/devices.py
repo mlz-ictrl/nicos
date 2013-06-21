@@ -128,6 +128,9 @@ class DevicesPanel(Panel):
         self.connect(client, SIGNAL('cache'), self.on_client_cache)
         self.connect(client, SIGNAL('device'), self.on_client_device)
 
+    def setOptions(self, options):
+        self.useicons = bool(options.get('icons', True))
+
     def saveSettings(self, settings):
         settings.setValue('headers', self.tree.header().saveState())
 
@@ -209,7 +212,8 @@ class DevicesPanel(Panel):
 
         # create a tree node for the device
         devitem = QTreeWidgetItem(catitem, [devname, '', ''], 1001)
-        devitem.setIcon(0, statusIcon[OK])
+        if self.useicons:
+            devitem.setIcon(0, statusIcon[OK])
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
@@ -278,9 +282,13 @@ class DevicesPanel(Panel):
                 status = cache_load(value)
             devinfo[1] = status
             devitem.setText(2, status[1])
-            devitem.setIcon(0, statusIcon[status[0]])
-            devitem.setForeground(2, foregroundBrush[status[0]])
-            devitem.setBackground(2, backgroundBrush[status[0]])
+            if self.useicons:
+                devitem.setIcon(0, statusIcon[status[0]])
+                devitem.setForeground(2, foregroundBrush[status[0]])
+                devitem.setBackground(2, backgroundBrush[status[0]])
+            else:
+                devitem.setForeground(0, foregroundBrush[BUSY])
+                devitem.setBackground(0, backgroundBrush[status[0]])
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 dlg.statuslabel.setText(status[1])

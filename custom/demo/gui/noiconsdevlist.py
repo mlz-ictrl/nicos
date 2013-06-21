@@ -35,7 +35,9 @@ config = ('Default', [
             ),
             vsplit(
                 panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
-                panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True),
+                panel('nicos.clients.gui.panels.devices.DevicesPanel',
+                      icons=False,
+                     ),
             ),
         ),
         window('Setup', 'setup', True,
