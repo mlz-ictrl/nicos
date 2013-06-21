@@ -58,8 +58,8 @@ class NicosClient(object):
         self.disconnecting = False
         self.version = None
         self.gzip = False
-        self.client_id = hashlib.md5('%s%s' % (time.time(),
-                                               os.getpid())).digest()
+        self.client_id = hashlib.md5('%s%s' %
+                                     (time.time(), os.getpid())).digest()
 
     def signal(self, name, *args):
         # must be overwritten

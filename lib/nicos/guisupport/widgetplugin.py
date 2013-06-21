@@ -94,7 +94,7 @@ from nicos.guisupport.plots import TrendPlot
 
 
 for cls in [ValueDisplay, StatusLed, ValueLed, TrendPlot]:
-    class Plugin(NicosPluginBase):  #pylint: disable=R0923
+    class Plugin(NicosPluginBase):
         widget_class = cls
     Plugin.__name__ = cls.__name__ + 'Plugin'
     globals()[Plugin.__name__] = Plugin

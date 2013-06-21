@@ -318,8 +318,8 @@ class SpeedReadout(Readable):
     }
 
     def doRead(self, maxage=0):
-        return map(lambda v: v / 279.618375,
-                   self._adevs['chopper']._readspeeds_actual())
+        return [v / 279.618375
+                for v in self._adevs['chopper']._readspeeds_actual()]
 
     def doStatus(self, maxage=0):
         return status.OK, 'no status info'

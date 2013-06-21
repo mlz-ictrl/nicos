@@ -632,10 +632,9 @@ class CacheClient(BaseCacheClient):
             if msgmatch.group('value'):
                 raise CacheLockError(msgmatch.group('value'))
             return
-        else:
-            # no response received; let's assume standalone mode
-            self.log.warning('allowing lock/unlock operation without cache '
-                              'connection')
+        # no response received; let's assume standalone mode
+        self.log.warning('allowing lock/unlock operation without cache '
+                         'connection')
 
     def unlock(self, key, sessionid=None):
         return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)

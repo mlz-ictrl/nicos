@@ -1,6 +1,6 @@
 #
 
-from nicos.resi import residevice, resiproxy
+from nicos.resi import residevice
 import cPickle as pickle
 
 
