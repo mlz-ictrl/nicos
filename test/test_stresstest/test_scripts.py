@@ -30,6 +30,10 @@ from os import path
 from nicos.utils import loggers
 from nicos.core.sessions.simple import ScriptSession
 
+# import all public symbols from nicos.core to get all nicos exceptions
+from nicos.core import * #pylint: disable=W0611,W0401
+
+
 from test.utils import raises
 
 
@@ -94,12 +98,13 @@ def test_scripts():
     matcher = re.compile(r'.*Raises(.*)\..*')
     for root, _dirs, files in os.walk(testscriptspath):
         allscripts += [path.join(root, f) for f in files]
-    setup = 'startup'
+    setup = 'script_tests'
     for fn in allscripts:
         with open(fn) as codefile:
             code = codefile.read()
         m = matcher.match(fn)
         if m:
-            yield assertRaises, Exception, run_script_session, setup, code
+            etype = eval(m.group(1))
+            yield assertRaises, etype, run_script_session, setup, code
         else:
             yield run_script_session, setup, code
