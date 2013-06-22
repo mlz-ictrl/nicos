@@ -69,7 +69,7 @@ class FreeSpace(Readable):
                 return free.value / (1024 * 1024 * 1024.)
             else:
                 st = os.statvfs(path)
-                return (st.f_bsize * st.f_bavail) / (1024 * 1024 * 1024.)
+                return (st.f_frsize * st.f_bavail) / (1024 * 1024 * 1024.)
         except OSError, err:
             raise NicosError(self, 'could not determine free space: %s' % err)
 
