@@ -31,7 +31,7 @@ import codecs
 from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QColor, \
      QPrinter, QPrintDialog, QAbstractPrintDialog
 from PyQt4.QtCore import QVariant, QStringList, SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSignature as qtsig, Qt
 
 from nicos.utils import chunks
 from nicos.clients.gui.panels import Panel
@@ -64,9 +64,22 @@ class ConsolePanel(Panel):
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
+        self.outView.setContextMenuPolicy(Qt.CustomContextMenu)
+
+        self.menu = QMenu('&Output', self)
+        self.menu.addAction(self.actionCopy)
+        self.menu.addAction(self.actionGrep)
+        self.menu.addSeparator()
+        self.menu.addAction(self.actionSave)
+        self.menu.addAction(self.actionPrint)
+
+    def on_outView_customContextMenuRequested(self, point):
+        self.menu.popup(self.outView.mapToGlobal(point))
+
     def setOptions(self, options):
         self.hasinput = bool(options.get('hasinput', True))
         self.inputFrame.setVisible(self.hasinput)
+        self.hasmenu = bool(options.get('hasmenu', True))
 
     def setExpertMode(self, expert):
         if not self.hasinput:
@@ -81,12 +94,9 @@ class ConsolePanel(Panel):
         settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
 
     def getMenus(self):
-        menu = QMenu('&Output', self)
-        menu.addAction(self.actionGrep)
-        menu.addSeparator()
-        menu.addAction(self.actionSave)
-        menu.addAction(self.actionPrint)
-        return [menu]
+        if self.hasmenu:
+            return [self.menu]
+        return []
 
     def setCustomStyle(self, font, back):
         self.idle_color = back
@@ -175,6 +185,10 @@ class ConsolePanel(Panel):
                 f.write(unicode(self.outView.getOutputString()))
         except Exception, err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)
+
+    @qtsig('')
+    def on_actionCopy_triggered(self):
+        self.outView.copy()
 
     @qtsig('')
     def on_actionGrep_triggered(self):
