@@ -133,6 +133,9 @@ class MainWindow(QMainWindow, DlgUtils):
             for sp, st in zip(self.splitters, self.splitstate):
                 sp.restoreState(st.toByteArray())
 
+        if not self.panel_conf.windows[1:]:
+            self.menuBar().removeAction(self.menuWindows.menuAction())
+
         for i, wconfig in enumerate_start(self.panel_conf.windows[1:], 1):
             action = QAction(QIcon(':/' + wconfig[1]), wconfig[0], self)
             self.toolBarWindows.addAction(action)
