@@ -22,25 +22,41 @@
 #
 # *****************************************************************************
 
-"""Browser GUI tool."""
+"""Always-on-top emergency stop button."""
 
-from PyQt4.QtGui import QDialog
-from PyQt4.QtCore import SIGNAL, QUrl
-
-from nicos.clients.gui.utils import loadUi
+from PyQt4.QtGui import QDialog, QPushButton, QHBoxLayout
+from PyQt4.QtCore import SIGNAL, Qt
 
 
-class WebsiteTool(QDialog):
+class EmergencyStopTool(QDialog):
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
-        loadUi(self, 'website.ui', 'tools')
+        self.client = client
+        self.setWindowTitle(' ')  # window title is unnecessary
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
-        site = settings.get('url', '')
-        if site:
-            self.webView.load(QUrl(site))
+        self.btn = QPushButton('STOP', self)
+        self.btn.setStyleSheet('''
+        QPushButton {
+            color: yellow;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #ff0000;
+            border-style: solid;
+            border-width: 5px;
+            border-radius: 45px;
+            border-color: #cc0000;
+            max-width: 80px;
+            max-height: 80px;
+            min-width: 80px;
+            min-height: 80px;
+        }''')
 
-        self.connect(self.closeBtn, SIGNAL('clicked()'),
-                     self.doclose)
+        layout = QHBoxLayout()
+        layout.addWidget(self.btn)
+        layout.setContentsMargins(3, 3, 3, 3)
+        self.setLayout(layout)
+        self.connect(self.btn, SIGNAL('clicked()'), self.dostop)
 
-    def doclose(self, *ignored):
-        self.close()
+    def dostop(self, *ignored):
+        self.client.tell('emergency')

@@ -55,7 +55,7 @@ neutron_fields = ['L', 'K', 'E', 'Ny', 'T', 'V']
 
 
 class CalculatorTool(QDialog):
-    def __init__(self, parent=None, **settings):
+    def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
         loadUi(self, 'calculator.ui', 'tools')
 

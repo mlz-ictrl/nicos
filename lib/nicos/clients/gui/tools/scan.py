@@ -51,7 +51,7 @@ def fmt_time(seconds):
 
 
 class ScanTool(QDialog):
-    def __init__(self, parent=None, **settings):
+    def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
         loadUi(self, 'scan.ui', 'tools')
 

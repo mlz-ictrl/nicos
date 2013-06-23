@@ -34,7 +34,7 @@ from nicos.clients.gui.utils import loadUi
 
 
 class CommandsTool(QDialog):
-    def __init__(self, parent=None, **settings):
+    def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
         loadUi(self, 'commands.ui', 'tools')
 

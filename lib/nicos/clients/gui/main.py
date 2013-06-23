@@ -220,7 +220,7 @@ class MainWindow(QMainWindow, DlgUtils):
             # or it's a system command
             subprocess.Popen(tconfig[1], shell=True)
         else:
-            dialog = toolclass(self, **tconfig[2])
+            dialog = toolclass(self, self.client, **tconfig[2])
             dialog.setWindowModality(Qt.NonModal)
             dialog.show()
 

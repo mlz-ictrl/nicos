@@ -75,5 +75,7 @@ config = ('Default', [
         tool('Report NICOS bug',
              'nicos.clients.gui.tools.website.WebsiteTool',
              url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+        tool('Emergency stop button',
+             'nicos.clients.gui.tools.estop.EmergencyStopTool'),
     ]
 )
