@@ -320,7 +320,7 @@ def chunks(iterable, size):
         yield chain([chunkiter.next()], chunkiter)
 
 
-def importString(import_name, silent=False):
+def importString(import_name):
     """Imports an object based on a string."""
     if ':' in import_name:
         module, obj = import_name.split(':', 1)
