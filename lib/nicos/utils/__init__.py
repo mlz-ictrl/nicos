@@ -649,7 +649,7 @@ def nocolor():
 if os.name == 'nt':
     try:
         # colorama provides ANSI-colored console output support under Windows
-        import colorama
+        import colorama #pylint: disable=F0401
     except ImportError:
         nocolor()
     else:
