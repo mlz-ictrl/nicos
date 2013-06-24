@@ -321,15 +321,35 @@ def chunks(iterable, size):
         yield chain([chunkiter.next()], chunkiter)
 
 
-def importString(import_name):
-    """Imports an object based on a string."""
+def importString(import_name, prefixes=()):
+    """Imports an object based on a string.
+
+    The string can be either a module name and an object name, separated
+    by a colon, or a (potentially dotted) module name.
+    """
     if ':' in import_name:
-        module, obj = import_name.split(':', 1)
+        modname, obj = import_name.split(':', 1)
     elif '.' in import_name:
-        module, obj = import_name.rsplit('.', 1)
+        modname, obj = import_name.rsplit('.', 1)
     else:
-        return __import__(import_name)
-    return getattr(__import__(module, None, None, [obj]), obj)
+        modname, obj = import_name, None
+    mod = None
+    fromlist = [obj] if obj else []
+    errors = []
+    for fullname in [modname] + [p + modname for p in prefixes]:
+        try:
+            mod = __import__(fullname, {}, {}, fromlist)
+        except ImportError, err:
+            errors.append('[%s] %s' % (fullname, err))
+        else:
+            break
+    if mod is None:
+        raise ImportError('Could not import %r: %s' %
+                          (import_name, ', '.join(errors)))
+    if not obj:
+        return mod
+    else:
+        return getattr(mod, obj)
 
 
 def safeFilename(fn):
