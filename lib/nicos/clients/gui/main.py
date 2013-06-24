@@ -218,7 +218,7 @@ class MainWindow(QMainWindow, DlgUtils):
         tconfig = self.panel_conf[2][ttype]
         try:
             # either it's a class name
-            toolclass = importString(tconfig[1])
+            toolclass = importString(tconfig[1], ('nicos.clients.gui.tools.',))
         except ImportError:
             # or it's a system command
             subprocess.Popen(tconfig[1], shell=True)

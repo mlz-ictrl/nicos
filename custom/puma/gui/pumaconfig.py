@@ -31,25 +31,25 @@ config = ('Default', [
                ('Expert mode',
                 vsplit(
                     hsplit(
-                        panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-                        panel('nicos.clients.gui.panels.watch.WatchPanel'),
+                        panel('status.ScriptStatusPanel'),
+                        panel('watch.WatchPanel'),
                         ),
-                    panel('nicos.clients.gui.panels.console.ConsolePanel'),
+                    panel('console.ConsolePanel'),
                 )),
         ),
         window('Setup', 'setup', True,
-            panel('nicos.clients.gui.panels.setup.SetupPanel')),
+            panel('setup.SetupPanel')),
         window('Editor', 'editor', True,
-            panel('nicos.clients.gui.panels.editor.EditorPanel',
+            panel('editor.EditorPanel',
                   tools = [
                       tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
                   ])),
         window('Scans', 'plotter', True,
-            panel('nicos.clients.gui.panels.scans.ScansPanel')),
+            panel('scans.ScansPanel')),
         window('History', 'find', True,
-            panel('nicos.clients.gui.panels.history.HistoryPanel')),
+            panel('history.HistoryPanel')),
         window('Logbook', 'table', True,
-            panel('nicos.clients.gui.panels.elog.ELogPanel')),
+            panel('elog.ELogPanel')),
     ], [
         tool('Calculator',
              'nicos.clients.gui.tools.calculator.CalculatorTool'),

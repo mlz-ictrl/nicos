@@ -29,9 +29,9 @@ from nicos.clients.gui.config import vsplit, window, panel, tool, docked
 config = ('Default', [
         docked(
             vsplit(
-                panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-#                panel('nicos.clients.gui.panels.watch.WatchPanel'),
-                panel('nicos.clients.gui.panels.console.ConsolePanel'),
+                panel('status.ScriptStatusPanel'),
+#                panel('watch.WatchPanel'),
+                panel('console.ConsolePanel'),
             ),
             ('NICOS devices',
              panel('nicos.clients.gui.panels.devices.DevicesPanel',
@@ -41,26 +41,26 @@ config = ('Default', [
             ('Experiment info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
         ),
         window('Setup', 'setup', True,
-            panel('nicos.clients.gui.panels.setup.SetupPanel')),
+            panel('setup.SetupPanel')),
         window('Editor', 'editor', True,
             vsplit(
-                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-                panel('nicos.clients.gui.panels.editor.EditorPanel',
+                panel('scriptbuilder.CommandsPanel'),
+                panel('editor.EditorPanel',
                   tools = [
                       tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
                   ]))),
         window('Scans', 'plotter', True,
-            panel('nicos.clients.gui.panels.scans.ScansPanel')),
+            panel('scans.ScansPanel')),
         window('History', 'find', True,
-            panel('nicos.clients.gui.panels.history.HistoryPanel')),
+            panel('history.HistoryPanel')),
         window('Logbook', 'table', True,
-            panel('nicos.clients.gui.panels.elog.ELogPanel')),
+            panel('elog.ELogPanel')),
         window('Errors', 'errors', True,
-            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+            panel('errors.ErrorPanel')),
         #window('Live data', 'live', True,
-        #    panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+        #    panel('live.LiveDataPanel')),
         #window('TAS status', 'table', True,
-        #    panel('nicos.clients.gui.panels.generic.GenericPanel',
+        #    panel('generic.GenericPanel',
         #          uifile='custom/demo/gui/tasaxes.ui',
         #          dir='../../../..')),
     ], [

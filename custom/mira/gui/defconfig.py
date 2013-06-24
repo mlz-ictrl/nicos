@@ -30,27 +30,27 @@ MIEZE_settings = [
 config = ('Default', [
     vsplit(
         hsplit(
-            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-            panel('nicos.clients.gui.panels.watch.WatchPanel')),
-        panel('nicos.clients.gui.panels.console.ConsolePanel'),
+            panel('status.ScriptStatusPanel'),
+            panel('watch.WatchPanel')),
+        panel('console.ConsolePanel'),
         ),
     window('Setup', 'setup', True,
-           panel('nicos.clients.gui.panels.setup.SetupPanel')),
+           panel('setup.SetupPanel')),
     window('Editor', 'editor', True,
-           panel('nicos.clients.gui.panels.editor.EditorPanel',
+           panel('editor.EditorPanel',
                  tools = [
                      tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
                  ])),
     window('Live data', 'live', True,
            panel('nicos.mira.gui.live.LiveDataPanel')),
     window('Scans', 'plotter', True,
-           panel('nicos.clients.gui.panels.scans.ScansPanel')),
+           panel('scans.ScansPanel')),
     window('History', 'find', True,
-           panel('nicos.clients.gui.panels.history.HistoryPanel')),
+           panel('history.HistoryPanel')),
     window('Devices', 'table', True,
-           panel('nicos.clients.gui.panels.devices.DevicesPanel')),
+           panel('devices.DevicesPanel')),
     window('Logbook', 'table', True,
-           panel('nicos.clients.gui.panels.elog.ELogPanel')),
+           panel('elog.ELogPanel')),
     ], [
         tool('Maintenance',
              'nicos.clients.gui.tools.commands.CommandsTool',

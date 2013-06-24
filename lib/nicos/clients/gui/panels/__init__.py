@@ -164,8 +164,10 @@ def createWindowItem(item, window, menuwindow):
                   'right':  Qt.RightDockWidgetArea,
                   'top':    Qt.TopDockWidgetArea,
                   'bottom': Qt.BottomDockWidgetArea}
+    prefixes = ('nicos.clients.gui.panels.',)
+
     if isinstance(item, panel):
-        cls = importString(item[0])
+        cls = importString(item[0], prefixes=prefixes)
         p = cls(menuwindow, window.client)
         p.setOptions(item[1])
         window.panels.append(p)
