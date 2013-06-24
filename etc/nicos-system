@@ -86,10 +86,21 @@ try:
 except IndexError:
     usage()
 
-daemons = sys.argv[2:] or SERVICES
-for daemon in daemons:
-    if daemon not in SERVICES:
-        usage()
+all_option = False
+explicit_daemons = False
+
+daemon_args = sys.argv[2:]
+if '-a' in daemon_args:
+    all_option = True
+    daemon_args.remove('-a')
+if daemon_args:
+    explicit_daemons = True
+    daemons = daemon_args
+    for daemon in daemons:
+        if daemon not in SERVICES:
+            usage()
+else:
+    daemons = SERVICES
 
 def read_pidfile(name, wait=0):
     begin = time.time()
@@ -140,6 +151,8 @@ def start_daemon(name):
             path.join(LOG_PATH, name, name + time.strftime('-%Y-%m-%d.log'))
         sys.exit(1)
     print 'pid =', pid
+    if name == 'cache':
+        time.sleep(3)
 
 def kill_daemon(name):
     print 'Killing %s...' % name,
@@ -156,10 +169,16 @@ if action == 'start':
         start_daemon(name)
 
 elif action == 'stop':
+    if not all_option and not explicit_daemons and 'cache' in daemons:
+        print 'Not stopping cache, use -a option to force'
+        daemons.remove('cache')
     for name in reversed(daemons):
         kill_daemon(name)
 
 elif action == 'restart':
+    if not all_option and not explicit_daemons and 'cache' in daemons:
+        print 'Not restarting cache, use -a option to force'
+        daemons.remove('cache')
     dmns = ' '.join(daemons)
     os.system('%s stop %s && sleep 1 && %s start %s' % (
         sys.argv[0], dmns, sys.argv[0], dmns))
