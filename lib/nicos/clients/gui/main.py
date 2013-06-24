@@ -44,7 +44,7 @@ from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-     loadBasicWindowSettings, getXDisplay
+     loadBasicWindowSettings, loadUserStyle, getXDisplay
 from nicos.clients.gui.config import panel_config
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
@@ -120,14 +120,18 @@ class MainWindow(QMainWindow, DlgUtils):
         self.windows = {}
         self.mainwindow = self
 
-        # load saved settings for panel config
         self.sgroup = SettingGroup('MainWindow')
         with self.sgroup as settings:
-            self.loadSettings(settings)
+            loadUserStyle(self, settings)
 
+        # create panels in the main window
         widget = createWindowItem(self.panel_conf.windows[0], self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
+
+        # load saved settings and stored layout for panel config
+        with self.sgroup as settings:
+            self.loadSettings(settings)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):

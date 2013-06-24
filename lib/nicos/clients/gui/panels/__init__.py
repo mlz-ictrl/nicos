@@ -33,7 +33,7 @@ from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-    loadBasicWindowSettings
+    loadBasicWindowSettings, loadUserStyle
 from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel, docked
 
 
@@ -51,12 +51,15 @@ class AuxiliaryWindow(QMainWindow):
 
         self.sgroup = SettingGroup(config[0])
         with self.sgroup as settings:
-            loadBasicWindowSettings(self, settings)
+            loadUserStyle(self, settings)
 
         self.setWindowTitle(config[0])
         widget = createWindowItem(config[3], self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
+
+        with self.sgroup as settings:
+            loadBasicWindowSettings(self, settings)
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):

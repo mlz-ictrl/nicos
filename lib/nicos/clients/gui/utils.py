@@ -61,6 +61,9 @@ def loadBasicWindowSettings(window, settings):
     windowstate = settings.value('windowstate').toByteArray()
     window.restoreState(windowstate)
     window.splitstate = settings.value('splitstate').toList()
+
+
+def loadUserStyle(window, settings):
     window.user_font = QFont(settings.value('font'))
     color = QColor(settings.value('color'))
     if color.isValid():
