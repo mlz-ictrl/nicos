@@ -206,6 +206,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._lastmoncounts = 0
         self._lasttemps = []
         self.log.info('Measurement %06d started' % self.lastfilenumber)
+        session.action('#%06d' % self.lastfilenumber)
         self._measuring = True
         self._starttime = self._lasttime = currenttime()
         ctr.start(**preset)
