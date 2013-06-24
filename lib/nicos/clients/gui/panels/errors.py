@@ -52,10 +52,6 @@ class ErrorPanel(Panel):
         self.outView.setFont(font)
         setBackgroundColor(self.outView, back)
 
-    def setOptions(self, options):
-        self.hasmenu = bool(options.get('hasmenu', True))
-        self.buttonBox.setVisible(self.hasmenu)
-
     def on_client_connected(self):
         messages = self.client.ask('getmessages', '10000')
         self.outView.clear()
