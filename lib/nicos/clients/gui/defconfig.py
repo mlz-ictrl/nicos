@@ -35,7 +35,7 @@ config = ('Default', [
             ),
             ('NICOS devices',
              panel('nicos.clients.gui.panels.devices.DevicesPanel',
-                   icons=True,
+                   icons=True, dockpos='right',
                   )
             ),
             ('Experiment info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),

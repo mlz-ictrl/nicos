@@ -157,6 +157,10 @@ class Panel(QWidget, DlgUtils):
 
 
 def createWindowItem(item, window, menuwindow):
+    dockPosMap = {'left':   Qt.LeftDockWidgetArea,
+                  'right':  Qt.RightDockWidgetArea,
+                  'top':    Qt.TopDockWidgetArea,
+                  'bottom': Qt.BottomDockWidgetArea}
     if isinstance(item, panel):
         cls = importString(item[0])
         p = cls(menuwindow, window.client)
@@ -224,5 +228,10 @@ def createWindowItem(item, window, menuwindow):
             if isinstance(sub, Panel):
                 sub.hideTitle()
             dw.setWidget(sub)
-            menuwindow.addDockWidget(Qt.LeftDockWidgetArea, dw)
+            dockPos = item[1].get('dockpos', 'left')
+            if dockPos not in dockPosMap:
+                menuwindow.log.warn('Illegal dockpos specification %s for '
+                                    'panel %r' % (dockPos, title))
+                dockPos = 'left'
+            menuwindow.addDockWidget(dockPosMap[dockPos], dw)
         return main

@@ -26,13 +26,14 @@
 
 __version__ = "$Revision$"
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
+from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, \
+        tabbed, docked
 
 default_profile_uid = '07139e62-d244-11e0-b94b-00199991c245'
 default_profile_config = ('Default', [
         tabbed(
                ('JCNS instrument',
-                hsplit(
+                docked(
                     vsplit(
                         hsplit(
                             panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
@@ -52,7 +53,12 @@ default_profile_config = ('Default', [
                          ),
                          ),
                         ),
-                        panel('nicos.clients.gui.panels.devices.DevicesPanel'),
+                        ('NICOS devices',
+                         panel('nicos.clients.gui.panels.devices.DevicesPanel',
+                               icons=True,
+                               dockpos='right',
+                              ),
+                        ),
                     ),
                ),
 #              panel('nicos.clients.gui.panels.watch.WatchPanel'),
