@@ -37,7 +37,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import status, listof, Device, Readable, Param, NicosError, \
      ConfigurationError
-from nicos.utils import whyExited
+from nicos.utils import whyExited, watchFileTime
 from nicos.devices.generic.alias import DeviceAlias
 
 
@@ -219,13 +219,9 @@ class Poller(Device):
         if not path.isfile(fn):
             self.log.warning('setup watcher could not find %r' % fn)
             return
-        mtime = path.getmtime(fn)
-        while True:
-            if path.getmtime(fn) != mtime:
-                self.log.info('setup file changed; restarting poller process')
-                self.quit()
-                return
-            sleep(1)
+        watchFileTime(fn, self.log)
+        self.log.info('setup file changed; restarting poller process')
+        self.quit()
 
     def wait(self):
         if self._setup is None:

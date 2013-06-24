@@ -35,6 +35,7 @@ from time import sleep, strftime, time as currenttime
 
 from nicos import session
 from nicos.core import listof, Param, Override
+from nicos.utils import watchFileTime
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
 
@@ -151,13 +152,9 @@ class Monitor(BaseCacheClient):
         if not path.isfile(fn):
             self.log.warning('setup watcher could not find %r' % fn)
             return
-        mtime = path.getmtime(fn)
-        while True:
-            if path.getmtime(fn) != mtime:
-                self.log.info('setup file changed; restarting monitor process')
-                os.execv(sys.executable, [sys.executable] + sys.argv)
-                return
-            time.sleep(1)
+        watchFileTime(fn, self.log)
+        self.log.info('setup file changed; restarting monitor process')
+        os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def wait(self):
         self.log.info('monitor quitting')

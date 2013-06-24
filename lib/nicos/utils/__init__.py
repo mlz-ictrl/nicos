@@ -35,7 +35,8 @@ import threading
 import traceback
 import ConfigParser
 from os import path
-from time import time as currenttime, strftime, strptime, localtime, mktime
+from time import time as currenttime, strftime, strptime, localtime, mktime, \
+     sleep
 from itertools import islice, chain
 
 try:
@@ -749,3 +750,26 @@ def allDays(fromtime, totime):
     for tmday in xrange(tmfr, tmto, 86400):
         lt = localtime(tmday)
         yield str(lt[0]), '%02d-%02d' % lt[1:3]
+
+
+# watch a file until its mtime changes; then return
+
+def watchFileTime(filename, log, interval=1.0):
+    def get_mtime():
+        # os.path.getmtime() can raise "stale NFS file handle", so we
+        # guard against it
+        while 1:
+            try:
+                return path.getmtime(filename)
+            except OSError, err:
+                log.error('got exception checking for mtime of %r: %s' %
+                          (filename, err))
+                sleep(interval/2)
+                # it's not a big problem if we never get out of the loop
+                continue
+    mtime = get_mtime()
+    sleep(interval)
+    while True:
+        if get_mtime() != mtime:
+            return
+        sleep(interval)
