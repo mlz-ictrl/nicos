@@ -158,6 +158,8 @@ class MainWindow(QMainWindow, DlgUtils):
             def tool_callback(on, i=i):
                 self.runTool(i)
             self.connect(action, SIGNAL('triggered(bool)'), tool_callback)
+            if tconfig[2] and tconfig[2].get('runatstartup', False):
+                self.runTool(i)
 
         # timer for reconnecting
         self.reconnectTimer = QTimer(singleShot=True, timeout=self._reconnect)

@@ -93,7 +93,7 @@ config = ('Default', [
              url='http://www.wise-uranium.org/rnac.html'),
         tool('Report NICOS bug', 'website.WebsiteTool',
              url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
-        tool('Emergency stop button',
-             'nicos.clients.gui.tools.estop.EmergencyStopTool'),
+        tool('Emergency stop button', 'estop.EmergencyStopTool',
+             runatstartup=True),
     ]
 )

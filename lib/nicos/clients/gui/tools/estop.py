@@ -27,6 +27,8 @@
 from PyQt4.QtGui import QDialog, QPushButton, QHBoxLayout
 from PyQt4.QtCore import SIGNAL, Qt
 
+from nicos.clients.gui.utils import SettingGroup
+
 
 class EmergencyStopTool(QDialog):
     def __init__(self, parent, client, **settings):
@@ -34,6 +36,11 @@ class EmergencyStopTool(QDialog):
         self.client = client
         self.setWindowTitle(' ')  # window title is unnecessary
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+
+        self.sgroup = SettingGroup('EstopTool')
+        with self.sgroup as settings:
+            geometry = settings.value('geometry').toByteArray()
+            self.restoreGeometry(geometry)
 
         self.btn = QPushButton('STOP', self)
         self.btn.setStyleSheet('''
@@ -60,3 +67,15 @@ class EmergencyStopTool(QDialog):
 
     def dostop(self, *ignored):
         self.client.tell('emergency')
+
+    def _saveSettings(self):
+        with self.sgroup as settings:
+            settings.setValue('geometry', self.saveGeometry())
+
+    def closeEvent(self, event):
+        self._saveSettings()
+
+    def __del__(self):
+        # there is a bug in Qt where closeEvent isn't called when the
+        # main window is closed, so we try again here
+        self._saveSettings()
