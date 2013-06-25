@@ -91,8 +91,8 @@ class ScansPanel(Panel):
         quickfit = QShortcut(QKeySequence("G"), self)
         self.connect(quickfit, SIGNAL('activated()'), self.on_quickfit)
 
-        self.user_color = parent.user_color
-        self.user_font = parent.user_font
+        self.user_color = Qt.white
+        self.user_font = QFont('monospace')
 
         self.bulk_adding = False
         self.no_openset = False

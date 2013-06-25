@@ -120,6 +120,9 @@ class MainWindow(QMainWindow, DlgUtils):
         self.windows = {}
         self.mainwindow = self
 
+        # setting presets
+        self.instrument = ''
+
         self.sgroup = SettingGroup('MainWindow')
         with self.sgroup as settings:
             loadUserStyle(self, settings)

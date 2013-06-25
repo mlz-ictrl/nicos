@@ -523,9 +523,6 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.user_color = parent.user_color
-        self.user_font = parent.user_font
-
         self.splitter.restoreState(self.splitterstate)
         self.connect(self.client, SIGNAL('cache'), self.newvalue_callback)
 
