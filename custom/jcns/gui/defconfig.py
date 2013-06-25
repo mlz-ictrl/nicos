@@ -32,7 +32,7 @@ from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, \
 default_profile_uid = '07139e62-d244-11e0-b94b-00199991c245'
 default_profile_config = ('Default', [
         tabbed(
-               ('JCNS instrument',
+               ('Instrument',
                 docked(
                     vsplit(
                         hsplit(
@@ -62,7 +62,7 @@ default_profile_config = ('Default', [
                     ),
                ),
 #              panel('watch.WatchPanel'),
-               ('Editor',
+               ('Script Editor',
                 vsplit(
                     panel('scriptbuilder.CommandsPanel'),
                     panel('editor.EditorPanel',
@@ -71,26 +71,29 @@ default_profile_config = ('Default', [
                     ]),
                 ),
                ),
+               ('Scan Plotting',
+                panel('scans.ScansPanel')
+               ),
+               ('Device Plotting',
+                panel('history.HistoryPanel')
+               ),
+               ('Logbook',
+                panel('elog.ELogPanel')
+               ),
+               ('Live display',
+                panel('live.LiveDataPanel')
+               ),
         ),
-        window('Setup', 'setup', True,
-            panel('setup.SetupPanel')),
-        window('Scans', 'plotter', True,
-            panel('scans.ScansPanel')),
-        window('History', 'find', True,
-            panel('history.HistoryPanel')),
-        window('Logbook', 'table', True,
-            panel('elog.ELogPanel')),
+#        window('Setup', 'setup', True, panel('setup.SetupPanel')),
     ], [
-        tool('Calculator',
-             'nicos.clients.gui.tools.calculator.CalculatorTool'),
-        tool('Neutron cross-sections',
-             'nicos.clients.gui.tools.website.WebsiteTool',
+        tool('Calculator', 'calculator.CalculatorTool'),
+        tool('Neutron cross-sections', 'website.WebsiteTool',
              url='http://www.ncnr.nist.gov/resources/n-lengths/'),
-        tool('Neutron activation',
-             'nicos.clients.gui.tools.website.WebsiteTool',
+        tool('Neutron activation', 'website.WebsiteTool',
              url='http://www.wise-uranium.org/rnac.html'),
-        tool('Report NICOS bug',
-             'nicos.clients.gui.tools.website.WebsiteTool',
+        tool('Report NICOS bug', 'website.WebsiteTool',
              url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+        tool('Emergency stop button',
+             'nicos.clients.gui.tools.estop.EmergencyStopTool'),
     ]
 )
