@@ -19,6 +19,9 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="margin">
+     <number>5</number>
+    </property>
     <item>
      <layout class="QVBoxLayout" name="centralLayout"/>
     </item>

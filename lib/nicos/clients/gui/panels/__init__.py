@@ -208,6 +208,7 @@ def createWindowItem(item, window, menuwindow):
             # around the central widget
             central = QWidget(subwindow)
             layout = QVBoxLayout()
+            layout.setContentsMargins(0, 0, 0, 0)
             item = createWindowItem(subitem, window, subwindow)
             if isinstance(item, Panel):
                 item.hideTitle()
@@ -231,6 +232,7 @@ def createWindowItem(item, window, menuwindow):
             if isinstance(sub, Panel):
                 sub.hideTitle()
             dw.setWidget(sub)
+            dw.setContentsMargins(5, 5, 5, 5)
             dockPos = item[1].get('dockpos', 'left')
             if dockPos not in dockPosMap:
                 menuwindow.log.warn('Illegal dockpos specification %s for '
