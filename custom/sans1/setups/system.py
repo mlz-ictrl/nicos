@@ -25,7 +25,7 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = None, # 'sans1ctrl.sans1.frm2',
+    cache = 'sans1ctrl.sans1.frm2',
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -34,7 +34,8 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
-includes = ['tube', 'collimation']
+# SYSTEM NEVER INCLUDES OTHER SETUPS !!!
+#includes = ['tube', 'collimation']
 
 devices = dict(
     Sample   = device('devices.experiment.Sample'),
