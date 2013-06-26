@@ -167,9 +167,9 @@ def createWindowItem(item, window, menuwindow):
     prefixes = ('nicos.clients.gui.panels.',)
 
     if isinstance(item, panel):
-        cls = importString(item[0], prefixes=prefixes)
+        cls = importString(item.clsname, prefixes=prefixes)
         p = cls(menuwindow, window.client)
-        p.setOptions(item[1])
+        p.setOptions(item.options)
         window.panels.append(p)
         for toolbar in p.getToolbars():
             # this helps for serializing window state
@@ -235,7 +235,7 @@ def createWindowItem(item, window, menuwindow):
                 sub.hideTitle()
             dw.setWidget(sub)
             dw.setContentsMargins(5, 5, 5, 5)
-            dockPos = item[1].get('dockpos', 'left')
+            dockPos = item.options.get('dockpos', 'left')
             if dockPos not in dockPosMap:
                 menuwindow.log.warn('Illegal dockpos specification %s for '
                                     'panel %r' % (dockPos, title))

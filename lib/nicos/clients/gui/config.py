@@ -48,11 +48,17 @@ class docked(tuple):
 class panel(tuple):
     def __new__(cls, clsname, **options):
         return tuple.__new__(cls, (clsname, options))
+    def __init__(self, *args, **kw):  #pylint: disable=W0231
+        self.clsname = self[0]
+        self.options = self[1]
 
 class tool(tuple):
     def __new__(cls, name, clsname, **options):
         return tuple.__new__(cls, (name, clsname, options))
-
+    def __init__(self, *args, **kw):  #pylint: disable=W0231
+        self.name = self[0]
+        self.clsname = self[1]
+        self.options = self[2]
 
 class panel_config(tuple):
     def __new__(cls, (_ignored, windows, tools)):
