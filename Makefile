@@ -267,6 +267,8 @@ help:
 	@echo
 	@echo "  install       - install everything except GUI"
 	@echo "  install-gui   - install GUI"
+	@echo "  upgrade       - upgrade an existing install cleanly,
+	@echo "                   old files get backed up"
 	@echo "    Customization autoselected for install: $(INSTRUMENT)"
 	@echo "    Use '${MAKE} INSTRUMENT=instname ...' to select a different one;"
 	@echo "    instname can also be test"
@@ -276,4 +278,5 @@ help:
 	@echo "  test-coverage - run test suite with coverage reporting"
 	@echo "  check         - check source with pyflakes"
 	@echo "  lint          - check source with pylint"
+	@echo "  changelint    - check source with pylint(only files in last commit)"
 	@echo "  release       - create tarball for official release"
