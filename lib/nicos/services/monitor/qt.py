@@ -37,13 +37,26 @@ from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import DisplayWidget
 from nicos.guisupport.display import ValueDisplay
 from nicos.guisupport.plots import TrendPlot, plot_available
+from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 
 
 class MonitorWindow(QMainWindow):
+    def __init__(self):
+        QMainWindow.__init__(self)
+        self.sgroup = SettingGroup('Monitor')
+        with self.sgroup as settings:
+            # geometry and window appearance
+            loadBasicWindowSettings(self, settings)
+
     def keyPressEvent(self, event):
         if event.text() == 'q':
             self.close()
         return QMainWindow.keyPressEvent(self, event)
+
+    def closeEvent(self, event):
+        with self.sgroup as settings:
+            settings.setValue('geometry', self.saveGeometry())
+        event.accept()
 
 
 class BlockBox(QFrame):
@@ -97,7 +110,10 @@ class Monitor(BaseMonitor):
         return getattr(mod, member)
 
     def initGui(self):
-        self._qtapp = QApplication(['qtapp'])#, '-style', 'windows'])
+        self._qtapp = QApplication(['qtapp'],# '-style', 'windows'],
+                                   organizationName='nicos',
+                                   applicationName='gui',
+                                  )
         self._master = master = MonitorWindow()
         master.show()
 
