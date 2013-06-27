@@ -58,6 +58,8 @@ class NicosClient(object):
         self.disconnecting = False
         self.version = None
         self.gzip = False
+        #pylint: disable=E1121
+        # spuriuos warnig due to hashlib magic
         self.client_id = hashlib.md5('%s%s' %
                                      (time.time(), os.getpid())).digest()
 
