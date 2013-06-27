@@ -26,11 +26,11 @@
 
 __version__ = "$Revision$"
 
+# we import all possible config items here, so... pylint: disable=W0611
 from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, \
-        tabbed, docked
+     tabbed, docked
 
-default_profile_uid = '07139e62-d244-11e0-b94b-00199991c245'
-default_profile_config = ('Default', [
+config = ('Default', [
         tabbed(
                ('Instrument',
                 docked(
