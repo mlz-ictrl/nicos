@@ -49,6 +49,15 @@ _pressurecoll = (
     ],
 )
 
+_lengthcoll = (
+    'Collimation length',
+    [
+        [
+            _( name='length', dev='col'),
+        ],
+    ],
+)
+
 _sc1 = (
     'Sample Changer 1',
     [
@@ -98,15 +107,30 @@ _sans1magnet = (
 #    'magnet_sans1'
 )
 
+_temperatureccr11 = (
+    'CCR11',
+    [
+        [
+            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
+        ], [
+            _( name='A', dev='T_ccr11_A'),
+            _( name='B', dev='T_ccr11_B'),
+        ], [
+            _( name='C', dev='T_ccr11_C'),
+            _( name='D', dev='T_ccr11_D'),
+        ],
+    ],
+)
+
+
 _temperatureccr12 = (
     'CCR12',
     [
         [
-            _( name='Setpoint', key='t_setpoint/setpoint', unit='K',),
+            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
         ], [
-            _( name='Sensor a', dev='t_sensora'),
-            _( name='Sensor b', dev='t_sensorb'),
-           #_( name='Setpoint', key='t_setpoint/setpoint', unitkey='t_setpoint/unit',),
+            _( name='A', dev='T_ccr12_A'),
+            _( name='B', dev='T_ccr12_B'),
         ],
     ],
 )
@@ -144,18 +168,15 @@ _sans1detector = (
     'Detector',
     [
         [
-            _(name='t', dev='read_det1_t_ist'),
-            _(name='t', key='det1_t_ist/PreSelectionDouble', unit='s',),
-            _(name='t set', dev='det1_t_soll'),
+            _(name='t', dev='det1_t_ist'),
+#           _(name='t set', dev='det1_t_soll'),
         ], [
             _(name='Voltage',dev='hv'),#,width=8),
-            _(name='det1_omg-1a',dev='det1_omega1a'),
-        ],
-        [
-            _(name='det1_x-1a',dev='det1_x1a'),
             _(name='det1_z-1a',dev='det1_z1a'),
-        ],
-        [
+        ], [
+            _(name='det1_omg-1a',dev='det1_omega1a'),
+            _(name='det1_x-1a',dev='det1_x1a'),
+        ], [
             _(name='bs1_x-1a',dev='bs1_x1a'),
             _(name='bs1_y-1a',dev='bs1_y1a'),
         ]
@@ -167,8 +188,8 @@ _sans1sel = (
     [
         [
             _( name='sel-ng', dev='sel_ng_sw'),
-        #], [
-        #   _( name='sel-ng', dev='sel_ng'),
+         #], [
+         #   _( name='sel-ng', dev='sel_ng'),
         ], [
             _(name='sel-tilt', dev='sel_tilt'),
         ]
@@ -207,9 +228,12 @@ devices = dict(
                      fontsize = 12,
                      padding = 3,
                      layout = [
-                                [[_sans1sel,], [_pressurecoll, _sans1detector, _sans1general],
-                                 [_sc1, _table,], [_htf02, _spinflipper, _sans1magnet, _temperatureccr12],
-                                 [_pressuretube,],]
+                                [[_sans1sel,],
+                                 [_pressurecoll, _lengthcoll, _sans1detector, _sans1general],
+                                 [_sc1, _table,],
+                                 [_htf02, _spinflipper, _sans1magnet, _temperatureccr11, _temperatureccr12],
+                                 [_pressuretube,],
+                                ]
                               ],
-                     )
+                    )
 )
