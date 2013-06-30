@@ -22,12 +22,13 @@
 #
 # *****************************************************************************
 
-"""Show next U-Bahn departure from Garching Forschungszentrum."""
+"""Show next U-Bahn departures from Garching-Forschungszentrum (or any stop)
+in the MVG network."""
 
-from nicos.core import Readable, Override, NicosError, status
+from nicos.core import Readable, Override, Param, NicosError, status
 
 URL = ('http://www.mvg-live.de/ims/dfiStaticAnzeige.svc?'
-       'haltestelle=Garching-Forschungszentrum')
+       'haltestelle=%s')
 
 try:
     from lxml.html import parse
@@ -37,11 +38,17 @@ except ImportError:
 
 class UBahn(Readable):
 
+    parameters = {
+        'station':      Param('Name of the U-Bahn station', type=str,
+                              settable=True,
+                              default='Garching-Forschungszentrum'),
+    }
+
     parameter_overrides = {
         'unit':         Override(mandatory=False, default='min'),
-        'fmtstr':       Override(default='%d'),
+        'fmtstr':       Override(default='%s'),
         'pollinterval': Override(default=60),
-        'maxage':       Override(default=120),
+        'maxage':       Override(default=70),
     }
 
     def doRead(self, maxage=0):
@@ -49,8 +56,9 @@ class UBahn(Readable):
             raise NicosError(self, 'cannot parse web page, lxml is not '
                              'installed on this system')
         try:
-            tree = parse(URL)
-            return int(tree.find('//td[@class="inMinColumn"]').text)
+            tree = parse(URL % self.station)
+            return ', '.join(n.text for n in
+                             tree.findall('//td[@class="inMinColumn"]'))
         except Exception, err:
             raise NicosError(self, 'MVG site not responding or changed format: '
                              '%s' % err)
