@@ -204,6 +204,9 @@ class Axis(BaseAxis, CanReference):
     def doStop(self):
         """Stops the movement of the motor."""
         self._stoprequest = 1
+        # send a stop in case the motor was  started via
+        # the lowlevel device or externally.
+        self._adevs['motor'].stop()
 
     def doWait(self):
         """Waits until the movement of the motor has stopped and
