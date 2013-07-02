@@ -46,6 +46,7 @@ group = 'lowlevel'
 #       (e.g. email). These devices must be defined somewhere in a
 #       devices dictionary and be of class
 #       nicos.devices.notifiers.Notifier or a subclass.
+
 sysconfig = dict(
     cache = 'localhost',
     instrument = None,
@@ -53,6 +54,8 @@ sysconfig = dict(
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = ['email', 'smser'],
 )
+
+modules = ['nicos.commands.standard']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
