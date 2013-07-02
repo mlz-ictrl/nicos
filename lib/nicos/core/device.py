@@ -934,7 +934,7 @@ class Readable(Device):
            date, or no cache is available.
 
            If no ``doStatus()`` is implemented, ``status()`` returns
-           ``status.UNKNOWN``.
+           ``status.UNKNOWN, 'doStatus not implemented'``.
 
            The *maxage* parameter should be given to status() calls of
            subdevices.
