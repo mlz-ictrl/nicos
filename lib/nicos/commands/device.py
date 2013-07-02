@@ -235,35 +235,26 @@ def stop(*devlist):
                    for devname in session.explicit_devices
                    if isinstance(session.devices[devname],
                                  (Moveable, Measurable))]
-        finished = []
-        def stopdev(dev):
-            try:
-                dev.stop()
-            except AccessError:
-                pass  # do not warn about devices we cannot access if
-                      # they were not explicitly selected
-            except Exception:
-                dev.log.warning('error while stopping', exc=1)
-            finally:
-                finished.append(dev)
-        for dev in devlist:
-            stopthread = threading.Thread(target=stopdev, args=(dev,),
-                                          name='device stopper')
-            stopthread.setDaemon(True)
-            stopthread.start()
-        while len(finished) != len(devlist):
-            time.sleep(0.1)
-        printinfo('all devices stopped')
-        return
-    for dev in devlist:
-        dev = session.getDevice(dev, (Moveable, Measurable))
+    finished = []
+    def stopdev(dev):
         try:
             dev.stop()
-            if getattr(dev, 'fixed', False):
-                continue # skip fixed devices.
-            dev.log.info('stopped')
+        except AccessError:
+            pass  # do not warn about devices we cannot access if
+                  # they were not explicitly selected
         except Exception:
-            dev.log.exception('error stopping device')
+            dev.log.warning('error while stopping', exc=1)
+        finally:
+            finished.append(dev)
+    for dev in devlist:
+        stopthread = threading.Thread(target=stopdev, args=(dev,),
+                                      name='device stopper')
+        stopthread.setDaemon(True)
+        stopthread.start()
+    while len(finished) != len(devlist):
+        time.sleep(0.1)
+    printinfo('all devices stopped')
+    return
 
 @usercommand
 @helparglist('dev, ...')
