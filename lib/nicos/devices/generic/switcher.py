@@ -164,7 +164,7 @@ class MultiSwitcher(Moveable):
         move(changer_switch, 'up')
         move(changer_switch, 'down')
 
-    instead of moving the axis to positions hard to understand::
+    instead of moving the axis to positions hard to understand or remember::
 
         move(changer1, 14.55, changer2, 8.15)
         move(changer1, 51.39, changer2, 3.14)
@@ -173,17 +173,17 @@ class MultiSwitcher(Moveable):
     debugging purposes.
     """
     attached_devices = {
-        'moveables': ([Moveable], 'The (continuous) devices which are'
+        'moveables': ([Moveable], 'The N (continuous) devices which are'
                                   ' controlled'),
     }
 
     parameters = {
-        'mapping':   Param('Mapping of state names to values to move to',
+        'mapping':   Param('Mapping of state names to N values to move the moveables to',
                            type=dictof(anytype, listof(anytype)),
                            mandatory=True),
-        'precision': Param('Used for evaluating position, use None to disable',
-                           mandatory=True,
-                           type=listof(none_or(floatrange(0., 360.)))),
+        'precision': Param('List of allowed deviations (1 or N) from target '
+                           'position, or None to disable.', mandatory=True,
+                           type=none_or(listof(floatrange(0., 360.)))),
         'blockingmove': Param('Should we wait for the move to finish?',
                               mandatory=False, default=True, settable=True,
                               type=bool),
@@ -206,8 +206,9 @@ class MultiSwitcher(Moveable):
                                        'moveables list must be of equal length')
         if self.precision:
             if len(self.precision) not in [1, len(self.devices)]:
-                raise ConfigurationError(self, 'The precision entries and '
-                                       'moveables list must be of equal length')
+                raise ConfigurationError(self, 'The precision list must either'
+                                       'contain only one element or have the same amount'
+                                       'of elements as the moveables list')
         self.valuetype = oneof(*self.mapping)
 
     def doStart(self, target):
