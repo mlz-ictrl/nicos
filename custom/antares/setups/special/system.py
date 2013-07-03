@@ -10,14 +10,14 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'antares.commands']
 
 devices = dict(
-    Sample   = device('devices.tas.TASSample',
+    Sample   = device('devices.experiment.Sample',
                        description = 'Default Sample',
                      ),
 
-    Exp      = device('frm2.experiment.Experiment',
+    Exp      = device('antares.experiment.Experiment',
                        description = 'Antares Experiment',
                        dataroot = '/data/FRM-II',
                        sample = 'Sample',
@@ -27,7 +27,7 @@ devices = dict(
                        propprefix = 'p',
                        serviceexp = 'service',
                        servicescript = 'start_service.py',
-                       templatedir = '_template',
+                       templatedir = 'templates',
                        managerights = True,
                        sendmail = False,
                        zipdata = False,
@@ -40,6 +40,7 @@ devices = dict(
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
                        description = 'Scanfile storing device',
+                       globalcounter = '/data/FRM-II/filecounter',
                      ),
 
     conssink = device('devices.datasinks.ConsoleSink',
