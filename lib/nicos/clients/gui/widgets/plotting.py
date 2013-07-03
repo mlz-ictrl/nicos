@@ -243,8 +243,12 @@ class TimeScaleDraw(QwtScaleDraw):
         if not showsecs:
             self.fmtstring = self.fmtstring[:-3]
 
-    def label(self, value, strf=time.strftime, local=time.localtime):
-        return QwtText(strf(self.fmtstring, local(value)))
+    def label(self, value, strf=time.strftime, localt=time.localtime):
+        try:
+            ret = QwtText(strf(self.fmtstring, localt(value)))
+        except ValueError:
+            ret = QwtText("<unknown>")
+        return ret
 
 
 class TimeScaleEngine(QwtLinearScaleEngine):
