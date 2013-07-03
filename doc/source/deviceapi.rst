@@ -292,6 +292,15 @@ possible with the device:
       The interval for polling this device from the :dfn:`NICOS poller`.
       Default is 6 seconds.
 
+   .. parameter:: warnlimits : None, or a 2-tuple of any type
+
+      Lower and upper limits of a range in which the device value is allowed to
+      be in normal operation. If specified, warnings may be triggered when
+      it is outside these values.
+      In contrast to `HasLimits.abslimits` and `HasLimits.userlimits`, all valuetypes are allowed
+      and the check is based on the default python comparisons, i.e normally
+      ``warnlimits[0] <= value <= warnlimits[1]`` should be true.
+
 
 ``Moveable``
 ============
@@ -402,13 +411,13 @@ Mixin classes
 
    .. rubric:: Parameters
 
-   .. parameter:: abslimits : number tuple, mandatory
+   .. parameter:: abslimits : number 2-tuple, mandatory
 
       Absolute minimum and maximum values for the device to move to, as a tuple.
       This parameter cannot be set after creation of the device and must be
       given in the setup configuration.
 
-   .. parameter:: userlimits : number tuple, optional
+   .. parameter:: userlimits : number 2-tuple, optional
 
       Minimum and maximum value for the device to move to.  This parameter can
       be set after creation, but not outside the ``abslimits``.
