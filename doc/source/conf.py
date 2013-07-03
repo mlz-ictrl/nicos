@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.abspath('../../lib'))
 
 import nicos
 
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc','rst2pdf.pdfbuilder']
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
@@ -49,7 +49,32 @@ latex_documents = [
   ('index', 'NICOS.tex', u'NICOS v2 Documentation',
    u'NICOS contributors', 'manual'),
 ]
+pdf_documents = [
+  ('index', 'NICOS', u'NICOS v2 Documentation',
+   u'NICOS contributors', 'manual'),
+]
+# A comma-separated list of custom stylesheets. Example:
+pdf_stylesheets = ['frm2.json', 'sphinx', 'kerning', 'friendly', 'a4']
 
+# A list of folders to search for stylesheets. Example:
+pdf_style_path = ['.', '_styles','source']
+# Mode for literal blocks wider than the frame. Can be
+# overflow, shrink or truncate
+pdf_fit_mode = "shrink"
+# Section level that forces a break page.
+# For example: 1 means top-level sections start in a new page
+# 0 means disabled
+pdf_break_level = 2
+
+# When a section starts in a new page, force it to be 'even', 'odd',
+# or just use 'any'
+pdf_breakside = 'any'
+
+# Insert footnotes where they are defined instead of
+# at the end.
+pdf_inline_footnotes = True
+# Set the default DPI for images
+pdf_default_dpi = 300
 man_pages = [
     ('index', 'nicos', u'NICOS v2 Documentation',
      [u'NICOS contributors'], 1)

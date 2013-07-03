@@ -33,6 +33,9 @@ help:
 	@echo "  changes    to make an overview of all changed/added/deprecated items"
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
+	@echo "  pdf        to make a pdf file with rst2pdf (if installed)"
+	@echo 
+	@echo "Add FULLCODE=1 to the commandline to include the complete code docs"
 
 clean:
 	-rm -rf $(BUILDDIR)/*
@@ -40,7 +43,9 @@ clean:
 
 codedoc: 
 	-mkdir -p source/auto
-	#./sphinx-autodoc-sourcegen.py -d source/auto -s rst -f ../lib/nicos
+ifeq ($(FULLCODE),1)
+	./sphinx-autodoc-sourcegen.py  -d source/auto -s rst -f ../lib/nicos/  clients/gui/panels
+endif
 
 html: codedoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
@@ -96,6 +101,11 @@ epub:  codedoc
 	@echo
 	@echo "Build finished. The epub file is in $(BUILDDIR)/epub."
 
+pdf: codedoc
+	$(SPHINXBUILD) -b pdf $(ALLSPHINXOPTS) $(BUILDDIR)/pdf
+	echo
+	@echo "Build finished. The pdf file is in $(BUILDDIR)/pdf."
+
 latex:  codedoc
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo
@@ -103,8 +113,7 @@ latex:  codedoc
 	@echo "Run \`make' in that directory to run these through (pdf)latex" \
 	      "(use \`make latexpdf' here to do that automatically)."
 
-latexpdf:  codedoc
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+latexpdf: latex
 	@echo "Running LaTeX files through pdflatex..."
 	make -C $(BUILDDIR)/latex all-pdf
 	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
