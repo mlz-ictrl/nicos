@@ -92,9 +92,9 @@ class FileHandler(StreamHandler):
 def nicos_import(clspath):
     modname, clsname = clspath.rsplit('.', 1)
     try:
-        mod =  __import__('nicos.' + modname, None, None, [clsname])
+        mod = __import__('nicos.' + modname, None, None, [clsname])
     except ImportError:
-        mod =  __import__(modname, None, None, [clsname])
+        mod = __import__(modname, None, None, [clsname])
     return getattr(mod, clsname)
 
 def log_exception(log, exception):
@@ -270,5 +270,10 @@ for p in args:
                     ret &= check_setupfile(path.join(root, f))
     elif path.isfile(p):
         ret &= check_setupfile(p)
+    elif not path.exists(p):
+        log = logging.getLogger(p)
+        log.error('File not found')
+        # Explicitly no negative return value as the rest of the paths
+        # may have been checked.
 
 sys.exit(not ret)
