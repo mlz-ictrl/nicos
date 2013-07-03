@@ -275,6 +275,7 @@ Note: By default this script will not overwrite already created files.""")
         rootpath, excludes = args[0], args[1:]
         if os.path.isdir(rootpath):
             # check if the output destination is a valid directory
+            rootpath = os.path.abspath(rootpath)
             if opts.destdir and os.path.isdir(opts.destdir):
                 excludes = normalize_excludes(rootpath, excludes)
                 recurse_tree(rootpath, excludes, opts)
