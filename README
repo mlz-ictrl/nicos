@@ -50,6 +50,7 @@ Requirements
   - numpy
   - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
+  - cfitsio (optional, for the detector live view)
 
 * For development (running tests, generating documentation):
   - nose
@@ -77,7 +78,7 @@ xBuntu 12.04
 
 * GUI and status monitor:
 
-  apt-get install python-numpy python-qt4 python-qwt5-qt4 python-scipy
+  apt-get install python-numpy python-qt4 python-qwt5-qt4 python-scipy libcfitsio3-dev
 
 * Development and documentation build:
 

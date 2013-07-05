@@ -53,6 +53,7 @@ Requirements
   - numpy
   - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
+  - cfitsio (optional, for detector live view)
 
 * Under Windows:
 
