@@ -29,5 +29,5 @@ import sys
 from test.utils import cleanup
 
 def setup_package():
-    print >> sys.stderr, 'Setting up main test package, cleaning old test dir...'
+    print >> sys.stderr, '\nSetting up basic test, cleaning old test dir...'
     cleanup()

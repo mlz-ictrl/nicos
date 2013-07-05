@@ -36,7 +36,9 @@ from test.utils import raises
 class ScriptSessionTest(ScriptSession):
     def __init__(self, appname):
         ScriptSession.__init__(self, appname)
-        self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
+        self.setSetupPath(path.normpath(
+                            path.join(
+                               path.dirname(__file__), '../setups')))
 
     def createRootLogger(self, prefix='nicos'):
         self.log = loggers.NicosLogger('nicos')
@@ -47,7 +49,7 @@ class ScriptSessionTest(ScriptSession):
         handler.setFormatter(
             logging.Formatter('[SCRIPT] %(name)s: %(message)s'))
         self.log.addHandler(handler)
-        log_path = path.join(path.dirname(__file__),'root','log')
+        log_path = path.join(path.dirname(__file__),'../root','log')
         try:
             if prefix == 'nicos':
                 self.log.addHandler(loggers.NicosLogfileHandler(
@@ -64,10 +66,14 @@ class ScriptSessionTest(ScriptSession):
 
 
 def run_script_session(setup, code):
-    session = ScriptSessionTest('TestScriptSession')
+    from nicos import session
+    session.__class__ = ScriptSessionTest
+    session.__init__('TestScriptSession')
     session.handleInitialSetup(setup)
-    exec code in session.namespace
-    session.shutdown()
+    try:
+        exec code in session.namespace
+    finally:
+        session.shutdown()
 
 def test_simple():
     run_script_session('startup', 'print "Test"')
@@ -82,9 +88,10 @@ def assertRaises(exception, func, *args):
 
 def test_scripts():
     # test generator executing scripts
-    testscriptspath = path.join(path.dirname(__file__), 'scripts')
+    testscriptspath = path.normpath(
+                        path.join(path.dirname(__file__), '..', 'scripts'))
     allscripts = []
-    matcher = re.compile('.*Raises(.*)\..*')
+    matcher = re.compile(r'.*Raises(.*)\..*')
     for root, _dirs, files in os.walk(testscriptspath):
         allscripts += [path.join(root, f) for f in files]
     setup = 'startup'

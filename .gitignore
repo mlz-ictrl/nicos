@@ -30,6 +30,7 @@ doc/objects.inv
 doc/searchindex.js
 
 .coverage
+.noseids
 cover/
 
 test/root/

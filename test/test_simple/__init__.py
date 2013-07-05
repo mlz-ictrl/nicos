@@ -24,13 +24,19 @@
 
 cache = None
 
+import sys
 from nicos import session
 
-from test.utils import startCache, killCache
+from test.utils import TestSession, startCache, killCache, cleanup
 
 def setup_package():
     global cache  #pylint: disable=W0603
+    print >> sys.stderr, '\nSetting up simple test, cleaning old test dir...'
+    session.__class__ = TestSession
+    session.__init__('test_simple')
+    cleanup()
     cache = startCache()
+
 
 def teardown_package():
     session.shutdown()

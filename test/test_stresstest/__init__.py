@@ -22,7 +22,15 @@
 #
 # *****************************************************************************
 
-from test.utils import cleanup
+import sys
+from test.utils import TestSession, cleanup
+from nicos import session
 
 def setupPackage():
+    print >> sys.stderr, '\nSetting up stresstest, cleaning old test dir...'
+    session.__class__ = TestSession
+    session.__init__('test_stresstest')
     cleanup()
+
+def teardown_package():
+    session.shutdown()

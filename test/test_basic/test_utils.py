@@ -83,7 +83,7 @@ def test_functions():
                                                 (9,)]
 
 def test_traceback():
-    a = 1
+    a = 1  # pylint: disable=W0612
     f = sys._getframe()
     fmt = formatExtendedFrame(f)
     assert any('a                    = 1' in line for line in fmt)

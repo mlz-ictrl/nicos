@@ -30,11 +30,15 @@ import socket
 import subprocess
 from os import path
 
-from test.utils import cleanup, rootdir
+from test.utils import TestSession, cleanup, rootdir
+from nicos import session
 
 daemon = None
 
 def setup_package():
+    print >> sys.stderr, '\nSetting up daemon test , cleaning old test dir...'
+    session.__class__ = TestSession
+    session.__init__('testdaemon')
     cleanup()
     global daemon  #pylint: disable=W0603
     os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
@@ -63,3 +67,4 @@ def teardown_package():
     os.kill(daemon.pid, signal.SIGTERM)
     os.waitpid(daemon.pid, 0)
     sys.stderr.write(' done] ')
+    session.shutdown()
