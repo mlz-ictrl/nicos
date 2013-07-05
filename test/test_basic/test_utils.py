@@ -29,7 +29,8 @@ import cPickle as pickle
 
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
      bitDescription, parseConnectionString, formatExtendedFrame, \
-     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict
+     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
+     comparestrings
 
 from test.utils import raises
 
@@ -98,3 +99,6 @@ def test_traceback():
 
     st = formatExtendedStack()
     assert ', in test_traceback' in st
+
+def test_comparestrings():
+    comparestrings.test()

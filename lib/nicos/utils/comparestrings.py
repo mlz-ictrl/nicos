@@ -66,8 +66,8 @@ def _keyboardneighbour(c1, c2):
     i1 = ord(c1)
     i2 = ord(c2)
     if 33 <= i1 <= 126 and 33 <= i2 <= 126:
-        comparematrix[i1, i2] = 0.4
-        comparematrix[i2, i1] = 0.4
+        comparematrix[i1, i2] = NEXTKEYSCORE
+        comparematrix[i2, i1] = NEXTKEYSCORE
 
 _makekeyboardmap()
 
