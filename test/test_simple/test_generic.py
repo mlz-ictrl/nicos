@@ -146,6 +146,7 @@ def test_paramdev():
 
 def test_freespace():
     freespace = session.getDevice('freespace')
+    assert freespace._factor == 1024. ** 3
     fs = freespace.read(0)
     freespace.minfree = 0
     assert freespace.status(0)[0] == status.OK
