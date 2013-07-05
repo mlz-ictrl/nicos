@@ -146,11 +146,15 @@ def test_paramdev():
 
 def test_freespace():
     freespace = session.getDevice('freespace')
+    fs = freespace.read(0)
     freespace.minfree = 0
     assert freespace.status(0)[0] == status.OK
     # (GiB) this should be large enough to not happen in a test system
     freespace.minfree = 10000000
     assert freespace.status(0)[0] != status.OK
     freespace2 = session.getDevice('freespace2')
-    assert raises (NicosError, freespace2.read, 0)
-
+    assert raises(NicosError, freespace2.read, 0)
+    freespace.unit = 'KiB'
+    fs2 = freespace.read(0)
+    assert fs != fs2
+    assert raises(ConfigurationError, freespace.doUpdateUnit, 'GB')

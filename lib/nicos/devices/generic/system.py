@@ -29,7 +29,15 @@ import ctypes
 
 from nicos import session
 from nicos.core import Readable, Param, Override, status, none_or
-from nicos.core.errors import NicosError
+from nicos.core.errors import NicosError, ConfigurationError
+
+units = {'B': 1,
+         'KiB': 1024.,
+         'MiB': 1024. ** 2,
+         'GiB': 1024. ** 3,
+         'TiB': 1024. ** 4,
+         'PiB': 1024. ** 5,
+        }
 
 
 class FreeSpace(Readable):
@@ -66,20 +74,31 @@ class FreeSpace(Readable):
                 free = ctypes.c_ulonglong(0)
                 ctypes.windll.kernel32.GetDiskFreeSpaceExW(
                     ctypes.c_wchar_p(path), None, None, ctypes.pointer(free))
-                return free.value / (1024 * 1024 * 1024.)
+                return free.value / self._factor
             else:
                 st = os.statvfs(path)
-                return (st.f_frsize * st.f_bavail) / (1024 * 1024 * 1024.)
+                return (st.f_frsize * st.f_bavail) / self._factor
         except OSError, err:
             raise NicosError(self, 'could not determine free space: %s' % err)
 
     def doStatus(self, maxage=0):
         free = self.read()
-        if free < self.minfree:
-            return status.ERROR, 'free space %.2f GiB below %.2f GiB' \
-                % (free, self.minfree)
-        return status.OK, '%.2f GiB free' % free
+        munit = self.parameters['minfree'].unit
+        mfactor = units.get(munit, (1024 ** 3))
+        if free * self._factor < self.minfree * mfactor:
+            return status.ERROR, 'free space %(free).2f %(unit)s below %(minfree).2f %(munit)s' \
+                % {'free':free,
+                   'minfree': self.minfree,
+                   'unit':self.unit,
+                   'munit': munit}
+        return status.OK, '%.2f %s free' % (free, self.unit)
 
     def doUpdateMinfree(self, value):
         if self._cache:
             self._cache.invalidate(self, 'status')
+
+    def doUpdateUnit(self, unit):
+        factor = units.get(unit, None)
+        if factor is None:
+            raise ConfigurationError('Unsupported unit, allowed: %s' % ','.join(units.keys()))
+        self._factor = factor
