@@ -78,4 +78,10 @@ devices = dict(
                       device = 'v1',
                       parameter = 'speed',
                      ),
+    freespace = device('devices.generic.FreeSpace',
+                       path = '/',
+                       ),
+    freespace2 = device('devices.generic.FreeSpace',
+                       path = '/verystrangepath',
+                       ),
 )
