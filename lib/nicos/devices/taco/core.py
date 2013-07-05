@@ -178,6 +178,14 @@ class TacoDevice(DeviceMixinBase):
             return self._taco_guard(self._dev.unit)
         return ''
 
+    def doWriteUnit(self, value):
+        if hasattr(self._dev, 'setUnit'):
+            self._taco_guard(self._dev.setUnit, value)
+        if 'unit' in self._config:
+            if self._config['unit'] != value:
+                self.log.warning('configured unit %r in configuration differs '
+                        'from current unit %r' % (self._config['unit'], value))
+
     def doUpdateTacotimeout(self, value):
         if self._dev:
             if value != 3.0:
