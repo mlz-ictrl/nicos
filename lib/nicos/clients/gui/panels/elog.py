@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -28,7 +29,8 @@ from os import path
 from cgi import escape
 
 from PyQt4.QtGui import QMainWindow, QTextEdit, QDialog, QInputDialog, QMenu, \
-     QToolBar
+     QToolBar, QPrintDialog, QPrinter, QTextDocument
+from PyQt4.QtWebKit import QWebView
 from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
@@ -60,6 +62,7 @@ class ELogPanel(Panel, DlgUtils):
         menu1.addAction(self.actionForward)
         menu1.addSeparator()
         menu1.addAction(self.actionRefresh)
+        menu1.addAction(self.actionPrint)
         menu2 = QMenu('&Logbook', self)
         menu2.addAction(self.actionAddComment)
         menu2.addAction(self.actionAddRemark)
@@ -75,6 +78,7 @@ class ELogPanel(Panel, DlgUtils):
         bar.addAction(self.actionForward)
         bar.addSeparator()
         bar.addAction(self.actionRefresh)
+        bar.addAction(self.actionPrint)
         bar.addSeparator()
         bar.addAction(self.actionAddComment)
         bar.addAction(self.actionAddRemark)
@@ -212,3 +216,60 @@ class ELogPanel(Panel, DlgUtils):
         self.client.eval('LogAttach(%r, [%r], [%r])' %
                          (desc, remotefn, newname))
         self.timer.start(750)
+
+    @qtsig('')
+    def on_actionPrint_triggered(self):
+        # Let the user select the desired printer via the system printer list
+        printer = QPrinter()
+        dialog = QPrintDialog(printer)
+
+        if not dialog.exec_():
+            return
+
+        mainFrame = self.preview.page().mainFrame()
+        childFrames = mainFrame.childFrames()
+
+
+        # Workaround for Qt versions < 4.8.0
+        printWholeSite = True
+        if hasattr(QWebView, 'selectedHtml'):
+            if self.preview.hasSelection():
+                printWholeSite = False
+
+        # use whole frame if no content is selected or selecting html is not
+        # supported
+        if printWholeSite:
+            # set 'content' frame active as printing an inactive web frame
+            # doesn't work properly
+
+            if len(childFrames) >= 2:
+                childFrames[1].setFocus()
+
+                # thanks to setFocus, we can get the print the frame
+                # with evaluated javascript
+                html = childFrames[1].toHtml()
+        else:
+            html = self.preview.selectedHtml()
+
+            # construct head
+            head = '<head>'
+
+            # extract head from child frames
+            for frame in childFrames:
+                headEl = frame.findFirstElement('head')
+                head += headEl.toInnerXml()
+
+            head += '</head>'
+
+            # concat new head and selection
+            # the result may be invalid html; needs improvements!
+            html = head + html
+
+        # prepend a header to the log book
+        html.replace('</head>', '</head><h1>NICOS Log book</h1>')
+
+        # let qt layout the content
+        doc = QTextDocument()
+        doc.setHtml(html)
+
+        doc.print_(printer)
