@@ -77,6 +77,10 @@ class LogViewerPanel(Panel, DlgUtils):
         # display filtered logs
         self.logContent.setPlainText(content)
 
+    @pyqtSlot()
+    def findStr(self):
+        self.logContent.find(self.findLineEdit.text())
+
     def _getFilters(self):
         result = {
                   'levels' : []

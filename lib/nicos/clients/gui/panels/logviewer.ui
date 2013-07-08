@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_5">
+  <layout class="QGridLayout" name="gridLayout_6">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_4">
      <item row="0" column="2">
@@ -194,6 +194,19 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="3">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item row="1" column="0">
       <widget class="QDateTimeEdit" name="dateTimeEditFrom">
        <property name="calendarPopup">
@@ -208,22 +221,23 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </item>
    <item row="2" column="0">
+    <layout class="QGridLayout" name="gridLayout_5">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Find:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="findLineEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0">
     <widget class="QTextEdit" name="logContent">
      <property name="readOnly">
       <bool>true</bool>
@@ -232,7 +246,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../../../resources/nicos-gui.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>serviceComboBox</sender>
@@ -277,7 +293,7 @@
      <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>541</x>
+     <x>536</x>
      <y>52</y>
     </hint>
    </hints>
@@ -293,7 +309,7 @@
      <y>41</y>
     </hint>
     <hint type="destinationlabel">
-     <x>541</x>
+     <x>536</x>
      <y>42</y>
     </hint>
    </hints>
@@ -309,7 +325,7 @@
      <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>541</x>
+     <x>536</x>
      <y>99</y>
     </hint>
    </hints>
@@ -325,7 +341,7 @@
      <y>42</y>
     </hint>
     <hint type="destinationlabel">
-     <x>541</x>
+     <x>536</x>
      <y>73</y>
     </hint>
    </hints>
@@ -341,7 +357,7 @@
      <y>72</y>
     </hint>
     <hint type="destinationlabel">
-     <x>541</x>
+     <x>536</x>
      <y>89</y>
     </hint>
    </hints>
@@ -357,7 +373,7 @@
      <y>50</y>
     </hint>
     <hint type="destinationlabel">
-     <x>541</x>
+     <x>536</x>
      <y>112</y>
     </hint>
    </hints>
@@ -373,7 +389,7 @@
      <y>131</y>
     </hint>
     <hint type="destinationlabel">
-     <x>541</x>
+     <x>536</x>
      <y>148</y>
     </hint>
    </hints>
@@ -389,7 +405,7 @@
      <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>541</x>
+     <x>536</x>
      <y>173</y>
     </hint>
    </hints>
@@ -426,8 +442,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>findLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>findStr()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>443</x>
+     <y>161</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>findLineEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>LogViewerWindow</receiver>
+   <slot>findStr()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>224</x>
+     <y>161</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>updateView()</slot>
+  <slot>findStr()</slot>
  </slots>
 </ui>
