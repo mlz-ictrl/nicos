@@ -12,7 +12,7 @@ master_doc = 'index'
 default_role = 'obj'
 
 project = u'NICOS'
-copyright = u'2009-2013, FRM II / NICOS contributors'
+copyright = u'2009-2013, FRM II / NICOS contributors' #pylint: disable=W0622
 version = nicos.nicos_version
 release = nicos.nicos_version
 
@@ -61,11 +61,15 @@ pdf_style_path = ['.', '_styles','source']
 # Mode for literal blocks wider than the frame. Can be
 # overflow, shrink or truncate
 pdf_fit_mode = "shrink"
+# verbosity level. 0 1 or 2
+pdf_verbosity = 1
 # Section level that forces a break page.
 # For example: 1 means top-level sections start in a new page
 # 0 means disabled
 pdf_break_level = 2
-
+# Enable experimental feature to split table cells. Use it
+# if you get "DelayedTable too big" errors
+pdf_splittables = True
 # When a section starts in a new page, force it to be 'even', 'odd',
 # or just use 'any'
 pdf_breakside = 'any'

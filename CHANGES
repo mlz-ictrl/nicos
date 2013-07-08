@@ -1,318 +1,325 @@
 Changelog for NICOS 2
 =====================
 
-**Release 2.3.0**
+Release 2.3.0
+-------------
 
-  - NICOS now requires Python 2.6.
+- NICOS now requires Python 2.6.
 
-  - Added a combined interactive command-input and commandline GUI panel.
+- Added a combined interactive command-input and commandline GUI panel.
 
-  - The GUI client now writes a logfile so that unhandled exceptions can be
-    better diagnosed.
+- The GUI client now writes a logfile so that unhandled exceptions can be
+  better diagnosed.
 
-  - Added a MultiSwitcher class to move multiple devices together to pre-
-    defined positions.
+- Added a MultiSwitcher class to move multiple devices together to pre-
+  defined positions.
 
-  - Added the "nicos-collector" service that can be used to submit information
-    from multiple caches to a "supercache".
+- Added the "nicos-collector" service that can be used to submit information
+  from multiple caches to a "supercache".
 
-  - Removed the "SetSMSReceivers" command.
+- Removed the "SetSMSReceivers" command.
 
-**Release 2.2.0**
+Release 2.2.0
+-------------
 
-  - Updated documentation describing all NICOS services with configuration
-    examples.
+- Updated documentation describing all NICOS services with configuration
+  examples.
 
-  - Setups now have more control over which commands are available to the user
-    because the standard commands are not automatically loaded anymore.  The
-    previous set of standard commands can be loaded via the module
-    "nicos.commands.standard".
+- Setups now have more control over which commands are available to the user
+  because the standard commands are not automatically loaded anymore.  The
+  previous set of standard commands can be loaded via the module
+  "nicos.commands.standard".
 
-  - Added a "forecast" device that estimates the final number of counts when the
-    preset is reached for a counting with a single detector.
+- Added a "forecast" device that estimates the final number of counts when the
+  preset is reached for a counting with a single detector.
 
-  - The count loop can now be paused while counting (if the detector supports
-    this) by the user or by conditions detected by the watchdog.
+- The count loop can now be paused while counting (if the detector supports
+  this) by the user or by conditions detected by the watchdog.
 
-  - Added "warnlimits" to readable devices, a property that sets a range of
-    values outside of which the device value is shown as "out of range" e.g. in
-    the status monitor.
+- Added "warnlimits" to readable devices, a property that sets a range of
+  values outside of which the device value is shown as "out of range" e.g. in
+  the status monitor.
 
-  - Added a tool to statically check setup files for errors while installing
-    NICOS.
+- Added a tool to statically check setup files for errors while installing
+  NICOS.
 
-  - GUI: multiple connection presets are now supported.
+- GUI: multiple connection presets are now supported.
 
-  - Added pluggable authentication for the NICOS daemon and a backend that
-    authenticates against proposal system users.
+- Added pluggable authentication for the NICOS daemon and a backend that
+  authenticates against proposal system users.
 
-  - Now the user may only release a fixed device if the access level matches or
-    exceeds the level of the user who fixed the device.
+- Now the user may only release a fixed device if the access level matches or
+  exceeds the level of the user who fixed the device.
 
-  - GUI: added interactive command input panel.
+- GUI: added interactive command input panel.
 
-  - GUI: added "device overview/status" panel with a list of all existing
-    devices and their values.
+- GUI: added "device overview/status" panel with a list of all existing
+  devices and their values.
 
-  - NICOS services and GUI client now run on Windows.
+- NICOS services and GUI client now run on Windows.
 
-  - Added pseudo-devices to read/control the incoming/outgoing energy for
-    triple-axis instruments.
+- Added pseudo-devices to read/control the incoming/outgoing energy for
+  triple-axis instruments.
 
-  - Added readout of the heater power to TACO temperature controllers.
+- Added readout of the heater power to TACO temperature controllers.
 
-  - Added a "requires" parameter to all moveable devices that specifies access
-    restrictions for move actions.
+- Added a "requires" parameter to all moveable devices that specifies access
+  restrictions for move actions.
 
-  - GUI: added ability to create tabbed panel windows and to detach tabs from
-    the main window.
+- GUI: added ability to create tabbed panel windows and to detach tabs from
+  the main window.
 
-  - Added a "watchdog" service that reacts to cache events and can send
-    notifications or execute actions if an exceptional condition is detected.
+- Added a "watchdog" service that reacts to cache events and can send
+  notifications or execute actions if an exceptional condition is detected.
 
-  - Added a handler for cache events generated by sample environments, so that
-    NICOS can automatically suggest loading a particular setup.
+- Added a handler for cache events generated by sample environments, so that
+  NICOS can automatically suggest loading a particular setup.
 
-  - GUI: added a feature to quickly modify data in the liveplot.
+- GUI: added a feature to quickly modify data in the liveplot.
 
-  - Added the "reference()" command.
+- Added the "reference()" command.
 
-  - Added a virtual counter implementation for TAS that uses a Monte Carlo
-    resolution calculation to simulate intensities for given scattering law
-    models.
+- Added a virtual counter implementation for TAS that uses a Monte Carlo
+  resolution calculation to simulate intensities for given scattering law
+  models.
 
-  - Added Eulerian cradle implementation for TAS.
+- Added Eulerian cradle implementation for TAS.
 
-  - Added the "info()" command.
+- Added the "info()" command.
 
-  - Added a new input mode called "simple parameter mode".  In this mode,
-    commands and arguments can be entered without parentheses and
-    commas.  Control structures are not supported.  It is toggled with
-    the "SetSPM" command.
+- Added a new input mode called "simple parameter mode".  In this mode,
+  commands and arguments can be entered without parentheses and
+  commas.  Control structures are not supported.  It is toggled with
+  the "SetSPM" command.
 
-  - Setup files can now also placed in subdirectories of the setup path.
-    Entries in parent directories override entries in subdirectories
-    when two files have the same name.
+- Setup files can now also placed in subdirectories of the setup path.
+  Entries in parent directories override entries in subdirectories
+  when two files have the same name.
 
-  - Restructured the "nicos" Python package layout.  Custom libraries
-    will have to be adapted.
+- Restructured the "nicos" Python package layout.  Custom libraries
+  will have to be adapted.
 
-  - Added common FRM-II sample environment and reactor setups.  They are
-    installed by default for FRM-II instruments.
+- Added common FRM-II sample environment and reactor setups.  They are
+  installed by default for FRM-II instruments.
 
-  - Added "sweep" scan command.
+- Added "sweep" scan command.
 
-  - The Qt and HTML status monitors can now plot values versus time.
+- The Qt and HTML status monitors can now plot values versus time.
 
-  - Added back text-based client for the daemon.
+- Added back text-based client for the daemon.
 
-  - Changed cache store file format to retain info if the key will expire.
-    This fixes cache startup behavior even after unclean shutdowns.
+- Changed cache store file format to retain info if the key will expire.
+  This fixes cache startup behavior even after unclean shutdowns.
 
-  - Added "checkalign" command for TAS instruments.
+- Added "checkalign" command for TAS instruments.
 
-  - Added HTML version of NICOS monitor.
+- Added HTML version of NICOS monitor.
 
-  - Added basic mathematical functions and constants in the default namespace.
+- Added basic mathematical functions and constants in the default namespace.
 
-  - Added "resplot" and "hklplot" commands for TAS instruments, which are
-    interactive resolution calculation and reciprocal space map helpers.
+- Added "resplot" and "hklplot" commands for TAS instruments, which are
+  interactive resolution calculation and reciprocal space map helpers.
 
-  - Added "alpha" attached-device to triple-axis instrument that is moved
-    to the angle between ki and Q whenever the TAS is moved.
+- Added "alpha" attached-device to triple-axis instrument that is moved
+  to the angle between ki and Q whenever the TAS is moved.
 
-  - Changed "users" parameter of the experiment device to a simple string,
-    and it is now possible to add users directly in "NewExperiment()".
+- Changed "users" parameter of the experiment device to a simple string,
+  and it is now possible to add users directly in "NewExperiment()".
 
-  - Added "maxage" parameter to "doRead()" and "doStatus()" methods,
-    which can be given to subdevices.
+- Added "maxage" parameter to "doRead()" and "doStatus()" methods,
+  which can be given to subdevices.
 
-  - Added basic TANGO devices.
+- Added basic TANGO devices.
 
-  - Added a "DeviceAlias" object that can be used to refer with one name
-    to different actual devices.
+- Added a "DeviceAlias" object that can be used to refer with one name
+  to different actual devices.
 
-  - Added graphical help system to the GUI client.  Improved quality of
-    docstrings of most commands.
+- Added graphical help system to the GUI client.  Improved quality of
+  docstrings of most commands.
 
-  - Added a "mode" parameter to "doInit()" and "doPreinit()" so that
-    device implementers remember to check for simulation mode.
+- Added a "mode" parameter to "doInit()" and "doPreinit()" so that
+  device implementers remember to check for simulation mode.
 
-  - Added an API "Measurable.presetInfo()" that returns the accepted preset
-    keys; to check that given presets are actually used by the detector(s).
+- Added an API "Measurable.presetInfo()" that returns the accepted preset
+  keys; to check that given presets are actually used by the detector(s).
 
-  - Added a new standalone history viewer that plots cache data.
+- Added a new standalone history viewer that plots cache data.
 
-  - Improved the message display in the web interface.
+- Improved the message display in the web interface.
 
-  - Improved the ELog HTML styling.
+- Improved the ELog HTML styling.
 
-  - Added a "debug" keyword-only argument to "Simulate()" that prints a
-    traceback on exception.
+- Added a "debug" keyword-only argument to "Simulate()" that prints a
+  traceback on exception.
 
-  - Added "obsreadings" parameter to generic axis to use instead of the
-    hardcoded 100 times when asking observers for the current value.
+- Added "obsreadings" parameter to generic axis to use instead of the
+  hardcoded 100 times when asking observers for the current value.
 
-  - Added "history()" method to Grace liveplot.
+- Added "history()" method to Grace liveplot.
 
-  - History-related commands and methods now accept strings as start and
-    end times, e.g. "2012-03-26 12:15".
+- History-related commands and methods now accept strings as start and
+  end times, e.g. "2012-03-26 12:15".
 
-  - Added a "logging_path" setting to nicos.conf.
+- Added a "logging_path" setting to nicos.conf.
 
-  - Renamed "server" parameter of CacheClient to "cache".
+- Renamed "server" parameter of CacheClient to "cache".
 
-  - Added "findpeaks()" analyzing command.
+- Added "findpeaks()" analyzing command.
 
-  - Changed module structure of the "nicos" Python package to be more logical.
+- Changed module structure of the "nicos" Python package to be more logical.
 
-**Release 2.1.2**
+Release 2.1.2
+-------------
 
-  - Fixed not being able to run another manualscan after stopping a
-    manualscan.
+- Fixed not being able to run another manualscan after stopping a
+  manualscan.
 
-  - Fixed error in "history()" when calling with actual timestamps.
+- Fixed error in "history()" when calling with actual timestamps.
 
-  - Fixed glitches in cache handling of expired values when restarting
-    the cache server.
+- Fixed glitches in cache handling of expired values when restarting
+  the cache server.
 
-  - The cache now re-loads database keys from disk even if not restarted
-    on the same day.
+- The cache now re-loads database keys from disk even if not restarted
+  on the same day.
 
-  - Fixed problem with cache history query not returning all requested
-    values.
+- Fixed problem with cache history query not returning all requested
+  values.
 
-  - Fixed simulation mode not working with no cache configured.
+- Fixed simulation mode not working with no cache configured.
 
-**Release 2.1.1 (2012-03-22)**
+Release 2.1.1 (2012-03-22)
+--------------------------
 
-  - Fixed an elog bug that caused elog to quit on Unicode errors.
+- Fixed an elog bug that caused elog to quit on Unicode errors.
 
-  - Fixed calling "gauss()" and "poly()" with column names.
+- Fixed calling "gauss()" and "poly()" with column names.
 
-  - Report simulated runtime for code run with "Simulate()".
+- Report simulated runtime for code run with "Simulate()".
 
-  - Fixed namespaces used in "Run()", so that globals can be accessed from
-    functions defined in user scripts.
+- Fixed namespaces used in "Run()", so that globals can be accessed from
+  functions defined in user scripts.
 
-  - Fixed simulating and timing devices with a ramp parameter.
+- Fixed simulating and timing devices with a ramp parameter.
 
-  - Made the cache robust against corrupted save files on disk.
+- Made the cache robust against corrupted save files on disk.
 
-  - Fixed the "create_nicosconf" script when no TACO environment is found.
+- Fixed the "create_nicosconf" script when no TACO environment is found.
 
-  - Fixed a bug in simulation mode that would cause exceptions when
-    wait()ing for fixed devices.
+- Fixed a bug in simulation mode that would cause exceptions when
+  wait()ing for fixed devices.
 
-**Release 2.1.0 (2012-03-14)**
+Release 2.1.0 (2012-03-14)
+--------------------------
 
-  - Introduced the "Measurable.duringMeasureHook()" and
-    "Measurable.save()/doSave()" methods.
+- Introduced the "Measurable.duringMeasureHook()" and
+  "Measurable.save()/doSave()" methods.
 
-  - Added "Experiment.scripts" parameter that stores the code of the
-    currently executed script.
+- Added "Experiment.scripts" parameter that stores the code of the
+  currently executed script.
 
-  - Added easy access control using the "requires()" decorator.  Added
-    "AccessError" and "Session.checkAccess()" APIs.
+- Added easy access control using the "requires()" decorator.  Added
+  "AccessError" and "Session.checkAccess()" APIs.
 
-  - Added the three-parameter form of "adjust()" that allows to adjust to
-    some other than the current position.
+- Added the three-parameter form of "adjust()" that allows to adjust to
+  some other than the current position.
 
-  - Added automatic retry of Taco calls with the new "tacotries" parameter
-    of TacoDevice objects.
+- Added automatic retry of Taco calls with the new "tacotries" parameter
+  of TacoDevice objects.
 
-  - Added the "extended" entry to setup files, for future use.
+- Added the "extended" entry to setup files, for future use.
 
-  - The "waitForStatus()" utility function now supports timeout and handling
-    error states.
+- The "waitForStatus()" utility function now supports timeout and handling
+  error states.
 
-  - The "center()" and "checkoffset()" user commands now can take an "ycol"
-    keyword that determines which data column is used for fitting.
+- The "center()" and "checkoffset()" user commands now can take an "ycol"
+  keyword that determines which data column is used for fitting.
 
-  - Added "calpos()", "pos()" and "rp()" commands for triple-axis
-    spectrometers.
+- Added "calpos()", "pos()" and "rp()" commands for triple-axis
+  spectrometers.
 
-  - Renamed the "name" setup entry to "description" to match its function.
+- Renamed the "name" setup entry to "description" to match its function.
 
-  - Taco motors now can read the absolute limits from the Taco device.
+- Taco motors now can read the absolute limits from the Taco device.
 
-  - Removed "setPosition()" from abstract Axis.  Moved "setPosition()" from
-    abstract Motor to abstract Coder.
+- Removed "setPosition()" from abstract Axis.  Moved "setPosition()" from
+  abstract Motor to abstract Coder.
 
-  - Changed the "FRMDetector" class to have lists of monitor and counter
-    channels as adevs.  Presets are either "t" or "monX" or "ctrX", where
-    X is the number of the monitor/counter channel.
+- Changed the "FRMDetector" class to have lists of monitor and counter
+  channels as adevs.  Presets are either "t" or "monX" or "ctrX", where
+  X is the number of the monitor/counter channel.
 
-  - Added suggestion of possible commands when misspelled on the console.
+- Added suggestion of possible commands when misspelled on the console.
 
-  - The TAS commands are not included automatically in setups anymore.
+- The TAS commands are not included automatically in setups anymore.
 
-  - Added "coordinates" parameter to slits to select the coordinate
-    convention for right/left, bottom/top axes.
+- Added "coordinates" parameter to slits to select the coordinate
+  convention for right/left, bottom/top axes.
 
-  - Removed first ("converter") argument from parameter type "oneof".
+- Removed first ("converter") argument from parameter type "oneof".
 
-  - Added a "FinishExperiment()" user command.
+- Added a "FinishExperiment()" user command.
 
-  - Added "poll" and "neverpoll" parameters to the Poller object.
+- Added "poll" and "neverpoll" parameters to the Poller object.
 
-  - When calling "stop()" without devices, stop all devices in parallel.
+- When calling "stop()" without devices, stop all devices in parallel.
 
-  - Added "localcontact" parameter for experiment.
+- Added "localcontact" parameter for experiment.
 
-  - The "pollinterval" parameter of readables can now be None, to disable
-    polling.
+- The "pollinterval" parameter of readables can now be None, to disable
+  polling.
 
-  - The Axis class now has a "jitter" parameter that can account for
-    jitter in the movement, e.g. due to airpads.
+- The Axis class now has a "jitter" parameter that can account for
+  jitter in the movement, e.g. due to airpads.
 
-  - Added a "RemoveSetup" command that re-loads everything except for the
-    given setups.
+- Added a "RemoveSetup" command that re-loads everything except for the
+  given setups.
 
-  - Creating the standard detectors/envlist is now retried every time the
-    attribute is accessed from the experiment.
+- Creating the standard detectors/envlist is now retried every time the
+  attribute is accessed from the experiment.
 
-  - With option "-c", the NICOS console does not autocreate devices.
+- With option "-c", the NICOS console does not autocreate devices.
 
-  - Add "dataroot" parameter for experiment device, which configures actual
-    data root path.
+- Add "dataroot" parameter for experiment device, which configures actual
+  data root path.
 
-  - When parameters in configuration are changed, they are now preferred on
-    reload to the cached values.
+- When parameters in configuration are changed, they are now preferred on
+  reload to the cached values.
 
-  - Temperature controller now respects ramping time for timeout, and allows
-    to choose not to raise on timing out.
+- Temperature controller now respects ramping time for timeout, and allows
+  to choose not to raise on timing out.
 
-  - Added TAS commands to calculate powder rays and spurion positions.
+- Added TAS commands to calculate powder rays and spurion positions.
 
-  - Added new "appendscan()" command to quickly append to the last scan.
+- Added new "appendscan()" command to quickly append to the last scan.
 
-  - Fixed devices now don't raise an exception on moving, but only warn that
-    they will not move.
+- Fixed devices now don't raise an exception on moving, but only warn that
+  they will not move.
 
-  - New command: "Remember()".
+- New command: "Remember()".
 
-  - Simplified TACO temperature classes: the temperature control device does
-    not have "sample" and "control" channel properties anymore.
+- Simplified TACO temperature classes: the temperature control device does
+  not have "sample" and "control" channel properties anymore.
 
-**Release 2.0.1**
+Release 2.0.1
+-------------
 
-  - In "ImageStorage", made sure the data file isn't overwritten unless
-    explicitly allowed.
+- In "ImageStorage", made sure the data file isn't overwritten unless
+  explicitly allowed.
 
-  - Fixed the "steps" parameter of IPC coders.
+- Fixed the "steps" parameter of IPC coders.
 
-  - Fixed nicos.conf not being read.  Prepend PYTHONPATH entries to
-    sys.path instead of appending.
+- Fixed nicos.conf not being read.  Prepend PYTHONPATH entries to
+  sys.path instead of appending.
 
-  - Fixed TAS wavevectors to always move in inverse angstroms.
+- Fixed TAS wavevectors to always move in inverse angstroms.
 
-  - Fixed data file counting bug: when two sessions were writing data
-    files, they could use the same counter and try to write the same file.
+- Fixed data file counting bug: when two sessions were writing data
+  files, they could use the same counter and try to write the same file.
 
-  - The Axis now correctly resets the error state on multiple positioning
-    tries.
+- The Axis now correctly resets the error state on multiple positioning
+  tries.
 
-**Release 2.0.0 (2012-01-11)**
+Release 2.0.0 (2012-01-11)
+--------------------------
 
-  - Initial release.
+- Initial release.
