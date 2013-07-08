@@ -75,7 +75,7 @@ class LogViewerPanel(Panel, DlgUtils):
         content = self._getFilteredLogs(filters)
 
         # display filtered logs
-        self.logContent.setPlainText(content)
+        self.logContent.setHtml(content)
 
     @pyqtSlot()
     def findStr(self):
@@ -112,7 +112,7 @@ class LogViewerPanel(Panel, DlgUtils):
 
         path = os.path.join(self._logPath, service)
 
-        result = ''
+        result = '<pre style="font-family: monospace">'
 
         while True:
             # determine logfile name
@@ -132,6 +132,7 @@ class LogViewerPanel(Panel, DlgUtils):
 
             fromDateTime = fromDateTime.addDays(1)
 
+        result += '</pre>'
         return result
 
     def _getFilteredFileContent(self, path, fileDate, filters):
@@ -146,6 +147,7 @@ class LogViewerPanel(Panel, DlgUtils):
             # store if last line was added,
             # this is used to filter tracebacks etc properly
             lastLineAdded = False
+            lastLevel = ''
 
             for line in f:
                 # split line to:
@@ -155,7 +157,7 @@ class LogViewerPanel(Panel, DlgUtils):
                 # append line continuations
                 if len(parts) < 2:
                     if lastLineAdded:
-                        result += line
+                        result += self._colorizeLevel(line, lastLevel)
                     continue
 
                 dateTime = QDateTime.fromString(parts[0])
@@ -172,10 +174,21 @@ class LogViewerPanel(Panel, DlgUtils):
                     lastLineAdded = False
                     continue
 
-                result += line
+                result += self._colorizeLevel(line, level)
                 lastLineAdded = True
+                lastLevel = level
 
         return result
+
+    def _colorizeLevel(self, line, level):
+        style = {
+               'DEBUG' : 'color:darkgray',
+               'WARNING' : 'color:fuchsia',
+               'ERROR' : 'color:red; font-weight: bold;',
+               }
+
+        return '<span style="%s">%s</span>' % (style.get(level, ''),
+                                                      line)
 
 
 
