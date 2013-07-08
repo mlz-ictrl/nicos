@@ -55,6 +55,8 @@ config = ('Default', [
             panel('history.HistoryPanel')),
         window('Logbook', 'table', True,
             panel('elog.ELogPanel')),
+        window('Log files', 'table', True,
+            panel('logviewer.LogViewerPanel')),
         window('Errors', 'errors', True,
             panel('errors.ErrorPanel')),
         #window('Live data', 'live', True,
