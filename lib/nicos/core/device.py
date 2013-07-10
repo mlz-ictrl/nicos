@@ -31,7 +31,8 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
-from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel
+from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel, \
+     waitForStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
      anytype, none_or, limits, dictof, listof, tupleof
 from nicos.core.errors import NicosError, ConfigurationError, \
@@ -1206,8 +1207,17 @@ class Moveable(Readable):
 
         .. method:: doWait()
 
-           If present, this method is called to actually do the waiting.
-           Otherwise, the device is assumed to change position instantly.
+           This method is called to actually do the waiting.
+           It should be implemented in derived classes requiring special
+           treatment.
+           The default implementation polls the device status until it is no
+           longer BUSY, i.e. 'waits' for the device.
+           If no :meth:`doStatus` is implemented, :meth:`doWait` may be NOT called
+           as those devices are assumed to always move instantaneously!
+
+           Implementation hint: If you correctly implement :meth:`doStatus` and
+           your device is not very special, there is no need to implement
+           :meth:`doWait()`.
         """
         if self._sim_active:
             if not hasattr(self, 'doTime'):
@@ -1236,13 +1246,21 @@ class Moveable(Readable):
         try:
             if self.fixed:
                 self.log.warning('device fixed, not waiting: %s' % self.fixed)
-            elif hasattr(self, 'doWait'):
+            elif hasattr(self, 'doStatus'): #might really wait
                 session.beginActionScope('Waiting: %s -> %s' %
-                                         (self, self.format(self.target)))
+                                     (self, self.format(self.target)))
                 try:
                     lastval = self.doWait()
                 finally:
                     session.endActionScope()
+            else:
+                if self.__class__.doWait != Moveable.doWait:
+                    # legacy case, custom doWait, but no doStatus!!!
+                    self.log.warning('Legacywarning: %r has a doWait, but no '
+                                     'doStatus, please fix it!' % self.__class__)
+                    lastval = self.doWait() # prefer functionality for the moment....
+                # no else needed as this is basically a NOP
+                # (status returns UNKNOWN, default doWait() returns immediately....)
         finally:
             # update device value in cache and return it
             if lastval is not None:
@@ -1255,6 +1273,15 @@ class Moveable(Readable):
             if self._cache and self._mode != 'slave':
                 self._cache.put(self, 'value', val, currenttime(), self.maxage)
         return val
+
+    def doWait(self):
+        """Wait until movement of device is completed.
+
+        This default implementation is supposed to be overriden in derived classes
+        and just polls the status of the device until it is not BUSY anymore.
+        For details how this is done, have a look into nicos.core.utils.waitForStatus()
+        """
+        waitForStatus(self)
 
     @usermethod
     def maw(self, target):
