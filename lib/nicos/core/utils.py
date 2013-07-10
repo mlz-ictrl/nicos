@@ -79,6 +79,13 @@ def waitForStatus(device, delay=0.3, timeout=None,
     started = currenttime()
     while True:
         st = device.status(0)
+        if device.loglevel == 'debug':
+            # only read and log the device position if debugging
+            # as this could be expensive and is not needed otherwise
+            position = device.read(0)
+            device.log.debug('waitForStatus: status %r at %s' % (
+                             formatStatus(st),
+                             device.format(position, unit=True)))
         if st[0] in busystates:
             sleep(delay)
             if timeout is not None and currenttime() - started > timeout:
