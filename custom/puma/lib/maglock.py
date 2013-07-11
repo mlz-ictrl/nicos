@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Oleg Sobolev <oleg.sobolev@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -26,13 +27,13 @@
 
 import time
 
-from nicos.core import Moveable, Readable, status, NicosError, oneof
+from nicos.core import Moveable, Readable, status, NicosError, oneof, Param, listof
 
 
 class MagLock(Moveable):
 
     attached_devices = {
-        'magazin': (Moveable, 'The monochanger magazin'),
+        'depot': (Moveable, 'The monochromator depot'),
         'io_open': (Readable, 'readout for the status'),
         'io_closed': (Readable, 'readout for the status'),
         'io_set': (Moveable, 'output to set'),
@@ -40,9 +41,11 @@ class MagLock(Moveable):
 
     valuetype = oneof('open', 'closed')
 
+    parameters = {
+        'states':    Param('List of state names.', type=listof(str),
+                           mandatory=True),
+    }
 #    parameters = {
-#        'states':    Param('List of state names.', type=listof(str),
-#                           mandatory=True),
 #        'values':    Param('List of values to move to', type=listof(anytype),
 #                           mandatory=True),
 #        'io_values': Param('List of values to move to', type=listof(anytype),
@@ -50,68 +53,72 @@ class MagLock(Moveable):
 #        'precision': Param('Precision for comparison', mandatory=True),
 #    }
 
-    def doInit(self, mode):
-        return
+    def _bitmask(self, num):
+        return 1 << num
 
     def doStart(self, position):
-        magpos = self._readMag()
+        magpos = self._magpos
         if magpos not in [0, 1, 2, 3]:
-            raise NicosError(self, 'magazin at unknown position')
+            raise NicosError(self, 'depot at unknown position')
 
-        if position == self.doRead(0):
+        if position == self.read(0):
             return
 
         if position == 'closed':
             self._adevs['io_set'].move(0)
         elif position == 'open':
-            self._adevs['io_set'].move(1 << magpos)
+            self._adevs['io_set'].move( self._bitmask(magpos) )
         else:
             self.log.info('Maglock: illegal input')
             return
 
-        time.sleep(2)
-        if self.doRead (0) != position:
+        time.sleep(2)  #XXX!
+
+        if self.read(0) != position:
             raise NicosError(self, 'maglock returned wrong position!')
+        else:
+            self.log.info('Maglock: ', self.read(0))
 
-    def doRead(self, maxage=0):
-
-        magpos = self._readMag()
+    def _read(self):
+        '''return an internal string representation of the right sensing switches'''
+        magpos = self._magpos
 
 #        if magpos == 4:
-#            raise NicosError(self, 'magazin at unknown position')
+#            raise NicosError(self, 'depot at unknown position')
 #            return
+        bitmask = self._bitmask(magpos)
+        val = map(str, [(self._adevs['io_open'].read(0) & bitmask) / bitmask,
+                         (self._adevs['io_closed'].read (0) & bitmask) / bitmask])
+        self.log.debug('Sensing switches are in State %s' % val)
+        return ''.join(val)
 
-        try:
-            s = (((self._adevs['io_open'].read(0) >> magpos) & 1) << 1) + \
-                  ((self._adevs['io_closed'].read (0) >> magpos) & 1)
-        except Exception:
-            raise NicosError(self, 'cannot read position of maglock!')
-        s = s - 1
-
-        if s == 0:
+    def doRead(self, maxage=0):
+        s = self._read()
+        if s == '01':
             return 'closed'
-        elif s == 1:
+        elif s == '10':
             return 'open'
+        elif s == '00':
+            return 'UNKNOWN'
         else:
-            raise NicosError(self, 'Magazin magnet switches in undefined status;'
-                             ' check switches')
+            raise NicosError(self, 'Depot magnet switches in undefined status %s '
+                             'check switches' % s)
 
     def doStatus(self, maxage=0):
-        s = self.doRead(0)
-        if s in ['closed','open']:
-            return (status.OK, 'idle')
+        s = self._read()
+        if s == '01':
+            return status.OK, 'idle'
+        elif s == '10':
+            return status.OK, 'idle'
+        elif s == '00':
+            return status.BUSY, 'Moving' # '? or Error!'
         else:
-            return (status.ERROR, 'maglock is in error state')
+            return status.ERROR, 'maglock is in error state'
 
-    def _readMag(self):
-        s = self._adevs['magazin'].doRead(0)
-        if s == 'A':
-            return 0
-        elif s == 'B':
-            return 1
-        elif s == 'C':
-            return 2
-        elif s == 'D':
-            return 3
-        else:
-            return 4
+    @property
+    def _magpos(self):
+        s = self._adevs['depot'].read(0)
+        for i, k in enumerate(self.states):
+            if s == k:
+                return i
+        return 4

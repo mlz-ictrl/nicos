@@ -52,7 +52,7 @@ devices = dict(
                     ),
 
     mono     = device('devices.generic.DeviceAlias',
-                      alias = None,
+                      alias = 'mono_pg002',
                       devclass = 'devices.tas.Monochromator',
                       ),
 
@@ -65,8 +65,9 @@ devices = dict(
                       reltheta = True,
                       focush = 'mfhpg',
                       focusv = 'mfvpg',
+                      # focus value should equal mth (for arcane reasons...)
                       hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
-                      vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901], # focus value should equal mth (for arcane reasons...)
+                      vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
                       abslimits = (1, 6),
                       dvalue = 3.355,
                       ),
@@ -90,6 +91,38 @@ devices = dict(
                       abslimits = (1, 10),
                       dvalue = 3.355,
 #                      dvalue = 1.278,
+                      ),
+
+    mono_cu220     = device('devices.tas.Monochromator',
+                      description = 'Cu-220 monochromator',
+                      order = 1,
+                      unit = 'A-1',
+                      theta = 'mth',
+                      twotheta = 'mtt',
+                      reltheta = True,
+                      focush = None,    # :FIXTHIS:
+                      focusv = None,    # :FIXTHIS:
+                      # focus value should equal mth (for arcane reasons...)
+                      hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901], # :FIXTHIS:
+                      vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901], # :FIXTHIS:
+                      abslimits = (1, 6),       # :FIXTHIS:
+                      dvalue = 3.355,           # :FIXTHIS:
+                      ),
+
+    mono_cu111     = device('devices.tas.Monochromator',
+                      description = 'Cu-111 monochromator',
+                      order = 1,
+                      unit = 'A-1',
+                      theta = 'mth',
+                      twotheta = 'mtt',
+                      reltheta = True,
+                      focush = None,    # :FIXTHIS:
+                      focusv = None,    # :FIXTHIS:
+                      # focus value should equal mth (for arcane reasons...)
+                      hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901], # :FIXTHIS:
+                      vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901], # :FIXTHIS:
+                      abslimits = (1, 6),       # :FIXTHIS:
+                      dvalue = 3.355,           # :FIXTHIS:
                       ),
 
     ana     = device('devices.tas.Monochromator',

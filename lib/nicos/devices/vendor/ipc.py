@@ -459,6 +459,9 @@ class Coder(NicosCoder):
         'circular':  Param('Wrap-around value for circular coders, if negative '
                            'use it as +/-, else as 0..value, None disables this',
                            type=none_or(float), settable=True, default=None),
+        'readings':  Param('Number of readings to average over '
+                           'when determining current position', type=int,
+                           default=1, settable=True),
     }
 
     attached_devices = {
@@ -560,7 +563,8 @@ class Coder(NicosCoder):
 
     def doRead(self, maxage=0):
         # make sure to ask hardware, don't use cached value of steps
-        steps = self.doReadSteps()
+        steps = sum(self.doReadSteps() for _ in range(self.readings))
+        steps = int(steps / float(self.readings))
         self._params['steps'] = steps
         if self._cache:  # save last valid position in cache
             self._cache.put(self, 'steps', steps)
@@ -1106,6 +1110,40 @@ class Input(Readable):
     def doStatus(self, maxage=0):
         return status.OK, ''
 
+class IPCSwitches(Input):
+    """ IPC motor card read out for the limit switches and reference switch """
+
+    parameter_overrides = {
+         'first' : Override(mandatory=False, default=5, settable=False),
+         'last' : Override(mandatory=False, default=7, settable=False),
+    }
+
+    def doInit(self, mode):
+        Input.doInit(self, mode)        # init _mask
+        if mode != 'simulation':
+            self._adevs['bus'].ping(self.addr)
+
+    def doStatus(self, maxage=0):
+        try:
+            _ = self._adevs['bus'].get(self.addr, 134)
+            return status.OK, ''
+        except NicosError:
+            return status.ERROR, 'Hardware not found'
+
+    def doRead(self, maxage=0):
+        """ returns 0 if no switch is set
+                    1 if the lower limit switch is set
+                    2 if the upper limit switch is set
+                    4 if the reference switch is set
+        """
+        try:
+#           temp & 32 'low limit switch'
+#           temp & 64 'high limit switch'
+#           temp & 128 'ref switch'
+            temp = self._adevs['bus'].get(self.addr, 134)
+            return (temp & self._mask) >> self.first
+        except Exception:
+            raise NicosError(self, 'cannot evaluate status byte of stepper')
 
 class Output(Input, Moveable):
     """
