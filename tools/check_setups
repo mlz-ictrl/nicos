@@ -229,6 +229,10 @@ def check_setupfile(filename):
                         log.error('%s: parameter %r value %r is invalid: %s',
                                   devname, pname, config[pname], e)
                         good = False
+                    except TypeError, e:
+                        log.error('%s: parameter %r value %r is of invalid type: %s',
+                                  devname, pname, config[pname], e)
+                        good = False
                     # check value of certain parameters
                     if not check_parameter(log, devname, pname, config[pname]):
                         good = False
