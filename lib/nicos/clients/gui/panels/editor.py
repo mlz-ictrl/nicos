@@ -206,6 +206,11 @@ class EditorPanel(Panel):
         else:
             self.newFile()
 
+    def __del__(self):
+        # On some systems the  QFilesystemWatchers deadlock on application exit
+        # so destroy them explicitly
+        del self.watchers[:]
+
     def setOptions(self, options):
         self.toolconfig = options.get('tools', '')
 
