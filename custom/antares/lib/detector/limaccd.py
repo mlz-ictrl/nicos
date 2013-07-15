@@ -117,6 +117,16 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                            default=4,
                                            volatile=True,
                                            category='general'),
+                  'expotime' : Param('Exposure time',
+                                           type=float,
+                                           settable=False,
+                                           volatile=True,
+                                           category='general'),
+                  'cameramodel' : Param('Camera type/model',
+                                           type=str,
+                                           settable=False,
+                                           volatile=True, # Necessary?
+                                           category='general'),
                   }
 
     parameter_overrides = {
@@ -288,6 +298,15 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
     def doWritePgain(self, value):
         index = self.PGAINS.index(value)  # value can only be valid thanks to param validation
         self._tangoFuncGuard(self._hwDev.__setattr__, 'p_gain', index)
+
+    def doReadExpotime(self):
+        return self._tangoFuncGuard(self._dev.__getattr__, 'acq_expo_time')
+
+    def doReadCameramodel(self):
+        camType = self._tangoFuncGuard(self._dev.__getattr__, 'camera_type')
+        camModel = self._tangoFuncGuard(self._dev.__getattr__, 'camera_model')
+
+        return '%s (%s)' % (camType, camModel)
 
     def doWriteSubdir(self, value):
         self._datapath = path.join(self.datapath[0], value)
