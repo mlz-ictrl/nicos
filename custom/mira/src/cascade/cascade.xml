@@ -13,9 +13,9 @@
             <foil_1_start> 0  </foil_1_start>
             <foil_2_start> 16 </foil_2_start>
             <foil_3_start> 32 </foil_3_start>
-            <foil_4_start> 64 </foil_4_start>
-            <foil_5_start> 80 </foil_5_start>
-            <foil_6_start> 96 </foil_6_start>
+            <foil_4_start> 80 </foil_4_start>
+            <foil_5_start> 96 </foil_5_start>
+            <foil_6_start> 112 </foil_6_start>
 
             <pseudo_compression> 0 </pseudo_compression>
             <sum_first_and_last> 0 </sum_first_and_last>
