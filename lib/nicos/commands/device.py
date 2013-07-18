@@ -509,11 +509,11 @@ def history(dev, key='value', fromtime=None, totime=None):
         key = 'value'
     if key not in ('value', 'status') and fromtime is None:
         fromtime = -24
-    # don't allow positive numbers, as they are interpreted as Unix timestamps
-    # by Device.history(), which is not very user-friendly
-    if isinstance(fromtime, (int, long, float)) and fromtime > 0:
+    # Device.history() accepts number of hours only when negative (anything
+    # > 10000 is taken to be a Unix timestamp)
+    if isinstance(fromtime, (int, long, float)) and 0 < fromtime < 10000:
         fromtime = -fromtime
-    if isinstance(totime, (int, long, float)) and totime > 0:
+    if isinstance(totime, (int, long, float)) and 0 < totime < 10000:
         totime = -totime
     # history() already accepts strings as fromtime and totime arguments
     hist = session.getDevice(dev, Device).history(key, fromtime, totime)
