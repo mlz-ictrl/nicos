@@ -993,10 +993,8 @@ class Readable(Device):
             return ret[0], ret[1]
         stval = None
         if hasattr(self, 'doStatus'):
-            stval = self.doStatus(maxage)
-            self._cache.put(self, 'status', stval, currenttime(), self.maxage)
-        rdval = self.doRead(maxage)
-        self._cache.put(self, 'value', rdval, currenttime(), self.maxage)
+            stval = self.status(maxage)
+        rdval = self.read(maxage)
         return stval, rdval
 
     def _pollParam(self, name, with_ttl=0):
