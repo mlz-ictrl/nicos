@@ -25,15 +25,19 @@
 """Class for THM 1176 magnetic field probe."""
 
 import os
+import re
 import math
 import time
+import fcntl
 import struct
 
 from nicos.core import status, Measurable, Param, Value, usermethod, \
      CommunicationError, ModeError
 
-USBTMC_IOCTL_CLEAR = 23298
-USBTMC_IOCTL_RESET_CONF = 23298 + 9
+usbbus_pat = re.compile(r'Bus=(\s*\d+)')
+usbdev_pat = re.compile(r'Dev#=(\s*\d+)')
+
+USBDEVFS_RESET = 21780
 
 
 class THM(Measurable):
@@ -53,17 +57,36 @@ class THM(Measurable):
     def doReadFmtstr(self):
         return '%.1f [%.0f +- %.1f, %.0f +- %.1f, %.0f +- %.1f] uT'
 
-    def doReset(self):
+    def doReset(self, t=3):
+        # get usbdevfs file name
+        self.log.debug('resetting...')
+        devline = os.popen('grep -B3 Metrolab /proc/bus/usb/devices | head -n1', 'r').read().strip()
+        if devline:
+            busno = int(usbbus_pat.search(devline).group(1))
+            devno = int(usbdev_pat.search(devline).group(1))
+            usbdevfsfile = '/proc/bus/usb/%03d/%03d' % (busno, devno)
+            self.log.debug('usbdevfs file is %s' % usbdevfsfile)
+            dfile = os.open(usbdevfsfile, os.O_RDWR)
+            fcntl.ioctl(dfile, USBDEVFS_RESET)
+            self.log.debug('USBDEVFS_RESET ioctl done')
+            os.close(dfile)
+            time.sleep(2.5)
         if self._io is not None:
             try:
                 os.close(self._io)
             except OSError:
                 pass
         self._io = os.open(self.device, os.O_RDWR)
-        #fcntl.ioctl(self._io, USBTMC_IOCTL_RESET_CONF)
-        ident = self._query('*IDN?')
-        self.log.debug('sensor identification: %s' % ident)
-        self._execute('FORMAT INTEGER')
+        try:
+            ident = self._query('*IDN?', t=0)
+            self.log.debug('sensor identification: %s' % ident)
+            self._execute('FORMAT INTEGER')
+            self.doRead()
+        except CommunicationError:
+            if t == 0:
+                raise
+            self.doReset(t-1)
+            return
 
     def doShutdown(self):
         if self._io is not None:
@@ -77,13 +100,16 @@ class THM(Measurable):
     def _query(self, q, t=5):
         try:
             os.write(self._io, q + '\n')
-            return os.read(self._io, 2000).rstrip()
+            ret = os.read(self._io, 2000).rstrip()
         except OSError, err:
+            self.log.debug('exception in query: %s' % err)
             if t == 0:
                 raise CommunicationError(self, 'error querying: %s' % err)
+            time.sleep(0.5)
             self.doReset()
             return self._query(q, t-1)
         self._check_status()
+        return ret
 
     def _execute(self, q, t=5, wait=0):
         try:
@@ -91,19 +117,25 @@ class THM(Measurable):
         except OSError, err:
             if t == 0:
                 raise CommunicationError(self, 'error executing: %s' % err)
+            time.sleep(0.5)
             self.doReset()
             self._execute(q, t-1)
         time.sleep(wait)
         self._check_status()
 
-    def _check_status(self):
+    def _check_status(self, t=3):
         try:
             os.write(self._io, '*STB?\n')
             status = os.read(self._io, 100).rstrip()
         except OSError, err:
-            raise CommunicationError(self, 'error getting status: %s' % err)
+            if t == 0:
+                raise CommunicationError(self, 'error getting status: %s' % err)
+            time.sleep(0.5)
+            self.doReset()
+            return self._check_status(t-1)
         if status != '0':
-            raise CommunicationError(self, 'error in command!')
+            self.log.warning('status byte = %s, clearing' % status)
+            os.write(self._io, '*CLS\n')
 
     @usermethod
     def zero(self):
