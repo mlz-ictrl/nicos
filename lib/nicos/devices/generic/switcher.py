@@ -61,6 +61,9 @@ class Switcher(Moveable):
         'precision':    Param('Precision for comparison', mandatory=True),
         'blockingmove': Param('Should we wait for the move to finish?',
                               type=bool, default=True, settable=True),
+        'fallback' :    Param('Default value if value not in mapping',
+                              default=None, mandatory=False, settable=False,
+                              userparam=False, type=none_or(str)),
     }
 
     parameter_overrides = {
@@ -70,6 +73,8 @@ class Switcher(Moveable):
     hardware_access = False
 
     def doInit(self, mode):
+        if self.fallback in self.mapping:
+            raise ConfigurationError('Value of default Parameter is not allowed to be in mapping!')
         self.valuetype = oneof(*self.mapping)
 
     def doStart(self, target):
@@ -97,6 +102,8 @@ class Switcher(Moveable):
                     return name
             elif pos == value:
                 return name
+        if self.fallback is not None:
+            return self.fallback
         raise PositionError(self, 'unknown position of %s' %
                             self._adevs['moveable'])
 
@@ -109,7 +116,9 @@ class Switcher(Moveable):
         # otherwise, we have to check if we are at a known position,
         # and otherwise return an error status
         try:
-            self.read(maxage)
+            if self.read(maxage) == self.fallback:
+                return status.NOTREACHED, 'unconfigured position of %s or '\
+                                       'still moving' % self._adevs['moveable']
         except PositionError, e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
