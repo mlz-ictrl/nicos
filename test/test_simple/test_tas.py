@@ -24,9 +24,11 @@
 
 from nicos import session
 from nicos.core import UsageError, LimitError, ConfigurationError, \
-     ComputationError, status
+     ComputationError, NicosError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
      acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
+from nicos.devices.tas import spacegroups
+
 
 from test.utils import raises, assertAlmostEqual, ErrorLogged
 
@@ -224,3 +226,21 @@ def test_resolution():
     rescal()
     rescal(1, 1, 0)
     rescal(1, 1, 0, 1)
+
+def test_getspacegroup():
+
+    # Good cases:
+    assert spacegroups.get_spacegroup(1) == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    assert spacegroups.get_spacegroup('Pbca') == [3, 2, 2, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+    # Error cases
+    assert raises(NicosError, spacegroups.get_spacegroup, 'Pbbb')
+    assert raises (NicosError, spacegroups.get_spacegroup, 300)
+
+def test_canreflect():
+    # P1 all reflection types are allowed
+    sg = spacegroups.get_spacegroup('P1')
+    assert spacegroups.can_reflect(sg, 0, 0 , 0) == True
+    assert spacegroups.can_reflect(sg, 1, 0 , 0) == True
+    assert spacegroups.can_reflect(sg, 0, 1 , 0) == True
+    assert spacegroups.can_reflect(sg, 0, 0 , 1) == True
+    assert spacegroups.can_reflect(sg, 1, 1 , 1) == True

@@ -31,7 +31,7 @@ from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
      array, identity, zeros, cross, dot, sign
 from numpy.linalg import inv, norm
 
-from nicos.core import Device, Param, ComputationError, vec3, anytype
+from nicos.core import Device, Param, ComputationError, vec3, anytype, NicosError
 from nicos.devices.experiment import Sample
 from nicos.devices.tas.spacegroups import get_spacegroup
 
@@ -645,9 +645,10 @@ class Cell(Device, CellBase):
     #                                 '+/-1 and +/-2')
 
     def doWriteSpacegroup(self, val):
-        if get_spacegroup(val) is None:
-            self.log.warning('space group %r not recognized; will be ignored '
-                '(valid values are: num, (num, setting) or "HMsym")' % val)
+        try:
+            get_spacegroup(val)
+        except NicosError, err:
+            self.log.warning('%s; new value will be ignored' % err)
 
 
 class TASSample(Sample, Cell):
