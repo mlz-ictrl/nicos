@@ -21,15 +21,13 @@
 #
 # *****************************************************************************
 
-from nicos.core import HasLimits
-from nicos.core import HasPrecision
-from nicos.core import status
-from nicos.core import waitForStatus
+from nicos.core import HasLimits, HasPrecision, Moveable, status, \
+    waitForStatus
 
 from nicos.antares.detector.pytangodevice import PyTangoDevice
 
 
-class AndorTemperature(PyTangoDevice, HasLimits, HasPrecision):
+class AndorTemperature(PyTangoDevice, HasLimits, HasPrecision, Moveable):
 
     def doRead(self, maxage=0):
         return self._tangoGetAttrGuard('temperature')

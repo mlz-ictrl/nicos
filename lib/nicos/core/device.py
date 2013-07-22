@@ -128,6 +128,8 @@ class DeviceMeta(DeviceMixinMeta):
                     if pinfo.classname is None:
                         pinfo.classname = base.__module__ + '.' + base.__name__
         newtype = type.__new__(mcs, name, bases, attrs)
+        # to debug MRO problems you could use this line
+        #print 'MRO:', newtype, newtype.mro()
         for entry in newtype.__mergedattrs__:
             newentry = {}
             for base in reversed(bases):
@@ -1359,7 +1361,7 @@ class Moveable(Readable):
             return True
 
 
-class HasLimits(Moveable):
+class HasLimits(DeviceMixinBase):
     """
     Mixin for "simple" continuously moveable devices that have limits.
     """
@@ -1375,7 +1377,8 @@ class HasLimits(Moveable):
     valuetype = float
 
     def init(self):
-        Moveable.init(self)
+        if isinstance(self, Moveable):
+            Moveable.init(self)
         if isinstance(self, HasOffset):
             offset = self.offset
         else:

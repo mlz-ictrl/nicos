@@ -214,7 +214,7 @@ class Sensor(AnalogInput, Coder):
         self._dev.Adjust(value)
 
 
-class AnalogOutput(PyTangoDevice, HasLimits):
+class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
     """
     Represents a TANGO AnalogOutput device.
 
