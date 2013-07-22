@@ -6,7 +6,7 @@ excludes = ['mono1']
 
 devices = dict(
     MonoIPC  = device('devices.vendor.ipc.IPCModBusTaco',
-                      tacodevice = 'mira/rs485/mgott',
+                      tacodevice = '//mirasrv/mira/rs485/mgott',
                       lowlevel = True),
 
     co_ephi  = device('devices.vendor.ipc.Coder',

@@ -13,7 +13,7 @@ devices = dict(
                     mono = 'mono'),
 
     PSDHV  = device('devices.vendor.iseg.IsegHV',
-                    tacodevice = 'mira/network/rs12_4',
+                    tacodevice = '//mirasrv/mira/network/rs12_4',
                     abslimits = (-3000, 0),
                     warnlimits = (-3000, -2800),
                     pollinterval = 10,
@@ -27,10 +27,10 @@ devices = dict(
                     warnlimits = ('okay', 'okay'),
                     pollinterval = 10,
                     maxage = 30,
-                    tacodevice = 'mira/io/psdgas'),
+                    tacodevice = '//mirasrv/mira/io/psdgas'),
 
     dtx    = device('mira.axis.PhytronAxis',
-                    tacodevice = 'mira/axis/dtx',
+                    tacodevice = '//mirasrv/mira/axis/dtx',
                     abslimits = (0, 1490),
                     pollinterval = 5,
                     maxage = 10),

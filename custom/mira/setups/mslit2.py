@@ -5,7 +5,7 @@ group = 'optional'
 
 devices = dict(
     ms2bus    = device('devices.vendor.ipc.IPCModBusTacoSerial',
-                       tacodevice = 'mira/network/rs8_4',
+                       tacodevice = '//mirasrv/mira/network/rs8_4',
                        lowlevel = True),
 
     # NOTE: this slit is mounted upside-down -- therefore the

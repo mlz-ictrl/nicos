@@ -32,7 +32,7 @@ _column3 = Column(
     Block('Cascade', [
         BlockRow(Field(name='ROI',   key='psd/lastcounts', item=0, width=9),
                  Field(name='Total', key='psd/lastcounts', item=1, width=9),
-                 #Field(name='MIEZE', key='psd/lastcontrast', item=0, format='%.3f', width=6),
+                 Field(name='MIEZE', key='psd/lastcontrast', item=0, format='%.3f', width=6),
                  Field(name='Last image', key='psd/lastfilenumber')),
         BlockRow('timer', 'mon2', 'ctr1'),
         BlockRow(Field(dev='MonHV', width=5),
@@ -45,15 +45,15 @@ _column3 = Column(
                  Field(name='Guide field', dev='He_GF')),
     ], 'helios'),
     Block('MIEZE', [
-        #BlockRow(Field(name='Setting', dev='mieze', item=0, istext=True),
-        #         Field(name='Fourier time', dev='mieze', item=1, unit='ps'),
-        #         Field(name='Tuning', key='mieze/tuning', istext=True)),
-        BlockRow('freq1', 'amp1', 'coilamp1'),
-        BlockRow('freq2', 'amp2', 'coilamp2'),
+        BlockRow(Field(name='Setting', dev='mieze', item=0, istext=True, width=5),
+                 Field(name='tau', dev='mieze', item=1, unit='ps', width=7),
+                 Field(name='Tuning', key='mieze/tuning', istext=True, width=10)),
+        BlockRow('dc1', 'freq1', 'amp1', 'coilamp1'),
+        BlockRow('dc2', 'freq2', 'amp2', 'coilamp2'),
         BlockRow('fp1', 'fp2', 'rp1', 'rp2'),
-        BlockRow('dc1', 'dc2', 'freq3', 'amp3'),
+        BlockRow('cc1', 'cc2', 'freq3', 'amp3'),
     ], 'mieze'),
-#    Block('X-Z table axes', [BlockRow('mx', 'my')], 'gauss'),
+    Block('X-Z table axes', [BlockRow('dty', 'dtz')], 'yztable'),
     Block('TAS', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
 
@@ -83,9 +83,9 @@ _column3 = Column(
     Block('TTi + Huber', [
         BlockRow('dct1', 'dct2', Field(dev='flip', width=5)),
         BlockRow('tbl1', 'tbl2'),
-    ], 'tti'),
+    ], 'mezeiflip'),
     Block('MIRA Magnet', [BlockRow('I')], 'miramagnet'),
-    Block('HV Stick', [BlockRow('HV')], 'hv_stick'),
+    Block('HV Stick', [BlockRow('HV')], 'hvstick'),
     #Block('Temp. plot', [
     #    BlockRow(Field(plot='Temps', dev='T_ccr11_A', width=40),
     #             Field(plot='Temps', dev='T_ccr11_B'), Field(plot='Temps', dev='T_ccr11_C')),
@@ -98,7 +98,7 @@ _column2 = Column(
         BlockRow(Field(dev='ss2', name='Sample slit 2 (ss2)', width=24, istext=True)),
     ], 'slits'),
     Block('Sample + Analyzer', [
-        BlockRow('om', 'srot', 'phi', 'stz'),
+        BlockRow('om', 'sth', 'phi', 'stz'),
         BlockRow('stx', 'sty', 'sgx', 'sgy'),
         BlockRow('ath', 'att'),
     ], 'sample'),
@@ -106,13 +106,13 @@ _column2 = Column(
         BlockRow('echi', 'ephi'),
         BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
     ], 'euler'),
-#    Block('Sample environment', [
-#        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
-#                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
-#                 Field(name='C', dev='T_ccr5_C')),
-#        BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
-#                 Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
-#    ], 'ccr5'),
+    Block('Sample environment', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
+                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
+                 Field(name='C', dev='T_ccr5_C')),
+        BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
+                 Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
+    ], 'ccr5'),
 #    Block('Sample environment (3He-4He)', [
 #        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
 #                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts'),
@@ -148,7 +148,7 @@ _column2 = Column(
                  Field(name='T5', dev='m5T_T5', width=6),
                  Field(name='T6', dev='m5T_T6', width=6)),
     ], 'magnet5'),
-    Block('Relays', [BlockRow('relay1', 'relay2')], 'relay'),
+#    Block('Relays', [BlockRow('relay1', 'relay2')], 'relay'),
 )
 
 _column1 = Column(
@@ -169,9 +169,10 @@ _column1 = Column(
     Block('Environment', [
         BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=7),
                  Field(name='6-fold', dev='Sixfold', min='open', width=7),
-                 Field(dev='NL6', min='open', width=7), Field(dev='UBahn', width=6)),
+                 Field(dev='NL6', min='open', width=7), Field(dev='UBahn', width=8, istext=True)),
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
                  Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
+                 Field(dev='FAKTemp', name='FAK40', width=6, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7)),
     ], 'reactor'),
 )

@@ -41,6 +41,7 @@ devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'rgeorgii@frm2.tum.de',
                       receivers = ['rgeorgii@frm2.tum.de', 'gbrandl@frm2.tum.de'],
+                      copies = ['rgeorgii@frm2.tum.de'],
                       subject = 'MIRA Warning',
                      ),
 

@@ -76,7 +76,7 @@ _column2 = Column(
         BlockRow(Field(dev='ss2', name='Sample slit 2 (ss2)', width=24, istext=True)),
     ], 'slits'),
     Block('Sample', [
-        BlockRow('om', 'srot', 'phi'),
+        BlockRow('om', 'sth', 'phi'),
         BlockRow('stx', 'sty', 'stz'),
         BlockRow('sgx', 'sgy'),
     ], 'sample'),
@@ -86,7 +86,7 @@ _column2 = Column(
     ], 'euler'),
     Block('Sample environment', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
-                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr11_B'),
+                 Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
                  Field(name='C', dev='T_ccr5_C')),
         BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
                  Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
@@ -136,6 +136,7 @@ _column1 = Column(
                  Field(dev='NL6', min='open', width=7)),
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
                  Field(dev='CoolTemp', width=6, format='%.1f'),
+                 Field(dev='FAKTemp', width=6, format='%.1f'),
                  Field(dev='Crane', min=10, width=7)),
     ], 'reactor'),
 )

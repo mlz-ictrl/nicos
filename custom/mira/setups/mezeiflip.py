@@ -3,11 +3,11 @@ group = 'optional'
 
 devices = dict(
     dct1 = device('devices.taco.CurrentSupply',
-                  tacodevice = 'mira/ttiql/tti1_1',
+                  tacodevice = '//mirasrv/mira/ttiql/tti1_1',
                   abslimits=(0, 5)),
 
     dct2 = device('devices.taco.CurrentSupply',
-                  tacodevice = 'mira/ttiql/tti1_2',
+                  tacodevice = '//mirasrv/mira/ttiql/tti1_2',
                   abslimits=(0, 5)),
 
     flip = device('mira.flipper.Flipper',

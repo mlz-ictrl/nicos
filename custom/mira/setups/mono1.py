@@ -7,7 +7,7 @@ devices = dict(
     Sample   = device('devices.tas.TASSample'),
 
     MonoIPC  = device('devices.vendor.ipc.IPCModBusTaco',
-                      tacodevice = 'mira/rs485/mgott',
+                      tacodevice = '//mirasrv/mira/rs485/mgott',
                       lowlevel = True),
 
 #    MonoIPC  = device('devices.vendor.ipc.IPCModBusSerial', port='/dev/ttyS1'),

@@ -5,7 +5,7 @@ includes = ['base', 'ccr5']
 
 devices = dict(
     M = device('mira.sr850.Amplifier',
-               tacodevice = 'mira/network/rs3_1'),
+               tacodevice = '//mirasrv/mira/network/rs3_1'),
 )
 
 startupcode = '''

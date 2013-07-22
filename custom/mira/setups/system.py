@@ -42,4 +42,9 @@ devices = dict(
     dmnsink  = device('devices.datasinks.DaemonSink'),
 
     gracesink= device('devices.datasinks.GraceSink'),
+
+    Space    = device('devices.generic.FreeSpace',
+                      path = '/data',
+                      minfree = 10),
 )
+

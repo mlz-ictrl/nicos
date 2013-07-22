@@ -5,7 +5,7 @@ includes = ['system', 'slits', 'sample', 'nl6', 'fak40', 'reactor']
 
 devices = dict(
     MonoToni = device('devices.vendor.toni.ModBus',
-                      tacodevice = 'mira/rs232/monotoni',
+                      tacodevice = '//mirasrv/mira/rs232/monotoni',
                       lowlevel = True),
 
     atten1   = device('devices.vendor.toni.Valve',
@@ -49,9 +49,9 @@ devices = dict(
                        warnlimits = ('in', 'in')),
 
     Shutter   = device('mira.shutter.Shutter',
-                       tacodevice = 'mira/io/shutteropen',
+                       tacodevice = '//mirasrv/mira/io/shutteropen',
                        pollinterval = 1,
-                       output = 'mira/io/closeshutter',
+                       output = '//mirasrv/mira/io/closeshutter',
                        mapping = {'closed': 0, 'open': 1},
                        warnlimits = ('open', 'open')),
 
@@ -60,15 +60,15 @@ devices = dict(
                        warnlimits = ('okay', 'okay'),
                        pollinterval = 10,
                        maxage = 30,
-                       tacodevice = 'mira/io/cooling'),
+                       tacodevice = '//mirasrv/mira/io/cooling'),
     CoolTemp  = device('devices.taco.AnalogInput',
-                       tacodevice = 'mira/i7000/coolingtemp',
+                       tacodevice = '//mirasrv/mira/i7000/coolingtemp',
                        warnlimits = (10, 30),
                        pollinterval = 10,
                        maxage = 30),
 
     # LeckToni  = device('devices.vendor.toni.ModBus',
-    #                    tacodevice = 'mira/rs232/lecktoni',
+    #                    tacodevice = '//mirasrv/mira/rs232/lecktoni',
     #                    lowlevel = True),
 
     # Leckmon   = device('devices.vendor.toni.Leckmon',

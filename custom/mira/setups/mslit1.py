@@ -3,7 +3,7 @@ group = 'optional'
 
 devices = dict(
     ms1bus    = device('devices.vendor.ipc.IPCModBusTacoSerial',
-                       tacodevice = 'mira/network/rs7_1',
+                       tacodevice = '//mirasrv/mira/network/rs7_1',
                        lowlevel = True),
 
     ms1_l_mot = device('devices.vendor.ipc.SlitMotor',

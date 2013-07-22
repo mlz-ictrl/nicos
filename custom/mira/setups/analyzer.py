@@ -3,20 +3,20 @@ description = 'analyzer table'
 devices = dict(
 #    ath      = device('mira.axis.PhytronAxis',
 #                      description = 'analyzer theta',
-#                      tacodevice = 'mira/axis/ath',
+#                      tacodevice = '//mirasrv/mira/axis/ath',
 #                      abslimits = (90 - 90, 90 + 90),
 #                      fmtstr = '%.3f',
 #                      offset = 90.0),
 
-    ath_co   = device('devices.taco.Coder', tacodevice='mira/encoder/ath', lowlevel = True),
-    ath_mo   = device('devices.taco.Motor', tacodevice='mira/motor/ath', abslimits = (0, 180), lowlevel = True),
+    ath_co   = device('devices.taco.Coder', tacodevice='//mirasrv/mira/encoder/ath', lowlevel = True),
+    ath_mo   = device('devices.taco.Motor', tacodevice='//mirasrv/mira/motor/ath', abslimits = (0, 180), lowlevel = True),
     ath      = device('devices.generic.Axis', coder = 'ath_co', motor = 'ath_mo', obs = [], precision = 0.005,
                       ),
 
 
     att      = device('devices.taco.HoveringAxis',
                       description = 'analyzer two-theta',
-                      tacodevice = 'mira/axis/att',
+                      tacodevice = '//mirasrv/mira/axis/att',
                       abslimits = (-90 - 135, -90 + 135),
                       startdelay = 1,
                       stopdelay = 2,
@@ -26,7 +26,7 @@ devices = dict(
 
 #    att      = device('mira.axis.PhytronAxis',
 #                      description = 'analyzer two-theta',
-#                      tacodevice = 'mira/axis/att',
+#                      tacodevice = '//mirasrv/mira/axis/att',
 #                      abslimits = (-90 - 135, -90 + 135),
 #                      fmtstr = '%.2f',
 #                      offset = -90.0),
@@ -46,7 +46,7 @@ devices = dict(
 
 #    adr      = device('mira.axis.PhytronAxis',
 #                      description = 'analyzer detector rotation',
-#                      tacodevice = 'mira/axis/adr',
+#                      tacodevice = '//mirasrv/mira/axis/adr',
 #                      abslimits = (-180, 180),
 #                      fmtstr = '%.3f'),
 )
