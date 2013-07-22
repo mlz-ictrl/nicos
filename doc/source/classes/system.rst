@@ -69,4 +69,3 @@ Notifiers can be configured in setups like normal devices and are selected in
 
 .. autoclass:: Mailer()
 .. autoclass:: SMSer()
-.. autoclass:: Jabberer()

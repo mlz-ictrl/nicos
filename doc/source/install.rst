@@ -41,7 +41,6 @@ Requirements
   - scipy (for fitting and data analysis)
   - MySQLdb (for proposal DB query)
   - matplotlib (for resolution plots)
-  - python-xmpp (for Jabber notifications)
   - pyserial (for TACO-less serial line communication)
   - gnuplot (for plots in the electronig logbook)
   - Grace (for scanplot)
