@@ -103,7 +103,9 @@ class View(QObject):
             # more often than 10 seconds)
             self.timer = QTimer(self, interval=max(interval, 10)*1000)
             self.timer.timeout.connect(self.on_timer_timeout)
-            self.timer.start()
+            # XXX: this is somehow still broken: the window now doesn't show
+            # new values
+            #self.timer.start()
 
     def on_timer_timeout(self):
         for key, kd in self.keydata.iteritems():
