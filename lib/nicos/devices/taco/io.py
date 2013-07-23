@@ -140,7 +140,7 @@ class NamedDigitalOutput(DigitalOutput):
 
     def doInit(self, mode):
         self._reverse = dict((v, k) for (k, v) in self.mapping.iteritems())
-        self.valuetype = oneof(*(self.mapping.items() + self.mapping.values()))
+        self.valuetype = oneof(*(self.mapping.keys() + self.mapping.values()))
 
     def doStart(self, target):
         value = self.mapping.get(target, target)
