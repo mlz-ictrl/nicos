@@ -4,9 +4,13 @@ group = 'lowlevel'
 
 includes = []
 
+nethost = 'toftofsrv.toftof.frm2'
+
 devices = dict(
     ch           = device('toftof.chopper.Controller',
-                          tacodevice = '//toftofsrv/toftof/rs232/ifchoppercontrol',
+                          description = 'TOFTOF chopper control device',
+                          tacodevice = '//%s/toftof/rs232/ifchoppercontrol' % \
+                                        (nethost, ),
                           speed_accuracy = 2,
                           phase_accuracy = 10,
                           ch5_90deg_offset = 0,
@@ -54,14 +58,16 @@ devices = dict(
     chDS         = device('toftof.chopper.SpeedReadout',
                           description = 'Speed of the disks 1 - 7',
                           chopper = 'ch',
-                          fmtstr = '[%7.2f, %7.2f, %7.2f, %7.2f, %7.2f, %7.2f, %7.2f]',
+                          fmtstr = '[%7.2f, %7.2f, %7.2f, %7.2f, %7.2f,' \
+                                   ' %7.2f, %7.2f]',
                           pollinterval = 10,
                           maxage = 12,
                           unit = 'rpm',
                          ),
 
     chdelaybus   = device('devices.vendor.toni.ModBus',
-                          tacodevice = 'toftof/rs232/ifchdelay',
+                          tacodevice = '//%s/toftof/rs232/ifchdelay' % \
+                                        (nethost,),
                           lowlevel = True,
                          ),
     chdelay      = device('devices.vendor.toni.DelayBox',
