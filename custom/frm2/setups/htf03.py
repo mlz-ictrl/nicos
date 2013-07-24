@@ -8,12 +8,14 @@ nethost = 'htf03'
 
 devices = {
     'T_%s' % (nethost, ) : device('devices.taco.TemperatureController',
-                  tacodevice = '//%s/htf/eurotherm/control' % (nethost, ),
-                  abslimits = (0, 2000),
-                  ramp = 0.1,
-                  unit = 'C',
-                  fmtstr = '%.3f',
-                 ),
+                                  description = 'The sample temperature',
+                                  tacodevice = '//%s/htf/eurotherm/control' % \
+                                            (nethost, ),
+                                  abslimits = (0, 2000),
+                                  ramp = 0.1,
+                                  unit = 'C',
+                                  fmtstr = '%.3f',
+                                 ),
 }
 
 startupcode = """
