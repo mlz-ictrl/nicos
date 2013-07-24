@@ -54,6 +54,8 @@ devices = dict(
 #   liveplot = device('devices.datasinks.GraceSink'),
 
     Space    = device('devices.generic.FreeSpace',
+                      description = 'The amount of free space for storing data',
                       path = 'data',
-                      minfree = 5),
+                      minfree = 5,
+                     ),
 )

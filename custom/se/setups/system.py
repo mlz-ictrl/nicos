@@ -40,5 +40,6 @@ devices = dict(
     Space    = device('devices.generic.FreeSpace',
                       description = 'The free space on the data storage',
                       path = '/data',
-                      minfree = 5),
+                      minfree = 5,
+                     ),
 )

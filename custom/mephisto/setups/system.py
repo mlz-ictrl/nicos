@@ -53,5 +53,7 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink'),
 
     Space    = device('devices.generic.FreeSpace',
-                      minfree = 0.5),
+                      description = 'The amount of free space for storing data',
+                      minfree = 0.5,
+                     ),
 )
