@@ -531,8 +531,13 @@ def limits(*devlist):
 
     To set userlimits, use one of these commands:
 
-    >>> set(phi, 'userlimits', (low, high))
     >>> phi.userlimits = (low, high)
+    >>> set(phi, 'userlimits', (low, high))
+
+    To reset the userlimits to the maximum allowed range (given by the
+    abslimits parameter), use:
+
+    >>> resetlimits(phi)
     """
     if not devlist:
         devlist = [session.devices[dev] for dev in session.explicit_devices
