@@ -265,7 +265,7 @@ void LWControls::setupUi()
     filelistLabel = new QLabel("directory", this);
     mainLayout->addWidget(filelistLabel);
 
-    filelistDirectory = new QLineEdit("../livewidget/data/darkimage/", this);
+    filelistDirectory = new QLineEdit(".", this);
     mainLayout->addWidget(filelistDirectory);
 
     filelistView = new QListView(this);
