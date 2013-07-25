@@ -243,6 +243,11 @@ main-install:
 	@echo "============================================================="
 	@echo "Finished."
 	@echo "============================================================="
+	@if ps ax | grep "[n]icos-"; then \
+		echo ; \
+		echo "WARNING: It seems that some NICOS services are running (see above)."; \
+		echo "You might want to restart them to use the new code."; \
+	fi
 
 install-gui: gui main-install-gui custom-install-gui
 
