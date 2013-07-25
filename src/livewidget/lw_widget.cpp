@@ -70,13 +70,10 @@ void LWWidget::setInstrumentOption(const char *instr)
 
 void LWWidget::unload()
 {
-    // XXX why was this removed?
-    /*
     if (m_data) {
         delete m_data;
         m_data = NULL;
     }
-    */
 }
 
 void LWWidget::resizeEvent(QResizeEvent *event)
