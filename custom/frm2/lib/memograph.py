@@ -51,7 +51,7 @@ class MemographValue(Readable):
     parameter_overrides = {
         'unit':         Override(mandatory=False),
         'pollinterval': Override(default=60),
-        'maxage':       Override(default=120),
+        'maxage':       Override(default=125),
     }
 
     def _getRaw(self):
