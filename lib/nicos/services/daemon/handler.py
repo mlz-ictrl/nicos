@@ -377,14 +377,14 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=True, name='break')
     def break_(self, level=None):
-        """Interrupt the current script at the next breakpoint.
+        """Pause the current script at the next breakpoint.
 
         :param level: stop level of breakpoint as a string (default 2)
 
            * '1' - pause after current scan/line in the script
            * '2' - pause after scan point/breakpoint with level "2"
            * '3' - pause in the middle of counting
-        :returns: ok or error (e.g. if script is already interrupted)
+        :returns: ok or error (e.g. if script is already paused)
         """
         if level is None:
             level = 2  # which means after scan point
@@ -393,24 +393,24 @@ class ConnectionHandler(BaseRequestHandler):
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
-            self.write(NAK, 'script is already interrupted')
+            self.write(NAK, 'script is already paused')
         else:
             self.controller.set_break(('break', level, self.user.name))
             if level >= 3:
                 session.should_pause_count = 'Paused by %s' % self.user.name
-            self.log.info('script interrupt request')
+            self.log.info('script pause request')
             self.write(ACK)
 
     @command(needcontrol=True, needscript=True, name='continue')
     def continue_(self):
-        """Continue the interrupted script.
+        """Continue the paused script.
 
-        :returns: ok or error (e.g. if script is not interrupted)
+        :returns: ok or error (e.g. if script is not paused)
         """
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'could not continue script')
         elif self.controller.status == STATUS_RUNNING:
-            self.write(NAK, 'script is not interrupted')
+            self.write(NAK, 'script is not paused')
         else:
             self.log.info('script continue request')
             self.controller.set_continue(None)
@@ -418,7 +418,7 @@ class ConnectionHandler(BaseRequestHandler):
 
     @command(needcontrol=True, needscript=True)
     def stop(self, level=None):
-        """Abort the interrupted script.
+        """Abort the paused script.
 
         :param level: stop level as a string (default 3)
 

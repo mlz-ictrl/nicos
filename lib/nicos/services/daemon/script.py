@@ -327,21 +327,21 @@ class ExecutionController(Controller):
             # don't pause/stop here...
             self.set_continue(flag)
         else:
-            self.log.info('script interrupted in %s' % self.current_location())
-            session.log.info('Script interrupted by %s' % flag[2])
+            self.log.info('script paused in %s' % self.current_location())
+            session.log.info('Script paused by %s' % flag[2])
         new_flag = self.wait_for_continue()
         # new_flag is either a flag coming from Handler.stop(), from
         # Handler.continue() or the old one from above
         if not new_flag:
             # new_flag == None means continue
-            self.log.info('interrupted script continued')
+            self.log.info('paused script continued')
             session.log.info('Script continued by %s' % flag[2])
         elif new_flag[1] < bplevel:
             # didn't pause/stop here, try again on next breakpoint
             self.set_break(new_flag)
         elif new_flag[0] in ('stop', 'emergency stop'):
             # we can stop here, do it
-            self.log.info('interrupted script stopped: %s' % (new_flag,))
+            self.log.info('paused script now stopped: %s' % (new_flag,))
             self.set_stop(new_flag)
 
     def current_location(self, verbose=False):

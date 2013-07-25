@@ -288,14 +288,14 @@ class NicosCmdClient(NicosClient):
             self.pending_requests[req['reqno']] = req
         self.set_status(self.status)
 
-    stcolmap = {'idle': 'blue',
-                'running': 'fuchsia',
-                'interrupted': 'red',
-                'disconnected': 'darkgray'}
-    modemap =  {'master': '',
-                'slave':  'slave,',
-                'simulation': 'simmode,',
-                'maintenance': 'maintenance,'}
+    stcolmap  = {'idle': 'blue',
+                 'running': 'fuchsia',
+                 'paused': 'red',
+                 'disconnected': 'darkgray'}
+    modemap   = {'master': '',
+                 'slave':  'slave,',
+                 'simulation': 'simmode,',
+                 'maintenance': 'maintenance,'}
 
     def set_status(self, status):
         """Update the current execution status, and set a new prompt."""
@@ -411,7 +411,7 @@ class NicosCmdClient(NicosClient):
                 elif status != STATUS_INBREAK:
                     new_status = 'running'
                 else:
-                    new_status = 'interrupted'
+                    new_status = 'paused'
                 if status != self.status:
                     self.set_status(new_status)
                 if line != self.current_line:
@@ -616,7 +616,7 @@ class NicosCmdClient(NicosClient):
 
     def print_where(self):
         """Implements the "/where" command."""
-        if self.status in ('running', 'interrupted'):
+        if self.status in ('running', 'paused'):
             self.put_client('Printing current script.')
             for i, line in enumerate(self.current_script):
                 if i+1 == self.current_line:
@@ -730,7 +730,7 @@ class NicosCmdClient(NicosClient):
                 self.put_error('Spy mode active: command ignored.')
                 return
             # this is not usually entered as "/cmd foo", but only "foo"
-            if self.status in ('running', 'interrupted'):
+            if self.status in ('running', 'paused'):
                 reply = self.ask_question('A script is already running, '
                     'queue or execute anyway?', chars='qxn')
                 if reply == 'x':
@@ -759,7 +759,7 @@ class NicosCmdClient(NicosClient):
             except Exception, e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
-            if self.status in ('running', 'interrupted') and cmd != 'run!':
+            if self.status in ('running', 'paused') and cmd != 'run!':
                 if self.ask_question('A script is already running, '
                     'queue script?', chars='yn', default='y') == 'y':
                     self.tell('queue', fpath, code)
@@ -1001,7 +1001,7 @@ This client supports "meta-commands" beginning with a slash:
   /w(here)            -- print current script and location in it
   /log (n)            -- print more past output, n lines or everything
   /break              -- pause script after next scan step or script command
-  /cont(inue)         -- continue interrupted script
+  /cont(inue)         -- continue paused script
   /s(top)             -- stop script (you will be prompted how abruptly)
 
   /pending            -- show the currently pending commands

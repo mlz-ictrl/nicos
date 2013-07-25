@@ -333,11 +333,11 @@ class MainWindow(QMainWindow, DlgUtils):
         if status == self.current_status:
             return
         if self.action_start_time and self.current_status == 'running' and \
-           status in ('idle', 'interrupted') and \
+           status in ('idle', 'paused') and \
            time.time() - self.action_start_time > 20:
             # show a visual indication of what happened
-            if status == 'interrupted':
-                msg = 'Script is now interrupted.'
+            if status == 'paused':
+                msg = 'Script is now paused.'
             elif exception:
                 msg = 'Script has exited with an error.'
             else:
@@ -432,7 +432,7 @@ class MainWindow(QMainWindow, DlgUtils):
         elif status != STATUS_INBREAK:
             self.setStatus('running')
         else:
-            self.setStatus('interrupted')
+            self.setStatus('paused')
 
     def on_client_disconnected(self):
         self.setStatus('disconnected')

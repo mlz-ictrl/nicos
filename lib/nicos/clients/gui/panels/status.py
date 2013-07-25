@@ -145,15 +145,15 @@ class ScriptStatusPanel(Panel):
         isconnected = status != 'disconnected'
         self.actionBreak.setEnabled(isconnected and status != 'idle')
         self.actionBreak2.setEnabled(isconnected and status != 'idle')
-        self.actionBreak2.setVisible(status != 'interrupted')
+        self.actionBreak2.setVisible(status != 'paused')
         self.actionBreakCount.setEnabled(isconnected and status != 'idle')
-        self.actionContinue.setVisible(status == 'interrupted')
+        self.actionContinue.setVisible(status == 'paused')
         self.actionStop.setEnabled(isconnected and status != 'idle')
         self.actionStop2.setEnabled(isconnected and status != 'idle')
         self.actionFinish.setEnabled(isconnected and status != 'idle')
         self.actionEmergencyStop.setEnabled(isconnected)
-        if status == 'interrupted':
-            self.statusLabel.setText('Script is interrupted.')
+        if status == 'paused':
+            self.statusLabel.setText('Script is paused.')
             self.statusLabel.show()
             setBackgroundColor(self.traceView, self.pause_color)
         else:
