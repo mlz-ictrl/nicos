@@ -93,7 +93,6 @@ class LogViewerPanel(Panel, DlgUtils):
         if self.levelWarningCheckBox.isChecked(): result['levels'].append('WARNING')
         if self.levelErrorCheckBox.isChecked(): result['levels'].append('ERROR')
         if self.levelInputCheckBox.isChecked(): result['levels'].append('INPUT')
-        if self.levelOutputCheckBox.isChecked(): result['levels'].append('OUTPUT')
 
         # determine desired nicos service
         result['service'] = str(self.serviceComboBox.currentText().toLower())

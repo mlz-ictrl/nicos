@@ -32,7 +32,7 @@ from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
      QTextCursor, QMainWindow, QTextEdit
 from PyQt4.QtCore import Qt, QRegExp
 
-from nicos.utils.loggers import INPUT, OUTPUT, ACTION
+from nicos.utils.loggers import INPUT, ACTION
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -114,7 +114,7 @@ class MessageView(QTextBrowser):
         elif levelno <= DEBUG:
             text = name + message[3]
             fmt = grey
-        elif levelno <= OUTPUT:
+        elif levelno <= INFO:
             if message[3].startswith('  > '):
                 fmt = QTextCharFormat()
                 fmt.setFontWeight(QFont.Bold)

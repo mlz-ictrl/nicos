@@ -31,7 +31,7 @@ import __builtin__
 import threading
 
 from nicos.core import AccessError, ACCESS_LEVELS
-from nicos.utils.loggers import OUTPUT
+from nicos.utils.loggers import INFO
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.cacheclient import DaemonCacheClient
@@ -64,7 +64,7 @@ class DaemonSession(NoninteractiveSession):
 
     def _displayhook(self, value):
         if value is not None and getattr(value, '__display__', True):
-            self.log.log(OUTPUT, repr(value))
+            self.log.log(INFO, repr(value))
 
     def _beforeStart(self, daemondev):
         from nicos.services.daemon.utils import DaemonLogHandler

@@ -28,7 +28,7 @@ import sys
 from wsgiref.simple_server import make_server
 
 from nicos import session
-from nicos.utils.loggers import OUTPUT
+from nicos.utils.loggers import INFO
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.services.web.app import FakeInput, MTWSGIServer, NicosApp
@@ -46,7 +46,7 @@ class WebSession(Session):
 
     def _displayhook(self, value):
         if value is not None and getattr(value, '__display__', True):
-            self.log.log(OUTPUT, repr(value))
+            self.log.log(INFO, repr(value))
 
     @classmethod
     def run(cls, setup='startup'):

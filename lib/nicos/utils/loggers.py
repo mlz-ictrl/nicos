@@ -43,11 +43,10 @@ DATESTAMP_FMT = '%Y-%m-%d'
 SECONDS_PER_DAY = 60 * 60 * 24
 
 ACTION = INFO + 1
-OUTPUT = INFO + 5
 INPUT  = INFO + 6
 
 loglevels = {'debug': DEBUG, 'info': INFO, 'action': ACTION, 'warning': WARNING,
-             'error': ERROR, 'input': INPUT, 'output': OUTPUT}
+             'error': ERROR, 'input': INPUT}
 
 
 class NicosLogger(Logger):
@@ -146,7 +145,7 @@ class NicosConsoleFormatter(Formatter):
         else:
             if levelno <= DEBUG:
                 fmtstr = self.colorize('darkgray', '%s%%(message)s' % namefmt)
-            elif levelno <= OUTPUT:
+            elif levelno <= INFO:
                 fmtstr = '%s%%(message)s' % namefmt
             elif levelno == INPUT:
                 # do not display input again
@@ -360,6 +359,5 @@ class ELogHandler(Handler):
 
 def initLoggers():
     addLevelName(ACTION, 'ACTION')
-    addLevelName(OUTPUT, 'OUTPUT')
     addLevelName(INPUT, 'INPUT')
     Manager.globalprefix = ''

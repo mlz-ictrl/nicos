@@ -28,7 +28,7 @@ import time
 from cgi import escape
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
-from nicos.utils.loggers import INPUT, OUTPUT, ACTION
+from nicos.utils.loggers import INPUT, ACTION
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -51,7 +51,7 @@ def formatMessage(message):
     if levelno <= DEBUG:
         text = name + message[3]
         cls = 'debug'
-    elif levelno <= OUTPUT:
+    elif levelno <= INFO:
         text = name + message[3]
     elif levelno == INPUT:
         return '<span class="input">' + escape(message[3]) + '</span>'

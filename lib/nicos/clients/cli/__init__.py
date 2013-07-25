@@ -47,7 +47,7 @@ from threading import Thread
 from nicos.clients.base import NicosClient
 from nicos.utils import colorize, which, formatDuration, formatEndtime, \
     terminalSize, parseConnectionString
-from nicos.utils.loggers import ACTION, OUTPUT, INPUT
+from nicos.utils.loggers import ACTION, INPUT
 from nicos.utils.graceplot import grace_available, GracePlotter
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
      STATUS_IDLE, STATUS_IDLEEXC
@@ -377,7 +377,7 @@ class NicosCmdClient(NicosClient):
             if levelno <= DEBUG:
                 timefmt = strftime('[%H:%M:%S] ', localtime(msg[1]))
                 newtext = colorize('lightgray', timefmt) + colorize('darkgray', namefmt + msg[3].rstrip())
-            elif levelno <= OUTPUT:
+            elif levelno <= INFO:
                 timefmt = strftime('[%H:%M:%S] ', localtime(msg[1]))
                 newtext = colorize('lightgray', timefmt) + namefmt + msg[3].rstrip()
             elif levelno == INPUT:

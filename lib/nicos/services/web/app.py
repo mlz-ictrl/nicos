@@ -38,7 +38,7 @@ from wsgiref.simple_server import WSGIServer
 
 from nicos import session
 from nicos.utils import formatExtendedTraceback
-from nicos.utils.loggers import DATEFMT, ACTION, INPUT, OUTPUT, DEBUG, WARNING
+from nicos.utils.loggers import DATEFMT, ACTION, INPUT, INFO, DEBUG, WARNING
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
 
@@ -191,7 +191,7 @@ class NicosWebFormatter(logging.Formatter):
         if levelno <= DEBUG:
             cls = 'darkgray'
             fmtstr = namefmt + '%(message)s'
-        elif levelno <= OUTPUT:
+        elif levelno <= INFO:
             cls = 'black'
             fmtstr = namefmt + '%(message)s'
         elif levelno <= WARNING:

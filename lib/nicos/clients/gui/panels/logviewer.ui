@@ -18,16 +18,6 @@
     <layout class="QGridLayout" name="gridLayout_4">
      <item row="0" column="2">
       <layout class="QGridLayout" name="gridLayout">
-       <item row="3" column="2">
-        <widget class="QCheckBox" name="levelOutputCheckBox">
-         <property name="text">
-          <string>Output</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="1">
         <widget class="QCheckBox" name="levelInfoCheckBox">
          <property name="text">
@@ -42,36 +32,6 @@
         <widget class="QCheckBox" name="levelActionCheckBox">
          <property name="text">
           <string>Action</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QCheckBox" name="levelWarningCheckBox">
-         <property name="text">
-          <string>Warning</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QCheckBox" name="levelErrorCheckBox">
-         <property name="text">
-          <string>Error</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QCheckBox" name="levelInputCheckBox">
-         <property name="text">
-          <string>Input</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -107,6 +67,36 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="1" column="3">
+        <widget class="QCheckBox" name="levelInputCheckBox">
+         <property name="text">
+          <string>Input</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="levelWarningCheckBox">
+         <property name="text">
+          <string>Warning</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QCheckBox" name="levelErrorCheckBox">
+         <property name="text">
+          <string>Error</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -343,22 +333,6 @@
     <hint type="destinationlabel">
      <x>536</x>
      <y>73</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>levelOutputCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>LogViewerWindow</receiver>
-   <slot>updateView()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>368</x>
-     <y>72</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>536</x>
-     <y>89</y>
     </hint>
    </hints>
   </connection>

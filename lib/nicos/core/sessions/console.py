@@ -40,7 +40,7 @@ except ImportError:  # on Windows (without pyreadline)
 from nicos import session, nicos_version
 from nicos.core import AccessError
 from nicos.utils import colorcode, formatExtendedStack
-from nicos.utils.loggers import INPUT, OUTPUT
+from nicos.utils.loggers import INPUT, INFO
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
 
@@ -194,7 +194,7 @@ class ConsoleSession(Session):
 
     def _displayhook(self, value):
         if value is not None and getattr(value, '__display__', True):
-            self.log.log(OUTPUT, repr(value))
+            self.log.log(INFO, repr(value))
 
     def loadSetup(self, *args, **kwds):
         Session.loadSetup(self, *args, **kwds)
