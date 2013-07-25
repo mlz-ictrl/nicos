@@ -177,6 +177,10 @@ class LiveDataPanel(Panel):
         self._nz = nz
 
     def on_client_livedata(self, data):
+        if self._last_fname:
+            # in the case of a filename, we add it to the list
+            self.add_to_flist(self._last_fname, self._last_format, self._last_tag)
+        # but display it right now only if on <Live> setting
         if self._no_direct_display:
             return
         if self._last_format:
@@ -186,9 +190,6 @@ class LiveDataPanel(Panel):
         elif self._last_fname:
             # we got no live data, but a filename with the data
             self.widget.setData(LWData(self._last_fname, FILETYPES[self._last_tag]))
-        if self._last_fname:
-            # in the case of a filename, we also add it to the list
-            self.add_to_flist(self._last_fname, self._last_format, self._last_tag)
 
     def add_to_flist(self, filename, fformat, ftag, scroll=True):
         shortname = path.basename(filename)
