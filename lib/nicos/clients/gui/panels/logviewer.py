@@ -46,7 +46,7 @@ class LogViewerPanel(Panel, DlgUtils):
         # initialize date/time range to display logs from yesterday
         # (same time) to now
         self.dateTimeEditFrom.setDateTime(
-                                      QDateTime.currentDateTime().addDays(-1))
+            QDateTime.currentDateTime().addDays(-1))
         self.dateTimeEditTo.setDateTime(QDateTime.currentDateTime())
 
         if self.client.connected:
@@ -83,16 +83,20 @@ class LogViewerPanel(Panel, DlgUtils):
 
     def _getFilters(self):
         result = {
-                  'levels' : []
-                  }
+            'levels' : []
+        }
 
         # determine desired levels
-        if self.levelDebugCheckBox.isChecked(): result['levels'].append('DEBUG')
-        if self.levelInfoCheckBox.isChecked(): result['levels'].append('INFO')
-        if self.levelActionCheckBox.isChecked(): result['levels'].append('ACTION')
-        if self.levelWarningCheckBox.isChecked(): result['levels'].append('WARNING')
-        if self.levelErrorCheckBox.isChecked(): result['levels'].append('ERROR')
-        if self.levelInputCheckBox.isChecked(): result['levels'].append('INPUT')
+        if self.levelDebugCheckBox.isChecked():
+            result['levels'].append('DEBUG')
+        if self.levelInfoCheckBox.isChecked():
+            result['levels'].append('INFO')
+        if self.levelWarningCheckBox.isChecked():
+            result['levels'].append('WARNING')
+        if self.levelErrorCheckBox.isChecked():
+            result['levels'].append('ERROR')
+        if self.levelInputCheckBox.isChecked():
+            result['levels'].append('INPUT')
 
         # determine desired nicos service
         result['service'] = str(self.serviceComboBox.currentText().toLower())
@@ -124,7 +128,7 @@ class LogViewerPanel(Panel, DlgUtils):
             # if logfile for given date exists, read and filter content
             if os.path.exists(logFile):
                 result += self._getFilteredFileContent(logFile, fromDateTime,
-                                                      filters)
+                                                       filters)
 
             if fromDateTime.daysTo(toDateTime) <= 0:
                 break
@@ -141,6 +145,7 @@ class LogViewerPanel(Panel, DlgUtils):
         levels = filters['levels']
 
         result = ''
+        dateStr = fileDate.toString('yyyy-MM-dd ')
 
         with open(path, 'r') as f:
             # store if last line was added,
@@ -159,7 +164,7 @@ class LogViewerPanel(Panel, DlgUtils):
                         result += self._colorizeLevel(line, lastLevel)
                     continue
 
-                dateTime = QDateTime.fromString(parts[0])
+                dateTime = QDateTime.fromString(parts[0], 'HH:mm:ss,zzz')
                 dateTime.setDate(fileDate.date())
                 level = parts[1]
 
@@ -173,6 +178,9 @@ class LogViewerPanel(Panel, DlgUtils):
                     lastLineAdded = False
                     continue
 
+                # add current day to the line
+                line = dateStr + line
+
                 result += self._colorizeLevel(line, level)
                 lastLineAdded = True
                 lastLevel = level
@@ -181,10 +189,10 @@ class LogViewerPanel(Panel, DlgUtils):
 
     def _colorizeLevel(self, line, level):
         style = {
-               'DEBUG' : 'color:darkgray',
-               'WARNING' : 'color:fuchsia',
-               'ERROR' : 'color:red; font-weight: bold;',
-               }
+            'DEBUG' : 'color:darkgray',
+            'WARNING' : 'color:fuchsia',
+            'ERROR' : 'color:red; font-weight: bold;',
+        }
 
         return '<span style="%s">%s</span>' % (style.get(level, ''),
                                                       line)
