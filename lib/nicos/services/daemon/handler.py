@@ -307,6 +307,8 @@ class ConnectionHandler(BaseRequestHandler):
                                    'data: %s' % (event, repr(data)[:1000]))
         self.log.debug('closing event connection')
         closeSocket(sock)
+        # also close the main connection if not already done
+        closeSocket(self.sock)
 
     # -- Script control commands ------------------------------------------------
 
