@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+from os import path
 
 from nicos import session
 from nicos.core import Measurable
@@ -42,7 +43,7 @@ def take_ob(*detlist, **preset):
     exp = session.experiment
     oldmode = ccddevice.shuttermode
     try:
-        ccddevice.shuttermode = 'always_open'
+        ccddevice.shuttermode = 'auto'
         ccddevice.datapath = [exp.openbeampath]
         return count(*detlist, **preset)
     finally:
@@ -50,7 +51,7 @@ def take_ob(*detlist, **preset):
 
         lastImg = ccddevice.read(0)
         if lastImg:
-            lastImg = lastImg[0]
+            lastImg = path.basename(lastImg[0])
         else:
             lastImg = ''
 
@@ -75,7 +76,7 @@ def take_di(*detlist, **preset):
 
         lastImg = ccddevice.read(0)
         if lastImg:
-            lastImg = lastImg[0]
+            lastImg = path.basename(lastImg[0])
         else:
             lastImg = ''
 

@@ -18,6 +18,7 @@ devices = dict(
                 shutterclosetime=0.05,
                 shuttermode='auto',
                 nametemplate='%08d.fits',
+                filecounter='/data/FRM-II/imagecounter',
                 ),
     ccdTemp = device('nicos.antares.detector.AndorTemperature',
                 tangodevice = 'antares/detector/ikonl',
