@@ -54,7 +54,7 @@ config = ('Default', [
             panel('errors.ErrorPanel')),
         window('Live data', 'live', True,
             panel('live.LiveDataPanel',
-                  instrument = 'ANTARES')),
+                  instrument = 'antares')),
     ], [
         tool('Calculator',
              'nicos.clients.gui.tools.calculator.CalculatorTool'),
