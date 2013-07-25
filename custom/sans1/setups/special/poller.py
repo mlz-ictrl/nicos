@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Andreas Wilhem <andreas.wilhelm@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -32,11 +32,11 @@ sysconfig = dict(
 devices = dict(
    Poller = device('services.poller.Poller',
                    alwayspoll = ['tube', 'collimation', 'table_top',
-                                 'table_bottom','magnet_sans1','pressure',
-                                 'htf02','detector','selector','ccr12','fak40',
-                                 'guidehall','reactor','nl4a','spin_flipper',
-                                 'sc1', 'newport02','ccr10','t_memograph',
-                                 'cooling_memograph','p_memograph','flow_memograph',
+                                 'table_bottom', 'magnet_sans1', 'pressure',
+                                 'htf02', 'detector', 'selector', 'ccr12', 'fak40',
+                                 'guidehall', 'reactor', 'nl4a', 'spin_flipper',
+                                 'sc1', 'newport02', 'ccr10', 't_memograph',
+                                 'cooling_memograph', 'p_memograph', 'flow_memograph',
                                  'leak_memograph',
                                 ],
                    blacklist = [],

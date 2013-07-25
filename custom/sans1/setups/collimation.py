@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -239,7 +240,7 @@ devices = dict(
                       unit = 'mm',
                       refpos = -34.7,
                       abslimits = (-40, 300),
-                      mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210, 
+                      mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
                                  '50x50':0, '30mm':70, '20mm':140, '10mm':210 },
                      ),
     col_2a = device('sans1.collimotor.Sans1ColliMotor',

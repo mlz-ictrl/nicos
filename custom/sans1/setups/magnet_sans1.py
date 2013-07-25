@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -48,7 +49,7 @@ devices = dict(
                      pollinterval = 15,
                     ),
     b_overall = device('devices.taco.CurrentSupply',
-                     description = 'The right? magnetic field',
+                     description = 'The resulting magnetic field',
                      tacodevice = '//%s/sans1/oxford/magnet' % (nethost, ),
                      abslimits = (-5, 5),
                      fmtstr = '%.3f',
