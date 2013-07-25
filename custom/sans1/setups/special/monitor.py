@@ -31,8 +31,8 @@ _pressuretube = (
     'Pressure Tube',
     [
         [
-            _( name='Nose', dev='p_t_nose'),
-            _( name='Tube', dev='p_t_tube'),
+            _( name='Nose', dev='tub_p2'),
+            _( name='Tube', dev='tub_p1'),
         ],
     ],
    #~ 'tube_environment',
@@ -42,9 +42,29 @@ _pressurecoll = (
     'Pressure Collimation',
     [
         [
-            _( name='Pump', dev='p_c_pump'),
-            _( name='Tube', dev='p_c_tube'),
-            _( name='Nose', dev='p_c_nose'),
+            _( name='Pump', dev='coll_p3'),
+            _( name='Tube', dev='coll_p1'),
+            _( name='Nose', dev='coll_p2'),
+        ],
+    ],
+)
+
+_lengthcoll = (
+    'Collimation length',
+    [
+        [
+            _( name='length', dev='col'),
+        ],
+    ],
+)
+
+_sc1 = (
+    'Sample Changer 1',
+    [
+        [
+            _( name='Position', dev='sc1_sw'),
+        ], [
+            _( name='sc1', dev='sc1'),
         ],
     ],
 )
@@ -54,29 +74,21 @@ _table = (
     [
         [
             _( name='z-2a', dev='z_2a'),
-        ],
-        [
+         ], [
             _(name='y-2a', dev='y_2a'),
-        ],
-        [
+         ], [
             _(name='x-2a', dev='x_2a'),
-        ],
-        [
+        ], [
             _(name='phi-2b', dev='phi_2b'),
-        ],
-        [
+         ], [
             _(name='chi-2b', dev='chi_2b'),
-        ],
-        [
+         ], [
             _(name='omega-2b', dev='omega_2b'),
-        ],
-        [
-            _(name='z-2b', dev='z_2b'),
-        ],
-        [
+        ], [
             _(name='y-2b', dev='y_2b'),
-        ],
-        [
+         ], [
+            _(name='z-2b', dev='z_2b'),
+         ], [
             _(name='x-2b', dev='x_2b'),
         ],
     ],
@@ -86,41 +98,152 @@ _sans1magnet = (
     'Sans1Magnet',
     [
         [
-            _(name='Left Coil', dev='b_left'),
-            _(name='Right Coil', dev='b_right'),
             _(name='Field', dev='b_overall'),
+         ], [
+            _(name='Power Supply 1', dev='b_left'),
+            _(name='Power Supply 2', dev='b_right'),
         ]
     ],
-    'magnet_sans1'
 )
 
-_htf02 = (
-    'HTF02',
+_newport02 = (
+    'NewPort 02',
     [
         [
-            _(name='Temperature', dev='t_htf02'),
+            _(name='position', dev='sth_newport02'),
+         ],
+    ],
+)
+
+_ccr10 = (
+    'CCR10',
+    [
+        [
+            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
+            ], [
+            _( name='A', dev='T_ccr10_A'),
+            _( name='B', dev='T_ccr10_B'),
+        ],
+    ],
+)
+
+_ccr11 = (
+    'CCR11',
+    [
+        [
+            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
+            ], [
+            _( name='A', dev='T_ccr11_A'),
+            _( name='B', dev='T_ccr11_B'),
+            ], [
+            _( name='C', dev='T_ccr11_C'),
+            _( name='D', dev='T_ccr11_D'),
+        ],
+    ],
+)
+
+
+_ccr12 = (
+    'CCR12',
+    [
+        [
+            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
+            ], [
+            _( name='A', dev='T_ccr12_A'),
+            _( name='B', dev='T_ccr12_B'),
+        ],
+    ],
+)
+
+_htf03 = (
+    'HTF03',
+    [
+        [
+               _(name='Temperature', dev='t_htf03'),
         ]
     ],
-    'magnet_sans1'
+#    'magnet_sans1'
+)
+
+_spinflipper = (
+    'Spin Flipper',
+    [
+        [
+            _(name='Power', dev='p_sf'),
+            _(name='Frequency', dev='f_sf'),
+         ], [
+            _(name='Forward', dev='forward_sf'),
+            _(name='Reverse', dev='reverse_sf'),
+         ], [
+            _(name='Temperature of AG1016', dev='t_sf'),
+         ], [
+            _(name='Ampl HP33220a', dev='a_agilent1'),
+            _(name='Freq HP33220a', dev='f_agilent1'),
+        ]
+    ],
+#    'magnet_sans1'
 )
 
 _sans1detector = (
     'Detector',
     [
         [
+            _(name='t', dev='det1_t_ist'),
+            _(name='t set', dev='det1_t_soll'),
+        ], [
             _(name='Voltage',dev='hv'),#,width=8),
-            _(name='omega-1a',dev='det1_omega1a'),
-        ],
-        [
-            _(name='x-1a',dev='det1_x1a'),
-            _(name='z-1a',dev='det1_z1a'),
-        ],
+            _(name='det1_z-1a',dev='det1_z1a'),
+        ], [
+            _(name='det1_omg-1a',dev='det1_omega1a'),
+            _(name='det1_x-1a',dev='det1_x1a'),
+        ], [
+            _(name='bs1_x-1a',dev='bs1_x1a'),
+            _(name='bs1_y-1a',dev='bs1_y1a'),
+        ]
     ]
 )
 
+_sans1sel = (
+    'Selector',
+    [
+        [
+            _( name='sel-ng', dev='sel_ng_sw'),
+         #], [
+         #   _( name='sel-ng', dev='sel_ng'),
+        ], [
+            _(name='sel-tilt', dev='sel_tilt'),
+        ]
+    ],
+)
 
-_warnings = [
-]
+_sans1general = (
+    'General',
+    [
+        [
+            _(name='Reactor', dev='ReactorPower'),
+            _(name='6 Fold Shutter', dev='Sixfold'),
+            _(name='NL4a', dev='NL4a'),
+        ], [
+            _(name='T in', dev='t_in_memograph'),
+            _(name='T out', dev='t_out_memograph'),
+            _(name='Cooling', dev='cooling_memograph'),
+        ], [
+            _(name='Flow in', dev='flow_in_memograph'),
+            _(name='Flow out', dev='flow_out_memograph'),
+            _(name='Leakage', dev='leak_memograph'),
+        ], [
+            _(name='Pressure in', dev='p_in_memograph'),
+            _(name='Pressure out', dev='p_out_memograph'),
+        ], [
+            _(name='Crane Pos', dev='Crane'),
+            _(name='FAK 40 Cap', dev='FAK40_Cap'),
+            _(name='FAK 40 Pres', dev='FAK40_Press'),
+        ]
+    ],
+#    'magnet_sans1'
+)
+
+
 
 devices = dict(
     #~ Monitor = device('nicos.monitor.qt.Monitor',
@@ -134,7 +257,13 @@ devices = dict(
                      fontsize = 12,
                      padding = 3,
                      layout = [
-                                  [[_table,], [_pressurecoll,_sans1detector], [_sans1magnet], [_htf02], [_pressuretube,],]
+                                [
+                                  [_sans1sel,],
+                                  [_pressurecoll,_lengthcoll,_sans1detector,_sans1general],
+                                  [_sc1,_table,],
+                                  [_htf03,_spinflipper,_sans1magnet,_newport02],
+                                  [_pressuretube,_ccr10,_ccr11,_ccr12],
+                                ],
                               ],
                     )
 )
