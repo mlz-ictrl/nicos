@@ -29,6 +29,7 @@ import sys
 import time
 import logging
 import subprocess
+import getopt
 from os import path
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
@@ -560,6 +561,12 @@ class MainWindow(QMainWindow, DlgUtils):
 
 log = None
 
+def usage():
+    print 'usage: %s [options]' % (sys.argv[0])
+    print '   -h|--help : print this page'
+    print "   -c|--config-file file_name : use the configuration file" \
+          " 'file_name'"
+
 def main(argv):
     global log
 
@@ -587,14 +594,23 @@ def main(argv):
     # XXX implement proper argument parsing
     configfile = path.join(path.dirname(__file__), 'defconfig.py')
     stylefile = path.join(userpath, 'style.qss')
-    if '-c' in argv:
-        idx = argv.index('-c')
-        configfile = argv[idx+1]
-        styleRoot = path.splitext(configfile)[0]
-        stylefile = styleRoot + ".qss"
-        del argv[idx:idx+2]
-    else:
-        styleRoot = path.splitext(stylefile)[0]
+    styleRoot = path.splitext(stylefile)[0]
+    try:
+        opts, args = getopt.getopt(argv[1:], 'c:h', ['config-file=', 'help'])
+    except getopt.GetoptError as err:
+        log.error('%r' % str(err))
+        usage()
+        sys.exit(1)
+    for o, a in opts:
+        if o  in ['-c', '--config-file']:
+            configfile = a
+            styleRoot = path.splitext(configfile)[0]
+            stylefile = styleRoot + ".qss"
+        elif o in ['-h', '--help']:
+            usage()
+            sys.exit()
+        else:
+            assert False, 'unhandled option'
 
     with open(configfile, 'rb') as fp:
         configcode = fp.read()
@@ -621,12 +637,12 @@ def main(argv):
 
     mainwindow = MainWindow(log, panel_conf)
 
-    if len(argv) > 1:
-        cdata = parseConnectionString(argv[1], DEFAULT_PORT)
+    if len(args) > 0:
+        cdata = parseConnectionString(args[0], DEFAULT_PORT)
         if cdata:
             mainwindow.setConnData(*cdata)
-            if len(argv) > 2:
-                mainwindow.client.connect(mainwindow.connectionData, argv[2])
+            if len(args) > 1:
+                mainwindow.client.connect(mainwindow.connectionData, args[1])
     mainwindow.show()
 
     return app.exec_()
