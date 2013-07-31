@@ -21,6 +21,8 @@
 #
 # *****************************************************************************
 
+from nicos import session
+
 from nicos.core import Measurable
 from nicos.core import Param
 from nicos.core import status
@@ -34,6 +36,7 @@ from nicos.antares.detector import ImageStorageFits
 
 import numpy
 from os import path
+import time
 
 
 class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
@@ -46,6 +49,8 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
     parameters = {
                   'hwdevice' : Param('Hardware device name', type=str,
                                      mandatory=True, preinit=True),
+                  'fastshutter' : Param('Fast shutter device name', type=str,
+                                     mandatory=True),
                   'imagewidth'     : Param('Image width',
                                            type=int,
                                            volatile=True,
@@ -139,11 +144,24 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
 
     def doInit(self, mode):
         self._fileCounter = 0
+        self._fastShutter = session.getDevice(self.fastshutter)
 
     def doStart(self, **preset):
         self.doSetPreset(**preset)
 
         self._tangoFuncGuard(self._dev.prepareAcq)
+
+        # open the fast shutter automatically if the shutter mode is
+        # always_open or auto.
+        # Note: Closing the shutter is not necessary. This will be handled
+        # by a hardware signal.
+        if self.shuttermode in ['always_open', 'auto']:
+            self._fastShutter.maw('open')
+
+            # sleep is necessary as the jcns tango server does not provide
+            # a proper status.
+            time.sleep(0.1)
+
         self._tangoFuncGuard(self._dev.startAcq)
         self._newFile()
 
