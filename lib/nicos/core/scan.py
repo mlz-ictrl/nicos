@@ -593,7 +593,7 @@ class TwoDimScan(Scan):
             else:
                 positions.extend([dev1value, start2 + (numpoints2-j-1)*step2]
                                  for j in range(numpoints2))
-        self._pointsperrow = numpoints1
+        self._pointsperrow = numpoints2
         Scan.__init__(self, devices, positions, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
 
