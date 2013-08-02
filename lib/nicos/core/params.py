@@ -260,7 +260,7 @@ class listof(object):
 
     def __call__(self, val=None):
         val = val if val is not None else []
-        if not isinstance(val, list):
+        if not isinstance(val, (list, tuple)):
             raise ValueError('value needs to be a list')
         return readonlylist(map(self.conv, val))
 
@@ -273,7 +273,7 @@ class nonemptylistof(object):
     def __call__(self, val=None):
         if val is None:
             return readonlylist([self.conv()])
-        if not isinstance(val, list) or len(val) < 1:
+        if not isinstance(val, (list, tuple)) or len(val) < 1:
             raise ValueError('value needs to be a nonempty list')
         return readonlylist(map(self.conv, val))
 

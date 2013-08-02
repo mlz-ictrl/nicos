@@ -41,15 +41,20 @@ def test_param_class():
 def test_listof():
     assert listof(int)([0., 1, '2']) == [0, 1, 2]
     assert listof(int)() == []
-    assert raises(ValueError, listof(int), (1, 2, 3))
+    # should also accept tuples
+    assert listof(int)((1, 2, 3)) == [1, 2, 3]
+    assert raises(ValueError, listof(int), 10)
     # assert that the list is read-only
     assert raises(TypeError, listof(int)([0, 1, 2]).__setitem__, 0, 1)
 
 def test_nonemptylistof():
     assert nonemptylistof(int)(['1']) == [1]
     assert nonemptylistof(int)() == [0]
+    # should also accept tuples
+    assert nonemptylistof(int)((1, 2)) == [1, 2]
     assert raises(ValueError, nonemptylistof(int), [])
-    assert raises(ValueError, nonemptylistof(int), (1, 2))
+    assert raises(ValueError, nonemptylistof(int), 10)
+    # assert that the list is read-only
     assert raises(TypeError, nonemptylistof(int)([0, 1, 2]).__setitem__, 0, 1)
 
 def test_tupleof():
