@@ -703,6 +703,7 @@ class Device(object):
            should perform cleanup, for example closing connections to hardware.
         """
         self.log.debug('shutting down device')
+        caughtExc = None
         if self._mode != 'simulation':
             # do not execute shutdown actions when simulating
 
@@ -713,7 +714,10 @@ class Device(object):
 
             # execute custom shutdown actions
             if hasattr(self, 'doShutdown'):
-                self.doShutdown()
+                try:
+                    self.doShutdown()
+                except Exception, e:
+                    caughtExc = e
 
         for adev in self._adevs.values():
             if isinstance(adev, list):
@@ -723,6 +727,9 @@ class Device(object):
                 adev._sdevs.discard(self._name)
         session.devices.pop(self._name, None)
         session.explicit_devices.discard(self._name)
+        # re-raise the doShutdown error
+        if caughtExc is not None:
+            raise caughtExc  # pylint: disable=E0702
 
     @usermethod
     def version(self):
