@@ -553,7 +553,7 @@ class DataSetPlot(NicosPlot):
         try:
             return (float(self.dataset.positions[0][self.dataset.xindex]),
                     float(self.dataset.positions[-1][self.dataset.xindex]))
-        except (IndexError, TypeError):
+        except (IndexError, TypeError, ValueError):
             return None
 
     def yaxisScale(self):
