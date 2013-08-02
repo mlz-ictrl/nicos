@@ -31,7 +31,6 @@ from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
 
 from test.utils import raises
 
-
 methods_called = set()
 
 def setup_module():
@@ -53,6 +52,8 @@ class Dev2(HasLimits, HasOffset, Moveable):
                         settable=True, category='instrument'),
         'failinit': Param('If true, fail the doInit() call', type=bool,
                           default=False),
+        'failshutdown': Param('If true, fail the doShutdown() call', type=bool,
+                          default=False),
     }
 
     def doInit(self, mode):
@@ -60,6 +61,11 @@ class Dev2(HasLimits, HasOffset, Moveable):
             1/0  #pylint: disable=W0104
         self._val = 0
         methods_called.add('doInit')
+
+    def doShutdown(self):
+        if self.failshutdown:
+            raise Exception('shutdown failure')
+        methods_called.add('doShutdown')
 
     def doRead(self, maxage=0):
         return self._val
@@ -119,6 +125,13 @@ def test_initialization():
     assert raises(ZeroDivisionError, session.getDevice, 'dev2_4')
     # assert correct cleanup
     assert 'dev2_4' not in session.devices
+    before = session.testhandler._messages
+
+    assert raises(ZeroDivisionError, session.getDevice, 'dev2_5')
+    assert session.testhandler._messages > before
+    assert 'could not shutdown after creation failed' in session.testhandler._warnings[-1].msg
+    # assert device is cleaned up anyway
+    assert 'dev2_5' not in session.devices
 
 def test_special_methods():
     dev = session.getDevice('dev2_1')
