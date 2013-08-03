@@ -33,7 +33,7 @@ from PowerSupply import CurrentControl
 
 from nicos import session
 from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
-     floatrange, listof, InvalidValueError, usermethod
+     floatrange, listof, InvalidValueError, usermethod, NicosError
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput
 from nicos.utils.fitting import Fit
@@ -175,15 +175,25 @@ class LambdaField(HasLimits, Moveable):
                               % scan.sinkinfo['number'])
                 continue
             xindex = scan.xnames.index('I')
-            yindex = scan.ynames.index('Bz')
+            yindex = scan.ynames.index('B')
+            yunit = scan.yunits[yindex]
+            if yunit == 'T':
+                factor = 1.0
+            elif yunit == 'mT':
+                factor = 1e-3
+            elif yunit == 'uT':
+                factor = 1e-6
+            else:
+                raise NicosError(self, 'unknown unit for B field '
+                                 'readout: %r' % yunit)
             for xr, yr in zip(scan.xresults, scan.yresults):
                 Is.append(xr[xindex])
-                Bs.append(yr[yindex])
-                dBs.append(yr[yindex+1])
+                Bs.append(yr[yindex] * factor)
+                dBs.append(yr[yindex+1] * factor)
         if not Is:
             self.log.error('no calibration data found')
             return
-        def model(v, x):
+        def model(x, *v):
             return sum(v[i]*x**i for i in range(4))
         fit = Fit(model, ['a%d' % i for i in range(4)], [1] * 4)
         res = fit.run('calibration', Is, Bs, dBs)
