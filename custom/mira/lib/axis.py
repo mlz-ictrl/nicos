@@ -45,6 +45,8 @@ class PhytronAxis(TacoAxis):
         # query all parameters (1-50) for all axes and store them
         for axis in axes:
             for pnum in range(50):
+                if pnum in (19, 20, 21, 22):
+                    continue
                 response = self._taco_guard(client.communicate, '\x02%s%sP%dR' %
                                             (addr, axis, pnum)).rstrip('\x03')
                 if response[1] == '\x06':
