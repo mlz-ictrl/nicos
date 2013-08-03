@@ -86,9 +86,23 @@ class MiezeMaster(Moveable):
         index = self._findsetting(target)
         setting = self.curtable[index]
         self._started_devs = []
-        for devname, devvalue in sorted(setting.iteritems()):
-            if devname.startswith('_'):
+        devs = sorted(setting.iteritems())
+        for devname, devvalue in devs:
+            if devname.startswith('amp'):
+                self.log.debug('moving %r to %r' % (devname, 0))
+                dev = session.getDevice(devname)
+                dev.move(0)
+        for devname, devvalue in devs:
+            if devname.startswith('_') or devname.startswith('amp'):
                 continue
+            self.log.debug('moving %r to %r' % (devname, devvalue))
+            dev = session.getDevice(devname)
+            dev.move(devvalue)
+            self._started_devs.append(dev)
+        for devname, devvalue in devs:
+            if not devname.startswith('amp'):
+                continue
+            self.log.debug('moving %r to %r' % (devname, devvalue))
             dev = session.getDevice(devname)
             dev.move(devvalue)
             self._started_devs.append(dev)
@@ -136,10 +150,10 @@ class MiezeMaster(Moveable):
             values = ['---'] * len(all_values)
             for devname, devvalue in setting.iteritems():
                 if not devname.startswith('_'):
-                    values[valueidx[devname]] = str(devvalue)
-            data.append((str(idx), setting['_name_']) + tuple(values))
+                    values[valueidx[devname]] = str(devvalue)[:15]
+            data.append((str(idx), setting['_name_'], '%.3f' % setting['_tau_']) + tuple(values))
         self.log.info('current MIEZE settings (%s):' % self.tuning)
-        printTable(('#', 'name') + tuple(all_values), data, printinfo)
+        printTable(('#', 'name', 'tau (ps)') + tuple(all_values), data, printinfo)
 
     @usermethod
     def savetuning(self, name):
@@ -147,7 +161,7 @@ class MiezeMaster(Moveable):
         if name in self.tunetables:
             raise NicosError(self, 'tuning with this name exists already, '
                              'please use removetuning() first')
-        tables = self.tunetables
+        tables = self.tunetables.copy()
         tables[name] = copy.deepcopy(self.curtable)
         self.tunetables = tables
         self.log.info('current tuning saved as %r' % name)
@@ -158,7 +172,7 @@ class MiezeMaster(Moveable):
         """Delete a tuning table."""
         if name not in self.tunetables:
             raise NicosError(self, 'tuning %r not found in tables' % name)
-        tables = self.tunetables
+        tables = self.tunetables.copy()
         del tables[name]
         self.tunetables = tables
         self.log.info('tuning %r removed' % name)
@@ -166,17 +180,19 @@ class MiezeMaster(Moveable):
     @usermethod
     def newsetting(self, name, **values):
         """Add a new setting to the current tuning table."""
-        table = self.curtable
+        table = self.curtable[:]
         try:
             index = self._findsetting(name)
+            setting = table[index].copy()
         except NicosError:
             if self.tuning == '':
                 raise
             index = len(table)
-            table.append({'_name_': name})
-            table.append({'_tau_': 0})
+            table.append({'_name_': name, '_tau_': 0})
+            setting = table[index]
         for devname, devvalue in values.iteritems():
-            table[index][devname] = devvalue
+            setting[devname] = devvalue
+        table[index] = setting
         self.curtable = table
         self.log.info('created new MIEZE setting %r with index %s' %
                       (name, index))
@@ -185,9 +201,11 @@ class MiezeMaster(Moveable):
     def updatesetting(self, name, **values):
         """Update a setting in the current tuning table."""
         index = self._findsetting(name)
-        table = self.curtable
+        table = self.curtable[:]
+        setting = table[index].copy()
         for devname, devvalue in values.iteritems():
-            table[index][devname] = devvalue
+            setting[devname] = devvalue
+        table[index] = setting
         self.curtable = table
         self.log.info('tuning for MIEZE setting %r updated' %
                       table[index]['_name_'])
@@ -196,7 +214,7 @@ class MiezeMaster(Moveable):
     def removesetting(self, name):
         """Remove a setting from the current tuning table."""
         index = self._findsetting(name)
-        table = self.curtable
+        table = self.curtable[:]
         setting = table.pop(index)
         self.curtable = table
         self.log.info('removed MIEZE setting %r' % setting['_name_'])
@@ -225,6 +243,7 @@ class MiezeScan(Scan):
                  scaninfo=None, scantype=None):
         miezedev = session.getDevice('mieze', MiezeMaster)
         self._nsettings = 1
+        self._notherdevs = len(devices)
         if settings is not None:
             if settings == '*' or settings == -1:
                 settings = [sett['_name_'] for sett in miezedev.curtable]
@@ -242,6 +261,11 @@ class MiezeScan(Scan):
             positions = new_positions
         Scan.__init__(self, devices, positions, firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, scantype)
+
+    def beginScan(self):
+        if self._notherdevs == 0:
+            self.dataset.xindex = 1  # plot against tau
+        Scan.beginScan(self)
 
     def preparePoint(self, num, xvalues):
         if num > 1 and self._nsettings > 1 and (num-1) % self._nsettings == 0:
@@ -292,7 +316,12 @@ class _MiezeManualScan(_ManualScan):
 
 @usercommand
 def mscan(settings, dev, *args, **kwargs):
-    """MIEZE scan over device(s)."""
+    """MIEZE scan over device(s).
+
+    First argument is a list of MIEZE settings or -1 to scan all settings.
+
+    All other arguments are handled like for `scan`.
+    """
     def mkpos(starts, steps, numsteps):
         return [[start + i*step for (start, step) in zip(starts, steps)]
                 for i in range(numsteps)]
@@ -306,7 +335,12 @@ def mscan(settings, dev, *args, **kwargs):
 
 @usercommand
 def mcscan(settings, dev, *args, **kwargs):
-    """MIEZE centered scan over device(s)."""
+    """MIEZE centered scan over device(s).
+
+    First argument is a list of MIEZE settings or -1 to scan all settings.
+
+    All other arguments are handled like for `scan`.
+    """
     def mkpos(centers, steps, numperside):
         return [[center + (i-numperside)*step for (center, step)
                  in zip(centers, steps)] for i in range(2*numperside+1)]
@@ -320,7 +354,12 @@ def mcscan(settings, dev, *args, **kwargs):
 
 @usercommand
 def msingle(settings, *args, **kwargs):
-    """Single MIEZE counting."""
+    """Single MIEZE counting.
+
+    First argument is a list of MIEZE settings or -1 to scan all setings.
+
+    All other arguments are handled like for `count`.
+    """
     scanstr = _infostr('msingle', (settings,) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(args, kwargs, scanstr)
