@@ -103,6 +103,10 @@ class HeinzingerViaHPE(TacoDevice, HasLimits, Moveable):
         'unit':  Override(mandatory=False, default='A'),
     }
 
+    parameters = {
+        'scale': Param('Scale factor A_out/V_in', type=float, mandatory=True),
+    }
+
     def doInit(self, mode):
         idn = self._taco_guard(self._dev.communicate, '*IDN?')
         if 'HEWLETT-PACKARD' not in idn:
@@ -111,7 +115,12 @@ class HeinzingerViaHPE(TacoDevice, HasLimits, Moveable):
     def doRead(self, maxage=0):
         self._taco_guard(self._dev.writeLine, 'INSTRUMENT:NSELECT 2')
         time.sleep(1)
-        return float(self._taco_guard(self._dev.communicate, 'VOLT?')) * 8.
+        try:
+            return float(self._taco_guard(self._dev.communicate, 'VOLT?')) * self.scale
+        except Exception:
+            self.log.warning('read failed, trying again')
+            time.sleep(5)
+            return float(self._taco_guard(self._dev.communicate, 'VOLT?')) * self.scale
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
@@ -119,4 +128,4 @@ class HeinzingerViaHPE(TacoDevice, HasLimits, Moveable):
     def doStart(self, value):
         self._taco_guard(self._dev.writeLine, 'INSTRUMENT:NSELECT 2')
         time.sleep(1)
-        self._taco_guard(self._dev.writeLine, 'VOLT %f' % (value / 8.))
+        self._taco_guard(self._dev.writeLine, 'VOLT %f' % (value / self.scale))
