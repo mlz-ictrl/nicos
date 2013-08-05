@@ -77,7 +77,7 @@ class MiezeMaster(Moveable):
                     target = idx
                     break
             else:
-                raise NicosError(self, 'no such MIEZE setting: %r' % target)
+                raise NicosError(self, 'no such MIEZE setting: %r' % (target,))
         if not 0 <= target < len(self.curtable):
             raise NicosError(self, 'no such MIEZE setting: %r' % target)
         return target

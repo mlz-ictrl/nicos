@@ -51,6 +51,8 @@ config = ('Default', [
            panel('devices.DevicesPanel')),
     window('Logbook', 'table', True,
            panel('elog.ELogPanel')),
+    window('NICOS log files', 'table', True,
+           panel('logviewer.LogViewerPanel')),
     ], [
         tool('Maintenance',
              'nicos.clients.gui.tools.commands.CommandsTool',
