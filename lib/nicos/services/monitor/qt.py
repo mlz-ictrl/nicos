@@ -326,6 +326,6 @@ class Monitor(BaseMonitor):
         # layout change (I've not found out what event to generate or intercept
         # to do this in a more sane way).
         def emitresize():
-            sleep(1)
+            sleep(1.5)
             self._master.emit(SIGNAL('resizeToMinimum'))
         threading.Thread(target=emitresize, name='emitresize').start()
