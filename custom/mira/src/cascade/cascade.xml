@@ -76,7 +76,7 @@
 		<repeat_duplicate_logs> 0 </repeat_duplicate_logs>
 
 		<!-- write temporary data files, e.g. data for plots -->
-		<dump_files> 1 </dump_files>
+		<dump_files> 0 </dump_files>
 	</log>
 
 	<minuit>

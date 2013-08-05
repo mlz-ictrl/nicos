@@ -428,7 +428,7 @@ void GlobalConfig::Init()
 	bDumpFiles = (bool)Config::GetSingleton()->QueryInt(
 				"/cascade_config/log/dump_files", bDumpFiles);
 
-	
+
 	//--------------------------------------------------------------------------
 
 	s_instrconfig.m_dDetectorLenX = Config::GetSingleton()->QueryDouble(
@@ -468,6 +468,8 @@ void GlobalConfig::Init()
 	//--------------------------------------------------------------------------
 
 #else	// Nicos-Client holt Einstellungen von Detektor
+
+	bDumpFiles = 0;
 
 	// Defaults setzen
 	s_config.vecFoilBegin.resize(s_config.FOIL_COUNT);

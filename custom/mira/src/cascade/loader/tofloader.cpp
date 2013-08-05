@@ -804,7 +804,7 @@ TmpGraph TofImage::GetTotalGraph(int iStartX, int iEndX, int iStartY, int iEndY)
 {
 	const int iShiftMethod = GlobalConfig::GetShiftMethod();
 	t_corrfkt corr = get_correction_fkt(iShiftMethod);
-	
+
 	const double dNumOsc = GetTofConfig().GetNumOscillations();
 	const int iNumTc = GetTofConfig().GetImagesPerFoil();
 	const double dNumTc = double(iNumTc);
