@@ -142,7 +142,7 @@ void TofConfig::SetFoilCount(int iNumFoils)
 	FOIL_COUNT = iNumFoils;
 	vecFoilBegin.resize(iNumFoils);
 
-	const int iBegins[] = {0, 16, 32, 64, 80, 96};
+	const int iBegins[] = {0, 16, 32, 80, 96, 112};
 
 	for(int i=0; i<iNumFoils; ++i)
 	{
