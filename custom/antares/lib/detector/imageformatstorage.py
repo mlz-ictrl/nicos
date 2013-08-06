@@ -52,7 +52,7 @@ class ImageStorageFits(ImageStorage):
             # Add HIERARCH keyword to make long keys possible.
             # To get a consistent looking header, add it to every key.
             key = ('HIERARCH %s' % key).strip()
-            value = ''.join(char for char in str(value) if ord(char) < 128).strip()
+            value = ''.join(char for char in str(value) if 31 < ord(char) < 128).strip()
 
             # Split the value into multiple header entries if necessary
             maxValLen = 63 - len(key)
@@ -60,9 +60,11 @@ class ImageStorageFits(ImageStorage):
 
             # append header entries
             for entry in entries:
+                self.log.debug('Set hkead: %s = %s' % (key, entry))
                 hdu.header.append((key, entry))
 
         # write fits file
+        self.log.debug('Save fits image to: %s' % self.lastfilename)
         hdu.writeto(self.lastfilename)
 
         # notify clients of new data (we only send the file name, not the actual
