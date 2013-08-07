@@ -59,8 +59,7 @@ def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
         data = RealData(xfit, yfit)
     odr = ODR(data, model, beta0, ifixx=array([0]*len(xfit)))
     out = odr.run()
-    outinfo = out.info & 0xFFFFFFFF
-    if outinfo != 13 and outinfo >= 5:
+    if out.info & 0xFFFFFFFF >= 15:
         raise FitError(', '.join(out.stopreason))
     xfine = arange(xmin, xmax, (xmax-xmin)/500.)
     return out.beta, xfine, modelfunc(out.beta, xfine)
@@ -130,7 +129,7 @@ def fit_tc(xdata, ydata, yerr, (Tb, Ib), (Tc, Ic)):
     odr = ODR(data, model, beta0, ifixx=array([0]*len(xdata)))
     out = odr.run()
     Tfine = arange(Tmin, Tmax, (Tmax-Tmin)/100)
-    if out.info & 0xFFFFFFFF >= 5:
+    if out.info & 0xFFFFFFFF >= 15:
         raise FitError(', '.join(out.stopreason))
     return out.beta, Tfine, tc_curve(out.beta, Tfine)
 
@@ -153,7 +152,7 @@ def fit_linear(xdata, ydata, yerr, (x1, y1), (x2, y2)):
         data = RealData(xfit, yfit)
     odr = ODR(data, model, beta0, ifixx=array([0]*len(xfit)))
     out = odr.run()
-    #if out.info & 0xFFFFFFFF >= 5:
+    #if out.info & 0xFFFFFFFF >= 15:
     #    raise FitError(', '.join(out.stopreason))
     m, t = out.beta
     return out.beta, [x1, x2], [m*x1+t, m*x2+t]
@@ -185,6 +184,6 @@ def fit_arby(xdata, ydata, yerr, fcnstr, params, guesses, xlimits):
     odr = ODR(data, model, guesses, ifixx=[0]*len(xfit))
     out = odr.run()
     xfine = arange(xmin, xmax, (xmax-xmin)/200)
-    if out.info & 0xFFFFFFFF >= 5:
+    if out.info & 0xFFFFFFFF >= 15:
         raise FitError(', '.join(out.stopreason))
     return out.beta, xfine, fcn(out.beta, xfine)
