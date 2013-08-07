@@ -59,7 +59,8 @@ def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
         data = RealData(xfit, yfit)
     odr = ODR(data, model, beta0, ifixx=array([0]*len(xfit)))
     out = odr.run()
-    if out.info & 0xFFFFFFFF >= 5:
+    outinfo = out.info & 0xFFFFFFFF
+    if outinfo != 13 and outinfo >= 5:
         raise FitError(', '.join(out.stopreason))
     xfine = arange(xmin, xmax, (xmax-xmin)/500.)
     return out.beta, xfine, modelfunc(out.beta, xfine)
