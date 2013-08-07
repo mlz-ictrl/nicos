@@ -569,11 +569,17 @@ class DataSetPlot(NicosPlot):
         for plotcurve in otherplot.plotcurves:
             visible[str(plotcurve.title().text())] = plotcurve.isVisible()
         changed = False
+        remaining = len(self.plotcurves)
         for plotcurve in self.plotcurves:
             namestr = str(plotcurve.title().text())
             if namestr in visible:
                 self.setVisibility(plotcurve, visible[namestr])
                 changed = True
+                remaining -= 1
+        # no visible curve left?  enable all of them again
+        if not remaining:
+            for plotcurve in self.plotcurves:
+                self.setVisibility(plotcurve, True)
         if changed:
             self.replot()
 
