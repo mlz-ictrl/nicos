@@ -206,6 +206,9 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                 self._last_preset = preset['t']
         elif preset.get('t'):
             self.preselection = self._last_preset = preset['t']
+        self.lastcounts = [0, 0]
+        self.lastcontrast = [0., 0., 0., 0.]
+
         config = cascadeclient.GlobalConfig.GetTofConfig()
         config.SetImageWidth(self._xres)
         config.SetImageHeight(self._yres)
