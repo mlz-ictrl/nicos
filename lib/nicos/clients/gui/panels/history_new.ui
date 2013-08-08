@@ -276,17 +276,24 @@
  </widget>
  <layoutdefault spacing="15" margin="15"/>
  <tabstops>
-  <tabstop>helpButton</tabstop>
-  <tabstop>simpleTimeSpec</tabstop>
-  <tabstop>simpleHelpButton</tabstop>
+  <tabstop>devices</tabstop>
+  <tabstop>namebox</tabstop>
   <tabstop>simpleTime</tabstop>
+  <tabstop>simpleTimeSpec</tabstop>
   <tabstop>slidingWindow</tabstop>
   <tabstop>extTime</tabstop>
+  <tabstop>frombox</tabstop>
+  <tabstop>fromdate</tabstop>
+  <tabstop>tobox</tabstop>
+  <tabstop>todate</tabstop>
+  <tabstop>interval</tabstop>
   <tabstop>customY</tabstop>
   <tabstop>customYFrom</tabstop>
   <tabstop>customYTo</tabstop>
+  <tabstop>savePreset</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>namebox</tabstop>
+  <tabstop>helpButton</tabstop>
+  <tabstop>simpleHelpButton</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../../resources/nicos-gui.qrc"/>
