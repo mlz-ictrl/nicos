@@ -67,6 +67,10 @@ class TrendPlot(QwtPlot, DisplayWidget):
         DisplayWidget.__init__(self)
 
     def initUi(self):
+        if QwtPlot is QWidget:
+            raise RuntimeError('Plotting is not available on this system, '
+                               'please install PyQwt.')
+
         # appearance setup
         self.setCanvasBackground(Qt.white)
 
