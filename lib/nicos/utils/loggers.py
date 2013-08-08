@@ -263,7 +263,8 @@ class NicosLogfileHandler(StreamHandler):
             # if the symlink does not (yet) exist, OSError is raised.
             # should happen at most once per installation....
             pass
-        os.symlink(path.basename(self.baseFilename), self._currentsymlink)
+        if hasattr(os, 'symlink'):
+            os.symlink(path.basename(self.baseFilename), self._currentsymlink)
         # finally open the new logfile....
         return open(self.baseFilename, self.mode)
 
