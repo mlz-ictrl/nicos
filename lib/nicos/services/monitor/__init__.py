@@ -28,7 +28,6 @@
 import os
 import re
 import sys
-import time
 import threading
 from os import path
 from time import sleep, strftime, time as currenttime
@@ -36,7 +35,8 @@ from time import sleep, strftime, time as currenttime
 from nicos import session
 from nicos.core import listof, Param, Override
 from nicos.utils import watchFileTime
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, cache_load
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, \
+     OP_WILDCARD, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
 
 
@@ -167,7 +167,8 @@ class Monitor(BaseCacheClient):
 
     def _connect_action(self):
         BaseCacheClient._connect_action(self)
-        # also subscribe to all watchdog events
+        # also ask for and subscribe to all watchdog events
+        self._socket.sendall('@watchdog/%s\n' % OP_WILDCARD)
         self._socket.sendall('@watchdog/%s\n' % OP_SUBSCRIBE)
 
     # called between connection attempts
