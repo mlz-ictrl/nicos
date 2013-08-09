@@ -24,6 +24,7 @@
 // *****************************************************************************
 
 #include <assert.h>
+#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <math.h>
@@ -392,7 +393,7 @@ void LWData::histogram(int bins, double *xs, double *ys) const
     for (int i = 0; i < bins; ++i) {
         xs[i] = m_min + i * step + 0.5 * step;
     }
-    memset(ys, 0, bins * sizeof(double));
+    std::fill(ys, ys+bins, 0.0);
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             ys[(int)((value(x, y) - m_min) / step)]++;
