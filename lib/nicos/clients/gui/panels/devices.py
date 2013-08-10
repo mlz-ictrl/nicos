@@ -526,15 +526,18 @@ class ControlDialog(QDialog):
         if not self.paraminfo[pname]['settable']:
             return
         ptype = self.paraminfo[pname]['type']
+        mainunit = self.paramvalues.get('unit', 'main')
+        punit = (self.paraminfo[pname]['unit'] or '').replace('main', mainunit)
 
         dlg = dialogFromUi(self, 'devices_param.ui', 'panels')
         dlg.target = typedvalue.create(self, ptype,
-                                       self.paramvalues[pname])
+                                       self.paramvalues[pname], unit=punit)
         dlg.paramName.setText('Parameter: %s.%s' % (self.devname, pname))
         dlg.paramDesc.setText(self.paraminfo[pname]['description'])
-        dlg.paramValue.setText(str(self.paramvalues[pname]))
+        dlg.paramValue.setText(str(self.paramvalues[pname]) + ' ' + punit)
         dlg.targetLayout.addWidget(dlg.target)
         dlg.resize(dlg.sizeHint())
+        dlg.target.setFocus()
         if dlg.exec_() != QDialog.Accepted:
             return
         try:

@@ -35,9 +35,10 @@ from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
 
 
-# XXX unit?
-
-def create(parent, typ, curvalue, fmtstr=''):
+def create(parent, typ, curvalue, fmtstr='', unit=''):
+    if unit:
+        inner = create(parent, typ, curvalue, fmtstr, unit='')
+        return AnnotatedWidget(parent, inner, unit)
     if isinstance(typ, params.oneof):
         return ComboWidget(parent, typ.vals, curvalue)
     elif isinstance(typ, params.oneofdict):
@@ -47,16 +48,17 @@ def create(parent, typ, curvalue, fmtstr=''):
     elif isinstance(typ, params.tupleof):
         return MultiWidget(parent, typ.types, curvalue)
     elif typ == params.limits:
-        # XXX could use custom styling
-        return MultiWidget(parent, (float, float), curvalue)
+        return LimitsWidget(parent, curvalue)
     elif isinstance(typ, params.floatrange):
-        # XXX display from-to (at least in tooltip)
-        return EditWidget(parent, float, curvalue, fmtstr or '%.4g',
-                          minmax=(typ.fr, typ.to))
+        edw = EditWidget(parent, float, curvalue, fmtstr or '%.4g',
+                         minmax=(typ.fr, typ.to))
+        return AnnotatedWidget(parent, edw, '(range: %.5g to %.5g)' %
+                               (typ.fr, typ.to))
     elif isinstance(typ, params.intrange):
-        # XXX display from-to (at least in tooltip)
-        return EditWidget(parent, int, curvalue, fmtstr or '%.4g',
-                          minmax=(typ.fr, typ.to))
+        edw = EditWidget(parent, int, curvalue, fmtstr or '%.4g',
+                         minmax=(typ.fr, typ.to))
+        return AnnotatedWidget(parent, edw, '(range: %d to %d)' %
+                               (typ.fr, typ.to))
     elif typ in (int, float, str):
         return EditWidget(parent, typ, curvalue, fmtstr or '%.4g')
     elif typ == bool:
@@ -73,11 +75,29 @@ def create(parent, typ, curvalue, fmtstr=''):
     # XXX missing: listof, nonemptylistof, dictof
 
 
+class AnnotatedWidget(QWidget):
+
+    def __init__(self, parent, inner, annotation):
+        QWidget.__init__(self, parent)
+        layout = self._layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self._inner = inner
+        layout.addWidget(inner)
+        layout.addWidget(QLabel(annotation, parent))
+        self.setLayout(layout)
+
+    def getValue(self):
+        return self._inner.getValue()
+
+    def setFocus(self):
+        self._inner.setFocus()
+
 class MultiWidget(QWidget):
 
     def __init__(self, parent, types, curvalue):
         QWidget.__init__(self, parent)
-        layout = QHBoxLayout()
+        layout = self._layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         self._widgets = []
         for (typ, val) in zip(types, curvalue):
             widget = create(self, typ, val)
@@ -87,6 +107,13 @@ class MultiWidget(QWidget):
 
     def getValue(self):
         return tuple(w.getValue() for w in self._widgets)
+
+class LimitsWidget(MultiWidget):
+
+    def __init__(self, parent, curvalue):
+        MultiWidget.__init__(self, parent, (float, float), curvalue)
+        self._layout.insertWidget(0, QLabel('from', self))
+        self._layout.insertWidget(2, QLabel('to', self))
 
 class ComboWidget(QComboBox):
 
@@ -124,11 +151,6 @@ class EditWidget(QLineEdit):
     def getValue(self):
         return self._typ(self.text())
 
-    # def sizeHint(self):
-    #     sh = QLineEdit.sizeHint(self)
-    #     sh.setWidth(sh.width()/2)
-    #     return sh
-
 class ExprWidget(QLineEdit):
 
     def __init__(self, parent, curvalue):
@@ -142,7 +164,7 @@ class CheckWidget(QWidget):
 
     def __init__(self, parent, inner, curvalue):
         QWidget.__init__(self, parent)
-        layout = QHBoxLayout()
+        layout = self._layout = QHBoxLayout()
         self.checkbox = QCheckBox(self)
         if curvalue is not None:
             self.checkbox.setCheckState(Qt.Checked)
@@ -152,9 +174,9 @@ class CheckWidget(QWidget):
         self.inner_widget.setEnabled(self.checkbox.isChecked())
         layout.addWidget(self.checkbox)
         layout.addWidget(self.inner_widget)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.connect(self.checkbox, SIGNAL('stateChanged(int)'),
                      self.on_checkbox_stateChanged)
-        # XXX deactivate inner on uncheck
         self.setLayout(layout)
 
     def on_checkbox_stateChanged(self, state):
