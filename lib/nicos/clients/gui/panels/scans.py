@@ -575,11 +575,14 @@ class DataSetPlot(NicosPlot):
             if namestr in visible:
                 self.setVisibility(plotcurve, visible[namestr])
                 changed = True
-                remaining -= 1
+                if not visible[namestr]:
+                    remaining -= 1
         # no visible curve left?  enable all of them again
         if not remaining:
             for plotcurve in self.plotcurves:
-                self.setVisibility(plotcurve, True)
+                # only if it has a legend item (excludes monitor/time columns)
+                if plotcurve.testItemAttribute(QwtPlotItem.Legend):
+                    self.setVisibility(plotcurve, True)
         if changed:
             self.replot()
 
