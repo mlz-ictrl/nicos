@@ -115,7 +115,7 @@ class NicosListener(object):
                     strvalue = devinfo[5] % fvalue
                 except Exception:
                     strvalue = str(fvalue)
-            devinfo[3] = (strvalue + ' ' + devinfo[6]).strip()
+            devinfo[3] = (strvalue + ' ' + (devinfo[6] or '')).strip()
             if devinfo[2] != strvalue:
                 devinfo[2] = strvalue
                 self.on_devValueChange(self._devmap[key], fvalue, strvalue,
@@ -146,7 +146,7 @@ class NicosListener(object):
                 except Exception:
                     strvalue = str(fvalue)
             devinfo[8] = time
-            devinfo[3] = (strvalue + ' ' + devinfo[6]).strip()
+            devinfo[3] = (strvalue + ' ' + (devinfo[6] or '')).strip()
             if devinfo[2] != strvalue or devinfo[11] != expired:
                 devinfo[2] = strvalue
                 devinfo[11] = expired
