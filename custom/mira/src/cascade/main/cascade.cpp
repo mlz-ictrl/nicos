@@ -2044,7 +2044,22 @@ int main(int argc, char **argv)
 					mainWindow.m_cascadewidget.LoadFile(strArg.toAscii().data());
 			}
 		}
+		
 
+		/*
+		// test mem loading
+		//FILE *pf = fopen("/home/tweber/00002383.tof.gz", "rb");
+		FILE *pf = fopen("/home/tweber/00002345.pad.gz", "rb");
+		long iSize = GetFileSize(pf);
+		char *pvTst = new char[iSize];
+		fread(pvTst, 1, iSize, pf);
+		//mainWindow.m_cascadewidget.LoadTofMem(pvTst, iSize);
+		mainWindow.m_cascadewidget.LoadPadMem(pvTst, iSize);
+		delete[] pvTst;
+		fclose(pf);
+		*/
+
+		
 		iRet = a.exec();
 
 		// save settings

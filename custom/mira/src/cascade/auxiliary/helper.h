@@ -193,8 +193,9 @@ template<typename T> T sum(const T* first, const T* last)
 
 
 
-/// wrapper for zlib's uncompress function
 bool zlib_decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut);
+bool gz_decompress(const void* pvIn, unsigned int iLenIn, void*& pvOut, unsigned int& iLenOut);
+bool IsGZ(const void* pvMem);
 bool IsGZFile(const char* pcFile);
 unsigned int GetGZFileSize(const char* pcFile);
 

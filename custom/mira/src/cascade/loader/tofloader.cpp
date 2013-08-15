@@ -282,6 +282,20 @@ unsigned int* TofImage::GetRawData(void) const
 
 int TofImage::LoadMem(const char *strBuf, unsigned int istrBufLen)
 {
+	if(istrBufLen < 2)
+		return LOAD_FAIL;
+	
+	const bool bIsGZ = IsGZ(strBuf);
+	if(bIsGZ)
+	{	
+		void *pvOut = 0;
+		unsigned int iOutLen = 0;
+		gz_decompress(strBuf, istrBufLen, pvOut, iOutLen);
+		
+		strBuf = (const char*)pvOut;
+		istrBufLen = iOutLen;
+	}
+	
 	m_cascconf.Clear();
 
 	const unsigned int *puiBuf = (unsigned int *)strBuf;
@@ -303,6 +317,8 @@ int TofImage::LoadMem(const char *strBuf, unsigned int istrBufLen)
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
 			logger << "Loader: Buffer size (" << uiBufLen << " ints) != TOF size ("
 				<< iSize << " ints)." << "\n";
+				
+			if(bIsGZ) gc.release((void*)strBuf);
 			return LOAD_SIZE_MISMATCH;
 		}
 		else	// additional data is config
@@ -319,6 +335,7 @@ int TofImage::LoadMem(const char *strBuf, unsigned int istrBufLen)
 		m_puiDaten[i] = endian_swap(m_puiDaten[i]);
 #endif
 
+	if(bIsGZ) gc.release((void*)strBuf);
 	return LOAD_SUCCESS;
 }
 

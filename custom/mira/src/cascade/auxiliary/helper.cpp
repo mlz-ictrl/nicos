@@ -23,6 +23,7 @@
 
 #include "helper.h"
 #include "../config/globals.h"
+#include "gc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +33,9 @@
 #include <math.h>
 #include <limits>
 #include <iomanip>
+
+#include <QtCore/QTemporaryFile>
+
 
 // file size
 long GetFileSize(FILE* pf)
@@ -276,18 +280,51 @@ bool zlib_decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
 	{
 		case Z_BUF_ERROR:
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Zlib: out of memory." << "\n";
+			logger << "Zlib: Out of memory." << "\n";
 			break;
 		case Z_MEM_ERROR:
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Zlib: output buffer too small." << "\n";
+			logger << "Zlib: Output buffer too small." << "\n";
 			break;
 		case Z_DATA_ERROR:
 			logger.SetCurLogLevel(LOGLEVEL_ERR);
-			logger << "Zlib: invalid input data." << "\n";
+			logger << "Zlib: Invalid input data." << "\n";
 			break;
 	}
 	return iErr==Z_OK;
+}
+
+bool gz_decompress(const void* pvIn, unsigned int iLenIn, void*& pvOut, unsigned int& iLenOut)
+{
+	iLenOut = *(unsigned int*)(((char*)pvIn) + iLenIn-4);
+	pvOut = gc.malloc(iLenOut, "gz_decompress");
+
+	QTemporaryFile tmp;
+	if(!tmp.open())
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "decompress: Could not create temporary file." << "\n";
+		return false;
+	}
+	tmp.close();
+	
+	FILE *pfIn = fopen(tmp.fileName().toAscii().data(), "wb");
+	fwrite(pvIn, 1, iLenIn, pfIn);
+	fclose(pfIn);
+	
+	
+	gzFile gzIn = gzopen(tmp.fileName().toAscii().data(), "rb");
+	unsigned int iRead = gzread(gzIn, pvOut, iLenOut);
+	gzclose(gzIn);
+	
+	if(iRead != iLenOut)
+	{
+		logger.SetCurLogLevel(LOGLEVEL_ERR);
+		logger << "decompress: Number of bytes read: " << iRead << ", expected: " << iLenOut << ".\n";		
+		return false;
+	}
+	
+	return true;
 }
 
 
@@ -295,12 +332,20 @@ bool IsGZFile(const char* pcFile)
 {
 	FILE* pf = fopen(pcFile, "rb");
 	
-	unsigned char id1, id2;
-	fread(&id1, 1, 1, pf);
-	fread(&id2, 1, 1, pf);
-
+	unsigned char id[2];
+	fread(&id, 1, 2, pf);
 	fclose(pf);
 
+	return IsGZ(id);
+}
+
+bool IsGZ(const void* pvMem)
+{
+	const unsigned char* pcMem = (unsigned char*)pvMem;
+	
+	unsigned char id1 = pcMem[0];
+	unsigned char id2 = pcMem[1];
+	
 	return (id1==0x1f && id2==0x8b);
 }
 

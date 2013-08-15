@@ -376,7 +376,7 @@ void BrowseDlg::SetDir()
 	dir.setFilter(QDir::Files | QDir::Hidden);
 
 	QStringList namefilters;
-	namefilters << "*.pad" << "*.tof" << "*.PAD" << "*.TOF" << "*.tof.gz" << "*.TOF.GZ";
+	namefilters << "*.pad" << "*.tof" << "*.PAD" << "*.TOF" << "*.tof.gz" << "*.TOF.GZ" << "*.pad.gz" << "*.PAD.GZ";
 	dir.setNameFilters(namefilters);
 
 	QFileInfoList filelist = dir.entryInfoList();

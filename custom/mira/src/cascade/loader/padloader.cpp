@@ -159,6 +159,20 @@ int PadImage::GetIntMax() const { return m_iMax; }
 
 int PadImage::LoadMem(const char *strBuf, unsigned int strBufLen)
 {
+	if(strBufLen < 2)
+		return LOAD_FAIL;
+	
+	const bool bIsGZ = IsGZ(strBuf);
+	if(bIsGZ)
+	{
+		void *pvOut = 0;
+		unsigned int iOutLen = 0;
+		gz_decompress(strBuf, strBufLen, pvOut, iOutLen);
+		
+		strBuf = (const char*)pvOut;
+		strBufLen = iOutLen;
+	}
+	
 	m_cascconf.Clear();
 
 	const unsigned int *puiBuf = (unsigned int *)strBuf;
@@ -182,6 +196,8 @@ int PadImage::LoadMem(const char *strBuf, unsigned int strBufLen)
 				<< GetPadConfig().GetImageHeight()*
 					GetPadConfig().GetImageWidth()
 				<< " ints)." << "\n";
+				
+			if(bIsGZ) gc.release((void*)strBuf);
 			return LOAD_SIZE_MISMATCH;
 		}
 		else	// additional data is config
@@ -202,6 +218,8 @@ int PadImage::LoadMem(const char *strBuf, unsigned int strBufLen)
 #endif
 
 	UpdateRange();
+	
+	if(bIsGZ) gc.release((void*)strBuf);
 	return LOAD_SUCCESS;
 }
 
