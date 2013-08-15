@@ -20,4 +20,4 @@ SOURCES += ../loader/tofloader.cpp ../auxiliary/fourier.cpp ../loader/padloader.
 	../auxiliary/roi.cpp ../config/config.cpp ../auxiliary/fit.cpp ../auxiliary/gc.cpp ../plot/plotter.cpp \
 	../loader/conf.cpp
 
-LIBS += -lMinuit2 -lgomp -lQtNetwork -lqwt -lxml++-2.6
+LIBS += -lMinuit2 -lgomp -lQtNetwork -lqwt -lxml++-2.6 -lz

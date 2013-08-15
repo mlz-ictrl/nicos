@@ -58,23 +58,19 @@ long GetFileSize(const char* pcFileName)
 
 std::string GetFileEnding(const char* pcFileName)
 {
-	int iLen = strlen(pcFileName);
-
+	unsigned int iLen = strlen(pcFileName);
+	unsigned int iPos = 0;
 	bool bFound = false;
-	int iIdx;
-
-	for(iIdx=iLen-1; iIdx>=0; --iIdx)
-	{
-		if(pcFileName[iIdx] == '.')
+	
+	for(; iPos<iLen; ++iPos)
+		if(pcFileName[iPos] == '.')
 		{
 			bFound = true;
 			break;
 		}
-	}
-
+		
 	if(bFound)
-		return std::string(pcFileName + iIdx+1);
-
+		return std::string(pcFileName + iPos+1);
 	return std::string("");
 }
 
@@ -261,4 +257,67 @@ double randmp1()
 {
 	init_rand();
 	return (double(rand())-double(RAND_MAX)*0.5) / double(RAND_MAX);
+}
+
+
+
+//-----------------------------------------------------------------------------
+
+
+/// wrapper for zlib's uncompress function
+bool zlib_decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut)
+{
+	uLong ulLenOut = iLenOut;
+	int iErr = ::uncompress((Bytef*)pcOut, &ulLenOut,
+							(Bytef*)pcIn, (uLong)iLenIn);
+	iLenOut = ulLenOut;
+
+	switch(iErr)
+	{
+		case Z_BUF_ERROR:
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Zlib: out of memory." << "\n";
+			break;
+		case Z_MEM_ERROR:
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Zlib: output buffer too small." << "\n";
+			break;
+		case Z_DATA_ERROR:
+			logger.SetCurLogLevel(LOGLEVEL_ERR);
+			logger << "Zlib: invalid input data." << "\n";
+			break;
+	}
+	return iErr==Z_OK;
+}
+
+
+bool IsGZFile(const char* pcFile)
+{
+	FILE* pf = fopen(pcFile, "rb");
+	
+	unsigned char id1, id2;
+	fread(&id1, 1, 1, pf);
+	fread(&id2, 1, 1, pf);
+
+	fclose(pf);
+
+	return (id1==0x1f && id2==0x8b);
+}
+
+unsigned int GetGZFileSize(const char* pcFile)
+{
+	if(!IsGZFile(pcFile))
+		return GetFileSize(pcFile);
+	
+	FILE *pf = fopen(pcFile, "rb");
+	long iFileSize = GetFileSize(pf);
+	fseek(pf, iFileSize-4, SEEK_SET);
+	
+	unsigned int iSize = 0;
+	fread((char*)&iSize, 4, 1, pf);
+	
+	fclose(pf);
+	
+	//std::cout << "Size: " << iSize << std::endl;
+	return iSize;
 }

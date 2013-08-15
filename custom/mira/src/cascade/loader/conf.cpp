@@ -80,6 +80,18 @@ bool CascConf::Load(FILE* pf, unsigned int uiSize)
 	return bOk && (uiSize==uiLen);
 }
 
+bool CascConf::Load(gzFile pf, unsigned int uiSize)
+{
+	char *pc = new char[uiSize+1];
+	pc[uiSize] = 0;
+	unsigned int uiLen = gzread(pf, pc, uiSize);
+	
+	bool bOk = Load((void*)pc);
+	delete[] pc;
+
+	return bOk && (uiSize==uiLen);
+}
+
 bool CascConf::Load(const char* pcCascFile, const char* pcConfEnding)
 {
 	std::string strFile = std::string(pcCascFile) + std::string(pcConfEnding);

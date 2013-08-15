@@ -247,7 +247,7 @@ int PadImage::LoadFile(const char *pcFileName)
 
 	int iRet = LOAD_SUCCESS;
 
-	FILE *pf = fopen(pcFileName,"rb");
+	gzFile pf = gzopen(pcFileName, "rb");
 	if(!pf)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -261,7 +261,7 @@ int PadImage::LoadFile(const char *pcFileName)
 	unsigned int uiExpectedSize = GetPadConfig().GetImageHeight()*
 								  GetPadConfig().GetImageWidth();
 
-	unsigned int uiFileSize = GetFileSize(pf);
+	unsigned int uiFileSize = GetGZFileSize(pcFileName);
 	if(uiFileSize != uiExpectedSize*sizeof(int))
 	{
 		if(uiFileSize < uiExpectedSize*sizeof(int))
@@ -280,7 +280,9 @@ int PadImage::LoadFile(const char *pcFileName)
 		
 	}
 
-	unsigned int uiBufLen = fread(m_puiDaten, sizeof(int), uiExpectedSize, pf);
+	unsigned int uiBufLen = gzread(pf, m_puiDaten, sizeof(int)*uiExpectedSize);
+	uiBufLen /= sizeof(unsigned int);
+
 	if(!uiBufLen)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -304,7 +306,7 @@ int PadImage::LoadFile(const char *pcFileName)
 							GetPadConfig().GetImageWidth()*sizeof(int));
 	}
 	
-	fclose(pf);
+	gzclose(pf);
 
 	// load overlay config from optional external file
 	m_cascconf.Load(pcFileName, ".conf");

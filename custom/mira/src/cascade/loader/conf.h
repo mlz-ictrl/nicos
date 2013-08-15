@@ -29,6 +29,7 @@
 #include <istream>
 #include <stdio.h>
 #include <sstream>
+#include "../auxiliary/helper.h"
 
 class CascConf
 {
@@ -50,6 +51,7 @@ class CascConf
 		bool Load(std::istream& istr);
 		bool Load(const void* pv);
 		bool Load(FILE* pf, unsigned int uiSize);
+		bool Load(gzFile pf, unsigned int uiSize);
 		bool Load(const char* pcCascFile, const char* pcConfEnding);
 
 		std::string GetVal(const std::string& strKey, bool *pbHasKey=0) const;

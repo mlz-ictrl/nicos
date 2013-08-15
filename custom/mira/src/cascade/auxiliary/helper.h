@@ -31,6 +31,8 @@
 #include <sstream>
 #include <limits>
 #include <algorithm>
+#include <zlib.h>
+#include "logger.h"
 
 //------------------------------------------------------------------------------
 
@@ -186,5 +188,16 @@ template<typename T> T sum(const T* first, const T* last)
 
 	return tsum;
 }
+
+//-----------------------------------------------------------------------------
+
+
+
+/// wrapper for zlib's uncompress function
+bool zlib_decompress(const char* pcIn, int iLenIn, char* pcOut, int& iLenOut);
+bool IsGZFile(const char* pcFile);
+unsigned int GetGZFileSize(const char* pcFile);
+
+//-----------------------------------------------------------------------------
 
 #endif

@@ -938,7 +938,7 @@ class MainWindow : public QMainWindow
 			QString strFile = QFileDialog::getOpenFileName(this,
 											"Open PAD File",
 											QString(strCurDir),
-											"PAD Files (*.pad *.PAD);;All Files (*)");
+											"PAD Files (*.pad *.PAD *.pad.gz *.PAD.GZ);;All Files (*)");
 
 			if(strFile=="")
 				return;
@@ -975,7 +975,7 @@ class MainWindow : public QMainWindow
 
 			QString strFile = QFileDialog::getOpenFileName(
 								this, "Open TOF File", strCurDir,
-								"TOF Files (*.tof *.TOF);;All Files (*)");
+								"TOF Files (*.tof *.TOF *.tof.gz *.TOF.GZ);;All Files (*)");
 
 			if(strFile=="")
 				return;

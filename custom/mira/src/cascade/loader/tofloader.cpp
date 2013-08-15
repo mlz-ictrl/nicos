@@ -336,7 +336,7 @@ int TofImage::LoadFile(const char *pcFileName)
 	unsigned int iSize = (unsigned int)GetTofSize();
 	int iRet = LOAD_SUCCESS;
 
-	FILE *pf = fopen(pcFileName,"rb");
+	gzFile pf = gzopen(pcFileName,"rb");
 	if(!pf)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -347,7 +347,7 @@ int TofImage::LoadFile(const char *pcFileName)
 
 	bool bHasConf = false;
 
-	unsigned int uiFileSize = GetFileSize(pf);
+	unsigned int uiFileSize = GetGZFileSize(pcFileName);
 	if(uiFileSize != iSize*sizeof(int))
 	{
 		if(uiFileSize < iSize*sizeof(int))
@@ -365,7 +365,9 @@ int TofImage::LoadFile(const char *pcFileName)
 		}
 	}
 
-	unsigned int uiBufLen = fread(m_puiDaten, sizeof(unsigned int), iSize, pf);
+	unsigned int uiBufLen = gzread(pf, m_puiDaten, sizeof(unsigned int)*iSize);
+	uiBufLen /= sizeof(unsigned int);
+
 	if(!uiBufLen)
 	{
 		logger.SetCurLogLevel(LOGLEVEL_ERR);
@@ -385,7 +387,7 @@ int TofImage::LoadFile(const char *pcFileName)
 		m_cascconf.Load(pf, uiFileSize - iSize*sizeof(int));
 	}
 
-	fclose(pf);
+	gzclose(pf);
 
 	// load overlay config from optional external file
 	m_cascconf.Load(pcFileName, ".conf");

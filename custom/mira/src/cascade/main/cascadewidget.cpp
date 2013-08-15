@@ -144,9 +144,9 @@ bool CascadeWidget::LoadFile(const char* pcFile)
 {
 	std::string strFileType = GetFileEnding(pcFile);
 
-	if(strFileType=="pad" || strFileType=="PAD")
+	if(strFileType=="pad" || strFileType=="PAD" || strFileType=="pad.gz" || strFileType=="PAD.GZ")
 		return LoadPadFile(pcFile);
-	else if(strFileType=="tof" || strFileType=="TOF")
+	else if(strFileType=="tof" || strFileType=="TOF" || strFileType=="tof.gz" || strFileType=="TOF.GZ")
 		return LoadTofFile(pcFile);
 	else // guessing file type
 	{
