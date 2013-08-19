@@ -5,6 +5,7 @@ includes = ['detector', 'mono2']
 
 devices = dict(
     psd    = device('mira.cascade.CascadeDetector',
+                    description = 'CASCADE detector',
                     subdir = 'cascade',
                     server = 'miracascade.mira.frm2:1234',
                     slave = True,
@@ -13,6 +14,7 @@ devices = dict(
                     mono = 'mono'),
 
     PSDHV  = device('devices.vendor.iseg.IsegHV',
+                    description = 'High voltage supply for the CASCADE detector (usually -2850 V)',
                     tacodevice = '//mirasrv/mira/network/rs12_4',
                     abslimits = (-3000, 0),
                     warnlimits = (-3000, -2800),
@@ -23,6 +25,7 @@ devices = dict(
                     fmtstr = '%d'),
 
     PSDGas = device('devices.taco.NamedDigitalInput',
+                    description = 'Sensor to indicate low pressure in counting gas of CASCADE',
                     mapping = {'empty': 0, 'okay': 1},
                     warnlimits = ('okay', 'okay'),
                     pollinterval = 10,
@@ -30,12 +33,14 @@ devices = dict(
                     tacodevice = '//mirasrv/mira/io/psdgas'),
 
     dtx    = device('mira.axis.PhytronAxis',
+                    description = 'Detector translation along the beam on Franke table',
                     tacodevice = '//mirasrv/mira/axis/dtx',
                     abslimits = (0, 1490),
                     pollinterval = 5,
                     maxage = 10),
 
     sampledet = device('devices.generic.ManualMove',
+                       description = 'Sample-detector distance to be written to the data files',
                        abslimits = (0, 5000),
                        unit = 'mm'),
 )

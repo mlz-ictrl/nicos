@@ -24,6 +24,7 @@ devices = dict(
                        resetcall = 'deviceReset'),
 
     ss1        = device('devices.generic.Slit',
+                       description = 'First sample slit',
                        left = 'ss1l',
                        right = 'ss1r',
                        bottom = 'ss1b',
@@ -54,6 +55,7 @@ devices = dict(
                        resetcall = 'deviceReset'),
 
     ss2        = device('devices.generic.Slit',
+                       description = 'Second sample slit',
                        left = 'ss2l',
                        right = 'ss2r',
                        bottom = 'ss2b',

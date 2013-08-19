@@ -5,6 +5,7 @@ includes = ['base']
 
 devices = dict(
     Bf  = device('mira.thm1176.THM',
+                 description = 'THM 1176 gaussmeter',
                  device = '/dev/usbtmc_THM1176'),
 )
 

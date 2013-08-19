@@ -54,18 +54,6 @@ _column3 = Column(
         BlockRow('cc1', 'cc2', 'freq3', 'amp3'),
     ], 'mieze'),
     Block('X-Z table axes', [BlockRow('dty', 'dtz')], 'yztable'),
-    Block('TAS', [
-        BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
-
-                 Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
-                 Field(name='L', dev='mira', item=2, format='%.3f', unit=' '),
-                 Field(name='E', dev='mira', item=3, format='%.3f', unit=' ')),
-        BlockRow(Field(name='Mode', key='mira/scanmode'),
-                 Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
-                 Field(name='Unit', key='mira/energytransferunit')),
-        BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas', width=30, height=18,
-                       fields={'mth': 'm2th', 'mtt': 'm2tt', 'sth': 'om', 'stt': 'phi', 'ath': 'ath', 'att': 'att', 'tas': 'mira'})),
-    ], 'tas'),
     Block('Diffraction', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
                  Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
@@ -102,6 +90,19 @@ _column2 = Column(
         BlockRow('stx', 'sty', 'sgx', 'sgy'),
         BlockRow('ath', 'att'),
     ], 'sample'),
+    Block('TAS', [
+        BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
+
+                 Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
+                 Field(name='L', dev='mira', item=2, format='%.3f', unit=' '),
+                 Field(name='E', dev='mira', item=3, format='%.3f', unit=' ')),
+        BlockRow(Field(name='Mode', key='mira/scanmode'),
+                 Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
+                 Field(name='Unit', key='mira/energytransferunit')),
+        BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas', width=30, height=18,
+                       fields={'mth': 'm2th', 'mtt': 'm2tt', 'sth': 'om',
+                               'stt': 'phi', 'ath': 'ath', 'att': 'att', 'tas': 'mira'})),
+    ], 'tas'),
     Block('Eulerian cradle', [
         BlockRow('echi', 'ephi'),
         BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
@@ -167,9 +168,11 @@ _column1 = Column(
                  Field(dev='ms2', name='Mono slit 2 (ms2)', width=20, istext=True)),
     ], 'mono2'),
     Block('Environment', [
-        BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=7),
-                 Field(name='6-fold', dev='Sixfold', min='open', width=7),
-                 Field(dev='NL6', min='open', width=7), Field(dev='UBahn', width=8, istext=True)),
+        BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=6),
+                 Field(name='6-fold', dev='Sixfold', min='open', width=6),
+                 Field(dev='NL6', min='open', width=6),
+                 Field(dev='UBahn', width=5, istext=True, unit=' '),
+                 Field(dev='OutsideTemp', name='Temp', width=4, unit=' ')),
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
                  Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
                  Field(dev='FAKTemp', name='FAK40', width=6, format='%.1f', unit=' '),

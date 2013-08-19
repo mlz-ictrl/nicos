@@ -32,7 +32,7 @@ _column3 = Column(
     Block('Cascade', [
         BlockRow(Field(name='ROI',   key='psd/lastcounts', item=0, width=9),
                  Field(name='Total', key='psd/lastcounts', item=1, width=9),
-                 #Field(name='MIEZE', key='psd/lastcontrast', item=0, format='%.3f', width=6),
+                 Field(name='MIEZE', key='psd/lastcontrast', item=0, format='%.3f', width=6),
                  Field(name='Last image', key='psd/lastfilenumber')),
         BlockRow('timer', 'mon2', 'ctr1'),
         BlockRow(Field(dev='MonHV', width=5), Field(dev='PSDGas', width=6),
@@ -43,13 +43,13 @@ _column3 = Column(
                  Field(name='Guide field', dev='He_GF')),
     ], 'helios'),
     Block('MIEZE', [
-        #BlockRow(Field(name='Setting', dev='mieze', item=0, istext=True),
-        #         Field(name='Fourier time', dev='mieze', item=1, unit='ps'),
-        #         Field(name='Tuning', key='mieze/tuning', istext=True)),
-        BlockRow('freq1', 'amp1', 'coilamp1'),
-        BlockRow('freq2', 'amp2', 'coilamp2'),
+        BlockRow(Field(name='Setting', dev='mieze', item=0, istext=True, width=5),
+                 Field(name='tau', dev='mieze', item=1, unit='ps', width=7),
+                 Field(name='Tuning', key='mieze/tuning', istext=True, width=10)),
+        BlockRow('dc1', 'freq1', 'amp1', 'coilamp1'),
+        BlockRow('dc2', 'freq2', 'amp2', 'coilamp2'),
         BlockRow('fp1', 'fp2', 'rp1', 'rp2'),
-        BlockRow('dc1', 'dc2', 'freq3', 'amp3'),
+        BlockRow('cc1', 'cc2', 'freq3', 'amp3'),
     ], 'mieze'),
 #    Block('X-Z table axes', [BlockRow('mx', 'my')], 'gauss'),
     Block('TAS', [

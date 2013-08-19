@@ -11,14 +11,14 @@ devices = dict(
                       fmtstr = '%.0f',
                       abslimits = (0, 80000000)),
 
-    fp2       = device('devices.taco.AnalogInput',
-                       tacodevice = '//mirasrv/mira/ag1016/fp2'),
-    rp2       = device('devices.taco.AnalogInput',
-                       tacodevice = '//mirasrv/mira/ag1016/rp2',
-                       warnlimits = (0, 20)),
+    fp2      = device('devices.taco.AnalogInput',
+                      tacodevice = '//mirasrv/mira/ag1016/fp2'),
+    rp2      = device('devices.taco.AnalogInput',
+                      tacodevice = '//mirasrv/mira/ag1016/rp2',
+                      warnlimits = (0, 20)),
 
-    Cbox2     = device('mira.beckhoff.BeckhoffDigitalOutput',
-                       tacodevice = '//mirasrv/mira/modbus/beckhoff',
-                       startoffset = 32,
-                       bitwidth = 32),
+    Cbox2    = device('mira.beckhoff.BeckhoffDigitalOutput',
+                      tacodevice = '//mirasrv/mira/modbus/beckhoff',
+                      startoffset = 40,
+                      bitwidth = 32),
 )
