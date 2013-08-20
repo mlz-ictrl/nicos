@@ -107,7 +107,7 @@ elif [ "$DAEMON" = "1" ]; then
     echo '.'
     if [ "$NOCLIENT" = "0" ]; then
         echo 'Services started, starting GUI.'
-        bin/nicos-gui $GUIUSER '' $GUICONFIG "$@"
+        bin/nicos-gui $GUICONFIG $GUIUSER '' "$@"
     else
         echo 'Services started, press Enter to stop them.'
         read dummy
