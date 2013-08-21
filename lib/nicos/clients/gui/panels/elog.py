@@ -29,7 +29,7 @@ from os import path
 from cgi import escape
 
 from PyQt4.QtGui import QMainWindow, QTextEdit, QDialog, QInputDialog, QMenu, \
-     QToolBar, QPrintDialog, QPrinter, QTextDocument
+     QToolBar, QPrintDialog, QPrinter, QTextDocument, QDesktopServices
 from PyQt4.QtWebKit import QWebView
 from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
 
@@ -138,6 +138,12 @@ class ELogPanel(Panel, DlgUtils):
             window.setCentralWidget(widget)
             widget.setText(content)
             window.show()
+        else:
+            # try to open the link with host computer default application
+            try:
+                QDesktopServices.openUrl(reply.url())
+            except Exception:
+                pass
 
     def on_refreshLabel_linkActivated(self, link):
         if link == 'refresh':
