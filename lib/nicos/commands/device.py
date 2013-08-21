@@ -641,7 +641,7 @@ def ListParams(dev):
     if aliasdev is not None:
         aliasdev = session.getDevice(aliasdev, Device)
         items.append((dev.name + '.alias',
-                      '-> ' + aliasdev.name, '', 'yes',
+                      '-> ' + aliasdev.name, '', 'yes', 'string',
                       'Aliased device, parameters of that device follow'))
         dev = aliasdev
     devunit = getattr(dev, 'unit', '')
