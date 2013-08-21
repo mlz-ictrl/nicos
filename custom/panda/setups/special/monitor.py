@@ -36,8 +36,11 @@ analyzer = ('Analyzer', [
 
 collimation = ('Collimation and Lengths', [
     [dict(dev='ca1',default='None'), 'ca2', 'ca3', 'ca4'],
-    [{'dev': 'lsm', 'name': 'Src->Mono', 'unit': ''}, {'dev': 'lms', 'name': 'Mono->Samp', 'unit': ''},
-     {'dev': 'lsa', 'name': 'Samp->Ana', 'unit': ''}, {'dev': 'lad', 'name': 'Ana->Det', 'unit': ''}],
+    ['lsm','lms','lsa','lad'],
+#    [dict(dev='lsm', name='Src->Mono',width=8),
+#     dict(dev='lms', name='Mono->Samp',width=8),],
+#    [dict(dev='lsa', name='Samp->Ana',width=8),
+#     dict(dev='lad', name='Ana->Det',width=8)],
 ])
 
 column1 = [filters, primary, sample, analyzer]
@@ -58,6 +61,30 @@ lakeshore = ('LakeShore', [
     [{'dev': 't_ls340/setpoint', 'name': 'Setpoint'}, {'dev': 't_ls340/p', 'name': 'P', 'width': 5},
      {'dev': 't_ls340/i', 'name': 'I', 'width': 5}, {'dev': 't_ls340/d', 'name': 'D', 'width': 5}],
 ],'lakeshore')
+
+# for setup cryo1
+cryo1 = ('Cryo1:3He-insert', [
+    [   dict( key='t_cryo1/value', name='Regulation', max=38),
+        dict( key='t_cryo1_a/value', name='Sensor A', max=38),
+        dict( key='t_cryo1_b/value', name='Sensor B',max=7),
+    ],[
+        dict( key='t_cryo1/setpoint', name='Setpoint'),
+        dict( key='t_cryo1/p', name='P', width=7),
+        dict( key='t_cryo1/i', name='I', width=7),
+        dict( key='t_cryo1/d', name='D', width=7),
+    ],
+],'cryo1')
+
+cryo1supp = ('Cryo1-misc',[
+    [   dict( key='cryo1_p1/value', name='Pump (mbar)', width=10),
+        dict( key='cryo1_p4/value', name='Cond. (bar)', width=10),
+    ],[
+        dict( key='cryo1_p5/value', name='Dump (bar)', width=10),
+        dict( key='cryo1_p6/value', name='IVC (mbar)', width=10),
+    ],[
+        dict( key='cryo1_flow/value', name='Flow', width=10),
+    ]
+],'cryo1')
 
 # for setup cryo3
 cryo3 = ('Cryo3:dilution-insert', [
@@ -208,9 +235,11 @@ foki = ('Foki', [
   ['afh'],
 ])
 
-column2 = [collimation, detector, cryo3, cryo4, cryo5, lakeshore, magnet75, magnet7t5, ccr11, magnet14t5, vti, variox ]
+column2 = [collimation, detector, cryo1, cryo3, cryo4, cryo5, lakeshore, magnet75, magnet7t5, magnet14t5, vti, variox ]
 
-column3 = [cryo3supp, cryo4supp, cryo5supp, ccr11supp, magnet75supp, magnet7t5supp, kelvinox, foki]
+column3 = [cryo1supp, cryo3supp, cryo4supp, cryo5supp, ccr11]
+
+column4 = [magnet75supp, magnet7t5supp, kelvinox, foki]
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
@@ -219,8 +248,8 @@ devices = dict(
                      cache = 'pandasrv.panda.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
-                     fontsize = 14,
-                     valuefont = 'Luxi Mono',
-                     layout = [[expcolumn], [column1, column2, column3]],
+                     fontsize = 17,
+                     valuefont = 'Luxi Sans',
+                     layout = [[expcolumn], [column1, column2, column3, column4]],
                      )
 )
