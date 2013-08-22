@@ -59,7 +59,10 @@ class ProposalDB(object):
             raise ConfigurationError('MySQL adapter is not installed')
 
     def __enter__(self):
-        self.conn = MySQLdb.connect(host=self.host, user=self.user, db=self.db)
+        self.conn = MySQLdb.connect(host=self.host,
+                                    user=self.user,
+                                    db=self.db,
+                                    charset='utf8')
         self.cursor = self.conn.cursor()
         return self.cursor
 
