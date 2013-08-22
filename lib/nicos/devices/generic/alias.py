@@ -207,6 +207,8 @@ class DeviceAlias(Device):
         if not self._initialized:
             raise AttributeError(name)
         else:
+            if name in DeviceAlias._ownattrs:
+                return object.__getattr__(self, name)
             return getattr(self._obj, name)
 
     def __setattr__(self, name, value):
