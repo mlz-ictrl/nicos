@@ -41,7 +41,7 @@ config = ('Default', [
             ('Experiment info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
         ),
         window('Setup', 'setup', True,
-            panel('setup.SetupPanel')),
+            panel('setup_panel.SetupPanel')),
         window('Editor', 'editor', True,
             vsplit(
                 panel('scriptbuilder.CommandsPanel'),

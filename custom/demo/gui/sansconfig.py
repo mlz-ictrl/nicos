@@ -36,7 +36,7 @@ config = ('Default', [
                         ),
                     panel('console.ConsolePanel'),
                 )),
-               ('Setup', panel('setup.SetupPanel')),
+               ('Setup', panel('setup_panel.SetupPanel')),
         ),
         window('Editor', 'editor', True,
             panel('editor.EditorPanel',

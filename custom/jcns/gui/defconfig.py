@@ -84,7 +84,7 @@ config = ('Default', [
                 panel('live.LiveDataPanel')
                ),
         ),
-#        window('Setup', 'setup', True, panel('setup.SetupPanel')),
+#        window('Setup', 'setup', True, panel('setup_panel.SetupPanel')),
     ], [
         tool('Calculator', 'calculator.CalculatorTool'),
         tool('Neutron cross-sections', 'website.WebsiteTool',

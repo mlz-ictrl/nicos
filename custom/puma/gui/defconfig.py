@@ -36,7 +36,7 @@ config = ('Default', [
             panel('console.ConsolePanel'),
         ),
         window('Setup', 'setup', True,
-            panel('setup.SetupPanel')),
+            panel('setup_panel.SetupPanel')),
         window('Editor', 'editor', True,
             vsplit(
                 panel('scriptbuilder.CommandsPanel'),
