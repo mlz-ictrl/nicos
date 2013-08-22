@@ -156,7 +156,7 @@ class DeviceMeta(DeviceMixinMeta):
                 def getter(self, param=param):
                     if param not in self._params:
                         self._initParam(param)
-                    if self._cache:
+                    if self._cache and param != 'name': # no renaming !
                         value = self._cache.get(self, param, Ellipsis)
                         if value is not Ellipsis:
                             self._params[param] = value
@@ -289,6 +289,8 @@ class Device(object):
                              default='info', settable=True, preinit=True),
     }
 
+    _ownparams = set(['name'])
+
     # A dictionary mapping parameter names to Override objects that override
     # specific properties of parameters found in base classes.
     parameter_overrides = {}
@@ -309,7 +311,7 @@ class Device(object):
         self._config = dict((name.lower(), value)
                             for (name, value) in config.items())
         # _params: parameter values from config
-        self._params = {}
+        self._params = {'name': name}
         # _infoparams: cached list of parameters to get on info()
         self._infoparams = []
         # _adevs: "attached" device instances
@@ -485,7 +487,12 @@ class Device(object):
                               # is a valid value for some parameters
             if self._cache:
                 value = self._cache.get(self, param, Ellipsis)
+                if param == 'name': # clean up legacy, wrong values
+                    self._cache.put(self, 'name', self._name)
             if value is not Ellipsis:
+                if param in self._ownparams:
+                    self._params[param] = value
+                    return
                 if param in self._config:
                     cfgvalue = self._config[param]
                     if cfgvalue != value:
@@ -522,6 +529,7 @@ class Device(object):
             if paraminfo.category is not None:
                 self._infoparams.append((paraminfo.category, param,
                                          paraminfo.unit))
+            # end of _init_param()
 
         notfromcache = []
         later = []
