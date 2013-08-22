@@ -28,7 +28,7 @@ from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem
 from PyQt4.QtCore import SIGNAL, Qt
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, DlgUtils
+from nicos.clients.gui.utils import loadUi, DlgUtils, decodeAny
 
 
 def iterChecked(listwidget):
@@ -62,10 +62,10 @@ class SetupPanel(Panel, DlgUtils):
         if values:
             self._orig_proposal_info = values
             self.proposalNum.setText(values[0])
-            self.expTitle.setText(values[1].decode('utf-8'))
-            self.users.setText(values[2].decode('utf-8'))
-            self.localContact.setText(values[3].decode('utf-8'))
-            self.sampleName.setText(values[4].decode('utf-8'))
+            self.expTitle.setText(decodeAny(values[1]))
+            self.users.setText(decodeAny(values[2]))
+            self.localContact.setText(decodeAny(values[3]))
+            self.sampleName.setText(decodeAny(values[4]))
 
     def on_client_connected(self):
         # fill proposal

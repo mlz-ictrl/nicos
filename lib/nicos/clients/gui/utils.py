@@ -111,6 +111,16 @@ def setForegroundColor(widget, color):
     widget.setPalette(palette)
 
 
+def decodeAny(string):
+    """Try to decode the string from UTF-8 or latin9 encoding."""
+    try:
+        return string.decode('utf-8')
+    except UnicodeError:
+        # decoding latin9 never fails, since any byte is a valid
+        # character there
+        return string.decode('latin9')
+
+
 class DlgUtils(object):
     def __init__(self, title):
         self._dlgutils_title = title

@@ -28,7 +28,7 @@ from PyQt4.QtGui import QLabel
 from PyQt4.QtCore import SIGNAL, Qt
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import loadUi, decodeAny
 
 
 class SqueezedLabel(QLabel):
@@ -107,11 +107,11 @@ class ExpInfoPanel(Panel):
         self.expdevname = values[0].lower() + '/'
         self.sampledevname = values[1].lower() + '/'
         self.expproposal.setText(values[2])
-        self.exptitle.setText(values[3].decode('utf-8'))
-        self.expusers.setText(values[4].decode('utf-8'))
-        self.explocalcontact.setText(values[5].decode('utf-8'))
-        self.expremark.setText(values[6].decode('utf-8'))
-        self.samplename.setText(values[7].decode('utf-8'))
+        self.exptitle.setText(decodeAny(values[3]))
+        self.expusers.setText(decodeAny(values[4]))
+        self.explocalcontact.setText(decodeAny(values[5]))
+        self.expremark.setText(decodeAny(values[6]))
+        self.samplename.setText(decodeAny(values[7]))
 
     def on_client_cache(self, (time, key, op, value)):
         if key.startswith((self.expdevname, self.sampledevname)):
