@@ -74,6 +74,9 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
                     self.log.debug('adjusting polarity switches')
                     other.start(0)
                     switch.start(1)
+                    # not waiting for a bit here can lead to a current spike
+                    # through the magnet
+                    sleep(2.0)
                 # then, just continue ramping to the absolute value
                 value = abs(value)
             self.log.debug('ramping to %.2f A' % value)
