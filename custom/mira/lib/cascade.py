@@ -24,6 +24,7 @@
 
 """Class for CASCADE detector measurement and readout."""
 
+import gzip
 from os import path
 from math import pi
 from time import sleep, time as currenttime
@@ -70,6 +71,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                               settable=True),
         'writexml':     Param('Whether to save files in XML format', type=bool,
                               settable=True, default=True),
+        'gziptof':      Param('Whether to compress TOF files with gzip', type=bool,
+                              settable=True, default=False),
     }
 
     parameter_overrides = {
@@ -246,6 +249,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         buf = self._readLiveData(self._last_preset, self.lastfilename)
         # and write into measurement file
         def writer(fp, buf):
+            if self.gziptof:
+                fp = gzip.GzipFile(mode='wb', fileobj=fp)
             # write main data
             fp.write(buf)
             # write separator
@@ -257,6 +262,8 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                 for _, key, value in device.info():
                     fp.write('%s_%s : %s\n' % (device, key, value))
             fp.write('# end instrument status\n')
+            if self.gziptof:
+                fp.close()
         self.log.debug('writing data file to %s' % self.lastfilename)
         self._writeFile(buf, writer=writer)
         # also write as XML file
