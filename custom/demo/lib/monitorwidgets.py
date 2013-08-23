@@ -50,8 +50,8 @@ class VTas(DisplayWidget, QWidget):
             'ath': -45,
             'att': -90,
             'Lms': 1000,
-            'Lsa': 900,
-            'Lad': 500,
+            'Lsa': 580,
+            'Lad': 400,
         }
         self.status = {
             'mth': OK,
