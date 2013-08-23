@@ -172,7 +172,7 @@ class Poller(Device):
                     # use exponential back-off for the waittime; in the worst
                     # case wait 10 minutes between attempts
                     # (XXX could we have some way of knowing if another NICOS
-                    # session creates and instance of this device, and in that
+                    # session creates an instance of this device, and in that
                     # case retry immediately?)
                     waittime = min(waittime*2, 600)
                     continue
