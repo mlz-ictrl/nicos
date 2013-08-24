@@ -230,7 +230,9 @@ def stop(*devlist):
     >>> stop(phi, psi)  # stop the phi and psi devices
     >>> stop()          # stop all devices
     """
+    stop_all = False
     if not devlist:
+        stop_all = True
         devlist = [session.devices[devname]
                    for devname in session.explicit_devices
                    if isinstance(session.devices[devname],
@@ -239,6 +241,8 @@ def stop(*devlist):
     def stopdev(dev):
         try:
             dev.stop()
+            if not stop_all:
+                dev.log.info('stopped')
         except AccessError:
             pass  # do not warn about devices we cannot access if
                   # they were not explicitly selected
@@ -253,7 +257,8 @@ def stop(*devlist):
         stopthread.start()
     while len(finished) != len(devlist):
         time.sleep(0.1)
-    printinfo('all devices stopped')
+    if stop_all:
+        printinfo('all devices stopped')
     return
 
 @usercommand
