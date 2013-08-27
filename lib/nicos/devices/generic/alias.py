@@ -85,6 +85,8 @@ class DeviceAlias(Device):
     _ownparams = set(['alias', 'name', 'devclass'])
     _initialized = False
 
+    __display__ = True
+
     def __init__(self, name, **config):
         self._obj = None
         devclass = config.get('devclass', 'nicos.core.Device')
@@ -97,6 +99,14 @@ class DeviceAlias(Device):
             self._cls = Device
         Device.__init__(self, name, **config)
         self._initialized = True
+
+    def __repr__(self):
+        if isinstance(self._obj, NoDevice):
+            return '<device %s, device alias pointing to nothing>' % self._name
+        if not self.description:
+            return '<device %s, alias to %s>' % (self._name, self._obj)
+        return '<device %s, alias to %s "%s">' % (self._name, self._obj,
+                                                  self.description)
 
     def doUpdateAlias(self, devname):
         if not devname:
