@@ -25,6 +25,15 @@ devices = dict(
                        description = 'currently used sample-theta',
                        devclass = 'nicos.core.Moveable'),
 
+    vmono      = device('devices.tas.Monochromator',
+                      unit = 'A-1',
+                      dvalue = 3.355,
+                      theta = 'vath',
+                      twotheta = 'vatt',
+                      focush = None,
+                      focusv = None,
+                      abslimits = (0.1, 10)),
+
     vana      = device('devices.tas.Monochromator',
                       unit = 'A-1',
                       dvalue = 3.355,

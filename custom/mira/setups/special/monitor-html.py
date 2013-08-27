@@ -15,7 +15,7 @@ _expcolumn = Column(
                        istext=True, maxlen=30),
                  Field(name='Current status', key='exp/action', width=30,
                        istext=True),
-                 Field(name='Last file', key='experiment/lastscan')),
+                 Field(name='Last file', key='exp/lastscan')),
     ]),
 )
 
@@ -33,7 +33,7 @@ _column3 = Column(
         BlockRow(Field(name='ROI',   key='psd/lastcounts', item=0, width=9),
                  Field(name='Total', key='psd/lastcounts', item=1, width=9),
                  Field(name='MIEZE', key='psd/lastcontrast', item=0, format='%.3f', width=6),
-                 Field(name='Last image', key='experiment/lastimage')),
+                 Field(name='Last image', key='exp/lastimage')),
         BlockRow('timer', 'mon2', 'ctr1'),
         BlockRow(Field(dev='MonHV', width=5), Field(dev='PSDGas', width=6),
                  Field(dev='PSDHV', width=5), Field(dev='dtx')),
@@ -91,6 +91,15 @@ _column2 = Column(
         BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
                  Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
     ], 'ccr5'),
+    Block('3He-4He insert (cryo3)', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cryo3_p1'),
+                 Field(name='cycle', dev='cryo3_p4'),
+                 ),
+    ], 'cryo3'),
     Block('FRM Magnet', [
         BlockRow('B', Field(name='sth', dev='sth_m7T5_stick'),
                  Field(name='T1', dev='m7T5_T1', width=6),

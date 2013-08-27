@@ -7,5 +7,5 @@ devices = dict(
                        description = 'First general-use rotator table',
                        tacodevice = '//mirasrv/mira/rot/tbl1',
                        abslimits = (-360, 360),
-                       resetcall = 'deviceReset'),
+                       resetcall = 'deviceInit'),
 )

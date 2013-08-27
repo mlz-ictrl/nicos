@@ -91,6 +91,13 @@ _column2 = Column(
         BlockRow(Field(name='Heater power', key='t_htf03/heaterpower', unit='%', format='%.2f'),
                  Field(name='Vacuum', dev='htf03_p')),
     ], 'htf03'),
+    Block('Furnace (IRF01)', [
+        BlockRow(Field(name='Setpoint', key='t_irf01/setpoint', unitkey='t_irf01/unit', format='%.2f'),
+                 Field(name='Temp', dev='T_irf01')),
+        BlockRow(Field(name='P', key='t_irf01/p'), Field(name='I', key='t_irf01/i'),
+                 Field(name='D', key='t_irf01/d')),
+        BlockRow(Field(name='Heater power', key='t_irf01/heaterpower', unit='%', format='%.2f')),
+    ], 'irf01'),
     Block('3He-4He insert (cryo2)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
@@ -100,6 +107,15 @@ _column2 = Column(
                  Field(name='cycle', dev='cryo2_p4'),
                  ),
     ], 'cryo2'),
+    Block('3He-4He insert (cryo3)', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cryo3_p1'),
+                 Field(name='cycle', dev='cryo3_p4'),
+                 ),
+    ], 'cryo3'),
     Block('3He insert (cryo4)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
