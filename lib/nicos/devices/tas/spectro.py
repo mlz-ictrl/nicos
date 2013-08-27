@@ -29,6 +29,7 @@ from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
      ConfigurationError, ComputationError, LimitError, oneof, multiStatus
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV
+from nicos.devices.tas import spurions
 from nicos.devices.instrument import Instrument
 
 
@@ -73,6 +74,8 @@ class TAS(Instrument, Moveable):
                                     default='THz', settable=True),
         'collimation':  Param('Collimation settings', type=str,
                               settable=True, category='instrument'),
+        'spurioncheck': Param('Whether to check for spurions during simulation',
+                              settable=True, type=bool, default=True),
     }
 
     parameter_overrides = {
@@ -161,6 +164,9 @@ class TAS(Instrument, Moveable):
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
                 index._cache.invalidate(index, 'value')
+        # spurion check
+        if self.spurioncheck and self._mode == 'simulation':
+            self._spurionCheck(pos)
 
     def doStatus(self, maxage=0):
         return multiStatus(((name, self._adevs[name]) for name in
@@ -333,6 +339,19 @@ class TAS(Instrument, Moveable):
             4,   # width of monitor (cm)
             10,  # height of monitor (cm)
         ]
+
+    def _spurionCheck(self, pos):
+        for line in spurions.check_acc_bragg(self, *pos):
+            self.log.warning(line)
+        for line in spurions.check_ho_spurions(self._adevs['ana']._readInvAng(),
+                                               pos[3]-0.25, pos[3]+0.25):
+            self.log.warning(line)
+        kival = self._adevs['mono']._readInvAng()
+        phival = self._adevs['phi'].read()
+        for line in spurions.check_powderrays(kival, spurions.alu_hkl, phival):
+            self.log.warning(line)
+        for line in spurions.check_powderrays(kival, spurions.copper_hkl, phival):
+            self.log.warning(line)
 
 
 class TASIndex(Moveable, AutoDevice):
