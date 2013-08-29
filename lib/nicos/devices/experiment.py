@@ -34,7 +34,7 @@ from os import path
 from uuid import uuid1
 
 from nicos import session
-from nicos.core import listof, nonemptylistof, oneof, control_path_relative, \
+from nicos.core import listof, nonemptylistof, anytype, oneof, control_path_relative, \
      none_or, mailaddress, usermethod, Device, Measurable, Readable, Param, \
      Dataset, NicosError
 from nicos.core.scan import DevStatistics
@@ -140,12 +140,16 @@ class Experiment(Device):
                               settable=True),
         'mailtemplate': Param('Mail template file name (in templatedir)',
                               type=str, default='mailtext.txt'),
+        'reporttemplate': Param('File name of experimental report template (in templatedir)',
+                              type=str, default='report_{{proposal}}.rtf'),
         'serviceexp':   Param('Name of proposal to switch to after user '
                               'experiment', type=str),
         'servicescript': Param('Script to run for service time', type=str,
                                default='', settable=True),
         'pausecount':   Param('Reason for pausing the count loop', type=str,
                               settable=True),
+        'propinfo': Param('dict of info for the current proposal', type=anytype,
+                            default={}, settable=False),
     }
 
     attached_devices = {
@@ -223,6 +227,7 @@ class Experiment(Device):
         if localcontact:
             kwds['localcontact'] = localcontact
         kwds = self._newPropertiesHook(proposal, kwds)
+        self._setROParam('propinfo', kwds)
         self.title = kwds.get('title', '')
         self.users = kwds.get('user', '')
         self.localcontact = kwds.get('localcontact', '')
@@ -312,28 +317,29 @@ class Experiment(Device):
         # second: loop through all the files
         for fn in filelist:
             # translate '.template' files
-            if self.mailtemplate and fn.endswith(self.mailtemplate):
+            if self.mailtemplate and fn.startswith(self.mailtemplate):
+                self.log.debug('ignore the mailtemplate')
                 continue # neither copy nor translate the mailtemplate
+            if self.reporttemplate and fn.startswith(self.reporttemplate):
+                self.log.debug('ignore the reporttemplate')
+                continue # dito for experimental report
             if not fn.endswith('.template'):
-                if self.mailtemplate and fn.endswith(self.mailtemplate):
-                    continue # neither copy nor translate mailtemplate...
+                self.log.debug('%s is no template, just copy it.' % fn)
                 if path.isfile(path.join(self.scriptdir, fn)):
-                    self.log.info('file %s already exists, not overwriting' %
-                                  fn)
+                    self.log.info('not overwriting existing file %s' % fn)
                     continue
                 shutil.copyfile(path.join(tmpldir, fn),
                                 path.join(self.scriptdir, fn))
-                self.log.debug('ignoring file %s' % fn)
                 continue
             try:
+                self.log.debug('templating %r' % fn)
                 newfn = fn[:-9] # strip ".template" from the name
-                # now also translate templates in the filename
+                # also translate templates in the filename
                 newfn, _, _ = expandTemplate(newfn, kwargs)
                 self.log.debug('%s -> %s' % (fn, newfn))
                 # now read and translate template if file does not already exist
                 if path.isfile(path.join(self.scriptdir, newfn)):
-                    self.log.info('file %s already exists, not overwriting' %
-                                  newfn)
+                    self.log.info('not overwriting existing file %s' % fn)
                     continue
                 with open(path.join(tmpldir, fn)) as fp:
                     content = fp.read()
@@ -342,20 +348,19 @@ class Experiment(Device):
                     self.log.info('missing keyword argument(s):\n')
                     self.log.info('%12s (%s) %-s\n' %
                                   ('keyword', 'default', 'description'))
-                    for entry in missing:
+                    for item in missing:
                         self.log.info('%12s (%s)\t%-s\n' %
-                            (entry['key'], entry['default'], entry['description']))
+                            (item['key'], item['default'], item['description']))
                     raise NicosError('some keywords are missing')
                 if defaulted:
-                    self.log.info('the following keyword argument(s) were taken'
-                                  ' from defaults:')
+                    self.log.info('the following keyword argument(s) were '
+                                  'taken from defaults:')
                     self.log.info('%12s (%s) %-s' %
                                   ('keyword', 'default', 'description'))
-                    for entry in defaulted:
+                    for item in defaulted:
                         self.log.info('%12s (%s)\t%-s' %
-                            (entry['key'], entry['default'], entry['description']))
-                # ok, both filename and filecontent are ok and translated ->
-                # save (if not already existing)
+                            (item['key'], item['default'], item['description']))
+                # both filename and filecontent are ok and translated -> save
                 with open(path.join(self.scriptdir, newfn), 'w') as fp:
                     fp.write(newcontent)
             except Exception:
@@ -413,6 +418,101 @@ class Experiment(Device):
             self.log.info('done: stored as ' + zipname)
             return zipname
 
+    def _statistics(self):
+        '''Return some statistics about the current experiment in a dict.
+        May need improvements.'''
+
+        # get start of proposal from cache history
+        hist, d = [], 7
+        while not hist and d < 60:
+            hist = self.history('proposal', -d*24)
+            d += 7
+        if hist:
+            from_time = hist[-1][0]
+        to_time = time.time()
+        from_date = time.strftime('%a, %d. %b %Y', time.localtime(from_time))
+        to_date = time.strftime('%a, %d. %b %Y', time.localtime(to_time))
+
+        # check number of (scan) data files
+        # maybe this should be live collected in propinfo and not
+        # after the experiment by scanning the filesystem.
+        numscans = 0
+        firstscan = 99999999
+        lastscan = 0
+        scanfilepattern = re.compile(r'%s_(\d{8})\.dat$' % self.proposal)
+        for fn in os.listdir(self.datapath[0]):
+            m = scanfilepattern.match(fn)
+            if m:
+                firstscan = min(firstscan, int(m.group(1)))
+                lastscan = max(lastscan, int(m.group(1)))
+                numscans += 1
+
+        d = {
+            'proposal':  self.proposal,
+            'from_date': from_date,
+            'to_date':   to_date,
+            'firstfile': '%08d' % firstscan,
+            'lastfile':  '%08d' % lastscan,
+            'numscans':  str(numscans),
+            'title':     self.title,
+            'users':     self.users,
+            'samplename':     self.sample.samplename,
+            'localcontact': self.localcontact,
+            'instrument' : session.instrument.instrument,
+        }
+        d.update(self.propinfo)
+        return d
+
+    def _generateExpReport(self, **kwds):
+        # read and translate ExpReport template
+        tmpldir = path.join(self.dataroot, self.templatedir)
+        self.log.debug('looking for templates in %r'%tmpldir)
+        try:
+            with open(path.join(tmpldir, self.reporttemplate)) as fp:
+                data = fp.read()
+        except IOError:
+            self.log.warning('reading Experimental Report template %s failed, '
+                             'please fetch a copy from the UserOffice' %
+                             self.reporttemplate)
+            return # nothing to do about it.
+
+        # prepare template....
+        # can not do this directly in rtf as {} have special meaning....
+        # KEEP IN SYNC WHEN CHANGING THE TEMPLATE!
+        # reminder: format is {{key:default#description}}, always specify default here !
+        data = data.replace('\\par Please replace the place holder in the upper'
+            ' part (brackets <>) by the appropriate values.', '')
+        data = data.replace('\\par Description', '\\par\n\\par '
+            'Please check all pre-filled values carefully! They were partially '
+            'read from the proposal and might need correction.\n'
+            '\\par\n'
+            '\\par Description')
+        data = data.replace('<your title as mentioned in the submission form>',
+                            '"{{title:The title of your proposed experiment}}"')
+        data = data.replace('<proposal No.>', 'Proposal {{proposal:0815}}')
+        data = data.replace('<your name> ', '{{users:A. Guy, A. N. Otherone}}')
+        data = data.replace('<coauthor, same affilation> ', 'and coworkers')
+        data = data.replace('<other coauthor> ', 'S. T. Ranger')
+        data = data.replace('<your affiliation>, }',
+                            '{{affiliation:affiliation of main proposer and coworkers}}, }\n\\par ')
+        data = data.replace('<other affiliation>', 'affiliation of coproposers other than 1')
+        data = data.replace('<Instrument used>', '{{instrument:<The Instrument used>}}')
+        data = data.replace('<date of experiment>', '{{from_date:01.01.1970}} - {{to_date:12.03.2038}}')
+        data = data.replace('<local contact>', '{{localcontact:L. Contact <l.contact@frm2.tum.de>}}')
+
+        # collect info
+        stats = self._statistics()
+        stats.update(kwds)
+
+        # template data
+        newcontent, _, _ = expandTemplate(data, stats)
+        newfn, _, _ = expandTemplate(self.reporttemplate, stats)
+
+        with open(path.join(self.proposaldir, newfn), 'w') as fp:
+            fp.write(newcontent)
+        self.log.info('An experimental report template was created at %r for your convenience.' %
+                       path.join(self.proposaldir, newfn))
+
     def _mail(self, receivers, zipname):
         import smtplib
         from email.mime.application import MIMEApplication
@@ -427,48 +527,19 @@ class Experiment(Device):
         if receivers.lower() not in ['none', 'stats'] and '@' not in receivers:
             raise NicosError('need full email address (\'@\' missing!)')
 
-        # get start of proposal from cache history
-        hist, d = [], 7
-        while not hist and d < 60:
-            hist = self.history('proposal', -d*24)
-            d += 7
-        if hist:
-            from_time = hist[-1][0]
-        to_time = time.time()
-        from_date = time.strftime('%a, %d. %b %Y', time.localtime(from_time))
-        to_date = time.strftime('%a, %d. %b %Y', time.localtime(to_time))
-
-        # check number of (scan) data files
-        numscans = 0
-        firstscan = 99999999
-        lastscan = 0
-        scanfilepattern = re.compile(r'%s_(\d{8})\.dat$' % self.proposal)
-        for fn in os.listdir(self.datapath[0]):
-            m = scanfilepattern.match(fn)
-            if m:
-                firstscan = min(firstscan, int(m.group(1)))
-                lastscan = max(lastscan, int(m.group(1)))
-                numscans += 1
-
         # read and translate mailbody template
+        tmpldir = path.join(self.dataroot, self.templatedir)
+        self.log.debug('looking for templates in %r'%tmpldir)
         try:
-            with open(path.join(self.dataroot, self.templatedir,
-                                self.mailtemplate)) as fp:
+            with open(path.join(tmpldir, self.mailtemplate)) as fp:
                 textfiletext = fp.read()
         except IOError:
             self.log.warning('reading mail template %s failed' %
                              self.mailtemplate, exc=1)
             textfiletext = 'See data in attachment.'
-        textfiletext, _, _ = expandTemplate(textfiletext, {
-            'proposal':  self.proposal,
-            'from_date': from_date,
-            'to_date':   to_date,
-            'firstscan': '%08d' % firstscan,
-            'lastscan':  '%08d' % lastscan,
-            'numscans':  str(numscans),
-            'title':     self.title,
-            'localcontact': self.localcontact,
-        })
+
+        stats = self._statistics()
+        textfiletext, _, _ = expandTemplate(textfiletext, stats)
 
         if receivers.lower() == 'stats':
             for line in textfiletext.splitlines():
@@ -483,7 +554,7 @@ class Experiment(Device):
         msg = MIMEMultipart()
         instname = session.instrument and session.instrument.instrument or '?'
         msg['Subject'] = 'Your recent experiment %s on %s from %s to %s' % \
-            (self.proposal, instname, from_date, to_date)
+            (self.proposal, instname, stats.get('from_date'), stats.get('to_date'))
         msg['From'] = self.mailsender
         msg['To'] = receivers
         msg.attach(MIMEText(textfiletext))
@@ -522,6 +593,7 @@ class Experiment(Device):
         """Called by `.FinishExperiment`."""
         # zip up the experiment data if wanted
         if self.proptype == 'user':
+            self._generateExpReport(**kwds)
             zipname = None
             if self.zipdata or self.sendmail:
                 zipname = self._zip()
@@ -529,6 +601,8 @@ class Experiment(Device):
                 receivers = None
                 if args:
                     receivers = args[0]
+                else:
+                    receivers = self.propinfo.get('user_email', receivers)
                 receivers = kwds.get('receivers', kwds.get('email', receivers))
                 try:
                     if receivers:
