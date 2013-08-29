@@ -10,15 +10,16 @@ includes = ['cryo']
 
 devices = dict(
     sans     = device('devices.instrument.Instrument',
+                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                       instrument = 'SANS-V'
                      ),
 
     guide_m1  = device('devices.generic.VirtualMotor',
-                      lowlevel = True,
-                      abslimits = (0, 10),
-                      speed = 0.5,
-                      unit = 'mm',
-                     ),
+                       lowlevel = True,
+                       abslimits = (0, 10),
+                       speed = 0.5,
+                       unit = 'mm',
+                      ),
     guide1    = device('devices.generic.Switcher',
                       lowlevel = True,
                       moveable = 'guide_m1',

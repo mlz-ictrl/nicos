@@ -31,6 +31,7 @@ import time
 import threading
 import subprocess
 
+from nicos import session
 from nicos.core import Param, Override
 from nicos.frm2.proposaldb import queryCycle, queryProposal
 from nicos.devices.experiment import Experiment as BaseExperiment
@@ -80,12 +81,14 @@ class Experiment(BaseExperiment):
             self.log.warning('unable to query proposal info', exc=1)
             return
         what = []
+        # Extract NEW information
         if info.get('title') and not kwds.get('title'):
             what.append('title')
             kwds['title'] = info['title']
         if info.get('substance') and not kwds.get('sample'):
             what.append('sample name')
-            kwds['sample'] = info['substance']
+            kwds['sample'] = info['substance'] + (' / ' + info['formula'] if
+                                                   info ['formula'] else '')
         if info.get('user') and not kwds.get('user'):
             newuser = info['user']
             email = info.get('user_email', '')
@@ -104,13 +107,35 @@ class Experiment(BaseExperiment):
                 if proplist:
                     kwds['user'] += ', ' + ', '.join(proplist)
                     what.append('co-proposers')
+        # requested/assigned local contact
         if info.get('local_contact', '-1') != '-1' \
                 and not kwds.get('localcontact'):
             kwds['localcontact'] = info['local_contact'].replace('.', ' ')
             what.append('local contact')
+        # requested sample environment
+        v = []
+        for k in 'cryo furnace magnet pressure'.split():
+            if info.get(k):
+                v.append( "%s = %s"%(k, info.get(k)))
+        if v:
+            what.append('requested sample environment')
+            kwds['se'] = ', '.join(v)
+        # include supplementary stuff to make it easier to fill in exp. report templates
+        for k in 'affiliation user_email'.split():
+            kwds[k] = info[k]
+        # display info about values we got.
         if what:
             self.log.info('Filled in %s from proposal database' %
                            ', '.join(what))
+        # make sure we can relay on certain fields to be set, even if they are not in the DB
+        kwds.setdefault('se', 'none specified')
+        kwds.setdefault('user', 'main proposer')
+        kwds.setdefault('title', 'title of experiment p%s' % proposal)
+        kwds.setdefault('sample', 'sample of experiment p%s' % proposal)
+        kwds.setdefault('localcontact', session.instrument.responsible)
+        kwds.setdefault('user_name', info.get('user'))
+        kwds.setdefault('affiliation', 'MLZ Garching; Lichtenbergstraße 1; 85748 Garching; Germany')
+        return kwds
 
     def _start_editor(self):
         """Open all existing script files in an editor."""

@@ -70,8 +70,12 @@ class SetupPanel(Panel, DlgUtils):
     def on_client_connected(self):
         # fill proposal
         self._update_proposal_info()
+        # check for capability to ask proposal database
         if self.client.eval('getattr(session.experiment, "propdb", "")', ''):
             self.propdbInfo.setVisible(True)
+            self.queryDBButton.setVisible(True)
+        else:
+            self.queryDBButton.setVisible(False)
 
         # fill setups
         self._setupinfo = self.client.eval('session.getSetupInfo()')
@@ -134,6 +138,34 @@ class SetupPanel(Panel, DlgUtils):
         self.setupDescription.setText(
             '<b>%s</b><br/>%s<br/><br/>'
             'Devices: %s<br/>' % (setup, info['description'], devs))
+
+    def on_queryDBButton_clicked(self):
+        prop = str(self.proposalNum.text())
+        title = unicode(self.expTitle.text()).encode('utf-8')
+        users = unicode(self.users.text()).encode('utf-8')
+        local = unicode(self.localContact.text()).encode('utf-8')
+        sample = unicode(self.sampleName.text()).encode('utf-8')
+
+        # read propdb and fill title, localcontact and user
+        try:
+            result = self.client.eval('session.experiment._fillProposal(%s, '
+                                      'title = %r, users = %r, localcontact = %r))' %
+                                      (prop, title, users, local))
+
+            if result:
+                # now transfer it into gui
+                self.expTitle.setText(decodeAny(result.get('title', title)))
+                self.users.setText(decodeAny(result.get('user', users)))
+                self.localContact.setText(decodeAny(result.get('localcontact', local)))
+                self.sampleName.setText(decodeAny(result.get('sample', sample)))
+            else:
+                self.showInfo('Reading proposaldb failed for an unknown reason.'
+                              ' Please check logfiles for hints....')
+        except Exception, e:
+            self.log.warning(e, exc=1)
+            self.showInfo('Reading proposaldb failed for an unknown reason. '
+                          'Please check logfiles....\n' + repr(e))
+
 
     def on_buttonBox_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:

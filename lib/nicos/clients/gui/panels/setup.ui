@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>722</width>
-    <height>304</height>
+    <width>643</width>
+    <height>495</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,22 +36,12 @@
          <item row="0" column="1">
           <widget class="QLineEdit" name="proposalNum"/>
          </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="propdbInfo">
-           <property name="text">
-            <string>(The other values are filled from the proposal database automatically.)</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
             <string>Experiment title:</string>
            </property>
           </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="expTitle"/>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_7">
@@ -60,18 +50,12 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="users"/>
-         </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_8">
            <property name="text">
             <string>Local contact:</string>
            </property>
           </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="localContact"/>
          </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_3">
@@ -80,7 +64,39 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="0" column="2" alignment="Qt::AlignRight|Qt::AlignTop">
+          <widget class="QPushButton" name="queryDBButton">
+           <property name="minimumSize">
+            <size>
+             <width>85</width>
+             <height>27</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Query the Proposal Database for Information about this proposal number.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>QueryDB</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" colspan="2">
+          <widget class="QLineEdit" name="expTitle"/>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="QLabel" name="propdbInfo">
+           <property name="text">
+            <string>(If left empty, the values below are filled from the proposal database automatically.)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="2">
+          <widget class="QLineEdit" name="users"/>
+         </item>
+         <item row="4" column="1" colspan="2">
+          <widget class="QLineEdit" name="localContact"/>
+         </item>
+         <item row="5" column="1" colspan="2">
           <widget class="QLineEdit" name="sampleName"/>
          </item>
         </layout>

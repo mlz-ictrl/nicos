@@ -131,6 +131,9 @@ def queryProposal(pnumber):
                     'this instrument, but %s' % (pnumber, value[4:]))
         if value:
             info[key] = value
+    # convert all values to utf-8
+    for k in info:
+        info[k] = unicode(info[k]).encode('utf-8')
     return info
 
 def queryUser(user):
