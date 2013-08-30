@@ -423,11 +423,12 @@ def appendscan(numpoints=5, stepsize=None):
     scan = dslist[i]
     if len(scan.devices) != 1:
         raise NicosError('cannot append to scan with more than one device')
-    npos = len(scan.positions)
+    npos = len(scan.xresults)
     if npos < 2:
         raise NicosError('cannot append to scan with no positions')
     pos1 = scan.positions[0][0]
-    pos2 = scan.positions[-1][0]
+    # start at the real end position...
+    pos2 = scan.positions[len(scan.xresults) - 1][0]
     if isinstance(pos1, tuple):
         stepsizes = tuple((b - a) / (npos - 1) for (a, b) in zip(pos1, pos2))
         if numpoints > 0:
