@@ -5,6 +5,7 @@ NOCLIENT=0
 NOCOMPILE=0
 MONI=1
 ELOG=1
+WATCHDOG=1
 DAEMON=1
 GUICONFIG=""
 GUIUSER="guest@localhost"
@@ -16,7 +17,8 @@ help() {
     echo
     echo "     -C            do not (re-)compile before starting"
     echo "     -D            disable daemon"
-    echo "     -E            disable eletronic logbook"
+    echo "     -E            disable electronic logbook"
+    echo "     -W            disable watchdog"
     echo "     -M            do not start status monitor"
     echo "     -m monitor    use the 'monitor' setup instead of the default monitor setup"
     echo "     -N            do not start any client"
@@ -26,7 +28,7 @@ help() {
     exit 1
 }
 
-while getopts CDEtNMc:u:m:h name; do
+while getopts CDEWtNMc:u:m:h name; do
     case "$name" in
         t)
           CONSOLE=1;;
@@ -44,6 +46,8 @@ while getopts CDEtNMc:u:m:h name; do
           MONITOR="$OPTARG";;
 	E)
 	  ELOG=0;;
+	W)
+	  WATCHDOG=0;;
 	D)
 	  DAEMON=0;;
 	h)
@@ -66,10 +70,12 @@ CACHEPID=$!
 echo -n 'cache '
 sleep 2
 
-bin/nicos-watchdog >/dev/null &
-WATCHDOGPID=$!
-echo -n 'watchdog '
-sleep 0.1
+if [ "$WATCHDOG" = "1" ] ; then
+    bin/nicos-watchdog >/dev/null &
+    WATCHDOGPID=$!
+    echo -n 'watchdog '
+    sleep 0.1
+fi
 
 if [ "$ELOG" = "1" ] ; then
     bin/nicos-elog >/dev/null &
@@ -118,6 +124,6 @@ if [ ! -z "$DAEMONPID" ]; then kill $DAEMONPID; fi
 sleep 0.5
 kill $POLLERPID
 if [ ! -z "$ELOGPID" ]; then kill $ELOGPID; fi
-kill $WATCHDOGPID
+if [ ! -z "$WATCHDOGPID" ]; then kill $WATCHDOGPID; fi
 kill $CACHEPID
 echo 'NICOS demo finished.'
