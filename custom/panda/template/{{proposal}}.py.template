@@ -1,0 +1,47 @@
+# typical inelastic scan setup
+
+panda.scanmode = 'CKF'
+panda.energytransferunit = 'meV'
+mono.unit = 'A-1'
+ana.unit = 'A-1'
+
+
+
+mps = 3000         #define monitor per second
+mpm = 60*mps   # monitor per minute - write 5*mpm to measure 5min
+
+switch(sat, 0)  # means NO ATTENUATOR
+###########################################
+#                                         #
+#   your scans from here                  #
+#                                         #
+###########################################
+
+#   examples
+qcscan((0.5, 0.5,  0, 0), (0.005, 0.005, 0, 0), 5, kf=1.57, mon1=5*mpm)
+qcscan((0.5, 0.5, -1, 0), (0.005, 0.005, 0, 0), 5, kf=1.57, mon1=20*mps)
+qcscan((0.5, 0.5, -3, 0), (0.005, 0.005, 0, 0), 5, kf=1.57, mon1=35000)
+
+move(T, 5)      # changing temperature
+wait(120)       # wait 2 min. (or wait(T) to wait until T is stable)
+# or
+maw(T, 5)       # move and wait - no sleep is necessary
+
+calpos(1, 1, 0, 0, 1.57)
+pos()
+
+# just count on this position for 13 points a mon1 = 1e5 each
+timescan(13, mon1=100000)
+
+# do a rocking scan across this position
+cscan( sth, sth.target, 0.2, 12, 1)     # Preset: just a number is ALWAYS time....
+
+switch(befilter, 'on kf')
+switch(pgfilter, 'unused')
+
+
+# end of user commands
+# start next file if exists
+Run('{{proposal}}-1.py')
+
+

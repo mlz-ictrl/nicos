@@ -189,7 +189,7 @@ main-install:
 	@echo "============================================================="
 	@echo "Installing NICOS to $(ROOTDIR)..."
 	@echo "============================================================="
-	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts}
+	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts,template}
 	# the next line can be removed once all installations use the new scheme
 	rm -f $(VOPT) $(ROOTDIR)/lib/nicos/services/daemon/_pyctl.so
 	# install the C module in a platform-specific directory
@@ -223,6 +223,22 @@ main-install:
 		cp -pr $(VOPT) custom/frm2/lib/* $(ROOTDIR)/lib/nicos/frm2; \
 		echo "============================================================="; \
 	fi
+        # merge templates
+	@echo "Installing templates (overwriting existing files)..."
+	mkdir -p $(VOPT) $(ROOTDIR)/template
+	cp -pr $(VOPT) template/* $(ROOTDIR)/lib/nicos/frm2
+	@if [ "$(FRM2)" = 1 ]; then \
+		echo "============================================================="; \
+		echo "Installing FRM II specific templates (overwriting existing files!)..."; \
+		cp -pr $(VOPT) custom/frm2/template/* $(ROOTDIR)/template; \
+	fi
+	cp -pr $(VOPT) $(INSTRDIR)/template/* $(ROOTDIR)/template
+        # merge template/README
+	cp -p $(VOPT) template/README $(ROOTDIR)/template/README
+	@if [ "$(FRM2)" == 1 -a -f custom/frm2/template/README ]; then \
+		cat custom/frm2/template/README >> $(ROOTDIR)/template/README; \
+	fi
+	@if [ -f $(INSTRDIR)/template/README ]; then cat $(INSTRDIR)/template/README >> $(ROOTDIR)/template/README; fi
 	@echo "Installing setups (backing up existing files)..."
 	tools/copysetup $(INSTRDIR)/setups/ $(ROOTDIR)/setups
 	@if [ "$(FRM2)" = 1 ]; then \

@@ -19,6 +19,7 @@ devices = dict(
                       localcontact = 'Astrid.Schneidewind@frm2.tum.de',
                       sample = 'Sample',
                       dataroot = '/data',
+                      templatedir = '/data/exp/template',
                       #propdb = 'useroffice@tacodb.taco.frm2:useroffice',
                       propdb = '/pandacontrol/setups/special/propdb',
                       managerights = True,

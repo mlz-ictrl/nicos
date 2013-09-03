@@ -167,6 +167,8 @@ class Experiment(Device):
             # only enable in master mode, see below
             self._eloghandler.disabled = session.mode != 'master'
             session.addLogHandler(self._eloghandler)
+        if self.templatedir == '':
+            self._setROParam('templatedir', path.join(session.config.control_path, 'template'))
 
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):

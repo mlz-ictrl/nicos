@@ -1,0 +1,5 @@
+*.template diff=astextplain
+*.rtf diff=astextplain
+*.RTF diff=astextplain
+*.py eol=lf
+README eol=lf
