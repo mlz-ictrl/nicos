@@ -16,6 +16,11 @@ devices = {
                                   unit = 'C',
                                   fmtstr = '%.3f',
                                  ),
+    '%s_p' % (nethost, ) : device('devices.taco.AnalogInput',
+                                  description = 'Pressure sensor of the sample space',
+                                  tacodevice = '//%s/htf/htf/pressure' % (nethost, ),
+                                  fmtstr = '%.2g',
+                                 ),
 }
 
 startupcode = """
