@@ -135,9 +135,9 @@ _column1 = Column(
                  Field(name='6-fold', dev='Sixfold', min='open', width=7),
                  Field(dev='NL6', min='open', width=7)),
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
-                 Field(dev='CoolTemp', width=6, format='%.1f'),
-                 Field(dev='FAKTemp', width=6, format='%.1f'),
-                 Field(dev='Crane', min=10, width=7)),
+                 Field(dev='CoolTemp', width=6, format='%.1f', unit=" "),
+                 Field(dev='FAKTemp', width=6, format='%.1f', unit=' '),
+                 Field(dev='Crane', min=10, width=7,)),
     ], 'reactor'),
 )
 
