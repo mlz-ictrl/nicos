@@ -9,6 +9,12 @@ includes = ['system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual', 'a
 modules = ['nicos.commands.tas']
 
 devices = dict(
+    alphastorage = device('panda.guidefield.AlphaStorage',
+                           description = 'Virtual device for handling \alpha changes',
+                           abslimits = (-360, 360),
+                           unit = 'deg',
+                           lowlevel = True,
+    ),
     panda = device('devices.tas.TAS',
                     instrument = 'PANDA',
                     responsible = 'Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>',
@@ -17,7 +23,7 @@ devices = dict(
                     psi = 'sth',
                     mono = 'mono',
                     ana = 'ana',
-                    alpha = None,
+                    alpha = 'alphastorage',
                     scatteringsense = (-1, 1, -1),
                     energytransferunit ='meV',
 #                    countloopdelay = 0.2,
