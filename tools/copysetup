@@ -102,12 +102,12 @@ def copytreewithbackup(src, dst, symlinks=False, ignore=None):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 3:
-        print "Usage: copysetup [-v] <srcdir> <targetdir>\n"
-        sys.exit(1)
-
     if '-v' in sys.argv:
         verbose = True
         sys.argv.remove('-v')
+
+    if len(sys.argv) < 2:
+        print "Usage: copysetup [-v] <srcdir> <targetdir>\n"
+        sys.exit(1)
 
     copytreewithbackup(sys.argv[1], sys.argv[2])
