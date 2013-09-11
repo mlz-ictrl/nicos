@@ -59,7 +59,10 @@ def moveoutofway(dstname, srcname, dirok=0):
 
 def copytreewithbackup(src, dst, symlinks=False, ignore=None):
     """Copy of shutil.copytree() with added call to moveoutofway()."""
-    names = os.listdir(src)
+    try:
+        names = os.listdir(src)
+    except os.error:
+        return
     if ignore is not None:
         ignored_names = ignore(src, names)
     else:
