@@ -1,11 +1,14 @@
-# dont forget to use the following line after the current experiment to send the data to the users
-#~ FinishExperiment('{{email#comma separated string of email-adresses}}')
+# dont forget to use the following line after the current experiment
+# to send the data to the users
+#~ FinishExperiment('{{email:<EMAIL_ADRESSE_WHERE_THE_DATA_SHOULD_BE_SEND@somewhere>#comma separated string of email-adresses}}')
+#
 # This script is for Proposal {{proposal#proposalnumber}}
+#
 
-# Samplename is set in NewExperiment from the Proposaldb
+# Samplename is set in NewExperiment from the Proposaldb, but can be changed here
 Sample.samplename='{{sample#name of the sample}}'
 
-# correct lattice pars by *soll/ist
+# upon alignment, correct lattice pars by *soll/ist
 a={{a:6.283#lattice constant a}}
 b={{b:6.283#lattice constant b}}
 c={{c:6.283#lattice constant c}}
@@ -13,7 +16,6 @@ Sample.lattice = ( a, b, c )
 
 Sample.angles = (90, 90, 90 )
 
-##tas_globals.SAMPLE.setAxisCoupling(False)
 panda.axiscoupling=False
 
 
