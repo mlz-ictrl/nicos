@@ -15,4 +15,9 @@ parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the watchdog process')
 opts, args = parser.parse_args()
 
-NoninteractiveSession.run('watchdog', 'Watchdog', daemon=opts.daemon)
+if args:
+    setupname = 'watchdog-' + args[0]
+else:
+    setupname = 'watchdog'
+
+NoninteractiveSession.run(setupname, maindevname='Watchdog', daemon=opts.daemon)
