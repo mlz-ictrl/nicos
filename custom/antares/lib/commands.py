@@ -25,11 +25,13 @@
 from os import path
 
 from nicos import session
-from nicos.core import Measurable
-from nicos.core.spm import spmsyntax, Dev, Bare, Multi
+from nicos.core import Measurable, Moveable
+from nicos.core.spm import spmsyntax, Dev, Bare, Multi, Num
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo
 from nicos.commands.measure import count
+from nicos.commands.device import maw
+from nicos.commands.scan import scan
 
 
 
@@ -83,3 +85,22 @@ def take_di(*detlist, **preset):
         printinfo('last dark image is %r'% lastImg)
         exp._setROParam('lastdarkimage', lastImg)
         ccddevice.datapath = exp.datapath
+
+@usercommand
+@helparglist('n_angles, dev, [detectors], [presets]')
+@spmsyntax(Num, Dev(Moveable),Multi(Dev(Measurable)), Bare)
+def tomo(n_angles, dev=None, *detlist, **preset):
+    """Performs a tomography by scanning over 360 deg in n_angles steps."""
+    printinfo('Starting Tomography scan')
+
+    if dev is None:
+        dev = session.getDevice('sry')
+
+    stepwidth = 360.0 / n_angles
+
+    printinfo('Acquiring 180 deg image first.')
+    maw(dev, 180.0)
+    count(*detlist, **preset)
+
+    printinfo('Performing 360 deg scan.')
+    scan(dev, 0, stepwidth, n_angles + 1, *detlist, **preset)
