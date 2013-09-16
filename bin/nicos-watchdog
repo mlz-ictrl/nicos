@@ -13,11 +13,9 @@ from nicos.core.sessions.simple import NoninteractiveSession
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the watchdog process')
+parser.add_option('-S', '--setup', action='store', dest='setupname',
+                  default='watchdog',
+                  help="name of the setup, default is 'watchdog'")
 opts, args = parser.parse_args()
 
-if args:
-    setupname = 'watchdog-' + args[0]
-else:
-    setupname = 'watchdog'
-
-NoninteractiveSession.run(setupname, maindevname='Watchdog', daemon=opts.daemon)
+NoninteractiveSession.run(opts.setupname, maindevname='Watchdog', daemon=opts.daemon)

@@ -13,6 +13,9 @@ from nicos.core.sessions.simple import NoninteractiveSession
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the cache process')
+parser.add_option('-S', '--setup', action='store', dest='setupname',
+                  default='cache',
+                  help="name of the setup, default is 'cache'")
 opts, args = parser.parse_args()
 
-NoninteractiveSession.run('cache', 'Server', daemon=opts.daemon)
+NoninteractiveSession.run(opts.setupname, 'Server', daemon=opts.daemon)

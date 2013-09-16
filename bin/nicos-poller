@@ -13,6 +13,9 @@ from nicos.services.poller.psession import PollerSession
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the poller processes')
+parser.add_option('-S', '--setup', action='store', dest='setupname',
+                  default='poller',
+                  help="name of the setup, default is 'poller'")
 opts, args = parser.parse_args()
 
 if len(args) > 0:
@@ -20,5 +23,5 @@ if len(args) > 0:
 else:
     appname = 'poller'
 
-PollerSession.run(appname, setupname='poller', maindevname='Poller',
+PollerSession.run(appname, setupname=opts.setupname, maindevname='Poller',
                   start_args=args, daemon=opts.daemon)

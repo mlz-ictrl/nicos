@@ -43,7 +43,7 @@ while getopts CDEWtNMc:u:m:h name; do
         u)
           GUIUSER="$OPTARG";;
         m)
-          MONITOR="$OPTARG";;
+          MONITOR="-S monitor-$OPTARG";;
 	E)
 	  ELOG=0;;
 	W)

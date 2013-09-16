@@ -20,13 +20,11 @@ parser.add_option('-g', '--geometry', dest='geometry', type='string',
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the monitor process (only useful '
                        'for non-GUI versions')
+parser.add_option('-S', '--setup', action='store', dest='setupname',
+                  default='monitor',
+                  help="name of the setup, default is 'monitor'")
 opts, args = parser.parse_args()
 
-if args:
-    setupname = 'monitor-' + args[0]
-else:
-    setupname = 'monitor'
-
-NoninteractiveSession.run(setupname, maindevname='Monitor',
+NoninteractiveSession.run(opts.setupname, maindevname='Monitor',
                           start_args=[opts],
                           pidfile=opts.daemon, daemon=opts.daemon)

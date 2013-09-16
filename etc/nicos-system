@@ -142,9 +142,10 @@ def start_daemon(name):
     try:
         procname, instname = name.split('-')
     except:
-        procname, instname = name, ''
+        procname, instname = name, None
     executable = path.join(root_path, 'bin', 'nicos-%s' % procname)
-    os.system('%s %s -d' % (executable, instname))
+    os.system('%s%s -d' % (executable, ' -S %s' % (instname,) if instname
+                           else '', ))
     pid = read_pidfile(name, wait=10)
     if not pid:
         print 'failed, please look in the logfile at %s' % \

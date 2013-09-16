@@ -13,11 +13,9 @@ from nicos.services.daemon.session import DaemonSession
 parser = optparse.OptionParser()
 parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
                   help='daemonize the daemon process')
+parser.add_option('-S', '--setup', action='store', dest='setupname',
+                  default='daemon',
+                  help="name of the setup, default is 'daemon'")
 opts, args = parser.parse_args()
 
-if args:
-    setupname = 'daemon-' + args[0]
-else:
-    setupname = 'daemon'
-
-DaemonSession.run(setupname, 'Daemon', daemon=opts.daemon)
+DaemonSession.run(opts.setupname, 'Daemon', daemon=opts.daemon)
