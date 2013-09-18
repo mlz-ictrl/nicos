@@ -34,10 +34,11 @@ from nicos.core import Param, Override, listof, none_or, oneof, dictof, \
                         InvalidValueError, UsageError, CommunicationError, \
                         TimeoutError
 from nicos.core.device import usermethod, requires
-from nicos.devices.abstract import CanReference, Motor
+from nicos.devices.abstract import CanReference, Motor, MappedMoveable
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput,\
                                    DigitalInput, NamedDigitalInput
+
 
 class mapped_float(object):
     def __init__(self, mapping):
@@ -52,7 +53,7 @@ class mapped_float(object):
                          ', '.join(sorted(self.mapping)))
 
 
-class Sans1ColliMotor(TacoDevice, Motor, CanReference):
+class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
@@ -61,6 +62,8 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
     """
 
     taco_class = Modbus
+
+    relax_mapping = True
 
     parameters = {
         # provided by parent class: speed, unit, fmtstr, warnlimits, abslimits,
@@ -75,14 +78,17 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
                            type=none_or(float), default=50, unit='main', settable=False),
         'autopower': Param('Automatically disable Drivers if motor is not moving',
                            type=oneofdict({0:'off',1:'on'}), default='on', settable=False),
-        'mapping':   Param('Additional map of state names to values',
-                           type=dictof(str, float), mandatory=False, default=dict(), settable=True),
         'refpos':   Param('Position of reference switch', unit='main',
                           type=float, mandatory=True, settable=False, prefercache=False),
     }
 
+    parameter_overrides = {
+        'mapping':   Override(description = 'Map of state names to position values',
+                           type=dictof(str, float),),
+    }
+
     def doInit(self, mode):
-        self.valuetype = mapped_float(self.mapping)
+        MappedMoveable.doInit(self, mode)
         # make sure we are in the right address range
         if not (0x4000 <= self.address <= 0x47ff) or \
             (self.address - 0x4020) % 10:
@@ -160,8 +166,10 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
     #
     # nicos methods
     #
-    def doRead(self, maxage=0):
-        pos = self._steps2phys(self._readPosition())
+    def _readRaw(self, maxage=0):
+        return self._steps2phys(self._readPosition())
+
+    def _mapReadValue(self, pos):
         prec = self.precision
         for name, value in self.mapping.iteritems():
             if name[0] == 'P':
@@ -173,17 +181,20 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
                 return name
         return pos
 
-    def doStart(self, value):
-        self.log.debug('doStart %r'%value)
+    def _mapTargetValue(self, value):
         try:
             value = float(self.mapping.get(value, value))
-            self.log.debug('doStart mapped -> %r'%value)
+            self.log.debug('doStart mapped -> %r' % value)
+            return value
         except ValueError:
             positions = ', '.join(repr(pos) for pos in self.mapping)
             raise InvalidValueError(self, '%r is an invalid position for this device; '
                              'valid positions are %s or a numeric value between '
                              '%s and %s.' % (value, positions,
                              self.fmtstr % self.absmin, self.fmtstr % self.absmax))
+
+    def _startRaw(self, value):
+        self.log.debug('doStart %r' % value)
         self._writeControlBit(0, 1)     # docu: bit0 = 1: enable
         if self.autozero is not None:
             currentpos = self.read(0)

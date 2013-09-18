@@ -26,12 +26,13 @@
 """NICOS "switcher" devices."""
 
 from nicos.utils import lazy_property
-from nicos.core import anytype, dictof, none_or, floatrange, listof, oneof, \
-     PositionError, NicosError, ConfigurationError, Moveable, Readable, Param, \
-     Override, status
+from nicos.core import anytype, dictof, none_or, floatrange, listof, \
+     PositionError, ConfigurationError, Moveable, Readable, Param, \
+     Override, status, InvalidValueError
+from nicos.devices.abstract import MappedReadable, MappedMoveable
 
 
-class Switcher(Moveable):
+class Switcher(MappedMoveable):
     """The switcher is a device that maps switch states onto discrete values of
     a continuously moveable device.
 
@@ -56,33 +57,19 @@ class Switcher(Moveable):
     }
 
     parameters = {
-        'mapping':      Param('Map of state names to values',
-                              type=dictof(str, anytype), mandatory=True),
         'precision':    Param('Precision for comparison', mandatory=True),
         'blockingmove': Param('Should we wait for the move to finish?',
                               type=bool, default=True, settable=True),
-        'fallback' :    Param('Default value if value not in mapping',
-                              default=None, mandatory=False, settable=False,
-                              userparam=False, type=none_or(str)),
     }
 
     parameter_overrides = {
-        'unit':      Override(mandatory=False),
+        'fallback':  Override(userparam=False, type=none_or(str), mandatory=False),
     }
 
     hardware_access = False
 
-    def doInit(self, mode):
-        if self.fallback in self.mapping:
-            raise ConfigurationError('Value of default Parameter is not allowed to be in mapping!')
-        self.valuetype = oneof(*self.mapping)
-
-    def doStart(self, target):
-        if target not in self.mapping:
-            positions = ', '.join(repr(pos) for pos in self.mapping)
-            raise NicosError(self, '%r is an invalid position for this device; '
-                             'valid positions are %s' % (target, positions))
-        target = self.mapping[target]
+    def _startRaw(self, target):
+        """Initiate movement of the moveable to the translated raw value."""
         self._adevs['moveable'].start(target)
         if self.blockingmove:
             self._adevs['moveable'].wait()
@@ -93,8 +80,12 @@ class Switcher(Moveable):
     def doStop(self):
         self._adevs['moveable'].stop()
 
-    def doRead(self, maxage=0):
-        pos = self._adevs['moveable'].read(maxage)
+    def _readRaw(self, maxage=0):
+        """Return raw position value of the moveable."""
+        return self._adevs['moveable'].read(maxage)
+
+    def _mapReadValue(self, pos):
+        """Override default inverse mapping to allow a deviation <= precision"""
         prec = self.precision
         for name, value in self.mapping.iteritems():
             if prec:
@@ -104,6 +95,8 @@ class Switcher(Moveable):
                 return name
         if self.fallback is not None:
             return self.fallback
+        if self.relax_mapping:
+            return self._adevs['moveable'].format(pos,True)
         raise PositionError(self, 'unknown position of %s' %
                             self._adevs['moveable'])
 
@@ -111,6 +104,51 @@ class Switcher(Moveable):
         # if the underlying device is moving or in error state,
         # reflect its status
         move_status = self._adevs['moveable'].status(maxage)
+        if move_status[0] != status.OK:
+            return move_status
+        # otherwise, we have to check if we are at a known position,
+        # and otherwise return an error status
+        try:
+            r = self.read(maxage)
+            if r not in self.mapping:
+                return status.NOTREACHED, 'unconfigured position of %s or '\
+                                       'still moving' % self._adevs['moveable']
+        except PositionError, e:
+            return status.NOTREACHED, str(e)
+        return status.OK, ''
+
+
+class ReadonlySwitcher(MappedReadable):
+    """Same as the `Switcher`, but for read-only underlying devices."""
+
+    attached_devices = {
+        'readable': (Readable, 'The continuous device which is read'),
+    }
+
+    parameters = {
+        'precision': Param('Precision for comparison', type=float, default=0),
+    }
+
+    hardware_access = False
+
+    def _readRaw(self, maxage=0):
+        return self._adevs['readable'].read(maxage)
+
+    def _mapReadValue(self, pos):
+        prec = self.precision
+        for name, value in self.mapping.iteritems():
+            if prec:
+                if abs(pos - value) <= prec:
+                    return name
+            elif pos == value:
+                return name
+        raise PositionError(self, 'unknown position of %s' %
+                            self._adevs['readable'])
+
+    def doStatus(self, maxage=0):
+        # if the underlying device is moving or in error state,
+        # reflect its status
+        move_status = self._adevs['readable'].status(maxage)
         if move_status[0] != status.OK:
             return move_status
         # otherwise, we have to check if we are at a known position,
@@ -124,45 +162,7 @@ class Switcher(Moveable):
         return status.OK, ''
 
 
-class ReadonlySwitcher(Readable):
-    """Same as the `Switcher`, but for read-only underlying devices."""
-
-    attached_devices = {
-        'readable': (Readable, 'The continuous device which is read'),
-    }
-
-    parameters = {
-        'mapping':   Param('Map of state names to values',
-                           type=dictof(str, anytype), mandatory=True),
-        'precision': Param('Precision for comparison', type=float, default=0),
-    }
-
-    parameter_overrides = {
-        'unit':      Override(mandatory=False),
-    }
-
-    hardware_access = False
-
-    def doInit(self, mode):
-        pass
-
-    def doRead(self, maxage=0):
-        pos = self._adevs['readable'].read(maxage)
-        prec = self.precision
-        for name, value in self.mapping.iteritems():
-            if prec:
-                if abs(pos - value) <= prec:
-                    return name
-            elif pos == value:
-                return name
-        raise PositionError(self, 'unknown position of %s' %
-                            self._adevs['readable'])
-
-    def doStatus(self, maxage=0):
-        return self._adevs['readable'].status(maxage)
-
-
-class MultiSwitcher(Moveable):
+class MultiSwitcher(MappedMoveable):
     """The multi-switcher generalizes the `Switcher` so that for a state change
     multiple underlying moveable devices can be controlled.
 
@@ -187,9 +187,6 @@ class MultiSwitcher(Moveable):
     }
 
     parameters = {
-        'mapping':   Param('Mapping of state names to N values to move the moveables to',
-                           type=dictof(anytype, listof(anytype)),
-                           mandatory=True),
         'precision': Param('List of allowed deviations (1 or N) from target '
                            'position, or None to disable.', mandatory=True,
                            type=none_or(listof(floatrange(0., 360.)))),
@@ -199,7 +196,8 @@ class MultiSwitcher(Moveable):
     }
 
     parameter_overrides = {
-        'unit':      Override(mandatory=False),
+        'mapping':   Override(description='Mapping of state names to N values to move the moveables to',
+                           type=dictof(anytype, listof(anytype))),
     }
 
     hardware_access = False
@@ -209,6 +207,7 @@ class MultiSwitcher(Moveable):
         return self._adevs['moveables']
 
     def doInit(self, mode):
+        MappedMoveable.doInit(self, mode)
         for t in self.mapping.itervalues():
             if len(t) != len(self.devices):
                 raise ConfigurationError(self, 'Switcher state entries and '
@@ -218,14 +217,18 @@ class MultiSwitcher(Moveable):
                 raise ConfigurationError(self, 'The precision list must either'
                                        'contain only one element or have the same amount'
                                        'of elements as the moveables list')
-        self.valuetype = oneof(*self.mapping)
 
-    def doStart(self, target):
-        if target not in self.mapping:
-            positions = ', '.join(repr(pos) for pos in self.mapping)
-            raise NicosError(self, '%r is an invalid position for this device; '
-                             'valid positions are %s' % (target, positions))
-        for d,t in zip(self.devices, self.mapping[target]):
+    def _startRaw(self, target):
+        """target is the raw value, i.e. a list of positions"""
+        if not isinstance(target, (tuple, list)) or \
+            len(target) != len(self.devices):
+            raise InvalidValueError(self,'doStart needs a tuple of %d positions '
+                                     'for this device!' % len(self.devices))
+        for d, t in zip(self.devices, target):
+            if not d.isAllowed(t):
+                raise InvalidValueError(self, 'target value %r not accepted by '
+                                        'device %s' % (t, d.name))
+        for d, t in zip(self.devices, target):
             self.log.debug('moving %r to %r' % (d, t))
             d.start(t)
         if self.blockingmove:
@@ -237,8 +240,11 @@ class MultiSwitcher(Moveable):
         for d in self.devices:
             d.stop()
 
-    def doRead(self, maxage=0):
-        pos = [d.read(maxage) for d in self.devices]
+    def _readRaw(self, maxage=0):
+        return tuple(d.read(maxage) for d in self.devices)
+
+    def _mapReadValue(self, pos):
+        """maps a tuple to one of the configured values"""
         hasprec = bool(self.precision)
         if hasprec:
             precisions = self.precision
@@ -246,7 +252,7 @@ class MultiSwitcher(Moveable):
                 precisions = [precisions[0]] * len(self.devices)
         for name, values in self.mapping.iteritems():
             if hasprec:
-                for d, p, v, prec in zip(self.devices, pos, values, precisions):
+                for p, v, prec in zip(pos, values, precisions):
                     if prec:
                         if abs(p - v) > prec:
                             break
@@ -257,8 +263,9 @@ class MultiSwitcher(Moveable):
             else:
                 if tuple(pos) == tuple(values):
                     return name
-        raise PositionError(self, 'unknown position of %s' %
-                            ', '.join(str(d) for d in self.devices))
+        raise PositionError(self, 'unknown position of %s : %s' % (
+                            ', '.join(repr(p) for p in pos),
+                            ', '.join(str(d) for d in self.devices)))
 
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
@@ -270,10 +277,4 @@ class MultiSwitcher(Moveable):
                 move_status = s
         if move_status[0] != status.OK:
             return move_status
-        # otherwise, we have to check if we are at a known position,
-        # and otherwise return an error status
-        try:
-            self.read(maxage)
-        except PositionError, e:
-            return status.NOTREACHED, str(e)
-        return status.OK, ''
+        return MappedReadable.doStatus(self, maxage)

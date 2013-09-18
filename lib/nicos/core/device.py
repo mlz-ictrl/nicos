@@ -1554,6 +1554,32 @@ class HasPrecision(DeviceMixinBase):
     }
 
 
+class HasMapping(DeviceMixinBase):
+    """
+    Mixin class for devices that use a finite mapping between user supplied
+    input and internal representation.
+
+    This is mainly useful for device which can only yield certain values or go
+    to positions from a predefined set, like switching devices.
+
+    Abstract classes that use this mixin are implemented in
+    nicos.devices.abstract.Mapped{Readable,Moveable}.
+    """
+    parameters = {
+        'mapping' :  Param('Mapping of device values to raw (internal) values',
+                            unit='', settable=False, mandatory=True,
+                            type=dictof(str, anytype)),
+        'fallback' : Param('Readback value if the raw device value is not in the '
+                           'mapping or None to disable', default=None,
+                            unit='', type=anytype, settable=False),
+    }
+
+    # mapped values usually are string constants and have no unit
+    parameter_overrides = {
+        'unit':      Override(mandatory=False),
+    }
+
+
 class Measurable(Readable):
     """
     Base class for devices used for data acquisition.

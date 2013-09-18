@@ -2,6 +2,10 @@
 # (c) 2009 by Enrico Faulhaber
 # put under GPLv2 Licence
 #
+# v0.4
+# Now works with the new generic.Switcher as base
+# alphastorage also updates the guidefield whenever the tas-device moves
+#
 # v0.3
 # changes:
 # works now as a switchable, every switch request sets the correct field
@@ -13,24 +17,24 @@
 # setmode sets the operation mode
 # TODO: change to a switchable, which determines needed values autonomous
 #
-#
 # v0.1alpha
 # based on setfield.py
 # changes:
 # implemented as Class GuideField
 # support for pandacontrol-interface (doStart,doRead,...)
 # current-limits for coils are now taken from the
-#		correspondig coil-object(s)
+#     correspondig coil-object(s)
 # suggestion for a nicm_conf.py entry
 
 
 import numpy as np
 
 from nicos.utils import lazy_property
-from nicos.core import Moveable, Param, Override, status, LimitError
+from nicos.core import Moveable, Param, Override, status, LimitError, InvalidValueError
 from nicos.core.params import nonemptylistof, floatrange, tupleof
-from nicos.devices.generic import Switcher, VirtualMotor
+from nicos.devices.generic import VirtualMotor
 from nicos.devices.taco import CurrentSupply
+from nicos.devices.abstract import MappedMoveable
 
 ################################################################################
 # configuration
@@ -45,13 +49,13 @@ from nicos.devices.taco import CurrentSupply
 
 
 class VectorCoil(CurrentSupply):
-    ''' Vectorcoil is a device to control a coil which creates a field a the
+    """ Vectorcoil is a device to control a coil which creates a field a the
     sample position.
 
     Basically it is a powersupply device, working in Amps and having two
     additional parameters for calibration the vectorfield, for which these coil
     devices are used.
-    '''
+    """
     parameters = {
         'orientation' : Param('Field vector which is created by this coil in '
                               'mT (measured value!)',
@@ -65,7 +69,9 @@ class VectorCoil(CurrentSupply):
                                     ),
     }
 
+
 class AlphaStorage(VirtualMotor):
+    """ Storage for the spectrometers \\alpha value """
     parameter_overrides = {
         'speed' :       Override(default=0.),
     }
@@ -80,12 +86,13 @@ class AlphaStorage(VirtualMotor):
             except Exception, e:
                 self.log.error('Calling callback failed, %r' % e, exc=1)
 
-class GuideField(Switcher):
-    ''' Guidefield object.
+
+class GuideField(MappedMoveable):
+    """ Guidefield object.
     needs to be switched to (re-)calculated the required currents for the coils
     calibration is done with a matrix giving the field components created with
     a given current needs the alpha-virtualmotor for calculations
-    '''
+    """
     attached_devices = {
         'alpha' : (AlphaStorage, 'Device which provides the current \alpha'),
         'coils' : ([VectorCoil], 'List of 3 devices used for the vector field'),
@@ -102,6 +109,7 @@ class GuideField(Switcher):
                                         'up'    : np.array(( 0., 0., 1.)),
                                         'down'  : np.array(( 0., 0.,-1.)),
                                         '0'     : np.array(( 0., 0., 0.)),
+                                        'zero'  : np.array(( 0., 0., 0.)),
                                        }),
         'blockingmove' : Override(default=False),
         'precision' : Override(mandatory=False),
@@ -130,7 +138,7 @@ class GuideField(Switcher):
         return self._adevs['alpha']
 
     def doInit(self, mode):
-        Switcher.doInit(self, mode)
+        MappedMoveable.doInit(self, mode)
         M = np.zeros([3,3])
         for i in range(3):
             for j in range(3):
@@ -144,18 +152,19 @@ class GuideField(Switcher):
         self.alpha._callback = None
 
     def _alphaCallBack(self):
-        self.doStart(self.doRead())
+        if self.target and self.target in self.mapping:
+            self.doStart(self.target)
 
-    def doStart(self, target):
-        orient = self.mapping[target]
-        if orient:
+    def _startRaw(self, orient):
+        if orient is not None:
             # set requested field (may try to compensate background)
             self._setfield(self.field * orient)
-        else:	# switch off completely
+        else:  # switch off completely
             self.coil1.doStart(0.0)
             self.coil2.doStart(0.0)
             self.coil3.doStart(0.0)
 
+    #no _readRaw, as self.target is the unmapped (Higher level) value
     def doRead(self, maxage=0):
         return self.target
 
@@ -178,10 +187,10 @@ class GuideField(Switcher):
         return stc, ', '.join(stm) or 'Idle'
 
     def _B2I(self, B=np.array([0.0, 0.0, 0.0])):
-        '''rotate the requested field around z-axis by beta first we get alpha
+        """rotate the requested field around z-axis by beta first we get alpha
         from the spectrometer alpha is the angle between X-axis and \vec{Q} and
         is in degrees
-        '''
+        """
         # read alpha, calculate beta
         alpha = self.alpha.read(0)
         beta = np.radians(90 - alpha)
@@ -193,8 +202,8 @@ class GuideField(Switcher):
         return temp
 
     def _I2B(self, I=np.array([0.0, 0.0, 0.0])):
-        '''calculate field from currents and rotate field around z-axis by -beta
-        '''
+        """calculate field from currents and rotate field around z-axis by -beta
+        """
         # read alpha, calculate beta
         alpha = self.alpha.read(0)
         beta = np.radians(90 - alpha)
@@ -205,7 +214,7 @@ class GuideField(Switcher):
         return np.dot(RR, np.dot(self._currentmatrix, I))
 
     def _setfield(self, B=np.array([0,0,0])):
-        r'''set the given field and returns the actual field (computed from the
+        r"""set the given field and returns the actual field (computed from the
         actual currents)
         field components are:
         * Bqperp: component perpendicular to q, but within the scattering plane
@@ -213,7 +222,7 @@ class GuideField(Switcher):
         * Bz:     component perpendicular to the scattering plane
         (if TwoTheta==0 & \hbar\omega=0 then this coordinate-system is the same
         as the XYZ of the coils)
-        '''
+        """
         # subtract offset (The field, which is already there, doesn't need to be
         # generated....)
         B = B - np.array(self.background)
@@ -250,10 +259,11 @@ class GuideField(Switcher):
         # return it
         return self._I2B(F) + np.array(self.background)
 
-class Flipper(Switcher):
-    ''' class to set the currents of an Spinflipper
+
+class Flipper(MappedMoveable):
+    """ class to set the currents of an Spinflipper
     to either 'on' or 'off'
-    '''
+    """
     attached_devices = {
         'field'   : (Moveable, 'CurrentSupply for the Flipping current'),
         'compensate' : (Moveable, 'CurrentSupply for the compensation field'),
@@ -289,18 +299,18 @@ class Flipper(Switcher):
     def wavevector(self):
         return self._adevs['wavevector']
 
-    def doInit(self, mode):
-        Switcher.doInit(self, mode)
-
     def doStart(self, target):
-        if self.mapping[target] == 0:
+        if self.mapping.get(target, target) == 0:
             self.field.start(0.)
             self.compensate.start(0)
-        else:
+        elif self.mapping.get(target, target) == 1:
             k = self.wavevector.read(0)
             self.field.start(
                 sum(v * (k ** i) for i, v in enumerate(self.flipcurrent)))
             self.compensate.start(self.compcurrent)
+        else:
+            raise InvalidValueError(self, '%r is an invalid value for this '
+                                          'device!' % target)
 
     def doStop(self):
         self.field.stop()
@@ -309,7 +319,7 @@ class Flipper(Switcher):
     def doRead(self, maxage=0):
         if self.target:
             return self.target
-        return 0
+        return self._inverse_mapping.get(0)
 
     def doStatus(self, maxage=0):
         return self.field.status(maxage)
