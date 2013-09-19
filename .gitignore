@@ -6,6 +6,8 @@ dist/
 *.log
 *.pid
 pylint_*.txt
+.noseids
+setup.cfg
 MANIFEST
 nicos.conf
 
