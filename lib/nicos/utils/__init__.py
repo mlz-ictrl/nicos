@@ -82,6 +82,9 @@ class readonlylist(list):
     def __reduce__(self):
         return (list, (), None, iter(self), None)
 
+    def __hash__(self):
+        return hash(tuple(self))
+
 
 class readonlydict(dict):
     def _no(self, *args, **kwds):

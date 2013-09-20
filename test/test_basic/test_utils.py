@@ -59,6 +59,13 @@ def test_readonly_objects():
     assert type(unpickled) is list
     assert len(unpickled) == 3
 
+def test_readonlylist_hashable():
+    l = readonlylist([1, 2, 3])
+    assert l == [1, 2, 3]
+    dt = {l:'testval'}
+    print dt.keys()
+    assert dt[readonlylist([1, 2, 3])] == 'testval'
+
 def test_repeater():
     r = Repeater(1)
     it = iter(r)
