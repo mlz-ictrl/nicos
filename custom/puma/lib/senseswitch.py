@@ -27,7 +27,7 @@ from nicos.utils import lazy_property
 from nicos.devices.generic import Switcher
 from nicos.core import anytype, dictof, none_or, floatrange, listof, oneof, \
      NicosError, ConfigurationError, Readable, Override, \
-     Param, status, tupleof, TimeoutError
+     Param, status, tupleof, TimeoutError#, PositionError
 from nicos.core.utils import formatStatus
 
 
@@ -122,8 +122,8 @@ class SenseSwitch(Switcher):
 #        res = self._read()
 #        if res != '<unknown>':
 #            return res
-#       raise PositionError(self, 'unknown position of %s' %
-#                           ', '.join(str(d) for d in self.devices))
+#        raise PositionError(self, 'unknown position of %s' %
+#                            ', '.join(str(d) for d in self.devices))
 
 
     def doWait(self):

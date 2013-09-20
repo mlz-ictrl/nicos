@@ -33,7 +33,7 @@ from nicos.core import Moveable, Readable, status, NicosError, oneof, Param, lis
 class MagLock(Moveable):
 
     attached_devices = {
-        'depot': (Moveable, 'The monochromator depot'),
+        'magazin': (Moveable, 'The monochromator magazin'),
         'io_open': (Readable, 'readout for the status'),
         'io_closed': (Readable, 'readout for the status'),
         'io_set': (Moveable, 'output to set'),
