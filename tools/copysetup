@@ -105,12 +105,15 @@ def copytreewithbackup(src, dst, symlinks=False, ignore=None):
 
 if __name__ == '__main__':
 
-    if '-v' in sys.argv:
-        verbose = True
-        sys.argv.remove('-v')
+    import optparse
 
-    if len(sys.argv) < 2:
-        print "Usage: copysetup [-v] <srcdir> <targetdir>\n"
+    parser = optparse.OptionParser(usage='usage: %prog [options] srcdir destdir')
+    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
+                  help='verbose output', default=False)
+    opts, args = parser.parse_args()
+    verbose = opts.verbose
+    if len(args) < 2:
+        parser.print_help()
         sys.exit(1)
 
-    copytreewithbackup(sys.argv[1], sys.argv[2])
+    copytreewithbackup(args[0], args[1])

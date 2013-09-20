@@ -246,8 +246,18 @@ def check_setupfile(filename):
             good = False
     return good
 
-opts, args = getopt.getopt(sys.argv[1:], 'vo:')
+import optparse
 
+parser = optparse.OptionParser(usage='usage: %prog [options] dir|file')
+parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
+                  default=False, help='verbose output',
+                 )
+parser.add_option('-o', '--outfile', dest='filename', action='store',
+                  default=None, type='string',
+                  help='write report to FILE', metavar='FILE',
+                 )
+
+opts, args = parser.parse_args()
 
 logging.basicConfig()
 root_log = logging.getLogger()
@@ -255,12 +265,11 @@ root_log.removeHandler(root_log.handlers[0])
 root_log.addHandler(ConsoleHandler())
 root_log.setLevel(logging.WARNING)
 
-for opt, arg in opts:
-    if opt == '-v':
-        root_log.setLevel(logging.INFO)
-    elif opt == '-o':
-        outfile = open(arg, 'ab')
-        root_log.addHandler(FileHandler(outfile))
+if opts.verbose:
+    root_log.setLevel(logging.INFO)
+if opts.filename:
+    outfile = open(opts.filename, 'ab')
+    root_log.addHandler(FileHandler(outfile))
 
 generate_stubs()
 
