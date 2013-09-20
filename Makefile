@@ -129,6 +129,9 @@ check:
 # get the instrument from the full hostname (mira1.mira.frm2 -> mira)
 INSTRUMENT = $(shell hostname -f | cut -d. -f2)
 ifneq "$(INSTRUMENT)" ""
+  ifeq "$(INSTRUMENT)" "del"
+    INSTRUMENT = delab
+  endif
   INSTRDIR = $(wildcard custom/$(INSTRUMENT))
 endif
 
