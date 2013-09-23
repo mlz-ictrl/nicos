@@ -69,10 +69,10 @@ class ResiExperiment(Experiment):
 
         # query new cycle
         if 'cycle' not in kwds:
-            if self._propdb:
-                cycle, _started = queryCycle(self._propdb)
+            try:
+                cycle, _started = queryCycle()
                 kwds['cycle'] = cycle
-            else:
+            except Exception:
                 self.log.error('cannot query reactor cycle, please give a '
                                 '"cycle" keyword to this function')
         self.cycle = kwds['cycle']
