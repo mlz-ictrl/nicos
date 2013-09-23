@@ -1,0 +1,151 @@
+5520463 Add test message queue clearing for tests
+b486b0d Reorganize tests
+c4b6c83 gui editor panel: inherit from QMainWindow to make dock widgets fully functional
+8ff30d6 Add the '-S', '--setup' option to the program scripts
+07cf817 Handle some pylint spurions
+b0c63a5 Handle args with optparse
+8fc1eba RESI: Fix queryCycle usage
+17d18f9 Do nothing in case of an empty directory.
+092f2f0 PUMA: update Monochanger stuff in the global repo.
+81e58d2 Extend the usage message
+335e316 Add .noseids and setup.cfg to gitignore
+b5642dd Fix: the '-v' is optional, but counts into the number of args
+9aece66 watchdog: allow giving different setup names for starting multiple watchdog copies like for the monitor
+60123f0 MIRA: update monitor setups (new setup for 2nd raspi monitor)
+28ec4db PANDA: workaround bug #1049
+13f2057 PANDA: transplant old polarized stuff to NICOS2
+f0100ed Makefile: set PythonPath also for changelint
+f9f6f36 ordereddict.py: silence pylint
+5820c2d PANDA: update setup to fix bug #1064
+72543d1 NICOS: fully introduce templating mechanism
+5b2ac65 Device MeteoStation and Test Setup
+ba3185f FRM2: add the new HTF pressure sensor devices to the setups
+0905afe FRM2 Memograph: unit encoding problem fixed.
+685a087 Do not lint *.template files
+0ffa730 GUI: improve handling of Proposaldb-related stuff
+0b5c239 Experiment: enable generation of report templates
+5760889 tas: check for possible spurions during simulation of qscans
+cdc9e8b tas commands: factor out spurion calculations in their own module
+a4c861b nicos-demo: make watchdog optional
+10a87b9 alias: show pointed-to device in __repr__ and enable __repr__ for NoDevice aliases
+c3cf995 commands: in appendscan(), use the real end of the scan, not the theoretical
+62c0b0e PANDA: update poller setup
+a49bf6b MIRA: add outside temperature device
+f3b3123 MIRA: setups update and add more device descriptions
+653c103 Add  a RS232 device skeleton
+16adb45 commands: give better indication of stopped devices
+a10c46c MIRA: wait for a bit after switching polarity
+c2b1944 poller: typo fix
+6a077a4 elog: Open unhandled links with def. application
+12b7411 GUI: avoid name-clashes in demo mode
+3e5d04a Core: Improve handling+bootstrap of DeviceAlias
+ba8a29b MIRA: allow automatic gzipping of TOF files in cascade
+adce6a1 demo: adapt TAS lengths to MIRA
+4e74e1f Use utf8 as mysql connection charset
+d5ff53d PUMA: Monochanger for NICOS2
+41b3060 added support for gz compressed pad/tof files -- part two: memory loading
+45196a6 cascade viewer: added support for gz compressed pad/tof files -- part one
+caf82e6 ListParams: Fix for using alias devices
+7fbc690 gui: accept utf-8 or latin9 when decoding experiment info strings
+7d13a51 PANDA: update propdb info
+8768f86 PANDA: updated setup for Statusmonitor
+91542e5 FIX: order of the nicos-gui parameters has changed
+8c14e4f guisupport: devinfo[6] (the unit) can be None
+4e2c153 guisupport: improve value edit widgets
+2ffd501 gui scans panel: fixup 8f35002a75dfe45a7145222fff2c41976d2452be, do not show monitor/time columns
+323f7fd livewidget: avoid using memset() with floats
+1d641c2 device: use status() and read() in poll()
+d728b63 history new panel: fix tab order
+8bead9b commands: fix plotting of appendscan() results for Q scans
+1b26ba3 MIRA: set last counts/contrast to zero on start()
+b1864c6 loggers: fix Windows compatibility making symlink() call optional
+8cff3ae guisupport: make error message clearer if Qwt is not installed
+1a00f49 monitor: ask for current watchdog/warnings value at startup, so that existing warnings are displayed when the monitor starts
+8f35002 gui scans panel: if in a new plot, all curves would be invisible, make them all visible
+68a2674 MIRA: add logfile viewer panel to defconfig
+8f18361 gui fitting: accept even more stopreasons
+29228d0 gui fitting: accept stopreason=13
+3cb9163 MIRA: corrected foil indices
+32a0f3d Antares: Saving of img header: only readable chars
+f7a2101 Antares: setups updated.
+e3ecf5c MIRA: fix cascade debugging info
+3f86ac6 qt monitor: increase sleep time before resizing to optimum size
+4316701 params: accept tuples in listof() and nonemptylistof()
+a2b0d5e Antares: ccd: open fast shutter automatically.
+e38e779 MIRA: setups updated
+0237fc7 MIRA: update MIEZE master device to actually work in practice
+cb4c3b3 MIRA: make HeinzingerViaHPE scale factor customizable and add error protection for the readout
+741b6c2 MIRA: fix unit handling and fitting API bugs in magnet calibration routine
+755f763 MIRA: do not try to set read-only parameters when resetting phytron controller
+3e1a7a4 MIRA: "fix" readout of THM1176 by resetting the device with ugly hacks via usbfs when it gets stuck.
+729e10a gui scans panel: ignore ValueError on scale determination
+b4977a9 Test failure in shutdown after init failure
+88aca22 GUI (log viewer): several fixes
+9f81463 Handle exceptions in doShutdown
+5ccc13b core scan: fix wrong output of "separator lines" in two-dimensional scan
+b5db2d1 daemon clients: use "paused" instead of "interrupted" for the break action
+718a767 daemon: always try to close main connection when event connection fails
+1f14897 GUI: Add a -h|--help option to the command line arguments.
+0b35406 [FRM2] ubahn: Make the station configurable and show all departures
+90a68d9 live panel: always add new files to the filelist, not only if on "<Live>" setting
+f573cb1 livewidget: reset histogram data before histogramming
+0402660 livewidget: fix memory leak when switching between data
+59fe3b4 notifiers: remove Jabberer from nicos.devices and move to custom/demo
+b354ecc antares: modified setups to include jcns IOs
+260890c commands: show resetlimits() in docstring for limits() command
+9296366 Makefile: warn on install if there are services running
+43500cd tools: add some configs for common editors
+fa7d144 [RFC] Refactor HasLimits to be a normal Mixin
+982359a Use consistent error behaviour in tas.spacegroups
+41e5a8e ANTARES: fix GUI configuration for live panel.
+9300922 memograph: bump default maxage to 125s
+decb2d1 SANS1: Add support for reading Memographs
+2243b42 loggers: remove OUTPUT logging level
+967fa64 SANS1: update Author information in setup files
+e49b6bf TOOLS: Reduce number of warnings for no description
+110d93e ANTARES: updated setups+commands.
+c1b21eb [FRM2] Add descriptions for the HTF temperature devices.
+76e8de7 Add description for the 'FreeSpace' devices.
+56997ae taco NamedDigitalOutput: fix valuetype assignment
+07a158a taco NamedDigitalOutput: fix valuetype assignment
+899d86b SANS1: updated setups
+c58334f TOFTOF: add missing descriptions
+d740e55 TOFTOF: Fix problems during the import of the TACO device
+009ade1 devices panel: fix attribute error
+77cadba ANTARES: updated setups for Juelich Hardware
+1b9e247 tango integration: workaround for pytango bug.
+73c956a Always import PyQt4.QtGui for pylint
+728ef81 Simplifiy inheritance
+e616c3b history: remove feature that does not work for now
+72cdbbf Test string comparison tool
+87bed72 Test: test freespace inital factor setting
+415d4aa Allow unit changes on the FreeSpace device
+a42b173 Test FreeSpace device
+4570a69 Tests: Test usage error on assignment
+67bbbb5 Correctly setup the script test session
+416cdda Switcher: allow configuring a default reading value
+244971d TACO: Read/Write(s) of the unit are not done via the TACO device.
+4aa1e48 [RFC] Change format of changes file
+3bb5894 [RFC] Add rst2pdf support
+9bb4c4a Fix exclude handling in sphinx-autodoc
+0efe72a commands: fix calling history() with a date/time string specified
+1afd08f Antares: tailor an experiment device
+c73663c MIRA: update default cascade config
+51fbe7f Antares: ccd: make more params accessible.
+c9f50b2 Livewidget build: performance improvement
+8714b26 Elog panel: Add print functionality.
+e20b5f0 check_setups: Catch and log another Parameter Error
+394ff8c Delete QFileSystemWatchers explicitly
+8d91c1d CORE: implement a default doWait in class Moveable
+1db7fc3 readme/doc: add fitsio requirement for livewidget
+d6c9960 Logviewer panel: log line colors added.
+2081f3e Logviewer panel: substring search added.
+2c324a6 Logviewer panel: log file browser panel for gui.
+3c1a0f3 Always use threaded stop
+bfe4e9c Handle out-of-range time values
+d1bc5e4 Tools: check_setups: error log if path not found.
+d22a515 DOC: include Parameter warnlimits in docu
+c869583 TOFTOF: Take the current configuration from the instrument.
+ba3c42b Make MultiSwitcher doc strings coherent with implementation
+82175db Skeleton: Add standard commands to system setup.
+ef6f510 FIX: synchronize doc to implementation
