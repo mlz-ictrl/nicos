@@ -36,6 +36,7 @@ from nicos.commands.analyze import checkoffset
 from nicos.commands.tas import checkalign
 
 from test.utils import raises
+from nose import with_setup
 
 
 def setup_module():
@@ -44,6 +45,9 @@ def setup_module():
 
 def teardown_module():
     session.unloadSetup()
+
+def clean_testHandler():
+    session.testhandler.clear_warnings()
 
 
 def test_scan():
@@ -115,9 +119,11 @@ def test_scan():
         session.experiment.envlist = []
         session.experiment.detlist = []
 
+@with_setup(clean_testHandler, clean_testHandler)
 def test_scan_usageerrors():
     m = session.getDevice('motor')
     m2 = session.getDevice('motor2')
+
     # not enough arguments
     assert raises(UsageError, scan, m)
     assert raises(UsageError, scan, m, 0, 1)
@@ -135,11 +141,13 @@ def test_scan_usageerrors():
     # unsupported scan argument
     assert raises(UsageError, scan, m, 0, 1, 1, {})
 
+@with_setup(clean_testHandler, clean_testHandler)
 def test_scan_invalidpreset():
     m = session.getDevice('motor')
     # invalid preset
     assert session.testhandler.warns(scan, m, 0, 1, 1, preset=5)
 
+@with_setup(clean_testHandler, clean_testHandler)
 def test_scan_errorhandling():
     t = session.getDevice('tdev')
     m = session.getDevice('motor')

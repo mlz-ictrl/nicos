@@ -151,6 +151,12 @@ class TestLogHandler(ColoredConsoleHandler):
         func(*args, **kwds)
         return self._messages > before
 
+    def clear_messages(self):
+        self._messages = 0
+
+    def clear_warnings(self):
+        self._warnigs = []
+        self.clear_messages()
 
 class TestSession(Session):
     autocreate_devices = False
@@ -192,12 +198,12 @@ class TestDevice(HasLimits, Moveable):
 
     def doRead(self, maxage=0):
         if self._read_exception is not None:
-            raise self._read_exception
+            raise self._read_exception  # pylint: disable=E0702
         return self._value
 
     def doStart(self, target):
         if self._start_exception is not None and target != 0:
-            raise self._start_exception
+            raise self._start_exception  # pylint: disable=E0702
         self._value = target
 
     def doWait(self):
@@ -205,7 +211,7 @@ class TestDevice(HasLimits, Moveable):
 
     def doStatus(self, maxage=0):
         if self._status_exception is not None:
-            raise self._status_exception
+            raise self._status_exception  # pylint: disable=E0702
         return status.OK, 'fine'
 
 
@@ -248,7 +254,7 @@ def cleanup():
     os.mkdir(rootdir + '/pid')
 
 def startCache(setup='cache', wait=5):
-    global cache  #pylint: disable=W0603
+    global cache  # pylint: disable=W0603,W0601
     sys.stderr.write(' [cache start... ')
 
     # start the cache server
