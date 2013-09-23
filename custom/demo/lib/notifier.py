@@ -32,7 +32,7 @@ from PyQt4.QtDBus import QDBusInterface
 from PyQt4.QtCore import QVariant, QStringList
 
 try:
-    import xmpp
+    import xmpp  # pylint: disable=F0401
 except ImportError:
     xmpp = None
 

@@ -24,7 +24,7 @@
 
 """Multi-channel counter card class."""
 
-import TMCS
+import TMCS  # pylint: disable=F0401
 import TACOStates
 
 from nicos.core import status, tacodev, Measurable, Param

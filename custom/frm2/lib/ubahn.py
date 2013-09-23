@@ -31,7 +31,7 @@ URL = ('http://www.mvg-live.de/ims/dfiStaticAnzeige.svc?'
        'haltestelle=%s')
 
 try:
-    from lxml.html import parse
+    from lxml.html import parse  # pylint: disable=F0401
 except ImportError:
     parse = None
 

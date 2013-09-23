@@ -31,7 +31,7 @@ Created on 30.05.2011
 import sys
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/usr/local/nonius_new/app')
-from goniometer.position import PositionFromStorage
+from goniometer.position import PositionFromStorage  # pylint: disable=F0401
 from nicos.utils.proxy import NicosProxy
 
 

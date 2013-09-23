@@ -26,7 +26,7 @@
 
 import os.path
 
-import PyQt4.QtGui #silences pylint
+import PyQt4.QtGui  # pylint: disable=W0611
 from PyQt4.QtCore import QDateTime, pyqtSlot
 
 from nicos.clients.gui.panels import Panel
