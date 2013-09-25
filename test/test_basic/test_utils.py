@@ -51,12 +51,12 @@ def test_readonly_objects():
     d = readonlydict({'a': 1, 'b': 2})
     assert raises(TypeError, d.update, {})
     unpickled = pickle.loads(pickle.dumps(d))
-    assert type(unpickled) is dict
+    assert type(unpickled) is readonlydict
     assert len(unpickled) == 2
     l = readonlylist([1, 2, 3])
     assert raises(TypeError, l.append, 4)
     unpickled = pickle.loads(pickle.dumps(l))
-    assert type(unpickled) is list
+    assert type(unpickled) is readonlylist
     assert len(unpickled) == 3
 
 def test_readonlylist_hashable():

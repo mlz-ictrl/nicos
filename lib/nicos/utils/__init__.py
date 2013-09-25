@@ -78,9 +78,8 @@ class readonlylist(list):
     # NOTE: __iadd__ and __imul__ are good because their invocation is always
     # connected to a re-assignment
 
-    # unpickling a readonlylist will fail since the list is built incrementally
-    def __reduce__(self):
-        return (list, (), None, iter(self), None)
+    def __getnewargs__(self):
+        return (iter(self),)
 
     def __hash__(self):
         return hash(tuple(self))
@@ -92,9 +91,8 @@ class readonlydict(dict):
     __setitem__ = __delitem__ = clear = pop = popitem = setdefault = \
         update = _no
 
-    # unpickling a readonlydict will fail since the dict is built incrementally
-    def __reduce__(self):
-        return (dict, (), None, None, self.iteritems())
+    def __getnewargs__(self):
+        return (self.iteritems(),)
 
 
 class Repeater(object):
