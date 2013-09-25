@@ -115,23 +115,33 @@ _newport02 = (
     ],
 )
 
+_newport03 = (
+    'NewPort 03',
+    [
+        [
+            _(name='position', dev='sth_newport03'),
+         ],
+    ],
+)
+
 _ccr10 = (
     'CCR10',
     [
         [
-            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
+            _( name='Setpoint', key='t_ccr10/setpoint', unitkey='t_ccr10/unit',),
             ], [
             _( name='A', dev='T_ccr10_A'),
             _( name='B', dev='T_ccr10_B'),
         ],
     ],
+#    'ccr10',
 )
 
 _ccr11 = (
     'CCR11',
     [
         [
-            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
+            _( name='Setpoint', key='t_ccr11/setpoint', unitkey='t_ccr11/unit',),
             ], [
             _( name='A', dev='T_ccr11_A'),
             _( name='B', dev='T_ccr11_B'),
@@ -140,6 +150,7 @@ _ccr11 = (
             _( name='D', dev='T_ccr11_D'),
         ],
     ],
+#    'ccr11',
 )
 
 
@@ -147,22 +158,43 @@ _ccr12 = (
     'CCR12',
     [
         [
-            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
+            _( name='Setpoint', key='t_ccr12/setpoint', unitkey='t_ccr12/unit',),
             ], [
             _( name='A', dev='T_ccr12_A'),
             _( name='B', dev='T_ccr12_B'),
         ],
     ],
+#    'ccr12',
+)
+
+_ccr16 = (
+    'CCR16',
+    [
+        [
+            _( name='Setpoint', key='t_ccr16/setpoint', unitkey='t_ccr16/unit',),
+            ], [
+            _( name='A', dev='T_ccr16_A'),
+            _( name='B', dev='T_ccr16_B'),
+        ],
+    ],
+#    'ccr16',
 )
 
 _htf03 = (
     'HTF03',
     [
         [
-               _(name='Temperature', dev='t_htf03'),
+            _(name='Temperature', dev='T_htf03', unit='C',),
+        ], [
+            _(name='Setpoint', key='T_htf03/setpoint', unit='C', format='%.1f',),
+            _(name='Heater Power', key='T_htf03/heaterpower', unit='%', format='%.1f',),
+        ], [
+            _(name='P', key='T_htf03/p', format='%i',),
+            _(name='I', key='T_htf03/i', format='%i',),
+            _(name='D', key='T_htf03/d', format='%i',),
         ]
     ],
-#    'magnet_sans1'
+#    'htf03'
 )
 
 _spinflipper = (
@@ -258,10 +290,10 @@ devices = dict(
                      layout = [
                                 [
                                   [_sans1sel,],
-                                  [_pressurecoll,_lengthcoll,_sans1detector,_sans1general],
-                                  [_sc1,_table,],
-                                  [_htf03,_spinflipper,_sans1magnet,_newport02],
-                                  [_pressuretube,_ccr10,_ccr11,_ccr12],
+                                  [_pressurecoll, _lengthcoll, _sans1detector, _sans1general],
+                                  [_sc1, _table,],
+                                  [_htf03, _spinflipper, _sans1magnet, _newport02, _newport03],
+                                  [_pressuretube, _ccr10, _ccr11, _ccr12, _ccr16],
                                 ],
                               ],
                     )

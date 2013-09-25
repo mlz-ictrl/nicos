@@ -29,12 +29,12 @@ includes = ['system']
 
 # group = 'optional'
 
-nethost = 'sans1srv.sans1.frm2'
+nethost = 'ccmsans.sans1.frm2'
 
 devices = dict(
     b_left = device('devices.taco.CurrentSupply',
                      description = 'The left? magnetic field',
-                     tacodevice = '//%s/sans1/ips/1' % (nethost,),
+                     tacodevice = '//%s/magnet/ips/1' % (nethost,),
                      abslimits = (-1, 160),
                      fmtstr = '%.3f',
                      maxage = 120,
@@ -42,7 +42,7 @@ devices = dict(
                     ),
     b_right = device('devices.taco.CurrentSupply',
                      description = 'The right? magnetic field',
-                     tacodevice = '//%s/sans1/ips/2' % (nethost,),
+                     tacodevice = '//%s/magnet/ips/2' % (nethost,),
                      abslimits = (-1, 160),
                      fmtstr = '%.3f',
                      maxage = 120,
@@ -50,7 +50,7 @@ devices = dict(
                     ),
     b_overall = device('devices.taco.CurrentSupply',
                      description = 'The resulting magnetic field',
-                     tacodevice = '//%s/sans1/oxford/magnet' % (nethost, ),
+                     tacodevice = '//%s/magnet/oxford/magnet' % (nethost, ),
                      abslimits = (-5, 5),
                      fmtstr = '%.3f',
                      maxage = 120,

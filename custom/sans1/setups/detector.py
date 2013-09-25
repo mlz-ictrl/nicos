@@ -33,7 +33,7 @@ nethost = 'sans1srv.sans1.frm2'
 devices = dict(
     det1_t_ist = device('devices.taco.FRMTimerChannel',
                         tacodevice = '//%s/sans1/qmesydaq/timer' % (nethost, ),
-                        fmtstr = '%.2f',
+                        fmtstr = '%.0f',
                         lowlevel = True,
                        ),
 
