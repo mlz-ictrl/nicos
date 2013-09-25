@@ -55,8 +55,12 @@ def test_mono_device():
     # unit switching
     mono.unit = 'A-1'
     mono.maw(1.4)
+    assertAlmostEqual(mono.read(0), 1.4, 3)
+    assertAlmostEqual(mono.target, 1.4, 3)
     mono.unit = 'meV'
     assertAlmostEqual(mono.read(0), 4.061, 3)
+    assertAlmostEqual(mono.target, 4.061, 3)
+    assert mono.status()[0] == status.OK
     mono.unit = 'A-1'
     assert mono.status()[0] == status.OK
     # mth/mtt mismatch
