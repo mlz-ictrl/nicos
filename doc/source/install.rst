@@ -35,6 +35,8 @@ Requirements
 
 * numpy
 
+* pyzmq version >= 2
+
 * Optional for the basic system:
 
   - the TACO Python libraries

@@ -48,6 +48,9 @@ INPUT  = INFO + 6
 loglevels = {'debug': DEBUG, 'info': INFO, 'action': ACTION, 'warning': WARNING,
              'error': ERROR, 'input': INPUT}
 
+TRANSMIT_ENTRIES = ('name', 'created', 'levelno', 'message', 'exc_text',
+                    'filename')
+
 
 class NicosLogger(Logger):
     """
@@ -334,9 +337,6 @@ class ColoredConsoleHandler(StreamHandler):
         self.stream.write(msg)
         self.stream.flush()
 
-
-TRANSMIT_ENTRIES = ('name', 'created', 'levelno', 'message', 'exc_text',
-                    'filename')
 
 class ELogHandler(Handler):
 

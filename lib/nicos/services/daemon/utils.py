@@ -24,18 +24,14 @@
 
 """Utilities for the NICOS daemon."""
 
-import os
 import re
 import sys
 import time
-import struct
 import logging
 import linecache
 import traceback
-from threading import Thread
 
-from nicos.utils.loggers import ACTION
-from nicos.protocols.daemon import serialize, unserialize
+from nicos.utils.loggers import ACTION, TRANSMIT_ENTRIES
 
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
@@ -119,9 +115,6 @@ class LoggerWrapper(object):
             setattr(self, name, getlogfunc())
 
 
-TRANSMIT_ENTRIES = ('name', 'created', 'levelno', 'message', 'exc_text',
-                    'filename')
-
 class DaemonLogHandler(logging.Handler):
     """
     Log handler for transmitting NICOS log messages to the client.
@@ -141,74 +134,3 @@ class DaemonLogHandler(logging.Handler):
             # of the daemon a bit)
             self.daemon._messages.append(msg)
         self.daemon.emit_event('message', msg)
-
-
-_lenstruct = struct.Struct('>I')
-
-class SimLogSender(logging.Handler):
-    """
-    Log handler sending messages to the original daemon via a pipe.
-    """
-
-    def __init__(self, fileno, session):
-        logging.Handler.__init__(self)
-        self.fileno = fileno
-        self.session = session
-        self.devices = []
-
-    def begin(self):
-        from nicos.core import Readable
-        # Collect information on timing and range of all devices
-        self.starttime = self.session.clock.time
-        for devname, dev in self.session.devices.iteritems():
-            if isinstance(dev, Readable):
-                self.devices.append(devname)
-                dev._sim_min = None
-                dev._sim_max = None
-
-    def emit(self, record, entries=TRANSMIT_ENTRIES):  #pylint: disable=W0221
-        msg = [getattr(record, e) for e in entries]
-        if not hasattr(record, 'nonl'):
-            msg[3] += '\n'
-        msg = serialize(msg)
-        os.write(self.fileno, _lenstruct.pack(len(msg)) + msg)
-
-    def finish(self):
-        stoptime = self.session.clock.time
-        devinfo = {}
-        for devname in self.devices:
-            dev = self.session.devices.get(devname)
-            if dev and dev._sim_min is not None:
-                try:
-                    devinfo[dev] = (dev.format(dev._sim_value),
-                                    dev.format(dev._sim_min),
-                                    dev.format(dev._sim_max))
-                except Exception:
-                    pass
-        msg = serialize((stoptime, devinfo))
-        os.write(self.fileno, _lenstruct.pack(len(msg)) + msg)
-
-
-class SimLogReceiver(Thread):
-    """
-    Thread for receiving messages from a pipe and sending them to the client.
-    """
-
-    def __init__(self, fileno, daemon):
-        Thread.__init__(self, target=self._thread, args=(fileno, daemon),
-                        name='SimLogReceiver')
-
-    def _thread(self, fileno, daemon):
-        while True:
-            data = os.read(fileno, 4)
-            if len(data) < 4:
-                return
-            size, = _lenstruct.unpack(data)
-            data = os.read(fileno, size)
-            msg = unserialize(data)
-            if isinstance(msg, list):
-                # do not cache these messages
-                #daemon._messages.append(msg)
-                daemon.emit_event('message', msg)
-            else:
-                daemon.emit_event('simresult', msg)

@@ -117,13 +117,16 @@ class ScriptRequest(Request):
             return self.name + ':\n' + self.text
         return self.text
 
-    def parse(self, splitblocks=True):
+    def parse(self, splitblocks=True, compilecode=True):
+        if compilecode:
+            compiler = lambda src: compile('# coding: utf-8\n' + src + '\n',
+                                           '<script>', 'single', CO_DIVISION)
+        else:
+            compiler = lambda src: src
         if '\n' not in self.text:
             # if the script is a single line, compile it like a line
             # in the interactive interpreter, so that expression
             # results are shown
-            compiler = lambda src: compile('# coding: utf-8\n' + src + '\n',
-                                           '<script>', 'single', CO_DIVISION)
             self.code = [session.commandHandler(self.text, compiler)]
             self.blocks = None
             return
@@ -137,8 +140,7 @@ class ScriptRequest(Request):
         pycode = fixup_script(pycode)
         if not splitblocks:
             # no splitting desired
-            self.code = [compile('# coding: utf-8\n' + pycode + '\n',
-                                 '<script>', 'exec', CO_DIVISION)]
+            self.code = [compiler(pycode)]
             self.blocks = None
         else:
             # long script: split into blocks
@@ -411,9 +413,9 @@ class ExecutionController(Controller):
 
     def simulate_script(self, code, name, user, prefix):
         req = ScriptRequest(code, name, user)
-        req.parse(False)
-        session.forkSimulation(req.code[0], wait=False,
-                               prefix='(%s) ' % prefix)
+        req.parse(splitblocks=False, compilecode=False)
+        session.runSimulation(req.code[0], wait=False, prefix='(%s) ' % prefix,
+                              logreceiver=True)
 
     def add_watch_expression(self, val):
         self.watchlock.acquire()

@@ -727,11 +727,11 @@ def sim(what, *devices, **kwargs):
             compile(what + '\n', 'exec', 'exec')
         except Exception:
             raise NicosError('Argument is neither a script file nor valid code')
-        session.forkSimulation('_RunCode(%r, %s)' % (what, debug))
+        session.runSimulation('_RunCode(%r, %s)' % (what, debug))
         return
     if session.mode == 'simulation':
         return _RunScript(what, devices)
-    session.forkSimulation('_RunScript(%r, [%s], %s)' %
+    session.runSimulation('_RunScript(%r, [%s], %s)' %
         (what, ', '.join(dev.name for dev in devices), debug))
 
 Simulate = sim

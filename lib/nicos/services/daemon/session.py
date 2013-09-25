@@ -24,11 +24,8 @@
 
 """Session class used with the NICOS daemon."""
 
-import os
 import sys
-import signal
 import __builtin__
-import threading
 
 from nicos.core import AccessError, ACCESS_LEVELS
 from nicos.utils.loggers import INFO
@@ -101,54 +98,6 @@ class DaemonSession(NoninteractiveSession):
 
         self._exported_names.clear()
         self._helper = HelpGenerator()
-
-    def forkSimulation(self, code, wait=True, prefix='(sim) '):
-        """Fork a simulation of *code*.
-
-        If *wait* is true, wait until the process is finished.  *prefix* is the
-        prefix given to all log messages.
-        """
-        from nicos.services.daemon.utils import SimLogSender, SimLogReceiver
-        rp, wp = os.pipe()
-        receiver = SimLogReceiver(rp, self.daemon_device)
-        receiver.start()
-        try:
-            pid = os.fork()
-        except OSError:
-            self.log.exception('Cannot fork into simulation mode')
-            return
-        if pid == 0:
-            # child process
-            self._manualscan = None  # allow simulating manualscans
-            signal.alarm(600)        # kill forcibly after 10 minutes
-            pipesender = SimLogSender(wp, self)
-            pipesender.begin()
-            # remove all pending client handlers (the threads are dead anyway,
-            # but we have to stop putting events into their queues)
-            self.daemon_device.clear_handlers()
-            # avoid using the same secondary socket at the same time as the daemon....
-            if self.cache is not None:
-                self.cache._secsocket = None
-                self.cache._sec_lock = threading.Lock()
-                self.cache._sync = False
-
-            try:
-                self.log.manager.globalprefix = prefix
-                self.addLogHandler(pipesender)
-                self.setMode('simulation')
-                exec code in self.namespace
-            except:  # really *all* exceptions -- pylint: disable=W0702
-                self.log.exception('Exception during code execution')
-            finally:
-                pipesender.finish()
-                sys.exit()
-            os._exit()
-        # parent process
-        if wait:
-            try:
-                os.waitpid(pid, 0)
-            except OSError:
-                self.log.exception('Error waiting for simulation process')
 
     def setMode(self, mode):
         NoninteractiveSession.setMode(self, mode)

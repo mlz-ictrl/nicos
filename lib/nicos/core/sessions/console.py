@@ -293,32 +293,6 @@ class ConsoleSession(Session):
         finally:
             self._in_sigint = False
 
-    def forkSimulation(self, code, wait=True, prefix='(sim) '):
-        try:
-            pid = os.fork()
-        except OSError:
-            self.log.exception('Cannot fork into simulation mode')
-            return
-        if pid == 0:
-            # child process
-            self._manualscan = None  # allow simulating manualscans
-            signal.alarm(600)        # kill forcibly after 10 minutes
-            try:
-                self.log.manager.globalprefix = prefix
-                self.setMode('simulation')
-                exec code in self.namespace
-            except: # really *all* exceptions -- pylint: disable=W0702
-                self.log.exception('Simulation: exception during execution')
-            finally:
-                sys.exit()
-            os._exit()
-        # parent process
-        if wait:
-            try:
-                os.waitpid(pid, 0)
-            except OSError:
-                self.log.exception('Error waiting for simulation process')
-
     @classmethod
     def run(cls, setup='startup', simulate=False):
         # Assign the correct class to the session singleton.

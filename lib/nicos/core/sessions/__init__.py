@@ -34,6 +34,7 @@ import imp
 import sys
 import inspect
 import logging
+import subprocess
 import __builtin__
 from os import path
 
@@ -48,6 +49,7 @@ from nicos.devices.notifiers import Notifier
 from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
      ColoredConsoleHandler, NicosLogfileHandler
+from nicos.utils.messaging import SimLogReceiver
 from nicos.devices.instrument import Instrument
 from nicos.devices.cacheclient import CacheClient, CacheLockError, SyncCacheClient
 from nicos.protocols.cache import FLAG_NO_STORE
@@ -1124,6 +1126,39 @@ class Session(object):
         self.log.action(joined)
         if self.cache:
             self.cache.put(self.experiment, 'action', joined, flag=FLAG_NO_STORE)
+
+    # -- Simulation support ----------------------------------------------------
+
+    def runSimulation(self, code, wait=True, prefix='(sim) ', logreceiver=False):
+        """Spawn a simulation of *code*.
+
+        If *wait* is true, wait until the process is finished.  *prefix* is the
+        prefix given to all log messages.
+        """
+        # read out last values of all devices
+        for dev in self.devices.values():
+            try:
+                dev.read()  # cached value is okay
+            except Exception:
+                pass
+
+        # create a socket to listen to messages from the simulation result
+        receiverport = 0
+        if logreceiver:
+            receiver = SimLogReceiver(self.daemon_device)
+            receiver.start()
+            receiverport = receiver.port
+
+        # start nicos-simulate process
+        scriptname = os.path.join(self.config.control_path,
+                                  'bin', 'nicos-simulate')
+        proc = subprocess.Popen([sys.executable, scriptname, str(receiverport),
+                                 prefix, code])
+        if wait:
+            try:
+                proc.wait()
+            except OSError:
+                self.log.exception('Error waiting for simulation process')
 
     # -- Session-specific behavior ---------------------------------------------
 
