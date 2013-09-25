@@ -525,22 +525,9 @@ def daemonize():
         print >> sys.stderr, 'fork #2 failed:', err
 
     # now I am a daemon!
-    from nicos.core.sessions import Session
 
     # switch user
-    user, group = Session.config.user, Session.config.group
-    if group and grp is not None:
-        group = grp.getgrnam(group).gr_gid
-        # use setegid to be later able to recover root rights if previously given
-        # use setgid to irreversibly destroy root rights
-        os.setgid(group)
-    if Session.config.user and pwd is not None:
-        user = pwd.getpwnam(user).pw_uid
-        # use seteuid to be later able to recover root rights if previously given
-        # use setuid to irreversibly destroy root rights
-        os.setuid(user)
-        if 'HOME' in os.environ:
-            os.environ['HOME'] = pwd.getpwuid(user).pw_dir
+    setuser(recover=False)
 
     # close standard fds, so that child processes don't inherit them even though
     # we override Python-level stdio
@@ -552,7 +539,7 @@ def daemonize():
     sys.stdin = open('/dev/null', 'r')
     sys.stdout = sys.stderr = open('/dev/null', 'w')
 
-def setuser():
+def setuser(recover=True):
     """Do not daemonize, but at least set the current user and group correctly
     to the configured values if started as root.
     """
@@ -562,13 +549,19 @@ def setuser():
     from nicos.core.sessions import Session
     user, group = Session.config.user, Session.config.group
     if group and grp is not None:
-        group = grp.getgrnam(group).gr_gid
-        os.setegid(group)
+        gid = grp.getgrnam(group).gr_gid
+        if recover:
+            os.setegid(gid)
+        else:
+            os.setgid(gid)
     if Session.config.user and pwd is not None:
-        user = pwd.getpwnam(user).pw_uid
-        os.seteuid(user)
+        uid = pwd.getpwnam(user).pw_uid
+        if recover:
+            os.seteuid(uid)
+        else:
+            os.setuid(uid)
         if 'HOME' in os.environ:
-            os.environ['HOME'] = pwd.getpwuid(user).pw_dir
+            os.environ['HOME'] = pwd.getpwuid(uid).pw_dir
 
 
 # as copied from Python 3.3
