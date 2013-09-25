@@ -303,14 +303,15 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         if new_absmin > new_absmax:
             new_absmin, new_absmax = new_absmax, new_absmin
         self._setROParam('abslimits', (new_absmin, new_absmax))
-        new_umin = self._fromlambda(self._tolambda(self.userlimits[0]), value)
-        new_umax = self._fromlambda(self._tolambda(self.userlimits[1]), value)
-        if new_umin > new_umax:
-            new_umin, new_umax = new_umax, new_umin
-        new_umin = max(new_umin, new_absmin)
-        new_umax = min(new_umax, new_absmax)
-        self.userlimits = (new_umin, new_umax)
-        if 'target' in self._params:
+        if self.userlimits != (0, 0):
+            new_umin = self._fromlambda(self._tolambda(self.userlimits[0]), value)
+            new_umax = self._fromlambda(self._tolambda(self.userlimits[1]), value)
+            if new_umin > new_umax:
+                new_umin, new_umax = new_umax, new_umin
+            new_umin = max(new_umin, new_absmin)
+            new_umax = min(new_umax, new_absmax)
+            self.userlimits = (new_umin, new_umax)
+        if 'target' in self._params and self.target != 0:
             # this should be still within the limits
             self._setROParam('target', self._fromlambda(self._tolambda(self.target), value))
         if self._cache:

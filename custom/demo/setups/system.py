@@ -45,12 +45,13 @@ devices = dict(
 )
 
 startupcode = '''
-try:
-    if not Exp.proposal:
+if not Exp.proposal and Exp._mode != 'simulation':
+    try:
         SetMode('master')
+    except Exception:
+        pass
+    else:
         NewExperiment(0, 'NICOS demo experiment', localcontact='N. N.')
         AddUser('H. Maier-Leibnitz')
         NewSample('Gd3CdB7')
-except Exception:
-    pass
 '''
