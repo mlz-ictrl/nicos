@@ -315,13 +315,16 @@ class Monitor(BaseMonitor):
             #self._master.update()
 
     def reconfigureBoxes(self):
+        emitdict = {}
         for setup, boxes in self._onlymap.iteritems():
-            for layout, blockbox in boxes:
-                if setup.startswith('!'):
-                    enabled = setup[1:] not in self._setups
-                else:
-                    enabled = setup in self._setups
-                blockbox.emit(SIGNAL('enableDisplay'), layout, enabled)
+            if setup.startswith('!'):
+                enabled = setup[1:] not in self._setups
+            else:
+                enabled = setup in self._setups
+            for k in boxes:
+                emitdict[k] = emitdict.get(k, False) or enabled
+        for (layout, blockbox), enabled in emitdict.iteritems():
+            blockbox.emit(SIGNAL('enableDisplay'), layout, enabled)
         # HACK: master.sizeHint() is only correct a certain time *after* the
         # layout change (I've not found out what event to generate or intercept
         # to do this in a more sane way).
