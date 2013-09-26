@@ -189,7 +189,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
             currentpos = self.read(0)
             currentpos = self.mapping.get(currentpos, currentpos)
             mindist = min(abs(currentpos - self.refpos), abs(value - self.refpos))
-            if mindist < self.autozero * (self.usermax-self.usermin) * 0.01:
+            if mindist < self.autozero:
                 self._reference()
                 # returns after referencing has been done.
         # now just go where commanded....
@@ -599,7 +599,7 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
                 self.writeParameter(8, i)
                 break
         else:
-            raise InvalidValueError(self, 
+            raise InvalidValueError(self,
                 'This should never happen! value should be one of: '
                 '1, 2, 4, 8, 16, 32, 64 !')
 
