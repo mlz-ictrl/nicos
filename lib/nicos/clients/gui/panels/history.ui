@@ -240,6 +240,18 @@
     <string>Linear fit</string>
    </property>
   </action>
+  <action name="actionSaveData">
+   <property name="icon">
+    <iconset resource="../../../../../resources/nicos-gui.qrc">
+     <normaloff>:/table</normaloff>:/table</iconset>
+   </property>
+   <property name="text">
+    <string>Save data</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the data in plain text file</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../../resources/nicos-gui.qrc"/>

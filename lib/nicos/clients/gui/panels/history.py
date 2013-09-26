@@ -26,12 +26,14 @@
 
 import os
 import sys
+import time
 import cPickle as pickle
 from time import time as currenttime, localtime, mktime, strftime
 
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
-     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
+     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, \
+     QFileDialog, QLabel, QComboBox, QMessageBox
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
@@ -293,6 +295,7 @@ class BaseHistoryWindow(object):
     def enablePlotActions(self, on):
         for action in [
             self.actionPDF, self.actionPrint, self.actionAttachElog,
+            self.actionSaveData,
             self.actionEditView, self.actionCloseView, self.actionDeleteView,
             self.actionResetView,
             self.actionUnzoom, self.actionLogScale, self.actionLegend,
@@ -512,6 +515,10 @@ class BaseHistoryWindow(object):
     def on_actionLinearFit_triggered(self):
         self.currentPlot.fitLinear()
 
+    @qtsig('')
+    def on_actionSaveData_triggered(self):
+        self.currentPlot.saveData()
+
 
 class HistoryPanel(Panel, BaseHistoryWindow):
     panelName = 'History viewer'
@@ -541,6 +548,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addAction(self.actionPDF)
         menu.addAction(self.actionPrint)
         menu.addAction(self.actionAttachElog)
+        menu.addAction(self.actionSaveData)
         menu.addSeparator()
         menu.addAction(self.actionEditView)
         menu.addAction(self.actionCloseView)
@@ -579,8 +587,10 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         bar = QToolBar('History viewer')
         bar.addAction(self.actionNew)
         bar.addAction(self.actionEditView)
+        bar.addSeparator()
         bar.addAction(self.actionPDF)
         bar.addAction(self.actionPrint)
+        bar.addAction(self.actionSaveData)
         bar.addSeparator()
         bar.addAction(self.actionUnzoom)
         bar.addAction(self.actionLogScale)
@@ -738,6 +748,53 @@ class ViewPlot(NicosPlot):
                        ('', '%.3f /h' % (beta[0]*3600))]
         return x, y, title, labelx, labely, interesting, None
 
+    def saveData(self):
+        dlg = DataExportDialog(self, 'Select curve, file name and format',
+                               '', 'ASCII data files (*.dat)')
+        res = dlg.exec_()
+        if res != QDialog.Accepted:
+            return
+        if not dlg.selectedFiles():
+            return
+        curve = self.plotcurves[dlg.curveCombo.currentIndex()]
+        fmtno = dlg.formatCombo.currentIndex()
+        filename = dlg.selectedFiles()[0]
+
+        if curve.dataSize() < 1:
+            QMessageBox.information(self, 'Error', 'No data in selected curve!')
+            return
+
+        with open(filename, 'wb') as fp:
+            for i in range(curve.dataSize()):
+                if fmtno == 0:
+                    fp.write('%s\t%.10f\n' % (curve.x(i) - curve.x(0),
+                                              curve.y(i)))
+                elif fmtno == 1:
+                    fp.write('%s\t%.10f\n' % (curve.x(i), curve.y(i)))
+                else:
+                    fp.write('%s\t%.10f\n' % (time.strftime(
+                        '%Y-%m-%d.%H:%M:%S', time.localtime(curve.x(i))),
+                        curve.y(i)))
+
+
+class DataExportDialog(QFileDialog):
+
+    def __init__(self, viewplot, *args):
+        QFileDialog.__init__(self, viewplot, *args)
+        self.setConfirmOverwrite(True)
+        self.setAcceptMode(QFileDialog.AcceptSave)
+        layout = self.layout()
+        layout.addWidget(QLabel('Curve:', self), 4, 0)
+        self.curveCombo = QComboBox(self)
+        self.curveCombo.addItems(viewplot.view.keys)
+        layout.addWidget(self.curveCombo, 4, 1)
+        layout.addWidget(QLabel('Time format:', self), 5, 0)
+        self.formatCombo = QComboBox(self)
+        self.formatCombo.addItems(['Seconds since first datapoint',
+                                   'UNIX timestamp',
+                                   'Text timestamp (YYYY-MM-dd.HH:MM:SS)'])
+        layout.addWidget(self.formatCombo, 5, 1)
+
 
 class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 
@@ -763,6 +820,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         menu.addSeparator()
         menu.addAction(self.actionPDF)
         menu.addAction(self.actionPrint)
+        menu.addAction(self.actionSaveData)
         menu.addSeparator()
         menu.addAction(self.actionEditView)
         menu.addAction(self.actionCloseView)
@@ -783,8 +841,10 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         bar = QToolBar('History viewer')
         bar.addAction(self.actionNew)
         bar.addAction(self.actionEditView)
+        bar.addSeparator()
         bar.addAction(self.actionPDF)
         bar.addAction(self.actionPrint)
+        bar.addAction(self.actionSaveData)
         bar.addAction(self.actionClose)
         bar.addSeparator()
         bar.addAction(self.actionUnzoom)
