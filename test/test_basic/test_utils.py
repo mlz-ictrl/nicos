@@ -50,12 +50,25 @@ def test_lazy_property():
 def test_readonly_objects():
     d = readonlydict({'a': 1, 'b': 2})
     assert raises(TypeError, d.update, {})
+
+    # pickle Protocoll 0
     unpickled = pickle.loads(pickle.dumps(d))
     assert type(unpickled) is readonlydict
     assert len(unpickled) == 2
+    # pickle Protocoll 2
+    unpickled = pickle.loads(pickle.dumps(d, 2))
+    assert type(unpickled) is readonlydict
+    assert len(unpickled) == 2
+
     l = readonlylist([1, 2, 3])
     assert raises(TypeError, l.append, 4)
+
+    # pickle Protocoll 0
     unpickled = pickle.loads(pickle.dumps(l))
+    assert type(unpickled) is readonlylist
+    assert len(unpickled) == 3
+    # pickle Protocoll 2
+    unpickled = pickle.loads(pickle.dumps(l, 2))
     assert type(unpickled) is readonlylist
     assert len(unpickled) == 3
 

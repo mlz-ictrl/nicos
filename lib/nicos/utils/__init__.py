@@ -79,7 +79,7 @@ class readonlylist(list):
     # connected to a re-assignment
 
     def __getnewargs__(self):
-        return (iter(self),)
+        return (list(iter(self)),)
 
     def __hash__(self):
         return hash(tuple(self))
@@ -92,7 +92,10 @@ class readonlydict(dict):
         update = _no
 
     def __getnewargs__(self):
-        return (self.iteritems(),)
+        return (dict(self.iteritems()),)
+
+    def __reduce__(self):
+        return dict.__reduce__(self)
 
 
 class Repeater(object):
