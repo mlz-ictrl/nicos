@@ -1065,9 +1065,11 @@ class Readable(Device):
         except Exception, err:
             self._info_errcount += 1
             # only display the message for the first 5 times and then
-            # every 20 measurements
+            # every 20 measurements. always display if in debugmode
             if self._info_errcount <= 5 or self._info_errcount % 20 == 0:
                 self.log.warning('error reading device for info()', exc=err)
+            else:
+                self.log.debug('error reading device for info()', exc=err)
             yield ('general', 'value', 'Error: %s' % err)
         else:
             self._info_errcount = 0
