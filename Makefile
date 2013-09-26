@@ -223,22 +223,27 @@ main-install:
 		cp -pr $(VOPT) custom/frm2/lib/* $(ROOTDIR)/lib/nicos/frm2; \
 		echo "============================================================="; \
 	fi
-        # merge templates
+	# merge templates
 	@echo "Installing templates (overwriting existing files)..."
-	mkdir -p $(VOPT) $(ROOTDIR)/template
-	cp -pr $(VOPT) template/* $(ROOTDIR)/lib/nicos/frm2
+	#~ mkdir -p $(VOPT) $(ROOTDIR)/template
+	cp -pr $(VOPT) template $(ROOTDIR)
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
 		echo "Installing FRM II specific templates (overwriting existing files!)..."; \
-		cp -pr $(VOPT) custom/frm2/template/* $(ROOTDIR)/template; \
+		cp -pr $(VOPT) custom/frm2/template $(ROOTDIR); \
 	fi
-	cp -pr $(VOPT) $(INSTRDIR)/template/* $(ROOTDIR)/template
-        # merge template/README
+	@if [ -d $(INSTRDIR)/template ]; then \
+		cp -pr $(VOPT) $(INSTRDIR)/template $(ROOTDIR); \
+	fi
+	# merge template/README
 	cp -p $(VOPT) template/README $(ROOTDIR)/template/README
 	@if [ "$(FRM2)" == 1 -a -f custom/frm2/template/README ]; then \
 		cat custom/frm2/template/README >> $(ROOTDIR)/template/README; \
 	fi
-	@if [ -f $(INSTRDIR)/template/README ]; then cat $(INSTRDIR)/template/README >> $(ROOTDIR)/template/README; fi
+	@if [ -f $(INSTRDIR)/template/README ]; then \
+		cat $(INSTRDIR)/template/README >> $(ROOTDIR)/template/README; \
+	fi
+	# install setup files
 	@echo "Installing setups (backing up existing files)..."
 	tools/copysetup $(INSTRDIR)/setups/ $(ROOTDIR)/setups
 	@if [ "$(FRM2)" = 1 ]; then \
