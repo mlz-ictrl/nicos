@@ -282,8 +282,8 @@ def parseDateString(s, enddate=False):
         (1, 'seconds', 'second', 'sec', 's'),
         (60, 'minutes', 'minute', 'min', 'm'),
         (3600, 'hours', 'hour', 'h'),
-        (3600*24, 'days', 'day', 'd'),
-        (3600*24*7, 'weeks', 'week', 'w'),
+        (3600 * 24, 'days', 'day', 'd'),
+        (3600 * 24 * 7, 'weeks', 'week', 'w'),
     ]
     m = rex.match(s)
     if m is not None:
@@ -401,12 +401,12 @@ def writeFile(filename, lines):
 
 def writePidfile(appname):
     from nicos.core.sessions import Session
-    filename = os.path.join(Session.config.control_path, 'pid', appname+'.pid')
+    filename = os.path.join(Session.config.control_path, 'pid', appname + '.pid')
     writeFile(filename, [str(os.getpid())])
 
 def removePidfile(appname):
     from nicos.core.sessions import Session
-    filename = os.path.join(Session.config.control_path, 'pid', appname+'.pid')
+    filename = os.path.join(Session.config.control_path, 'pid', appname + '.pid')
     try:
         os.unlink(filename)
     except OSError, err:
@@ -637,19 +637,19 @@ for _name, _value in _attrs.items():
     _codes[_name] = '\x1b[' + _value
 
 _colors = [
-    ('black',     'darkgray'),
-    ('darkred',   'red'),
+    ('black', 'darkgray'),
+    ('darkred', 'red'),
     ('darkgreen', 'green'),
-    ('brown',     'yellow'),
-    ('darkblue',  'blue'),
-    ('purple',    'fuchsia'),
+    ('brown', 'yellow'),
+    ('darkblue', 'blue'),
+    ('purple', 'fuchsia'),
     ('turquoise', 'teal'),
     ('lightgray', 'white'),
 ]
 
 for _i, (_dark, _light) in enumerate(_colors):
-    _codes[_dark] = '\x1b[%im' % (_i+30)
-    _codes[_light] = '\x1b[%i;01m' % (_i+30)
+    _codes[_dark] = '\x1b[%im' % (_i + 30)
+    _codes[_light] = '\x1b[%i;01m' % (_i + 30)
 
 def colorize(name, text):
     return _codes.get(name, '') + text + _codes.get('reset', '')
@@ -664,7 +664,7 @@ def nocolor():
 if os.name == 'nt':
     try:
         # colorama provides ANSI-colored console output support under Windows
-        import colorama #pylint: disable=F0401
+        import colorama  # pylint: disable=F0401
     except ImportError:
         nocolor()
     else:
@@ -759,7 +759,7 @@ def updateFileCounter(counterpath, value):
 # determine days of an interval between two timestamps
 
 def allDays(fromtime, totime):
-    tmfr = int(mktime(localtime(fromtime)[:3] + (0,0,0,0,0,-1)))
+    tmfr = int(mktime(localtime(fromtime)[:3] + (0, 0, 0, 0, 0, -1)))
     tmto = int(min(currenttime(), totime))
     for tmday in xrange(tmfr, tmto, 86400):
         lt = localtime(tmday)
@@ -778,7 +778,7 @@ def watchFileTime(filename, log, interval=1.0):
             except OSError, err:
                 log.error('got exception checking for mtime of %r: %s' %
                           (filename, err))
-                sleep(interval/2)
+                sleep(interval / 2)
                 # it's not a big problem if we never get out of the loop
                 continue
     mtime = get_mtime()
