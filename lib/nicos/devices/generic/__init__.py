@@ -37,3 +37,5 @@ from nicos.devices.generic.cache import CacheReader, CacheWriter
 from nicos.devices.generic.system import FreeSpace
 from nicos.devices.generic.virtual import VirtualMotor, VirtualCoder, \
      VirtualTimer, VirtualCounter, VirtualTemperature
+from nicos.devices.generic.locked import LockerMixin, LockedMultiSwitcher, \
+     LockedVirtualMotor, LockedDevice, LockedSwitcher

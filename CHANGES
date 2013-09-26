@@ -20,6 +20,9 @@ Release 2.5.0
 - Switcher classes got support for a fallback parameter whose value is returned
   if none of the mapping entries matches.
 
+- Create a LockedDevice mixin which is used for devices needing a special
+  lock/unlock precedure using another device.
+
 Release 2.4.0
 -------------
 
