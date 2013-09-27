@@ -820,7 +820,7 @@ class Readable(Device):
     * valueInfo()
     """
 
-    # Set this to False on devices that directly access hardware, and therefore
+    # Set this to True on devices that directly access hardware, and therefore
     # should have their actions simulated.
     hardware_access = True
 
