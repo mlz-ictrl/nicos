@@ -32,13 +32,14 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'sans1.commands']
 
 # SYSTEM NEVER INCLUDES OTHER SETUPS !!!
 #includes = ['tube', 'collimation']
 
 devices = dict(
-    Sample   = device('devices.experiment.Sample'),
+    #~ Sample   = device('devices.experiment.Sample'),
+    Sample   = device('sans1.sans1_sample.Sans1Sample'),
 
     Instrument = device('devices.instrument.Instrument',
                         responsible = 'Dr. habil. Ralph Gilles',
