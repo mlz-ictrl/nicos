@@ -175,3 +175,9 @@ one of your loaded setups.
 .. autofunction:: copper
 .. autofunction:: ho_spurions
 .. autofunction:: acc_bragg
+
+Sample utility functions
+------------------------
+.. module:: nicos.commands.sample
+
+.. autofunction:: activation

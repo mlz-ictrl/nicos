@@ -32,3 +32,4 @@ from nicos.commands.device import *
 from nicos.commands.measure import *
 from nicos.commands.scan import *
 from nicos.commands.analyze import *
+from nicos.commands.sample import *
