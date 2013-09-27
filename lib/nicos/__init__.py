@@ -34,6 +34,7 @@ import new
 import sys
 from os import path
 import distutils.util
+from logging import Logger
 
 # Check for Python version 2.6+.
 if sys.version_info[:2] < (2, 6):
@@ -55,7 +56,8 @@ sys.path.append(path.join(path.dirname(__file__), '..',
 # The real class is set later.
 
 class Session(object):
-    pass
+    log = Logger('Nicos early logger')
+
 session = Session()
 
 
