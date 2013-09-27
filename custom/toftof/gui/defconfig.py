@@ -63,7 +63,7 @@ config = ('Default', [
              url='http://www.ncnr.nist.gov/resources/n-lengths/'),
         tool('Neutron activation',
              'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://www.wise-uranium.org/rnac.html'),
+             url='http://www.frm2.tum.de/intranet/activation/'),
         tool('Report NICOS bug',
              'nicos.clients.gui.tools.website.WebsiteTool',
              url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
