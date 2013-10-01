@@ -28,7 +28,7 @@ import time
 
 from IO import StringIO
 
-from nicos.core import Readable, Override, status, Param
+from nicos.core import Readable, Override, status, Param, NicosError
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -50,9 +50,10 @@ class PowerSupplyU(TacoDevice, Readable):
         # INST:SEL 2;MEAS:VOLT?
         tmp = int (self._taco_guard(self._dev.communicate,'INST:NSEL?'))
         if tmp != self.channel:
-            self._taco_guard(self._dev.writeLine('INST:NSEL %d' %
-                             (self.channel)))
-            time.sleep(0.05)
+            raise NicosError(self, 'wrong channel selected')
+            #self._taco_guard(self._dev.writeLine, 'INST:NSEL %d' %
+            #                 (self.channel))
+            #time.sleep(0.05)
         tmp = self._taco_guard(self._dev.communicate,'MEAS:VOLT?')
         return float (tmp)
 
@@ -77,9 +78,10 @@ class PowerSupplyA(TacoDevice, Readable):
     def doRead(self, maxage=0):
         tmp = int(self._taco_guard(self._dev.communicate,'INST:NSEL?'))
         if tmp != self.channel:
-            self._taco_guard(self._dev.writeLine('INST:NSEL %d' %
-                             (self.channel)))
-            time.sleep(0.05)
+            raise NicosError(self, 'wrong channel selected')
+            #self._taco_guard(self._dev.writeLine, 'INST:NSEL %d' %
+            #                 (self.channel))
+            #time.sleep(0.05)
         tmp = self._taco_guard(self._dev.communicate,'MEAS:CURR?')
         return float (tmp)
 
