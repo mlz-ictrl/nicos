@@ -137,6 +137,11 @@ class DeviceMeta(DeviceMixinMeta):
                     newentry.update(getattr(base, entry))
             newentry.update(attrs.get(entry, {}))
             setattr(newtype, entry, newentry)
+        for adevname in newtype.attached_devices:
+            # adev names are always lowercased
+            if adevname != adevname.lower():
+                raise ProgrammingError('%r device: attached device name %r is '
+                                       'not all-lowercase' % (name, adevname))
         for param, info in newtype.parameters.iteritems():
             # parameter names are always lowercased (enforce this)
             if param != param.lower():
