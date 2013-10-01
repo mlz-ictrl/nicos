@@ -32,6 +32,7 @@ from nicos.core import status, Readable, Moveable, HasLimits, Param, \
      CommunicationError, TimeoutError, CacheError
 
 CACHE_NOSTATUS_STRING = 'no status found in cache'
+CACHE_NOVALUE_STRING = 'no value found in cache'
 
 
 class CacheReader(Readable):
@@ -54,13 +55,12 @@ class CacheReader(Readable):
             try:
                 time, ttl, val = self._cache.get_explicit(self, 'value')
             except CacheError:
-                val = time = ttl = None
+                raise CommunicationError(self, CACHE_NOVALUE_STRING)
             if time and ttl and time + ttl < currenttime():
                 self.log.warning('value timed out in cache, this should be '
                                  'considered as an error!')
             return val
-        raise CommunicationError(self, 'CacheReader value not in cache or '
-                                 'no cache found')
+        raise CommunicationError(self, 'CacheReader: no cache found')
 
     def doStatus(self, maxage=0):
         if self._cache:
@@ -104,13 +104,12 @@ class CacheWriter(HasLimits, Moveable):
             try:
                 time, ttl, val = self._cache.get_explicit(self, 'value')
             except CacheError:
-                val = time = ttl = None
+                raise CommunicationError(self, CACHE_NOVALUE_STRING)
             if time and ttl and time + ttl < currenttime():
                 self.log.warning('value timed out in cache, this should be '
                                  'considered as an error!')
             return val
-        raise CommunicationError(self, 'CacheWriter value not in cache or '
-                                 'no cache found')
+        raise CommunicationError(self, 'CacheWriter: no cache found')
 
     def doStatus(self, maxage=0):
         if self._cache:

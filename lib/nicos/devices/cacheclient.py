@@ -496,8 +496,11 @@ class CacheClient(BaseCacheClient):
             key = ('%s/%s' % (dev, key)).lower()
         tosend = '@%s%s%s\n' % (self._prefix, key, OP_ASK)
         for msgmatch in self._single_request(tosend):
+            if msgmatch.group('tsop') is None:
+                raise CacheError('Cache did not send timestamp info')
             time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
                                msgmatch.group('value')
+            # self.log.debug('get_explicit: %.2f %.2f %r', time, ttl, value)
             if value:
                 return (time and float(time), ttl and float(ttl),
                         cache_load(value))
