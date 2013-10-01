@@ -206,6 +206,16 @@ OP_REWRITE = '~'
 # put flags between key and op...
 FLAG_NO_STORE = '#'
 
+# end special token
+END_MARKER = '###'
+
+# Time constant
+CYCLETIME = 0.1
+
+
+# Buffer size
+BUFSIZE = 8192
+
 # regular expression matching a cache protocol message
 msg_pattern = re.compile(r'''
     ^ (?:

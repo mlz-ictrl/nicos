@@ -36,9 +36,8 @@ from nicos.core import Device, Param, CacheLockError, CacheError
 from nicos.utils import closeSocket
 from nicos.protocols.cache import msg_pattern, line_pattern, \
      cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
-     OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE
-
-BUFSIZE = 81920
+     OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, \
+     CYCLETIME, BUFSIZE
 
 
 class BaseCacheClient(Device):
@@ -72,7 +71,7 @@ class BaseCacheClient(Device):
         self._prefix = self.prefix.strip('/')
         if self._prefix:
             self._prefix += '/'
-        self._selecttimeout = 0.1  # seconds
+        self._selecttimeout = CYCLETIME  # seconds
         self._do_callbacks = True
         self._disconnect_warnings = 0
         # maps newprefix -> oldprefix without self._prefix prepended
@@ -144,12 +143,12 @@ class BaseCacheClient(Device):
         # send request for all keys and updates....
         # (send a single request for a nonexisting key afterwards to
         # determine the end of data)
-        self._socket.sendall('@%s%s\n###%s\n' %
-                             (self._prefix, OP_WILDCARD, OP_ASK))
+        self._socket.sendall('@%s%s\n%s%s\n' %
+                             (self._prefix, OP_WILDCARD, END_MARKER, OP_ASK))
 
         # read response
         data, n = '', 0
-        while not data.endswith('###!\n') and n < 1000:
+        while not data.endswith(END_MARKER + OP_TELLOLD + '\n') and n < 1000:
             data += self._socket.recv(BUFSIZE)
             n += 1
 

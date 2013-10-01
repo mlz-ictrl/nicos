@@ -49,8 +49,7 @@ from nicos.services.cache.database import CacheDatabase, FlatfileCacheDatabase, 
      MemoryCacheDatabase, MemoryCacheDatabaseWithHistory
 from nicos.protocols.cache import msg_pattern, line_pattern, \
      DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
-     OP_TELLOLD, OP_LOCK, OP_REWRITE
-
+     OP_TELLOLD, OP_LOCK, OP_REWRITE, CYCLETIME, BUFSIZE
 
 class CacheWorker(object):
     """Worker thread class for the cache server.
@@ -131,9 +130,9 @@ class CacheWorker(object):
         data = ''
         while not self.stoprequest:
             data = self._process_data(data, self.send_queue.put)
-            # wait for data with 1-second timeout
+            # wait for data with 3 times the client timeout
             try:
-                res = select.select([self.sock], [], [], 1)
+                res = select.select([self.sock], [], [], CYCLETIME * 3)
             except TypeError:
                 # TypeError is raised when the connection gets closed and set to
                 # None and select finds no fileno()
@@ -144,12 +143,13 @@ class CacheWorker(object):
                 # no data arrived, wait some more
                 continue
             try:
-                newdata = self.sock.recv(8192)
+                newdata = self.sock.recv(BUFSIZE)
             except Exception:
                 newdata = ''
             if not newdata:
                 # no data received from blocking read, break connection
                 break
+            # self.log.debug('newdata: %s' % newdata)
             data += newdata
         self.closedown()
 
@@ -398,7 +398,7 @@ class CacheServer(Device):
             if self._serversocket_udp:
                 selectlist.append(self._serversocket_udp)
 
-            res = select.select(selectlist, [], [], 1)  # timeout 1 second
+            res = select.select(selectlist, [], [], CYCLETIME * 3)  # 3 times  client side timeout
             if not res[0]:
                 continue  # nothing to read -> continue loop
             if self._serversocket in res[0] and not self._stoprequest:
