@@ -21,7 +21,7 @@ devices = dict(
                      ),
 
     Watchdog = device('services.watchdog.Watchdog',
-                      cache = 'localhost:14869',
+                      cache = 'resedahw',
                       notifiers_1 = ['email'],
                       notifiers_2 = ['email'],
                       watch = watchlist,

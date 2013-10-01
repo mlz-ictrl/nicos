@@ -1,7 +1,7 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = 'resedahw',
     instrument = None,
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'liveplot'],

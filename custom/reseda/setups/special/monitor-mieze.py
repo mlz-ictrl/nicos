@@ -107,17 +107,17 @@ _scatteringblock = Block(
     'startup')
 
 
-##_capacitanceblock = Block(
-##    'Capacitance',
-##    [BlockRow(Field(name='C0', dev='C1', unit='', width=10),
-##              Field(name='C2', dev='C2', unit='', width=10),          K/h 0
-##              Field(name='C1', dev='C3', unit='', width=10),
-##              Field(name='C4', dev='C4', unit='', width=10),          K/h 1
-##              Field(name='C2', dev='C5', unit='', width=10),
-##              Field(name='C6', dev='C6', unit='', width=10)           K/h 2
-##             ),
-##    ],
-##    'startup')
+_capacitanceblock = Block(
+    'Capacitance',
+    [BlockRow(Field(name='C0', dev='C1', unit='', width=10),
+              Field(name='C2', dev='C2', unit='', width=10),        ##  K/h 0
+              Field(name='C1', dev='C3', unit='', width=10),
+              Field(name='C4', dev='C4', unit='', width=10),        ##  K/h 1
+              Field(name='C2', dev='C5', unit='', width=10),
+              Field(name='C6', dev='C6', unit='', width=10),        ##  K/h 2
+             ),
+    ],
+    'startup')
 
 
 _attenuatorsblock = Block(
@@ -136,7 +136,7 @@ _rightcolumn = Column(_scatteringblock, _motorblock, _sampletableblock,
                      )
 
 _leftcolumn = Column(_tempblock, _frequenciesblock, _attenuatorsblock,
-                    # _capacitanceblock,
+                     _capacitanceblock,
                     )
 
 
@@ -144,9 +144,9 @@ devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'RESEDA MIEZE',
                      loglevel = 'info',
-                     cache = 'localhost:14869',
+                     cache = 'resedahw',
                      font = 'Luxi Sans',
-                     fontsize = 12,
+                     fontsize = 18,
                      valuefont = 'Consolas',
                      padding = 5,
                      layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn)],
