@@ -8,12 +8,12 @@ RCC = pyrcc4
 PYTHON = /usr/bin/env python
 
 all:
-	$(PYTHON) setup.py $(QOPT) build -e "/usr/bin/env python"
+	$(PYTHON) setup.py $(QOPT) build -e "$(PYTHON)"
 	$(PYTHON) etc/set_version.py build/lib*
 	-${MAKE} custom-all
 
 gui: lib/nicos/guisupport/gui_rc.py
-	$(PYTHON) setup.py $(QOPT) build -e "/usr/bin/env python"
+	$(PYTHON) setup.py $(QOPT) build -e "$(PYTHON)"
 	$(PYTHON) etc/set_version.py build/lib*
 	-${MAKE} custom-gui
 
@@ -245,7 +245,7 @@ main-install:
 	fi
 	# install setup files
 	@echo "Installing setups (backing up existing files)..."
-	tools/copysetup $(INSTRDIR)/setups/ $(ROOTDIR)/setups
+	$(PYTHON) tools/copysetup $(INSTRDIR)/setups/ $(ROOTDIR)/setups
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
 		echo "Installing FRM II specific setups (overwriting existing files!)..."; \
@@ -254,7 +254,7 @@ main-install:
 	fi
 	@echo "============================================================="
 	@echo "Running setup check..."
-	-PYTHONPATH=$(ROOTDIR)/lib tools/check_setups $(ROOTDIR)/setups
+	-PYTHONPATH=$(ROOTDIR)/lib $(PYTHON) tools/check_setups $(ROOTDIR)/setups
 	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "============================================================="
