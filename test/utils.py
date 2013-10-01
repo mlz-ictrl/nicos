@@ -32,7 +32,7 @@ import shutil
 import socket
 import subprocess
 from os import path
-from logging import ERROR, WARNING
+from logging import ERROR, WARNING, DEBUG
 from functools import wraps
 
 from nose.tools import assert_raises #pylint: disable=E0611
@@ -169,6 +169,7 @@ class TestSession(Session):
     def createRootLogger(self, prefix='nicos'):
         self.log = NicosLogger('nicos')
         self.log.parent = None
+        self.log.setLevel(DEBUG)
         self.testhandler = TestLogHandler()
         self.log.addHandler(self.testhandler)
         self._master_handler = None
