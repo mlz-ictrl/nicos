@@ -164,7 +164,7 @@ class BaseCacheClient(Device):
 
     def _process_data(self, data,
                       lmatch=line_pattern.match, mmatch=msg_pattern.match):
-        #n = 0
+        # n = 0
         i = 0  # avoid making a string copy for every line
         match = lmatch(data, i)
         while match:
@@ -177,7 +177,7 @@ class BaseCacheClient(Device):
                 self._handle_msg(**msgmatch.groupdict())
             # continue loop
             match = lmatch(data, i)
-        #self.log.debug('processed %d items' % n)
+        # self.log.debug('processed %d items' % n)
         return data[i:]
 
     def _worker_thread(self):
@@ -215,7 +215,7 @@ class BaseCacheClient(Device):
                         res = select.select([self._socket], writelist, [],
                                             self._selecttimeout)
                     except select.error, e:
-                        if e[0] == 4: # EINTR
+                        if e[0] == 4:  # EINTR
                             continue
                         raise
                     break
@@ -305,6 +305,7 @@ class BaseCacheClient(Device):
         try:
             with self._sec_lock:
                 # write request
+                # self.log.debug("get_explicit: sending %r" % tosend)
                 self._secsocket.sendall(tosend)
 
                 # read response
@@ -324,6 +325,7 @@ class BaseCacheClient(Device):
         lmatch = line_pattern.match
         mmatch = msg_pattern.match
         i = 0
+        # self.log.debug("get_explicit: data =%r" % data)
         match = lmatch(data, i)
         while match:
             line = match.group(1)
@@ -332,6 +334,7 @@ class BaseCacheClient(Device):
             if not msgmatch:
                 # ignore invalid lines
                 continue
+            # self.log.debug('line processed: %r' % line)
             yield msgmatch
             match = lmatch(data, i)
 
@@ -419,7 +422,7 @@ class CacheClient(BaseCacheClient):
         key = key[len(self._prefix):]
         time = time and float(time)
         self._propagate((time, key, op, value))
-        #self.log.debug('got %s=%s' % (key, value))
+        # self.log.debug('got %s=%s' % (key, value))
         if not value or op == OP_TELLOLD:
             with self._dblock:
                 self._db.pop(key, None)
@@ -519,7 +522,7 @@ class CacheClient(BaseCacheClient):
         dvalue = cache_dump(value)
         msg = '%s%s@%s%s%s%s%s\n' % (time, ttlstr, self._prefix, dbkey,
                                      flag, OP_TELL, dvalue)
-        #self.log.debug('putting %s=%s' % (dbkey, value))
+        # self.log.debug('putting %s=%s' % (dbkey, value))
         self._queue.put(msg)
         self._propagate((time, dbkey, OP_TELL, dvalue))
         # we have to check rewrites here, since the cache server won't send
@@ -546,7 +549,7 @@ class CacheClient(BaseCacheClient):
         ttlstr = ttl and '+%s' % ttl or ''
         value = cache_dump(value)
         msg = '%s%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
-        #self.log.debug('putting %s=%s' % (key, value))
+        # self.log.debug('putting %s=%s' % (key, value))
         self._queue.put(msg)
 
     def setRewrite(self, newprefix, oldprefix):
@@ -601,7 +604,7 @@ class CacheClient(BaseCacheClient):
         with self._dblock:
             self._db.pop(dbkey, None)
 
-    #pylint: disable=W0221
+    # pylint: disable=W0221
     def history(self, dev, key, fromtime, totime):
         """History query: opens a separate connection since it is otherwise not
         possible to determine which response lines belong to it.

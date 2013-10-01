@@ -621,6 +621,7 @@ class FlatfileCacheDatabase(CacheDatabase):
             cleanonce()
 
     def tell(self, key, value, time, ttl, from_client, fdupdate=True):
+        # self.log.debug('updating %s %s' % (key, value))
         if value is None:
             # deletes cannot have a TTL
             ttl = None

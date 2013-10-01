@@ -113,6 +113,7 @@ class CacheWorker(object):
     def _sender_thread(self):
         while not self.stoprequest:
             data = self.send_queue.get()
+            # self.log.debug('sending: %r' % data)
             if self.sock is None:  # connection already closed
                 return
             try:
