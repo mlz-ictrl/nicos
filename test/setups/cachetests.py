@@ -33,4 +33,18 @@ sysconfig = dict(
 devices = dict(
     testsink = device('test.utils.TestSink',
                      ),
+    reader1 = device('nicos.devices.generic.cache.CacheReader',
+                      description='Test Reader',
+                      maxage=30,
+                      unit='',
+                      loglevel='debug'
+                     ),
+    writer1 = device('nicos.devices.generic.cache.CacheWriter',
+                      description='Test cache writer',
+                      userlimits=(1, 200),
+                      abslimits=(0, 311),
+                      maxage=1,
+                      unit='',
+                      loglevel='debug'
+                     ),
 )

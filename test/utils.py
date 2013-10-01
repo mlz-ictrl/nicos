@@ -165,7 +165,10 @@ class TestLogHandler(ColoredConsoleHandler):
             for msg in self._warnings:
                 if re.search(_text, msg.getMessage()):
                     return True
-            sys.stderr.write('Specified text not in any warning')
+            sys.stderr.write('Specified text not in any warning:')
+            for msg in self._warnings:
+                sys.stderr.write('MSG: ' + msg.getMessage())
+
             return False
 
 

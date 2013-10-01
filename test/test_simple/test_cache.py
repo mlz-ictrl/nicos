@@ -26,6 +26,12 @@
 """Tests for the cache."""
 
 from nicos import session
+from time import sleep
+
+from nicos.devices.cacheclient import CacheClient
+from nicos.core.errors import LimitError, CommunicationError
+
+from test.utils import raises
 
 def setup_module():
     session.loadSetup('cachetests')
@@ -111,3 +117,63 @@ def test_04writeToRewritten():
     assert cachedval2[2] == testval2
     assert cachedval5[2] == testval3
     assert cachedval6[2] == cachedval5[2]
+
+
+def test_cacheReader():
+    cc = session.cache
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache='localhost:14877')
+    testval = 'testr1'
+    testval2 = 'testr2'
+    key = 'value'
+    sleep(0.1)
+    rd1 = session.getDevice('reader1')
+    cc.clear('reader1')
+    cc.flush()
+    assert raises(CommunicationError, rd1.read)
+    cc2.put(rd1, key, None)
+    cc2.flush()
+    assert rd1.read() is None
+
+    cc2.put(rd1, key, testval)
+    cc2.flush()
+    assert rd1.read() == testval
+    cc2.put(rd1, key, testval2)
+    cc2.flush()
+    assert rd1.read() == testval2
+    cc2.put(rd1, key, testval, ttl=0.1)
+    cc2.flush()
+    assert rd1.read() == testval
+    sleep(0.51)  # sleep longer than ttl + cycletime
+    assert session.testhandler.warns(rd1.read)
+
+
+def test_cacheWriter():
+    sleep(1)
+    cc = session.cache
+    cc.loglevel = 'debug'
+
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache='localhost:14877')
+    testval = 'testw1'
+    testval2 = 'testw2'
+    key = 'value'
+    cc2.put('writer1', 'value', None)
+    sleep(1)
+    wrt1 = session.getDevice('writer1')
+    cc.clear('writer')
+    assert wrt1.read() is None
+
+    cc2.put('writer1', key, testval)
+    cc2.flush()
+    assert wrt1.read() == testval
+    cc2.put(wrt1, key, testval2, ttl=0.1)
+    cc2.flush()
+    sleep(0.2)  # ttl+ cleanup time
+    assert session.testhandler.warns(wrt1.read, warns_clear=True,
+                warns_text='value timed out in cache, this should be '
+                                 'considered as an error!')
+    wrt1.move(10)
+    assert cc.get('writer1', 'setpoint') == 10.0
+    sleep(1)
+    cce = cc.get_explicit('writer1', 'setpoint')
+    assert cce[2] == 10.0
+    assert raises(LimitError, wrt1.move, 500)
