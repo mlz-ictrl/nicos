@@ -512,7 +512,7 @@ void LWControls::showProfWindow(const char *title)
                        profileWidth->value(), profileBins->value(),
                        m_prof_type);
     profWindow->setWindowTitle(title);
-    if (!m_widget->instrument() == INSTR_TOFTOF) {
+    if (m_widget->instrument() != INSTR_TOFTOF) {
         profWindow->show();
         profileHideButton->setEnabled(true);
         profileWidth->setEnabled(true);
