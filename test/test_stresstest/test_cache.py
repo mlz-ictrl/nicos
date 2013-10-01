@@ -46,32 +46,34 @@ def basicCacheTest(name, setup):
         cc = session.cache
         testval = 'test1'
         key = 'value'
-        cc.put('testcache', key, testval)
-        sleep(0.15)
+        cc.put('testcache', key, testval, ttl=10)
+        cc.flush()
         cachedval_local = cc.get('testcache', key, None)
         cachedval = cc.get_explicit('testcache', key, None)
         cachedval2 = cc.get_explicit('testcache', key, None)
 
-        print cachedval, cachedval2
+        print cachedval_local, cachedval, cachedval2
         assert cachedval_local == testval
         assert cachedval[2] == testval
         assert cachedval2[2] == testval
     finally:
         killCache(cache)
 
+
 def restartServerCacheTest(name, setup):
-    #cache = startCache(setup)
+    # cache = startCache(setup)
     cc = session.cache
     testval = 'test2'
     key = 'value'
-    #killCache(cache)
+    # killCache(cache)
     cc.put('testcache', key, testval)
     cachedval_local = cc.get('testcache', key, None)
-    assert raises(CacheError, cc.get_explicit,  'testcache', key, None)
+    assert raises(CacheError, cc.get_explicit, 'testcache', key, None)
     sleep(1)
     cache = startCache(setup)
+    sleep(1)
     try:
-        sleep(1)
+        cc.flush()
         cachedval2 = cc.get_explicit('testcache', key, None)
 
         print cachedval2

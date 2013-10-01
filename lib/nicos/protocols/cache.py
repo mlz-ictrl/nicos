@@ -206,8 +206,9 @@ OP_REWRITE = '~'
 # put flags between key and op...
 FLAG_NO_STORE = '#'
 
-# end special token
+# end/sync special token
 END_MARKER = '###'
+SYNC_MARKER = '#sync#'
 
 # Time constant
 CYCLETIME = 0.1

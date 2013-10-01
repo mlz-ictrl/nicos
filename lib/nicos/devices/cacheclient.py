@@ -36,7 +36,7 @@ from nicos.core import Device, Param, CacheLockError, CacheError
 from nicos.utils import closeSocket
 from nicos.protocols.cache import msg_pattern, line_pattern, \
      cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
-     OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, \
+     OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, \
      CYCLETIME, BUFSIZE
 
 
@@ -84,6 +84,7 @@ class BaseCacheClient(Device):
         self._queue = Queue.Queue()
         self._sync = True  # must be set to False on forking, since no thread
                            # can signal task_done anymore
+        self._synced = True
 
         # create worker thread, but do not start yet, leave that to subclasses
         self._worker = threading.Thread(target=self._worker_thread,
@@ -170,11 +171,15 @@ class BaseCacheClient(Device):
         while match:
             line = match.group(1)
             i = match.end()
-            msgmatch = mmatch(line)
-            # ignore invalid lines
-            if msgmatch:
-                #n += 1
-                self._handle_msg(**msgmatch.groupdict())
+            if SYNC_MARKER + OP_TELLOLD in line:
+                self.log.debug('process data: received sync: %r' % line)
+                self._synced = True
+            else:
+                msgmatch = mmatch(line)
+                # ignore invalid lines
+                if msgmatch:
+                    # n += 1
+                    self._handle_msg(**msgmatch.groupdict())
             # continue loop
             match = lmatch(data, i)
         # self.log.debug('processed %d items' % n)
@@ -348,6 +353,21 @@ class BaseCacheClient(Device):
         while not self._stoprequest:
             sleep(1)
         self._worker.join()
+
+    def flush(self):
+        """wait for empty output queue"""
+
+        if self._sync:
+            # sync has to be false for lock requests, as these occur during startup
+            self._synced = False
+            self._queue.put('%s%s\n' % (SYNC_MARKER, OP_ASK))
+            self._queue.join()
+            for _ in range(100):
+                # self.log.debug('flush; waiting for sync...')
+                if self._synced:
+                    break
+                sleep(CYCLETIME)
+
 
     def quit(self):
         self._stoprequest = True

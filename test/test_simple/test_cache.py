@@ -25,10 +25,7 @@
 
 """Tests for the cache."""
 
-from time import sleep
-
 from nicos import session
-
 
 def setup_module():
     session.loadSetup('cachetests')
@@ -42,7 +39,7 @@ def test_float_literals():
     cc = session.cache
     for fv in [float('+inf'), float('-inf'), float('nan')]:
         cc.put('testcache', 'fval', fv)
-        sleep(0.25)
+        cc.flush()
         fvc = cc.get_explicit('testcache', 'fval')[2]
         assert repr(fvc) == repr(fv)   # cannot compare fvc == fv, since
                                        # nan is not equal to itself
@@ -52,7 +49,7 @@ def test_01write():
     testval = 'test1'
     key = 'value'
     cc.put('testcache', key, testval)
-    sleep(0.15)  # give cache time to process
+    cc.flush()
     cachedval_local = cc.get('testcache', key, None)
     cachedval = cc.get_explicit('testcache', key, None)
 
@@ -65,7 +62,7 @@ def test_02setRewrite():
     testval = 'test2'
     key = 'value'
     cc.put('testcache', key, testval)
-    sleep(0.15)  # give cache time to process
+    cc.flush()
     cachedval1_local = cc.get('testcache', key, None)
     cachedvalrw_local = cc.get('testrewrite', key, None)
     cachedval1 = cc.get_explicit('testcache', key, None)
@@ -82,7 +79,7 @@ def test_03unsetRewrite():
     key = 'value'
     testvalold = cc.get_explicit('testrewrite', key, Ellipsis)
     cc.put('testcache', key, testval)
-    sleep(0.15)  # give cache time to process
+    cc.flush()
     cachedval1 = cc.get('testcache', key, None)
     cachedval_rw = cc.get('testrewrite', key, None)
     cachedval2 = cc.get_explicit('testrewrite', key, Ellipsis)
@@ -99,14 +96,14 @@ def test_04writeToRewritten():
     testval3 = 'testwrite3'
     key = 'value'
     cc.put('testcache', key, testval1)
-    sleep(0.15)  # give cache time to process
+    cc.flush()
     cachedval1 =  cc.get_explicit('testcache', key, Ellipsis)
     cc.put('testrewrite2', key, testval2)
-    sleep(0.15)  # give cache time to process
+    cc.flush()
     cachedval2 = cc.get_explicit('testrewrite2', key, Ellipsis)
     cc.setRewrite('testcache', 'testrewrite3')
     cc.put('testrewrite3', key, testval3)
-    sleep(0.15)  # give cache time to process
+    cc.flush()
     cachedval5 = cc.get_explicit('testrewrite3', key, Ellipsis)
     cachedval6 = cc.get_explicit('testcache', key, Ellipsis)
 
