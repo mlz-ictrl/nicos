@@ -50,6 +50,24 @@ class CacheReader(Readable):
     *devname* is the NICOS device name configured in the setup.
     """
 
+    def _get_from_cache(self, name, func, maxage=None):
+        """Get *name* from the cache, or call *func* if outdated/not present.
+
+        If the *maxage* parameter is set, do not allow the value to be older
+        than that amount of seconds.
+
+        Main difference to global method: do *NOT* write back value to cache
+        """
+        if not self._cache:
+            return func()
+        val = None
+        if maxage != 0:
+            val = self._cache.get(self, name,
+                mintime=currenttime() - maxage if maxage is not None else 0)
+        if val is None:
+            val = func(self.maxage if maxage is None else maxage)
+        return val
+
     def doRead(self, maxage=0):
         if self._cache:
             try:
@@ -57,6 +75,7 @@ class CacheReader(Readable):
             except CacheError:
                 raise CommunicationError(self, CACHE_NOVALUE_STRING)
             if time and ttl and time + ttl < currenttime():
+                # Note: this will only be reached if self.maxage is expired as well
                 self.log.warning('value timed out in cache, this should be '
                                  'considered as an error!')
             return val

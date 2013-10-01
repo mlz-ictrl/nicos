@@ -35,7 +35,7 @@ devices = dict(
                      ),
     reader1 = device('nicos.devices.generic.cache.CacheReader',
                       description='Test Reader',
-                      maxage=30,
+                      maxage=0.2,
                       unit='',
                       loglevel='debug'
                      ),
@@ -43,7 +43,7 @@ devices = dict(
                       description='Test cache writer',
                       userlimits=(1, 200),
                       abslimits=(0, 311),
-                      maxage=1,
+                      maxage=0.1,
                       unit='',
                       loglevel='debug'
                      ),

@@ -143,12 +143,13 @@ def test_cacheReader():
     cc2.put(rd1, key, testval, ttl=0.1)
     cc2.flush()
     assert rd1.read() == testval
-    sleep(0.51)  # sleep longer than ttl + cycletime
-    assert session.testhandler.warns(rd1.read)
+    sleep(0.51)  # sleep longer than ttl + self.maxage
+    assert session.testhandler.warns(rd1.read, warns_clear=True,
+                warns_text='value timed out in cache, this should be '
+                                 'considered as an error!')
 
 
 def test_cacheWriter():
-    sleep(1)
     cc = session.cache
     cc.loglevel = 'debug'
 
@@ -157,7 +158,7 @@ def test_cacheWriter():
     testval2 = 'testw2'
     key = 'value'
     cc2.put('writer1', 'value', None)
-    sleep(1)
+    cc2.flush()
     wrt1 = session.getDevice('writer1')
     cc.clear('writer')
     assert wrt1.read() is None
@@ -167,13 +168,13 @@ def test_cacheWriter():
     assert wrt1.read() == testval
     cc2.put(wrt1, key, testval2, ttl=0.1)
     cc2.flush()
-    sleep(0.2)  # ttl+ cleanup time
+    sleep(0.51)  # ttl+ wrt1.maxage
     assert session.testhandler.warns(wrt1.read, warns_clear=True,
                 warns_text='value timed out in cache, this should be '
                                  'considered as an error!')
     wrt1.move(10)
     assert cc.get('writer1', 'setpoint') == 10.0
-    sleep(1)
+    cc.flush()
     cce = cc.get_explicit('writer1', 'setpoint')
     assert cce[2] == 10.0
     assert raises(LimitError, wrt1.move, 500)
