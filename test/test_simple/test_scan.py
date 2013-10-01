@@ -145,7 +145,11 @@ def test_scan_usageerrors():
 def test_scan_invalidpreset():
     m = session.getDevice('motor')
     # invalid preset
-    assert session.testhandler.warns(scan, m, 0, 1, 1, preset=5)
+    session.experiment.setDetectors([session.getDevice('det')])
+    assert session.testhandler.warns(scan, m, 0, 1, 1, preset=5,
+                                     warns_clear=True,
+                                     warns_text='these preset keys were'
+                                     ' not recognized by any of the detectors: .*')
 
 @with_setup(clean_testHandler, clean_testHandler)
 def test_scan_errorhandling():

@@ -133,18 +133,42 @@ class TestLogHandler(ColoredConsoleHandler):
         self._raising = raising
 
     def warns(self, func, *args, **kwds):
+        """check if a warning is emitted
+
+            arguments:
+            ``func``: Function Under Test (FUT)
+            ``warns_clear``:
+                clear warnings before running the FUT
+            ``warns_text``:
+                if present, a regex to test the warning messages for.
+            All other arguments a passed to the FUT
+        """
+
+        if kwds.pop('warns_clear', None):
+            self.clear_warnings()
+        _text = kwds.pop('warns_text', None)
+
         plen = len(self._warnings)
         func(*args, **kwds)
         plen_after = len(self._warnings)
         if plen == plen_after:
             return False
-        if plen + 1 == plen_after:
-            return True
-        sys.stderr.write('More then one warning added')
-        print >> sys.stderr, plen, plen_after
-        for msg in self._warnings:
-            print >> sys.stderr, msg.getMessage()
-        return False
+        if not _text:
+            if plen + 1 == plen_after:
+                return True
+            else:
+                sys.stderr.write('More then one warning added')
+            for msg in self._warnings:
+                sys.stderr.write( msg.getMessage())
+            return False
+        else:
+            for msg in self._warnings:
+                if re.search(_text, msg.getMessage()):
+                    return True
+            sys.stderr.write('Specified text not in any warning')
+            return False
+
+
 
     def emits_message(self, func, *args, **kwds):
         before = self._messages
@@ -155,7 +179,7 @@ class TestLogHandler(ColoredConsoleHandler):
         self._messages = 0
 
     def clear_warnings(self):
-        self._warnigs = []
+        self._warnings = []
         self.clear_messages()
 
 class TestSession(Session):
