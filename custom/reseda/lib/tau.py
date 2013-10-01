@@ -29,7 +29,7 @@ class tauTwoarms(Readable):
     attached_devices = {
         'current': (Readable, 'NSE'),
         'frequency': (Readable, 'NRSE'),
-        'Fu0': (Readable, 'Compare'),
+        'fu0': (Readable, 'Compare'),
         'wavelength': (Readable, 'Calculation')
     }
 
@@ -40,10 +40,10 @@ class tauTwoarms(Readable):
 
     def doRead(self, maxage=0):
 
-        b22 = self._taco_guard(self._adevs['current'].read(maxage))
-        f0 = self._taco_guard(self._adevs['frequency'].read(maxage))
-        fu0 = self._taco_guard(self._adevs['Fu0'].read(maxage))
-        lam = self._taco_guard(self._adevs['wavelength'].read(maxage))
+        b22 = self._adevs['current'].read(maxage)
+        f0 = self._adevs['frequency'].read(maxage)
+        fu0 = self._adevs['fu0'].read(maxage)
+        lam = self._adevs['wavelength'].read(maxage)
 
         if fu0 <= 0.05:
             tau = 2.6196 * (10**(-4)) * b22 *(lam**3)
@@ -75,10 +75,10 @@ class tauMieze(Readable):
 
     def doRead(self, maxage=0):
 
-        l = self._taco_guard(self._adevs['length'].read(maxage))
-        f0 = self._taco_guard(self._adevs['frequency0'].read(maxage))
-        f1 = self._taco_guard(self._adevs['frequency1'].read(maxage))
-        lam = self._taco_guard(self._adevs['wavelength'].read(maxage))
+        l = self._adevs['length'].read(maxage)
+        f0 = self._adevs['frequency0'].read(maxage)
+        f1 = self._adevs['frequency1'].read(maxage)
+        lam = self._adevs['wavelength'].read(maxage)
 
         tau = 1.278 * (10**(-8)) * (f0-f1) * l * (lam**3)
         if tau < 0:

@@ -54,7 +54,7 @@ class Wavelength(Readable):
 
     attached_devices = {
         'selector': (Readable, 'to calculate the wavelength'),
-        'tiltAngle': (Readable, 'calculation')
+        'tiltangle': (Readable, 'calculation')
     }
 
     parameter_overrides = {
@@ -62,8 +62,8 @@ class Wavelength(Readable):
     }
 
     def doRead(self, maxage=0):
-        I = self._taco_guard(self._adevs['selector'].read(maxage))
-        Angle = self._taco_guard(self._adevs['tiltAngle'].read(maxage))
+        I = self._adevs['selector'].read(maxage)
+        Angle = self._adevs['tiltangle'].read(maxage)
 
         if Angle <= -7.5:
             Lambda = 9.70 - (3.9536 * (10**-4) * I + 5.2364 * (10**-9) *(I**2))
