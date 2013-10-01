@@ -60,7 +60,7 @@ class CacheReader(Readable):
                 self.log.warning('value timed out in cache, this should be '
                                  'considered as an error!')
             return val
-        raise CommunicationError(self, 'CacheReader: no cache found')
+        raise CommunicationError(self, '%s: no cache found' % self.__class__.__name__)
 
     def doStatus(self, maxage=0):
         if self._cache:
@@ -73,7 +73,7 @@ class CacheReader(Readable):
         return status.UNKNOWN, CACHE_NOSTATUS_STRING
 
 
-class CacheWriter(HasLimits, Moveable):
+class CacheWriter(HasLimits, CacheReader, Moveable):
     """A moveable device that writes values via the cache.
 
     This is the equivalent to `CacheReader` for moveable devices.  The device is
@@ -98,28 +98,6 @@ class CacheWriter(HasLimits, Moveable):
         'loopdelay': Param('Sleep time when waiting',
                            unit='s', default=1.0, settable=True),
     }
-
-    def doRead(self, maxage=0):
-        if self._cache:
-            try:
-                time, ttl, val = self._cache.get_explicit(self, 'value')
-            except CacheError:
-                raise CommunicationError(self, CACHE_NOVALUE_STRING)
-            if time and ttl and time + ttl < currenttime():
-                self.log.warning('value timed out in cache, this should be '
-                                 'considered as an error!')
-            return val
-        raise CommunicationError(self, 'CacheWriter: no cache found')
-
-    def doStatus(self, maxage=0):
-        if self._cache:
-            try:
-                val = self._cache.get_explicit(self, 'status')[2]
-            except CacheError:
-                val = None
-            if val is not None:
-                return val
-        return status.OK, CACHE_NOSTATUS_STRING
 
     def doStart(self, pos):
         self._cache.put(self, self.setkey, pos)
