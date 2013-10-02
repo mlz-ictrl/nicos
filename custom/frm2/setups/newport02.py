@@ -13,6 +13,7 @@ devices = {
                                  ),
 
     'sth_%s' % nethost : device('devices.generic.Axis',
+                                description = 'Newport rotation axis',
                                 motor = 'sth_%s_m' % (nethost,),
                                 coder = 'sth_%s_m' % (nethost,),
                                 fmtstr = '%.3f',
