@@ -52,9 +52,11 @@ def activation(formula=None, instrument=None,
         or:
 
             ``flux``:
-                The thermal flux (for cold instruments use the equivalent thermal flux)
+                The thermal flux (for cold instruments use the equivalent
+                thermal flux)
             ``cdratio``:
-                The ratio between full flux and flux with 1mm Cd in the beam, 0 to deactivate
+                The ratio between full flux and flux with 1mm Cd in the beam,
+                0 to deactivate
             ``fastratio``:
                 Thermal/fast neutron ratio, 0 to deactivate
 
@@ -69,8 +71,8 @@ def activation(formula=None, instrument=None,
             return a dict with the full results for  further
             processing
 
-        Formula input format:
-        ---------------------
+        **Formula input format**
+
         Formula:
               ``CaCO3``
 
@@ -92,9 +94,11 @@ def activation(formula=None, instrument=None,
         Volume fractions use %vol, with the final portion adding to 100%:
             ``10%vol Fe@8.1 // Ni@8.5``
 
-            For volume fractions you have to specify the density using ``@<density>``!
+            For volume fractions you have to specify the density using
+            ``@<density>``!
 
-        Mixtures can nest. The following is a 10% salt solution by weight mixed 20:80 by volume with D2O:
+        Mixtures can nest. The following is a 10% salt solution by weight \
+        mixed 20:80 by volume with D2O:
             ``20%vol (10%wt NaCl@2.16 // H2O@1) // D2O@1``
     """
 
@@ -120,9 +124,11 @@ def activation(formula=None, instrument=None,
     if mass is None:
         raise UsageError('Please specify the sample mass')
 
-    qs = '?json=1&formula=%(formula)s&instrument=%(instrument)s&mass=%(mass)g' % locals()
+    qs = '?json=1&formula=%(formula)s&instrument=%(instrument)s&mass=%(mass)g' \
+        % locals()
     if flux:
-        qs += '&fluence=%(flux)g&cdratio=%(cdratio)g&fastratio=%(fastratio)g' % locals()
+        qs += '&fluence=%(flux)g&cdratio=%(cdratio)g&fastratio=%(fastratio)g' \
+            % locals()
     qs = ACTIVATIONURL + qs
     try:
         response = urllib2.urlopen(qs)
@@ -132,7 +138,8 @@ def activation(formula=None, instrument=None,
         return None
     data = json.load(response)
     if data['ecode'] == 'unknown instrument':
-        session.log.warning('Instrument %(instrument)s unknown to calculator, specify flux manually' % locals())
+        session.log.warning('Instrument %(instrument)s unknown to calculator, '
+                            'specify flux manually' % locals())
         session.log.info('Known instruments')
         printTable(['instrument'], data['instruments'], session.log.info)
 
