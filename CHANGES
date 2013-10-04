@@ -1,6 +1,31 @@
 Changelog for NICOS 2
 =====================
 
+Release 2.4.0
+-------------
+
+- An experimental report template can now be automatically filled and placed
+  in the experiment directory for user convenience.
+
+- TAS: spurion calculations and warnings are now performed in simulation mode,
+  use the "tasdevice.spurioncheck" parameter to control this behavior.
+
+- The "appendscan()" command now appends to the actual end of the scan, not
+  the theoretical end (which differs if the scan was interrupted).
+
+- Support for reading values from "Memograph" generated web sites.
+
+- GUI: the elog panel should now allow opening attached files with their default
+  viewer (like PDF files).
+
+- GUI: the elog panel now has a print functionality.
+
+- Moveable devices now have a default "doWait()" method that checks for
+  the status becoming OK.
+
+- GUI: added a panel to view NICOS log files (if available on the client
+  machine).
+
 Release 2.3.0
 -------------
 
