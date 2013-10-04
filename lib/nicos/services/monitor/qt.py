@@ -24,9 +24,6 @@
 
 """Qt version of instrument monitor."""
 
-import threading
-from time import sleep
-
 from PyQt4 import uic
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
@@ -42,6 +39,7 @@ from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 
 class MonitorWindow(QMainWindow):
     def __init__(self):
+        self._reconfiguring = False
         QMainWindow.__init__(self)
         self.sgroup = SettingGroup('Monitor')
         with self.sgroup as settings:
@@ -57,6 +55,12 @@ class MonitorWindow(QMainWindow):
         with self.sgroup as settings:
             settings.setValue('geometry', self.saveGeometry())
         event.accept()
+
+    def event(self, event):
+        if self._reconfiguring and event.type() == 76:  # LayoutRequest
+            self._reconfiguring = False
+            self.resize(self.sizeHint())
+        return QMainWindow.event(self, event)
 
 
 class BlockBox(QFrame):
@@ -90,6 +94,7 @@ class BlockBox(QFrame):
             layout.removeWidget(self)
         else:
             layout.insertWidget(1, self)
+        self.updateGeometry()
 
 
 class Monitor(BaseMonitor):
@@ -272,11 +277,14 @@ class Monitor(BaseMonitor):
         masterframe.setLayout(masterlayout)
         master.setCentralWidget(masterframe)
 
-        def resizeToMinimum():
-            master.resize(master.sizeHint())
+        def reconfigure(emitdict):
+            master._reconfiguring = True
+            for (layout, blockbox), enabled in emitdict.iteritems():
+                blockbox.enableDisplay(layout, enabled)
+            master.layout().activate()
             if self._geometry == 'fullscreen':
                 master.showFullScreen()
-        master.connect(master, SIGNAL('resizeToMinimum'), resizeToMinimum)
+        master.connect(master, SIGNAL('reconfigure'), reconfigure)
 
         # initialize status bar
         self._statuslabel = QLabel(font=stbarfont)
@@ -323,12 +331,4 @@ class Monitor(BaseMonitor):
                 enabled = setup in self._setups
             for k in boxes:
                 emitdict[k] = emitdict.get(k, False) or enabled
-        for (layout, blockbox), enabled in emitdict.iteritems():
-            blockbox.emit(SIGNAL('enableDisplay'), layout, enabled)
-        # master.sizeHint() is only correct a certain time *after* the
-        # layout change (I've not found out what event to generate or intercept
-        # to do this in a more sane way).
-        def emitresize():
-            sleep(1.5)
-            self._master.emit(SIGNAL('resizeToMinimum'))
-        threading.Thread(target=emitresize, name='emitresize').start()
+        self._master.emit(SIGNAL('reconfigure'), emitdict)
