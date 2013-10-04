@@ -106,7 +106,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             code = self.session.commandHandler(source,
                        lambda src: self.compile(src, filename, symbol))
         except Exception:
-            self.log.exception()
+            self.log.exception('Cannot compile')
             return False
 
         if code is None:
@@ -308,7 +308,7 @@ class ConsoleSession(Session):
                 self.setMode('simulation')
                 exec code in self.namespace
             except: # really *all* exceptions -- pylint: disable=W0702
-                self.log.exception()
+                self.log.exception('Simulation: exception during execution')
             finally:
                 sys.exit()
             os._exit()

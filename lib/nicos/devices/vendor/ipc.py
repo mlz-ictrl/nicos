@@ -240,7 +240,7 @@ class IPCModBusRS232(IPCModBus):
         try:
             self.doReset()
         except Exception:
-            self.log.exception()
+            self.log.exception('IPC: exception during init')
 
     def _setMode(self, mode):
         IPCModBus._setMode(self, mode)

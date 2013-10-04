@@ -586,7 +586,7 @@ def main(argv):
 
     # set up logging for unhandled exceptions in Qt callbacks
     def log_unhandled(*exc_info):
-        log.exception(exc_info=exc_info)
+        log.exception('unhandled exception in QT callback', exc_info=exc_info)
     sys.excepthook = log_unhandled
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')

@@ -138,7 +138,7 @@ class DaemonSession(NoninteractiveSession):
                 self.setMode('simulation')
                 exec code in self.namespace
             except:  # really *all* exceptions -- pylint: disable=W0702
-                self.log.exception()
+                self.log.exception('Exception during code execution')
             finally:
                 pipesender.finish()
                 sys.exit()

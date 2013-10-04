@@ -655,7 +655,7 @@ def _RunScript(filename, statdevices, debug=False):
         fp = open(fn, 'r')
     except Exception, e:
         if session.mode == 'simulation':
-            session.log.exception()
+            session.log.exception('Simulation: error opening script')
             return
         raise NicosError('cannot open script %r: %s' % (filename, e))
     with fp:
