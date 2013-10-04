@@ -273,7 +273,7 @@ class Monitor(BaseMonitor):
             ff = self.font,
             ffm = self.valuefont or self.font,
             intv = self.interval,
-            title = escape(self.title),   # TODO: add more info here?
+            title = escape(self.title),
         )
         add(HEAD % headprops)
 

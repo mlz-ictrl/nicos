@@ -325,7 +325,7 @@ class Monitor(BaseMonitor):
                 emitdict[k] = emitdict.get(k, False) or enabled
         for (layout, blockbox), enabled in emitdict.iteritems():
             blockbox.emit(SIGNAL('enableDisplay'), layout, enabled)
-        # HACK: master.sizeHint() is only correct a certain time *after* the
+        # master.sizeHint() is only correct a certain time *after* the
         # layout change (I've not found out what event to generate or intercept
         # to do this in a more sane way).
         def emitresize():

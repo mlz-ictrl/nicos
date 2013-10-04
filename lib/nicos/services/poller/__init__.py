@@ -171,7 +171,7 @@ class Poller(Device):
                     self._long_sleep(waittime)
                     # use exponential back-off for the waittime; in the worst
                     # case wait 10 minutes between attempts
-                    # (XXX could we have some way of knowing if another NICOS
+                    # (could we have some way of knowing if another NICOS
                     # session creates an instance of this device, and in that
                     # case retry immediately?)
                     waittime = min(waittime*2, 600)

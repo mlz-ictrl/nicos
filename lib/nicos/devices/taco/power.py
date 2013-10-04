@@ -83,7 +83,6 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
         self._taco_guard(self._dev.stop)
 
     def doStatus(self, maxage=0):
-        # XXX put voltage in status information?
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.DEVICE_NORMAL:
             return status.OK, 'device normal'
