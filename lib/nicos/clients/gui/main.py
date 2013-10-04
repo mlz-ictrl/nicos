@@ -455,19 +455,17 @@ class MainWindow(QMainWindow, DlgUtils):
             self.log.exception('Error during clientexec')
 
     def on_client_plugplay(self, data):
-        if data[0] == 'added':
-            setup = data[1]
-            if setup in self.pnpWindows:
-                self.pnpWindows[setup].activateWindow()
-            else:
-                window = PnPSetupQuestion(self, data, lambda:
-                    self.client.tell('queue', '', 'AddSetup(%r)' % setup))
-                self.pnpWindows[setup] = window
-                self.connect(window, SIGNAL('closed'), self.on_pnpWindow_closed)
-                window.show()
+        windowkey = data[0:2] # (mode, setupname)
+        if windowkey in self.pnpWindows:
+            self.pnpWindows[windowkey].activateWindow()
+        else:
+            window = PnPSetupQuestion(self, self.client, data)
+            self.pnpWindows[windowkey] = window
+            self.connect(window, SIGNAL('closed'), self.on_pnpWindow_closed)
+            window.show()
 
     def on_pnpWindow_closed(self, window):
-        self.pnpWindows.pop(window.setup, None)
+        self.pnpWindows.pop(window.data[0:2], None)
 
     def on_client_watchdog(self, data):
         if self.watchdogWindow is None:

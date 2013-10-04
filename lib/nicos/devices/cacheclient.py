@@ -429,13 +429,12 @@ class CacheClient(BaseCacheClient):
         if not key.startswith(self._prefix):
             for cb in self._prefixcallbacks:
                 if key.startswith(cb):
-                    if value is not None and op == OP_TELL:
+                    if value is not None:
                         value = cache_load(value)
-                    else:
-                        value = None
                     time = time and float(time)
                     try:
-                        self._prefixcallbacks[cb](key, value, time)
+                        self._prefixcallbacks[cb](key, value, time,
+                                                  op != OP_TELL)
                     except Exception:
                         self.log.warning('error in cache callback', exc=1)
             return

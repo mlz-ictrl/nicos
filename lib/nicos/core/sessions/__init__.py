@@ -977,10 +977,11 @@ class Session(object):
 
     # -- Special cache handlers ------------------------------------------------
 
-    def _pnpHandler(self, key, value, time):
+    def _pnpHandler(self, key, value, time, expired=False):
         if self._mode != 'master':
             return
         parts = key.split('/')
+        self.log.debug('got PNP message: key %s, value %s' % (key, value))
         if key.endswith('/description'):
             self._pnp_cache['descriptions'][parts[1]] = value
             return
@@ -988,18 +989,28 @@ class Session(object):
             setupname = value
             if (setupname in self._setup_info and
                 self._setup_info[setupname] is not None and
-                self._setup_info[setupname]['group'] == 'optional' and
-                setupname not in self.loaded_setups):
+                self._setup_info[setupname]['group'] == 'optional'):
                 description = self._pnp_cache['descriptions'].get(parts[1])
-                self.pnpEvent('added', setupname, description)
+                # an event is either generated if
+                # - the setup is unloaded and the key was added
+                if setupname not in self.loaded_setups and not expired:
+                    self.pnpEvent('added', setupname, description)
+                # - or the setup is loaded and the key has expired (the
+                #   equipment has been removed)
+                elif setupname in self.loaded_setups and expired:
+                    self.pnpEvent('removed', setupname, description)
 
     def pnpEvent(self, event, setupname, description):
         if event == 'added':
             self.log.info('new sample environment detected: %s'
                           % (description or ''))
             self.log.info('load setup %r to activate' % setupname)
+        elif event == 'removed':
+            self.log.info('sample environment removed: %s'
+                          % (description or ''))
+            self.log.info('unload setup %r to clear its devices' % setupname)
 
-    def _watchdogHandler(self, key, value, time):
+    def _watchdogHandler(self, key, value, time, expired=False):
         """Handle a watchdog event."""
         # value[0] is a timestamp, value[1] a string
         if key.endswith(('/warning', '/action')):

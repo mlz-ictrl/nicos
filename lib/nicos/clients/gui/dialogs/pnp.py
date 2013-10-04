@@ -31,29 +31,43 @@ from PyQt4.QtCore import Qt, SIGNAL
 class PnPSetupQuestion(QMessageBox):
     """Special QMessageBox for asking what to do a new setup was detected."""
 
-    def __init__(self, parent, data, load_callback):
-        self.setup = data[1]
-        message = ('<b>New sample environment detected</b><br/>'
-                   'A new sample environment <b>%s</b> has been detected:<br/>%s'
-                   % (data[1], data[2] or ''))
+    def __init__(self, parent, client, data):
+        self.client = client
+        self.data = data
+        add_mode = data[0] == 'added'
+        if add_mode:
+            message = (
+                '<b>New sample environment detected</b><br/>'
+                'A new sample environment <b>%s</b> has been detected:<br/>%s'
+                % (data[1], data[2] or ''))
+        else:
+            message = (
+                '<b>Sample environment removed</b><br/>'
+                'The sample environment <b>%s</b> has been removed:<br/>%s'
+                % (data[1], data[2] or ''))
         QMessageBox.__init__(self, QMessageBox.Information, 'NICOS Plug & Play',
                              message, QMessageBox.NoButton, parent)
         self.setWindowModality(Qt.NonModal)
         self.b0 = self.addButton('Ignore', QMessageBox.RejectRole)
         self.b0.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
-        self.b1 = self.addButton('Load setup', QMessageBox.YesRole)
+        if add_mode:
+            self.b1 = self.addButton('Load setup', QMessageBox.YesRole)
+        else:
+            self.b1 = self.addButton('Remove setup', QMessageBox.YesRole)
         self.b1.setIcon(self.style().standardIcon(QStyle.SP_DialogOkButton))
         self.b0.clicked.connect(self.on_ignore_clicked)
-        self.b1.clicked.connect(self.on_load_clicked)
+        self.b1.clicked.connect(self.on_execute_clicked)
         self.b0.setFocus()
-        self.load_callback = load_callback
 
     def on_ignore_clicked(self):
         self.emit(SIGNAL('closed'), self)
         self.reject()
 
-    def on_load_clicked(self):
-        self.load_callback()
+    def on_execute_clicked(self):
+        if self.data[0] == 'added':
+            self.client.tell('queue', '', 'AddSetup(%r)' % self.data[1])
+        else:
+            self.client.tell('queue', '', 'RemoveSetup(%r)' % self.data[1])
         self.emit(SIGNAL('closed'), self)
         self.accept()
 
