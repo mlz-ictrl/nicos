@@ -53,7 +53,7 @@ __all__ = [
     '_Restart', 'Keep',
     'CreateDevice', 'DestroyDevice', 'CreateAllDevices',
     'NewExperiment', 'FinishExperiment', 'AddUser', 'NewSample',
-    'Remark', 'Remember', 'SetMode', 'SetSimpleMode',
+    'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode',
     'edit', 'run', 'sim',
     'notify', 'SetMailReceivers', '_trace', 'timer',
@@ -428,23 +428,6 @@ def Remark(remark):
     >>> Remark('')                        # remove current remark
     """
     session.experiment.remark = remark
-
-@usercommand
-@spmsyntax(String)
-def Remember(what):
-    """Add a message to remember at the next experiment change.
-
-    When `FinishExperiment` or `NewExperiment` is next called, all messages
-    given during the current experiment using Remember() will be displayed.
-    This is intended for the instrument responsible to remember undoing
-    temporary setup changes and the like.
-
-    Example:
-
-    >>> Remember('reset translation offset to zero')
-    """
-    rtime = time.strftime('(%m/%d %H:%M) ')
-    session.experiment.remember += [rtime + what]
 
 @usercommand
 @spmsyntax(Oneof(*EXECUTIONMODES))

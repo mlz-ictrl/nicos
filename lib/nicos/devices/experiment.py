@@ -124,8 +124,6 @@ class Experiment(Device):
                               'enabled', type=bool, default=True),
         'scripts':      Param('Currently executed scripts',
                               type=listof(str), settable=True),
-        'remember':     Param('List of messages to remember for next experiment'
-                              ' start', type=listof(str), settable=True),
         'templatedir':  Param('Name of the directory with script templates '
                               '(relative to dataroot)', type=str, default=''),
         'managerights': Param('Whether to manage access rights on proposal '
@@ -209,11 +207,6 @@ class Experiment(Device):
         self.sample.reset()
         self.envlist = []
         #self.detlist = []
-        if self.remember:
-            self.log.warning('Please remember:')
-            for message in self.remember:
-                self.log.info(message)
-        self.remember = []
         for notifier in session.notifiers:
             notifier.reset()
         self._last_datasets = []
@@ -620,13 +613,6 @@ class Experiment(Device):
             self.new(self.serviceexp)
         else:
             self.log.debug('no service experiment configured, cannot switch')
-
-        # have to remember things?
-        if self.remember:
-            self.log.warning('Please remember:')
-            for message in self.remember:
-                self.log.info(message)
-            self.remember = []
 
     def _afterFinishHook(self):
         pass

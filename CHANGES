@@ -10,6 +10,8 @@ Release 2.5.0
 - Added the "activation()" command to query sample activation from the NICOS
   command line using the new FRM-II web-based activation calculator.
 
+- Removed the "Remember()" command.
+
 Release 2.4.0
 -------------
 

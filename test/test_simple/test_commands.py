@@ -41,7 +41,7 @@ from nicos.commands.basic import ListCommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
      CreateDevice, DestroyDevice, CreateAllDevices, \
      NewExperiment, FinishExperiment, AddUser, NewSample, \
-     Remark, Remember, SetMode, ClearCache, UserInfo, run, edit
+     Remark, SetMode, ClearCache, UserInfo, run, edit
 from nicos.commands.output import printdebug, printinfo, printwarning, \
      printerror, printexception
 
@@ -113,8 +113,6 @@ def test_basic_commands():
 
     Remark('hi')
     assert exp.remark == 'hi'
-    Remember('blah')
-    assert 'blah' in exp.remember[0]
 
     SetMode('slave')
     SetMode('master')
