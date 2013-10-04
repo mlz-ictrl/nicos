@@ -1,6 +1,15 @@
 Changelog for NICOS 2
 =====================
 
+Release 2.5.0
+-------------
+
+- GUI: the data of a curve displayed in the "Device history" panel can now be
+  saved to disk as a plain-text file.
+
+- Added the "activation()" command to query sample activation from the NICOS
+  command line using the new FRM-II web-based activation calculator.
+
 Release 2.4.0
 -------------
 
