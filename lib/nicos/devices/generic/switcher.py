@@ -129,6 +129,10 @@ class ReadonlySwitcher(MappedReadable):
         'precision': Param('Precision for comparison', type=float, default=0),
     }
 
+    parameter_overrides = {
+        'fallback':  Override(userparam=False, type=none_or(str), mandatory=False),
+    }
+
     hardware_access = False
 
     def _readRaw(self, maxage=0):
@@ -142,6 +146,8 @@ class ReadonlySwitcher(MappedReadable):
                     return name
             elif pos == value:
                 return name
+        if self.fallback is not None:
+            return self.fallback
         raise PositionError(self, 'unknown position of %s' %
                             self._adevs['readable'])
 
@@ -198,6 +204,7 @@ class MultiSwitcher(MappedMoveable):
     parameter_overrides = {
         'mapping':   Override(description='Mapping of state names to N values to move the moveables to',
                            type=dictof(anytype, listof(anytype))),
+        'fallback':  Override(userparam=False, type=none_or(anytype), mandatory=False),
     }
 
     hardware_access = False
@@ -263,6 +270,8 @@ class MultiSwitcher(MappedMoveable):
             else:
                 if tuple(pos) == tuple(values):
                     return name
+        if self.fallback is not None:
+            return self.fallback
         raise PositionError(self, 'unknown position of %s : %s' % (
                             ', '.join(repr(p) for p in pos),
                             ', '.join(str(d) for d in self.devices)))
