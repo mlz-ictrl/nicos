@@ -40,6 +40,7 @@ devices = dict(
                  blockingmove = False,
                  unit = 'm',
                  fmtstr = '%.1f',
+#                 fallback = 'error',
                  moveables = ['col_20a', 'col_20b', 'col_16a', 'col_16b', 'col_12b', 'col_12b',
                               'col_8a', 'col_8b', 'col_4a', 'col_4b', 'col_2a', 'col_2b'],
                  # col_2b disabled !!!
