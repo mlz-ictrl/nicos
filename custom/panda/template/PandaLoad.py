@@ -653,7 +653,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
 
 # this only works for old format !
 def PandaLoad(filename):
-    class PandaScan():
+    class PandaScan(object):
         import re
         header = {}
         _filename = None
