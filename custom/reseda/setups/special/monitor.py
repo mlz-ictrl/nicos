@@ -27,7 +27,7 @@ _motorblock = Block(
               Field(name='M7', dev='m7', unit='Deg'),
              ),
     ],
-    'startup')
+    'motors')
 
 _frequenciesblock = Block(
     'Frequencies',
@@ -39,7 +39,7 @@ _frequenciesblock = Block(
               Field(name='RF2', dev='RF2', unit='V', width=8),
              ),
     ],
-    'startup')
+    'frequencies')
 
 
 _tempblock = Block(
@@ -57,7 +57,7 @@ _tempblock = Block(
      BlockRow(Field(dev='TD', plot='TD', interval=300, width=50),
              )
     ],
-    'startup')
+    'temperature')
 
 _currentblock = Block(
     'Current',
@@ -67,7 +67,7 @@ _currentblock = Block(
               Field(name='B2', dev='B22', unit='V', width=10),
              ),
     ],
-    'startup')
+    'powersupply')
 
 _powersupplyblock = Block(
     'Power Supply',
@@ -119,7 +119,7 @@ _powersupplyblock = Block(
              Field(name='B21', dev='B112_v', unit='V', width=10),
             ),
     ],
-    'startup')
+    'powersupply')
 
 _scatteringblock = Block(
     'Scattering',
@@ -129,7 +129,7 @@ _scatteringblock = Block(
               Field(name='Q2', dev='Q2', width=10, unit='1/A'),
              ),
     ],
-    'startup')
+    'frequencies')
 
 
 _capacitanceblock = Block(
@@ -141,7 +141,7 @@ _capacitanceblock = Block(
               Field(name='C2', dev='C20', unit='', width=10),
               Field(name='C2', dev='C21', unit='', width=10)
               ),],
-    'startup')
+    'capacitance')
 
 
 _attenuatorsblock = Block(
@@ -150,10 +150,10 @@ _attenuatorsblock = Block(
               Field(name='Att1', dev='Att1', unit=''),
               Field(name='Att2', dev='Att2', unit='')
               ),],
-    'startup')
+    'atts_slits')
 
 
-_rightcolumn = Column(_currentblock, _powersupplyblock, _attenuatorsblock, 
+_rightcolumn = Column(_currentblock, _powersupplyblock, _attenuatorsblock,
                       _capacitanceblock,
                       # _scatteringblock, _motorblock,
                      )

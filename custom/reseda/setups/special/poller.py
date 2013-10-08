@@ -8,8 +8,8 @@ sysconfig = dict(
 devices = dict(
     Poller = device('services.poller.Poller',
                     autosetup = True,
-                    alwayspoll = ['startup', 'powersupply', 'temperature',
-                                  'capacitance', 'attenuatorsSlits',
+                    alwayspoll = ['motors', 'powersupply', 'temperature',
+                                  'capacitance', 'atts_slits',
                                   'frequencies',
                                  ],
                     neverpoll = [],

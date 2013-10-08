@@ -23,7 +23,7 @@ _motorblock = Block(
               Field(name='TwoTheta 2', dev='m2', unit='Deg'),
              ),
     ],
-    'startup')
+    'motors')
 
 _sampletableblock = Block(
     'Sample Table',
@@ -36,7 +36,7 @@ _sampletableblock = Block(
               Field(name='Omega', dev='m7', unit='Deg'),
              ),
     ],
-    'startup')
+    'motors')
 
 
 _frequenciesblock = Block(
@@ -54,7 +54,7 @@ _frequenciesblock = Block(
               Field(name='Arm 2 - Fu2', dev='Fu2', unit='A', width=8),
              ),
     ],
-    'startup')
+    'frequencies')
 
 
 _tempblock = Block(
@@ -71,7 +71,7 @@ _tempblock = Block(
      BlockRow(Field(dev='TD', plot='TD', interval=300, width=50),
              )
     ],
-    'startup')
+    'temperature')
 
 _currentblock = Block(
     'Current',
@@ -82,7 +82,7 @@ _currentblock = Block(
              ),
 
     ],
-    'startup')
+    'powersupply')
 
 _phasecoilsblock = Block(
     'NSE phase coils',
@@ -93,7 +93,7 @@ _phasecoilsblock = Block(
              ),
 
     ],
-    'startup')
+    'powersupply')
 
 _maincoilsblock = Block(
     'NSE main coils',
@@ -104,7 +104,7 @@ _maincoilsblock = Block(
              ),
 
     ],
-    'startup')
+    'powersupply')
 
 _powersupplyblock = Block(
     'Power Supply',
@@ -114,7 +114,7 @@ _powersupplyblock = Block(
               Field(name='B7', dev='B53_v', unit='V', width=10),
              ),
     ],
-    'startup')
+    'powersupply')
 
 _scatteringblock = Block(
     'Scattering',
@@ -125,7 +125,7 @@ _scatteringblock = Block(
               Field(name='Tau', dev='TauT', width=10, unit='ns')
              ),
     ],
-    'startup')
+    'frequencies')
 
 
 _capacitanceblock = Block(
@@ -138,7 +138,7 @@ _capacitanceblock = Block(
               Field(name='C6', dev='C6', unit='', width=10), ##K/h 2
               ),
     ],
-    'startup')
+    'capacitance')
 
 
 _attenuatorsblock = Block(
@@ -148,7 +148,7 @@ _attenuatorsblock = Block(
               Field(name='Att2', dev='Att2', unit=''),
              ),
     ],
-    'startup')
+    'atts_slits')
 
 
 
