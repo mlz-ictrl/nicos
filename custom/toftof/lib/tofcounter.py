@@ -27,7 +27,8 @@
 
 import numpy as np
 
-from SIS3400 import Timer, MonitorCounter, HistogramCounter
+from SIS3400 import (Timer, MonitorCounter,  # pylint: disable=F0401
+                     HistogramCounter)
 import TACOStates
 
 from nicos.core import Measurable, Param, Value, intrange, status, tacodev
