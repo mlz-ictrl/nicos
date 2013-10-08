@@ -88,27 +88,27 @@ class ErrorBarPlotCurve(QwtPlotCurve):
     def setData(self, x, y, dx = None, dy = None):
         self._x = asarray(x, float)
         if len(self._x.shape) != 1:
-            raise RuntimeError, 'len(asarray(x).shape) != 1'
+            raise RuntimeError('len(asarray(x).shape) != 1')
 
         self._y = asarray(y, float)
         if len(self._y.shape) != 1:
-            raise RuntimeError, 'len(asarray(y).shape) != 1'
+            raise RuntimeError('len(asarray(y).shape) != 1')
         if len(self._x) != len(self._y):
-            raise RuntimeError, 'len(asarray(x)) != len(asarray(y))'
+            raise RuntimeError('len(asarray(x)) != len(asarray(y))')
 
         if dx is None:
             self._dx = None
         else:
             self._dx = asarray(dx, float)
         if self._dx is not None and len(self._dx.shape) not in [0, 1, 2]:
-            raise RuntimeError, 'len(asarray(dx).shape) not in [0, 1, 2]'
+            raise RuntimeError('len(asarray(dx).shape) not in [0, 1, 2]')
 
         if dy is None:
             self._dy = dy
         else:
             self._dy = asarray(dy, float)
         if self._dy is not None and len(self._dy.shape) not in [0, 1, 2]:
-            raise RuntimeError, 'len(asarray(dy).shape) not in [0, 1, 2]'
+            raise RuntimeError('len(asarray(dy).shape) not in [0, 1, 2]')
 
         QwtPlotCurve.setData(self, self._x, self._y)
 
