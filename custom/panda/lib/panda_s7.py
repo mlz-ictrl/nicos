@@ -372,7 +372,8 @@ class Panda_mtt(Axis):
 
     def _Axis__positioningThread(self):
         ''' try to work around a buggy SPS.
-        Idea is to go close to the block exchange position, then to the block exchange position (triggering the blockexchange but not moving mtt.motor) and so on
+        Idea is to go close to the block exchange position, then to the block exchange position
+        (triggering the blockexchange but not moving mtt.motor) and so on
         Idea is partially based on the backlash correction code, which it replace for this axis'''
         try:
             self._preMoveAction()
