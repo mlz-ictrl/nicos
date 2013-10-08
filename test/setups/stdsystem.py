@@ -51,7 +51,7 @@ devices = dict(
                       propprefix = 'p',
                       templatedir = '../../script_templates',
                       zipdata = True,
-                      managerights = False,  # set to True for a single test
+                      managerights = None,  # set to True for a single test
                       serviceexp = 'service',
                       lowlevel = False
                      ),

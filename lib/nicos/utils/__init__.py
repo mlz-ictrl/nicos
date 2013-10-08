@@ -418,52 +418,82 @@ def ensureDirectory(dirname):
     if not path.isdir(dirname):
         os.makedirs(dirname)
 
-def disableDirectory(startdir):
+def disableDirectory(startdir, disableDirMode=None, disableFileMode=None,
+                        owner=None, group=None, **kwargs):
     """Traverse a directory tree and remove access rights.
     returns True if there were some errors and False if everything went OK"""
     # handle files first, then subdirs and then work on the current dir
+    euid = owner or os.geteuid()
+    egid = group or os.getegid()
     assert path.isdir(startdir)
     failflag = False
     for child in os.listdir(startdir):
         full = path.join(startdir, child)
         if path.isdir(full):
-            failflag |= disableDirectory(full)
+            failflag |= disableDirectory(full, disableDirMode, disableFileMode,
+                                         owner, group)
         else:
+            if owner or group:
+                try:
+                    os.chown(full, euid, egid)
+                except OSError:
+                    pass # ignore errors upon change of ownership
             try:
-                os.chmod(full, 0)
+                os.chmod(full, disableFileMode or 0)
             except OSError:
                 failflag = True
+    if owner or group:
+        try:
+            os.chown(full, euid, egid)
+        except OSError:
+            pass # ignore errors upon change of ownership
     try:
-        os.chmod(startdir, 0)
+        os.chmod(startdir, disableDirMode or 0)
     except OSError:
         failflag = True
         session.log.warning('Disabling failed for %r' % startdir)
     if failflag:
-        session.log.debug('Disabling failed for some files, please check access rights manually')
+        session.log.debug('Disabling failed for some files, please check '
+                          'access rights manually')
     return failflag
     # maybe logging is better done in the caller of disableDirectory
 
-def enableDirectory(startdir):
+def enableDirectory(startdir, enableDirMode=None, enableFileMode=None,
+                      owner=None, group=None, **kwargs):
     """Traverse a directory tree and grant access rights.
     returns True if there were some errors and False if everything went OK"""
+    euid = owner or os.geteuid()
+    egid = group or os.getegid()
     assert path.isdir(startdir)
     failflag = False
+    if owner or group:
+        try:
+            os.chown(startdir, euid, egid)
+        except OSError:
+            pass # ignore errors upon changing ownership
     try:
-        os.chmod(startdir, 0755)  # drwxr-xr-x
+        os.chmod(startdir, enableDirMode or 0755)  # drwxr-xr-x
     except OSError:
         session.log.warning('Enabling failed for %r' % startdir)
         failflag = True
     for child in os.listdir(startdir):
         full = path.join(startdir, child)
         if path.isdir(full):
-            failflag |= enableDirectory(full)
+            failflag |= enableDirectory(full, enableDirMode, enableFileMode,
+                                        owner, group)
         else:
+            if owner or group:
+                try:
+                    os.chown(startdir, euid, egid)
+                except OSError:
+                    pass # ignore errors upon changing ownership
             try:
-                os.chmod(full, 0644)  # -rw-r--r--
+                os.chmod(full, enableFileMode or 0644)  # -rw-r--r--
             except OSError:
                 failflag = True
     if failflag:
-        session.log.debug('Enabling failed for some files, please check accesss rights manually')
+        session.log.debug('Enabling failed for some files, please check access'
+                          ' rights manually')
     return failflag
     # maybe logging is better done in the caller of enableDirectory
 

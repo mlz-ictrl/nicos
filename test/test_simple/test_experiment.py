@@ -46,7 +46,7 @@ def teardown_module():
     # clean up "disabled" directory so that the next test run can remove it
     if path.isdir(datapath('p999')):
         enableDirectory(datapath('p999'))
-    session.experiment.managerights = False
+    session.experiment.managerights = None
     session.unloadSetup()
 
 
@@ -75,7 +75,7 @@ def test_experiment():
     assert exp.remark == 'service time'
 
     # for this proposal, remove access rights after switching back
-    exp.managerights = True
+    exp.managerights = dict( disableFileMode=0, disableDirMode=0)
 
     # then, go in proposal mode
     exp.new(999, 'etitle', 'me', 'you')
@@ -119,7 +119,7 @@ def test_experiment():
     assert exp.users == ''
 
     exp.addUser('A User')
-    exp.users
+    #~ exp.users
     assert exp.users == 'A User'
     exp.addUser('Another User', 'another.user@experiment.com')
     assert exp.users == 'A User, Another User <another.user@experiment.com>'

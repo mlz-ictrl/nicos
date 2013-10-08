@@ -28,7 +28,7 @@ devices = dict(
                        serviceexp = 'service',
                        servicescript = 'start_service.py',
                        templatedir = 'templates',
-                       managerights = True,
+                       managerights = None,
                        sendmail = False,
                        zipdata = False,
                       ),
