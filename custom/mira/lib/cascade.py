@@ -33,7 +33,7 @@ from nicos import session
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
      CommunicationError, TimeoutError, NicosError, Readable
-from nicos.mira import cascadeclient
+from nicos.mira import cascadeclient  # pylint: disable=E0611
 from nicos.devices.abstract import ImageStorage, AsyncDetector
 from nicos.devices.generic import MultiChannelDetector
 
@@ -315,7 +315,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                            'mira_cas_%05d.xml' % self.lastfilenumber)
         self.log.debug('writing XML file to %s' % xml_fn)
         tmp = cascadeclient.TmpImage()
-        self._padimg.LoadMem(buf, 128*128*4)  # XXX size
+        self._padimg.LoadMem(buf, 128*128*4)
         tmp.ConvertPAD(self._padimg)
         mon = self._adevs['master']._adevs['monitors'][self.monchannel - 1]
         tmp.WriteXML(xml_fn, self._adevs['sampledet'].read(),

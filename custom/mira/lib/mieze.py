@@ -165,7 +165,6 @@ class MiezeMaster(Moveable):
         tables[name] = copy.deepcopy(self.curtable)
         self.tunetables = tables
         self.log.info('current tuning saved as %r' % name)
-        # XXX save to disk somewhere
 
     @usermethod
     def removetuning(self, name):

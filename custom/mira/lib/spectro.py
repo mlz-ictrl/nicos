@@ -66,7 +66,7 @@ class MIRA(TAS):
             0,    # horizontal curvature of analyzer (1/cm)
             0,    # vertical curvature of analyzer (1/cm)
 
-            30,   # distance monochromator - monitor (cm) XXX
+            30,   # distance monochromator - monitor (cm)
             6.0,  # width of monitor (cm)
             12.0, # height of monitor (cm)
         ]
