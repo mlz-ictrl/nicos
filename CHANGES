@@ -12,6 +12,14 @@ Release 2.5.0
 
 - Removed the "Remember()" command.
 
+- Created new HasMapping mixin class for mapped devices, implemented abstract
+  MappedReadable and MappedMoveable device skeletons using _readRaw and
+  _startRaw methods as counterparts to doRead and doStart, but working with
+  mapped (RAW) values.
+
+- Switcher classes got support for a fallback parameter whose value is returned
+  if none of the mapping entries matches.
+
 Release 2.4.0
 -------------
 
