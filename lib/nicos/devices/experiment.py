@@ -33,13 +33,23 @@ import zipfile
 from os import path
 from uuid import uuid1
 
+# both will fail on M$win
+try:
+    from pwd import getpwnam
+except ImportError:
+    getpwnam = lambda x: (x, '', None, 0, '', 'c:\\', 'cmd')
+try:
+    from grp import getgrnam
+except ImportError:
+    getgrnam = lambda x: (x, '', None, [])
+
 from nicos import session
 from nicos.core import listof, nonemptylistof, anytype, oneof, control_path_relative, \
-     none_or, mailaddress, usermethod, Device, Measurable, Readable, Param, \
-     Dataset, NicosError
+     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, Param, \
+     Dataset, NicosError, ConfigurationError
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
-     enableDirectory
+     enableDirectory, readonlydict
 from nicos.utils.loggers import ELogHandler
 from nicos.commands.basic import run
 from nicos.devices.datasinks import NeedsDatapath
@@ -126,9 +136,12 @@ class Experiment(Device):
                               type=listof(str), settable=True),
         'templatedir':  Param('Name of the directory with script templates '
                               '(relative to dataroot)', type=str, default=''),
-        'managerights': Param('Whether to manage access rights on proposal '
-                              'directories on proposal change', type=bool,
-                              settable=True),
+        'managerights': Param('A dict of en/disableDir/FileMode to manage '
+                              'access rights of data dirs on proposal change, '
+                              'or None', mandatory=False, settable=False, default={},
+                              type=none_or(dictof(oneof('owner', 'group',
+                                'enableDirMode', 'enableFileMode',
+                                'disableDirMode', 'disableFileMode'), anytype))),
         'zipdata':      Param('Whether to zip up experiment data after '
                               'experiment finishes', type=bool, default=True),
         'sendmail':     Param('Whether to send proposal data via email after '
@@ -139,7 +152,7 @@ class Experiment(Device):
         'mailtemplate': Param('Mail template file name (in templatedir)',
                               type=str, default='mailtext.txt'),
         'reporttemplate': Param('File name of experimental report template (in templatedir)',
-                              type=str, default='report_{{proposal}}.rtf'),
+                              type=str, default='experimental_report.rtf'),
         'serviceexp':   Param('Name of proposal to switch to after user '
                               'experiment', type=str),
         'servicescript': Param('Script to run for service time', type=str,
@@ -166,7 +179,44 @@ class Experiment(Device):
             self._eloghandler.disabled = session.mode != 'master'
             session.addLogHandler(self._eloghandler)
         if self.templatedir == '':
-            self._setROParam('templatedir', path.join(session.config.control_path, 'template'))
+            self._setROParam('templatedir',
+                path.join(session.config.control_path, 'template'))
+
+    def doUpdateManagerights(self, mrinfo):
+        """check and transform the managerights dict into values used later"""
+        if mrinfo is None:
+            return {}   # return substitute value....
+        elif mrinfo:
+            changed = dict()
+            # check values and transform them to save time later
+            for k, f in [('owner', getpwnam), ('group', getgrnam)]:
+                v = mrinfo.get(k)
+                if isinstance(v, str):
+                    try:
+                        r = f(v)
+                    except Exception, e:
+                        raise ConfigurationError(self,
+                            'managerights: illegal value for key %r: %r (%s)' %\
+                                              (k, v, e), exc=1)
+                    if r[2] is not None:
+                        changed[k] = r[2]
+            for k in ['enableDirMode', 'enableFileMode',
+                       'disableDirMode', 'disableFileMode']:
+                v = mrinfo.get(k, None)
+                if isinstance(v, str):
+                    try:
+                        r = int(v,8)  # filemodes are given in octal!
+                    except Exception, e:
+                        raise ConfigurationError(self,
+                            'managerights: illegal value for key %r: %r (%s)' %\
+                                              (k, v, e), exc=1)
+                    if r is not None:
+                        changed[k] = r
+            if changed:
+                d = dict(mrinfo)
+                d.update(changed)
+                # assignment would trigger doUpdateManagerights again, looping!
+                self._setROParam('managerights', readonlydict(d))
 
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
@@ -192,7 +242,7 @@ class Experiment(Device):
         # remove access rights to old proposal if wanted
         if self.managerights and self.proptype == 'user':
             try:
-                disableDirectory(self.proposaldir)
+                disableDirectory(self.proposaldir, **self.managerights)
             except Exception:
                 self.log.warning('could not remove permissions for old '
                                  'experiment directory', exc=1)
@@ -232,7 +282,7 @@ class Experiment(Device):
         new_proposaldir = self._getProposalDir(proposal)
         ensureDirectory(new_proposaldir)
         if self.managerights:
-            enableDirectory(new_proposaldir)
+            enableDirectory(new_proposaldir, **self.managerights)
             self.log.debug('enabled directory %s' % new_proposaldir)
         if symlink and hasattr(os, 'symlink'):
             self.log.debug('setting symlink %s to %s' %
@@ -581,7 +631,10 @@ class Experiment(Device):
             self.log.warning('moving compressed file into proposal dir failed',
                              exc=1)
             # at least withdraw the access rights
-            os.chmod(zipname, 0)
+            if isinstance(self.managerights, dict):
+                os.chmod(zipname, self.managerights.get('disableFileMode',0))
+            else:
+                os.chmod(zipname, 0)
 
     @usermethod
     def finish(self, *args, **kwds):

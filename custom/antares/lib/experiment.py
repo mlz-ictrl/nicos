@@ -32,7 +32,7 @@ from os import path
 
 from nicos.core import Param, Override, UsageError, usermethod
 from nicos.utils import ensureDirectory, enableDirectory
-from nicos.frm2.experiment import Experiment as FRM2Experiment
+from frm2.experiment import Experiment as FRM2Experiment  # pylint: disable=F0401
 
 
 class Experiment(FRM2Experiment):
@@ -58,7 +58,6 @@ class Experiment(FRM2Experiment):
         'templatedir':   Override(default='templates'),
         'servicescript': Override(default='start_service.py'),
         'dataroot':      Override(default='/data/FRM-II'),
-        'managerights':  Override(default=False),
     }
 
     @usermethod
@@ -88,14 +87,14 @@ class Experiment(FRM2Experiment):
         sampledir = path.join(proposaldir, samplename)
         ensureDirectory(sampledir)
         if self.managerights:
-            enableDirectory(sampledir)
+            enableDirectory(sampledir, **self.managerights)
 
         self.log.debug('new sample dir: %s' % sampledir)
 
         self.datapath = [path.join(sampledir, 'data')]
         ensureDirectory(self.datapath[0])
         if self.managerights:
-            enableDirectory(self.datapath[0])
+            enableDirectory(self.datapath[0], **self.managerights)
 
         self.log.debug('new data path: %s' % self.datapath[0])
 
@@ -103,7 +102,7 @@ class Experiment(FRM2Experiment):
             ensureDirectory(path.join(sampledir, 'eval', 'recon'))
 
             if self.managerights:
-                enableDirectory(path.join(sampledir, 'eval', 'recon'))
+                enableDirectory(path.join(sampledir, 'eval', 'recon'), **self.managerights)
 
         # manage a current symlink inside the proposaldir pointing to the
         # currently selected sample
@@ -122,19 +121,19 @@ class Experiment(FRM2Experiment):
         self.darkimagepath = path.join(self.datapath[0], 'di')
         ensureDirectory(self.darkimagepath)
         if self.managerights:
-            enableDirectory(self.darkimagepath)
+            enableDirectory(self.darkimagepath, **self.managerights)
         self.log.debug('new dark image path: %s' % self.darkimagepath)
 
         self.openbeampath = path.join(self.datapath[0], 'ob')
         ensureDirectory(self.openbeampath)
         if self.managerights:
-            enableDirectory(self.openbeampath)
+            enableDirectory(self.openbeampath, **self.managerights)
         self.log.debug('new open beam image path: %s' % self.openbeampath)
 
         self.photopath = path.join(sampledir, 'photos')
         ensureDirectory(self.photopath)
         if self.managerights:
-            enableDirectory(self.photopath)
+            enableDirectory(self.photopath, **self.managerights)
         self.log.debug('new measurement image path: %s' % self.openbeampath)
 
     def _getProposalDir(self, proposal):

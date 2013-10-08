@@ -68,7 +68,6 @@ devices = dict(
     Exp      = device('devices.experiment.Experiment',
                       dataroot = 'data',
                       sendmail = True,
-                      managerights = False,
                       serviceexp = '0',
                       sample = 'Sample'
                      ),

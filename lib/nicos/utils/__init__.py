@@ -35,6 +35,8 @@ import threading
 import traceback
 import ConfigParser
 from os import path
+from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IWGRP, S_IXGRP, \
+     S_IROTH, S_IXOTH
 from time import time as currenttime, strftime, strptime, localtime, mktime, \
      sleep
 from itertools import islice, chain
@@ -422,52 +424,87 @@ def ensureDirectory(dirname):
     if not path.isdir(dirname):
         os.makedirs(dirname)
 
-def disableDirectory(startdir):
-    """Traverse a directory tree and remove access rights.
-    returns True if there were some errors and False if everything went OK"""
-    # handle files first, then subdirs and then work on the current dir
+def enableDisableFileItem(filepath, mode, owner=None, group=None):
+    """set mode and maybe change uid/gid of a filesystem item"""
+    if (owner or group) and (hasattr(os, 'chown') and hasattr(os, 'stat')):
+        stats = os.stat(filepath) # only change the requested parts
+        owner = owner or stats.st_uid
+        group = group or stats.st_gid
+        try:
+            os.chown(filepath, owner, group)
+        except OSError, e:
+            session.log.debug('chown(%r, %d, %d) failed: %s' %
+                               (filepath, owner, group, e))
+    try:
+        os.chmod(filepath, mode)
+    except OSError:
+        session.log.debug('chmod(%r, %o) failed: %s' % (filepath, mode, e))
+        return True
+    return False
+
+def enableDisableDirectory(startdir, dirMode, fileMode,
+                           owner=None, group=None, enable=False):
+    """Traverse a directory tree and change access rights.
+
+    returns True if there were some errors and False if everything went OK.
+    """
     assert path.isdir(startdir)
     failflag = False
+
+    # to enable, we have to handle 'our' directory first
+    if enable:
+        failflag |= enableDisableFileItem(startdir, dirMode, owner, group)
+
+    # handle the conten ouf 'our' directory, traversing if needed
     for child in os.listdir(startdir):
         full = path.join(startdir, child)
         if path.isdir(full):
-            failflag |= disableDirectory(full)
+            failflag |= enableDisableDirectory(full, dirMode, fileMode, \
+                                               owner, group, enable)
         else:
-            try:
-                os.chmod(full, 0)
-            except OSError:
-                failflag = True
-    try:
-        os.chmod(startdir, 0)
-    except OSError:
-        failflag = True
-        session.log.warning('Disabling failed for %r' % startdir)
+            failflag |= enableDisableFileItem(full, fileMode, owner, group)
+
+    # for disable, we have to close 'our' directory last
+    if not enable:
+        failflag |= enableDisableFileItem(startdir, dirMode, owner, group)
+
+    return failflag
+
+def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
+                     disableFileMode=S_IRUSR, owner=None, group=None,
+                     **kwargs): # kwargs eats unused args
+    """Traverse a directory tree and remove access rights.
+    returns True if there were some errors and False if everything went OK.
+    disableDirMode default to 0500 (dr-x------) and
+    disabFileMode default to 0400 (-r--------).
+    owner or group will only be changed if specified.
+    """
+    failflag = enableDisableDirectory(startdir,
+                                      disableDirMode, disableFileMode,
+                                      owner, group, enable=False)
     if failflag:
-        session.log.debug('Disabling failed for some files, please check access rights manually')
+        session.log.warning('Disabling failed for some files, please check '
+                          'access rights manually')
     return failflag
     # maybe logging is better done in the caller of disableDirectory
 
-def enableDirectory(startdir):
+def enableDirectory(startdir,
+                    enableDirMode=S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH,
+                    enableFileMode=S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH,
+                    owner=None, group=None, **kwargs): # kwargs eats unused args
     """Traverse a directory tree and grant access rights.
-    returns True if there were some errors and False if everything went OK"""
-    assert path.isdir(startdir)
-    failflag = False
-    try:
-        os.chmod(startdir, 0755)  # drwxr-xr-x
-    except OSError:
-        session.log.warning('Enabling failed for %r' % startdir)
-        failflag = True
-    for child in os.listdir(startdir):
-        full = path.join(startdir, child)
-        if path.isdir(full):
-            failflag |= enableDirectory(full)
-        else:
-            try:
-                os.chmod(full, 0644)  # -rw-r--r--
-            except OSError:
-                failflag = True
+
+    returns True if there were some errors and False if everything went OK.
+    enableDirMode default to 0755 (drwxr-xr-x) and
+    enableFileMode default to 0644 (-rw-r--r--).
+    owner or group will only be changed if specified.
+    """
+    failflag = enableDisableDirectory(startdir,
+                                      enableDirMode, enableFileMode,
+                                      owner, group, enable=True)
     if failflag:
-        session.log.debug('Enabling failed for some files, please check accesss rights manually')
+        session.log.warning('Enabling failed for some files, please check access'
+                          ' rights manually')
     return failflag
     # maybe logging is better done in the caller of enableDirectory
 
