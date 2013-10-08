@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os
-import sipconfig
+#import sipconfig
 from PyQt4 import pyqtconfig
 
 build_file = "cascadeclient.sbf"
