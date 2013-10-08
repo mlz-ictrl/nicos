@@ -154,8 +154,8 @@ _attenuatorsblock = Block(
 
 
 
-_rightcolumn = Column(_motorblock, _sampletableblock, _currentblock, 
-                      _phasecoilsblock, _powersupplyblock, _scatteringblock, 
+_rightcolumn = Column(_motorblock, _sampletableblock, _currentblock,
+                      _phasecoilsblock, _powersupplyblock, _scatteringblock,
                       _maincoilsblock,
                      )
 
