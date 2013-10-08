@@ -24,7 +24,7 @@
 
 """Readout of FUG power supplies."""
 
-import time
+#import time
 
 from IO import StringIO
 
