@@ -32,7 +32,7 @@ from logging import WARNING
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
      QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
      QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
-     QFileSystemModel, QTabWidget, QMainWindow
+     QFileSystemModel, QTabWidget
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
      QStringList, QFileSystemWatcher
 
@@ -129,13 +129,10 @@ if has_scintilla:
             painter.restore()
 
 
-# This class inherits from QMainWindow since dock widgets can only be used in a
-# QMainWindow
-class EditorPanel(QMainWindow, Panel):
+class EditorPanel(Panel):
     panelName = 'User editor'
 
     def __init__(self, parent, client):
-        QMainWindow.__init__(self, parent)
         Panel.__init__(self, parent, client)
         loadUi(self, 'editor.ui', 'panels')
 
