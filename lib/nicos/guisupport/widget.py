@@ -46,10 +46,11 @@ class NicosListener(object):
 
     def registerDevice(self, dev, valueindex=-1, unit='', fmtstr=''):
         # value, valueindex, strvalue, strvalue with unit,
-        # status, strvalue, fmtstr, unit, fixed, changetime, min, max
+        # status, strvalue, fmtstr, unit, fixed, changetime, min, max,
+        # expired?, device (not single key)?
         self.devinfo[dev] = ['-', valueindex, '-', '-',
                              (OK, ''), fmtstr or '%s', unit, '', 0,
-                             None, None, True]
+                             None, None, True, True]
         self._devmap[self._source.register(self, dev+'/value')] = dev
         self._devmap[self._source.register(self, dev+'/status')] = dev
         self._devmap[self._source.register(self, dev+'/fixed')] = dev
@@ -62,10 +63,11 @@ class NicosListener(object):
     def registerKey(self, valuekey, statuskey='', valueindex=-1,
                     unit='', fmtstr=''):
         # value, valueindex, strvalue, strvalue with unit,
-        # status, strvalue, fmtstr, unit, fixed, changetime, min, max, expired
+        # status, strvalue, fmtstr, unit, fixed, changetime, min, max,
+        # expired?, device (not single key)?
         self.devinfo[valuekey] = ['-', valueindex, '-', '-',
                                   (OK, ''), fmtstr or '%s', unit, '', 0,
-                                  None, None, True]
+                                  None, None, True, False]
         self._devmap[self._source.register(self, valuekey)] = valuekey
         if statuskey:
             self._devmap[self._source.register(self, statuskey)] = valuekey
@@ -83,75 +85,82 @@ class NicosListener(object):
         if key not in self._devmap:
             return
         devinfo = self.devinfo[self._devmap[key]]
-        if key.endswith('/status'):
-            if value is None:
-                value = devinfo[4]
-                expired = True
-            devinfo[4] = value
-            devinfo[8] = time
-            self.on_devStatusChange(self._devmap[key],
-                                    value[0], value[1], expired)
-            return
-        elif key.endswith('/fixed'):
-            devinfo[7] = value
-            self.on_devMetaChange(self._devmap[key], devinfo[5],
-                                  devinfo[6], devinfo[7], devinfo[9], devinfo[10])
-            return
-        elif key.endswith('/warnlimits'):
-            if value is not None:
-                devinfo[9], devinfo[10] = value
+        if devinfo[12]:
+            if key.endswith('/status'):
+                if value is None:
+                    value = devinfo[4]
+                    expired = True
+                devinfo[4] = value
+                devinfo[8] = time
+                self.on_devStatusChange(self._devmap[key],
+                                        value[0], value[1], expired)
+                return
+            elif key.endswith('/fixed'):
+                devinfo[7] = value
                 self.on_devMetaChange(self._devmap[key], devinfo[5],
-                                      devinfo[6], devinfo[7], devinfo[9], devinfo[10])
-            return
-        elif key.endswith('/fmtstr'):
-            devinfo[5] = value
-            fvalue = devinfo[0]
-            if fvalue is None:
-                strvalue = '----'
-            else:
-                if isinstance(fvalue, list):
-                    fvalue = tuple(fvalue)
-                try:
-                    strvalue = devinfo[5] % fvalue
-                except Exception:
-                    strvalue = str(fvalue)
-            devinfo[3] = (strvalue + ' ' + (devinfo[6] or '')).strip()
-            if devinfo[2] != strvalue:
-                devinfo[2] = strvalue
-                self.on_devValueChange(self._devmap[key], fvalue, strvalue,
-                                       devinfo[3], expired)
-            self.on_devMetaChange(self._devmap[key], devinfo[5],
-                                  devinfo[6], devinfo[7], devinfo[9], devinfo[10])
-        elif key.endswith('/unit'):
-            devinfo[6] = value
-            self.on_devMetaChange(self._devmap[key], devinfo[5],
-                                  devinfo[6], devinfo[7], devinfo[9], devinfo[10])
-        else:  # it's /value
-            # apply item selection
-            if devinfo[1] >= 0 and value is not None:
-                try:
-                    fvalue = value[devinfo[1]]
-                except Exception:
-                    fvalue = value
-            else:
+                                      devinfo[6], devinfo[7], devinfo[9],
+                                      devinfo[10])
+                return
+            elif key.endswith('/warnlimits'):
+                if value is not None:
+                    devinfo[9], devinfo[10] = value
+                    self.on_devMetaChange(self._devmap[key], devinfo[5],
+                                          devinfo[6], devinfo[7], devinfo[9],
+                                          devinfo[10])
+                return
+            elif key.endswith('/fmtstr'):
+                devinfo[5] = value
+                fvalue = devinfo[0]
+                if fvalue is None:
+                    strvalue = '----'
+                else:
+                    if isinstance(fvalue, list):
+                        fvalue = tuple(fvalue)
+                    try:
+                        strvalue = devinfo[5] % fvalue
+                    except Exception:
+                        strvalue = str(fvalue)
+                devinfo[3] = (strvalue + ' ' + (devinfo[6] or '')).strip()
+                if devinfo[2] != strvalue:
+                    devinfo[2] = strvalue
+                    self.on_devValueChange(self._devmap[key], fvalue, strvalue,
+                                           devinfo[3], expired)
+                self.on_devMetaChange(self._devmap[key], devinfo[5],
+                                      devinfo[6], devinfo[7], devinfo[9],
+                                      devinfo[10])
+                return
+            elif key.endswith('/unit'):
+                devinfo[6] = value
+                self.on_devMetaChange(self._devmap[key], devinfo[5],
+                                      devinfo[6], devinfo[7], devinfo[9],
+                                      devinfo[10])
+                return
+        # it's either /value, or any key registered as value
+        # first, apply item selection
+        if devinfo[1] >= 0 and value is not None:
+            try:
+                fvalue = value[devinfo[1]]
+            except Exception:
                 fvalue = value
-            devinfo[0] = fvalue
-            if fvalue is None:
-                strvalue = '----'
-            else:
-                if isinstance(fvalue, list):
-                    fvalue = tuple(fvalue)
-                try:
-                    strvalue = devinfo[5] % fvalue
-                except Exception:
-                    strvalue = str(fvalue)
-            devinfo[8] = time
-            devinfo[3] = (strvalue + ' ' + (devinfo[6] or '')).strip()
-            if devinfo[2] != strvalue or devinfo[11] != expired:
-                devinfo[2] = strvalue
-                devinfo[11] = expired
-                self.on_devValueChange(self._devmap[key], fvalue, strvalue,
-                                       devinfo[3], expired)
+        else:
+            fvalue = value
+        devinfo[0] = fvalue
+        if fvalue is None:
+            strvalue = '----'
+        else:
+            if isinstance(fvalue, list):
+                fvalue = tuple(fvalue)
+            try:
+                strvalue = devinfo[5] % fvalue
+            except Exception:
+                strvalue = str(fvalue)
+        devinfo[8] = time
+        devinfo[3] = (strvalue + ' ' + (devinfo[6] or '')).strip()
+        if devinfo[2] != strvalue or devinfo[11] != expired:
+            devinfo[2] = strvalue
+            devinfo[11] = expired
+            self.on_devValueChange(self._devmap[key], fvalue, strvalue,
+                                   devinfo[3], expired)
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         pass
