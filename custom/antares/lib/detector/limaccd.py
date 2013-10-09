@@ -147,6 +147,7 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         self._hwDev = self._createPyTangoDevice(self.hwdevice)
 
     def doInit(self, mode):
+        self._startTime = None
         self._fileCounter = 0
         self._fastShutter = session.getDevice(self.fastshutter)
 
@@ -166,6 +167,7 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
             # a proper status.
             time.sleep(0.1)
 
+        self._startTime = time.time()
         self._tangoFuncGuard(self._dev.startAcq)
         self._newFile()
 
@@ -182,6 +184,19 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         # limaStatus = self._tangoGetAttrGuard('acq_status')
         limaStatus = self._tangoGetAttrGuard('acq_status')
         nicosStatus = statusMap.get(limaStatus, status.UNKNOWN)
+
+        if nicosStatus == status.BUSY and self._startTime is not None:
+            deltaTime = time.time() - self._startTime
+
+            if deltaTime <= self.shutteropentime:
+                limaStatus += ' (Opening shutter)'
+            elif deltaTime <= (self.shutteropentime + self.expotime):
+                remaining = self.expotime - (deltaTime - self.shutteropentime)
+                limaStatus += ' (Exposing; Remaining: %.2f s)' % remaining
+            elif deltaTime <= (self.shutteropentime + self.expotime + self.shutterclosetime):
+                limaStatus += ' (Closing shutter)'
+            else:
+                limaStatus += ' (Readout)'
 
         return (nicosStatus, limaStatus)
 
