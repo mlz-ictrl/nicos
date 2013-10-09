@@ -7,16 +7,15 @@ includes = ['system']
 group = 'optional'
 
 devices = dict(
-
-        beckhoffdevice = device('panda.wechsler.Beckhoff',
-                host='wechsler.panda.frm2',
-                lowlevel=True,
-                loglevel='info',
-                ),
-
+    beckhoffdevice = device('panda.wechsler.Beckhoff',
+                             description = 'lowlevel device used to communicate with panda\'s monochanger',
+                             host='wechsler.panda.frm2',
+                             lowlevel=True,
+                             loglevel='info',
+                            ),
     wechsler = device('panda.wechsler.MonoWechsler',
-            beckhoff = 'beckhoffdevice',
-            loglevel='info',
-            ),
-
+                       description = 'Monochanger for panda, \\alpha Version!',
+                       beckhoff = 'beckhoffdevice',
+                       loglevel='info',
+                      ),
 )

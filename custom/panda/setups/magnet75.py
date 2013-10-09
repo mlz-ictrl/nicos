@@ -12,15 +12,15 @@ devices = dict(
 # overrides only needed stuff from frm2/magnt75.py
     # Magnet power supply. it is supposed to be able to switch polarity....
 
-    B_m7T5 =device( 'panda.misc.PrecisionAnalogOut',
-                    precision = 0.02,
-                    tacodevice = TACOBASE+'smc120/t',
-                    description = '7.5T magnet field drive',
-                    userlimits=( 0, 7.0 ),
-                    abslimits = (-7.5, 7.5 ),
-                    fmtstr = '%.2f',
-                    unit = 'T',
-                    pollinterval = 15,
+    B_m7T5 = device('panda.misc.PrecisionAnalogOut',
+                     description = '7.5T magnet field drive',
+                     precision = 0.02,
+                     tacodevice = TACOBASE + 'smc120/t',
+                     userlimits=( 0, 7.0 ),
+                     abslimits = (-7.5, 7.5 ),
+                     fmtstr = '%.2f',
+                     unit = 'T',
+                     pollinterval = 15,
                     ),
 
     #~ B_m7T5 =device( 'devices.taco.AnalogOutput',
@@ -80,34 +80,34 @@ devices = dict(
 
 
     # Phytron (TACO) controled cryo rotation....
-    sth_B7T5_Taco_motor =device( 'devices.taco.Motor',
-                    tacodevice = TACOBASE+'phytron/motor',
-                    description = '7.5T magnet sample rotation TACO-Motor',
-                    userlimits=( 0, 148.0 ),
-                    abslimits = (-1, 160 ),
-                    fmtstr = '%.3f',
-                    unit = 'deg',
-                    ),
-    sth_B7T5_Taco_coder =device( 'devices.taco.Coder',
-                    #~ tacodevice = TACOBASE+'phytron/coder',   # old value
-                    tacodevice = TACOBASE+'phytron/encoder',    # new value as of 2012-07-30 EF
-                    description = '7.5T magnet sample rotation TACO-Coder',
-                    fmtstr = '%.3f',
-                    unit = 'deg',
-                    ),
+    sth_B7T5_Taco_motor = device('devices.taco.Motor',
+                                  tacodevice = TACOBASE + 'phytron/motor',
+                                  description = '7.5T magnet sample rotation TACO-Motor',
+                                  userlimits=( 0, 148.0 ),
+                                  abslimits = (-1, 160 ),
+                                  fmtstr = '%.3f',
+                                  unit = 'deg',
+                                ),
+    sth_B7T5_Taco_coder = device('devices.taco.Coder',
+                                 tacodevice = TACOBASE + 'phytron/encoder',
+                                 description = '7.5T magnet sample rotation TACO-Coder',
+                                 fmtstr = '%.3f',
+                                 unit = 'deg',
+                                ),
     sth_B7T5 = device('devices.generic.Axis',
-            motor = 'sth_B7T5_Taco_motor',
-            coder = 'sth_B7T5_Taco_coder',     # Coder working
-            #~ coder = 'sth_B7T5_Taco_motor',     # Coder broken
-            obs = [],
-            precision = 0.01,
-            backlash = -1,
-            abslimits = (-1., 160. ),
-            userlimits=( 0., 148.0 ),
-    ),
+                       description = 'sample/ccr rotation inside 7.5T magnet',
+                       motor = 'sth_B7T5_Taco_motor',
+                       coder = 'sth_B7T5_Taco_coder',     # Coder working
+                       #~ coder = 'sth_B7T5_Taco_motor',     # Coder broken
+                       obs = [],
+                       precision = 0.01,
+                       backlash = -1,
+                       abslimits = (-1., 160. ),
+                       userlimits=( 0., 148.0 ),
+                      ),
 )
 
 startupcode = '''
-B.alias='B_m7T5'
-sth.alias='sth_B7T5'
+B.alias = 'B_m7T5'
+sth.alias = 'sth_B7T5'
 '''

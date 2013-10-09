@@ -4,7 +4,26 @@ description = 'Monoturm, everything inside the Monochromator housing'
 
 group = 'lowlevel'
 
- # 5,mfh,mgx,mtx,mtx,mth,mtt,-,mfv
+# channel 1   2   3   4   5   6   7   8
+#        mfh mgx mtx mty mth mtt ms1 mfv
+
+# eases address settings: 0x5.. = stepper, 0x6.. = poti, 0x7.. = coder ; .. = channel
+MOTOR = lambda x: 0x50 + x
+POTI = lambda x: 0x60 + x
+CODER = lambda x: 0x70 + x
+
+# eases confbyte settings for IPC-coder cards:
+ENDAT = 0x80
+SSI = 0
+
+GRAY = 0x40
+BINARY = 0
+
+P_NONE = 0x20
+P_EVEN = 0
+
+TOTALBITS = lambda x: x & 0x1f
+
 
 devices = dict(
     bus5 = device('devices.vendor.ipc.IPCModBusTaco',
@@ -14,44 +33,44 @@ devices = dict(
             lowlevel = True,
     ),
 
-    # MFH is first device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
-    mfh_step = device('devices.vendor.ipc.Motor',
-            bus = 'bus5',
-            addr = 0x51,
-            slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
-            unit = 'deg',
-            abslimits = (-400,400),
-            zerosteps = 500000,
-            confbyte = 8,
-            speed = 30, # default 50, seems to lose steps at 50, reduced to 30
-            accel = 150,
-            microstep = 2,
-            startdelay = 0,
-            stopdelay = 0,
-            ramptype = 1,
-            #power = 0,
-            lowlevel = True,
-            #~ current = 0.2,
-    ),
-    mfh_poti = device('devices.vendor.ipc.Coder',
-            bus = 'bus5',
-            addr = 0x61,
-            slope = 1,
-            zerosteps = 0,
-            unit = 'deg',
-            lowlevel = True,
-    ),
-    #~ mfh = device('devices.generic.Axis',
-    mfh = device('panda.rot_axis.RotAxis',
-            motor = 'mfh_step',
-            coder = 'mfh_step',
-            obs = [],
-            precision = 1,
-            refpos = 168.75+40,
-            refspeed = 5,
-            autoref = -10, # autoref every 10 full turns
-            #~ rotary = True,
-    ),
+    #~ # MFH is first device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
+    #~ mfh_step = device('devices.vendor.ipc.Motor',
+            #~ bus = 'bus5',
+            #~ addr = MOTOR(1),
+            #~ slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
+            #~ unit = 'deg',
+            #~ abslimits = (-400,400),
+            #~ zerosteps = 500000,
+            #~ confbyte = 8,
+            #~ speed = 30, # default 50, seems to lose steps at 50, reduced to 30
+            #~ accel = 150,
+            #~ microstep = 2,
+            #~ startdelay = 0,
+            #~ stopdelay = 0,
+            #~ ramptype = 1,
+            #~ #power = 0,
+            #~ lowlevel = True,
+            ##~ current = 0.2,
+    #~ ),
+    #~ mfh_poti = device('devices.vendor.ipc.Coder',
+            #~ bus = 'bus5',
+            #~ addr = POTI(1),
+            #~ slope = 1,
+            #~ zerosteps = 0,
+            #~ unit = 'deg',
+            #~ lowlevel = True,
+    #~ ),
+    ##~ mfh = device('devices.generic.Axis',
+    #~ mfh = device('panda.rot_axis.RotAxis',
+            #~ motor = 'mfh_step',
+            #~ coder = 'mfh_step',
+            #~ obs = [],
+            #~ precision = 1,
+            #~ refpos = 168.75+40,
+            #~ refspeed = 5,
+            #~ autoref = -10, # autoref every 10 full turns
+            ##~ rotary = True,
+    #~ ),
 
     #
     # MGX is second device and has 1 stepper, 1 poti, 0 coder
@@ -60,7 +79,7 @@ devices = dict(
     # endschalter-=398852, poti=3727 ca 3.16 deg
     mgx_step = device('devices.vendor.ipc.Motor',
             bus = 'bus5',
-            addr = 0x52,
+            addr = MOTOR(2),
             slope = 32000,
             unit = 'deg',
             abslimits = (-3,3),
@@ -74,13 +93,14 @@ devices = dict(
     ),
     mgx_poti = device('devices.vendor.ipc.Coder',
             bus = 'bus5',
-            addr = 0x62,
+            addr = POTI(2),
             slope = -459.16,
             zerosteps = 2259,
             unit = 'deg',
             lowlevel = True,
     ),
     mgx = device('devices.generic.Axis',
+            description = 'mono tilt (up/down)',
             motor = 'mgx_step',
             coder = 'mgx_step',
             obs = ['mgx_poti'],
@@ -94,7 +114,7 @@ devices = dict(
     # endschalter+ 553200= steps, poti=4790, ca -3.3mm
     mtx_step = device('devices.vendor.ipc.Motor',
             bus = 'bus5',
-            addr = 0x53,
+            addr = MOTOR(3),
             slope = 16000,
             unit = 'mm',
             abslimits = (-15,3),
@@ -108,13 +128,14 @@ devices = dict(
     ),
     mtx_poti = device('devices.vendor.ipc.Coder',
             bus = 'bus5',
-            addr = 0x63,
+            addr = POTI(3),
             slope = 265.25,
             zerosteps = 3910,
             unit = 'mm',
             lowlevel = True,
     ),
     mtx = device('devices.generic.Axis',
+            description = 'mono translation (left/right) (needed for Si!)',
             motor = 'mtx_step',
             coder = 'mtx_step',
             precision = 0.1,
@@ -129,7 +150,7 @@ devices = dict(
     # endschalter+ = 294059, poti=7436, -12.8mm
     mty_step = device('devices.vendor.ipc.Motor',
             bus = 'bus5',
-            addr = 0x54,
+            addr = MOTOR(4),
             slope = -16000,
             unit = 'mm',
             abslimits = (-11,11),
@@ -143,13 +164,14 @@ devices = dict(
     ),
     mty_poti = device('devices.vendor.ipc.Coder',
             bus = 'bus5',
-            addr = 0x64,
+            addr = POTI(4),
             slope = 269.2655,
             zerosteps = 3940,
             unit = 'mm',
             lowlevel = True,
     ),
     mty = device('devices.generic.Axis',
+            description = 'mono translation along Y (thickness correction)',
             motor = 'mty_step',
             coder = 'mty_step',
             obs = ['mty_poti'],
@@ -161,7 +183,7 @@ devices = dict(
     # MTH is fith device and has 1 stepper, 0 poti, 1 coder
     mth_step = device('devices.vendor.ipc.Motor',
             bus = 'bus5',
-            addr = 0x55,
+            addr = MOTOR(5),
             slope = -8000,
             unit = 'deg',
             abslimits = (-25,100),
@@ -175,15 +197,16 @@ devices = dict(
     ),
     mth_enc = device('devices.vendor.ipc.Coder',
             bus = 'bus5',
-            addr = 0x75,
-            slope = -(2**26)/360.0,
+            addr = CODER(5),
+            slope = -2**26 / 360.0,
             zerosteps = 52095568,
-            confbyte = 154,
+            confbyte = ENDAT | BINARY | P_EVEN | TOTALBITS(26),
             unit = 'deg',
             circular = -360, # map values to -180..0..180 degree
             lowlevel = True,
     ),
     mth = device('devices.generic.Axis',
+            description = 'rocking angle of monochromator',
             motor = 'mth_step',
             coder = 'mth_enc',
             obs = [],
@@ -195,28 +218,24 @@ devices = dict(
     #
     # MTT is sixth device and has 0 stepper, 0 poti, 1 coder
     mtt_enc = device('devices.vendor.ipc.Coder',
+            description = 'rotary encoder on bottom of mtt',
             bus = 'bus5',
-            addr = 0x76,
-            slope = (2**26)/360.0,
+            addr = CODER(6),
+            slope = 2**26 / 360.0,
             zerosteps = 50705250,
-            confbyte = 154,
+            confbyte = ENDAT | BINARY | P_EVEN | TOTALBITS(26),
             unit = 'deg',
             circular = -360, # map values to -180..0..180 degree
             lowlevel = True,
     ),
-    #~ mtt = device('devices.generic.Axis',
-            #~ motor = 'mtt_step',
-            #~ coder = 'mtt_enc',
-            #~ precision = 0.01,
-    #~ ),
 
     #
     # MS1 is seventh device and has 1 stepper, 0 poti, 0 coder
     ms1_step = device('devices.vendor.ipc.Motor',
             bus = 'bus5',
-            #~ addr = 0x57, #original
-            addr = 0x56,        #test
-            slope = -1600/3.0,
+            #~ addr = MOTOR(7), #original
+            addr = MOTOR(6),        #test
+            slope = -1600 / 3.0,
             unit = 'mm',
             abslimits = (-1.0, 51.0),
             zerosteps = 500000,
@@ -230,14 +249,15 @@ devices = dict(
     ),
     ms1_enc = device('devices.vendor.ipc.Coder',
             bus = 'bus5',
-            addr = 0x77,
-            slope = (2**13)/3.0,        # one full turn every 3mm, encoder is 14bit turns+12 bit per turn
+            addr = CODER(7),
+            slope = 2**13 / 3.0,        # one full turn every 3mm, encoder is 14bit turns+12 bit per turn
             zerosteps = 555555,
-            confbyte = 0x20+26, # ssi-binary-no_parity + 26bits
+            confbyte = SSI | BINARY | P_NONE | TOTALBITS(26),
             unit = 'mm',
             lowlevel = True,
     ),
     ms1 = device('devices.generic.Axis',
+            description = 'primary horizontal slit before mono',
             motor = 'ms1_step',
             coder = 'ms1_enc',
             obs = [],
@@ -247,38 +267,38 @@ devices = dict(
 
     #
     # MFV is eigth device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
-    mfv_step = device('devices.vendor.ipc.Motor',
-            bus = 'bus5',
-            addr = 0x58,
-            slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
-            unit = 'deg',
-            abslimits = (-400,400),
-            zerosteps = 500000,
-            confbyte = 8,
-            speed = 50,
-            accel = 8,
-            #power = 0,
-            #~ current = 0.2,
-            lowlevel = True,
-    ),
-    mfv_poti = device('devices.vendor.ipc.Coder',
-            bus = 'bus5',
-            addr = 0x68,
-            slope = 1,
-            zerosteps = 0,
-            unit = 'deg',
-            lowlevel = True,
-    ),
-    #~ mfv = device('devices.generic.Axis',
-    mfv = device('panda.rot_axis.RotAxis',
-            motor = 'mfv_step',
-            coder = 'mfv_step',
-            obs = [],
-            precision = 1,
-            refpos = 221.3,
-            refspeed = 5,
-            autoref = -10, # autoref every 10 full turns
-            #~ rotary = True,
-    ),
+    #~ mfv_step = device('devices.vendor.ipc.Motor',
+            #~ bus = 'bus5',
+            #~ addr = MOTOR(8),
+            #~ slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
+            #~ unit = 'deg',
+            #~ abslimits = (-400,400),
+            #~ zerosteps = 500000,
+            #~ confbyte = 8,
+            #~ speed = 50,
+            #~ accel = 8,
+            #~ #power = 0,
+            ##current = 0.2,
+            #~ lowlevel = True,
+    #~ ),
+    #~ mfv_poti = device('devices.vendor.ipc.Coder',
+            #~ bus = 'bus5',
+            #~ addr = POTI(8),
+            #~ slope = 1,
+            #~ zerosteps = 0,
+            #~ unit = 'deg',
+            #~ lowlevel = True,
+    #~ ),
+    ##~ mfv = device('devices.generic.Axis',
+    #~ mfv = device('panda.rot_axis.RotAxis',
+            #~ motor = 'mfv_step',
+            #~ coder = 'mfv_step',
+            #~ obs = [],
+            #~ precision = 1,
+            #~ refpos = 221.3,
+            #~ refspeed = 5,
+            #~ autoref = -10, # autoref every 10 full turns
+            ##rotary = True,
+    #~ ),
 
 )
