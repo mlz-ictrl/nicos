@@ -475,7 +475,18 @@ field_re = re.compile('{{(?P<key>[^:#}]+)(?::(?P<default>[^#}]*))?'
                       '(?:#(?P<description>[^}]+))?}}')
 
 def expandTemplate(template, keywords, field_re=field_re):
-    """Simple template field replacement engine."""
+    """Simple template field replacement engine.
+
+    Syntax is {{key:default#description}} where default and description
+    are optional. The whole string is replaced by the value of the given
+    dictionary item with the requested key. If this does not exist,
+    default is used instead.
+
+    returns a tuple( <replaced string>, [missed keys where default was used],
+    [list of missing keys withoud default])
+    each listitem is a dictionary with three keys:
+    key, default and description.
+    """
     result = []
     current = 0
     missing = []
