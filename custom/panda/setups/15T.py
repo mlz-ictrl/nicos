@@ -43,6 +43,7 @@ devices = dict(
                 lowlevel = True,
         ),
    sth_15t = device('devices.generic.Axis',
+            description = 'rotational axis inside 15T magnet: samplestick or dilution',
             motor = 'sth_15t_step',
             coder = 'sth_15t_coder',
             obs = [],

@@ -29,7 +29,6 @@ devices = dict(
     ),
     gf = device('panda.guidefield.GuideField',
                  description = 'Vector field at sample location',
-                 moveable = None,
                  alpha = 'alphastorage',
                  coils = ['coil_1', 'coil_2', 'coil_3'],
                  field = 10,    # mT
@@ -39,7 +38,6 @@ devices = dict(
                     field = 'sf1_f',
                     compensate = 'sf1_c',
                     wavevector = 'ki',
-                    moveable =None,
                     flipcurrent = [-0.18037, -0.43804],
                     compcurrent = 2.35,
     ),
@@ -48,7 +46,6 @@ devices = dict(
                     field = 'sf2_f',
                     compensate = 'sf2_c',
                     wavevector = 'kf',
-                    moveable = None,
                     # for kf=1.55+befilter
                     flipcurrent = [0.78],
                     compcurrent = 1.49,

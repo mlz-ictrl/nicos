@@ -8,6 +8,7 @@ group = 'optional'
 
 devices = dict(
     sat = device('panda.satbox.SatBox',
+                  description = 'Sample beam attenuator',
                   tacodevice = 'panda/modbus/sat',
                   unit = 'mm',
                   fmtstr = '%d',
