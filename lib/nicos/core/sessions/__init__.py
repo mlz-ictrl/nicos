@@ -1034,19 +1034,20 @@ class Session(object):
 
     # -- Logging ---------------------------------------------------------------
 
-    def _initLogging(self, prefix=None):
+    def _initLogging(self, prefix=None, console=True):
         prefix = prefix or self.appname
         initLoggers()
         self._loggers = {}
         self._log_handlers = []
-        self.createRootLogger(prefix)
+        self.createRootLogger(prefix, console)
 
-    def createRootLogger(self, prefix='nicos'):
+    def createRootLogger(self, prefix='nicos', console=True):
         self.log = NicosLogger('nicos')
         self.log.setLevel(logging.INFO)
         self.log.parent = None
         log_path = path.join(self.config.control_path, self.config.logging_path)
-        self.log.addHandler(ColoredConsoleHandler())
+        if console:
+            self.log.addHandler(ColoredConsoleHandler())
         try:
             if prefix == 'nicos':
                 self.log.addHandler(NicosLogfileHandler(
@@ -1132,7 +1133,7 @@ class Session(object):
 
     # -- Simulation support ----------------------------------------------------
 
-    def runSimulation(self, code, wait=True, prefix='(sim) ', logreceiver=False):
+    def runSimulation(self, code, wait=True, prefix='(sim) '):
         """Spawn a simulation of *code*.
 
         If *wait* is true, wait until the process is finished.  *prefix* is the
@@ -1146,11 +1147,9 @@ class Session(object):
                 pass
 
         # create a socket to listen to messages from the simulation result
-        receiverport = 0
-        if logreceiver:
-            receiver = SimLogReceiver(self.daemon_device)
-            receiver.start()
-            receiverport = receiver.port
+        receiver = SimLogReceiver(getattr(self, 'daemon_device', None))
+        receiver.start()
+        receiverport = receiver.port
 
         # start nicos-simulate process
         scriptname = os.path.join(self.config.control_path,

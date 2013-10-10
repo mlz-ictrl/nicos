@@ -44,7 +44,7 @@ class ScriptSessionTest(ScriptSession):
                             path.join(
                                path.dirname(__file__), '../setups')))
 
-    def createRootLogger(self, prefix='nicos'):
+    def createRootLogger(self, prefix='nicos', console=True):
         self.log = loggers.NicosLogger('nicos')
         self.log.parent = None
         # show errors on the console

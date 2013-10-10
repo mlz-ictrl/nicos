@@ -193,7 +193,7 @@ class TestSession(Session):
         self._mode = 'master'
         self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
-    def createRootLogger(self, prefix='nicos'):
+    def createRootLogger(self, prefix='nicos', console=True):
         self.log = NicosLogger('nicos')
         self.log.parent = None
         self.log.setLevel(DEBUG)

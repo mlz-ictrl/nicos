@@ -26,7 +26,6 @@
 
 import sys
 import signal
-import logging
 
 from nicos import session
 from nicos.utils import daemonize, setuser, writePidfile, removePidfile
@@ -141,11 +140,8 @@ class SimulationSession(Session):
         session.__class__ = cls
 
         session.globalprefix = prefix
-        if port != 0:
-            # send log messages back to daemon if requested
-            session.log_sender = SimLogSender(port, session)
-        else:
-            session.log_sender = None
+        # send log messages back to daemon if requested
+        session.log_sender = SimLogSender(port, session)
 
         try:
             session.__init__('simulation')
@@ -156,6 +152,11 @@ class SimulationSession(Session):
                 print >> sys.stderr, 'Fatal error while initializing:', err
             return 1
 
+        # Give a sign of life and then tell the log handler to only log
+        # errors during setup.
+        session.log.info('setting up simulation...')
+        session.log_sender.begin_setup()
+
         # Load the initial setup and handle becoming master.
         session.handleInitialSetup('startup', 'simulation')
 
@@ -163,25 +164,19 @@ class SimulationSession(Session):
         session.simulationSync()
 
         # Set up log handlers to output everything.
-        session.log.handlers[0].level = 0
-        if session.log_sender:
-            session.log_sender.begin()
+        session.log_sender.begin_exec()
         # Execute the script code.
         try:
             exec code in session.namespace
         except:  # really *all* exceptions -- pylint: disable=W0702
             session.log.exception('Exception in simulation')
         finally:
-            if session.log_sender:
-                session.log_sender.finish()
+            session.log_sender.finish()
 
         # Shut down.
         session.shutdown()
 
-    def _initLogging(self, prefix=None):
-        Session._initLogging(self, prefix)
+    def _initLogging(self, prefix=None, console=True):
+        Session._initLogging(self, prefix, console=False)
         self.log.manager.globalprefix = self.globalprefix
-        if self.log_sender:
-            self.log.addHandler(self.log_sender)
-        # Suppress process init output except for errors.
-        self.log.handlers[0].level = logging.ERROR
+        self.log.addHandler(self.log_sender)

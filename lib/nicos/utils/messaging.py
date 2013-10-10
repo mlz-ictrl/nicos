@@ -29,6 +29,7 @@ from threading import Thread
 
 import zmq
 
+from nicos import session
 from nicos.protocols.daemon import serialize, unserialize
 from nicos.utils.loggers import TRANSMIT_ENTRIES
 
@@ -44,10 +45,14 @@ class SimLogReceiver(Thread):
     def __init__(self, daemon):
         self.socket = zmq_ctx.socket(zmq.PULL)
         self.port = self.socket.bind_to_random_port('tcp://127.0.0.1')
-        Thread.__init__(self, target=self._thread, args=(self.socket, daemon),
+        if daemon is None:
+            target = self._console_thread
+        else:
+            target = self._daemon_thread
+        Thread.__init__(self, target=target, args=(self.socket, daemon),
                         name='SimLogReceiver')
 
-    def _thread(self, socket, daemon):
+    def _daemon_thread(self, socket, daemon):
         while True:
             data = socket.recv()
             msg = unserialize(data)
@@ -57,6 +62,21 @@ class SimLogReceiver(Thread):
                 daemon.emit_event('message', msg)
             else:
                 daemon.emit_event('simresult', msg)
+                socket.close()
+                return
+
+    def _console_thread(self, socket, daemon):
+        while True:
+            data = socket.recv()
+            msg = unserialize(data)
+            if isinstance(msg, list):
+                record = logging.LogRecord(msg[0], msg[2], msg[5],
+                                           0, msg[3], (), None)
+                record.message = msg[3].rstrip()
+                session.log.handle(record)
+            else:
+                # In the console session, the summary is printed by the
+                # sim() command.
                 socket.close()
                 return
 
@@ -72,9 +92,11 @@ class SimLogSender(logging.Handler):
         self.socket.connect('tcp://127.0.0.1:%d' % port)
         self.session = session
         self.devices = []
+
+    def begin_setup(self):
         self.level = logging.ERROR  # log only errors before code starts
 
-    def begin(self):
+    def begin_exec(self):
         from nicos.core import Readable
         # Collect information on timing and range of all devices
         self.starttime = self.session.clock.time
