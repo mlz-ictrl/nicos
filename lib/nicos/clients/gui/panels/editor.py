@@ -176,6 +176,7 @@ class EditorPanel(Panel):
         self.saving = False  # True while saving
         self.warnWidget.hide()
 
+        self.simOutStack.setCurrentIndex(0)
         self.simRanges.header().setResizeMode(QHeaderView.ResizeToContents)
         self.simPane.hide()
 
