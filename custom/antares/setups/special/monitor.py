@@ -103,7 +103,7 @@ _lblblock = Block('Large Beam Limiter', [
         Field(dev='lbl', name='lbl  [center[x,y], width[x,y]]', width=28),
         ),
     ],
-    'lbl_jcns',
+    'lbl',
 )
 
 _detector_translationblock = Block('Detector Translation', [
