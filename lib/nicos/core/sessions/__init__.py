@@ -636,7 +636,10 @@ class Session(object):
             self.log.info("use CreateDevice('device') or CreateAllDevices() "
                           "later to retry")
 
-        self.explicit_setups.extend(setupnames)
+        for setupname in setupnames:
+            if self._setup_info[setupname]['extended'].get('dynamic_loaded',False):
+                continue
+            self.explicit_setups.append(setupname)
 
         self.current_sysconfig = sysconfig
 
