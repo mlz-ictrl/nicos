@@ -26,9 +26,8 @@ devices = dict(
                        mailsender = 'antares@frm2.tum.de',
                        propprefix = 'p',
                        serviceexp = 'service',
-                       servicescript = 'start_service.py',
+                       servicescript = '',
                        templatedir = 'templates',
-                       managerights = True,
                        sendmail = False,
                        zipdata = False,
                       ),
@@ -62,6 +61,4 @@ devices = dict(
                         path = '/data',
                         minfree = 500,
                       ),
-
-#    UBahn     = device('frm2.ubahn.UBahn'),
 )

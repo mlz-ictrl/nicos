@@ -13,7 +13,8 @@ devices = dict(
     Server = device('services.cache.server.CacheServer',
                      description = 'Value caching server',
                      db = 'DB',
-                     server = 'antareshw.antares.frm2',
+                     #~ server = 'antareshw.antares.frm2', # for reasons not understood this doesn't work!
+                     server = '0.0.0.0',  # this works
                      loglevel = 'info',
                    ),
 )

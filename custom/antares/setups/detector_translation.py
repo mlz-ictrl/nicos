@@ -2,18 +2,20 @@ description = 'Detector Table Experimental Chamber 1'
 
 group = 'optional'
 
-includes = []
+tango_host = 'tango://cpci01.antares.frm2:10000'
 
 devices = dict(
-    dtx = device('devices.taco.Motor',
+    dtx = device('devices.tango.Motor',
                         description = 'Detector Translation X',
-                        tacodevice = 'antares/copley/m14',
-                        abslimits = (0, 700),
+                        tangodevice = '%s/antares/fzjs7/X_det' % tango_host,
+                        abslimits = (0, 850),
+                        userlimits = (0, 850),
                       ),
-    dty = device('devices.taco.Motor',
-                        description = 'Detector Translation X',
-                        tacodevice = 'antares/copley/m15',
-                        abslimits = (0, 380),
+    dty = device('devices.tango.Motor',
+                        description = 'Detector Translation Y',
+                        tangodevice = '%s/antares/fzjs7/Y_det' % tango_host,
+                        abslimits = (0, 300),
+                        userlimits = (0, 300),
                       ),
 )
 
