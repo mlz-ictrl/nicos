@@ -1,12 +1,14 @@
 description = 'PANDA Heusler-monochromator'
 
-group = 'optional'
+group = 'lowlevel'
 
-includes = ['panda', 'focibox', 'ana']
+includes = []
 
 modules = []
 
-excludes = ['mono_pg', 'mono_si', 'mono_cu']
+excludes = ['mono_pg', 'mono_cu', 'mono_si']
+
+extended = dict( dynamic_loaded = True)
 
 # for ipc-stuff
 MOTOR = lambda x: 0x50 + x
@@ -114,17 +116,25 @@ devices = dict(
 )
 
 startupcode = """
+try:
+    _=(ana, mono, mfv, mfh, focibox)
+except NameError, e:
+    printerror("The requested setup 'panda' is not fully loaded!")
+    raise NameError('One of the required devices is not loaded : %s, please check!' % e)
+
 if focibox.read(0) == 'Heusler':
-        mfh.alias = mfh_heusler
-        mfv.alias = mfv_heusler
-        mono.alias = mono_heusler
-        ana.alias = ana_heusler
-        afh.alias = afh_heusler
-        mfv_heusler_step._pushParams() # forcibly send parameters to HW
-        #focibox.com('XME',forcechannel=False) # enable output for mfh
-        focibox.com('YME',forcechannel=False) # enable output for mfv
-        focibox.driverenable = True
-        maw(mtx, 0)
+    from nicos import session
+    mfh.alias = None
+    mfv.alias = session.getDevice('mfv_heusler')
+    mono.alias = session.getDevice('mono_heusler')
+    ana.alias = session.getDevice('ana_heu')
+    #mfh.motor._pushParams() # forcibly send parameters to HW
+    mfv.motor._pushParams() # forcibly send parameters to HW
+    #focibox.comm('XME',forcechannel=False) # enable output for mfh
+    focibox.comm('YME',forcechannel=False) # enable output for mfv
+    focibox.driverenable = True
+    maw(mtx, 0) #correct center of rotation for Si-mono only
+    del session
 else:
-        printerror('WRONG MONO ON TABLE FOR SETUP mono_heusler !!!')
+    printerror('WRONG MONO ON TABLE FOR SETUP mono_heusler !!!')
 """

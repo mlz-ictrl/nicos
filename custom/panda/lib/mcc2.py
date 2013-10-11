@@ -48,9 +48,11 @@ class MCC2core(Device):
     }
     parameters = {
         'channel'       : Param('Channel of MCC2 to use (X or Y)',
-                            type = oneof('X', 'Y'), default = 'Y'),
+                            type = oneof('X', 'Y'), default = 'Y',
+                            prefercache = False),
         'addr'          : Param('address of MCC2 to use (0 to 15)',
-                            type = intrange(0, 15), default = 0),
+                            type = intrange(0, 15), default = 0,
+                            prefercache = False),
         'temperature'   : Param('temperature of MCC-2 unit in °C',
                             type = int, settable=False, volatile=True),
     }
@@ -92,7 +94,8 @@ class MCC2core(Device):
 
     def _pushParams(self):
         """Pushes configured params from the setup files to the hardware"""
-        for k,v in self._config:
+        t = self._config
+        for k,v in t.iteritems():
             m = getattr(self, 'doWrite' + k.title(), None)
             if m:
                 self.log.debug(self, 'Setting %r to %r'%(k, v))
@@ -120,7 +123,9 @@ class MCC2Monoframe(MCC2core, Readable):
 
     """
     parameters = {
-        'driverenable' : Param('Enable pin (Output 8)', type=bool, mandatory=False, settable=True),
+        'driverenable' : Param('Enable pin (Output 8)', type = bool,
+                                mandatory = False, settable = True, default = False,
+                                prefercache = False),
     }
 
     monocodes = {   # input triple : (led_num, name)
@@ -173,8 +178,8 @@ class MCC2Monoframe(MCC2core, Readable):
             self.comm('A8R')
 
     def doReset(self):
-        self.com('XMD')     # disable output
-        self.com('A08R')    # disable enable_pin
+        self.comm('XMD')     # disable output
+        self.comm('A08R')    # disable enable_pin
 
 
 
@@ -185,13 +190,13 @@ class MCC2Coder(MCC2core, NicosCoder):
 
     parameters = {
         'slope'     : Param('coder units per degree of rotation', type = float,
-                             default = 1, settable = True, unit = '1/main'),
+                             default = 1, settable = True, unit = '1/main', prefercache = False),
         'zerosteps' : Param('coder steps at physical zero',type = int,
-                             default = 0, settable = True),
+                             default = 0, settable = True, prefercache = False),
         'codertype' : Param('type of encoder', type = oneof(*codertypes),
-                             default = 'none', settable = True),
+                             default = 'none', settable = True, prefercache = False),
         'coderbits' : Param('number of bits of ssi-encoder', default = 0,
-                             type = intrange(0, 31), settable = True),
+                             type = intrange(0, 31), settable = True, prefercache = False),
     }
 
 
@@ -224,11 +229,11 @@ class MCC2Poti(MCC2core, NicosCoder):
 
     parameters = {
         'slope'     : Param('coder units per degree of rotation', type = float,
-                             default = 1, settable = True, unit = '1/main'),
+                             default = 1, settable = True, unit = '1/main', prefercache = False),
         'zerosteps' : Param('coder steps at physical zero',type = int,
-                             default = 0, settable = True),
+                             default = 0, settable = True, prefercache = False),
         'coderbits' : Param('number of bits of ssi-encoder', default = 10,
-                             type = int, settable = False, mandatory = False),
+                             type = int, settable = False, mandatory = False, prefercache = False),
     }
 
     def doRead(self, maxage=0):
@@ -249,24 +254,24 @@ class MCC2Motor(MCC2core, NicosMotor):
     parameters = {
         'mccmovement' : Param('Type of movement, change behaviour of limit switches',
                                type = oneof(*movementTypes), default = 'linear',
-                               settable = True),
+                               settable = True, prefercache = False),
         'slope'       : Param('Full motor steps per physical unit',
-                               type = float, default = 1, unit = '1/main'),
+                               type = float, default = 1, unit = '1/main', prefercache = False),
         'power'       : Param('Internal power stage switch', default = 'on',
                                type = oneofdict({0: 'off', 1: 'on'}),
                                settable = True, volatile = True),
         'steps'       : Param('Last position in steps', settable = True,
-                               type = int),
-        'accel'       : Param('Motor acceleration in physical units',
+                               type = int, prefercache = False),
+        'accel'       : Param('Motor acceleration in physical units', prefercache = False,
                                type = float, settable = True, unit = '1/main**2'),
         'microstep'   : Param('Microstepping mode', unit = 'microsteps/fullstep',
-                               type = intrange(1, 255), settable = True),
+                               type = intrange(1, 255), settable = True, prefercache = False),
         'idlecurrent' : Param('Current whenever motor is Idle', unit = 'A',
-                               type = floatrange(0, 2.5), settable = True),
+                               type = floatrange(0, 2.5), settable = True, prefercache = False),
         'rampcurrent' : Param('Current whenever motor is Ramping', unit = 'A',
-                               type = floatrange(0, 2.5), settable = True),
+                               type = floatrange(0, 2.5), settable = True, prefercache = False),
         'movecurrent' : Param('Current whenever motor is moving at speed',
-                               type = floatrange(0, 2.5), unit = 'A',
+                               type = floatrange(0, 2.5), unit = 'A', prefercache = False,
                                settable = True),
         'linear'      : Param('linear stage (as opposed to choppered stage)',
                                type = bool, settable=False, volatile = True),
