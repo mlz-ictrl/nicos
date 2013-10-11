@@ -2,7 +2,9 @@
 
 description = 'Setup of a Monochromator Focuing Box on PANDA'
 
-group = 'optional'
+group = 'lowlevel'
+
+extended = dict( dynamic_loaded = True)
 
 devices = dict(
     # Nicos based access to phytron in magnet rack
@@ -28,18 +30,5 @@ devices = dict(
 )
 
 startupcode = '''
-RemoveSetup('mono_pg', 'mono_si','mono_cu','mono_heusler')
-m = focibox.read(0)
-if m == 'PG':
-    AddSetup('mono_pg')
-elif m == 'Si':
-    AddSetup('mono_si')
-elif m == 'Cu':
-    AddSetup('mono_cu')
-elif m == 'Heusler':
-    AddSetup('mono_heusler')
-else:
-    printerror('Wrong or no Mono on table!')
-del m
 '''
 

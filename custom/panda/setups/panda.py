@@ -2,7 +2,7 @@ description = 'PANDA triple-axis setup'
 
 group = 'basic'
 
-includes = ['system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual', 'alias_sth']
+includes = ['system', 'sampletable', 'ana', 'detector', 'panda_s7', 'manual', 'alias_sth', 'monofoci']
 # monoturm is included by panda_s7
 
 #~ modules = ['nicos.commands.tas','nicos.panda.commands']
@@ -51,7 +51,7 @@ devices = dict(
                       description = 'incoming energy',
                       unit = 'meV',
                       base = 'mono',
-                      tas = 'tas',
+                      tas = 'panda',
                       scanmode = 'CKI',
                      ),
 
@@ -59,7 +59,7 @@ devices = dict(
                       description = 'outgoing energy',
                       unit = 'meV',
                       base = 'ana',
-                      tas = 'tas',
+                      tas = 'panda',
                       scanmode = 'CKF',
                      ),
     mono  = device('devices.generic.DeviceAlias',
@@ -81,10 +81,13 @@ devices = dict(
                                  scatteringsense = -1,
                                  fixed = 'DO NOT USE THIS DUMMY DEVICE! please set mono.alias to another device.',
                                  fixedby = ('NICOS', 99),
+                                 lowlevel = True,
                                 ),
     ana  = device('devices.generic.DeviceAlias',
                    description = 'Current ana',
-                   alias = 'ana_pg',
+                   devclass = 'devices.tas.Monochromator',
+                   #~ alias = 'ana_pg',
+                   loglevel = 'debug',
                  ),
     ana_pg   = device('devices.tas.Monochromator',
                        description = 'PG analyser (default)',
@@ -107,13 +110,24 @@ devices = dict(
                                 abslimits = (0, 360),
                                 userlimits = (5, 355),
                                 description = 'Virtual device to startup the TAS-Device, DONT USE !',
-                                lowlevel = True,
                                 fixed = 'DO NOT USE THIS DUMMY DEVICE! please set sth.alias to another device.',
                                 fixedby = ('NICOS', 99),
+                                lowlevel = True,
                               ),
 )
 
 startupcode = '''
-CreateAllDevices()
-SetDetectors(det)
+_mymono = focibox.read(0)
+printinfo('detected mono is: %s, trying to load it' % _mymono)
+if _mymono == 'PG':
+    AddSetup('mono_pg')
+elif _mymono == 'Si':
+    AddSetup('mono_si')
+elif _mymono == 'Cu':
+    AddSetup('mono_cu')
+elif _mymono == 'Heusler':
+    AddSetup('mono_heusler')
+else:
+    printerror('Wrong or no Mono on table!')
+del _mymono # clean up namespace
 '''
