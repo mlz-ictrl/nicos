@@ -30,6 +30,7 @@ from time import sleep
 
 from nicos.devices.cacheclient import CacheClient
 from nicos.core.errors import LimitError, CommunicationError
+from nicos.utils import readonlylist, readonlydict
 
 from test.utils import raises
 
@@ -41,7 +42,7 @@ def teardown_module():
     session.unloadSetup()
 
 
-def test_float_literals():
+def test_00float_literals():
     cc = session.cache
     for fv in [float('+inf'), float('-inf'), float('nan')]:
         cc.put('testcache', 'fval', fv)
@@ -62,6 +63,7 @@ def test_01write():
     assert cachedval_local == testval
     assert cachedval[2] == testval
 
+
 def test_02setRewrite():
     cc = session.cache
     cc.setRewrite('testrewrite', 'testcache')
@@ -78,6 +80,7 @@ def test_02setRewrite():
     assert cachedval1[2] == testval
     assert cachedval2[2] == testval
 
+
 def test_03unsetRewrite():
     cc = session.cache
     cc.unsetRewrite('testrewrite')
@@ -93,6 +96,7 @@ def test_03unsetRewrite():
     assert cachedval2[2] == testvalold[2]
     assert cachedval2[2] != Ellipsis
     assert cachedval_rw == 'test2'  # still from test_02setRewrite
+
 
 def test_04writeToRewritten():
     cc = session.cache
@@ -119,7 +123,48 @@ def test_04writeToRewritten():
     assert cachedval6[2] == cachedval5[2]
 
 
-def test_cacheReader():
+def test_05cachereadonlyobjects():
+    cc = session.cache
+    testval1 = readonlylist(('A', 'B', 'C'))
+    cc.put('testcache', 'rolist', testval1)
+    cc.flush()
+    rol1 = cc.get('testcache', 'rolist')
+    rol = cc.get_explicit('testcache', 'rolist', None)
+    assert rol[2] != None
+    print type(rol1), type(testval1)
+    assert type(rol1) == type(testval1)
+    assert type(rol[2]) == type(testval1)
+
+    testval2 = readonlydict((('A', 'B'), ('C','D')))
+    cc.put('testcache', 'rodict', testval2)
+    cc.flush()
+    rod = cc.get_explicit('testcache', 'rodict', None)
+    assert rod[2] != None
+    print type(rod[2]), type(testval2)
+    assert type(rod[2]) == type(testval2)
+
+    testval3 = readonlylist((testval1, testval2, 'C'))
+    cc.put('testcache', 'rolist2', testval3)
+    cc.flush()
+    rol = cc.get_explicit('testcache', 'rolist2', None)
+    assert rol[2] != None
+    print type(rol[2]), type(testval3)
+    assert type(rol[2]) == type(testval3)
+    assert type(rol[2][0]) == type(testval1)
+    assert type(rol[2][1]) == type(testval2)
+
+    testval4 = readonlydict((('A',testval1), ('B', testval2), ('C', 'D')))
+    cc.put('testcache', 'rodict2', testval4)
+    cc.flush()
+    rod = cc.get_explicit('testcache', 'rodict2', None)
+    assert rod[2] != None
+    print type(rod[2]), type(testval4)
+    assert type(rod[2]) == type(testval4)
+    assert type(rod[2]['A']) == type(testval1)
+    assert type(rod[2]['B']) == type(testval2)
+
+
+def test_06cacheReader():
     cc = session.cache
     cc2 = CacheClient(name='cache2', prefix='nicos', cache='localhost:14877')
     testval = 'testr1'
@@ -149,7 +194,7 @@ def test_cacheReader():
                                  'considered as an error!')
 
 
-def test_cacheWriter():
+def test_07cacheWriter():
     cc = session.cache
     cc.loglevel = 'debug'
 
