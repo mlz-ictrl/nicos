@@ -27,9 +27,9 @@
 import time
 import threading
 
-from nicos.core import Param, none_or, anytype, status, \
-     NicosError, MoveError, ConfigurationError
-from nicos.core.device import Readable, Moveable, DeviceMixinBase
+from nicos.core import Param, Override, none_or, anytype, status, \
+     NicosError, MoveError, ConfigurationError, ProgrammingError
+from nicos.core.device import Moveable, Readable, Measurable, DeviceMixinBase
 from nicos.devices.generic import MultiSwitcher, Switcher, ManualMove, \
      VirtualMotor
 
@@ -102,7 +102,7 @@ class LockerMixin(DeviceMixinBase):
             self._set_mystatus(status.BUSY, 'moving subdevice to target %s' %
                                self.format(target), self)
             Moveable.start(self, target)
-            self.wait()
+            self.doWait(self)
 
             if self._mystopflag:
                 return
@@ -140,6 +140,7 @@ class LockerMixin(DeviceMixinBase):
             self._mystopflag = False
 
     def start(self, target):
+        # start is correct here!
         if self._mythread is not None:
             raise MoveError(self, "Can not start device, it is still moving!")
         l = self._adevs['lock']
@@ -158,17 +159,23 @@ class LockerMixin(DeviceMixinBase):
         self._mythread = threading.Thread(target=self._seq_thread,
                                           args=(target, lockvalue))
         self._mythread.setDaemon(True)
-        self._mythread.run()
+        self._mythread.start()
 
     move = start
 
-    def doWait(self):
+    def wait(self):
+        # wait is correct here!
         if self._mythread:
             self._mythread.join()
+            self._mythread = None # should be done by the thread itself already
+        return Moveable.wait(self)
 
     def status(self, maxage=0):
+        # status is correct here!
+        # if our thread is not running, behave 'normal'
         if self._mythread is None:
             return Readable.status(self, maxage)
+        # sequence is running, check status
         res = self._mystatmaster.doStatus(maxage)
         s = self._mystatus
         if res[0] < s[0]:
@@ -184,9 +191,253 @@ class LockerMixin(DeviceMixinBase):
             self._set_mystatus(status.NOTREACHED, 'operation interrupted')
         self._mystopflag = True
 
-    def doReset(self):
+    def reset(self):
         self._set_mystatus(status.OK, 'idle')
+        Moveable.reset(self)
 
+
+class SequencerMixin(DeviceMixinBase):
+    """Mixin performing a given sequence to reach a certain value
+    """
+    parameters = {
+        '_seq_status' : Param('status of the current executes sequence, or (100, idle)?',
+                                settable = True, mandatory = False, userparam = False, default = (status.OK, 'idle'), type = tuple),
+    }
+
+    parameter_overrides = {
+        'unit' : Override(mandatory=False, default=''),
+    }
+
+    #~ _seq_status = (status.OK, 'idle')
+    _seq_statmaster = None
+    _seq_thread = None
+    _seq_stopflag = False
+    _honor_stopflag = True      # may be needed to be false in special cases....
+
+    hardware_access = False
+
+    def _set_seq_status(self, newstatus=status.OK, newstatusstring='unknown',
+                      device=None):
+        self._seq_status = (newstatus, newstatusstring)
+        self.log.debug(self._seq_status[1])
+        if self._cache:
+            self._cache.put(self, 'status', self._seq_status,
+                            time.time(), self.maxage)
+        self._seq_statmaster = device
+
+    def _startSequence(self, sequence):
+        # check sequence
+        seq_ok = True
+        for i, step in enumerate(sequence):
+            for d, v in step.iteritems():
+                if not callable(v) and not d.isAllowed(v):
+                    seq_ok = False
+                    self.log.error('Error in step %d of sequence, can\'t move %s to %r here.' %
+                                    (i, d.name, v))
+        if not seq_ok:
+            raise ConfigurationError(self, 'invalid sequence')
+
+        if self._seq_thread:
+            raise ProgrammingError(self, 'sequence is still running!')
+
+        # debug hint:
+        if self.loglevel == 'debug':
+            self.log.debug('generated Sequence is:')
+            for i, step in enumerate(sequence):
+                self.log.debug('GenSeq %d of %d:' % (i + 1, len(sequence)))
+                for d, v in step.iteritems():
+                    if callable(v):
+                        self.log.debug(' - call %r (%r)' % (v, d))
+                    else:
+                        self.log.debug(' - maw(%r, %r)' % (d, v))
+
+
+        self.BlockingSequence(sequence)
+
+    def BlockingSequence(self, sequence):
+        """does a blocking sequence.
+
+        default is to start a thread which then performs the sequence in a 'non blocking' way.
+        (meaning, if you overwrite doBlockingSequence, device.start will return after
+        the sequence is finished)
+        """
+        self._seq_stopflag = False
+        self._seq_thread = threading.Thread(target=self.Sequence,
+                                          args=(sequence,))
+        self._seq_thread.setDaemon(True)
+        self._seq_thread.start()
+
+    def Sequence(self, sequence):
+        """performs the 'non-blocking' sequence
+
+        and runs normally in a separate thread.
+        If you overwrite this, device.start will return immediately and
+        not block until the sequence is finished.
+        """
+        self._sequence_running = True
+        try:
+            for i, step in enumerate(sequence):
+                self.log.debug('Sequence: step %d of %d' % (i + 1, len(sequence)))
+                # start movement
+                for d, v in step.iteritems():
+                    if callable(v):
+                        self.log.debug('calling %r(%r)' % (v, d), d)
+                        try:
+                            v(d)
+                        except NicosError, e:
+                            self.log.error(self, e, exc=1)
+                    else:
+                        self._set_seq_status(status.BUSY, 'moving %s to %r' % (d, v), d)
+                        d.start(v)
+                # wait
+                for d, v in step.iteritems():
+                    if self._seq_stopflag and self._honor_stopflag:
+                        for d in step:
+                            self._set_seq_status(status.BUSY, 'stopping %s' % d.name, d)
+                            d.stop()
+                        return
+                    # only wait if not fixed to avoid annoying warnings...
+                    if not d.fixed:
+                        self._set_seq_status(status.BUSY, 'waiting for %s -> %s' % (d.name, v), d)
+                        d.wait()
+                if self._seq_stopflag and self._honor_stopflag:
+                    return
+
+            self._set_seq_status(status.OK, 'idle')
+            self.log.debug('done')
+
+        except NicosError:
+            self._set_seq_status(status.ERROR, 'error upon ' + self._seq_status[1],
+                               self._seq_statmaster)
+            self.log.error(self._seq_status[1], exc=1)
+            raise
+        finally:
+            self._seq_thread = None
+            self._seq_stopflag = False
+            self._sequence_running = False
+
+
+    def doWait(self):
+        if self._seq_thread:
+            self._seq_thread.join()
+
+    def doStatus(self, maxage=0):
+        return self._seq_status
+
+    def doStop(self):
+        if self._seq_statmaster is not None or self._seq_thread is not None:
+            self._set_seq_status(status.NOTREACHED, 'operation interrupted at:' + self._seq_status[1])
+        self._seq_stopflag = True
+
+    def doReset(self):
+        self._set_seq_status(status.OK, 'idle')
+
+
+class BaseSequencer(SequencerMixin, Moveable):
+    """Moveable performing a sequence to reach a certain value
+
+    classes deriving from this need to implement a
+    _generateSequence(self, target) method which returns the required sequence
+    and a doRead. doStatus may need to be overriden in special cases.
+    """
+    def doStart(self, target):
+        if self._seq_thread is not None:
+            raise MoveError(self, "Can not start device, it is still moving!")
+        self._startSequence(self._generateSequence(target))
+
+    def _generateSequence(self, target):
+        """returns a device and target specific sequence
+
+        a sequence is a list of steps (dicts of devices to values or callables)
+        if a value is a callable, it will be called with the device and the target(s)
+        of the device in this order.
+        """
+        raise NotImplementedError(self, 'put a proper _generateSequence implementation here!')
+
+
+class SequenceMeasurable(SequencerMixin, Measurable):
+    """Measurable performing a sequence around measuring.
+
+    classes deriving from this need to implement a
+    _generateSequence(self, target) method which returns the required sequence
+    and a doRead. doStatus may need to be overriden in special cases.
+    """
+    def doStart(self, *args, **kwargs):
+        if self._seq_thread is not None:
+            raise MoveError(self, "Can not start device, it is still moving!")
+        self._startSequence(self._generateSequence(*args, **kwargs))
+
+    def _generateSequence(self, *args, **kwargs):
+        """returns a device and target specific sequence
+
+        a sequence is a list of steps (dicts of devices to values or callables)
+        if a value is a callable, it will be called with the device and the target(s)
+        of the device in this order.
+        """
+        raise NotImplementedError(self, 'put a proper _generateSequence implementation here!')
+
+class LockedDevice(BaseSequencer):
+    attached_devices = {
+        'device' : (Moveable, 'Moveable device which is protected by the lock'),
+        'lock'   : (Moveable, 'The lock, protecting the device'),
+    }
+
+    parameters = {
+        'unlockvalue' : Param('The value for the lock to unlock the moveable',
+                              mandatory=True, type=anytype),
+        'keepfixed'   : Param('Boolean: Fix devices if not moving?',
+                              default=False, type=bool),
+        'lockvalue'   : Param('Value for the lock after movement, default None '
+                              'goes to previous value',
+                              default=None, type=none_or(anytype)),
+    }
+
+    def _generateSequence(self, target, *args, **kwargs):
+        device = self._adevs['device']
+        lock = self._adevs['lock']
+        seq = []
+
+        if self.keepfixed:
+            # release lock first
+            seq.append({lock:lambda dev: dev.release()})
+
+        # now move lock to unlockvalue
+        seq.append({lock:self.unlockvalue})
+
+        if self.keepfixed:
+            # fix lock again
+            seq.append({lock:lambda dev: dev.fix('fixed unless %s moves' % self)})
+
+        seq.append({device:target})
+
+        if self.keepfixed:
+            # release lock again
+            seq.append({lock:lambda dev: dev.release()})
+
+        # now move lock to lockvalue
+        seq.append({lock:self.lockvalue or lock.target or lock.doRead(0)})
+
+        if self.keepfixed:
+            # fix lock again
+            seq.append({lock:lambda dev: dev.fix('fixed unless %s moves' % self)})
+
+        return seq
+
+    def doRead(self, maxage=0):
+        return self._adevs['device'].read(maxage)
+
+    def doStatus(self, maxage=0):
+        """returns highest statusvalue"""
+        dev_st = self._adevs['device'].status(maxage)
+        lock_st = self._adevs['lock'].status(maxage)
+        if dev_st[0] > max(lock_st[0], self._seq_status[0]):
+            self._seq_status = dev_st
+        elif lock_st[0] > max(self._seq_status[0], dev_st[0]):
+            self._seq_status = lock_st
+        return self._seq_status
+
+    def doIsAllowed(self, target):
+        return self._adevs['device'].isAllowed(target)
 
 class LockedSwitcher(LockerMixin, Switcher):
     pass
@@ -207,22 +458,3 @@ class LockedManualMove(LockerMixin, ManualMove):
 class LockedVirtualMotor(LockerMixin, VirtualMotor):
     pass
 
-class LockedDevice(LockerMixin, Moveable):
-    attached_devices = {
-        'moveable' : (Moveable, 'The device without the locking feature.'),
-    }
-
-    def doStart(self, target):
-        return self._adevs['moveable'].start(target)
-
-    def doIsAllowed(self, target):
-        return self._adevs['moveable'].isAllowed(target)
-
-    def doRead(self, maxage=0):
-        return self._adevs['moveable'].read(maxage)
-
-    def doStop(self):
-        return self._adevs['moveable'].stop()
-
-    def doStatus(self, maxage=0):
-        return self._adevs['moveable'].status(maxage)

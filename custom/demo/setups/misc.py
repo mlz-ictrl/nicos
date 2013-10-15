@@ -112,4 +112,13 @@ devices = dict(
                       coder = 'mfh_mot',
                       obs = [],
                      ),
+
+    ld      = device('devices.generic.LockedDevice',
+                      device = 'a1',
+                      lock = 'a2',
+                      lockvalue = 10,
+                      unlockvalue = 20,
+                      loglevel = 'debug',
+                     ),
+
 )
