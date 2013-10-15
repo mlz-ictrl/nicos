@@ -23,7 +23,7 @@ devices = dict(
 
     Exp      = device('devices.experiment.Experiment',
                       sample = 'Sample',
-                      dataroot = '/data',
+                      dataroot = '/scratch/data0',
                       serviceexp = '0',
                       sendmail = True,
                       mailsender = 'karl.zeitelhack@frm2.tum.de',
@@ -47,7 +47,7 @@ devices = dict(
     gracesink= device('devices.datasinks.GraceSink'),
 
     Space    = device('devices.generic.FreeSpace',
-                      path = '/data',
+                      path = '/scratch/data0',
                       minfree = 10,
                      ),
 )
