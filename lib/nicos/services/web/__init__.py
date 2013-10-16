@@ -40,8 +40,8 @@ class WebSession(Session):
     application environment.
     """
 
-    def _initLogging(self, prefix=None):
-        Session._initLogging(self, prefix)
+    def _initLogging(self, prefix=None, console=True):
+        Session._initLogging(self, prefix, console)
         sys.displayhook = self._displayhook
 
     def _displayhook(self, value):
