@@ -32,7 +32,6 @@ devices = dict(
                  alpha = 'alphastorage',
                  coils = ['coil_1', 'coil_2', 'coil_3'],
                  field = 10,    # mT
-                 moveable = None,
     ),
     sf1   = device('panda.guidefield.Flipper',
                     description = 'Spin Flipper 1 (before sample)',
@@ -41,7 +40,6 @@ devices = dict(
                     wavevector = 'ki',
                     flipcurrent = [-0.18037, -0.43804],
                     compcurrent = 2.35,
-                    moveable = None,
     ),
     sf2   = device('panda.guidefield.Flipper',
                     description = 'Spin Flipper 2 (after sample)',
@@ -54,7 +52,6 @@ devices = dict(
                     #~ # for kf=1.94 +/-pg
                     #~ flipcurrent = [0.765, 0],
                     #~ compcurrent = 2.4474,
-                    moveable = None,
     ),
     sf1_f = device('nicos.devices.taco.CurrentSupply',
                     description = 'flipper 1 flipping current',
