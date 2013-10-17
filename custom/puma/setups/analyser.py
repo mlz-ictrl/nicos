@@ -47,6 +47,21 @@ devices = dict(
                     lowlevel = True,
                     ),
 
+#    ath_st      = device('devices.generic.VirtualMotor',
+#                    unit = 'deg',
+#                    speed = 1,
+#                    abslimits = (-180, 180),
+##                      precision = 0.05,
+#                    curvalue = 35),
+
+#    att_st      = device('devices.generic.VirtualMotor',
+#                    unit = 'deg',
+#                    speed = 1,
+#                    abslimits = (-180, 180),
+##                      precision = 0.05,
+#                    curvalue = 70),
+
+
     att    = device('devices.generic.Axis',
                     description = 'Scattering angle two-theta of analyser',
                     motor = 'st_att',
