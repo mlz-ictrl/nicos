@@ -258,6 +258,7 @@ devices = dict(
     ),
     ms1 = device('devices.generic.Axis',
             description = 'primary horizontal slit before mono',
+            userlimits = (0, 50),
             motor = 'ms1_step',
             coder = 'ms1_enc',
             obs = [],

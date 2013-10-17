@@ -292,8 +292,8 @@ class MonoWechsler( Device ):
                           type=oneof('PG','Si','Cu','Heusler','None'), default='None', settable=True),
     }
     positions = ['111','011','110','101'] # Clockwise
-    monos = ['PG', 'Dummy\'Cu','Heusler','Dummy\'Si'] # assigned monos
-    shields = ['011','011','011','011'] # which magzinslot after changing
+    monos = ['Cu', 'Si','PG','Heusler'] # assigned monos
+    shields = ['111','111','111','111'] # which magzinslot after changing
                         #    (e.g. Put a PE dummy to 101 and set this to ('101,'*4).split(',')
 
     @property
@@ -441,6 +441,9 @@ class MonoWechsler( Device ):
         r = self.input2( 16 )
         if r == '01': return True
         if r == '10': return False
+        r = self.input2( 16 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Lift Absetzposition (ganz unten) defekt')
 
     def Liftgreifer_rechts_offen( self ):
@@ -453,6 +456,9 @@ class MonoWechsler( Device ):
         r = self.input2( 20 )
         if r == '01': return True
         if r == '10': return False
+        r = self.input2( 20 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Lift Parkposition (fast ganz unten) defekt')
 
     def Liftgreifer_rechts_geschlossen( self ):
@@ -462,6 +468,9 @@ class MonoWechsler( Device ):
         raise HWError('Taster Liftgreifer rechts geschlossen defekt')
 
     def Lift_obere_Ablage( self ):
+        r = self.input2( 24 )
+        if r == '01': return True
+        if r == '10': return False
         r = self.input2( 24 )
         if r == '01': return True
         if r == '10': return False
@@ -499,9 +508,15 @@ class MonoWechsler( Device ):
         r = self.input2( 28 )
         if r == '01': return True
         if r == '10': return False
+        r = self.input2( 28 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster Lift untere Ablageposition (ganz oben) defekt')
 
     def Liftgreifer_links_offen( self ):
+        r = self.input2( 30 )
+        if r == '01': return True
+        if r == '10': return False
         r = self.input2( 30 )
         if r == '01': return True
         if r == '10': return False
@@ -514,6 +529,9 @@ class MonoWechsler( Device ):
         raise HWError('Taster MagazinID3 defekt')
 
     def Magazin_Klammer_geschlossen( self ):
+        r = self.input2( 34 )
+        if r == '01': return True
+        if r == '10': return False
         r = self.input2( 34 )
         if r == '01': return True
         if r == '10': return False
@@ -547,9 +565,15 @@ class MonoWechsler( Device ):
         r = self.input2( 44 )
         if r == '01': return True
         if r == '10': return False
+        r = self.input2( 44 )
+        if r == '01': return True
+        if r == '10': return False
         raise HWError('Taster MagazinKlammer offen defekt')
 
     def Magazin_Referenzposition( self ):
+        r = self.input2( 46 )
+        if r == '01': return True
+        if r == '10': return False
         r = self.input2( 46 )
         if r == '01': return True
         if r == '10': return False
@@ -812,7 +836,7 @@ class MonoWechsler( Device ):
 
         #~ # Ok, now prepare PANDA
         #~ maw(mth,88.67)  #XXX
-        #~ maw(mtt,-36.11) #XXX
+        #~ maw(mtt.motor,-36.11) #XXX
         #~ maw(mgx, 0)            #XXX
         #~ maw(mtx, -6)            #XXX
         #~ maw(mty, 5)             #XXX
@@ -1071,19 +1095,26 @@ class MonoWechsler( Device ):
         self.log.info('Liftgreifer should be ' + (self.Lift_Druckluft() and 'open' or 'closed') +
                             ' and are ' + (self.Liftgreifer_offen() and 'open' or
                                 (self.Liftgreifer_geschlossen() and 'closed' or 'undetermined')) )
-        self.log.info('Magazin is at ' + self.MagazinID() + ' which is assigned to ' +
+        try:
+            self.log.info('Magazin is at ' + self.MagazinID() + ' which is assigned to ' +
                             self.monos[ self.positions.index( self.MagazinID() )] )
+        except Exception:
+            self.log.error('Magazin is at unknown position')
         self.log.info('Magazin_Klammer should be ' + (self.Magazin_Druckluft() and 'open' or 'closed') +
                             ' and are ' + (self.Magazin_Klammer_offen() and 'open' or
                                 (self.Magazin_Klammer_geschlossen() and 'closed' or 'undetermined')) )
         self.log.info('MagazinSlot 111 is ' + ( (self.Monogreifer_111_Links() and 'occupied' or
-                                (self.Monogreifer_111_Rechts() and 'unknown' or 'free'))))
+                                (self.Monogreifer_111_Rechts() and 'unknown' or 'free')))
+                                +' (%s)'%self.monos[self.positions.index('111')])
         self.log.info('MagazinSlot 011 is ' + ( (self.Monogreifer_011_Links() and 'occupied' or
-                                (self.Monogreifer_011_Rechts() and 'unknown' or 'free'))))
+                                (self.Monogreifer_011_Rechts() and 'unknown' or 'free')))
+                                +' (%s)'%self.monos[self.positions.index('011')])
         self.log.info('MagazinSlot 101 is ' + ( (self.Monogreifer_101_Links() and 'occupied' or
-                                (self.Monogreifer_101_Rechts() and 'unknown' or 'free'))))
+                                (self.Monogreifer_101_Rechts() and 'unknown' or 'free')))
+                                +' (%s)'%self.monos[self.positions.index('101')])
         self.log.info('MagazinSlot 110 is ' + ( (self.Monogreifer_110_Links() and 'occupied' or
-                                (self.Monogreifer_110_Rechts() and 'unknown' or 'free'))))
+                                (self.Monogreifer_110_Rechts() and 'unknown' or 'free')))
+                                +' (%s)'%self.monos[self.positions.index('110')])
         self.log.info('MonoKupplung is ' + (self.Mono_Druckluft() and 'open' or 'closed'))
 
     # dangerous stuff to aid in recovering
@@ -1104,3 +1135,22 @@ class MonoWechsler( Device ):
         self.Fahre( self.FahreLiftMotor, lambda: self.Lift_Absetzposition() or self.Lift_Parkposition() or
                                                                         self.Lift_untere_Ablage() or self.Lift_obere_Ablage(),
                                                                         5000, 600)  # this might take a while....
+
+    # dangerous stuff to aid in recovering
+    #~ @usercommand
+    def init_Magazinpos_cw( self ):
+        if self.Magazin_Referenzposition():
+            return
+        # no luck, scan lift downwards!
+        # THIS IS DANGEROUS IF THE LIFT EVER HAPPEN TO GO BELOW THE LOWEST SWITCH !!!
+        self.Fahre( self.FahreMagazinMotor, self.Magazin_Referenzposition, 500, 60)  # this might take a while....
+
+    # dangerous stuff to aid in recovering
+    #~ @usercommand
+    def init_Magazinpos_ccw( self ):
+        if self.Magazin_Referenzposition():
+            return
+        # no luck, scan lift downwards!
+        # THIS IS DANGEROUS IF THE LIFT EVER HAPPEN TO GO BELOW THE LOWEST SWITCH !!!
+        self.Fahre( self.FahreMagazinMotor, self.Magazin_Referenzposition, -500, 60)  # this might take a while....
+

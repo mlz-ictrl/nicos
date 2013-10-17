@@ -26,53 +26,50 @@ devices = dict(
                               abslimits = (1, 10),
                               dvalue = 3.45,
                               scatteringsense = -1,
-                              fixed = 'Please give me correct parameters first !',
-                              fixedby = ('brain', 99),
                              ),
+    # for MFV_heusler motor, only one limit switch (-) is connected as a reference switch
     mfv_heusler_step = device('panda.mcc2.MCC2Motor',
                               description = 'vertical focusing MOTOR of Heusler monochromator',
                               bus = 'focimotorbus',
                               mccmovement = 'linear',
                               precision = 0.01,
                               fmtstr = '%.3f',
-                              channel = 'X',
-                              addr = 0,
-                              slope = 400 * 8 / 360.,
+                              channel = 'Y', #ok
+                              addr = 0, #ok
+                              slope = 200 / 360.,
                               abslimits = (-360, 360),
-                              userlimits = (-4, 340),
-                              unit = 'deg',
-                              idlecurrent = 0.4,
-                              movecurrent = 1.2,
-                              rampcurrent = 1.3,
-                              microstep = 8,
-                              speed = 5,
+                              userlimits = (-4, 360),
+                              unit = 'deg', #ok
+                              idlecurrent = 0.6, #ok
+                              movecurrent = 1.2, #ok
+                              rampcurrent = 1.3, #ok
+                              microstep = 64, #ok
+                              speed = 20,
                               accel = 5,
                               lowlevel = True,
-                              fixed = 'Please give me correct parameters first !',
-                              fixedby = ('brain', 99),
                              ),
-    mfv_heusler_poti = device('panda.mcc2.MCC2Poti',
-                              description = 'vertical focusing CODER of Heusler monochromator',
-                              bus = 'focimotorbus',
-                              fmtstr = '%.3f',
-                              channel = 'X',
-                              addr = 0,
-                              slope = 1024.0 / 5.0, #???
-                              unit = 'mm',
-                              zerosteps = 0,
-                              lowlevel = True,
-                             ),
+    #~ mfv_heusler_poti = device('panda.mcc2.MCC2Poti',
+                              #~ description = 'vertical focusing CODER of Heusler monochromator',
+                              #~ bus = 'focimotorbus',
+                              #~ fmtstr = '%.3f',
+                              #~ channel = 'Y',
+                              #~ addr = 0,
+                              #~ slope = 1024.0 / 5.0, #???
+                              #~ unit = 'mm',
+                              #~ zerosteps = 0,
+                              #~ lowlevel = True,
+                             #~ ),
     mfv_heusler      = device('panda.rot_axis.RotAxis',
                               description = 'vertical focus of Heusler monochromator',
                               motor = 'mfv_heusler_step',
                               coder = 'mfv_heusler_step',
-                              obs = ['mfv_heusler_poti'],
-                              precision = 0.01,
+                              #~ obs = ['mfv_heusler_poti'],
+                              obs = [],
+                              precision = 0.1,
                               backlash = 0,
-                              refpos = 306,
+                              refpos = 206,
                               lowlevel = True,
-                              fixed = 'Please give me correct parameters first !',
-                              fixedby = ('brain', 99),
+                              autoref = -10,
                              ),
     ana_heusler      = device('devices.tas.Monochromator',
                               description = 'PANDA\'s Heusler ana',
@@ -86,7 +83,7 @@ devices = dict(
                               dvalue = 3.45,
                               scatteringsense = -1,
                              ),
-    afh_heu_step = device('devices.vendor.ipc.Motor',
+    afh_heusler_step = device('devices.vendor.ipc.Motor',
                           description = 'stepper for horizontal focus of heusler ana',
                           bus = 'bus1',
                           addr = MOTOR(8),
@@ -102,10 +99,10 @@ devices = dict(
                           ramptype = 1,
                           lowlevel = True,
                          ),
-    afh_heu      = device('panda.rot_axis.RotAxis',
+    afh_heusler  = device('panda.rot_axis.RotAxis',
                           description = 'horizontal focus of heusler ana',
-                          motor = 'afh_heu_step',
-                          coder = 'afh_heu_step',
+                          motor = 'afh_heusler_step',
+                          coder = 'afh_heusler_step',
                           dragerror = 5,
                           abslimits = (-179, 179),
                           obs = [],
@@ -127,11 +124,11 @@ if focibox.read(0) == 'Heusler':
     mfh.alias = None
     mfv.alias = session.getDevice('mfv_heusler')
     mono.alias = session.getDevice('mono_heusler')
-    ana.alias = session.getDevice('ana_heu')
+    ana.alias = session.getDevice('ana_heusler')
     #mfh.motor._pushParams() # forcibly send parameters to HW
     mfv.motor._pushParams() # forcibly send parameters to HW
-    #focibox.comm('XME',forcechannel=False) # enable output for mfh
-    focibox.comm('YME',forcechannel=False) # enable output for mfv
+    #focibox.comm('XMA',forcechannel=False) # enable output for mfh
+    focibox.comm('YMA',forcechannel=False) # enable output for mfv
     focibox.driverenable = True
     maw(mtx, 0) #correct center of rotation for Si-mono only
     del session

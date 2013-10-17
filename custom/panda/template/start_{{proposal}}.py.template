@@ -6,7 +6,7 @@
 #
 
 # Samplename is set in NewExperiment from the Proposaldb, but can be changed here
-Sample.samplename='{{sample#name of the sample}}'
+Sample.samplename='{{sample:SAMPLENAME#name of the sample}}'
 
 # upon alignment, correct lattice pars by *soll/ist
 a={{a:6.283#lattice constant a}}

@@ -19,3 +19,18 @@ devices = dict(
                        loglevel='info',
                       ),
 )
+
+startupcode = """
+try:
+    mfh.motor.power='off'
+except Exception:
+    pass
+try:
+    mfv.motor.power='off'
+except Exception:
+    pass
+try:
+    focibox.driverenable=False
+except Exception:
+    pass
+"""

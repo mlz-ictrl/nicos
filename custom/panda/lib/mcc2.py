@@ -94,12 +94,19 @@ class MCC2core(Device):
 
     def _pushParams(self):
         """Pushes configured params from the setup files to the hardware"""
+        self.log.warning('Sending configured parameters to HW')
         t = self._config
         for k,v in t.iteritems():
             m = getattr(self, 'doWrite' + k.title(), None)
             if m:
                 self.log.debug(self, 'Setting %r to %r'%(k, v))
                 m(v)
+        try: #UGLY!
+            self.idlecurrent = self._config['idlecurrent']
+            self.movecurrent = self._config['movecurrent']
+            self.rampcurrent = self._config['rampcurrent']
+        except Exception:
+            pass
 
     def doReset(self):
         pass
@@ -171,7 +178,7 @@ class MCC2Monoframe(MCC2core, Readable):
     def doReadDriverenable(self):
         return bool(self.comm('AR8'))
 
-    def doWritedriverenable(self, value):
+    def doWriteDriverenable(self, value):
         if value:
             self.comm('A8S')
         else:
@@ -278,6 +285,7 @@ class MCC2Motor(MCC2core, NicosMotor):
     }
 
     def doReset( self ):
+        self.comm('XC')  # Reset Axis (handbook is vague...)
         self.comm('XP02S1')  # unit = steps
         self.comm('XP03S1')  # unity slope
         self.comm('XP04S20') # lowest frequency which is Ok whithout ramp
@@ -423,6 +431,9 @@ class MCC2Motor(MCC2core, NicosMotor):
 
         if s:
             s = s[:-2]
+
+        if sui in '+-2':
+            return status.ERROR,s
 
         if (t & 0x100) == 0:
             return status.BUSY, s

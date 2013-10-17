@@ -35,24 +35,25 @@ devices = dict(
                          addr = 0,
                          slope = 900*24*2/360., # 900:1 gear, 24 steps per rev, 360deg per rev
                          abslimits = (-400,400),
-                         userlimits = (0,340),
+                         userlimits = (-360,360),
                          unit = 'deg',
                          idlecurrent = 0.1,
                          movecurrent = 0.2,
                          rampcurrent = 0.25,
-                         microstep = 2,
-                         speed = 1.5,
+                         microstep = 16,
+                         # speed = 1.5,
+                         speed = 5,
                          accel = 50,
                          lowlevel = True,
                         ),
     mfh_pg      = device('panda.rot_axis.RotAxis',
                          description = 'horizontal focus of PG monochromator',
-                         motor = 'mfh_step',
-                         coder = 'mfh_step',
+                         motor = 'mfh_pg_step',
+                         coder = 'mfh_pg_step',
                          obs = [],
                          precision = 1,
                          refpos = 208.75,
-                         refspeed = 5,
+                         refspeed = 1.5,
                          autoref = -10, # autoref every 10 full turns
                         ),
     mfv_pg_step = device('panda.mcc2.MCC2Motor',
@@ -65,20 +66,20 @@ devices = dict(
                          addr = 0,
                          slope = 900*24*2/360., # 900:1 gear, 24 steps per rev, 360deg per rev
                          abslimits = (-400,400),
-                         userlimits = (0,340),
+                         userlimits = (-360,360),
                          unit = 'deg',
                          idlecurrent = 0.1,
                          movecurrent = 0.2,
                          rampcurrent = 0.25,
-                         microstep = 2,
+                         microstep = 16,
                          speed = 5,
                          accel = 50,
                          lowlevel = True,
                         ),
     mfv_pg      = device('panda.rot_axis.RotAxis',
                          description = 'vertical focus of PG monochromator',
-                         motor = 'mfh_step',
-                         coder = 'mfh_step',
+                         motor = 'mfv_pg_step',
+                         coder = 'mfv_pg_step',
                          obs = [],
                          precision = 1,
                          refpos = 221.3,
@@ -102,10 +103,10 @@ if focibox.read(0) == 'PG':
     ana.alias = session.getDevice('ana_pg')
     mfh.motor._pushParams() # forcibly send parameters to HW
     mfv.motor._pushParams() # forcibly send parameters to HW
-    focibox.comm('XME',forcechannel=False) # enable output for mfh
-    focibox.comm('YME',forcechannel=False) # enable output for mfv
+    focibox.comm('XMA', forcechannel=False) # enable output for mfh
+    focibox.comm('YMA', forcechannel=False) # enable output for mfv
     focibox.driverenable = True
-    maw(mtx, 0) #correct center of rotation for Si-mono only
+    #maw(mtx, 0) #correct center of rotation for Si-mono only
     del session
 else:
     printerror('WRONG MONO ON TABLE FOR SETUP mono_pg !!!')
