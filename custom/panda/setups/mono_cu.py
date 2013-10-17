@@ -132,8 +132,8 @@ if focibox.read(0) == 'Cu':
     ana.alias = session.getDevice('ana_pg')
     mfh.motor._pushParams() # forcibly send parameters to HW
     mfv.motor._pushParams() # forcibly send parameters to HW
-    focibox.comm('XME',forcechannel=False) # enable output for mfh
-    focibox.comm('YME',forcechannel=False) # enable output for mfv
+    focibox.comm('XMA',forcechannel=False) # enable output for mfh
+    focibox.comm('YMA',forcechannel=False) # enable output for mfv
     focibox.driverenable = True
     maw(mtx, 0) #correct center of rotation for Si-mono only
     del session

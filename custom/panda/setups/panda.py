@@ -86,7 +86,7 @@ devices = dict(
     ana  = device('devices.generic.DeviceAlias',
                    description = 'Current ana',
                    devclass = 'devices.tas.Monochromator',
-                   #~ alias = 'ana_pg',
+                   alias = 'ana_pg',
                    loglevel = 'debug',
                  ),
     ana_pg   = device('devices.tas.Monochromator',

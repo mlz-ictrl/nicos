@@ -34,7 +34,7 @@ devices = dict(
                          fmtstr = '%.3f',
                          channel = 'X',
                          addr = 0,
-                         slope = 27000.0 / 5,
+                         slope = 27000.0 / 5 * 200 / 512,
                          abslimits = (1, 5),
                          userlimits = (1, 5),
                          unit = 'mm',
@@ -52,20 +52,24 @@ devices = dict(
                          fmtstr = '%.3f',
                          channel = 'X',
                          addr = 0,
-                         slope = 27000.0 / 5, #???
+                         slope = 4 * 27000.0 / 5, #???
                          unit = 'mm',
                          zerosteps = 0,
                          codertype = 'incremental',
                          coderbits = 25,
                          lowlevel = True,
                         ),
-    mfh_si      = device('nicos.devices.generic.Axis',
+    #~ mfh_si      = device('nicos.devices.generic.Axis',
+    mfh_si      = device('panda.rot_axis.RefAxis',
                          description = 'horizontal focus of Si monochromator',
                          motor = 'mfh_si_step',
                          coder = 'mfh_si_enc',
                          obs = [],
                          precision = 0.01,
-                         backlash = 0,
+                         backlash = -0.2,
+                         refpos = 1.4,
+                         refspeed = 0.01,
+                         autoref = None,
                         ),
 )
 
@@ -84,8 +88,8 @@ if focibox.read(0) == 'Si':
     ana.alias = session.getDevice('ana_pg')
     mfh.motor._pushParams() # forcibly send parameters to HW
     #mfv.motor._pushParams() # forcibly send parameters to HW
-    focibox.comm('XME',forcechannel=False) # enable output for mfh
-    #focibox.comm('YME',forcechannel=False) # enable output for mfv
+    focibox.comm('XMA',forcechannel=False) # enable output for mfh
+    #focibox.comm('YMA',forcechannel=False) # enable output for mfv
     focibox.driverenable = True
     #maw(mtx, -12) #correct center of rotation for Si-mono only
     del session
