@@ -1,6 +1,7 @@
 description = 'PUMA triple-axis setup'
 
 includes = ['sampletable', 'detector', 'monochromator', 'analyser', 'ios', 'lengths', 'reactor', 'slits','lakeshore']
+#includes = ['sampletable', 'detector', 'monochromator', 'analyser', 'ios', 'lengths', 'reactor','lakeshore'] # no slits
 
 modules = ['nicos.commands.tas']
 
@@ -80,6 +81,7 @@ devices = dict(
                       vfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
                       abslimits = (1, 6),
                       dvalue = 3.355,
+                      scatteringsense = -1,
                       ),
 
 #    mono_pg004     = device('devices.tas.Monochromator',
@@ -115,8 +117,9 @@ devices = dict(
                       # focus value should equal mth (for arcane reasons...)
                       hfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
                       vfocuspars = [1.34841,15.207,12.41842,-8.01148,2.13633],
-                      abslimits = (1, 10),       # :FIXTHIS:
+                      abslimits = (3.5, 18.5),       # :FIXTHIS:
                       dvalue = 1.278,           # :FIXTHIS:
+                      scatteringsense = -1,
                       ),
 
 #    mono_cu111     = device('devices.tas.Monochromator',
@@ -161,9 +164,15 @@ devices = dict(
                       hfocuspars = [0.59065,7.33506,0.86068,-0.22745,0.02901],
                       abslimits = (1, 5),
                       dvalue = 3.355,
+                      scatteringsense = -1,
                       ),
 )
 
 startupcode = '''
+psi.alias = psi_puma
 mono.alias = mono_pg002
+# following 3 lines are a hack until aliasdevs init correctly again
+CreateAllDevices()
+from nicos import session
+session.instrument = puma
 '''

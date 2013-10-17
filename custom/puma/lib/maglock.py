@@ -117,7 +117,7 @@ class MagLock(Moveable):
 
     @property
     def _magpos(self):
-        s = self._adevs['depot'].read(0)
+        s = self._adevs['magazin'].read(0)
         for i, k in enumerate(self.states):
             if s == k:
                 return i
