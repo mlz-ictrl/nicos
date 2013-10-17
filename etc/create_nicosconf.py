@@ -24,9 +24,10 @@
 
 import sys, glob, os
 
-sysuser, sysgroup, nethost, setups, services, addvars = sys.argv[1:7]
+sysuser, sysgroup, sysumask, nethost, setups, services, addvars = sys.argv[1:8]
 
 services = services or 'cache,poller'
+sysumask = sysumask or '022'
 try:
     tacobase = os.environ['DSHOME']
 except KeyError:
@@ -78,6 +79,8 @@ print '''\
 user = %(sysuser)s
 # The system group to use for daemons.
 group = %(sysgroup)s
+# The (octal, 0 prepended) umask to use for daemons. (default is 022)
+umask = %(sysumask)s
 # The path to the instrument setup files.
 setups_path = %(setups)s
 # You can set a custom path to the log files here.

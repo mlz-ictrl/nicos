@@ -577,7 +577,8 @@ def setuser(recover=True):
             os.setuid(uid)
         if 'HOME' in os.environ:
             os.environ['HOME'] = pwd.getpwuid(uid).pw_dir
-
+    if Session.config.umask is not None and hasattr(os, 'umask'):
+        os.umask(int(Session.config.umask, 8))
 
 # as copied from Python 3.3
 def which(cmd, mode=os.F_OK | os.X_OK, path=None):

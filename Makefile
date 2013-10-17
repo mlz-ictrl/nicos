@@ -206,8 +206,9 @@ main-install:
 	cp -pr $(VOPT) etc/nicos-system $(ROOTDIR)/etc
 	cp -pr $(VOPT) build/scripts-$(PYVERSION)/* $(ROOTDIR)/bin
 	-cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
-	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" "$(NETHOST)" \
-	  "$(ROOTDIR)/setups" "$(SERVICES)" "$(ENVIRONMENT)" > $(ROOTDIR)/nicos.conf
+	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" \
+          "$(SYSUMASK)" "$(NETHOST)" "$(ROOTDIR)/setups" "$(SERVICES)" \
+          "$(ENVIRONMENT)" > $(ROOTDIR)/nicos.conf
 	if [ -f $(INSTRDIR)/gui/defconfig.py ]; then \
 	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/clients/gui"; fi
 	@echo "============================================================="
