@@ -79,6 +79,7 @@ class Session(object):
         """Singleton for settings potentially overwritten later."""
         user = None
         group = None
+        umask = None
         control_path = path.join(path.dirname(__file__), '..', '..', '..', '..')
         setups_path  = 'setups'
         logging_path = 'log'
