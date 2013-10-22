@@ -111,7 +111,7 @@ class Experiment(FRM2Experiment):
         if hasattr(os, 'symlink'):
             self.log.debug('setting symlink %s to %s' %
                            (symname, sampledir))
-            if os.path.exists(symname):
+            if os.path.islink(symname):
                 self.log.debug('remove old symlink (%s)'
                                % os.path.realpath(symname))
                 os.remove(symname)
