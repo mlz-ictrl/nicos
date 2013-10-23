@@ -275,9 +275,8 @@ class NicosLogfileHandler(StreamHandler):
         return not self.disabled
 
     def emit(self, record): #pylint: disable=W0221
-        if record.levelno == ACTION or record.filename:
+        if record.levelno == ACTION:
             # do not write ACTIONs to logfiles, they're only informative
-            # also do not write messages from simulation mode
             return
         try:
             t = int(time.time())
