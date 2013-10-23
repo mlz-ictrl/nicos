@@ -587,19 +587,11 @@ class Device(object):
         from either the setup file or the device-specific default value.
         """
         paraminfo = paraminfo or self.parameters[param]
-        umethod = getattr(self, 'doUpdate' + param.title(), None)
-        if self._mode == 'simulation':
-            # in simulation mode, we only have the config file and the defaults:
-            # cache isn't present, and we can't touch the hardware to ask
-            if param not in self._params:
-                self._params[param] = self._config.get(param, paraminfo.default)
-            # do call update methods though, they should be harmless
-            if umethod:
-                umethod(self._params[param])
-            return self._params[param]
         rmethod = getattr(self, 'doRead' + param.title(), None)
+        umethod = getattr(self, 'doUpdate' + param.title(), None)
         done = False
-        if rmethod:
+        # try to read from the hardware (only in non-simulation mode)
+        if self._mode != 'simulation' and rmethod:
             try:
                 value = rmethod()
             except NicosError:
@@ -612,14 +604,16 @@ class Device(object):
             value = self._params[param]
         elif not done:
             value = self._config.get(param, paraminfo.default)
-            try:
-                value = paraminfo.type(value)
-            except (ValueError, TypeError), err:
-                raise ConfigurationError(
-                    self, '%r is an invalid value for parameter '
-                    '%s: %s' % (value, param, err))
-        if self._cache:
+        # coerce the value to the correct type
+        try:
+            value = paraminfo.type(value)
+        except (ValueError, TypeError), err:
+            raise ConfigurationError(
+                self, '%r is an invalid value for parameter '
+                '%s: %s' % (value, param, err))
+        if self._cache:  # will not be there in simulation mode
             self._cache.put(self, param, value)
+        # always call update methods, they should be working for simulation
         if umethod:
             umethod(value)
         self._params[param] = value
