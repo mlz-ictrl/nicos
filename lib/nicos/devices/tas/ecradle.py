@@ -75,6 +75,8 @@ class EulerianCradle(Moveable):
         'unit':    Override(mandatory=False),
     }
 
+    hardware_access = False
+
     valuetype = tupleof(vec3, vec3)
 
     def doRead(self, maxage=0):
