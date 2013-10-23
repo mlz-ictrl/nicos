@@ -98,7 +98,8 @@ class DeviceAlias(Device):
                              'alias devclass', exc=1)
             self._cls = Device
         Device.__init__(self, name, **config)
-        self.alias = config.get('alias', self._cache.get(self, 'alias', ''))
+        if self._cache:
+            self.alias = config.get('alias', self._cache.get(self, 'alias', ''))
         self._initialized = True
 
     def __repr__(self):
