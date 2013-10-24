@@ -5,13 +5,17 @@ sysconfig = dict(
     instrument = 'sans',
 )
 
+modules = ['sans1.commands']
+
 excludes = ['tas']
 includes = ['cryo']
 
 devices = dict(
+    Sample   = device('sans1.sans1_sample.Sans1Sample'),
+
     sans     = device('devices.instrument.Instrument',
                       responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
-                      instrument = 'SANS-V'
+                      instrument = 'SANS-V2'
                      ),
 
     guide_m1  = device('devices.generic.VirtualMotor',

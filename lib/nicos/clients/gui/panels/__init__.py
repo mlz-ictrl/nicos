@@ -24,16 +24,19 @@
 
 """NICOS GUI application package."""
 
-from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-     QColorDialog, QVBoxLayout, QDockWidget
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
+import time
 
-from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
+from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
+     QColorDialog, QVBoxLayout, QDockWidget, QDialogButtonBox, QScrollArea, \
+     QGridLayout
+from PyQt4.QtCore import Qt, QVariant, SIGNAL, QString, pyqtSignature as qtsig
+
+from nicos.clients.gui.panels.tabwidget import TearOffTabWidget, DetachedWindow
 
 from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-    loadBasicWindowSettings, loadUserStyle
+    loadBasicWindowSettings, loadUserStyle, checkSetupSpec
 from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel, docked
 
 
@@ -159,6 +162,81 @@ class Panel(QWidget, DlgUtils):
         pass
 
 
+class CustomPanel(Panel, DlgUtils):
+    """Base class for custom instrument specific panels
+
+    without any buttons or fancy stuff...
+    """
+    def __init__(self, parent, client):
+        Panel.__init__(self, parent, client)
+        DlgUtils.__init__(self, self.panelName)
+
+        # we just provide a scrollArea, whose content must be set later with
+        # self.scrollArea.setWidget(QWidget)
+        self.scrollArea = QScrollArea(self)
+        self.scrollArea.setWidgetResizable(True)
+
+        # make a vertical layout for 'ourself'
+        self.vBoxLayout = QVBoxLayout(self)
+
+        # first 'line' is the normally used content (may be the only one !)
+        self.vBoxLayout.addWidget(self.scrollArea)
+
+
+class CustomButtonPanel(CustomPanel):
+    """Base class for custom instrument specific panels
+
+    with a QDialogButtonBox at the lower right and some glue magic for fancy stuff...
+    """
+    def __init__(self, parent, client, buttons=QDialogButtonBox.Close|QDialogButtonBox.Apply):
+        CustomPanel.__init__(self, parent, client)
+
+        # make a buttonBox
+        self.buttonBox = QDialogButtonBox(buttons, parent=self)
+        self.buttonBox.setObjectName('buttonBox')
+
+        # put buttonBox below main content
+        self.vBoxLayout.addWidget(self.buttonBox)
+
+        allButtons = 'Ok Open Save Cancel Close Discard Apply Reset '\
+                     'RestoreDefaults Help SaveAll Yes YesToAll No NoToAll '\
+                     'Abort Retry Ignore'.split()
+        for n in allButtons:
+            b = self.buttonBox.button(getattr(QDialogButtonBox, n))
+            if b:
+                m = getattr(self, 'on_buttonBox_%s_clicked' % n, None)
+                if not m:
+                    m = lambda self = self, n = n: self.showError(
+                                'on_buttonBox_%s_clicked not implemented!' % n)
+                self.connect(b, SIGNAL('clicked()'), m)
+
+    def on_buttonBox_Close_clicked(self):
+        """close the right instance"""
+        # traverse stack of Widgets and close the right ones...
+        self.close()
+        obj = self
+        while hasattr(obj, 'parent'):
+            obj = obj.parent()
+            if isinstance(obj, DetachedWindow):
+                obj.close()
+            elif isinstance(obj, AuxiliaryWindow):
+                obj.close()
+                break
+
+    def on_buttonBox_Ok_clicked(self):
+        """close the right instance"""
+        # traverse stack of Widgets and close the right ones...
+        obj = self
+        while hasattr(obj, 'parent'):
+            obj = obj.parent()
+            if isinstance(obj, DetachedWindow):
+                obj.close()
+                break # if we were detached, don't close the AuxWindow
+            elif isinstance(obj, AuxiliaryWindow):
+                obj.close()
+                break
+
+
 def createWindowItem(item, window, menuwindow):
     dockPosMap = {'left':   Qt.LeftDockWidgetArea,
                   'right':  Qt.RightDockWidgetArea,
@@ -202,7 +280,18 @@ def createWindowItem(item, window, menuwindow):
         return sp
     elif isinstance(item, tabbed):
         tw = TearOffTabWidget()
-        for (title, subitem) in item:
+        for _ in range(5):
+            loaded_setups = window.client.eval('session.loaded_setups', [])
+            if loaded_setups: # sometimes the first request returns nothing useful..???
+                break
+            time.sleep(0.1) # UGLY: a local, synchronized copy would be more elegant...
+        for entry in item:
+            if len(entry) == 2:
+                (title, subitem) = entry
+            else:
+                (title, subitem, setupSpec) = entry
+                if not checkSetupSpec(setupSpec, loaded_setups):
+                    continue
             subwindow = QMainWindow(tw)
             subwindow.mainwindow = window.mainwindow
             subwindow.user_color = window.user_color
