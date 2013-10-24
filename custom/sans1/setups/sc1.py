@@ -75,4 +75,8 @@ devices = dict(
                        precision = [0.05, 0.05, 0],
                        blockingmove = True,
                       ),
+    SampleChanger = device('devices.generic.DeviceAlias',
+                            description = 'Alias to the current active Samplechanger or to nothing',
+                            alias = 'sc1_sw',
+                            )
 )

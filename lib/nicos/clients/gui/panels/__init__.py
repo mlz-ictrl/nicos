@@ -210,31 +210,49 @@ class CustomButtonPanel(CustomPanel):
                                 'on_buttonBox_%s_clicked not implemented!' % n)
                 self.connect(b, SIGNAL('clicked()'), m)
 
+    def panelState(self):
+        """returns current window state as obtained from the stack of parents"""
+        obj = self
+        while hasattr(obj, 'parent'):
+            if isinstance(obj, AuxiliaryWindow):
+                return "tab"
+            elif isinstance(obj, DetachedWindow):
+                return "detached"
+            obj = obj.parent()
+        return "main"
+
     def on_buttonBox_Close_clicked(self):
         """close the right instance"""
         # traverse stack of Widgets and close the right ones...
-        self.close()
         obj = self
+        tw = None
         while hasattr(obj, 'parent'):
             obj = obj.parent()
             if isinstance(obj, DetachedWindow):
                 obj.close()
+                return
+            elif isinstance(obj, TearOffTabWidget):
+                tw = obj
             elif isinstance(obj, AuxiliaryWindow):
                 obj.close()
-                break
+                return
+        # no window closing, use the tab left of us (if available) or the leftmost
+        if not(tw):
+            self.showInfo('This button does not work in the current configuration.')
+            return
+        idx = tw.currentIndex()
+        if idx + 1 < tw.count():
+            tw.setCurrentIndex(idx + 1)
+        elif idx > 0:
+            tw.setCurrentIndex(idx - 1)
+        else:
+            tw.setCurrentIndex(0)
 
     def on_buttonBox_Ok_clicked(self):
-        """close the right instance"""
-        # traverse stack of Widgets and close the right ones...
-        obj = self
-        while hasattr(obj, 'parent'):
-            obj = obj.parent()
-            if isinstance(obj, DetachedWindow):
-                obj.close()
-                break # if we were detached, don't close the AuxWindow
-            elif isinstance(obj, AuxiliaryWindow):
-                obj.close()
-                break
+        """OK = Apply + Close"""
+        if hasattr(self, 'on_buttonBox_Apply_clicked'):
+            self.on_buttonBox_Apply_clicked()
+        self.on_buttonBox_Close_clicked()
 
 
 def createWindowItem(item, window, menuwindow):

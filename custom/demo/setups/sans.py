@@ -146,6 +146,11 @@ devices = dict(
                       curvalue = 1000,
                       speed = 10,
                      ),
+    SampleChanger = device('devices.generic.ManualSwitch',
+                           description = 'Virtual Samplechanger with 11 positions',
+                           states = range(1, 11),
+                           fmtstr = '%d',
+                           ),
 )
 
 startupcode = '''

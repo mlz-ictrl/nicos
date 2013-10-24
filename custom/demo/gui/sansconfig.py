@@ -24,10 +24,10 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
+from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed, setups
 
 config = ('Default', [
-        tabbed(('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel')),
+        tabbed(#('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel'), setups('sans')),
                ('Expert mode',
                 vsplit(
                     hsplit(
@@ -36,6 +36,9 @@ config = ('Default', [
                         ),
                     panel('console.ConsolePanel'),
                 )),
+               ('SampleChanger', panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                    image = 'custom/sans1/lib/gui/sampleChanger11.png',
+                    positions = 11), setups('sans')),
                ('Setup', panel('setup_panel.SetupPanel')),
         ),
         window('Editor', 'editor', True,

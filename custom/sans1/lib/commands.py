@@ -54,3 +54,47 @@ def SetSample(idx, name = None):
         raise ConfigurationError("Instrument needs to be configured with a "
                                  "Sans1Sample for this command to work")
     sd.setName(idx, name)
+
+@usercommand
+@helparglist('')
+@spmsyntax()
+def ClearSamples():
+    """Clears all samplenames.
+
+    This is a SANS1 specific command.
+
+    Example:
+
+    >>> ClearSamples()
+    """
+    sd = session.experiment.sample   # get Sans1Sample device
+    if not isinstance(sd, Sans1Sample):
+        raise ConfigurationError("Instrument needs to be configured with a "
+                                 "Sans1Sample for this command to work")
+    sd.reset()
+
+@usercommand
+@helparglist('sampleposition')
+@spmsyntax(int)
+def SelectSample(pos):
+    """Selects the sample at the given Sampleposition
+
+    by selecting the right name and moving the samplechanger to the right position.
+
+    This is a SANS1 specific command.
+
+    Example:
+
+    >>> SelectSample(3) # moves samplechanger to position 3
+
+    """
+    sd = session.experiment.sample   # get Sans1Sample device
+    if not isinstance(sd, Sans1Sample):
+        raise ConfigurationError("Instrument needs to be configured with a "
+                                 "Sans1Sample for this command to work")
+    c = session.getDevice('SampleChanger')
+    c.start(pos)
+    c.wait()
+    if sd.activesample != pos: #was not updated by the samplechanger, so lets do it
+        sd.activesample = pos
+
