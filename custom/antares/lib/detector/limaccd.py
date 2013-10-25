@@ -51,6 +51,10 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                      mandatory=True, preinit=True),
                   'fastshutter' : Param('Fast shutter device name', type=str,
                                      mandatory=True),
+                  'movefastshutter' : Param('Open fast shutter before'
+                                     ' each acquisition', type=bool,
+                                     settable=True,
+                                     default=True),
                   'imagewidth'     : Param('Image width',
                                            type=int,
                                            volatile=True,
@@ -155,7 +159,7 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         # always_open or auto.
         # Note: Closing the shutter is not necessary. This will be handled
         # by a hardware signal.
-        if self.shuttermode in ['always_open', 'auto']:
+        if self.shuttermode in ['always_open', 'auto'] and self.movefastshutter:
             self._fastShutter.maw('open')
 
             # sleep is necessary as the jcns tango server does not provide
