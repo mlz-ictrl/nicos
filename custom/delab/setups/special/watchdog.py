@@ -9,33 +9,22 @@ group = 'special'
 # 'gracetime' -- time in sec allowed for the condition to be true without
 #    emitting a warning (default 5 sec)
 # 'message' -- warning message to display
-# 'priority' -- 1 or 2, where 2 is more severe (default 1)
 # 'action' -- code to execute if condition is true (default no code is executed)
+# 'type' -- selects notifiers from configured lists
 
 watchlist = [
 #    dict(condition = 'cooltemp_value > 30',
 #         message = 'Cooling water temperature exceeds 30 C',
-#         priority = 2,
 #    ),
 #    dict(condition = 'psdgas_value == "empty"',
 #         message = 'PSD gas is empty, change bottle!',
-#         priority = 2,
 #         setup = 'cascade',
 #    ),
 #    dict(condition = 'tbe_value > 70',
 #         message = 'Be filter temperature > 70 K, check cooling',
-#         priority = 1,
-#    ),
-#    dict(condition = 'cryo2_p4_value > 1.5',
-#         message = 'Cycle pressure > 1.5',
-#         priority = 2,
-#         setup = 'cryo2',
 #    ),
 ]
 
-
-# The Watchdog device has two lists of notifiers, one for priority 1 and
-# one for priority 2.
 
 devices = dict(
     email    = device('devices.notifiers.Mailer',
@@ -52,8 +41,7 @@ devices = dict(
 
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'deldaq50.del.frm2',
-                      notifiers_1 = ['email'],
-                      notifiers_2 = ['email', ],
+                      notifiers = {'default': ['email']},
                       watch = watchlist,
                       mailreceiverkey = 'email/receivers',
                      ),

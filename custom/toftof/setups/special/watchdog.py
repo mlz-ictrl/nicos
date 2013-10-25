@@ -46,10 +46,7 @@ devices = dict(
 
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'tofhw.toftof.frm2:14869',
-                      notifiers_1 = ['email'],
-                      notifiers_2 = ['email',
-#                                    'smser',
-                                    ],
+                      notifiers = {'default': ['email']},
                       watch = watchlist,
                       mailreceiverkey = 'email/receivers',
                      ),

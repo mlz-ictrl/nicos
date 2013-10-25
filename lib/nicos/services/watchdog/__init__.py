@@ -57,6 +57,7 @@ class Entry(object):
     priority = 1
     pausecount = False
     action = ''
+    type = 'default'
 
     def __init__(self, values):
         self.__dict__.update(values)
@@ -70,17 +71,14 @@ class Watchdog(BaseCacheClient):
         'mailreceiverkey': Param('Cache key that updates the receivers for '
                                  'any mail notifiers we have configured',
                                  type=str),
+        # these would be adevs, but adevs don't allow this flexible
+        # configuration with dictionaries
+        'notifiers': Param('Configures the notifiers for each warning type',
+                           type=dictof(str, listof(str))),
     }
 
     parameter_overrides = {
         'prefix':  Override(mandatory=False, default='nicos/'),
-    }
-
-    attached_devices = {
-        'notifiers_1': ([Notifier], 'A list of notifiers used for warning '
-                        'messages of priority 1'),
-        'notifiers_2': ([Notifier], 'A list of notifiers used for warning '
-                        'messages of priority 2'),
     }
 
     def doInit(self, mode):
@@ -104,6 +102,16 @@ class Watchdog(BaseCacheClient):
         # dictionary of keys used to evaluate the conditions
         self._keydict = LCDict()
 
+        # create all notifier devices
+        self._all_notifiers = []
+        self._notifiers = {'': []}
+        for key, devnames in self.notifiers.iteritems():
+            self._notifiers[key] = notiflist = []
+            for devname in devnames:
+                dev = session.getDevice(devname, Notifier)
+                notiflist.append(dev)
+                self._all_notifiers.append(dev)
+
         # process watchlist entries
         for i, entryd in enumerate(self.watch):
             # some values cannot have defaults
@@ -115,9 +123,11 @@ class Watchdog(BaseCacheClient):
                 continue
             entry = Entry(entryd)
             entry.id = i
-            if entry.priority not in (0, 1, 2):
-                self.log.error('condition %r priority is not valid, must be '
-                               '0, 1, or 2' % entry.condition)
+            if entry.type not in self._notifiers:
+                self.log.error('condition %r type is not valid, must be '
+                               'one of %r' %
+                               (entry.condition,
+                                ', '.join(map(repr, self._notifiers))))
                 continue
             self._entries[i] = entry
             # find all cache keys that the condition evaluates, to get a mapping
@@ -178,7 +188,7 @@ class Watchdog(BaseCacheClient):
 
     def _update_mailreceivers(self, emails):
         self.log.info('updating any Mailer receivers to %s' % emails)
-        for notifier in self._adevs['notifiers_1'] + self._adevs['notifiers_2']:
+        for notifier in self._all_notifiers:
             if isinstance(notifier, Mailer):
                 # we're in slave mode, so _setROParam is necessary to set params
                 notifier._setROParam('receivers', emails)
@@ -220,7 +230,7 @@ class Watchdog(BaseCacheClient):
                 warning_desc += ' -- counting paused'
             if entry.priority > 0:
                 self._put_message('warning', entry.message)
-                for notifier in self._adevs['notifiers_%d' % entry.priority]:
+                for notifier in self._adevs[entry.type]:
                     notifier.send('New warning from NICOS', warning_desc)
                 self._warnings[eid] = warning_desc
                 self._put_message('warnings', '\n'.join(self._warnings.values()),
@@ -241,7 +251,7 @@ class Watchdog(BaseCacheClient):
                        'cannot check watchdog condition' %
                        self._entries[eid].condition)
                 self._put_message('warning', msg)
-                for notifier in self._adevs['notifiers_1']:
+                for notifier in self._notifiers[self._entries[eid].type]:
                     notifier.send('New warning from NICOS', msg)
         for eid, wentry in self._watch_grace.items():
             if t > wentry[0]:

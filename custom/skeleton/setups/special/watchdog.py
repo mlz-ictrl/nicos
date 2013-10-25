@@ -12,8 +12,9 @@ group = 'special'
 # 'gracetime' -- time in sec allowed for the condition to be true without
 #    emitting a warning (default 5 sec)
 # 'message' -- warning message to display
-# 'priority' -- normal priorities are 1 or 2, where 2 is more severe (default 1)
-#     priority 0 does not emit warnings (useful together with 'pausecount'
+# 'type' -- for defining different types of warnings; this corresponds to the
+#     configured notifiers (default 'default')
+#     type '' does not emit warnings (useful together with 'pausecount'
 #     for conditions that should block counting but are not otherwise errors)
 # 'pausecount' -- if True, the count loop should be paused on the condition
 #     (default False)
@@ -21,12 +22,17 @@ group = 'special'
 watchlist = [
     dict(condition = 't_value > 100',
          message = 'Temperature too high',
-         priority = 1,
+         type = 'critical',
          action = 'maw(T, 0)'),
     dict(condition = 'phi_value > 100 and mono_value > 1.5',
          message = 'phi angle too high for current mono setting',
          gracetime = 5),
 ]
+
+notifiers = {
+    'default':  ['mailer'],
+    'critical': ['mailer', 'smser'],
+}
 
 devices = dict(
     # Configure source and copy addresses to an existing address.
@@ -44,8 +50,7 @@ devices = dict(
 
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'localhost:14869',
-                      notifiers_1 = ['mailer'],  # notifiers for prio 1
-                      notifiers_2 = ['mailer', 'smser'],
+                      notifiers = notifiers,
                       mailreceiverkey = 'email/receivers',
                       watch = watchlist,
                      ),
