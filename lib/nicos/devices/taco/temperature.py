@@ -242,7 +242,7 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
         self._taco_update_resource('channel', value)
 
     def doWriteMode(self, value):
-        modes = {'manual': 1, 'zone': 2, 'openloop': 3}
-        # writing the "mode" resource is only allowed when stopped
+        modes = {'manual': '1', 'zone': '2', 'openloop': '3'}
+        # writing the "defaultmode" resource is only allowed when stopped
         self._taco_guard(self._dev.stop)
         self._taco_update_resource('defaultmode', modes[value])
