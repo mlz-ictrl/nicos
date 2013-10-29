@@ -293,6 +293,20 @@ class MCC2Motor(MCC2core, NicosMotor):
         self.comm('XP25S0') # no backlash correction, this is done in the axis code
         self.comm('XP27S0') # Limit switches are openers (normally closed=n.c.)
 
+    @usermethod
+    def printcurrents(self):
+        if self.linear:
+            const = 0.05
+        else:
+            const = 0.1
+        xi = const * float(self.comm('XP40R'))
+        xm = const * float(self.comm('XP41R'))
+        xr = const * float(self.comm('XP42R'))
+        self.log.info('MCC-2 currents of this axes are:')
+        self.log.info('idle: %f' % (xi))
+        self.log.info('move: %f' % (xm))
+        self.log.info('ramp: %f' % (xr))
+
     def doReadMccmovement(self):
         return self.movementTypes[int(self.comm('XP01R'))]
 
