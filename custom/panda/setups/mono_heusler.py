@@ -130,7 +130,7 @@ if focibox.read(0) == 'Heusler':
     #focibox.comm('XMA',forcechannel=False) # enable output for mfh
     focibox.comm('YMA',forcechannel=False) # enable output for mfv
     focibox.driverenable = True
-    maw(mtx, 0) #correct center of rotation for Si-mono only
+    #maw(mtx, 0) #correct center of rotation for Si-mono only
     del session
 else:
     printerror('WRONG MONO ON TABLE FOR SETUP mono_heusler !!!')
