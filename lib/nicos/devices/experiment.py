@@ -142,7 +142,7 @@ class Experiment(Device):
                               'access rights of data dirs on proposal change, '
                               'or None', mandatory=False, settable=True, chatty=True,
                               type=none_or(dictof(oneof('owner', 'group',
-                                'enableDirMode', 'enableFileMode',
+                                'enableDirMode', 'enableFileMode', 'umask',
                                 'disableDirMode', 'disableFileMode'), anytype))),
         'zipdata':      Param('Whether to zip up experiment data after '
                               'experiment finishes', type=bool, default=True),
@@ -154,7 +154,7 @@ class Experiment(Device):
         'mailtemplate': Param('Mail template file name (in templatedir)',
                               type=str, default='mailtext.txt'),
         'reporttemplate': Param('File name of experimental report template (in templatedir)',
-                              type=str, default='report_{{proposal}}.rtf'),
+                              type=str, default='experimental_report.rtf'),
         'serviceexp':   Param('Name of proposal to switch to after user '
                               'experiment', type=str),
         'servicescript': Param('Script to run for service time', type=str,
@@ -184,7 +184,7 @@ class Experiment(Device):
             self._setROParam('templatedir',
                 path.join(session.config.control_path, 'template'))
 
-    def doWriteManagerights(self, mrinfo):
+    def doUpdateManagerights(self, mrinfo):
         """check and transform the managerights dict into values used later"""
         if mrinfo is None:
             return {}   # return substitute value....
@@ -214,10 +214,12 @@ class Experiment(Device):
                         raise
                     if r is not None:
                         changed[k] = r
+            if 'umask' in mrinfo:
+                os.umask(mrinfo['umask'])
             if changed:
-                d = dict(self.mrinfo)
+                d = dict(mrinfo)
                 d.update(changed)
-                return d
+                self._setROParam('managerights',d)
 
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):

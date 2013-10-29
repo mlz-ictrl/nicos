@@ -436,17 +436,17 @@ def disableDirectory(startdir, disableDirMode=None, disableFileMode=None,
             if owner or group:
                 try:
                     os.chown(full, euid, egid)
-                except OSError:
-                    pass # ignore errors upon change of ownership
+                except OSError, e:
+                    session.log.debug('chown on %r failed: %s' %(full, e))
             try:
                 os.chmod(full, disableFileMode or 0)
             except OSError:
                 failflag = True
     if owner or group:
         try:
-            os.chown(full, euid, egid)
-        except OSError:
-            pass # ignore errors upon change of ownership
+            os.chown(startdir, euid, egid)
+        except OSError, e:
+            session.log.debug('chown on %r failed: %s' %(startdir, e))
     try:
         os.chmod(startdir, disableDirMode or 0)
     except OSError:
@@ -469,12 +469,12 @@ def enableDirectory(startdir, enableDirMode=None, enableFileMode=None,
     if owner or group:
         try:
             os.chown(startdir, euid, egid)
-        except OSError:
-            pass # ignore errors upon changing ownership
+        except OSError,e:
+            session.log.debug('chown on %r failed: %s' %(startdir, e))
     try:
         os.chmod(startdir, enableDirMode or 0755)  # drwxr-xr-x
-    except OSError:
-        session.log.warning('Enabling failed for %r' % startdir)
+    except OSError,e:
+        session.log.warning('Enabling failed for %r: %s' % (startdir, e))
         failflag = True
     for child in os.listdir(startdir):
         full = path.join(startdir, child)
@@ -484,9 +484,9 @@ def enableDirectory(startdir, enableDirMode=None, enableFileMode=None,
         else:
             if owner or group:
                 try:
-                    os.chown(startdir, euid, egid)
-                except OSError:
-                    pass # ignore errors upon changing ownership
+                    os.chown(full, euid, egid)
+                except OSError, e:
+                    session.log.debug('chown on %r failed: %s' %(full, e))
             try:
                 os.chmod(full, enableFileMode or 0644)  # -rw-r--r--
             except OSError:
