@@ -49,7 +49,7 @@ from nicos.devices.notifiers import Notifier
 from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
      ColoredConsoleHandler, NicosLogfileHandler
-from nicos.utils.messaging import SimLogReceiver
+from nicos.utils.messaging import SimulationSupervisor
 from nicos.devices.instrument import Instrument
 from nicos.devices.cacheclient import CacheClient, CacheLockError, SyncCacheClient
 from nicos.protocols.cache import FLAG_NO_STORE
@@ -1147,21 +1147,12 @@ class Session(object):
             except Exception:
                 pass
 
-        # create a socket to listen to messages from the simulation result
-        receiver = SimLogReceiver(getattr(self, 'daemon_device', None))
-        receiver.start()
-        receiverport = receiver.port
-
-        # start nicos-simulate process
-        scriptname = os.path.join(self.config.control_path,
-                                  'bin', 'nicos-simulate')
-        proc = subprocess.Popen([sys.executable, scriptname, str(receiverport),
-                                 prefix, code])
+        # create a thread that that start the simulation and forwards its
+        # messages to the client(s)
+        supervisor = SimulationSupervisor(self, code, prefix)
+        supervisor.start()
         if wait:
-            try:
-                proc.wait()
-            except OSError:
-                self.log.exception('Error waiting for simulation process')
+            supervisor.join()
 
     # -- Session-specific behavior ---------------------------------------------
 

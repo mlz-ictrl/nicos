@@ -24,7 +24,11 @@
 
 """Utilies for ZeroMQ messaging."""
 
+import sys
+import time
 import logging
+import subprocess
+from os import path
 from threading import Thread
 
 import zmq
@@ -37,48 +41,58 @@ from nicos.utils.loggers import TRANSMIT_ENTRIES
 zmq_ctx = zmq.Context()
 
 
-class SimLogReceiver(Thread):
+class SimulationSupervisor(Thread):
     """
-    Thread for receiving messages from a pipe and sending them to the client.
+    Thread for starting a simulation process, receiving messages from a pipe
+    and displaying/sending them to the client.
     """
 
-    def __init__(self, daemon):
-        self.socket = zmq_ctx.socket(zmq.PULL)
-        self.port = self.socket.bind_to_random_port('tcp://127.0.0.1')
-        if daemon is None:
-            target = self._console_thread
-        else:
-            target = self._daemon_thread
-        Thread.__init__(self, target=target, args=(self.socket, daemon),
-                        name='SimLogReceiver')
+    def __init__(self, session, code, prefix):
+        scriptname = path.join(session.config.control_path,
+                               'bin', 'nicos-simulate')
+        daemon = getattr(session, 'daemon_device', None)
+        Thread.__init__(self, target=self._target,
+                        args=(daemon, scriptname, prefix, code),
+                        name='SimulationSupervisor')
+        self.setDaemon(True)
 
-    def _daemon_thread(self, socket, daemon):
+    def _target(self, daemon, scriptname, prefix, code):
+        socket = zmq_ctx.socket(zmq.PULL)
+        port = socket.bind_to_random_port('tcp://127.0.0.1')
+        # start nicos-simulate process
+        proc = subprocess.Popen([sys.executable, scriptname,
+                                 str(port), prefix, code])
         while True:
             data = socket.recv()
             msg = unserialize(data)
             if isinstance(msg, list):
-                # do not cache these messages
-                #daemon._messages.append(msg)
-                daemon.emit_event('message', msg)
+                # it's a message
+                if daemon:
+                    daemon.emit_event('message', msg)
+                else:
+                    record = logging.LogRecord(msg[0], msg[2], msg[5],
+                                               0, msg[3], (), None)
+                    record.message = msg[3].rstrip()
+                    session.log.handle(record)
             else:
-                daemon.emit_event('simresult', msg)
-                socket.close()
-                return
-
-    def _console_thread(self, socket, daemon):
-        while True:
-            data = socket.recv()
-            msg = unserialize(data)
-            if isinstance(msg, list):
-                record = logging.LogRecord(msg[0], msg[2], msg[5],
-                                           0, msg[3], (), None)
-                record.message = msg[3].rstrip()
-                session.log.handle(record)
-            else:
+                # it's the result
+                if daemon:
+                    daemon.emit_event('simresult', msg)
                 # In the console session, the summary is printed by the
                 # sim() command.
                 socket.close()
-                return
+                break
+        # wait for the process, but only for 5 seconds after the result
+        # has arrived
+        wait_start = time.time()
+        try:
+            # Python 3.x has a timeout argument for poll()...
+            while time.time() < wait_start + 5:
+                if proc.poll() is not None:
+                    return
+            raise Exception('did not terminate within 5 seconds')
+        except Exception:
+            self.log.exception('Error waiting for simulation process')
 
 
 class SimLogSender(logging.Handler):

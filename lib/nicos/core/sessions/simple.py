@@ -170,6 +170,8 @@ class SimulationSession(Session):
             exec code in session.namespace
         except:  # really *all* exceptions -- pylint: disable=W0702
             session.log.exception('Exception in simulation')
+        else:
+            session.log.info('simulation finished')
         finally:
             session.log_sender.finish()
 
