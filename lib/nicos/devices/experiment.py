@@ -157,7 +157,7 @@ class Experiment(Device):
     def doInit(self, mode):
         self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''
-        if self.elog:
+        if self.elog and mode != 'simulation':
             ensureDirectory(path.join(self.proposaldir, 'logbook'))
             session.elog_event('directory', (self.proposaldir,
                                              instname, self.proposal))
