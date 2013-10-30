@@ -87,15 +87,17 @@ def queryCycle():
     return cycle, startdate
 
 
-def queryProposal(pnumber):
+def queryProposal(pnumber, instrument=None):
     """Query the FRM-II proposal database for information about the given
     proposal number.
     """
     if not isinstance(pnumber, (int, long)):
         raise InvalidValueError('proposal number must be an integer')
+    # check still needed?
     if session.instrument is None:
         raise InvalidValueError('cannot query proposals, no instrument '
                                 'configured')
+
     with ProposalDB() as cur:
         # get proposal title and properties
         cur.execute('''
@@ -109,32 +111,42 @@ def queryProposal(pnumber):
             SELECT name, user_email, institute1 FROM nuke_users, Proposal
             WHERE user_id = _uid AND xid = %s''', (pnumber,))
         userrow = cur.fetchone()
+        # get security and radiation permissions
+        cur.execute('''
+            SELECT sec_ok, rad_ok FROM frm2_survey_comments
+            WHERE _pid =  %s''', (pnumber,))
+        permissions = cur.fetchone()
     if not rows or len(rows) < 3:
         raise InvalidValueError('proposal %s does not exist in database' %
                                 pnumber)
     if not userrow:
         raise InvalidValueError('user does not exist in database')
+    if not permissions:
+        raise InvalidValueError('no permissions entry in database')
     # structure of returned data: (title, user, prop_name, prop_value)
     info = {
         'title': rows[0][0],
         'user': userrow[0],
         'user_email': userrow[1],
         'affiliation': userrow[2],
+        'permission_security': ['no','yes'][permissions[0]],
+        'permission_radiation_protection': ['no','yes'][permissions[1]],
     }
     for row in rows:
         # extract the property name in a form usable as dictionary key
         key = row[1][4:].lower().replace('-', '_')
         value = row[2]
         if key == 'instrument':
-            if value[4:].lower() != session.instrument.instrument.lower():
-                raise InvalidValueError('proposal %s is not a proposal for '
-                    'this instrument, but %s' % (pnumber, value[4:]))
+            if value[4:].lower() != instrument.lower():
+                session.log.error('proposal %s is not a proposal for '
+                    '%r, but for %r' % (pnumber, instrument, value[4:]))
+                return value[4:], {} # avoid data leakage
         if value:
             info[key] = value
     # convert all values to utf-8
     for k in info:
         info[k] = unicode(info[k]).encode('utf-8')
-    return info
+    return info.pop('instrument', 'None'), info
 
 def queryUser(user):
     """Query the FRM-II proposal database for the user ID and password hash."""

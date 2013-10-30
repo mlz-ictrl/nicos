@@ -234,7 +234,7 @@ class Experiment(Device):
         # check if we should finish the experiment first
         if self.serviceexp and proptype == self.proptype == 'user':
             self.log.error('cannot switch directly to new user experiment, '
-                           'please use FinishExperiment first')
+                           'please use "FinishExperiment" first')
             return
 
         symlink = self._getProposalSymlink()

@@ -139,18 +139,19 @@ class SetupPanel(Panel, DlgUtils):
             '<b>%s</b><br/>%s<br/><br/>'
             'Devices: %s<br/>' % (setup, info['description'], devs))
 
-    def on_queryDBButton_clicked(self):
+    def on_queryDBButton_clicked(self, dosomething = True):
+        if not dosomething:
+            return
+
         prop = str(self.proposalNum.text())
         title = unicode(self.expTitle.text()).encode('utf-8')
         users = unicode(self.users.text()).encode('utf-8')
         local = unicode(self.localContact.text()).encode('utf-8')
         sample = unicode(self.sampleName.text()).encode('utf-8')
 
-        # read propdb and fill title, localcontact and user
+        # read all values from propdb
         try:
-            result = self.client.eval('session.experiment._fillProposal(%s, '
-                                      'title = %r, users = %r, localcontact = %r))' %
-                                      (prop, title, users, local))
+            result = self.client.eval('session.experiment._fillProposal(%s,{})' % prop)
 
             if result:
                 # now transfer it into gui
@@ -158,6 +159,15 @@ class SetupPanel(Panel, DlgUtils):
                 self.users.setText(decodeAny(result.get('user', users)))
                 self.localContact.setText(decodeAny(result.get('localcontact', local)))
                 self.sampleName.setText(decodeAny(result.get('sample', sample)))
+                # check permissions:
+                failed = []
+                if result.get('permission_security', 'no') != 'yes':
+                    failed.append('* Security (Tel. 12699)')
+                if result.get('permission_radiation_protection', 'no') != 'yes':
+                    failed.append('* Radiation protection (Tel. 14955)')
+                if failed:
+                    self.showError('Proposal lacks sufficient permissions '\
+                                   'to be performed !\n\n' + '\n'.join(failed))
             else:
                 self.showInfo('Reading proposaldb failed for an unknown reason.'
                               ' Please check logfiles for hints....')
@@ -181,6 +191,15 @@ class SetupPanel(Panel, DlgUtils):
         title = unicode(self.expTitle.text()).encode('utf-8')
         users = unicode(self.users.text()).encode('utf-8')
         local = unicode(self.localContact.text()).encode('utf-8')
+
+        # check conditions
+        if self.client.eval('session.experiment.serviceexp', True) and \
+            self.client.eval('session.experiment.proptype', 'user') == 'user' and \
+            self.client.eval('session.experiment.proposal', '') != prop:
+            self.showError('Can not directly switch experiments, please use FinishExperiment first!')
+            return
+
+        # do some work
         if prop != self._orig_proposal_info[0]:
             args = {'proposal': prop}
             if local:

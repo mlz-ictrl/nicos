@@ -76,10 +76,19 @@ class Experiment(BaseExperiment):
         if not self.propdb:
             return
         try:
-            info = queryProposal(proposal)
+            instrument, info = queryProposal(proposal, session.instrument.instrument)
         except Exception:
             self.log.warning('unable to query proposal info', exc=1)
             return
+        # check permissions
+        if info:
+            if info.get('permission_security', 'no') != 'yes':
+                self.log.error('No permission for this experiment from security! Please call 12699 (929-142).')
+            if info.get('permission_radiation_protection', 'no') != 'yes':
+                self.log.error('No permission for this experiment from radiation protection! Please call 14955 (14739/929-090).')
+        if instrument.lower() != session.instrument.instrument.lower():
+            self.log.error('This Proposal is not for your instrument, but for %r! Using bogus information....' % instrument)
+        info['instrument'] = instrument
         what = []
         # Extract NEW information
         if info.get('title') and not kwds.get('title'):
@@ -87,8 +96,10 @@ class Experiment(BaseExperiment):
             kwds['title'] = info['title']
         if info.get('substance') and not kwds.get('sample'):
             what.append('sample name')
-            kwds['sample'] = info['substance'] + (' / ' + info['formula'] if
-                                                   info ['formula'] else '')
+            kwds['sample'] = info['substance']
+            formula = info.get('formula')
+            if formula:
+                kwds['sample'] += ' / ' + formula
         if info.get('user') and not kwds.get('user'):
             newuser = info['user']
             email = info.get('user_email', '')
@@ -121,8 +132,8 @@ class Experiment(BaseExperiment):
             what.append('requested sample environment')
             kwds['se'] = ', '.join(v)
         # include supplementary stuff to make it easier to fill in exp. report templates
-        for k in 'affiliation user_email'.split():
-            kwds[k] = info[k]
+        kwds['affiliation'] = info.get('affiliation', '')
+        kwds['user_email'] = info.get('user_email', '')
         # display info about values we got.
         if what:
             self.log.info('Filled in %s from proposal database' %
