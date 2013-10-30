@@ -35,6 +35,7 @@ devices = dict(
                       mailserver = 'smtp.frm2.tum.de',
                       mailsender = 'puma@frm2.tum.de',
                       serviceexp = 'service',
+                      reporttemplate = 'experimental_report.rtf',
                       ),
     Sample   = device('devices.tas.TASSample'),
     filesink = device('devices.datasinks.AsciiDatafileSink',

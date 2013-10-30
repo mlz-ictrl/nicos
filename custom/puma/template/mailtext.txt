@@ -1,0 +1,15 @@
+Dear user(s),
+
+please find attached  {{proposal}}.tgz, a file containing the {{numscans}} data files
+({{proposal}}_{{firstscan}} to {{proposal}}_{{lastscan}}) and your script files
+from your recent experiment {{proposal}} (from {{from_date}} to {{to_date}}) on PUMA.
+
+Do not forget to submit an experimental report, especially if you will ask for further beam time.
+Your sample(s) will be stored here until they are safe to send to you.
+Please provide a shipping address for the latter case.
+
+If you have further questions concerning this experiment, please always include the 
+proposalnumber ({{proposal}}) in your communication.
+
+Regards,
+The PUMA Team

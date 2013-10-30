@@ -1,0 +1,38 @@
+# dont forget to use the following line after the current experiment to send the data to the users
+#~ FinishExperiment('{{email:USER@MAILHOST#comma separated string of email-adresses}}')
+# This script is for Proposal {{proposal#proposalnumber}}
+
+# Samplename is set in NewExperiment from the Proposaldb
+Sample.samplename='{{sample#name of the sample}}'
+
+# correct lattice pars by *soll/ist
+a={{a:6.283#lattice constant a}}
+b={{b:6.283#lattice constant b}}
+c={{c:6.283#lattice constant c}}
+Sample.lattice = ( a, b, c )
+
+Sample.angles = (90, 90, 90 )
+
+##tas_globals.SAMPLE.setAxisCoupling(False)
+puma.axiscoupling=True
+
+
+Sample.orient1 = (1, 0, 0)
+Sample.orient2 = (0, 1, 0)
+Sample.psi0 = 0  # psi_0 is calc-meas = soll - ist
+
+puma.scanconstant={{kf:2.662#kf in A-1}}
+puma.scanmode='CKF'
+
+puma.energytransferunit='meV'
+mono.unit='A-1'
+mono.order=1
+
+ana.unit='A-1'
+ana.order=1
+
+SetEnvironment(puma, T, Ts ) # clear the environment
+# additional devices may be added via AddEnvironment()
+
+#SetDetectors( det ) # puma default detector
+
