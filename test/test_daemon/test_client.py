@@ -26,9 +26,7 @@ import time
 
 from nicos import nicos_version
 from nicos.clients.base import NicosClient
-from nicos.protocols.daemon import STATUS_IDLE
-
-from test.utils import raises
+from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC
 
 
 class TestClient(NicosClient):
@@ -38,7 +36,7 @@ class TestClient(NicosClient):
         self._disconnecting = False
         NicosClient.__init__(self)
 
-    def signal(self, name, data=None, exc=None):
+    def signal(self, name, data=None, exc=None):  # pylint: disable=W0221
         if name == 'error':
             raise AssertionError('client error: %s (%s)' % (data, exc))
         if name == 'disconnected' and not self._disconnecting:
@@ -46,6 +44,17 @@ class TestClient(NicosClient):
         if name == 'status':
             self._estatus = data[0]
         self._signals.append((name, data, exc))
+
+    def iter_signals(self, startindex, timeout):
+        starttime = time.time()
+        while True:
+            endindex = len(self._signals)
+            for sig in self._signals[startindex:endindex]:
+                yield sig
+            startindex = endindex
+            time.sleep(0.05)
+            if time.time() > starttime + timeout:
+                raise AssertionError('timeout in iter_signals')
 
 client = None
 
@@ -72,7 +81,7 @@ def test_simple():
     while True:
         time.sleep(0.05)
         st = client.ask('getstatus')
-        if st['status'][0] == STATUS_IDLE:
+        if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
             break
 
     # eval/exec
@@ -122,3 +131,10 @@ def test_htmlhelp():
             break
     else:
         assert False, 'help request not arrived'
+
+def test_simulation():
+    idx = len(client._signals)
+    client.tell('simulate', '', 'read', 'sim')
+    for name, _data, _exc in client.iter_signals(idx, timeout=2.0):
+        if name == 'simresult':
+            return

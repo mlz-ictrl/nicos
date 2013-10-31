@@ -27,7 +27,7 @@ name = 'nicos setup for the daemon test'
 # This is basically the same as "stdsystem.py" but without a cache configured
 
 sysconfig = dict(
-    cache = None,
+    cache = 'localhost:14877',
     experiment = 'Exp',
     instrument = 'Tas',
     datasinks = [],

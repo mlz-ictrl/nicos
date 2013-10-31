@@ -30,18 +30,21 @@ import socket
 import subprocess
 from os import path
 
-from test.utils import TestSession, cleanup, rootdir
+from test.utils import TestSession, cleanup, rootdir, startCache, killCache
 from nicos import session
 
+cache = None
 daemon = None
 
 def setup_package():
-    print >> sys.stderr, '\nSetting up daemon test , cleaning old test dir...'
+    global cache, daemon  #pylint: disable=W0603
+    print >> sys.stderr, '\nSetting up daemon test, cleaning old test dir...'
     session.__class__ = TestSession
     session.__init__('testdaemon')
     cleanup()
-    global daemon  #pylint: disable=W0603
-    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
+    cache = startCache()
+    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib') + ':' + \
+        path.join(rootdir, '..', '..')
     daemon = subprocess.Popen([sys.executable,
                                path.join(rootdir, '..', 'daemon.py')])
     start = time.time()
@@ -68,3 +71,4 @@ def teardown_package():
     os.waitpid(daemon.pid, 0)
     sys.stderr.write(' done] ')
     session.shutdown()
+    killCache(cache)

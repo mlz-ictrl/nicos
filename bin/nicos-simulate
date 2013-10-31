@@ -10,14 +10,15 @@ sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 import signal
 
 args = sys.argv[1:]
-if len(args) != 3:
-    raise SystemExit('Usage: nicos-simulate port setups code')
+if len(args) != 4:
+    raise SystemExit('Usage: nicos-simulate port prefix setups code')
 port = int(args[0])
 prefix = args[1]
-code = args[2]
+setups = args[2].split(',')
+code = args[3]
 
 # kill forcibly after 10 minutes
 signal.alarm(600)
 
 from nicos.core.sessions.simple import SimulationSession
-SimulationSession.run(port, prefix, code)
+SimulationSession.run(port, prefix, setups, code)

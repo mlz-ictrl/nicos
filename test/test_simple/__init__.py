@@ -22,12 +22,12 @@
 #
 # *****************************************************************************
 
-cache = None
-
 import sys
 from nicos import session
 
 from test.utils import TestSession, startCache, killCache, cleanup
+
+cache = None
 
 def setup_package():
     global cache  #pylint: disable=W0603

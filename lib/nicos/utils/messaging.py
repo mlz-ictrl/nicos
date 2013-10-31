@@ -51,17 +51,18 @@ class SimulationSupervisor(Thread):
         scriptname = path.join(session.config.control_path,
                                'bin', 'nicos-simulate')
         daemon = getattr(session, 'daemon_device', None)
+        setups = session.explicit_setups
         Thread.__init__(self, target=self._target,
-                        args=(daemon, scriptname, prefix, code),
+                        args=(daemon, scriptname, prefix, setups, code),
                         name='SimulationSupervisor')
         self.setDaemon(True)
 
-    def _target(self, daemon, scriptname, prefix, code):
+    def _target(self, daemon, scriptname, prefix, setups, code):
         socket = zmq_ctx.socket(zmq.PULL)
         port = socket.bind_to_random_port('tcp://127.0.0.1')
         # start nicos-simulate process
         proc = subprocess.Popen([sys.executable, scriptname,
-                                 str(port), prefix, code])
+                                 str(port), prefix, ','.join(setups), code])
         while True:
             data = socket.recv()
             msg = unserialize(data)

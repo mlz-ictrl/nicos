@@ -4,6 +4,9 @@ Changelog for NICOS 2
 Release 2.5.0
 -------------
 
+- Simulation mode: the simulation is now executed in a fresh subprocess, not by
+  fork()ing the current NICOS process.
+
 - GUI: the data of a curve displayed in the "Device history" panel can now be
   saved to disk as a plain-text file.
 

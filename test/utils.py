@@ -280,6 +280,9 @@ def cleanup():
     os.mkdir(rootdir)
     os.mkdir(rootdir + '/cache')
     os.mkdir(rootdir + '/pid')
+    os.mkdir(rootdir + '/bin')
+    shutil.copy(path.join(rootdir, '..', 'simulate.py'),
+                rootdir + '/bin/nicos-simulate')
 
 def startCache(setup='cache', wait=5):
     global cache  # pylint: disable=W0603,W0601

@@ -136,7 +136,7 @@ class SimulationSession(Session):
     """
 
     @classmethod
-    def run(cls, port, prefix, code):
+    def run(cls, port, prefix, setups, code):
         session.__class__ = cls
 
         session.globalprefix = prefix
@@ -157,18 +157,27 @@ class SimulationSession(Session):
         session.log.info('setting up simulation...')
         session.log_sender.begin_setup()
 
-        # Load the initial setup and handle becoming master.
-        session.handleInitialSetup('startup', 'simulation')
+        try:
+            # Load the initial setup and handle becoming master.
+            session.handleInitialSetup('startup', 'simulation')
 
-        # Synchronize setups and cache values.
-        session.simulationSync()
+            # Load the setups from the original system, this should give the
+            # information about the cache address.
+            session.loadSetup(setups, allow_startupcode=False)
+
+            # Synchronize setups and cache values.
+            session.simulationSync()
+        except:  # really *all* exceptions -- pylint: disable=W0702
+            session.log.exception('Exception in simulation setup')
+            session.shutdown()
+            return 1
 
         # Set up log handlers to output everything.
         session.log_sender.begin_exec()
         # Execute the script code.
         try:
             exec code in session.namespace
-        except:  # really *all* exceptions -- pylint: disable=W0702
+        except:  # pylint: disable=W0702
             session.log.exception('Exception in simulation')
         else:
             session.log.info('simulation finished')
