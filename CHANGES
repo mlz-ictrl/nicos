@@ -4,8 +4,18 @@ Changelog for NICOS 2
 Release 2.5.0
 -------------
 
+- NewExperiment() now warns if the proposal comes from the proposal database
+  and has no approval from the radioprotection or safety departments.
+
+- The file modes and owners to set on current/old experiment data files can now
+  be finely tuned (Experiment.managerights parameter).
+
+- GUI: the "setup" panel can now include instrument-specific tabs, like fields
+  to enter names of all samples inside a sample changer.
+
 - Simulation mode: the simulation is now executed in a fresh subprocess, not by
-  fork()ing the current NICOS process.
+  fork()ing the current NICOS process.  Output from simulation is now saved
+  in a log file.
 
 - GUI: the data of a curve displayed in the "Device history" panel can now be
   saved to disk as a plain-text file.
