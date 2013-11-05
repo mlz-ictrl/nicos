@@ -23,8 +23,6 @@
 # *****************************************************************************
 
 # standard library
-import json
-import time
 from nicos.core.errors import NicosError
 # third party
 try:
@@ -38,19 +36,19 @@ from nicos.core.device import Readable, HasOffset
 from nicos.core.params import Param, oneof, Override
 import nicos.core.status as status
 
-__author__  = "Christian Felder <c.felder@fz-juelich.de>"
-__date__    = "2013-09-06"
-__version__ = "0.1.0"
+__author__ = "Christian Felder <c.felder@fz-juelich.de>"
+__date__ = "2013-11-05"
+__version__ = "0.1.1"
 
-_REST_URL = "http://apps.jcns.fz-juelich.de/meteo"
+_REST_URL = "http://jcnswww.jcns.frm2/meteo"
 
 class MeteoStation(Readable, HasOffset):
 
-    TEMP_AIR      = "temperature/air"
+    TEMP_AIR = "temperature/air"
     TEMP_WET_BULB = "temperature/wet_bulb"
-    DEWPOINT      = "dewpoint"
-    HUMIDITY      = "humidity"
-    WIND_SPEED    = "wind/speed"
+    DEWPOINT = "dewpoint"
+    HUMIDITY = "humidity"
+    WIND_SPEED = "wind/speed"
 
     _MAP_REST = { TEMP_AIR: "temperature_air",
                   TEMP_WET_BULB: "temperature_wet_bulb",
@@ -83,20 +81,20 @@ class MeteoStation(Readable, HasOffset):
         result = None
         if _thirdparty_available:
             res = requests.get(_REST_URL + '/' + self.location + '/' +
-                               self.query + "/by-height/%.1f" %self.height)
-            self.log.debug("REST-statuscode: %d" %res.status_code)
+                               self.query + "/by-height/%.1f" % self.height)
+            self.log.debug("REST-statuscode: %d" % res.status_code)
             if res.status_code == 200:
                 result = res.json()[MeteoStation._MAP_REST[self.query]]["value"]
                 self._status = status.OK, ''
             else:
                 errmsg = ("MeteoMunich, RESTful Webservice HTTPError %d"
-                          %res.status_code)
+                          % res.status_code)
                 self._status = (status.ERROR, errmsg)
                 raise NicosError(self, errmsg)
         return result
 
     def doRead(self, maxage=0):
-        self.log.debug("maxage=%d" %maxage)
+        self.log.debug("maxage=%d" % maxage)
         result = self._query()
         if result is not None:
             result += self.offset
@@ -108,8 +106,8 @@ class MeteoStation(Readable, HasOffset):
         return self._status
 
     def doWriteUnit(self, value):
-        self.log.debug("unit=%s" %str(unit))
-        if unit == 'K':
+        self.log.debug("unit=%s" % str(value))
+        if value == 'K':
             self.offset = 273.15
         else:
             self.offset = 0
