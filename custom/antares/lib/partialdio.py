@@ -26,7 +26,7 @@ from nicos.devices.tango import DigitalInput, DigitalOutput
 
 
 class PartialDigitalInput(DigitalInput):
-    """Base class for a TANGO DigitalOutput with only a part of the full
+    """Base class for a TANGO DigitalInput with only a part of the full
     bit width accessed.
     """
 
@@ -37,11 +37,11 @@ class PartialDigitalInput(DigitalInput):
 
     def doInit(self, mode):
         self._mask = (1 << self.bitwidth) - 1
-        self.valuetype = intrange(0, self._mask)
 
     def doRead(self, maxage=0):
-        rawValue = DigitalInput.doRead(self, maxage)
-        return ((rawValue >> self.startbit) & self._mask)
+        raw_value = DigitalInput.doRead(self, maxage)
+        return (raw_value >> self.startbit) & self._mask
+
 
 class PartialDigitalOutput(DigitalOutput):
     """Base class for a TANGO DigitalOutput with only a part of the full
@@ -58,18 +58,11 @@ class PartialDigitalOutput(DigitalOutput):
         self.valuetype = intrange(0, self._mask)
 
     def doRead(self, maxage=0):
-        value = DigitalOutput.doRead(self, maxage)
-        value = (value >> self.startbit) & self._mask
-        return value
+        raw_value = DigitalOutput.doRead(self, maxage)
+        return (raw_value >> self.startbit) & self._mask
 
     def doStart(self, target):
         curVal = DigitalOutput.doRead(self)
         newVal = (curVal & ~(self._mask << self.startbit)) | \
                    (target << self.startbit)
         DigitalOutput.doStart(self, newVal)
-
-    def doIsAllowed(self, target):
-        if target < 0 or target > self._mask:
-            return False, '%d outside range [0, %d]' % (target, self._mask)
-        return True, ''
-
