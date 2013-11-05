@@ -494,3 +494,62 @@ class Energy(Moveable):
 
     def doStop(self):
         self._adevs['base'].stop()
+
+
+class Wavelength(Moveable):
+    """
+    Device for adjusting initial/final wavelength of the TAS and also setting
+    the scanmode.
+    """
+
+    parameters = {
+        'scanmode': Param('Scanmode to set', type=oneof(*SCANMODES),
+                          mandatory=True),
+    }
+
+    parameter_overrides = {
+        'maxage':   Override(default=0.01),
+        'unit':     Override(volatile=True),
+    }
+
+    attached_devices = {
+        'base': (Moveable, 'Device to move (mono or ana)'),
+        'tas':  (TAS, 'The spectrometer for setting scanmode'),
+    }
+
+    valuetype = float
+
+    hardware_access = False
+
+    def doRead(self, maxage=0):
+        mono = self._adevs['base']
+        return mono._tolambda(mono.read(maxage))
+
+    def doStatus(self, maxage=0):
+        return self._adevs['base'].status(maxage)
+
+    def doStart(self, lam):
+        # first drive there, to determine if it is within limits
+        tas = self._adevs['tas']
+        mono = self._adevs['base']
+        pos = mono._fromlambda(lam, 'A-1')
+        self._adevs['base']._startInvAng(pos)
+        msg = False
+        if tas.scanmode != self.scanmode:
+            tas.scanmode = self.scanmode
+            msg = True
+        if tas.scanconstant != pos:
+            self._adevs['tas'].scanconstant = pos
+            msg = True
+        if msg:
+            tas.log.info('scan mode is now %s at %s' %
+                         (self.scanmode, self.format(lam, unit=True)))
+
+    def doReadUnit(self):
+        return 'AA'
+
+    def doWait(self):
+        self._adevs['base'].wait()
+
+    def doStop(self):
+        self._adevs['base'].stop()

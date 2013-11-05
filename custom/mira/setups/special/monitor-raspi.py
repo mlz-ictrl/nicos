@@ -5,9 +5,11 @@ Row = Column = Block = BlockRow = lambda *args: args
 Field = lambda *args, **kwds: args or kwds
 
 _column1 = Column(
-    Block('Heater power', [
-        BlockRow(Field(plot='TPower', dev='t/heaterpower', width=40, height=40, plotinterval=24*3600),
-                 ),
+    Block('Heater long-term', [
+        BlockRow(Field(plot='TPower', dev='t/heaterpower', width=40, height=30, plotinterval=24*3600)),
+    ], 'htf01'),
+    Block('Heater short-term', [
+        BlockRow(Field(plot='TPower2', dev='t/heaterpower', width=40, height=25, plotinterval=1800)),
     ], 'htf01'),
     Block('MIEZE', [
         BlockRow(Field(name='Setting', dev='mieze', item=0, istext=True, width=5),
@@ -44,6 +46,7 @@ _column1 = Column(
                  Field(name='Guide field', dev='He_GF')),
     ], 'helios'),
     Block('Y-Z table axes', [BlockRow('dty', 'dtz')], 'yztable'),
+    Block('Auxiliary currents', [BlockRow('Ipol1', 'Ipol2')], 'hpesupply'),
 
     Block('TTi + Huber', [
         BlockRow('dct1', 'dct2', Field(dev='flip', width=5)),
@@ -55,7 +58,7 @@ _column1 = Column(
 _column2 = Column(
     Block('Eulerian cradle', [
         BlockRow('echi', 'ephi'),
-        BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
+    #    BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
     ], 'euler'),
     Block('Cryostat (CCR5)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
@@ -118,11 +121,16 @@ _column2 = Column(
 )
 
 _column3 = Column(
-    Block('Temperature plot', [
-        BlockRow(Field(plot='TT', dev='T', width=40, height=40, plotinterval=24*3600),
-                 Field(plot='TT', dev='Ts'),
-                 Field(plot='TT', key='t/setpoint')),
-    ]),
+#    Block('Temperature long-term', [
+#        BlockRow(Field(plot='TT', dev='T', width=40, height=30, plotinterval=24*3600),
+#                 Field(plot='TT', dev='Ts'),
+#                 Field(plot='TT', key='t/setpoint')),
+#    ]),
+#    Block('Temperature short-term', [
+#        BlockRow(Field(plot='TT2', dev='T', width=40, height=25, plotinterval=1800),
+#                 Field(plot='TT2', dev='Ts'),
+#                 Field(plot='TT2', key='t/setpoint')),
+#    ]),
 )
 
 devices = dict(

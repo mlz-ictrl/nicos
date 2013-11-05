@@ -129,3 +129,41 @@ class HeinzingerViaHPE(TacoDevice, HasLimits, Moveable):
         self._taco_guard(self._dev.writeLine, 'INSTRUMENT:NSELECT 2')
         time.sleep(1)
         self._taco_guard(self._dev.writeLine, 'VOLT %f' % (value / self.scale))
+
+
+class HPECurrent(TacoDevice, HasLimits, Moveable):
+    """
+    Device object for HPE 3633 current control.
+    """
+    taco_class = StringIO
+
+    parameter_overrides = {
+        'unit':  Override(mandatory=False, default='A'),
+    }
+
+    parameters = {
+    }
+
+    def doInit(self, mode):
+        idn = self._taco_guard(self._dev.communicate, '*IDN?')
+        if 'HEWLETT-PACKARD' not in idn:
+            raise CommunicationError(self, 'strange model for HPE: %r' % idn)
+
+    def doRead(self, maxage=0):
+        try:
+            return float(self._taco_guard(self._dev.communicate, 'MEAS:CURR?'))
+        except Exception:
+            self.log.warning('read failed, trying again')
+            time.sleep(3)
+            try:
+                return float(self._taco_guard(self._dev.communicate, 'MEAS:CURR?'))
+            except Exception:
+                self.log.warning('read failed, trying again')
+                time.sleep(5)
+                return float(self._taco_guard(self._dev.communicate, 'MEAS:CURR?'))
+
+    def doStatus(self, maxage=0):
+        return status.OK, 'idle'
+
+    def doStart(self, value):
+        self._taco_guard(self._dev.writeLine, 'CURR %f' % value)

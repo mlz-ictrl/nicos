@@ -51,6 +51,18 @@ devices = dict(
                     base = 'mono',
                     tas = 'mira',
                     scanmode = 'CKI'),
+
+    Ei     = device('devices.tas.Energy',
+                    unit = 'meV',
+                    base = 'mono',
+                    tas = 'mira',
+                    scanmode = 'CKI'),
+
+    lam    = device('devices.tas.Wavelength',
+                    unit = 'AA',
+                    base = 'mono',
+                    tas = 'mira',
+                    scanmode = 'CKI'),
 )
 
 startupcode = '''

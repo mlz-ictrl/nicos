@@ -14,21 +14,17 @@ group = 'special'
 
 watchlist = [
     dict(condition = 'cooltemp_value > 30',
-         message = 'Cooling water temperature exceeds 30 C',
+         message = 'Cooling water temperature exceeds 30C, check FAK40 or MIRA Leckmon!',
          type = 'critical',
     ),
     dict(condition = 'psdgas_value == "empty"',
-         message = 'PSD gas is empty, change bottle!',
+         message = 'PSD gas is empty, change bottle very soon!',
          type = 'critical',
          setup = 'cascade',
     ),
     dict(condition = 'tbe_value > 70',
-         message = 'Be filter temperature > 70 K, check cooling',
+         message = 'Be filter temperature > 70 K, check cooling water!',
     ),
-#    dict(condition = 'cryo2_p4_value > 1.5',
-#         message = 'Cycle pressure > 1.5',
-#         setup = 'cryo2',
-#    ),
 ]
 
 

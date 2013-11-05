@@ -82,7 +82,7 @@ _column2 = Column(
     ], 'sample'),
     Block('Eulerian cradle', [
         BlockRow('echi', 'ephi'),
-        BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
+#        BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
     ], 'euler'),
     Block('Sample environment', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit'),
