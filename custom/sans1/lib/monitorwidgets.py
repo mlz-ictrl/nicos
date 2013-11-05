@@ -281,7 +281,7 @@ class CollimatorTable(DisplayWidget, QWidget):
         return QSize(self.width, self.height + self.titleheight)
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
-        self.curstr = unitvalue
+        self.curstr = strvalue
         self.update()
 
     def on_devStatusChange(self, dev, code, status, expired):
