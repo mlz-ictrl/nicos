@@ -71,6 +71,8 @@ def _count(detlist, preset, result):
     detset = set(detlist)
     delay = (session.instrument and session.instrument.countloopdelay or 0.025
              if session.mode != 'simulation' else 0.0)
+    #advance imagecounter
+    session.experiment.advanceImageCounter(detset)
     session.beginActionScope('Counting')
     if session.experiment.pausecount:
         _wait_for_pause(delay)
@@ -151,6 +153,7 @@ def count(*detlist, **preset):
         if not isinstance(det, Measurable):
             raise UsageError('device %s is not a measurable device' % det)
         detectors.append(det)
+    # check if manual scan is active
     scan = getattr(session, '_manualscan', None)
     if scan is not None:
         if detectors:

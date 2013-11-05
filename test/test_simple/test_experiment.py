@@ -57,9 +57,16 @@ def datapath(*parts):
 def test_experiment():
     exp = session.experiment
 
+    # setup test scenario
+    exp.dataroot = path.join(rootdir, 'data')
+    exp.proposal = 'service'
+    exp.proptype = 'service'
+
     # create the needed script file
     spath = path.join(rootdir, 'data', year,
                       'service', 'scripts')
+
+    assert exp.scriptpath == spath
     ensureDirectory(spath)
     with open(path.join(spath, 'servicestart.py'), 'w') as fp:
         fp.write('Remark("service time")\n')
@@ -73,6 +80,12 @@ def test_experiment():
     assert exp.proposal == 'service'
     assert exp.proptype == 'service'
     assert exp.remark == 'service time'
+    assert exp.scriptpath == spath
+
+    # check correct operation of sampledir
+    exp.sampledir = 'sample'
+    assert exp.datapath == path.join(exp.dataroot, year, 'service', 'sample', 'data')
+    exp.sampledir = ''
 
     # for this proposal, remove access rights after switching back
     exp._setROParam('managerights', dict( disableFileMode=0, disableDirMode=0))
@@ -99,7 +112,7 @@ def test_experiment():
 
     # try a small scan; check for data file written
     scan(session.getDevice('axis'), 0, 1, 5, 0.01)
-    assert path.isfile(datapath('p999', 'data', 'filecounter'))
+    assert path.isfile(datapath('..', 'scancounter'))
     assert path.isfile(datapath('p999', 'data', 'p999_00000001.dat'))
 
     # now, finish the experiment

@@ -41,8 +41,6 @@ class Experiment(BaseExperiment):
 
     parameters = {
         'cycle':   Param('Current reactor cycle', type=str, settable=True),
-        'editor':  Param('User editor for new scripts', type=str,
-                         settable=True),
         'propdb':  Param('Filename with credentials string for proposal DB',
                          type=str, default='', userparam=False),
     }
@@ -64,12 +62,10 @@ class Experiment(BaseExperiment):
                                '"cycle" keyword to this function')
         self.cycle = kwds['cycle']
         if self.proptype == 'user':
-            self._fillProposal(int(proposal[len(self.propprefix):]), kwds)
+            upd = self._fillProposal(int(proposal[len(self.propprefix):]), kwds)
+            if isinstance(upd, dict):
+                kwds.update(upd)
         return kwds
-
-    def _afterNewHook(self):
-        if self.editor:
-            self._start_editor()
 
     def _fillProposal(self, proposal, kwds):
         """Fill proposal info from proposal database."""
@@ -80,6 +76,8 @@ class Experiment(BaseExperiment):
         except Exception:
             self.log.warning('unable to query proposal info', exc=1)
             return
+        info['instrument'] = instrument
+
         # check permissions
         if info:
             if info.get('permission_security', 'no') != 'yes':
@@ -88,7 +86,7 @@ class Experiment(BaseExperiment):
                 self.log.error('No permission for this experiment from radiation protection! Please call 14955 (14739/929-090).')
         if instrument.lower() != session.instrument.instrument.lower():
             self.log.error('This Proposal is not for your instrument, but for %r! Using bogus information....' % instrument)
-        info['instrument'] = instrument
+
         what = []
         # Extract NEW information
         if info.get('title') and not kwds.get('title'):
@@ -147,34 +145,3 @@ class Experiment(BaseExperiment):
         kwds.setdefault('user_name', info.get('user'))
         kwds.setdefault('affiliation', 'MLZ Garching; Lichtenbergstraße 1; 85748 Garching; Germany')
         return kwds
-
-    def _start_editor(self):
-        """Open all existing script files in an editor."""
-        filelist = [fn for fn in os.listdir(self.scriptdir)
-                    if fn.endswith('.py')]
-        # sort filelist to have the start_*.py as the last file
-        for fn in filelist:
-            if fn.startswith('start_'):
-                filelist.remove(fn)
-                filelist.append(fn)
-                break
-        def preexec():
-            os.setpgrp()  # create new process group -> doesn't get Ctrl-C
-            os.chdir(self.scriptdir)
-        # start it and forget it
-        s = subprocess.Popen([self.editor] + filelist,
-            close_fds=True,
-            stdin=subprocess.PIPE,
-            stdout=os.tmpfile(),
-            stderr=subprocess.STDOUT,
-            preexec_fn=preexec,
-        )
-        def checker():
-            while s.returncode is None:
-                time.sleep(1)
-                s.poll()
-        # something needs to check the return value, if the process ends
-        thread = threading.Thread(target=checker, name='Checking Editor')
-        # don't block on closing python if the editor is still running...
-        thread.setDaemon(True)
-        thread.start()

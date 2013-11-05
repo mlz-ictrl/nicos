@@ -33,9 +33,10 @@ from nicos.utils import ensureDirectory
 
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw, drive, switch, wait, read, \
-     status, stop, reset, set, get, getall, setall, fix, release, adjust, \
+     status, stop, reset, get, getall, setall, fix, release, adjust, \
      version, history, info, limits, resetlimits, ListParams, ListMethods, \
      ListDevices
+from nicos.commands.device import set #pylint: disable=W0622
 from nicos.commands.basic import help, dir  #pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
@@ -126,7 +127,7 @@ def test_basic_commands():
 
 @requires(os.name == 'posix')
 def test_edit_command():
-    ensureDirectory(session.experiment.scriptdir)
+    ensureDirectory(session.experiment.scriptpath)
     old_editor = os.environ.get('EDITOR')
     old_raw_input = __builtin__.raw_input
     os.environ['EDITOR'] = 'touch'
@@ -137,14 +138,14 @@ def test_edit_command():
         if old_editor:
             os.environ['EDITOR'] = old_editor
         __builtin__.raw_input = old_raw_input
-    testpath = os.path.join(session.experiment.scriptdir, 'test.py')
+    testpath = os.path.join(session.experiment.scriptpath, 'test.py')
     assert os.path.isfile(testpath)
     os.unlink(testpath)
 
 def test_run_command():
-    # create a test script in the current scriptdir
-    ensureDirectory(session.experiment.scriptdir)
-    with open(os.path.join(session.experiment.scriptdir, 'test.py'), 'w') as f:
+    # create a test script in the current scriptpath
+    ensureDirectory(session.experiment.scriptpath)
+    with open(os.path.join(session.experiment.scriptpath, 'test.py'), 'w') as f:
         f.write('read()')
     run('test')
 

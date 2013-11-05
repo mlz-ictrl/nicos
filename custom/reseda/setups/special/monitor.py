@@ -12,7 +12,7 @@ _expcolumn = Column(
 ##                       istext=True, maxlen=20),
 ##                 Field(name='Current status', key='exp/action', width=30,
 ##                       istext=True),
-##                 Field(name='Last file', key='filesink/lastfilenumber'))]),
+##                 Field(name='Last file', key='exp/lastscan'))]),
 )
 
 _motorblock = Block(

@@ -21,7 +21,7 @@ devices = dict(
                       sample = 'Sample',
                       dataroot = '/data',
                       #templatedir = '/data/exp/template',
-                      templatedir = '/pandacontrol/template',
+                      templates = '/pandacontrol/template',
                       propdb = '/pandacontrol/setups/special/propdb',
                       managerights = dict( enableDirMode=0775,
                                            enableFileMode=0664,
@@ -34,6 +34,7 @@ devices = dict(
                       mailsender = 'panda@frm2.tum.de',
                       serviceexp = 'service',
                       editor = 'scite',
+                      scancounter = 'filecounter', #backwards compatibility
                       ),
 
     panda = device('devices.instrument.Instrument',
@@ -48,7 +49,6 @@ devices = dict(
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
                        description = 'metadevice storing the scanfiles',
-                       globalcounter = '/data/filecounter',
                      ),
     conssink = device('devices.datasinks.ConsoleSink',
                        description = 'device used for console-output',

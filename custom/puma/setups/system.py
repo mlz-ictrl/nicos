@@ -35,11 +35,10 @@ devices = dict(
                       mailserver = 'smtp.frm2.tum.de',
                       mailsender = 'puma@frm2.tum.de',
                       serviceexp = 'service',
-                      reporttemplate = 'experimental_report.rtf',
+                      scancounter = 'filecounter', #backwards compatibility
                       ),
     Sample   = device('devices.tas.TASSample'),
-    filesink = device('devices.datasinks.AsciiDatafileSink',
-                      globalcounter = '/data/filecounter'),
+    filesink = device('devices.datasinks.AsciiDatafileSink',),
     conssink = device('devices.datasinks.ConsoleSink'),
 #    liveplot = device('nicos.data.GraceSink'),
     daemonsink = device('devices.datasinks.DaemonSink'),

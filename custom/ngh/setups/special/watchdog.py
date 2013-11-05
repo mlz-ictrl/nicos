@@ -41,8 +41,7 @@ devices = dict(
 
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'localhost:14869',
-                      notifiers_1 = ['email'],  # notifiers for prio 1
-                      notifiers_2 = ['email'],  # notifiers for prio 2
+                      notifiers = {1:['email']},
                       mailreceiverkey = 'email/receivers',
                       watch = watchlist,
                      ),

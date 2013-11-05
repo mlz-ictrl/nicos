@@ -9,7 +9,7 @@ expcolumn = [
          {'key': 'sample/samplename', 'name': 'Sample', 'istext': True, 'width': 30},],[
          {'name': 'Current status', 'key': 'exp/action', 'width': 100,
           'istext': True, 'default':'Idle' },
-         {'key': 'filesink/lastfilenumber', 'name': 'Last file'}]
+         {'key': 'exp/lastscan', 'name': 'Last file'}]
     ])]
 
 filters = ('Primary Beam/Filters', [

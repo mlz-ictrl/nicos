@@ -10,7 +10,7 @@ _expcolumn = Column(
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title', key='exp/title', width=20, istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=30, istext=True),
-                 Field(name='Last file', key='filesink/lastfilenumber'),
+                 Field(name='Last file', key='exp/lastscan'),
                 ),
     ],
     ),

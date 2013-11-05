@@ -15,7 +15,8 @@ log/*/current
 
 data/*.py
 data/*.dat
-data/filecounter
+data/scancounter
+data/imagecounter
 data/cache/*
 data/201?/*
 data/current

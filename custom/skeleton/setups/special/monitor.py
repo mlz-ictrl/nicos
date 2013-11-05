@@ -13,7 +13,7 @@ _expcolumn = Column(
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
-                 Field(name='Last file', key='filesink/lastfilenumber'))]),
+                 Field(name='Last file', key='exp/lastscan'))]),
 )
 
 devices = dict(

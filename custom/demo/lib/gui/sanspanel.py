@@ -177,8 +177,8 @@ class SANSPanel(Panel):
         self.liveitem.setData(32, '')
         self.liveitem.setData(33, '')
 
-        datapath = self.client.eval('session.experiment.datapath', [])
-        caspath = path.join(datapath[0], '2ddata')
+        datapath = self.client.eval('session.experiment.datapath', '')
+        caspath = path.join(datapath, '2ddata')
         if path.isdir(caspath):
             for fn in sorted(os.listdir(caspath)):
                 if fn.endswith('.dat'):

@@ -31,8 +31,7 @@ from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
      Override, status, none_or
 from nicos.core.utils import multiStatus
 
-
-class Monochromator(HasLimits):
+class Monochromator(HasLimits, Moveable):
     """Monochromator device of antares.
 
     used to tune the double monochromator to a wavelength between 2.7 and 6.5

@@ -28,33 +28,70 @@
 import time
 from os import path
 
-from nicos.core import Override, UsageError
+from nicos.core import Override, Param
 from nicos.frm2.experiment import Experiment
 
 
 class PandaExperiment(Experiment):
+    parameters = {
+        'editor' : Param('User editor for new scripts', type=str,
+                         settable=True, default='Scite'),
+    }
 
     parameter_overrides = {
         'propprefix':    Override(default='p'),
-        'templatedir':   Override(default='exp/template'),
+        'templates':   Override(default='exp/template'),
         'servicescript': Override(default='start_service.py'),
     }
 
-    def _getProposalDir(self, proposal):
-        return path.join(self.dataroot, 'exp', proposal)
+    @property
+    def proposaldir(self):
+        """deviating from default of <dataroot>/<year>/<proposal>"""
+        return path.join(self.dataroot, 'exp', self.proposal)
 
-    def _getProposalSymlink(self):
+    @property
+    def proposalsymlink(self):
+        """deviating from default of <dataroot>/current"""
         return path.join(self.dataroot, 'exp', 'current')
 
-    def _getDatapath(self, proposal):
-        return [
-            path.join(self.dataroot, 'exp', proposal, 'data'),
-            path.join(self.dataroot, time.strftime('%Y'),
-                      'cycle_%s' % self.cycle),
-        ]
+    @property
+    def linkdirs(self):
+        """additional paths where datafiles will be linked from"""
+        return [path.join(self.dataroot, time.strftime('%Y'),
+                      'cycle_%s' % self.cycle)
+                    ]
 
-    def _getProposalType(self, proposal):
-        if proposal in ('template', 'current'):
-            raise UsageError(self, 'The proposal names "template" and "current"'
-                             ' are reserved and cannot be used')
-        return Experiment._getProposalType(self, proposal)
+    def _afterNewHook(self):
+        if self.editor:
+            self._start_editor()
+
+    def _start_editor(self):
+        """Open all existing script files in an editor."""
+        filelist = [fn for fn in os.listdir(self.scriptpath)
+                    if fn.endswith('.py')]
+        # sort filelist to have the start_*.py as the last file
+        for fn in filelist:
+            if fn.startswith('start_'):
+                filelist.remove(fn)
+                filelist.append(fn)
+                break
+        def preexec():
+            os.setpgrp()  # create new process group -> doesn't get Ctrl-C
+            os.chdir(self.scriptpath)
+        # start it and forget it
+        s = subprocess.Popen([self.editor] + filelist,
+            close_fds=True,
+            stdin=subprocess.PIPE,
+            stdout=os.tmpfile(),
+            stderr=subprocess.STDOUT,
+            preexec_fn=preexec,
+        )
+        def checker():
+            while s.returncode is None:
+                time.sleep(1)
+                s.poll()
+        # something needs to check the return value, if the process ends
+        thread = threading.Thread(target=checker, name='Checking Editor')
+        # don't block on closing python if the editor is still running...
+        thread.setDaemon(True)
+        thread.start()

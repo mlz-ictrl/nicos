@@ -32,7 +32,7 @@ _expcolumn = [
           'istext': True, 'maxlen': 20},
          {'name': 'Current status', 'key': 'exp/action', 'width': 30,
           'istext': True},
-         {'name': 'Last file', 'key': 'filesink/lastfilenumber'}]]),
+         {'name': 'Last file', 'key': 'exp/lastscan'}]]),
 ]
 
 _axisblock = (

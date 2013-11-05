@@ -30,6 +30,7 @@ devices = dict(
                        templatedir = 'templates',
                        sendmail = False,
                        zipdata = False,
+                       scancounter = 'filecounter', #backwards compatibility
                       ),
 
     ANTARES  = device('devices.instrument.Instrument',
@@ -39,7 +40,6 @@ devices = dict(
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
                        description = 'Scanfile storing device',
-                       globalcounter = '/data/FRM-II/filecounter',
                      ),
 
     conssink = device('devices.datasinks.ConsoleSink',

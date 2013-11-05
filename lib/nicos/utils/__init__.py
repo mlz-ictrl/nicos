@@ -389,6 +389,11 @@ def readConfig():
 
 
 # simple file operations
+#
+# first constants, then functions
+#
+DEFAULT_DIR_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH
+DEFAULT_FILE_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 
 def readFile(filename):
     fp = open(filename, 'rb')
@@ -419,10 +424,11 @@ def removePidfile(appname):
             return
         raise
 
-def ensureDirectory(dirname):
+def ensureDirectory(dirname, enableDirMode=DEFAULT_DIR_MODE, **kwargs):
     """Make sure a directory exists."""
     if not path.isdir(dirname):
         os.makedirs(dirname)
+        os.chmod(dirname, enableDirMode)
 
 def enableDisableFileItem(filepath, mode, owner=None, group=None):
     """set mode and maybe change uid/gid of a filesystem item"""
@@ -448,7 +454,8 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
 
     returns True if there were some errors and False if everything went OK.
     """
-    assert path.isdir(startdir)
+    if not path.isdir(startdir):
+        return
     failflag = False
 
     # to enable, we have to handle 'our' directory first
@@ -471,8 +478,8 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
     return failflag
 
 def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
-                     disableFileMode=S_IRUSR, owner=None, group=None,
-                     **kwargs): # kwargs eats unused args
+                        disableFileMode=S_IRUSR, owner=None, group=None,
+                        **kwargs): # kwargs eats unused args
     """Traverse a directory tree and remove access rights.
     returns True if there were some errors and False if everything went OK.
     disableDirMode default to 0500 (dr-x------) and
@@ -488,10 +495,9 @@ def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
     return failflag
     # maybe logging is better done in the caller of disableDirectory
 
-def enableDirectory(startdir,
-                    enableDirMode=S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH,
-                    enableFileMode=S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH,
-                    owner=None, group=None, **kwargs): # kwargs eats unused args
+def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
+                      enableFileMode=DEFAULT_FILE_MODE, owner=None, group=None,
+                      **kwargs): # kwargs eats unused args
     """Traverse a directory tree and grant access rights.
 
     returns True if there were some errors and False if everything went OK.
@@ -520,7 +526,7 @@ def expandTemplate(template, keywords, field_re=field_re):
     default is used instead.
 
     returns a tuple( <replaced string>, [missed keys where default was used],
-    [list of missing keys withoud default])
+    [list of missing keys without default])
     each listitem is a dictionary with three keys:
     key, default and description.
     """

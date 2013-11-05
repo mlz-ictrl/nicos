@@ -75,6 +75,7 @@ class Scan(object):
             allenvlist = session.experiment.sampleenv
             if envlist is not None:
                 allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
+        session.experiment.advanceScanCounter()
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
         if self._multistep:
@@ -543,6 +544,7 @@ class ContinuousScan(Scan):
             starttime = currenttime()
             preset = max(abs(self._endpos - self._startpos) /
                          (self._speed or 0.1) * 5, 3600)
+            session.experiment.advanceImageCounter(detlist)
             for det in detlist:
                 det.start(t=preset)
             last = sum((det.read() for det in detlist), [])

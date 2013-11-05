@@ -15,7 +15,7 @@ _expcolumn = Column(
                        istext=True, maxlen=30),
                  Field(name='Current status', key='exp/action', width=30,
                        istext=True),
-                 Field(name='Last file', key='filesink/lastfilenumber')),
+                 Field(name='Last file', key='exp/lastscan')),
     ]),
 )
 
@@ -75,7 +75,7 @@ _column3 = Column(
         BlockRow(Field(name='ROI',   key='psd/lastcounts', item=0, width=9),
                  Field(name='Total', key='psd/lastcounts', item=1, width=9),
                  Field(name='MIEZE', key='psd/lastcontrast', item=0, format='%.3f', width=6),
-                 Field(name='Last image', key='psd/lastfilenumber')),
+                 Field(name='Last image', key='psd/lastfilename')),
         BlockRow('timer', 'mon2', 'ctr1'),
         BlockRow(Field(dev='MonHV', width=5),
                  Field(dev='PSDGas', width=6),

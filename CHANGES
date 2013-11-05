@@ -3,6 +3,11 @@ Changelog for NICOS 2
 
 Release 2.5.0
 -------------
+- If sending data via email is configured and the attachment gets too big,
+  it will be uploaded to a temporary location to be downloaded by the user.
+
+- The Experiment Device was rewritten to avoid storing copies of the datapath
+  in other devices, which might use a stale version under certain circumstances.
 
 - The watchdog daemon now can have a unlimited of different condition "types",
   each of which has a separate list of notifiers.

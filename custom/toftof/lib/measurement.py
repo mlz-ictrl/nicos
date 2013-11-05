@@ -73,7 +73,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         return Value('filename', type='info'),
 
     def presetInfo(self):
-        return ['info', 't', 'm', 'nosave']
+        return ['info', 't', 'm']
 
     def doInit(self, mode):
         with open(self.detinfofile, 'U') as fp:
@@ -100,7 +100,6 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._anglemap = tuple((i-1) for i in sorted(dmap, key=dmap.__getitem__))
         self._measuring = False
         self._devicelogs = {}
-        self._lastnosave = False
 
     def doSetPreset(self, **preset):
         self._adevs['counter'].setPreset(**preset)
@@ -194,9 +193,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
         # update interval: about every 30 seconds for 1024 time channels
         self._updateevery = max(int(15.*ctr.timechannels/1024 * 40), 80)
 
-        # start new file
-        self._newFile(increment=not self._lastnosave)
-        self._lastnosave = bool(preset.get('nosave', False))
+        self._newFile()
         self._startheader.append('FileName: %s\n' % self.lastfilename)
 
         # open individual device logfiles
@@ -205,8 +202,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
         self._lastcounts = 0
         self._lastmoncounts = 0
         self._lasttemps = []
-        self.log.info('Measurement %06d started' % self.lastfilenumber)
-        session.action('#%06d' % self.lastfilenumber)
+        self.log.info('Measurement %06d started' % session.experiment.readImageCounter())
+        session.action('#%06d' % session.experiment.readImageCounter())
         self._measuring = True
         self._starttime = self._lasttime = currenttime()
         ctr.start(**preset)
@@ -457,7 +454,7 @@ class TofTofMeasurement(Measurable, ImageStorage):
             script_fn = self.lastfilename.replace('0000.raw', '5200.raw')
             with open(script_fn, 'w') as fp:
                 fp.write(session.experiment.scripts[-1])
-        self.log.info('Measurement %06d finished' % self.lastfilenumber)
+        self.log.info('Measurement %06d finished' % session.experiment.readImageCounter())
         self._measuring = False
         self._closeDeviceLogs()
         session.breakpoint(2)

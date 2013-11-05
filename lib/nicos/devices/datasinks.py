@@ -24,14 +24,12 @@
 
 """Data sink classes for NICOS."""
 
-import os
 import time
-from os import path
 
 from nicos import session
 from nicos.core import none_or, Device, Param, Override, ConfigurationError, \
-     ProgrammingError, NicosError, DataSink, NeedsDatapath, usermethod
-from nicos.utils import readFileCounter, updateFileCounter, parseDateString
+     DataSink, usermethod
+from nicos.utils import parseDateString
 from nicos.utils.graceplot import GracePlot, GracePlotter
 from nicos.commands.output import printinfo, printwarning
 from nicos.core.sessions.console import ConsoleSession
@@ -276,7 +274,7 @@ class GraceSink(DataSink):
         pl.autotick()
 
 
-class DatafileSink(DataSink, NeedsDatapath):
+class DatafileSink(DataSink):
 
     activeInSimulation = False
 
@@ -284,44 +282,26 @@ class DatafileSink(DataSink, NeedsDatapath):
 class AsciiDatafileSink(DatafileSink):
     """A data sink that writes to a plain ASCII data file.
 
-    The `lastfilenumber` and `lastpoint` parameters are managed automatically.
+    The `lastpoint` parameter is managed automatically.
 
-    The current file counter is normally stored in a file called "counter" in
-    the data directory.  If the `globalcounter` parameter is nonempty, it gives
-    the name of a global counter file instead, which is always used regardless
-    of data path.
+    The current file counter as well as the name of the most recently written
+    scanfile is managed by the experiment device.
     """
     parameters = {
-        'globalcounter':  Param('File name for a global file counter instead '
-                                'of one per datapath', type=str, default=''),
         'commentchar':    Param('Comment character', type=str, default='#',
                                 settable=True),
         'semicolon':      Param('Whether to add a semicolon between X and Y '
                                 'values', type=bool, default=True),
-        'lastfilenumber': Param('The number of the last written data file',
-                                type=int),
         'lastpoint':      Param('The number of the last point in the data file',
                                 type=int),
+        'nametemplate':   Param('Name template for the files written', type=str,
+                                userparam=False, settable=False,
+                                default='%(proposal)s_%(counter)08d.dat'),
     }
 
     parameter_overrides = {
         'scantypes':      Override(default=['2D']),
     }
-
-    def doUpdateDatapath(self, value):
-        self._path = value[0]
-        self._addpaths = value[1:]
-        # determine current file counter value
-        self._readCurrentCounter()
-        self._setROParam('lastpoint', 0)
-
-    def _readCurrentCounter(self):
-        if self.globalcounter:
-            self._counter = readFileCounter(self.globalcounter)
-        else:
-            self._counter = readFileCounter(
-                path.join(self._path, 'filecounter'))
-        self._setROParam('lastfilenumber', self._counter)
 
     def doUpdateCommentchar(self, value):
         if len(value) > 1:
@@ -329,42 +309,19 @@ class AsciiDatafileSink(DatafileSink):
                                      'one character')
         self._commentc = value
 
-    def nextFileName(self):
-        """Return the file name for the next data file.  Can be overwritten in
-        instrument-specific subclasses.
-        """
-        pstr = session.experiment.proposal
-        if not pstr:
-            raise NicosError('Please initialize the experiment first using '
-                             'the NewExperiment() command')
-        return '%s_%08d.dat' % (pstr, self._counter)
-
     def prepareDataset(self, dataset):
+        shortname, longname, fp = session.experiment.createScanFile(self.nametemplate)
         self._wrote_columninfo = False
-        if self.lastfilenumber != self._counter:
-            # inconsistent state -- better read the on-disk counter
-            self._readCurrentCounter()
-        self._counter += 1
-        if self.globalcounter:
-            updateFileCounter(self.globalcounter, self._counter)
-        else:
-            updateFileCounter(path.join(self._path, 'filecounter'),
-                              self._counter)
-        self._fname = self.nextFileName()
-        self._setROParam('lastfilenumber', self._counter)
+        self._fname = shortname
         self._setROParam('lastpoint', 0)
-        self._fullfname = path.join(self._path, self._fname)
+        self._fullfname = longname
+        self._file = fp
         dataset.sinkinfo['filepath'] = self._fullfname
         dataset.sinkinfo['filename'] = self._fname
-        dataset.sinkinfo['number'] = self._counter
+        dataset.sinkinfo['number'] = session.experiment.lastscan
 
     def beginDataset(self, dataset):
-        if path.isfile(self._fullfname):
-            raise ProgrammingError('Data file named %r already exists!' %
-                                   self._fullfname)
-        self._file = open(self._fullfname, 'w')
-        for addpath in self._addpaths:
-            os.link(self._fullfname, path.join(addpath, self._fname))
+        session.experiment.linkDataFiles(self._fname)
         self._userinfo = dataset.scaninfo
         self._file.write('%s NICOS data file, created at %s\n' %
                          (self._commentc*3, time.strftime(TIMEFMT)))
@@ -417,3 +374,4 @@ class AsciiDatafileSink(DatafileSink):
                          (self._commentc*3, self._fname))
         self._file.close()
         self._file = None
+        self._setROParam('lastpoint', 0)

@@ -131,10 +131,10 @@ class LiveDataPanel(Panel):
         self.menu.popup(self.mapToGlobal(point))
 
     def on_client_connected(self):
-        datapath = self.client.eval('session.experiment.datapath', [])
+        datapath = self.client.eval('session.experiment.datapath', '')
         if not datapath:
             return
-        caspath = path.join(datapath[0], 'cascade')
+        caspath = path.join(datapath, 'cascade')
         if path.isdir(caspath):
             for fn in sorted(os.listdir(caspath)):
                 if fn.endswith('.pad'):

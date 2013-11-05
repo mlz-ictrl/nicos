@@ -34,9 +34,8 @@ from nicos.core import ConfigurationError
 from nicos.antares.detector.pytangodevice import PyTangoDevice
 from nicos.antares.detector import ImageStorageFits
 
-import numpy
-from os import path
 import time
+import numpy
 
 
 class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
@@ -47,100 +46,62 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
 
 
     parameters = {
-                  'hwdevice' : Param('Hardware device name', type=str,
-                                     mandatory=True, preinit=True),
-                  'fastshutter' : Param('Fast shutter device name', type=str,
-                                     mandatory=True),
-                  'movefastshutter' : Param('Open fast shutter before'
-                                     ' each acquisition', type=bool,
-                                     settable=True,
-                                     default=True),
-                  'imagewidth'     : Param('Image width',
-                                           type=int,
-                                           volatile=True,
-                                           category='general'),
-                  'imageheight'    : Param('Image height',
-                                           type=int,
-                                           volatile=True,
-                                           category='general'),
-                  'roi'            : Param('Region of interest',
-                                           type=tupleof(int, int, int, int),
-                                           settable=True,
-                                           default=(0, 0, 0, 0),
-                                           volatile=True,
-                                           category='general'),
-                  'bin'            : Param('Binning (x,y)',
-                                           type=tupleof(int, int),
-                                           settable=True,
-                                           default=(1, 1),
-                                           volatile=True,
-                                           category='general'),
-                  'flip'           : Param('Flipping (x,y)',
-                                           type=tupleof(bool, bool),
-                                           settable=True,
-                                           default=(False, False),
-                                           volatile=True,
-                                           category='general'),
-                  'rotation'       : Param('Rotation',
-                                           type=oneof(0, 90, 180, 270),
-                                           settable=True,
-                                           default=0,
-                                           volatile=True,
-                                           category='general'),
-                  'shutteropentime': Param('Shutter open time',
-                                           type=float,
-                                           settable=True,
-                                           default=0,
-                                           volatile=True,
-                                           category='general'),
-                  'shutterclosetime' : Param('Shutter open time',
-                                           type=float,
-                                           settable=True,
-                                           default=0,
-                                           volatile=True,
-                                           category='general'),
-                  'shuttermode' : Param('Shutter mode',
-                                           type=oneof('always_open',
-                                                      'always_closed', 'auto'),
-                                           settable=True,
-                                           default='auto',
-                                           volatile=True,
-                                           category='general'),
-                  'hsspeed' : Param('Horizontal shift speed',
-                                           type=oneof(*HSSPEEDS),
-                                           settable=True,
-                                           default=5,
-                                           unit='MHz',
-                                           volatile=True,
-                                           category='general'),
-                  'vsspeed' : Param('Vertical shift speed',
-                                           type=oneof(*VSSPEEDS),
-                                           settable=True,
-                                           default=76.95,
-                                           unit='ms/shift',
-                                           volatile=True,
-                                           category='general'),
-                  'pgain' : Param('Preamplifier gain',
-                                           type=oneof(*PGAINS),
-                                           settable=True,
-                                           default=4,
-                                           volatile=True,
-                                           category='general'),
-                  'expotime' : Param('Exposure time',
-                                           type=float,
-                                           settable=False,
-                                           volatile=True,
-                                           category='general'),
-                  'cameramodel' : Param('Camera type/model',
-                                           type=str,
-                                           settable=False,
-                                           volatile=True, # Necessary?
-                                           category='general'),
-                  }
+        'hwdevice'        : Param('Hardware device name',
+                                type=str, mandatory=True, preinit=True),
+        'fastshutter'     : Param('Fast shutter device name',
+                                type=str, mandatory=True),
+        'movefastshutter' : Param('Open fast shutter before each acquisition',
+                                type=bool, settable=True, default=True),
+        'imagewidth'      : Param('Image width',
+                                type=int, volatile=True, category='general'),
+        'imageheight'     : Param('Image height',
+                                type=int, volatile=True, category='general'),
+        'roi'             : Param('Region of interest',
+                                type=tupleof(int, int, int, int), settable=True,
+                                default=(0, 0, 0, 0), volatile=True,
+                                category='general'),
+        'bin'             : Param('Binning (x,y)',
+                                type=tupleof(int, int), settable=True,
+                                default=(1, 1), volatile=True, category='general'),
+        'flip'            : Param('Flipping (x,y)',
+                                type=tupleof(bool, bool), settable=True,
+                                default=(False, False), volatile=True,
+                                category='general'),
+        'rotation'        : Param('Rotation',
+                                type=oneof(0, 90, 180, 270), settable=True,
+                                default=0, volatile=True, category='general'),
+        'shutteropentime' : Param('Shutter open time',
+                                type=float, settable=True, default=0,
+                                volatile=True, category='general'),
+        'shutterclosetime' : Param('Shutter open time',
+                                type=float, settable=True, default=0,
+                                volatile=True, category='general'),
+        'shuttermode'     : Param('Shutter mode',
+                                type=oneof('always_open', 'always_closed', 'auto'),
+                                settable=True, default='auto', volatile=True,
+                                category='general'),
+        'hsspeed'         : Param('Horizontal shift speed',
+                                type=oneof(*HSSPEEDS), settable=True, default=5,
+                                unit='MHz', volatile=True, category='general'),
+        'vsspeed'         : Param('Vertical shift speed',
+                                type=oneof(*VSSPEEDS), settable=True, default=76.95,
+                                unit='ms/shift', volatile=True, category='general'),
+        'pgain'           : Param('Preamplifier gain',
+                                type=oneof(*PGAINS), settable=True, default=4,
+                                volatile=True, category='general'),
+        'expotime'        : Param('Exposure time',
+                                type=float, settable=False, volatile=True,
+                                category='general'),
+        'cameramodel'     : Param('Camera type/model',
+                                type=str, settable=False,
+                                volatile=True, # Necessary?
+                                category='general'),
+    }
 
     parameter_overrides = {
-                           'subdir' : Override(settable=True)
-                           }
+        'subdir' : Override(settable=True)
+    }
+
     def doPreinit(self, mode):
         PyTangoDevice.doPreinit(self, mode)
 
@@ -201,7 +162,6 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                 limaStatus += ' (Readout)'
 
         return (nicosStatus, limaStatus)
-
 
     def doSetPreset(self, **preset):
         if 't' in preset:
@@ -288,8 +248,6 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                      'Camera has unknown shutter mode (%s)'
                                      % internalMode)
 
-
-
     def doWriteShuttermode(self, value):
 
         if value == 'auto':
@@ -346,10 +304,6 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         camModel = self._tangoFuncGuard(self._dev.__getattr__, 'camera_model')
 
         return '%s (%s)' % (camType, camModel)
-
-    def doWriteSubdir(self, value):
-        self._datapath = path.join(self.datapath[0], value)
-        self._readCurrentCounter()
 
     def _readImageFromHw(self):
         response = self._tangoFuncGuard(self._dev.readImage, 0)

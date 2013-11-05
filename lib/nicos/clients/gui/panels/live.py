@@ -154,7 +154,7 @@ class LiveDataPanel(Panel):
         self._toftof_profile.show()
 
     def on_client_connected(self):
-        datapath = self.client.eval('session.experiment.datapath', [])[0]
+        datapath = self.client.eval('session.experiment.datapath', '')
         if not path.isdir(datapath):
             return
         if self._instrument == 'antares':

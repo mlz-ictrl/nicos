@@ -24,11 +24,10 @@
 
 """Parameter definition helpers and typechecking combinators."""
 
-import os
 import re
 import copy
+from os import path
 
-from nicos import session
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError
 
@@ -440,9 +439,29 @@ def mailaddress(val=None):
         raise ValueError('%r is not a valid email address' % val)
     return val
 
-def control_path_relative(val=''):
-    """a file path"""
-    return os.path.join(session.config.control_path, str(val))
+def absolute_path(val=''):
+    """an absolute file path"""
+    val = str(val)
+    if path.isabs(val):
+        return val
+    raise ValueError('%r is not a valid absolute path (should start with %r)' %( val, path.sep))
+
+def relative_path(val=''):
+    """a relative path, may not use ../../.. tricks"""
+    val = path.normpath(str(val))
+    if path.isabs(val):
+        raise ValueError('%r is not a valid relative path (should NOT start with %r)' %( val, path.sep))
+    if val[:2] != '..':
+        return val
+    raise ValueError('%r is not a valid relative path (traverses outside)' % val)
+
+def subdir(val=''):
+    """a relative subdir (a string NOT containing any path.sep)"""
+    val = str(val)
+    for sep in [path.sep, '\\', '/']:
+        if sep in val:
+            raise ValueError('%r is not a valid subdirectory (contains a %r)' % (val, sep))
+    return val
 
 def anytype(val=None):
     """any value"""

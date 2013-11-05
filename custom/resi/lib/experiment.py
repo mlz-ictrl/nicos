@@ -42,8 +42,9 @@ class ResiExperiment(Experiment):
         'cycle': Param('Current reactor cycle', type=str, settable=True),
     }
 
-    def _expdir(self, suffix):
-        return path.join(self.datapath[0], suffix)
+    def proposalpath_of(self, proposal):
+        """deviate from default of <dataroot>/<year>/<proposal>"""
+        return path.join(self.dataroot, proposal)
 
     def new(self, proposal, title=None, **kwds):
         # Resi-specific handling of proposal number
@@ -54,9 +55,9 @@ class ResiExperiment(Experiment):
                              ' are reserved and cannot be used')
 
         try:
-            old_proposal = os.readlink(self._expdir('current'))
+            old_proposal = path.basename(os.readlink(self.proposalsymlink))
         except Exception:
-            if path.exists(self._expdir('current')):
+            if path.exists(self.proposalsymlink):
                 self.log.error('"current" link to old experiment dir exists '
                                 'but cannot be read', exc=1)
             else:
@@ -64,8 +65,8 @@ class ResiExperiment(Experiment):
                                   exc=1)
         else:
             if old_proposal.startswith('p'):
-                disableDirectory(self._expdir(old_proposal))
-            os.unlink(self._expdir('current'))
+                disableDirectory(self.proposalpath_of(old_proposal))
+            os.unlink(self.proposalsymlink)
 
         # query new cycle
         if 'cycle' not in kwds:
@@ -87,25 +88,16 @@ class ResiExperiment(Experiment):
             except ValueError:
                 pass
             else:
-                self._fillProposal(propnumber)
+                self._fillProposal(propnumber) # wrong way around !
 
         # create new data path and expand templates
-        exp_datapath = self._expdir(proposal)
-        ensureDirectory(exp_datapath)
-        enableDirectory(exp_datapath)
-        os.symlink(proposal, self._expdir('current'))
-
-        ensureDirectory(path.join(exp_datapath, 'scripts'))
-        self.proposaldir = exp_datapath
-        self.scriptdir = path.join(exp_datapath, 'scripts')
+        os.symlink(proposal, self.proposalsymlink)
+        Experiment.datapathChanged() # is this needed here?
 
         self._handleTemplates(proposal, kwds)
 
-        self.datapath = [
-            self.datapath[0], exp_datapath
-        ]
-
     def _handleTemplates(self, proposal, kwds):
+        """hhm"""
         pass
 
     def finish(self):

@@ -25,7 +25,6 @@
 """Class for CASCADE detector measurement and readout."""
 
 import gzip
-from os import path
 from math import pi
 from time import sleep, time as currenttime
 
@@ -311,9 +310,10 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         return buf
 
     def _writeXml(self, buf):
-        xml_fn = path.join(self._datapath,
-                           'mira_cas_%05d.xml' % self.lastfilenumber)
-        self.log.debug('writing XML file to %s' % xml_fn)
+        exp = session.experiment
+        s, l, _ = exp.createImageFile('mira_cas_%05d.xml', self.subdir, nofile=True)
+        xml_fn = l
+        self.log.debug('writing XML file to %s' % s)
         tmp = cascadeclient.TmpImage()
         self._padimg.LoadMem(buf, 128*128*4)
         tmp.ConvertPAD(self._padimg)

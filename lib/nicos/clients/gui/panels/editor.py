@@ -439,13 +439,13 @@ class EditorPanel(Panel):
         return editor, lexer
 
     def on_client_connected(self):
-        initialdir = self.client.eval('session.experiment.scriptdir', '')
+        initialdir = self.client.eval('session.experiment.scriptpath', '')
         if initialdir:
             idx = self.treeModel.setRootPath(initialdir)
             self.fileTree.setRootIndex(idx)
 
     def on_client_cache(self, (time, key, op, value)):
-        if key.endswith('/scriptdir'):
+        if key.endswith('/scriptpath'):
             self.on_client_connected()
 
     def on_client_message(self, message):
@@ -650,7 +650,7 @@ class EditorPanel(Panel):
         if self.currentEditor is not None and self.filenames[self.currentEditor]:
             initialdir = path.dirname(self.filenames[self.currentEditor])
         else:
-            initialdir = self.client.eval('session.experiment.scriptdir', '')
+            initialdir = self.client.eval('session.experiment.scriptpath', '')
         fn = QFileDialog.getOpenFileName(self, 'Open script', initialdir,
                                          'Script files (*.py *.txt)')
         if fn.isEmpty():
@@ -757,7 +757,7 @@ class EditorPanel(Panel):
         if self.filenames[editor]:
             initialdir = path.dirname(self.filenames[editor])
         else:
-            initialdir = self.client.eval('session.experiment.scriptdir', '')
+            initialdir = self.client.eval('session.experiment.scriptpath', '')
         if self.client.eval('session.spMode', False):
             defaultext = '.txt'
             flt = 'Script files (*.txt *.py)'

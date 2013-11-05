@@ -46,7 +46,7 @@ _servostarblock = Block('Servostar Large Sample Manipulator', [
 
 _detectorblock = Block('Detector', [
     BlockRow(
-        Field(name='Last Image', key='ccd.lastfilenumber'), Field(dev='ccdTemp'),
+        Field(name='Last Image', key='ccd.lastfilename'), Field(dev='ccdTemp'),
         ),
     BlockRow(
         Field(name='CCD status', key='ccd/status', width=25, item=1),

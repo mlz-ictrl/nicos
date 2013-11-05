@@ -18,26 +18,38 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""NICOS core APIs and classes."""
+"""Utilities for (de-)compressing files."""
 
-from nicos.core import status
-from nicos.core.errors import NicosError, ProgrammingError, \
-     ConfigurationError, UsageError, InvalidValueError, ModeError, \
-     PositionError, MoveError, LimitError, CommunicationError, \
-     HardwareError, TimeoutError, ComputationError, \
-     CacheLockError, AccessError, CacheError, SPMError
-from nicos.core.device import Device, DeviceMixinBase, AutoDevice, \
-     Readable, Moveable, Measurable, \
-     HasLimits, HasOffset, HasPrecision, HasMapping, \
-     usermethod, requires
-from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
-     listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
-     vec3, intrange, floatrange, oneof, oneofdict, none_or, \
-     relative_path, absolute_path, subdir, mailaddress
-from nicos.core.data import Dataset, DataSink
-from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
-     GUEST, USER, ADMIN, ACCESS_LEVELS
+import os
+import zipfile
+from os import path
+
+from nicos import session
+
+def zipFiles(zipfilename, rootdir):
+    """Create a zipfile named <zipfile> containing all files from <rootdir> and therein
+
+    returns the name of the created zipfile
+    """
+    if not zipfilename.endswith('.zip'):
+        zipfilename = zipfilename + '.zip'
+    zipfilename = path.abspath(zipfilename)
+    zf = zipfile.ZipFile(zipfilename, 'w', zipfile.ZIP_DEFLATED, True)
+    nfiles = 0
+    try:
+        for root, _dirs, files in os.walk(rootdir):
+            xroot = root[len(rootdir):].strip('/').strip('\\')
+            for fn in files:
+                zf.write(path.join(root, fn), path.join(xroot, fn))
+                nfiles += 1
+                if nfiles % 500 == 0:
+                    session.log.info('%d files processed' % nfiles)
+    finally:
+        zf.close()
+    return zipfilename
+
+

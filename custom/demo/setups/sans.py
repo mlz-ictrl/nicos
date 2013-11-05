@@ -132,6 +132,7 @@ devices = dict(
                      ),
 
     det      = device('devices.generic.virtual.Virtual2DDetector',
+                      fileformats = None,
                       distance = 'det_pos1',
                       collimation = 'guide',
                       subdir = '2ddata',

@@ -112,7 +112,7 @@ class NicosCmdClient(NicosClient):
         # instrument name from NICOS, pre-filled with server name
         self.instrument = conndata['host'].split('.')[0]
         # script directory from NICOS
-        self.scriptdir = '.'
+        self.scriptpath = '.'
         # execution mode of the NICOS session
         self.current_mode = 'master'
         # messages queueing up while the editor is running
@@ -281,7 +281,7 @@ class NicosCmdClient(NicosClient):
         self.signal('processing', {'script': state['script'], 'reqno': 0})
         self.signal('status', state['status'])
         self.current_mode = state['mode']
-        self.scriptdir = self.eval('session.experiment.scriptdir', '.')
+        self.scriptpath = self.eval('session.experiment.scriptpath', '.')
         self.instrument = self.eval('session.instrument.instrument',
                                     self.instrument)
         for req in state['requests']:
@@ -417,9 +417,9 @@ class NicosCmdClient(NicosClient):
                 if line != self.current_line:
                     self.current_line = line
             elif name == 'cache':
-                if data[1].endswith('/scriptdir'):
-                    self.scriptdir = self.eval(
-                        'session.experiment.scriptdir', '.')
+                if data[1].endswith('/scriptpath'):
+                    self.scriptpath = self.eval(
+                        'session.experiment.scriptpath', '.')
             elif name == 'processing':
                 script = data.get('script')
                 if script is None:
@@ -573,13 +573,13 @@ class NicosCmdClient(NicosClient):
         if not arg:
             self.put_error('Need a file name as argument.')
             return
-        fpath = path.join(self.scriptdir, arg)
+        fpath = path.join(self.scriptpath, arg)
         if not os.getenv('EDITOR'):
             os.putenv('EDITOR', 'vi')
         self.in_editing = True
         cwd = os.getcwd()
-        if path.isdir(self.scriptdir):
-            os.chdir(self.scriptdir)
+        if path.isdir(self.scriptpath):
+            os.chdir(self.scriptpath)
         try:
             ret = os.system('$EDITOR "' + fpath + '"')
         finally:
@@ -756,7 +756,7 @@ class NicosCmdClient(NicosClient):
                         return
                 self.put_error('Need a file name as argument.')
                 return
-            fpath = path.join(self.scriptdir, arg)
+            fpath = path.join(self.scriptpath, arg)
             try:
                 code = open(fpath).read()
             except Exception, e:
@@ -776,7 +776,7 @@ class NicosCmdClient(NicosClient):
             if not arg:
                 self.put_error('Need a file name as argument.')
                 return
-            fpath = path.join(self.scriptdir, arg)
+            fpath = path.join(self.scriptpath, arg)
             try:
                 code = open(fpath).read()
             except Exception, e:
@@ -787,7 +787,7 @@ class NicosCmdClient(NicosClient):
             if not arg:
                 self.put_error('Need a file name or code as argument.')
                 return
-            fpath = path.join(self.scriptdir, arg)
+            fpath = path.join(self.scriptpath, arg)
             self.last_filename = fpath
             # detect whether we have a filename or potential Python code
             if path.isfile(fpath) or fpath.endswith(('.py', '.txt')):
@@ -894,9 +894,9 @@ class NicosCmdClient(NicosClient):
 
     def complete_filename(self, fn, word):
         """Try to complete a script filename."""
-        # script filenames are relative to the current scriptdir; nevertheless
+        # script filenames are relative to the current scriptpath; nevertheless
         # the user can override this by giving an absolute path to the script
-        initpath = path.join(self.scriptdir, fn)
+        initpath = path.join(self.scriptpath, fn)
         candidates = []
         # omit the part already on the line, but not what readline considers the
         # current "word"

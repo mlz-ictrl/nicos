@@ -30,154 +30,110 @@ import time
 import os
 from os import path
 
-from nicos.core import Param, Override, UsageError, usermethod
-from nicos.utils import ensureDirectory, enableDirectory
+from nicos.core import Param, Override, usermethod
 from frm2.experiment import Experiment as FRM2Experiment  # pylint: disable=F0401
 
 
 class Experiment(FRM2Experiment):
 
     parameters = dict(
-        # Params are settable as we have to set them via _updatePaths
-        darkimagepath = Param('Current storage path for dark images', type=str,
-                              settable=True, mandatory=False, default='',
-                              userparam=False),
-        openbeampath  = Param('Current storage path for open beam images',
-                              type=str, settable=True, mandatory=False,
-                              default='', userparam=False),
-        photopath     = Param('Current storage path for photographs', type=str,
-                              settable=True, mandatory=False, default='',
-                              userparam=False),
+        # for display purposes....
         lastdarkimage = Param('Last dark image', type=str, settable=False,
-                              mandatory=False, default='', category='general',
-                              chatty=True),
-        lastopenbeamimage = Param('Last open beam image', type=str,
-                              settable=False, mandatory=False, default='',
-                              category='general', chatty=True),
+                               mandatory=False, default='', category='general'),
+        lastopenbeamimage = Param('Last Open Beam image', type=str, settable=False,
+                               mandatory=False, default='', category='general'),
     )
 
     parameter_overrides = {
         'propprefix':    Override(default='p'),
-        'templatedir':   Override(default='templates'),
+        'templates':   Override(default='templates'),
         'servicescript': Override(default='start_service.py'),
         'dataroot':      Override(default='/data/FRM-II'),
     }
 
+    @property
+    def darkimagedir(self):
+        return path.join(self.datadir, 'di')
+
+    @property
+    def openbeamdir(self):
+        return path.join(self.datadir, 'ob')
+
+    @property
+    def photodir(self):
+        return path.join(self.sampledir, 'photos')
+
+    @property
+    def extradirs(self):
+        extradirs = [self.darkimagedir, self.openbeamdir, self.photodir]
+        if self.sampledir:
+            extradirs.append(path.join(self.samplepath, 'eval', 'recon'))
+        return extradirs
+
+    @property
+    def samplesymlink(self):
+        return path.join(self.proposaldir, 'current')
+
     @usermethod
-    def newSample(self, name, parameters):
-        """Called by `.NewSample`."""
-        FRM2Experiment.newSample(self, name, parameters)
-        self._updatePaths(self.proposaldir, name)
+    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
+        FRM2Experiment.new(self, proposal, title=None, localcontact=None,
+                           user=None, **kwds)
 
-    def _updatePaths(self, proposaldir, samplename=''):
-        """
-        Update paths for open beam, dark, and normal images to fit
-        the specifications of ANTARES.
-        """
-
-        self.log.debug('update path configuration for new sample (%s):'
-                       % samplename)
-
-        replaced = False
-        for badchar in '/\\*\000': # more needed?
-            if samplename.find(badchar) != -1:
-                replaced = True
-                samplename.replace(badchar, '_')
-        if replaced:
-            self.log.warning('Sample name contained illegal characters, '
-                             'which were replaced.')
-            self.log.info('New sample name is %r' % samplename)
-
-        sampledir = path.join(proposaldir, samplename)
-        ensureDirectory(sampledir)
-        if self.managerights:
-            enableDirectory(sampledir, **self.managerights)
-
-        self.log.debug('new sample dir: %s' % sampledir)
-
-        self.datapath = [path.join(sampledir, 'data')]
-        ensureDirectory(self.datapath[0])
-        if self.managerights:
-            enableDirectory(self.datapath[0], **self.managerights)
-
-        self.log.debug('new data path: %s' % self.datapath[0])
-
-        if samplename:
-            ensureDirectory(path.join(sampledir, 'eval', 'recon'))
-
-            if self.managerights:
-                enableDirectory(path.join(sampledir, 'eval', 'recon'), **self.managerights)
-
-        # manage a current symlink inside the proposaldir pointing to the
-        # currently selected sample
-        symname = path.join(proposaldir, 'current')
-        if hasattr(os, 'symlink'):
-            self.log.debug('setting symlink %s to %s' %
-                           (symname, sampledir))
-            if os.path.islink(symname):
-                self.log.debug('remove old symlink (%s)'
-                               % os.path.realpath(symname))
-                os.remove(symname)
-
-            self.log.debug('set new symlink to (%s)' % sampledir)
-            os.symlink(sampledir, symname)
-
-        self.darkimagepath = path.join(self.datapath[0], 'di')
-        ensureDirectory(self.darkimagepath)
-        if self.managerights:
-            enableDirectory(self.darkimagepath, **self.managerights)
-        self.log.debug('new dark image path: %s' % self.darkimagepath)
-
-        self.openbeampath = path.join(self.datapath[0], 'ob')
-        ensureDirectory(self.openbeampath)
-        if self.managerights:
-            enableDirectory(self.openbeampath, **self.managerights)
-        self.log.debug('new open beam image path: %s' % self.openbeampath)
-
-        self.photopath = path.join(sampledir, 'photos')
-        ensureDirectory(self.photopath)
-        if self.managerights:
-            enableDirectory(self.photopath, **self.managerights)
-        self.log.debug('new measurement image path: %s' % self.openbeampath)
-
-    def _getProposalDir(self, proposal):
-        """Return current proposaldir and create a fancy symlink."""
-        propdir = path.join(self.dataroot, time.strftime('%Y'), proposal)
-        self._updatePaths(propdir)
-        # figue out fancy symname
         u = self.users
-
-        for c in ',(<':
+        for c in ',(<@':
             u = u.split(c, 1)[0]
-
         if not u:
             u = 'default'
-        symname = path.join('%s_%s_%s'%(time.strftime('%F'), u, proposal))
+        u = u.replace(' ', '_')
+
+        symname = path.join(self.proposaldir, '..', '%s_%s_%s' %
+                            (time.strftime('%F'), u, proposal))
         try:
-            os.symlink(propdir, path.join(propdir, '..', symname))
+            self.log.debug('create symlink %r -> %r' %
+                           (symname, self.proposaldir))
+            os.symlink(self.proposaldir, symname)
+            self.log.info('Symlink %r -> %r created' %
+                           (symname, self.proposaldir))
         except OSError:
-            self.log.debug('creation of symlink failed, already existing???')
-        return propdir
+            self.log.warning('creation of symlink failed, already existing???')
+
+        # clear state info
+        self._setROParam('lastdarkimage','')
+        self._setROParam('lastopenbeamimage','')
+
+
+    @usermethod
+    def newSample(self, name, parameters):
+        """Called by `.NewSample`. and `.NewExperiment`."""
+
+        sampledir = name
+        replaced = False
+        for badchar in '/\\*\000\t': # more needed?
+            if sampledir.find(badchar) != -1:
+                replaced = True
+                sampledir.replace(badchar, '_')
+        sampledir.replace(' ', '_') # also avoid spaces in filenames
+        if replaced:
+            self.log.warning('Samplename contained illegal characters, '
+                             'which got replaced.')
+            self.log.info('New Samplename is %r' % sampledir)
+
+        self.sampledir = sampledir
+        FRM2Experiment.newSample(self, name, parameters)
+
+        self.log.debug('new sample path: %s' % self.samplepath)
+        self.log.debug('new data path: %s' % self.datapath)
+        self.log.debug('new dark image path: %s' % self.darkimagepath)
+        self.log.debug('new open beam image path: %s' % self.openbeampath)
+        self.log.debug('new measurement image path: %s' % self.photopath)
 
     def _newPropertiesHook(self, proposal, kwds):
+        kwds = FRM2Experiment._newPropertiesHook(self, proposal, kwds)
         kwds['sample'] = ''       # ALWAYS start without samplename
         if 'user' not in kwds:
             kwds['user'] = 'Somebody'
             self.log.error('No Users specified in Proposal and no keyword '
                            'argument given. '
                            'continuing with default user....')
-        if self.proptype == 'user':
-            self._fillProposal(int(proposal[len(self.propprefix):]), kwds)
         return kwds
 
-    def _getProposalSymlink(self):
-        return path.join(self.dataroot, 'current')
-
-    def _getDatapath(self, proposal):
-        return self.datapath # updated by _update_paths()
-
-    def _getProposalType(self, proposal):
-        if proposal in ('template', 'current'):
-            raise UsageError(self, 'The proposal names "template" and "current"'
-                             ' are reserved and cannot be used')
-        return FRM2Experiment._getProposalType(self, proposal)

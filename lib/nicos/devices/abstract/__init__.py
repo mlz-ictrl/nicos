@@ -28,14 +28,14 @@ import sys
 import threading
 from os import path
 from time import time, sleep
+import numpy as np
 
 from nicos import session
-from nicos.core import status, Device, DeviceMixinBase, \
-     Readable, Moveable, Measurable, \
-     HasLimits, HasOffset, HasPrecision, HasMapping, \
-     Param, Override, oneof, usermethod, ConfigurationError, \
+from nicos.core import status, usermethod, Device, DeviceMixinBase, \
+     Readable, Moveable, Measurable, HasLimits, HasOffset, HasPrecision, \
+     HasMapping, ConfigurationError, \
      ModeError, ProgrammingError, PositionError, InvalidValueError
-from nicos.devices.datasinks import NeedsDatapath
+from nicos.core.params import subdir, Param, Override, oneof
 from nicos.utils import readFileCounter, updateFileCounter
 
 
@@ -123,59 +123,127 @@ class CanReference(DeviceMixinBase):
         return newpos
 
 
-class ImageStorage(Device, NeedsDatapath):
+class ImageSaver(Device):
     """
-    Mixin for detectors that store images in their own directory.
+    Abstract baseclass for saving >=2D image type data
+
+    Each ImageSaver/FileFormat needs to write either:
+    * into a different subdir
+    * name files differently to avoid nameclashes
+    (both would also be ok.)
     """
+    parameters = {
+        'subdir': Param('Subdirectory name for the image files',
+                        type=subdir, mandatory=True),
+        'nametemplate': Param('Template for data file names',
+                              type=str, default='%08d.dat', settable=True),
+    }
+
+    def prepareImage(self, subdir='', *args):
+        """should prepare an Imagefile in the given subdir"""
+        exp = session.experiment
+        s, l, f = exp.createImageFile(self.nametemplate, subdir, self.subdir)
+        self._filename = s
+        self._filepath = l
+        self._file = f
+
+    def addHeader(self, *args):
+        """Adds headerinfo to the file, may be called several times..."""
+        # may also store the info first and write it to the file in saveImage later...
+        pass
+
+    def saveImage(self, content, *args):
+        """Saves the given image content
+
+        content MUST be a numpy array with the right shape
+        if the fileformat to be supported has image shaping options,
+        they should be applied here.
+        """
+        # stupid validator, making sure we have a numpy.array:
+        # content = np.array(content)
+
+    def updateImage(self, content, *args):
+        """updates the image with the given content
+
+        usefull for live-displays or fileformats wanting to store several
+        states of the data-aquisition
+        """
+
+    def finalizeImage(self, *args):
+        """finalizes the on-disk image, normally just a close"""
+        if self._file:
+            self._file.close()
+            self._file = None
+        else:
+            raise ProgrammingError(self, 'finalize before prepare or file '
+                                          'could not be created!', exc=1)
+
+
+class ImageStorage(DeviceMixinBase):
+    """
+    Mixin for detectors that store images.
+
+    ALL detectors storing images MUST subclass this.
+    """
+
+    attached_devices = {
+        'fileformats' : ([ImageSaver],'Filesavers for all wanted fileformats.')
+    }
 
     parameters = {
         'subdir': Param('Subdirectory name for the image files',
-                        type=str, mandatory=True),
+                        type=subdir, mandatory=True),
         'nametemplate': Param('Template for data file names',
                               type=str, default='%08d.dat', settable=True),
-        'lastfilename': Param('File name of the last measurement',
-                              type=str, settable=True),
-        'lastfilenumber': Param('File number of the last measurement',
-                                type=int, settable=True),
-        'filecounter':  Param('File path to write the current file counter '
-                              '(or empty to use a default file path)',
-                              type=str),
     }
 
-    def doUpdateDatapath(self, value):
-        # always use only first data path
-        self._datapath = path.join(value[0], self.subdir)
-        self._readCurrentCounter()
+    _file = None
 
-    def _readCurrentCounter(self):
-        self._counter = readFileCounter(self.filecounter or
-                                        path.join(self._datapath, 'counter'))
-        self._setROParam('lastfilenumber', self._counter)
-        self._setROParam('lastfilename', self._getFilename(self._counter))
+    def _newFile(self):
+        exp = session.experiment
+        sname, lname, fp = exp.createImageFile(self.nametemplate, self.subdir)
+        self._imagename = sname
+        self._relpath = lname
+        self._file = fp
+        self._counter = session.experiment.lastimage
 
-    def _getFilename(self, counter):
-        return self.nametemplate % counter
+    def _writeFile(self, content, writer=file.write):
+        if self._file is None:
+            raise ProgrammingError(self, '_writeFile before _newFile, '
+                                          'FIX CODE!', exc=1)
+        try:
+            writer(self._file, content)
+        finally:
+            self._file.close()
+            self._file = None
 
-    def _newFile(self, increment=True):
-        if self._datapath is None:
-            self.datapath = session.experiment.datapath
-        if self.lastfilenumber != self._counter:
-            # inconsistent state -- better read the on-disk counter
-            self._readCurrentCounter()
-        if increment:
-            self._counter += 1
-        updateFileCounter(self.filecounter or
-                          path.join(self._datapath, 'counter'), self._counter)
-        self.lastfilename = path.join(self._datapath,
-                                      self._getFilename(self._counter))
-        self.lastfilenumber = self._counter
+    #
+    # multiplier for Saving Fileformats.... used by later patches....
+    #
+    def prepareImage(self, *args):
+        """should prepare an Imagefile"""
+        for ff in self._adevs['fileformats']:
+            ff.prepareImage(self.subdir, *args)
 
-    def _writeFile(self, content, exists_ok=False, writer=file.write):
-        if path.isfile(self.lastfilename) and not exists_ok:
-            raise ProgrammingError(self, 'data file %r already exists' %
-                                   self.lastfilename)
-        with open(self.lastfilename, 'w') as fp:
-            writer(fp, content)
+    def addHeader(self, *args):
+        """Adds headerinfo to the file, may be called several times..."""
+        for ff in self._adevs['fileformats']:
+            ff.addHeader(*args)
+
+    def saveImage(self, *args):
+        """Saves the given image content"""
+        for ff in self._adevs['fileformats']:
+            ff.saveImage(*args)
+
+    def updateImage(self, *args):
+        """updates the given image content"""
+        for ff in self._adevs['fileformats']:
+            ff.updateImage(*args)
+
+    def finalizeImage(self, *args):
+        """finalize/close image"""
+        for ff in self._adevs['fileformats']:
+            ff.finalizeImage(*args)
 
 
 class AsyncDetector(Measurable):

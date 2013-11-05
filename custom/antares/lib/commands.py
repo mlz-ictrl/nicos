@@ -47,20 +47,21 @@ def take_ob(*detlist, **preset):
     oldmode = ccddevice.shuttermode
     try:
         ccddevice.shuttermode = 'auto'
-        ccddevice.datapath = [exp.openbeampath]
+        ccddevice.subdir = 'ob'
         return count(*detlist, **preset)
     finally:
         ccddevice.shuttermode = oldmode
 
         lastImg = ccddevice.read(0)
         if lastImg:
-            lastImg = path.basename(lastImg[0])
+            # only show the path relative to the proposalpath
+            lastImg = path.relpath(lastImg[0], exp.proposalpath)
         else:
             lastImg = ''
 
         printinfo('last open beam image is %r' % lastImg)
         exp._setROParam('lastopenbeamimage', lastImg)
-        ccddevice.datapath = exp.datapath
+        ccddevice.subdir = ''
 
 
 @usercommand
@@ -76,20 +77,21 @@ def take_di(*detlist, **preset):
     oldmode = ccddevice.shuttermode
     try:
         ccddevice.shuttermode = 'always_closed'
-        ccddevice.datapath = [exp.darkimagepath]
+        ccddevice.subdir = 'di'
         return count(*detlist, **preset)
     finally:
         ccddevice.shuttermode = oldmode
 
         lastImg = ccddevice.read(0)
         if lastImg:
-            lastImg = path.basename(lastImg[0])
+            # only show the path relative to the proposalpath
+            lastImg = path.relpath(lastImg[0], exp.proposalpath)
         else:
             lastImg = ''
 
         printinfo('last dark image is %r' % lastImg)
         exp._setROParam('lastdarkimage', lastImg)
-        ccddevice.datapath = exp.datapath
+        ccddevice.subdir = ''
 
 
 @usercommand

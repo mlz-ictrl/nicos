@@ -24,6 +24,7 @@
 
 """NICOS data handlers test suite."""
 
+import time
 from os import path
 from logging import Handler
 
@@ -32,6 +33,8 @@ from nicos.utils import readFile
 from nicos.commands.scan import scan
 
 from test.utils import assert_response
+
+year = time.strftime('%Y')
 
 
 def setup_module():
@@ -53,8 +56,11 @@ class CHandler(Handler):
 
 def test_sinks():
     session.experiment.new(1234)
-    session.experiment.datapath = [path.join(session.config.control_path,
-                                             'testdata')]
+    session.experiment.dataroot = path.join(session.config.control_path,
+                                             'testdata')
+
+    assert session.experiment.datapath == path.join(session.config.control_path,
+                                                    'testdata', year, 'p1234', 'data')
     m = session.getDevice('motor2')
     det = session.getDevice('det')
 
@@ -68,15 +74,15 @@ def test_sinks():
 
     assert '=' * 100 in handler.messages
     assert_response(handler.messages,
-        matches='Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.1.*\)')
+        matches=r'Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.1.*\)')
 
-    fname = path.join(session.config.control_path, 'testdata', 'filecounter')
+    fname = path.join(session.experiment.dataroot, 'scancounter')
     assert path.isfile(fname)
     contents = readFile(fname)
     assert contents == ['1']
 
 
-    fname = path.join(session.config.control_path, 'testdata', 'p1234_00000001.dat')
+    fname = path.join(session.config.control_path, 'testdata', year, 'p1234', 'data', 'p1234_00000001.dat')
     assert path.isfile(fname)
     contents = readFile(fname)
     assert contents[0].startswith('### NICOS data file')

@@ -52,7 +52,7 @@ _slitblock = ('Sample slit', [
 
 _measblock = ('Measurement', [
     [{'key': 'm/timechannels', 'name': 'Time channels'},
-     {'name': 'Last file', 'key': 'm/lastfilenumber'}],
+     {'name': 'Last file', 'key': 'm/lastfilename'}],
     [{'key': 'm/laststats', 'item': 0, 'name': 'Time', 'format': '%.1f'},
      {'key': 'm/laststats', 'item': 1, 'name': 'Monitor', 'format': '%d'},
      {'key': 'm/laststats', 'item': 2, 'name': 'Counts', 'format': '%d'}],
