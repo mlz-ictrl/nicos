@@ -39,18 +39,21 @@ class Experiment(FRM2Experiment):
 
     parameters = dict(
         # Params are settable as we have to set them via _updatePaths
-        darkimagepath = Param('current storage path for dark images', type=str,
-                              settable=True, mandatory=False, default='', userparam=False),
-        openbeampath  = Param('current storage path for open beam images',
+        darkimagepath = Param('Current storage path for dark images', type=str,
+                              settable=True, mandatory=False, default='',
+                              userparam=False),
+        openbeampath  = Param('Current storage path for open beam images',
                               type=str, settable=True, mandatory=False,
                               default='', userparam=False),
-        photopath     = Param('current storage path for photographs', type=str,
-                               settable=True, mandatory=False, default='', userparam=False),
+        photopath     = Param('Current storage path for photographs', type=str,
+                              settable=True, mandatory=False, default='',
+                              userparam=False),
         lastdarkimage = Param('Last dark image', type=str, settable=False,
-                               mandatory=False, default='', category='general', chatty=True),
-        lastopenbeamimage = Param('Last Open Beam image', type=str,
-                               settable=False, mandatory=False, default='',
-                               category='general', chatty=True),
+                              mandatory=False, default='', category='general',
+                              chatty=True),
+        lastopenbeamimage = Param('Last open beam image', type=str,
+                              settable=False, mandatory=False, default='',
+                              category='general', chatty=True),
     )
 
     parameter_overrides = {
@@ -67,10 +70,10 @@ class Experiment(FRM2Experiment):
         self._updatePaths(self.proposaldir, name)
 
     def _updatePaths(self, proposaldir, samplename=''):
-        '''
+        """
         Update paths for open beam, dark, and normal images to fit
         the specifications of ANTARES.
-        '''
+        """
 
         self.log.debug('update path configuration for new sample (%s):'
                        % samplename)
@@ -81,8 +84,9 @@ class Experiment(FRM2Experiment):
                 replaced = True
                 samplename.replace(badchar, '_')
         if replaced:
-            self.log.warning('Samplename contained illegal characters, which got replaced.')
-            self.log.info('New Samplename is %r' % samplename)
+            self.log.warning('Sample name contained illegal characters, '
+                             'which were replaced.')
+            self.log.info('New sample name is %r' % samplename)
 
         sampledir = path.join(proposaldir, samplename)
         ensureDirectory(sampledir)
@@ -137,7 +141,7 @@ class Experiment(FRM2Experiment):
         self.log.debug('new measurement image path: %s' % self.openbeampath)
 
     def _getProposalDir(self, proposal):
-        ''' return current proposaldir and create a fancy symlink'''
+        """Return current proposaldir and create a fancy symlink."""
         propdir = path.join(self.dataroot, time.strftime('%Y'), proposal)
         self._updatePaths(propdir)
         # figue out fancy symname

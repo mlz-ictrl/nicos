@@ -31,33 +31,34 @@ from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
      Override, status, none_or
 from nicos.core.utils import multiStatus
 
-class Monochromator(HasLimits):
-    ''' monochromator device of antares.
 
-    used to tune the double monochromator to a wavelength between 2.7 and 6.5 Angstroms.
-    can be moved to None to get a white beam
+class Monochromator(HasLimits):
+    """Monochromator device of antares.
+
+    used to tune the double monochromator to a wavelength between 2.7 and 6.5
+    Angstroms.  Can be moved to None to get a white beam.
 
     Experimental version.
     CHECK THE FORMULAS!
-    '''
+    """
     attached_devices = {
-                  'phi1'        : (Moveable, 'monochromator rotation 1'),
-                  'phi2'        : (Moveable, 'monochromator rotation 2'),
-                  'translation' : (Moveable, 'monochromator translation'),
-                  'inout'       : (Moveable, 'monochromator inout device'),
+        'phi1'        : (Moveable, 'monochromator rotation 1'),
+        'phi2'        : (Moveable, 'monochromator rotation 2'),
+        'translation' : (Moveable, 'monochromator translation'),
+        'inout'       : (Moveable, 'monochromator inout device'),
     }
 
     parameters = {
-        'dvalue1' : Param('lattice constant of Mono1', type=float,
-                           settable=True, mandatory=True),
-        'dvalue2' : Param('lattice constant of Mono2', type=float,
-                           settable=True, mandatory=True),
-        'distance' : Param('parallactic distance of monos', type=float,
-                           settable=True, mandatory=True),
-        'tolphi'   : Param('max deviation of phi1 or phi2 from calculated value',
-                           type=float, settable=True, default=0.01),
-        'toltrans' : Param('max deviation of translation from calculated value',
-                           type=float, settable=True, default=0.01),
+        'dvalue1' : Param('Lattice constant of Mono1', type=float,
+                          settable=True, mandatory=True),
+        'dvalue2' : Param('Lattice constant of Mono2', type=float,
+                          settable=True, mandatory=True),
+        'distance': Param('Parallactic distance of monos', type=float,
+                          settable=True, mandatory=True),
+        'tolphi'  : Param('Max deviation of phi1 or phi2 from calculated value',
+                          type=float, settable=True, default=0.01),
+        'toltrans': Param('Max deviation of translation from calculated value',
+                          type=float, settable=True, default=0.01),
     }
 
     parameter_overrides = {
@@ -118,8 +119,10 @@ class Monochromator(HasLimits):
         lam = self._to_lambda(*pos[1:])
         self.log.debug('lambda seems to be %.4f Angstroms' % lam)
         compare_pos = self._from_lambda(lam)
-        for d, p, t, c in zip(self.devices[1:], pos[1:], [self.tolphi, self.tolphi, self.toltrans], compare_pos):
-            self.log.debug('%r is at %r and should be at %r for %.4f Angstroms' %(d, d.format(p), d.format(c), lam))
+        tol = [self.tolphi, self.tolphi, self.toltrans]
+        for d, p, t, c in zip(self.devices[1:], pos[1:], tol, compare_pos):
+            self.log.debug('%r is at %r and should be at %r for %.4f Angstroms'
+                           % (d, d.format(p), d.format(c), lam))
             if abs(p-c) > t:
                 raise PositionError('%r is too far away for %.4f Angstroms'% (d, lam))
         return lam

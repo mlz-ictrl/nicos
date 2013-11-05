@@ -34,13 +34,14 @@ from nicos.commands.device import maw
 from nicos.commands.scan import scan
 
 
-
-
 @usercommand
 @helparglist('[detectors], [presets]')
 @spmsyntax(Multi(Dev(Measurable)), Bare)
 def take_ob(*detlist, **preset):
-    """Take an open beam image on the detector given as first argument. See `count()`."""
+    """Take an open beam image on the detector given as first argument.
+
+    See `count()` for allowed arguments.
+    """
     ccddevice = session.getDevice('ccd')
     exp = session.experiment
     oldmode = ccddevice.shuttermode
@@ -57,15 +58,19 @@ def take_ob(*detlist, **preset):
         else:
             lastImg = ''
 
-        printinfo('last openbeam image is %r' % lastImg)
+        printinfo('last open beam image is %r' % lastImg)
         exp._setROParam('lastopenbeamimage', lastImg)
         ccddevice.datapath = exp.datapath
+
 
 @usercommand
 @helparglist('[detectors], [presets]')
 @spmsyntax(Multi(Dev(Measurable)), Bare)
 def take_di(*detlist, **preset):
-    """Take an dark image on the detector given as first argument. See `count()`."""
+    """Take an dark image on the detector given as first argument.
+
+    See `count()` for allowed arguments.
+    """
     ccddevice = session.getDevice('ccd')
     exp = session.experiment
     oldmode = ccddevice.shuttermode
@@ -82,16 +87,17 @@ def take_di(*detlist, **preset):
         else:
             lastImg = ''
 
-        printinfo('last dark image is %r'% lastImg)
+        printinfo('last dark image is %r' % lastImg)
         exp._setROParam('lastdarkimage', lastImg)
         ccddevice.datapath = exp.datapath
+
 
 @usercommand
 @helparglist('n_angles, dev, [detectors], [presets]')
 @spmsyntax(Num, Dev(Moveable),Multi(Dev(Measurable)), Bare)
 def tomo(n_angles, dev=None, *detlist, **preset):
     """Performs a tomography by scanning over 360 deg in n_angles steps."""
-    printinfo('Starting Tomography scan')
+    printinfo('Starting Tomography scan.')
 
     if dev is None:
         dev = session.getDevice('sry')
