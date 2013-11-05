@@ -218,6 +218,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def on_auxWindow_closed(self, window):
         del self.windows[window.type]
+        window.deleteLater()
 
     def runTool(self, ttype):
         tconfig = self.panel_conf[2][ttype]
