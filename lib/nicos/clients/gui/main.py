@@ -52,6 +52,7 @@ from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
 from nicos.clients.gui.dialogs.pnp import PnPSetupQuestion
 from nicos.clients.gui.dialogs.help import HelpWindow
+from nicos.clients.gui.dialogs.debug import DebugConsole
 from nicos.clients.gui.dialogs.settings import SettingsDialog
 from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
@@ -497,6 +498,11 @@ class MainWindow(QMainWindow, DlgUtils):
             url='http://trac.frm2.tum.de/nicos/doc/nicos-master/index.html')
         dlg.setWindowModality(Qt.NonModal)
         dlg.show()
+
+    @qtsig('')
+    def on_actionDebugConsole_triggered(self):
+        win = DebugConsole(self)
+        win.show()
 
     @qtsig('')
     def on_actionAbout_triggered(self):

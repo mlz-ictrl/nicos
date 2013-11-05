@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>889</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuWindows">
@@ -47,6 +47,8 @@
     </property>
     <addaction name="actionNicosHelp"/>
     <addaction name="actionNicosDocu"/>
+    <addaction name="separator"/>
+    <addaction name="actionDebugConsole"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
@@ -189,6 +191,11 @@
    </property>
    <property name="text">
     <string>Expert mode</string>
+   </property>
+  </action>
+  <action name="actionDebugConsole">
+   <property name="text">
+    <string>Debug &amp;console</string>
    </property>
   </action>
  </widget>
