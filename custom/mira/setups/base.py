@@ -1,7 +1,7 @@
 description = 'base setup for all instrument configurations'
 group = 'lowlevel'
 
-includes = ['system', 'slits', 'sample', 'nl6', 'fak40', 'reactor']
+includes = ['system', 'slits', 'sample', 'nl6', 'reactor']
 
 devices = dict(
     MonoToni = device('devices.vendor.toni.ModBus',

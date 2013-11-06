@@ -33,7 +33,7 @@ devices = dict(
    Poller = device('services.poller.Poller',
                    alwayspoll = ['tube', 'collimation', 'table_top',
                                  'table_bottom', 'magnet_sans1', 'pressure',
-                                 'htf03', 'detector', 'selector', 'ccr12', 'fak40',
+                                 'htf03', 'detector', 'selector', 'ccr12',
                                  'guidehall', 'reactor', 'nl4a', 'spin_flipper',
                                  'sc1', 'newport02', 'newport03', 'ccr10', 'memograph',
                                  'ccr12', 'ccr16',
