@@ -541,7 +541,7 @@ class Session(object):
 
             return sysconfig, devlist, startupcode
 
-        sysconfig, devlist, startupcode = {}, {}, []
+        sysconfig, devlist, startupcode = self.current_sysconfig, {}, []
         load_setupnames = setupnames[:]
         if autoload_system and 'system' in self._setup_info and \
            'system' not in self.loaded_setups:
@@ -644,8 +644,6 @@ class Session(object):
                 continue
             self.explicit_setups.append(setupname)
 
-        self.current_sysconfig = sysconfig
-
         if self.mode == 'master' and self.cache:
             self.cache._ismaster = True
             self.cache.put(self, 'mastersetup', list(self.loaded_setups))
@@ -692,6 +690,7 @@ class Session(object):
         self.experiment = self._def_sysconfig['experiment']
         self.datasinks = []
         self.notifiers = []
+        self.current_sysconfig.clear()
         self.loaded_setups = set()
         self.excluded_setups = set()
         self.explicit_setups = []
