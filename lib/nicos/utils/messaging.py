@@ -59,13 +59,20 @@ class SimulationSupervisor(Thread):
 
     def _target(self, daemon, scriptname, prefix, setups, code):
         socket = zmq_ctx.socket(zmq.PULL)
+        poller = zmq.Poller()
+        poller.register(socket, zmq.POLLIN)
         port = socket.bind_to_random_port('tcp://127.0.0.1')
         # start nicos-simulate process
         proc = subprocess.Popen([sys.executable, scriptname,
                                  str(port), prefix, ','.join(setups), code])
         while True:
-            data = socket.recv()
-            msg = unserialize(data)
+            res = poller.poll(500)
+            if not res:
+                if proc.poll() is not None:
+                    session.log.warning('Simulation has terminated prematurely')
+                    return
+                continue
+            msg = unserialize(socket.recv())
             if isinstance(msg, list):
                 # it's a message
                 if daemon:
@@ -93,7 +100,7 @@ class SimulationSupervisor(Thread):
                     return
             raise Exception('did not terminate within 5 seconds')
         except Exception:
-            self.log.exception('Error waiting for simulation process')
+            session.log.exception('Error waiting for simulation process')
 
 
 class SimLogSender(logging.Handler):
