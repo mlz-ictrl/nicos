@@ -27,6 +27,7 @@
 from PyQt4.QtGui import QWidget, QColor
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
+from nicos.guisupport import typedvalue
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
 
 invalid = QColor('#ffcccc')
@@ -91,25 +92,34 @@ class Move(Cmdlet):
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
-        self.target.textChanged.connect(self.changed)
         self.waitBox.stateChanged.connect(self.changed)
 
     def on_device_change(self, text):
-        unit = self.client.getDeviceParam(str(text), 'unit')
-        self.unit.setText(unit or '')
+        devname = str(text)
+        unit = self.client.getDeviceParam(devname, 'unit')
+        fmtstr = self.client.getDeviceParam(devname, 'fmtstr')
+        valuetype = self.client.getDeviceValuetype(devname)
+        curvalue = self.client.getDeviceValue(devname)
+        if curvalue is None:
+            curvalue = valuetype()
+        self.target = typedvalue.create(self, valuetype, curvalue, fmtstr, unit)
+        self.hlayout.takeAt(3).widget().deleteLater()
+        self.hlayout.insertWidget(3, self.target)
+        # XXX: make the typedvalue widgets emit dataChanged
+        self.connect(self.target, SIGNAL('dataChanged'), self.changed)
         self.changed()
 
     def isValid(self):
-        return self.markValid(self.target, not self.target.text().isEmpty())
+        return self.markValid(self.target, True)
 
     def generate(self, mode):
         cmd = 'maw'
         if not self.waitBox.isChecked():
             cmd = 'move'
-        args = (cmd, self.device.currentText(), self.target.text())
+        args = (cmd, self.device.currentText(), self.target.getValue())
         if mode == 'simple':
-            return '%s %s %s\n' % args
-        return '%s(%s, %s)\n' % args
+            return '%s %s %r\n' % args
+        return '%s(%s, %r)\n' % args
 
 
 class Count(Cmdlet):
@@ -270,29 +280,49 @@ class Configure(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client, 'configure.ui')
+        self.paraminfo = {}
+        self.paramvalues = {}
         self.device.addItems(self.client.getDeviceList())
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
-        self.parameter.currentIndexChanged.connect(self.changed)
-        self.target.textChanged.connect(self.changed)
+        self.connect(self.parameter, SIGNAL('currentIndexChanged(const QString&)'),
+                     self.on_parameter_change)
 
     def on_device_change(self, text):
-        params = self.client.getDeviceParamInfo(str(text))
+        self.paraminfo = self.client.getDeviceParamInfo(str(text))
+        self.paramvalues = dict(self.client.getDeviceParams(str(text)))
         self.parameter.clear()
-        self.parameter.addItems(sorted(p for p in params
-                                       if params[p]['settable']))
+        self.parameter.addItems(sorted(p for p in self.paraminfo
+                                       if self.paraminfo[p]['settable'] and
+                                          self.paraminfo[p]['userparam']))
+        self.on_parameter_change(self.parameter.currentText())
+        self.changed()
+
+    def on_parameter_change(self, text):
+        pname = str(text)
+        valuetype = self.paraminfo[pname]['type']
+        mainunit = self.paramvalues.get('unit', 'main')
+        punit = (self.paraminfo[pname]['unit'] or '').replace('main', mainunit)
+        self.target = typedvalue.create(self, valuetype,
+                                        self.paramvalues.get(pname, valuetype()),
+                                        unit=punit)
+        self.hlayout.takeAt(5).widget().deleteLater()
+        self.hlayout.insertWidget(5, self.target)
+        # XXX: make the typedvalue widgets emit dataChanged
+        self.connect(self.target, SIGNAL('dataChanged'), self.changed)
         self.changed()
 
     def isValid(self):
-        return self.markValid(self.target, not self.target.text().isEmpty())
+        return self.markValid(self.target, True)
 
     def generate(self, mode):
         args = (self.device.currentText(), self.parameter.currentText(),
-                self.target.text())
+                self.target.getValue())
         if mode == 'simple':
-            return 'set %s %s %s\n' % args
-        return '%s.%s = %s\n' % args
+            return 'set %s %s %r\n' % args
+        return '%s.%s = %r\n' % args
+
 
 class NewSample(Cmdlet):
 

@@ -53,6 +53,14 @@ class NicosGuiClient(NicosClient, QObject):
         query += ')'
         return sorted(self.eval(query, []))
 
+    def getDeviceValue(self, devname):
+        """Return current device value."""
+        return self.eval('session.getDevice(%r).read()' % devname, None)
+
+    def getDeviceValuetype(self, devname):
+        """Return device value type."""
+        return self.eval('session.getDevice(%r).valuetype' % devname, None)
+
     def getDeviceParamInfo(self, devname):
         """Return info about all parameters of the device."""
         query = 'dict((pn, pi.serialize()) for (pn, pi) in ' \

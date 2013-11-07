@@ -29,7 +29,8 @@ The supported types are defined in `nicos.core.params`.
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
-     QCheckBox, QWidget, QComboBox, QHBoxLayout, QLabel, QPushButton
+     QCheckBox, QWidget, QComboBox, QHBoxLayout, QLabel, QPushButton, \
+     QSpinBox
 
 from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
@@ -59,8 +60,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='', allow_buttons=False):
         return AnnotatedWidget(parent, edw, '(range: %.5g to %.5g)' %
                                (typ.fr, typ.to))
     elif isinstance(typ, params.intrange):
-        edw = EditWidget(parent, int, curvalue, fmtstr or '%.4g',
-                         minmax=(typ.fr, typ.to))
+        edw = SpinBoxWidget(parent, curvalue, (typ.fr, typ.to),
+                            fmtstr=fmtstr or '%.4g')
         return AnnotatedWidget(parent, edw, '(range: %d to %d)' %
                                (typ.fr, typ.to))
     elif typ in (int, float, str):
@@ -172,6 +173,16 @@ class EditWidget(QLineEdit):
 
     def getValue(self):
         return self._typ(self.text())
+
+class SpinBoxWidget(QSpinBox):
+
+    def __init__(self, parent, curvalue, minmax, fmtstr='%.4g'):
+        QSpinBox.__init__(self, parent)
+        self.setRange(minmax[0], minmax[1])
+        self.setValue(curvalue)
+
+    def getValue(self):
+        return self.value()
 
 class ExprWidget(QLineEdit):
 
