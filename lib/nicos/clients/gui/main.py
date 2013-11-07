@@ -232,6 +232,7 @@ class MainWindow(QMainWindow, DlgUtils):
         else:
             dialog = toolclass(self, self.client, **tconfig[2])
             dialog.setWindowModality(Qt.NonModal)
+            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
             dialog.show()
 
     def setConnData(self, login, passwd, host, port):
