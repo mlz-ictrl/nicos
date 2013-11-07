@@ -126,6 +126,7 @@ class DevicesPanel(Panel):
         if client.connected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
         self.connect(client, SIGNAL('cache'), self.on_client_cache)
         self.connect(client, SIGNAL('device'), self.on_client_device)
 
@@ -164,6 +165,9 @@ class DevicesPanel(Panel):
             self.tree.addTopLevelItem(self._catitems[cat])
             self._catitems[cat].setExpanded(True)
         self.tree.sortItems(0, Qt.AscendingOrder)
+
+    def on_client_disconnected(self):
+        self.clear()
 
     def _read_setup_info(self, state=None):
         if state is None:
