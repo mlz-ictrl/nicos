@@ -29,19 +29,23 @@ The supported types are defined in `nicos.core.params`.
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
-     QCheckBox, QWidget, QComboBox, QHBoxLayout, QLabel
+     QCheckBox, QWidget, QComboBox, QHBoxLayout, QLabel, QPushButton
 
 from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
 
 
-def create(parent, typ, curvalue, fmtstr='', unit=''):
+def create(parent, typ, curvalue, fmtstr='', unit='', allow_buttons=False):
     if unit:
         inner = create(parent, typ, curvalue, fmtstr, unit='')
         return AnnotatedWidget(parent, inner, unit)
     if isinstance(typ, params.oneof):
+        if allow_buttons and len(typ.vals) <= 3:
+            return ButtonWidget(parent, typ.vals)
         return ComboWidget(parent, typ.vals, curvalue)
     elif isinstance(typ, params.oneofdict):
+        if allow_buttons and len(typ.vals) <= 3:
+            return ButtonWidget(parent, typ.vals.values())
         return ComboWidget(parent, typ.vals.values(), curvalue)
     elif isinstance(typ, params.none_or):
         return CheckWidget(parent, typ.conv, curvalue)
@@ -127,6 +131,24 @@ class ComboWidget(QComboBox):
 
     def getValue(self):
         return self._values[self._textvals.index(str(self.currentText()))]
+
+class ButtonWidget(QWidget):
+
+    def __init__(self, parent, values):
+        QWidget.__init__(self, parent)
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        for value in values:
+            btn = QPushButton(value, self)
+            btn.clicked.connect(self.on_button_pressed)
+            layout.addWidget(btn)
+        self.setLayout(layout)
+
+    def on_button_pressed(self):
+        self.emit(SIGNAL('valueChosen'), str(self.sender().text()))
+
+    def getValue(self):
+        return None
 
 class EditWidget(QLineEdit):
 

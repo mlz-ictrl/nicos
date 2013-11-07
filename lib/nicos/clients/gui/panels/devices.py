@@ -490,17 +490,24 @@ class ControlDialog(QDialog):
                                          devname)
 
             if 'value' in params:
-                self.target = typedvalue.create(self, valuetype, params['value'],
-                                                params.get('fmtstr', '%s'))
+                curvalue = params['value']
             else:
-                self.target = typedvalue.create(self, valuetype, valuetype(),
-                                                params.get('fmtstr', '%s'))
+                curvalue = valuetype()
+            self.target = typedvalue.create(self, valuetype, curvalue,
+                                            params.get('fmtstr', '%s'),
+                                            allow_buttons=True)
             self.targetLayout.insertWidget(1, self.target)
             self.targetUnit.setText(params['unit'])
             self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
             self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
-            self.movebtn = self.moveBtns.addButton('Move',
-                                                   QDialogButtonBox.AcceptRole)
+            if isinstance(self.target, typedvalue.ButtonWidget):
+                def btn_callback(target):
+                    self.client.tell('queue', '',
+                                     'move(%s, %r)' % (devname, target))
+                self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
+            else:
+                self.movebtn = self.moveBtns.addButton(
+                    'Move', QDialogButtonBox.AcceptRole)
             if params.get('fixed'):
                 self.movebtn.setEnabled(False)
                 self.movebtn.setText('(fixed)')
