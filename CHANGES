@@ -4,6 +4,9 @@ Changelog for NICOS 2
 Release 2.5.0
 -------------
 
+- The watchdog daemon now can have a unlimited of different condition "types",
+  each of which has a separate list of notifiers.
+
 - NewExperiment() now warns if the proposal comes from the proposal database
   and has no approval from the radioprotection or safety departments.
 
