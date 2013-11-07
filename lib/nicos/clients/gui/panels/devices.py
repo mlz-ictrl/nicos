@@ -153,16 +153,17 @@ class DevicesPanel(Panel):
         self.clear()
 
         state = self.client.ask('getstatus')
-        devlist = sorted(state['devices'])
+        devlist = state['devices']
         self._read_setup_info(state)
 
         for devname in devlist:
             self._create_device_item(devname)
 
         # add all toplevel items to the tree, sorted
-        for cat in sorted(self._catitems):
+        for cat in self._catitems:
             self.tree.addTopLevelItem(self._catitems[cat])
             self._catitems[cat].setExpanded(True)
+        self.tree.sortItems(0, Qt.AscendingOrder)
 
     def _read_setup_info(self, state=None):
         if state is None:
@@ -232,8 +233,7 @@ class DevicesPanel(Panel):
         if action == 'create':
             for devname in devlist:
                 self._create_device_item(devname, add_cat=True)
-            # XXX somehow the device list should be sorted again after
-            # inserting elements
+            self.tree.sortItems(0, Qt.AscendingOrder)
         elif action == 'destroy':
             for devname in devlist:
                 if devname.lower() in self._devitems:
