@@ -81,9 +81,9 @@ class Poller(Device):
             # and shorten the poll interval
             if key.endswith('target'):
                 state[0] = 'nowmoving'
-            # if the pollinterval changes, update it on the next occasion
-            elif key.endswith('pollinterval'):
-                state[0] = 'newinterval'
+            # if the pollinterval or maxage change, update on the next occasion
+            elif key.endswith(('pollinterval', 'maxage')):
+                state[0] = 'newpollpars'
             # wake up sleeper
             event.set()
 
@@ -99,7 +99,8 @@ class Poller(Device):
             if interval is None:
                 interval = 3600
             # try to avoid polling the same hardware device too often
-            maxage = 0 if dev.hardware_access else dev.maxage / 2.
+            def_maxage = 0 if dev.hardware_access else dev.maxage / 3.
+            maxage = def_maxage
             errcount = 0
             i = 0
             stval, rdval = None, None
@@ -124,22 +125,31 @@ class Poller(Device):
                         errcount = 0
                 # state change?
                 if state[0] == 'nowmoving':
-                    # if the device is moving, use a fixed small interval for
-                    # polling, no matter what the parameters say
-                    interval = 1.0
+                    # if the device is moving, use a fixed very small interval
+                    # to get an initial value update quickly
+                    interval = 0.25
+                    # always get the initial update fresh, even for non-hwdevs
+                    maxage = 0.1
                     state[0] = 'moving'
                 elif state[0] == 'moving':
+                    # revert to standard maxage handling
+                    maxage = def_maxage
                     # check for end of moving: if the device is idle or error,
                     # revert to normal polling interval
                     if stval and stval[0] != status.BUSY:
                         state[0] = 'normal'
                         interval = dev.pollinterval
+                    else:
+                        # else set a smallish interval to follow the device
+                        # while it is moving
+                        interval = 1.0
                 # poll interval changed
-                elif state[0] == 'newinterval':
+                elif state[0] == 'newpollpars':
                     interval = dev.pollinterval
                     active = interval is not None
                     if interval is None:
                         interval = 3600
+                    def_maxage = 0 if dev.hardware_access else dev.maxage / 3.
                     state[0] = 'normal'
                 # now wait until either the poll interval is elapsed, or
                 # something interesting happens
