@@ -22,14 +22,13 @@
 #
 # *****************************************************************************
 
-"""NICOS GUI application package."""
+"""Support for "auxiliary" windows containing panels."""
 
 import time
 
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-     QColorDialog, QVBoxLayout, QDockWidget, QDialogButtonBox, QScrollArea, \
-     QGridLayout
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, QString, pyqtSignature as qtsig
+     QColorDialog, QVBoxLayout, QDockWidget, QDialogButtonBox, QScrollArea
+from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget, DetachedWindow
 
@@ -90,6 +89,7 @@ class AuxiliaryWindow(QMainWindow):
                 pnl.saveSettings(settings)
         event.accept()
         self.emit(SIGNAL('closed'), self)
+        del self.panels[:]  # this is necessary to get the Qt objects destroyed
 
     @qtsig('')
     def on_actionFont_triggered(self):
