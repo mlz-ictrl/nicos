@@ -67,7 +67,7 @@ devices = dict(
                               obs = [],
                               precision = 0.1,
                               backlash = 0,
-                              refpos = 206,
+                              refpos = 316,
                               lowlevel = True,
                               autoref = -10,
                              ),
@@ -87,6 +87,7 @@ devices = dict(
                           description = 'stepper for horizontal focus of heusler ana',
                           bus = 'bus1',
                           addr = MOTOR(8),
+                          confbyte = 136,
                           slope = 8 * 400 / 360.0,
                           unit = 'deg',
                           abslimits = (-179, 179),
@@ -109,6 +110,7 @@ devices = dict(
                           precision = 1,
                           fmtstr = '%.1f',
                           autoref = None, # disable autoref since there is no refswitch
+                          lowlevel = True,
                          ),
 )
 
@@ -125,6 +127,7 @@ if focibox.read(0) == 'Heusler':
     mfv.alias = session.getDevice('mfv_heusler')
     mono.alias = session.getDevice('mono_heusler')
     ana.alias = session.getDevice('ana_heusler')
+    afh.alias = session.getDevice('afh_heusler')
     #mfh.motor._pushParams() # forcibly send parameters to HW
     mfv.motor._pushParams() # forcibly send parameters to HW
     #focibox.comm('XMA',forcechannel=False) # enable output for mfh
