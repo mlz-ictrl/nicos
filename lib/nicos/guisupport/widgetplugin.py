@@ -26,6 +26,8 @@
 Qt designer plugin for NICOS UI widgets.
 """
 
+import os
+
 from PyQt4.QtGui import QIcon
 from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
 
@@ -88,16 +90,27 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
         return False
 
 
-from nicos.guisupport.display import ValueDisplay
-from nicos.guisupport.led import StatusLed, ValueLed
-from nicos.guisupport.plots import TrendPlot
+from nicos.guisupport.widget import DisplayWidget
 
+# imported for side effects
+from nicos.guisupport import (display, led,  # pylint: disable=W0611
+     plots, typedvalue)
 
-for cls in [ValueDisplay, StatusLed, ValueLed, TrendPlot]:
-    class Plugin(NicosPluginBase):
-        widget_class = cls
-    Plugin.__name__ = cls.__name__ + 'Plugin'
-    globals()[Plugin.__name__] = Plugin
+# import other modules to make their widgets known to __subclasses__()
+for addmod in os.environ.get('NICOSDESIGNER_MODULES', '').split(':'):
+    if addmod:
+        __import__(addmod)
 
+def _register(cls):
+    if cls.designer_description:
+        class Plugin(NicosPluginBase):
+            widget_class = cls
+        Plugin.__name__ = cls.__name__ + 'Plugin'
+        globals()[Plugin.__name__] = Plugin
+        print 'Registered', Plugin.__name__
+    for subcls in cls.__subclasses__():
+        _register(subcls)
+
+_register(DisplayWidget)
 
 del NicosPluginBase

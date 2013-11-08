@@ -38,7 +38,6 @@ ledColors = set(["blue", "green", "red", "yellow", "orange"])
 
 class BaseLed(QLabel, DisplayWidget):
 
-    designer_description = 'LED'
     designer_icon = ':/leds/green_on'
 
     defaultLedPattern = ":leds/{color}_{status}"

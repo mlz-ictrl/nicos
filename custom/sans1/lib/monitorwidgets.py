@@ -89,13 +89,19 @@ class Tube(DisplayWidget, QWidget):
 class Tube2(DisplayWidget, QWidget):
     ''' Sans1Tube with two detectors.... '''
 
-    def __init__(self, parent):
+    designer_description = 'SANS-1 tube with two detectors'
+
+    def __init__(self, parent, designMode=False):
         QWidget.__init__(self, parent)
         DisplayWidget.__init__(self)
 
         self.curval = []
         self.curstr = []
         self.curstatus = []
+        self.title = ''
+        self.height = 100
+        self.width = 100
+        self.titleheight = 250
 
     def sizeHint(self):
         return QSize(self.width + 10, self.height + self.titleheight + 40)
