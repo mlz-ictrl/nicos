@@ -19,8 +19,22 @@ Invocation
 The cache is invoked by the ``nicos-cache`` script.  It should normally be
 started by the :ref:`init script <initscript>`.
 
-There are no special command-line arguments.  The cache expects a setup file
-named ``cache.py`` with a device named ``Server``.
+The cache expects a setup file with a device named ``Server``.
+
+.. The file must be named either :file:`SETUPNAME.py`, where ``SETUPNAME`` is a
+   user-defined name, given by the ``-S, --setup`` command line option or
+   ``cache.py`` if the ``nicos-cache`` is started without a given setup name.
+
+On startup using the ``nicos-cache`` executable, the setup loaded is either
+``cache.py`` if started with no arguments, or ``SETUPNAME.py`` if started
+with command line arguments ``-S`` or ``--setup``.
+
+There are several command-line options that allow to customize the startup of
+the cache.
+
+-h, --help                       show the help message and exit
+-d, --daemon                     daemonize the cache process
+-S SETUPNAME, --setup=SETUPNAME  name of the setup, default is 'cache'
 
 
 Setup file

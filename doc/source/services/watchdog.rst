@@ -15,8 +15,21 @@ Invocation
 The watchdog is invoked by the ``nicos-watchdog`` script.  It should normally be
 started by the :ref:`init script <initscript>`.
 
-There are no special command-line arguments.  The watchdog expects a setup file
-named ``watchdog.py`` with a device named ``Watchdog``.
+The watchdog expects a setup file with a device named ``Watchdog``.
+
+.. The file must be named either ``watchdog.py`` or :file:`SETUPNAME.py`, where
+   ``SETUPNAME`` is a user-defined name.
+
+On startup using the ``nicos-watchdog`` executable, the setup loaded is either
+``watchdog.py`` if started with no arguments, or ``SETUPNAME.py`` if started
+with command line arguments ``-S`` or ``--setup``.
+
+There are several command-line options that allow to customize the startup of
+the watchdog.
+
+-h, --help                       show the help message and exit
+-d, --daemon                     daemonize the watchdog process
+-S SETUPNAME, --setup=SETUPNAME  name of the setup, default is 'watchdog'
 
 
 Setup file

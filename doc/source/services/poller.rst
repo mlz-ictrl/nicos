@@ -19,9 +19,21 @@ Invocation
 The poller is invoked by the ``nicos-poller`` script.  It should normally be
 started by the :ref:`init script <initscript>`.
 
-There are no special command-line arguments.  The poller expects a setup file
-named ``poller.py`` with a device named ``Poller``.
+The poller expects a setup file with a device named ``Poller``.
 
+.. The file must be named either ``poller.py`` or :file:`SETUPNAME.py`, where
+   ``SETUPNAME`` is a user-defined name.
+
+On startup using the ``nicos-poller`` executable, the setup loaded is either
+``poller.py`` if started with no arguments, or ``SETUPNAME.py`` if started
+with command line arguments ``-S`` or ``--setup``.
+
+There are several command-line options that allow to customize the startup of
+the poller.
+
+-h, --help                       show the help message and exit
+-d, --daemon                     daemonize the poller process
+-S SETUPNAME, --setup=SETUPNAME  name of the setup, default is 'poller'
 
 Setup file
 ----------

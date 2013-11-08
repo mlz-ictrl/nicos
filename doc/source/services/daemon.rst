@@ -17,12 +17,21 @@ Invocation
 The daemon is invoked by the ``nicos-daemon`` script.  It should normally be
 started by the :ref:`init script <initscript>`.
 
-There are no special command-line arguments.  The daemon expects a setup file
-with a device named ``Daemon``.  The file must be named either ``daemon.py`` or
-:file:`daemon-{name}.py`, where ``name`` is a user-defined name.  On startup
-using the ``nicos-daemon`` executable, the setup loaded is either ``daemon.py``
-if started with no arguments, or ``daemon-name.py`` if started with argument
-``name``.
+The daemon expects a setup file with a device named ``Daemon``.
+
+.. The file must be named either ``daemon.py`` or :file:`SETUPNAME.py`, where
+   ``SETUPNAME`` is a user-defined name.
+
+On startup using the ``nicos-daemon`` executable, the setup loaded is either
+``daemon.py`` if started with no arguments, or ``SETUPNAME.py`` if started
+with command line arguments ``-S`` or ``--setup``.
+
+There are several command-line options that allow to customize the startup of
+the daemon.
+
+-h, --help                       show the help message and exit
+-d, --daemon                     daemonize the daemon process
+-S SETUPNAME, --setup=SETUPNAME  name of the setup, default is 'daemon'
 
 
 Setup file
