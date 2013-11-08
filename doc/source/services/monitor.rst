@@ -13,22 +13,26 @@ Invocation
 
 The status monitor is invoked with the ``nicos-monitor`` script.
 
-It is configured, like all other components, using a setup file.  The file must
-be named either ``monitor.py`` or :file:`monitor-{name}.py`, where ``name`` is a
-user-defined name.  On startup, the setup loaded is either ``monitor.py`` if
-started with no arguments, or ``monitor-name.py`` if started with argument
-``name``.  A device named ``Monitor`` is expected in the setup.
+It is configured, like all other components, using a setup file.
+
+A device named ``Monitor`` is expected in the setup.
+
+.. The file must be named either ``monitor.py`` or :file:`{SETUPNAME}.py`, where
+   ``SETUPNAME`` is a user-defined name.
+
+On startup, the setup loaded is either ``monitor.py`` if started with no arguments,
+or ``SETUPNAME.py`` if the setup is given via the ``-S`` or ``--setup`` option.
 
 There are several command-line options that allow to display the same monitor
 setup on the personal screen, and on a big dedicated status display with bigger
 font.
 
-* ``-g WxH+X+Y`` selects the window geometry with a string.  It can also be
-  ``-g fullscreen``.
-
-* ``-s <size>`` selects the base font size.
-
-* ``-p <padding>`` selects the padding between blocks.
+-h, --help                            show the help message and exit
+-d, --daemon                          daemonize the monitor process (only useful for non-GUI versions)
+-s size, --fontsize=size              select the base font size.
+-p padding, --padding=padding         select the padding between blocks.
+-S SETUPNAME, --setup=SETUPNAME       name of the setup, default is 'monitor'
+-g geom, --geometry=geom              select the window geometry with a string 'WxH+X+Y' or 'fullscreen'
 
 
 Setup file
