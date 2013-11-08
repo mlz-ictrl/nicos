@@ -34,6 +34,141 @@ from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
 
 from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
+from nicos.guisupport.widget import NicosWidget, PropDef
+
+
+class DeviceValueEdit(NicosWidget, QWidget):
+
+    designer_description = 'Editor for a device value with the right kind ' \
+        'of widget'
+
+    def __init__(self, parent, designMode=False, **kwds):
+        self._inner = None
+        QWidget.__init__(self, parent, **kwds)
+        NicosWidget.__init__(self)
+        self._layout = QHBoxLayout()
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self._layout)
+        if designMode:
+            self._layout.insertWidget(0, QLabel('(Value Editor)', self))
+
+    def setFocus(self):
+        if self._inner is not None:
+            self._inner.setFocus()
+        else:
+            QWidget.setFocus(self)
+
+    properties = {
+        'dev':         PropDef(str, ''),
+        'useButtons':  PropDef(bool, False,
+                           'Use buttons for values with few choices?'),
+        'updateValue': PropDef(bool, False,
+                           'Update the editor when the device value changes?'),
+    }
+
+    def propertyUpdated(self, pname, value):
+        if pname == 'dev':
+            self._reinit()
+        NicosWidget.propertyUpdated(self, pname, value)
+
+    def on_client_connected(self):
+        self._reinit()
+
+    def registerKeys(self):
+        if self.props['updateValue']:
+            self.registerDevice(self.props['dev'])
+
+    def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
+        self._reinit(value)
+
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
+        self._reinit()
+
+    def _reinit(self, curvalue=None):
+        if not self._client:
+            return
+        devname = str(self.props['dev'])
+        if devname:
+            unit = self._client.getDeviceParam(devname, 'unit')
+            fmtstr = self._client.getDeviceParam(devname, 'fmtstr')
+            valuetype = self._client.getDeviceValuetype(devname)
+            if curvalue is None:
+                curvalue = self._client.getDeviceValue(devname)
+            if curvalue is None:
+                curvalue = valuetype()
+        else:
+            valuetype = str
+            curvalue = ''
+            fmtstr = '%s'
+            unit = ''
+        self._inner = create(self, valuetype, curvalue, fmtstr, unit,
+                             allow_buttons=self.props['useButtons'])
+        last = self._layout.takeAt(0)
+        if last:
+            last.widget().deleteLater()
+        self._layout.insertWidget(0, self._inner)
+        # XXX: make the typedvalue widgets emit dataChanged
+        self.connect(self._inner, SIGNAL('dataChanged'), self._changed)
+        self.connect(self._inner, SIGNAL('valueChosen'), self._chosen)
+
+    def _changed(self):
+        self.emit(SIGNAL('dataChanged'))
+
+    def _chosen(self, value):
+        self.emit(SIGNAL('valueChosen'), value)
+
+    def getValue(self):
+        if self._inner:
+            return self._inner.getValue()
+
+
+class DeviceParamEdit(DeviceValueEdit):
+
+    designer_description = 'Editor for a device parameter with the right ' \
+        'kind of widget'
+
+    properties = {
+        'param':       PropDef(str, ''),
+    }
+
+    def propertyUpdated(self, pname, value):
+        if pname in ('dev', 'param'):
+            self._reinit()
+        NicosWidget.propertyUpdated(self, pname, value)
+
+    def registerKeys(self):
+        self.registerKey(self.props['dev'] + '.' + self.props['param'])
+
+    def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
+        if self.props['updateValue']:
+            self._reinit(value)
+
+    def _reinit(self, curvalue=None):
+        if not self._client:
+            return
+        devname = str(self.props['dev'])
+        parname = str(self.props['param'])
+        if devname and parname:
+            pvals = self._client.getDeviceParams(devname)
+            pinfo = self._client.getDeviceParamInfo(devname)
+            mainunit = pvals.get('unit', 'main')
+            punit = (pinfo[parname]['unit'] or '').replace('main', mainunit)
+            valuetype = pinfo[parname]['type']
+            if curvalue is None:
+                curvalue = pvals.get(parname)
+            if curvalue is None:
+                curvalue = valuetype()
+        else:
+            valuetype = str
+            curvalue = ''
+            punit = ''
+        self._inner = create(self, valuetype, curvalue, unit=punit)
+        last = self._layout.takeAt(0)
+        if last:
+            last.widget().deleteLater()
+        self._layout.insertWidget(0, self._inner)
+        # XXX: make the typedvalue widgets emit dataChanged
+        self.connect(self._inner, SIGNAL('dataChanged'), self._changed)
 
 
 def create(parent, typ, curvalue, fmtstr='', unit='', allow_buttons=False):

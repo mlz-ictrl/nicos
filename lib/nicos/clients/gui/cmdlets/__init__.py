@@ -27,7 +27,7 @@
 from PyQt4.QtGui import QWidget, QColor
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
-from nicos.guisupport import typedvalue
+from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
 
 invalid = QColor('#ffcccc')
@@ -88,6 +88,10 @@ class Move(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client, 'move.ui')
+        self.target = DeviceValueEdit(self)
+        self.target.setClient(self.client)
+        self.connect(self.target, SIGNAL('dataChanged'), self.changed)
+        self.hlayout.insertWidget(3, self.target)
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -95,18 +99,7 @@ class Move(Cmdlet):
         self.waitBox.stateChanged.connect(self.changed)
 
     def on_device_change(self, text):
-        devname = str(text)
-        unit = self.client.getDeviceParam(devname, 'unit')
-        fmtstr = self.client.getDeviceParam(devname, 'fmtstr')
-        valuetype = self.client.getDeviceValuetype(devname)
-        curvalue = self.client.getDeviceValue(devname)
-        if curvalue is None:
-            curvalue = valuetype()
-        self.target = typedvalue.create(self, valuetype, curvalue, fmtstr, unit)
-        self.hlayout.takeAt(3).widget().deleteLater()
-        self.hlayout.insertWidget(3, self.target)
-        # XXX: make the typedvalue widgets emit dataChanged
-        self.connect(self.target, SIGNAL('dataChanged'), self.changed)
+        self.target.dev = text
         self.changed()
 
     def isValid(self):
@@ -282,6 +275,10 @@ class Configure(Cmdlet):
         Cmdlet.__init__(self, parent, client, 'configure.ui')
         self.paraminfo = {}
         self.paramvalues = {}
+        self.target = DeviceParamEdit(self)
+        self.target.setClient(self.client)
+        self.connect(self.target, SIGNAL('dataChanged'), self.changed)
+        self.hlayout.insertWidget(5, self.target)
         self.device.addItems(self.client.getDeviceList())
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
@@ -296,21 +293,12 @@ class Configure(Cmdlet):
         self.parameter.addItems(sorted(p for p in self.paraminfo
                                        if self.paraminfo[p]['settable'] and
                                           self.paraminfo[p]['userparam']))
+        self.target.dev = text
         self.on_parameter_change(self.parameter.currentText())
         self.changed()
 
     def on_parameter_change(self, text):
-        pname = str(text)
-        valuetype = self.paraminfo[pname]['type']
-        mainunit = self.paramvalues.get('unit', 'main')
-        punit = (self.paraminfo[pname]['unit'] or '').replace('main', mainunit)
-        self.target = typedvalue.create(self, valuetype,
-                                        self.paramvalues.get(pname, valuetype()),
-                                        unit=punit)
-        self.hlayout.takeAt(5).widget().deleteLater()
-        self.hlayout.insertWidget(5, self.target)
-        # XXX: make the typedvalue widgets emit dataChanged
-        self.connect(self.target, SIGNAL('dataChanged'), self.changed)
+        self.target.param = text
         self.changed()
 
     def isValid(self):

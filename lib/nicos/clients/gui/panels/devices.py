@@ -30,7 +30,7 @@ from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
-from nicos.guisupport import typedvalue
+from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
@@ -431,8 +431,14 @@ class DevicesPanel(Panel):
         devinfo = self._devinfo[ldevname]
         item = self._devitems[ldevname]
         dlg = ControlDialog(self, devname, devinfo, item, self.log)
+        self.connect(dlg, SIGNAL('closed'), self._control_dialog_closed)
+        self.connect(dlg, SIGNAL('rejected()'), dlg.close)
         self._control_dialogs[ldevname] = dlg
         dlg.show()
+
+    def _control_dialog_closed(self, ldevname):
+        dlg = self._control_dialogs.pop(ldevname)
+        dlg.deleteLater()
 
 
 class ControlDialog(QDialog):
@@ -481,31 +487,23 @@ class ControlDialog(QDialog):
         if 'nicos.core.device.Moveable' not in devinfo[5]:
             self.controlGroup.setVisible(False)
         else:
+            # XXX: move this to DeviceValueEdit?
             if 'nicos.core.device.HasLimits' not in devinfo[5]:
                 self.limitFrame.setVisible(False)
             else:
                 self.limitMin.setText(str(params['userlimits'][0]))
                 self.limitMax.setText(str(params['userlimits'][1]))
-            valuetype = self.client.eval('session.getDevice(%r).valuetype' %
-                                         devname)
 
-            if 'value' in params:
-                curvalue = params['value']
-            else:
-                curvalue = valuetype()
-            self.target = typedvalue.create(self, valuetype, curvalue,
-                                            params.get('fmtstr', '%s'),
-                                            allow_buttons=True)
+            self.target = DeviceValueEdit(self, dev=devname, useButtons=True)
+            self.target.setClient(parent.client)
             self.targetLayout.insertWidget(1, self.target)
-            self.targetUnit.setText(params['unit'])
+            # XXX: move this to DeviceValueEdit
             self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
             self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
-            if isinstance(self.target, typedvalue.ButtonWidget):
-                def btn_callback(target):
-                    self.client.tell('queue', '',
-                                     'move(%s, %r)' % (devname, target))
-                self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
-            else:
+            def btn_callback(target):
+                self.client.tell('queue', '', 'move(%s, %r)' % (devname, target))
+            self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
+            if self.target.getValue() is not None:  # it's None for button widget
                 self.movebtn = self.moveBtns.addButton(
                     'Move', QDialogButtonBox.AcceptRole)
             if params.get('fixed'):
@@ -525,6 +523,10 @@ class ControlDialog(QDialog):
                                      'move(%s, %r)' % (devname, target))
             self.moveBtns.clicked.connect(callback)
 
+    def closeEvent(self, event):
+        event.accept()
+        self.emit(SIGNAL('closed'), self.devname.lower())
+
     def on_cache(self, subkey, value):
         if subkey not in self.paramItems:
             return
@@ -536,13 +538,12 @@ class ControlDialog(QDialog):
         pname = str(item.text(0))
         if not self.paraminfo[pname]['settable']:
             return
-        ptype = self.paraminfo[pname]['type']
         mainunit = self.paramvalues.get('unit', 'main')
         punit = (self.paraminfo[pname]['unit'] or '').replace('main', mainunit)
 
         dlg = dialogFromUi(self, 'devices_param.ui', 'panels')
-        dlg.target = typedvalue.create(self, ptype,
-                                       self.paramvalues[pname], unit=punit)
+        dlg.target = DeviceParamEdit(self, dev=self.devname, param=pname)
+        dlg.target.setClient(self.client)
         dlg.paramName.setText('Parameter: %s.%s' % (self.devname, pname))
         dlg.paramDesc.setText(self.paraminfo[pname]['description'])
         dlg.paramValue.setText(str(self.paramvalues[pname]) + ' ' + punit)
@@ -560,5 +561,6 @@ class ControlDialog(QDialog):
             QMessageBox.warning(self, 'Error', 'The entered value is invalid '
                                 'for this parameter.')
             return
+        # XXX: move this to DeviceParamEdit
         self.client.tell('queue', '', '%s.%s = %r' %
                          (self.devname, pname, new_value))
