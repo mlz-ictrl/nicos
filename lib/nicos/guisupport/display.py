@@ -31,14 +31,14 @@ from cgi import escape
 from time import time as currenttime
 
 import sip
-from PyQt4.QtCore import Qt, pyqtProperty, QSize, QTimer, SIGNAL
+from PyQt4.QtCore import Qt, QSize, QTimer, SIGNAL
 from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
      QHBoxLayout, QFontMetrics
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN, \
      statuses
 from nicos.clients.gui.utils import setBackgroundColor, setForegroundColor
-from nicos.guisupport.widget import DisplayWidget
+from nicos.guisupport.widget import DisplayWidget, PropDef
 
 
 _black = QColor('black')
@@ -76,7 +76,7 @@ def nicedelta(t):
         return '%.1f hours' % (t / 3600.)
 
 
-class ValueDisplay(QWidget, DisplayWidget):
+class ValueDisplay(DisplayWidget, QWidget):
     """Default value display widget with two labels."""
 
     designer_description = 'A widget with name/value labels'
@@ -87,22 +87,9 @@ class ValueDisplay(QWidget, DisplayWidget):
         self._mainkeyid = None
         self._statuskeyid = None
 
-        # default values for Qt properties
-        self._device = ''
-        self._key = ''
-        self._statuskey = ''
-        self._showstatus = True
-        self._showexpiration = True
-        self._showname = True
-        self._valuename = ''
-        self._valueunit = ''
-        self._valueindex = -1
-        self._formatstring = ''
-        self._textcutoff = -1
-        self._charwidth = 8
+        # eval()ed min and max values
         self._minvalue = None
         self._maxvalue = None
-        self._horizontal = False
 
         # other current values
         self._isfixed = ''
@@ -116,6 +103,64 @@ class ValueDisplay(QWidget, DisplayWidget):
 
         QWidget.__init__(self, parent, **kwds)
         DisplayWidget.__init__(self)
+
+    properties = {
+        'dev':        PropDef(str, ''),
+        'key':        PropDef(str, ''),
+        'statuskey':  PropDef(str, ''),
+        'name':       PropDef(str, ''),
+        'unit':       PropDef(str, ''),
+        'item':       PropDef(int, -1),
+        'format':     PropDef(str, ''),
+        'maxlen':     PropDef(int, -1),
+        'width':      PropDef(int, 8),
+        'min':        PropDef(str, ''),
+        'max':        PropDef(str, ''),
+        'istext':     PropDef(bool, False),
+        'showName':   PropDef(bool, True),
+        'showStatus': PropDef(bool, True),
+        'showExpiration': PropDef(bool, True),
+        'horizontal': PropDef(bool, False),
+    }
+
+    def propertyUpdated(self, pname, value):
+        if pname == 'dev':
+            if value:
+                self.key = value + '.value'
+                self.statuskey = value + '.status'
+        elif pname == 'min':
+            if not value:
+                self._minvalue = None
+            else:
+                self._minvalue = ast.literal_eval(value)
+            self._applywarncolor(self._lastvalue)
+        elif pname == 'max':
+            if not value:
+                self._maxvalue = None
+            else:
+                self._maxvalue = ast.literal_eval(value)
+            self._applywarncolor(self._lastvalue)
+        elif pname == 'width':
+            onechar = QFontMetrics(self.valueFont).width('0')
+            self.valuelabel.setMinimumSize(QSize(onechar * (value + .5), 0))
+        elif pname == 'istext':
+            self.valuelabel.setFont(value and self.font() or self.valueFont)
+            self.width = self.width
+        elif pname == 'valueFont':
+            self.width = self.width  # update char width calculation
+        elif pname == 'showName':
+            self.namelabel.setVisible(value)
+        elif pname == 'showStatus':
+            if not value:
+                setForegroundColor(self.valuelabel, statusColor[UNKNOWN])
+        elif pname == 'showExpiration':
+            if not value:
+                setBackgroundColor(self.valuelabel, statusColor[UNKNOWN])
+        elif pname == 'horizontal':
+            self.reinitLayout()
+        if pname in ('dev', 'name', 'unit'):
+            self.update_namelabel()
+        DisplayWidget.propertyUpdated(self, pname, value)
 
     def initUi(self):
         self.namelabel = QLabel(' ', self, textFormat=Qt.RichText)
@@ -131,13 +176,13 @@ class ValueDisplay(QWidget, DisplayWidget):
         setForegroundColor(valuelabel, statusColor[UNKNOWN])
         valuelabel.setLineWidth(2)
         self.valuelabel = valuelabel
-        self.charWidth = 8
+        self.width = 8
 
         self.reinitLayout()
 
     def reinitLayout(self):
         # reinitialize UI after switching horizontal/vertical layout
-        if self._horizontal:
+        if self.props['horizontal']:
             new_layout = QHBoxLayout()
             new_layout.addWidget(self.namelabel)
             new_layout.addStretch()
@@ -157,43 +202,24 @@ class ValueDisplay(QWidget, DisplayWidget):
         new_layout.setContentsMargins(1, 1, 1, 1)  # save space
         self.setLayout(new_layout)
 
-    def setConfig(self, config, labelfont, valuefont, scale):
-        self.pyqtConfigure(
-            device       = config.get('dev', self._device),
-            key          = config.get('key', self._key),
-            statuskey    = config.get('statuskey', self._statuskey),
-            valueIndex   = config.get('item', self._valueindex),
-            valueName    = config.get('name', self._valuename),
-            valueUnit    = config.get('unit', self._valueunit),
-            formatString = config.get('format', self._formatstring),
-            textCutoff   = config.get('maxlen', self._textcutoff),
-            font         = labelfont,
-            valueFont    = labelfont if config.get('istext', False)
-                           else valuefont,
-            charWidth    = config.get('width', 8),
-        )
-        if 'min' in config:
-            self.minValue = repr(config['min'])
-        if 'max' in config:
-            self.maxValue = repr(config['max'])
-
     def registerKeys(self):
-        if self._device:
-            self.registerDevice(self._device, self._valueindex, self._valueunit,
-                                self._formatstring)
+        if self.props['dev']:
+            self.registerDevice(self.props['dev'], self.props['item'],
+                                self.props['unit'], self.props['format'])
         else:
-            self.registerKey(self._key, self._statuskey, self._valueindex,
-                             self._valueunit, self._formatstring)
+            self.registerKey(self.props['key'], self.props['statuskey'],
+                             self.props['item'], self.props['unit'],
+                             self.props['format'])
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         # check expired values
-        if expired and self._showexpiration:
+        if expired and self.props['showExpiration']:
             setBackgroundColor(self.valuelabel, _gray)
         else:
             setBackgroundColor(self.valuelabel, _black)
         self._applywarncolor(value)
-        if self._textcutoff > -1:
-            self.valuelabel.setText(strvalue[:self._textcutoff])
+        if self.props['maxlen'] > -1:
+            self.valuelabel.setText(strvalue[:self.props['maxlen']])
         else:
             self.valuelabel.setText(strvalue)
         self._lastvalue = value
@@ -214,30 +240,30 @@ class ValueDisplay(QWidget, DisplayWidget):
             self.namelabel.setAutoFillBackground(False)
 
     def on_devStatusChange(self, dev, code, status, expired):
-        if self._showstatus:
+        if self.props['showStatus']:
             self._statuscolor = statusColor[code]
             self._laststatus = code, status
             self._applystatuscolor()
 
     def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
         self._isfixed = fixed and ' (F)'
-        self.formatString = fmtstr
-        self.valueUnit = unit
-        self.minValue = repr(minval)
-        self.maxValue = repr(maxval)
+        self.format = fmtstr
+        self.unit = unit
+        self.min = repr(minval)
+        self.max = repr(maxval)
 
     def update_namelabel(self):
-        name = self._valuename or self._device or self._key
+        name = self.props['name'] or self.props['dev'] or self.props['key']
         self.namelabel.setText(escape(unicode(name)) + ' <font color="#888888">%s</font>'
-            '<font color="#0000ff">%s</font> ' % (escape(self._valueunit.strip()),
+            '<font color="#0000ff">%s</font> ' % (escape(self.props['unit'].strip()),
                                                   self._isfixed))
 
     def _label_entered(self, widget, event, from_mouse=True):
-        infotext = '%s = %s' % (self._valuename or self._device or self._key,
+        infotext = '%s = %s' % (self.props['name'] or self.props['dev'] or self.props['key'],
                                 self.valuelabel.text())
-        if self._valueunit.strip():
-            infotext += ' %s' % self._valueunit
-        if self._statuskey:
+        if self.props['unit'].strip():
+            infotext += ' %s' % self.props['unit']
+        if self.props['statuskey']:
             try:
                 const, msg = self._laststatus
             except ValueError:
@@ -256,161 +282,3 @@ class ValueDisplay(QWidget, DisplayWidget):
             self._mousetimer.stop()
             self._mousetimer = None
             self.emit(SIGNAL('widgetInfo'), '')
-
-    def get_device(self):
-        return self._device
-    def set_device(self, value):
-        self._device = str(value)
-        if value:
-            self._key = str(value + '.value')
-            self._statuskey = str(value + '.status')
-        self.update_namelabel()
-    def reset_device(self):
-        self._device = ''
-    device = pyqtProperty(str, get_device, set_device, reset_device)
-
-    def get_key(self):
-        return self._key
-    def set_key(self, value):
-        self._key = str(value)
-    def reset_key(self):
-        self._key = ''
-    key = pyqtProperty(str, get_key, set_key, reset_key)
-
-    def get_statuskey(self):
-        return self._statuskey
-    def set_statuskey(self, value):
-        self._statuskey = str(value)
-    def reset_statuskey(self):
-        self._statuskey = ''
-    statuskey = pyqtProperty(str, get_statuskey, set_statuskey, reset_statuskey)
-
-    def get_showName(self):
-        return self._showname
-    def set_showName(self, value):
-        self.namelabel.setVisible(value)
-        self._showname = value
-    def reset_showName(self):
-        self.showName = True
-    showName = pyqtProperty('bool', get_showName, set_showName, reset_showName)
-
-    def get_showStatus(self):
-        return self._showstatus
-    def set_showStatus(self, value):
-        self._showstatus = value
-        if not value:
-            setForegroundColor(self.valuelabel, statusColor[UNKNOWN])
-    def reset_showStatus(self):
-        self.showStatus = True
-    showStatus = pyqtProperty('bool', get_showStatus, set_showStatus,
-                              reset_showStatus)
-
-    def get_showExpiration(self):
-        return self._showexpiration
-    def set_showExpiration(self, value):
-        self._showexpiration = value
-        if not value:
-            setBackgroundColor(self.valuelabel, statusColor[UNKNOWN])
-    def reset_showExpiration(self):
-        self.showExpiration = True
-    showExpiration = pyqtProperty('bool', get_showExpiration,
-                                  set_showExpiration, reset_showExpiration)
-
-    def get_valueName(self):
-        return self._valuename
-    def set_valueName(self, value):
-        self._valuename = value
-        self.update_namelabel()
-    def reset_valueName(self):
-        self.valueName = ''
-    valueName = pyqtProperty(str, get_valueName, set_valueName, reset_valueName)
-
-    def get_valueUnit(self):
-        return self._valueunit
-    def set_valueUnit(self, value):
-        self._valueunit = str(value)
-        self.update_namelabel()
-    def reset_valueUnit(self):
-        self.valueUnit = ''
-    valueUnit = pyqtProperty(str, get_valueUnit, set_valueUnit, reset_valueUnit)
-
-    def get_valueIndex(self):
-        return self._valueindex
-    def set_valueIndex(self, value):
-        self._valueindex = value
-    def reset_valueIndex(self):
-        self.valueIndex = -1
-    valueIndex = pyqtProperty(int, get_valueIndex, set_valueIndex,
-                              reset_valueIndex)
-
-    def get_formatString(self):
-        return self._formatstring
-    def set_formatString(self, value):
-        self._formatstring = str(value)
-    def reset_formatString(self):
-        self.formatString = '%s'
-    formatString = pyqtProperty(str, get_formatString, set_formatString,
-                                reset_formatString)
-
-    def get_textCutoff(self):
-        return self._textcutoff
-    def set_textCutoff(self, value):
-        self._textcutoff = value
-    def reset_textCutoff(self):
-        self.textCutoff = -1
-    textCutoff = pyqtProperty(int, get_textCutoff, set_textCutoff,
-                              reset_textCutoff)
-
-    def get_minValue(self):
-        return repr(self._minvalue) if self._minvalue is not None else ''
-    def set_minValue(self, value):
-        if value in ('', 'None'):
-            self._minvalue = None
-        else:
-            self._minvalue = ast.literal_eval(str(value))
-        self._applywarncolor(self._lastvalue)
-    def reset_minValue(self):
-        self._minvalue = None
-    minValue = pyqtProperty(str, get_minValue, set_minValue, reset_minValue)
-
-    def get_maxValue(self):
-        return repr(self._maxvalue) if self._maxvalue is not None else ''
-    def set_maxValue(self, value):
-        if value in ('', 'None'):
-            self._maxvalue = None
-        else:
-            self._maxvalue = ast.literal_eval(str(value))
-        self._applywarncolor(self._lastvalue)
-    def reset_maxValue(self):
-        self._maxvalue = None
-    maxValue = pyqtProperty(str, get_maxValue, set_maxValue, reset_maxValue)
-
-    def get_charWidth(self):
-        return self._charwidth
-    def set_charWidth(self, value):
-        self._charwidth = value
-        onechar = QFontMetrics(self.valueFont).width('0')
-        self.valuelabel.setMinimumSize(QSize(onechar * (value + .5), 0))
-    def reset_charWidth(self):
-        self.charWidth = 8
-    charWidth = pyqtProperty(int, get_charWidth, set_charWidth, reset_charWidth)
-
-    def get_valueFont(self):
-        return self.valuelabel.font()
-    def set_valueFont(self, value):
-        self.valuelabel.setFont(value)
-        self.charWidth = self.charWidth  # update minimum size
-    def reset_valueFont(self):
-        self.valueFont = self.font()
-    valueFont = pyqtProperty('QFont', get_valueFont, set_valueFont,
-                             reset_valueFont)
-
-    def get_horizontal(self):
-        return self._horizontal
-    def set_horizontal(self, value):
-        self._horizontal = value
-        self.reinitLayout()
-    def reset_horizontal(self):
-        self.horizontal = False
-    horizontal = pyqtProperty(bool, get_horizontal, set_horizontal,
-                              reset_horizontal)

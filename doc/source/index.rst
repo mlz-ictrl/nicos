@@ -31,6 +31,7 @@ Developer related chapters:
    protocols/index
    auto/modules
    newsetup
+   gui/index
 
 General information:
 

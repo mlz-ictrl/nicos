@@ -26,8 +26,11 @@
 Base class for NICOS UI widgets.
 """
 
-from PyQt4.QtCore import SIGNAL
+from PyQt4.QtGui import QFont, QFontMetrics
+from PyQt4.QtCore import QString, QStringList, SIGNAL, \
+     pyqtProperty, pyqtWrapperType
 
+from nicos.utils import lazy_property
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
 
@@ -172,6 +175,58 @@ class NicosListener(object):
         pass
 
 
+class PropDef(object):
+    all_types = [
+        str, float, int,
+        'bool',  # only works as C++ type name
+    ]
+
+    def __init__(self, ptype, default, doc=''):
+        if ptype is bool:
+            ptype = 'bool'
+        if ptype not in self.all_types:
+            if not (isinstance(ptype, str) and ptype.startswith('Q')):
+                raise Exception('invalid property type: %r' % ptype)
+        self.ptype = ptype
+        self.default = default
+        self.doc = doc
+
+
+class AutoPropMeta(pyqtWrapperType):
+    """Works similar to the DeviceMeta in that properties are automatically
+    inherited, and PyQt getters/setters/resetters are generated.
+    """
+
+    def __new__(mcs, name, bases, attrs):  # pylint: disable=C0202
+        newtype = pyqtWrapperType.__new__(mcs, name, bases, attrs)
+        newprops = {}
+        for base in reversed(bases):
+            if hasattr(base, 'properties'):
+                newprops.update(base.properties)
+        newprops.update(attrs.get('properties', {}))
+        newtype.properties = newprops
+
+        for prop, pdef in sorted(newprops.iteritems()):
+            def getter(self, prop=prop):
+                return self.props[prop]
+            def setter(self, value, prop=prop):
+                if isinstance(value, QString):
+                    value = unicode(value)
+                elif isinstance(value, QStringList):
+                    value = map(unicode, value)
+                self.props[prop] = value
+                self.propertyUpdated(prop, value)
+            def resetter(self, prop=prop):
+                if callable(pdef.default):
+                    setattr(self, prop, pdef.default(self))
+                else:
+                    setattr(self, prop, pdef.default)
+            setattr(newtype, prop,
+                    pyqtProperty(pdef.ptype, getter, setter, resetter,
+                                 doc=pdef.doc))
+        return newtype
+
+
 class DisplayWidget(NicosListener):
     """Base mixin class for a widget that can receive cache events.
 
@@ -179,6 +234,7 @@ class DisplayWidget(NicosListener):
     can only derive from one PyQt base class, and that base class will be
     different for different widgets.
     """
+    __metaclass__ = AutoPropMeta
 
     _source = None
 
@@ -187,15 +243,35 @@ class DisplayWidget(NicosListener):
     # set this to an icon name for the Qt designer
     designer_icon = None
 
+    # define properties
+    properties = {
+        'valueFont': PropDef('QFont', QFont('monospace')),
+    }
+
+    # dictionary for storing current property values
+    @lazy_property
+    def props(self):
+        return {}
+
     def __init__(self):
+        for prop, pdef in self.properties.iteritems():
+            if prop not in self.props:
+                if callable(pdef.default):
+                    self.props[prop] = pdef.default(self)
+                else:
+                    self.props[prop] = pdef.default
+        self._scale = QFontMetrics(self.valueFont).width('0')
         self.connect(self, SIGNAL('keyChange'), self.on_keyChange)
         self.initUi()
 
     def initUi(self):
         """Create user interface if necessary."""
 
-    def setConfig(self, config, labelfont, valuefont, scale):
-        """Configure the widget from a dictionary (the status monitor setup)."""
+    def propertyUpdated(self, pname, value):
+        """Called when a property in self.properties has been updated."""
+        if pname == 'valueFont':
+            self._scale = QFontMetrics(value).width('0')
+        self.update()
 
 
 class InteractiveWidget(DisplayWidget):

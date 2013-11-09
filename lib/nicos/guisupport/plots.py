@@ -29,7 +29,7 @@ NICOS value plot widget.
 from time import time as currenttime, strftime, localtime
 
 from PyQt4.QtGui import QWidget, QPen, QBrush
-from PyQt4.QtCore import Qt, pyqtProperty, SIGNAL, QTimer, QSize
+from PyQt4.QtCore import Qt, SIGNAL, QTimer, QSize
 
 try:
     from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
@@ -42,7 +42,7 @@ except (ImportError, RuntimeError):
     QwtPlot = QWidget
     plot_available = False
 
-from nicos.guisupport.widget import DisplayWidget
+from nicos.guisupport.widget import DisplayWidget, PropDef
 
 
 class TrendPlot(QwtPlot, DisplayWidget):
@@ -60,9 +60,6 @@ class TrendPlot(QwtPlot, DisplayWidget):
         self.plotx = {}
         self.ploty = {}
 
-        self._devices = []
-        self._interval = 3600
-
         QwtPlot.__init__(self, parent)
         DisplayWidget.__init__(self)
 
@@ -76,10 +73,8 @@ class TrendPlot(QwtPlot, DisplayWidget):
 
         # axes setup
         self.setAxisScaleEngine(QwtPlot.xBottom, TimeScaleEngine())
-        showdate = self._interval > 24*3600
-        showsecs = self._interval < 300
         self.setAxisScaleDraw(QwtPlot.xBottom,
-                              TimeScaleDraw(showdate=showdate, showsecs=showsecs))
+                              TimeScaleDraw(showdate=False, showsecs=False))
         self.setAxisLabelAlignment(QwtPlot.xBottom,
                                    Qt.AlignBottom | Qt.AlignLeft)
         self.setAxisLabelRotation(QwtPlot.xBottom, -45)
@@ -110,12 +105,22 @@ class TrendPlot(QwtPlot, DisplayWidget):
 
         self.connect(self, SIGNAL('updateplot'), self.updateplot)
 
-    def setConfig(self, config, labelfont, valuefont, scale):
-        self.plotInterval = config.get('plotinterval', 3600)
-        self.setFont(labelfont)
-        self.setMinimumSize(
-            QSize(scale * (config.get('width', 20) + .5),
-                  scale * (config.get('height', 20) + .5)))
+    properties = {
+        'devices':      PropDef('QStringList', []),
+        'plotinterval': PropDef(int, 3600),
+    }
+
+    def propertyUpdated(self, pname, value):
+        if pname == 'plotinterval':
+            showdate = value > 24*3600
+            showsecs = value < 300
+            self.setAxisScaleDraw(QwtPlot.xBottom,
+                TimeScaleDraw(showdate=showdate, showsecs=showsecs))
+        elif pname in ('width', 'height'):
+            self.setMinimumSize(
+                QSize(self._scale * (self.props['width'] + .5),
+                      self._scale * (self.props['height'] + .5)))
+        DisplayWidget.propertyUpdated(self, pname, value)
 
     def setFont(self, font):
         QwtPlot.setFont(self, font)
@@ -156,7 +161,7 @@ class TrendPlot(QwtPlot, DisplayWidget):
         xx, yy = self.plotx[keyid], self.ploty[keyid]
         ll = len(xx)
         i = 0
-        limit = currenttime() - self._interval
+        limit = currenttime() - self.props['plotinterval']
         while i < ll and xx[i] < limit:
             i += 1
         xx = self.plotx[keyid] = xx[i:]
@@ -182,30 +187,10 @@ class TrendPlot(QwtPlot, DisplayWidget):
         self.updateplot(key, curve)
 
     def registerKeys(self):
-        for key in self._devices:
+        for key in self.props['devices']:
+            key = str(key)
             okey = key
             if '.' not in key and '/' not in key:
                 key += '/value'
             keyid = self._source.register(self, key)
             self.addcurve(keyid, okey)
-
-    def get_devices(self):
-        return self._devices
-    def set_devices(self, value):
-        self._devices = map(str, value)
-    def reset_devices(self):
-        self.devices = []
-    devices = pyqtProperty('QStringList', get_devices, set_devices, reset_devices)
-
-    def get_plotInterval(self):
-        return self._interval
-    def set_plotInterval(self, value):
-        self._interval = value
-        showdate = self._interval > 24*3600
-        showsecs = self._interval < 300
-        self.setAxisScaleDraw(QwtPlot.xBottom,
-                              TimeScaleDraw(showdate=showdate, showsecs=showsecs))
-    def reset_plotInterval(self):
-        self.plotInterval = 3600
-    plotInterval = pyqtProperty(int, get_plotInterval, set_plotInterval,
-                                reset_plotInterval)

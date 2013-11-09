@@ -31,13 +31,13 @@
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <property name="ledStatus">
+     <property name="ledStatus" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="ledColor">
+     <property name="ledColor" stdset="0">
       <string>green</string>
      </property>
-     <property name="device" stdset="0">
+     <property name="dev" stdset="0">
       <string>T</string>
      </property>
     </widget>
@@ -64,7 +64,7 @@
        <pointsize>12</pointsize>
       </font>
      </property>
-     <property name="device" stdset="0">
+     <property name="dev" stdset="0">
       <string>T</string>
      </property>
      <property name="showName" stdset="0">
@@ -73,16 +73,10 @@
      <property name="showStatus" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="formatString" stdset="0">
+     <property name="format" stdset="0">
       <string>%.3f</string>
      </property>
-     <property name="minValue" stdset="0">
-      <string/>
-     </property>
-     <property name="maxValue" stdset="0">
-      <string/>
-     </property>
-     <property name="charWidth" stdset="0">
+     <property name="width" stdset="0">
       <number>8</number>
      </property>
      <property name="valueFont" stdset="0">

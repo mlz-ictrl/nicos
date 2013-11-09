@@ -27,10 +27,10 @@ NICOS GUI LED class.
 """
 
 from PyQt4.QtGui import QLabel, QWidget, QPixmap
-from PyQt4.QtCore import Qt, pyqtProperty, QSize
+from PyQt4.QtCore import Qt, QSize
 
 from nicos.core.status import OK, BUSY, PAUSED
-from nicos.guisupport.widget import DisplayWidget
+from nicos.guisupport.widget import DisplayWidget, PropDef
 
 
 ledColors = set(["blue", "green", "red", "yellow", "orange"])
@@ -40,19 +40,9 @@ class BaseLed(QLabel, DisplayWidget):
 
     designer_icon = ':/leds/green_on'
 
-    defaultLedPattern = ":leds/{color}_{status}"
-    defaultLedColor = "green"
-    defaultLedStatus = True
-    defaultLedInverted = False
+    _ledPatternName = ':/leds/{color}_{status}'
 
     def __init__(self, parent=None, designMode=False):
-        self._key = ''
-        self._device = ''
-        self._ledStatus = self.defaultLedStatus
-        self._ledColor = self.defaultLedColor
-        self._ledPatternName = self.defaultLedPattern
-        self._ledInverted = self.defaultLedInverted
-        self._ledName = self.toLedName()
         QLabel.__init__(self, parent)
         DisplayWidget.__init__(self)
         self._refresh()
@@ -65,138 +55,87 @@ class BaseLed(QLabel, DisplayWidget):
     def minimumSizeHint(self):
         return QSize(8, 8)
 
-    def toLedName(self, status=None, color=None, inverted=None):
-        if status is None: status = self._ledStatus
-        if color is None: color = self._ledColor
-        if inverted is None: inverted = self._ledInverted
+    def _refresh(self):
+        status = self.props['ledStatus']
+        inverted = self.props['ledInverted']
+        color = self.props['ledColor']
         if inverted:
             status = not status
         status = status and "on" or "off"
-        return self._ledPatternName.format(color=color, status=status)
-
-    def _refresh(self):
-        self._ledName = self.toLedName()
-        pixmap = QPixmap(self._ledName).scaled(self.size(), Qt.KeepAspectRatio,
-                                               Qt.SmoothTransformation)
+        ledName = self._ledPatternName.format(color=color, status=status)
+        pixmap = QPixmap(ledName).scaled(self.size(), Qt.KeepAspectRatio,
+                                         Qt.SmoothTransformation)
         self.setPixmap(pixmap)
-        return self.update()
 
     def resizeEvent(self, event):
         self._refresh()
         return QWidget.resizeEvent(self, event)
 
     def registerKeys(self):
-        self._skey = self._source.register(self, self._key)
+        self._skey = self._source.register(self, self.props['key'])
 
-    def getLedPatternName(self):
-        return self._ledPatternName
-    def setLedPatternName(self, name):
-        self._ledPatternName = str(name)
-        self._refresh()
-    def resetLedPatternName(self):
-        self.setLedPatternName(self.defaultLedPattern)
-    ledPattern = pyqtProperty("QString", getLedPatternName, setLedPatternName,
-                              resetLedPatternName, doc="led pattern name")
+    properties = {
+        'ledStatus':   PropDef(bool, True),
+        'ledInverted': PropDef(bool, False),
+        'ledColor':    PropDef(str, 'green'),
+    }
 
-    def getLedStatus(self):
-        return self._ledStatus
-    def setLedStatus(self, status):
-        self._ledStatus = bool(status)
+    def propertyUpdated(self, pname, value):
         self._refresh()
-    def resetLedStatus(self):
-        self.setLedStatus(self.defaultLedStatus)
-    ledStatus = pyqtProperty("bool", getLedStatus, setLedStatus,
-                             resetLedStatus, doc="led status")
-
-    def getLedInverted(self):
-        return self._ledInverted
-    def setLedInverted(self, inverted):
-        self._ledInverted = bool(inverted)
-        self._refresh()
-    def resetLedInverted(self):
-        self.setLedInverted(self.defaultLedInverted)
-    ledInverted = pyqtProperty("bool", getLedInverted, setLedInverted,
-                               resetLedInverted, doc="led inverted mode")
-
-    def getLedColor(self):
-        return self._ledColor
-    def setLedColor(self, color):
-        color = str(color).lower()
-        if color.lower() not in ledColors:
-            raise Exception("Invalid color '%s'" % color)
-        self._ledColor = color
-        self._refresh()
-    def resetLedColor(self):
-        self.setLedColor(self.defaultLedColor)
-    ledColor = pyqtProperty("QString", getLedColor, setLedColor,
-                            resetLedColor, doc="led color")
+        DisplayWidget.propertyUpdated(self, pname, value)
 
 
 class ValueLed(BaseLed):
     designer_description = 'LED showing if the selected value is true'
 
-    def get_device(self):
-        return self._device
-    def set_device(self, value):
-        self._device = str(value)
-        if value:
-            self._key = str(value + '.value')
-    def reset_device(self):
-        self._device = ''
-    device = pyqtProperty(str, get_device, set_device, reset_device)
+    properties = {
+        'dev':   PropDef(str, ''),
+        'key':   PropDef(str, ''),
+    }
 
-    def get_key(self):
-        return self._key
-    def set_key(self, value):
-        self._key = str(value)
-    def reset_key(self):
-        self._key = ''
-    key = pyqtProperty(str, get_key, set_key, reset_key)
+    def propertyUpdated(self, pname, value):
+        if pname == 'dev':
+            if value:
+                self.key = value + '.value'
+        BaseLed.propertyUpdated(self, pname, value)
 
     def on_keyChange(self, key, value, time, expired):
         if expired:
-            self.setLedStatus(False)
+            self.ledStatus = False
         else:
-            self.setLedStatus(True)
+            self.ledStatus = True
         if value:
-            self.setLedColor('green')
+            self.ledColor = 'green'
         else:
-            self.setLedColor('red')
+            self.ledColor = 'red'
 
 
 class StatusLed(BaseLed):
     designer_description = 'LED showing the status of the device'
     designer_icon = ':/leds/yellow_on'
 
-    def get_device(self):
-        return self._device
-    def set_device(self, value):
-        self._device = str(value)
-        if value:
-            self._key = str(value + '.status')
-    def reset_device(self):
-        self._device = ''
-    device = pyqtProperty(str, get_device, set_device, reset_device)
+    properties = {
+        'dev':   PropDef(str, ''),
+        'key':   PropDef(str, ''),
+    }
 
-    def get_key(self):
-        return self._key
-    def set_key(self, value):
-        self._key = str(value)
-    def reset_key(self):
-        self._key = ''
-    key = pyqtProperty(str, get_key, set_key, reset_key)
+    def propertyUpdated(self, pname, value):
+        if pname == 'dev':
+            if value:
+                self.key = value + '.status'
+        BaseLed.propertyUpdated(self, pname, value)
 
     def on_keyChange(self, key, value, time, expired):
         if value is None:
             expired = True
             value = (OK, '')
         if expired:
-            self.setLedStatus(False)
+            self.ledStatus = False
         else:
-            self.setLedStatus(True)
+            self.ledStatus = True
         if value[0] == OK:
-            self.setLedColor('green')
+            self.ledColor = 'green'
         elif value[0] in (BUSY, PAUSED):
-            self.setLedColor('yellow')
+            self.ledColor = 'yellow'
         else:
-            self.setLedColor('red')
+            self.ledColor = 'red'

@@ -16,14 +16,14 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="2">
     <widget class="ValueDisplay" name="valueDisplay_2">
+     <property name="format" stdset="0">
+      <string>%.3f</string>
+     </property>
      <property name="key" stdset="0">
       <string>mth.target</string>
      </property>
      <property name="showName" stdset="0">
       <bool>false</bool>
-     </property>
-     <property name="formatString" stdset="0">
-      <string>%.3f</string>
      </property>
     </widget>
    </item>
@@ -52,66 +52,66 @@
    </item>
    <item row="4" column="2">
     <widget class="ValueDisplay" name="valueDisplay_9">
+     <property name="format" stdset="0">
+      <string>%.3f</string>
+     </property>
      <property name="key" stdset="0">
       <string>psi.target</string>
      </property>
      <property name="showName" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="formatString" stdset="0">
-      <string>%.3f</string>
-     </property>
     </widget>
    </item>
    <item row="2" column="2">
     <widget class="ValueDisplay" name="valueDisplay_8">
+     <property name="format" stdset="0">
+      <string>%.3f</string>
+     </property>
      <property name="key" stdset="0">
       <string>mtt.target</string>
      </property>
      <property name="showName" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="formatString" stdset="0">
-      <string>%.3f</string>
-     </property>
     </widget>
    </item>
    <item row="5" column="2">
     <widget class="ValueDisplay" name="valueDisplay_10">
+     <property name="format" stdset="0">
+      <string>%.3f</string>
+     </property>
      <property name="key" stdset="0">
       <string>phi.target</string>
      </property>
      <property name="showName" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="formatString" stdset="0">
-      <string>%.3f</string>
-     </property>
     </widget>
    </item>
    <item row="6" column="2">
     <widget class="ValueDisplay" name="valueDisplay_11">
+     <property name="format" stdset="0">
+      <string>%.3f</string>
+     </property>
      <property name="key" stdset="0">
       <string>ath.target</string>
      </property>
      <property name="showName" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="formatString" stdset="0">
-      <string>%.3f</string>
-     </property>
     </widget>
    </item>
    <item row="7" column="2">
     <widget class="ValueDisplay" name="valueDisplay_12">
+     <property name="format" stdset="0">
+      <string>%.3f</string>
+     </property>
      <property name="key" stdset="0">
       <string>att.target</string>
      </property>
      <property name="showName" stdset="0">
       <bool>false</bool>
-     </property>
-     <property name="formatString" stdset="0">
-      <string>%.3f</string>
      </property>
     </widget>
    </item>
@@ -130,97 +130,115 @@
    </item>
    <item row="1" column="0" colspan="2">
     <widget class="ValueDisplay" name="valueDisplay">
-     <property name="device" stdset="0">
+     <property name="dev" stdset="0">
       <string>mth</string>
      </property>
-     <property name="valueName" stdset="0">
-      <string>mth (A1)</string>
-     </property>
-     <property name="formatString" stdset="0">
+     <property name="format" stdset="0">
       <string>%.3f</string>
      </property>
      <property name="horizontal" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="name" stdset="0">
+      <string>mth (A1)</string>
+     </property>
+     <property name="device" stdset="0">
+      <string>mth</string>
      </property>
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
     <widget class="ValueDisplay" name="valueDisplay_3">
-     <property name="device" stdset="0">
+     <property name="dev" stdset="0">
       <string>mtt</string>
      </property>
-     <property name="valueName" stdset="0">
-      <string>mtt (A2)</string>
-     </property>
-     <property name="formatString" stdset="0">
+     <property name="format" stdset="0">
       <string>%.3f</string>
      </property>
      <property name="horizontal" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="name" stdset="0">
+      <string>mtt (A2)</string>
+     </property>
+     <property name="device" stdset="0">
+      <string>mtt</string>
      </property>
     </widget>
    </item>
    <item row="4" column="0" colspan="2">
     <widget class="ValueDisplay" name="valueDisplay_5">
-     <property name="device" stdset="0">
+     <property name="dev" stdset="0">
       <string>psi</string>
      </property>
-     <property name="valueName" stdset="0">
-      <string>psi (A3)</string>
-     </property>
-     <property name="formatString" stdset="0">
+     <property name="format" stdset="0">
       <string>%.3f</string>
      </property>
      <property name="horizontal" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="name" stdset="0">
+      <string>psi (A3)</string>
+     </property>
+     <property name="device" stdset="0">
+      <string>psi</string>
      </property>
     </widget>
    </item>
    <item row="5" column="0" colspan="2">
     <widget class="ValueDisplay" name="valueDisplay_4">
-     <property name="device" stdset="0">
+     <property name="dev" stdset="0">
       <string>phi</string>
      </property>
-     <property name="valueName" stdset="0">
-      <string>phi (A4)</string>
-     </property>
-     <property name="formatString" stdset="0">
+     <property name="format" stdset="0">
       <string>%.3f</string>
      </property>
      <property name="horizontal" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="name" stdset="0">
+      <string>phi (A4)</string>
+     </property>
+     <property name="device" stdset="0">
+      <string>phi</string>
      </property>
     </widget>
    </item>
    <item row="6" column="0" colspan="2">
     <widget class="ValueDisplay" name="valueDisplay_6">
-     <property name="device" stdset="0">
+     <property name="dev" stdset="0">
       <string>ath</string>
      </property>
-     <property name="valueName" stdset="0">
-      <string>ath (A5)</string>
-     </property>
-     <property name="formatString" stdset="0">
+     <property name="format" stdset="0">
       <string>%.3f</string>
      </property>
      <property name="horizontal" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="name" stdset="0">
+      <string>ath (A5)</string>
+     </property>
+     <property name="device" stdset="0">
+      <string>ath</string>
      </property>
     </widget>
    </item>
    <item row="7" column="0" colspan="2">
     <widget class="ValueDisplay" name="valueDisplay_7">
-     <property name="device" stdset="0">
+     <property name="dev" stdset="0">
       <string>att</string>
      </property>
-     <property name="valueName" stdset="0">
-      <string>att (A6)</string>
-     </property>
-     <property name="formatString" stdset="0">
+     <property name="format" stdset="0">
       <string>%.3f</string>
      </property>
      <property name="horizontal" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="name" stdset="0">
+      <string>att (A6)</string>
+     </property>
+     <property name="device" stdset="0">
+      <string>att</string>
      </property>
     </widget>
    </item>

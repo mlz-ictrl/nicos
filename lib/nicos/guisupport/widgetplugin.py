@@ -54,7 +54,7 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
 
     def createWidget(self, parent):
         try:
-            #pylint: disable=E1102
+            # pylint: disable=E1102
             return self.widget_class(parent, designMode=True)
         except Exception, e:
             name = self.widget_class.__name__
@@ -107,7 +107,7 @@ def _register(cls):
             widget_class = cls
         Plugin.__name__ = cls.__name__ + 'Plugin'
         globals()[Plugin.__name__] = Plugin
-        print 'Registered', Plugin.__name__
+        #print 'Registered', Plugin.__name__
     for subcls in cls.__subclasses__():
         _register(subcls)
 

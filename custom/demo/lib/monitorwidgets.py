@@ -4,7 +4,7 @@ from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QPolygonF
 from PyQt4.QtCore import QSize, QPointF, QPoint
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
-from nicos.guisupport.widget import DisplayWidget
+from nicos.guisupport.widget import DisplayWidget, PropDef
 
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))
@@ -37,7 +37,9 @@ dettablebrush = QBrush(QColor('#ff66ff'))
 
 class VTas(DisplayWidget, QWidget):
 
-    def __init__(self, parent):
+    designer_description = 'Display of the TAS table configuration'
+
+    def __init__(self, parent, designMode=False):
         QWidget.__init__(self, parent)
         DisplayWidget.__init__(self)
 
@@ -61,21 +63,30 @@ class VTas(DisplayWidget, QWidget):
             'ath': OK,
             'att': OK,
         }
-        self._fields = {}
         self._keymap = {}
         self._statuskeymap = {}
 
-    def setConfig(self, config, labelfont, valuefont, scale):
-        self._fields = config['fields']
-        self.width = config.get('width', 40) * scale
-        self.height = config.get('height', 30) * scale
+    properties = {
+        'mthdev':    PropDef(str, ''),
+        'mttdev':    PropDef(str, ''),
+        'sthdev':    PropDef(str, ''),
+        'sttdev':    PropDef(str, ''),
+        'athdev':    PropDef(str, ''),
+        'attdev':    PropDef(str, ''),
+        'Lmsdev':    PropDef(str, ''),
+        'Lsadev':    PropDef(str, ''),
+        'Laddev':    PropDef(str, ''),
+        'height':    PropDef(int, 30),
+        'width':     PropDef(int, 40),
+    }
 
     def registerKeys(self):
         for dev in ['mth', 'mtt', 'sth', 'stt', 'ath', 'att', 'Lms', 'Lsa', 'Lad']:
-            if dev in self._fields:
-                k1 = self._source.register(self, self._fields[dev] + '/value')
+            devname = str(self.props[dev+'dev'])
+            if devname:
+                k1 = self._source.register(self, devname + '/value')
                 self._keymap[k1] = dev
-                k2 = self._source.register(self, self._fields[dev] + '/status')
+                k2 = self._source.register(self, devname + '/status')
                 self._statuskeymap[k2] = dev
 
     def on_keyChange(self, key, value, time, expired):
@@ -87,10 +98,11 @@ class VTas(DisplayWidget, QWidget):
             self.update()
 
     def sizeHint(self):
-        return QSize(self.width+2, self.height+2)
+        return QSize(self.props['width'] * self._scale + 2,
+                     self.props['height'] * self._scale + 2)
 
     def paintEvent(self, event):
-        w, h = self.width, self.height
+        w, h = self.width * self._scale, self.height * self._scale
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
@@ -104,9 +116,9 @@ class VTas(DisplayWidget, QWidget):
         if self.values['mth'] < 0:
             bx, by = 4, 50
         else:
-            bx, by = 4, self.height + 2 - 50
+            bx, by = 4, h + 2 - 50
         # monochromator
-        mx, my = self.width/2.5, by
+        mx, my = w/2.5, by
         # sample
         mttangle = self.values['mtt'] * pi/180.
         L = self.values['Lms'] / 10.  # length is in mm -- scale down a bit

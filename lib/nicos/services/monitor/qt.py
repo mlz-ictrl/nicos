@@ -145,7 +145,6 @@ class Monitor(BaseMonitor):
         stbarfont = QFont(self.font, int(self._fontsize * 0.8))
         valuefont = QFont(self.valuefont or self.font, self._fontsize)
 
-        onechar  = QFontMetrics(valuefont).width('0')
         blheight = QFontMetrics(blockfont).height()
         tiheight = QFontMetrics(timefont).height()
 
@@ -184,35 +183,46 @@ class Monitor(BaseMonitor):
         self._plots = {}
 
         def _create_field(groupframe, field):
+
+            def _setup(widget):
+                widget.valueFont = valuefont
+                widget.setFont(labelfont)
+                for key in field:
+                    if key in widget.properties:
+                        setattr(widget, key, field[key])
+                widget.setSource(self)
+                master.connect(widget, SIGNAL('widgetInfo'), self.newWidgetInfo)
+                return widget
+
             if isinstance(field, str):
                 field = {'dev': field}
+            if 'min' in field:
+                field['min'] = repr(field['min'])
+            if 'max' in field:
+                field['max'] = repr(field['max'])
+
             if 'gui' in field:
-                instance = uic.loadUi(field['gui'])
-                for w in instance.findChildren(DisplayWidget):
-                    w.setSource(self)
-                    # XXX necessary?
-                    w.setConfig(field, labelfont, valuefont, onechar)
-                    master.connect(w, SIGNAL('widgetInfo'), self.newWidgetInfo)
+                instance = uic.loadUi(field.pop('gui'))
+                for child in instance.findChildren(DisplayWidget):
+                    _setup(child)
                 return instance
             elif 'widget' in field:
-                widget_class = self._class_import(field['widget'])
-                instance = widget_class(groupframe)
-                if isinstance(instance, DisplayWidget):
-                    instance.setConfig(field, labelfont, valuefont, onechar)
-                    instance.setSource(self)
-                    master.connect(instance, SIGNAL('widgetInfo'), self.newWidgetInfo)
-                for w in instance.findChildren(DisplayWidget):
-                    w.setConfig(field, labelfont, valuefont, onechar)
-                    w.setSource(self)
-                    master.connect(w, SIGNAL('widgetInfo'), self.newWidgetInfo)
-                return instance
+                widget_class = self._class_import(field.pop('widget'))
+                widget = widget_class(groupframe)
+                if isinstance(widget, DisplayWidget):
+                    _setup(widget)
+                for child in widget.findChildren(DisplayWidget):
+                    _setup(child)
+                return widget
             elif 'plot' in field and plot_available:
+                # XXX make this more standard
                 plotwidget = self._plots.get(field['plot'])
                 if plotwidget:
                     plotwidget.devices += [field.get('dev', field.get('key', ''))]
                     return None
                 plotwidget = TrendPlot(groupframe)
-                plotwidget.setConfig(field, labelfont, valuefont, onechar)
+                plotwidget.plotinterval = field.get('plotinterval', 3600)
+                plotwidget.setFont(labelfont)
                 plotwidget.setSource(self)
                 self._plots[field['plot']] = plotwidget
                 plotwidget.devices += [field.get('dev', field.get('key', ''))]
@@ -220,10 +230,7 @@ class Monitor(BaseMonitor):
                 return plotwidget
             else:
                 display = ValueDisplay(groupframe)
-                display.setConfig(field, labelfont, valuefont, onechar)
-                display.setSource(self)
-                master.connect(display, SIGNAL('widgetInfo'), self.newWidgetInfo)
-                return display
+                return _setup(display)
 
         # now iterate through the layout and create the widgets to display it
         displaylayout = QVBoxLayout(spacing=20)
