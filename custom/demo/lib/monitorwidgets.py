@@ -1,7 +1,7 @@
 from math import sin, cos, pi
 
 from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QPolygonF
-from PyQt4.QtCore import QSize, QPointF, QPoint
+from PyQt4.QtCore import Qt, QSize, QPointF, QPoint
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
 from nicos.guisupport.widget import DisplayWidget, PropDef
@@ -9,6 +9,7 @@ from nicos.guisupport.widget import DisplayWidget, PropDef
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))
 _red = QBrush(QColor('#FF3333'))
+_nobrush = QBrush()
 
 statusbrush = {
     BUSY: _yellow,
@@ -28,6 +29,8 @@ samplepen = QPen(QColor('#006600'))
 samplepen.setWidth(2)
 samplebrush = QBrush(QColor('#006600'))
 samplecoordpen = QPen(QColor('#666666'))
+targetpen = QPen(QColor('black'))
+targetpen.setStyle(Qt.DashLine)
 
 monotablebrush = QBrush(QColor('#6666ff'))
 sampletablebrush = QBrush(QColor('#66ff66'))
@@ -55,6 +58,7 @@ class VTas(DisplayWidget, QWidget):
             'Lsa': 580,
             'Lad': 400,
         }
+        self.targets = self.values.copy()
         self.status = {
             'mth': OK,
             'mtt': OK,
@@ -65,6 +69,7 @@ class VTas(DisplayWidget, QWidget):
         }
         self._keymap = {}
         self._statuskeymap = {}
+        self._targetkeymap = {}
 
     properties = {
         'mthdev':    PropDef(str, ''),
@@ -88,6 +93,8 @@ class VTas(DisplayWidget, QWidget):
                 self._keymap[k1] = dev
                 k2 = self._source.register(self, devname + '/status')
                 self._statuskeymap[k2] = dev
+                k3 = self._source.register(self, devname + '/target')
+                self._targetkeymap[k3] = dev
 
     def on_keyChange(self, key, value, time, expired):
         if key in self._keymap and not expired:
@@ -95,6 +102,9 @@ class VTas(DisplayWidget, QWidget):
             self.update()
         elif key in self._statuskeymap and not expired:
             self.status[self._statuskeymap[key]] = value[0]
+            self.update()
+        elif key in self._targetkeymap and not expired:
+            self.targets[self._targetkeymap[key]] = value
             self.update()
 
     def sizeHint(self):
@@ -120,20 +130,28 @@ class VTas(DisplayWidget, QWidget):
         # monochromator
         mx, my = w/2.5, by
         # sample
-        mttangle = self.values['mtt'] * pi/180.
         L = self.values['Lms'] / 10.  # length is in mm -- scale down a bit
+        mttangle = self.values['mtt'] * pi/180.
         sx, sy = mx + L*cos(mttangle), my - L*sin(mttangle)
+        mttangle_t = self.targets['mtt'] * pi/180.
+        sx_t, sy_t = mx + L*cos(mttangle_t), my - L*sin(mttangle_t)
         # analyzer
-        sttangle = self.values['stt'] * pi/180.
         L = self.values['Lsa'] / 10.  # length is in mm -- scale down a bit
+        sttangle = self.values['stt'] * pi/180.
         ax, ay = sx + L*cos(sttangle + mttangle), sy - L*sin(sttangle + mttangle)
+        sttangle_t = self.targets['stt'] * pi/180.
+        ax_t, ay_t = sx_t + L*cos(sttangle_t + mttangle_t), \
+            sy_t - L*sin(sttangle_t + mttangle_t)
         # detector
-        attangle = self.values['att'] * pi/180.
         L = self.values['Lad'] / 10.  # length is in mm -- scale down a bit
+        attangle = self.values['att'] * pi/180.
         dx, dy = ax + L*cos(attangle + sttangle + mttangle), \
             ay - L*sin(attangle + sttangle + mttangle)
+        attangle_t = self.targets['att'] * pi/180.
+        dx_t, dy_t = ax_t + L*cos(attangle_t + sttangle_t + mttangle_t), \
+            ay_t - L*sin(attangle_t + sttangle_t + mttangle_t)
 
-        # draw tables
+        # draw table "halos"
         painter.setPen(nopen)
         if self.status['mth'] != OK:
             painter.setBrush(statusbrush[self.status['mth']])
@@ -153,6 +171,15 @@ class VTas(DisplayWidget, QWidget):
         elif self.status['att'] != OK:
             painter.setBrush(statusbrush[self.status['att']])
             painter.drawEllipse(QPoint(ax, ay), 50, 50)
+
+        # draw table targets
+        painter.setPen(targetpen)
+        painter.setBrush(_nobrush)
+        painter.drawEllipse(QPoint(sx_t, sy_t), 29.5, 29.5)
+        painter.drawEllipse(QPoint(ax_t, ay_t), 29.5, 29.5)
+        painter.drawEllipse(QPoint(dx_t, dy_t), 19.5, 19.5)
+
+        # draw the tables
         painter.setPen(defaultpen)
         painter.setBrush(monotablebrush)
         painter.drawEllipse(QPoint(mx, my), 40, 40)
