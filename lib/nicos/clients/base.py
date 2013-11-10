@@ -293,10 +293,10 @@ class NicosClient(object):
         except (Exception, KeyboardInterrupt), err:
             return self.handle_error(err)
 
-    def eval(self, expr, default=None, stringify=False):
+    def eval(self, expr, default=Ellipsis, stringify=False):
         result = self.ask('eval', expr, stringify and '1' or '', quiet=True)
         if isinstance(result, Exception):
-            if default is not None:
+            if default is not Ellipsis:
                 return default
             raise result  #pylint: disable=E0702
         return result

@@ -130,7 +130,7 @@ class TomographyPanel(Panel):
         self.execScript(code)
 
     def on_getPositions_clicked(self):
-        ret = self.client.eval('[x.read(), y.read(), z.read(), phi.read()]')
+        ret = self.client.eval('[x.read(), y.read(), z.read(), phi.read()]', None)
         if ret:
             self.xValue.setValue(float(ret[0]))
             self.yValue.setValue(float(ret[1]))

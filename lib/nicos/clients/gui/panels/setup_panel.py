@@ -58,7 +58,7 @@ class SetupPanel(Panel, DlgUtils):
                                   'session.experiment.title, '
                                   'session.experiment.users, '
                                   'session.experiment.localcontact, '
-                                  'session.experiment.sample.samplename', '')
+                                  'session.experiment.sample.samplename', None)
         if values:
             self._orig_proposal_info = values
             self.proposalNum.setText(values[0])
@@ -71,14 +71,14 @@ class SetupPanel(Panel, DlgUtils):
         # fill proposal
         self._update_proposal_info()
         # check for capability to ask proposal database
-        if self.client.eval('getattr(session.experiment, "propdb", "")', ''):
+        if self.client.eval('getattr(session.experiment, "propdb", "")', None):
             self.propdbInfo.setVisible(True)
             self.queryDBButton.setVisible(True)
         else:
             self.queryDBButton.setVisible(False)
 
         # fill setups
-        self._setupinfo = self.client.eval('session.getSetupInfo()')
+        self._setupinfo = self.client.eval('session.getSetupInfo()', {})
         self.basicSetup.clear()
         self.optSetups.clear()
         default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
@@ -151,7 +151,7 @@ class SetupPanel(Panel, DlgUtils):
 
         # read all values from propdb
         try:
-            result = self.client.eval('session.experiment._fillProposal(%s,{})' % prop)
+            result = self.client.eval('session.experiment._fillProposal(%s,{})' % prop, None)
 
             if result:
                 # now transfer it into gui
