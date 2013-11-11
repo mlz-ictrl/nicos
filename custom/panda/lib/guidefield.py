@@ -30,7 +30,6 @@ from nicos.utils import lazy_property
 from nicos.core import Moveable, Param, Override, status, LimitError
 from nicos.core.params import nonemptylistof, floatrange, tupleof
 from nicos.devices.generic import Switcher, VirtualMotor
-from nicos.devices.taco import CurrentSupply
 
 ################################################################################
 # configuration
@@ -43,8 +42,10 @@ from nicos.devices.taco import CurrentSupply
 # - Y is chosen to have right-handed system....
 ################################################################################
 
-
-class VectorCoil(CurrentSupply):
+#~ from nicos.devices.taco import CurrentSupply
+#~ class VectorCoil(CurrentSupply):
+from nicos.devices.taco.io import AnalogOutput
+class VectorCoil(AnalogOutput):
     ''' Vectorcoil is a device to control a coil which creates a field a the
     sample position.
 
@@ -91,17 +92,17 @@ class GuideField(Switcher):
         'coils' : ([VectorCoil], 'List of 3 devices used for the vector field'),
     }
     parameter_overrides = {
-        'mapping'   : Override(mandatory=False,
+        'mapping'   : Override(mandatory=False, type=dict,
                                default={'off'   : None,
-                                        'perp'  : np.array(( 1., 0., 0.)),
-                                        '-perp' : np.array((-1., 0., 0.)),
-                                        'par'   : np.array(( 0., 1., 0.)),
-                                        '-par'  : np.array(( 0.,-1., 0.)),
-                                        'z'     : np.array(( 0., 0., 1.)),
-                                        '-z'    : np.array(( 0., 0.,-1.)),
-                                        'up'    : np.array(( 0., 0., 1.)),
-                                        'down'  : np.array(( 0., 0.,-1.)),
-                                        '0'     : np.array(( 0., 0., 0.)),
+                                        'perp'  : ( 1., 0., 0.),
+                                        '-perp' : (-1., 0., 0.),
+                                        'par'   : ( 0., 1., 0.),
+                                        '-par'  : ( 0.,-1., 0.),
+                                        'z'     : ( 0., 0., 1.),
+                                        '-z'    : ( 0., 0.,-1.),
+                                        'up'    : ( 0., 0., 1.),
+                                        'down'  : ( 0., 0.,-1.),
+                                        '0'     : ( 0., 0., 0.),
                                        }),
         'blockingmove' : Override(default=False),
         'precision' : Override(mandatory=False),
@@ -149,12 +150,13 @@ class GuideField(Switcher):
     def doStart(self, target):
         orient = self.mapping[target]
         if orient:
+            orient = np.array(orient)
             # set requested field (may try to compensate background)
             self._setfield(self.field * orient)
         else:	# switch off completely
-            self.coil1.doStart(0.0)
-            self.coil2.doStart(0.0)
-            self.coil3.doStart(0.0)
+            self.coils[0].doStart(0.0)
+            self.coils[1].doStart(0.0)
+            self.coils[2].doStart(0.0)
 
     def doRead(self, maxage=0):
         return self.target
