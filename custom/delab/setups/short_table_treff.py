@@ -1,4 +1,4 @@
-description = 'x-z detector table'
+description = 'x-z detector table at beam TREFF with the short x axis'
 
 group = 'lowlevel'
 
@@ -11,7 +11,7 @@ devices = dict(
                     lowlevel = True,
                     tacodevice = '//%s/del/table/xmot' % (nethost,),
                     unit = 'mm',
-                    abslimits = (0, 792),
+                    abslimits = (0, 277),
                     userlimits = (0, 277),
                    ),
     x      = device('devices.generic.Axis',
@@ -21,14 +21,14 @@ devices = dict(
                     obs = [],
                     fmtstr = '%.3f',
                     precision = 0.01,
-                    abslimits = (0, 792),
+                    abslimits = (0, 277),
                     userlimits = (0, 277),
                    ),
     mo_y   = device('devices.taco.Motor',
                     lowlevel = True,
                     tacodevice = '//%s/del/table/ymot' % (nethost,),
                     unit = 'mm',
-                    abslimits = (0, 792),
+                    abslimits = (0, 264.5),
                     userlimits = (0, 264.5),
                    ),
     y      = device('devices.generic.Axis',
@@ -38,7 +38,7 @@ devices = dict(
                     obs = [],
                     fmtstr = '%.3f',
                     precision = 0.01,
-                    abslimits = (0, 792),
+                    abslimits = (0, 264.5),
                     userlimits = (0, 264.5),
                    ),
 )
