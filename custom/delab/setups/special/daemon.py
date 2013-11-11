@@ -12,7 +12,7 @@ devices = dict(
                               ('admin', hashlib.sha1('admin').hexdigest(), 'admin')],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'deldaq50.del.frm2',
+                    server = '0.0.0.0',
                     loglevel = 'info',
                     authenticators = ['Auth',],
                    ),

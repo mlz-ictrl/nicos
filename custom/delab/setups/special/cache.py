@@ -9,7 +9,7 @@ devices = dict(
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DB',
-                    server = 'deldaq50.del.frm2',
+                    server = '0.0.0.0',
                     loglevel = 'info',
                    ),
 )
