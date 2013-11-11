@@ -37,6 +37,11 @@ from nicos.protocols.cache import cache_dump, cache_load
 
 
 def create(parent, typ, curvalue, fmtstr='', unit='', allow_buttons=False):
+    # make sure the type is correct
+    try:
+        curvalue = typ(curvalue)
+    except ValueError:
+        curvalue = typ()
     if unit:
         inner = create(parent, typ, curvalue, fmtstr, unit='')
         return AnnotatedWidget(parent, inner, unit)
