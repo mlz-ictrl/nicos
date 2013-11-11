@@ -350,3 +350,9 @@ for this event should be serialized.
    Devices have been added/removed in the session.
 
    :arg: A tuple of (type, device names).
+
+.. daemonevt:: experiment
+
+   The current experiment has been changed.
+
+   :arg: The new proposal string.

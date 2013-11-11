@@ -1206,6 +1206,9 @@ class Session(object):
     def setupCallback(self, setupnames, explicit):
         """Callback when setups were loaded or unloaded."""
 
+    def experimentCallback(self, proposal):
+        """Callback when the experiment has been changed."""
+
 
 # must be imported after class definitions due to module interdependencies
 from nicos.devices.experiment import Experiment

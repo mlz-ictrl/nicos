@@ -156,6 +156,10 @@ class DaemonSession(NoninteractiveSession):
     def deviceCallback(self, action, devnames):
         self.emitfunc('device', (action, devnames))
 
+    def experimentCallback(self, proposal):
+        """Callback when the experiment has been changed."""
+        self.emitfunc('experiment', proposal)
+
     def pnpEvent(self, event, *data):
         self.emitfunc('plugplay', (event,) + data)
 

@@ -319,6 +319,9 @@ class Experiment(Device):
                 self.log.debug('not running service script, none configured')
             self.log.info('Maintenance time started')
 
+        # send 'experiment' change event before the last hook
+        session.experimentCallback(self.proposal) # maybe better after the last hook?
+
         self._afterNewHook()
 
     def _getProposalType(self, proposal):

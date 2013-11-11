@@ -34,7 +34,7 @@ DEFAULT_PORT = 1301
 
 # protocol version
 
-PROTO_VERSION = 7
+PROTO_VERSION = 8
 
 # message serialization/deserialization
 
@@ -113,4 +113,6 @@ DAEMON_EVENTS = {
     'setup': True,
     # a device was created or destroyed
     'device': True,
+    # the experiment has changed
+    'experiment' : True,
 }
