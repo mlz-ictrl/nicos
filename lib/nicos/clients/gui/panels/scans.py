@@ -116,6 +116,8 @@ class ScansPanel(Panel):
                      self.on_data_pointsAdded)
         self.connect(self.data, SIGNAL('curveAdded'),
                      self.on_data_curveAdded)
+        self.connect(client, SIGNAL('experiment'),
+                     self.on_client_experiment)
 
         self.updateList()
 
@@ -286,6 +288,18 @@ class ScansPanel(Panel):
             self.setplots[dataset.uid].addCurve(len(dataset.curves)-1,
                                                 dataset.curves[-1])
             self.setplots[dataset.uid].replot()
+
+    def on_client_experiment(self, proposal):
+        self.datasetList.clear()
+
+        # hide plot
+        self.setCurrentDataset(None)
+
+        # back to the beginning
+        self.setplots = {}
+        self.setitems = {}
+        self.currentPlot = None
+        self.setUidStack = []
 
     @qtsig('')
     def on_actionClosePlot_triggered(self):

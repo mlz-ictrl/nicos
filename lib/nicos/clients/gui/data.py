@@ -91,6 +91,7 @@ class DataHandler(QObject):
         self.connect(self.client, SIGNAL('dataset'), self.on_client_dataset)
         self.connect(self.client, SIGNAL('datapoint'), self.on_client_datapoint)
         self.connect(self.client, SIGNAL('datacurve'), self.on_client_datacurve)
+        self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
 
     def on_client_connected(self):
         # retrieve datasets and put them into the scans window
@@ -153,6 +154,13 @@ class DataHandler(QObject):
         newc.function = True
         self.currentset.curves.append(newc)
         self.emit(SIGNAL('curveAdded'), self.currentset)
+
+    def on_client_experiment(self, proposal):
+        # clear data
+        self.sets = []
+        self.uid2set = {}
+        self.dependent = []
+
 
     def _init_curves(self, dataset):
         curves = []
