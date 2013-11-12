@@ -28,7 +28,6 @@ from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.protocols.cache import OP_TELLOLD, cache_load
 from nicos.guisupport.widget import DisplayWidget, InteractiveWidget
 
 
@@ -37,9 +36,7 @@ class GenericPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        self.connect(client, SIGNAL('cache'), self.on_client_cache)
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
-        self._reg_keys = {}
 
     def setOptions(self, options):
         # XXX standard dir?
@@ -48,31 +45,5 @@ class GenericPanel(Panel):
         for ch in self.findChildren(DisplayWidget):
             if isinstance(ch, InteractiveWidget):
                 ch.setClient(self.client)
-            ch.setSource(self)
-
-        if self.client.connected:
-            # get initial values of display widgets
-            self.on_client_connected()
-
-    def register(self, widget, key):
-        key = key.lower().replace('.', '/')
-        self._reg_keys.setdefault(key, []).append(widget)
-        return key
-
-    def on_client_connected(self):
-        # request initial value for all keys we have registered
-        values = self.client.ask('getcachekeys', ','.join(self._reg_keys))
-        if values is not None:
-            for key, value in values:
-                for widget in self._reg_keys[key]:
-                    widget.on_keyChange(key, value, 0, False)
-
-    def on_client_cache(self, (time, key, op, value)):
-        if key in self._reg_keys:
-            try:
-                cvalue = cache_load(value)
-            except ValueError:
-                cvalue = None
-            for widget in self._reg_keys[key]:
-                widget.on_keyChange(key, cvalue, time,
-                                    not value or op == OP_TELLOLD)
+            else:
+                ch.setSource(self.client)

@@ -24,9 +24,12 @@
 
 """NICOS daemon client object for the GUI."""
 
+from weakref import ref
+
 from PyQt4.QtCore import QObject, SIGNAL
 
 from nicos.clients.base import NicosClient
+from nicos.protocols.cache import OP_TELLOLD, cache_load
 from nicos.protocols.daemon import DAEMON_EVENTS
 
 
@@ -37,6 +40,39 @@ class NicosGuiClient(NicosClient, QObject):
     def __init__(self, parent):
         QObject.__init__(self, parent)
         NicosClient.__init__(self)
+        self._reg_keys = {}
+        QObject.connect(self, SIGNAL('cache'), self.on_cache_event)
+        QObject.connect(self, SIGNAL('connected'), self.on_connected_event)
 
     def signal(self, name, *args):
         self.emit(SIGNAL(name), *args)
+
+    # key-notify registry
+
+    def register(self, widget, key):
+        key = key.lower().replace('.', '/')
+        # use weakrefs so that we don't keep the widgets alive
+        self._reg_keys.setdefault(key, []).append(ref(widget))
+        return key
+
+    def on_cache_event(self, (time, key, op, value)):
+        if key in self._reg_keys:
+            try:
+                cvalue = cache_load(value)
+            except ValueError:
+                cvalue = None
+            for widget in self._reg_keys[key]:
+                if widget():
+                    widget().on_keyChange(key, cvalue, time,
+                                          not value or op == OP_TELLOLD)
+
+    def on_connected_event(self):
+        # request initial value for all keys we have registered
+        if not self._reg_keys:
+            return
+        values = self.ask('getcachekeys', ','.join(self._reg_keys))
+        if values is not None:
+            for key, value in values:
+                for widget in self._reg_keys[key]:
+                    if widget():
+                        widget().on_keyChange(key, value, 0, False)

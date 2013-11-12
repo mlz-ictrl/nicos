@@ -283,6 +283,7 @@ class InteractiveWidget(DisplayWidget):
         DisplayWidget.__init__(self)
 
     def setClient(self, client):
+        self.setSource(client)
         self._client = client
         # auto-connect client signal handlers
         for signal in DAEMON_EVENTS:
