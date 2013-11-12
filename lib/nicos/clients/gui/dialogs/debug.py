@@ -31,7 +31,7 @@ import codeop
 traceback = __import__('traceback')
 
 from PyQt4.QtGui import QMainWindow, QPlainTextEdit, QFont, QTextOption, \
-     QTextCursor
+     QTextCursor, QSplitter
 from PyQt4.QtCore import Qt, QCoreApplication, SIGNAL
 
 from nicos.protocols.daemon import DAEMON_EVENTS
@@ -144,7 +144,7 @@ class ConsoleBox(QPlainTextEdit):
             try:
                 exec command in self.namespace
             except SystemExit:
-                self.close()
+                self.emit(SIGNAL('close'))
             except:
                 traceback_lines = traceback.format_exc().split('\n')
                 # Remove traceback mentioning this file, and a linebreak
@@ -182,7 +182,7 @@ class DebugConsole(QMainWindow):
 
     def __init__(self, parent):
         QMainWindow.__init__(self, parent)
-        self.resize(800, 400)
+        self.resize(800, 500)
         self.setWindowTitle('Debug console')
 
         self.console = ConsoleBox(parent=self, startup_message='-' * 80 + '''
@@ -195,7 +195,13 @@ Helper functions:
   watch(*events)  Install a handler for daemon events (all if no arguments)
                   that prints them to this console
 ''' + '-' * 80)
-        self.setCentralWidget(self.console)
+        self.outbox = QPlainTextEdit(self)
+        self.outbox.document().setDefaultFont(
+            self.console.document().defaultFont())
+        self.mainwidget = QSplitter(Qt.Vertical, self)
+        self.mainwidget.addWidget(self.console)
+        self.mainwidget.addWidget(self.outbox)
+        self.setCentralWidget(self.mainwidget)
         self.connect(self.console, SIGNAL('close'), self.close)
 
         self.console.namespace.update(dict(
@@ -216,5 +222,8 @@ Helper functions:
             self.connect(self.parent().client, SIGNAL(event),
                          make_handler(event))
 
+    def addLogMsg(self, msg):
+        self.outbox.appendPlainText(msg)
+
     def on_client_signal(self, name, args):
-        self.console.showMessage('event: %s %r' % (name, args))
+        self.outbox.appendPlainText('event: %s %r' % (name, args))

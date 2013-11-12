@@ -26,6 +26,7 @@
 
 import os
 import socket
+import logging
 from os import path
 
 from PyQt4 import uic
@@ -340,3 +341,15 @@ class DlgPresets(object):
         return int(ctl.isChecked())
     def get_QDateTimeEdit(self, ctl):
         return ctl.dateTime().toString()
+
+
+class DebugHandler(logging.Handler):
+    def __init__(self, mainwindow):
+        self.mainwindow = mainwindow
+        logging.Handler.__init__(self)
+
+    def emit(self, record):
+        if self.mainwindow.debugConsole:
+            msg = self.format(record)
+            self.mainwindow.debugConsole.addLogMsg('#' * 80)
+            self.mainwindow.debugConsole.addLogMsg(msg)

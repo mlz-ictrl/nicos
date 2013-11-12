@@ -45,7 +45,7 @@ from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-     loadBasicWindowSettings, loadUserStyle, getXDisplay
+     loadBasicWindowSettings, loadUserStyle, getXDisplay, DebugHandler
 from nicos.clients.gui.config import panel_config
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
@@ -70,6 +70,9 @@ class MainWindow(QMainWindow, DlgUtils):
 
         # window for displaying errors
         self.errorWindow = None
+
+        # debug console window, if opened
+        self.debugConsole = None
 
         # log messages sent by the server
         self.messages = []
@@ -502,8 +505,9 @@ class MainWindow(QMainWindow, DlgUtils):
 
     @qtsig('')
     def on_actionDebugConsole_triggered(self):
-        win = DebugConsole(self)
-        win.show()
+        if self.debugConsole is None:
+            self.debugConsole = DebugConsole(self)
+        self.debugConsole.show()
 
     @qtsig('')
     def on_actionAbout_triggered(self):
@@ -642,6 +646,7 @@ def main(argv):
                         exc=1)
 
     mainwindow = MainWindow(log, panel_conf)
+    log.addHandler(DebugHandler(mainwindow))
 
     if len(args) > 0:
         cdata = parseConnectionString(args[0], DEFAULT_PORT)
