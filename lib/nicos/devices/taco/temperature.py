@@ -56,7 +56,7 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
         'd':         Param('The D control parameter', settable=True,
                            type=float, category='general', chatty=True),
         'ramp':      Param('Temperature ramp in K/min', unit='K/min',
-                           settable=True, chatty=True),
+                           settable=True, volatile=True, chatty=True),
         'tolerance': Param('The window\'s temperature tolerance', unit='K',
                            settable=True, category='general', chatty=True),
         'window':    Param('Time window for checking stable temperature',
