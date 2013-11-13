@@ -39,6 +39,9 @@ class ImageStorageFits(ImageStorage):
     def doRead(self, maxage=0):
         return self.lastfilename
 
+    def doSimulate(self, preset):
+        return [self.lastfilename]
+
     def doSave(self):
         # query data
         headerData = self._collectHeaderData()
