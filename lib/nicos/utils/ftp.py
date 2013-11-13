@@ -52,11 +52,11 @@ def ftpUpload(filename):
     returns a http download link for download purposes.
     """
     # we like to obscure the data at least a little bit.
-    subdir = md5(filename+'%f'%time.time()).hexdigest()
+    subdir = md5(filename + str(time.time())).hexdigest()
     basename = path.basename(filename)
 
     try:
-        with open(filename, 'r') as fp:
+        with open(filename, 'rb') as fp:
             ftp = FTP()
 
             ftp.connect(FTP_SERVER, FTP_PORT)
@@ -68,13 +68,13 @@ def ftpUpload(filename):
                 pass
             ftp.cwd(subdir)
 
-            ftp.storbinary('STOR %s'%basename, fp)
+            ftp.storbinary('STOR %s' % basename, fp)
 
             ftp.quit()
             ftp.close()
-    except Exception, e:
-        session.log.error('Uploading ftp-file failed! please check config and logs.')
-        session.log.error(e, exc=1)
+    except Exception:
+        session.log.error('Uploading ftp-file failed! Please check config and '
+                          'log files', exc=1)
         raise
 
     return 'http://ftp.frm2.tum.de/outgoing/mdata/%s/%s' % (subdir, basename)

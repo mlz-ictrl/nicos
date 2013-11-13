@@ -203,7 +203,7 @@ class HtmlWriter(object):
 
     def open(self, directory, instr, proposal):
         self.close()
-        open(path.join(directory, 'logbook.html'), 'w').write(
+        open(path.join(directory, 'logbook.html'), 'wb').write(
             FRAMESET % (instr, proposal))
         self.fd = self.create_or_open(path.join(directory, 'content.html'))
         self.fd.seek(0, 2)
