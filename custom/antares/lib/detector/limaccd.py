@@ -140,7 +140,9 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
     def doPreinit(self, mode):
         PyTangoDevice.doPreinit(self, mode)
 
-        self._hwDev = self._createPyTangoDevice(self.hwdevice)
+        # Don't create HW device in simulation mode
+        if mode != 'simulation':
+            self._hwDev = self._createPyTangoDevice(self.hwdevice)
 
     def doInit(self, mode):
         self._fileCounter = 0
