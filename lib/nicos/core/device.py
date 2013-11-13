@@ -1738,7 +1738,10 @@ class Measurable(Readable):
         """Return a tuple with the result(s) of the last measurement."""
         if self._sim_active:
             if hasattr(self, 'doSimulate'):
-                return self.doSimulate(self._sim_preset)
+                result = self.doSimulate(self._sim_preset)
+                if not isinstance(result, list):
+                    return [result]
+                return result
             return [0] * len(self.valueInfo())
         # always get fresh result from cache => maxage parameter is ignored
         if self._cache:
