@@ -90,7 +90,7 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
         return False
 
 
-from nicos.guisupport.widget import DisplayWidget
+from nicos.guisupport.widget import NicosWidget
 
 # imported for side effects
 from nicos.guisupport import (display, led,  # pylint: disable=W0611
@@ -111,6 +111,6 @@ def _register(cls):
     for subcls in cls.__subclasses__():
         _register(subcls)
 
-_register(DisplayWidget)
+_register(NicosWidget)
 
 del NicosPluginBase

@@ -227,7 +227,7 @@ class AutoPropMeta(pyqtWrapperType):
         return newtype
 
 
-class DisplayWidget(NicosListener):
+class NicosWidget(NicosListener):
     """Base mixin class for a widget that can receive cache events.
 
     This class can't inherit directly from QObject because Python classes
@@ -236,7 +236,10 @@ class DisplayWidget(NicosListener):
     """
     __metaclass__ = AutoPropMeta
 
+    # source for cache keys
     _source = None
+    # daemon-client object, only present when used in the GUI client
+    _client = None
 
     # set this to a description of the widget for the Qt designer
     designer_description = ''
@@ -272,15 +275,6 @@ class DisplayWidget(NicosListener):
         if pname == 'valueFont':
             self._scale = QFontMetrics(value).width('0')
         self.update()
-
-
-class InteractiveWidget(DisplayWidget):
-    """Base mixin class for a widget that can use a client object."""
-
-    _client = None
-
-    def __init__(self):
-        DisplayWidget.__init__(self)
 
     def setClient(self, client):
         self.setSource(client)

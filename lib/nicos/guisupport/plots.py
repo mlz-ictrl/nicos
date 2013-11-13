@@ -42,10 +42,10 @@ except (ImportError, RuntimeError):
     QwtPlot = QWidget
     plot_available = False
 
-from nicos.guisupport.widget import DisplayWidget, PropDef
+from nicos.guisupport.widget import NicosWidget, PropDef
 
 
-class TrendPlot(QwtPlot, DisplayWidget):
+class TrendPlot(QwtPlot, NicosWidget):
 
     designer_description = 'A trend plotter for one or more devices'
     designer_icon = ':/plotter'
@@ -61,7 +61,7 @@ class TrendPlot(QwtPlot, DisplayWidget):
         self.ploty = {}
 
         QwtPlot.__init__(self, parent)
-        DisplayWidget.__init__(self)
+        NicosWidget.__init__(self)
 
     def initUi(self):
         if QwtPlot is QWidget:
@@ -120,7 +120,7 @@ class TrendPlot(QwtPlot, DisplayWidget):
             self.setMinimumSize(
                 QSize(self._scale * (self.props['width'] + .5),
                       self._scale * (self.props['height'] + .5)))
-        DisplayWidget.propertyUpdated(self, pname, value)
+        NicosWidget.propertyUpdated(self, pname, value)
 
     def setFont(self, font):
         QwtPlot.setFont(self, font)

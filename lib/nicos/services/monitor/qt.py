@@ -31,7 +31,7 @@ from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
 from PyQt4.QtCore import Qt, SIGNAL
 
 from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.guisupport.widget import DisplayWidget
+from nicos.guisupport.widget import NicosWidget
 from nicos.guisupport.display import ValueDisplay
 from nicos.guisupport.plots import TrendPlot, plot_available
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
@@ -203,15 +203,15 @@ class Monitor(BaseMonitor):
 
             if 'gui' in field:
                 instance = uic.loadUi(field.pop('gui'))
-                for child in instance.findChildren(DisplayWidget):
+                for child in instance.findChildren(NicosWidget):
                     _setup(child)
                 return instance
             elif 'widget' in field:
                 widget_class = self._class_import(field.pop('widget'))
                 widget = widget_class(groupframe)
-                if isinstance(widget, DisplayWidget):
+                if isinstance(widget, NicosWidget):
                     _setup(widget)
-                for child in widget.findChildren(DisplayWidget):
+                for child in widget.findChildren(NicosWidget):
                     _setup(child)
                 return widget
             elif 'plot' in field and plot_available:

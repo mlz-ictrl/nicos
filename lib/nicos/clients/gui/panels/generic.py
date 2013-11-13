@@ -28,7 +28,7 @@ from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.widget import DisplayWidget, InteractiveWidget
+from nicos.guisupport.widget import NicosWidget
 
 
 class GenericPanel(Panel):
@@ -42,8 +42,5 @@ class GenericPanel(Panel):
         # XXX standard dir?
         loadUi(self, options['uifile'], options.get('dir', ''))
 
-        for ch in self.findChildren(DisplayWidget):
-            if isinstance(ch, InteractiveWidget):
-                ch.setClient(self.client)
-            else:
-                ch.setSource(self.client)
+        for ch in self.findChildren(NicosWidget):
+            ch.setClient(self.client)

@@ -38,7 +38,7 @@ from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN, \
      statuses
 from nicos.clients.gui.utils import setBackgroundColor, setForegroundColor
-from nicos.guisupport.widget import DisplayWidget, PropDef
+from nicos.guisupport.widget import NicosWidget, PropDef
 
 
 _black = QColor('black')
@@ -76,7 +76,7 @@ def nicedelta(t):
         return '%.1f hours' % (t / 3600.)
 
 
-class ValueDisplay(DisplayWidget, QWidget):
+class ValueDisplay(NicosWidget, QWidget):
     """Default value display widget with two labels."""
 
     designer_description = 'A widget with name/value labels'
@@ -102,7 +102,7 @@ class ValueDisplay(DisplayWidget, QWidget):
         self._statuscolor = statusColor[UNKNOWN]
 
         QWidget.__init__(self, parent, **kwds)
-        DisplayWidget.__init__(self)
+        NicosWidget.__init__(self)
 
     properties = {
         'dev':        PropDef(str, ''),
@@ -160,7 +160,7 @@ class ValueDisplay(DisplayWidget, QWidget):
             self.reinitLayout()
         if pname in ('dev', 'name', 'unit'):
             self.update_namelabel()
-        DisplayWidget.propertyUpdated(self, pname, value)
+        NicosWidget.propertyUpdated(self, pname, value)
 
     def initUi(self):
         self.namelabel = QLabel(' ', self, textFormat=Qt.RichText)

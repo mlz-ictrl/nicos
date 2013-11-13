@@ -4,7 +4,7 @@ from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen, QPolygonF
 from PyQt4.QtCore import Qt, QSize, QPointF, QPoint
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
-from nicos.guisupport.widget import DisplayWidget, PropDef
+from nicos.guisupport.widget import NicosWidget, PropDef
 
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))
@@ -38,13 +38,13 @@ anatablebrush = QBrush(QColor('#6666ff'))
 dettablebrush = QBrush(QColor('#ff66ff'))
 
 
-class VTas(DisplayWidget, QWidget):
+class VTas(NicosWidget, QWidget):
 
     designer_description = 'Display of the TAS table configuration'
 
     def __init__(self, parent, designMode=False):
         QWidget.__init__(self, parent)
-        DisplayWidget.__init__(self)
+        NicosWidget.__init__(self)
 
         # default values (used when no such devices are configured)
         self.values = {

@@ -30,13 +30,13 @@ from PyQt4.QtGui import QLabel, QWidget, QPixmap
 from PyQt4.QtCore import Qt, QSize
 
 from nicos.core.status import OK, BUSY, PAUSED
-from nicos.guisupport.widget import DisplayWidget, PropDef
+from nicos.guisupport.widget import NicosWidget, PropDef
 
 
 ledColors = set(["blue", "green", "red", "yellow", "orange"])
 
 
-class BaseLed(QLabel, DisplayWidget):
+class BaseLed(QLabel, NicosWidget):
 
     designer_icon = ':/leds/green_on'
 
@@ -44,7 +44,7 @@ class BaseLed(QLabel, DisplayWidget):
 
     def __init__(self, parent=None, designMode=False):
         QLabel.__init__(self, parent)
-        DisplayWidget.__init__(self)
+        NicosWidget.__init__(self)
         self._refresh()
 
     def sizeHint(self):
@@ -82,7 +82,7 @@ class BaseLed(QLabel, DisplayWidget):
 
     def propertyUpdated(self, pname, value):
         self._refresh()
-        DisplayWidget.propertyUpdated(self, pname, value)
+        NicosWidget.propertyUpdated(self, pname, value)
 
 
 class ValueLed(BaseLed):

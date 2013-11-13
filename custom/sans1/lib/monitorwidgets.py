@@ -5,7 +5,7 @@ from PyQt4.QtCore import QSize, Qt, QStringList
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
 
-from nicos.guisupport.widget import DisplayWidget, PropDef
+from nicos.guisupport.widget import NicosWidget, PropDef
 
 _magenta = QBrush(QColor('#A12F86'))
 _yellow = QBrush(QColor('yellow'))
@@ -22,7 +22,7 @@ statusbrush = {
 }
 
 
-class Tube2(DisplayWidget, QWidget):
+class Tube2(NicosWidget, QWidget):
     """Sans1Tube with two detectors..."""
 
     designer_description = 'SANS-1 tube with two detectors'
@@ -34,7 +34,7 @@ class Tube2(DisplayWidget, QWidget):
         self._curstatus = [OK, OK, OK, OK]
 
         QWidget.__init__(self, parent)
-        DisplayWidget.__init__(self)
+        NicosWidget.__init__(self)
 
     properties = {
         'devices':   PropDef('QStringList', QStringList()),
@@ -148,7 +148,7 @@ class Tube2(DisplayWidget, QWidget):
             minx = minx + 8 * fontscale
 
 
-class BeamOption(DisplayWidget, QWidget):
+class BeamOption(NicosWidget, QWidget):
 
     designer_description = 'SANS-1 beam option'
 
@@ -157,7 +157,7 @@ class BeamOption(DisplayWidget, QWidget):
         self._curstatus = OK
 
         QWidget.__init__(self, parent)
-        DisplayWidget.__init__(self)
+        NicosWidget.__init__(self)
 
     properties = {
         'dev':       PropDef(str, ''),
@@ -203,7 +203,7 @@ class BeamOption(DisplayWidget, QWidget):
         painter.drawText(2, 2 + yoff, w - 4, h - 4, Qt.AlignCenter, self._curstr)
 
 
-class CollimatorTable(DisplayWidget, QWidget):
+class CollimatorTable(NicosWidget, QWidget):
 
     designer_description = 'SANS-1 collimator table'
 
@@ -212,7 +212,7 @@ class CollimatorTable(DisplayWidget, QWidget):
         self._curstatus = OK
 
         QWidget.__init__(self, parent)
-        DisplayWidget.__init__(self)
+        NicosWidget.__init__(self)
 
     properties = {
         'dev':       PropDef(str, ''),
