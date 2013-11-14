@@ -68,6 +68,16 @@ class NicosClient(object):
         raise NotImplementedError
 
     def connect(self, conndata, password=None, eventmask=None):
+        """Connect to a NICOS daemon.
+
+        *conndata* is a dictionary with keys 'host', 'port', 'login' (user name)
+        and 'display' (X display to use; deprecated).
+
+        *password* is the password for logging in.
+
+        *eventmask* is a tuple of event names that should not be sent to this
+        client.
+        """
         if self.connected:
             raise RuntimeError('client already connected')
         self.disconnecting = False
@@ -265,6 +275,10 @@ class NicosClient(object):
         return start[0], buf
 
     def tell(self, *command):
+        """Excecute a command that does not generate a response.
+
+        The arguments are the command and its parameter(s), if necessary.
+        """
         if not self.socket:
             self.signal('error', 'You are not connected to a server.')
             return
@@ -279,6 +293,13 @@ class NicosClient(object):
             return self.handle_error(err)
 
     def ask(self, *command, **kwds):
+        """Excecute a command that generates a response, and return the response.
+
+        The arguments are the command and its parameter(s), if necessary.
+
+        A *quiet=True* keyword can be given if no error should be generated if
+        the client is not connected.
+        """
         if not self.socket:
             if not kwds.get('quiet', False):
                 self.signal('error', 'You are not connected to a server.')
@@ -294,6 +315,15 @@ class NicosClient(object):
             return self.handle_error(err)
 
     def eval(self, expr, default=Ellipsis, stringify=False):
+        """Evaluate a Python expression in the daemon's namespace and return the
+        result.
+
+        If the *default* is not given, an exception while evaluating is
+        propagated as an error signal to the client.  If it is given, the
+        default is returned instead.
+
+        If *stringify* is true, the result is returned as a string.
+        """
         result = self.ask('eval', expr, stringify and '1' or '', quiet=True)
         if isinstance(result, Exception):
             if default is not Ellipsis:
@@ -318,7 +348,15 @@ class NicosClient(object):
 
     def getDeviceList(self, needs_class='nicos.core.device.Device',
                       only_explicit=True):
-        """Return list of devices."""
+        """Return a list of NICOS devices.
+
+        The *needs_class* argument can be given if the devices should be
+        restricted to a certain base class, such as
+        ``'nicos.core.device.Moveable'``.
+
+        If *only_explicit* is true, only devices that are in the NICOS
+        namespace will be returned (i.e. no lowlevel devices).
+        """
         query = 'list(dn for (dn, d) in session.devices.iteritems() ' \
                 'if %r in d.classes' % needs_class
         if only_explicit:
@@ -331,17 +369,24 @@ class NicosClient(object):
         return self.eval('session.getDevice(%r).read()' % devname, None)
 
     def getDeviceValuetype(self, devname):
-        """Return device value type."""
+        """Return device value type.
+
+        This is what has been set as the ``dev.valuetype`` attribute.
+        """
         return self.eval('session.getDevice(%r).valuetype' % devname, None)
 
     def getDeviceParamInfo(self, devname):
-        """Return info about all parameters of the device."""
+        """Return info about all parameters of the device.
+
+        The info is a dictionary of parameter name mapping to a dictionary with
+        all attributes of the `.Param` instance for the parameter.
+        """
         query = 'dict((pn, pi.serialize()) for (pn, pi) in ' \
                 'session.getDevice(%r).parameters.iteritems())' % devname
         return self.eval(query, {})
 
     def getDeviceParams(self, devname):
-        """Return values of all device parameters from cache."""
+        """Return values of all device parameters from cache, as a dictionary."""
         params = {}
         devkeys = self.ask('getcachekeys', devname.lower() + '/') or []
         for key, value in devkeys:

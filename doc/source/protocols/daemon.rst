@@ -96,6 +96,8 @@ which means that debugger-like functionality is available: scripts can be
 paused, stopped and updated at runtime.
 
 
+.. _daemon-commands:
+
 Commands
 ========
 
@@ -165,6 +167,8 @@ Terminating a connection
 .. daemoncmd:: unlock
 .. daemoncmd:: quit
 
+
+.. _daemon-events:
 
 Events
 ======
