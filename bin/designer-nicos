@@ -13,7 +13,7 @@ os.environ['PYQTDESIGNERPATH'] = \
 modules = []
 args = []
 for item in sys.argv[1:]:
-    if item.startswith('nicos.') and not item.endswith('.py'):
+    if item.startswith('nicos.') and not item.endswith('.ui'):
         modules.append(item)
     else:
         args.append(item)
