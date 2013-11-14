@@ -191,6 +191,14 @@ class PropDef(object):
         self.default = default
         self.doc = doc
 
+    @staticmethod
+    def convert(value):
+        if isinstance(value, QString):
+            return unicode(value)
+        if isinstance(value, QStringList):
+            return map(unicode, value)  # creates a normal list as well
+        return value
+
 
 class AutoPropMeta(pyqtWrapperType):
     """Works similar to the DeviceMeta in that properties are automatically
@@ -210,10 +218,7 @@ class AutoPropMeta(pyqtWrapperType):
             def getter(self, prop=prop):
                 return self.props[prop]
             def setter(self, value, prop=prop):
-                if isinstance(value, QString):
-                    value = unicode(value)
-                elif isinstance(value, QStringList):
-                    value = map(unicode, value)
+                value = PropDef.convert(value)
                 self.props[prop] = value
                 self.propertyUpdated(prop, value)
             def resetter(self, prop=prop):
@@ -260,9 +265,9 @@ class NicosWidget(NicosListener):
         for prop, pdef in self.properties.iteritems():
             if prop not in self.props:
                 if callable(pdef.default):
-                    self.props[prop] = pdef.default(self)
+                    self.props[prop] = PropDef.convert(pdef.default(self))
                 else:
-                    self.props[prop] = pdef.default
+                    self.props[prop] = PropDef.convert(pdef.default)
         self._scale = QFontMetrics(self.valueFont).width('0')
         self.connect(self, SIGNAL('keyChange'), self.on_keyChange)
         self.initUi()
