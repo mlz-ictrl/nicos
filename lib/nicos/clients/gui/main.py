@@ -39,14 +39,14 @@ from PyQt4.QtCore import Qt, QTimer, QSize, QVariant, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
-from nicos.utils import parseConnectionString, importString, enumerate_start
+from nicos.utils import parseConnectionString, importString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
      NicosLogger, initLoggers
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
      loadBasicWindowSettings, loadUserStyle, getXDisplay, DebugHandler
-from nicos.clients.gui.config import panel_config
+from nicos.clients.gui.config import gui_config
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
@@ -60,7 +60,7 @@ from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
 
 
 class MainWindow(QMainWindow, DlgUtils):
-    def __init__(self, log, panel_conf):
+    def __init__(self, log, gui_conf):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
@@ -109,14 +109,14 @@ class MainWindow(QMainWindow, DlgUtils):
         self.data = DataHandler(self.client)
 
         # panel configuration
-        self.panel_conf = panel_conf
+        self.gui_conf = gui_conf
 
         # determine if there is an editor window type, because we would like to
         # have a way to open files from a console panel later
-        self.editor_wintype = self.panel_conf.find_panel(
+        self.editor_wintype = self.gui_conf.find_panel(
             ('editor.EditorPanel',
              'nicos.clients.gui.panels.editor.EditorPanel'))
-        self.history_wintype = self.panel_conf.find_panel(
+        self.history_wintype = self.gui_conf.find_panel(
             ('history.HistoryPanel',
              'nicos.clients.gui.panels.history.HistoryPanel'))
 
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow, DlgUtils):
             loadUserStyle(self, settings)
 
         # create panels in the main window
-        widget = createWindowItem(self.panel_conf.windows[0], self, self)
+        widget = createWindowItem(self.gui_conf.main_window, self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -147,11 +147,11 @@ class MainWindow(QMainWindow, DlgUtils):
             for sp, st in zip(self.splitters, self.splitstate):
                 sp.restoreState(st.toByteArray())
 
-        if not self.panel_conf.windows[1:]:
+        if not self.gui_conf.windows:
             self.menuBar().removeAction(self.menuWindows.menuAction())
 
-        for i, wconfig in enumerate_start(self.panel_conf.windows[1:], 1):
-            action = QAction(QIcon(':/' + wconfig[1]), wconfig[0], self)
+        for i, wconfig in enumerate(self.gui_conf.windows):
+            action = QAction(QIcon(':/' + wconfig.icon), wconfig.name, self)
             self.toolBarWindows.addAction(action)
             self.menuWindows.addAction(action)
             def window_callback(on, i=i):
@@ -159,8 +159,8 @@ class MainWindow(QMainWindow, DlgUtils):
             self.connect(action, SIGNAL('triggered(bool)'), window_callback)
 
         # load tools menu
-        for i, tconfig in enumerate(self.panel_conf.tools):
-            action = QAction(tconfig[0], self)
+        for i, tconfig in enumerate(self.gui_conf.tools):
+            action = QAction(tconfig.name, self)
             self.menuTools.addAction(action)
             def tool_callback(on, i=i):
                 self.runTool(i)
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def createWindow(self, wtype):
         try:
-            wconfig = self.panel_conf.windows[wtype]
+            wconfig = self.gui_conf.windows[wtype]
         except IndexError:
             # config outdated, window type doesn't exist
             return
@@ -212,7 +212,7 @@ class MainWindow(QMainWindow, DlgUtils):
             window.activateWindow()
             return window
         window = AuxiliaryWindow(self, wtype, wconfig)
-        window.setWindowIcon(QIcon(':/' + wconfig[1]))
+        window.setWindowIcon(QIcon(':/' + wconfig.icon))
         self.windows[wtype] = window
         self.connect(window, SIGNAL('closed'), self.on_auxWindow_closed)
         for panel in window.panels:
@@ -225,15 +225,15 @@ class MainWindow(QMainWindow, DlgUtils):
         window.deleteLater()
 
     def runTool(self, ttype):
-        tconfig = self.panel_conf[2][ttype]
+        tconfig = self.gui_conf.tools[ttype]
         try:
             # either it's a class name
-            toolclass = importString(tconfig[1], ('nicos.clients.gui.tools.',))
+            toolclass = importString(tconfig.clsname, ('nicos.clients.gui.tools.',))
         except ImportError:
             # or it's a system command
-            subprocess.Popen(tconfig[1], shell=True)
+            subprocess.Popen(tconfig.clsname, shell=True)
         else:
-            dialog = toolclass(self, self.client, **tconfig[2])
+            dialog = toolclass(self, self.client, **tconfig.options)
             dialog.setWindowModality(Qt.NonModal)
             dialog.setAttribute(Qt.WA_DeleteOnClose, True)
             dialog.show()
@@ -626,11 +626,14 @@ def main(argv):
         configcode = fp.read()
     ns = {}
     exec configcode in ns
-    if 'default_profile_config' in ns:
+    if 'config' in ns:
         # backward compatibility
-        panel_conf = panel_config(ns['default_profile_config'])
+        gui_conf = gui_config(ns['config'][1][0],
+                              ns['config'][1][1:],
+                              ns['config'][2])
     else:
-        panel_conf = panel_config(ns['config'])
+        gui_conf = gui_config(ns['main_window'], ns.get('windows', []),
+                              ns.get('tools', []))
 
     # check whether platform specific style file is present
     stylePlatform = styleRoot + '-' + sys.platform + ".qss"
@@ -645,7 +648,7 @@ def main(argv):
             log.warning('Error setting user style sheet from %s' % stylefile,
                         exc=1)
 
-    mainwindow = MainWindow(log, panel_conf)
+    mainwindow = MainWindow(log, gui_conf)
     log.addHandler(DebugHandler(mainwindow))
 
     if len(args) > 0:

@@ -25,10 +25,6 @@
 """NICOS GUI config helpers."""
 
 
-class window(tuple):
-    def __new__(cls, title, icon, unique, child):
-        return tuple.__new__(cls, (title, icon, unique, child))
-
 class hsplit(tuple):
     def __new__(cls, *children):
         return tuple.__new__(cls, children)
@@ -49,39 +45,51 @@ class docked(tuple):
     def __new__(cls, mainitem, *dockitems):
         return tuple.__new__(cls, (mainitem, dockitems))
 
+class window(tuple):
+    def __new__(cls, *args):
+        if len(args) == 4:
+            # backwards compatibility: ignore 3rd argument
+            args = args[0], args[1], args[3]
+        return tuple.__new__(cls, args)
+
+    def __init__(self, *args):  # pylint: disable=W0231
+        self.name = self[0]
+        self.icon = self[1]
+        self.contents = self[2]
+
 class panel(tuple):
     def __new__(cls, clsname, **options):
         return tuple.__new__(cls, (clsname, options))
-    def __init__(self, *args, **kw):  #pylint: disable=W0231
+
+    def __init__(self, *args, **kw):  # pylint: disable=W0231
         self.clsname = self[0]
         self.options = self[1]
 
 class tool(tuple):
     def __new__(cls, name, clsname, **options):
         return tuple.__new__(cls, (name, clsname, options))
-    def __init__(self, *args, **kw):  #pylint: disable=W0231
+
+    def __init__(self, *args, **kw):  # pylint: disable=W0231
         self.name = self[0]
         self.clsname = self[1]
         self.options = self[2]
 
-class panel_config(tuple):
-    def __new__(cls, (_ignored, windows, tools)):
-        return tuple.__new__(cls, (_ignored, windows, tools))
-
-    def __init__(self, *args):  #pylint: disable=W0231
-        self.windows = self[1]
-        self.tools = self[2]
+class gui_config(object):
+    def __init__(self, main_window, windows, tools):
+        self.main_window = main_window
+        self.windows = windows
+        self.tools = tools
 
     def _has_panel(self, config, panel_classes):
         """Return True if the config contains a panel with the given class."""
         if isinstance(config, window):
-            return self._has_panel(config[3], panel_classes)
+            return self._has_panel(config.contents, panel_classes)
         elif isinstance(config, (hsplit, vsplit, tabbed)):
             for child in config:
                 if self._has_panel(child, panel_classes):
                     return True
         elif isinstance(config, panel):
-            return config[0] in panel_classes
+            return config.clsname in panel_classes
 
     def find_panel(self, panel_classes):
         for i, winconfig in enumerate(self.windows):

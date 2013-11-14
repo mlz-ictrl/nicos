@@ -51,12 +51,12 @@ class AuxiliaryWindow(QMainWindow):
         self.panels = []
         self.splitters = []
 
-        self.sgroup = SettingGroup(config[0])
+        self.sgroup = SettingGroup(config.name)
         with self.sgroup as settings:
             loadUserStyle(self, settings)
 
-        self.setWindowTitle(config[0])
-        widget = createWindowItem(config[3], self, self)
+        self.setWindowTitle(config.name)
+        widget = createWindowItem(config.contents, self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -112,7 +112,6 @@ class AuxiliaryWindow(QMainWindow):
 
 class Panel(QWidget, DlgUtils):
     panelName = ''
-    subpanels = 0
 
     def __init__(self, parent, client):
         QWidget.__init__(self, parent)

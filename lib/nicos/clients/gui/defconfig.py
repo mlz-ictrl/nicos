@@ -26,57 +26,52 @@
 
 from nicos.clients.gui.config import vsplit, window, panel, tool, docked
 
-config = ('Default', [
-        docked(
-            vsplit(
-                panel('status.ScriptStatusPanel'),
-#                panel('watch.WatchPanel'),
-                panel('console.ConsolePanel'),
-            ),
-            ('NICOS devices',
-             panel('nicos.clients.gui.panels.devices.DevicesPanel',
-                   icons=True, dockpos='right',
-                  )
-            ),
-            ('Experiment info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
-        ),
-        window('Setup', 'setup', True,
-            panel('setup_panel.SetupPanel')),
-        window('Editor', 'editor', True,
-            vsplit(
-                panel('scriptbuilder.CommandsPanel'),
-                panel('editor.EditorPanel',
-                  tools = [
-                      tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
-                  ]))),
-        window('Scans', 'plotter', True,
-            panel('scans.ScansPanel')),
-        window('History', 'find', True,
-            panel('history.HistoryPanel')),
-        window('Logbook', 'table', True,
-            panel('elog.ELogPanel')),
-        window('Log files', 'table', True,
-            panel('logviewer.LogViewerPanel')),
-        window('Errors', 'errors', True,
-            panel('errors.ErrorPanel')),
-        #window('Live data', 'live', True,
-        #    panel('live.LiveDataPanel')),
-        #window('TAS status', 'table', True,
-        #    panel('generic.GenericPanel',
-        #          uifile='custom/demo/gui/tasaxes.ui',
-        #          dir='../../../..')),
-    ], [
-        tool('Calculator', 'calculator.CalculatorTool'),
-        tool('Neutron cross-sections', 'website.WebsiteTool',
-             url='http://www.ncnr.nist.gov/resources/n-lengths/'),
-        tool('Neutron activation', 'website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/activation/'),
-        tool('Neutron calculations',
-             'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/neutroncalc/'),
-        tool('Report NICOS bug', 'website.WebsiteTool',
-             url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
-        tool('Emergency stop button', 'estop.EmergencyStopTool',
-             runatstartup=False),
-    ]
+main_window = docked(
+    vsplit(
+        panel('status.ScriptStatusPanel'),
+        # panel('watch.WatchPanel'),
+        panel('console.ConsolePanel'),
+    ),
+    ('NICOS devices',
+     panel('nicos.clients.gui.panels.devices.DevicesPanel',
+           icons=True, dockpos='right',
+          )
+    ),
+    ('Experiment info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
 )
+
+windows = [
+    window('Setup', 'setup', panel('setup_panel.SetupPanel')),
+    window('Editor', 'editor',
+        vsplit(
+            panel('scriptbuilder.CommandsPanel'),
+            panel('editor.EditorPanel',
+              tools = [
+                  tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+              ]))),
+    window('Scans', 'plotter', panel('scans.ScansPanel')),
+    window('History', 'find', panel('history.HistoryPanel')),
+    window('Logbook', 'table', panel('elog.ELogPanel')),
+    window('Log files', 'table', panel('logviewer.LogViewerPanel')),
+    window('Errors', 'errors', panel('errors.ErrorPanel')),
+    #window('Live data', 'live', panel('live.LiveDataPanel')),
+    #window('TAS status', 'table',
+    #    panel('generic.GenericPanel',
+    #          uifile='custom/demo/gui/tasaxes.ui',
+    #          dir='../../../..')),
+]
+
+tools = [
+    tool('Calculator', 'calculator.CalculatorTool'),
+    tool('Neutron cross-sections', 'website.WebsiteTool',
+         url='http://www.ncnr.nist.gov/resources/n-lengths/'),
+    tool('Neutron activation', 'website.WebsiteTool',
+         url='http://www.frm2.tum.de/intranet/activation/'),
+    tool('Neutron calculations',
+         'nicos.clients.gui.tools.website.WebsiteTool',
+         url='http://www.frm2.tum.de/intranet/neutroncalc/'),
+    tool('Report NICOS bug', 'website.WebsiteTool',
+         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+    tool('Emergency stop button', 'estop.EmergencyStopTool',
+         runatstartup=False),
+]
