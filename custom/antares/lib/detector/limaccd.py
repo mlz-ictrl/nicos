@@ -156,7 +156,8 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
             elif deltaTime <= (self.shutteropentime + self.expotime):
                 remaining = self.expotime - (deltaTime - self.shutteropentime)
                 limaStatus += ' (Exposing; Remaining: %.2f s)' % remaining
-            elif deltaTime <= (self.shutteropentime + self.expotime + self.shutterclosetime):
+            elif deltaTime <= (self.shutteropentime + self.expotime +
+                               self.shutterclosetime):
                 limaStatus += ' (Closing shutter)'
             else:
                 limaStatus += ' (Readout)'
@@ -265,10 +266,12 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         try:
             return self.HSSPEEDS[index]
         except IndexError:
-            raise ConfigurationError(self, 'Camera uses unknown hs speed (index: %d)' % index)
+            raise ConfigurationError(self, 'Camera uses unknown hs speed '
+                                     '(index: %d)' % index)
 
     def doWriteHsspeed(self, value):
-        index = self.HSSPEEDS.index(value)  # value can only be valid thanks to param validation
+        index = self.HSSPEEDS.index(value)  # value can only be valid thanks
+                                            # to param validation
         self._tangoFuncGuard(self._hwDev.__setattr__, 'adc_speed', index)
 
     def doReadVsspeed(self):
@@ -277,11 +280,13 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         try:
             return self.VSSPEEDS[index]
         except IndexError:
-            raise ConfigurationError(self, 'Camera uses unknown vs speed (index: %d)' % index)
+            raise ConfigurationError(self, 'Camera uses unknown vs speed '
+                                     '(index: %d)' % index)
 
 
     def doWriteVsspeed(self, value):
-        index = self.VSSPEEDS.index(value)  # value can only be valid thanks to param validation
+        index = self.VSSPEEDS.index(value)  # value can only be valid thanks
+                                            # to param validation
         self._tangoFuncGuard(self._hwDev.__setattr__, 'vs_speed', index)
 
     def doReadPgain(self):
@@ -290,10 +295,12 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         try:
             return self.PGAINS[index]
         except IndexError:
-            raise ConfigurationError(self, 'Camera uses unknown preamplifier gain (index: %d)' % index)
+            raise ConfigurationError(self, 'Camera uses unknown preamplifier '
+                                     'gain (index: %d)' % index)
 
     def doWritePgain(self, value):
-        index = self.PGAINS.index(value)  # value can only be valid thanks to param validation
+        index = self.PGAINS.index(value)  # value can only be valid thanks
+                                          # to param validation
         self._tangoFuncGuard(self._hwDev.__setattr__, 'p_gain', index)
 
     def doReadExpotime(self):

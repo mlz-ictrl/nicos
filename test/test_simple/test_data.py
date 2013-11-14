@@ -82,7 +82,8 @@ def test_sinks():
     assert contents == ['1']
 
 
-    fname = path.join(session.config.control_path, 'testdata', year, 'p1234', 'data', 'p1234_00000001.dat')
+    fname = path.join(session.config.control_path, 'testdata',
+                      year, 'p1234', 'data', 'p1234_00000001.dat')
     assert path.isfile(fname)
     contents = readFile(fname)
     assert contents[0].startswith('### NICOS data file')

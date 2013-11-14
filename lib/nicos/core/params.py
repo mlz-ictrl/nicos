@@ -325,7 +325,8 @@ class intrange(object):
         fr = int(fr)
         to = int(to)
         if not fr <= to:
-            raise ValueError('intrange must fulfill from <= to, given was [%f, %f]' % (fr, to))
+            raise ValueError('intrange must fulfill from <= to, given was '
+                             '[%f, %f]' % (fr, to))
         self.__doc__ = 'an integer in the range [%d, %d]' % (fr, to)
         self.fr = fr
         self.to = to
@@ -335,7 +336,8 @@ class intrange(object):
             return self.fr
         val = int(val)
         if not self.fr <= val <= self.to:
-            raise ValueError('value needs to fulfill %d <= x <= %d' % (self.fr, self.to))
+            raise ValueError('value needs to fulfill %d <= x <= %d' %
+                             (self.fr, self.to))
         return val
 
 class floatrange(object):
@@ -344,7 +346,8 @@ class floatrange(object):
         fr = float(fr)
         to = float(to)
         if not fr <= to:
-            raise ValueError('floatrange must fulfill from <= to, given was [%f, %f]' % (fr, to))
+            raise ValueError('floatrange must fulfill from <= to, given was '
+                             '[%f, %f]' % (fr, to))
         self.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
         self.fr = fr
         self.to = to
@@ -354,7 +357,8 @@ class floatrange(object):
             return self.fr
         val = float(val)
         if not self.fr <= val <= self.to:
-            raise ValueError('value needs to fulfill %d <= x <= %d' % (self.fr, self.to))
+            raise ValueError('value needs to fulfill %d <= x <= %d' %
+                             (self.fr, self.to))
         return val
 
 class oneof(object):
@@ -368,7 +372,7 @@ class oneof(object):
             return self.vals[0]
         if val not in self.vals:
             raise ValueError('invalid value: %s, must be one of %s' %
-                                 (val, ', '.join(map(repr, self.vals))))
+                             (val, ', '.join(map(repr, self.vals))))
         return val
 
 class oneofdict(object):
@@ -444,13 +448,15 @@ def absolute_path(val=''):
     val = str(val)
     if path.isabs(val):
         return val
-    raise ValueError('%r is not a valid absolute path (should start with %r)' %( val, path.sep))
+    raise ValueError('%r is not a valid absolute path (should start with %r)' %
+                     (val, path.sep))
 
 def relative_path(val=''):
     """a relative path, may not use ../../.. tricks"""
     val = path.normpath(str(val))
     if path.isabs(val):
-        raise ValueError('%r is not a valid relative path (should NOT start with %r)' %( val, path.sep))
+        raise ValueError('%r is not a valid relative path (should NOT start '
+                         'with %r)' % (val, path.sep))
     if val[:2] != '..':
         return val
     raise ValueError('%r is not a valid relative path (traverses outside)' % val)
@@ -460,7 +466,8 @@ def subdir(val=''):
     val = str(val)
     for sep in [path.sep, '\\', '/']:
         if sep in val:
-            raise ValueError('%r is not a valid subdirectory (contains a %r)' % (val, sep))
+            raise ValueError('%r is not a valid subdirectory (contains a %r)' %
+                             (val, sep))
     return val
 
 def anytype(val=None):

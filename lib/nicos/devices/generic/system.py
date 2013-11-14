@@ -86,10 +86,11 @@ class FreeSpace(Readable):
         munit = self.parameters['minfree'].unit
         mfactor = units.get(munit, (1024 ** 3))
         if free * self._factor < self.minfree * mfactor:
-            return status.ERROR, 'free space %(free).2f %(unit)s below %(minfree).2f %(munit)s' \
-                % {'free':free,
+            return status.ERROR, 'free space %(free).2f %(unit)s below ' \
+                '%(minfree).2f %(munit)s' \
+                % {'free': free,
                    'minfree': self.minfree,
-                   'unit':self.unit,
+                   'unit': self.unit,
                    'munit': munit}
         return status.OK, '%.2f %s free' % (free, self.unit)
 
@@ -100,5 +101,6 @@ class FreeSpace(Readable):
     def doUpdateUnit(self, unit):
         factor = units.get(unit, None)
         if factor is None:
-            raise ConfigurationError('Unsupported unit, allowed: %s' % ','.join(units.keys()))
+            raise ConfigurationError('Unsupported unit, allowed: %s' %
+                                     ','.join(units.keys()))
         self._factor = factor

@@ -158,7 +158,8 @@ class Controller(TacoDevice, Readable):
             r2 = 1.0
         rr = self.ratio + 1
         self._write_multi(4073, 1, 4076, 0,  4074, self.speed,
-                          4075, phases[1], 4077, int(round(self.wavelength*1000.0)), 4070, 7)
+                          4075, phases[1], 4077,
+                          int(round(self.wavelength*1000.0)), 4070, 7)
         self._write_multi(4073, 2, 4076, r1, 4074, r2*self.speed,
                           4075, phases[2], 4077, int(self.slittype + 1), 4070, 7)
         self._write_multi(4073, 3, 4076, 1,  4074, self.speed,

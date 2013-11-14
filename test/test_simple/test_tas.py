@@ -234,8 +234,10 @@ def test_resolution():
 def test_getspacegroup():
 
     # Good cases:
-    assert spacegroups.get_spacegroup(1) == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    assert spacegroups.get_spacegroup('Pbca') == [3, 2, 2, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+    assert spacegroups.get_spacegroup(1) == \
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    assert spacegroups.get_spacegroup('Pbca') == \
+        [3, 2, 2, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
     # Error cases
     assert raises(NicosError, spacegroups.get_spacegroup, 'Pbbb')
     assert raises (NicosError, spacegroups.get_spacegroup, 300)

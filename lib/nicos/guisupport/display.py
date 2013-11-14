@@ -254,13 +254,13 @@ class ValueDisplay(NicosWidget, QWidget):
 
     def update_namelabel(self):
         name = self.props['name'] or self.props['dev'] or self.props['key']
-        self.namelabel.setText(escape(unicode(name)) + ' <font color="#888888">%s</font>'
-            '<font color="#0000ff">%s</font> ' % (escape(self.props['unit'].strip()),
-                                                  self._isfixed))
+        self.namelabel.setText(escape(unicode(name)) +
+            ' <font color="#888888">%s</font><font color="#0000ff">%s</font> ' %
+            (escape(self.props['unit'].strip()), self._isfixed))
 
     def _label_entered(self, widget, event, from_mouse=True):
-        infotext = '%s = %s' % (self.props['name'] or self.props['dev'] or self.props['key'],
-                                self.valuelabel.text())
+        infotext = '%s = %s' % (self.props['name'] or self.props['dev']
+                                or self.props['key'], self.valuelabel.text())
         if self.props['unit'].strip():
             infotext += ' %s' % self.props['unit']
         if self.props['statuskey']:

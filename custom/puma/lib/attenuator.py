@@ -61,12 +61,14 @@ class Attenuator(HasLimits, Moveable):
             if position == self.read(0):
                 return
             if position > self._filmax:
-                self.log.info('exceeding maximum filter thickness; switch to maximum %d %s'
+                self.log.info('exceeding maximum filter thickness; '
+                              'switch to maximum %d %s'
                               % (self._filmax, self.unit))
                 position = self._filmax
 
             if self.doStatus()[0] == status.ERROR:
-                raise NicosError(self, 'inconsistency of attenuator status, check device!')
+                raise NicosError(self, 'inconsistency of attenuator status, '
+                                 'check device!')
 
 #                if self.io_press == 0:
 #                    msg = 'no air pressure; cannot move attenuator'
@@ -79,8 +81,8 @@ class Attenuator(HasLimits, Moveable):
                     result += 2**i
                     position -= self._filterlist[i]
 
-                self.log.debug("position: %d, temp: %d result: %d, filterlist[i]: %d" \
-                     % (position, temp, result, self._filterlist[i]))
+                self.log.debug("position: %d, temp: %d result: %d, filterlist[i]: %d"
+                               % (position, temp, result, self._filterlist[i]))
             self._adevs['io_set'].move(result)
             time.sleep(3)
 
@@ -88,7 +90,8 @@ class Attenuator(HasLimits, Moveable):
                 raise NicosError(self, 'attenuator returned wrong position')
 
             if self.read(0) < actpos:
-                self.log.info('requested filter combination not possible; switched to %r %s thickness:' \
+                self.log.info('requested filter combination not possible; '
+                              'switched to %r %s thickness:'
                               % (self.doRead(), self.unit))
         finally:
             self.log.info('new attenuation: %s %s' % (self.read(), self.unit))

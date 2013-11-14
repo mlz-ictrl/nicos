@@ -64,10 +64,12 @@ class Sans1Sample(NicosSample):
         self.samplenames = d  # trigger transfer to cache
 
     def getName(self, idx):
-        """returns name of sample in slot <idx> or the current one, if <idx> is 0 or None"""
+        """returns name of sample in slot <idx> or the current one,
+        if <idx> is 0 or None
+        """
         if idx:
             return self.samplenames.get(int(idx),
-                                        '<unknown sample> at sample position %d' % idx)
+                '<unknown sample> at sample position %d' % idx)
         return self.samplenames.get(self.activesample, '<unknown sample>')
 
     def doReadSamplename(self):

@@ -26,11 +26,6 @@
 
 """NICOS FRM II Experiment."""
 
-import os
-import time
-import threading
-import subprocess
-
 from nicos import session
 from nicos.core import Param, Override
 from nicos.frm2.proposaldb import queryCycle, queryProposal
@@ -81,11 +76,14 @@ class Experiment(BaseExperiment):
         # check permissions
         if info:
             if info.get('permission_security', 'no') != 'yes':
-                self.log.error('No permission for this experiment from security! Please call 12699 (929-142).')
+                self.log.error('No permission for this experiment from security! '
+                               'Please call 12699 (929-142).')
             if info.get('permission_radiation_protection', 'no') != 'yes':
-                self.log.error('No permission for this experiment from radiation protection! Please call 14955 (14739/929-090).')
+                self.log.error('No permission for this experiment from radiation '
+                               'protection! Please call 14955 (14739/929-090).')
         if instrument.lower() != session.instrument.instrument.lower():
-            self.log.error('This Proposal is not for your instrument, but for %r! Using bogus information....' % instrument)
+            self.log.error('This proposal is not for your instrument, but for %r! '
+                           'Using bogus information...' % instrument)
 
         what = []
         # Extract NEW information
@@ -129,19 +127,22 @@ class Experiment(BaseExperiment):
         if v:
             what.append('requested sample environment')
             kwds['se'] = ', '.join(v)
-        # include supplementary stuff to make it easier to fill in exp. report templates
+        # include supplementary stuff to make it easier to fill in exp.
+        # report templates
         kwds['affiliation'] = info.get('affiliation', '')
         kwds['user_email'] = info.get('user_email', '')
         # display info about values we got.
         if what:
             self.log.info('Filled in %s from proposal database' %
                            ', '.join(what))
-        # make sure we can relay on certain fields to be set, even if they are not in the DB
+        # make sure we can relay on certain fields to be set, even if they are
+        # not in the DB
         kwds.setdefault('se', 'none specified')
         kwds.setdefault('user', 'main proposer')
         kwds.setdefault('title', 'title of experiment p%s' % proposal)
         kwds.setdefault('sample', 'sample of experiment p%s' % proposal)
         kwds.setdefault('localcontact', session.instrument.responsible)
         kwds.setdefault('user_name', info.get('user'))
-        kwds.setdefault('affiliation', 'MLZ Garching; Lichtenbergstraße 1; 85748 Garching; Germany')
+        kwds.setdefault('affiliation', 'MLZ Garching; Lichtenbergstr. 1; '
+                        '85748 Garching; Germany')
         return kwds

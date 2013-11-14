@@ -114,7 +114,8 @@ class Monochromator(HasLimits, Moveable):
         if pos[0] == 'out':
             return None
 
-        # calculate lambda from phi1 and then check the other positions for consistency...
+        # calculate lambda from phi1 and then check the other positions
+        # for consistency...
         lam = self._to_lambda(*pos[1:])
         self.log.debug('lambda seems to be %.4f Angstroms' % lam)
         compare_pos = self._from_lambda(lam)
@@ -123,7 +124,8 @@ class Monochromator(HasLimits, Moveable):
             self.log.debug('%r is at %r and should be at %r for %.4f Angstroms'
                            % (d, d.format(p), d.format(c), lam))
             if abs(p-c) > t:
-                raise PositionError('%r is too far away for %.4f Angstroms'% (d, lam))
+                raise PositionError('%r is too far away for %.4f Angstroms' %
+                                    (d, lam))
         return lam
 
     def doWait(self):

@@ -38,13 +38,16 @@ import smtplib
 from nicos import session
 from nicos.core.params import mailaddress
 
-def sendMail(mailserver, receiverlist, mailsender, topic, body, attach_files=tuple(), debuglevel=0):
-    """sends an email to a list of receivers with given topic and content via the given server
+def sendMail(mailserver, receiverlist, mailsender, topic, body,
+             attach_files=(), debuglevel=0):
+    """Sends an email to a list of receivers with given topic and content via
+    the given server.
 
-    returns True if succesful and list of error-messages else
+    Returns True if succesful and list of error-messages else
 
     mailserver is a working E-Mailserver accepting mail from us,
-    receiverlist is a not empty list of valid E-Mail adresses or a string with comma-separated E-Mail adresses
+    receiverlist is a not empty list of valid E-Mail adresses or a string with
+    comma-separated E-Mail adresses
     sender is a valid E-Mail-address,
     topic and body are strings and the list of attach_files may be empty
     if attach_files is not empty, it must contain names of existing files!

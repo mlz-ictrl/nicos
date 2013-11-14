@@ -151,7 +151,8 @@ class MiezeMaster(Moveable):
             for devname, devvalue in setting.iteritems():
                 if not devname.startswith('_'):
                     values[valueidx[devname]] = str(devvalue)[:15]
-            data.append((str(idx), setting['_name_'], '%.3f' % setting['_tau_']) + tuple(values))
+            data.append((str(idx), setting['_name_'], '%.3f' %
+                         setting['_tau_']) + tuple(values))
         self.log.info('current MIEZE settings (%s):' % self.tuning)
         printTable(('#', 'name', 'tau (ps)') + tuple(all_values), data, printinfo)
 

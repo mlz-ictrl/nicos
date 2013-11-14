@@ -45,7 +45,8 @@ class ImpacPyrometer(TacoDevice, Readable):
     def _comm(self, cmd):
         what = '%02d%s' % (self.address, cmd)
         # return self._taco_guard(self._dev.communicate, what)
-        return self._taco_multitry('Communicate', self.maxtry, self._dev.communicate, what)
+        return self._taco_multitry('Communicate', self.maxtry,
+                                   self._dev.communicate, what)
 
     def doInit(self, mode):
         pass

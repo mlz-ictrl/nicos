@@ -186,9 +186,11 @@ class CustomPanel(Panel, DlgUtils):
 class CustomButtonPanel(CustomPanel):
     """Base class for custom instrument specific panels
 
-    with a QDialogButtonBox at the lower right and some glue magic for fancy stuff...
+    with a QDialogButtonBox at the lower right and some glue magic for
+    fancy stuff...
     """
-    def __init__(self, parent, client, buttons=QDialogButtonBox.Close|QDialogButtonBox.Apply):
+    def __init__(self, parent, client,
+                 buttons=QDialogButtonBox.Close|QDialogButtonBox.Apply):
         CustomPanel.__init__(self, parent, client)
 
         # make a buttonBox

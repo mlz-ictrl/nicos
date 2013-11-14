@@ -84,7 +84,8 @@ def test_tacodev():
     assert raises(ValueError, tacodev, 'test/device')
 
 def test_tangodev():
-    assert tangodev('tango://host:123/test/custom/device') == 'tango://host:123/test/custom/device'
+    assert tangodev('tango://host:123/test/custom/device') == \
+        'tango://host:123/test/custom/device'
     assert tangodev() == ''
     assert raises(ValueError, tangodev, 'test/custom/device')
 

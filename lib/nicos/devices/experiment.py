@@ -120,8 +120,9 @@ class Experiment(Device):
                               type=str, settable=True, category='experiment'),
         'remark':       Param('Current remark about experiment configuration',
                               type=str, settable=True, category='experiment'),
+        # XXX: unfortunately tests need this to be non-absolute atm.
         'dataroot':     Param('Root data path under which all proposal specific'
-                              ' paths are created', type=str, # unfortunately tests need this to be non-absolute atm.
+                              ' paths are created', type=str,
                               default='/data', mandatory=True, settable=True),
         'detlist':      Param('List of default detector device names',
                               type=listof(str), settable=True),
@@ -149,7 +150,8 @@ class Experiment(Device):
                               settable=True),
         'mailtemplate': Param('Mail template file name (in templates)',
                               type=str, default='mailtext.txt'),
-        'reporttemplate': Param('File name of experimental report template (in templates)',
+        'reporttemplate': Param('File name of experimental report template '
+                                '(in templates)',
                               type=str, default='experimental_report.rtf'),
         'serviceexp':   Param('Name of proposal to switch to after user '
                               'experiment', type=str),
@@ -244,17 +246,23 @@ class Experiment(Device):
 
     @property
     def proposalsymlink(self):
-        """dataroot based location of 'current' experiment symlink to maintain or empty string"""
+        """dataroot based location of 'current' experiment symlink to maintain,
+        or empty string
+        """
         return path.join(self.dataroot, 'current')
 
     @property
     def samplesymlink(self):
-        """dataroot based location of 'current' sample symlink to maintain or empty string"""
+        """dataroot based location of 'current' sample symlink to maintain,
+        or empty string
+        """
         return ''
 
     @lazy_property
     def skiptemplates(self):
-        """list of template filenames which are to be ignored upon creating a new experiment"""
+        """list of template filenames which are to be ignored upon creating
+        a new experiment
+        """
         return []
 
     def getProposalType(self, proposal):
@@ -265,12 +273,14 @@ class Experiment(Device):
         # check for defines service 'proposal'
         if self.serviceexp and proposal == self.serviceexp:
             return 'service'
-        # all proposals starting with the define prefix are user-type, all others are service
+        # all proposals starting with the define prefix are user-type,
+        # all others are service
         if self.propprefix:
             if proposal.startswith(self.propprefix):
                 return 'user'
             return 'service'
-        # if we have no prefix, all number-like proposals >0 are usertype, else service
+        # if we have no prefix, all number-like proposals >0 are usertype,
+        # else service
         try:
             if int(proposal) == 0:
                 return 'service'
@@ -305,7 +315,10 @@ class Experiment(Device):
 
     @property
     def proposalpath(self):
-        """current proposalpath (defaults to <dataroot>/<year>/<proposal>) DONT OVERRIDE !"""
+        """current proposalpath (defaults to <dataroot>/<year>/<proposal>)
+
+        DON'T OVERRIDE!
+        """
         return self.proposalpath_of(self.proposal)
 
     #
@@ -324,16 +337,20 @@ class Experiment(Device):
         return readFileCounter(self.scanCounterPath)
 
     def createScanFile(self, nametemplate, *subdirs, **kwargs):
-        """creates an scanfile acccording to the given nametemplate in the given subdir structure
+        """creates an scanfile acccording to the given nametemplate in the given
+        subdir structure
 
         returns a tuple containing the basic filename, the path to the file,
-        relative to proposalpath, i.e. the 'file path within the current experiment'
-        and the filehandle to the already opened (for writing) file which has the right
-        FS attributes.
+        relative to proposalpath, i.e. the 'file path within the current
+        experiment' and the filehandle to the already opened (for writing)
+        file which has the right FS attributes.
         """
-        fullfilename, fp = self.createDataFile(nametemplate, self.lastscan, *subdirs, **kwargs)
-        # setting lastscanfile here might have unwanted side effects if multiple datasinks are used.
-        self._setROParam('lastscanfile', path.relpath(fullfilename, self.proposalpath))
+        fullfilename, fp = self.createDataFile(nametemplate, self.lastscan,
+                                               *subdirs, **kwargs)
+        # setting lastscanfile here might have unwanted side effects if
+        # multiple datasinks are used.
+        self._setROParam('lastscanfile', path.relpath(fullfilename,
+                                                      self.proposalpath))
         return path.basename(fullfilename), fullfilename, fp
 
     @property
@@ -353,23 +370,28 @@ class Experiment(Device):
         return readFileCounter(self.imageCounterPath)
 
     def createImageFile(self, nametemplate, *subdirs, **kwargs):
-        """creates an imagefile acccording to the given nametemplate in the given subdir structure
+        """creates an imagefile acccording to the given nametemplate in the
+        given subdir structure
 
         returns a tuple containing the basic filename, the path to the file,
-        relative to proposalpath, i.e. the 'file path within the current experiment'
-        and the filehandle to the already opened (for writing) file which has the right
-        FS attributes.
+        relative to proposalpath, i.e. the 'file path within the current
+        experiment' and the filehandle to the already opened (for writing)
+        file which has the right FS attributes.
         """
-        fullfilename, fp = self.createDataFile(nametemplate, self.lastimage, *subdirs, **kwargs)
-        # setting lastimagefile here might have unwanted side effects if multiple 2D-datasinks are used.
-        self._setROParam('lastimagefile', path.relpath(fullfilename, self.proposalpath))
+        fullfilename, fp = self.createDataFile(nametemplate, self.lastimage,
+                                               *subdirs, **kwargs)
+        # setting lastimagefile here might have unwanted side effects if
+        # multiple 2D-datasinks are used.
+        self._setROParam('lastimagefile', path.relpath(fullfilename,
+                                                       self.proposalpath))
         return path.basename(fullfilename), fullfilename, fp
 
     #
     # datafile stuff
     #
     def getDataDir(self, *subdirs):
-        """returns the current path for the data directory in subdir structure subdirs
+        """returns the current path for the data directory in subdir
+        structure subdirs
 
         returned directory is created if it did not exist
         """
@@ -378,10 +400,12 @@ class Experiment(Device):
         return dirname
 
     def getDataFilename(self, filename, *subdirs):
-        """returns the current path for given filename in subdir structure subdirs
+        """returns the current path for given filename in subdir structure
+        subdirs
 
-        if filename is an absolute path, ignore the subdirs and start at dataroot
-        returned filename is usable 'as-is', i.e. the required directory structure is already created.
+        if filename is an absolute path, ignore the subdirs and start at
+        dataroot returned filename is usable 'as-is', i.e. the required
+        directory structure is already created.
         """
         if path.isabs(filename):
             fullname = path.join(self.dataroot, filename[1:])
@@ -392,11 +416,13 @@ class Experiment(Device):
         return fullname
 
     def createDataFile(self, nametemplate, counter, *subdirs, **kwargs):
-        """creates and returns a file named according to the given nametemplate in the given subdir of the datapath
+        """creates and returns a file named according to the given nametemplate
+        in the given subdir of the datapath
 
-        if the optional keyworded argument nofile is True, the file is not created.
-        This is needed for some data-sving libraries creating the file by themselfs.
-        In this case, the filemode is (obviously) not managed by us.
+        if the optional keyworded argument nofile is True, the file is not
+        created. This is needed for some data-saving libraries creating the
+        file by themselfs. In this case, the filemode is (obviously) not
+        managed by us.
         """
         if '%(' in nametemplate:
             kwds = dict(self.propinfo)
@@ -404,7 +430,8 @@ class Experiment(Device):
             try:
                 filename = nametemplate % kwds
             except KeyError:
-                self.log.error('Can\'t create datafile, illegal key in nametemplate!')
+                self.log.error('Can\'t create datafile, illegal key in '
+                               'nametemplate!')
                 raise
         else:
             filename = nametemplate % counter
@@ -431,11 +458,13 @@ class Experiment(Device):
         if not self.linkpaths:
             return
         if not hasattr(os, 'link'):
-            self.log.warning(self, 'your OS can not make links.... NO links created!')
+            self.log.warning(self, 'your OS can not make links, no links '
+                             'created!')
             return
         fullname = path.join(self.getDataDir(*subdirs), filename)
         if not os.exist(fullname):
-            self.log.error(self, 'linkDataFiles: data file %r does not exist!' % fullname)
+            self.log.error(self, 'linkDataFiles: data file %r does not exist!' %
+                           fullname)
             return
         for linktarget in self.linkpaths:
             link = path.join(linktarget, '_'.join(subdirs + tuple(filename)))
@@ -539,7 +568,8 @@ class Experiment(Device):
                 except Exception:
                     # restore previous state completely, thus disabling
                     if self.managerights:
-                        disableDirectory(self.proposalpath_of(proposal), **self.managerights)
+                        disableDirectory(self.proposalpath_of(proposal),
+                                         **self.managerights)
                     raise
 
         #all prepared, do the switch
@@ -681,7 +711,8 @@ class Experiment(Device):
             newfn = fn[:-9] # strip ".template" from the name
             newfn, _, _ = expandTemplate(newfn, kwargs)
 
-            finalname = path.join(self.proposalpath_of(proposal), self.sampledir, 'scripts', newfn)
+            finalname = path.join(self.proposalpath_of(proposal), self.sampledir,
+                                  'scripts', newfn)
 
             if path.isfile(finalname):
                 self.log.debug('skipping already translated file %r' % newfn)
@@ -742,7 +773,8 @@ class Experiment(Device):
             # save result
             with open(finalname, 'wb') as fp:
                 fp.write(content)
-            os.chmod(finalname, self.managerights.get('enableFileMode', DEFAULT_FILE_MODE))
+            os.chmod(finalname, self.managerights.get('enableFileMode',
+                                                      DEFAULT_FILE_MODE))
 
     #
     # various helpers
@@ -752,7 +784,8 @@ class Experiment(Device):
         if self._mode == 'simulation':
             return # dont touch fs if in simulation!
         self.log.info('zipping experiment data, please wait...')
-        zipname = zipFiles(path.join(self.proposalpath, '..', self.proposal + '.zip'),
+        zipname = zipFiles(path.join(self.proposalpath, '..',
+                                     self.proposal + '.zip'),
                            self.proposalpath)
         self.log.info('done: stored as ' + zipname)
         return zipname
@@ -910,7 +943,8 @@ class Experiment(Device):
         # prepare template....
         # can not do this directly in rtf as {} have special meaning....
         # KEEP IN SYNC WHEN CHANGING THE TEMPLATE!
-        # reminder: format is {{key:default#description}}, always specify default here !
+        # reminder: format is {{key:default#description}},
+        # always specify default here !
         #
         # first clean up template
         data = data.replace('\\par Please replace the place holder in the upper'
@@ -928,11 +962,16 @@ class Experiment(Device):
         data = data.replace('<coauthor, same affilation> ', 'and coworkers')
         data = data.replace('<other coauthor> ', 'S. T. Ranger')
         data = data.replace('<your affiliation>, }',
-                            '{{affiliation:affiliation of main proposer and coworkers}}, }\n\\par ')
-        data = data.replace('<other affiliation>', 'affiliation of coproposers other than 1')
-        data = data.replace('<Instrument used>', '{{instrument:<The Instrument used>}}')
-        data = data.replace('<date of experiment>', '{{from_date:01.01.1970}} - {{to_date:12.03.2038}}')
-        data = data.replace('<local contact>', '{{localcontact:L. Contact <l.contact@frm2.tum.de>}}')
+                            '{{affiliation:affiliation of main proposer and '
+                            'coworkers}}, }\n\\par ')
+        data = data.replace('<other affiliation>', 'affiliation of coproposers '
+                            'other than 1')
+        data = data.replace('<Instrument used>',
+                            '{{instrument:<The Instrument used>}}')
+        data = data.replace('<date of experiment>', '{{from_date:01.01.1970}} '
+                            '- {{to_date:12.03.2038}}')
+        data = data.replace('<local contact>', '{{localcontact:L. Contact '
+                            '<l.contact@frm2.tum.de>}}')
 
         # collect info
         stats = self._statistics()

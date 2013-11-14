@@ -141,4 +141,6 @@ def test_rangelistgeneral():
     assert len(l1) == 5
     l2 = RangeListGeneral(1, 2, 10, lambda (x): 1/x)
     assert len(l2) == 10
-    assert numpy.allclose(l2, [1.0, 1.05882352941, 1.125, 1.2, 1.28571428571, 1.38461538462, 1.5, 1.63636363636, 1.8, 2.0])
+    assert numpy.allclose(l2, [1.0, 1.05882352941, 1.125, 1.2,
+                               1.28571428571, 1.38461538462, 1.5,
+                               1.63636363636, 1.8, 2.0])

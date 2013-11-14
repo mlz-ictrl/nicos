@@ -211,7 +211,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='', allow_buttons=False):
     elif typ == params.vec3:
         return MultiWidget(parent, (float, float, float), curvalue)
     elif typ in (params.tacodev, params.tangodev, params.mailaddress,
-                 params.anypath, params.subdir, params.relative_path, params.absolute_path):
+                 params.anypath, params.subdir, params.relative_path,
+                 params.absolute_path):
         # XXX validate via regexp
         return EditWidget(parent, str, curvalue)
     elif typ == anytype:

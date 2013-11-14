@@ -189,7 +189,8 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
         return self._adevs['ps1'].read(maxage) / maxcurr1 * maxfield
 
     def doStatus(self, maxage=0):
-        return multiStatus([('ps1', self._adevs['ps1']), ('ps2', self._adevs['ps2'])], maxage)
+        return multiStatus([('ps1', self._adevs['ps1']),
+                            ('ps2', self._adevs['ps2'])], maxage)
 
     def doStop(self):
         # try to stop both supplies even if first stop() raises

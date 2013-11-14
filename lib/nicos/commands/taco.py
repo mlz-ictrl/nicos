@@ -110,7 +110,8 @@ def TacoStatus(server=''):
     def check_RS485(dev, client, state):
         return state == st.ON
     def check_TemperatureController(dev, client, state):
-        return state in [st.PRESELECTION_REACHED, st.MOVING, st.DEVICE_NORMAL, st.UNDEFINED]
+        return state in [st.PRESELECTION_REACHED, st.MOVING, st.DEVICE_NORMAL,
+                         st.UNDEFINED]
     def check_TMCSAdmin(dev, client, state):
         return state in [st.STARTED, st.STOPPED]
     def check_PowerSupplyCurrentControl(dev, client, state):

@@ -127,7 +127,8 @@ class Mchanger(Moveable):
 
         for dev, pos in self._changing_values.items():
             if abs(dev.read(0) - pos) > dev.precision:
-                raise PositionError(self, '%r did not reach target position %r' % (dev, pos))
+                raise PositionError(self, '%r did not reach target position %r' %
+                                    (dev, pos))
 
         for dev in self._changing_values:
             dev.fix('Monochromator change in progress')

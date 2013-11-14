@@ -424,9 +424,11 @@ class TofTofMeasurement(Measurable, ImageStorage):
         monrate = detrate = 0.0
         if meastime > 0:
             monrate = moncounts / meastime
-            monrate_inst = (moncounts - self._lastmoncounts) / (meastime - self._lasttime)
+            monrate_inst = (moncounts - self._lastmoncounts) / \
+                (meastime - self._lasttime)
             detrate = countsum / meastime
-            detrate_inst = (countsum - self._lastcounts) / (meastime - self._lasttime)
+            detrate_inst = (countsum - self._lastcounts) / \
+                (meastime - self._lasttime)
             if tempinfo:
                 self.log.info('Sample:  current: %.4f %s, average: %.4f, '
                               'stddev: %.4f, min: %.4f, max: %.4f' % tempinfo)
@@ -454,7 +456,8 @@ class TofTofMeasurement(Measurable, ImageStorage):
             script_fn = self.lastfilename.replace('0000.raw', '5200.raw')
             with open(script_fn, 'w') as fp:
                 fp.write(session.experiment.scripts[-1])
-        self.log.info('Measurement %06d finished' % session.experiment.readImageCounter())
+        self.log.info('Measurement %06d finished' %
+                      session.experiment.readImageCounter())
         self._measuring = False
         self._closeDeviceLogs()
         session.breakpoint(2)

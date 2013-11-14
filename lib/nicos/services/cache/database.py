@@ -453,9 +453,10 @@ class FlatfileCacheDatabase(CacheDatabase):
             fd = self._cat[category][0] = self._create_fd(category)
             for subkey, entry in db.iteritems():
                 if entry.value:
-                    fd.write('%s\t%s\t%s\t%s\n' % (subkey, entry.time,
-                                                   (entry.ttl or entry.expired) and '-' or '+',
-                                                   entry.value))
+                    fd.write('%s\t%s\t%s\t%s\n' % (
+                        subkey, entry.time,
+                        (entry.ttl or entry.expired) and '-' or '+',
+                        entry.value))
             fd.flush()
         # set the 'lastday' symlink to the current day directory
         self._set_lastday()

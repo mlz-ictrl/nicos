@@ -68,18 +68,24 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
     parameters = {
         # provided by parent class: speed, unit, fmtstr, warnlimits, abslimits,
         #                           userlimits, precision and others
-        'address': Param('Starting offset of Motor control Block in words',
-                         type=int, mandatory=True, settable=False, userparam=False),
-        'slope': Param('Slope of the Motor in _FULL_ steps per _physical unit_',
-                       type=float, default=1., unit='steps/main', userparam=False, settable=True),
+        'address':   Param('Starting offset of Motor control Block in words',
+                           type=int, mandatory=True, settable=False, userparam=False),
+        'slope':     Param('Slope of the Motor in _FULL_ steps per _physical unit_',
+                           type=float, default=1., unit='steps/main',
+                           userparam=False, settable=True),
         'microsteps': Param('Microstepping for the motor',
-                            type=oneof(1, 2, 4, 8, 16, 32, 64), default=1, userparam=False, settable=False),
-        'autozero':  Param('Maximum distance from referencepoint for forced referencing before moving, or None',
-                           type=none_or(float), default=50, unit='main', settable=False),
+                            type=oneof(1, 2, 4, 8, 16, 32, 64), default=1,
+                            userparam=False, settable=False),
+        'autozero':  Param('Maximum distance from referencepoint for forced '
+                           'referencing before moving, or None',
+                           type=none_or(float), default=50, unit='main',
+                           settable=False),
         'autopower': Param('Automatically disable Drivers if motor is not moving',
-                           type=oneofdict({0:'off',1:'on'}), default='on', settable=False),
-        'refpos':   Param('Position of reference switch', unit='main',
-                          type=float, mandatory=True, settable=False, prefercache=False),
+                           type=oneofdict({0:'off',1:'on'}), default='on',
+                           settable=False),
+        'refpos':    Param('Position of reference switch', unit='main',
+                           type=float, mandatory=True, settable=False,
+                           prefercache=False),
     }
 
     parameter_overrides = {
@@ -117,7 +123,8 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
         tmpval |= (int(value) << int(bit))
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address, tmpval))
-        time.sleep(0.020)       # wait 1 sps-cycle to make sure the PLC knows about this bit
+        # wait 1 sps-cycle to make sure the PLC knows about this bit
+        time.sleep(0.020)
 
     def _writeDestination(self, value):
         self.log.debug('_writeDestination %r'%value)
@@ -149,12 +156,14 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
     #
     def _steps2phys(self, steps):
         value = steps / float(self.microsteps * self.slope)
-        self.log.debug('_steps2phys: %r steps -> %s'%(steps, self.format(value, unit=True)))
+        self.log.debug('_steps2phys: %r steps -> %s' %
+                       (steps, self.format(value, unit=True)))
         return value
 
     def _phys2steps(self, value):
         steps = int(value * float(self.microsteps * self.slope) )
-        self.log.debug('_phys2steps: %s -> %r steps'%(self.format(value, unit=True), steps))
+        self.log.debug('_phys2steps: %s -> %r steps' %
+                       (self.format(value, unit=True), steps))
         return steps
 
     def _speed2phys(self, speed):
@@ -239,7 +248,8 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
         11  : Target NOT reached due PowerOff or Stop
         12  : Can not move towards requested position, command ignored
         14  : N_ACK (last set/get command was unsuccessful), auto clears after 1s
-        15  : ACK (last get/set command was successful, value in RETURN is valid), auto clears after 1s
+        15  : ACK (last get/set command was successful, value in RETURN is valid),
+              auto clears after 1s
         '''
         statval = self._readStatusWord()
         errval = self._readErrorWord()
@@ -301,9 +311,11 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
     def _reference(self):
         self.log.debug('_reference begin')
         if self.doStatus(0)[0] != status.OK:
-            raise UsageError(self, 'Referencing only possible if Idle! Hint: use stop or reset')
+            raise UsageError(self, 'Referencing only possible if Idle! '
+                             'Hint: use stop or reset')
         # first move to negative limit switch to mimic anatel
-        for i, p in enumerate([self.refpos + 5., self.refpos - abs(self.usermax) - abs(self.usermin)]):
+        for i, p in enumerate([self.refpos + 5.,
+                               self.refpos - abs(self.usermax) - abs(self.usermin)]):
             self.log.debug('doReference: %d) go to %.2f'% (2*i+1, p))
             self._writeDestination(self._phys2steps(p))
             self._writeControlBit(2, 1)
@@ -311,7 +323,8 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
             self.wait()
         # now we should be deep in limit-switch -
         self.log.debug('doReference: 5) start the referencing')
-        self._writeControlBit(4, 1)        # do the referencing & update position to refpos
+        # do the referencing & update position to refpos
+        self._writeControlBit(4, 1)
         self.log.debug('doReference: 6) wait')
         self.wait()
         #~ currentpos = self.read(0)
@@ -351,7 +364,8 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
                 )
 
     parameters = {
-        # provided by parent class: speed, unit, fmtstr, warnlimits, userlimits, abslimits, precision and others
+        # provided by parent class: speed, unit, fmtstr, warnlimits, userlimits,
+        # abslimits, precision and others
         'power': Param('Power on/off for the motordriver and enable/disable for the logic',
                         type=oneof('off','on'), default='off', settable=True),
         'backlash': Param('Backlash correction in physical units',

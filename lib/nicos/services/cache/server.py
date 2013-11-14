@@ -399,7 +399,8 @@ class CacheServer(Device):
             if self._serversocket_udp:
                 selectlist.append(self._serversocket_udp)
 
-            res = select.select(selectlist, [], [], CYCLETIME * 3)  # 3 times  client side timeout
+            # 3 times client-side timeout
+            res = select.select(selectlist, [], [], CYCLETIME * 3)
             if not res[0]:
                 continue  # nothing to read -> continue loop
             if self._serversocket in res[0] and not self._stoprequest:

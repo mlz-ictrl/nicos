@@ -109,6 +109,7 @@ class Julabo(TacoDevice, HasLimits, Moveable):
             if a == status.OK:
                 break
             if time.time() >= self._stime + self.timeout:
-                self.log.warning("timeout occurred - did not reach selected temperature in time")
+                self.log.warning("timeout occurred - did not reach "
+                                 "selected temperature in time")
                 break
             sleep(1)

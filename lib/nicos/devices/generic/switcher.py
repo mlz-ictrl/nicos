@@ -202,9 +202,11 @@ class MultiSwitcher(MappedMoveable):
     }
 
     parameter_overrides = {
-        'mapping':   Override(description='Mapping of state names to N values to move the moveables to',
-                           type=dictof(anytype, listof(anytype))),
-        'fallback':  Override(userparam=False, type=none_or(anytype), mandatory=False),
+        'mapping':   Override(description='Mapping of state names to N values '
+                              'to move the moveables to',
+                              type=dictof(anytype, listof(anytype))),
+        'fallback':  Override(userparam=False, type=none_or(anytype),
+                              mandatory=False),
     }
 
     hardware_access = False
@@ -222,15 +224,16 @@ class MultiSwitcher(MappedMoveable):
         if self.precision:
             if len(self.precision) not in [1, len(self.devices)]:
                 raise ConfigurationError(self, 'The precision list must either'
-                                       'contain only one element or have the same amount'
-                                       'of elements as the moveables list')
+                                         'contain only one element or have the '
+                                         'same amount of elements as the '
+                                         'moveables list')
 
     def _startRaw(self, target):
         """target is the raw value, i.e. a list of positions"""
         if not isinstance(target, (tuple, list)) or \
             len(target) != len(self.devices):
             raise InvalidValueError(self,'doStart needs a tuple of %d positions '
-                                     'for this device!' % len(self.devices))
+                                    'for this device!' % len(self.devices))
         for d, t in zip(self.devices, target):
             if not d.isAllowed(t):
                 raise InvalidValueError(self, 'target value %r not accepted by '

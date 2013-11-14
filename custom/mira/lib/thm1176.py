@@ -60,7 +60,8 @@ class THM(Measurable):
     def doReset(self, t=3):
         # get usbdevfs file name
         self.log.debug('resetting...')
-        devline = os.popen('grep -B3 Metrolab /proc/bus/usb/devices | head -n1', 'r').read().strip()
+        devline = os.popen('grep -B3 Metrolab /proc/bus/usb/devices | '
+                           'head -n1', 'r').read().strip()
         if devline:
             busno = int(usbbus_pat.search(devline).group(1))
             devno = int(usbdev_pat.search(devline).group(1))

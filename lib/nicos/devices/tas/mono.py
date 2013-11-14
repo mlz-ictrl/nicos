@@ -313,7 +313,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             self.userlimits = (new_umin, new_umax)
         if 'target' in self._params and self.target != 0:
             # this should be still within the limits
-            self._setROParam('target', self._fromlambda(self._tolambda(self.target), value))
+            self._setROParam('target', self._fromlambda(
+                self._tolambda(self.target), value))
         if self._cache:
             self._cache.invalidate(self, 'value')
 

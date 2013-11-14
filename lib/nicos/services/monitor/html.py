@@ -306,7 +306,8 @@ class Monitor(BaseMonitor):
                 # deactivate plots
                 field.plot = None
                 # create name label
-                flabel = field._namelabel = Label('name', field.width, escape(field.name))
+                flabel = field._namelabel = Label('name', field.width,
+                                                  escape(field.name))
                 blk.add(flabel)
                 blk.add('</td></tr><tr><td>')
                 # create value label

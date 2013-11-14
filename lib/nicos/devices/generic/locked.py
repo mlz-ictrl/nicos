@@ -200,8 +200,10 @@ class SequencerMixin(DeviceMixinBase):
     """Mixin performing a given sequence to reach a certain value
     """
     parameters = {
-        '_seq_status' : Param('status of the current executes sequence, or (100, idle)?',
-                                settable = True, mandatory = False, userparam = False, default = (status.OK, 'idle'), type = tuple),
+        '_seq_status' : Param('status of the current executes sequence, '
+                              'or (100, idle)?', settable=True,
+                              mandatory=False, userparam=False,
+                              default=(status.OK, 'idle'), type=tuple),
     }
 
     parameter_overrides = {
@@ -232,8 +234,8 @@ class SequencerMixin(DeviceMixinBase):
             for d, v in step.iteritems():
                 if not callable(v) and not d.isAllowed(v):
                     seq_ok = False
-                    self.log.error('Error in step %d of sequence, can\'t move %s to %r here.' %
-                                    (i, d.name, v))
+                    self.log.error('Error in step %d of sequence, can\'t move '
+                                   '%s to %r here.' % (i, d.name, v))
         if not seq_ok:
             raise ConfigurationError(self, 'invalid sequence')
 
@@ -257,9 +259,9 @@ class SequencerMixin(DeviceMixinBase):
     def BlockingSequence(self, sequence):
         """does a blocking sequence.
 
-        default is to start a thread which then performs the sequence in a 'non blocking' way.
-        (meaning, if you overwrite doBlockingSequence, device.start will return after
-        the sequence is finished)
+        Default is to start a thread which then performs the sequence in a
+        'non blocking' way (meaning, if you overwrite doBlockingSequence,
+        device.start will return after the sequence is finished)
         """
         self._seq_stopflag = False
         self._seq_thread = threading.Thread(target=self.Sequence,
@@ -287,18 +289,21 @@ class SequencerMixin(DeviceMixinBase):
                         except NicosError, e:
                             self.log.error(self, e, exc=1)
                     else:
-                        self._set_seq_status(status.BUSY, 'moving %s to %r' % (d, v), d)
+                        self._set_seq_status(status.BUSY,
+                                             'moving %s to %r' % (d, v), d)
                         d.start(v)
                 # wait
                 for d, v in step.iteritems():
                     if self._seq_stopflag and self._honor_stopflag:
                         for d in step:
-                            self._set_seq_status(status.BUSY, 'stopping %s' % d.name, d)
+                            self._set_seq_status(status.BUSY,
+                                                 'stopping %s' % d.name, d)
                             d.stop()
                         return
                     # only wait if not fixed to avoid annoying warnings...
                     if not d.fixed:
-                        self._set_seq_status(status.BUSY, 'waiting for %s -> %s' % (d.name, v), d)
+                        self._set_seq_status(status.BUSY,
+                                             'waiting for %s -> %s' % (d.name, v), d)
                         d.wait()
                 if self._seq_stopflag and self._honor_stopflag:
                     return
@@ -326,7 +331,8 @@ class SequencerMixin(DeviceMixinBase):
 
     def doStop(self):
         if self._seq_statmaster is not None or self._seq_thread is not None:
-            self._set_seq_status(status.NOTREACHED, 'operation interrupted at:' + self._seq_status[1])
+            self._set_seq_status(status.NOTREACHED,
+                                 'operation interrupted at:' + self._seq_status[1])
         self._seq_stopflag = True
 
     def doReset(self):
@@ -349,10 +355,11 @@ class BaseSequencer(SequencerMixin, Moveable):
         """returns a device and target specific sequence
 
         a sequence is a list of steps (dicts of devices to values or callables)
-        if a value is a callable, it will be called with the device and the target(s)
-        of the device in this order.
+        if a value is a callable, it will be called with the device and the
+        target(s) of the device in this order.
         """
-        raise NotImplementedError(self, 'put a proper _generateSequence implementation here!')
+        raise NotImplementedError('put a proper _generateSequence '
+                                  'implementation here!')
 
 
 class SequenceMeasurable(SequencerMixin, Measurable):
@@ -371,10 +378,12 @@ class SequenceMeasurable(SequencerMixin, Measurable):
         """returns a device and target specific sequence
 
         a sequence is a list of steps (dicts of devices to values or callables)
-        if a value is a callable, it will be called with the device and the target(s)
-        of the device in this order.
+        if a value is a callable, it will be called with the device and the
+        target(s) of the device in this order.
         """
-        raise NotImplementedError(self, 'put a proper _generateSequence implementation here!')
+        raise NotImplementedError('put a proper _generateSequence '
+                                  'implementation here!')
+
 
 class LockedDevice(BaseSequencer):
     attached_devices = {
@@ -438,6 +447,7 @@ class LockedDevice(BaseSequencer):
 
     def doIsAllowed(self, target):
         return self._adevs['device'].isAllowed(target)
+
 
 class LockedSwitcher(LockerMixin, Switcher):
     pass

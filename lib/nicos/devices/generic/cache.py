@@ -130,7 +130,8 @@ class CacheWriter(HasLimits, CacheReader, Moveable):
 
         mystat = self.status(0)
 
-        # is it worth to put his in an extra thread to derive a 'stable' status and give this back in doStatus???
+        # is it worth to put his in an extra thread to derive a 'stable' status
+        # and give this back in doStatus???
         while True:
             if mystat[0] != status.BUSY and mystat[1] != CACHE_NOSTATUS_STRING:
                 break # we got a thrustworthy state of not beeing idle....
@@ -139,21 +140,21 @@ class CacheWriter(HasLimits, CacheReader, Moveable):
             self.log.debug('Values are %r'%list(values))
 
             if len(values) == histlen:  # enough values ?
-                if max(values) - min(values) <= self.tolerance:     # we are 'kind of' stable
-                    if type(self.target) not in [float, int, long]: # stable, but no target to compare with -> OK
+                if max(values) - min(values) <= self.tolerance:
+                    # we are 'kind of' stable
+                    if type(self.target) not in [float, int, long]:
+                        # stable, but no target to compare with -> OK
                         self.log.debug('Stable but no target given')
                         break
                     elif ( max(values) <= self.target + self.tolerance*0.5 and
                             self.target - self.tolerance*0.5 <= min(values) ):
                         self.log.debug('Value considered stable')
                         break
-                    self.log.debug('Value is stable but not within [target-tolerance/2, target+tolerance/2]')
+                    self.log.debug('Value is stable but not within '
+                                   '[target-tolerance/2, target+tolerance/2]')
 
-            self.log.debug('Still busy, %ds of %ds left, status is %r'%(
-                    timesout-currenttime(),
-                    self.timeout,
-                    mystat[1]
-                    ))
+            self.log.debug('Still busy, %ds of %ds left, status is %r' % (
+                    timesout-currenttime(), self.timeout, mystat[1]))
 
             if currenttime() > timesout:
                 raise TimeoutError(self, 'timeout waiting for Status!')

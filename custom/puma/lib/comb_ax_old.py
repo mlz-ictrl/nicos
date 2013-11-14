@@ -35,7 +35,8 @@ class CombAxis(Moveable):
     }
 
     parameters = {
-        'iscomb': Param('If it is combined or normal axis', default = False, mandatory=True, settable = True, type=bool),
+        'iscomb': Param('If it is combined or normal axis', default=False,
+                        mandatory=True, settable=True, type=bool),
     }
 
     def doInit(self, mode):
@@ -57,7 +58,8 @@ class CombAxis(Moveable):
         if mainax[0] and fixax[0]:
             return (True, 'Ok')
         else:
-            return (False, '%s: %s, %s: %s' % (self._adevs['main_ax'], mainax[1], self._adevs['fix_ax'], fixax[1]))
+            return (False, '%s: %s, %s: %s' % (self._adevs['main_ax'], mainax[1],
+                                               self._adevs['fix_ax'], fixax[1]))
 
     def doRead(self, maxage=0):
         return self._adevs['main_ax'].read(maxage)

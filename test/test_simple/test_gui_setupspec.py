@@ -22,7 +22,9 @@
 #
 # *****************************************************************************
 
-"""Tests for the setupSpec tests used to selectively show GUI elements in dependence of loaded_setups."""
+"""Tests for the setupSpec tests used to selectively show GUI elements
+in dependence of loaded_setups.
+"""
 
 from nicos.clients.gui.utils import checkSetupSpec
 

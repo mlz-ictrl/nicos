@@ -151,13 +151,15 @@ class SetupPanel(Panel, DlgUtils):
 
         # read all values from propdb
         try:
-            result = self.client.eval('session.experiment._fillProposal(%s,{})' % prop, None)
+            result = self.client.eval('session.experiment._fillProposal(%s,{})'
+                                      % prop, None)
 
             if result:
                 # now transfer it into gui
                 self.expTitle.setText(decodeAny(result.get('title', title)))
                 self.users.setText(decodeAny(result.get('user', users)))
-                self.localContact.setText(decodeAny(result.get('localcontact', local)))
+                self.localContact.setText(decodeAny(result.get('localcontact',
+                                                               local)))
                 self.sampleName.setText(decodeAny(result.get('sample', sample)))
                 # check permissions:
                 failed = []
@@ -196,7 +198,8 @@ class SetupPanel(Panel, DlgUtils):
         if self.client.eval('session.experiment.serviceexp', True) and \
             self.client.eval('session.experiment.proptype', 'user') == 'user' and \
             self.client.eval('session.experiment.proposal', '') != prop:
-            self.showError('Can not directly switch experiments, please use FinishExperiment first!')
+            self.showError('Can not directly switch experiments, please use '
+                           'FinishExperiment first!')
             return
 
         # do some work

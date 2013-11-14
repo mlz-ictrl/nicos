@@ -129,7 +129,8 @@ def test_initialization():
 
     assert raises(ZeroDivisionError, session.getDevice, 'dev2_5')
     assert session.testhandler._messages > before
-    assert 'could not shutdown after creation failed' in session.testhandler._warnings[-1].msg
+    assert 'could not shutdown after creation failed' \
+        in session.testhandler._warnings[-1].msg
     # assert device is cleaned up anyway
     assert 'dev2_5' not in session.devices
 

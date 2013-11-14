@@ -31,9 +31,9 @@ import PyTango
 class PyTangoDevice(object):
 
     parameters = {
-                  'tangodevice' : Param('Tango device name', type=str, mandatory=True, preinit=True)
-                  }
-
+        'tangodevice': Param('Tango device name', type=str,
+                             mandatory=True, preinit=True)
+    }
 
     def doPreinit(self, mode):
         self._dev = None

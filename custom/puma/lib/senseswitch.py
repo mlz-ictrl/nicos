@@ -49,12 +49,14 @@ class SenseSwitch(Switcher):
 
     parameters = {
         'timeout': Param('Max. allowed time to reach the requested position',
-                        type=float, default=3, settable=True, mandatory=False, unit='s'),
+                         type=float, default=3, settable=True, mandatory=False,
+                         unit='s'),
     }
 
     parameter_overrides = {
-        'precision':      Override(type=none_or(listof(floatrange(0., 360.))), default=None),
-        'mapping':   Override(type=dictof(anytype, tupleof(anytype, anytype))),
+        'precision':  Override(type=none_or(listof(floatrange(0., 360.))),
+                               default=None),
+        'mapping':    Override(type=dictof(anytype, tupleof(anytype, anytype))),
     }
     hardware_access = False
 
@@ -149,7 +151,8 @@ class SenseSwitch(Switcher):
         if self.target is not None:
             # somebody issued an start/move command already
             if self._starttime  is None:
-                # poller needs its own copy of _starttime or the logic of the following lines fail.
+                # poller needs its own copy of _starttime or the logic of the
+                # following lines fail.
                 self._starttime = time.time()
             if self.target == pos:
                 # we are at the target -> good!
@@ -168,5 +171,6 @@ class SenseSwitch(Switcher):
             if pos != '<unknown>':
                 # we know that position!
                 return status.OK, 'idle at %r' % pos
-            # signal in invalid position, but handle this (not yet) as a hard error, allowing further moves
+            # signal in invalid position, but handle this (not yet) as a hard
+            # error, allowing further moves
             return status.NOTREACHED, 'Unknown position'
