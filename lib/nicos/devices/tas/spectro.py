@@ -342,16 +342,16 @@ class TAS(Instrument, Moveable):
 
     def _spurionCheck(self, pos):
         for line in spurions.check_acc_bragg(self, *pos):
-            self.log.warning(line)
+            self.log.info(line)
         for line in spurions.check_ho_spurions(self._adevs['ana']._readInvAng(),
                                                pos[3]-0.25, pos[3]+0.25):
-            self.log.warning(line)
+            self.log.info(line)
         kival = self._adevs['mono']._readInvAng()
         phival = self._adevs['phi'].read()
         for line in spurions.check_powderrays(kival, spurions.alu_hkl, phival):
-            self.log.warning(line)
+            self.log.info(line)
         for line in spurions.check_powderrays(kival, spurions.copper_hkl, phival):
-            self.log.warning(line)
+            self.log.info(line)
 
 
 class TASIndex(Moveable, AutoDevice):
