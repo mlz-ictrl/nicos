@@ -24,56 +24,10 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from PyQt4.QtGui import QLabel
-from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, decodeAny
-
-
-class SqueezedLabel(QLabel):
-    """A label that elides text to fit its width."""
-
-    def __init__(self, *args):
-        self._fulltext = ''
-        QLabel.__init__(self, *args)
-        self._squeeze()
-
-    def resizeEvent(self, event):
-        self._squeeze()
-        QLabel.resizeEvent(self, event)
-
-    def setText(self, text):
-        self._fulltext = text
-        self._squeeze(text)
-
-    def minimumSizeHint(self):
-        sh = QLabel.minimumSizeHint(self)
-        sh.setWidth(-1)
-        return sh
-
-    def _squeeze(self, text=None):
-        if text is None:
-            text = self.text()
-        fm = self.fontMetrics()
-        labelwidth = self.size().width()
-        squeezed = False
-        new_lines = []
-        for line in text.split('\n'):
-            if fm.width(line) > labelwidth:
-                squeezed = True
-                new_lines.append(fm.elidedText(line, Qt.ElideRight, labelwidth))
-            else:
-                new_lines.append(line)
-        if squeezed:
-            QLabel.setText(self, u'\n'.join(map(unicode, new_lines)))
-            self.setToolTip(self._fulltext)
-        else:
-            QLabel.setText(self, self._fulltext)
-            self.setToolTip('')
-
-    def mouseDoubleClickEvent(self, event):
-        self.emit(SIGNAL('doubleClicked'))
 
 
 class ExpInfoPanel(Panel):
