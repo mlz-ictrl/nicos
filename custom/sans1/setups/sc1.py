@@ -30,35 +30,23 @@ nethost = '//sans1srv.sans1.frm2/'
 
 devices = dict(
     samplenameselector = device('devices.generic.ParamDevice',
-                                description = 'Paramdevice used to select the rigth samplename',
+                                description = 'Paramdevice used to select the right samplename',
                                 lowlevel = True,
                                 device = 'Sample',
                                 parameter = 'activesample',
                                ),
-    sc1    = device('devices.taco.axis.Axis',
+
+    sc1_y    = device('devices.taco.axis.Axis',
                     description = 'Sample Changer 1 Axis',
                     lowlevel = True,
                     tacodevice = nethost + 'sans1/samplechanger/y-sc1',
                     fmtstr = '%.2f',
                     abslimits = (-0, 600),
                    ),
-    sc1_mot = device('devices.taco.motor.Motor',
-                     description = 'Sample Changer 1 Motor',
-                     lowlevel = True,
-                     tacodevice = nethost + 'sans1/samplechanger/y-sc1mot',
-                     fmtstr = '%.2f',
-                     abslimits = (-0, 600),
-                    ),
-    sc1_enc = device('devices.taco.coder.Coder',
-                     description = 'Sample Changer 1 Encoder',
-                     lowlevel = True,
-                     tacodevice = nethost + 'sans1/samplechanger/y-sc1enc',
-                     fmtstr = '%.2f',
-                    ),
 
-    sc1_sw    = device('devices.generic.MultiSwitcher',
+    sc1    = device('devices.generic.MultiSwitcher',
                        description = 'Sample Changer 1 Huber device',
-                       moveables = ['sc1', 'z_2b', 'samplenameselector'],
+                       moveables = ['sc1_y', 'z_2b', 'samplenameselector'],
                        mapping = {'1':  [594.5, -31, 1],  '2': [535.5, -31, 2],
                                   '3':  [476.5, -31, 3],  '4': [417.5, -31, 4],
                                   '5':  [358.5, -31, 5],  '6': [299.5, -31, 6],
@@ -72,11 +60,13 @@ devices = dict(
                                   '20': [122.5,  28, 20], '21': [ 63.5,  28, 21],
                                   '22': [  4.5,  28, 22],
                                   },
-                       precision = [0.05, 0.05, 0],
-                       blockingmove = True,
+                       precision = [0.05, 0.05, 100], # for use without nicos
+                       #~ precision = [0.05, 0.05, 0], # for use with nicos
+                       blockingmove = False,
                       ),
+
     SampleChanger = device('devices.generic.DeviceAlias',
                             description = 'Alias to the current active Samplechanger or to nothing',
-                            alias = 'sc1_sw',
+                            alias = 'sc1',
                             )
 )
