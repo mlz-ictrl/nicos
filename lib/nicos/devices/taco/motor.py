@@ -51,6 +51,8 @@ class Motor(CanReference, TacoDevice, BaseMotor):
     }
 
     def doReset(self):
+        self.log.info('Resetting TACO device; if this does not help try '
+                      'restarting the server.')
         try:
             if self.resetcall == 'deviceReset':
                 self._taco_guard(self._dev.deviceReset)

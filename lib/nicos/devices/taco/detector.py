@@ -78,9 +78,7 @@ class FRMChannel(TacoDevice, Channel):
     def doReset(self):
         if self._taco_guard(self._dev.deviceState) != TACOStates.STOPPED:
             self._taco_guard(self._dev.stop)
-        self._taco_guard(self._dev.deviceReset)
-        if self._taco_guard(self._dev.isDeviceOff):
-            self._taco_guard(self._dev.deviceOn)
+        TacoDevice.doReset(self)
 
     def doReadPreselection(self):
         return self._taco_guard(self._dev.preselection)

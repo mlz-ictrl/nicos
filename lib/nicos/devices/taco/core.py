@@ -166,6 +166,8 @@ class TacoDevice(DeviceMixinBase):
         return (status.ERROR, TACOStates.stateDescription(state))
 
     def doReset(self):
+        self.log.info('Resetting TACO device; if this does not help try '
+                      'restarting the server.')
         self._taco_guard(self._dev.deviceReset)
         if self._taco_guard(self._dev.isDeviceOff):
             self._taco_guard(self._dev.deviceOn)

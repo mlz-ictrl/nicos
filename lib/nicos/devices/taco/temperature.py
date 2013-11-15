@@ -156,9 +156,6 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
             ramptime = 0
         return ramptime + self.window
 
-    def doReset(self):
-        self._taco_guard(self._dev.deviceReset)
-
     def doPoll(self, n):
         if self.ramp:
             self._pollParam('setpoint', 1)

@@ -26,9 +26,7 @@
 
 import sys
 import threading
-from os import path
 from time import time, sleep
-import numpy as np
 
 from nicos import session
 from nicos.core import status, usermethod, Device, DeviceMixinBase, \
@@ -36,7 +34,6 @@ from nicos.core import status, usermethod, Device, DeviceMixinBase, \
      HasMapping, ConfigurationError, \
      ModeError, ProgrammingError, PositionError, InvalidValueError
 from nicos.core.params import subdir, Param, Override, oneof
-from nicos.utils import readFileCounter, updateFileCounter
 
 
 class Coder(HasPrecision, Readable):

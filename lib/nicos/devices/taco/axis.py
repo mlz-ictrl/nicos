@@ -64,10 +64,6 @@ class Axis(TacoDevice, BaseAxis, CanReference):
     def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read) - self.offset
 
-    def doReset(self):
-        self._taco_guard(self._dev.deviceReset)
-        self._taco_guard(self._dev.deviceOn)
-
     def doTime(self, start, end):
         s, v, a = abs(start - end), self.speed, self.accel
         if s > v**2/a:  # do we reach nominal speed?
