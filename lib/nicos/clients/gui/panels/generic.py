@@ -36,7 +36,6 @@ class GenericPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        self.connect(client, SIGNAL('connected'), self.on_client_connected)
 
     def setOptions(self, options):
         # XXX standard dir?
