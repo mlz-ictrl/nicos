@@ -227,6 +227,31 @@
     </widget>
    </item>
   </layout>
+  <action name="actionSetLimits">
+   <property name="text">
+    <string>Set limits...</string>
+   </property>
+  </action>
+  <action name="actionAdjustOffset">
+   <property name="text">
+    <string>Adjust offset...</string>
+   </property>
+  </action>
+  <action name="actionFix">
+   <property name="text">
+    <string>Fix against moving...</string>
+   </property>
+  </action>
+  <action name="actionRelease">
+   <property name="text">
+    <string>Release</string>
+   </property>
+  </action>
+  <action name="actionReference">
+   <property name="text">
+    <string>Reference drive</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../../resources/nicos-gui.qrc"/>

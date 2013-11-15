@@ -25,8 +25,8 @@
 """NICOS GUI panel with a list of all devices."""
 
 from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
-     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
-     QDialog, QMessageBox
+    QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
+    QDialog, QMessageBox, QPushButton
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
@@ -330,6 +330,14 @@ class DevicesPanel(Panel):
                 dlg = self._control_dialogs[ldevname]
                 dlg.movebtn.setEnabled(not devinfo[4])
                 dlg.movebtn.setText(devinfo[4] and '(fixed)' or 'Move')
+        elif subkey == 'userlimits':
+            if not value:
+                return
+            value = cache_load(value)
+            if ldevname in self._control_dialogs:
+                dlg = self._control_dialogs[ldevname]
+                dlg.limitMin.setText(str(value[0]))
+                dlg.limitMax.setText(str(value[1]))
         elif subkey == 'warnlimits':
             if not value:
                 value = "None"
@@ -495,18 +503,34 @@ class ControlDialog(QDialog):
 
             self.target = DeviceValueEdit(self, dev=devname, useButtons=True)
             self.target.setClient(parent.client)
-            self.targetLayout.insertWidget(1, self.target)
-            self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
-            self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
             def btn_callback(target):
                 self.client.tell('queue', '', 'move(%s, %r)' % (devname, target))
             self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
+            self.targetLayout.insertWidget(1, self.target)
+
+            menu = QMenu(self)
+            if 'nicos.core.device.HasLimits' in devinfo[5]:
+                menu.addAction(self.actionSetLimits)
+            if 'nicos.core.device.HasOffset' in devinfo[5]:
+                menu.addAction(self.actionAdjustOffset)
+            if 'nicos.devices.abstract.CanReference' in devinfo[5]:
+                menu.addAction(self.actionReference)
+            menu.addAction(self.actionFix)
+            menu.addAction(self.actionRelease)
+            menuBtn = QPushButton('More', self)
+            menuBtn.setMenu(menu)
+            self.moveBtns.addButton(menuBtn, QDialogButtonBox.ResetRole)
+
+            self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
+            self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
             if self.target.getValue() is not None:  # it's None for button widget
                 self.movebtn = self.moveBtns.addButton(
                     'Move', QDialogButtonBox.AcceptRole)
+
             if params.get('fixed'):
                 self.movebtn.setEnabled(False)
                 self.movebtn.setText('(fixed)')
+
             def callback(button):
                 if button.text() == 'Reset':
                     self.client.tell('queue', '', 'reset(%s)' % devname)
@@ -520,6 +544,73 @@ class ControlDialog(QDialog):
                     self.client.tell('queue', '',
                                      'move(%s, %r)' % (devname, target))
             self.moveBtns.clicked.connect(callback)
+
+    @qtsig('')
+    def on_actionSetLimits_triggered(self):
+        dlg = QDialog(self)
+        loadUi(dlg, 'devices_limits.ui', 'panels')
+        dlg.descLabel.setText('Adjust user limits of %s:' % self.devname)
+        dlg.limitMin.setText(self.limitMin.text())
+        dlg.limitMax.setText(self.limitMax.text())
+        abslimits = self.client.getDeviceParam(self.devname, 'abslimits')
+        offset = self.client.getDeviceParam(self.devname, 'offset')
+        if offset is not None:
+            abslimits = abslimits[0] - offset, abslimits[1] - offset
+        dlg.limitMinAbs.setText(str(abslimits[0]))
+        dlg.limitMaxAbs.setText(str(abslimits[1]))
+        target = DeviceParamEdit(dlg, dev=self.devname, param='userlimits')
+        target.setClient(self.client)
+        btn = dlg.buttonBox.addButton('Reset to maximum range',
+                                      QDialogButtonBox.ResetRole)
+        def callback():
+            self.client.tell('queue', '', 'resetlimits(%s)' % self.devname)
+            dlg.reject()
+        btn.clicked.connect(callback)
+        dlg.targetLayout.addWidget(target)
+        res = dlg.exec_()
+        if res != QDialog.Accepted:
+            return
+        newlimits = target.getValue()
+        if newlimits[0] < abslimits[0] or newlimits[1] > abslimits[1]:
+            QMessageBox.warning(self, 'Error', 'The entered limits are not '
+                                'within the absolute limits for the device.')
+            # retry
+            self.on_actionSetLimits_triggered()
+            return
+        self.client.tell('queue', '', '%s.userlimits = %s' %
+                         (self.devname, newlimits))
+
+    @qtsig('')
+    def on_actionAdjustOffset_triggered(self):
+        dlg = QDialog(self)
+        loadUi(dlg, 'devices_adjust.ui', 'panels')
+        dlg.descLabel.setText('Adjust offset of %s:' % self.devname)
+        dlg.oldValue.setText(self.valuelabel.text())
+        target = DeviceValueEdit(dlg, dev=self.devname)
+        target.setClient(self.client)
+        dlg.targetLayout.addWidget(target)
+        res = dlg.exec_()
+        if res != QDialog.Accepted:
+            return
+        self.client.tell('queue', '', 'adjust(%s, %r)' %
+                         (self.devname, target.getValue()))
+
+    @qtsig('')
+    def on_actionReference_triggered(self):
+        self.client.tell('queue', '', 'reference(%s)' % self.devname)
+
+    @qtsig('')
+    def on_actionFix_triggered(self):
+        reason, ok = QInputDialog.getText(self, 'Fix',
+            'Please enter the reason for fixing %s:' % self.devname)
+        if not ok:
+            return
+        self.client.tell('queue', '', 'fix(%s, %r)' %
+                         (self.devname, unicode(reason)))
+
+    @qtsig('')
+    def on_actionRelease_triggered(self):
+        self.client.tell('queue', '', 'release(%s)' % self.devname)
 
     def closeEvent(self, event):
         event.accept()
@@ -559,6 +650,5 @@ class ControlDialog(QDialog):
             QMessageBox.warning(self, 'Error', 'The entered value is invalid '
                                 'for this parameter.')
             return
-        # XXX: move this to DeviceParamEdit
         self.client.tell('queue', '', '%s.%s = %r' %
                          (self.devname, pname, new_value))
