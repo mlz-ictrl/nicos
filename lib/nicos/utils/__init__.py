@@ -35,7 +35,7 @@ import threading
 import traceback
 import ConfigParser
 from os import path
-from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IWGRP, S_IXGRP, \
+from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, \
      S_IROTH, S_IXOTH
 from time import time as currenttime, strftime, strptime, localtime, mktime, \
      sleep
