@@ -80,10 +80,10 @@
   </action>
   <action name="actionAddRemark">
    <property name="text">
-    <string>Add Remark</string>
+    <string>Set Remark</string>
    </property>
    <property name="toolTip">
-    <string>Add a remark (instrument configuration header) to the logbook</string>
+    <string>Set the remark (instrument configuration header) and add it to the logbook</string>
    </property>
   </action>
   <action name="actionAttachFile">

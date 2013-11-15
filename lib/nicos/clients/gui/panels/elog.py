@@ -178,7 +178,7 @@ class ELogPanel(Panel, DlgUtils):
     @qtsig('')
     def on_actionAddRemark_triggered(self):
         remark, ok = QInputDialog.getText(self, 'New remark',
-            'Please enter the remark.  The remark will be add to the logbook '
+            'Please enter the remark.  The remark will be added to the logbook '
             'as a heading and will also appear in the data files.')
         if not ok or not remark:
             return
