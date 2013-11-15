@@ -257,7 +257,7 @@
   <customwidget>
    <class>SqueezedLabel</class>
    <extends>QLabel</extends>
-   <header>nicos.clients.gui.widgets.squeezedlbl</header>
+   <header>nicos.guisupport.squeezedlbl</header>
   </customwidget>
  </customwidgets>
  <resources>

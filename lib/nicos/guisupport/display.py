@@ -38,6 +38,7 @@ from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN, \
      statuses
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
+from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 
@@ -76,8 +77,38 @@ def nicedelta(t):
         return '%.1f hours' % (t / 3600.)
 
 
+class ValueLabel(NicosWidget, SqueezedLabel):
+    """Label that just displays a single value."""
+
+    designer_description = 'A label that just displays a single value'
+    # designer_icon = ':/'     # XXX add appropriate icons
+
+    def __init__(self, parent, designMode=False, **kwds):
+        self._designMode = designMode
+        SqueezedLabel.__init__(self, parent, **kwds)
+        NicosWidget.__init__(self)
+        if designMode:
+            self.setText('(value display)')
+
+    properties = {
+        'key': PropDef(str, '', 'Cache key to display'),
+    }
+
+    def propertyUpdated(self, pname, value):
+        if pname == 'key' and self._designMode:
+            self.setText('(%s)' % value)
+        NicosWidget.propertyUpdated(self, pname, value)
+
+    def registerKeys(self):
+        self.registerKey(self.props['key'])
+
+    def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
+        if not expired:
+            self.setText(strvalue)
+
+
 class ValueDisplay(NicosWidget, QWidget):
-    """Default value display widget with two labels."""
+    """Value display widget with two labels."""
 
     designer_description = 'A widget with name/value labels'
     designer_icon = ':/table'
