@@ -24,8 +24,6 @@
 
 """NICOS GUI panel for generic panels made with Qt designer."""
 
-from PyQt4.QtCore import SIGNAL
-
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.widget import NicosWidget
@@ -33,9 +31,6 @@ from nicos.guisupport.widget import NicosWidget
 
 class GenericPanel(Panel):
     panelName = 'Generic'  # XXX this is not unique
-
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
 
     def setOptions(self, options):
         # XXX standard dir?
