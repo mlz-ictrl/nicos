@@ -171,8 +171,6 @@ class TestLogHandler(ColoredConsoleHandler):
 
             return False
 
-
-
     def emits_message(self, func, *args, **kwds):
         before = self._messages
         func(*args, **kwds)
@@ -185,11 +183,12 @@ class TestLogHandler(ColoredConsoleHandler):
         self._warnings = []
         self.clear_messages()
 
+
 class TestSession(Session):
     autocreate_devices = False
 
-    def __init__(self, appname):
-        Session.__init__(self, appname)
+    def __init__(self, appname, daemonized=False):
+        Session.__init__(self, appname, daemonized)
         self._mode = 'master'
         self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 

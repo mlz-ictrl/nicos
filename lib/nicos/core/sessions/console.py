@@ -177,9 +177,9 @@ class ConsoleSession(Session):
     an exception hook that reports unhandled exceptions via the logging system.
     """
 
-    def __init__(self, appname):
+    def __init__(self, appname, daemonized=False):
         self._console = None
-        Session.__init__(self, appname)
+        Session.__init__(self, appname, daemonized)
         # prompt color
         self._pscolor = 'reset'
         # showing prompt?

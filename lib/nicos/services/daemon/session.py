@@ -56,7 +56,7 @@ class DaemonSession(NoninteractiveSession):
                compile("pass", "<break>3", "exec"),]
 
     def _initLogging(self, prefix=None, console=True):
-        NoninteractiveSession._initLogging(self, prefix, console=True)
+        NoninteractiveSession._initLogging(self, prefix, console)
         sys.displayhook = self._displayhook
 
     def _displayhook(self, value):

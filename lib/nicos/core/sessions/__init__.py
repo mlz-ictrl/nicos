@@ -95,7 +95,7 @@ class Session(object):
         # used for cache operations
         return 'session'
 
-    def __init__(self, appname):
+    def __init__(self, appname, daemonized=False):
         self.appname = appname
         # create a unique session id
         self.sessionid = makeSessionId()
@@ -166,7 +166,7 @@ class Session(object):
         self.__dict__.update(self._def_sysconfig)
 
         # set up logging interface
-        self._initLogging()
+        self._initLogging(console=not daemonized)
 
         # set up initial namespace
         self.initNamespace()

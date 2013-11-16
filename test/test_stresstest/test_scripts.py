@@ -38,8 +38,8 @@ from test.utils import raises
 
 
 class ScriptSessionTest(ScriptSession):
-    def __init__(self, appname):
-        ScriptSession.__init__(self, appname)
+    def __init__(self, appname, daemonized=False):
+        ScriptSession.__init__(self, appname, daemonized)
         self.setSetupPath(path.normpath(
                             path.join(
                                path.dirname(__file__), '../setups')))

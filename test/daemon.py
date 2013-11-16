@@ -43,8 +43,8 @@ from nicos.services.daemon.session import DaemonSession
 
 class TestDaemonSession(DaemonSession):
 
-    def __init__(self, appname):
-        DaemonSession.__init__(self, appname)
+    def __init__(self, appname, daemonized=False):
+        DaemonSession.__init__(self, appname, daemonized)
         self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
     def createRootLogger(self, prefix='nicos', console=True):

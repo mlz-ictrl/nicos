@@ -43,8 +43,8 @@ from nicos.core.sessions.simple import NoninteractiveSession
 
 class TestCacheSession(NoninteractiveSession):
 
-    def __init__(self, appname):
-        NoninteractiveSession.__init__(self, appname)
+    def __init__(self, appname, daemonized=False):
+        NoninteractiveSession.__init__(self, appname, daemonized)
         self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
     def createRootLogger(self, prefix='nicos', console=True):

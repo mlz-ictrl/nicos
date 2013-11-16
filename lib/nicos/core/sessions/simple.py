@@ -70,7 +70,7 @@ class NoninteractiveSession(Session):
 
         session.__class__ = cls
         try:
-            session.__init__(appname)
+            session.__init__(appname, daemonized=daemon)
             maindev = cls._get_maindev(appname, maindevname, setupname)
 
             signal.signal(signal.SIGINT, quit_handler)
