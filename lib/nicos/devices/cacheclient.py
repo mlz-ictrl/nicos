@@ -179,7 +179,11 @@ class BaseCacheClient(Device):
                 # ignore invalid lines
                 if msgmatch:
                     # n += 1
-                    self._handle_msg(**msgmatch.groupdict())
+                    try:
+                        self._handle_msg(**msgmatch.groupdict())
+                    except Exception:
+                        self.log.exception('error handling message %r' %
+                                           msgmatch.group())
             # continue loop
             match = lmatch(data, i)
         # self.log.debug('processed %d items' % n)
