@@ -23,7 +23,7 @@
          <string>Back</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../../../resources/nicos-gui.qrc">
           <normaloff>:/previous</normaloff>:/previous</iconset>
         </property>
         <property name="iconSize">
@@ -37,6 +37,29 @@
         </property>
         <property name="autoRaise">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="searchBox"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="searchBtn">
+        <property name="text">
+         <string>Search</string>
         </property>
        </widget>
       </item>
@@ -65,7 +88,7 @@
          <string>Contents</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../../../resources/nicos-gui.qrc">
           <normaloff>:/home</normaloff>:/home</iconset>
         </property>
        </widget>
@@ -76,7 +99,7 @@
          <string>Close</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../../../resources/nicos-gui.qrc">
           <normaloff>:/quit</normaloff>:/quit</iconset>
         </property>
         <property name="iconSize">
@@ -108,14 +131,14 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QWebView" name="webView">
+        <widget class="QWebView" name="webView" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="url">
+         <property name="url" stdset="0">
           <url>
            <string>about:blank</string>
           </url>
@@ -133,7 +156,7 @@
      <x>0</x>
      <y>0</y>
      <width>923</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -146,7 +169,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>

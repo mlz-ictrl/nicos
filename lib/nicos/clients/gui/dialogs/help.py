@@ -81,5 +81,14 @@ class HelpWindow(QMainWindow):
         self.client.eval('session.showHelp("index")')
 
     @qtsig('')
+    def on_searchBtn_clicked(self):
+        self.webView.findText(self.searchBox.text(),
+                              QWebPage.FindWrapsAroundDocument)
+
+    def on_searchBox_returnPressed(self):
+        self.webView.findText(self.searchBox.text(),
+                              QWebPage.FindWrapsAroundDocument)
+
+    @qtsig('')
     def on_closeBtn_clicked(self):
         self.close()
