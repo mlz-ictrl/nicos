@@ -299,7 +299,7 @@ def limits(val=None):
     ll = float(val[0])
     ul = float(val[1])
     if not ll <= ul:
-        raise ValueError('upper limit must be greater then lower limit')
+        raise ValueError('upper limit must be greater than lower limit')
     return (ll, ul)
 
 class dictof(object):
