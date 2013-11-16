@@ -224,7 +224,7 @@ class NicosDaemon(Device):
             data = serialize(data)
         for handler in self._server.handlers.values():
             try:
-                handler.event_queue.put((event, data), False)
+                handler.event_queue.put((event, data), True, 0.05)
             except Queue.Full:
                 self.log.warning('handler %s: event queue full' % handler.ident)
 
@@ -235,7 +235,7 @@ class NicosDaemon(Device):
         handler = self._controller.get_current_handler()
         if handler:
             try:
-                handler.event_queue.put((event, data), False)
+                handler.event_queue.put((event, data), True, 0.05)
             except Queue.Full:
                 self.log.warning('handler %s: event queue full' % handler.ident)
 
