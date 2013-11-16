@@ -351,7 +351,7 @@ class Monitor(BaseMonitor):
     def updateTitle(self, text):
         self._timelabel.text = text
 
-    #pylint: disable=W0221
+    # pylint: disable=W0221
     def signal(self, field, signal, key, value, time, expired):
         if field.plot:
             if key == field.key and value is not None:
@@ -389,15 +389,16 @@ class Monitor(BaseMonitor):
                     strvalue = str(fvalue)
             field._valuelabel.text = strvalue or '&nbsp;'
         elif key == field.statuskey:
-            status = value[0]
-            if status == OK:
-                field._valuelabel.fore = self._green
-            elif status in (BUSY, PAUSED):
-                field._valuelabel.fore = self._yellow
-            elif status in (ERROR, NOTREACHED):
-                field._valuelabel.fore = self._red
-            else:
-                field._valuelabel.fore = self._white
+            if value is not None:
+                status = value[0]
+                if status == OK:
+                    field._valuelabel.fore = self._green
+                elif status in (BUSY, PAUSED):
+                    field._valuelabel.fore = self._yellow
+                elif status in (ERROR, NOTREACHED):
+                    field._valuelabel.fore = self._red
+                else:
+                    field._valuelabel.fore = self._white
         elif key == field.unitkey:
             if value is not None:
                 field.unit = value
