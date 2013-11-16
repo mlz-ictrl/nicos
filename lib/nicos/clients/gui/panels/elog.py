@@ -29,8 +29,9 @@ from os import path
 from cgi import escape
 
 from PyQt4.QtGui import QMainWindow, QTextEdit, QDialog, QInputDialog, QMenu, \
-     QToolBar, QPrintDialog, QPrinter, QTextDocument, QDesktopServices
-from PyQt4.QtWebKit import QWebView
+     QToolBar, QPrintDialog, QPrinter, QTextDocument, QDesktopServices, \
+     QPushButton, QLineEdit
+from PyQt4.QtWebKit import QWebView, QWebPage
 from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
@@ -85,6 +86,15 @@ class ELogPanel(Panel, DlgUtils):
         bar.addSeparator()
         bar.addAction(self.actionNewSample)
         bar.addAction(self.actionAttachFile)
+        bar.addSeparator()
+        box = QLineEdit(self)
+        btn = QPushButton('Search', self)
+        bar.addWidget(box)
+        bar.addWidget(btn)
+        def callback():
+            self.preview.findText(box.text(), QWebPage.FindWrapsAroundDocument)
+        box.returnPressed.connect(callback)
+        btn.clicked.connect(callback)
         return [bar]
 
     def on_timer_timeout(self):
@@ -110,7 +120,7 @@ class ELogPanel(Panel, DlgUtils):
         self.preview.reload()
 
     def on_client_connected(self):
-        proposaldir = self.client.eval('session.experiment.proposaldir', '')
+        proposaldir = self.client.eval('session.experiment.proposalpath', '')
         if not proposaldir:
             return
         logfile = path.join(proposaldir, 'logbook', 'logbook.html')
