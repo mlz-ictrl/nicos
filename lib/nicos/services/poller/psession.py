@@ -30,6 +30,17 @@ from nicos.devices.generic.alias import DeviceAlias
 from nicos.devices.generic.cache import CacheReader
 
 
+class PollerCacheReader(CacheReader):
+
+    def _initParam(self, param, paraminfo=None):
+        # This method is called on init when a parameter is not in the cache.
+        # In this case we don't want to do anything here since we don't want
+        # to overwrite parameters shared by CacheReader and the real device
+        # in the cache with the default values -- the poller shouldn't need
+        # the parameters anyway.
+        pass
+
+
 class PollerSession(NoninteractiveSession):
 
     def getDevice(self, dev, cls=None, source=None):
@@ -51,5 +62,5 @@ class PollerSession(NoninteractiveSession):
             return NoninteractiveSession.getDevice(self, dev, Device, source)
         except ConfigurationError:  # device not found
             if isinstance(source, DeviceAlias):
-                return CacheReader(dev, unit='')
+                return PollerCacheReader(dev, unit='')
             raise
