@@ -1,6 +1,6 @@
 # Default MIRA GUI config
 
-from nicos.clients.gui.config import vsplit, hsplit, panel, window, tool
+from nicos.clients.gui.config import vsplit, hsplit, panel, window, tool, tabbed
 
 maint_commands = [
     ('Restart NICOS poller',
@@ -35,7 +35,10 @@ config = ('Default', [
         panel('console.ConsolePanel'),
         ),
     window('Setup', 'setup', True,
-           panel('setup_panel.SetupPanel')),
+           tabbed(('Experiment', panel('setup_panel.ExpPanel')),
+                  ('Setups',     panel('setup_panel.SetupsPanel')),
+                  ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+           )),
     window('Editor', 'editor', True,
            panel('editor.EditorPanel',
                  tools = [

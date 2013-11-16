@@ -24,7 +24,7 @@
 
 """NICOS GUI configuration for ANTARES."""
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool
+from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
 
 config = ('Default', [
         hsplit(
@@ -39,7 +39,10 @@ config = ('Default', [
             ),
         ),
         window('Setup', 'setup', True,
-            panel('setup_panel.SetupPanel')),
+            tabbed(('Experiment', panel('setup_panel.ExpPanel')),
+                   ('Setups',     panel('setup_panel.SetupsPanel')),
+                   ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+            )),
         window('Editor', 'editor', True,
             vsplit(
                 panel('scriptbuilder.CommandsPanel'),

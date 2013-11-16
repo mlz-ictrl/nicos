@@ -224,12 +224,27 @@ Panels that come with NICOS are:
      :alt: script builder panel
      :align: center
 
-``setup_panel.SetupPanel``
-   Provides a panel to start up an experiment, select setups and set sample
-   properties.
+``setup_panel.ExpPanel``
+   Provides a panel to start up an experiment.
 
-.. figure:: setupspanel.png
+.. figure:: experimentsetupspanel.png
+     :alt: experiment setup panel
+     :align: center
+
+``setup_panel.SetupsPanel``
+   Provides a panel to select the basic setups and additional setups depending
+   on the current instrument setup.
+
+.. figure:: commonsetupspanel.png
      :alt: setup panel
+     :align: center
+
+``setup_panel.DetEnvPanel``
+   Provides a panel to select the detector and the environment. The environment
+   will be read at each scan point.
+
+.. figure:: detectorsetupspanel.png
+     :alt: detector setup panel
      :align: center
 
 ``status.ScriptStatusPanel``

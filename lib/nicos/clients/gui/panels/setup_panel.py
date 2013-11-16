@@ -39,13 +39,13 @@ def iterChecked(listwidget):
             yield item
 
 
-class SetupPanel(Panel, DlgUtils):
+class ExpPanel(Panel, DlgUtils):
     panelName = 'Experiment setup'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         DlgUtils.__init__(self, 'Setup')
-        loadUi(self, 'setup.ui', 'panels')
+        loadUi(self, 'setup_exp.ui', 'panels')
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
 
@@ -76,68 +76,6 @@ class SetupPanel(Panel, DlgUtils):
             self.queryDBButton.setVisible(True)
         else:
             self.queryDBButton.setVisible(False)
-
-        # fill setups
-        self._setupinfo = self.client.eval('session.getSetupInfo()', {})
-        self.basicSetup.clear()
-        self.optSetups.clear()
-        default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
-            Qt.ItemIsEnabled
-        keep = QListWidgetItem('<keep current>', self.basicSetup)
-        if self._setupinfo is not None:
-            for name, info in sorted(self._setupinfo.items()):
-                if info is None:
-                    continue
-                if info['group'] == 'basic':
-                    QListWidgetItem(name, self.basicSetup)
-                elif info['group'] == 'optional':
-                    item = QListWidgetItem(name, self.optSetups)
-                    item.setFlags(default_flags)
-                    item.setCheckState(Qt.Unchecked)
-        self.basicSetup.setCurrentItem(keep)
-
-        # fill detectors
-        detectors = self.client.getDeviceList('nicos.core.device.Measurable')
-        self._orig_detlist = self.client.eval('session.experiment.detlist', [])
-        for detname in detectors:
-            item = QListWidgetItem(detname, self.detectors)
-            item.setFlags(default_flags)
-            item.setCheckState(Qt.Checked if detname in self._orig_detlist
-                               else Qt.Unchecked)
-
-        # fill environment
-        envdevs = self.client.getDeviceList('nicos.core.device.Readable')
-        self._orig_envlist = self.client.eval('session.experiment.envlist', [])
-        for devname in envdevs:
-            item = QListWidgetItem(devname, self.sampleenv)
-            item.setFlags(default_flags)
-            item.setCheckState(Qt.Checked if devname in self._orig_envlist
-                               else Qt.Unchecked)
-
-    def on_basicSetup_currentItemChanged(self, item, old):
-        if item.text() != '<keep current>':
-            self.showSetupInfo(item.text())
-
-    def on_basicSetup_itemClicked(self, item):
-        if item.text() != '<keep current>':
-            self.showSetupInfo(item.text())
-
-    def on_optSetups_currentItemChanged(self, item, old):
-        self.showSetupInfo(item.text())
-
-    def on_optSetups_itemClicked(self, item):
-        self.showSetupInfo(item.text())
-
-    def showSetupInfo(self, setup):
-        info = self._setupinfo[str(setup)]
-        devs = []
-        for devname, devconfig in info['devices'].iteritems():
-            if not devconfig[1].get('lowlevel'):
-                devs.append(devname)
-        devs = ', '.join(sorted(devs))
-        self.setupDescription.setText(
-            '<b>%s</b><br/>%s<br/><br/>'
-            'Devices: %s<br/>' % (setup, info['description'], devs))
 
     def on_queryDBButton_clicked(self, dosomething = True):
         if not dosomething:
@@ -183,7 +121,11 @@ class SetupPanel(Panel, DlgUtils):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         else:
-            self.parentwindow.close()
+            # Only the next interesting widget title isn't empty
+            parent = self.parentWidget()
+            while parent.windowTitle().simplified().isEmpty():
+                parent = parent.parentWidget()
+            parent.close()
 
     def applyChanges(self):
         done = []
@@ -230,7 +172,80 @@ class SetupPanel(Panel, DlgUtils):
             self.client.tell('queue', '', 'NewSample(%r)' % sample)
             done.append('New sample name set.')
 
-        # new setups
+        # tell user about everything we did
+        if done:
+            self.showInfo('\n'.join(done))
+        self._update_proposal_info()
+
+
+class SetupsPanel(Panel, DlgUtils):
+    panelName = 'Setups setup'
+
+    def __init__(self, parent, client):
+        Panel.__init__(self, parent, client)
+        DlgUtils.__init__(self, 'Setup')
+        loadUi(self, 'setup_setups.ui', 'panels')
+
+        if self.client.connected:
+            self.on_client_connected()
+        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+
+    def on_client_connected(self):
+        # fill setups
+        self._setupinfo = self.client.eval('session.getSetupInfo()', {})
+        self.basicSetup.clear()
+        self.optSetups.clear()
+        default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
+            Qt.ItemIsEnabled
+        keep = QListWidgetItem('<keep current>', self.basicSetup)
+        if self._setupinfo is not None:
+            for name, info in sorted(self._setupinfo.items()):
+                if info is None:
+                    continue
+                if info['group'] == 'basic':
+                    QListWidgetItem(name, self.basicSetup)
+                elif info['group'] == 'optional':
+                    item = QListWidgetItem(name, self.optSetups)
+                    item.setFlags(default_flags)
+                    item.setCheckState(Qt.Unchecked)
+        self.basicSetup.setCurrentItem(keep)
+
+    def on_basicSetup_currentItemChanged(self, item, old):
+        if item.text() != '<keep current>':
+            self.showSetupInfo(item.text())
+
+    def on_basicSetup_itemClicked(self, item):
+        if item.text() != '<keep current>':
+            self.showSetupInfo(item.text())
+
+    def on_optSetups_currentItemChanged(self, item, old):
+        self.showSetupInfo(item.text())
+
+    def on_optSetups_itemClicked(self, item):
+        self.showSetupInfo(item.text())
+
+    def showSetupInfo(self, setup):
+        info = self._setupinfo[str(setup)]
+        devs = []
+        for devname, devconfig in info['devices'].iteritems():
+            if not devconfig[1].get('lowlevel'):
+                devs.append(devname)
+        devs = ', '.join(sorted(devs))
+        self.setupDescription.setText(
+            '<b>%s</b><br/>%s<br/><br/>'
+            'Devices: %s<br/>' % (setup, info['description'], devs))
+
+    def on_buttonBox_clicked(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+            self.applyChanges()
+        else:
+            # Only the next interesting widget title isn't empty
+            parent = self.parentWidget()
+            while parent.windowTitle().simplified().isEmpty():
+                parent = parent.parentWidget()
+            parent.close()
+
+    def applyChanges(self):
         setups = []
         cmd = 'NewSetup'
         basic = str(self.basicSetup.currentItem().text())
@@ -243,7 +258,55 @@ class SetupPanel(Panel, DlgUtils):
         if setups:
             self.client.tell('queue', '',
                              '%s(%s)' % (cmd, ', '.join(map(repr, setups))))
-            done.append('New setups loaded.')
+            self.showInfo('New setups loaded.')
+
+
+class DetEnvPanel(Panel, DlgUtils):
+    panelName = 'Det/Env setup'
+
+    def __init__(self, parent, client):
+        Panel.__init__(self, parent, client)
+        DlgUtils.__init__(self, 'Setup')
+        loadUi(self, 'setup_detenv.ui', 'panels')
+
+        if self.client.connected:
+            self.on_client_connected()
+        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+
+    def on_client_connected(self):
+        default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
+            Qt.ItemIsEnabled
+
+        # fill detectors
+        detectors = self.client.getDeviceList('nicos.core.device.Measurable')
+        self._orig_detlist = self.client.eval('session.experiment.detlist', [])
+        for detname in detectors:
+            item = QListWidgetItem(detname, self.detectors)
+            item.setFlags(default_flags)
+            item.setCheckState(Qt.Checked if detname in self._orig_detlist
+                               else Qt.Unchecked)
+
+        # fill environment
+        envdevs = self.client.getDeviceList('nicos.core.device.Readable')
+        self._orig_envlist = self.client.eval('session.experiment.envlist', [])
+        for devname in envdevs:
+            item = QListWidgetItem(devname, self.sampleenv)
+            item.setFlags(default_flags)
+            item.setCheckState(Qt.Checked if devname in self._orig_envlist
+                               else Qt.Unchecked)
+
+    def on_buttonBox_clicked(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+            self.applyChanges()
+        else:
+            # Only the next interesting widget title isn't empty
+            parent = self.parentWidget()
+            while parent.windowTitle().simplified().isEmpty():
+                parent = parent.parentWidget()
+            parent.close()
+
+    def applyChanges(self):
+        done = []
 
         # detectors
         new_detlist = [str(item.text()) for item in iterChecked(self.detectors)]
@@ -261,7 +324,5 @@ class SetupPanel(Panel, DlgUtils):
             done.append('New standard environment devices applied.')
             self._orig_envlist = new_envlist
 
-        # tell user about everything we did
         if done:
             self.showInfo('\n'.join(done))
-        self._update_proposal_info()

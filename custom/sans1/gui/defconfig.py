@@ -87,7 +87,12 @@ config = ('Default', [
         ),
         window('Setup', 'setup', True,
             tabbed(
-                ('SetupPanel', panel('setup_panel.SetupPanel')),
+                ('Experiment',
+                    panel('setup_panel.ExpPanel')),
+                ('Setups',
+                    panel('setup_panel.SetupsPanel')),
+                ('Detectors/Environment',
+                    panel('setup_panel.DetEnvPanel')),
                 ('Samples',
                     panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
                         image='custom/sans1/lib/gui/sampleChanger11.png',

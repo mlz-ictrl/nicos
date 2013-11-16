@@ -24,7 +24,7 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import vsplit, window, panel, tool, docked
+from nicos.clients.gui.config import vsplit, window, panel, tool, docked, tabbed
 
 main_window = docked(
     vsplit(
@@ -41,7 +41,11 @@ main_window = docked(
 )
 
 windows = [
-    window('Setup', 'setup', panel('setup_panel.SetupPanel')),
+    window('Setup', 'setup',
+        tabbed(('Experiment', panel('setup_panel.ExpPanel')),
+               ('Setups',     panel('setup_panel.SetupsPanel')),
+               ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+        )),
     window('Editor', 'editor',
         vsplit(
             panel('scriptbuilder.CommandsPanel'),
