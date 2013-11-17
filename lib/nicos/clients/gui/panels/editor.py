@@ -32,7 +32,7 @@ from logging import WARNING
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
      QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
      QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
-     QFileSystemModel, QTabWidget
+     QFileSystemModel, QTabWidget, QStyle
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
      QStringList, QFileSystemWatcher
 
@@ -49,6 +49,28 @@ from nicos.clients.gui.utils import showToolText, loadUi, setBackgroundColor
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 
 COMMENT_STR = '## '
+
+
+class OverwriteQuestion(QMessageBox):
+    """Special QMessageBox for asking what to do when a script is running."""
+
+    def __init__(self):
+        QMessageBox.__init__(self, QMessageBox.Question, 'Code generation',
+                    'Do you want to append to or overwrite the current code?',
+                    QMessageBox.NoButton)
+        self.b0 = self.addButton('Append', QMessageBox.YesRole)
+        self.b1 = self.addButton('Overwrite', QMessageBox.ApplyRole)
+        self.b2 = self.addButton('Cancel', QMessageBox.RejectRole)
+        self.b2.setIcon(self.style().standardIcon(QStyle.SP_DialogCancelButton))
+
+    def exec_(self):
+        QMessageBox.exec_(self)
+        btn = self.clickedButton()
+        if btn == self.b0:
+            return QMessageBox.Yes    # Append
+        elif btn == self.b1:
+            return QMessageBox.Apply  # Overwrite
+        return QMessageBox.Cancel     # Cancel
 
 
 class QScintillaCompatible(QPlainTextEdit):
@@ -69,6 +91,18 @@ class QScintillaCompatible(QPlainTextEdit):
 
     def append(self, text):
         self.appendPlainText(text)
+
+    def insert(self, text):
+        self.insertPlainText(text)
+
+    def moveToEnd(self):
+        self.moveCursor(QTextCursor.End)
+
+    def beginUndoAction(self):
+        pass
+
+    def endUndoAction(self):
+        pass
 
     def setCursorPosition(self, line, column):
         cursor = self.textCursor()
@@ -127,6 +161,10 @@ if has_scintilla:
                                  area.right() + 2, newTop - 12)
             area.setTop(newTop)
             painter.restore()
+
+    class QsciScintillaCustom(QsciScintilla):
+        def moveToEnd(self):
+            self.SendScintilla(self.SCI_DOCUMENTEND)
 
 
 class EditorPanel(Panel):
@@ -345,11 +383,18 @@ class EditorPanel(Panel):
 
     def on_codeGenerated(self, code):
         if self.currentEditor:
-            if self.currentEditor.text() and \
-                self.askQuestion('Overwrite the current code?'):
-                self.currentEditor.setText(code)
-            else:
-                self.currentEditor.append(code)
+            self.currentEditor.beginUndoAction()
+            if self.currentEditor.text():
+                res = OverwriteQuestion().exec_()
+                if res == QMessageBox.Apply:
+                    self.currentEditor.clear()
+                elif res == QMessageBox.Cancel:
+                    return
+            # append() and setText() would clear undo history in QScintilla,
+            # therefore we use these calls
+            self.currentEditor.moveToEnd()
+            self.currentEditor.insert(code)
+            self.currentEditor.endUndoAction()
         else:
             self.showError('No script is opened at the moment.')
 
@@ -414,7 +459,7 @@ class EditorPanel(Panel):
 
     def createEditor(self):
         if has_scintilla:
-            editor = QsciScintilla(self)
+            editor = QsciScintillaCustom(self)
             lexer = QsciLexerPython(editor)
             editor.setUtf8(True)
             editor.setLexer(lexer)
