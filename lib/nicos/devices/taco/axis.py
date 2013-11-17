@@ -32,7 +32,7 @@ import TACOStates
 from Motor import Motor as TACOMotor
 
 from nicos.core import status, tupleof, anytype, usermethod, Moveable, Param, \
-     NicosError, ModeError, waitForStatus
+     NicosError, ModeError, waitForStatus, requires
 from nicos.devices.abstract import Axis as BaseAxis, CanReference
 from nicos.devices.taco.core import TacoDevice
 
@@ -71,6 +71,7 @@ class Axis(TacoDevice, BaseAxis, CanReference):
         return 2*(s/a)**0.5
 
     @usermethod
+    @requires(level='admin', helpmsg='use adjust() to set a new offset')
     def setPosition(self, pos):
         """Sets the current position of the axis to the target.
 
