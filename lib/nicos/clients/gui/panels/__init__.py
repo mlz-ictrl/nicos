@@ -27,10 +27,10 @@
 import time
 
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-     QColorDialog, QVBoxLayout, QDockWidget, QDialogButtonBox, QScrollArea
+    QColorDialog, QVBoxLayout, QDockWidget
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 
-from nicos.clients.gui.panels.tabwidget import TearOffTabWidget, DetachedWindow
+from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
 from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
@@ -159,101 +159,6 @@ class Panel(QWidget, DlgUtils):
 
     def updateStatus(self, status, exception=False):
         pass
-
-
-class CustomPanel(Panel, DlgUtils):
-    """Base class for custom instrument specific panels
-
-    without any buttons or fancy stuff...
-    """
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
-        DlgUtils.__init__(self, self.panelName)
-
-        # we just provide a scrollArea, whose content must be set later with
-        # self.scrollArea.setWidget(QWidget)
-        self.scrollArea = QScrollArea(self)
-        self.scrollArea.setWidgetResizable(True)
-
-        # make a vertical layout for 'ourself'
-        self.vBoxLayout = QVBoxLayout(self)
-
-        # first 'line' is the normally used content (may be the only one !)
-        self.vBoxLayout.addWidget(self.scrollArea)
-
-
-class CustomButtonPanel(CustomPanel):
-    """Base class for custom instrument specific panels
-
-    with a QDialogButtonBox at the lower right and some glue magic for
-    fancy stuff...
-    """
-    def __init__(self, parent, client,
-                 buttons=QDialogButtonBox.Close|QDialogButtonBox.Apply):
-        CustomPanel.__init__(self, parent, client)
-
-        # make a buttonBox
-        self.buttonBox = QDialogButtonBox(buttons, parent=self)
-        self.buttonBox.setObjectName('buttonBox')
-
-        # put buttonBox below main content
-        self.vBoxLayout.addWidget(self.buttonBox)
-
-        allButtons = 'Ok Open Save Cancel Close Discard Apply Reset '\
-                     'RestoreDefaults Help SaveAll Yes YesToAll No NoToAll '\
-                     'Abort Retry Ignore'.split()
-        for n in allButtons:
-            b = self.buttonBox.button(getattr(QDialogButtonBox, n))
-            if b:
-                m = getattr(self, 'on_buttonBox_%s_clicked' % n, None)
-                if not m:
-                    m = lambda self = self, n = n: self.showError(
-                                'on_buttonBox_%s_clicked not implemented!' % n)
-                self.connect(b, SIGNAL('clicked()'), m)
-
-    def panelState(self):
-        """returns current window state as obtained from the stack of parents"""
-        obj = self
-        while hasattr(obj, 'parent'):
-            if isinstance(obj, AuxiliaryWindow):
-                return "tab"
-            elif isinstance(obj, DetachedWindow):
-                return "detached"
-            obj = obj.parent()
-        return "main"
-
-    def on_buttonBox_Close_clicked(self):
-        """close the right instance"""
-        # traverse stack of Widgets and close the right ones...
-        obj = self
-        tw = None
-        while hasattr(obj, 'parent'):
-            obj = obj.parent()
-            if isinstance(obj, DetachedWindow):
-                obj.close()
-                return
-            elif isinstance(obj, TearOffTabWidget):
-                tw = obj
-            elif isinstance(obj, AuxiliaryWindow):
-                obj.close()
-                return
-        # no window closing, use the tab left of us (if available) or the leftmost
-        if not(tw):
-            self.showInfo('This button does not work in the current configuration.')
-            return
-        idx = tw.currentIndex()
-        if idx + 1 < tw.count():
-            tw.setCurrentIndex(idx + 1)
-        elif idx > 0:
-            tw.setCurrentIndex(idx - 1)
-        else:
-            tw.setCurrentIndex(0)
-
-    def on_buttonBox_Ok_clicked(self):
-        """OK = Apply + Close"""
-        if hasattr(self, 'on_buttonBox_Apply_clicked'):
-            self.on_buttonBox_Apply_clicked()
-        self.on_buttonBox_Close_clicked()
 
 
 def createWindowItem(item, window, menuwindow):

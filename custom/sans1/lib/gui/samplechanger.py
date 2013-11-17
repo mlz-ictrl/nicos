@@ -23,16 +23,20 @@
 #
 # *****************************************************************************
 
-"""NICOS GUI experiment setup panel tab for SANS1-samplechanger with n positions."""
+"""NICOS GUI experiment setup panel tab for SANS1 sample changer with *n*
+positions.
+"""
 
 from PyQt4.QtGui import QDialogButtonBox, QLabel, QPixmap, QTableWidget, \
-        QAbstractButton, QStylePainter, QStyleOptionHeader, QStyle, QLineEdit,\
-        QAbstractItemView
+    QAbstractButton, QStylePainter, QStyleOptionHeader, QStyle, QLineEdit,\
+    QAbstractItemView, QVBoxLayout
 from PyQt4.QtCore import SIGNAL, QString, Qt, QSize, QEvent
 
 from nicos.core import ProgrammingError
-from nicos.clients.gui.utils import decodeAny
-from nicos.clients.gui.panels import CustomButtonPanel
+from nicos.clients.gui.utils import decodeAny, DlgUtils
+from nicos.clients.gui.panels import AuxiliaryWindow, Panel
+from nicos.clients.gui.panels.tabwidget import DetachedWindow, TearOffTabWidget
+
 
 class TableWidget(QTableWidget):
     """Fancy QTableWidget with settable CornerButtonWidget by AL"""
@@ -69,6 +73,84 @@ class TableWidget(QTableWidget):
         return False
 
 
+class CustomButtonPanel(Panel, DlgUtils):
+    """Base class for custom instrument specific panels
+
+    with a QDialogButtonBox at the lower right and some glue magic for
+    fancy stuff...
+    """
+    def __init__(self, parent, client,
+                 buttons=QDialogButtonBox.Close|QDialogButtonBox.Apply):
+        Panel.__init__(self, parent, client)
+        DlgUtils.__init__(self, self.panelName)
+
+        # make a vertical layout for 'ourself'
+        self.vBoxLayout = QVBoxLayout(self)
+
+        # make a buttonBox
+        self.buttonBox = QDialogButtonBox(buttons, parent=self)
+        self.buttonBox.setObjectName('buttonBox')
+
+        # put buttonBox below main content
+        self.vBoxLayout.addWidget(self.buttonBox)
+
+        allButtons = 'Ok Open Save Cancel Close Discard Apply Reset '\
+                     'RestoreDefaults Help SaveAll Yes YesToAll No NoToAll '\
+                     'Abort Retry Ignore'.split()
+        for n in allButtons:
+            b = self.buttonBox.button(getattr(QDialogButtonBox, n))
+            if b:
+                m = getattr(self, 'on_buttonBox_%s_clicked' % n, None)
+                if not m:
+                    m = lambda self = self, n = n: self.showError(
+                                'on_buttonBox_%s_clicked not implemented!' % n)
+                self.connect(b, SIGNAL('clicked()'), m)
+
+    def panelState(self):
+        """returns current window state as obtained from the stack of parents"""
+        obj = self
+        while hasattr(obj, 'parent'):
+            if isinstance(obj, AuxiliaryWindow):
+                return "tab"
+            elif isinstance(obj, DetachedWindow):
+                return "detached"
+            obj = obj.parent()
+        return "main"
+
+    def on_buttonBox_Close_clicked(self):
+        """close the right instance"""
+        # traverse stack of Widgets and close the right ones...
+        obj = self
+        tw = None
+        while hasattr(obj, 'parent'):
+            obj = obj.parent()
+            if isinstance(obj, DetachedWindow):
+                obj.close()
+                return
+            elif isinstance(obj, TearOffTabWidget):
+                tw = obj
+            elif isinstance(obj, AuxiliaryWindow):
+                obj.close()
+                return
+        # no window closing, use the tab left of us (if available) or the leftmost
+        if not(tw):
+            self.showInfo('This button does not work in the current configuration.')
+            return
+        idx = tw.currentIndex()
+        if idx + 1 < tw.count():
+            tw.setCurrentIndex(idx + 1)
+        elif idx > 0:
+            tw.setCurrentIndex(idx - 1)
+        else:
+            tw.setCurrentIndex(0)
+
+    def on_buttonBox_Ok_clicked(self):
+        """OK = Apply + Close"""
+        if hasattr(self, 'on_buttonBox_Apply_clicked'):
+            self.on_buttonBox_Apply_clicked()
+        self.on_buttonBox_Close_clicked()
+
+
 class SamplechangerSetupPanel(CustomButtonPanel):
     """Panel for samplechangers.
 
@@ -88,7 +170,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
                                              QDialogButtonBox.Apply | \
                                              QDialogButtonBox.Ok)
         # our content is a simple widget ...
-        self._tableWidget = TableWidget(self.scrollArea)
+        self._tableWidget = TableWidget(self)
 
         self._tableWidget.setColumnCount(1)
         self._tableWidget.setHorizontalHeaderLabels(['Sample name'])
@@ -97,7 +179,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         self._tableWidget.setSortingEnabled(False)
         self._tableWidget.setCornerLabel('Position')
 
-        self.scrollArea.setWidget(self._tableWidget)  # needed!
+        self.vBoxLayout.insertWidget(0, self._tableWidget)
 
         if self.client.connected:
             self.on_client_connected()
