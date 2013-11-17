@@ -38,14 +38,16 @@ devices = dict(
                      description = 'dummy for primary shutter before collimation',
                      states = ['open', 'closed'],
                     ),
-    col = device('nicos.devices.generic.LockedMultiSwitcher',
+    col = device('nicos.devices.generic.LockedDevice',
                   description = 'sans1 primary collimation',
                   lock = 'shutter',
-                  lockvalue = None,     # go back to previous value
+                  device = 'col_sw',
+                  #lockvalue = None,     # go back to previous value
                   unlockvalue = 'closed',
-                  keepfixed = False,	# dont fix shutter after movement
-    #~ col = device('devices.generic.MultiSwitcher',
-                  #~ description = 'collimator uber device',
+                  #keepfixed = False,	# dont fix shutter after movement
+                ),
+    col_sw = device('devices.generic.MultiSwitcher',
+                  description = 'collimator switching device',
                   precision = None,
                   blockingmove = False,
                   unit = 'm',
