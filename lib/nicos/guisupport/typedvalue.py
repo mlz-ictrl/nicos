@@ -111,7 +111,6 @@ class DeviceValueEdit(NicosWidget, QWidget):
         if last:
             last.widget().deleteLater()
         self._layout.insertWidget(0, self._inner)
-        # XXX: make the typedvalue widgets emit dataChanged
         self.connect(self._inner, SIGNAL('dataChanged'), self._changed)
         self.connect(self._inner, SIGNAL('valueChosen'), self._chosen)
 
@@ -171,7 +170,6 @@ class DeviceParamEdit(DeviceValueEdit):
         if last:
             last.widget().deleteLater()
         self._layout.insertWidget(0, self._inner)
-        # XXX: make the typedvalue widgets emit dataChanged
         self.connect(self._inner, SIGNAL('dataChanged'), self._changed)
 
 
@@ -232,6 +230,8 @@ class AnnotatedWidget(QWidget):
         layout = self._layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self._inner = inner
+        self.connect(inner, SIGNAL('dataChanged'),
+                     lambda: self.emit(SIGNAL('dataChanged')))
         layout.addWidget(inner)
         layout.addWidget(QLabel(annotation, parent))
         self.setLayout(layout)
@@ -252,6 +252,8 @@ class MultiWidget(QWidget):
         for (typ, val) in zip(types, curvalue):
             widget = create(self, typ, val)
             self._widgets.append(widget)
+            self.connect(widget, SIGNAL('dataChanged'),
+                         lambda: self.emit(SIGNAL('dataChanged')))
             layout.addWidget(widget)
         self.setLayout(layout)
 
@@ -274,6 +276,8 @@ class ComboWidget(QComboBox):
         self.addItems(self._textvals)
         if curvalue in values:
             self.setCurrentIndex(values.index(curvalue))
+        self.connect(self, SIGNAL('currentIndexChanged(int)'),
+                     lambda idx: self.emit(SIGNAL('dataChanged')))
 
     def getValue(self):
         return self._values[self._textvals.index(str(self.currentText()))]
@@ -315,6 +319,8 @@ class EditWidget(QLineEdit):
             self.setText(str(curvalue))
         else:
             self.setText(str(curvalue))
+        self.connect(self, SIGNAL('textChanged(const QString &)'),
+                     lambda txt: self.emit(SIGNAL('dataChanged')))
 
     def getValue(self):
         return self._typ(self.text())
@@ -325,6 +331,8 @@ class SpinBoxWidget(QSpinBox):
         QSpinBox.__init__(self, parent)
         self.setRange(minmax[0], minmax[1])
         self.setValue(curvalue)
+        self.connect(self, SIGNAL('valueChanged(int)'),
+                     lambda val: self.emit(SIGNAL('dataChanged')))
 
     def getValue(self):
         return self.value()
@@ -334,6 +342,8 @@ class ExprWidget(QLineEdit):
     def __init__(self, parent, curvalue):
         QLineEdit.__init__(self, parent)
         self.setText(cache_dump(curvalue))
+        self.connect(self, SIGNAL('textChanged(const QString &)'),
+                     lambda txt: self.emit(SIGNAL('dataChanged')))
 
     def getValue(self):
         return cache_load(str(self.text()))
@@ -350,6 +360,8 @@ class CheckWidget(QWidget):
             curvalue = inner()  # generate a dummy value
         self.inner_widget = create(self, inner, curvalue)
         self.inner_widget.setEnabled(self.checkbox.isChecked())
+        self.connect(self.inner_widget, SIGNAL('dataChanged'),
+                     lambda: self.emit(SIGNAL('dataChanged')))
         layout.addWidget(self.checkbox)
         layout.addWidget(self.inner_widget)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -359,6 +371,7 @@ class CheckWidget(QWidget):
 
     def on_checkbox_stateChanged(self, state):
         self.inner_widget.setEnabled(state == Qt.Checked)
+        self.emit(SIGNAL('dataChanged'))
 
     def getValue(self):
         if self.checkbox.isChecked():
