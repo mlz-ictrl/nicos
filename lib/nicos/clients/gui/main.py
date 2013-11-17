@@ -601,7 +601,6 @@ def main(argv):
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 
-    # XXX implement proper argument parsing
     configfile = path.join(path.dirname(__file__), 'defconfig.py')
     stylefile = path.join(userpath, 'style.qss')
     styleRoot = path.splitext(stylefile)[0]

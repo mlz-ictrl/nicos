@@ -487,7 +487,6 @@ class ControlDialog(QDialog):
         if 'nicos.core.device.Moveable' not in devinfo[5]:
             self.controlGroup.setVisible(False)
         else:
-            # XXX: move this to DeviceValueEdit?
             if 'nicos.core.device.HasLimits' not in devinfo[5]:
                 self.limitFrame.setVisible(False)
             else:
@@ -497,7 +496,6 @@ class ControlDialog(QDialog):
             self.target = DeviceValueEdit(self, dev=devname, useButtons=True)
             self.target.setClient(parent.client)
             self.targetLayout.insertWidget(1, self.target)
-            # XXX: move this to DeviceValueEdit
             self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
             self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
             def btn_callback(target):
