@@ -302,19 +302,12 @@ class EditorPanel(Panel):
 
     def runTool(self, ttype):
         tconfig = self.toolconfig[ttype]
-        try:
-            # either it's a class name
-            toolclass = importString(tconfig[1])
-        except ImportError:
-            raise
-            # or it's a system command (disabled at the moment, not sure if it
-            # is still useful)
-            #subprocess.Popen(tconfig[1], shell=True)
-        else:
-            dialog = toolclass(self, **tconfig[2])
-            self.connect(dialog, SIGNAL('addCode'), self.currentEditor.append)
-            dialog.setWindowModality(Qt.NonModal)
-            dialog.show()
+        toolclass = importString(tconfig[1])
+        dialog = toolclass(self, self.client, **tconfig[2])
+        self.connect(dialog, SIGNAL('addCode'), self.currentEditor.append)
+        dialog.setWindowModality(Qt.NonModal)
+        dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+        dialog.show()
 
     def getToolbars(self):
         bar = QToolBar('Editor')
