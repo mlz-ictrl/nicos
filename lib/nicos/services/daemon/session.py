@@ -126,7 +126,7 @@ class DaemonSession(NoninteractiveSession):
                 else:
                     raise AccessError('invalid access level name: %r' % rlevel)
             if script and rlevel > script.userlevel:
-                raise AccessError('%s access is not sufficient: %s access '
+                raise AccessError('%s access is not sufficient, %s access '
                     'is required' % (
                     ACCESS_LEVELS.get(script.userlevel, str(script.userlevel)),
                     ACCESS_LEVELS.get(rlevel, str(rlevel))))

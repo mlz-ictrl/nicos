@@ -64,6 +64,9 @@ def requires(**access):
     * ``'passcode'``: only usable in the interactive console: gives a
       passcode that the user has to type back.
 
+    A special keyword is ``'helpmsg'``; if the access check fails, this gives
+    a message that is appended to the error message.
+
     The wrapper function calls `.Session.checkAccess` to verify the
     requirements.  If the check fails, `.AccessError` is raised.
     """
@@ -72,11 +75,12 @@ def requires(**access):
             try:
                 session.checkAccess(access)
             except AccessError, err:
+                msg = 'cannot do %s: %s' % (func.__name__, err)
+                if 'helpmsg' in access:
+                    msg += ' (%s)' % access['helpmsg']
                 if args and isinstance(args[0], Device):
-                    raise AccessError(args[0], 'cannot execute %s: %s' %
-                                      (func.__name__, err))
-                raise AccessError('cannot execute %s: %s' %
-                                  (func.__name__, err))
+                    raise AccessError(args[0], msg)
+                raise AccessError(msg)
             return func(*args, **kwds)
         new_func.__name__ = func.__name__
         return new_func
