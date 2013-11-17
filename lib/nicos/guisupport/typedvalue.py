@@ -71,6 +71,10 @@ class DeviceValueEdit(NicosWidget, QWidget):
             self._reinit()
         NicosWidget.propertyUpdated(self, pname, value)
 
+    def setClient(self, client):
+        NicosWidget.setClient(self, client)
+        self._reinit()
+
     def on_client_connected(self):
         self._reinit()
 
