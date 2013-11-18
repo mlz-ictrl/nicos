@@ -33,7 +33,7 @@ from PowerSupply import CurrentControl
 
 from nicos import session
 from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
-     floatrange, listof, InvalidValueError, usermethod, NicosError
+     floatrange, listof, InvalidValueError, usermethod, status, NicosError
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput
 from nicos.utils.fitting import Fit
@@ -110,6 +110,10 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
         if self._thread is not None:
             self._thread.join()
         self._errorflag = None
+        # never go to zero directly; this will switch off both polarity relais,
+        # which leads to a buildup of voltage in the supply
+        if value == 0:
+            value = 0.001
         self._thread = threading.Thread(target=self._move_to, args=(value,))
         self._thread.setDaemon(True)
         self._thread.start()
@@ -220,6 +224,7 @@ class LambdaField(HasLimits, Moveable):
                 Bv += a_i * I**i
             return Bv
         # find correct I value by approximation
+        Iv = 0
         for Iv in range(-250, 250):
             B1, B2 = B(Iv), B(Iv + 1)
             if B1 <= value <= B2 or B2 <= value <= B1:
