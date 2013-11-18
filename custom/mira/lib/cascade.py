@@ -76,6 +76,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     parameter_overrides = {
         'fmtstr':   Override(default='roi %s, total %s, file %s'),
+        'nametemplate': Override(volatile=True),
     }
 
     def doPreinit(self, mode):
@@ -152,9 +153,9 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     def doRead(self, maxage=0):
         if self.mode == 'tof':
-            myvalues = self.lastcounts + self.lastcontrast + [self.lastfilename]
+            myvalues = self.lastcounts + self.lastcontrast + [self._relpath]
         else:
-            myvalues = self.lastcounts + [self.lastfilename]
+            myvalues = self.lastcounts + [self._relpath]
         if self.slave:
             return self._adevs['master'].read(maxage) + myvalues
         return myvalues
@@ -195,10 +196,10 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         if preset.get('t'):
             self.preselection = self._last_preset = preset['t']
 
-    def _getFilename(self, counter):
+    def doReadNametemplate(self):
         if self.mode == 'tof':
-            return '%08d.tof' % counter
-        return '%08d.pad' % counter
+            return '%08d.tof'
+        return '%08d.pad'
 
     def _startAction(self, **preset):
         self._newFile()
@@ -245,7 +246,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
 
     def _afterMeasureAction(self):
         # get final data including all events from detector
-        buf = self._readLiveData(self._last_preset, self.lastfilename)
+        buf = self._readLiveData(self._last_preset, self._relpath)
         # and write into measurement file
         def writer(fp, buf):
             if self.gziptof:
@@ -263,7 +264,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
             fp.write('# end instrument status\n')
             if self.gziptof:
                 fp.close()
-        self.log.debug('writing data file to %s' % self.lastfilename)
+        self.log.debug('writing data file to %s' % self._relpath)
         self._writeFile(buf, writer=writer)
         # also write as XML file
         if self.mode == 'image' and self.writexml:
@@ -273,7 +274,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
                 self.log.warning('Error saving measurement as XML', exc=1)
 
     def _measurementFailedAction(self, err):
-        self.lastfilename = '<error>'
+        self._relpath = '<error>'
 
     def _readLiveData(self, elapsedtime, filename=''):
         # get current data array from detector

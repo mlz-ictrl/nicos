@@ -11,7 +11,8 @@ devices = dict(
                     slave = True,
                     master = 'det',
                     sampledet = 'sampledet',
-                    mono = 'mono'),
+                    mono = 'mono',
+                    fileformats = []),
 
     PSDHV  = device('devices.vendor.iseg.IsegHV',
                     description = 'High voltage supply for the CASCADE detector (usually -2850 V)',
