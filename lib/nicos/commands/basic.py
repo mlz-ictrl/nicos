@@ -237,6 +237,9 @@ def RemoveSetup(*setupnames):
     current = session.explicit_setups[:]
     original = current[:]
     for setupname in setupnames:
+        if setupname not in session.loaded_setups:
+            printwarning('%r is not a loaded setup, ignoring' % setupname)
+            continue
         try:
             current.remove(setupname)
         except ValueError:
