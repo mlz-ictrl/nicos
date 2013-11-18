@@ -24,8 +24,11 @@
 
 """MIRA specific axis classes."""
 
+import time
+
 import IO
 
+from nicos.core import CommunicationError
 from nicos.devices.taco.axis import Axis as TacoAxis
 
 
@@ -36,27 +39,22 @@ class PhytronAxis(TacoAxis):
         addr = self._taco_guard(motor.deviceQueryResource, 'address')
         client = IO.StringIO(iodev)
         self.log.info('Resetting Phytron controller...')
-        pvals = {}
-        # find out number and names of axes in controller
-        AXISNAMES = ['X', 'Y', 'Z', 'W']
-        sui = self._taco_guard(client.communicate, '\x02%sSUI' % addr).rstrip('\x03')
-        # SUI return: \x02\x06I=XYZ...
-        axes = AXISNAMES[:len(sui) - 4]
-        # query all parameters (1-50) for all axes and store them
-        for axis in axes:
-            for pnum in range(50):
-                if pnum in (19, 20, 21, 22):
-                    continue
-                response = self._taco_guard(client.communicate, '\x02%s%sP%dR' %
-                                            (addr, axis, pnum)).rstrip('\x03')
-                if response[1] == '\x06':
-                    pvals[axis, pnum] = response[2:]
+        # save all parameters prior to reset (doesn't reply)
+        self._taco_guard(client.writeLine, '\x02%sSA' % addr)
+        # which takes quite a lot of time
+        time.sleep(0.5)
+        for _i in range(10):
+            try:
+                self._taco_guard(client.communicate, '\x02%sIVR' % addr)
+                break
+            except CommunicationError:
+                time.sleep(0.5)
+        else:
+            raise CommunicationError(self, 'controller not responding after '
+                                     'parameter save')
         # do the controller reset
         self._taco_guard(client.communicate, '\x02%sCR' % addr)
-        # re-set value of all parameters for all axes
-        for (axis, pnum), pval in pvals.iteritems():
-            self._taco_guard(client.communicate, '\x02%s%sP%dS%s' %
-                             (addr, axis, pnum, pval))
+        time.sleep(0.2)
         self.log.info('Phytron reset complete')
 
     def doReset(self):
