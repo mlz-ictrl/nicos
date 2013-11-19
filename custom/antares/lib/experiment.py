@@ -32,7 +32,7 @@ from os import path
 
 from nicos.core import Param, Override, UsageError, usermethod
 from nicos.utils import ensureDirectory, enableDirectory
-from frm2.experiment import Experiment as FRM2Experiment  # pylint: disable=F0401
+from nicos.frm2.experiment import Experiment as FRM2Experiment
 
 
 class Experiment(FRM2Experiment):
@@ -40,17 +40,20 @@ class Experiment(FRM2Experiment):
     parameters = dict(
         # Params are settable as we have to set them via _updatePaths
         darkimagepath = Param('current storage path for dark images', type=str,
-                              settable=True, mandatory=False, default='', userparam=False),
+                              settable=True, mandatory=False, default='',
+                              userparam=False),
         openbeampath  = Param('current storage path for open beam images',
                               type=str, settable=True, mandatory=False,
                               default='', userparam=False),
         photopath     = Param('current storage path for photographs', type=str,
-                               settable=True, mandatory=False, default='', userparam=False),
+                              settable=True, mandatory=False, default='',
+                              userparam=False),
         lastdarkimage = Param('Last dark image', type=str, settable=False,
-                               mandatory=False, default='', category='general', chatty=True),
+                              mandatory=False, default='', category='general',
+                              chatty=True),
         lastopenbeamimage = Param('Last Open Beam image', type=str,
-                               settable=False, mandatory=False, default='',
-                               category='general', chatty=True),
+                              settable=False, mandatory=False, default='',
+                              category='general', chatty=True),
     )
 
     parameter_overrides = {

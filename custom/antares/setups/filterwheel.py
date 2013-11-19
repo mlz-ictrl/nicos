@@ -35,6 +35,7 @@ devices = dict(
                         mapping = {'in' : 1, 'out' : 2},
                         fallback = '<undefined>',
                         precision = 0,
+                        lowlevel = True,
                        ),
     filterwheel_mot = device('devices.tango.Motor',
                              tangodevice = '%s/antares/fzjs7/Filterrad' % tango_host,
