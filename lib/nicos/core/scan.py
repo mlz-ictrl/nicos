@@ -33,6 +33,7 @@ from nicos.core import status, Readable, Value, NicosError, LimitError, \
 from nicos.utils import Repeater
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
+from nicos.core import SIMULATION, SLAVE
 
 
 class SkipPoint(Exception):
@@ -52,7 +53,7 @@ class Scan(object):
     def __init__(self, devices, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
                  scantype=None):
-        if session.mode == 'slave':
+        if session.mode == SLAVE:
             raise ModeError('cannot scan in slave mode')
         self.dataset = session.experiment.createDataset(scantype)
         if not detlist:
@@ -387,7 +388,7 @@ class SweepScan(Scan):
             session.action('Delay')
             sleep(self._delay)
         Scan.preparePoint(self, num, xvalues)
-        if session.mode == 'simulation':
+        if session.mode == SIMULATION:
             self._sim_start = session.clock.time
 
     def finishPoint(self):
@@ -396,7 +397,7 @@ class SweepScan(Scan):
             if not any(dev.status()[0] == status.BUSY
                        for dev in self._sweepdevices):
                 raise StopScan
-        if session.mode == 'simulation':
+        if session.mode == SIMULATION:
             if self._numpoints > 1:
                 session.log.info('skipping %d points...' % (self._numpoints - 1))
                 duration = session.clock.time - self._sim_start

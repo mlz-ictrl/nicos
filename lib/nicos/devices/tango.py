@@ -34,6 +34,7 @@ from nicos.core import Param, Override, NicosError, status, waitForStatus, \
      Readable, Moveable, HasLimits, Device, tangodev, DeviceMixinBase
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
+from nicos.core import SIMULATION
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = ['AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
@@ -69,7 +70,7 @@ class PyTangoDevice(DeviceMixinBase):
         self._dev = None
 
         # Don't create PyTango device in simulation mode
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._dev = self._createPyTangoDevice(self.tangodevice)
 
     def doStatus(self, maxage=0, mapping=DEFAULT_STATUS_MAPPING):  #pylint: disable=W0102
@@ -96,7 +97,7 @@ class PyTangoDevice(DeviceMixinBase):
         super(PyTangoDevice, self)._setMode(mode)
         # remove the TACO device on entering simulation mode, to prevent
         # accidental access to the hardware
-        if mode == 'simulation':
+        if mode == SIMULATION:
             self._dev = HardwareStub(self)
 
     def _getProperty(self, name, dev=None):

@@ -30,6 +30,7 @@ from IO import StringIO
 
 from nicos.core import status, Moveable, HasLimits, Override, NicosError, Param
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import MASTER
 
 
 class FUG(TacoDevice, HasLimits, Moveable):
@@ -60,7 +61,7 @@ class FUG(TacoDevice, HasLimits, Moveable):
         assert float(maxcur) > 50
         if self.abslimits[1] > maxcur:
             raise NicosError(self, 'absolute maximum bigger than device maximum')
-        if mode == 'master':
+        if mode == MASTER:
             self.doReset()
 
     def doReadVoltage(self):

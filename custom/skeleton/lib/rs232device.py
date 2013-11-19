@@ -35,6 +35,7 @@ import serial
 
 from nicos.core import Readable, Moveable, Param, CommunicationError, NicosError
 from nicos.devices.taco import TacoDevice
+from nicos.core import SIMULATION
 
 
 class RS232Example(Readable):
@@ -62,7 +63,7 @@ class RS232Example(Readable):
     }
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             return
         self._dev = serial.Serial(self.port)
 
@@ -125,7 +126,7 @@ class RS232TACOExample(TacoDevice, Moveable):
     taco_class = StringIO
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             return
         reply = self._taco_guard(self._dev.communicate, '*IDN?')
         if not reply.startswith('<some string>'):

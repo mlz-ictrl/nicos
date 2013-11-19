@@ -34,6 +34,7 @@ from nicos.core import status, usermethod, Device, DeviceMixinBase, \
      HasMapping, ConfigurationError, \
      ModeError, ProgrammingError, PositionError, InvalidValueError
 from nicos.core.params import subdir, Param, Override, oneof
+from nicos.core import SIMULATION, SLAVE
 
 
 class Coder(HasPrecision, Readable):
@@ -50,7 +51,7 @@ class Coder(HasPrecision, Readable):
 
            This is called to actually set the new position in the hardware.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'setting new position not possible in '
                             'slave mode')
         elif self._sim_active:
@@ -107,7 +108,7 @@ class CanReference(DeviceMixinBase):
     @usermethod
     def reference(self, *args):
         """Do a reference drive of the axis."""
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'referencing not possible in slave mode')
         elif self._sim_active:
             return
@@ -286,7 +287,7 @@ class AsyncDetector(Measurable):
         self._measure = threading.Event()
         self._processed = threading.Event()
         self._processed.set()
-        if self._mode != 'simulation':
+        if self._mode != SIMULATION:
             self._thread = threading.Thread(target=self._thread_entry,
                                             name='AsyncDetector %s' % self)
             self._thread.setDaemon(True)

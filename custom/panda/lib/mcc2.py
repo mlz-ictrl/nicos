@@ -33,6 +33,7 @@ from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
 from nicos.utils import lazy_property
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco import TacoDevice
+from nicos.core import SIMULATION
 
 
 class TacoSerial(TacoDevice, Device):
@@ -79,7 +80,7 @@ class MCC2core(Device):
         raise CommunicationError(self, 'Response timed out')
 
     def doInit(self, mode):
-        if mode != 'simulation':
+        if mode != SIMULATION:
             if not self.comm('IVR').startswith('MCC'):
                 raise CommunicationError(self, 'No Response from Phytron, please check!')
             self._pushParams()

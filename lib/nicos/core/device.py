@@ -31,6 +31,7 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
+from nicos.core import SIMULATION, SLAVE
 from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel, \
      waitForStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
@@ -179,7 +180,7 @@ class DeviceMeta(DeviceMixinMeta):
                                            'doRead%s method' %
                                            (name, param, param.title()))
                 def getter(self, param=param, rmethod=rmethod):
-                    if self._mode == 'simulation':
+                    if self._mode == SIMULATION:
                         return self._initParam(param)
                     value = rmethod(self)
                     if self._cache:
@@ -208,10 +209,10 @@ class DeviceMeta(DeviceMixinMeta):
                             raise ConfigurationError(
                                 self, '%r is an invalid value for parameter '
                                 '%s: %s' % (value, param, err))
-                    if self._mode == 'slave':
+                    if self._mode == SLAVE:
                         raise ModeError('setting parameter %s not possible in '
                                         'slave mode' % param)
-                    elif self._mode == 'simulation':
+                    elif self._mode == SIMULATION:
                         if umethod:
                             umethod(self, value)
                         self._params[param] = value
@@ -422,7 +423,7 @@ class Device(object):
 
         .. note:: ``doPreinit()`` and ``doInit()`` are called regardless of the
            current execution mode.  This means that if one of these methods does
-           hardware access, it must be done only if ``mode != 'simulation'``.
+           hardware access, it must be done only if ``mode != SIMULATION``.
         """
         self._cache = None
         self._subscriptions = []
@@ -595,7 +596,7 @@ class Device(object):
         umethod = getattr(self, 'doUpdate' + param.title(), None)
         done = False
         # try to read from the hardware (only in non-simulation mode)
-        if self._mode != 'simulation' and rmethod:
+        if self._mode != SIMULATION and rmethod:
             try:
                 value = rmethod()
             except NicosError:
@@ -636,7 +637,7 @@ class Device(object):
     def _setMode(self, mode):
         """Set a new execution mode."""
         self._mode = mode
-        if mode == 'simulation':
+        if mode == SIMULATION:
             # switching to simulation mode: remove cache entirely
             # and rely on saved _params and values
             self._cache = None
@@ -715,7 +716,7 @@ class Device(object):
         """
         self.log.debug('shutting down device')
         caughtExc = None
-        if self._mode != 'simulation':
+        if self._mode != SIMULATION:
             # do not execute shutdown actions when simulating
 
             # remove subscriptions to parameter value updates
@@ -850,7 +851,7 @@ class Readable(Device):
         self._sim_active = False
         Device.init(self)
         # value in simulation mode
-        self._sim_active = self._mode == 'simulation' and self.hardware_access
+        self._sim_active = self._mode == SIMULATION and self.hardware_access
         self._sim_old_value = None
         self._sim_value = 0   # no way to configure a useful default...
         self._sim_min = None
@@ -869,7 +870,7 @@ class Readable(Device):
         self._sim_max = max(pos, self._sim_max)
 
     def _setMode(self, mode):
-        sim_active = mode == 'simulation' and self.hardware_access
+        sim_active = mode == SIMULATION and self.hardware_access
         if sim_active:
             # save the last known value
             try:
@@ -1034,7 +1035,7 @@ class Readable(Device):
            This method is called if implemented.  Otherwise, ``reset()`` is a
            no-op.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError('reset not possible in slave mode')
         elif self._sim_active:
             return
@@ -1178,7 +1179,7 @@ class Moveable(Readable):
            This method must be implemented and actually move the device to the
            new position.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'start not possible in slave mode')
         if self.fixed:
             # try to determine if we are already there
@@ -1290,7 +1291,7 @@ class Moveable(Readable):
                 # else, assume the device did move and the cache needs to be
                 # updated in most cases
                 val = self.doRead(0)  # not read(0), we already cache value below
-            if self._cache and self._mode != 'slave':
+            if self._cache and self._mode != SLAVE:
                 self._cache.put(self, 'value', val, currenttime(), self.maxage)
         return val
 
@@ -1326,7 +1327,7 @@ class Moveable(Readable):
 
         The `stop` method will return the device status after stopping.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_active:
             return
@@ -1409,7 +1410,7 @@ class HasLimits(DeviceMixinBase):
             self.log.warning('user maximum (%s) above absolute maximum (%s), '
                              'please check and re-set limits' %
                              (self.userlimits[1], self.abslimits[1]))
-        if session.mode == 'simulation':
+        if session.mode == SIMULATION:
             # special case: in simulation mode, doReadUserlimits is not called,
             # so the limits are not set from the absolute limits, and are always
             # (0, 0) except when set in the setup file
@@ -1607,7 +1608,7 @@ class Measurable(Readable):
 
     def _setMode(self, mode):
         # overwritten from Readable: don't read out detectors, it's not useful
-        self._sim_active = mode == 'simulation' and self.hardware_access
+        self._sim_active = mode == SIMULATION and self.hardware_access
         Device._setMode(self, mode)
 
     @usermethod
@@ -1626,7 +1627,7 @@ class Measurable(Readable):
 
            This method must be present and is called to start the measurement.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'start not possible in slave mode')
         elif self._sim_active:
             if hasattr(self, 'doTime'):
@@ -1668,7 +1669,7 @@ class Measurable(Readable):
            If present, this is called to pause the measurement.  Otherwise,
            ``False`` is returned to indicate that pausing is not possible.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'pause not possible in slave mode')
         elif self._sim_active:
             return True
@@ -1688,7 +1689,7 @@ class Measurable(Readable):
            If present, this is called to resume the measurement.  Otherwise,
            ``False`` is returned to indicate that resuming is not possible.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'resume not possible in slave mode')
         elif self._sim_active:
             return True
@@ -1709,7 +1710,7 @@ class Measurable(Readable):
 
         The `stop` method will return the device status after stopping.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'stop not possible in slave mode')
         elif self._sim_active:
             return

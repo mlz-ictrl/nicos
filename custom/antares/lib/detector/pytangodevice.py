@@ -24,6 +24,7 @@
 
 from nicos.core import Param
 from nicos.core import NicosError
+from nicos.core import SIMULATION
 
 import PyTango
 
@@ -39,7 +40,7 @@ class PyTangoDevice(object):
         self._dev = None
 
         # Don't create PyTango device in simulation mode
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._dev = self._createPyTangoDevice(self.tangodevice)
 
     def _createPyTangoDevice(self, address):

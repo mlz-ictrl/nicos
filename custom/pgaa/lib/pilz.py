@@ -29,6 +29,7 @@ import time
 
 from nicos.core import tacodev, Param, status
 from nicos.devices.taco.io import NamedDigitalOutput
+from nicos.core import SIMULATION
 
 class Switch(NamedDigitalOutput):
     """ The Pilz box is connected via the Modbus TCP protocol with the rest of
@@ -49,7 +50,7 @@ class Switch(NamedDigitalOutput):
 
     def doInit(self, mode):
         super(Switch, self).doInit(mode)
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._remote = self._create_client(devname=self.remote,
                            class_=IO.DigitalOutput, resetok=True, timeout=None)
             self._readback = self._create_client(devname=self.readback,

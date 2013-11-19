@@ -43,6 +43,7 @@ from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printerror, \
      printexception
+from nicos.core import SIMULATION, MASTER, MAINTENANCE
 
 CO_DIVISION = 0x2000
 
@@ -138,7 +139,7 @@ def sleep(secs):
     >>> sleep(10)     # sleep for 10 seconds
     >>> sleep(0.5)    # sleep for half a second
     """
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         session.clock.tick(secs)
         return
     MAX_INTERVAL = 5
@@ -194,9 +195,9 @@ def NewSetup(*setupnames):
     except Exception:
         printexception()
         session.loadSetup('startup')
-    if current_mode == 'master':
+    if current_mode == MASTER:
         # need to refresh master status
-        session.setMode('master')
+        session.setMode(MASTER)
 
 @usercommand
 @helparglist('setup, ...')
@@ -368,7 +369,7 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
     When configured, proposal information will be automatically filled in from
     the proposal database.
     """
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         return
     session.experiment.new(proposal, title, localcontact, user, **parameters)
 
@@ -379,7 +380,7 @@ def FinishExperiment(*args, **kwargs):
 
     Which parameters are accepted depends on the individual instrument.
     """
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         return
     session.experiment.finish(*args, **kwargs)
 
@@ -392,7 +393,7 @@ def AddUser(name, email=None, affiliation=None):
 
     >>> AddUser('F. User', 'friendlyuser@frm2.tum.de', 'FRM II')
     """
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         return
     session.experiment.addUser(name, email, affiliation)
 
@@ -463,9 +464,9 @@ def SetMode(mode):
     >>> SetMode('master')   # switch back to master in this copy
     """
     if mode == 'sim':
-        mode = 'simulation'
+        mode = SIMULATION
     elif mode == 'maint':
-        mode = 'maintenance'
+        mode = MAINTENANCE
     try:
         session.setMode(mode)
     except ModeError:
@@ -613,12 +614,12 @@ class _ScriptScope(object):
         self.code = code
     def __enter__(self):
         session.beginActionScope(self.filename)
-        if session.experiment and session.mode in ('master', 'simulation'):
+        if session.experiment and session.mode in (MASTER, SIMULATION):
             session.experiment.scripts += [self.code]
         session.elog_event('scriptbegin', self.filename)
     def __exit__(self, *args):
         session.endActionScope()
-        if session.experiment and session.mode in ('master', 'simulation'):
+        if session.experiment and session.mode in (MASTER, SIMULATION):
             session.experiment.scripts = session.experiment.scripts[:-1]
         session.elog_event('scriptend', self.filename)
 
@@ -628,7 +629,7 @@ def _RunScript(filename, statdevices, debug=False):
     fn = _scriptfilename(filename)
     if not path.isfile(fn) and os.access(fn, os.R_OK):
         raise UsageError('The file %r does not exist or is not readable' % fn)
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         starttime = session.clock.time
         for dev in statdevices:
             if not isinstance(dev, Readable):
@@ -640,7 +641,7 @@ def _RunScript(filename, statdevices, debug=False):
     try:
         fp = open(fn, 'r')
     except Exception, e:
-        if session.mode == 'simulation':
+        if session.mode == SIMULATION:
             session.log.exception('Simulation: error opening script')
             return
         raise NicosError('cannot open script %r: %s' % (filename, e))
@@ -660,7 +661,7 @@ def _RunScript(filename, statdevices, debug=False):
                     traceback.print_exc()
                 raise
     printinfo('finished user script: ' + fn)
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         printinfo('simulated minimum runtime: ' +
                   formatDuration(session.clock.time - starttime))
         for dev in statdevices:
@@ -673,7 +674,7 @@ def _RunScript(filename, statdevices, debug=False):
 
 @usercommand
 def _RunCode(code, debug=False):
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         starttime = session.clock.time
     try:
         exec code in session.namespace, session.local_namespace
@@ -681,7 +682,7 @@ def _RunCode(code, debug=False):
         if debug:
             traceback.print_exc()
         raise
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         printinfo('simulated minimum runtime: ' +
                   formatDuration(session.clock.time - starttime))
 
@@ -732,7 +733,7 @@ def sim(what, *devices, **kwargs):
             raise NicosError('Argument is neither a script file nor valid code')
         session.runSimulation('_RunCode(%r, %s)' % (what, debug))
         return
-    if session.mode == 'simulation':
+    if session.mode == SIMULATION:
         return _RunScript(what, devices)
     session.runSimulation('_RunScript(%r, [%s], %s)' %
         (what, ', '.join(dev.name for dev in devices), debug))

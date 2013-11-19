@@ -37,6 +37,7 @@ from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput
 from nicos.utils.fitting import Fit
+from nicos.core import SIMULATION
 
 
 class LambdaController(HasLimits, TacoDevice, Moveable):
@@ -54,7 +55,7 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
     }
 
     def doInit(self, mode):
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._dev.setRamp(0)
         self._thread = None
         self._stopflag = 0

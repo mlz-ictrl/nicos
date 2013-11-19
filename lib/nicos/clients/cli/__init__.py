@@ -51,6 +51,7 @@ from nicos.utils.loggers import ACTION, INPUT
 from nicos.utils.graceplot import grace_available, GracePlotter
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
      STATUS_IDLE, STATUS_IDLEEXC
+from nicos.core import SIMULATION, SLAVE, MAINTENANCE, MASTER
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}
@@ -114,7 +115,7 @@ class NicosCmdClient(NicosClient):
         # script directory from NICOS
         self.scriptpath = '.'
         # execution mode of the NICOS session
-        self.current_mode = 'master'
+        self.current_mode = MASTER
         # messages queueing up while the editor is running
         self.message_queue = []
         # plotting support
@@ -292,10 +293,10 @@ class NicosCmdClient(NicosClient):
                  'running': 'fuchsia',
                  'paused': 'red',
                  'disconnected': 'darkgray'}
-    modemap   = {'master': '',
-                 'slave':  'slave,',
-                 'simulation': 'simmode,',
-                 'maintenance': 'maintenance,'}
+    modemap   = {MASTER: '',
+                 SLAVE:  'slave,',
+                 SIMULATION: 'simmode,',
+                 MAINTENANCE: 'maintenance,'}
 
     def set_status(self, status):
         """Update the current execution status, and set a new prompt."""
@@ -460,7 +461,7 @@ class NicosCmdClient(NicosClient):
                 self.initial_update()
             elif name == 'disconnected':
                 self.put_client('Disconnected from server.')
-                self.current_mode = 'master'
+                self.current_mode = MASTER
                 self.debug_mode = False
                 self.pending_requests.clear()
                 self.set_status('disconnected')

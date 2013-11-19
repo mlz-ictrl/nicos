@@ -32,6 +32,7 @@ from nicos import session
 from nicos.utils import ensureDirectory, enableDirectory
 from nicos.commands.scan import scan
 from nicos.commands.basic import run
+from nicos.core.sessions.utils import MASTER
 
 from test.utils import rootdir
 
@@ -40,7 +41,7 @@ year = time.strftime('%Y')
 
 def setup_module():
     session.loadSetup('asciisink')  # we want data files written
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     # clean up "disabled" directory so that the next test run can remove it

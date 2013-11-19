@@ -30,6 +30,7 @@ from nicos.core import tupleof
 from nicos.core import oneof
 from nicos.core import Override
 from nicos.core import ConfigurationError
+from nicos.core import SIMULATION
 
 from nicos.antares.detector.pytangodevice import PyTangoDevice
 from nicos.antares.detector import ImageStorageFits
@@ -106,7 +107,7 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         PyTangoDevice.doPreinit(self, mode)
 
         # Don't create HW device in simulation mode
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._hwDev = self._createPyTangoDevice(self.hwdevice)
 
     def doInit(self, mode):

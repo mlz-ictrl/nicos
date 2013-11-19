@@ -31,6 +31,7 @@ from logging import Handler
 from nicos import session
 from nicos.utils import readFile
 from nicos.commands.scan import scan
+from nicos.core.sessions.utils import MASTER
 
 from test.utils import assert_response
 
@@ -39,7 +40,7 @@ year = time.strftime('%Y')
 
 def setup_module():
     session.loadSetup('data')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()

@@ -29,6 +29,7 @@ from IO import StringIO
 from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
      NicosError, CommunicationError, ConfigurationError
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import SIMULATION
 
 
 class IsegHV(TacoDevice, HasLimits, Moveable):
@@ -63,7 +64,7 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
               'TRP': (status.ERROR, 'current trip reached')}
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             self._polarity = +1
             return
         resp = self._taco_guard(self._dev.communicate, '#')

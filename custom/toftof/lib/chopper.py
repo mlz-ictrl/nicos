@@ -33,6 +33,7 @@ from nicos.core import Readable, Moveable, HasLimits, Param, Override, \
      NicosError, intrange, oneof, status, requires, ADMIN, waitForStatus, \
      listof
 from nicos.devices.taco import TacoDevice
+from nicos.core import SIMULATION
 
 from nicos.toftof import calculations as calc
 
@@ -82,7 +83,7 @@ class Controller(TacoDevice, Readable):
     def doInit(self, mode):
         phases = [0, 0]
         try:
-            if mode == 'simulation':
+            if mode == SIMULATION:
                 raise NicosError('not possible in simulation mode')
             wavelength = self._read(4181) / 1000.0
             if wavelength == 0.0:

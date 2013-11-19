@@ -28,13 +28,14 @@ from nicos.core import UsageError, LimitError, ConfigurationError, \
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
      acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
 from nicos.devices.tas import spacegroups
+from nicos.core.sessions.utils import MASTER
 
 
 from test.utils import raises, assertAlmostEqual, ErrorLogged
 
 def setup_module():
     session.loadSetup('scanning')
-    session.setMode('master')
+    session.setMode(MASTER)
     sample = session.getDevice('sample')
     sample.lattice = [2.77, 2.77, 2.77]
     sample.angles = [90, 90, 90]

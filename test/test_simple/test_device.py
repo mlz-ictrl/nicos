@@ -28,6 +28,7 @@ from nicos import session
 from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
      ConfigurationError, ProgrammingError, LimitError, UsageError, \
      AccessError, requires, usermethod, ADMIN
+from nicos.core.sessions.utils import MAINTENANCE
 
 from test.utils import raises
 
@@ -109,7 +110,7 @@ class Dev2(HasLimits, HasOffset, Moveable):
         return [('testversion', 1.0)]
 
     @usermethod
-    @requires(level=ADMIN, mode='maintenance')
+    @requires(level=ADMIN, mode=MAINTENANCE)
     def calibrate(self):
         return True
 

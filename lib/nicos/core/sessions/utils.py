@@ -39,10 +39,11 @@ except ImportError:
     readline = None
 
 from nicos import session
-from nicos.core import Device, UsageError
+from nicos.core import Device, UsageError, \
+     MASTER, SLAVE, SIMULATION, MAINTENANCE
 
 
-EXECUTIONMODES = ['master', 'slave', 'simulation', 'maintenance']
+EXECUTIONMODES = [MASTER, SLAVE, SIMULATION, MAINTENANCE]
 
 
 class NicosNamespace(dict):

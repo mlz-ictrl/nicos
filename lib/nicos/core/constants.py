@@ -19,26 +19,14 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""NICOS core APIs and classes."""
+"""NICOS core constants."""
 
-from nicos.core import status
-from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE
-from nicos.core.errors import NicosError, ProgrammingError, \
-     ConfigurationError, UsageError, InvalidValueError, ModeError, \
-     PositionError, MoveError, LimitError, CommunicationError, \
-     HardwareError, TimeoutError, ComputationError, \
-     CacheLockError, AccessError, CacheError, SPMError
-from nicos.core.device import Device, DeviceMixinBase, AutoDevice, \
-     Readable, Moveable, Measurable, \
-     HasLimits, HasOffset, HasPrecision, HasMapping, \
-     usermethod, requires
-from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
-     listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
-     vec3, intrange, floatrange, oneof, oneofdict, none_or, \
-     relative_path, absolute_path, subdir, mailaddress
-from nicos.core.data import Dataset, DataSink
-from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
-     GUEST, USER, ADMIN, ACCESS_LEVELS
+MASTER = 'master'
+SLAVE = 'slave'
+SIMULATION = 'simulation'
+MAINTENANCE = 'maintenance'
+

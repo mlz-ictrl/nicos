@@ -33,6 +33,7 @@ import TACOStates
 
 from nicos.core import Measurable, Param, Value, intrange, status, tacodev
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import SIMULATION
 
 class TofCounter(TacoDevice, Measurable):
 
@@ -68,7 +69,7 @@ class TofCounter(TacoDevice, Measurable):
 
     def doPreinit(self, mode):
         TacoDevice.doPreinit(self, mode)
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._timer = self._create_client(devname=self.timer,
                                               class_=Timer,
                                               resetok=False,

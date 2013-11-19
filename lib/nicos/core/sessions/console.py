@@ -43,6 +43,7 @@ from nicos.utils import colorcode, formatExtendedStack
 from nicos.utils.loggers import INPUT, INFO
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
+from nicos.core import SIMULATION, SLAVE, MASTER
 
 
 DEFAULT_BINDINGS = '''\
@@ -209,7 +210,7 @@ class ConsoleSession(Session):
         self.resetPrompt()
 
     def resetPrompt(self):
-        base = self._mode != 'master' and self._mode + ' ' or ''
+        base = self._mode != MASTER and self._mode + ' ' or ''
         expsetups = '+'.join(self.explicit_setups)
         sys.ps1 = base + '(%s) %s ' % (expsetups,
                                        '-->' if self._spmode else '>>>')
@@ -302,14 +303,14 @@ class ConsoleSession(Session):
         session._in_sigint = False
 
         # Load the initial setup and handle becoming master.
-        session.handleInitialSetup(setup, simulate and 'simulation' or 'slave')
+        session.handleInitialSetup(setup, simulate and SIMULATION or SLAVE)
 
         # Fire up an interactive console.
         try:
             session.console()
         finally:
             # After the console is finished, cleanup.
-            if session.mode != 'simulation':
+            if session.mode != SIMULATION:
                 session.log.info('shutting down...')
             session.shutdown()
 

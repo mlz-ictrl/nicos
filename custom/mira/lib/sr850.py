@@ -32,6 +32,7 @@ from IO import StringIO
 from nicos.core import intrange, Measurable, Param, Value, CommunicationError, \
      ConfigurationError, NicosError
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import SIMULATION
 
 
 TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])
@@ -62,7 +63,7 @@ class Amplifier(Measurable, TacoDevice):
     taco_class = StringIO
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             return
         reply = self._taco_guard(self._dev.communicate, '*IDN?')
         if not reply.startswith('Stanford_Research_Systems,SR8'):

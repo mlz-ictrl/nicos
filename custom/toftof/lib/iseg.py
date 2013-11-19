@@ -26,6 +26,7 @@
 
 from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
      NicosError, CommunicationError
+from nicos.core import SIMULATION
 
 from nicos.devices.vendor.toni import ModBus
 
@@ -81,7 +82,7 @@ class IsegHV(HasLimits, Moveable):
         return ret
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             self._polarity = +1
             return
         resp = self._comm('#')

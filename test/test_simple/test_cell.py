@@ -28,13 +28,14 @@
 from numpy import array
 
 from nicos import session
+from nicos.core.sessions.utils import MASTER
 
 from test.utils import assertAlmostEqual
 
 
 def setup_module():
     session.loadSetup('scanning')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()

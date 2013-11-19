@@ -32,7 +32,7 @@ from PyQt4.QtCore import QVariant, QStringList, SIGNAL
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, ScriptExecQuestion, \
      setBackgroundColor, setForegroundColor
-
+from nicos.core import SIMULATION, SLAVE, MAINTENANCE
 
 class CommandLinePanel(Panel):
     panelName = 'CommandLinePanel'
@@ -86,11 +86,11 @@ class CommandLinePanel(Panel):
             return []
 
     def on_client_mode(self, mode):
-        if mode == 'slave':
+        if mode == SLAVE:
             self.label.setText('slave >>')
-        elif mode == 'simulation':
+        elif mode == SIMULATION:
             self.label.setText('SIM >>')
-        elif mode == 'maintenance':
+        elif mode == MAINTENANCE:
             self.label.setText('maint >>')
         else:
             self.label.setText('>>')

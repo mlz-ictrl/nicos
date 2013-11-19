@@ -29,6 +29,7 @@
 from nicos.core import Param, NicosError, none_or
 from nicos.devices.generic.axis import Axis, CanReference
 from nicos.devices.generic.virtual import VirtualMotor
+from nicos.core import SIMULATION, MASTER, MAINTENANCE
 
 class RefAxis(Axis, CanReference):
     parameters = {
@@ -76,8 +77,8 @@ class RefAxis(Axis, CanReference):
             if self.refpos == None:
                 self.log.error('Can\'t reference, no refpos specified!')
                 return
-            if self._mode not in ['master','maintenance']:
-                if self._mode == 'simulation':
+            if self._mode not in [MASTER, MAINTENANCE]:
+                if self._mode == SIMULATION:
                     self.log.info(self, 'would reference')
                 else:
                     self.log.error(self, 'Can\'t reference if not in master or maintenance mode!')
@@ -210,8 +211,8 @@ class RotAxis(RefAxis):
                 raise ValueError(' Refpos needs to be a float within [-%.1f .. %.1f] '
                                             %( self.wraparound, self.wraparound )
                                             )
-            if self._mode not in ['master','maintenance']:
-                if self._mode == 'simulation':
+            if self._mode not in [MASTER, MAINTENANCE]:
+                if self._mode == SIMULATION:
                     self.log.info(self, 'would reference')
                 else:
                     self.log.error(self, 'Can\'t reference if not in master or maintenance mode!')

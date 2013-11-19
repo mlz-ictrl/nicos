@@ -29,6 +29,7 @@ import TACOStates
 
 from nicos.core import status, tacodev, Measurable, Param
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import SIMULATION
 
 
 class Channel(TacoDevice, Measurable):
@@ -39,7 +40,7 @@ class Channel(TacoDevice, Measurable):
     }
 
     def doInit(self, mode):
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._admin = self._create_client(self.admin, TMCS.Admin)
 
     def doStart(self, **preset):

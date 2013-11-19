@@ -30,6 +30,7 @@ from time import sleep
 from nicos.core import status, oneof, HasLimits, Moveable, Readable, Param, \
      Override
 from nicos.devices.taco import TacoDevice, AnalogOutput
+from nicos.core import MASTER
 
 
 class GeneratorDevice(AnalogOutput):
@@ -90,7 +91,7 @@ class RFCurrent(HasLimits, Moveable):
 
     def _setMode(self, mode):
         Moveable._setMode(self, mode)
-        if mode == 'master':
+        if mode == MASTER:
             self._rfthread = threading.Thread(target=self._rfcontrol)
             self._rfthread.setDaemon(True)
             self._rfthread.start()

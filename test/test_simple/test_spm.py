@@ -26,12 +26,13 @@
 
 from nicos import session
 from nicos.core import SPMError
+from nicos.core.sessions.utils import MASTER
 
 from test.utils import raises
 
 def setup_module():
     session.loadSetup('axis')
-    session.setMode('master')
+    session.setMode(MASTER)
     session.setSPMode(True)
 
 def teardown_module():

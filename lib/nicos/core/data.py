@@ -27,6 +27,7 @@
 from nicos import session
 from nicos.core import Device, Param, listof
 from nicos.utils import lazy_property
+from nicos.core import SIMULATION
 
 
 class Dataset(object):
@@ -113,7 +114,7 @@ class DataSink(Device):
     activeInSimulation = True
 
     def isActive(self, scantype):
-        if session.mode == 'simulation' and not self.activeInSimulation:
+        if session.mode == SIMULATION and not self.activeInSimulation:
             return False
         if scantype is not None and scantype not in self.scantypes:
             return False

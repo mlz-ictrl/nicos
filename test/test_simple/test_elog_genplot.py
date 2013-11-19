@@ -30,13 +30,14 @@ from nicos import session
 
 from nicos.commands.scan import scan
 from nicos.services.elog import genplot
+from nicos.core.sessions.utils import MASTER
 
 from test.utils import rootdir
 
 
 def setup_module():
     session.loadSetup('scanning')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()

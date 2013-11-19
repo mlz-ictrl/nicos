@@ -57,6 +57,7 @@ from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
 from nicos.devices.abstract import ImageStorage
+from nicos.core import SIMULATION, MASTER
 
 
 class Sample(Device):
@@ -477,13 +478,13 @@ class Experiment(Device):
     def doInit(self, mode):
         self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''
-        if self.elog and mode != 'simulation':
+        if self.elog and mode != SIMULATION:
             ensureDirectory(path.join(self.proposalpath, 'logbook'))
             session.elog_event('directory', (self.proposalpath,
                                              instname, self.proposal))
             self._eloghandler = ELogHandler()
             # only enable in master mode, see below
-            self._eloghandler.disabled = session.mode != 'master'
+            self._eloghandler.disabled = session.mode != MASTER
             session.addLogHandler(self._eloghandler)
         if self.templates == '':
             self._setROParam('templates',
@@ -703,7 +704,7 @@ class Experiment(Device):
 
     def checkTemplates(self, proposal, kwargs):
         """try to fill in all templates to see if some keywords are missing"""
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return # dont touch fs if in simulation!
         allmissing = []
         alldefaulted = []
@@ -746,7 +747,7 @@ class Experiment(Device):
                               'keyword arguments to `NewExperiment`')
 
     def handleTemplates(self, proposal, kwargs):
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return # dont touch fs if in simulation!
         for fn, content in self.iterTemplates(only_dot_template=False):
             istemplate = fn.endswith('.template')
@@ -781,7 +782,7 @@ class Experiment(Device):
     #
     def _zip(self):
         """Zip all files in the current experiment folder into a .zip file."""
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return # dont touch fs if in simulation!
         self.log.info('zipping experiment data, please wait...')
         zipname = zipFiles(path.join(self.proposalpath, '..',
@@ -793,7 +794,7 @@ class Experiment(Device):
     def _mail(self, receivers, zipname, maxAttachmentSize=10000000):
         """Send a mail with the experiment data"""
 
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return # dont touch fs if in simulation!
         # check parameters
         if not self.mailserver:
@@ -856,7 +857,7 @@ class Experiment(Device):
 
     def _setMode(self, mode):
         if self.elog:
-            self._eloghandler.disabled = mode != 'master'
+            self._eloghandler.disabled = mode != MASTER
         Device._setMode(self, mode)
 
     @usermethod
@@ -928,7 +929,7 @@ class Experiment(Device):
         return d
 
     def _generateExpReport(self, **kwds):
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return # dont touch fs if in simulation!
         # read and translate ExpReport template
         self.log.debug('looking for template in %r' % self.templatepath)
@@ -993,7 +994,7 @@ class Experiment(Device):
             session.elog_event('remark', remark)
 
     def datapathChanged(self):
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return # dont touch fs if in simulation!
 
         for _dir in self.allpaths:

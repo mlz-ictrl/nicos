@@ -38,6 +38,7 @@ from nicos.devices.abstract import CanReference, Motor, MappedMoveable
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput,\
                                    DigitalInput, NamedDigitalInput
+from nicos.core import SIMULATION
 
 
 class mapped_float(object):
@@ -103,7 +104,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
                 'Invalid address 0x%04x, please check settings!' %
                 self.address)
         # switch off watchdog, important before doing any write access
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
             if self.autopower == 'on':
                 threading.Thread(target=self._autopoweroff).start()
@@ -804,7 +805,7 @@ class BeckhoffDigitalInput(DigitalInput):
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
 
     def doRead(self, maxage=0):
@@ -825,7 +826,7 @@ class BeckhoffNamedDigitalInput(NamedDigitalInput):
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
         NamedDigitalOutput.doInit(self, mode)
 
@@ -851,7 +852,7 @@ class BeckhoffDigitalOutput(DigitalOutput):
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
 
     def doRead(self, maxage=0):
@@ -885,7 +886,7 @@ class BeckhoffNamedDigitalOutput(NamedDigitalOutput):
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
         NamedDigitalOutput.doInit(self, mode)
 

@@ -31,6 +31,7 @@ from nicos import session
 from nicos.utils import daemonize, setuser, writePidfile, removePidfile
 from nicos.utils.messaging import SimLogSender
 from nicos.core.sessions import Session
+from nicos.core import SIMULATION, SLAVE
 
 
 class NoninteractiveSession(Session):
@@ -110,7 +111,7 @@ class ScriptSession(Session):
     """
 
     @classmethod
-    def run(cls, setup, code, mode='slave', appname='script'):
+    def run(cls, setup, code, mode=SLAVE, appname='script'):
         session.__class__ = cls
 
         try:
@@ -144,7 +145,7 @@ class SimulationSession(Session):
         session.log_sender = SimLogSender(port, session)
 
         try:
-            session.__init__('simulation')
+            session.__init__(SIMULATION)
         except Exception, err:
             try:
                 session.log.exception('Fatal error while initializing')
@@ -159,7 +160,7 @@ class SimulationSession(Session):
 
         try:
             # Load the initial setup and handle becoming master.
-            session.handleInitialSetup('startup', 'simulation')
+            session.handleInitialSetup('startup', SIMULATION)
 
             # Load the setups from the original system, this should give the
             # information about the cache address.

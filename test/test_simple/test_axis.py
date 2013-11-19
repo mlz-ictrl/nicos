@@ -29,11 +29,12 @@ from time import sleep
 from nicos import session
 from nicos.core import status, LimitError
 from test.utils import raises, assertAlmostEqual
+from nicos.core.sessions.utils import MASTER
 
 
 def setup_module():
     session.loadSetup('axis')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()

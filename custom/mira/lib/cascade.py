@@ -35,6 +35,7 @@ from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
 from nicos.mira import cascadeclient  # pylint: disable=E0611
 from nicos.devices.abstract import ImageStorage, AsyncDetector
 from nicos.devices.generic import MultiChannelDetector
+from nicos.core import SIMULATION
 
 
 class CascadeDetector(AsyncDetector, ImageStorage):
@@ -80,7 +81,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
     }
 
     def doPreinit(self, mode):
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._client = cascadeclient.NicosClient()
             self._padimg = cascadeclient.PadImage()
             self.doReset()
@@ -137,7 +138,7 @@ class CascadeDetector(AsyncDetector, ImageStorage):
         return ['t']
 
     def doUpdateDebugmsg(self, value):
-        if self._mode != 'simulation':
+        if self._mode != SIMULATION:
             cascadeclient.GlobalConfig.SetLogLevel(value and 3 or 0)
 
     def doShutdown(self):

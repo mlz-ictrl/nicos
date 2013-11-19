@@ -30,6 +30,7 @@ from nicos import session
 from nicos.core import Device, Param, ConfigurationError, NicosError, none_or, \
      usermethod
 from nicos.core.device import DeviceMixinMeta
+from nicos.core import SIMULATION, MASTER
 
 
 class NoDevice(object):
@@ -151,7 +152,7 @@ class DeviceAlias(Device):
                     self._reinitParams()
 
     def _reinitParams(self):
-        if self._mode != 'master':  # only in the copy that changed the alias
+        if self._mode != MASTER:  # only in the copy that changed the alias
             return
         # clear all cached parameters
         self._cache.clear(str(self), exclude=self._ownparams)
@@ -205,7 +206,7 @@ class DeviceAlias(Device):
         # re-implemented from Device to avoid running doShutdown
         # of the pointed-to device prematurely
         self.log.debug('shutting down device')
-        if self._mode != 'simulation':
+        if self._mode != SIMULATION:
             # remove subscriptions to parameter value updates
             if self._cache:
                 for param in self._subscriptions:

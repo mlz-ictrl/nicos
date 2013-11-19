@@ -31,12 +31,13 @@ from time import sleep
 from nicos.devices.cacheclient import CacheClient
 from nicos.core.errors import LimitError, CommunicationError
 from nicos.utils import readonlylist, readonlydict
+from nicos.core.sessions.utils import MASTER
 
 from test.utils import raises
 
 def setup_module():
     session.loadSetup('cachetests')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()

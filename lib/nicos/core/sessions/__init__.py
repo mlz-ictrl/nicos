@@ -54,7 +54,8 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
      SyncCacheClient
 from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
-     NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES
+     NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
+     SIMULATION, MAINTENANCE
 
 
 SETUP_GROUPS = set([
@@ -135,7 +136,7 @@ class Session(object):
         # action stack for status line
         self._actionStack = []
         # execution mode; initially always slave
-        self._mode = 'slave'
+        self._mode = SLAVE
         # simulation clock
         self.clock = SimClock()
         # traceback of last unhandled exception
@@ -205,10 +206,10 @@ class Session(object):
             return
         if mode not in EXECUTIONMODES:
             raise UsageError('mode %r does not exist' % mode)
-        if oldmode in ['simulation', 'maintenance']:
+        if oldmode in [SIMULATION, MAINTENANCE]:
             # no way to switch back from special modes
             raise ModeError('switching from %s mode is not supported' % oldmode)
-        if mode == 'master':
+        if mode == MASTER:
             # switching from slave to master
             if not cache:
                 self.log.info('no cache present, switching to master anyway')
@@ -216,7 +217,7 @@ class Session(object):
             else:
                 self.log.info('checking master status...')
                 try:
-                    cache.lock('master')
+                    cache.lock(MASTER)
                 except CacheLockError, err:
                     raise ModeError('another master is already active: %s' %
                                     sessionInfo(err.locked_by))
@@ -235,15 +236,15 @@ class Session(object):
                     cache._unlock_master()
                 except CacheError:
                     self.log.warning('could not release master lock')
-            elif mode == 'maintenance':
+            elif mode == MAINTENANCE:
                 self.log.warning('Switching from slave to maintenance mode: '
                                  "I'll trust that you know what you're doing!")
         self._mode = mode
         if self._master_handler:
-            self._master_handler.enable(mode == 'master')
+            self._master_handler.enable(mode == MASTER)
         # deactivate synchronized queue mode on the cache client to avoid lockups
         # after forking in simulation mode
-        if mode == 'simulation' and cache:
+        if mode == SIMULATION and cache:
             cache._sync = False
         # switch mode, taking care to switch "higher level" devices before
         # "lower level" (because higher level devices may need attached devices
@@ -256,7 +257,7 @@ class Session(object):
                     switched.add(dev.name)
                     dev._setMode(mode)
                     devs.remove(dev)
-        if mode == 'simulation':
+        if mode == SIMULATION:
             if cache:
                 cache.doShutdown()
                 self.cache = None
@@ -276,7 +277,7 @@ class Session(object):
     def simulationSync(self):
         """Synchronize device values and parameters from current cached values.
         """
-        if self._mode != 'simulation':
+        if self._mode != SIMULATION:
             raise NicosError('must be in simulation mode')
         if not self.current_sysconfig.get('cache'):
             raise NicosError('no cache is configured')
@@ -508,7 +509,7 @@ class Session(object):
 
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
-            if info['group'] == 'simulated' and self._mode != 'simulation':
+            if info['group'] == 'simulated' and self._mode != SIMULATION:
                 raise ConfigurationError('Cannot load simulation setup %r in '
                                          'non-simulation mode' % name)
             for exclude in info['excludes']:
@@ -556,7 +557,7 @@ class Session(object):
                 startupcode.extend(ret[2])
 
         # initialize the cache connection
-        if sysconfig.get('cache') and self._mode != 'simulation':
+        if sysconfig.get('cache') and self._mode != SIMULATION:
             self.cache = self.cache_class('Cache', cache=sysconfig['cache'],
                                           prefix='nicos/', lowlevel=True)
             # be notified about plug-and-play sample environment devices
@@ -644,7 +645,7 @@ class Session(object):
                 continue
             self.explicit_setups.append(setupname)
 
-        if self.mode == 'master' and self.cache:
+        if self.mode == MASTER and self.cache:
             self.cache._ismaster = True
             self.cache.put(self, 'mastersetup', list(self.loaded_setups))
             self.cache.put(self, 'mastersetupexplicit',
@@ -701,7 +702,7 @@ class Session(object):
 
     def shutdown(self):
         """Shut down the session: unload the setup and give up master mode."""
-        if self._mode == 'master' and self.cache:
+        if self._mode == MASTER and self.cache:
             self.cache._ismaster = False
             try:
                 self.cache._unlock_master()
@@ -740,27 +741,27 @@ class Session(object):
             if name in self.namespace:
                 yield name, self.namespace[name]
 
-    def handleInitialSetup(self, setup, mode='slave'):
+    def handleInitialSetup(self, setup, mode=SLAVE):
         """Determine which setup to load, and try to become master.
 
         Called by sessions during startup.
         """
         # If simulation mode is wanted, we need to set that before loading any
         # initial setup.
-        if mode == 'simulation':
-            self._mode = 'simulation'
+        if mode == SIMULATION:
+            self._mode = SIMULATION
 
         # Create the initial instrument setup.
         self.loadSetup(setup)
 
-        if mode == 'simulation':
+        if mode == SIMULATION:
             self.log.info('starting in simulation mode')
-        elif mode == 'maintenance':
-            self.setMode('maintenance')
-        elif mode == 'slave':
+        elif mode == MAINTENANCE:
+            self.setMode(MAINTENANCE)
+        elif mode == SLAVE:
             # Try to become master if the setup didn't already switch modes.
             try:
-                self.setMode('master')
+                self.setMode(MASTER)
             except ModeError:
                 self.log.info('could not enter master mode; remaining slave',
                               exc=True)
@@ -967,7 +968,7 @@ class Session(object):
         """Send a notification if the current runtime exceeds the configured
         minimum runtimer for notifications.
         """
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return
         for notifier in self.notifiers:
             notifier.sendConditionally(runtime, subject, body, what,
@@ -975,7 +976,7 @@ class Session(object):
 
     def notify(self, subject, body, what=None, short=None, important=True):
         """Send a notification unconditionally."""
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return
         for notifier in self.notifiers:
             notifier.send(subject, body, what, short, important)
@@ -983,7 +984,7 @@ class Session(object):
     # -- Special cache handlers ------------------------------------------------
 
     def _pnpHandler(self, key, value, time, expired=False):
-        if self._mode != 'master':
+        if self._mode != MASTER:
             return
         parts = key.split('/')
         self.log.debug('got PNP message: key %s, value %s' % (key, value))
@@ -1021,7 +1022,7 @@ class Session(object):
         if key.endswith(('/warning', '/action')):
             self.watchdogEvent(key.rsplit('/')[-1], value[0], value[1])
         elif key.endswith('/pausecount'):
-            if self.experiment and self.mode == 'master':
+            if self.experiment and self.mode == MASTER:
                 self.experiment.pausecount = value
                 if value:
                     self.should_pause_count = value

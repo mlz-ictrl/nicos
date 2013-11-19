@@ -32,6 +32,7 @@ from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
      floatrange, status, oneof, CommunicationError, InvalidValueError, \
      ConfigurationError, multiStatus
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import SIMULATION
 
 
 class OxfordMercury(HasLimits, TacoDevice, Moveable):
@@ -54,7 +55,7 @@ class OxfordMercury(HasLimits, TacoDevice, Moveable):
     }
 
     def doInit(self, mode):
-        if mode != 'simulation':
+        if mode != SIMULATION:
             if not self._dev.communicate('*IDN?').startswith('IDN'):
                 raise CommunicationError(self, 'No Response from Mercury iPS,'
                                                ' please check!')

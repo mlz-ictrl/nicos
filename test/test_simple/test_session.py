@@ -26,13 +26,14 @@
 
 from nicos import session
 from nicos.core import ConfigurationError
+from nicos.core.sessions.utils import MASTER
 
 from test.utils import raises
 
 
 def setup_module():
     session.loadSetup('empty')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()

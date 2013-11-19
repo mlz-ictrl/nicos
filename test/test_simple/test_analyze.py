@@ -34,11 +34,12 @@ from nicos.core import Value
 
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
      poly, gauss
+from nicos.core.sessions.utils import MASTER
 
 
 def setup_module():
     session.loadSetup('scanning')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()

@@ -26,12 +26,13 @@
 
 from nicos.utils import lazy_property
 from nicos.devices.vendor.ipc import Coder as IPC_Coder
+from nicos.core import SIMULATION
 
 
 class SpecialCoder(IPC_Coder):
     def doInit(self, mode):
         bus = self._adevs['bus']
-        if mode != 'simulation':
+        if mode != SIMULATION:
             bus.ping(self.addr)
         self._lasterror = None
 

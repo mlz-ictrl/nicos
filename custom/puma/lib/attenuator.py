@@ -27,6 +27,7 @@
 import time
 
 from nicos.core import Moveable, Readable, status, NicosError, HasLimits
+from nicos.core import SIMULATION
 
 
 class Attenuator(HasLimits, Moveable):
@@ -45,7 +46,7 @@ class Attenuator(HasLimits, Moveable):
         self._filterlist = [1, 2, 5, 10, 20]
         self._filmax = sum(self._filterlist)
 
-        if mode == 'simulation':
+        if mode == SIMULATION:
             return
         stat1 = self._adevs['io_status'].doRead()
         stat2 = 0

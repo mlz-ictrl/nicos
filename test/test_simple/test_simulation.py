@@ -27,11 +27,12 @@
 from nicos import session
 from nicos.commands.scan import scan
 from nicos.commands.basic import sleep
+from nicos.core.sessions.utils import SIMULATION
 
 
 def setup_module():
     session.loadSetup('scanning')
-    session.setMode('simulation')
+    session.setMode(SIMULATION)
 
 def teardown_module():
     session.__dict__.clear()

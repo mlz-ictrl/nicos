@@ -50,6 +50,7 @@ from nicos.core import status, tacodev, intrange, floatrange, Param, \
      InvalidValueError, DeviceMixinBase
 from nicos.utils import HardwareStub
 from nicos.protocols.cache import cache_dump, cache_load
+from nicos.core import SIMULATION
 
 
 class TacoDevice(DeviceMixinBase):
@@ -130,7 +131,7 @@ class TacoDevice(DeviceMixinBase):
         if self.taco_class is None:
             raise ProgrammingError('missing taco_class attribute in class '
                                    + self.__class__.__name__)
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._dev = self._create_client()
 
     def doShutdown(self):
@@ -142,7 +143,7 @@ class TacoDevice(DeviceMixinBase):
         super(TacoDevice, self)._setMode(mode)
         # remove the TACO device on entering simulation mode, to prevent
         # accidental access to the hardware
-        if mode == 'simulation':
+        if mode == SIMULATION:
             # keep the device instance around to avoid destruction (which can
             # mess with the TACO connections in the main process if simulation
             # has been forked off)

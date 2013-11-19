@@ -29,6 +29,7 @@ from nicos.core import InvalidValueError, Moveable, Param, floatrange, listof
 from Modbus import Modbus
 
 from nicos.devices.taco import TacoDevice
+from nicos.core import SIMULATION
 
 
 class SatBox(TacoDevice, Moveable):
@@ -52,7 +53,7 @@ class SatBox(TacoDevice, Moveable):
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
-        if mode != 'simulation':
+        if mode != SIMULATION:
             if self.slave_addr == 0: # only disable Watchdog for Beckhoff!
                 self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
 

@@ -30,6 +30,7 @@ from nicos import session
 from nicos.core import Measurable, UsageError
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
+from nicos.core import SIMULATION
 
 
 __all__ = [
@@ -70,7 +71,7 @@ def _count(detlist, preset, result):
     # put detectors in a set and discard them when completed
     detset = set(detlist)
     delay = (session.instrument and session.instrument.countloopdelay or 0.025
-             if session.mode != 'simulation' else 0.0)
+             if session.mode != SIMULATION else 0.0)
     #advance imagecounter
     session.experiment.advanceImageCounter(detset)
     session.beginActionScope('Counting')
@@ -88,7 +89,7 @@ def _count(detlist, preset, result):
         while True:
             i += 1
             for det in list(detset):
-                if session.mode != 'simulation':
+                if session.mode != SIMULATION:
                     det.duringMeasureHook(i)
                 if det.isCompleted():
                     detset.discard(det)

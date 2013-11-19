@@ -27,6 +27,7 @@ import time
 from nicos import nicos_version
 from nicos.clients.base import NicosClient
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC
+from nicos.core.sessions.utils import MASTER
 
 
 class TestClient(NicosClient):
@@ -98,7 +99,7 @@ def test_simple():
     status = client.ask('getstatus')
     assert status['status'] == (STATUS_IDLE, -1)   # execution status
     assert status['script'] == 'printinfo 1'       # current script
-    assert status['mode']   == 'master'            # current mode
+    assert status['mode']   == MASTER              # current mode
     assert status['watch']  == {}                  # no watch expressions
     assert status['setups'][1] == ['daemonmain']   # explicit setups
     assert status['requests'] == []                # no requests queued

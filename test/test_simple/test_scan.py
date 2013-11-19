@@ -34,6 +34,7 @@ from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
      manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
 from nicos.commands.tas import checkalign
+from nicos.core.sessions.utils import MASTER, SLAVE
 
 from test.utils import raises
 from nose import with_setup
@@ -41,7 +42,7 @@ from nose import with_setup
 
 def setup_module():
     session.loadSetup('scanning')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()
@@ -59,9 +60,9 @@ def test_scan():
     mm.move(0)
 
     # check that scans are impossible in slave mode
-    session.setMode('slave')
+    session.setMode(SLAVE)
     assert raises(ModeError, scan, m, [0, 1, 2, 10])
-    session.setMode('master')
+    session.setMode(MASTER)
 
     session.experiment.setDetectors([session.getDevice('det')])
     session.experiment.setEnvironment([avg(mm), minmax(mm)])

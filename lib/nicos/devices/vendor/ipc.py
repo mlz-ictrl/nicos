@@ -40,6 +40,7 @@ from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
 from nicos.utils import closeSocket, lazy_property, HardwareStub
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import SIMULATION
 
 
 STX = chr(2)
@@ -237,7 +238,7 @@ class IPCModBusRS232(IPCModBus):
     def doInit(self, mode):
         self._lock = RLock()
         self._connection = None
-        if mode != 'simulation':
+        if mode != SIMULATION:
             try:
                 self.doReset()
             except Exception:
@@ -245,7 +246,7 @@ class IPCModBusRS232(IPCModBus):
 
     def _setMode(self, mode):
         IPCModBus._setMode(self, mode)
-        if mode == 'simulation':
+        if mode == SIMULATION:
             self._connection = HardwareStub(self)
 
     def _comm(self, request, ping=False):
@@ -471,7 +472,7 @@ class Coder(NicosCoder):
 
     def doInit(self, mode):
         bus = self._adevs['bus']
-        if mode != 'simulation':
+        if mode != SIMULATION:
             bus.ping(self.addr)
             try:
                 actual_confbyte = self.doReadConfbyte()
@@ -656,7 +657,7 @@ class Motor(NicosMotor):
 
     def doInit(self, mode):
         bus = self._adevs['bus']
-        if mode != 'simulation':
+        if mode != SIMULATION:
             bus.ping(self.addr)
             if self._hwtype == 'single':
                 if self.confbyte != self.doReadConfbyte():
@@ -741,7 +742,7 @@ class Motor(NicosMotor):
                       'method to write to EEPROM')
 
     def doReadDivider(self):
-        if self._mode == 'simulation':
+        if self._mode == SIMULATION:
             return -1   # can't determine value in simulation mode!
         try:
             return self._adevs['bus'].get(self.addr, 144, maxtries=1)
@@ -1121,7 +1122,7 @@ class IPCSwitches(Input):
 
     def doInit(self, mode):
         Input.doInit(self, mode)        # init _mask
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._adevs['bus'].ping(self.addr)
 
     def doStatus(self, maxage=0):
@@ -1211,7 +1212,7 @@ class SlitMotor(NicosMotor):
     }
 
     def doInit(self, mode):
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._adevs['bus'].ping(self.addr)
 
     def doVersion(self):

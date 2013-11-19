@@ -31,6 +31,7 @@ from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV
 from nicos.devices.tas import spurions
 from nicos.devices.instrument import Instrument
+from nicos.core import SIMULATION
 
 
 SCANMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
@@ -165,7 +166,7 @@ class TAS(Instrument, Moveable):
             if index._cache:
                 index._cache.invalidate(index, 'value')
         # spurion check
-        if self.spurioncheck and self._mode == 'simulation':
+        if self.spurioncheck and self._mode == SIMULATION:
             self._spurionCheck(pos)
 
     def doStatus(self, maxage=0):

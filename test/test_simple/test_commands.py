@@ -45,12 +45,13 @@ from nicos.commands.basic import ListCommands, sleep, \
      Remark, SetMode, ClearCache, UserInfo, run, edit
 from nicos.commands.output import printdebug, printinfo, printwarning, \
      printerror, printexception
+from nicos.core.sessions.utils import MASTER, SLAVE
 
 from test.utils import ErrorLogged, raises, requires
 
 def setup_module():
     session.loadSetup('axis')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()
@@ -115,8 +116,8 @@ def test_basic_commands():
     Remark('hi')
     assert exp.remark == 'hi'
 
-    SetMode('slave')
-    SetMode('master')
+    SetMode(SLAVE)
+    SetMode(MASTER)
     assert raises(UsageError, SetMode, 'blah')
 
     motor = session.getDevice('motor')

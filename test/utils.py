@@ -41,6 +41,7 @@ from nose.plugins.skip import SkipTest
 from nicos.core import Moveable, HasLimits, DataSink, status
 from nicos.core.sessions import Session
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
+from nicos.core.sessions.utils import MASTER
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
 
@@ -189,7 +190,7 @@ class TestSession(Session):
 
     def __init__(self, appname, daemonized=False):
         Session.__init__(self, appname, daemonized)
-        self._mode = 'master'
+        self._mode = MASTER
         self.setSetupPath(path.join(path.dirname(__file__), 'setups'))
 
     def createRootLogger(self, prefix='nicos', console=True):

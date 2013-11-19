@@ -35,6 +35,7 @@ from nicos.core import status, tupleof, anytype, usermethod, Moveable, Param, \
      NicosError, ModeError, waitForStatus, requires
 from nicos.devices.abstract import Axis as BaseAxis, CanReference
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import SLAVE
 
 
 class Axis(TacoDevice, BaseAxis, CanReference):
@@ -78,7 +79,7 @@ class Axis(TacoDevice, BaseAxis, CanReference):
         This operation is forbidden in slave mode, and does the right thing
         virtually in simulation mode.
         """
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'setting new position not possible in '
                             'slave mode')
         elif self._sim_active:

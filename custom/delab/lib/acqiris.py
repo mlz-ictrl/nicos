@@ -38,6 +38,7 @@ from nicos.devices.generic.detector import Channel
 from nicos.core.errors import CommunicationError, ConfigurationError, \
         NicosError, UsageError, ProgrammingError
 from nicos.utils import readFileCounter, updateFileCounter
+from nicos.core import SIMULATION
 
 COUNTER_ID  = 100
 TIMER_ID    = 101
@@ -156,7 +157,7 @@ class Acqiris(Channel):
         self._initialized = True
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             self._caressObject = None
             return
         self._initORB(['-ORBInitRef', 'NameService=corbaname::%s' %
@@ -272,7 +273,7 @@ class Acqiris(Channel):
 class Timer(Acqiris):
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             return
 
         Acqiris.doInit(self, mode)
@@ -304,7 +305,7 @@ class Counter(Acqiris):
     }
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             return
 
         Acqiris.doInit(self, mode)

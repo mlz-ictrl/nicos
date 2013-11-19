@@ -28,12 +28,13 @@ from nicos import session
 from time import sleep
 
 from nicos.devices.cacheclient import CacheError
+from nicos.core.sessions.utils import MASTER
 
 from test.utils import raises, killCache, startCache
 
 def setup_module():
     session.loadSetup('cachetests')
-    session.setMode('master')
+    session.setMode(MASTER)
 
 def teardown_module():
     session.unloadSetup()

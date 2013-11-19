@@ -38,11 +38,12 @@ import ast
 from nicos import session
 from nicos.utils.loggers import INPUT
 from nicos.services.daemon.auth import system_user
-from nicos.services.daemon.utils import format_exception_cut_frames, format_script, \
-     fixup_script, update_linecache
+from nicos.services.daemon.utils import format_exception_cut_frames, \
+     format_script, fixup_script, update_linecache
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
+from nicos.core import SIMULATION, SLAVE, MASTER
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000
@@ -152,7 +153,7 @@ class ScriptRequest(Request):
         # this is to allow the traceback module to report the script's
         # source code correctly
         update_linecache('<script>', self.text)
-        if session.experiment and session.mode == 'master':
+        if session.experiment and session.mode == MASTER:
             session.experiment.scripts += [self.text]
             self._exp_script_index = len(session.experiment.scripts) - 1
         if self.name:
@@ -168,7 +169,7 @@ class ScriptRequest(Request):
         finally:
             if self.name:
                 session.endActionScope()
-            if session.experiment and session.mode == 'master':
+            if session.experiment and session.mode == MASTER:
                 session.experiment.scripts = session.experiment.scripts[:-1]
             if self.name:
                 session.elog_event('scriptend', self.name)
@@ -204,7 +205,7 @@ class ScriptRequest(Request):
             # also set the updating user as the new user of the script
             # (but the old userlevel remains)
             self.user = user.name
-            if session.experiment and session.mode == 'master':
+            if session.experiment and session.mode == MASTER:
                 scr = list(session.experiment.scripts)  # convert readonly list
                 scr[self._exp_script_index] = self.text
                 session.experiment.scripts = scr
@@ -279,7 +280,7 @@ class ExecutionController(Controller):
         self.log = log             # daemon logger object
         self.eventfunc = eventfunc # event emitting callback
         self.setup = startupsetup  # first setup on start
-        self.simmode = simmode and 'simulation' or 'slave'
+        self.simmode = simmode and SIMULATION or SLAVE
                                    # start in simulation mode?
         self.queue = Queue()       # user scripts get put here
         self.current_script = None # currently executed script

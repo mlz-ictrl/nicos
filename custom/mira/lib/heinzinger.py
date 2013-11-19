@@ -31,6 +31,7 @@ from IO import StringIO
 from nicos.core import status, Moveable, HasLimits, Override, NicosError, Param, \
     CommunicationError
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import MASTER
 
 
 class Heinzinger(TacoDevice, HasLimits, Moveable):
@@ -54,7 +55,7 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
         maxcur, _maxvolt = map(float, idn[8:].split('-'))
         if maxcur < self.abslimits[1]:
             raise NicosError(self, 'absolute maximum bigger than device maximum')
-        if mode == 'master':
+        if mode == MASTER:
             self.doReset()
         self._calibvalue = float(self._taco_guard(self._dev.communicate,
                                                   'CAL:CURR?'))

@@ -38,6 +38,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, setBackgroundColor, setForegroundColor, \
      enumerateWithProgress, ScriptExecQuestion
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
+from nicos.core import SIMULATION, SLAVE, MAINTENANCE
 
 
 class ConsolePanel(Panel):
@@ -124,11 +125,11 @@ class ConsolePanel(Panel):
         self.outView._currentuser = self.client.login
 
     def on_client_mode(self, mode):
-        if mode == 'slave':
+        if mode == SLAVE:
             self.label.setText('slave >>')
-        elif mode == 'simulation':
+        elif mode == SIMULATION:
             self.label.setText('SIM >>')
-        elif mode == 'maintenance':
+        elif mode == MAINTENANCE:
             self.label.setText('maint >>')
         else:
             self.label.setText('>>')

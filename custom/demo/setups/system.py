@@ -44,7 +44,8 @@ devices = dict(
 )
 
 startupcode = '''
-if not Exp.proposal and Exp._mode != 'simulation':
+from nicos.core import SIMULATION
+if not Exp.proposal and Exp._mode != SIMULATION:
     try:
         SetMode('master')
     except Exception:

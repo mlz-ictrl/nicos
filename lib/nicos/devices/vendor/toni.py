@@ -33,6 +33,7 @@ from nicos.core import status, intrange, listof, oneofdict, requires, ADMIN, \
      Device, Readable, Moveable, Param, Override, NicosError, oneof, \
      CommunicationError, ConfigurationError
 from nicos.devices.taco.core import TacoDevice
+from nicos.core import MASTER
 
 
 class ModBus(TacoDevice, Device):
@@ -238,7 +239,7 @@ class Vacuum(Readable):
             ret = 10.0 ** (pressure / 4000.0 - 12.5) # mbar
             realunit = 'mbar'
         if self.unit != realunit:
-            if self._mode == 'master':
+            if self._mode == MASTER:
                 self.unit = 'Torr'
             else:
                 self.log.warning('unit should be set to %s' % realunit)

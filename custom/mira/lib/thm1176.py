@@ -33,6 +33,7 @@ import struct
 
 from nicos.core import status, Measurable, Param, Value, usermethod, \
      CommunicationError, ModeError
+from nicos.core import SIMULATION, SLAVE
 
 usbbus_pat = re.compile(r'Bus=(\s*\d+)')
 usbdev_pat = re.compile(r'Dev#=(\s*\d+)')
@@ -51,7 +52,7 @@ class THM(Measurable):
 
     def doInit(self, mode):
         self._io = None
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self.doReset()
 
     def doReadFmtstr(self):
@@ -141,7 +142,7 @@ class THM(Measurable):
     @usermethod
     def zero(self):
         """Zero the probe in zero-gauss chamber."""
-        if self._mode == 'slave':
+        if self._mode == SLAVE:
             raise ModeError(self, 'cannot zero probe in slave mode')
         elif self._sim_active:
             return
