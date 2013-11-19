@@ -9,19 +9,25 @@ includes = ['jcns_io']
 tango_host = 'tango://cpci01.antares.frm2:10000'
 
 devices = dict(
-    flex_axis_1 = device('devices.tango.Motor',
+    cryo_vertical = device('devices.tango.Motor',
                          description = 'Flex Achse 1',
                          tangodevice = '%s/antares/fzjs7/Flex_Achse_1' % tango_host,
+                         abslimits = (-500000, 500000),
+                         unit = 'microsteps',
                         ),
 
-    flex_axis_2 = device('devices.tango.Motor',
+    cryo_horizontal = device('devices.tango.Motor',
                          description = 'Flex Achse 2',
                          tangodevice = '%s/antares/fzjs7/Flex_Achse_2' % tango_host,
+                         abslimits = (-500000, 500000),
+                         unit = 'microsteps',
                         ),
 
-    flex_axis_3 = device('devices.tango.Motor',
+    cryo_rotation = device('devices.tango.Motor',
                          description = 'Flex Achse 3',
                          tangodevice = '%s/antares/fzjs7/Flex_Achse_3' % tango_host,
+                         abslimits = (0, 360),
+                         unit = 'deg',
                         ),
 
     # monochromator. monoswitch is defined in jcns_io.py

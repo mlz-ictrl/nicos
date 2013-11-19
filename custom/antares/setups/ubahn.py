@@ -5,5 +5,5 @@ description = 'UBahn setup'
 group = 'optional'
 
 devices = dict(
-    UBahn = device('frm2.ubahn.UBahn'),
+    UBahn = device('frm2.ubahn.UBahn', fmtstr='%s'),
 )

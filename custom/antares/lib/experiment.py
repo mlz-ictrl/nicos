@@ -31,7 +31,7 @@ import os
 from os import path
 
 from nicos.core import Param, Override, usermethod
-from frm2.experiment import Experiment as FRM2Experiment  # pylint: disable=F0401
+from nicos.frm2.experiment import Experiment as FRM2Experiment
 
 
 class Experiment(FRM2Experiment):
@@ -136,4 +136,3 @@ class Experiment(FRM2Experiment):
                            'argument given. '
                            'continuing with default user....')
         return kwds
-

@@ -2,7 +2,7 @@ description = 'Fundamental Functions of ANTARES'
 
 group = 'lowlevel'
 
-includes = ['reactor','shutters','collimator','pilz_states','center3']
+includes = ['reactor','shutters','collimator','pilz_states','center3','ubahn']
 
 devices = dict(
 # Here we intend to put fundamental devices always needed for ANTARES

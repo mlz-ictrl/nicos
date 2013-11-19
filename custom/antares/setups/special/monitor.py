@@ -35,6 +35,14 @@ _huberblock = Block('HUBER Small Sample Manipulator', [
     'huber',
 )
 
+_batteryblock = Block('ZEBRA Battery Temperature', [
+    BlockRow(
+        Field(dev='T1'), Field(dev='T2'),
+        ),
+    ],
+    'battery',
+)
+
 
 _servostarblock = Block('Servostar Large Sample Manipulator', [
     BlockRow(
@@ -51,7 +59,7 @@ _detectorblock = Block('Detector', [
     BlockRow(
         Field(name='CCD status', key='ccd/status', width=25, item=1),
         ),
-   BlockRow(
+    BlockRow(
         Field(name='bin', key='ccd.bin'),
         Field(name='flip (H,V)', key='ccd.flip'),
         Field(name='rotation', key='ccd.rotation'),
@@ -180,6 +188,7 @@ _middlecolumn = Column(
     _huberblock,
     _servostarblock,
     _detector_translationblock,
+    _batteryblock,
 )
 
 _rightcolumn = Column(
