@@ -203,13 +203,11 @@ class ConnectionHandler(BaseRequestHandler):
         if he is None:
             self.controller.controlling_user = me
             return True
-        elif he.name != me.name:
-            if he.level < me.level:
-                # user is not controlling, but currently controlling
-                # user has lower priority
-                return True
+        if he.level > me.level:
+            # user is not controlling, and currently controlling
+            # user has higher priority
             return False
-        # user is already the controlling user
+        # controlling user has same or lower priority (may be the same user)
         return True
 
     def handle(self):
@@ -312,7 +310,7 @@ class ConnectionHandler(BaseRequestHandler):
 
     # -- Script control commands ------------------------------------------------
 
-    @command(needcontrol=True, needscript=False)
+    @command(needscript=False)
     def start(self, name, code):
         """Start a script within the script thread.
 
@@ -320,7 +318,7 @@ class ConnectionHandler(BaseRequestHandler):
         """
         self.queue(name, code)
 
-    @command(needcontrol=True)
+    @command()
     def queue(self, name, code):
         """Start a script, or queue it if the script thread is busy.
 
@@ -446,7 +444,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.controller.set_continue(('stop', level, self.user.name))
             self.write(ACK)
 
-    @command(needcontrol=True)
+    @command()
     def emergency(self):
         """Stop the script unconditionally and run emergency stop functions.
 
@@ -510,7 +508,7 @@ class ConnectionHandler(BaseRequestHandler):
         else:
             self.write(STX, serialize(retval))
 
-    @command(needcontrol=True)
+    @command()
     def simulate(self, name, code, prefix):
         """Simulate a named script by forking into simulation mode.
 
