@@ -237,10 +237,11 @@ class IPCModBusRS232(IPCModBus):
     def doInit(self, mode):
         self._lock = RLock()
         self._connection = None
-        try:
-            self.doReset()
-        except Exception:
-            self.log.exception('IPC: exception during init')
+        if mode != 'simulation':
+            try:
+                self.doReset()
+            except Exception:
+                self.log.exception('IPC: exception during init')
 
     def _setMode(self, mode):
         IPCModBus._setMode(self, mode)
