@@ -529,8 +529,8 @@ class Experiment(Device):
 
     def doUpdateManagerights(self, mrinfo):
         """check and transform the managerights dict into values used later"""
-        if mrinfo is None:
-            return {}   # return substitute value....
+        if mrinfo in (None, False): # ease upgrade 2.4->2.5
+            self._setROParam('managerights', readonlydict())
         elif mrinfo:
             changed = dict()
             # check values and transform them to save time later
