@@ -25,7 +25,7 @@
 """Core data handling classes."""
 
 from nicos import session
-from nicos.core import Device, Param, listof
+from nicos.core import Device, Param, listof, INFO_CATEGORIES
 from nicos.utils import lazy_property
 from nicos.core import SIMULATION
 
@@ -66,6 +66,11 @@ class Dataset(object):
     # number of xvalues belonging to environment devices
     envvalues = 0
 
+    # stuff for image support
+    imageinfos = []
+    # storage for header info
+    headerinfo = {}
+
     # cached info for all sinks to use
     xvalueinfo = []
     xrange = None
@@ -95,6 +100,35 @@ class Dataset(object):
     @lazy_property
     def yunits(self):
         return [v.unit for v in self.yvalueinfo]
+
+    def __init__(self):
+        # correctly init mutable types to avoid collecting dust
+        self.headerinfo = {}
+        self.imageinfos = []
+        self.sinks = []
+        self.devices = []
+        self.positions = []
+        self.multistep = []
+        self.detlist = []
+        self.envlist = []
+        self.preset = {}
+        self.sinkinfo = {}
+        self.xresults = []
+        self.yresults = []
+
+    def updateHeaderInfo(self, updatedict=None):
+        bycategory = {}
+        headerinfo = {}
+        # XXX: if updatedict is given, only update those devices positions instead of reading all
+        for _, device in sorted(session.devices.iteritems()):
+            if device.lowlevel:
+                continue
+            for category, key, value in device.info():
+                bycategory.setdefault(category, []).append((device, key, value))
+        for catname, catinfo in INFO_CATEGORIES:
+            if catname not in bycategory:
+                continue
+            headerinfo[catinfo] = bycategory[catname]
 
 
 class DataSink(Device):

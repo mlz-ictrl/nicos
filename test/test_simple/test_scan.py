@@ -68,6 +68,9 @@ def test_scan():
     session.experiment.setEnvironment([avg(mm), minmax(mm)])
 
     try:
+        # avoid strange timing bug, yielding 0 for manual:min on my system! EF
+        import time
+        time.sleep(0.1) # now we spill CacheLock Errors on certain tests... ?!?!?
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0., 'test scan', manual=1)
         dataset = session.experiment._last_datasets[-1]

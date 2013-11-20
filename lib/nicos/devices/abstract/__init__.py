@@ -27,11 +27,12 @@
 import sys
 import threading
 from time import time, sleep
+import numpy
 
 from nicos import session
 from nicos.core import status, usermethod, Device, DeviceMixinBase, \
      Readable, Moveable, Measurable, HasLimits, HasOffset, HasPrecision, \
-     HasMapping, ConfigurationError, \
+     HasMapping, ConfigurationError, NicosError, \
      ModeError, ProgrammingError, PositionError, InvalidValueError
 from nicos.core.params import subdir, Param, Override, oneof
 from nicos.core import SIMULATION, SLAVE
@@ -121,6 +122,75 @@ class CanReference(DeviceMixinBase):
         return newpos
 
 
+
+
+class ImageInfo(object):
+    """Class for storing data about imageType detectors which are passed around
+    """
+    # from which detector is this? / which detector to take thae data from?
+    detector = None
+    # which format does the detector deliver? (One of IMAGE_TYPES...)
+    imageType = None
+    # wich filesaver is active for this imageType?
+    filesaver = None
+    # which (if any) is the currently opened datafile
+    file = None
+    # shortname of the file
+    filename = ''
+    # lang name of the file (subpath starting at proposalpath)
+    filepath = ''
+    # if this is part of a larger dataset, keep a reference to it
+    dataset = None
+    # also keep a copy of the scanpoint number
+    scanpoint = 0
+    # header data: mapping categories to lists of (devname, attribute, value) tupels
+    header = {}
+    # starting timestamp
+    begintime = 0
+    # final timestamp
+    endtime = 0
+    # allow filesavers to store additional data here
+    data = None
+
+    def __init__(self):
+        self.header = {}
+
+    def __repr__(self):
+        return repr(self.__dict__)
+
+class ImageType(object):
+    """Helper Class to determine if a given image-type can be converted to another"""
+    def __init__(self, shape, dtype=None, dimnames=None):
+        """creates a datatype with given (numpy) shape and (numpy) data format
+
+        Also stores the 'names' of the used dimensions as a list called dimnames.
+        Defaults to 'X', 'Y' for 2D data and 'X', 'Y', 'Z' for 3D data.
+        """
+        if dtype == None: # try to derive from a given numpy.array
+            dtype = shape.dtype
+            shape = shape.shape
+        if dimnames is None:
+            dimnames = ['X','Y','Z','T','E','U','V','W'][:len(shape)]
+        self.shape = shape
+        self.dtype = dtype
+        self.dimnames = dimnames
+
+    def canConvertTo(self, imageType):
+        """checks if we can be converted to the given imageType"""
+        # XXX
+        if self.shape == imageType.shape:
+            return True
+        return False
+
+    def convertTo(self, data, imageType):
+        """converts given data to given imageType and returns converted data"""
+        if not self.canConvertTo(imageType):
+            raise ProgrammingError('Can not convert to requested datatype')
+        return numpy.array(data, dtype=imageType.dtype)
+
+    def __repr__(self):
+        return 'ImageType(%r, %r, %r)' % (self.shape, self.dtype, self.dimnames)
+
 class ImageSaver(Device):
     """
     Abstract baseclass for saving >=2D image type data
@@ -129,52 +199,66 @@ class ImageSaver(Device):
     * into a different subdir
     * name files differently to avoid nameclashes
     (both would also be ok.)
+
+    Method calling sequence is as follows:
+    - prepareImage (before the dector starts counting, but after it got its presets)
+    - addHeader (the detector may or may not already count) (called several times)
+    - updateImage (may be called between 1 and many times, useful for livedata display)
+    - saveImage (last data transfer, after detector stopped counting)
+    - finalizeImage ('clean-up' operation)
+
+    Classes should be able to handle more than one call to saveImage,
+    which may happen if a count/scan is interrupted at a specific place.
     """
     parameters = {
-        'subdir': Param('Subdirectory name for the image files',
-                        type=subdir, mandatory=True),
-        'nametemplate': Param('Template for data file names',
+        'subdir': Param('Filetype specific subdirectory name for the image files',
+                        type=subdir, mandatory=False, default=''),
+        'filenametemplate': Param('Template for | separated data file names (will be hardlinked)',
                               type=str, default='%08d.dat', settable=True),
     }
 
-    def prepareImage(self, subdir='', *args):
-        """should prepare an Imagefile in the given subdir"""
+    fileFormat = 'undefined'     # should be unique amongst filesavers!, used for logging/output
+
+    def acceptImageType(self, imageType):
+        """returns True if the given imageType can be saved"""
+        raise NotImplementedError('implement acceptImageType')
+
+    def prepareImage(self, imageinfo, subdir=''):
+        """Prepare an Imagefile in the given subdir if we support the requested imageType.
+        """
         exp = session.experiment
-        s, l, f = exp.createImageFile(self.nametemplate, subdir, self.subdir)
-        self._filename = s
-        self._filepath = l
-        self._file = f
+        s, l, f = exp.createImageFile(self.filenametemplate, subdir, self.subdir, scanpoint = imageinfo.scanpoint)
+        if not f:
+            raise NicosError(self, 'Could not create file %r' % l)
+        imageinfo.filename = s
+        imageinfo.filepath = l
+        imageinfo.file = f
 
-    def addHeader(self, *args):
-        """Adds headerinfo to the file, may be called several times..."""
-        # may also store the info first and write it to the file in saveImage later...
-        pass
+    def updateImage(self, imageinfo, image):
+        """updates the image with the given content
 
-    def saveImage(self, content, *args):
+        usefull for live-displays or fileformats wanting to store several
+        states of the data-aquisition.
+        """
+        return None
+
+    def saveImage(self, imageinfo, image):
         """Saves the given image content
 
         content MUST be a numpy array with the right shape
         if the fileformat to be supported has image shaping options,
         they should be applied here.
         """
-        # stupid validator, making sure we have a numpy.array:
-        # content = np.array(content)
+        raise NotImplementedError('implement saveImage')
 
-    def updateImage(self, content, *args):
-        """updates the image with the given content
-
-        usefull for live-displays or fileformats wanting to store several
-        states of the data-aquisition
-        """
-
-    def finalizeImage(self, *args):
+    def finalizeImage(self, imageinfo):
         """finalizes the on-disk image, normally just a close"""
-        if self._file:
-            self._file.close()
-            self._file = None
+        if imageinfo.file:
+            imageinfo.file.close()
+            imageinfo.file = None
         else:
-            raise ProgrammingError(self, 'finalize before prepare or file '
-                                          'could not be created!', exc=1)
+            raise ProgrammingError(self, 'finalize before prepare or save called'
+                                          ' twice!', exc=1)
 
 
 class ImageStorage(DeviceMixinBase):
@@ -189,15 +273,20 @@ class ImageStorage(DeviceMixinBase):
     }
 
     parameters = {
-        'subdir': Param('Subdirectory name for the image files',
+        'subdir': Param('Detector specific subdirectory name for the image files',
                         type=subdir, mandatory=True),
-        'nametemplate': Param('Template for data file names',
-                              type=str, default='%08d.dat', settable=True),
+        'lastfilename': Param('last written file by this detector',
+                              type=str, default='', settable=True),
     }
 
-    _file = None
+    _imageType = None # None or one of IMAGE_TYPES
+    _imageinfos = [] # stores all active imageinfos
+    _header = None
+    need_clear = False
 
+    # old stuff (to be ported and then removed...
     def _newFile(self):
+        self.log.error('Deprecated: _newFile', exc=1)
         exp = session.experiment
         sname, lname, fp = exp.createImageFile(self.nametemplate, self.subdir)
         self._imagename = sname
@@ -206,6 +295,7 @@ class ImageStorage(DeviceMixinBase):
         self._counter = session.experiment.lastimage
 
     def _writeFile(self, content, writer=file.write):
+        self.log.error('Deprecated: _writeFile', exc=1)
         if self._file is None:
             raise ProgrammingError(self, '_writeFile before _newFile, '
                                           'FIX CODE!', exc=1)
@@ -216,32 +306,102 @@ class ImageStorage(DeviceMixinBase):
             self._file = None
 
     #
-    # multiplier for Saving Fileformats.... used by later patches....
+    # new stuff: multiplier for Saving Fileformats.... used by later patches....
     #
-    def prepareImage(self, *args):
+    def prepareImageFile(self, dataset=None):
         """should prepare an Imagefile"""
+        if self.need_clear:
+            self.clearImage()
+        imageinfos = []
         for ff in self._adevs['fileformats']:
-            ff.prepareImage(self.subdir, *args)
+            if ff.acceptImageType(self._imageType):
+                imageinfo = ImageInfo()
+                imageinfo.detector = self
+                imageinfo.imageType = self._imageType
+                imageinfo.begintime = time()
+                imageinfo.header = self._header if self._header else {}
+                imageinfo.filesaver = ff
+                imageinfo.scanpoint = dataset.curpoint if dataset else 0
+                ff.prepareImage(imageinfo, self.subdir)
+                imageinfos.append(imageinfo)
+        if dataset:
+            for imageinfo in imageinfos:
+                imageinfo.dataset = dataset
+                imageinfo.header.update(dataset.headerinfo)
+            dataset.imageinfos = imageinfos
+        self._imageinfos = imageinfos
+        self.lastfilename = imageinfos[0].filename
 
-    def addHeader(self, *args):
-        """Adds headerinfo to the file, may be called several times..."""
-        for ff in self._adevs['fileformats']:
-            ff.addHeader(*args)
+    def addInfo(self, dataset, category, valuelist):
+        for imageinfo in self._imageinfos:
+            imageinfo.header[category] = valuelist
 
-    def saveImage(self, *args):
+    def addHeader(self, category, valuelist):
+        if self._header:
+            self._header[category] = valuelist
+        else:
+            self._header = {category : valuelist}
+        for imageinfo in self._imageinfos:
+            imageinfo.header[category] = valuelist
+
+    def updateImage(self, image=Ellipsis):
+        """updates the given image
+
+        If no image is specified, try to fetch one using self.readImage.
+        If that returns a valid image, distribute to all ImageInfos"""
+        if image is Ellipsis:
+            image = self.readImage()
+        if image is not None:
+            for imageinfo in self._imageinfos:
+                imageinfo.filesaver.updateImage(imageinfo, image)
+
+    def saveImage(self, image=Ellipsis):
         """Saves the given image content"""
-        for ff in self._adevs['fileformats']:
-            ff.saveImage(*args)
+        # trigger saving the image
+        # XXX: maybe do this in a thread to avoid delaying the countloop.....
+        if image is Ellipsis:
+            image = self.readFinalImage()
+        if image is not None:
+            for imageinfo in self._imageinfos:
+                imageinfo.filesaver.saveImage(imageinfo, image)
+        else:
+            self.log.error("Can't save Image, got no data!")
+            return
+        # finalize/close image
+        for imageinfo in self._imageinfos:
+            imageinfo.filesaver.finalizeImage(imageinfo)
+            imageinfo.data = None
+        self._imageinfos = []
+        self._header = None
 
-    def updateImage(self, *args):
-        """updates the given image content"""
-        for ff in self._adevs['fileformats']:
-            ff.updateImage(*args)
 
-    def finalizeImage(self, *args):
-        """finalize/close image"""
-        for ff in self._adevs['fileformats']:
-            ff.finalizeImage(*args)
+    #
+    # HW-specific 'Hooks'
+    #
+
+    def clearImage(self):
+        """Clears the last Image from the HW and prepare the acquisition of a new one.
+
+        This is called before the detector is counting and is intended to be
+        used an image-plate like detectors.
+        """
+        pass
+
+    def readImage(self):
+        """Reads and returns the current/intermediate image from the HW.
+
+        This is called while the detector is counting.
+        May return None if not supported (as on imageplates).
+        """
+        return None
+
+    def readFinalImage(self):
+        """Reads and returns the final image from the HW.
+
+        This is called after the detector finished counting.
+        this should return a numpy array of the right shape and type.
+        """
+        raise NotImplementedError('implement readFinalImage')
 
 
 class AsyncDetector(Measurable):

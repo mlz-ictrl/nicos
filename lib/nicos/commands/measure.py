@@ -24,13 +24,14 @@
 
 """Module for measuring user commands."""
 
-from time import sleep
+from time import sleep,  time as currenttime
 
 from nicos import session
 from nicos.core import Measurable, UsageError
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
 from nicos.core import SIMULATION
+from nicos.devices.abstract import ImageStorage
 
 
 __all__ = [
@@ -58,7 +59,7 @@ def _wait_for_pause(delay):
     session.log.info('counting resumed')
 
 
-def _count(detlist, preset, result):
+def _count(detlist, preset, result, dataset=None):
     """Low-level counting function.
 
     The loop delay is configurable in the instrument object, and defaults to
@@ -73,7 +74,15 @@ def _count(detlist, preset, result):
     delay = (session.instrument and session.instrument.countloopdelay or 0.025
              if session.mode != SIMULATION else 0.0)
     #advance imagecounter
-    session.experiment.advanceImageCounter(detset)
+    if not dataset:
+        dataset = session.experiment.createDataset()
+    session.experiment.advanceImageCounter(detset,  dataset)
+    imageinfos = []
+    for det in detset:
+        if isinstance(det, ImageStorage):
+            imageinfos.extend(det._imageinfos)
+    for imgi in imageinfos:
+        imgi.begintime = currenttime()
     session.beginActionScope('Counting')
     if session.experiment.pausecount:
         _wait_for_pause(delay)
@@ -92,6 +101,10 @@ def _count(detlist, preset, result):
                 if session.mode != SIMULATION:
                     det.duringMeasureHook(i)
                 if det.isCompleted():
+                    if isinstance(det, ImageStorage):
+                        for imageinfo in det._imageinfos:
+                            imageinfo.endtime = currenttime()
+                        det.saveImage()
                     detset.discard(det)
             if not detset:
                 # all detectors finished measuring
@@ -107,12 +120,19 @@ def _count(detlist, preset, result):
             sleep(delay)
         for det in detlist:
             try:
+                if isinstance(det, ImageStorage):
+                    det.saveImage()
                 det.save()
             except Exception:
                 det.log.exception('error saving measurement data')
     except:  # really ALL exceptions
         for det in detset:
             det.stop()
+            if isinstance(det, ImageStorage):
+                for imageinfo in det._imageinfos:
+                    imageinfo.endtime = currenttime()
+                det.updateImage()
+                det.saveImage()
         result.extend(sum((det.read() for det in detlist), []))
         raise
     finally:

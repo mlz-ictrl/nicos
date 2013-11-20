@@ -34,6 +34,7 @@ from nicos.utils import Repeater
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 from nicos.core import SIMULATION, SLAVE
+from nicos.devices.abstract import ImageStorage
 
 
 class SkipPoint(Exception):
@@ -135,6 +136,8 @@ class Scan(object):
                 continue
             for sink in self._sinks:
                 sink.addInfo(dataset, catinfo, bycategory[catname])
+            for imageinfo in dataset.imageinfos:
+                imageinfo.header[catinfo] = bycategory[catname]
         session.elog_event('scanbegin', dataset)
         session.beginActionScope(self.shortDesc())
 
@@ -143,7 +146,15 @@ class Scan(object):
             session.beginActionScope('Point %d' % num)
         else:
             session.beginActionScope('Point %d/%d' % (num, self._npoints))
+        # update dataset values
         self.dataset.curpoint = num
+        self.dataset.updateHeaderInfo(dict(zip(self._devices, xvalues)))
+        # propagate to the relevant objects
+        for det in self._detlist:
+            if isinstance(det, ImageStorage):
+                for catinfo, bycategory in self.dataset.headerinfo.iteritems():
+                    det.addHeader(catinfo, bycategory)
+                det.addHeader('scan', [(self, 'pointnum', '%d' % num)])
 
     def addPoint(self, xvalues, yvalues):
         self.dataset.xresults.append(xvalues)
@@ -294,9 +305,9 @@ class Scan(object):
                         if self._multistep:
                             for i in range(self._mscount):
                                 self.moveDevices(self._mswhere[i])
-                                _count(self._detlist, self._preset, result)
+                                _count(self._detlist, self._preset, result,  dataset=self.dataset)
                         else:
-                            _count(self._detlist, self._preset, result)
+                            _count(self._detlist, self._preset, result,  dataset=self.dataset)
                     finally:
                         actualpos += self.readEnvironment(started, currenttime())
                         self.addPoint(actualpos, result)
@@ -438,9 +449,9 @@ class ManualScan(Scan):
                 if self._multistep:
                     for i in range(self._mscount):
                         self.moveDevices(self._mswhere[i])
-                        _count(self._detlist, preset, result)
+                        _count(self._detlist, preset, result,  dataset=self.dataset)
                 else:
-                    _count(self._detlist, preset, result)
+                    _count(self._detlist, preset, result,  dataset=self.dataset)
             finally:
                 actualpos += self.readEnvironment(started, currenttime())
                 self.addPoint(actualpos, result)
@@ -563,12 +574,17 @@ class ContinuousScan(Scan):
                 self.dataset.curpoint += 1
                 self.addPoint(actualpos, diff)
                 last = read
+                for det in detlist:
+                    if isinstance(det, ImageStorage):
+                        det.updateImage()
         finally:
             for det in detlist:
                 try:
                     det.stop()
                 except Exception:
                     session.log.warning('could not stop %s' % det, exc=1)
+                if isinstance(det, ImageStorage):
+                    det.saveImage()
             session.endActionScope()
             device.stop()
             device.speed = original_speed

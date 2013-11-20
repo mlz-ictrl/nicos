@@ -361,13 +361,15 @@ class Experiment(Device):
     def imageCounterPath(self):
         return path.join(self.dataroot, self.imagecounter)
 
-    def advanceImageCounter(self, detlist=tuple()):
+    def advanceImageCounter(self, detlist=tuple(), dataset=None):
         """increments the value of the imagecounter if needed and returns it"""
         for det in detlist:
-            # only increment if there is at least one ImageStorage-type detector
+            # only increment for ImageStorage-type detector, also prepare them....
+            # -> if two such detectors are used, each one gets a different number
+            # -> no file collisions!
             if isinstance(det, ImageStorage):
                 updateFileCounter(self.imageCounterPath, self.lastimage + 1)
-                return self.lastimage
+                det.prepareImageFile(dataset)
         return self.lastimage
 
     def doReadLastimage(self):
@@ -1070,6 +1072,7 @@ class Experiment(Device):
         dataset.sinks = [sink for sink in session.datasinks
                          if sink.isActive(scantype)]
         dataset.started = time.localtime()
+        dataset.updateHeaderInfo()
         return dataset
 
     @property
