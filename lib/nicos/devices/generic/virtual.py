@@ -32,10 +32,9 @@ from math import exp
 
 import numpy as np
 
-from nicos import session
 from nicos.core import status, Readable, HasOffset, Param, Override, \
      oneof, tupleof, floatrange, Measurable, Moveable, Value
-from nicos.devices.abstract import Motor, Coder, ImageStorage
+from nicos.devices.abstract import Motor, Coder, ImageStorage, ImageType
 from nicos.devices.generic.detector import Channel
 
 
@@ -274,25 +273,54 @@ class Virtual2DDetector(ImageStorage, Measurable):
                             type=int),
     }
 
+    _imageType = ImageType((128, 128), '<u4')
+    _buf = None
+    _mythread = None
+    _stopflag = False
+
     def doSetPreset(self, **preset):
         self._lastpreset = preset
 
     def doStart(self, **preset):
         if preset:
             self._lastpreset = preset
-        self._newFile()
         t = self._lastpreset.get('t', 1)
-        for i in range(int(t)):
-            array = self._generate(i+1).astype('<u4')
-            buf = buffer(array)
-            session.updateLiveData('', '', '<u4', 128, 128, 1, 1, buf)
-            self.lastcounts = array.sum()
-            time.sleep(1)
-        session.updateLiveData('', self.lastfilename, '<u4', 128, 128, 1, 1, buf)
-        self._writeFile(buf)
+        if self._mythread:
+            self._stopflag = True
+            self._mythread.join()
+        self._mythread = threading.Thread(target=self._run,  args=(t, ))
+        self._mythread.start()
+
+    def _run(self,  maxtime):
+        try:
+            for i in range(int(maxtime)):
+                array = self._generate(i+1).astype('<u4')
+                self._buf = array
+                self.lastcounts = array.sum()
+                self.updateImage(array)
+                if self._stopflag:
+                    break
+                time.sleep(1)
+        finally:
+            self._stopflag = False
+            self._mythread = None
 
     def doStop(self):
-        pass
+        self._stopflag = True
+
+    def doStatus(self,  maxage=0):
+        if self._stopflag or self._mythread:
+            return status.BUSY,  'busy'
+        return status.OK,  'idle'
+
+    def readImage(self):
+        return self._buf
+
+    def readFinalImage(self):
+        return self._buf
+
+    def clearImage(self):
+        self._buf = None
 
     def doRead(self, maxage=0):
         return [self.lastcounts, path.abspath(self.lastfilename)]
@@ -303,7 +331,7 @@ class Virtual2DDetector(ImageStorage, Measurable):
                 Value(self.name + '.file', type='info', fmtstr='%s'))
 
     def doIsCompleted(self):
-        return True
+        return not self._mythread
 
     def _generate(self, t):
         dst = self._adevs['distance'].read() * 5

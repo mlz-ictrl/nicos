@@ -435,28 +435,33 @@ class Experiment(Device):
         file by themselfs. In this case, the filemode is (obviously) not
         managed by us.
 
-        if the nametemlate contains '|' (pipe symbols), it is split there and
-        all resulting template names are created as hardlinks.
+        The nametemplate can be either a string or a list of strings.
+        In the second case, the first listentry is used to create the file and the
+        remaining ones will be hardlinked to this file if the os supports this.
 
-        In 'simulation' mode this returns a file-like object to avoid accessing
+        In SIMULATION mode this returns a file-like object to avoid accessing
         or changing the filesystem.
         """
-        if '%(' in nametemplate:
-            kwds = dict(self.propinfo)
-            kwds.update(kwargs)
-            kwds.update(counter=counter, proposal=self.proposal)
-            try:
-                filename = nametemplate % DeviceValueDict(kwds)
-            except KeyError:
-                self.log.error('Can\'t create datafile, illegal key in '
-                               'nametemplate!')
-                raise
-        else:
-            filename = nametemplate % counter
-        otherfiles = []
-        if '|' in filename:
-            otherfiles = filename.split('|')
-            filename = otherfiles.pop(0)
+        if isinstance(nametemplate, str):
+            nametemplate = [nametemplate]
+        # translate entries
+        filenames = []
+        for nametmpl in nametemplate:
+            if '%(' in nametmpl:
+                kwds = dict(self.propinfo)
+                kwds.update(kwargs)
+                kwds.update(counter=counter, proposal=self.proposal)
+                try:
+                    filename = nametmpl % DeviceValueDict(kwds)
+                except KeyError:
+                    self.log.error('Can\'t create datafile, illegal key in '
+                                   'nametemplate!')
+                    raise
+            else:
+                filename = nametmpl % counter
+            filenames.append(filename)
+        filename = filenames[0]
+        otherfiles = filenames[1:]
         fullfilename = self.getDataFilename(filename, *subdirs)
         if path.isfile(fullfilename):
             raise ProgrammingError('Data file named %r already exists! '

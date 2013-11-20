@@ -34,7 +34,7 @@ from nicos.core import status, usermethod, Device, DeviceMixinBase, \
      Readable, Moveable, Measurable, HasLimits, HasOffset, HasPrecision, \
      HasMapping, ConfigurationError, NicosError, \
      ModeError, ProgrammingError, PositionError, InvalidValueError
-from nicos.core.params import subdir, Param, Override, oneof
+from nicos.core.params import subdir, Param, Override, oneof, listof
 from nicos.core import SIMULATION, SLAVE
 
 
@@ -213,8 +213,8 @@ class ImageSaver(Device):
     parameters = {
         'subdir': Param('Filetype specific subdirectory name for the image files',
                         type=subdir, mandatory=False, default=''),
-        'filenametemplate': Param('Template for | separated data file names (will be hardlinked)',
-                              type=str, default='%08d.dat', settable=True),
+        'filenametemplate': Param('List of templates for data file names (will be hardlinked)',
+                              type=listof(str), default=['%08d.dat'], settable=True),
     }
 
     fileFormat = 'undefined'     # should be unique amongst filesavers!, used for logging/output

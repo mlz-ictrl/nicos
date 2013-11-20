@@ -27,7 +27,7 @@
 from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed, setups
 
 config = ('Default', [
-        tabbed(#('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel'), setups('sans')),
+        tabbed(('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel'), setups('sans')),
                ('Expert mode',
                 vsplit(
                     hsplit(
