@@ -123,3 +123,85 @@ def getExecutingUser():
 
 def checkUserLevel(user, level=0):
     return user.level >= level
+
+
+class DeviceValueDict(object):
+    """Convenience class to be used for templating device values/params.
+
+    Constructor works like a dict, so you can specify any mappings there.
+
+    Requesting a key, the following rules are checked in that order:
+    1) if a key is request which was specified to the constructor,
+       that specified value will be returned.
+    2) if a key names a device, that device is read and returned as string
+       using dev.format.
+    3) if a key contains dots and the substring before the first dot names
+       a device, we follow the 'chain' of substring named attributes/calls.
+       A substring ending in '()' causes the attribute to be called.
+       If all substrings could be resolved we return the (stringified)
+       attribute.  If some steps fail, we warn and return an empty string.
+       This is unlike an ordinary dictionary which would raise a KeyError
+       if the requested key does not exist.
+
+    Examples:
+
+    >>> d = DeviceValueDict(stuff=1)
+    >>> d['experiment.proposal']
+    'p4992'
+    >>> '%(stuff)03d_%(Sample.samplename)s' % d # intended use case
+    '001_Samplename of currently used sample.'
+    """
+    def __init__(self, *args,  **kwargs):
+        self._constvals = dict(*args,  **kwargs)
+
+    def __setitem__(self, key, value):
+        self._constvals[key] = value
+
+    def update(self, *args, **kwargs):
+        self._constvals.update(*args,  **kwargs)
+
+    def __delitem__(self, key):
+        del self._constvals[key]
+
+    def __getitem__(self, key):
+        res = ''
+        # we dont want to raise anything!
+        try:
+            # value given to constructor?
+            if key in self._constvals:
+                res = self._constvals[key]
+            # just a device?
+            elif key in session.devices:
+                dev = session.getDevice(key)
+                res = dev.format(dev.read())
+            # attrib path? (must start with a device!)
+            elif '.' in key:
+                keys = key.split('.')
+                # handle session specially
+                if keys[0] == 'session':
+                    dev = session
+                else:
+                    dev = session.getDevice(keys[0])
+                # we got a starting point, follow the chain of attribs...
+                for sub in keys[1:]:
+                    if hasattr(dev, '_adevs') and sub in dev._adevs:
+                        dev = dev._adevs[sub]
+                        continue
+                    elif sub.endswith('()'):
+                        sub = sub[:-2]
+                        if hasattr(dev, sub):
+                            self.log.debug('calling %r' % getattr(dev, sub))
+                            dev = getattr(dev, sub)() # call is intended here
+                            continue
+                    elif hasattr(dev, sub):
+                        dev = getattr(dev, sub)
+                        continue
+                    session.log.warning("invalid key %r requested, returning ''" % key)
+                    break
+                else:
+                    # stringify result
+                    res = str(dev)
+        except Exception:
+            session.log.warning("invalid key %r requested, returning ''" % key)
+        finally:
+            return res # pylint: disable=W0150

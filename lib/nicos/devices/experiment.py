@@ -31,6 +31,7 @@ import time
 
 from os import path
 from uuid import uuid1
+from StringIO import StringIO
 
 # both will fail on M$win
 try:
@@ -51,6 +52,7 @@ from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
      enableDirectory, readonlydict, lazy_property, printTable, \
      DEFAULT_FILE_MODE, readFileCounter, updateFileCounter
+from nicos.core.utils import DeviceValueDict
 from nicos.utils.ftp import ftpUpload
 from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
@@ -58,7 +60,6 @@ from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
 from nicos.devices.abstract import ImageStorage
 from nicos.core import SIMULATION, MASTER
-
 
 class Sample(Device):
     """A special device to represent a sample.
@@ -380,6 +381,9 @@ class Experiment(Device):
         relative to proposalpath, i.e. the 'file path within the current
         experiment' and the filehandle to the already opened (for writing)
         file which has the right FS attributes.
+
+        the nametemplate may contain references like %(counter)s,
+        %(scanpoint)s or %(proposal)s which replaced with appropriate values.
         """
         fullfilename, fp = self.createDataFile(nametemplate, self.lastimage,
                                                *subdirs, **kwargs)
@@ -399,7 +403,8 @@ class Experiment(Device):
         returned directory is created if it did not exist
         """
         dirname = path.abspath(path.join(self.datapath, *subdirs))
-        ensureDirectory(dirname, **self.managerights)
+        if self._mode != SIMULATION:
+            ensureDirectory(dirname, **self.managerights)
         return dirname
 
     def getDataFilename(self, filename, *subdirs):
@@ -413,7 +418,8 @@ class Experiment(Device):
         if path.isabs(filename):
             fullname = path.join(self.dataroot, filename[1:])
             dirname = path.dirname(fullname)
-            ensureDirectory(dirname, **self.managerights)
+            if self._mode != SIMULATION:
+                ensureDirectory(dirname, **self.managerights)
         else:
             fullname = path.join(self.getDataDir(*subdirs), filename)
         return fullname
@@ -426,30 +432,58 @@ class Experiment(Device):
         created. This is needed for some data-saving libraries creating the
         file by themselfs. In this case, the filemode is (obviously) not
         managed by us.
+
+        if the nametemlate contains '|' (pipe symbols), it is split there and
+        all resulting template names are created as hardlinks.
+
+        In 'simulation' mode this returns a file-like object to avoid accessing
+        or changing the filesystem.
         """
         if '%(' in nametemplate:
             kwds = dict(self.propinfo)
+            kwds.update(kwargs)
             kwds.update(counter=counter, proposal=self.proposal)
             try:
-                filename = nametemplate % kwds
+                filename = nametemplate % DeviceValueDict(kwds)
             except KeyError:
                 self.log.error('Can\'t create datafile, illegal key in '
                                'nametemplate!')
                 raise
         else:
             filename = nametemplate % counter
+        otherfiles = []
+        if '|' in filename:
+            otherfiles = filename.split('|')
+            filename = otherfiles.pop(0)
         fullfilename = self.getDataFilename(filename, *subdirs)
         if path.isfile(fullfilename):
-            raise ProgrammingError('Data file named %r already exists!' %
+            raise ProgrammingError('Data file named %r already exists! '
+                                   'Check filenametemplates !' %
                                    fullfilename)
-        if kwargs.get('nofile'):
-            return (fullfilename, None)
-        self.log.debug('creating file %r' % fullfilename)
-        fp = open(fullfilename, 'wb')
-        if self.managerights:
-            os.chmod(fullfilename,
-                     self.managerights.get('enableFileMode',
-                                            DEFAULT_FILE_MODE))
+        if self._mode == SIMULATION or kwargs.get('nofile'):
+            self.log.debug('Not creating any file, returning a StringIO buffer instead.')
+            fp = StringIO()
+        else:
+            self.log.debug('Creating file %r' % fullfilename)
+            fp = open(fullfilename, 'wb')
+            if self.managerights:
+                os.chmod(fullfilename,
+                         self.managerights.get('enableFileMode',
+                                                DEFAULT_FILE_MODE))
+            linkfunc = os.link if hasattr(os,  'link') else \
+                       os.symlink if hasattr(os, 'symlink') else None
+            if linkfunc:
+                for otherfile in otherfiles:
+                    self.log.debug('Linking %r to %r' % (self.getDataFilename(
+                                                otherfile, *subdirs), fullfilename))
+                    try:
+                        linkfunc(fullfilename, self.getDataFilename(otherfile, *subdirs))
+                    except OSError:
+                        self.log.warning('linking %r to %r failed, ignoring' %
+                                         (self.getDataFilename(otherfile, *subdirs),
+                                          fullfilename))
+            else:
+                self.log.warning('can\'t link datafiles, no os support!')
         return (fullfilename, fp)
 
 
@@ -471,8 +505,9 @@ class Experiment(Device):
             return
         for linktarget in self.linkpaths:
             link = path.join(linktarget, '_'.join(subdirs + tuple(filename)))
-            ensureDirectory(path.dirname(link), **self.managerights)
-            os.link(fullname, link)
+            if self._mode != SIMULATION:
+                ensureDirectory(path.dirname(link), **self.managerights)
+                os.link(fullname, link)
 
     #
     # nicos interface
@@ -534,6 +569,8 @@ class Experiment(Device):
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         """Called by `.NewExperiment`."""
+        if self._mode == SIMULATION:
+            raise UsageError('Simulating switching experiments is not supported!')
         # determine real proposal number: some instruments assign a prefix to
         # numeric proposals
         if isinstance(proposal, (int, long)):
