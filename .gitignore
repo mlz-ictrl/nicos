@@ -13,16 +13,7 @@ nicos.conf
 
 log/*/current
 
-data/*.py
-data/*.dat
-data/scancounter
-data/imagecounter
-data/cache/*
-data/201?/*
-data/current
-data/logbook
-data/2ddata
-data/status.html
+data/
 
 doc/build/
 doc/source/auto
