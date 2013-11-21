@@ -50,6 +50,7 @@ class Scan(object):
     """
 
     shortdesc = None
+    name = 'scan'
 
     def __init__(self, devices, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,

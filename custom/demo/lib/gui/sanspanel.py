@@ -77,7 +77,7 @@ class SANSPanel(Panel):
         self.widget = LWWidget(self)
         self.widget.setAxisLabels('pixels x', 'pixels y')
         self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.widget.setKeepAspect(False)
+        self.widget.setKeepAspect(True)
         self.widget.setControls(Logscale | MinimumMaximum | Integrate |
                                 Histogram | CreateProfile)
         self.widgetLayout.addWidget(self.widget)

@@ -33,7 +33,7 @@ from nicos.devices.abstract import ImageSaver
 
 class LiveViewSink(ImageSaver):
     parameter_overrides = {
-        'filenametemplate' : Override(mandatory=False, settable=False, userparam=False, default=''),
+        'filenametemplate' : Override(mandatory=False, settable=False, userparam=False, default='%08d.dat'),
     }
 
     fileFormat = 'Live'     # should be unique amongst filesavers!
@@ -41,17 +41,17 @@ class LiveViewSink(ImageSaver):
     def acceptImageType(self,  imageType):
         return len(imageType.shape) == 2 and imageType.dtype == '<u4'
 
-    def prepareImage(self, imageInfo,  subdir=''):
+    def prepareImage(self, imageinfo,  subdir=''):
         pass
 
-    def updateImage(self, imageInfo, image):
+    def updateImage(self, imageinfo, image):
         resX, resY = image.shape
         # see nicos.core.sessions.__init__ : updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
-        session.updateLiveData('', imageInfo.filename, '<u4', resX, resY, 1,
-                               time.time()-imageInfo.begintime, buffer(image.astype('<u4')))
+        session.updateLiveData('', imageinfo.filename, '<u4', resX, resY, 1,
+                               time.time()-imageinfo.begintime, buffer(image.astype('<u4')))
 
-    def saveImage(self, imageInfo, image):
-        self.updateImage(imageInfo, image)
+    def saveImage(self, imageinfo, image):
+        self.updateImage(imageinfo, image)
 
-    def finalizeImage(self, imageInfo):
+    def finalizeImage(self, imageinfo):
         pass

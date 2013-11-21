@@ -199,10 +199,10 @@ class BerSANSFileFormat(ImageSaver):
     def acceptImageType(self, imageType):
         return len(imageType.shape) == 2
 
-    def prepareImage(self, imageInfo, subdir=''):
+    def prepareImage(self, imageinfo, subdir=''):
         """should prepare an Imagefile in the given subdir"""
-        ImageSaver.prepareImage(self,  imageInfo,  subdir)
-        imageInfo.data = DeviceValueDict(fileName=imageInfo.filename,
+        ImageSaver.prepareImage(self,  imageinfo,  subdir)
+        imageinfo.data = DeviceValueDict(fileName=imageinfo.filename,
                                  fileDate=strftime('%m/%d/%Y'),
                                  fileTime=strftime('%r'),
                                  FromDate=strftime('%m/%d/%Y'),
@@ -215,7 +215,7 @@ class BerSANSFileFormat(ImageSaver):
                                  #~ scaninfo=dataset.sinkinfo,
                                 )
 
-    def saveImage(self, imageInfo,  image):
+    def saveImage(self, imageinfo,  image):
         """Saves the given image content
 
         content MUST be a numpy array with the right shape
@@ -232,17 +232,17 @@ class BerSANSFileFormat(ImageSaver):
             return
 
         # update info
-        imageInfo.data.update(ToDate=strftime('%m/%d/%Y'),
+        imageinfo.data.update(ToDate=strftime('%m/%d/%Y'),
                              ToTime=strftime('%r'),
                              DataSize=shape[0]*shape[1],
                              DataSizeX=shape[1],
                              DataSizeY=shape[0],
                             )
         Sum = image.sum()
-        Time = imageInfo.endtime - imageInfo.begintime
+        Time = imageinfo.endtime - imageinfo.begintime
         Moni1 = 1
         Moni2 = 1
-        imageInfo.data.update(
+        imageinfo.data.update(
                              Sum='%d' % Sum, Time='%.6f' % Time,
                              Moni1='%d' % Moni1, Moni2='%d' % Moni2,
                              Sum_Time='%.6f' % (Sum / Time) if Time else 'Inf',
@@ -251,19 +251,19 @@ class BerSANSFileFormat(ImageSaver):
                             )
         nicosheader = []
         # no way to map nicos-categories to BerSANS sections
-        for _, valuelist in imageInfo.header.items():
+        for _, valuelist in imageinfo.header.items():
             for dev, key, value in valuelist:
-                imageInfo.data['%s_%s' % (dev.name, key)] = value
+                imageinfo.data['%s_%s' % (dev.name, key)] = value
                 nicosheader.append('%25s= %s' %('%s_%s' % (dev.name, key), value))
-        imageInfo.data['NICOSHeader'] = '\n'.join(nicosheader + [''])
+        imageinfo.data['NICOSHeader'] = '\n'.join(nicosheader + [''])
 
         # write Header
-        imageInfo.file.write(BERSANSHEADER % imageInfo.data)
+        imageinfo.file.write(BERSANSHEADER % imageinfo.data)
 
         # write Data (one line per y)
         for y in range(shape[0]):
             line = image[y]
-            line.tofile(imageInfo.file, sep=',', format='%d')
-            imageInfo.file.write('\n')
-        imageInfo.file.flush()
+            line.tofile(imageinfo.file, sep=',', format='%d')
+            imageinfo.file.write('\n')
+        imageinfo.file.flush()
 

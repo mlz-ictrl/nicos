@@ -283,6 +283,7 @@ class ImageStorage(DeviceMixinBase):
     _imageinfos = [] # stores all active imageinfos
     _header = None
     need_clear = False
+    _saved = False
 
     # old stuff (to be ported and then removed...
     def _newFile(self):
@@ -310,6 +311,8 @@ class ImageStorage(DeviceMixinBase):
     #
     def prepareImageFile(self, dataset=None):
         """should prepare an Imagefile"""
+        self._saved = False
+        self.log.debug('prepareImageFile(%r)' % dataset)
         if self.need_clear:
             self.clearImage()
         imageinfos = []
@@ -337,6 +340,7 @@ class ImageStorage(DeviceMixinBase):
             imageinfo.header[category] = valuelist
 
     def addHeader(self, category, valuelist):
+        self.log.debug('addHeader(%r, %r)' % (category, valuelist))
         if self._header:
             self._header[category] = valuelist
         else:
@@ -351,6 +355,7 @@ class ImageStorage(DeviceMixinBase):
         If that returns a valid image, distribute to all ImageInfos"""
         if image is Ellipsis:
             image = self.readImage()
+        self.log.debug('updateImage(%20r)' % image)
         if image is not None:
             for imageinfo in self._imageinfos:
                 imageinfo.filesaver.updateImage(imageinfo, image)
@@ -359,19 +364,34 @@ class ImageStorage(DeviceMixinBase):
         """Saves the given image content"""
         # trigger saving the image
         # XXX: maybe do this in a thread to avoid delaying the countloop.....
-        if image is Ellipsis:
-            image = self.readFinalImage()
-        if image is not None:
+        if self._saved == False:
+            if image is Ellipsis:
+                image = self.readFinalImage()
+            self.log.debug('saveImage(%20s)' % ('%r' % image))
+            if image is not None:
+                for imageinfo in self._imageinfos:
+                    if imageinfo.file:
+                        imageinfo.filesaver.saveImage(imageinfo, image)
+                    # also inform possibly running liveWidgets
+                    # tag, filename, dtype, nx, ny, nz, time, data
+                    session.updateLiveData(
+                        imageinfo.filesaver.fileFormat,
+                        imageinfo.filepath,
+                        imageinfo.imageType.dtype,
+                        imageinfo.imageType.shape[0],
+                        imageinfo.imageType.shape[1] if len(imageinfo.imageType.shape) > 1 else 1,
+                        imageinfo.imageType.shape[2] if len(imageinfo.imageType.shape) > 2 else 1,
+                        imageinfo.endtime-imageinfo.begintime,
+                        None)
+            else:
+                self.log.error("Can't save Image, got no data!")
+                return
+            # finalize/close image
             for imageinfo in self._imageinfos:
-                imageinfo.filesaver.saveImage(imageinfo, image)
-        else:
-            self.log.error("Can't save Image, got no data!")
-            return
-        # finalize/close image
-        for imageinfo in self._imageinfos:
-            imageinfo.filesaver.finalizeImage(imageinfo)
-            imageinfo.data = None
-        self._imageinfos = []
+                imageinfo.filesaver.finalizeImage(imageinfo)
+                imageinfo.data = None
+            #~ self._imageinfos = []
+            self._saved = True
         self._header = None
 
 

@@ -47,34 +47,34 @@ class RAWFileFormat(ImageSaver):
         # everything can be saved RAW
         return True
 
-    def prepareImage(self, imageInfo,  subdir=''):
-        ImageSaver.prepareImage(self,  imageInfo,  subdir)
+    def prepareImage(self, imageinfo,  subdir=''):
+        ImageSaver.prepareImage(self,  imageinfo,  subdir)
         exp = session.experiment
-        imageInfo.headerfile = \
-            exp.createDataFile(self.filenametemplate.replace('.raw','.header'),
-                                exp.lastimage, subdir, self.subdir,  scanpoint=imageInfo.scanpoint)[1]
+        imageinfo.headerfile = \
+            exp.createDataFile(self.filenametemplate[0].replace('.raw','.header'),
+                                exp.lastimage, subdir, self.subdir,  scanpoint=imageinfo.scanpoint)[1]
 
-    def updateImage(self, imageInfo, image):
-        imageInfo.file.seek(0)
-        imageInfo.file.write(np.array(image).tostring())
-        imageInfo.file.flush()
+    def updateImage(self, imageinfo, image):
+        imageinfo.file.seek(0)
+        imageinfo.file.write(np.array(image).tostring())
+        imageinfo.file.flush()
 
-    def saveImage(self, imageInfo, image):
-        self.updateImage(imageInfo, image)
-        imageInfo.headerfile.write('### NICOS %s File Header V2.0\n' % self.fileFormat)
-        for category, valuelist in sorted(imageInfo.header.items()):
+    def saveImage(self, imageinfo, image):
+        self.updateImage(imageinfo, image)
+        imageinfo.headerfile.write('### NICOS %s File Header V2.0\n' % self.fileFormat)
+        for category, valuelist in sorted(imageinfo.header.items()):
             if valuelist:
-                imageInfo.headerfile.write('### %s\n' % category)
+                imageinfo.headerfile.write('### %s\n' % category)
             for (dev, key, value) in valuelist:
-                imageInfo.headerfile.write('%25s : %s\n' % ('%s_%s' % (dev.name,  key),  value))
-        imageInfo.headerfile.write('\n%r\n' % imageInfo.imageType) # to ease interpreting the data....
+                imageinfo.headerfile.write('%25s : %s\n' % ('%s_%s' % (dev.name,  key),  value))
+        imageinfo.headerfile.write('\n%r\n' % imageinfo.imageType) # to ease interpreting the data....
 
-    def finalizeImage(self, imageInfo):
+    def finalizeImage(self, imageinfo):
         """finalizes the on-disk image, normally just a close"""
-        ImageSaver.finalizeImage(self,  imageInfo)
-        if imageInfo.headerfile:
-            imageInfo.headerfile.close()
-            imageInfo.headerfile = None
+        ImageSaver.finalizeImage(self,  imageinfo)
+        if imageinfo.headerfile:
+            imageinfo.headerfile.close()
+            imageinfo.headerfile = None
 
 
 class SingleRAWFileFormat(ImageSaver):
@@ -95,20 +95,20 @@ class SingleRAWFileFormat(ImageSaver):
         # everything can be saved RAW
         return True
 
-    def updateImage(self, imageInfo, image):
+    def updateImage(self, imageinfo, image):
         """just write the raw data upon update"""
-        imageInfo.file.seek(0)
-        imageInfo.file.write(np.array(image).tostring())
-        imageInfo.file.flush()
+        imageinfo.file.seek(0)
+        imageinfo.file.write(np.array(image).tostring())
+        imageinfo.file.flush()
 
-    def saveImage(self, imageInfo, image):
-        self.updateImage(imageInfo, image)
-        imageInfo.file.write('### NICOS %s File Header V2.0\n' % self.fileFormat)
-        for category,  valuelist in sorted(imageInfo.header.items()):
+    def saveImage(self, imageinfo, image):
+        self.updateImage(imageinfo, image)
+        imageinfo.file.write('### NICOS %s File Header V2.0\n' % self.fileFormat)
+        for category,  valuelist in sorted(imageinfo.header.items()):
             if valuelist:
-                imageInfo.file.write('### %s\n' % category)
+                imageinfo.file.write('### %s\n' % category)
             for (dev, key, value) in valuelist:
-                imageInfo.file.write('%25s : %s\n' % ('%s_%s' % (dev.name,  key),  value))
-        imageInfo.file.write('\n%r\n' % imageInfo.imageType) # to ease interpreting the data....
-        imageInfo.file.flush()
+                imageinfo.file.write('%25s : %s\n' % ('%s_%s' % (dev.name,  key),  value))
+        imageinfo.file.write('\n%r\n' % imageinfo.imageType) # to ease interpreting the data....
+        imageinfo.file.flush()
 

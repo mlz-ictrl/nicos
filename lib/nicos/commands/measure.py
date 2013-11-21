@@ -103,7 +103,8 @@ def _count(detlist, preset, result, dataset=None):
                 if det.isCompleted():
                     if isinstance(det, ImageStorage):
                         for imageinfo in det._imageinfos:
-                            imageinfo.endtime = currenttime()
+                            if not imageinfo.endtime:
+                                imageinfo.endtime = currenttime()
                         det.saveImage()
                     detset.discard(det)
             if not detset:
@@ -120,19 +121,12 @@ def _count(detlist, preset, result, dataset=None):
             sleep(delay)
         for det in detlist:
             try:
-                if isinstance(det, ImageStorage):
-                    det.saveImage()
                 det.save()
             except Exception:
                 det.log.exception('error saving measurement data')
     except:  # really ALL exceptions
         for det in detset:
             det.stop()
-            if isinstance(det, ImageStorage):
-                for imageinfo in det._imageinfos:
-                    imageinfo.endtime = currenttime()
-                det.updateImage()
-                det.saveImage()
         result.extend(sum((det.read() for det in detlist), []))
         raise
     finally:
