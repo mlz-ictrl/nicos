@@ -20,6 +20,7 @@ pygments_style = 'emacs'
 
 html_title = 'NICOS documentation'
 html_show_sourcelink = False
+html_last_updated_fmt = '%b %d, %Y'
 
 _dark  = '#0b2c47'
 _light = '#175791'
