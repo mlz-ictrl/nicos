@@ -23,6 +23,10 @@ A setup file can consist of the following entries, all of which are optional:
 ``description``
    A string describing the setup in more detail than the file name.
 
+   Example::
+
+      description = 'triple-axis measurement setup'
+
 ``group``
    A string giving the group of the setup.  The following groups are
    recognized:
@@ -40,10 +44,18 @@ A setup file can consist of the following entries, all of which are optional:
      but configures e.g. a NICOS service.  For each service, there is one
      special setup (e.g. "cache", "poller", "daemon").
 
+   Example::
+
+      group = 'optional'
+
 ``includes``
    A list of names of setups that this one requires to be loaded.  Using this
    function, setups can be constructed very modularly, usually without
    duplicating the entry for any device.
+
+   Example::
+
+      includes = ['base', 'mono1', 'sample', 'detector']
 
 ``sysconfig``
    A dictionary with basic system configuration values.  See :ref:`sysconfig`
@@ -57,15 +69,31 @@ A setup file can consist of the following entries, all of which are optional:
 ``modules``
    A list of Python module names where additional user commands are loaded from.
 
+   Example::
+
+      modules = ['nicos.commands.standard', 'nicos.commands.taco']
+
 ``startupcode``
    A string of Python code that is executed after the setup file has been
    processed and the devices that are marked for automatic creation have been
    created.
 
+   Example::
+
+      startupcode = """
+      T.alias = pyro
+      Ts.alias = pyro
+      SetEnvironment(T, Ts)
+      """
+
 ``extended``
    A dictionary, reserved for future use.
 
-.. XXX document "extended" more once we have use for it.
+   Example::
+
+      extended = dict(dynamic_loaded = True)
+
+.. XXX document "extended" more once we have use for it. PANDA uses it now !!!
 
 
 .. _deviceentries:
@@ -119,6 +147,20 @@ destroyed.  When more setups need to be loaded at the same time, the
 The ``sysconfig`` dictionary
 ----------------------------
 
+The "sysconfig" is a dictionary with basic system configuration values.
+This is generally only put in one very basic setup file that is included from
+other, more high-level files.
+
+Example::
+
+    sysconfig = dict(
+        cache = 'mira1',
+        instrument = 'mira',
+        experiment = 'Exp',
+        notifiers = ['email', 'smser'],
+        datasinks = ['conssink', 'filesink', 'dmnsink', 'gracesink'],
+    )
+
 The possible entries for the ``sysconfig`` dictionary are:
 
 .. data:: cache
@@ -127,7 +169,7 @@ The possible entries for the ``sysconfig`` dictionary are:
    the cache runs on a port other than 14869).  If this is omitted, no caching
    will be available.
 
-   See also :ref:`caching`.
+   See also :ref:`cache`.
 
 .. data:: instrument
 
