@@ -460,7 +460,8 @@ class NicosCmdClient(NicosClient):
             elif name == 'connected':
                 self.initial_update()
             elif name == 'disconnected':
-                self.put_client('Disconnected from server.')
+                self.put_client('Disconnected from server, use /reconnect to '
+                                'try reconnecting.')
                 self.current_mode = MASTER
                 self.debug_mode = False
                 self.pending_requests.clear()
@@ -837,7 +838,7 @@ class NicosCmdClient(NicosClient):
                 self.put_error('Already connected. Use /disconnect first.')
             else:
                 self.ask_connect()
-        elif cmd == 'reconnect':
+        elif cmd in ('re', 'reconnect'):
             self.ask_connect(ask_all=False)
         elif cmd in ('q', 'quit'):
             if self.connected:
@@ -1022,7 +1023,7 @@ This client supports "meta-commands" beginning with a slash:
 
   /disconnect         -- disconnect from NICOS daemon
   /connect            -- connect to a NICOS daemon
-  /reconnect          -- reconnect to NICOS daemon last used
+  /re(connect)        -- reconnect to NICOS daemon last used
   /q(uit)             -- quit this client (NICOS will continue running)
 
 Command parts in parenteses can be omitted.
