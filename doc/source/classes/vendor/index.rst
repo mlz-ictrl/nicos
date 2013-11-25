@@ -12,3 +12,4 @@ present a standard interface to NICOS described :ref:`here <taco>`.
    toni
    iseg
    frm2
+   astrium
