@@ -294,6 +294,7 @@ class Session(object):
         # cache keys are always lowercase, while device names can be mixed,
         # so we build a map once to get fast lookup
         lowerdevs = dict((d.name.lower(), d) for d in self.devices.itervalues())
+        umethods_to_call = []
         for key, value in db.iteritems():
             if key.count('/') != 1:
                 continue
@@ -307,6 +308,11 @@ class Session(object):
             # "status" is ignored: simulated devices are always "OK"
             elif param in dev.parameters:
                 dev._params[param] = value
+                umethod = getattr(dev, 'doUpdate' + param.title(), None)
+                if umethod:
+                    umethods_to_call.append((umethod, value))
+        for umethod, value in umethods_to_call:
+            umethod(value)
         self.log.info('synchronization complete')
 
     def setSetupPath(self, path):

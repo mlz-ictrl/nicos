@@ -72,7 +72,7 @@ devices = dict(
                       twotheta = 't_mtt',
                       focush = None,
                       focusv = None,
-                      abslimits = (0, 10),
+                      abslimits = (0.1, 10),
                       dvalue = 3.325,
                      ),
 
@@ -98,7 +98,7 @@ devices = dict(
                       focush = None,
                       focusv = None,
                       reltheta = True,
-                      abslimits = (0, 10),
+                      abslimits = (0.1, 10),
                       dvalue = 3.325,
                      ),
 
