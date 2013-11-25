@@ -147,6 +147,7 @@ class ValueDisplay(NicosWidget, QWidget):
             self.valuelabel.setFont(value and self.font() or self.valueFont)
             self.width = self.width
         elif pname == 'valueFont':
+            self.valuelabel.setFont(self.valueFont)
             self.width = self.width  # update char width calculation
         elif pname == 'showName':
             self.namelabel.setVisible(value)
