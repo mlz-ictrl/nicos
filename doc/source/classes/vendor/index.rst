@@ -13,3 +13,4 @@ present a standard interface to NICOS described :ref:`here <taco>`.
    iseg
    qmesydaq
    frm2
+   astrium
