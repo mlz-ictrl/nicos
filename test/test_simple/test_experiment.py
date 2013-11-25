@@ -29,7 +29,7 @@ import time
 from os import path
 
 from nicos import session
-from nicos.utils import ensureDirectory, enableDirectory
+from nicos.utils import ensureDirectory, enableDirectory, readFileCounter
 from nicos.commands.scan import scan
 from nicos.commands.basic import run
 from nicos.core.sessions.utils import MASTER
@@ -59,7 +59,7 @@ def test_experiment():
     exp = session.experiment
 
     # setup test scenario
-    exp.dataroot = path.join(rootdir, 'data')
+    exp._setROParam('dataroot', path.join(rootdir, 'data'))
     exp.proposal = 'service'
     exp.proptype = 'service'
 
@@ -85,7 +85,8 @@ def test_experiment():
 
     # check correct operation of sampledir
     exp.sampledir = 'sample'
-    assert exp.datapath == path.join(exp.dataroot, year, 'service', 'sample', 'data')
+    assert exp.datapath == path.join(exp.dataroot, year, 'service',
+                                     'sample', 'data')
     exp.sampledir = ''
 
     # for this proposal, remove access rights after switching back
@@ -114,7 +115,8 @@ def test_experiment():
     # try a small scan; check for data file written
     scan(session.getDevice('axis'), 0, 1, 5, 0.01)
     assert path.isfile(datapath('..', 'scancounter'))
-    assert path.isfile(datapath('p999', 'data', 'p999_00000001.dat'))
+    nr = readFileCounter(datapath('..', 'scancounter'))
+    assert path.isfile(datapath('p999', 'data', 'p999_%08d.dat' % nr))
 
     # now, finish the experiment
     exp.finish()

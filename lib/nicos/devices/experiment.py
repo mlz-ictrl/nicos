@@ -124,29 +124,31 @@ class Experiment(Device):
         # XXX: unfortunately tests need this to be non-absolute atm.
         'dataroot':     Param('Root data path under which all proposal specific'
                               ' paths are created', type=str,
-                              default='/data', mandatory=True, settable=True),
+                              default='/data', mandatory=True),
         'detlist':      Param('List of default detector device names',
-                              type=listof(str), settable=True),
+                              type=listof(str), settable=True, userparam=False),
         'envlist':      Param('List of default environment device names to read'
                               ' at every scan point', type=listof(str),
-                              settable=True),
+                              settable=True, userparam=False),
         'elog':         Param('True if the electronig logbook should be '
                               'enabled', type=bool, default=True),
         'scripts':      Param('Currently executed scripts',
-                              type=listof(str), settable=True),
+                              type=listof(str), settable=True, userparam=False),
         'templates':    Param('Name of the directory with script templates '
                               '(relative to dataroot)', type=str),
         'managerights': Param('A dict of en/disableDir/FileMode to manage '
                               'access rights of data dirs on proposal change.',
                               mandatory=False, settable=False, default={},
                               type=dictof(oneof('owner', 'group',
-                                'enableDirMode', 'enableFileMode',
-                                'disableDirMode', 'disableFileMode'), anytype)),
+                                  'enableDirMode', 'enableFileMode',
+                                  'disableDirMode', 'disableFileMode'), anytype),
+                              userparam=False),
         'zipdata':      Param('Whether to zip up experiment data after '
                               'experiment finishes', type=bool, default=True),
         'sendmail':     Param('Whether to send proposal data via email after '
                               'experiment finishes', type=bool, default=False),
-        'mailserver':   Param('Mail server name', type=str, settable=True),
+        'mailserver':   Param('Mail server name', type=str, settable=True,
+                              userparam=False),
         'mailsender':   Param('Mail sender address', type=none_or(mailaddress),
                               settable=True),
         'mailtemplate': Param('Mail template file name (in templates)',
@@ -161,24 +163,24 @@ class Experiment(Device):
         'pausecount':   Param('Reason for pausing the count loop', type=str,
                               settable=True, userparam=False),
         'propinfo':     Param('dict of info for the current proposal', type=dict,
-                              default={}, settable=False),
+                              default={}, settable=False, userparam=False),
         # dir param
-        'sampledir' :   Param('Sample specific subdir', type=subdir, default='',
+        'sampledir':    Param('Sample specific subdir', type=subdir, default='',
                               userparam=False, mandatory=False, settable=True),
         # counter
-        'scancounter' : Param('Name of the global scan counter in dataroot',
+        'scancounter':  Param('Name of the global scan counter in dataroot',
                               default='scancounter', userparam=False,
                               type=subdir, mandatory=False, settable=False),
-        'lastscan' :    Param('Last used value of the scancounter', type=int,
+        'lastscan':     Param('Last used value of the scancounter', type=int,
                               settable=False, volatile=True, mandatory=False),
-        'lastscanfile' : Param('Last/Currently written scanfile in this experiment',
+        'lastscanfile': Param('Last/Currently written scanfile in this experiment',
                               type=str, settable=False, mandatory=False),
-        'imagecounter' : Param('Name of the global image counter in dataroot',
+        'imagecounter': Param('Name of the global image counter in dataroot',
                               default='imagecounter', userparam=False,
                               type=subdir, mandatory=False, settable=False),
-        'lastimage' :    Param('Last used value of the imagecounter', type=int,
+        'lastimage':    Param('Last used value of the imagecounter', type=int,
                               settable=False, volatile=True, mandatory=False),
-        'lastimagefile' : Param('Last/Currently written imagefile in this experiment',
+        'lastimagefile': Param('Last/Currently written imagefile in this experiment',
                               type=str, settable=False, mandatory=False),
     }
 

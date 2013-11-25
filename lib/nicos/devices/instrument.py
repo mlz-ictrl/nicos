@@ -42,5 +42,5 @@ class Instrument(Device):
         'responsible': Param('Instrument responsible name and email',
                              type=str, category='experiment'),
         'countloopdelay': Param('Loop delay in checking for counting finished',
-                                type=float, default=0.025),
+                                type=float, default=0.025, userparam=False),
     }
