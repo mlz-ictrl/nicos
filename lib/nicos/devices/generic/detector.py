@@ -191,7 +191,11 @@ class DetectorForecast(Readable):
         fraction_complete = 0
         for m in self._adevs['det']._masters:
             p = m.preselection
-            fraction_complete = max(fraction_complete, counter_values[m] / p)
+            if p > 0:
+                fraction_complete = max(fraction_complete, counter_values[m] / p)
+        if fraction_complete == 0:
+            # no master or all zero?  just return the current values
+            fraction_complete = 1.0
         # scale all counter values by that fraction
         return [counter_values[ctr] / fraction_complete
                 for ctr in self._adevs['det']._counters]
