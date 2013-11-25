@@ -170,6 +170,7 @@ class SimulationSession(Session):
             session.simulationSync()
         except:  # really *all* exceptions -- pylint: disable=W0702
             session.log.exception('Exception in simulation setup')
+            session.log_sender.finish()
             session.shutdown()
             return 1
 
