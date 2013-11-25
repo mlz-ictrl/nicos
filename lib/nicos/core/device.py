@@ -1241,6 +1241,7 @@ class Moveable(Readable):
            :meth:`doWait()`.
         """
         if self._sim_active:
+            time = 0
             if not hasattr(self, 'doTime'):
                 if 'speed' in self.parameters and self.speed != 0 and \
                     self._sim_old_value is not None:
@@ -1250,14 +1251,11 @@ class Moveable(Readable):
                     self._sim_old_value is not None:
                     time = abs(self._sim_value - self._sim_old_value) / \
                         (self.ramp / 60.)
-                else:
-                    time = 0
-            else:
+            elif self._sim_old_value is not None:
                 try:
                     time = self.doTime(self._sim_old_value, self._sim_value)
                 except Exception:
                     self.log.warning('could not time movement', exc=1)
-                    time = 0
             if self._sim_started is not None:
                 session.clock.wait(self._sim_started + time)
                 self._sim_started = None
