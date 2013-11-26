@@ -29,8 +29,8 @@ import time
 import TACOStates
 import Temperature
 
-from nicos.core import status, oneof, Param, Readable, Moveable, HasOffset, \
-     HasLimits, TimeoutError
+from nicos.core import status, oneof, Param, Readable, Moveable, HasLimits, \
+    TimeoutError
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -39,7 +39,7 @@ class TemperatureSensor(TacoDevice, Readable):
     taco_class = Temperature.Sensor
 
 
-class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
+class TemperatureController(TacoDevice, HasLimits, Moveable):
     """TACO temperature controller device."""
     taco_class = Temperature.Controller
 
@@ -78,13 +78,13 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
     }
 
     def doRead(self, maxage=0):
-        return self._taco_guard(self._dev.read) - self.offset
+        return self._taco_guard(self._dev.read)
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
             self.log.debug('stopping running temperature change')
             self._taco_guard(self._dev.stop)
-        self._taco_guard(self._dev.write, target + self.offset)
+        self._taco_guard(self._dev.write, target)
         self._pollParam('setpoint', 100)
 
     def doStop(self):
@@ -168,7 +168,7 @@ class TemperatureController(TacoDevice, HasLimits, HasOffset, Moveable):
             self._pollParam('d')
 
     def doReadSetpoint(self):
-        return self._taco_guard(self._dev.setpoint) - self.offset
+        return self._taco_guard(self._dev.setpoint)
 
     def doReadP(self):
         return self._taco_guard(self._dev.pParam)
