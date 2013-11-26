@@ -27,10 +27,11 @@
 from time import sleep
 
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
-     AutoDevice, InvalidValueError, tupleof
+    AutoDevice, InvalidValueError, tupleof
+from nicos.devices.abstract import CanReference
 
 
-class Slit(Moveable):
+class Slit(CanReference, Moveable):
     """A rectangular slit consisting of four blades.
 
     The slit can operate in four "opmodes", controlled by the `opmode`
@@ -190,6 +191,14 @@ class Slit(Moveable):
             ax.reset()
         for ax in self._axes:
             ax.wait()
+
+    def doReference(self):
+        for ax in self._axes:
+            if isinstance(ax, CanReference):
+                self.log.info('referencing %s...' % ax)
+                ax.reference()
+            else:
+                self.log.warning('%s cannot be referenced' % ax)
 
     def doWait(self):
         for ax in self._axes:
