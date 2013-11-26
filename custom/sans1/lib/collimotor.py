@@ -29,32 +29,52 @@ from Modbus import Modbus
 import time
 import struct
 import threading
-from nicos.core import Param, Override, listof, none_or, oneof, dictof, \
+from nicos.core import Param, Override, listof, none_or, oneof, \
                         oneofdict, floatrange, intrange, status, \
                         InvalidValueError, UsageError, CommunicationError, \
-                        TimeoutError
+                        TimeoutError, PositionError
 from nicos.core.device import usermethod, requires
-from nicos.devices.abstract import CanReference, Motor, MappedMoveable
+from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput,\
                                    DigitalInput, NamedDigitalInput
+from nicos.devices.generic import Switcher
 from nicos.core import SIMULATION
 
 
-class mapped_float(object):
-    def __init__(self, mapping):
-        self.__doc__ = 'Any float or one of %s' % ', '.join(sorted(mapping))
-        self.mapping = mapping
+class Sans1ColliSwitcher(Switcher):
+    """Switcher, specially adopted to Sans1 needs"""
+    parameter_overrides = {
+        'precision' : Override(default=0.1, mandatory=False),
+        'fallback'  : Override(default='Unknown', mandatory=False),
+    }
 
-    def __call__(self, val=None):
-        val = self.mapping.get(val,val)
-        if isinstance(val, (int, float, long)):
-            return float(val)
-        raise ValueError('value needs to a number or one of %s' %
-                         ', '.join(sorted(self.mapping)))
+    def _mapReadValue(self, pos):
+        """Override default inverse mapping to allow a deviation <= precision"""
+        prec = self.precision
+        def myiter(mapping):
+            # use position names beginning with P as last option
+            for name, value in mapping.iteritems():
+                if name[0] != 'P':
+                    yield name, value
+            for name, value in mapping.iteritems():
+                if name[0] == 'P':
+                    yield name, value
+        for name, value in myiter(self.mapping):
+            if prec:
+                if abs(pos - value) <= prec:
+                    return name
+            elif pos == value:
+                return name
+        if self.fallback is not None:
+            return self.fallback
+        if self.relax_mapping:
+            return self._adevs['moveable'].format(pos,True)
+        raise PositionError(self, 'unknown position of %s' %
+                            self._adevs['moveable'])
 
 
-class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
+class Sans1ColliMotor(TacoDevice, Motor, CanReference):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
@@ -69,37 +89,32 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
     parameters = {
         # provided by parent class: speed, unit, fmtstr, warnlimits, abslimits,
         #                           userlimits, precision and others
-        'address':   Param('Starting offset of Motor control Block in words',
-                           type=int, mandatory=True, settable=False, userparam=False),
-        'slope':     Param('Slope of the Motor in _FULL_ steps per _physical unit_',
-                           type=float, default=1., unit='steps/main',
-                           userparam=False, settable=True),
+        'address': Param('Starting offset of Motor control Block in words',
+                         type=int, mandatory=True, settable=False, userparam=False),
+        'slope': Param('Slope of the Motor in _FULL_ steps per _physical unit_',
+                       type=float, default=1., unit='steps/main',
+                       userparam=False, settable=True),
         'microsteps': Param('Microstepping for the motor',
                             type=oneof(1, 2, 4, 8, 16, 32, 64), default=1,
                             userparam=False, settable=False),
-        'autozero':  Param('Maximum distance from referencepoint for forced '
-                           'referencing before moving, or None',
-                           type=none_or(float), default=50, unit='main',
-                           settable=False),
+        'autozero': Param('Maximum distance from referencepoint for forced '
+                          'referencing before moving, or None',
+                          type=none_or(float), default=10, unit='main',
+                          settable=False),
         'autopower': Param('Automatically disable Drivers if motor is not moving',
-                           type=oneofdict({0:'off',1:'on'}), default='on',
+                           type=oneofdict({0: 'off', 1: 'on'}), default='on',
                            settable=False),
-        'refpos':    Param('Position of reference switch', unit='main',
-                           type=float, mandatory=True, settable=False,
-                           prefercache=False),
-    }
-
-    parameter_overrides = {
-        'mapping':   Override(description = 'Map of state names to position values',
-                           type=dictof(str, float),),
+        'refpos': Param('Position of reference switch', unit='main',
+                        type=float, mandatory=True, settable=False,
+                        prefercache=False),
     }
 
     def doInit(self, mode):
-        MappedMoveable.doInit(self, mode)
         # make sure we are in the right address range
         if not (0x4000 <= self.address <= 0x47ff) or \
             (self.address - 0x4020) % 10:
-            # each motor-control-block is 20 bytes = 10 words, starting from byte 64
+            # each motor-control-block is 20 bytes = 10 words, starting from
+            # byte 64
             raise InvalidValueError(self,
                 'Invalid address 0x%04x, please check settings!' %
                 self.address)
@@ -109,7 +124,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
             if self.autopower == 'on':
                 threading.Thread(target=self._autopoweroff).start()
 
-    # access-helpers for the fields inside to MotorControlBlock
+    # access-helpers for accessing the fields inside the MotorControlBlock
     def _readControlBit(self, bit):
         self.log.debug('_readControlBit %d'%bit)
         value = self._taco_guard(self._dev.readInputRegisters,
@@ -146,14 +161,16 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
         return value
 
     def _readPosition(self):
-        value = self._taco_guard(self._dev.readInputRegisters,    # or readHoldingRegisters
+        # or readHoldingRegisters
+        value = self._taco_guard(self._dev.readInputRegisters,
                                  (0, self.address+6, 2))
         value = struct.unpack('=i',struct.pack('<2H',*value))[0]
         self.log.debug('_readPosition: -> %d steps'%value)
         return value
 
     #
-    # math: transformation of position and speed: µsteps(/s) <-> phys. unit(/s)
+    # math: transformation of position and speed:
+    #       µsteps(/s) <-> phys. unit(/s)
     #
     def _steps2phys(self, steps):
         value = steps / float(self.microsteps * self.slope)
@@ -168,47 +185,24 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, MappedMoveable):
         return steps
 
     def _speed2phys(self, speed):
-        return speed  / float(self.microsteps * self.slope * 1.6384e-2)  # see manual
+        # see manual
+        return speed  / float(self.microsteps * self.slope * 1.6384e-2)
 
     def _phys2speed(self, value):
-        return int(value * self.slope * self.microsteps * 1.6384e-2 )  # see manual
+        # see manual
+        return int(value * self.slope * self.microsteps * 1.6384e-2 )
 
     #
     # nicos methods
     #
-    def _readRaw(self, maxage=0):
+    def doRead(self, maxage=0):
         return self._steps2phys(self._readPosition())
 
-    def _mapReadValue(self, pos):
-        prec = self.precision
-        for name, value in self.mapping.iteritems():
-            if name[0] == 'P':
-                continue
-            if prec:
-                if abs(pos - value) <= prec:
-                    return name
-            elif pos == value:
-                return name
-        return pos
-
-    def _mapTargetValue(self, value):
-        try:
-            value = float(self.mapping.get(value, value))
-            self.log.debug('doStart mapped -> %r' % value)
-            return value
-        except ValueError:
-            positions = ', '.join(repr(pos) for pos in self.mapping)
-            raise InvalidValueError(self, '%r is an invalid position for this device; '
-                             'valid positions are %s or a numeric value between '
-                             '%s and %s.' % (value, positions,
-                             self.fmtstr % self.absmin, self.fmtstr % self.absmax))
-
-    def _startRaw(self, value):
+    def doStart(self, value):
         self.log.debug('doStart %r' % value)
         self._writeControlBit(0, 1)     # docu: bit0 = 1: enable
         if self.autozero is not None:
             currentpos = self.read(0)
-            currentpos = self.mapping.get(currentpos, currentpos)
             mindist = min(abs(currentpos - self.refpos), abs(value - self.refpos))
             if mindist < self.autozero:
                 self._reference()

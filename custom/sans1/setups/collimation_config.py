@@ -34,7 +34,7 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-    col_2a = device('sans1.collimotor.Sans1ColliMotorAllParams',
+    col_2a_m = device('sans1.collimotor.Sans1ColliMotorAllParams',
                       description = 'CollimatorMotor 2a',
                       # IP-adresse: 172.16.17.7
                       tacodevice='//%s/sans1/coll/col-2m'% (nethost, ),
@@ -44,7 +44,6 @@ devices = dict(
                       unit = 'mm',
                       refpos = -8.,
                       abslimits = (-400, 600),
-                      mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
                       hw_disencfltr = 'enabled',
                       autozero = 20,
                       autopower =1,
