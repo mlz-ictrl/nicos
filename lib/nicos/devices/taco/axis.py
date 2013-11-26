@@ -31,8 +31,8 @@ from time import sleep
 import TACOStates
 from Motor import Motor as TACOMotor
 
-from nicos.core import status, tupleof, anytype, usermethod, Moveable, Param, \
-     NicosError, ModeError, waitForStatus, requires
+from nicos.core import status, tupleof, oneof, anytype, usermethod, Moveable, \
+    Param, NicosError, ModeError, waitForStatus, requires
 from nicos.devices.abstract import Axis as BaseAxis, CanReference
 from nicos.devices.taco.core import TacoDevice
 from nicos.core import SLAVE
@@ -53,6 +53,10 @@ class Axis(TacoDevice, BaseAxis, CanReference):
                            settable=True),
         'refpos':    Param('Position of the reference switch', unit='main',
                            settable=True),
+        # do not call deviceReset by default as it does a reference drive
+        'resetcall': Param('What TACO method to call on reset (deviceInit or '
+                           'deviceReset)', settable=True, default='deviceInit',
+                           type=oneof('deviceInit', 'deviceReset')),
     }
 
     def doStart(self, target):
@@ -70,6 +74,19 @@ class Axis(TacoDevice, BaseAxis, CanReference):
         if s > v**2/a:  # do we reach nominal speed?
             return s/v + v/a
         return 2*(s/a)**0.5
+
+    def doReset(self):
+        self.log.info('Resetting TACO device; if this does not help try '
+                      'restarting the server.')
+        try:
+            if self.resetcall == 'deviceReset':
+                self._taco_guard(self._dev.deviceReset)
+            else:
+                self._taco_guard(self._dev.deviceInit)
+        except Exception:
+            pass
+        if self._taco_guard(self._dev.isDeviceOff):
+            self._taco_guard(self._dev.deviceOn)
 
     @usermethod
     @requires(level='admin', helpmsg='use adjust() to set a new offset')
@@ -103,20 +120,14 @@ class Axis(TacoDevice, BaseAxis, CanReference):
     def doStop(self):
         self._taco_guard(self._dev.stop)
 
-    def _getMotor(self):
-        motorname = self._taco_guard(self._dev.deviceQueryResource, 'motor')
-        client = TACOMotor(motorname)
-        return client
-
     def doReference(self):
         """Do a reference drive of the axis (do not use with encoded axes)."""
-        client = self._getMotor()
         self.log.info('referencing the axis, please wait...')
-        self._taco_guard(client.deviceReset)
-        while self._taco_guard(client.deviceState) \
+        self._taco_guard(self._dev.deviceReset)
+        while self._taco_guard(self._dev.deviceState) \
                                   in (TACOStates.INIT, TACOStates.RESETTING):
             sleep(0.3)
-        self._taco_guard(client.deviceOn)
+        self._taco_guard(self._dev.deviceOn)
         self.setPosition(self.refpos)
 
     def doReadSpeed(self):
