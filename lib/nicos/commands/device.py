@@ -419,6 +419,13 @@ def release(*devlist):
         if dev.release():
             dev.log.info('released')
 
+@hiddenusercommand
+@helparglist('dev, ...')
+@spmsyntax(Multi(Dev(Moveable)))
+def unfix(*devlist):
+    """Same as `release()`."""
+    return release(*devlist)
+
 @usercommand
 @helparglist('dev, value[, newvalue]')
 @spmsyntax(Dev(HasOffset), Bare)
