@@ -227,7 +227,6 @@ def test_fix_and_release():
     try:
         assert session.testhandler.warns(dev2.stop)
         assert dev2.status()[0] == status.BUSY
-        assert session.testhandler.warns(dev2.wait)
         assert dev2.wait() == 9
     finally:
         dev2.release()

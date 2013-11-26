@@ -1264,7 +1264,7 @@ class Moveable(Readable):
         lastval = None
         try:
             if self.fixed:
-                self.log.warning('device fixed, not waiting: %s' % self.fixed)
+                self.log.debug('device fixed, not waiting: %s' % self.fixed)
             elif hasattr(self, 'doStatus'): #might really wait
                 session.beginActionScope('Waiting: %s -> %s' %
                                      (self, self.format(self.target)))
