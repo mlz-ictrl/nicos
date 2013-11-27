@@ -24,7 +24,7 @@
 
 """Bersans file format saver, exclusively used at SANS1"""
 
-from time import strftime
+from time import strftime, time as currenttime
 import numpy as np
 
 from nicos import session
@@ -50,7 +50,7 @@ FromTime=%(FromTime)s
 ToDate=%(ToDate)s
 ToTime=%(ToTime)s
 Title=%(Exp.title)s
-User=%(Exp.user)s
+User=%(Exp.users)s
 %%Sample
 SampleName=%(Sample.samplename)s
 Environment=%(Environment)s
@@ -111,7 +111,7 @@ Attenuator=0
 Polarization=0
 PolNeutron=
 PolX=0.000000
-PolX_enc=ReadError
+PolX_enc=
 Collimation=%(col)s
 Col1=0
 col-2b=%(col_2b)s
@@ -142,16 +142,16 @@ bg1=180.000000
 bg2=180.000000
 sa1=140.000000
 DetSelection=1
-det_z-1a=%(det_z_1a)s
-SD=%(det_z_1a)s
-SX=%(det_x_1a)s
-SY=%(det_y_1a)s
-SR=0.000000
+det_z-1a=%(det1_z1a)s
+SD=%(SD)s
+SX=%(det1_x1a)s
+SY=0
+SR=%(det1_omega1a)s
 DetHAngle=0.000000
 Beamstop=4
-BeamstopX=495.000000
-BeamstopY=470.000000
-DetVoltage=1530
+BeamstopX=%(bs1_x1a)s
+BeamstopY=%(bs1_y1a)s
+DetVoltage=%(hv)s
 Moni1Z=0.000000
 
 %%Counter
@@ -189,8 +189,8 @@ Operation=
 class BerSANSFileFormat(ImageSaver):
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False,
-                                      userparam=False, default=['D%(counter)07d.001',
-                                      '/%(proposal)s_%(counter)s_%(scanpoint)s.bersans']),
+                                      userparam=False,
+                                      default=['D%(counter)07d.001']),
     }
 
     fileFormat = 'BerSANS'     # should be unique amongst filesavers!
@@ -227,7 +227,8 @@ class BerSANSFileFormat(ImageSaver):
 
         # savety check
         if len(shape) != 2:
-            self.log.error('can not save data with shape %r, can only handle 2D-data!' % shape)
+            self.log.error('can not save data with shape %r, '
+                           'can only handle 2D-data!' % shape)
             return
 
         # update info
@@ -237,11 +238,22 @@ class BerSANSFileFormat(ImageSaver):
                              DataSizeX=shape[1],
                              DataSizeY=shape[0],
                             )
+        try:
+            SD = '%.1f' % (session.getDevice('det1_z1a').read() -
+                           session.getDevice('x_2b').read())
+        except Exception, e:
+            self.log.warning("can't detemine SD (detector distance), "
+                             "using 0 instead: %s"%e)
+            SD = 0
+
         Sum = image.sum()
+        if imageinfo.endtime == 0:
+            imageinfo.endtime = currenttime()
         Time = imageinfo.endtime - imageinfo.begintime
         Moni1 = 1
         Moni2 = 1
         imageinfo.data.update(
+                             SD=SD,
                              Sum='%d' % Sum, Time='%.6f' % Time,
                              Moni1='%d' % Moni1, Moni2='%d' % Moni2,
                              Sum_Time='%.6f' % (Sum / Time) if Time else 'Inf',
