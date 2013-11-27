@@ -101,10 +101,17 @@ class Axis(HasOffset, HasPrecision, HasLimits, Moveable):
 
 class CanReference(DeviceMixinBase):
     """
-    Mixin class for axis devices that want to provide a 'reference' method.
+    Mixin class for axis devices that want to provide a reference drive
+    function (using the `reference` user command).
 
-    Concrete implementations must provide a 'doReference' method.  It can
-    return the new current position after referencing or None.
+    .. automethod:: reference
+
+    .. method:: doReference(*args)
+
+       This method is called by `reference` to do the reference drive.  It
+       should initiate a reference drive, wait for its completion and set the
+       device position to the "reference position".  It can return the new
+       current position after referencing, or None.
     """
     @usermethod
     def reference(self, *args):
@@ -535,11 +542,18 @@ class MappedReadable(HasMapping, Readable):
     """Base class for all read-only value-mapped devices
     (also called selector or multiplexer/mux).
 
-    Subclasses need to define their attached devices and
-    implement a _readRaw(), returning (raw) device values.
-    Subclasses should also implement a doStatus().
-    Subclasses reimplementing doInit() need to call this class' doInit().
+    Subclasses need to define their attached devices and implement a
+    `_readRaw()` method, returning (raw) device values.  Subclasses should also
+    implement a `.doStatus()`.  Subclasses reimplementing `.doInit()` need to
+    call this class' `.doInit()`.
+
+    .. automethod:: _readRaw
+
+    .. automethod:: _mapReadValue
     """
+
+    # set this to true in derived classes to allow passing values out of mapping
+    relax_mapping = False
 
     def doInit(self, mode):
         if self.fallback in self.mapping:
@@ -552,7 +566,7 @@ class MappedReadable(HasMapping, Readable):
     def doStatus(self, maxage=0):
         """May be derived in subclasses to yield the current status of the device.
 
-        Shall never raise, but return status.NOTREACHED instead....
+        Shall never raise, but return status.NOTREACHED instead.
         """
         try:
             r = self.read(maxage)
@@ -568,10 +582,9 @@ class MappedReadable(HasMapping, Readable):
     def _mapReadValue(self, value):
         """Hook for integration of mapping/switcher devices.
 
-        shall be redefined in derived classes, default implementation is a NOP
-        Allowed actions are transformation of the given value, readonly access
-        to self attributes.
-        This is the right place for the _inverse_mapping....
+        This method is called with the value returned by `._readRaw()` and
+        should map the raw value to a high-level value.  By default, it maps
+        values according to the reverse of the `.mapping` parameter.
         """
         if value in self._inverse_mapping:
             return self._inverse_mapping[value]
@@ -593,14 +606,15 @@ class MappedReadable(HasMapping, Readable):
 class MappedMoveable(MappedReadable, Moveable):
     """Base class for all moveable value-mapped devices
 
-    Subclasses need to define their attached devices and
-    implement _readRaw() and _startRaw(), operating on raw values.
-    Subclasses should also implement a doStatus().
-    Subclasses reimplementing doInit() need to call this class' doInit().
-    """
+    Subclasses need to define their attached devices and implement `._readRaw()`
+    and `._startRaw()`, operating on raw values.  Subclasses should also
+    implement a `.doStatus()`.  Subclasses reimplementing `.doInit()` need to
+    call this class' `.doInit()`.
 
-    # set this to true in derived classes to allow passing values out of mapping
-    relax_mapping = False
+    .. automethod:: _startRaw
+
+    .. automethod:: _mapTargetValue
+    """
 
     def doInit(self, mode):
         # be restrictive?
@@ -614,10 +628,9 @@ class MappedMoveable(MappedReadable, Moveable):
     def _mapTargetValue(self, target):
         """Hook for integration of mapping/switcher devices.
 
-        shall be redefined in derived classes, default implementation is a NOP.
-        Allowed actions are transformation of the given value, readonly access
-        to self attributes.
-        If there is a mapping defined, here the forward mapping should be used.
+        This method is called to get a value to pass to `._startRaw()` and
+        should map the high-level value to a raw value.  By default, it maps
+        values according to the `.mapping` parameter.
         """
         if not self.relax_mapping:
             # be strict...

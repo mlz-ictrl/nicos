@@ -106,10 +106,10 @@ class DeviceMixinMeta(type):
 
 class DeviceMixinBase(object):
     """
-    Base class for all NICOS device mixin classes not derived from Device.
+    Base class for all NICOS device mixin classes not derived from `Device`.
 
     This class sets the correct metaclass and is easier to use than setting the
-    metaclass on each mixin class.
+    metaclass on each mixin class.  Mixins **must** derive from this class.
     """
     __metaclass__ = DeviceMixinMeta
 
@@ -1380,7 +1380,41 @@ class Moveable(Readable):
 
 class HasLimits(DeviceMixinBase):
     """
-    Mixin for "simple" continuously moveable devices that have limits.
+    This mixin can be inherited from device classes that are continuously
+    moveable.  It automatically adds two parameters, absolute and user limits,
+    and overrides :meth:`.isAllowed` to check if the given position is within the
+    limits before moving.
+
+    .. note:: In a base class list, ``HasLimits`` must come before ``Moveable``,
+       e.g.::
+
+          class MyDevice(HasLimits, Moveable): ...
+
+    The `abslimits` parameter cannot be set after creation of the device and
+    must be given in the setup configuration.
+
+    The `userlimits` parameter gives the actual minimum and maximum values
+    that the device can be moved to.  The user limits must lie within the
+    absolute limits.
+
+    **Important:** If the device is also an instance of `HasOffset`, it should
+    be noted that the `abslimits` are in hardware units (disregarding the
+    offset), while the `userlimits` are in logical units (taking the offset
+    into account).
+
+    The class also provides properties to read or set only one item of the
+    limits tuple:
+
+    .. attribute:: absmin
+                   absmax
+
+       Getter properties for the first/second value of `abslimits`.
+
+    .. attribute:: usermin
+                   usermax
+
+       Getter and setter properties for the first/second value of `userlimits`.
+
     """
 
     parameters = {
@@ -1510,13 +1544,15 @@ class HasOffset(DeviceMixinBase):
     'offset' parameter and that can be adjusted via adjust().
 
     This is *not* directly a feature of Moveable, because providing this
-    transparently this would mean that doRead() returns the un-adjusted value
-    while read() returns the adjusted value.  It would also mean that the
+    transparently this would mean that `doRead()` returns the un-adjusted value
+    while `read()` returns the adjusted value.  It would also mean that the
     un-adjusted value is stored in the cache, which is wrong for monitoring
     purposes.
 
-    Instead, each class that provides an offset must inherit this mixin, and
-    subtract/add self.offset in doRead()/doStart().
+    Instead, each class that provides an offset **must** inherit this mixin, and
+    subtract ``self.offset`` in `doRead()`, while adding it in `doStart()`.
+
+    The device position is ``hardware_position - offset``.
     """
     parameters = {
         'offset':  Param('Offset of device zero to hardware zero', unit='main',
@@ -1556,11 +1592,11 @@ class HasMapping(DeviceMixinBase):
     Mixin class for devices that use a finite mapping between user supplied
     input and internal representation.
 
-    This is mainly useful for device which can only yield certain values or go
+    This is mainly useful for devices which can only yield certain values or go
     to positions from a predefined set, like switching devices.
 
     Abstract classes that use this mixin are implemented in
-    nicos.devices.abstract.Mapped{Readable,Moveable}.
+    `nicos.devices.abstract.MappedReadable` and `.MappedMoveable`.
     """
     parameters = {
         'mapping' :  Param('Mapping of device values to raw (internal) values',

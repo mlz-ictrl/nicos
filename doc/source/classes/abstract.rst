@@ -19,10 +19,22 @@ Axis-related classes
 
 .. autoclass:: Axis()
 
+.. autoclass:: CanReference()
+
 
 Detector-related classes
 ------------------------
 
+.. XXX document ImageSaver, ImageInfo, ImageType
+
 .. autoclass:: ImageStorage()
 
 .. autoclass:: AsyncDetector()
+
+
+Mapping device classes
+----------------------
+
+.. autoclass:: MappedReadable()
+
+.. autoclass:: MappedMoveable()

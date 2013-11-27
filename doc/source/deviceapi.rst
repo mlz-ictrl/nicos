@@ -394,65 +394,31 @@ possible with the device:
 Mixin classes
 -------------
 
+``DeviceMixinBase``
+===================
+
+.. autoclass:: DeviceMixinBase()
+
+
 ``HasLimits``
 =============
 
-.. class:: HasLimits
-
-   This mixin can be inherited from device classes that are continuously
-   moveable.  It automatically adds two parameters, absolute and user limits,
-   and overrides :meth:`.isAllowed` to check if the given position is within the
-   limits before moving.
-
-   .. note:: In a base class list, ``HasLimits`` must come before ``Moveable``,
-      e.g.::
-
-         class MyDevice(HasLimits, Moveable): ...
-
-   .. rubric:: Parameters
-
-   .. parameter:: abslimits : number 2-tuple, mandatory
-
-      Absolute minimum and maximum values for the device to move to, as a tuple.
-      This parameter cannot be set after creation of the device and must be
-      given in the setup configuration.
-
-   .. parameter:: userlimits : number 2-tuple, optional
-
-      Minimum and maximum value for the device to move to.  This parameter can
-      be set after creation, but not outside the ``abslimits``.
+.. autoclass:: HasLimits()
 
 
 ``HasOffset``
 =============
 
-.. class:: HasOffset
-
-   Mixin class for Readable or Moveable devices that want to provide an 'offset'
-   parameter and that can be adjusted via the :func:`adjust` user command.
-
-   A class that provides an offset must inherit this mixin, and subtract or add
-   ``self.offset`` in :meth:`doRead` or :meth:`doStart`, respectively.
-
-   .. rubric:: Parameters
-
-   .. parameter:: offset : number, optional
-
-      The current offset of the device zero to the hardware zero.
-
-      The device position is ``hardware_position - offset``.
+.. autoclass:: HasOffset()
 
 
 ``HasPrecision``
 ================
 
-.. class:: HasPrecision
+.. autoclass:: HasPrecision()
 
-   Mixin class for Readable or Moveable devices that want to provide a
-   'precision' parameter.
 
-   .. rubric:: Parameters
+``HasMapping``
+==============
 
-   .. parameter:: precision : number, optional
-
-      The precision of the device.
+.. autoclass:: HasMapping()
