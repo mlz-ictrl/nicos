@@ -29,8 +29,8 @@ The supported types are defined in `nicos.core.params`.
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
-     QCheckBox, QWidget, QComboBox, QHBoxLayout, QLabel, QPushButton, \
-     QSpinBox
+    QCheckBox, QWidget, QComboBox, QHBoxLayout, QLabel, QPushButton, \
+    QSpinBox, QSizePolicy
 
 from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
@@ -106,7 +106,8 @@ class DeviceValueEdit(NicosWidget, QWidget):
             fmtstr = '%s'
             unit = ''
         self._inner = create(self, valuetype, curvalue, fmtstr, unit,
-                             allow_buttons=self.props['useButtons'])
+                             allow_buttons=self.props['useButtons'],
+                             client=self._client)
         last = self._layout.takeAt(0)
         if last:
             last.widget().deleteLater()
@@ -165,7 +166,8 @@ class DeviceParamEdit(DeviceValueEdit):
             valuetype = str
             curvalue = ''
             punit = ''
-        self._inner = create(self, valuetype, curvalue, unit=punit)
+        self._inner = create(self, valuetype, curvalue, unit=punit,
+                             client=self._client)
         last = self._layout.takeAt(0)
         if last:
             last.widget().deleteLater()
@@ -173,14 +175,15 @@ class DeviceParamEdit(DeviceValueEdit):
         self.connect(self._inner, SIGNAL('dataChanged'), self._changed)
 
 
-def create(parent, typ, curvalue, fmtstr='', unit='', allow_buttons=False):
+def create(parent, typ, curvalue, fmtstr='', unit='',
+           allow_buttons=False, client=None):
     # make sure the type is correct
     try:
         curvalue = typ(curvalue)
     except ValueError:
         curvalue = typ()
     if unit:
-        inner = create(parent, typ, curvalue, fmtstr, unit='')
+        inner = create(parent, typ, curvalue, fmtstr, unit='', client=client)
         return AnnotatedWidget(parent, inner, unit)
     if isinstance(typ, params.oneof):
         if allow_buttons and len(typ.vals) <= 3:
@@ -191,9 +194,9 @@ def create(parent, typ, curvalue, fmtstr='', unit='', allow_buttons=False):
             return ButtonWidget(parent, typ.vals.values())
         return ComboWidget(parent, typ.vals.values(), curvalue)
     elif isinstance(typ, params.none_or):
-        return CheckWidget(parent, typ.conv, curvalue)
+        return CheckWidget(parent, typ.conv, curvalue, client)
     elif isinstance(typ, params.tupleof):
-        return MultiWidget(parent, typ.types, curvalue)
+        return MultiWidget(parent, typ.types, curvalue, client)
     elif typ == params.limits:
         return LimitsWidget(parent, curvalue)
     elif isinstance(typ, params.floatrange):
@@ -211,7 +214,9 @@ def create(parent, typ, curvalue, fmtstr='', unit='', allow_buttons=False):
     elif typ == bool:
         return ComboWidget(parent, [True, False], curvalue)
     elif typ == params.vec3:
-        return MultiWidget(parent, (float, float, float), curvalue)
+        return MultiWidget(parent, (float, float, float), curvalue, client)
+    elif typ == params.nicosdev:
+        return DeviceComboWidget(parent, curvalue, client)
     elif typ in (params.tacodev, params.tangodev, params.mailaddress,
                  params.anypath, params.subdir, params.relative_path,
                  params.absolute_path):
@@ -244,13 +249,13 @@ class AnnotatedWidget(QWidget):
 
 class MultiWidget(QWidget):
 
-    def __init__(self, parent, types, curvalue):
+    def __init__(self, parent, types, curvalue, client):
         QWidget.__init__(self, parent)
         layout = self._layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self._widgets = []
         for (typ, val) in zip(types, curvalue):
-            widget = create(self, typ, val)
+            widget = create(self, typ, val, client=client)
             self._widgets.append(widget)
             self.connect(widget, SIGNAL('dataChanged'),
                          lambda: self.emit(SIGNAL('dataChanged')))
@@ -350,7 +355,7 @@ class ExprWidget(QLineEdit):
 
 class CheckWidget(QWidget):
 
-    def __init__(self, parent, inner, curvalue):
+    def __init__(self, parent, inner, curvalue, client):
         QWidget.__init__(self, parent)
         layout = self._layout = QHBoxLayout()
         self.checkbox = QCheckBox(self)
@@ -358,7 +363,7 @@ class CheckWidget(QWidget):
             self.checkbox.setCheckState(Qt.Checked)
         if curvalue is None:
             curvalue = inner()  # generate a dummy value
-        self.inner_widget = create(self, inner, curvalue)
+        self.inner_widget = create(self, inner, curvalue, client=client)
         self.inner_widget.setEnabled(self.checkbox.isChecked())
         self.connect(self.inner_widget, SIGNAL('dataChanged'),
                      lambda: self.emit(SIGNAL('dataChanged')))
@@ -387,3 +392,24 @@ class MissingWidget(QLabel):
 
     def getValue(self):
         return self._value
+
+class DeviceComboWidget(QComboBox):
+
+    def __init__(self, parent, curvalue, client,
+                 needs_class='nicos.core.device.Device'):
+        QComboBox.__init__(self, parent, editable=True)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
+        if client:
+            devs = client.getDeviceList(needs_class)
+            self.addItems(devs)
+            try:
+                index = devs.index(curvalue)
+                self.setCurrentIndex(index)
+            except ValueError:
+                self.setEditText(curvalue)
+        else:
+            self.setEditText(curvalue)
+        self.editTextChanged.connect(lambda: self.emit(SIGNAL('dataChanged')))
+
+    def getValue(self):
+        return self.currentText()

@@ -92,7 +92,7 @@ class Param(object):
 
     _notset = object()
 
-    #pylint: disable=W0622
+    # pylint: disable=W0622
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, volatile=False,
                  unit=None, category=None, preinit=False, prefercache=None,
@@ -400,6 +400,17 @@ class none_or(object):
             return None
         return self.conv(val)
 
+nicosdev_re = re.compile(r'^[a-z_][a-z_0-9]*$', re.I)  # valid Python identifier
+
+def nicosdev(val=None):
+    """a valid NICOS device name"""
+    if not val:
+        return ''
+    val = str(val)
+    if not nicosdev_re.match(val):
+        raise ValueError('%r is not a valid NICOS device name' % val)
+    return val
+
 tacodev_re = re.compile(r'^(//[\w.-]+/)?[\w-]+/[\w-]+/[\w-]+$', re.I)
 
 def tacodev(val=None):
@@ -421,7 +432,6 @@ def tangodev(val=None):
     if not tangodev_re.match(val):
         raise ValueError('%r is not a valid Tango device name' % val)
     return val
-
 
 # see http://stackoverflow.com/questions/3217682/checking-validity-of-email-in-django-python
 # for source

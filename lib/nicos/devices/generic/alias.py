@@ -27,8 +27,8 @@
 import re
 
 from nicos import session
-from nicos.core import Device, Param, ConfigurationError, NicosError, none_or, \
-     usermethod
+from nicos.core import Device, Param, ConfigurationError, NicosError, \
+    none_or, nicosdev, usermethod
 from nicos.core.device import DeviceMixinMeta
 from nicos.core import SIMULATION, MASTER
 
@@ -76,10 +76,10 @@ class DeviceAlias(Device):
     """
 
     parameters = {
-        'alias':    Param('Device to alias', type=none_or(str), settable=True,
-                          chatty=True),
+        'alias':    Param('Device to alias', type=none_or(nicosdev),
+                          settable=True, chatty=True),
         'devclass': Param('Class name that the aliased device must be an '
-                          'instance of', type=str, default='nicos.core.Device'),
+                          'instance of', type=str, default='nicos.core.device.Device'),
     }
 
     _ownattrs = ['_obj', '_mode', '_cache', 'alias']
@@ -90,7 +90,7 @@ class DeviceAlias(Device):
 
     def __init__(self, name, **config):
         self._obj = None
-        devclass = config.get('devclass', 'nicos.core.Device')
+        devclass = config.get('devclass', 'nicos.core.device.Device')
         try:
             modname, clsname = devclass.rsplit('.', 1)
             self._cls = session._nicos_import(modname, clsname)

@@ -30,7 +30,8 @@ from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
-from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
+from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
+    DeviceComboWidget
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
@@ -328,8 +329,9 @@ class DevicesPanel(Panel):
             devitem.setForeground(1, fixedBrush[devinfo[4]])
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
-                dlg.movebtn.setEnabled(not devinfo[4])
-                dlg.movebtn.setText(devinfo[4] and '(fixed)' or 'Move')
+                if dlg.moveBtn:
+                    dlg.moveBtn.setEnabled(not devinfo[4])
+                    dlg.moveBtn.setText(devinfo[4] and '(fixed)' or 'Move')
         elif subkey == 'userlimits':
             if not value:
                 return
@@ -353,6 +355,12 @@ class DevicesPanel(Panel):
             if not value:
                 value = "[]"
             devinfo[5] = set(cache_load(value))
+        elif subkey == 'alias':
+            if not value:
+                return
+            if ldevname in self._control_dialogs:
+                dlg = self._control_dialogs[ldevname]
+                dlg._reinit()
 
     def on_tree_customContextMenuRequested(self, point):
         item = self.tree.itemAt(point)
@@ -459,90 +467,119 @@ class ControlDialog(QDialog):
 
         self.client = parent.client
         self.devname = devname
+        self.devinfo = devinfo
+        self.devitem = devitem
         self.paramItems = {}
 
-        self.deviceName.setText('Device: %s' % devname)
-        self.setWindowTitle('Control %s' % devname)
+        self._reinit()
+
+    def _reinit(self):
+        classes = self.devinfo[5]
+
+        self.deviceName.setText('Device: %s' % self.devname)
+        self.setWindowTitle('Control %s' % self.devname)
 
         # now get all cache keys pertaining to the device and set the
         # properties we want
-        params = self.client.getDeviceParams(devname)
-        self.paraminfo = self.client.getDeviceParamInfo(devname)
+        params = self.client.getDeviceParams(self.devname)
+        self.paraminfo = self.client.getDeviceParamInfo(self.devname)
         self.paramvalues = dict(params)
+
+        # put parameter values in the list widget
+        self.paramList.clear()
         for key, value in sorted(params.iteritems()):
             if self.paraminfo.get(key) and self.paraminfo[key]['userparam']:
                 self.paramItems[key] = \
                     QTreeWidgetItem(self.paramList, [key, str(value)])
 
+        # set description label
         if params.get('description'):
             self.description.setText(params['description'])
         else:
             self.description.setVisible(False)
 
-        if params.get('alias'):
-            self.deviceName.setText(self.deviceName.text() +
-                                    ' (alias for %s)' % params['alias'])
+        # show "Set alias" group box if it is an alias device
+        if 'alias' in params:
+            if params['alias']:
+                self.deviceName.setText(self.deviceName.text() +
+                                        ' (alias for %s)' % params['alias'])
 
-        if 'nicos.core.device.Readable' not in devinfo[5]:
+            self.aliasTarget = DeviceComboWidget(
+                self, params['alias'] or '', self.client, params['devclass'])
+            self.targetLayoutAlias.takeAt(1).widget().deleteLater()
+            self.targetLayoutAlias.insertWidget(1, self.aliasTarget)
+        else:
+            self.aliasGroup.setVisible(False)
+
+        # show current value/status if it is readable
+        if 'nicos.core.device.Readable' not in classes:
             self.valueFrame.setVisible(False)
         else:
-            self.valuelabel.setText(devitem.text(1))
-            self.statuslabel.setText(devitem.text(2))
-            self.statusimage.setPixmap(devitem.icon(0).pixmap(16, 16))
-            setForegroundBrush(self.statuslabel, devitem.foreground(2))
-            setBackgroundBrush(self.statuslabel, devitem.background(2))
+            self.valuelabel.setText(self.devitem.text(1))
+            self.statuslabel.setText(self.devitem.text(2))
+            self.statusimage.setPixmap(self.devitem.icon(0).pixmap(16, 16))
+            setForegroundBrush(self.statuslabel, self.devitem.foreground(2))
+            setBackgroundBrush(self.statuslabel, self.devitem.background(2))
 
-        if 'nicos.core.device.Moveable' not in devinfo[5]:
+        # show a "Control" group box if it is moveable
+        if 'nicos.core.device.Moveable' not in classes:
             self.controlGroup.setVisible(False)
         else:
-            if 'nicos.core.device.HasLimits' not in devinfo[5]:
+            if 'nicos.core.device.HasLimits' not in classes:
                 self.limitFrame.setVisible(False)
             else:
                 self.limitMin.setText(str(params['userlimits'][0]))
                 self.limitMax.setText(str(params['userlimits'][1]))
 
-            self.target = DeviceValueEdit(self, dev=devname, useButtons=True)
-            self.target.setClient(parent.client)
+            # insert a widget to enter a new device value
+            self.target = DeviceValueEdit(self, dev=self.devname, useButtons=True)
+            self.target.setClient(self.client)
             def btn_callback(target):
-                self.client.tell('queue', '', 'move(%s, %r)' % (devname, target))
+                self.client.tell('queue', '', 'move(%s, %r)' %
+                                 (self.devname, target))
             self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
+            self.targetLayout.takeAt(1).widget().deleteLater()
             self.targetLayout.insertWidget(1, self.target)
 
+            # add a menu for the "More" button
             menu = QMenu(self)
-            if 'nicos.core.device.HasLimits' in devinfo[5]:
+            if 'nicos.core.device.HasLimits' in classes:
                 menu.addAction(self.actionSetLimits)
-            if 'nicos.core.device.HasOffset' in devinfo[5]:
+            if 'nicos.core.device.HasOffset' in classes:
                 menu.addAction(self.actionAdjustOffset)
-            if 'nicos.devices.abstract.CanReference' in devinfo[5]:
+            if 'nicos.devices.abstract.CanReference' in classes:
                 menu.addAction(self.actionReference)
             menu.addAction(self.actionFix)
             menu.addAction(self.actionRelease)
             menuBtn = QPushButton('More', self)
             menuBtn.setMenu(menu)
+            self.moveBtns.clear()
             self.moveBtns.addButton(menuBtn, QDialogButtonBox.ResetRole)
 
             self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)
             self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)
             if self.target.getValue() is not None:  # it's None for button widget
-                self.movebtn = self.moveBtns.addButton(
+                self.moveBtn = self.moveBtns.addButton(
                     'Move', QDialogButtonBox.AcceptRole)
+            else:
+                self.moveBtn = None
 
             if params.get('fixed'):
-                self.movebtn.setEnabled(False)
-                self.movebtn.setText('(fixed)')
+                self.moveBtn.setEnabled(False)
+                self.moveBtn.setText('(fixed)')
 
             def callback(button):
                 if button.text() == 'Reset':
-                    self.client.tell('queue', '', 'reset(%s)' % devname)
+                    self.client.tell('queue', '', 'reset(%s)' % self.devname)
                 elif button.text() == 'Stop':
-                    self.client.tell('exec', 'stop(%s)' % devname)
+                    self.client.tell('exec', 'stop(%s)' % self.devname)
                 elif button.text() == 'Move':
                     try:
                         target = self.target.getValue()
                     except ValueError:
                         return
                     self.client.tell('queue', '',
-                                     'move(%s, %r)' % (devname, target))
+                                     'move(%s, %r)' % (self.devname, target))
             self.moveBtns.clicked.connect(callback)
 
     @qtsig('')
@@ -612,12 +649,19 @@ class ControlDialog(QDialog):
     def on_actionRelease_triggered(self):
         self.client.tell('queue', '', 'release(%s)' % self.devname)
 
+    @qtsig('')
+    def on_setAliasBtn_clicked(self):
+        self.client.tell('queue', '', '%s.alias = %r' %
+                         (self.devname, str(self.aliasTarget.getValue())))
+
     def closeEvent(self, event):
         event.accept()
         self.emit(SIGNAL('closed'), self.devname.lower())
 
     def on_cache(self, subkey, value):
         if subkey not in self.paramItems:
+            return
+        if not value:
             return
         value = cache_load(value)
         self.paramvalues[subkey] = value
