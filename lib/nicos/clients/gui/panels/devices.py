@@ -195,6 +195,8 @@ class DevicesPanel(Panel):
             return
         if 'nicos.core.data.DataSink' in params.get('classes', []):
             return
+        if 'nicos.core.image.ImageSink' in params.get('classes', []):
+            return
 
         cat = self._dev2setup.get(devname)
         if cat is None:   # device is not in any setup? reread setup info
