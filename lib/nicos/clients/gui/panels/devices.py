@@ -468,6 +468,7 @@ class ControlDialog(QDialog):
         self.log = log
 
         self.client = parent.client
+        self.mainwindow = parent.mainwindow
         self.devname = devname
         self.devinfo = devinfo
         self.devitem = devitem
@@ -522,6 +523,11 @@ class ControlDialog(QDialog):
             self.statusimage.setPixmap(self.devitem.icon(0).pixmap(16, 16))
             setForegroundBrush(self.statuslabel, self.devitem.foreground(2))
             setBackgroundBrush(self.statuslabel, self.devitem.background(2))
+
+            # add a button to the bottom button-box
+            historyBtn = QPushButton(QIcon(':/find'), 'Plot history...', self)
+            self.buttonBox.addButton(historyBtn, QDialogButtonBox.ResetRole)
+            historyBtn.clicked.connect(self.on_historyBtn_clicked)
 
         # show a "Control" group box if it is moveable
         if 'nicos.core.device.Moveable' not in classes:
@@ -698,3 +704,8 @@ class ControlDialog(QDialog):
             return
         self.client.tell('queue', '', '%s.%s = %r' %
                          (self.devname, pname, new_value))
+
+    def on_historyBtn_clicked(self):
+        if self.mainwindow.history_wintype:
+            win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
+            win.getPanel('History viewer').newView(self.devname)
