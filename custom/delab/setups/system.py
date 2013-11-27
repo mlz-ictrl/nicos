@@ -2,7 +2,7 @@ description = 'system setup only'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'deldaq50.del.frm2',
+    cache = 'localhost',
     instrument = 'DEL',
     experiment = 'Exp',
     notifiers = ['email', ],
@@ -23,7 +23,7 @@ devices = dict(
 
     Exp      = device('devices.experiment.Experiment',
                       sample = 'Sample',
-                      dataroot = '/scratch/data0',
+                      dataroot = '/localdata/nicos',
                       serviceexp = '0',
                       sendmail = True,
                       mailsender = 'karl.zeitelhack@frm2.tum.de',
@@ -47,7 +47,7 @@ devices = dict(
     gracesink= device('devices.datasinks.GraceSink'),
 
     Space    = device('devices.generic.FreeSpace',
-                      path = '/scratch/data0',
+                      path = '/localdata/nicos',
                       minfree = 10,
                      ),
 )

@@ -40,7 +40,7 @@ devices = dict(
 #                     ),
 
     Watchdog = device('services.watchdog.Watchdog',
-                      cache = 'deldaq50.del.frm2',
+                      cache = 'localhost',
                       notifiers = {'default': ['email']},
                       watch = watchlist,
                       mailreceiverkey = 'email/receivers',

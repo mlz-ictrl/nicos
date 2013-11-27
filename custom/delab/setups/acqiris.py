@@ -1,6 +1,8 @@
 description = 'acqiris detector'
 
-group = 'lowlevel'
+group = 'optional'
+
+excludes = ['qmesydaq', ]
 
 includes = []
 
@@ -34,13 +36,17 @@ devices = dict(
                   ismaster = True,
                   config = '\n'.join(acqiris_config),
                  ),
-    det = device('devices.generic.MultiChannelDetector',
-                 description = 'Acqiris card',
-                 timer  = 'tim',
-                 monitors = [],
-                 counters = ['det1'],
-                 fmtstr = 'timer %s, cnt %s',
-                 maxage = 2,
-                 pollinterval = 0.5,
-                ),
+    acqiris = device('devices.generic.MultiChannelDetector',
+                     description = 'Acqiris card',
+                     timer  = 'tim',
+                     monitors = [],
+                     counters = ['det1'],
+                     fmtstr = 'timer %s, cnt %s',
+                     maxage = 2,
+                     pollinterval = 0.5,
+                    ),
 )
+
+startupcode = """
+SetDetectors(acqiris)
+"""

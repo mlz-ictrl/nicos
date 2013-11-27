@@ -127,6 +127,7 @@ class QMesyDAQDet(ImageProducer, AsyncDetector, TacoDevice):
         self._presetkeys = {}
         self._master = None
         self._isPause = False
+        self._filesavers = []
 
         TacoDevice.doPreinit(self, mode)
         def myiter(self):

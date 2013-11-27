@@ -6,7 +6,7 @@ sysconfig = dict(
     instrument = None,
     datasinks = [],
     notifiers = [],
-    cache = 'deldaq50.del.frm2',
+    cache = 'localhost',
 )
 
 devices = dict(

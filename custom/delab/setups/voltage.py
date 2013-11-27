@@ -4,23 +4,39 @@ group = 'lowlevel'
 
 includes = []
 
-nethost = 'deldaq50.del.frm2'
+nethost = 'localhost'
 
 devices = dict(
     hv0   = device('devices.taco.VoltageSupply',
                    description = 'ISEG HV power supply 1',
-                   requires = {'level': 'admin'},
+                   # requires = {'level': 'admin'},
                    tacodevice = '//%s/del/iseg1/voltage' % (nethost,),
-                   abslimits = (0, 1600),
+                   abslimits = (0, 3000),
                    ramp = 120,
-                   pollinterval = 60,
+                   pollinterval = 5,
+                   maxage = 61,
                   ),
+    hv0cur = device('devices.taco.AnalogInput',
+                    description = 'ISEG HV power supply 1 (current)',
+                    tacodevice = '//%s/del/iseg1/current' % (nethost,),
+                    pollinterval = 5,
+                    maxage = 61,
+                    fmtstr = '%.3f',
+                   ),
     hv1   = device('devices.taco.VoltageSupply',
                    description = 'ISEG HV power supply 2',
-                   requires = {'level': 'admin'},
+                   # requires = {'level': 'admin'},
                    tacodevice = '//%s/del/iseg2/voltage' % (nethost,),
-                   abslimits = (0, 1600),
+                   abslimits = (0, 3000),
                    ramp = 120,
-                   pollinterval = 60,
+                   pollinterval = 5,
+                   maxage = 61,
                   ),
+    hv1cur = device('devices.taco.AnalogInput',
+                    description = 'ISEG HV power supply 1 (current)',
+                    tacodevice = '//%s/del/iseg2/current' % (nethost,),
+                    pollinterval = 5,
+                    maxage = 61,
+                    fmtstr = '%.3f',
+                   ),
 )

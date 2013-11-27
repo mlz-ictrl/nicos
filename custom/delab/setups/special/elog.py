@@ -8,7 +8,7 @@ sysconfig = dict(
 devices = dict(
     Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
-                     cache = 'deldaq50.del.frm2',
+                     cache = 'localhost',
                     ),
 )
 

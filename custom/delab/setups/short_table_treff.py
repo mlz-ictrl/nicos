@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = []
 
-nethost = 'deldaq50.del.frm2'
+nethost = 'localhost'
 
 devices = dict(
     mo_x   = device('devices.taco.Motor',
