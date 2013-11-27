@@ -11,4 +11,5 @@ present a standard interface to NICOS described :ref:`here <taco>`.
    ipc
    toni
    iseg
+   qmesydaq
    frm2

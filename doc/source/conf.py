@@ -146,6 +146,7 @@ STUBS = dict(
     TMCS = ['class Channel', 'class Admin'],
     Modbus = ['class Modbus'],
     ProfibusDP = ['class IO'],
+    Detector = ['class Detector'],
 )
 
 def generate_stubs():

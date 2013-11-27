@@ -72,15 +72,28 @@ class QMesyDAQChannel(FRMChannel):
         self._taco_guard(self._dev.clear)
         self._taco_guard(self._dev.start)
 
+
 class QMesyDAQTimer(QMesyDAQChannel, FRMTimerChannel):
-    pass
+    """
+    Timer channel for QMesyDAQ detector.
+    """
 
 
 class QMesyDAQCounter(QMesyDAQChannel, FRMCounterChannel):
-    pass
+    """
+    Monitor/counter channel for QMesyDAQ detector.
+    """
 
 
 class QMesyDAQDet(ImageStorage, AsyncDetector, TacoDevice):
+    """
+    Detector for QMesyDAQ that combines multiple channels to a single Measurable
+    detector device.
+
+    It also contains the managing and start/stop logic and reads the histogram
+    data which is provided to the attached filesavers for storage.
+    """
+
     # only one of those is required, all others are optional!
     attached_devices = {
         'events' : (QMesyDAQCounter, 'Timer channel'),
