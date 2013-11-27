@@ -215,6 +215,17 @@ possible with the device:
       The loglevel for output from the device.  This must be set to one of the
       loglevel constants.  Default is ``info``.
 
+   .. parameter:: classes : list of strings
+
+      A list of all classes (and mixins) in the class tree of this device.
+      For example, for a `Moveable` device this includes
+      ``'nicos.core.device.Device'``, ``'nicos.core.device.Readable'`` and
+      ``'nicos.core.device.Moveable'``.  This is set automatically by NICOS and
+      should not be configured in the setup.
+
+      The parameter is used for introspection e.g. by the GUI: it can decide
+      which GUI elements to offer for this device depending on its base classes.
+
    .. rubric:: Protected members
 
    These protected members are of interest when implementing device classes:
