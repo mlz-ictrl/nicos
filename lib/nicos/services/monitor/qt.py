@@ -49,6 +49,11 @@ class MonitorWindow(QMainWindow):
     def keyPressEvent(self, event):
         if event.text() == 'q':
             self.close()
+        elif event.text() == 'f':
+            if self.isFullScreen():
+                self.showNormal()
+            else:
+                self.showFullScreen()
         return QMainWindow.keyPressEvent(self, event)
 
     def closeEvent(self, event):
@@ -59,7 +64,10 @@ class MonitorWindow(QMainWindow):
     def event(self, event):
         if self._reconfiguring and event.type() == 76:  # LayoutRequest
             self._reconfiguring = False
-            self.resize(self.sizeHint())
+            if self.isFullScreen():
+                self.showFullScreen()
+            else:
+                self.resize(self.sizeHint())
         return QMainWindow.event(self, event)
 
 
@@ -289,8 +297,6 @@ class Monitor(BaseMonitor):
             for (layout, blockbox), enabled in emitdict.iteritems():
                 blockbox.enableDisplay(layout, enabled)
             master.layout().activate()
-            if self._geometry == 'fullscreen':
-                master.showFullScreen()
         master.connect(master, SIGNAL('reconfigure'), reconfigure)
 
         # initialize status bar

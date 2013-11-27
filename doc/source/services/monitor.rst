@@ -34,6 +34,9 @@ font.
 -S SETUPNAME, --setup=SETUPNAME       name of the setup, default is 'monitor'
 -g geom, --geometry=geom              select the window geometry with a string 'WxH+X+Y' or 'fullscreen'
 
+The Qt monitor supports two key bindings: press ``q`` to exit and ``f`` to
+toggle full-screen mode.
+
 
 Setup file
 ----------
