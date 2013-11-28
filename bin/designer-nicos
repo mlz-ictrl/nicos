@@ -20,4 +20,9 @@ for item in sys.argv[1:]:
 
 os.environ['NICOSDESIGNER_MODULES'] = ':'.join(modules)
 
-os.execvp('designer', ['designer'] + args)
+if sys.platform == 'darwin':
+    os.environ['PATH'] = \
+        '/Developer/Applications/Qt/Designer.app/Contents/MacOS/'
+    os.execvp('Designer', ['Designer'] + args)
+else:
+    os.execvp('designer', ['designer'] + args)
