@@ -24,13 +24,12 @@
 
 """Module for measuring user commands."""
 
-from time import sleep,  time as currenttime
+from time import sleep
 
 from nicos import session
 from nicos.core.device import Measurable
 from nicos.core.errors import UsageError
 from nicos.core.constants import SIMULATION
-from nicos.core.image import ImageProducer
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
 
@@ -78,12 +77,6 @@ def _count(detlist, preset, result, dataset=None):
     if not dataset:
         dataset = session.experiment.createDataset()
     session.experiment.advanceImageCounter(detset,  dataset)
-    imageinfos = []
-    for det in detset:
-        if isinstance(det, ImageProducer):
-            imageinfos.extend(det._imageinfos)
-    for imgi in imageinfos:
-        imgi.begintime = currenttime()
     session.beginActionScope('Counting')
     if session.experiment.pausecount:
         _wait_for_pause(delay)
@@ -102,11 +95,10 @@ def _count(detlist, preset, result, dataset=None):
                 if session.mode != SIMULATION:
                     det.duringMeasureHook(i)
                 if det.isCompleted():
-                    if isinstance(det, ImageProducer):
-                        for imageinfo in det._imageinfos:
-                            if not imageinfo.endtime:
-                                imageinfo.endtime = currenttime()
-                        det.saveImage()
+                    try:
+                        det.save()
+                    except Exception:
+                        det.log.exception('error saving measurement data')
                     detset.discard(det)
             if not detset:
                 # all detectors finished measuring
@@ -120,14 +112,13 @@ def _count(detlist, preset, result, dataset=None):
                 for det in detset:
                     det.resume()
             sleep(delay)
-        for det in detlist:
+    except:  # really ALL exceptions
+        for det in detset:
+            det.stop()
             try:
                 det.save()
             except Exception:
                 det.log.exception('error saving measurement data')
-    except:  # really ALL exceptions
-        for det in detset:
-            det.stop()
         result.extend(sum((det.read() for det in detlist), []))
         raise
     finally:

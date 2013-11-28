@@ -302,7 +302,10 @@ class ImageProducer(DeviceMixinBase):
         """Save the given image content."""
         # trigger saving the image
         # XXX: maybe do this in a thread to avoid delaying the countloop.....
-        if self._saved == False:
+        for imageinfo in self._imageinfos:
+            if not imageinfo.endtime:
+                imageinfo.endtime = currenttime()
+        if not self._saved:
             if image is Ellipsis:
                 image = self.readFinalImage()
             self.log.debug('saveImage(%20s)' % ('%r' % image))
@@ -332,6 +335,8 @@ class ImageProducer(DeviceMixinBase):
             self._saved = True
         self._header = None
 
+    def doSave(self):
+        self.saveImage()
 
     #
     # HW-specific 'Hooks'
