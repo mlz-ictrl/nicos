@@ -35,13 +35,13 @@ from nicos.core.params import Param, subdir, listof
 
 
 class ImageInfo(object):
-    """Class for storing data about imageType detectors which are passed around
+    """Class for storing data about imagetype detectors which are passed around
     """
     # from which detector is this? / which detector to take thae data from?
     detector = None
     # which format does the detector deliver? (One of IMAGE_TYPES...)
-    imageType = None
-    # wich filesaver is active for this imageType?
+    imagetype = None
+    # wich filesaver is active for this imagetype?
     filesaver = None
     # which (if any) is the currently opened datafile
     file = None
@@ -86,18 +86,18 @@ class ImageType(object):
         self.dtype = dtype
         self.dimnames = dimnames
 
-    def canConvertTo(self, imageType):
-        """checks if we can be converted to the given imageType"""
+    def canConvertTo(self, imagetype):
+        """checks if we can be converted to the given imagetype"""
         # XXX
-        if self.shape == imageType.shape:
+        if self.shape == imagetype.shape:
             return True
         return False
 
-    def convertTo(self, data, imageType):
-        """converts given data to given imageType and returns converted data"""
-        if not self.canConvertTo(imageType):
+    def convertTo(self, data, imagetype):
+        """converts given data to given imagetype and returns converted data"""
+        if not self.canConvertTo(imagetype):
             raise ProgrammingError('Can not convert to requested datatype')
-        return numpy.array(data, dtype=imageType.dtype)
+        return numpy.array(data, dtype=imagetype.dtype)
 
     def __repr__(self):
         return 'ImageType(%r, %r, %r)' % (self.shape, self.dtype, self.dimnames)
@@ -131,12 +131,12 @@ class ImageSaver(Device):
 
     fileFormat = 'undefined'     # should be unique amongst filesavers!, used for logging/output
 
-    def acceptImageType(self, imageType):
-        """returns True if the given imageType can be saved"""
+    def acceptImageType(self, imagetype):
+        """returns True if the given imagetype can be saved"""
         raise NotImplementedError('implement acceptImageType')
 
     def prepareImage(self, imageinfo, subdir=''):
-        """Prepare an Imagefile in the given subdir if we support the requested imageType.
+        """Prepare an Imagefile in the given subdir if we support the requested imagetype.
         """
         exp = session.experiment
         s, l, f = exp.createImageFile(self.filenametemplate, subdir, self.subdir, scanpoint = imageinfo.scanpoint)
@@ -191,7 +191,7 @@ class ImageStorage(DeviceMixinBase):
                               type=str, default='', settable=True),
     }
 
-    _imageType = None # None or one of IMAGE_TYPES
+    _imagetype = None # None or one of IMAGE_TYPES
     _imageinfos = [] # stores all active imageinfos
     _header = None
     need_clear = False
@@ -229,10 +229,10 @@ class ImageStorage(DeviceMixinBase):
             self.clearImage()
         imageinfos = []
         for ff in self._adevs['fileformats']:
-            if ff.acceptImageType(self._imageType):
+            if ff.acceptImageType(self._imagetype):
                 imageinfo = ImageInfo()
                 imageinfo.detector = self
-                imageinfo.imageType = self._imageType
+                imageinfo.imagetype = self._imagetype
                 imageinfo.begintime = currenttime()
                 imageinfo.header = self._header if self._header else {}
                 imageinfo.filesaver = ff
@@ -289,10 +289,10 @@ class ImageStorage(DeviceMixinBase):
                     session.updateLiveData(
                         imageinfo.filesaver.fileFormat,
                         imageinfo.filepath,
-                        imageinfo.imageType.dtype,
-                        imageinfo.imageType.shape[0],
-                        imageinfo.imageType.shape[1] if len(imageinfo.imageType.shape) > 1 else 1,
-                        imageinfo.imageType.shape[2] if len(imageinfo.imageType.shape) > 2 else 1,
+                        imageinfo.imagetype.dtype,
+                        imageinfo.imagetype.shape[0],
+                        imageinfo.imagetype.shape[1] if len(imageinfo.imagetype.shape) > 1 else 1,
+                        imageinfo.imagetype.shape[2] if len(imageinfo.imagetype.shape) > 2 else 1,
                         imageinfo.endtime-imageinfo.begintime,
                         None)
             else:

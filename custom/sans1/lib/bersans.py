@@ -195,8 +195,8 @@ class BerSANSFileFormat(ImageSaver):
 
     fileFormat = 'BerSANS'     # should be unique amongst filesavers!
 
-    def acceptImageType(self, imageType):
-        return len(imageType.shape) == 2
+    def acceptImageType(self, imagetype):
+        return len(imagetype.shape) == 2
 
     def prepareImage(self, imageinfo, subdir=''):
         """should prepare an Imagefile in the given subdir"""

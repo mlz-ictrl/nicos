@@ -45,7 +45,7 @@ class RAWFileFormat(ImageSaver):
 
     fileFormat = 'RAW'     # should be unique amongst filesavers!
 
-    def acceptImageType(self, imageType):
+    def acceptImageType(self, imagetype):
         # everything can be saved RAW
         return True
 
@@ -72,7 +72,7 @@ class RAWFileFormat(ImageSaver):
                 imageinfo.headerfile.write('%25s : %s\n' %
                                            ('%s_%s' % (dev.name, key), value))
         # to ease interpreting the data...
-        imageinfo.headerfile.write('\n%r\n' % imageinfo.imageType)
+        imageinfo.headerfile.write('\n%r\n' % imageinfo.imagetype)
 
     def finalizeImage(self, imageinfo):
         """finalizes the on-disk image, normally just a close"""
@@ -96,7 +96,7 @@ class SingleRAWFileFormat(ImageSaver):
 
     # no need to define prepareImage and finalizeImage, as they do already all we need
 
-    def acceptImageType(self, imageType):
+    def acceptImageType(self, imagetype):
         # everything can be saved RAW
         return True
 
@@ -117,5 +117,5 @@ class SingleRAWFileFormat(ImageSaver):
                 imageinfo.file.write('%25s : %s\n' %
                                      ('%s_%s' % (dev.name, key), value))
         # to ease interpreting the data...
-        imageinfo.file.write('\n%r\n' % imageinfo.imageType)
+        imageinfo.file.write('\n%r\n' % imageinfo.imagetype)
         imageinfo.file.flush()

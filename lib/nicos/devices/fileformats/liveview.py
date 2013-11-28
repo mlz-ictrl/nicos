@@ -37,8 +37,8 @@ class LiveViewSink(ImageSaver):
 
     fileFormat = 'Live'     # should be unique amongst filesavers!
 
-    def acceptImageType(self,  imageType):
-        return len(imageType.shape) == 2 and imageType.dtype == '<u4'
+    def acceptImageType(self,  imagetype):
+        return len(imagetype.shape) == 2 and imagetype.dtype == '<u4'
 
     def prepareImage(self, imageinfo,  subdir=''):
         pass

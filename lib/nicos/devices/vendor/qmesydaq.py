@@ -119,8 +119,8 @@ class QMesyDAQDet(ImageStorage, AsyncDetector, TacoDevice):
                              IOCommon.MODE_NORMAL: 'normal'})),
     }
 
-    # initial imageType, will be updated upon readImage
-    _imageType = ImageType((128, 128), '<u4')
+    # initial imagetype, will be updated upon readImage
+    _imagetype = ImageType((128, 128), '<u4')
 
     def doPreinit(self, mode):
         self._counters = []
@@ -155,7 +155,7 @@ class QMesyDAQDet(ImageStorage, AsyncDetector, TacoDevice):
     def doInit(self, mode):
         self._filesavers = [ff for ff in self._adevs['fileformats']
                              if not isinstance(ff, LiveViewSink)]
-        self.readImage() # also set imageType
+        self.readImage() # also set imagetype
         AsyncDetector.doInit(self, mode)
 
     def _getMaster(self):
@@ -273,15 +273,15 @@ class QMesyDAQDet(ImageStorage, AsyncDetector, TacoDevice):
         self.lastcounts = sum(res[3:]) # maybe also evaluate roi...?
         # evaluate shape return correctly reshaped numpy array
         if res[1:3] in [(1, 1), (0, 1), (1, 0), (0, 0)]: #1D array
-            self._imageType = ImageType(shape=(res[0], ), dtype='<u4')
+            self._imagetype = ImageType(shape=(res[0], ), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
             return data
         elif res[2] in [0, 1]: #2D array
-            self._imageType = ImageType(shape=(res[0], res[1]), dtype='<u4')
+            self._imagetype = ImageType(shape=(res[0], res[1]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
             return data.reshape((res[0], res[1]), order='C')
         else: #3D array
-            self._imageType = ImageType(shape=(res[0], res[1], res[2]), dtype='<u4')
+            self._imagetype = ImageType(shape=(res[0], res[1], res[2]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
             return data.reshape((res[0], res[1], res[2]), order='C')
         return None
