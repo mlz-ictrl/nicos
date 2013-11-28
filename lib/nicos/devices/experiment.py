@@ -399,10 +399,10 @@ class Experiment(Device):
     # datafile stuff
     #
     def getDataDir(self, *subdirs):
-        """returns the current path for the data directory in subdir
-        structure subdirs
+        """Returns the current path for the data directory in subdir
+        structure subdirs.
 
-        returned directory is created if it did not exist
+        Returned directory is created if it did not exist.
         """
         dirname = path.abspath(path.join(self.datapath, *subdirs))
         if self._mode != SIMULATION:
@@ -410,10 +410,10 @@ class Experiment(Device):
         return dirname
 
     def getDataFilename(self, filename, *subdirs):
-        """returns the current path for given filename in subdir structure
-        subdirs
+        """Returns the current path for given filename in subdir structure
+        subdirs.
 
-        if filename is an absolute path, ignore the subdirs and start at
+        If filename is an absolute path, ignore the subdirs and start at
         dataroot returned filename is usable 'as-is', i.e. the required
         directory structure is already created.
         """
@@ -427,16 +427,16 @@ class Experiment(Device):
         return fullname
 
     def createDataFile(self, nametemplate, counter, *subdirs, **kwargs):
-        """creates and returns a file named according to the given nametemplate
-        in the given subdir of the datapath
+        """Creates and returns a file named according to the given nametemplate
+        in the given subdir of the datapath.
 
-        if the optional keyworded argument nofile is True, the file is not
+        If the optional keyworded argument nofile is True, the file is not
         created. This is needed for some data-saving libraries creating the
         file by themselfs. In this case, the filemode is (obviously) not
         managed by us.
 
-        The nametemplate can be either a string or a list of strings.
-        In the second case, the first listentry is used to create the file and the
+        The nametemplate can be either a string or a list of strings.  In the
+        second case, the first listentry is used to create the file and the
         remaining ones will be hardlinked to this file if the os supports this.
 
         In SIMULATION mode this returns a file-like object to avoid accessing
@@ -465,10 +465,11 @@ class Experiment(Device):
         fullfilename = self.getDataFilename(filename, *subdirs)
         if path.isfile(fullfilename):
             raise ProgrammingError('Data file named %r already exists! '
-                                   'Check filenametemplates !' %
+                                   'Check filenametemplates!' %
                                    fullfilename)
         if self._mode == SIMULATION or kwargs.get('nofile'):
-            self.log.debug('Not creating any file, returning a StringIO buffer instead.')
+            self.log.debug('Not creating any file, returning a StringIO '
+                           'buffer instead.')
             fp = StringIO()
         else:
             self.log.debug('Creating file %r' % fullfilename)
@@ -482,9 +483,10 @@ class Experiment(Device):
             if linkfunc:
                 for otherfile in otherfiles:
                     self.log.debug('Linking %r to %r' % (self.getDataFilename(
-                                                otherfile, *subdirs), fullfilename))
+                        otherfile, *subdirs), fullfilename))
                     try:
-                        linkfunc(fullfilename, self.getDataFilename(otherfile, *subdirs))
+                        linkfunc(fullfilename,
+                                 self.getDataFilename(otherfile, *subdirs))
                     except OSError:
                         self.log.warning('linking %r to %r failed, ignoring' %
                                          (self.getDataFilename(otherfile, *subdirs),
@@ -493,11 +495,10 @@ class Experiment(Device):
                 self.log.warning('can\'t link datafiles, no os support!')
         return (fullfilename, fp)
 
-
     def linkDataFiles(self, filename, *subdirs):
-        """links all datapaths to the same file...
+        """Links all datapaths to the same file...
 
-        may be overriden in custom experiments if they don't like the names...
+        May be overridden in custom experiments if they don't like the names...
         """
         if not self.linkpaths:
             return
