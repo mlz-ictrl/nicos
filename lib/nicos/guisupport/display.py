@@ -37,7 +37,7 @@ from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN, \
      statuses
-from nicos.clients.gui.utils import setBackgroundColor, setForegroundColor
+from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 

@@ -31,9 +31,13 @@ from os import path
 
 from PyQt4 import uic
 from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
-     QPushButton, QPalette, QFont, QToolButton, QFileDialog, QLabel, \
-     QTextEdit, QWidget, QVBoxLayout, QColor, QStyle
+    QPushButton, QFont, QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, \
+    QVBoxLayout, QColor, QStyle
 from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
+
+# re-exported for compatibility
+from nicos.guisupport.utils import (setForegroundColor,  # pylint: disable=W0611
+                                    setBackgroundColor)
 
 
 def getXDisplay():
@@ -95,21 +99,6 @@ def showToolText(toolbar, action):
     widget = toolbar.widgetForAction(action)
     if isinstance(widget, QToolButton):
         widget.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-
-
-def setBackgroundColor(widget, color):
-    palette = widget.palette()
-    palette.setColor(QPalette.Window, color)
-    palette.setColor(QPalette.Base, color)
-    widget.setBackgroundRole(QPalette.Window)
-    widget.setPalette(palette)
-
-
-def setForegroundColor(widget, color):
-    palette = widget.palette()
-    palette.setColor(QPalette.WindowText, color)
-    widget.setForegroundRole(QPalette.WindowText)
-    widget.setPalette(palette)
 
 
 def decodeAny(string):
