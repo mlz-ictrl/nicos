@@ -22,9 +22,7 @@
 #
 # *****************************************************************************
 
-"""file format savers for >=2D detectors"""
-
+"""File format savers for >=2D detectors."""
 
 from nicos.devices.fileformats.raw import RAWFileFormat
 from nicos.devices.fileformats.liveview import LiveViewSink
-

@@ -22,7 +22,10 @@
 #
 # *****************************************************************************
 
-"""RAW file format saver"""
+"""RAW file format saver
+
+XXX: document the file format here.
+"""
 
 import numpy as np
 
@@ -32,7 +35,7 @@ from nicos.devices.abstract import ImageSaver
 
 
 class RAWFileFormat(ImageSaver):
-    """saves RAW image and header data into two separate files"""
+    """Saves RAW image and header data into two separate files"""
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False,
                                       userparam=False,
@@ -43,16 +46,17 @@ class RAWFileFormat(ImageSaver):
 
     fileFormat = 'RAW'     # should be unique amongst filesavers!
 
-    def acceptImageType(self,  imageType):
+    def acceptImageType(self, imageType):
         # everything can be saved RAW
         return True
 
-    def prepareImage(self, imageinfo,  subdir=''):
-        ImageSaver.prepareImage(self,  imageinfo,  subdir)
+    def prepareImage(self, imageinfo, subdir=''):
+        ImageSaver.prepareImage(self, imageinfo, subdir)
         exp = session.experiment
         imageinfo.headerfile = \
             exp.createDataFile(self.filenametemplate[0].replace('.raw','.header'),
-                                exp.lastimage, subdir, self.subdir,  scanpoint=imageinfo.scanpoint)[1]
+                               exp.lastimage, subdir, self.subdir,
+                               scanpoint=imageinfo.scanpoint)[1]
 
     def updateImage(self, imageinfo, image):
         imageinfo.file.seek(0)
@@ -66,32 +70,34 @@ class RAWFileFormat(ImageSaver):
             if valuelist:
                 imageinfo.headerfile.write('### %s\n' % category)
             for (dev, key, value) in valuelist:
-                imageinfo.headerfile.write('%25s : %s\n' % ('%s_%s' % (dev.name,  key),  value))
-        imageinfo.headerfile.write('\n%r\n' % imageinfo.imageType) # to ease interpreting the data....
+                imageinfo.headerfile.write('%25s : %s\n' %
+                                           ('%s_%s' % (dev.name, key), value))
+        # to ease interpreting the data...
+        imageinfo.headerfile.write('\n%r\n' % imageinfo.imageType)
 
     def finalizeImage(self, imageinfo):
         """finalizes the on-disk image, normally just a close"""
-        ImageSaver.finalizeImage(self,  imageinfo)
+        ImageSaver.finalizeImage(self, imageinfo)
         if imageinfo.headerfile:
             imageinfo.headerfile.close()
             imageinfo.headerfile = None
 
 
 class SingleRAWFileFormat(ImageSaver):
-    """saves RAW image and header data into a single file"""
+    """Saves RAW image and header data into a single file"""
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False,
                                       userparam=False,
-                                      default='%(proposal)s_%(counter)s.raw|'
+                                      default=['%(proposal)s_%(counter)s.raw',
                                       '%(proposal)s_%(session.experiment.lastscan)s'
-                                      '_%(counter)s_%(scanpoint)s.raw'),
+                                      '_%(counter)s_%(scanpoint)s.raw']),
     }
 
     fileFormat = 'SingleRAW'     # should be unique amongst filesavers!
 
     # no need to define prepareImage and finalizeImage, as they do already all we need
 
-    def acceptImageType(self,  imageType):
+    def acceptImageType(self, imageType):
         # everything can be saved RAW
         return True
 
@@ -103,12 +109,14 @@ class SingleRAWFileFormat(ImageSaver):
 
     def saveImage(self, imageinfo, image):
         self.updateImage(imageinfo, image)
-        imageinfo.file.write('### NICOS %s File Header V2.0\n' % self.fileFormat)
-        for category,  valuelist in sorted(imageinfo.header.items()):
+        imageinfo.file.write('\n### NICOS %s File Header V2.0\n' %
+                             self.fileFormat)
+        for category, valuelist in sorted(imageinfo.header.items()):
             if valuelist:
                 imageinfo.file.write('### %s\n' % category)
             for (dev, key, value) in valuelist:
-                imageinfo.file.write('%25s : %s\n' % ('%s_%s' % (dev.name,  key),  value))
-        imageinfo.file.write('\n%r\n' % imageinfo.imageType) # to ease interpreting the data....
+                imageinfo.file.write('%25s : %s\n' %
+                                     ('%s_%s' % (dev.name, key), value))
+        # to ease interpreting the data...
+        imageinfo.file.write('\n%r\n' % imageinfo.imageType)
         imageinfo.file.flush()
-
