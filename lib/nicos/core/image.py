@@ -223,11 +223,13 @@ class ImageProducer(DeviceMixinBase):
                               type=str, default='', settable=True),
     }
 
-    _imagetype = None # None or one of IMAGE_TYPES
     _imageinfos = [] # stores all active imageinfos
     _header = None
-    need_clear = False
     _saved = False
+
+    need_clear = False
+    imagetype = None  # either None or an ImageType instance,
+                      # can also be made a property if variable
 
     def prepareImageFile(self, dataset=None):
         """Should prepare an Image file."""
@@ -236,11 +238,12 @@ class ImageProducer(DeviceMixinBase):
         if self.need_clear:
             self.clearImage()
         imageinfos = []
+        imagetype = self.imagetype
         for ff in self._adevs['fileformats']:
-            if ff.acceptImageType(self._imagetype):
+            if ff.acceptImageType(imagetype):
                 imageinfo = ImageInfo()
                 imageinfo.detector = self
-                imageinfo.imagetype = self._imagetype
+                imageinfo.imagetype = imagetype
                 imageinfo.begintime = currenttime()
                 imageinfo.header = self._header if self._header else {}
                 imageinfo.filesaver = ff
