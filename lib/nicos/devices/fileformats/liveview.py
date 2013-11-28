@@ -32,25 +32,33 @@ from nicos.core import Override, ImageSink
 
 class LiveViewSink(ImageSink):
     parameter_overrides = {
-        'filenametemplate' : Override(mandatory=False, settable=False, userparam=False, default='%08d.dat'),
+        # this is not really used, so we give it a default that would
+        # raise if used as a template filename
+        'filenametemplate' : Override(mandatory=False, settable=False,
+                                      userparam=False, default=['']),
     }
 
     fileFormat = 'Live'     # should be unique amongst filesavers!
 
     def acceptImageType(self,  imagetype):
-        return len(imagetype.shape) == 2 and imagetype.dtype == '<u4'
+        return len(imagetype.shape) in (2, 3)
 
-    def prepareImage(self, imageinfo,  subdir=''):
+    def prepareImage(self, imageinfo, subdir=''):
         pass
 
-    def updateImage(self, imageinfo, image):
-        resX, resY = image.shape
-        # see nicos.core.sessions.__init__ : updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
-        session.updateLiveData('', imageinfo.filename, '<u4', resX, resY, 1,
-                               time.time()-imageinfo.begintime, buffer(image.astype('<u4')))
+    def updateLiveImage(self, imageinfo, image):
+        if len(image.shape) == 2:
+            resX, resY = image.shape
+            resZ = 1
+        else:
+            resX, resY, resZ = image.shape
+        # see nicos.core.sessions.__init__:
+        # updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data)
+        session.updateLiveData('', imageinfo.filename, '<u4', resX, resY, resZ,
+            time.time() - imageinfo.begintime, buffer(image.astype('<u4')))
 
     def saveImage(self, imageinfo, image):
-        self.updateImage(imageinfo, image)
+        self.updateLiveImage(imageinfo, image)
 
     def finalizeImage(self, imageinfo):
         pass

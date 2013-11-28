@@ -39,7 +39,7 @@ class ImageInfo(object):
     """
     # from which detector is this? / which detector to take thae data from?
     detector = None
-    # which format does the detector deliver? (One of IMAGE_TYPES...)
+    # which format does the detector deliver (instance of ImageType)
     imagetype = None
     # wich filesaver is active for this imagetype?
     filesaver = None
@@ -171,10 +171,19 @@ class ImageSink(Device):
         imageinfo.file = f
 
     def updateImage(self, imageinfo, image):
-        """Update the image with the given content.
+        """Update the image with the given content (while measurement is
+        still in progress).
 
-        Useful for live-displays or fileformats wanting to store several
-        states of the data-aquisition.
+        Useful for fileformats wanting to store several states of the
+        data-aquisition.
+        """
+        return None
+
+    def updateLiveImage(self, imageinfo, image):
+        """Update live image.  The difference between this and `updateImage()`
+        is that this method should be called with a greater frequency.
+
+        Useful sinks that implement live displays.
         """
         return None
 
@@ -271,6 +280,20 @@ class ImageProducer(DeviceMixinBase):
         if image is not None:
             for imageinfo in self._imageinfos:
                 imageinfo.filesaver.updateImage(imageinfo, image)
+
+    def updateLiveImage(self, image=Ellipsis):
+        """Update live image.  The difference between this and `updateImage()`
+        is that this method should be called with a greater frequency.
+
+        If no image is specified, try to fetch one using self.readImage.
+        If that returns a valid image, distribute to all ImageInfos.
+        """
+        if image is Ellipsis:
+            image = self.readImage()
+        self.log.debug('updateLiveImage(%20r)' % image)
+        if image is not None:
+            for imageinfo in self._imageinfos:
+                imageinfo.filesaver.updateLiveImage(imageinfo, image)
 
     def saveImage(self, image=Ellipsis):
         """Save the given image content."""
