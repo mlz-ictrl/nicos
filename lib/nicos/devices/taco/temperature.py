@@ -75,6 +75,8 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
                                 'on the type of device',
                                 type=str, category='general', settable=True,
                                 chatty=True),
+        'maxheaterpower':    Param('Maximum heater output', unit='W',
+                                category='general'),
     }
 
     def doRead(self, maxage=0):
@@ -243,3 +245,13 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
         # writing the "defaultmode" resource is only allowed when stopped
         self._taco_guard(self._dev.stop)
         self._taco_update_resource('defaultmode', modes[value])
+
+    def doReadMaxheaterpower(self):
+        return float(self._taco_guard(self._dev.deviceQueryResource,
+                                       'maxpower'))
+
+    def doWriteMaxheaterpower(self, value):
+        # writing the "maxpower" resource is only allowed when stopped
+        self._taco_guard(self._dev.stop)
+        self._taco_update_resource('maxpower', str(value))
+
