@@ -29,4 +29,3 @@ MASTER = 'master'
 SLAVE = 'slave'
 SIMULATION = 'simulation'
 MAINTENANCE = 'maintenance'
-
