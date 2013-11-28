@@ -35,7 +35,7 @@ from nicos.core.params import Param, subdir, listof
 
 
 class ImageInfo(object):
-    """Class for storing data about imagetype detectors which are passed around
+    """Class for storing data about image detectors which are passed around.
     """
     # from which detector is this? / which detector to take thae data from?
     detector = None
@@ -70,14 +70,25 @@ class ImageInfo(object):
 
 
 class ImageType(object):
-    """Helper Class to determine if a given image-type can be converted to another"""
+    """Helper class to represent an image type.
+
+    An image type consists of these attributes:
+
+    * shape, a tuple of lengths in 1 to N dimensions
+    * dtype, the data type of a single value, in numpy format
+    * dimnames, a list of names for each dimension
+
+    The class can try to determine if a given image-type can be converted
+    to another.
+    """
+
     def __init__(self, shape, dtype=None, dimnames=None):
         """creates a datatype with given (numpy) shape and (numpy) data format
 
         Also stores the 'names' of the used dimensions as a list called dimnames.
         Defaults to 'X', 'Y' for 2D data and 'X', 'Y', 'Z' for 3D data.
         """
-        if dtype == None: # try to derive from a given numpy.array
+        if dtype is None: # try to derive from a given numpy.array
             dtype = shape.dtype
             shape = shape.shape
         if dimnames is None:
@@ -89,9 +100,11 @@ class ImageType(object):
     def canConvertTo(self, imagetype):
         """checks if we can be converted to the given imagetype"""
         # XXX
-        if self.shape == imagetype.shape:
-            return True
-        return False
+        if self.shape != imagetype.shape:
+            return False
+        if self.dimnames != imagetype.dimnames:
+            return False
+        return True
 
     def convertTo(self, data, imagetype):
         """converts given data to given imagetype and returns converted data"""
@@ -105,41 +118,51 @@ class ImageType(object):
 
 class ImageSaver(Device):
     """
-    Abstract baseclass for saving >=2D image type data
+    Abstract baseclass for saving >= 2D image type data.
 
-    Each ImageSaver/FileFormat needs to write either:
+    Each ImageSaver subclass that writes files needs to write either:
+
     * into a different subdir
     * name files differently to avoid nameclashes
+
     (both would also be ok.)
 
     Method calling sequence is as follows:
-    - prepareImage (before the dector starts counting, but after it got its presets)
-    - addHeader (the detector may or may not already count) (called several times)
-    - updateImage (may be called between 1 and many times, useful for livedata display)
+
+    - prepareImage (before the dector starts counting, but after it got its
+      presets)
+    - addHeader (the detector may or may not already count) (called several
+      times)
+    - updateImage (may be called between 1 and many times, useful for live data
+      display and saving the provisional image for long counting times)
     - saveImage (last data transfer, after detector stopped counting)
     - finalizeImage ('clean-up' operation)
 
     Classes should be able to handle more than one call to saveImage,
     which may happen if a count/scan is interrupted at a specific place.
     """
+
     parameters = {
         'subdir': Param('Filetype specific subdirectory name for the image files',
                         type=subdir, mandatory=False, default=''),
-        'filenametemplate': Param('List of templates for data file names (will be hardlinked)',
-                              type=listof(str), default=['%08d.dat'], settable=True),
+        'filenametemplate': Param('List of templates for data file names '
+                                  '(will be hardlinked)', type=listof(str),
+                                  default=['%08d.dat'], settable=True),
     }
 
     fileFormat = 'undefined'     # should be unique amongst filesavers!, used for logging/output
 
     def acceptImageType(self, imagetype):
-        """returns True if the given imagetype can be saved"""
+        """Return True if the given imagetype can be saved."""
         raise NotImplementedError('implement acceptImageType')
 
     def prepareImage(self, imageinfo, subdir=''):
-        """Prepare an Imagefile in the given subdir if we support the requested imagetype.
+        """Prepare an Imagefile in the given subdir if we support the requested
+        imagetype.
         """
         exp = session.experiment
-        s, l, f = exp.createImageFile(self.filenametemplate, subdir, self.subdir, scanpoint = imageinfo.scanpoint)
+        s, l, f = exp.createImageFile(self.filenametemplate, subdir, self.subdir,
+                                      scanpoint=imageinfo.scanpoint)
         if not f:
             raise NicosError(self, 'Could not create file %r' % l)
         imageinfo.filename = s
@@ -147,47 +170,46 @@ class ImageSaver(Device):
         imageinfo.file = f
 
     def updateImage(self, imageinfo, image):
-        """updates the image with the given content
+        """Update the image with the given content.
 
-        usefull for live-displays or fileformats wanting to store several
+        Useful for live-displays or fileformats wanting to store several
         states of the data-aquisition.
         """
         return None
 
     def saveImage(self, imageinfo, image):
-        """Saves the given image content
+        """Save the given image content.
 
-        content MUST be a numpy array with the right shape
-        if the fileformat to be supported has image shaping options,
-        they should be applied here.
+        Content MUST be a numpy array with the right shape; if the fileformat
+        to be supported has image shaping options, they should be applied here.
         """
         raise NotImplementedError('implement saveImage')
 
     def finalizeImage(self, imageinfo):
-        """finalizes the on-disk image, normally just a close"""
+        """Finalize the on-disk image, normally just a close."""
         if imageinfo.file:
             imageinfo.file.close()
             imageinfo.file = None
         else:
-            raise ProgrammingError(self, 'finalize before prepare or save called'
-                                          ' twice!', exc=1)
+            raise ProgrammingError(self, 'finalize before prepare or save '
+                                   'called twice!')
 
 
 class ImageStorage(DeviceMixinBase):
     """
-    Mixin for detectors that store images.
+    Mixin for detectors that produce and save images.
 
     ALL detectors storing images MUST subclass this.
     """
 
     attached_devices = {
-        'fileformats' : ([ImageSaver],'Filesavers for all wanted fileformats.')
+        'fileformats' : ([ImageSaver], 'Filesavers for all wanted fileformats.')
     }
 
     parameters = {
         'subdir': Param('Detector specific subdirectory name for the image files',
                         type=subdir, mandatory=True),
-        'lastfilename': Param('last written file by this detector',
+        'lastfilename': Param('Last written file by this detector',
                               type=str, default='', settable=True),
     }
 
@@ -197,7 +219,7 @@ class ImageStorage(DeviceMixinBase):
     need_clear = False
     _saved = False
 
-    # old stuff (to be ported and then removed...
+    # old stuff (to be ported and then removed)...
     def _newFile(self):
         self.log.error('Deprecated: _newFile', exc=1)
         exp = session.experiment
@@ -211,7 +233,7 @@ class ImageStorage(DeviceMixinBase):
         self.log.error('Deprecated: _writeFile', exc=1)
         if self._file is None:
             raise ProgrammingError(self, '_writeFile before _newFile, '
-                                          'FIX CODE!', exc=1)
+                                          'FIX CODE!')
         try:
             writer(self._file, content)
         finally:
@@ -222,7 +244,7 @@ class ImageStorage(DeviceMixinBase):
     # new stuff: multiplier for Saving Fileformats.... used by later patches....
     #
     def prepareImageFile(self, dataset=None):
-        """should prepare an Imagefile"""
+        """Should prepare an Image file."""
         self._saved = False
         self.log.debug('prepareImageFile(%r)' % dataset)
         if self.need_clear:
@@ -261,10 +283,11 @@ class ImageStorage(DeviceMixinBase):
             imageinfo.header[category] = valuelist
 
     def updateImage(self, image=Ellipsis):
-        """updates the given image
+        """Update the given image.
 
         If no image is specified, try to fetch one using self.readImage.
-        If that returns a valid image, distribute to all ImageInfos"""
+        If that returns a valid image, distribute to all ImageInfos.
+        """
         if image is Ellipsis:
             image = self.readImage()
         self.log.debug('updateImage(%20r)' % image)
@@ -273,7 +296,7 @@ class ImageStorage(DeviceMixinBase):
                 imageinfo.filesaver.updateImage(imageinfo, image)
 
     def saveImage(self, image=Ellipsis):
-        """Saves the given image content"""
+        """Save the given image content."""
         # trigger saving the image
         # XXX: maybe do this in a thread to avoid delaying the countloop.....
         if self._saved == False:
@@ -312,7 +335,8 @@ class ImageStorage(DeviceMixinBase):
     #
 
     def clearImage(self):
-        """Clears the last Image from the HW and prepare the acquisition of a new one.
+        """Clear the last Image from the HW and prepare the acquisition of a
+        new one.
 
         This is called before the detector is counting and is intended to be
         used an image-plate like detectors.
@@ -320,17 +344,17 @@ class ImageStorage(DeviceMixinBase):
         pass
 
     def readImage(self):
-        """Reads and returns the current/intermediate image from the HW.
+        """Read and returns the current/intermediate image from the HW.
 
-        This is called while the detector is counting.
-        May return None if not supported (as on imageplates).
+        This is called while the detector is counting.  May return None if not
+        supported (as on imageplates).
         """
         return None
 
     def readFinalImage(self):
-        """Reads and returns the final image from the HW.
+        """Read and returns the final image from the HW.
 
-        This is called after the detector finished counting.
-        this should return a numpy array of the right shape and type.
+        This is called after the detector finished counting.  It should return
+        a numpy array of the right shape and type.
         """
         raise NotImplementedError('implement readFinalImage')
