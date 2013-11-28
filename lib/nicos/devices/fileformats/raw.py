@@ -30,8 +30,7 @@ XXX: document the file format here.
 import numpy as np
 
 from nicos import session
-from nicos.core import Override
-from nicos.devices.abstract import ImageSaver
+from nicos.core import Override, ImageSaver
 
 
 class RAWFileFormat(ImageSaver):

@@ -27,14 +27,17 @@
 from time import sleep, time as currenttime
 
 from nicos import session
-from nicos.core import status, Readable, Value, NicosError, LimitError, \
-     ModeError, InvalidValueError, PositionError, CommunicationError, \
-     TimeoutError, ComputationError, MoveError, INFO_CATEGORIES
+from nicos.core import status
+from nicos.core.device import Readable
+from nicos.core.params import Value, INFO_CATEGORIES
+from nicos.core.errors import NicosError, LimitError, ModeError, TimeoutError, \
+    InvalidValueError, PositionError, CommunicationError, ComputationError, \
+    MoveError
+from nicos.core.image import ImageStorage
+from nicos.core.constants import SIMULATION, SLAVE
 from nicos.utils import Repeater
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
-from nicos.core import SIMULATION, SLAVE
-from nicos.devices.abstract import ImageStorage
 
 
 class SkipPoint(Exception):

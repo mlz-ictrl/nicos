@@ -28,8 +28,7 @@ from time import strftime
 import numpy as np
 
 from nicos import session
-from nicos.core import Override
-from nicos.devices.abstract import ImageSaver
+from nicos.core import Override, ImageSaver
 from nicos.core.utils import DeviceValueDict
 
 # not a good solution: BerSANS keys are fixed, but devicenames

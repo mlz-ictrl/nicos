@@ -40,5 +40,7 @@ from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
      vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \
      relative_path, absolute_path, subdir, mailaddress
 from nicos.core.data import Dataset, DataSink
+from nicos.core.scan import Scan
+from nicos.core.image import ImageInfo, ImageType, ImageSaver, ImageStorage
 from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
      GUEST, USER, ADMIN, ACCESS_LEVELS

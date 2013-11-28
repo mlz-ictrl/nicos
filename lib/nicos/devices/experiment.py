@@ -45,8 +45,9 @@ except ImportError:
 
 from nicos import session
 from nicos.core import listof, anytype, oneof, \
-     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, Param, \
-     Dataset, NicosError, ConfigurationError, UsageError, ProgrammingError
+    none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
+    Param, Dataset, NicosError, ConfigurationError, UsageError, \
+    ProgrammingError, SIMULATION, MASTER, ImageStorage
 from nicos.core.params import subdir
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
@@ -58,8 +59,7 @@ from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
-from nicos.devices.abstract import ImageStorage
-from nicos.core import SIMULATION, MASTER
+
 
 class Sample(Device):
     """A special device to represent a sample.

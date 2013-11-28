@@ -24,9 +24,8 @@
 import pyfits
 from ordereddict import OrderedDict
 
-from nicos.devices.abstract import ImageStorage
 from nicos.devices.generic import FreeSpace
-from nicos.core import DataSink
+from nicos.core import DataSink, ImageStorage
 from nicos import session
 
 

@@ -31,9 +31,9 @@ from time import sleep, time as currenttime
 from nicos import session
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
-     CommunicationError, TimeoutError, NicosError, Readable
+    CommunicationError, TimeoutError, NicosError, Readable, ImageStorage
 from nicos.mira import cascadeclient  # pylint: disable=E0611
-from nicos.devices.abstract import ImageStorage, AsyncDetector
+from nicos.devices.abstract import AsyncDetector
 from nicos.devices.generic import MultiChannelDetector
 from nicos.core import SIMULATION
 

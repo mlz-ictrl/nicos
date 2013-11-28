@@ -25,10 +25,6 @@ Axis-related classes
 Detector-related classes
 ------------------------
 
-.. XXX document ImageSaver, ImageInfo, ImageType
-
-.. autoclass:: ImageStorage()
-
 .. autoclass:: AsyncDetector()
 
 

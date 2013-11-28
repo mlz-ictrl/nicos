@@ -26,11 +26,12 @@
 
 import numpy
 
-from nicos.core import Param, Override, Value, status, oneofdict, oneof
-from nicos.devices.abstract import ImageStorage, ImageType, AsyncDetector
+from nicos.core import Param, Override, Value, status, oneofdict, oneof, \
+    ImageStorage, ImageType
+from nicos.devices.abstract import AsyncDetector
 from nicos.devices.fileformats import LiveViewSink
 from nicos.devices.taco.detector import FRMChannel, FRMTimerChannel, \
-     FRMCounterChannel
+    FRMCounterChannel
 from nicos.devices.taco.core import TacoDevice
 
 import IOCommon

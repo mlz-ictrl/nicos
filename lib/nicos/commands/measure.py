@@ -27,11 +27,12 @@
 from time import sleep,  time as currenttime
 
 from nicos import session
-from nicos.core import Measurable, UsageError
+from nicos.core.device import Measurable
+from nicos.core.errors import UsageError
+from nicos.core.constants import SIMULATION
+from nicos.core.image import ImageStorage
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
-from nicos.core import SIMULATION
-from nicos.devices.abstract import ImageStorage
 
 
 __all__ = [

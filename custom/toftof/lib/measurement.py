@@ -32,8 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Measurable, Device, Param, Value, Override, NicosError, \
-     intrange, listof, status
-from nicos.devices.abstract import ImageStorage
+     intrange, listof, status, ImageStorage
 
 from nicos.devices.vendor.toni import DelayBox
 from nicos.toftof.chopper import Controller

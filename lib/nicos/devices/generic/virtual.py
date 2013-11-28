@@ -33,8 +33,9 @@ from math import exp
 import numpy as np
 
 from nicos.core import status, Readable, HasOffset, Param, Override, \
-     oneof, tupleof, floatrange, Measurable, Moveable, Value
-from nicos.devices.abstract import Motor, Coder, ImageStorage, ImageType
+    oneof, tupleof, floatrange, Measurable, Moveable, Value, \
+    ImageStorage, ImageType
+from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import Channel
 
 

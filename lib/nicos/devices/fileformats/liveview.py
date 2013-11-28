@@ -27,8 +27,7 @@
 import time
 
 from nicos import session
-from nicos.core import Override
-from nicos.devices.abstract import ImageSaver
+from nicos.core import Override, ImageSaver
 
 
 class LiveViewSink(ImageSaver):

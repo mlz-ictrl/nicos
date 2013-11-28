@@ -233,6 +233,16 @@ are re-exported in :mod:`nicos.core`.
 .. autofunction:: waitForStatus
 
 
+Classes for image handling
+==========================
+
+.. module:: nicos.core.image
+
+.. XXX document ImageSaver, ImageInfo, ImageType
+
+.. autoclass:: ImageStorage()
+
+
 Writing commands
 ================
 
