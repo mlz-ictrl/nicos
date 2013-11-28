@@ -4,6 +4,13 @@ group = 'basic'
 includes = ['detector', 'mono2']
 
 devices = dict(
+    psd_padformat = device('mira.cascade.CascadePadRAWFormat',
+                           lowlevel = True),
+    psd_tofformat = device('mira.cascade.CascadeTofRAWFormat',
+                           lowlevel = True),
+    psd_xmlformat = device('mira.cascade.MiraXMLFormat',
+                           lowlevel = True),
+
     psd    = device('mira.cascade.CascadeDetector',
                     description = 'CASCADE detector',
                     subdir = 'cascade',
@@ -12,7 +19,8 @@ devices = dict(
                     master = 'det',
                     sampledet = 'sampledet',
                     mono = 'mono',
-                    fileformats = []),
+                    fileformats = ['psd_padformat', 'psd_tofformat',
+                                   'psd_xmlformat']),
 
     PSDHV  = device('devices.vendor.iseg.IsegHV',
                     description = 'High voltage supply for the CASCADE detector (usually -2850 V)',

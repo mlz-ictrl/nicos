@@ -28,14 +28,74 @@ import gzip
 from math import pi
 from time import sleep, time as currenttime
 
-from nicos import session
+import numpy
+
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
     CommunicationError, TimeoutError, NicosError, Readable, Measurable, \
-    ImageProducer
+    ImageProducer, ImageSink, ImageType
 from nicos.mira import cascadeclient  # pylint: disable=E0611
 from nicos.devices.generic import MultiChannelDetector
+from nicos.devices.fileformats.raw import SingleRAWFileFormat
 from nicos.core import SIMULATION
+
+
+class CascadePadRAWFormat(SingleRAWFileFormat):
+
+    fileFormat = 'CascadePad'
+
+    parameter_overrides = {
+        'filenametemplate': Override(default=['%08d.pad'], settable=False),
+    }
+
+    def acceptImageType(self, imagetype):
+        return len(imagetype.shape) == 2
+
+
+class CascadeTofRAWFormat(SingleRAWFileFormat):
+
+    fileFormat = 'CascadeTof'
+
+    parameter_overrides = {
+        'filenametemplate': Override(default=['%08d.tof'], settable=False),
+    }
+
+    def acceptImageType(self, imagetype):
+        return len(imagetype.shape) == 3
+
+    def saveImage(self, imageinfo, image):
+        gzfp = gzip.GzipFile(mode='wb', fileobj=imageinfo.file)
+        image.tofile(gzfp)
+        self._writeHeader(imageinfo.imagetype, imageinfo.header, gzfp)
+        gzfp.close()
+
+
+class MiraXMLFormat(ImageSink):
+
+    fileFormat = 'MiraXML'
+
+    parameter_overrides = {
+        'filenametemplate': Override(default=['mira_cas_%08d.xml'],
+                                     settable=False),
+    }
+
+    def acceptImageType(self, imagetype):
+        # only for 2-D data
+        return len(imagetype.shape) == 2
+
+    def updateImage(self, imageinfo, image):
+        # no updates written
+        pass
+
+    def saveImage(self, imageinfo, image):
+        tmp = cascadeclient.TmpImage()
+        self._padimg.LoadMem(image.tostring(), 128*128*4)
+        tmp.ConvertPAD(self._padimg)
+        # XXX
+        mon = self._adevs['master']._adevs['monitors'][self.monchannel - 1]
+        tmp.WriteXML(imageinfo.filepath, self._adevs['sampledet'].read(),
+                     2*pi/self._adevs['mono']._readInvAng(),
+                     self._last_preset, mon.read()[0])
 
 
 class CascadeDetector(ImageProducer, Measurable):
@@ -69,15 +129,10 @@ class CascadeDetector(ImageProducer, Measurable):
                               type=int, settable=True),
         'fitfoil':      Param('Foil for contrast fitting', type=int, default=0,
                               settable=True),
-        'writexml':     Param('Whether to save files in XML format', type=bool,
-                              settable=True, default=True),
-        'gziptof':      Param('Whether to compress TOF files with gzip', type=bool,
-                              settable=True, default=False),
     }
 
     parameter_overrides = {
         'fmtstr':   Override(default='roi %s, total %s, file %s'),
-        'nametemplate': Override(volatile=True),
     }
 
     def doPreinit(self, mode):
@@ -150,13 +205,12 @@ class CascadeDetector(ImageProducer, Measurable):
             reply = str(self._client.communicate('CMD_stop'))
             if reply != 'OKAY':
                 self._raise_reply('could not stop measurement', reply)
-        self._relpath = '<error>'
 
     def doRead(self, maxage=0):
         if self.mode == 'tof':
-            myvalues = self.lastcounts + self.lastcontrast + [self._relpath]
+            myvalues = self.lastcounts + self.lastcontrast + [self.lastfilename]
         else:
-            myvalues = self.lastcounts + [self._relpath]
+            myvalues = self.lastcounts + [self.lastfilename]
         if self.slave:
             return self._adevs['master'].read(maxage) + myvalues
         return myvalues
@@ -201,13 +255,7 @@ class CascadeDetector(ImageProducer, Measurable):
         if preset.get('t'):
             self.preselection = self._last_preset = preset['t']
 
-    def doReadNametemplate(self):
-        if self.mode == 'tof':
-            return '%08d.tof'
-        return '%08d.pad'
-
     def doStart(self, **preset):
-        self._newFile()
         if self.slave:
             self.preselection = 1000000  # master controls preset
             if preset.get('t'):
@@ -233,11 +281,11 @@ class CascadeDetector(ImageProducer, Measurable):
         self._lastlivetime = 0
 
     def _getstatus(self):
-        status = self._client.communicate('CMD_status_cdr')
-        if status == '':
+        st = self._client.communicate('CMD_status_cdr')
+        if st == '':
             raise CommunicationError(self, 'no response from server')
-        #self.log.debug('got status %r' % status)
-        return dict(v.split('=') for v in str(status[4:]).split(' '))
+        #self.log.debug('got status %r' % st)
+        return dict(v.split('=') for v in str(st[4:]).split(' '))
 
     def doIsCompleted(self):
         if currenttime() - self._started > self._last_preset + 10:
@@ -251,48 +299,26 @@ class CascadeDetector(ImageProducer, Measurable):
 
     def duringMeasureHook(self, elapsedtime):
         if elapsedtime > (self._lastlivetime + 0.2):
-            self._readLiveData(elapsedtime)
+            # XXX call updateImage every minute or so...
+            self.updateLiveImage()
             self._lastlivetime = elapsedtime
 
-    def doSave(self, exception=False):
-        # get final data including all events from detector
-        buf = self._readLiveData(self._last_preset, self._relpath)
-        # and write into measurement file
-        def writer(fp, buf):
-            if self.gziptof:
-                fp = gzip.GzipFile(mode='wb', fileobj=fp)
-            # write main data
-            fp.write(buf)
-            # write separator
-            fp.write('\n# begin instrument status\n')
-            # write device info() results
-            for _, device in sorted(session.devices.iteritems()):
-                if device.lowlevel:
-                    continue
-                for _, key, value in device.info():
-                    fp.write('%s_%s : %s\n' % (device, key, value))
-            fp.write('# end instrument status\n')
-            if self.gziptof:
-                fp.close()
-        self.log.debug('writing data file to %s' % self._relpath)
-        self._writeFile(buf, writer=writer)
-        # also write as XML file
-        if self.mode == 'image' and self.writexml:
-            try:
-                self._writeXml(buf)
-            except Exception:
-                self.log.warning('Error saving measurement as XML', exc=1)
+    #
+    # ImageProducer interface
+    #
 
-    def _readLiveData(self, elapsedtime, filename=''):
+    @property
+    def imagetype(self):
+        if self.mode == 'image':
+            return ImageType(self._datashape, '<u4', ['X', 'Y'])
+        return ImageType(self._datashape, '<u4', ['X', 'Y', 'T'])
+
+    def readImage(self):
         # get current data array from detector
         data = self._client.communicate('CMD_readsram')
         if data[:4] != self._dataprefix:
             self._raise_reply('error receiving data from server', data)
         buf = buffer(data, 4)
-        # send image to live plots
-        session.updateLiveData(
-            'cascade', filename, '<u4', self._xres, self._yres,
-            self._tres, elapsedtime, buf)
         # determine total and roi counts
         total = self._client.counts(data)
         ctotal, dctotal = 0., 0.
@@ -315,20 +341,12 @@ class CascadeDetector(ImageProducer, Measurable):
             croi, dcroi = ctotal, dctotal
         self.lastcounts = [roi, total]
         self.lastcontrast = [croi, dcroi, ctotal, dctotal]
-        return buf
+        # make a numpy array and reshape it correctly
+        return numpy.frombuffer(buf, '<u4').reshape(self._datashape)
 
-    def _writeXml(self, buf):
-        exp = session.experiment
-        s, l, _ = exp.createImageFile('mira_cas_%05d.xml', self.subdir, nofile=True)
-        xml_fn = l
-        self.log.debug('writing XML file to %s' % s)
-        tmp = cascadeclient.TmpImage()
-        self._padimg.LoadMem(buf, 128*128*4)
-        tmp.ConvertPAD(self._padimg)
-        mon = self._adevs['master']._adevs['monitors'][self.monchannel - 1]
-        tmp.WriteXML(xml_fn, self._adevs['sampledet'].read(),
-                     2*pi/self._adevs['mono']._readInvAng(),
-                     self._last_preset, mon.read()[0])
+    def readFinalImage(self):
+        # get final data including all events from detector
+        return self.readImage()
 
     def _raise_reply(self, message, reply):
         if not reply:
