@@ -249,7 +249,7 @@ class ValueDisplay(NicosWidget, QWidget):
     def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
         self._isfixed = fixed and ' (F)'
         self.format = fmtstr
-        self.unit = unit
+        self.unit = unit or ''
         self.min = repr(minval)
         self.max = repr(maxval)
 

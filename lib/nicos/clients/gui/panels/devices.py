@@ -507,8 +507,12 @@ class ControlDialog(QDialog):
                 self.deviceName.setText(self.deviceName.text() +
                                         ' (alias for %s)' % params['alias'])
 
+            needs_class = params.get('devclass', 'nicos.core.device.Device')
+            # backwards compatibility
+            if needs_class == 'nicos.core.Device':
+                needs_class = 'nicos.core.device.Device'
             self.aliasTarget = DeviceComboWidget(
-                self, params['alias'] or '', self.client, params['devclass'])
+                self, params['alias'] or '', self.client, needs_class)
             self.targetLayoutAlias.takeAt(1).widget().deleteLater()
             self.targetLayoutAlias.insertWidget(1, self.aliasTarget)
         else:
