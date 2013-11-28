@@ -25,7 +25,7 @@
 
 """NICOS core utility functions."""
 
-from time import sleep, time as currenttime
+from time import sleep, localtime, time as currenttime
 
 from nicos import session
 from nicos.core import status
@@ -153,6 +153,14 @@ class DeviceValueDict(object):
     """
     def __init__(self, *args,  **kwargs):
         self._constvals = dict(*args,  **kwargs)
+        # convenience stuff
+        l = localtime()
+        self._constvals.setdefault('year', l.tm_year)
+        self._constvals.setdefault('month', l.tm_mon)
+        self._constvals.setdefault('day', l.tm_mday)
+        self._constvals.setdefault('hour', l.tm_hour)
+        self._constvals.setdefault('minute', l.tm_min)
+        self._constvals.setdefault('second', l.tm_sec)
 
     def __setitem__(self, key, value):
         self._constvals[key] = value
