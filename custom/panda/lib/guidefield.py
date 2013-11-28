@@ -58,11 +58,13 @@ class VectorCoil(AnalogOutput):
                               'mT (measured value!)',
                               settable=True, default=(1., 1., 1.),
                               type=tupleof(float, float, float), unit='mT',
+                              category='general',
                              ),
         'calibrationcurrent' : Param('Current in A which created the field '
                                      'given as Parameter orientation.',
                                      settable=True, default=1., type=float,
                                      unit='A',
+                                     category='general',
                                     ),
     }
 
@@ -112,11 +114,13 @@ class GuideField(Switcher):
                              ' should be corrected.',
                              type=tupleof(float,float,float), unit='mT',
                              settable='True', default=(0., 0., 0.),
+                             category='general',
                             ),
         'field'         : Param('absolute value of the desired field at the '
                                 'sample position.',
                                 type=floatrange(0.1, 100), unit='mT',
                                 settable='True', default=25.,
+                                category='general',
                                ),
     }
 
