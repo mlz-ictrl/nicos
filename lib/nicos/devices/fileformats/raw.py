@@ -63,17 +63,20 @@ class RAWFileFormat(ImageSink):
         imageinfo.file.write(np.array(image).tostring())
         imageinfo.file.flush()
 
+    def _writeHeader(self, imagetype, header, fp):
+        fp.write('### NICOS %s File Header V2.0\n' % self.fileFormat)
+        for category, valuelist in sorted(header.items()):
+            if valuelist:
+                fp.write('### %s\n' % category)
+            for (dev, key, value) in valuelist:
+                fp.write('%25s : %s\n' % ('%s_%s' % (dev.name, key), value))
+        # to ease interpreting the data...
+        fp.write('\n%r\n' % imagetype)
+
     def saveImage(self, imageinfo, image):
         self.updateImage(imageinfo, image)
-        imageinfo.headerfile.write('### NICOS %s File Header V2.0\n' % self.fileFormat)
-        for category, valuelist in sorted(imageinfo.header.items()):
-            if valuelist:
-                imageinfo.headerfile.write('### %s\n' % category)
-            for (dev, key, value) in valuelist:
-                imageinfo.headerfile.write('%25s : %s\n' %
-                                           ('%s_%s' % (dev.name, key), value))
-        # to ease interpreting the data...
-        imageinfo.headerfile.write('\n%r\n' % imageinfo.imagetype)
+        self._writeHeader(imageinfo.imagetype, imageinfo.header,
+                          imageinfo.headerfile)
 
     def finalizeImage(self, imageinfo):
         """finalizes the on-disk image, normally just a close"""
@@ -108,16 +111,17 @@ class SingleRAWFileFormat(ImageSink):
         imageinfo.file.write(np.array(image).tostring())
         imageinfo.file.flush()
 
+    def _writeHeader(self, imagetype, header, fp):
+        fp.write('\n### NICOS %s File Header V2.0\n' % self.fileFormat)
+        for category, valuelist in sorted(header.items()):
+            if valuelist:
+                fp.write('### %s\n' % category)
+            for (dev, key, value) in valuelist:
+                fp.write('%25s : %s\n' % ('%s_%s' % (dev.name, key), value))
+        # to ease interpreting the data...
+        fp.write('\n%r\n' % imagetype)
+        fp.flush()
+
     def saveImage(self, imageinfo, image):
         self.updateImage(imageinfo, image)
-        imageinfo.file.write('\n### NICOS %s File Header V2.0\n' %
-                             self.fileFormat)
-        for category, valuelist in sorted(imageinfo.header.items()):
-            if valuelist:
-                imageinfo.file.write('### %s\n' % category)
-            for (dev, key, value) in valuelist:
-                imageinfo.file.write('%25s : %s\n' %
-                                     ('%s_%s' % (dev.name, key), value))
-        # to ease interpreting the data...
-        imageinfo.file.write('\n%r\n' % imageinfo.imagetype)
-        imageinfo.file.flush()
+        self._writeHeader(imageinfo.imagetype, imageinfo.header, imageinfo.file)
