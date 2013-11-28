@@ -195,7 +195,7 @@ class ImageSaver(Device):
                                    'called twice!')
 
 
-class ImageStorage(DeviceMixinBase):
+class ImageProducer(DeviceMixinBase):
     """
     Mixin for detectors that produce and save images.
 

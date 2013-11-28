@@ -30,7 +30,7 @@ from nicos import session
 from nicos.core.device import Measurable
 from nicos.core.errors import UsageError
 from nicos.core.constants import SIMULATION
-from nicos.core.image import ImageStorage
+from nicos.core.image import ImageProducer
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
 
@@ -80,7 +80,7 @@ def _count(detlist, preset, result, dataset=None):
     session.experiment.advanceImageCounter(detset,  dataset)
     imageinfos = []
     for det in detset:
-        if isinstance(det, ImageStorage):
+        if isinstance(det, ImageProducer):
             imageinfos.extend(det._imageinfos)
     for imgi in imageinfos:
         imgi.begintime = currenttime()
@@ -102,7 +102,7 @@ def _count(detlist, preset, result, dataset=None):
                 if session.mode != SIMULATION:
                     det.duringMeasureHook(i)
                 if det.isCompleted():
-                    if isinstance(det, ImageStorage):
+                    if isinstance(det, ImageProducer):
                         for imageinfo in det._imageinfos:
                             if not imageinfo.endtime:
                                 imageinfo.endtime = currenttime()

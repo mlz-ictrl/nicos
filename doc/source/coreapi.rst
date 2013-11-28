@@ -240,7 +240,7 @@ Classes for image handling
 
 .. XXX document ImageSaver, ImageInfo, ImageType
 
-.. autoclass:: ImageStorage()
+.. autoclass:: ImageProducer()
 
 
 Writing commands

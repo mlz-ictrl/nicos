@@ -34,7 +34,7 @@ import numpy as np
 
 from nicos.core import status, Readable, HasOffset, Param, Override, \
     oneof, tupleof, floatrange, Measurable, Moveable, Value, \
-    ImageStorage, ImageType
+    ImageProducer, ImageType
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import Channel
 
@@ -260,7 +260,7 @@ class VirtualTemperature(VirtualMotor):
         return cval
 
 
-class Virtual2DDetector(ImageStorage, Measurable):
+class Virtual2DDetector(ImageProducer, Measurable):
     """A virtual 2-dimensional detector that generates a direct beam and
     four peaks of scattering intensity."""
 

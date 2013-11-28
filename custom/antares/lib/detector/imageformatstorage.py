@@ -25,11 +25,13 @@ import pyfits
 from ordereddict import OrderedDict
 
 from nicos.devices.generic import FreeSpace
-from nicos.core import DataSink, ImageStorage
+from nicos.core import DataSink, ImageProducer
 from nicos import session
 
 
-class ImageStorageFits(ImageStorage):
+# XXX: to be rewritten with the new interface
+
+class ImageStorageFits(ImageProducer):
 
     def _readImageFromHw(self):
         raise NotImplementedError('please implement _readImageFromHw() in %s'

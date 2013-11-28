@@ -27,7 +27,7 @@
 import numpy
 
 from nicos.core import Param, Override, Value, status, oneofdict, oneof, \
-    ImageStorage, ImageType
+    ImageProducer, ImageType
 from nicos.devices.abstract import AsyncDetector
 from nicos.devices.fileformats import LiveViewSink
 from nicos.devices.taco.detector import FRMChannel, FRMTimerChannel, \
@@ -86,7 +86,7 @@ class QMesyDAQCounter(QMesyDAQChannel, FRMCounterChannel):
     """
 
 
-class QMesyDAQDet(ImageStorage, AsyncDetector, TacoDevice):
+class QMesyDAQDet(ImageProducer, AsyncDetector, TacoDevice):
     """
     Detector for QMesyDAQ that combines multiple channels to a single Measurable
     detector device.
@@ -261,7 +261,7 @@ class QMesyDAQDet(ImageStorage, AsyncDetector, TacoDevice):
             self._taco_guard(self._dev.deviceOn)
 
     #
-    # ImageStorage interface
+    # ImageProducer interface
     #
     def clearImage(self):
         self._taco_guard(self._dev.clear)

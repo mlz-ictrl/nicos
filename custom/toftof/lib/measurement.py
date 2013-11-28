@@ -32,7 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Measurable, Device, Param, Value, Override, NicosError, \
-     intrange, listof, status, ImageStorage
+     intrange, listof, status, ImageProducer
 
 from nicos.devices.vendor.toni import DelayBox
 from nicos.toftof.chopper import Controller
@@ -40,7 +40,7 @@ from nicos.toftof.tofcounter import TofCounter
 from nicos.toftof import calculations as calc
 
 
-class TofTofMeasurement(Measurable, ImageStorage):
+class TofTofMeasurement(Measurable, ImageProducer):
 
     attached_devices = {
         'counter': (TofCounter, 'The TOF counter'),

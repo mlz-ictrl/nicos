@@ -31,14 +31,14 @@ from time import sleep, time as currenttime
 from nicos import session
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
-    CommunicationError, TimeoutError, NicosError, Readable, ImageStorage
+    CommunicationError, TimeoutError, NicosError, Readable, ImageProducer
 from nicos.mira import cascadeclient  # pylint: disable=E0611
 from nicos.devices.abstract import AsyncDetector
 from nicos.devices.generic import MultiChannelDetector
 from nicos.core import SIMULATION
 
 
-class CascadeDetector(AsyncDetector, ImageStorage):
+class CascadeDetector(AsyncDetector, ImageProducer):
 
     attached_devices = {
         'master':    (MultiChannelDetector, 'Master to control measurement time'

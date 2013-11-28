@@ -33,7 +33,7 @@ from nicos.core.params import Value, INFO_CATEGORIES
 from nicos.core.errors import NicosError, LimitError, ModeError, TimeoutError, \
     InvalidValueError, PositionError, CommunicationError, ComputationError, \
     MoveError
-from nicos.core.image import ImageStorage
+from nicos.core.image import ImageProducer
 from nicos.core.constants import SIMULATION, SLAVE
 from nicos.utils import Repeater
 from nicos.commands.output import printwarning
@@ -155,7 +155,7 @@ class Scan(object):
         self.dataset.updateHeaderInfo(dict(zip(self._devices, xvalues)))
         # propagate to the relevant objects
         for det in self._detlist:
-            if isinstance(det, ImageStorage):
+            if isinstance(det, ImageProducer):
                 for catinfo, bycategory in self.dataset.headerinfo.iteritems():
                     det.addHeader(catinfo, bycategory)
                 det.addHeader('scan', [(self, 'pointnum', '%d' % num)])
@@ -579,7 +579,7 @@ class ContinuousScan(Scan):
                 self.addPoint(actualpos, diff)
                 last = read
                 for det in detlist:
-                    if isinstance(det, ImageStorage):
+                    if isinstance(det, ImageProducer):
                         det.updateImage()
         finally:
             for det in detlist:
@@ -587,7 +587,7 @@ class ContinuousScan(Scan):
                     det.stop()
                 except Exception:
                     session.log.warning('could not stop %s' % det, exc=1)
-                if isinstance(det, ImageStorage):
+                if isinstance(det, ImageProducer):
                     det.saveImage()
             session.endActionScope()
             device.stop()
