@@ -199,6 +199,10 @@ class AsyncDetector(Measurable):
     def doIsCompleted(self):
         return not self._measure.isSet() and self._processed.isSet()
 
+    def save(self):
+        pass  # saving has to be done in _afterMeasureAction, so do not
+              # even call doSave()
+
     def _thread_entry(self):
         while True:
             try:
