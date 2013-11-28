@@ -41,6 +41,6 @@ from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
      relative_path, absolute_path, subdir, mailaddress
 from nicos.core.data import Dataset, DataSink
 from nicos.core.scan import Scan
-from nicos.core.image import ImageInfo, ImageType, ImageSaver, ImageProducer
+from nicos.core.image import ImageInfo, ImageType, ImageSink, ImageProducer
 from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
      GUEST, USER, ADMIN, ACCESS_LEVELS

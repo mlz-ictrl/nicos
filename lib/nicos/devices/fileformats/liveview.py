@@ -27,10 +27,10 @@
 import time
 
 from nicos import session
-from nicos.core import Override, ImageSaver
+from nicos.core import Override, ImageSink
 
 
-class LiveViewSink(ImageSaver):
+class LiveViewSink(ImageSink):
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False, userparam=False, default='%08d.dat'),
     }

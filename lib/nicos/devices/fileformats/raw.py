@@ -30,10 +30,10 @@ XXX: document the file format here.
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, ImageSaver
+from nicos.core import Override, ImageSink
 
 
-class RAWFileFormat(ImageSaver):
+class RAWFileFormat(ImageSink):
     """Saves RAW image and header data into two separate files"""
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False,
@@ -50,10 +50,11 @@ class RAWFileFormat(ImageSaver):
         return True
 
     def prepareImage(self, imageinfo, subdir=''):
-        ImageSaver.prepareImage(self, imageinfo, subdir)
+        ImageSink.prepareImage(self, imageinfo, subdir)
         exp = session.experiment
         imageinfo.headerfile = \
-            exp.createDataFile(self.filenametemplate[0].replace('.raw','.header'),
+            exp.createDataFile(self.filenametemplate[0].replace('.raw',
+                                                                '.header'),
                                exp.lastimage, subdir, self.subdir,
                                scanpoint=imageinfo.scanpoint)[1]
 
@@ -76,13 +77,13 @@ class RAWFileFormat(ImageSaver):
 
     def finalizeImage(self, imageinfo):
         """finalizes the on-disk image, normally just a close"""
-        ImageSaver.finalizeImage(self, imageinfo)
+        ImageSink.finalizeImage(self, imageinfo)
         if imageinfo.headerfile:
             imageinfo.headerfile.close()
             imageinfo.headerfile = None
 
 
-class SingleRAWFileFormat(ImageSaver):
+class SingleRAWFileFormat(ImageSink):
     """Saves RAW image and header data into a single file"""
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False,
@@ -94,7 +95,8 @@ class SingleRAWFileFormat(ImageSaver):
 
     fileFormat = 'SingleRAW'     # should be unique amongst filesavers!
 
-    # no need to define prepareImage and finalizeImage, as they do already all we need
+    # no need to define prepareImage and finalizeImage, as they do already
+    # all we need
 
     def acceptImageType(self, imagetype):
         # everything can be saved RAW

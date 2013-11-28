@@ -28,7 +28,7 @@ from time import strftime, time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, ImageSaver
+from nicos.core import Override, ImageSink
 from nicos.core.utils import DeviceValueDict
 
 # not a good solution: BerSANS keys are fixed, but devicenames
@@ -186,7 +186,7 @@ Operation=
 %%Counts
 """
 
-class BerSANSFileFormat(ImageSaver):
+class BerSANSFileFormat(ImageSink):
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False,
                                       userparam=False,
@@ -200,7 +200,7 @@ class BerSANSFileFormat(ImageSaver):
 
     def prepareImage(self, imageinfo, subdir=''):
         """should prepare an Imagefile in the given subdir"""
-        ImageSaver.prepareImage(self,  imageinfo,  subdir)
+        ImageSink.prepareImage(self, imageinfo, subdir)
         imageinfo.data = DeviceValueDict(fileName=imageinfo.filename,
                                  fileDate=strftime('%m/%d/%Y'),
                                  fileTime=strftime('%r'),

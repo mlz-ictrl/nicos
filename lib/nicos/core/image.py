@@ -116,11 +116,11 @@ class ImageType(object):
         return 'ImageType(%r, %r, %r)' % (self.shape, self.dtype, self.dimnames)
 
 
-class ImageSaver(Device):
+class ImageSink(Device):
     """
     Abstract baseclass for saving >= 2D image type data.
 
-    Each ImageSaver subclass that writes files needs to write either:
+    Each ImageSink subclass that writes files needs to write either:
 
     * into a different subdir
     * name files differently to avoid nameclashes
@@ -150,7 +150,8 @@ class ImageSaver(Device):
                                   default=['%08d.dat'], settable=True),
     }
 
-    fileFormat = 'undefined'     # should be unique amongst filesavers!, used for logging/output
+    # should be unique amongst filesavers!, used for logging/output
+    fileFormat = 'undefined'
 
     def acceptImageType(self, imagetype):
         """Return True if the given imagetype can be saved."""
@@ -203,7 +204,7 @@ class ImageProducer(DeviceMixinBase):
     """
 
     attached_devices = {
-        'fileformats' : ([ImageSaver], 'Filesavers for all wanted fileformats.')
+        'fileformats' : ([ImageSink], 'Filesavers for all wanted fileformats.')
     }
 
     parameters = {
