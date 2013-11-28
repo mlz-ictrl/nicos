@@ -219,30 +219,6 @@ class ImageStorage(DeviceMixinBase):
     need_clear = False
     _saved = False
 
-    # old stuff (to be ported and then removed)...
-    def _newFile(self):
-        self.log.error('Deprecated: _newFile', exc=1)
-        exp = session.experiment
-        sname, lname, fp = exp.createImageFile(self.nametemplate, self.subdir)
-        self._imagename = sname
-        self._relpath = lname
-        self._file = fp
-        self._counter = session.experiment.lastimage
-
-    def _writeFile(self, content, writer=file.write):
-        self.log.error('Deprecated: _writeFile', exc=1)
-        if self._file is None:
-            raise ProgrammingError(self, '_writeFile before _newFile, '
-                                          'FIX CODE!')
-        try:
-            writer(self._file, content)
-        finally:
-            self._file.close()
-            self._file = None
-
-    #
-    # new stuff: multiplier for Saving Fileformats.... used by later patches....
-    #
     def prepareImageFile(self, dataset=None):
         """Should prepare an Image file."""
         self._saved = False
