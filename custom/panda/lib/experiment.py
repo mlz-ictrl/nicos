@@ -25,7 +25,10 @@
 
 """NICOS PANDA Experiment."""
 
+import os
 import time
+import threading
+import subprocess
 from os import path
 
 from nicos.core import Override, Param
@@ -53,13 +56,6 @@ class PandaExperiment(Experiment):
     def proposalsymlink(self):
         """deviating from default of <dataroot>/current"""
         return path.join(self.dataroot, 'exp', 'current')
-
-    @property
-    def linkdirs(self):
-        """additional paths where datafiles will be linked from"""
-        return [path.join(self.dataroot, time.strftime('%Y'),
-                      'cycle_%s' % self.cycle)
-                    ]
 
     def _afterNewHook(self):
         if self.editor:

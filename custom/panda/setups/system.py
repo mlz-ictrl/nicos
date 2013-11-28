@@ -49,6 +49,9 @@ devices = dict(
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
                        description = 'metadevice storing the scanfiles',
+                       filenametemplate = ['%(proposal)s_%(counter)08d.dat',
+                                           '/%(year)d/cycle_%(cycle)s/'
+                                           '%(proposal)s_%(counter)08d.dat'],
                      ),
     conssink = device('devices.datasinks.ConsoleSink',
                        description = 'device used for console-output',

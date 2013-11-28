@@ -192,6 +192,7 @@ class Experiment(Device):
     #
     # hooks: may be overriden in derived classes to enhance functionality
     #
+
     def proposalpath_of(self, proposal):
         """proposalpath of a given proposal"""
         return path.join(self.dataroot, time.strftime("%Y"), proposal)
@@ -222,13 +223,6 @@ class Experiment(Device):
         return path.join(self.samplepath, 'data')
 
     @property
-    def linkpaths(self):
-        """iterable of all paths where 'counted' objects will be linked to.
-
-        At the moment these are scanfiles and images"""
-        return tuple()
-
-    @property
     def extrapaths(self):
         """if derived classes need more autocreated dirs, they should be put here!"""
         return tuple()
@@ -240,8 +234,7 @@ class Experiment(Device):
         needed to keep track of directory structure upon proposal change
         """
         return [self.proposalpath, self.datapath,
-                     self.scriptpath, self.elogpath] + list(self.linkpaths)\
-                     + list(self.extrapaths)
+                     self.scriptpath, self.elogpath] + list(self.extrapaths)
 
     @property
     def templatepath(self):
@@ -313,6 +306,7 @@ class Experiment(Device):
     def _afterFinishHook(self):
         """Hook to do something after FinishExperiment did its work"""
         pass
+
     #
     # end hooks
     #
@@ -328,6 +322,7 @@ class Experiment(Device):
     #
     # counter stuff
     #
+
     @property
     def scanCounterPath(self):
         return path.join(self.dataroot, self.scancounter)
@@ -398,6 +393,7 @@ class Experiment(Device):
     #
     # datafile stuff
     #
+
     def getDataDir(self, *subdirs):
         """Returns the current path for the data directory in subdir
         structure subdirs.
@@ -495,31 +491,10 @@ class Experiment(Device):
                 self.log.warning('can\'t link datafiles, no os support!')
         return (fullfilename, fp)
 
-    def linkDataFiles(self, filename, *subdirs):
-        """Links all datapaths to the same file...
-
-        May be overridden in custom experiments if they don't like the names...
-        """
-        if not self.linkpaths:
-            return
-        if not hasattr(os, 'link'):
-            self.log.warning(self, 'your OS can not make links, no links '
-                             'created!')
-            return
-        fullname = path.join(self.getDataDir(*subdirs), filename)
-        if not os.exist(fullname):
-            self.log.error(self, 'linkDataFiles: data file %r does not exist!' %
-                           fullname)
-            return
-        for linktarget in self.linkpaths:
-            link = path.join(linktarget, '_'.join(subdirs + tuple(filename)))
-            if self._mode != SIMULATION:
-                ensureDirectory(path.dirname(link), **self.managerights)
-                os.link(fullname, link)
-
     #
-    # nicos interface
+    # NICOS interface
     #
+
     def doInit(self, mode):
         self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''

@@ -27,8 +27,8 @@
 import time
 
 from nicos import session
-from nicos.core import none_or, Device, Param, Override, ConfigurationError, \
-     DataSink, usermethod
+from nicos.core import listof, none_or, Device, Param, Override, \
+     ConfigurationError, DataSink, usermethod
 from nicos.utils import parseDateString
 from nicos.utils.graceplot import GracePlot, GracePlotter
 from nicos.commands.output import printinfo, printwarning
@@ -294,9 +294,9 @@ class AsciiDatafileSink(DatafileSink):
                                 'values', type=bool, default=True),
         'lastpoint':      Param('The number of the last point in the data file',
                                 type=int),
-        'nametemplate':   Param('Name template for the files written', type=str,
+        'filenametemplate':   Param('Name template for the files written', type=listof(str),
                                 userparam=False, settable=False,
-                                default='%(proposal)s_%(counter)08d.dat'),
+                                default=['%(proposal)s_%(counter)08d.dat']),
     }
 
     parameter_overrides = {
@@ -310,7 +310,8 @@ class AsciiDatafileSink(DatafileSink):
         self._commentc = value
 
     def prepareDataset(self, dataset):
-        shortname, longname, fp = session.experiment.createScanFile(self.nametemplate)
+        shortname, longname, fp = \
+                        session.experiment.createScanFile(self.filenametemplate)
         self._wrote_columninfo = False
         self._fname = shortname
         self._setROParam('lastpoint', 0)
@@ -321,7 +322,6 @@ class AsciiDatafileSink(DatafileSink):
         dataset.sinkinfo['number'] = session.experiment.lastscan
 
     def beginDataset(self, dataset):
-        session.experiment.linkDataFiles(self._fname)
         self._userinfo = dataset.scaninfo
         self._file.write('%s NICOS data file, created at %s\n' %
                          (self._commentc*3, time.strftime(TIMEFMT)))
