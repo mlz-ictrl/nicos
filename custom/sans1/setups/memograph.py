@@ -1,4 +1,7 @@
 description = 'memograph readout'
+
+group = 'lowlevel'
+
 devices = dict(
     t_in_memograph = device('frm2.memograph.MemographValue',
                             hostname = 'memograph03.care.frm2',

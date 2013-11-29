@@ -30,7 +30,8 @@ from time import time as currenttime, sleep
 from IO import StringIO
 
 from nicos.core import status, Moveable, Readable, HasLimits, Override, Param, \
-    CommunicationError, HasPrecision, InvalidValueError, MoveError
+    CommunicationError, HasPrecision, InvalidValueError, MoveError, listof, \
+    limits
 from nicos.devices.taco.core import TacoDevice
 
 FSEP = '#'  # separator for fields in reply ("/" in manual, "#" in reality)
@@ -110,6 +111,8 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
                            unit='s', settable=True, default=5),
         'maxtries':  Param('Maximum tries for setting a new speed', type=int,
                            settable=True, default=20),
+        'blockedspeeds': Param('List of tuples of forbidden speed values (rpm).',
+                           type=listof(limits)),
     }
 
     parameter_overrides = {
@@ -152,6 +155,13 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
             return status.OK, 'speed controlled'
         raise CommunicationError(self, 'state returned from selector is '
                                  'unknown: %r' % st)
+
+    def doIsAllowed(self, value):
+        for _min, _max in self.blockedspeeds:
+            if _min <= value <= _max:
+                return False, 'Speed lies in the forbidden range (%d, %d)' \
+                               % (_min, _max)
+        return True, ''
 
     def doStart(self, value):
         # the SPEED command is sometimes not accepted immediately; we try a few

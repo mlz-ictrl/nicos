@@ -26,7 +26,7 @@ description = 'top sample table devices'
 
 includes = ['system']
 
-group = 'lowlevel'
+group = 'optional'
 
 nethost = 'sans1srv.sans1.frm2'
 

@@ -29,22 +29,20 @@ includes = ['system']
 
 excludes = ['collimation_config']
 
+# included by sans1
 group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-    shutter = device('devices.generic.ManualSwitch',
-                     description = 'dummy for primary shutter before collimation',
-                     states = ['open', 'closed'],
-                   ),
     col = device('nicos.devices.generic.LockedDevice',
                   description = 'sans1 primary collimation',
-                  lock = 'shutter',
+                  lock = 'at',
                   device = 'col_sw',
                   #lockvalue = None,     # go back to previous value
-                  unlockvalue = 'closed',
-                  #keepfixed = False,	# dont fix shutter after movement
+                  unlockvalue = 'x1000',
+                  #keepfixed = False,	# dont fix attenuator after movement
+                  lowlevel = False,
                ),
     col_sw = device('devices.generic.MultiSwitcher',
                   description = 'collimator switching device',
@@ -53,7 +51,7 @@ devices = dict(
                   unit = 'm',
                   fmtstr = '%.1f',
                   fallback = 'Error',
-                  moveables = ['col_20a', 'col_20b', 'col_16a', 'col_16b', 'col_12b', 'col_12b',
+                  moveables = ['col_20a', 'col_20b', 'col_16a', 'col_16b', 'col_12a', 'col_12b',
                                'col_8a', 'col_8b', 'col_4a', 'col_4b', 'col_2a', 'col_2b'],
                   # col_2b disabled !!!
                   mapping = {
@@ -159,7 +157,7 @@ devices = dict(
                       address = 0x4020+0*10,
                       slope = 200*0.16, # FULL steps per turn * turns per mm
                       microsteps = 8,
-                      unit = 'mm',
+                      unit = 'deg',
                       refpos = -28.85,
                       abslimits = (-40, 300),
                       lowlevel = True,
@@ -250,7 +248,7 @@ devices = dict(
                       address = 0x4020+0*10,
                       slope = 200*0.16, # FULL steps per turn * turns per mm
                       microsteps = 8,
-                      unit = 'mm',
+                      unit = 'deg',
                       refpos = -1.5,
                       abslimits = (-40, 300),
                       lowlevel = True,
@@ -328,13 +326,13 @@ devices = dict(
                       lowlevel = True,
                     ),
 
-    col_sa1 = device('sans1.collimotor.Sans1ColliSwitcher',
+    sa1 = device('sans1.collimotor.Sans1ColliSwitcher',
                       description = 'attenuation slits',
                       mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
                                  '50x50':0, '30mm':70, '20mm':140, '10mm':210 },
-                      moveable = 'col_sa1_m',
+                      moveable = 'sa1_m',
                       ),
-    col_sa1_m = device('sans1.collimotor.Sans1ColliMotor',
+    sa1_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'attenuation slits motor',
                       # IP-adresse: 172.16.17.7
                       tacodevice='//%s/sans1/coll/col-2m'% (nethost,),
@@ -362,7 +360,6 @@ devices = dict(
                       unit = 'mm',
                       refpos = -8.,
                       abslimits = (-400, 600),
-                      loglevel = 'debug',
                       autopower = 'on',
                       autozero = 10,
                       lowlevel = True,

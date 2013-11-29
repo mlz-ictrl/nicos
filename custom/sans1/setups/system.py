@@ -35,7 +35,6 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'sans1.commands']
 
 # SYSTEM NEVER INCLUDES OTHER SETUPS !!!
-#includes = ['tube', 'collimation']
 
 devices = dict(
     #~ Sample   = device('devices.experiment.Sample'),
@@ -46,7 +45,7 @@ devices = dict(
                        ),
 
     Exp      = device('devices.experiment.Experiment',
-                      dataroot = '/localhome/data',
+                      dataroot = '/data/nicos',
                       sample = 'Sample'),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
@@ -58,6 +57,8 @@ devices = dict(
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
+                      # only specify if differing from Exp.dataroot
+                      #path = '/data/nicos',
                       minfree = 0.5,
                      ),
 )

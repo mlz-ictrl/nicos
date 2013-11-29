@@ -25,7 +25,8 @@
 
 description = 'qmesydaq devices for SANS1'
 
-group = 'optional'
+# included by sans1
+group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'
 

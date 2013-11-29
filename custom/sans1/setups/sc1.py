@@ -24,6 +24,8 @@
 
 description = 'sample table devices'
 
+group = 'optional'
+
 includes = ['system', 'table_top', 'table_bottom']
 
 nethost = '//sans1srv.sans1.frm2/'

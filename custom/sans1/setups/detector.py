@@ -26,6 +26,7 @@ description = 'detector related devices including beamstop'
 
 includes = []
 
+# included by sans1
 group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'

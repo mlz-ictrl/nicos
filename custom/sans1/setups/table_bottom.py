@@ -26,6 +26,7 @@ description = 'top sample table devices'
 
 includes = ['system']
 
+# included by sans1
 group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'
@@ -64,11 +65,13 @@ devices = dict(
                        tacodevice = '//%s/sans1/table/chi-2bmot' % (nethost, ),
                        fmtstr = '%.2f',
                        abslimits = (-5, 5),
+                       lowlevel = True,
                       ),
     chi_2benc = device('devices.taco.coder.Coder',
                        description = 'table chi-2b encoder',
                        tacodevice = '//%s/sans1/table/chi-2benc' % (nethost, ),
                        fmtstr = '%.2f',
+                       lowlevel = True,
                       ),
 
     phi_2b    = device('devices.taco.axis.Axis',
@@ -84,11 +87,13 @@ devices = dict(
                        tacodevice = '//%s/sans1/table/phi-2bmot' % (nethost, ),
                        fmtstr = '%.2f',
                        abslimits = (-5, 5),
+                       lowlevel = True,
                       ),
     phi_2benc = device('devices.taco.coder.Coder',
                        description = 'table phi-2b encoder',
                        tacodevice = '//%s/sans1/table/phi-2benc' % (nethost, ),
                        fmtstr = '%.2f',
+                       lowlevel = True,
                       ),
 
     y_2b    = device('devices.taco.axis.Axis',
@@ -104,11 +109,13 @@ devices = dict(
                      tacodevice = '//%s/sans1/table/y-2bmot' % (nethost, ),
                      fmtstr = '%.2f',
                      abslimits = (-100, 100),
+                     lowlevel = True,
                     ),
     y_2benc = device('devices.taco.coder.Coder',
                      description = 'table y-2b encoder',
                      tacodevice = '//%s/sans1/table/y-2benc' % (nethost, ),
                      fmtstr = '%.2f',
+                     lowlevel = True,
                     ),
 
     z_2b    = device('devices.taco.axis.Axis',
@@ -124,11 +131,13 @@ devices = dict(
                      tacodevice = '//%s/sans1/table/z-2bmot' % (nethost, ),
                      fmtstr = '%.2f',
                      abslimits = (-100, 100),
+                     lowlevel = True,
                     ),
     z_2benc = device('devices.taco.coder.Coder',
                      description = 'table z-2b encoder',
                      tacodevice = '//%s/sans1/table/z-2benc' % (nethost, ),
                      fmtstr = '%.2f',
+                     lowlevel = True,
                     ),
 
     x_2b    = device('devices.taco.axis.Axis',
@@ -144,10 +153,12 @@ devices = dict(
                      tacodevice = '//%s/sans1/table/x-2bmot' % (nethost, ),
                      fmtstr = '%.2f',
                      abslimits = (-750, 150),
+                     lowlevel = True,
                     ),
     x_2benc = device('devices.taco.coder.Coder',
                      description = 'table x-2b encoder',
                      tacodevice = '//%s/sans1/table/x-2benc' % (nethost, ),
                      fmtstr = '%.2f',
+                     lowlevel = True,
                     ),
 )
