@@ -103,6 +103,7 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
     }
 
     taco_class = Detector
+    _filesavers = []
 
     parameters = {
         'lastcounts' : Param('Current total number of counts', settable=True,
