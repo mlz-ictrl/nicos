@@ -183,6 +183,8 @@ class DeviceMeta(DeviceMixinMeta):
                     if self._mode == SIMULATION:
                         return self._initParam(param)
                     value = rmethod(self)
+                    if value == self._params[param]:
+                        return value
                     if self._cache:
                         self._cache.put(self, param, value)
                     self._params[param] = value
