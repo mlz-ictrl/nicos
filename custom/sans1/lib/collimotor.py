@@ -47,6 +47,7 @@ class Sans1ColliSwitcher(Switcher):
     parameter_overrides = {
         'precision' : Override(default=0.1, mandatory=False),
         'fallback'  : Override(default='Unknown', mandatory=False),
+        'blockingmove'  : Override(default='False', mandatory=False),
     }
 
     def _mapReadValue(self, pos):
