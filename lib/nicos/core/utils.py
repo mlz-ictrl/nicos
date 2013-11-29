@@ -204,6 +204,9 @@ class DeviceValueDict(object):
                     elif hasattr(dev, sub):
                         dev = getattr(dev, sub)
                         continue
+                    elif hasattr(dev, 'has_key') and dev.has_key(sub):
+                        dev = dev[sub]
+                        continue
                     session.log.warning("invalid key %r requested, returning ''" % key)
                     break
                 else:

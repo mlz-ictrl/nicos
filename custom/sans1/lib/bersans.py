@@ -261,11 +261,13 @@ class BerSANSFileFormat(ImageSink):
                              Sum_Moni2='%.6f' %(Sum / Moni2) if Moni2 else 'Inf',
                             )
         nicosheader = []
+        self.log.debug('imageInfo.header is %r' % imageinfo.header)
         # no way to map nicos-categories to BerSANS sections
         for _, valuelist in imageinfo.header.items():
             for dev, key, value in valuelist:
                 imageinfo.data['%s_%s' % (dev.name, key)] = value
                 nicosheader.append('%25s= %s' %('%s_%s' % (dev.name, key), value))
+        self.log.debug('nicosheader starts with: %40s' % '\n'.join(nicosheader))
         imageinfo.data['NICOSHeader'] = '\n'.join(nicosheader + [''])
 
         # write Header
