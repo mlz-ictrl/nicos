@@ -24,7 +24,7 @@
 
 """Module for measuring user commands."""
 
-from time import sleep
+from time import sleep, time as currenttime
 
 from nicos import session
 from nicos.core.device import Measurable
@@ -76,10 +76,11 @@ def _count(detlist, preset, result, dataset=None):
     #advance imagecounter
     if not dataset:
         dataset = session.experiment.createDataset()
-    session.experiment.advanceImageCounter(detset,  dataset)
+    session.experiment.advanceImageCounter(detset, dataset)
     session.beginActionScope('Counting')
     if session.experiment.pausecount:
         _wait_for_pause(delay)
+    starttime = currenttime()
     try:
         for det in detlist:
             det.start(**preset)
@@ -87,13 +88,12 @@ def _count(detlist, preset, result, dataset=None):
         session.endActionScope()
         raise
     sleep(delay)
-    i = 0
     try:
         while True:
-            i += 1
+            looptime = currenttime()
             for det in list(detset):
                 if session.mode != SIMULATION:
-                    det.duringMeasureHook(i)
+                    det.duringMeasureHook(looptime - starttime)
                 if det.isCompleted():
                     try:
                         det.save()
@@ -116,7 +116,7 @@ def _count(detlist, preset, result, dataset=None):
         for det in detset:
             det.stop()
             try:
-                det.save()
+                det.save(exception=True)
             except Exception:
                 det.log.exception('error saving measurement data')
         result.extend(sum((det.read() for det in detlist), []))

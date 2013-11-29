@@ -24,14 +24,10 @@
 
 """Definition of abstract base device classes."""
 
-import sys
-import threading
-from time import time as currenttime, sleep
-
 from nicos.core import status, usermethod, DeviceMixinBase, Readable, \
-    Moveable, Measurable, HasLimits, HasOffset, HasPrecision, HasMapping, \
+    Moveable, HasLimits, HasOffset, HasPrecision, HasMapping, \
     ConfigurationError, ModeError, ProgrammingError, PositionError, \
-    InvalidValueError, Param, Override, oneof, SIMULATION, SLAVE
+    InvalidValueError, Param, Override, oneof, SLAVE
 
 
 class Coder(HasPrecision, Readable):
@@ -123,114 +119,6 @@ class CanReference(DeviceMixinBase):
         if newpos is None:
             newpos = self.read(0)
         return newpos
-
-
-
-class AsyncDetector(Measurable):
-    """
-    Base class for a detector that needs to execute code during measurement.
-    """
-
-    # hooks
-
-    def _devStatus(self):
-        """Executed to determine if there are hardware errors.
-
-        Return None if the device state is fine, and an error status tuple
-        otherwise.
-        """
-        return None
-
-    def _startAction(self, **preset):
-        """Action to run before starting measurement.  This should set the
-        preset in the detector and start the measurement.
-        """
-        raise NotImplementedError('implement _startAction')
-
-    def _measurementComplete(self):
-        """Ask the hardware if the measurement is complete."""
-        raise NotImplementedError('implement _measurementComplete')
-
-    def _duringMeasureAction(self, elapsedtime):
-        """Action to run during measurement."""
-        pass
-
-    def _afterMeasureAction(self):
-        """Action to run after measurement (e.g. saving the data)."""
-        raise NotImplementedError('implement _afterMeasureAction')
-
-    def _measurementFailedAction(self, err):
-        """Action to run when measurement failed."""
-        pass
-
-    # end hooks
-
-    def doInit(self, mode):
-        self._measure = threading.Event()
-        self._processed = threading.Event()
-        self._processed.set()
-        if self._mode != SIMULATION:
-            self._thread = threading.Thread(target=self._thread_entry,
-                                            name='AsyncDetector %s' % self)
-            self._thread.setDaemon(True)
-            self._thread.start()
-
-    def doStart(self, **preset):
-        self._processed.wait()
-        self._processed.clear()
-        try:
-            self._startAction(**preset)
-        except:
-            self._processed.set()
-            raise
-        else:
-            self._measure.set()
-
-    def doStatus(self, maxage=0):
-        st = self._devStatus()
-        if st is not None:
-            return st
-        elif self._measure.isSet():
-            return status.BUSY, 'measuring'
-        elif not self._processed.isSet():
-            return status.BUSY, 'processing'
-        return status.OK, ''
-
-    def doIsCompleted(self):
-        return not self._measure.isSet() and self._processed.isSet()
-
-    def save(self):
-        pass  # saving has to be done in _afterMeasureAction, so do not
-              # even call doSave()
-
-    def _thread_entry(self):
-        while True:
-            try:
-                # wait for start signal
-                self._measure.wait()
-                # start measurement
-                #self._startAction()
-                started = currenttime()
-                # wait for completion of measurement
-                while True:
-                    sleep(0.2)
-                    if self._measurementComplete():
-                        break
-                    self._duringMeasureAction(currenttime() - started)
-            except Exception:
-                self._measurementFailedAction(sys.exc_info()[1])
-                self.log.exception('measuring failed')
-                self._measure.clear()
-                self._processed.set()
-                continue
-            self._measure.clear()
-            try:
-                self._afterMeasureAction()
-            except Exception:
-                self._measurementFailedAction(sys.exc_info()[1])
-                self.log.exception('completing measurement failed')
-            finally:
-                self._processed.set()
 
 
 # MappedReadable and MappedMoveable operate (via read/start) on a set of

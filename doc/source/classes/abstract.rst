@@ -22,12 +22,6 @@ Axis-related classes
 .. autoclass:: CanReference()
 
 
-Detector-related classes
-------------------------
-
-.. autoclass:: AsyncDetector()
-
-
 Mapping device classes
 ----------------------
 

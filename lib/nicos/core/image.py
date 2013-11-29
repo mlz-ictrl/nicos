@@ -335,7 +335,7 @@ class ImageProducer(DeviceMixinBase):
             self._saved = True
         self._header = None
 
-    def doSave(self):
+    def doSave(self, exception=False):
         self.saveImage()
 
     #

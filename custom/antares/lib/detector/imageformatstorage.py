@@ -43,7 +43,7 @@ class ImageStorageFits(ImageProducer):
     def doSimulate(self, preset):
         return [self.lastfilename]
 
-    def doSave(self):
+    def doSave(self, exception=False):
         # query data
         headerData = self._collectHeaderData()
         imgData = self._readImageFromHw()

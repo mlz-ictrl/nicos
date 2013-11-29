@@ -1678,19 +1678,19 @@ class Measurable(Readable):
             return
         self.doStart(**preset)
 
-    def __call__(self, pos=None):  #pylint: disable=W0221
+    def __call__(self, pos=None):  # pylint: disable=W0221
         """Allow dev(), but not dev(pos)."""
         if pos is None:
             return self.read()
         raise UsageError(self, 'device cannot be moved')
 
-    def duringMeasureHook(self, cycle):
+    def duringMeasureHook(self, elapsed):
         """Hook called during measurement.
 
         This can be overridden in subclasses to perform some periodic action
         while measuring.  The hook is called by `.count` for every detector in
-        a loop with a delay of 0.025 seconds.  The *cycle* argument is a number
-        incremented with each call to the hook.
+        a loop.  The *elapsed* argument is the time elapsed since the detector
+        was started.
         """
 
     @usermethod
@@ -1792,19 +1792,20 @@ class Measurable(Readable):
             return [result]
         return result
 
-    def save(self):
+    def save(self, exception=False):
         """Save the current measurement, if necessary.
 
-        Called by `.count` for all detectors at the end of a counting.
+        Called by `.count` for all detectors at the end of a counting.  If
+        *exception* is true, the counting was stopped due to an exception.
 
-        .. method:: doSave()
+        .. method:: doSave(exception=False)
 
            This method can be implemented if the detector needs to save data.
         """
         if self._sim_active:
             return
         if hasattr(self, 'doSave'):
-            self.doSave()
+            self.doSave(exception)
 
     def info(self):
         """Automatically add device status (if not OK).  Does not add the

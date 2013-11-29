@@ -204,7 +204,8 @@ class TofTofMeasurement(Measurable, ImageProducer):
         self.log.info('Measurement %06d started' % session.experiment.readImageCounter())
         session.action('#%06d' % session.experiment.readImageCounter())
         self._measuring = True
-        self._starttime = self._lasttime = currenttime()
+        self._starttime = currenttime()
+        self._lasttime = 0
         ctr.start(**preset)
 
     def _startHeader(self, interval, chdelay):
@@ -415,8 +416,8 @@ class TofTofMeasurement(Measurable, ImageProducer):
             pass
         return timeleft, moncounts, counts, countsum, meastime, tempinfo
 
-    def duringMeasureHook(self, i):
-        if (i + 400) % self._updateevery:
+    def duringMeasureHook(self, elapsed):
+        if elapsed - self._lasttime < self._updateevery:
             return
         self.log.debug('collecting progress info')
         _, moncounts, _, countsum, meastime, tempinfo = self._saveDataFile()
@@ -448,7 +449,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
     def doReset(self):
         self._adevs['counter'].reset()
 
-    def doSave(self):
+    def doSave(self, exception=False):
         self._saveDataFile()
         self.log.debug('saving current script')
         if session.experiment.scripts:

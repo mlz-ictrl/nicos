@@ -86,7 +86,7 @@ class VirtualTasDetector(Measurable):
     def doRead(self, maxage=0):
         return self._lastresult
 
-    def doSave(self):
+    def doSave(self, exception=False):
         from nicos.devices.tas.rescalc import resmat, calc_MC, demosqw
         from nicos.commands.tas import _resmat_args
         taspos = self._adevs['tas'].read(0)

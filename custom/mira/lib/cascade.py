@@ -31,14 +31,14 @@ from time import sleep, time as currenttime
 from nicos import session
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
-    CommunicationError, TimeoutError, NicosError, Readable, ImageProducer
+    CommunicationError, TimeoutError, NicosError, Readable, Measurable, \
+    ImageProducer
 from nicos.mira import cascadeclient  # pylint: disable=E0611
-from nicos.devices.abstract import AsyncDetector
 from nicos.devices.generic import MultiChannelDetector
 from nicos.core import SIMULATION
 
 
-class CascadeDetector(AsyncDetector, ImageProducer):
+class CascadeDetector(ImageProducer, Measurable):
 
     attached_devices = {
         'master':    (MultiChannelDetector, 'Master to control measurement time'
@@ -89,8 +89,7 @@ class CascadeDetector(AsyncDetector, ImageProducer):
     def doInit(self, mode):
         self._last_preset = self.preselection
         self._started = 0
-        AsyncDetector.doInit(self, mode)
-
+        self._lastlive = 0
         # self._tres is set by doUpdateMode
         self._xres, self._yres = (128, 128)
 
@@ -151,6 +150,7 @@ class CascadeDetector(AsyncDetector, ImageProducer):
             reply = str(self._client.communicate('CMD_stop'))
             if reply != 'OKAY':
                 self._raise_reply('could not stop measurement', reply)
+        self._relpath = '<error>'
 
     def doRead(self, maxage=0):
         if self.mode == 'tof':
@@ -189,9 +189,13 @@ class CascadeDetector(AsyncDetector, ImageProducer):
         if reply != 'OKAY':
             self._raise_reply('could not set measurement time', reply)
 
-    def _devStatus(self):
+    def doStatus(self, maxage=0):
         if not self._client.isconnected():
             return status.ERROR, 'disconnected from server'
+        if self._getstatus().get('stop', '0') == '1':
+            return status.OK, 'idle'
+        else:
+            return status.BUSY, 'counting'
 
     def doSetPreset(self, **preset):
         if preset.get('t'):
@@ -202,7 +206,7 @@ class CascadeDetector(AsyncDetector, ImageProducer):
             return '%08d.tof'
         return '%08d.pad'
 
-    def _startAction(self, **preset):
+    def doStart(self, **preset):
         self._newFile()
         if self.slave:
             self.preselection = 1000000  # master controls preset
@@ -226,8 +230,16 @@ class CascadeDetector(AsyncDetector, ImageProducer):
         if self.slave:
             self._adevs['master'].start(**preset)
         self._started = currenttime()
+        self._lastlivetime = 0
 
-    def _measurementComplete(self):
+    def _getstatus(self):
+        status = self._client.communicate('CMD_status_cdr')
+        if status == '':
+            raise CommunicationError(self, 'no response from server')
+        #self.log.debug('got status %r' % status)
+        return dict(v.split('=') for v in str(status[4:]).split(' '))
+
+    def doIsCompleted(self):
         if currenttime() - self._started > self._last_preset + 10:
             try:
                 self.doStop()
@@ -235,17 +247,14 @@ class CascadeDetector(AsyncDetector, ImageProducer):
                 pass
             raise TimeoutError(self, 'measurement not finished within '
                                'selected preset time')
-        status = self._client.communicate('CMD_status_cdr')
-        if status == '':
-            raise CommunicationError(self, 'no response from server')
-        #self.log.debug('got status %r' % status)
-        status = dict(v.split('=') for v in str(status[4:]).split(' '))
-        return status.get('stop', '0') == '1'
+        return self._getstatus().get('stop', '0') == '1'
 
-    def _duringMeasureAction(self, elapsedtime):
-        self._readLiveData(elapsedtime)
+    def duringMeasureHook(self, elapsedtime):
+        if elapsedtime > (self._lastlivetime + 0.2):
+            self._readLiveData(elapsedtime)
+            self._lastlivetime = elapsedtime
 
-    def _afterMeasureAction(self):
+    def doSave(self, exception=False):
         # get final data including all events from detector
         buf = self._readLiveData(self._last_preset, self._relpath)
         # and write into measurement file
@@ -273,9 +282,6 @@ class CascadeDetector(AsyncDetector, ImageProducer):
                 self._writeXml(buf)
             except Exception:
                 self.log.warning('Error saving measurement as XML', exc=1)
-
-    def _measurementFailedAction(self, err):
-        self._relpath = '<error>'
 
     def _readLiveData(self, elapsedtime, filename=''):
         # get current data array from detector

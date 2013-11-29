@@ -27,8 +27,7 @@
 import numpy
 
 from nicos.core import Param, Override, Value, status, oneofdict, oneof, \
-    ImageProducer, ImageType
-from nicos.devices.abstract import AsyncDetector
+    ImageProducer, ImageType, Measurable
 from nicos.devices.fileformats import LiveViewSink
 from nicos.devices.taco.detector import FRMChannel, FRMTimerChannel, \
     FRMCounterChannel
@@ -86,7 +85,7 @@ class QMesyDAQCounter(QMesyDAQChannel, FRMCounterChannel):
     """
 
 
-class QMesyDAQDet(ImageProducer, AsyncDetector, TacoDevice):
+class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
     """
     Detector for QMesyDAQ that combines multiple channels to a single Measurable
     detector device.
@@ -157,7 +156,6 @@ class QMesyDAQDet(ImageProducer, AsyncDetector, TacoDevice):
         self._filesavers = [ff for ff in self._adevs['fileformats']
                              if not isinstance(ff, LiveViewSink)]
         self.readImage() # also set imagetype
-        AsyncDetector.doInit(self, mode)
 
     def _getMaster(self):
         """Internal method to get the current master."""
@@ -191,6 +189,25 @@ class QMesyDAQDet(ImageProducer, AsyncDetector, TacoDevice):
     #
     # Measurable/TacoDevice interface
     #
+    def doStart(self, **preset):
+        self.doStop()
+        self._getMaster()
+        if preset:
+            self.doSetPreset(**preset)
+        self.log.debug('starting subdevices')
+        for dev in self._counters:
+            if dev != self._master:
+                dev.start()
+        if self._master:
+            self._master.start()
+        else:
+            self.log.warning('counting without master, use "stop(%s)" to '
+                             'finish the counting...' % self.name)
+        # qmesydaq special: 2D device is started last
+        self.lastcounts = 0
+        self._taco_guard(self._dev.start)
+        self.log.debug('Image acquisition started')
+
     def doStop(self):
         self._taco_guard(self._dev.stop)
         for dev in self._counters:
@@ -214,6 +231,27 @@ class QMesyDAQDet(ImageProducer, AsyncDetector, TacoDevice):
 
     def presetInfo(self):
         return set(self._presetkeys)
+
+    def doStatus(self, maxage=0):
+        state = self._taco_guard(self._dev.deviceState)
+        if state in (TACOStates.PRESELECTION_REACHED, TACOStates.DEVICE_NORMAL):
+            return status.OK, 'idle'
+        elif state == TACOStates.STOPPED:
+            return status.PAUSED, 'paused'
+        elif state == TACOStates.COUNTING:
+            return status.BUSY, 'counting'
+        return status.ERROR, TACOStates.stateDescription(state)
+
+    def doIsCompleted(self):
+        if self._isPause:
+            return False
+        state = self._taco_guard(self._dev.deviceState)
+        return state in (TACOStates.PRESELECTION_REACHED, TACOStates.DEVICE_NORMAL)
+
+    def duringMeasureHook(self, elapsed):
+        self.log.debug('duringMeasureHook(%f)' % elapsed)
+        # XXX only do this every 0.X seconds!
+        self.updateImage()
 
     def doRead(self, maxage=0):
         resultlist = [i for ctr in self._counters for i in ctr.read()] + \
@@ -289,57 +327,3 @@ class QMesyDAQDet(ImageProducer, AsyncDetector, TacoDevice):
 
     def readFinalImage(self):
         return self.readImage()
-
-    #
-    # AsyncDetector interface
-    #
-    def _startAction(self, **preset):
-        self.doStop()
-        self._getMaster()
-        if preset:
-            self.doSetPreset(**preset)
-        self.log.debug('starting subdevices')
-        for dev in self._counters:
-            if dev != self._master:
-                dev.start()
-        if self._master:
-            self._master.start()
-        else:
-            self.log.warning('counting without master, use "stop(%s)" to '
-                             'finish the counting...' % self.name)
-        # qmesydaq special: 2D device is started last
-        self.lastcounts = 0
-        self._taco_guard(self._dev.start)
-        self.log.debug('Image acquisition started')
-
-    def _devStatus(self):
-        """Executed to determine if there are hardware errors.
-
-        Return None if the device state is fine, and an error status tuple
-        otherwise.
-        """
-        state = self._taco_guard(self._dev.deviceState)
-        if state in [TACOStates.PRESELECTION_REACHED, TACOStates.STOPPED,
-                     TACOStates.DEVICE_NORMAL, TACOStates.COUNTING]:
-            return None
-        return status.ERROR, TACOStates.stateDescription(state)
-
-    def _measurementComplete(self):
-        """Ask the hardware if the measurement is complete."""
-        if self._isPause:
-            return False
-        state = self._taco_guard(self._dev.deviceState)
-        return state in [TACOStates.PRESELECTION_REACHED, TACOStates.DEVICE_NORMAL]
-
-    def _duringMeasureAction(self, elapsedtime):
-        """Action to run during measurement."""
-        self.log.debug('duringMeasureAction(%f)' % elapsedtime)
-        self.updateImage()
-
-    def _afterMeasureAction(self):
-        """Action to run after measurement (e.g. saving the data)."""
-        self.saveImage()
-
-    def _measurementFailedAction(self, err):
-        """Action to run when measurement failed."""
-        self.stop()
