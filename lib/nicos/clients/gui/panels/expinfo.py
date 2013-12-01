@@ -24,11 +24,9 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from PyQt4.QtCore import SIGNAL
-
-from nicos.utils import decodeAny
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.widget import NicosWidget
 
 
 class ExpInfoPanel(Panel):
@@ -37,37 +35,8 @@ class ExpInfoPanel(Panel):
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         loadUi(self, 'expinfo.ui', 'panels')
-
-        self.expdevname = '---'
-        self.sampledevname = '---'
-        if client.connected:
-            self.on_client_connected()
-        self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
-        self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
+        for ch in self.findChildren(NicosWidget):
+            ch.setClient(self.client)
 
     def hideTitle(self):
         self.titleLbl.setVisible(False)
-
-    def on_client_connected(self):
-        values = self.client.eval('session.experiment.name, '
-                                  'session.experiment.sample.name, '
-                                  'session.experiment.proposal, '
-                                  'session.experiment.title, '
-                                  'session.experiment.users, '
-                                  'session.experiment.localcontact, '
-                                  'session.experiment.remark, '
-                                  'session.experiment.sample.samplename', None)
-        if not values:
-            return
-        self.expdevname = values[0].lower() + '/'
-        self.sampledevname = values[1].lower() + '/'
-        self.expproposal.setText(values[2])
-        self.exptitle.setText(decodeAny(values[3]))
-        self.expusers.setText(decodeAny(values[4]))
-        self.explocalcontact.setText(decodeAny(values[5]))
-        self.expremark.setText(decodeAny(values[6]))
-        self.samplename.setText(decodeAny(values[7]))
-
-    def on_client_cache(self, (time, key, op, value)):
-        if key.startswith((self.expdevname, self.sampledevname)):
-            self.on_client_connected()
