@@ -37,7 +37,7 @@ modules = ['nicos.commands.standard', 'nicos.commands.tas']
 
 
 devices = dict(
-    sample   = device('devices.tas.TASSample',
+    Sample   = device('devices.tas.TASSample',
                      ),
 
     testsink = device('test.utils.TestSink',
@@ -45,7 +45,7 @@ devices = dict(
 
     # test that both nicos.(...) and (...) work
     Exp      = device('nicos.devices.experiment.Experiment',
-                      sample = 'sample',
+                      sample = 'Sample',
                       elog = False,
                       dataroot = 'test/root/data',
                       propprefix = 'p',
@@ -143,7 +143,7 @@ devices = dict(
                      ),
 
     Tas      = device('devices.tas.TAS',
-                      cell = 'sample',
+                      cell = 'Sample',
                       mono = 't_mono',
                       phi = 't_phi',
                       psi = 't_psi',

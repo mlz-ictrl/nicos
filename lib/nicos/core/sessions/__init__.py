@@ -604,6 +604,10 @@ class Session(object):
                 elif not isinstance(value, str):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a device name' % key)
+                if key == 'experiment' and value not in (None, 'Exp'):
+                    raise ConfigurationError('the experiment device must now '
+                                             'be named "Exp", please fix your '
+                                             'system setup')
                 else:
                     try:
                         dev = self.getDevice(value, devtype)

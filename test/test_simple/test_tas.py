@@ -36,7 +36,7 @@ from test.utils import raises, assertAlmostEqual, ErrorLogged
 def setup_module():
     session.loadSetup('scanning')
     session.setMode(MASTER)
-    sample = session.getDevice('sample')
+    sample = session.getDevice('Sample')
     sample.lattice = [2.77, 2.77, 2.77]
     sample.angles = [90, 90, 90]
     sample.orient1 = [1, 0, 0]

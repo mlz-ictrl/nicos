@@ -498,6 +498,10 @@ class Experiment(Device):
     def doInit(self, mode):
         self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''
+        if self._adevs['sample'].name != 'Sample':
+            raise ConfigurationError(self, 'the sample device must now be '
+                                     'named "Sample", please fix your system '
+                                     'setup')
         if self.elog and mode != SIMULATION:
             ensureDirectory(path.join(self.proposalpath, 'logbook'))
             session.elog_event('directory', (self.proposalpath,

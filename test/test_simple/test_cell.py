@@ -61,7 +61,7 @@ def tscan(Qh, Qk, Ql, ny, dQh, dQk, dQl, dny, numsteps, SM, SC, sense, sample):
         assertAlmostEqual(ny, nyr)
 
 def test_cell():
-    sample = session.getDevice('sample')
+    sample = session.getDevice('Sample')
     sample.lattice = [3.8184, 3.8184, 3.8184]
     sample.angles = [90, 90, 90]
     sample.orient1 = [1, 1, 0]

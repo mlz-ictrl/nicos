@@ -181,9 +181,10 @@ The possible entries for the ``sysconfig`` dictionary are:
 
 .. data:: experiment
 
-   The name of the experiment "device", defined somewhere in a ``devices``
-   dictionary.  The class for this device must be
-   :class:`nicos.devices.experiment.Experiment` or an instrument-specific subclass.
+   ``'Exp'`` or ``None``.  If ``'Exp'``, a device of this name must be defined
+   somewhere in a ``devices`` dictionary.  The class for this device must be
+   :class:`nicos.devices.experiment.Experiment` or an instrument-specific
+   subclass.
 
    See :ref:`principles`.
 
