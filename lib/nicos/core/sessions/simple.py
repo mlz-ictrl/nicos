@@ -29,7 +29,6 @@ import signal
 
 from nicos import session
 from nicos.utils import daemonize, setuser, writePidfile, removePidfile
-from nicos.utils.messaging import SimLogSender
 from nicos.core.sessions import Session
 from nicos.core import SIMULATION, SLAVE
 
@@ -138,6 +137,8 @@ class SimulationSession(Session):
 
     @classmethod
     def run(cls, port, prefix, setups, code):
+        from nicos.utils.messaging import SimLogSender
+
         session.__class__ = cls
 
         session.globalprefix = prefix

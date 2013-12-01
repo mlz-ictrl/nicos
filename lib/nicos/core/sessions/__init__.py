@@ -48,7 +48,6 @@ from nicos.devices.notifiers import Notifier
 from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
      ColoredConsoleHandler, NicosLogfileHandler
-from nicos.utils.messaging import SimulationSupervisor
 from nicos.devices.instrument import Instrument
 from nicos.devices.cacheclient import CacheClient, CacheLockError, \
      SyncCacheClient
@@ -1146,6 +1145,7 @@ class Session(object):
         If *wait* is true, wait until the process is finished.  *prefix* is the
         prefix given to all log messages.
         """
+        from nicos.utils.messaging import SimulationSupervisor
         if not self.cache:
             raise NicosError('cannot start simulation, no cache is configured')
 
