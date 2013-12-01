@@ -135,91 +135,39 @@ class CascadeDetector(ImageProducer, Measurable):
         'fmtstr':   Override(default='roi %s, total %s, file %s'),
     }
 
-    def doPreinit(self, mode):
-        if mode != SIMULATION:
-            self._client = cascadeclient.NicosClient()
-            self._padimg = cascadeclient.PadImage()
-            self.doReset()
+    #
+    # helper methods
+    #
 
-    def doInit(self, mode):
-        self._last_preset = self.preselection
-        self._started = 0
-        self._lastlive = 0
-        # self._tres is set by doUpdateMode
-        self._xres, self._yres = (128, 128)
-
-    def doReset(self):
-        self._client.communicate('CMD_kill')
-        self._client.disconnect()
-        host, port = self.server.split(':')
-        port = int(port)
-        self.log.info('waiting for CASCADE server restart...')
-        for _ in range(4):
-            sleep(0.5)
-            if self._client.connecttohost(host, port):
-                break
-        else:
-            raise CommunicationError(self, 'could not connect to server')
-        if self.slave:
-            self._adevs['master'].reset()
-        # reset parameters in case the server forgot them
-        self.log.info('re-setting to %s mode' % self.mode.upper())
-        self.doWriteMode(self.mode)
-        self.doWritePreselection(self.preselection)
-
-    def valueInfo(self):
-        cvals = (Value(self.name + '.roi', unit='cts', type='counter',
-                       errors='sqrt', active=self.roi != (-1, -1, -1, -1),
-                       fmtstr='%d'),
-                 Value(self.name + '.total', unit='cts', type='counter',
-                       errors='sqrt', fmtstr='%d'))
-        if self.mode == 'tof':
-            cvals = cvals + (
-                 Value(self.name + '.c_roi', unit='', type='counter',
-                       errors='next', fmtstr='%.4f'),
-                 Value(self.name + '.dc_roi', unit='', type='error',
-                       fmtstr = '%.4f'),
-                 Value(self.name + '.c_tot', unit='', type='counter',
-                       errors='next', fmtstr='%.4f'),
-                 Value(self.name + '.dc_tot', unit='', type='error',
-                       fmtstr = '%.4f'))
-        cvals = cvals + (Value(self.name + '.file', type='info', fmtstr='%s'),)
-        if self.slave:
-            return self._adevs['master'].valueInfo() + cvals
-        return cvals
-
-    def presetInfo(self):
-        return ['t']
-
-    def doUpdateDebugmsg(self, value):
-        if self._mode != SIMULATION:
-            cascadeclient.GlobalConfig.SetLogLevel(value and 3 or 0)
-
-    def doShutdown(self):
-        self._client.disconnect()
-
-    def doStop(self):
-        if self.slave:
-            self._adevs['master'].stop()
-        else:
-            reply = str(self._client.communicate('CMD_stop'))
-            if reply != 'OKAY':
-                self._raise_reply('could not stop measurement', reply)
-
-    def doRead(self, maxage=0):
-        if self.mode == 'tof':
-            myvalues = self.lastcounts + self.lastcontrast + [self.lastfilename]
-        else:
-            myvalues = self.lastcounts + [self.lastfilename]
-        if self.slave:
-            return self._adevs['master'].read(maxage) + myvalues
-        return myvalues
+    def _raise_reply(self, message, reply):
+        """Raise an exception for an invalid reply."""
+        if not reply:
+            raise CommunicationError(self,
+                message + ': empty reply (reset device to reconnect)')
+        raise CommunicationError(self, message + ': ' + str(reply[4:]))
 
     def _getconfig(self):
+        """Return a dictionary with the config from the server."""
         cfg = self._client.communicate('CMD_getconfig_cdr')
         if cfg[:4] != 'MSG_':
             self._raise_reply('could not get configuration', cfg)
         return dict(v.split('=') for v in str(cfg[4:]).split(' '))
+
+    def _getstatus(self):
+        """Return a dictionary with the status from the server."""
+        st = self._client.communicate('CMD_status_cdr')
+        if st == '':
+            raise CommunicationError(self, 'no response from server')
+        #self.log.debug('got status %r' % st)
+        return dict(v.split('=') for v in str(st[4:]).split(' '))
+
+    #
+    # parameter handlers
+    #
+
+    def doUpdateDebugmsg(self, value):
+        if self._mode != SIMULATION:
+            cascadeclient.GlobalConfig.SetLogLevel(value and 3 or 0)
 
     def doReadMode(self):
         return self._getconfig()['mode']
@@ -242,6 +190,55 @@ class CascadeDetector(ImageProducer, Measurable):
         reply = self._client.communicate('CMD_config_cdr time=%s' % value)
         if reply != 'OKAY':
             self._raise_reply('could not set measurement time', reply)
+
+    #
+    # Device/Measurable interface
+    #
+
+    def doPreinit(self, mode):
+        if mode != SIMULATION:
+            self._client = cascadeclient.NicosClient()
+            self._padimg = cascadeclient.PadImage()
+            self.doReset()
+
+    def doInit(self, mode):
+        self._last_preset = self.preselection
+        self._started = 0
+        self._lastlive = 0
+        # self._tres is set by doUpdateMode
+        self._xres, self._yres = (128, 128)
+
+    def doShutdown(self):
+        self._client.disconnect()
+
+    def doReset(self):
+        # restart the cascade server and reconnect
+        self._client.communicate('CMD_kill')
+        self._client.disconnect()
+        host, port = self.server.split(':')
+        port = int(port)
+        self.log.info('waiting for CASCADE server restart...')
+        for _ in range(4):
+            sleep(0.5)
+            if self._client.connecttohost(host, port):
+                break
+        else:
+            raise CommunicationError(self, 'could not connect to server')
+        if self.slave:
+            self._adevs['master'].reset()
+        # reset parameters in case the server forgot them
+        self.log.info('re-setting to %s mode' % self.mode.upper())
+        self.doWriteMode(self.mode)
+        self.doWritePreselection(self.preselection)
+
+    def doRead(self, maxage=0):
+        if self.mode == 'tof':
+            myvalues = self.lastcounts + self.lastcontrast + [self.lastfilename]
+        else:
+            myvalues = self.lastcounts + [self.lastfilename]
+        if self.slave:
+            return self._adevs['master'].read(maxage) + myvalues
+        return myvalues
 
     def doStatus(self, maxage=0):
         if not self._client.isconnected():
@@ -280,13 +277,6 @@ class CascadeDetector(ImageProducer, Measurable):
         self._started = currenttime()
         self._lastlivetime = 0
 
-    def _getstatus(self):
-        st = self._client.communicate('CMD_status_cdr')
-        if st == '':
-            raise CommunicationError(self, 'no response from server')
-        #self.log.debug('got status %r' % st)
-        return dict(v.split('=') for v in str(st[4:]).split(' '))
-
     def doIsCompleted(self):
         if currenttime() - self._started > self._last_preset + 10:
             try:
@@ -297,11 +287,43 @@ class CascadeDetector(ImageProducer, Measurable):
                                'selected preset time')
         return self._getstatus().get('stop', '0') == '1'
 
+    def doStop(self):
+        if self.slave:
+            self._adevs['master'].stop()
+        else:
+            reply = str(self._client.communicate('CMD_stop'))
+            if reply != 'OKAY':
+                self._raise_reply('could not stop measurement', reply)
+
     def duringMeasureHook(self, elapsedtime):
         if elapsedtime > (self._lastlivetime + 0.2):
             # XXX call updateImage every minute or so...
             self.updateLiveImage()
             self._lastlivetime = elapsedtime
+
+    def valueInfo(self):
+        cvals = (Value(self.name + '.roi', unit='cts', type='counter',
+                       errors='sqrt', active=self.roi != (-1, -1, -1, -1),
+                       fmtstr='%d'),
+                 Value(self.name + '.total', unit='cts', type='counter',
+                       errors='sqrt', fmtstr='%d'))
+        if self.mode == 'tof':
+            cvals = cvals + (
+                 Value(self.name + '.c_roi', unit='', type='counter',
+                       errors='next', fmtstr='%.4f'),
+                 Value(self.name + '.dc_roi', unit='', type='error',
+                       fmtstr = '%.4f'),
+                 Value(self.name + '.c_tot', unit='', type='counter',
+                       errors='next', fmtstr='%.4f'),
+                 Value(self.name + '.dc_tot', unit='', type='error',
+                       fmtstr = '%.4f'))
+        cvals = cvals + (Value(self.name + '.file', type='info', fmtstr='%s'),)
+        if self.slave:
+            return self._adevs['master'].valueInfo() + cvals
+        return cvals
+
+    def presetInfo(self):
+        return ['t']
 
     #
     # ImageProducer interface
@@ -347,9 +369,3 @@ class CascadeDetector(ImageProducer, Measurable):
     def readFinalImage(self):
         # get final data including all events from detector
         return self.readImage()
-
-    def _raise_reply(self, message, reply):
-        if not reply:
-            raise CommunicationError(self,
-                message + ': empty reply (reset device to reconnect)')
-        raise CommunicationError(self, message + ': ' + str(reply[4:]))
