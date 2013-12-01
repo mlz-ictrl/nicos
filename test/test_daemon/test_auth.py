@@ -54,6 +54,7 @@ def test_passwd_user():
                             )
     assert Auth.authenticate('user', 'user') == User('user', USER)
     assert Auth.authenticate('guest', '') == User('guest', GUEST)
+    assert Auth.authenticate('guest', 'somepw') == User('guest', GUEST)
     assert raises(AuthenticationError, Auth.authenticate, 'user', 'nouser')
     assert raises(AuthenticationError, Auth.authenticate, 'joedoe', '')
     DestroyDevice(Auth)

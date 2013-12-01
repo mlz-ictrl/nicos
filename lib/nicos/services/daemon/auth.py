@@ -114,16 +114,16 @@ class ListAuthenticator(Authenticator):
     def authenticate(self, username, password):
         username = username.strip()
         if not username:
-            raise AuthenticationError('User name field empty, please identify yourself!')
-        # check for exact match (also matches empty password if username matches!)
+            raise AuthenticationError('No username, please identify yourself!')
+        # check for exact match (also matches empty password if username matches)
         for (user, pw, level) in self.passwd:
             if user == username:
-                if pw == password:
+                if not pw or pw == password:
                     if not password and level > USER:
                         level = USER # limit passwordless entries to USER
                     return User(username, level)
                 else:
-                    raise AuthenticationError('Invalid Username or Password!')
+                    raise AuthenticationError('Invalid username or password!')
         # check for unspecified user
         for (user, pw, level) in self.passwd:
             if user == '':
@@ -133,8 +133,8 @@ class ListAuthenticator(Authenticator):
                     return User(username, level)
                 elif not pw: # fix passwordless anonymous to GUEST
                     return User(username, GUEST)
-        # do not give a hint whether username or password is wrong....
-        raise AuthenticationError('Invalid Username or Password!')
+        # do not give a hint whether username or password is wrong...
+        raise AuthenticationError('Invalid username or password!')
 
 
 class PamAuthenticator(Authenticator):
