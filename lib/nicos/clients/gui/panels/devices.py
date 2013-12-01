@@ -481,6 +481,8 @@ class ControlDialog(QDialog):
 
         self.deviceName.setText('Device: %s' % self.devname)
         self.setWindowTitle('Control %s' % self.devname)
+        self.buttonBox.clear()
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
 
         # now get all cache keys pertaining to the device and set the
         # properties we want
