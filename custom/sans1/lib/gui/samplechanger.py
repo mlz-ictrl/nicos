@@ -33,7 +33,8 @@ from PyQt4.QtGui import QDialogButtonBox, QLabel, QPixmap, QTableWidget, \
 from PyQt4.QtCore import SIGNAL, QString, Qt, QSize, QEvent
 
 from nicos.core import ProgrammingError
-from nicos.clients.gui.utils import decodeAny, DlgUtils
+from nicos.utils import decodeAny
+from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow, TearOffTabWidget
 

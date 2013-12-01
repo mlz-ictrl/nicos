@@ -27,8 +27,9 @@
 from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem
 from PyQt4.QtCore import SIGNAL, Qt
 
+from nicos.utils import decodeAny
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, DlgUtils, decodeAny
+from nicos.clients.gui.utils import loadUi, DlgUtils
 
 
 def iterChecked(listwidget):

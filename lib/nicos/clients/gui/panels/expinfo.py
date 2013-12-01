@@ -26,8 +26,9 @@
 
 from PyQt4.QtCore import SIGNAL
 
+from nicos.utils import decodeAny
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, decodeAny
+from nicos.clients.gui.utils import loadUi
 
 
 class ExpInfoPanel(Panel):

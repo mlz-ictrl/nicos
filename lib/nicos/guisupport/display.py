@@ -33,10 +33,11 @@ from time import time as currenttime
 import sip
 from PyQt4.QtCore import Qt, QSize, QTimer, SIGNAL
 from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
-     QHBoxLayout, QFontMetrics
+    QHBoxLayout, QFontMetrics
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN, \
-     statuses
+    statuses
+from nicos.utils import decodeAny
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
@@ -104,7 +105,7 @@ class ValueLabel(NicosWidget, SqueezedLabel):
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         if not expired:
-            self.setText(strvalue)
+            self.setText(decodeAny(strvalue))
 
 
 class ValueDisplay(NicosWidget, QWidget):

@@ -845,3 +845,13 @@ def watchFileTime(filename, log, interval=1.0):
         if get_mtime() != mtime:
             return
         sleep(interval)
+
+
+def decodeAny(string):
+    """Try to decode the string from UTF-8 or latin9 encoding."""
+    try:
+        return string.decode('utf-8')
+    except UnicodeError:
+        # decoding latin9 never fails, since any byte is a valid
+        # character there
+        return string.decode('latin9')

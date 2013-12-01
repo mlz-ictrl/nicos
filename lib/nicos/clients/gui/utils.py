@@ -101,15 +101,6 @@ def showToolText(toolbar, action):
         widget.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
 
-def decodeAny(string):
-    """Try to decode the string from UTF-8 or latin9 encoding."""
-    try:
-        return string.decode('utf-8')
-    except UnicodeError:
-        # decoding latin9 never fails, since any byte is a valid
-        # character there
-        return string.decode('latin9')
-
 def checkSetupSpec(setupspec, setups):
     """check if the given setupspec should be displayed given the loaded setups
 
