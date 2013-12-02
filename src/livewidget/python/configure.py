@@ -80,6 +80,9 @@ if dist in ('openSUSE', 'openSUSE ') :
 elif dist == 'Ubuntu':
     makefile.extra_include_dirs = ["/usr/include/qwt-qt4"]
     makefile.extra_libs = ["qwt-qt4", "cfitsio"]
+elif dist == 'CentOS':
+    makefile.extra_include_dirs = ["/usr/local/qwt5/include"]
+    makefile.extra_libs = ["qwt", "cfitsio"]
 else:
     print "WARNING: Don't know where to find Qwt headers and libraries for your distribution"
     # still try to build with useable defaults
