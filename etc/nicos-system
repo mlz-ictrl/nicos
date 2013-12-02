@@ -108,6 +108,7 @@ def read_pidfile(name, wait=0):
     while True:
         try:
             pid = file(pidpath, 'rb').read()
+            pid = int(pid)
         except:
             if time.time() > begin + wait:
                 return
@@ -115,7 +116,6 @@ def read_pidfile(name, wait=0):
             break
         time.sleep(0.1)
     # check that pid really exists
-    pid = int(pid)
     try:
         params = open('/proc/%d/cmdline' % pid, 'r').read().split('\0')
         if '-' in name:
