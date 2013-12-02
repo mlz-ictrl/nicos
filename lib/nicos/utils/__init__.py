@@ -443,7 +443,7 @@ def enableDisableFileItem(filepath, mode, owner=None, group=None):
                                (filepath, owner, group, e))
     try:
         os.chmod(filepath, mode)
-    except OSError:
+    except OSError, e:
         session.log.debug('chmod(%r, %o) failed: %s' % (filepath, mode, e))
         return True
     return False
