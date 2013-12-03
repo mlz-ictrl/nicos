@@ -59,10 +59,6 @@ windows = [
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
     #window('Live data', 'live', panel('live.LiveDataPanel')),
-    #window('TAS status', 'table',
-    #    panel('generic.GenericPanel',
-    #          uifile='custom/demo/gui/tasaxes.ui',
-    #          dir='../../../..')),
 ]
 
 tools = [

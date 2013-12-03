@@ -30,6 +30,7 @@ from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
      QCursor
 from PyQt4.QtCore import Qt, SIGNAL
 
+from nicos.utils import findResource
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
 from nicos.guisupport.display import ValueDisplay
@@ -210,7 +211,7 @@ class Monitor(BaseMonitor):
                 field['max'] = repr(field['max'])
 
             if 'gui' in field:
-                instance = uic.loadUi(field.pop('gui'))
+                instance = uic.loadUi(findResource(field.pop('gui')))
                 for child in instance.findChildren(NicosWidget):
                     _setup(child)
                 return instance

@@ -37,6 +37,7 @@ from nicos.utils import decodeAny
 from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow, TearOffTabWidget
+from nicos.utils import findResource
 
 
 class TableWidget(QTableWidget):
@@ -201,10 +202,12 @@ class SamplechangerSetupPanel(CustomButtonPanel):
             # insert above scrollArea
             self.vBoxLayout.insertWidget(0, l, alignment=Qt.AlignHCenter)
             p = QPixmap()
-            if p.load(image):
+            if p.load(findResource(image)):
                 l.setPixmap(p)
             else:
-                self.showError('Loading of Image %r failed:' % image)
+                msg = 'Loading of Image %r failed:' % image
+                msg += '\n\nCheck defconfig.py for %r' % __file__
+                self.showError(msg)
 
 
         self._numSamples = int(options.get('positions', 11))

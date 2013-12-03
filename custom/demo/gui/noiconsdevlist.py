@@ -62,10 +62,6 @@ config = ('Default', [
             panel('errors.ErrorPanel')),
         #window('Live data', 'live', True,
         #    panel('live.LiveDataPanel')),
-        #window('TAS status', 'table', True,
-        #    panel('generic.GenericPanel',
-        #          uifile='custom/demo/gui/tasaxes.ui',
-        #          dir='../../../..')),
     ], [
         tool('Calculator',
              'nicos.clients.gui.tools.calculator.CalculatorTool'),

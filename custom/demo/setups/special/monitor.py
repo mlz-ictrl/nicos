@@ -24,7 +24,7 @@ _expcolumn = Column(
 _axisblock = Block(
     'Axes',
     [
-     BlockRow(Field(gui='custom/demo/gui/tasaxes.ui')),
+     BlockRow(Field(gui='custom/demo/lib/gui/tasaxes.ui')),
 #     BlockRow('mth', 'mtt'),
 #     BlockRow('psi', 'phi'),
 #     BlockRow('ath', 'att'),
@@ -63,7 +63,7 @@ _tasblock = Block(
 
 _tempblock = Block(
     'Temperature',
-    [BlockRow(Field(gui='custom/demo/gui/cryo.ui'))],
+    [BlockRow(Field(gui='custom/demo/lib/gui/cryo.ui'))],
 #    [BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
 #     BlockRow(Field(dev='T', plot='T', interval=300, width=50),
 #              Field(key='t/setpoint', name='SetP', plot='T', interval=300))

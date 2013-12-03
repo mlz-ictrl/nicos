@@ -855,3 +855,31 @@ def decodeAny(string):
         # decoding latin9 never fails, since any byte is a valid
         # character there
         return string.decode('latin9')
+
+
+# helper to access a certain nicos file which is non-python
+
+custom_re = re.compile('^custom/([^/]+)/lib/')
+
+def findResource(filepath):
+    """Helper to find a certain nicos specific, but non-python file.
+
+    It prepends the "nicos root" if it is a relative path, and tries the
+    replace "custom/instr/lib" with "lib/nicos/instr" for installed
+    versions.
+    """
+    # may be extended to also find files specified like nicos.core.util
+    def myiter(filepath):
+        nicos_root = path.abspath(path.join(path.dirname(__file__),
+                                            '..', '..', '..'))
+        if path.isabs(filepath):
+            yield filepath
+            return
+        yield path.join(nicos_root, filepath)
+        if filepath.startswith('custom/'):
+            yield path.join(nicos_root, custom_re.sub('lib/nicos/\\1/', filepath))
+    for location in myiter(filepath):
+        if path.exists(location):
+            return location
+    # we have not found anything, sorry...
+    return ''

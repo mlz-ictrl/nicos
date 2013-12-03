@@ -207,7 +207,7 @@ _detvesselcolumn = Column(
 #~ _testblock = Block(
     #~ 'Test',
     #~ [
-     #~ BlockRow(Field(gui='/sans1control/lib/nicos/sans1/test.ui')),
+     #~ BlockRow(Field(gui='custom/sans1/lib/gui/test.ui')),
 #~ #     BlockRow('mth', 'mtt'),
 #~ #     BlockRow('psi', 'phi'),
 #~ #     BlockRow('ath', 'att'),

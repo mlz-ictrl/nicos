@@ -24,6 +24,7 @@
 
 """NICOS GUI panel for generic panels made with Qt designer."""
 
+from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.widget import NicosWidget
@@ -33,8 +34,7 @@ class GenericPanel(Panel):
     panelName = 'Generic'  # XXX this is not unique
 
     def setOptions(self, options):
-        # XXX standard dir?
-        loadUi(self, options['uifile'], options.get('dir', ''))
+        loadUi(self, findResource(options['uifile']))
 
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)

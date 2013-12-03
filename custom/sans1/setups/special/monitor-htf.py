@@ -31,7 +31,7 @@ Field = lambda *args, **kwds: args or kwds
 _testblock = Block(
     'HTF03',
     [
-     BlockRow(Field(gui='/sans1control/lib/nicos/sans1/gui/htf03.ui')),
+     BlockRow(Field(gui='custom/sans1/lib/gui/htf03.ui')),
     ],
 )
 
