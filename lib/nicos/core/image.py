@@ -260,6 +260,7 @@ class ImageProducer(DeviceMixinBase):
 
     def addInfo(self, dataset, category, valuelist):
         for imageinfo in self._imageinfos:
+            self.log.debug('addInfo(%r, %r)' % (category, valuelist))
             imageinfo.header[category] = valuelist
 
     def addHeader(self, category, valuelist):

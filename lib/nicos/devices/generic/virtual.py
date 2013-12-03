@@ -274,7 +274,7 @@ class Virtual2DDetector(ImageProducer, Measurable):
                             type=int),
     }
 
-    _imagetype = ImageType((128, 128), '<u4')
+    imagetype = ImageType((128, 128), '<u4')
     _buf = None
     _mythread = None
     _stopflag = False
