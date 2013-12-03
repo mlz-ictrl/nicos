@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2013 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-22 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -22,19 +22,24 @@
 #
 # *****************************************************************************
 
-"""Generic device classes using hardware-specific attached devices."""
+name = 'test_sequencer setup'
 
-from nicos.devices.generic.axis import Axis
-from nicos.devices.generic.detector import MultiChannelDetector, \
-     DetectorForecast
-from nicos.devices.generic.manual import ManualMove, ManualSwitch
-from nicos.devices.generic.alias import DeviceAlias, NoDevice
-from nicos.devices.generic.paramdev import ParamDevice
-from nicos.devices.generic.slit import Slit
-from nicos.devices.generic.switcher import Switcher, ReadonlySwitcher, \
-     MultiSwitcher
-from nicos.devices.generic.cache import CacheReader, CacheWriter
-from nicos.devices.generic.system import FreeSpace
-from nicos.devices.generic.virtual import VirtualMotor, VirtualCoder, \
-     VirtualTimer, VirtualCounter, VirtualTemperature
-from nicos.devices.generic.sequence import LockedDevice, BaseSequencer
+includes = ['stdsystem']
+
+devices = dict(
+    m1 = device('nicos.devices.generic.VirtualMotor',
+                 abslimits = (0,10),
+                 unit = 'V',
+                 ),
+    m2 = device('nicos.devices.generic.VirtualMotor',
+                 abslimits = (0,10),
+                 unit = '',
+                 ),
+    ld = device('nicos.devices.generic.sequence.LockedDevice',
+                 device = 'm1',
+                 lock = 'm2',
+                 lockvalue = 10,
+                 unlockvalue = 0,
+                 keepfixed = True,
+                 ),
+)

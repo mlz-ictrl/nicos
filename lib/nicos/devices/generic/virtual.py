@@ -48,6 +48,8 @@ class VirtualMotor(Motor, HasOffset):
         'curvalue':  Param('Current value', settable=True, unit='main'),
         'curstatus': Param('Current status', type=tupleof(int, str),
                            settable=True, default=(status.OK, 'idle')),
+        'ramp':      Param('Virtual speed of the device', settable=True,
+                           type=floatrange(0, 1e6), unit='main/min'),
     }
 
     _thread = None
@@ -118,6 +120,12 @@ class VirtualMotor(Motor, HasOffset):
             self._stop = False
             self.curstatus = (status.OK, 'idle')
             self._thread = None
+
+    def doReadRamp(self):
+        return self.speed * 60.
+
+    def doWriteRamp(self, value):
+        self.speed = value / 60.
 
 
 class VirtualCoder(Coder, HasOffset):
