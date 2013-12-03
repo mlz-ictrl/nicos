@@ -186,7 +186,7 @@ def test_06cacheReader():
     cc2.put(rd1, key, testval2)
     cc2.flush()
     # this needn't work immediately
-    sleep(0.1)
+    sleep(0.2)
     assert rd1.read() == testval2
     cc2.put(rd1, key, testval, ttl=0.1)
     cc2.flush()
