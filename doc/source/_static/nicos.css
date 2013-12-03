@@ -1,24 +1,30 @@
 @import url('default.css');
 
-th
-{
-	background-color:#edf1f3;
-	vertical-align:middle;
-	border: 1px solid #aaa !important;
+.big {
+    font-size: 130%;
+    border: 1px solid #ccc;
+    padding: 5px;
 }
 
-td
-{
-	border: 1px solid #aaa !important;
+.big em {
+    font-style: normal !important;
 }
 
-.row-odd
-{
-	background-color:#f9f8f7;
+th {
+    background-color: #edf1f3;
+    vertical-align: middle;
+    border: 1px solid #aaa !important;
 }
 
-dl.class, dl.function, dl.data 
-{ 
-	border-bottom: 1px solid #999; 
+td {
+    border: 1px solid #aaa !important;
+}
+
+.row-odd {
+    background-color: #f9f8f7;
+}
+
+dl.class, dl.function, dl.data {
+    border-bottom: 1px solid #999;
 }
 
