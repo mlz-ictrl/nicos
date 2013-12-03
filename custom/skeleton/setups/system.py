@@ -69,7 +69,7 @@ devices = dict(
                       dataroot = 'data',
                       sendmail = True,
                       serviceexp = '0',
-                      sample = 'Sample'
+                      sample = 'Sample',
                      ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
@@ -88,11 +88,12 @@ devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'nobody@frm2.tum.de',
                       copies = ['nobody@frm2.tum.de'],
-                      subject = 'NICOS'),
+                      subject = 'NICOS',
+                     ),
 
     # Configure SMS receivers if wanted and registered with IT.
     smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = [],
-                      ),
+                     ),
 )

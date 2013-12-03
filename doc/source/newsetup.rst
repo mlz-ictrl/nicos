@@ -7,11 +7,14 @@ Please suggest additions if needed!
 Preparations
 ------------
 
-* Clone the NICOS git repository.  Create an instrument branch with ``git
-  checkout -b instname`` to record local changes independent of master.
+* Clone the NICOS git repository.  Check out either ``master`` (if the
+  instrument should reflect the development version) or ``release-X.Y`` (if it
+  should be based on a released version).  Create a working branch with ``git
+  checkout -b work-X.Y`` to record local changes independent of the upstream
+  branch.
 
-* Install all pre-requisites.  If TACO is needed, make sure the Python client
-  libraries are installed.
+* Install all pre-requisites (see :ref:`requirements`).  If TACO is needed, make
+  sure the Python client libraries are installed.
 
 * Run ``make inplace`` and check if ``bin/nicos-demo`` works.  On X-less
   machines, use ``bin/nicos-demo -t``.  If something fails here, you might have
@@ -24,19 +27,20 @@ Setting up the new instrument customization
 
 * Copy the ``custom/skeleton`` directory to ``custom/instname``.
 
-* Adapt the ``custom/instname/make.conf`` file.  It has comments what could be
-  changed.
+* Adapt the ``custom/instname/make.conf`` file.  It has comments for values that
+  might need to be changed.
 
 * Adapt the basic setups for the daemons in ``custom/instname/setups/special``;
-  in particular, replace "localhost" by the instrument specific hostname.  See
-  :doc:`services/index` for more reference.
+  in particular, you probably want to replace "localhost" by the instrument
+  specific hostname.  See :doc:`services/index` for more reference.
 
 * Adapt the basic system setup in ``custom/instname/setups/system.py``.  Make
   sure the data root on the "Exp" object is set correctly.
 
-* Create more instrument setups as needed.
+* Create more setup files as needed, and do not hesitate to refer to other
+  instruments' setup files for that!
 
-* For instruments that use the 2-D live data display, see
+* For instruments that use the 2-D live data display ("livewidget"), see
   ``custom/toftof/make.conf`` as a template how to set up the Make rules.
 
 Building and installing
@@ -56,16 +60,18 @@ Building and installing
   ``/etc/init.d/nicos-system``, else you have to symlink it yourself.  Check if
   the init script works with ``/etc/init.d/nicos-system start``.
 
-* Commit code changes and push to gerrit (more likely, use ``git format-patch
-  origin/master`` and commit/push the patches on a machine where you have your
-  public key).  Instruct instrument people to always change the files in the
-  checkout and commit them.
+* Commit code changes and push to gerrit (or use ``git format-patch
+  origin/master`` or ``origin/release-X.Y`` and commit/push the patches on a
+  machine where you have your public key).  Instruct instrument people to always
+  change the files in the checkout and commit them.
 
 Adding setups and libraries
 ---------------------------
 
 * Setups can be created in ``custom/instname/setups`` and installed normally.
-  Modules go under ``custom/instname/lib``.
+  Modules go under ``custom/instname/lib``.  The script ``tools/check_setups``
+  is very helpful when writing new setups.  It can be called from the checkout,
+  and is also automatically run on ``make install``. 
 
 * To test setups and modules with the checkout instead of the installed copy,
   copy the ``nicos.conf`` file from the install dir to the checkout dir, and
@@ -84,4 +90,8 @@ GUI configuration
 * On machines that should run only the GUI, use ``make install-gui`` instead of
   ``make install``.
 
-* A custom ``defconfig.py`` can go under ``custom/instname/gui/defconfig.py``.
+* A custom ``defconfig.py`` can go under ``custom/instname/gui/defconfig.py``,
+  see :ref:`gui-defconfig`.
+
+* Custom Python modules (e.g. with Panels) should go under
+  ``custom/instname/lib/gui`` to be importable under ``nicos.instname.gui``.
