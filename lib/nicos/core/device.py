@@ -31,7 +31,7 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
-from nicos.core import SIMULATION, SLAVE
+from nicos.core import MASTER, SIMULATION, SLAVE
 from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel, \
      waitForStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
@@ -1437,15 +1437,21 @@ class HasLimits(DeviceMixinBase):
             offset = self.offset
         else:
             offset = 0
-        if self.userlimits[0] + offset < self.abslimits[0]:
-            self.log.warning('user minimum (%s) below absolute minimum (%s), '
-                             'please check and re-set limits' %
-                             (self.userlimits[0], self.abslimits[0]))
-        if self.userlimits[1] + offset > self.abslimits[1]:
-            self.log.warning('user maximum (%s) above absolute maximum (%s), '
-                             'please check and re-set limits' %
-                             (self.userlimits[1], self.abslimits[1]))
-        if session.mode == SIMULATION:
+        amin, amax = self.absmin - offset, self.absmax - offset
+        umin, umax = self.userlimits
+        if self._mode == MASTER:
+            # re-set user limits to be within absolute limits
+            restricted_limits = (max(umin, amin), min(umax, amax))
+            if restricted_limits != (umin, umax):
+                self.userlimits = restricted_limits
+        else:
+            if umin < amin:
+                self.log.warning('user minimum (%s) below absolute minimum (%s), '
+                                 'please check and re-set limits' % (umin, amin))
+            if umax > amax:
+                self.log.warning('user maximum (%s) above absolute maximum (%s), '
+                                 'please check and re-set limits' % (umax, amax))
+        if self._mode == SIMULATION:
             # special case: in simulation mode, doReadUserlimits is not called,
             # so the limits are not set from the absolute limits, and are always
             # (0, 0) except when set in the setup file
