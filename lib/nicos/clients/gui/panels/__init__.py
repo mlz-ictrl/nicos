@@ -27,7 +27,7 @@
 import time
 
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-    QColorDialog, QVBoxLayout, QDockWidget
+    QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
@@ -108,6 +108,19 @@ class AuxiliaryWindow(QMainWindow):
         for pnl in self.panels:
             pnl.setCustomStyle(self.user_font, color)
         self.user_color = color
+
+
+class PanelDialog(QDialog):
+    def __init__(self, parent, client, panelclass, title=None, options=None):
+        QDialog.__init__(self, parent)
+        self.mainwindow = parent.mainwindow
+        pnl = panelclass(self, client)
+        pnl.setOptions(options or {})
+        hbox = QHBoxLayout()
+        hbox.addWidget(pnl)
+        self.setLayout(hbox)
+        self.client = client
+        self.setWindowTitle(title or pnl.panelName)
 
 
 class Panel(QWidget, DlgUtils):

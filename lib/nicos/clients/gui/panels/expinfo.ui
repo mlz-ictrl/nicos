@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>464</width>
-    <height>154</height>
+    <height>351</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,6 +37,13 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="12" column="1">
+      <widget class="ValueLabel" name="valueLabel_5">
+       <property name="key" stdset="0">
+        <string>exp.remark</string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_4">
        <property name="sizePolicy">
@@ -76,7 +83,7 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="label_6">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -102,19 +109,6 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Remark:</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="ValueLabel" name="valueLabel">
        <property name="key" stdset="0">
@@ -136,6 +130,13 @@
        </property>
       </widget>
      </item>
+     <item row="7" column="1">
+      <widget class="ValueLabel" name="valueLabel_6">
+       <property name="key" stdset="0">
+        <string>sample.samplename</string>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="1">
       <widget class="ValueLabel" name="valueLabel_4">
        <property name="key" stdset="0">
@@ -143,17 +144,153 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="ValueLabel" name="valueLabel_5">
-       <property name="key" stdset="0">
-        <string>exp.remark</string>
+     <item row="9" column="2" rowspan="2">
+      <widget class="QPushButton" name="detenvBtn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QPushButton" name="sampleBtn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="3">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Detectors:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="3">
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Scan Env:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>Setups:</string>
        </property>
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="ValueLabel" name="valueLabel_6">
+      <widget class="ValueLabel" name="setupLabel"/>
+     </item>
+     <item row="8" column="0" colspan="3">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="ValueLabel" name="detLabel">
+       <property name="text">
+        <string>(exp.detlist)</string>
+       </property>
        <property name="key" stdset="0">
-        <string>sample.samplename</string>
+        <string>exp.detlist</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="ValueLabel" name="envLabel">
+       <property name="text">
+        <string>(exp.envlist)</string>
+       </property>
+       <property name="key" stdset="0">
+        <string>exp.envlist</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QPushButton" name="setupBtn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2" rowspan="2">
+      <widget class="QPushButton" name="proposalBtn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Remark:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="2">
+      <widget class="QPushButton" name="remarkBtn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="0" colspan="3">
+      <widget class="Line" name="line_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>

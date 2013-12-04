@@ -24,7 +24,12 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from nicos.clients.gui.panels import Panel
+from PyQt4.QtGui import QInputDialog
+from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL
+
+from nicos.clients.gui.panels import Panel, PanelDialog
+from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
+    DetEnvPanel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.widget import NicosWidget
 
@@ -37,6 +42,51 @@ class ExpInfoPanel(Panel):
         loadUi(self, 'expinfo.ui', 'panels')
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)
+        self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
+        self.connect(self.client, SIGNAL('initstatus'), self.on_client_initstatus)
+
+        self.detLabel.setFormatCallback(lambda value, strvalue: ', '.join(value))
+        self.envLabel.setFormatCallback(lambda value, strvalue: ', '.join(value))
 
     def hideTitle(self):
         self.titleLbl.setVisible(False)
+
+    def on_client_initstatus(self, initstatus):
+        self.setupLabel.setText(', '.join(initstatus['setups'][1]))
+
+    def on_client_setup(self, data):
+        self.setupLabel.setText(', '.join(data[1]))
+
+    @qtsig('')
+    def on_proposalBtn_clicked(self):
+        dlg = PanelDialog(self, self.client, ExpPanel)
+        dlg.exec_()
+
+    @qtsig('')
+    def on_setupBtn_clicked(self):
+        dlg = PanelDialog(self, self.client, SetupsPanel)
+        dlg.exec_()
+
+    @qtsig('')
+    def on_sampleBtn_clicked(self):
+        sample, ok = QInputDialog.getText(self, 'New sample',
+            'Please enter the sample name.')
+        if not ok or not sample:
+            return
+        sample = unicode(sample)
+        self.client.tell('queue', '', 'NewSample(%r)' % sample)
+
+    @qtsig('')
+    def on_detenvBtn_clicked(self):
+        dlg = PanelDialog(self, self.client, DetEnvPanel)
+        dlg.exec_()
+
+    @qtsig('')
+    def on_remarkBtn_clicked(self):
+        remark, ok = QInputDialog.getText(self, 'New remark',
+            'Please enter the remark.  The remark will be added to the logbook '
+            'as a heading and will also appear in the data files.')
+        if not ok or not remark:
+            return
+        remark = unicode(remark)
+        self.client.tell('queue', '', 'Remark(%r)' % remark)
