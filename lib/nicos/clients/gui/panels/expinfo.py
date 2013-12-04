@@ -27,6 +27,7 @@
 from PyQt4.QtGui import QInputDialog
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL
 
+from nicos.utils import importString
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
     DetEnvPanel
@@ -47,6 +48,11 @@ class ExpInfoPanel(Panel):
 
         self.detLabel.setFormatCallback(lambda value, strvalue: ', '.join(value))
         self.envLabel.setFormatCallback(lambda value, strvalue: ', '.join(value))
+
+        self._sample_panel = None
+
+    def setOptions(self, options):
+        self._sample_panel = options.get('sample_panel')
 
     def hideTitle(self):
         self.titleLbl.setVisible(False)
@@ -69,6 +75,12 @@ class ExpInfoPanel(Panel):
 
     @qtsig('')
     def on_sampleBtn_clicked(self):
+        if self._sample_panel:
+            pnlclass = importString(self._sample_panel,
+                                    ('nicos.clients.gui.panels.',))
+            dlg = PanelDialog(self, self.client, pnlclass)
+            dlg.exec_()
+            return
         sample, ok = QInputDialog.getText(self, 'New sample',
             'Please enter the sample name.')
         if not ok or not sample:
