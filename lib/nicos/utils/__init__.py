@@ -830,12 +830,12 @@ def allDays(fromtime, totime):
 
 def watchFileTime(filename, log, interval=1.0):
     """Watch a file until its mtime changes; then return."""
-    def get_mtime():
+    def get_mtime(getmtime=path.getmtime):
         # os.path.getmtime() can raise "stale NFS file handle", so we
         # guard against it
         while 1:
             try:
-                return path.getmtime(filename)
+                return getmtime(filename)
             except OSError, err:
                 log.error('got exception checking for mtime of %r: %s' %
                           (filename, err))
