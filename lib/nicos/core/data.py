@@ -118,8 +118,9 @@ class Dataset(object):
 
     def updateHeaderInfo(self, updatedict=None):
         bycategory = {}
-        headerinfo = {}
-        # XXX: if updatedict is given, only update those devices positions instead of reading all
+        headerinfo = self.headerinfo = {}
+        # XXX: if updatedict is given, only update those devices positions
+        # instead of reading all
         for _, device in sorted(session.devices.iteritems()):
             if device.lowlevel:
                 continue
