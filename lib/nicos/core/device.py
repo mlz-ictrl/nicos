@@ -501,6 +501,7 @@ class Device(object):
                 value = self._cache.get(self, param, Ellipsis)
                 if param == 'name': # clean up legacy, wrong values
                     self._cache.put(self, 'name', self._name)
+                    value = self._name
             if value is not Ellipsis:
                 if param in self._ownparams:
                     self._params[param] = value
