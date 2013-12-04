@@ -393,6 +393,7 @@ class ConnectionHandler(BaseRequestHandler):
         elif self.controller.status == STATUS_INBREAK:
             self.write(NAK, 'script is already paused')
         else:
+            session.log.info('Pause requested by %s' % self.user.name)
             self.controller.set_break(('break', level, self.user.name))
             if level >= 3:
                 session.should_pause_count = 'Paused by %s' % self.user.name
@@ -437,6 +438,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(ACK)
         elif self.controller.status == STATUS_RUNNING:
             self.log.info('script stop request while running')
+            session.log.info('Stop requested by %s' % self.user.name)
             self.controller.set_break(('stop', level, self.user.name))
             self.write(ACK)
         else:
