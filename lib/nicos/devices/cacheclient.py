@@ -289,7 +289,7 @@ class BaseCacheClient(Device):
         # end of while loop
         self._disconnect()
 
-    def _single_request(self, tosend, sentinel='\n', retry=2, sync=True):
+    def _single_request(self, tosend, sentinel='\n', retry=2, sync=False):
         """Communicate over the secondary socket."""
         if not self._socket:
             self._disconnect('single request: no socket')
@@ -640,7 +640,7 @@ class CacheClient(BaseCacheClient):
         tosend = '%s-%s@%s%s%s\n###?\n' % (fromtime, totime,
                                            self._prefix, key, OP_ASK)
         ret = []
-        for msgmatch in self._single_request(tosend, '###!\n'):
+        for msgmatch in self._single_request(tosend, '###!\n', sync=False):
             # process data
             time, value = msgmatch.group('time'), msgmatch.group('value')
             if time is None:
