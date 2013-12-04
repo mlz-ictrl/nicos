@@ -797,6 +797,10 @@ def formatExtendedStack(level=1):
 # file counter utilities
 
 def readFileCounter(counterpath):
+    """Read a "counter" file, a file with just an integer in it.
+
+    If the file does not exist, return 0; other exceptions are not handled.
+    """
     try:
         currentcounter = int(readFile(counterpath)[0])
     except IOError, err:
@@ -809,14 +813,14 @@ def readFileCounter(counterpath):
     return currentcounter
 
 def updateFileCounter(counterpath, value):
+    """Update a counter file."""
     if not path.isdir(path.dirname(counterpath)):
         os.makedirs(path.dirname(counterpath))
     writeFile(counterpath, [str(value)])
 
 
-# determine days of an interval between two timestamps
-
 def allDays(fromtime, totime):
+    """Determine days of an interval between two timestamps."""
     tmfr = int(mktime(localtime(fromtime)[:3] + (0, 0, 0, 0, 0, -1)))
     tmto = int(min(currenttime(), totime))
     for tmday in xrange(tmfr, tmto, 86400):
@@ -824,9 +828,8 @@ def allDays(fromtime, totime):
         yield str(lt[0]), '%02d-%02d' % lt[1:3]
 
 
-# watch a file until its mtime changes; then return
-
 def watchFileTime(filename, log, interval=1.0):
+    """Watch a file until its mtime changes; then return."""
     def get_mtime():
         # os.path.getmtime() can raise "stale NFS file handle", so we
         # guard against it
