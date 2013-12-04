@@ -42,12 +42,13 @@ __all__ = [
 ]
 
 
-def _wait_for_pause(delay):
+def _wait_for_continuation(delay):
     """Wait until the watchdog "pausecount" list is empty."""
     exp = session.experiment
     current_msg = session.should_pause_count or ''
     session.should_pause_count = None
-    session.log.warning('counting paused: ' + current_msg)
+    if current_msg:
+        session.log.warning('counting paused: ' + current_msg)
     # allow the daemon to pause here, if we were paused by it
     session.breakpoint(3)
     # but after continue still check for other conditions
@@ -78,8 +79,8 @@ def _count(detlist, preset, result, dataset=None):
         dataset = session.experiment.createDataset()
     session.experiment.advanceImageCounter(detset, dataset)
     session.beginActionScope('Counting')
-    if session.experiment.pausecount:
-        _wait_for_pause(delay)
+    if session.should_pause_count:
+        _wait_for_continuation(delay)
     starttime = currenttime()
     try:
         for det in detlist:
@@ -108,7 +109,7 @@ def _count(detlist, preset, result, dataset=None):
                     if not det.pause():
                         session.log.warning(
                             'detector %r could not be paused' % det)
-                _wait_for_pause(delay)
+                _wait_for_continuation(delay)
                 for det in detset:
                     det.resume()
             sleep(delay)

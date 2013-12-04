@@ -202,7 +202,7 @@ class Watchdog(BaseCacheClient):
                 del self._watch_grace[eid]
             if eid not in self._conditions:
                 return
-            if entry.priority > 0:
+            if entry.type:
                 del self._warnings[eid]
                 self._put_message('warnings', '\n'.join(self._warnings.values()),
                                   timestamp=False)
@@ -228,7 +228,7 @@ class Watchdog(BaseCacheClient):
                                   ', '.join(self._pausecount.values()),
                                   timestamp=False)
                 warning_desc += ' -- counting paused'
-            if entry.priority > 0:
+            if entry.type:
                 self._put_message('warning', entry.message)
                 for notifier in self._adevs[entry.type]:
                     notifier.send('New warning from NICOS', warning_desc)
