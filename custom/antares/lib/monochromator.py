@@ -94,7 +94,7 @@ class Monochromator(HasLimits, Moveable):
             self.log.debug('moving monochromator into beam')
 
         for d, v in zip(self.devices, ['in'] + list(self._from_lambda(target))):
-            self.log.debug('sending %r to %r' % (d.name, v))
+            self.log.debug('sending %s to %r' % (d.name, v))
             d.start(v)
 
     def doStatus(self, maxage=0):
@@ -121,14 +121,14 @@ class Monochromator(HasLimits, Moveable):
         compare_pos = self._from_lambda(lam)
         tol = [self.tolphi, self.tolphi, self.toltrans]
         for d, p, t, c in zip(self.devices[1:], pos[1:], tol, compare_pos):
-            self.log.debug('%r is at %r and should be at %r for %.4f Angstroms'
+            self.log.debug('%s is at %s and should be at %s for %.4f Angstroms'
                            % (d, d.format(p), d.format(c), lam))
             if abs(p-c) > t:
-                raise PositionError('%r is too far away for %.4f Angstroms' %
+                raise PositionError('%s is too far away for %.4f Angstroms' %
                                     (d, lam))
         return lam
 
     def doWait(self):
         for d in self.devices:
-            self.log.debug('Waiting for %r' % d.name)
+            self.log.debug('Waiting for %s' % d.name)
             d.wait()
