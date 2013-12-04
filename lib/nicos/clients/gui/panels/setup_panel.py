@@ -28,6 +28,7 @@ from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
 
 from nicos.utils import decodeAny
+from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils
 
@@ -337,3 +338,36 @@ class DetEnvPanel(Panel, DlgUtils):
 
         if done:
             self.showInfo('\n'.join(done))
+
+
+class TasSamplePanel(Panel, DlgUtils):
+    panelName = 'TAS sample setup'
+
+    def __init__(self, parent, client):
+        Panel.__init__(self, parent, client)
+        DlgUtils.__init__(self, 'Setup')
+        loadUi(self, 'setup_tassample.ui', 'panels')
+        for ch in self.findChildren(NicosWidget):
+            ch.setClient(self.client)
+
+    def on_buttonBox_clicked(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+            self.applyChanges()
+        else:
+            # Only the next interesting widget title isn't empty
+            parent = self.parentWidget()
+            while parent.windowTitle().simplified().isEmpty():
+                parent = parent.parentWidget()
+            parent.close()
+
+    def applyChanges(self):
+        new_vals = {}
+        code = ''
+        for edit in [self.samplenameEdit, self.latticeEdit, self.anglesEdit,
+                     self.orient1Edit, self.orient2Edit, self.psi0Edit,
+                     self.spacegroupEdit, self.mosaicEdit]:
+            new_vals[edit.param] = edit.getValue()
+            code += 'Sample.%s = %r\n' % (edit.param, edit.getValue())
+
+        self.client.tell('queue', '', code)
+        self.showInfo('Sample parameters changed.')

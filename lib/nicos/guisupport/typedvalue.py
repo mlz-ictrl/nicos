@@ -156,8 +156,12 @@ class DeviceParamEdit(DeviceValueEdit):
             pvals = self._client.getDeviceParams(devname)
             pinfo = self._client.getDeviceParamInfo(devname)
             mainunit = pvals.get('unit', 'main')
-            punit = (pinfo[parname]['unit'] or '').replace('main', mainunit)
-            valuetype = pinfo[parname]['type']
+            if parname not in pinfo:
+                punit = ''
+                valuetype = str
+            else:
+                punit = (pinfo[parname]['unit'] or '').replace('main', mainunit)
+                valuetype = pinfo[parname]['type']
             if curvalue is None:
                 curvalue = pvals.get(parname)
             if curvalue is None:
