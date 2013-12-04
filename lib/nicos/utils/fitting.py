@@ -137,11 +137,14 @@ class Fit(object):
                 xn.append(v)
                 yn.append(y[i])
                 dyn.append(dy[i])
+        if len(xn) < len(self.parnames):
+            # need at least as many valid data points as there are parameters
+            return self.result(name, None, x, y, dy, None, None)
         xn, yn, dyn = array(xn), array(yn), array(dyn)
         try:
             popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn)
             parerrors = sqrt(abs(diagonal(pcov)))
-        except (RuntimeError, ValueError):
+        except (RuntimeError, ValueError, TypeError):
             return self.result(name, None, xn, yn, dyn, None, None)
         return self.result(name, 'ODR', xn, yn, dyn, popt, parerrors)
 
