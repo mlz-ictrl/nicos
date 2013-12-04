@@ -90,6 +90,10 @@ class ValueLabel(NicosWidget, SqueezedLabel):
         NicosWidget.__init__(self)
         if designMode:
             self.setText('(value display)')
+        self._callback = lambda value, strvalue: decodeAny(strvalue)
+
+    def setFormatCallback(self, callback):
+        self._callback = callback
 
     properties = {
         'key': PropDef(str, '', 'Cache key to display'),
@@ -105,7 +109,7 @@ class ValueLabel(NicosWidget, SqueezedLabel):
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         if not expired:
-            self.setText(decodeAny(strvalue))
+            self.setText(self._callback(value, strvalue))
 
 
 class ValueDisplay(NicosWidget, QWidget):
