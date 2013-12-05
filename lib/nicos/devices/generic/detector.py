@@ -25,13 +25,15 @@
 
 """Generic 0-D channel detector classes for NICOS."""
 
-from nicos.core import Measurable, Readable, Param, Override, oneof, status
+from nicos.core import Measurable, Readable, Param, Override, oneof, status, \
+    ProgrammingError
 
 
 class Channel(Measurable):
     """Abstract base class for one channel of a counter card.
 
-    Use one of the concrete classes `TimerChannel` or `CounterChannel`.
+    Concrete implementations for TACO counter cards can be found in
+    `nicos.devices.taco.detector`.
     """
 
     parameters = {
@@ -45,7 +47,10 @@ class Channel(Measurable):
 
     # methods to be implemented in concrete subclasses
 
-    def doStart(self, **preset):
+    def doSetPreset(self, **preset):
+        raise ProgrammingError(self, 'Channel.setPreset should not be called')
+
+    def doStart(self):
         pass
 
     def doStop(self):
@@ -84,6 +89,8 @@ class MultiChannelDetector(Measurable):
             self._counters.append(mdev)
             self._presetkeys['mon%d' % (i+1)] = mdev
         for i, cdev in enumerate(self._adevs['counters']):
+            if i == 0:
+                self._presetkeys['n'] = cdev
             self._counters.append(cdev)
             self._presetkeys['det%d' % (i+1)] = \
                 self._presetkeys['ctr%d' % (i+1)] = cdev
