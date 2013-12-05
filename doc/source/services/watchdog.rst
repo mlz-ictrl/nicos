@@ -43,17 +43,16 @@ A simple setup file for the watchdog could look like this::
   watchlist = [
       dict(condition = 't_value > 300',
            message = 'Temperature too high (exceeds 300 K)',
-           priority = 2,
+           type = 'critical',
            gracetime = 10,
            action = 'maw(T, 290)'),
       dict(condition = 'tbefilter_value > 75',
            setup = 'befilter',
-           priority = 1,
            pausecount = True,
            message = 'Beryllium filter temperature too high',
            gracetime = 0),
       dict(condition = 'shutter_value == "closed"',
-           priority = 0,
+           type = '',
            pausecount = True,
            message = 'Instrument shutter is closed',
            gracetime = 0),
@@ -64,10 +63,13 @@ A simple setup file for the watchdog could look like this::
       mailer   = device('devices.notifiers.Mailer',
                         sender = 'root@demo'),
 
+      smser    = device('devices.notifiers.SMSer',
+                        receivers = [...]),
+
       Watchdog = device('services.watchdog.Watchdog',
                         cache = 'localhost:14869',
-                        notifiers_1 = [],
-                        notifiers_2 = ['mailer'],
+                        notifiers = {'default': ['mailer'],
+                                     'critical': ['mailer', 'smser']},
                         watch = watchlist,
                        ),
   )
@@ -106,17 +108,17 @@ specification can have these keys:
    condition.  It should be short enough to fit into SMS messages if you want to
    use SMS notifications.
 
-**priority**
-   The priority of the message.  There are three defined priorities:
+**type**
+   The type of the message, default is ``'default'``.
 
-   * priority 0 -- do not emit warnings or notifications.  This is only useful
-     when "pausecount" is set, see below.
-   * priority 1 -- emit a warnings and send notifications using the notifiers
-     specified in "notifiers_1".
-   * priority 2 -- emit a warnings and send notifications using the notifiers
-     specified in "notifiers_2".
+   The ``notifiers`` parameter of the Watchdog device is a dictionary that maps
+   type names to a list of notifiers to use for this type.  In the example
+   above, the type "default" sends an email, while the type "critical" also
+   sends an SMS.  Another use case would be to have two different mail notifiers
+   that send mail to different receivers.
 
-   The default priority is 1.
+   A type of ``''`` does not emit notifications.  This is only useful when
+   "pausecount" is set, see below.
 
    See :ref:`notifiers` for a list of classes that can be used as notifiers.
 
