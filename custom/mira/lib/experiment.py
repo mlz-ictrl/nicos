@@ -31,5 +31,5 @@ from nicos.frm2.experiment import Experiment
 class MiraExperiment(Experiment):
 
     parameter_overrides = {
-        'templatedir':   Override(default='template'),
+        'templates':   Override(default='template'),
     }
