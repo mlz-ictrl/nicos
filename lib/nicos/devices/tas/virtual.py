@@ -61,9 +61,7 @@ class VirtualTasDetector(Measurable):
     def doSetPreset(self, **preset):
         self._lastpreset = preset
 
-    def doStart(self, **preset):
-        if preset:
-            self._lastpreset = preset
+    def doStart(self):
         self._counting_started = currenttime()
 
     def doPause(self):

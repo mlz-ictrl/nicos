@@ -78,8 +78,7 @@ class Amplifier(Measurable, TacoDevice):
     def doSetPreset(self, **preset):
         self._delay = preset.get('delay', 0)
 
-    def doStart(self, **preset):
-        self._delay = preset.get('delay', 0)
+    def doStart(self):
         self._started = time()
 
     def doIsCompleted(self):

@@ -163,9 +163,6 @@ class THM(Measurable):
                Value('Bz', unit='uT', errors='next'), \
                Value('dBz', unit='uT', type='error')
 
-    def presetInfo(self):
-        return []
-
     def _average(self, nvalues, output):
         # format: #6nnnnnnbbbbbbbb...
         assert output.startswith('#6')
@@ -191,9 +188,13 @@ class THM(Measurable):
         return [mod, x, dx, y, dy, z, dz]
 
     def doSetPreset(self, **preset):
-        pass
+        if 'n' in preset:
+            self.measurements = preset['n']
 
-    def doStart(self, **preset):
+    def presetInfo(self):
+        return ('n',)
+
+    def doStart(self):
         pass
 
     def doStop(self):

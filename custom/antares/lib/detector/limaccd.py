@@ -115,9 +115,7 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         self._fileCounter = 0
         self._fastShutter = session.getDevice(self.fastshutter)
 
-    def doStart(self, **preset):
-        self.doSetPreset(**preset)
-
+    def doStart(self):
         self._tangoFuncGuard(self._dev.prepareAcq)
 
         # open the fast shutter automatically if the shutter mode is

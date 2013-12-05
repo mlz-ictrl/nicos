@@ -101,7 +101,16 @@ class TofTofMeasurement(Measurable, ImageProducer):
         self._devicelogs = {}
 
     def doSetPreset(self, **preset):
-        self._adevs['counter'].setPreset(**preset)
+        ctr = self._adevs['counter']
+        ctr.stop()
+        ctr.setPreset(**preset)
+        self._curtitle = preset.get('info', '')
+        if 'm' in preset:
+            self._last_mode = 'monitor'
+            self._last_preset = preset['m']
+        else:
+            self._last_mode = 'time'
+            self._last_preset = preset['t']
 
     def doReadTimechannels(self):
         return self._adevs['counter'].timechannels
@@ -109,11 +118,9 @@ class TofTofMeasurement(Measurable, ImageProducer):
     def doWriteTimechannels(self, value):
         self._adevs['counter'].timechannels = value
 
-    def doStart(self, **preset):
+    def doStart(self):
         ctr = self._adevs['counter']
         ctr.stop()
-        self.doSetPreset(**preset)
-        self._curtitle = preset.get('info', '')
 
         try:
             rc = session.getDevice('rc')
@@ -180,13 +187,6 @@ class TofTofMeasurement(Measurable, ImageProducer):
         ctr.timechannels = ctr.timechannels
         ctr.monitorchannel = ctr.monitorchannel
 
-        if 'm' in preset:
-            self._last_mode = 'monitor'
-            self._last_preset = preset['m']
-        else:
-            self._last_mode = 'time'
-            self._last_preset = preset['t']
-
         self.log.debug('collecting status information')
         self._startheader = self._startHeader(interval, chdelay)
         # update interval: about every 30 seconds for 1024 time channels
@@ -206,7 +206,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
         self._measuring = True
         self._starttime = currenttime()
         self._lasttime = 0
-        ctr.start(**preset)
+        ctr.start()
 
     def _startHeader(self, interval, chdelay):
         ctr = self._adevs['counter']

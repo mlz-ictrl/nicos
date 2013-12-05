@@ -1631,7 +1631,7 @@ class Measurable(Readable):
 
     * doRead()
     * doSetPreset(**preset)
-    * doStart(**preset)
+    * doStart()
     * doStop()
     * doIsCompleted()
 
@@ -1663,11 +1663,12 @@ class Measurable(Readable):
     @usermethod
     def start(self, **preset):
         """Start measurement, with either the given preset or the standard
-        preset.
+        preset.  If a preset is given, `doSetPreset` is called with that preset
+        first.
 
         This operation is forbidden in slave mode.
 
-        .. method:: doStart(**preset)
+        .. method:: doStart()
 
            This method must be present and is called to start the measurement.
         """
@@ -1684,7 +1685,9 @@ class Measurable(Readable):
             session.clock.tick(time)
             self._sim_preset = preset
             return
-        self.doStart(**preset)
+        if preset:
+            self.doSetPreset(**preset)
+        self.doStart()
 
     def __call__(self, pos=None):  # pylint: disable=W0221
         """Allow dev(), but not dev(pos)."""

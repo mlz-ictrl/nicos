@@ -103,6 +103,7 @@ class MultiChannelDetector(Measurable):
                 self._slaves.append(counter)
 
     def doSetPreset(self, **preset):
+        self.doStop()
         for master in self._masters:
             master.ismaster = False
             master.mode = 'normal'
@@ -114,10 +115,8 @@ class MultiChannelDetector(Measurable):
                 dev.preselection = preset[name]
         self._getMasters()
 
-    def doStart(self, **preset):
+    def doStart(self):
         self.doStop()
-        if preset:
-            self.doSetPreset(**preset)
         for slave in self._slaves:
             slave.start()
         for master in self._masters:

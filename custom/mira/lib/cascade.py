@@ -249,16 +249,15 @@ class CascadeDetector(ImageProducer, Measurable):
             return status.BUSY, 'counting'
 
     def doSetPreset(self, **preset):
-        if preset.get('t'):
-            self.preselection = self._last_preset = preset['t']
-
-    def doStart(self, **preset):
         if self.slave:
             self.preselection = 1000000  # master controls preset
             if preset.get('t'):
                 self._last_preset = preset['t']
+            self._adevs['master'].setPreset(**preset)
         elif preset.get('t'):
             self.preselection = self._last_preset = preset['t']
+
+    def doStart(self):
         self.lastcounts = [0, 0]
         self.lastcontrast = [0., 0., 0., 0.]
 
@@ -273,7 +272,7 @@ class CascadeDetector(ImageProducer, Measurable):
         if reply != 'OKAY':
             self._raise_reply('could not start measurement', reply)
         if self.slave:
-            self._adevs['master'].start(**preset)
+            self._adevs['master'].start()
         self._started = currenttime()
         self._lastlivetime = 0
 

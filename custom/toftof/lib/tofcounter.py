@@ -89,6 +89,7 @@ class TofCounter(TacoDevice, Measurable):
         TacoDevice.doShutdown(self)
 
     def doSetPreset(self, **preset):
+        self.doStop()
         if 't' in preset:
             self._taco_guard(self._monitor.enableMaster, 0)
             self._taco_guard(self._timer.enableMaster, 1)
@@ -98,14 +99,13 @@ class TofCounter(TacoDevice, Measurable):
             self._taco_guard(self._timer.enableMaster, 0)
             self._taco_guard(self._monitor.setPreselection, int(preset['m']))
 
-    def doStart(self, **preset):
+    def doStart(self):
+        self.doStop()
         # the deviceOn command on the server resets the delay time
         # store the value
         tmp = self.doReadDelay()
-        self.doStop()
         # and reset the value back
         self.doWriteDelay(tmp)
-        self.doSetPreset(**preset)
         self._taco_guard(self._dev.start)
         self._taco_guard(self._timer.start)
         self._taco_guard(self._monitor.start)

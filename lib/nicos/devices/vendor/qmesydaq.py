@@ -166,6 +166,7 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
                 self._master = counter
 
     def doSetPreset(self, **preset):
+        self.doStop()
         self.log.debug('setting preset info %r' % preset)
         if self._master:
             self._master.ismaster = False
@@ -190,11 +191,9 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
     #
     # Measurable/TacoDevice interface
     #
-    def doStart(self, **preset):
+    def doStart(self):
         self.doStop()
         self._getMaster()
-        if preset:
-            self.doSetPreset(**preset)
         self.log.debug('starting subdevices')
         for dev in self._counters:
             if dev != self._master:

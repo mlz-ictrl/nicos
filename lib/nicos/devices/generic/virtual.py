@@ -289,9 +289,7 @@ class Virtual2DDetector(ImageProducer, Measurable):
     def doSetPreset(self, **preset):
         self._lastpreset = preset
 
-    def doStart(self, **preset):
-        if preset:
-            self._lastpreset = preset
+    def doStart(self):
         t = self._lastpreset.get('t', 1)
         if self._mythread:
             self._stopflag = True
