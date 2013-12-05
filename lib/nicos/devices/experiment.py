@@ -553,6 +553,14 @@ class Experiment(Device):
     #
     # Experiment handling: New&Finish
     #
+
+    @property
+    def mustFinish(self):
+        """Return True if the current experiment must be finished before
+        starting a new one.
+        """
+        return self.serviceexp and self.proptype == 'user'
+
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         """Called by `.NewExperiment`."""
@@ -571,7 +579,7 @@ class Experiment(Device):
         self.log.debug('new proposal type is %s' % proptype)
 
         # check if we should finish the experiment first
-        if self.serviceexp and proptype == self.proptype == 'user':
+        if proptype == 'user' and self.mustFinish:
             self.log.error('cannot switch directly to new user experiment, '
                            'please use "FinishExperiment" first')
             return

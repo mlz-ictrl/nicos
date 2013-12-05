@@ -117,6 +117,7 @@ class PanelDialog(QDialog):
         pnl = panelclass(self, client)
         pnl.setOptions(options or {})
         hbox = QHBoxLayout()
+        hbox.setContentsMargins(0, 0, 0, 0)
         hbox.addWidget(pnl)
         self.setLayout(hbox)
         self.client = client

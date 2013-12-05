@@ -25,7 +25,7 @@
 """NICOS GUI experiment setup window."""
 
 from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem
-from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
 
 from nicos.utils import decodeAny
 from nicos.clients.gui.panels import Panel
@@ -71,6 +71,14 @@ class ExpPanel(Panel, DlgUtils):
     def on_client_connected(self):
         # fill proposal
         self._update_proposal_info()
+        # check for new or finish
+        if self.client.eval('session.experiment.mustFinish', False):
+            self.finishBox.setVisible(True)
+            self.newBox.setVisible(False)
+        else:
+            self.finishBox.setVisible(False)
+            self.newBox.setVisible(True)
+            self.proposalNum.setText('')  # do not offer "service"
         # check for capability to ask proposal database
         if self.client.eval('getattr(session.experiment, "propdb", "")', None):
             self.propdbInfo.setVisible(True)
@@ -78,10 +86,12 @@ class ExpPanel(Panel, DlgUtils):
         else:
             self.queryDBButton.setVisible(False)
 
-    def on_queryDBButton_clicked(self, dosomething = True):
-        if not dosomething:
-            return
+    @qtsig('')
+    def on_finishButton_clicked(self):
+        self.client.tell('start', '', 'FinishExperiment()')
 
+    @qtsig('')
+    def on_queryDBButton_clicked(self):
         prop = str(self.proposalNum.text())
         title = unicode(self.expTitle.text()).encode('utf-8')
         users = unicode(self.users.text()).encode('utf-8')
