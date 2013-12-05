@@ -136,23 +136,23 @@ class ConsoleBox(QPlainTextEdit):
         command = self.getCommand()
         self.addToHistory(command)
 
-        command = self.getConstruct(command)
-
-        if command:
-            tmp_stdout = sys.stdout
-            sys.stdout = self.stdout
-            try:
-                exec command in self.namespace
-            except SystemExit:
-                self.emit(SIGNAL('close'))
-            except:
-                traceback_lines = traceback.format_exc().split('\n')
-                # Remove traceback mentioning this file, and a linebreak
-                for i in (2, 1, -1):
-                    traceback_lines.pop(i)
-                self.appendPlainText('\n'.join(traceback_lines))
-            finally:
-                sys.stdout = tmp_stdout
+        tmp_stdout = sys.stdout
+        sys.stdout = self.stdout
+        try:
+            command = self.getConstruct(command)
+            if not command:
+                return
+            exec command in self.namespace
+        except SystemExit:
+            self.emit(SIGNAL('close'))
+        except:
+            traceback_lines = traceback.format_exc().split('\n')
+            # Remove traceback mentioning this file, and a linebreak
+            for i in (2, 1, -1):
+                traceback_lines.pop(i)
+            self.appendPlainText('\n'.join(traceback_lines))
+        finally:
+            sys.stdout = tmp_stdout
         self.newPrompt()
 
     def keyPressEvent(self, event):
