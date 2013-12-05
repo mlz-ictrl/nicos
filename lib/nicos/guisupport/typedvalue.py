@@ -29,8 +29,8 @@ The supported types are defined in `nicos.core.params`.
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
-    QCheckBox, QWidget, QComboBox, QHBoxLayout, QLabel, QPushButton, \
-    QSpinBox, QSizePolicy
+    QCheckBox, QWidget, QComboBox, QHBoxLayout, QVBoxLayout, QLabel, \
+    QPushButton, QSpinBox, QScrollArea, QFrame, QSizePolicy, QIcon
 
 from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
@@ -223,8 +223,14 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return EditWidget(parent, str, curvalue)
     elif typ == anytype:
         return ExprWidget(parent, curvalue)
+    elif isinstance(typ, params.listof):
+        return ListOfWidget(parent, typ.conv, curvalue, client)
+    elif isinstance(typ, params.nonemptylistof):
+        return ListOfWidget(parent, typ.conv, curvalue, client, nmin=1)
+    elif isinstance(typ, params.dictof):
+        return DictOfWidget(parent, typ.keyconv, typ.valconv, curvalue,
+                            client)
     return MissingWidget(parent, curvalue)
-    # XXX missing: listof, nonemptylistof, dictof
 
 
 class AnnotatedWidget(QWidget):
@@ -412,3 +418,137 @@ class DeviceComboWidget(QComboBox):
 
     def getValue(self):
         return self.currentText()
+
+class ItemsWidget(QScrollArea):
+
+    allow_reorder = True
+
+    def __init__(self, parent, nmin):
+        QScrollArea.__init__(self, parent)
+        self.setWidgetResizable(True)
+        self.frame = QFrame(self)
+        self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(2, 2, 2, 2)
+        self.addBtn = QPushButton(QIcon(':/add'), '', self.frame)
+        self.addBtn.clicked.connect(self.on_addBtn_clicked)
+        self.addBtn.setSizePolicy(
+            QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred))
+        self.layout.addWidget(self.addBtn)
+        self.layout.addStretch()
+        self.frame.setLayout(self.layout)
+        self.setWidget(self.frame)
+        self.items = []
+        self.nmin = nmin
+
+    def insertItem(self, *widgets):
+        item = QWidget(self.frame)
+        item._widgets = widgets
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        for widget in widgets:
+            layout.addWidget(widget)
+        if self.allow_reorder:
+            btn = QPushButton(QIcon(':/up'), '', item)
+            btn._item = item
+            btn.clicked.connect(self.on_upBtn_clicked)
+            layout.addWidget(btn)
+            btn = QPushButton(QIcon(':/down'), '', item)
+            btn._item = item
+            btn.clicked.connect(self.on_downBtn_clicked)
+            layout.addWidget(btn)
+        btn = QPushButton(QIcon(':/remove'), '', item)
+        btn._item = item
+        btn.clicked.connect(self.on_removeBtn_clicked)
+        layout.addWidget(btn)
+        item.setLayout(layout)
+        self.layout.insertWidget(self.layout.count()-2, item)
+        self.items.append(item)
+
+    def on_addBtn_clicked(self):
+        self.insertItem(*self.createItem())
+        self.emit(SIGNAL('dataChanged'))
+
+    def on_removeBtn_clicked(self):
+        if len(self.items) <= self.nmin:
+            return
+        item = self.sender()._item
+        index = self.items.index(item)
+        del self.items[index]
+        self.layout.takeAt(index).widget().deleteLater()
+        self.emit(SIGNAL('dataChanged'))
+
+    def on_upBtn_clicked(self):
+        item = self.sender()._item
+        index = self.items.index(item)
+        if index <= 0:
+            return
+        self._swapItems(index - 1)
+
+    def on_downBtn_clicked(self):
+        item = self.sender()._item
+        index = self.items.index(item)
+        if index >= len(self.items) - 1:
+            return
+        self._swapItems(index)
+
+    def _swapItems(self, firstindex):
+        item1 = self.items[firstindex]
+        item2 = self.items[firstindex+1]
+        self.layout.takeAt(firstindex)
+        self.layout.takeAt(firstindex)  # moved up one
+        self.items[firstindex:firstindex+2] = [item2, item1]
+        self.layout.insertWidget(firstindex, item2)
+        self.layout.insertWidget(firstindex+1, item1)
+        self.emit(SIGNAL('dataChanged'))
+
+class ListOfWidget(ItemsWidget):
+
+    def __init__(self, parent, inner, curvalue, client, nmin=0):
+        ItemsWidget.__init__(self, parent, nmin)
+        self.inner = inner
+        self.client = client
+
+        for item in curvalue:
+            self.insertItem(*self.createItem(item))
+
+    def createItem(self, value=None):
+        if value is None:
+            value = self.inner()
+        widget = create(self, self.inner, value, client=self.client)
+        self.connect(widget, SIGNAL('dataChanged'),
+                     lambda: self.emit(SIGNAL('dataChanged')))
+        return (widget,)
+
+    def getValue(self):
+        return [w._widgets[0].getValue() for w in self.items]
+
+class DictOfWidget(ItemsWidget):
+
+    allow_reorder = False
+
+    def __init__(self, parent, keytype, valtype, curvalue, client, nmin=0):
+        ItemsWidget.__init__(self, parent, nmin)
+        self.keytype = keytype
+        self.valtype = valtype
+        self.client = client
+
+        for keyval in curvalue.iteritems():
+            self.insertItem(*self.createItem(keyval))
+
+    def createItem(self, keyval=None):
+        if keyval is None:
+            key = self.keytype()
+            val = self.valtype()
+        else:
+            key, val = keyval
+        keywidget = create(self, self.keytype, key, client=self.client)
+        self.connect(keywidget, SIGNAL('dataChanged'),
+                     lambda: self.emit(SIGNAL('dataChanged')))
+        valwidget = create(self, self.valtype, val, client=self.client)
+        self.connect(valwidget, SIGNAL('dataChanged'),
+                     lambda: self.emit(SIGNAL('dataChanged')))
+        return (keywidget, QLabel('=>', self), valwidget)
+
+    def getValue(self):
+        return dict((w._widgets[0].getValue(),
+                     w._widgets[2].getValue()) for w in self.items)

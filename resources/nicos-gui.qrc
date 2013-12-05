@@ -1,5 +1,7 @@
 <RCC>
   <qresource>
+    <file alias="up">icons/go-up.png</file>
+    <file alias="down">icons/go-down.png</file>
     <file>nicos-logo-mlz.png</file>
     <file alias="finish">icons/media-playback-stop-grey.png</file>
     <file alias="pausecount">icons/media-playback-pause-red.png</file>
