@@ -558,10 +558,12 @@ class Experiment(Device):
         """Called by `.NewExperiment`."""
         if self._mode == SIMULATION:
             raise UsageError('Simulating switching experiments is not supported!')
-        # determine real proposal number: some instruments assign a prefix to
-        # numeric proposals
-        if isinstance(proposal, (int, long)):
-            proposal = '%s%d' % (self.propprefix, proposal)
+        try:
+            # if proposal can be converted to a number, use the canonical form
+            # and prepend prefix
+            proposal = '%s%d' % (self.propprefix, int(proposal))
+        except ValueError:
+            pass
         self.log.debug('new proposal real name is %s' % proposal)
 
         # check proposal type (can raise)
