@@ -30,7 +30,7 @@ try:
     from omniORB import CORBA
     import CosNaming
 
-    import CARESS # pylint: disable=F0401,E0611
+    import CARESS # pylint: disable=F0401,E0611,W0403
 
     sys.modules['CARESS'] = sys.modules['nicos.delab.CARESS']
     import omniORB
@@ -41,7 +41,7 @@ except ImportError:
 from nicos.core import Param, Override, Value, status, oneof, SIMULATION
 from nicos.devices.generic.detector import Channel as BaseChannel
 from nicos.core.errors import CommunicationError, ConfigurationError, \
-    NicosError, UsageError, ProgrammingError
+    NicosError, ProgrammingError
 from nicos.utils import readFileCounter, updateFileCounter
 from nicos.pycompat import integer_types
 
@@ -177,23 +177,11 @@ class Channel(BaseChannel):
             if result != CARESS.OK:
                 raise NicosError(self, 'Could not release device')
 
-    def doSetPreset(self, **preset):
-        self.log.debug('preset is : %r' % preset)
-        if 'n' in preset:
-            self._presetValue = preset['n']
-        elif 't' in preset:
-            self._presetValue = preset['t']
-        else:
-            raise UsageError('preset must be "n" or "t"')
-
-    def doStart(self, **preset):
+    def doStart(self):
         self._reset()
-        self.log.debug('preset is : %r' % preset)
 
         if not self.ismaster:
             return
-        if preset:
-            self.doSetPreset(**preset)
 
         if isinstance(self.preselection, (float, )):
             value = CARESS.Value(l=int(self.preselection))
@@ -288,20 +276,11 @@ class Timer(Channel):
         self._initObject(TIMER_ID)
         self._init('timer')
 
-    def doSetPreset(self, **preset):
-        if 't' in preset:
-            self._presetValue = preset['t']
-        else:
-            raise UsageError('preset must be "t"')
-
     def valueInfo(self):
         return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
 
     def doReadUnit(self):
         return 's'
-
-    def presetInfo(self):
-        return ('t')
 
 
 class Counter(Channel):
@@ -332,18 +311,9 @@ class Counter(Channel):
         if result != (CARESS.OK, LOADED):
             raise ConfigurationError(self, 'Could not load block module')
 
-    def doSetPreset(self, **preset):
-        if 'n' in preset:
-            self._presetValue = preset['n']
-        else:
-            raise UsageError('preset must be "n"')
-
     def valueInfo(self):
         return Value(self.name, unit='cts', errors='sqrt', type='counter',
                      fmtstr='%d'),
 
     def doReadUnit(self):
         return 'cts'
-
-    def presetInfo(self):
-        return ('n')
