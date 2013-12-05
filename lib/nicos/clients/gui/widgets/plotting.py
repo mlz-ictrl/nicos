@@ -26,7 +26,6 @@
 """NICOS GUI plotting helpers."""
 
 import os
-import time
 import tempfile
 
 from numpy import asarray
@@ -38,14 +37,9 @@ from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
     QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
     QwtText, QwtLegend, QwtPlotMarker, QwtPlotPanner, QwtLinearScaleEngine
 
-try:
-    from PyQt4.Qwt5.grace import GraceProcess
-except ImportError:
-    GraceProcess = None
-
 from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.fitutils import has_odr, FitError
-from nicos.pycompat import string_types, xrange as range  # pylint: disable=W0622
+from nicos.pycompat import string_types
 
 from nicos.guisupport.plots import ActivePlotPicker, TimeScaleEngine, \
     TimeScaleDraw
@@ -371,6 +365,9 @@ class NicosPlot(QwtPlot, DlgUtils):
                   Qt.magenta, Qt.cyan, Qt.darkGray]
     numcolors = len(curvecolor)
 
+    def isLegendEnabled(self):
+        return self.legend() is not None
+
     def setLegend(self, on):
         if on:
             legend = QwtLegend(self)
@@ -405,6 +402,10 @@ class NicosPlot(QwtPlot, DlgUtils):
                 else:
                     newtext.setColor(Qt.darkGray)
                 legenditem.setText(newtext)
+
+    def isLogScaling(self, idx=0):
+        return isinstance(self.axisScaleEngine(QwtPlot.yLeft),
+                          QwtLog10ScaleEngine)
 
     def setLogScale(self, on):
         self.setAxisScaleEngine(QwtPlot.yLeft,
@@ -603,106 +604,3 @@ class NicosPlot(QwtPlot, DlgUtils):
                                               paramname)
         else:
             self._finishFit()
-
-
-def cloneToGrace(plot, saveall="", pause=0.2):
-    """Clone the plot into Grace for very high quality hard copy output.
-
-    Know bug: Grace does not scale the data correctly when Grace cannot
-    cannot keep up with gracePlot.  This happens when it takes too long
-    to load Grace in memory (exit the Grace process and try again) or
-    when 'pause' is too short.
-
-    Cloned from the Qwt5.qplt module and applied some fixes.
-    """
-    g = GraceProcess(debug=0)
-    g('title "%s"' % plot.title().text().replace('"', '\\"'))
-    #g('subtitle "%s"' % self.last_plotinfo['subtitle'].replace('"', '\\"'))
-    index = 0
-    for xAxis, yAxis, graph, xPlace, yPlace in (
-        (QwtPlot.xBottom, QwtPlot.yLeft, 'g0', 'normal', 'normal'),
-        (QwtPlot.xBottom, QwtPlot.yRight, 'g1', 'normal', 'opposite'),
-        (QwtPlot.xTop, QwtPlot.yLeft, 'g2', 'opposite', 'normal'),
-        (QwtPlot.xTop, QwtPlot.yRight, 'g3', 'opposite', 'opposite')
-        ):
-        if not (plot.axisEnabled(xAxis) and plot.axisEnabled(yAxis)):
-            continue
-        g('%s on; with %s' % (graph, graph))
-
-        # x-axes
-        xmin = plot.axisScaleDiv(xAxis).lowerBound()
-        xmax = plot.axisScaleDiv(xAxis).upperBound()
-        #majStep = minStep = axisScale.majStep()
-        #majStep *= 2
-        g('world xmin %g; world xmax %g' % (xmin, xmax))
-        g('xaxis label "%s"; xaxis label char size 1.5'
-          % plot.axisTitle(xAxis).text())
-        g('xaxis label place %s' % xPlace)
-        g('xaxis tick place %s' % xPlace)
-        g('xaxis ticklabel place %s' % xPlace)
-        time.sleep(pause)
-        if isinstance(plot.axisScaleEngine(xAxis), QwtLog10ScaleEngine):
-            g('xaxes scale Logarithmic')
-            g('xaxis tick major 10')
-            g('xaxis tick minor ticks 9')
-        else:
-            g('xaxes scale Normal')
-            #g('xaxis tick major %12.6f; xaxis tick minor %12.6f'
-            #  % (majStep, minStep))
-
-        # y-axes
-        ymin = plot.axisScaleDiv(yAxis).lowerBound()
-        ymax = plot.axisScaleDiv(yAxis).upperBound()
-        #majStep = minStep = axisScale.majStep()
-        #majStep *= 2
-        g('world ymin %g; world ymax %g' % (ymin, ymax))
-        g('yaxis label "%s"; yaxis label char size 1.5' %
-          plot.axisTitle(yAxis).text())
-        g('yaxis label place %s' % yPlace)
-        g('yaxis tick place %s' % yPlace)
-        g('yaxis ticklabel place %s' % yPlace)
-        time.sleep(pause)
-        if isinstance(plot.axisScaleEngine(yAxis), QwtLog10ScaleEngine):
-            g('yaxes scale Logarithmic')
-            g('yaxis tick major 10')
-            g('yaxis tick minor ticks 9')
-        else:
-            g('yaxes scale Normal')
-            #g('yaxis tick major %12.6f; yaxis tick minor %12.6f' %
-            #  (majStep, minStep))
-
-        # curves
-        for curve in plot.itemList():
-            if not isinstance(curve, QwtPlotCurve):
-                continue
-            if not curve.isVisible():
-                continue
-            if not (xAxis == curve.xAxis() and yAxis == curve.yAxis()):
-                continue
-            g('s%s legend "%s"' % (index, curve.title().text()))
-            if curve._dy is not None:
-                g('s%s type xydy' % index)
-            if curve.symbol().style() > QwtSymbol.NoSymbol:
-                g('s%s symbol 1;'
-                  's%s symbol size 0.4;'
-                  's%s symbol fill pattern 1'
-                  % (index, index, index))
-            if curve.style():
-                g('s%s line linestyle 1' % index)
-            else:
-                g('s%s line linestyle 0' % index)
-            for i in range(curve.dataSize()):
-                g('%s.s%s point %g, %g' %
-                  (graph, index, curve._x[i], curve._y[i]))
-                if curve._dy is not None:
-                    g('%s.s%s.y1[%s] = %g' %
-                      (graph, index, i, curve._dy[i]))
-            index += 1
-
-    # finalize
-    g('redraw')
-    if saveall:
-        time.sleep(pause)
-        g('saveall "%s"' % saveall)
-        time.sleep(pause)
-        g.kill()

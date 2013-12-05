@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -26,22 +27,27 @@
 
 import os
 import sys
-from time import time as currenttime, localtime, mktime, strftime
+from time import time as currenttime, localtime, mktime
 
-from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
-from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
-    QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, \
-    QFileDialog, QLabel, QComboBox, QMessageBox
-from PyQt4.QtCore import QObject, QTimer, QDateTime, QByteArray, Qt, SIGNAL
+sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
+
+from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, \
+    QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
+from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
+try:
+    from nicos.clients.gui.widgets.grplotting import ViewPlot
+    _gr_available = True
+except ImportError as e:
+    from nicos.clients.gui.widgets.qwtplotting import ViewPlot
+    _gr_available = False
+    _import_error = e
 
 from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
-from nicos.clients.gui.fitutils import fit_linear
-from nicos.clients.gui.widgets.plotting import NicosPlot
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
 from nicos.pycompat import cPickle as pickle, iteritems, string_types
@@ -76,8 +82,8 @@ class View(QObject):
                 ltime = 0
                 lvalue = None
                 interval = self.interval
-                maxdelta = max(2*interval, 11)
-                x, y = np.zeros(2*len(history)), np.zeros(2*len(history))
+                maxdelta = max(2 * interval, 11)
+                x, y = np.zeros(2 * len(history)), np.zeros(2 * len(history))
                 i = 0
                 for vtime, value in history:
                     if value is None:
@@ -98,8 +104,8 @@ class View(QObject):
                     x[i] = ltime = max(vtime, fromtime)
                     y[i] = lvalue = value
                     i += 1
-                x.resize((2*i or 100,))
-                y.resize((2*i or 100,))
+                x.resize((2 * i or 100,))
+                y.resize((2 * i or 100,))
                 # keydata is a list of five items: x value array, y value array,
                 # index of last value, index of last "real" value (not counting
                 # synthesized points from the timer, see below), last received
@@ -117,7 +123,7 @@ class View(QObject):
         if self.totime is None:
             # add another point with the same value every interval time (but not
             # more often than 11 seconds)
-            self.timer = QTimer(self, interval=max(interval, 11)*1000)
+            self.timer = QTimer(self, interval=max(interval, 11) * 1000)
             self.timer.timeout.connect(self.on_timer_timeout)
             self.timer.start()
 
@@ -143,10 +149,10 @@ class View(QObject):
                 # don't add more points, make existing ones more sparse
                 kd[0][:n/2] = kd[0][1::2]
                 kd[1][:n/2] = kd[1][1::2]
-                n = kd[2] = kd[3] = n/2
+                n = kd[2] = kd[3] = n / 2
             else:
-                kd[0].resize((2*kd[0].shape[0],))
-                kd[1].resize((2*kd[1].shape[0],))
+                kd[0].resize((2 * kd[0].shape[0],))
+                kd[1].resize((2 * kd[1].shape[0],))
         # fill next entry
         if not real and real_n < n:
             # do not generate endless amounts of synthesized points, one
@@ -169,8 +175,8 @@ class View(QObject):
                     break
                 i += 1
             if i >= 0:
-                kd[0][0:n-i] = kd[0][i+1:n+1].copy()
-                kd[1][0:n-i] = kd[1][i+1:n+1].copy()
+                kd[0][0:n - i] = kd[0][i+1:n+1].copy()
+                kd[1][0:n - i] = kd[1][i+1:n+1].copy()
                 kd[2] -= i+1
                 kd[3] -= i+1
         if self.plot:
@@ -317,8 +323,8 @@ class BaseHistoryWindow(object):
 
     def enablePlotActions(self, on):
         for action in [
-            self.actionPDF, self.actionPrint, self.actionAttachElog,
-            self.actionSaveData,
+            self.actionSavePlot, self.actionPrint, self.actionAttachElog,
+            self.actionSaveData, self.actionAutoScale,
             self.actionEditView, self.actionCloseView, self.actionDeleteView,
             self.actionResetView,
             self.actionUnzoom, self.actionLogScale, self.actionLegend,
@@ -337,6 +343,10 @@ class BaseHistoryWindow(object):
         # this handler is needed in addition to currentItemChanged
         # since one can't change the current item if it's the only one
         self.on_viewList_currentItemChanged(item, None)
+
+    def on_logYinDomain(self, flag):
+        if not flag:
+            self.actionLogScale.setChecked(flag)
 
     def newvalue_callback(self, data):
         (vtime, key, op, value) = data
@@ -445,13 +455,17 @@ class BaseHistoryWindow(object):
 
             self.enablePlotActions(True)
             self.viewList.setCurrentItem(view.listitem)
-            self.actionLogScale.setChecked(
-                isinstance(view.plot.axisScaleEngine(QwtPlot.yLeft),
-                           QwtLog10ScaleEngine))
-            self.actionLegend.setChecked(view.plot.legend() is not None)
+            self.actionLogScale.setChecked(view.plot.isLogScaling())
+            self.actionLegend.setChecked(view.plot.isLegendEnabled())
             self.actionSymbols.setChecked(view.plot.hasSymbols)
             self.actionLines.setChecked(view.plot.hasLines)
             self.plotLayout.addWidget(view.plot)
+            if _gr_available:
+                view.plot.setAutoScale(True)
+                view.plot.logYinDomain.connect(self.on_logYinDomain)
+                self.actionAutoScale.setChecked(True)
+            else:
+                self.actionAutoScale.setEnabled(False)
             view.plot.show()
 
     @qtsig('')
@@ -505,7 +519,7 @@ class BaseHistoryWindow(object):
                 self.keyviews[key].remove(view)
 
     @qtsig('')
-    def on_actionPDF_triggered(self):
+    def on_actionSavePlot_triggered(self):
         filename = self.currentPlot.savePlot()
         if filename:
             self.statusBar.showMessage('View successfully saved to %s.' %
@@ -518,7 +532,11 @@ class BaseHistoryWindow(object):
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):
-        self.currentPlot.zoomer.zoom(0)
+        if _gr_available:
+            self.currentPlot._plot.reset()
+            self.currentPlot.update()
+        else:
+            self.currentPlot.zoomer.zoom(0)
 
     @qtsig('bool')
     def on_actionLogScale_toggled(self, on):
@@ -570,7 +588,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu = QMenu('&History viewer', self)
         menu.addAction(self.actionNew)
         menu.addSeparator()
-        menu.addAction(self.actionPDF)
+        menu.addAction(self.actionSavePlot)
         menu.addAction(self.actionPrint)
         menu.addAction(self.actionAttachElog)
         menu.addAction(self.actionSaveData)
@@ -581,6 +599,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addAction(self.actionResetView)
         menu.addSeparator()
         menu.addAction(self.actionLogScale)
+        menu.addAction(self.actionAutoScale)
         menu.addAction(self.actionUnzoom)
         menu.addAction(self.actionLegend)
         menu.addAction(self.actionSymbols)
@@ -613,12 +632,13 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         bar.addAction(self.actionNew)
         bar.addAction(self.actionEditView)
         bar.addSeparator()
-        bar.addAction(self.actionPDF)
+        bar.addAction(self.actionSavePlot)
         bar.addAction(self.actionPrint)
         bar.addAction(self.actionSaveData)
         bar.addSeparator()
         bar.addAction(self.actionUnzoom)
         bar.addAction(self.actionLogScale)
+        bar.addAction(self.actionAutoScale)
         bar.addSeparator()
         bar.addAction(self.actionResetView)
         bar.addAction(self.actionDeleteView)
@@ -663,169 +683,28 @@ class HistoryPanel(Panel, BaseHistoryWindow):
     @qtsig('')
     def on_actionAttachElog_triggered(self):
         newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
+        suffix = ".svg" if _gr_available else ".png"
         newdlg.filename.setText(
-            safeFilename('history_%s.png' % self.currentPlot.view.name))
+            safeFilename("history_%s" % self.currentPlot.view.name + suffix))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
         descr = newdlg.description.text()
         fname = newdlg.filename.text()
-        pathname = self.currentPlot.savePng()
+        if _gr_available:
+            pathname = self.currentPlot.saveSvg()
+        else:
+            pathname = self.currentPlot.savePng()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())
         self.client.eval('_LogAttach(%r, [%r], [%r])' % (descr, remotefn, fname))
         os.unlink(pathname)
 
-
-class ViewPlot(NicosPlot):
-    def __init__(self, parent, window, view):
-        self.view = view
-        self.hasSymbols = False
-        self.hasLines = True
-        NicosPlot.__init__(self, parent, window, timeaxis=True)
-
-    def titleString(self):
-        return '<h3>%s</h3>' % self.view.name
-
-    def xaxisName(self):
-        return 'time'
-
-    def yaxisName(self):
-        return 'value'
-
-    def addAllCurves(self):
-        for i, key in enumerate(self.view.keys):
-            self.addCurve(i, key)
-
-    def yaxisScale(self):
-        if self.view.yfrom is not None:
-            return (self.view.yfrom, self.view.yto)
-
-    #pylint: disable=W0221
-    def on_picker_moved(self, point, strf=strftime, local=localtime):
-        # overridden to show the correct timestamp
-        tstamp = local(int(self.invTransform(QwtPlot.xBottom, point.x())))
-        info = "X = %s, Y = %g" % (
-            strf('%y-%m-%d %H:%M:%S', tstamp),
-            self.invTransform(QwtPlot.yLeft, point.y()))
-        self.window.statusBar.showMessage(info)
-
-    def addCurve(self, i, key, replot=False):
-        pen = QPen(self.curvecolor[i % self.numcolors])
-        curvename = key
-        keyinfo = self.view.keyinfo.get(key)
-        if keyinfo:
-            curvename += ' (' + keyinfo + ')'
-        plotcurve = QwtPlotCurve(curvename)
-        plotcurve.setPen(pen)
-        plotcurve.setSymbol(self.nosymbol)
-        plotcurve.setStyle(QwtPlotCurve.Lines)
-        x, y, n = self.view.keydata[key][:3]
-        plotcurve.setData(x[:n], y[:n])
-        self.addPlotCurve(plotcurve, replot)
-
-    def pointsAdded(self, whichkey):
-        for key, plotcurve in zip(self.view.keys, self.plotcurves):
-            if key == whichkey:
-                x, y, n = self.view.keydata[key][:3]
-                plotcurve.setData(x[:n], y[:n])
-                self.replot()
-                return
-
-    def setLines(self, on):
-        for plotcurve in self.plotcurves:
-            if on:
-                plotcurve.setStyle(QwtPlotCurve.Lines)
-            else:
-                plotcurve.setStyle(QwtPlotCurve.NoCurve)
-        self.hasLines = on
-        self.replot()
-
-    def setSymbols(self, on):
-        for plotcurve in self.plotcurves:
-            if on:
-                plotcurve.setSymbol(self.symbol)
-            else:
-                plotcurve.setSymbol(self.nosymbol)
-        self.hasSymbols = on
-        self.replot()
-
-    def selectCurve(self):
-        if len(self.view.keys) > 1:
-            dlg = dialogFromUi(self, 'selector.ui', 'panels')
-            dlg.setWindowTitle('Select curve to fit')
-            dlg.label.setText('Select a curve:')
-            for key in self.view.keys:
-                QListWidgetItem(key, dlg.list)
-            dlg.list.setCurrentRow(0)
-            if dlg.exec_() != QDialog.Accepted:
-                return
-            fitcurve = dlg.list.currentRow()
-        else:
-            fitcurve = 0
-        return self.plotcurves[fitcurve]
-
-    def fitLinear(self):
-        self._beginFit('Linear', ['First point', 'Second point'],
-                       self.linear_fit_callback)
-
-    def linear_fit_callback(self, args):
-        title = 'linear fit'
-        beta, x, y = fit_linear(*args)
-        _x1, x2 = min(x), max(x)
-        labelx = x2
-        labely = beta[0]*x2 + beta[1]
-        interesting = [('Slope', '%.3f /s' % beta[0]),
-                       ('', '%.3f /min' % (beta[0]*60)),
-                       ('', '%.3f /h' % (beta[0]*3600))]
-        return x, y, title, labelx, labely, interesting, None
-
-    def saveData(self):
-        dlg = DataExportDialog(self, 'Select curve, file name and format',
-                               '', 'ASCII data files (*.dat)')
-        res = dlg.exec_()
-        if res != QDialog.Accepted:
-            return
-        if not dlg.selectedFiles():
-            return
-        curve = self.plotcurves[dlg.curveCombo.currentIndex()]
-        fmtno = dlg.formatCombo.currentIndex()
-        filename = dlg.selectedFiles()[0]
-
-        if curve.dataSize() < 1:
-            QMessageBox.information(self, 'Error', 'No data in selected curve!')
-            return
-
-        with open(filename, 'wb') as fp:
-            for i in range(curve.dataSize()):
-                if fmtno == 0:
-                    fp.write('%s\t%.10f\n' % (curve.x(i) - curve.x(0),
-                                              curve.y(i)))
-                elif fmtno == 1:
-                    fp.write('%s\t%.10f\n' % (curve.x(i), curve.y(i)))
-                else:
-                    fp.write('%s\t%.10f\n' % (strftime(
-                        '%Y-%m-%d.%H:%M:%S', localtime(curve.x(i))),
-                        curve.y(i)))
-
-
-class DataExportDialog(QFileDialog):
-
-    def __init__(self, viewplot, *args):
-        QFileDialog.__init__(self, viewplot, *args)
-        self.setConfirmOverwrite(True)
-        self.setAcceptMode(QFileDialog.AcceptSave)
-        layout = self.layout()
-        layout.addWidget(QLabel('Curve:', self), 4, 0)
-        self.curveCombo = QComboBox(self)
-        self.curveCombo.addItems(viewplot.view.keys)
-        layout.addWidget(self.curveCombo, 4, 1)
-        layout.addWidget(QLabel('Time format:', self), 5, 0)
-        self.formatCombo = QComboBox(self)
-        self.formatCombo.addItems(['Seconds since first datapoint',
-                                   'UNIX timestamp',
-                                   'Text timestamp (YYYY-MM-dd.HH:MM:SS)'])
-        layout.addWidget(self.formatCombo, 5, 1)
+    @qtsig('bool')
+    def on_actionAutoScale_toggled(self, on):
+        if self.currentPlot:
+            self.currentPlot.setAutoScale(on)
+            self.currentPlot.update()
 
 
 class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
@@ -850,7 +729,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         menu = QMenu('&History viewer', self)
         menu.addAction(self.actionNew)
         menu.addSeparator()
-        menu.addAction(self.actionPDF)
+        menu.addAction(self.actionSavePlot)
         menu.addAction(self.actionPrint)
         menu.addAction(self.actionSaveData)
         menu.addSeparator()
@@ -874,7 +753,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         bar.addAction(self.actionNew)
         bar.addAction(self.actionEditView)
         bar.addSeparator()
-        bar.addAction(self.actionPDF)
+        bar.addAction(self.actionSavePlot)
         bar.addAction(self.actionPrint)
         bar.addAction(self.actionSaveData)
         bar.addAction(self.actionClose)

@@ -19,32 +19,37 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
 """NICOS GUI scan plot window."""
 
+import sys
 import os
 import time
 
-from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
-    QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
-from PyQt4.Qwt5 import QwtPlot, QwtPlotItem, QwtText, QwtLog10ScaleEngine
-from PyQt4.QtCore import QByteArray, Qt, SIGNAL, pyqtSignature as qtsig
+sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
 
-import numpy as np
+from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
+    QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
+from PyQt4.QtCore import QByteArray, Qt, SIGNAL
+from PyQt4.QtCore import pyqtSignature as qtsig
+
+try:
+    from nicos.clients.gui.widgets.grplotting import DataSetPlot
+    _gr_available = True
+except ImportError as e:
+    from nicos.clients.gui.widgets.qwtplotting import DataSetPlot
+    _gr_available = False
+    _import_error = e
 
 from nicos.core import Dataset
 from nicos.utils import safeFilename
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgPresets
-from nicos.clients.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
-    fit_pseudo_voigt, fit_pearson_vii, fit_arby
-from nicos.clients.gui.widgets.plotting import NicosPlot, ErrorBarPlotCurve, \
-    cloneToGrace
+from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.pycompat import itervalues
-
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 TOGETHER, COMBINE, ADD, SUBTRACT, DIVIDE = range(5)
@@ -151,20 +156,21 @@ class ScansPanel(Panel):
 
     def enablePlotActions(self, on):
         for action in [
-            self.actionPDF, self.actionGrace, self.actionPrint,
+            self.actionSavePlot, self.actionPrint,
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
-            self.actionDeletePlot, self.actionLogScale, self.actionNormalized,
-            self.actionShowAllCurves,
+            self.actionDeletePlot, self.actionLogScale, self.actionAutoScale,
+            self.actionNormalized, self.actionShowAllCurves,
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
             self.actionFitArby,
             ]:
             action.setEnabled(on)
+        if not _gr_available:
+            self.actionAutoScale.setEnabled(False)
 
     def getMenus(self):
         menu1 = QMenu('&Data plot', self)
-        menu1.addAction(self.actionPDF)
-        menu1.addAction(self.actionGrace)
+        menu1.addAction(self.actionSavePlot)
         menu1.addAction(self.actionPrint)
         menu1.addAction(self.actionAttachElog)
         menu1.addSeparator()
@@ -175,6 +181,7 @@ class ScansPanel(Panel):
         menu1.addSeparator()
         menu1.addAction(self.actionUnzoom)
         menu1.addAction(self.actionLogScale)
+        menu1.addAction(self.actionAutoScale)
         menu1.addAction(self.actionNormalized)
         menu1.addAction(self.actionShowAllCurves)
         menu1.addAction(self.actionLegend)
@@ -192,12 +199,13 @@ class ScansPanel(Panel):
 
     def getToolbars(self):
         bar = QToolBar('Scans')
-        bar.addAction(self.actionPDF)
+        bar.addAction(self.actionSavePlot)
         bar.addAction(self.actionPrint)
         bar.addSeparator()
         bar.addAction(self.actionUnzoom)
         bar.addAction(self.actionNormalized)
         bar.addAction(self.actionLogScale)
+        bar.addAction(self.actionAutoScale)
         bar.addAction(self.actionLegend)
         bar.addAction(self.actionResetPlot)
         bar.addAction(self.actionDeletePlot)
@@ -221,6 +229,10 @@ class ScansPanel(Panel):
             item.setData(32, dataset.uid)
             self.setitems[dataset.uid] = item
 
+    def on_logYinDomain(self, flag):
+        if not flag:
+            self.actionLogScale.setChecked(flag)
+
     def on_datasetList_currentItemChanged(self, item, previous):
         if self.no_openset or item is None:
             return
@@ -242,6 +254,11 @@ class ScansPanel(Panel):
             self.setplots[dataset.uid] = newplot
         self.datasetList.setCurrentItem(self.setitems[uid])
         plot = self.setplots[dataset.uid]
+        if _gr_available:
+            plot.setAutoScale(True)
+            self.actionAutoScale.setChecked(True)
+        else:
+            self.actionAutoScale.setEnabled(False)
         self.setCurrentDataset(plot)
 
     def setCurrentDataset(self, plot):
@@ -258,11 +275,13 @@ class ScansPanel(Panel):
 
             self.enablePlotActions(True)
             self.datasetList.setCurrentItem(self.setitems[plot.dataset.uid])
-            self.actionLogScale.setChecked(
-                isinstance(plot.axisScaleEngine(QwtPlot.yLeft),
-                           QwtLog10ScaleEngine))
+
+            self.actionLogScale.setChecked(plot.isLogScaling())
             self.actionNormalized.setChecked(plot.normalized)
-            self.actionLegend.setChecked(plot.legend() is not None)
+            self.actionLegend.setChecked(plot.isLegendEnabled())
+            if _gr_available:
+                self.actionAutoScale.setChecked(plot.plot.autoscale)
+                plot.logYinDomain.connect(self.on_logYinDomain)
             self.plotLayout.addWidget(plot)
             plot.show()
 
@@ -292,7 +311,7 @@ class ScansPanel(Panel):
 
     def on_data_curveAdded(self, dataset):
         if dataset.uid in self.setplots:
-            self.setplots[dataset.uid].addCurve(len(dataset.curves)-1,
+            self.setplots[dataset.uid].addCurve(len(dataset.curves) - 1,
                                                 dataset.curves[-1])
             self.setplots[dataset.uid].replot()
 
@@ -342,7 +361,7 @@ class ScansPanel(Panel):
                 break
 
     @qtsig('')
-    def on_actionPDF_triggered(self):
+    def on_actionSavePlot_triggered(self):
         filename = self.currentPlot.savePlot()
         if filename:
             self.statusBar.showMessage('Plot successfully saved to %s.' %
@@ -356,43 +375,51 @@ class ScansPanel(Panel):
     @qtsig('')
     def on_actionAttachElog_triggered(self):
         newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
+        suffix = ".svg" if _gr_available else ".png"
         newdlg.filename.setText(
-            safeFilename('data_%s.png' % self.currentPlot.dataset.name))
+            safeFilename("data_%s" % self.currentPlot.dataset.name + suffix))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
         descr = newdlg.description.text()
         fname = newdlg.filename.text()
-        pathname = self.currentPlot.savePng()
+        if _gr_available:
+            pathname = self.currentPlot.saveSvg()
+        else:
+            pathname = self.currentPlot.savePng()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())
         self.client.eval('_LogAttach(%r, [%r], [%r])' % (descr, remotefn, fname))
         os.unlink(pathname)
 
     @qtsig('')
-    def on_actionGrace_triggered(self):
-        try:
-            cloneToGrace(self.currentPlot)
-        except (TypeError, IOError):
-            return self.showError('Grace is not available.')
-
-    @qtsig('')
     def on_actionUnzoom_triggered(self):
-        self.currentPlot.zoomer.zoom(0)
+        if _gr_available:
+            self.currentPlot._plot.reset()
+            self.currentPlot.update()
+        else:
+            self.currentPlot.zoomer.zoom(0)
 
     @qtsig('bool')
     def on_actionLogScale_toggled(self, on):
         self.currentPlot.setLogScale(on)
 
     @qtsig('bool')
+    def on_actionAutoScale_toggled(self, on):
+        if self.currentPlot:
+            self.currentPlot.setAutoScale(on)
+            self.currentPlot.update()
+
+    @qtsig('bool')
     def on_actionNormalized_toggled(self, on):
         self.currentPlot.normalized = on
         self.currentPlot.updateDisplay()
+        self.on_actionUnzoom_triggered()
 
     @qtsig('bool')
     def on_actionShowAllCurves_toggled(self, on):
         self.currentPlot.show_all = on
-        self.currentPlot.updateDisplay()
+        self.currentPlot.showCurves(["mon", "t(s)"], on)
 
     @qtsig('bool')
     def on_actionLegend_toggled(self, on):
@@ -545,338 +572,3 @@ class ScansPanel(Panel):
             # XXX treat errors correctly
             newset.curves.append(newcurve)
         self.data.add_existing_dataset(newset)
-
-
-class DataSetPlot(NicosPlot):
-    def __init__(self, parent, window, dataset):
-        self.dataset = dataset
-        NicosPlot.__init__(self, parent, window)
-
-    def titleString(self):
-        return '<h3>Scan %s</h3><font size="-2">%s, started %s</font>' % \
-            (self.dataset.name, self.dataset.scaninfo,
-             time.strftime(TIMEFMT, self.dataset.started))
-
-    def xaxisName(self):
-        try:
-            return '%s (%s)' % (self.dataset.xnames[self.dataset.xindex],
-                                self.dataset.xunits[self.dataset.xindex])
-        except IndexError:
-            return ''
-
-    def yaxisName(self):
-        return ''
-
-    def xaxisScale(self):
-        if self.dataset.xrange:
-            return self.dataset.xrange
-        try:
-            return (float(self.dataset.positions[0][self.dataset.xindex]),
-                    float(self.dataset.positions[-1][self.dataset.xindex]))
-        except (IndexError, TypeError, ValueError):
-            return None
-
-    def yaxisScale(self):
-        if self.dataset.yrange:
-            return self.dataset.yrange
-
-    def addAllCurves(self):
-        for i, curve in enumerate(self.dataset.curves):
-            self.addCurve(i, curve)
-
-    def enableCurvesFrom(self, otherplot):
-        visible = {}
-        for plotcurve in otherplot.plotcurves:
-            visible[str(plotcurve.title().text())] = plotcurve.isVisible()
-        changed = False
-        remaining = len(self.plotcurves)
-        for plotcurve in self.plotcurves:
-            namestr = str(plotcurve.title().text())
-            if namestr in visible:
-                self.setVisibility(plotcurve, visible[namestr])
-                changed = True
-                if not visible[namestr]:
-                    remaining -= 1
-        # no visible curve left?  enable all of them again
-        if not remaining:
-            for plotcurve in self.plotcurves:
-                # only if it has a legend item (excludes monitor/time columns)
-                if plotcurve.testItemAttribute(QwtPlotItem.Legend):
-                    self.setVisibility(plotcurve, True)
-        if changed:
-            self.replot()
-
-    def addCurve(self, i, curve, replot=False):
-        pen = QPen(self.curvecolor[i % self.numcolors])
-        plotcurve = ErrorBarPlotCurve(title=curve.full_description,
-                                      curvePen=pen,
-                                      errorPen=QPen(Qt.darkGray, 0),
-                                      errorCap=8, errorOnTop=False)
-        if not curve.function:
-            plotcurve.setSymbol(self.symbol)
-        if curve.yaxis == 2:
-            plotcurve.setYAxis(QwtPlot.yRight)
-            self.has_secondary = True
-            self.enableAxis(QwtPlot.yRight)
-        if curve.disabled:
-            if not self.show_all:
-                plotcurve.setVisible(False)
-                plotcurve.setItemAttribute(QwtPlotItem.Legend, False)
-        self.setCurveData(curve, plotcurve)
-        self.addPlotCurve(plotcurve, replot)
-
-    def setCurveData(self, curve, plotcurve):
-        x = np.array(curve.datax)
-        y = np.array(curve.datay, float)
-        dy = None
-        if curve.dyindex == -2:
-            dy = np.sqrt(abs(y))
-        elif curve.dyindex > -1:
-            dy = np.array(curve.datady)
-        if self.normalized:
-            norm = None
-            if curve.monindices:
-                norm = np.array(curve.datamon)
-            elif curve.timeindex > -1:
-                norm = np.array(curve.datatime)
-            if norm is not None:
-                y /= norm
-                if dy is not None: dy /= norm
-        plotcurve.setData(x, y, None, dy)
-        # setData creates a new legend item that must be styled
-        if not plotcurve.isVisible() and self.legend():
-            legenditem = self.legend().find(plotcurve)
-            if legenditem:
-                newtext = QwtText(legenditem.text())
-                newtext.setColor(Qt.darkGray)
-                legenditem.setText(newtext)
-
-    def pointsAdded(self):
-        curve = None
-        for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
-            self.setCurveData(curve, plotcurve)
-        if curve and len(curve.datax) == 1:
-            self.zoomer.setZoomBase(True)
-        else:
-            self.replot()
-
-    def modifyData(self):
-        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
-                          if self.plotcurves[i].isVisible()]
-        # get input from the user: which curves should be modified how
-        dlg = dialogFromUi(self, 'modify.ui', 'panels')
-        def checkAll():
-            for i in range(dlg.list.count()):
-                dlg.list.item(i).setCheckState(Qt.Checked)
-        dlg.connect(dlg.selectall, SIGNAL('clicked()'), checkAll)
-        for i in visible_curves:
-            li = QListWidgetItem(self.dataset.curves[i].full_description,
-                                 dlg.list)
-            if len(visible_curves) == 1:
-                li.setCheckState(Qt.Checked)
-                dlg.operation.setFocus()
-            else:
-                li.setCheckState(Qt.Unchecked)
-        if dlg.exec_() != QDialog.Accepted:
-            return
-        # evaluate selection
-        op = dlg.operation.text()
-        curves = []
-        for i in range(dlg.list.count()):
-            li = dlg.list.item(i)
-            if li.checkState() == Qt.Checked:
-                curves.append(i)
-        # make changes to Qwt curve objects only (so that "reset" will discard
-        # them again)
-        for i in curves:
-            curve = self.plotcurves[visible_curves[i]]
-            if isinstance(curve, ErrorBarPlotCurve):
-                new_y = [eval(op, {'x': v1, 'y': v2})
-                         for (v1, v2) in zip(curve._x, curve._y)]
-                curve.setData(curve._x, new_y, curve._dx, curve._dy)
-            else:
-                curve.setData(curve.xData(),
-                    [eval(op, {'x': v1, 'y': v2})
-                     for (v1, v2) in zip(curve.xData(), curve.yData())])
-        self.replot()
-
-    def selectCurve(self):
-        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
-                          if self.plotcurves[i].isVisible()]
-        if len(visible_curves) > 1:
-            dlg = dialogFromUi(self, 'selector.ui', 'panels')
-            dlg.setWindowTitle('Select curve to fit')
-            dlg.label.setText('Select a curve:')
-            for i in visible_curves:
-                QListWidgetItem(self.dataset.curves[i].full_description,
-                                dlg.list)
-            dlg.list.setCurrentRow(0)
-            if dlg.exec_() != QDialog.Accepted:
-                return
-            fitcurve = visible_curves[dlg.list.currentRow()]
-        else:
-            fitcurve = visible_curves[0]
-        return self.plotcurves[fitcurve]
-
-    def fitGaussPeak(self):
-        self._beginFit('Gauss', ['Background', 'Peak', 'Half Maximum'],
-                       self.gauss_callback)
-
-    def gauss_callback(self, args):
-        title = 'peak fit'
-        beta, x, y = fit_gauss(*args)
-        labelx = beta[2] + beta[3]/2
-        labely = beta[0] + beta[1]
-        interesting = [('Center', beta[2]),
-                       ('FWHM', beta[3] * fwhm_to_sigma),
-                       ('Ampl', beta[1]),
-                       ('Integr', beta[1]*beta[3]*np.sqrt(2*np.pi))]
-        linefrom = beta[2] - beta[3]*fwhm_to_sigma/2
-        lineto = beta[2] + beta[3]*fwhm_to_sigma/2
-        liney = beta[0] + beta[1]/2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitPseudoVoigtPeak(self):
-        self._beginFit('Pseudo-Voigt', ['Background', 'Peak', 'Half Maximum'],
-                       self.pv_callback)
-
-    def pv_callback(self, args):
-        title = 'peak fit (PV)'
-        beta, x, y = fit_pseudo_voigt(*args)
-        labelx = beta[2] + beta[3]/2
-        labely = beta[0] + beta[1]
-        eta = beta[4] % 1.0
-        integr = beta[1] * beta[3] * (
-            eta*np.pi + (1-eta)*np.sqrt(np.pi/np.log(2)))
-        interesting = [('Center', beta[2]), ('FWHM', beta[3]*2),
-                       ('Eta', eta), ('Integr', integr)]
-        linefrom = beta[2] - beta[3]
-        lineto = beta[2] + beta[3]
-        liney = beta[0] + beta[1]/2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitPearsonVIIPeak(self):
-        self._beginFit('PearsonVII', ['Background', 'Peak', 'Half Maximum'],
-                       self.pvii_callback)
-
-    def pvii_callback(self, args):
-        title = 'peak fit (PVII)'
-        beta, x, y = fit_pearson_vii(*args)
-        labelx = beta[2] + beta[3]/2
-        labely = beta[0] + beta[1]
-        interesting = [('Center', beta[2]), ('FWHM', beta[3]*2),
-                       ('m', beta[4])]
-        linefrom = beta[2] - beta[3]
-        lineto = beta[2] + beta[3]
-        liney = beta[0] + beta[1]/2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitTc(self):
-        self._beginFit('Tc', ['Background', 'Tc'], self.tc_callback)
-
-    def tc_callback(self, args):
-        title = 'Tc fit'
-        beta, x, y = fit_tc(*args)
-        labelx = beta[2]  # at Tc
-        labely = beta[0] + beta[1]  # at I_max
-        interesting = [('Tc', beta[2]), (u'α', beta[3])]
-        return x, y, title, labelx, labely, interesting, None
-
-    def fitArby(self):
-        self._beginFit('Arbitrary', [], self.arby_callback,
-                       self.arby_pick_callback)
-
-    def arby_callback(self, args):
-        title = 'fit'
-        beta, x, y = fit_arby(*args)
-        labelx = x[0]
-        labely = y.max()
-        interesting = list(zip(self.fitvalues[1], beta))
-        return x, y, title, labelx, labely, interesting, None
-
-    def arby_pick_callback(self):
-        dlg = dialogFromUi(self, 'fit_arby.ui', 'panels')
-        pr = DlgPresets('fit_arby',
-            [(dlg.function, ''), (dlg.fitparams, ''),
-             (dlg.xfrom, ''), (dlg.xto, '')])
-        pr.load()
-        for name in sorted(arby_functions):
-            QListWidgetItem(name, dlg.oftenUsed)
-        def click_cb(item):
-            func, params = arby_functions[item.text()]
-            dlg.function.setText(func)
-            dlg.fitparams.setPlainText('\n'.join(
-                p + ' = ' for p in params.split()))
-        dlg.connect(dlg.oftenUsed,
-                    SIGNAL('itemClicked(QListWidgetItem *)'), click_cb)
-        ret = dlg.exec_()
-        if ret != QDialog.Accepted:
-            return False
-        pr.save()
-        fcn = dlg.function.text()
-        try:
-            xmin = float(dlg.xfrom.text())
-        except ValueError:
-            xmin = None
-        try:
-            xmax = float(dlg.xto.text())
-        except ValueError:
-            xmax = None
-        if xmin is not None and xmax is not None and xmin > xmax:
-            xmax, xmin = xmin, xmax
-        params, values = [], []
-        for line in dlg.fitparams.toPlainText().splitlines():
-            name_value = line.strip().split('=', 2)
-            if len(name_value) < 2:
-                continue
-            params.append(name_value[0])
-            try:
-                values.append(float(name_value[1]))
-            except ValueError:
-                values.append(0)
-        self.fitvalues = [fcn, params, values, (xmin, xmax)]
-        return True
-
-    def fitQuick(self):
-        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
-                          if self.plotcurves[i].isVisible()]
-        p = self.picker.trackerPosition()
-        whichcurve = None
-        whichindex = None
-        mindist = None
-        for i in visible_curves:
-            index, dist = self.plotcurves[i].closestPoint(p)
-            if mindist is None or dist < mindist:
-                whichcurve = i
-                whichindex = index
-                mindist = dist
-        self.fitcurve = self.plotcurves[whichcurve]
-        data = self.fitcurve.data()
-        # try to find good starting parameters
-        peakx, peaky = data.x(whichindex), data.y(whichindex)
-        # use either left or right end of curve as background
-        leftx, lefty = data.x(0), data.y(0)
-        rightx, righty = data.x(data.size()-1), data.y(data.size()-1)
-        if abs(peakx - leftx) > abs(peakx - rightx):
-            direction = -1
-            backx, backy = leftx, lefty
-        else:
-            direction = 1
-            backx, backy = rightx, righty
-        i = whichindex
-        while i > 0:
-            if data.y(i) < (peaky - backy) / 2.:
-                break
-            i += direction
-        if i != whichindex:
-            fwhmx = data.x(i)
-        else:
-            fwhmx = (peakx + backx) / 2.
-        self.fitvalues = [(backx, backy), (peakx, peaky), (fwhmx, peaky/2.)]
-        self.fitparams = ['Background', 'Peak', 'Half Maximum']
-        self.fittype = 'Gauss'
-        self.fitcallbacks = [self.gauss_callback, None]
-        self._finishFit()

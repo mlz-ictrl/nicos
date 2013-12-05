@@ -126,13 +126,16 @@
     <string>&amp;Unzoom</string>
    </property>
   </action>
-  <action name="actionPDF">
+  <action name="actionSavePlot">
    <property name="icon">
     <iconset resource="../../../../../resources/nicos-gui.qrc">
      <normaloff>:/save</normaloff>:/save</iconset>
    </property>
    <property name="text">
-    <string>&amp;Save as PDF...</string>
+    <string>&amp;Save plot</string>
+   </property>
+   <property name="toolTip">
+    <string>Save plot in portable format</string>
    </property>
   </action>
   <action name="actionLogScale">
@@ -182,11 +185,6 @@
    </property>
    <property name="text">
     <string>L&amp;egend</string>
-   </property>
-  </action>
-  <action name="actionGrace">
-   <property name="text">
-    <string>Clone in Grace</string>
    </property>
   </action>
   <action name="actionCombine">
@@ -258,6 +256,17 @@
   <action name="actionModifyData">
    <property name="text">
     <string>Modify data</string>
+   </property>
+  </action>
+  <action name="actionAutoScale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto scale</string>
+   </property>
+   <property name="toolTip">
+    <string>autoscale: growing window</string>
    </property>
   </action>
  </widget>

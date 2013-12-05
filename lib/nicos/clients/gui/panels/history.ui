@@ -126,16 +126,16 @@
     <string>&amp;Unzoom</string>
    </property>
   </action>
-  <action name="actionPDF">
+  <action name="actionSavePlot">
    <property name="icon">
     <iconset resource="../../../../../resources/nicos-gui.qrc">
      <normaloff>:/save</normaloff>:/save</iconset>
    </property>
    <property name="text">
-    <string>&amp;Save as PDF...</string>
+    <string>&amp;Save plot</string>
    </property>
    <property name="toolTip">
-    <string>Save plot as PDF</string>
+    <string>Save plot in portable format</string>
    </property>
   </action>
   <action name="actionLogScale">
@@ -250,6 +250,17 @@
    </property>
    <property name="toolTip">
     <string>Save the data in plain text file</string>
+   </property>
+  </action>
+  <action name="actionAutoScale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto scale</string>
+   </property>
+   <property name="toolTip">
+    <string>autoscale: growing window</string>
    </property>
   </action>
  </widget>
