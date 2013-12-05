@@ -142,14 +142,16 @@ class RS232TACOExample(TacoDevice, Moveable):
 
     def doReadParam1(self):
         try:
-            value = float(self._taco_guard(self._dev.communicate, 'read param 1'))
+            value = float(self._taco_guard(self._dev.communicate,
+                                           'read param 1'))
         except (NicosError, ValueError):
             value = 0
         return value
 
     def doReadParam2(self):
         try:
-            value = float(self._taco_guard(self._dev.communicate, 'read param 2'))
+            value = float(self._taco_guard(self._dev.communicate,
+                                           'read param 2'))
         except (NicosError, ValueError):
             value = 0
         return value
