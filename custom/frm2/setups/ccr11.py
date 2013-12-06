@@ -4,11 +4,11 @@ group = 'optional'
 
 includes = ['alias_T']
 
-nethost = 'ccr11'
+nethost = 'ccr11'       # old style
 
 devices = {
-    'T_%s_stick' % (nethost, ) : device('devices.taco.TemperatureController',
-                                        description = 'The control device to the sample',
+    'T_%s_stick' % (setupname, ) : device('devices.taco.TemperatureController',
+                                        description = 'The control device of the sample(stick)',
                                         tacodevice = '//%s/ccr/ls336/control2' % (nethost, ),
                                         abslimits = (0, 600),
                                         unit = 'K',
@@ -17,18 +17,19 @@ devices = {
                                         maxage = 6,
                                        ),
 
-    'T_%s_tube' % (nethost, ) : device('devices.taco.TemperatureController',
+    'T_%s_tube' % (setupname, ) : device('devices.taco.TemperatureController',
                                        description = 'The control device of the tube',
                                        tacodevice = '//%s/ccr/ls336/control1' % (nethost, ),
-                                       abslimits = (0, 400),
+                                       abslimits = (0, 300),
+                                       warnlimits = (0, 300),
                                        unit = 'K',
                                        fmtstr = '%.3f',
                                        pollinterval = 5,
                                        maxage = 6,
                                       ),
 
-    'T_%s_A' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'Temperature at the tube',
+    'T_%s_A' % (setupname,) : device('devices.taco.TemperatureSensor',
+                                   description = '(optional) Sample Temperature',
                                    tacodevice = '//%s/ccr/ls336/sensora' % (nethost, ),
                                    unit = 'K',
                                    fmtstr = '%.3f',
@@ -36,8 +37,8 @@ devices = {
                                    maxage = 6,
                                   ),
 
-    'T_%s_B' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'Temperature at the tube',
+    'T_%s_B' % (setupname,) : device('devices.taco.TemperatureSensor',
+                                   description = '(regulation) Temperature at the stick',
                                    tacodevice = '//%s/ccr/ls336/sensorb' % (nethost, ),
                                    unit = 'K',
                                    fmtstr = '%.3f',
@@ -45,66 +46,68 @@ devices = {
                                    maxage = 6,
                                   ),
 
-    'T_%s_C' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'Temperature at the sample stick',
+    'T_%s_C' % (setupname,) : device('devices.taco.TemperatureSensor',
+                                   description = 'Temperature of the coldhead',
                                    tacodevice = '//%s/ccr/ls336/sensorc' % (nethost, ),
+                                   warnlimits = (0, 300),
                                    unit = 'K',
                                    fmtstr = '%.3f',
                                    pollinterval = 5,
                                    maxage = 6,
                                   ),
 
-    'T_%s_D' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'Temperature at the sample stick',
+    'T_%s_D' % (setupname,) : device('devices.taco.TemperatureSensor',
+                                   description = '(regulation) Temperature at thermal coupling to the stick',
                                    tacodevice = '//%s/ccr/ls336/sensord' % (nethost, ),
+                                   warnlimits = (0, 300),
                                    unit = 'K',
                                    fmtstr = '%.3f',
                                    pollinterval = 5,
                                    maxage = 6,
                                   ),
 
-    '%s_compressor_switch' % (nethost,) : device('devices.taco.DigitalOutput',
+    '%s_compressor_switch' % (setupname,) : device('devices.taco.DigitalOutput',
                                                  description = 'Switch for the compressor',
                                                  tacodevice = '//%s/ccr/plc/on' % (nethost, )
                                                 ),
 
-    '%s_gas_set' % (nethost,) : device('devices.taco.DigitalOutput',
+    '%s_gas_set' % (setupname,) : device('devices.taco.DigitalOutput',
                                        description = 'Switch for the gas valve',
                                        lowlevel = True,
                                        tacodevice = '//%s/ccr/plc/gas' % (nethost, )
                                       ),
 
-    '%s_gas_read' % (nethost,) : device('devices.taco.DigitalInput',
+    '%s_gas_read' % (setupname,) : device('devices.taco.DigitalInput',
                                         description = 'Read back of the gas valve state',
                                         lowlevel = True,
                                         tacodevice = '//%s/ccr/plc/fbgas' % (nethost, )
                                        ),
 
-    '%s_gas_switch' % (nethost,) : device('devices.vendor.frm2.CCRSwitch',
+    '%s_gas_switch' % (setupname,) : device('devices.vendor.frm2.CCRSwitch',
                                           description = 'Gas valve switch',
                                           write = '%s_gas_set' % (nethost,),
                                           feedback = '%s_gas_read' % (nethost,),
                                          ),
 
-    '%s_vacuum_set' % (nethost,) : device('devices.taco.DigitalOutput',
+    '%s_vacuum_set' % (setupname,) : device('devices.taco.DigitalOutput',
                                           description = 'Switch for the vacuum valve',
                                           lowlevel = True,
                                           tacodevice = '//%s/ccr/plc/vacuum' % (nethost, )
                                          ),
 
-    '%s_vacuum_read' % (nethost,) : device('devices.taco.DigitalInput',
+    '%s_vacuum_read' % (setupname,) : device('devices.taco.DigitalInput',
                                            description = 'Read back of the vacuum valve state',
                                            lowlevel = True,
                                            tacodevice = '//%s/ccr/plc/fbvacuum' % (nethost, )
                                          ),
 
-    '%s_vacuum_switch' % (nethost,) : device('devices.vendor.frm2.CCRSwitch',
+    '%s_vacuum_switch' % (setupname,) : device('devices.vendor.frm2.CCRSwitch',
                                              description = 'Vacuum valve switch',
                                              write = '%s_vacuum_set' % (nethost,),
                                              feedback = '%s_vacuum_read' % (nethost,),
                                             ),
 
-    '%s_p1' % (nethost,) : device('devices.taco.AnalogInput',
+    '%s_p1' % (setupname,) : device('devices.taco.AnalogInput',
                                   description = 'Pressure in sample space',
                                   tacodevice = '//%s/ccr/plc/p1' % (nethost, ),
                                   fmtstr = '%.4g',
@@ -113,7 +116,7 @@ devices = {
                                   unit = 'mbar',
                                  ),
 
-    '%s_p2' % (nethost,) : device('devices.taco.AnalogInput',
+    '%s_p2' % (setupname,) : device('devices.taco.AnalogInput',
                                   description = 'Pressure in the vacuum chamber',
                                   tacodevice = '//%s/ccr/plc/p2' % (nethost, ),
                                   fmtstr = '%.4g',
@@ -124,7 +127,7 @@ devices = {
 }
 
 startupcode = """
-T.alias = T_%s_stick
-Ts.alias = T_%s_D
+T.alias = T_%s_tube
+Ts.alias = T_%s_B
 AddEnvironment(T, Ts)
-""" % (nethost, nethost, )
+""" % (setupname, setupname, )
