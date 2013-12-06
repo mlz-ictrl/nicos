@@ -24,13 +24,17 @@
 
 """The NICOS electronic logbook."""
 
-from nicos.core import Override
+from nicos.core import Param, Override, oneof
 from nicos.services.elog.handler import Handler
 from nicos.protocols.cache import OP_TELL, OP_ASK, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
 
 
 class Logbook(BaseCacheClient):
+
+    parameters = {
+        'plotformat': Param('Format for scan plots', type=oneof('svg', 'png')),
+    }
 
     parameter_overrides = {
         'prefix':  Override(default='logbook/', mandatory=False),
@@ -39,7 +43,7 @@ class Logbook(BaseCacheClient):
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
         # this is run in the main thread
-        self._handler = Handler(self.log)
+        self._handler = Handler(self.log, self.plotformat)
 
     def _connect_action(self):
         # request current directory for the handler to start up correctly

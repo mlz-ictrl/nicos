@@ -54,6 +54,6 @@ def test_scan():
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0., 'test scan', manual=1)
         dataset = session.experiment._last_datasets[-1]
-        genplot.plotDataset(dataset, path.join(rootdir, 'testplt'))
+        genplot.plotDataset(dataset, path.join(rootdir, 'testplt'), 'svg')
     finally:
         session.experiment.detlist = []

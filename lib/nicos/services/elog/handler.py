@@ -278,8 +278,9 @@ class HtmlWriter(object):
 
 
 class Handler(object):
-    def __init__(self, log):
+    def __init__(self, log, plotformat):
         self.log = log
+        self.plotformat = plotformat
         self.handlers = {}
         # register all handlers
         for name in Handler.__dict__:
@@ -455,15 +456,17 @@ class Handler(object):
         else:
             html.extend(['<td></td>'] * (len(dataset.xnames) + len(ycindex)))
         # plot link
+        plotfmt = self.plotformat
         try:
-            plotDataset(dataset, path.join(self.logdir, 'scan-%d' % scannumber))
+            plotDataset(dataset, path.join(self.logdir,
+                                           'scan-%d' % scannumber), plotfmt)
         except Exception:
-            self.log.warning('could not generate svg plot', exc=1)
+            self.log.warning('could not generate plot', exc=1)
             html.append('<td>&mdash;</td>')
         else:
-            html.append('<td><a href="scan-%d-lin.svg">Lin</a> / '
-                        '<a href="scan-%d-log.svg">Log</a></td>' %
-                        (scannumber, scannumber))
+            html.append('<td><a href="scan-%d-lin.%s">Lin</a> / '
+                        '<a href="scan-%d-log.%s">Log</a></td>' %
+                        (scannumber, plotfmt, scannumber, plotfmt))
         # file link
         if dataset.sinkinfo.get('filepath'):
             relfile = path.relpath(dataset.sinkinfo.get('filepath'),

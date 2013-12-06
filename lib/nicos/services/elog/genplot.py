@@ -26,14 +26,14 @@
 
 import subprocess
 
-def plotDataset(dataset, fn):
+def plotDataset(dataset, fn, fmt):
     if not dataset.xresults:
         raise ValueError('no points in dataset')
 
     gpProcess = subprocess.Popen('gnuplot', shell=True, stdin=subprocess.PIPE,
                                  stdout=None)
     gpStdin = gpProcess.stdin
-    gpStdin.write('set terminal svg size 600,400 dashed\n')
+    gpStdin.write('set terminal %s size 600,400 dashed\n' % fmt)
     gpStdin.write('set xlabel "%s (%s)"\n' % (dataset.xnames[dataset.xindex],
                                          dataset.xunits[dataset.xindex]))
     gpStdin.write('set title "Scan %s - %s"\n' %
@@ -77,12 +77,12 @@ def plotDataset(dataset, fn):
             gpStdin.write('set ylabel "%s"\n' % yunits.pop())
         gpStdin.write('set key outside below\n')
 
-    gpStdin.write('set output "%s-lin.svg"\n' % fn)
+    gpStdin.write('set output "%s-lin.%s"\n' % (fn, fmt))
     gpStdin.write('plot %s\n' % ', '.join(plotterms))
     for i in range(len(plotterms)):
         gpStdin.write(data)
 
-    gpStdin.write('set output "%s-log.svg"\n' % fn)
+    gpStdin.write('set output "%s-log.%s"\n' % (fn, fmt))
     gpStdin.write('set logscale y\n')
     gpStdin.write('plot %s\n' % ', '.join(plotterms))
     for i in range(len(plotterms)):
