@@ -30,7 +30,7 @@ import urllib2
 
 
 from nicos import session
-from nicos.core import UsageError
+from nicos.core import UsageError, ConfigurationError
 from nicos.commands import usercommand
 from nicos.utils import printTable
 ACTIVATIONURL = 'https://www.frm2.tum.de/intranet/activation/'
@@ -106,20 +106,23 @@ def activation(formula=None, instrument=None,
         try:
             #  preparation for a future enhanced sample class
             formula = session.experiment.sample.formula
-        except AttributeError:
+        except (ConfigurationError, AttributeError): # ConfigurationError is raised if no experiment is in session
             pass
     if formula is None:
         raise UsageError('Please give a formula')
     if flux:
         instrument = 'Manual'
     if instrument is None:
-        instrument = session.instrument.instrument or None
+        try:
+            instrument = session.instrument.instrument or None
+        except ConfigurationError:
+            pass
     if instrument is None:
         raise UsageError('Please specifiy an instrument or flux')
     if mass is None:
         try:
             formula = session.experiment.sample.mass
-        except AttributeError:
+        except (ConfigurationError, AttributeError):
             pass
     if mass is None:
         raise UsageError('Please specify the sample mass')
@@ -127,7 +130,7 @@ def activation(formula=None, instrument=None,
     qs = '?json=1&formula=%(formula)s&instrument=%(instrument)s&mass=%(mass)g' \
         % locals()
     if flux:
-        qs += '&fluence=%(flux)g&cdratio=%(cdratio)g&fastratio=%(fastratio)g' \
+        qs += '&fluence=%(flux)f&cdratio=%(cdratio)f&fastratio=%(fastratio)f' \
             % locals()
     qs = ACTIVATIONURL + qs
     try:
@@ -137,28 +140,31 @@ def activation(formula=None, instrument=None,
         session.log.warning(e)
         return None
     data = json.load(response)
-    if data['ecode'] == 'unknown instrument':
+    if data['ecode'] == 'unknown instrument' and flux is None:
         session.log.warning('Instrument %(instrument)s unknown to calculator, '
                             'specify flux manually' % locals())
         session.log.info('Known instruments')
-        printTable(['instrument'], data['instruments'], session.log.info)
+        printTable(['instrument'], [(d, ) for d in data['instruments']], session.log.info)
 
-    h = data['result']['activation']['headers']
-    th = [h['isotope'], h['daughter'], h['reaction'], h['Thalf_str']]
-    for ha in h['activities']:
-        th.append(ha)
-    rows = []
-    for r in data['result']['activation']['rows']:
-        rd = [r['isotope'], r['daughter'], r['reaction'], r['Thalf_str']]
-        for a in r['activities']:
-            rd.append('%.3g' % a if a > 1e-6 else '<1e-6')
-        rows.append(rd)
-    dr = ['', '', '', 'Dose (uSv/h)']
-    for d in data['result']['activation']['doses']:
-        dr.append('%.3g' % d)
-    rows.append(dr)
+    if data['result']['activation']:
+        h = data['result']['activation']['headers']
+        th = [h['isotope'], h['daughter'], h['reaction'], h['Thalf_str']]
+        for ha in h['activities']:
+            th.append(ha)
+        rows = []
+        for r in data['result']['activation']['rows']:
+            rd = [r['isotope'], r['daughter'], r['reaction'], r['Thalf_str']]
+            for a in r['activities']:
+                rd.append('%.3g' % a if a > 1e-6 else '<1e-6')
+            rows.append(rd)
+        dr = ['', '', '', 'Dose (uSv/h)']
+        for d in data['result']['activation']['doses']:
+            dr.append('%.3g' % d)
+        rows.append(dr)
 
-    printTable(th, rows, session.log.info)
+        printTable(th, rows, session.log.info)
+    else:
+        session.log.info('No activation')
     if getdata:
         return data
     return
