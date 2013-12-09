@@ -28,7 +28,7 @@
 from IO import StringIO
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
-     usermethod, Param, CommunicationError, HardwareError, \
+     usermethod, Param, CommunicationError, HardwareError, MoveError, \
      Device, Readable
 from nicos.utils import lazy_property
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
@@ -403,6 +403,8 @@ class MCC2Motor(MCC2core, NicosMotor):
 
     def doStart(self, pos):
         """go to a absolute postition"""
+        if self.doStatus(0)[0] != status.OK:
+            raise MoveError('Can not start, please check status!')
         pos = int(pos * self.slope * self.microstep)
         self.comm('XE%d' % pos)
 
@@ -427,6 +429,8 @@ class MCC2Motor(MCC2core, NicosMotor):
             'Encoder error', 'Motor halted', 'referenced']
         s = ''
 
+        sc = status.OK
+
         if sui in ['+', '2']:
             s = s + 'Limit switch + active, '
         if sui in ['-', '2']:
@@ -436,24 +440,27 @@ class MCC2Motor(MCC2core, NicosMotor):
             if t & (1 << i):
                 s = s + sl[i] + ', '
 
+        # motor moving -> busy
         if (t & 0x100) == 0:
             s = s + 'Motor moving, '
+            sc = status.BUSY
+
+        # Overcurrent, Undervoltage, Overtemp or stepping error -> error
+        if (t & 0b1000111) != 0:
+            sc = status.ERROR
 
         if st & (1 << 5):
             s = s + 'Driver enabled externally, '
         else:
+            # driver disabled -> error
             s = s + 'Driver disabled externally, '
+            sc = status.ERROR
 
         if s:
             s = s[:-2]
 
-        if sui in '+-2':
-            return status.ERROR,s
+        if sui == '2':
+            # ?both? limit switches touched
+            sc = status.ERROR
 
-        if (t & 0x100) == 0:
-            return status.BUSY, s
-
-        if (t & 0b1000111) != 0:
-            return status.ERROR, s
-
-        return status.OK, s
+        return sc, s
