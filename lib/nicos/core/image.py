@@ -24,6 +24,7 @@
 
 """Detector image classes for NICOS."""
 
+from os import path
 from time import time as currenttime
 
 import numpy
@@ -256,7 +257,8 @@ class ImageProducer(DeviceMixinBase):
                 imageinfo.header.update(dataset.headerinfo)
             dataset.imageinfos = imageinfos
         self._imageinfos = imageinfos
-        self.lastfilename = imageinfos[0].filename
+        self.lastfilename = path.relpath(imageinfos[0].filepath,
+                                         session.experiment.proposalpath)
 
     def addInfo(self, dataset, category, valuelist):
         for imageinfo in self._imageinfos:

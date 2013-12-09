@@ -27,7 +27,6 @@
 import time
 import random
 import threading
-from os import path
 from math import exp
 
 import numpy as np
@@ -324,7 +323,7 @@ class Virtual2DDetector(ImageProducer, Measurable):
         self._buf = None
 
     def doRead(self, maxage=0):
-        return [self.lastcounts, path.abspath(self.lastfilename)]
+        return [self.lastcounts, self.lastfilename]
 
     def valueInfo(self):
         return (Value(self.name + '.sum', unit='cts', type='counter',
