@@ -22,7 +22,7 @@ devices = dict(
     Exp      = device('devices.experiment.Experiment',
                       dataroot = 'data',
                       sendmail = True,
-                      serviceexp = '0',
+                      serviceexp = 'service',
                       sample = 'Sample',
                      ),
 
