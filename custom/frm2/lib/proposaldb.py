@@ -106,6 +106,14 @@ def queryProposal(pnumber, instrument=None):
             WHERE xid = %s AND xid = _xid AND mid = _mid
             ORDER BY abs(mid-4.8) ASC''', (pnumber,))
         rows = cur.fetchall()
+        # get real instrument name
+        cur.execute('''
+            SELECT name
+            FROM Proposal, Proposal_members, Proposal_values, instruments
+            WHERE xid = %s AND xid = _xid AND mid = _mid
+                AND mname = '_CM_INSTRUMENT' and db_name = value
+            ''', (pnumber,))
+        instrname = cur.fetchone()[0]
         # get user info
         cur.execute('''
             SELECT name, user_email, institute1 FROM nuke_users, Proposal
@@ -123,8 +131,14 @@ def queryProposal(pnumber, instrument=None):
         raise InvalidValueError('user does not exist in database')
     if not permissions:
         raise InvalidValueError('no permissions entry in database')
+    if instrument is not None and instrname.lower() != instrument.lower():
+        session.log.error('proposal %s is not a proposal for '
+            '%s, but for %s, cannot use proposal information' %
+            (pnumber, instrument, instrname))
+        return instrname, {} # avoid data leakage
     # structure of returned data: (title, user, prop_name, prop_value)
     info = {
+        'instrument': instrname,
         'title': rows[0][0],
         'user': userrow[0],
         'user_email': userrow[1],
@@ -136,12 +150,7 @@ def queryProposal(pnumber, instrument=None):
         # extract the property name in a form usable as dictionary key
         key = row[1][4:].lower().replace('-', '_')
         value = row[2]
-        if key == 'instrument':
-            if value[4:].lower() != instrument.lower():
-                session.log.error('proposal %s is not a proposal for '
-                    '%r, but for %r' % (pnumber, instrument, value[4:]))
-                return value[4:], {} # avoid data leakage
-        if value:
+        if value and key not in info:
             info[key] = value
     # convert all values to utf-8
     for k in info:
