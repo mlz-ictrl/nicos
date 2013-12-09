@@ -36,7 +36,7 @@ devices = dict(
     ),
 
     # STT is first device and has 1 stepper, 0 poti, 1 coder
-    stt_step = device('devices.vendor.ipc.Motor',
+    stt_step = device('panda.ipc.Motor',
             bus = 'bus2',
             addr = MOTOR(1),
             slope = 2000,
@@ -74,7 +74,7 @@ devices = dict(
     ),
 
     # STH is second device and has 1 stepper, 0 poti, 1 coder
-    sth_st_step = device('devices.vendor.ipc.Motor',
+    sth_st_step = device('panda.ipc.Motor',
             bus = 'bus2',
             addr = MOTOR(2),
             slope = 2000,
@@ -109,7 +109,7 @@ devices = dict(
     ),
 
     # SGX is third device and has 1 stepper, 0 poti, 1 coder
-    sgx_step = device('devices.vendor.ipc.Motor',
+    sgx_step = device('panda.ipc.Motor',
             bus = 'bus2',
             addr = MOTOR(3),
             slope = -3200,
@@ -146,7 +146,7 @@ devices = dict(
     ),
 
     # SGY is fourth device and has 1 stepper, 0 poti, 1 coder
-    sgy_step = device('devices.vendor.ipc.Motor',
+    sgy_step = device('panda.ipc.Motor',
             bus = 'bus2',
             addr = MOTOR(4),
             slope = 3200,
@@ -183,7 +183,7 @@ devices = dict(
 
 
     # STX is fith device and has 1 stepper, 1 poti, 0 coder
-    stx_step = device('devices.vendor.ipc.Motor',
+    stx_step = device('panda.ipc.Motor',
             bus = 'bus2',
             addr = MOTOR(5),
             slope = 12800,
@@ -215,7 +215,7 @@ devices = dict(
     ),
 
     # STY is sixth device and has 1 stepper, 1 poti, 0 coder
-    sty_step = device('devices.vendor.ipc.Motor',
+    sty_step = device('panda.ipc.Motor',
             bus = 'bus2',
             addr = MOTOR(6),
             slope = 12800,
@@ -247,7 +247,7 @@ devices = dict(
     ),
 
     # STZ is seventh device and has 1 stepper, 0 poti, 0 coder
-    stz_step = device('devices.vendor.ipc.Motor',
+    stz_step = device('panda.ipc.Motor',
             bus = 'bus2',
             addr = MOTOR(7),
             slope = 20000,

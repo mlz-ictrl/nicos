@@ -35,7 +35,7 @@ devices = dict(
     ),
 
     # ATT is first device and has 1 stepper, 0 poti, 1 coder
-    att_step = device('devices.vendor.ipc.Motor',
+    att_step = device('panda.ipc.Motor',
             bus = 'bus1',
             addr = MOTOR(1),
             slope = -200,
@@ -95,7 +95,7 @@ devices = dict(
     #~ ),
 
     # ath is second device and has 1 stepper, 0 poti, 1 coder
-    ath_step = device('devices.vendor.ipc.Motor',
+    ath_step = device('panda.ipc.Motor',
             bus = 'bus1',
             addr = MOTOR(2),
             slope = 1600,
@@ -133,7 +133,7 @@ devices = dict(
     ),
 
     # agx is third device and has 1 stepper, 0 poti, 1 coder
-    agx_step = device('devices.vendor.ipc.Motor',
+    agx_step = device('panda.ipc.Motor',
             bus = 'bus1',
             addr = MOTOR(3),
             slope = 3200,
@@ -173,7 +173,7 @@ devices = dict(
     # fith device is unused
 
     # aty is sixth device and has 1 stepper, 0 poti, 1 coder
-    aty_step = device('devices.vendor.ipc.Motor',
+    aty_step = device('panda.ipc.Motor',
             bus = 'bus1',
             addr = MOTOR(6),
             slope = 400,
@@ -209,7 +209,7 @@ devices = dict(
     # eigth device is unused
 
     # afh is seventh device and has 1 stepper, 0 poti, 0 coder
-    afh_step = device('devices.vendor.ipc.Motor',
+    afh_step = device('panda.ipc.Motor',
             bus = 'bus1',
             addr = MOTOR(7),
             slope = 8 * 400 / 360.0,
