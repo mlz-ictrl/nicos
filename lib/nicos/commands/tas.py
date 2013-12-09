@@ -614,6 +614,31 @@ def hklplot(**kwds):
 
 
 @usercommand
+@helparglist('(h, k, l), [psival]')
+def setalign(hkl, psival=None):
+    """Readjust Sample psi0 to the current value of the sample rotation axis
+    or the given *psival* value.
+
+    Example:
+
+    >>> setalign((4, 0, 0))         # align so that 4,0,0 is "here"
+    >>> setalign((4, 0, 0), 90.32)  # align so that 4,0,0 is on 90.32 deg
+    """
+    tas = session.instrument
+    target = tuple(hkl) + (0,)
+    psi = tas._adevs['psi']
+    psicalc = tas._calpos(target + (None, None), printout=False)[3]
+    if psival is None:
+        psival = psi.read(0)
+    diff = psicalc - psival
+    sample = tas._adevs['cell']
+    printinfo('adjusting %s.psi0 by %s' % (sample, psi.format(diff, True)))
+    sample.psi0 += diff
+    newpsi = tas._calpos(target + (None, None), printout=False)[3]
+    printinfo('%s is now at %s' % (tuple(hkl), psi.format(newpsi, True)))
+
+
+@usercommand
 @helparglist('(h, k, l), step, numpoints, ...')
 def checkalign(hkl, step, numpoints, *args, **kwargs):
     """Readjust Sample psi0 to the fitted center of a sample rocking scan.
