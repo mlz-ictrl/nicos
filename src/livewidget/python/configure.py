@@ -70,14 +70,14 @@ makefile = pyqtconfig.QtGuiModuleMakefile(
     configuration=config, build_file=build_file,
     debug='-r' not in sys.argv)
 
-dist = platform.linux_distribution()[0]
-if dist in ('openSUSE', 'openSUSE ') :
+dist = platform.linux_distribution()[0].strip() # old openSUSE appended a space here :(
+if dist == 'openSUSE' :
     makefile.extra_include_dirs = ["/usr/include/qwt5",
                                    "/usr/include/qwt",
                                    "/usr/include/libcfitsio0",
                                    "/usr/include/cfitsio"]
     makefile.extra_libs = ["qwt", "cfitsio"]
-elif dist == 'Ubuntu':
+elif dist in ['Ubuntu', 'LinuxMint']:
     makefile.extra_include_dirs = ["/usr/include/qwt-qt4"]
     makefile.extra_libs = ["qwt-qt4", "cfitsio"]
 elif dist == 'CentOS':
