@@ -106,7 +106,7 @@
      <normaloff>:/jump</normaloff>:/jump</iconset>
    </property>
    <property name="text">
-    <string>Move...</string>
+    <string>Control...</string>
    </property>
   </action>
   <action name="actionReset">
