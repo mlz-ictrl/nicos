@@ -216,6 +216,7 @@ class DeviceDocumenter(ClassDocumenter):
                 self.indent = orig_indent
                 n += 1
             if basecmdinfo:
+                self.add_line('', '<autodoc>')
                 self.add_line('Methods inherited from the base classes: ' +
                               ', '.join('`~%s.%s`' % i for i in basecmdinfo),
                               '<autodoc>')
@@ -241,6 +242,7 @@ class DeviceDocumenter(ClassDocumenter):
                 baseparaminfo.append((param, info))
                 continue
             if n == 0:
+                self.add_line('', '<autodoc>')
                 self.add_line('**Parameters**', '<autodoc>')
                 self.add_line('', '<autodoc>')
             if isinstance(info.type, type):
@@ -271,6 +273,7 @@ class DeviceDocumenter(ClassDocumenter):
             self.indent = orig_indent
             n += 1
         if baseparaminfo:
+            self.add_line('', '<autodoc>')
             self.add_line('Parameters inherited from the base classes: ' +
                           ', '.join('`~%s.%s`' % (info.classname or '', name)
                           for (name, info) in baseparaminfo), '<autodoc>')

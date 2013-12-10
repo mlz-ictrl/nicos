@@ -222,6 +222,7 @@ class SequencerMixin(DeviceMixinBase):
     hardware_access = False
 
     def _set_seq_status(self, newstatus=status.OK, newstatusstring='unknown'):
+        """Set the current sequence status"""
         self._seq_status = (newstatus, newstatusstring.strip())
         self.log.debug(self._seq_status[1])
         if self._cache:
@@ -229,6 +230,7 @@ class SequencerMixin(DeviceMixinBase):
                             time.time(), self.maxage)
 
     def _startSequence(self, sequence):
+        """Checks and starts the sequence"""
         # check sequence
         for i, step in enumerate(sequence):
             if not hasattr(step, '__iter__'):

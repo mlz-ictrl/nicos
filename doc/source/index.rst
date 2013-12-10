@@ -29,7 +29,6 @@ Developer related chapters:
    deviceapi
    coreapi
    protocols/index
-   auto/modules
    newsetup
    gui/index
 

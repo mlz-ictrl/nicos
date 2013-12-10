@@ -104,7 +104,6 @@ The result is used to create the status string.
   .. automethod:: _asyncSequence
   .. automethod:: _run
   .. automethod:: _sequence
-  .. automethod:: _generateSequence
   .. automethod:: _stopAction
   .. automethod:: _checkFailed
   .. automethod:: _runFailed
