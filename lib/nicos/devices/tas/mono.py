@@ -29,7 +29,8 @@ from math import pi, cos, sin, asin, radians, degrees, sqrt
 from time import time
 
 from nicos.core import Moveable, HasLimits, HasPrecision, Param, Override, \
-     listof, oneof, ComputationError, LimitError, status, multiStatus
+    listof, oneof, ComputationError, LimitError, status, multiStatus, \
+    multiWait, multiStop
 
 THZ2MEV = 4.1356675
 ANG2MEV = 81.804165
@@ -130,12 +131,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 self._movelist.append(self._adevs[drive])
 
     def doStop(self):
-        for device in self._movelist:
-            device.stop()
+        multiStop(self._movelist)
 
     def doWait(self):
-        for device in self._movelist:
-            device.wait()
+        multiWait(self._movelist)
 
     def doReset(self):
         for device in self._movelist:

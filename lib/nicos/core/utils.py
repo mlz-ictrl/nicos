@@ -25,7 +25,9 @@
 
 """NICOS core utility functions."""
 
+import sys
 from time import sleep, time as currenttime
+
 
 from nicos import session
 from nicos.core import status
@@ -105,6 +107,44 @@ def formatStatus(st):
     const, message = st
     const = status.statuses.get(const, str(const))
     return const + (message and ': ' + message or '')
+
+
+def multiWait(devices):
+    """Wait for every device in the *devices* list.
+
+    The first given exception is re-raised after all wait() calls have been
+    finished, all other exceptions are logged and not re-raised.
+    """
+    first_exc = None
+    for dev in devices:
+        try:
+            dev.wait()
+        except Exception:
+            if not first_exc:
+                first_exc = sys.exc_info()
+            else:
+                dev.log.exception('during wait()')
+    if first_exc:
+        raise first_exc  # pylint: disable=E0702
+
+
+def multiStop(devices):
+    """Stop every device in the *devices* list.
+
+    The first given exception is re-raised after all stop() calls have been
+    finished, all other exceptions are logged and not re-raised.
+    """
+    first_exc = None
+    for dev in devices:
+        try:
+            dev.stop()
+        except Exception:
+            if not first_exc:
+                first_exc = sys.exc_info()
+            else:
+                dev.log.exception('during stop()')
+    if first_exc:
+        raise first_exc  # pylint: disable=E0702
 
 
 def getExecutingUser():

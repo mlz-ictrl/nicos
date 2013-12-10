@@ -28,7 +28,7 @@
 from nicos.utils import lazy_property
 from nicos.core import anytype, dictof, none_or, floatrange, listof, oneof, \
      PositionError, NicosError, ConfigurationError, Moveable, Readable, Param, \
-     Override, status
+     Override, status, multiStop
 
 
 class Switcher(Moveable):
@@ -234,8 +234,7 @@ class MultiSwitcher(Moveable):
                 d.wait()
 
     def doStop(self):
-        for d in self.devices:
-            d.stop()
+        multiStop(self.devices)
 
     def doRead(self, maxage=0):
         pos = [d.read(maxage) for d in self.devices]

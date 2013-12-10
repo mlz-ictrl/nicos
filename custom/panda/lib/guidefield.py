@@ -27,7 +27,8 @@
 import numpy as np
 
 from nicos.utils import lazy_property
-from nicos.core import Moveable, Param, Override, status, LimitError
+from nicos.core import Moveable, Param, Override, status, LimitError, \
+    multiWait, multiStop
 from nicos.core.params import nonemptylistof, floatrange, tupleof
 from nicos.devices.generic import Switcher, VirtualMotor
 
@@ -166,12 +167,10 @@ class GuideField(Switcher):
         return self.target
 
     def doStop(self):
-        for d in self.coils + [self.alpha]:
-            d.stop()
+        multiStop(self.coils + [self.alpha])
 
     def doWait(self):
-        for d in self.coils + [self.alpha]:
-            d.wait()
+        multiWait(self.coils + [self.alpha])
 
     def doStatus(self, maxage=0):
         stc,stm = status.OK, []
@@ -309,8 +308,7 @@ class Flipper(Switcher):
             self.compensate.start(self.compcurrent)
 
     def doStop(self):
-        self.field.stop()
-        self.compensate.stop()
+        multiStop((self.field, self.compensate))
 
     def doRead(self, maxage=0):
         if self.target:

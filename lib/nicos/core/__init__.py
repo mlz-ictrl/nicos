@@ -26,10 +26,10 @@
 
 from nicos.core import status
 from nicos.core.errors import NicosError, ProgrammingError, \
-     ConfigurationError, UsageError, InvalidValueError, ModeError, \
-     PositionError, MoveError, LimitError, CommunicationError, \
-     HardwareError, TimeoutError, ComputationError, \
-     CacheLockError, AccessError, CacheError, SPMError
+    ConfigurationError, UsageError, InvalidValueError, ModeError, \
+    PositionError, MoveError, LimitError, CommunicationError, \
+    HardwareError, TimeoutError, ComputationError, \
+    CacheLockError, AccessError, CacheError, SPMError
 from nicos.core.device import Device, DeviceMixinBase, AutoDevice, \
      Readable, Moveable, Measurable, \
      HasLimits, HasOffset, HasPrecision, usermethod, requires
@@ -39,4 +39,5 @@ from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
      control_path_relative, mailaddress
 from nicos.core.data import Dataset, DataSink, NeedsDatapath
 from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
-     GUEST, USER, ADMIN, ACCESS_LEVELS
+     GUEST, USER, ADMIN, ACCESS_LEVELS, \
+     multiWait, multiStop

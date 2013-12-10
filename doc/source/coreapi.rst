@@ -232,6 +232,10 @@ are re-exported in :mod:`nicos.core`.
 
 .. autofunction:: waitForStatus
 
+.. autofunction:: multiWait
+
+.. autofunction:: multiStop
+
 
 Writing commands
 ================
