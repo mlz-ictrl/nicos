@@ -51,6 +51,7 @@ ToDate=%(ToDate)s
 ToTime=%(ToTime)s
 Title=%(Exp.title)s
 User=%(Exp.users)s
+
 %%Sample
 SampleName=%(Sample.samplename)s
 Environment=%(Environment)s
@@ -102,6 +103,7 @@ IEEE7=
 IEEE8=
 IEEE9=
 IEEE10=
+
 %%Setup
 SelSelection=1
 Lambda=7.999687
@@ -162,6 +164,7 @@ Moni2=%(Moni2)s
 Sum/Time=%(Sum_Time)s
 Sum/Moni1=%(Sum_Moni1)s
 Sum/Moni2=%(Sum_Moni2)s
+
 %%History
 Transmission=0.000000
 Scaling=0.000000
@@ -180,6 +183,7 @@ Attenuation=
 Import=
 Merged=
 Operation=
+
 %%Comment
 %(NICOSHeader)s
 
@@ -266,9 +270,9 @@ class BerSANSFileFormat(ImageSink):
         for _, valuelist in imageinfo.header.items():
             for dev, key, value in valuelist:
                 imageinfo.data['%s_%s' % (dev.name, key)] = value
-                nicosheader.append('%25s= %s' %('%s_%s' % (dev.name, key), value))
+                nicosheader.append('%s_%s=%s' %(dev.name, key, value))
         self.log.debug('nicosheader starts with: %40s' % '\n'.join(nicosheader))
-        imageinfo.data['NICOSHeader'] = '\n'.join(nicosheader + [''])
+        imageinfo.data['NICOSHeader'] = '\n'.join(sorted(nicosheader))
 
         # write Header
         imageinfo.file.write(BERSANSHEADER % imageinfo.data)
