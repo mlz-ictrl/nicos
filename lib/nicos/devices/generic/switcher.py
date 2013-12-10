@@ -28,7 +28,7 @@
 from nicos.utils import lazy_property
 from nicos.core import anytype, dictof, none_or, floatrange, listof, \
      PositionError, ConfigurationError, Moveable, Readable, Param, \
-     Override, status, InvalidValueError
+     Override, status, InvalidValueError, multiStop
 from nicos.devices.abstract import MappedReadable, MappedMoveable
 
 
@@ -247,8 +247,7 @@ class MultiSwitcher(MappedMoveable):
                 d.wait()
 
     def doStop(self):
-        for d in self.devices:
-            d.stop()
+        multiStop(self.devices)
 
     def _readRaw(self, maxage=0):
         return tuple(d.read(maxage) for d in self.devices)

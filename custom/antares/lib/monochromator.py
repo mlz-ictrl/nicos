@@ -28,7 +28,7 @@ from math import asin, sin, tan, radians, degrees
 
 from nicos.utils import lazy_property
 from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
-     Override, status, none_or
+     Override, status, none_or, multiWait
 from nicos.core.utils import multiStatus
 
 class Monochromator(HasLimits, Moveable):
@@ -129,6 +129,4 @@ class Monochromator(HasLimits, Moveable):
         return lam
 
     def doWait(self):
-        for d in self.devices:
-            self.log.debug('Waiting for %s' % d.name)
-            d.wait()
+        multiWait(self.devices)

@@ -1299,9 +1299,10 @@ class Moveable(Readable):
     def doWait(self):
         """Wait until movement of device is completed.
 
-        This default implementation is supposed to be overriden in derived classes
-        and just polls the status of the device until it is not BUSY anymore.
-        For details how this is done, have a look into nicos.core.utils.waitForStatus()
+        This default implementation is supposed to be overriden in derived
+        classes and just polls the status of the device until it is not BUSY
+        anymore.  For details how this is done, have a look into
+        `nicos.core.utils.waitForStatus`.
         """
         waitForStatus(self)
 

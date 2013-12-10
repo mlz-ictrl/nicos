@@ -27,7 +27,7 @@
 from time import sleep
 
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
-    AutoDevice, InvalidValueError, tupleof
+    AutoDevice, InvalidValueError, tupleof, multiWait, multiStop
 from nicos.devices.abstract import CanReference
 
 
@@ -201,12 +201,10 @@ class Slit(CanReference, Moveable):
                 self.log.warning('%s cannot be referenced' % ax)
 
     def doWait(self):
-        for ax in self._axes:
-            ax.wait()
+        multiWait(self._axes)
 
     def doStop(self):
-        for ax in self._axes:
-            ax.stop()
+        multiStop(self._axes)
 
     def _doReadPositions(self, maxage):
         cl, cr, cb, ct = [d.read(maxage) for d in self._axes]

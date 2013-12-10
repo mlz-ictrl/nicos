@@ -27,20 +27,20 @@
 from nicos.core import status
 from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE
 from nicos.core.errors import NicosError, ProgrammingError, \
-     ConfigurationError, UsageError, InvalidValueError, ModeError, \
-     PositionError, MoveError, LimitError, CommunicationError, \
-     HardwareError, TimeoutError, ComputationError, \
-     CacheLockError, AccessError, CacheError, SPMError
+    ConfigurationError, UsageError, InvalidValueError, ModeError, \
+    PositionError, MoveError, LimitError, CommunicationError, \
+    HardwareError, TimeoutError, ComputationError, \
+    CacheLockError, AccessError, CacheError, SPMError
 from nicos.core.device import Device, DeviceMixinBase, AutoDevice, \
-     Readable, Moveable, Measurable, \
-     HasLimits, HasOffset, HasPrecision, HasMapping, \
-     usermethod, requires
+    Readable, Moveable, Measurable, \
+    HasLimits, HasOffset, HasPrecision, HasMapping, \
+    usermethod, requires
 from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
-     listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
-     vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \
-     relative_path, absolute_path, subdir, mailaddress, limits
+    listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
+    vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \
+    relative_path, absolute_path, subdir, mailaddress, limits
 from nicos.core.data import Dataset, DataSink
 from nicos.core.scan import Scan
 from nicos.core.image import ImageInfo, ImageType, ImageSink, ImageProducer
-from nicos.core.utils import multiStatus, waitForStatus, formatStatus, \
-     GUEST, USER, ADMIN, ACCESS_LEVELS
+from nicos.core.utils import multiStatus, waitForStatus, multiWait, \
+    multiStop, formatStatus, GUEST, USER, ADMIN, ACCESS_LEVELS

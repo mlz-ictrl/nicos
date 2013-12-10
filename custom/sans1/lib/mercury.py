@@ -30,7 +30,7 @@ from IO import StringIO
 
 from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
      floatrange, status, oneof, CommunicationError, InvalidValueError, \
-     ConfigurationError, multiStatus
+     ConfigurationError, multiStatus, multiWait, multiStop
 from nicos.devices.taco.core import TacoDevice
 from nicos.core import SIMULATION
 
@@ -182,8 +182,7 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
         self._adevs['ps2'].start(scale * maxcurr2)
 
     def doWait(self):
-        self._adevs['ps1'].wait()
-        self._adevs['ps2'].wait()
+        multiWait((self._adevs['ps1'], self._adevs['ps2']))
 
     def doRead(self, maxage=0):
         maxfield, maxcurr1, _maxcurr2 = self._scales[self.asymmetry]
@@ -195,10 +194,7 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
 
     def doStop(self):
         # try to stop both supplies even if first stop() raises
-        try:
-            self._adevs['ps1'].stop()
-        finally:
-            self._adevs['ps2'].stop()
+        multiStop((self._adevs['ps1'], self._adevs['ps2']))
 
     def doWriteAsymmetry(self, value):
         if abs(self.read(0)) > 0.01:

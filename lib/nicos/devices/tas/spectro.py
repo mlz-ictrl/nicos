@@ -26,7 +26,8 @@
 """NICOS triple-axis instrument devices."""
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
-     ConfigurationError, ComputationError, LimitError, oneof, multiStatus
+    ConfigurationError, ComputationError, LimitError, oneof, multiStatus, \
+    multiWait
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV
 from nicos.devices.tas import spurions
@@ -154,13 +155,12 @@ class TAS(Instrument, Moveable):
         if self.scanmode != 'DIFF':
             self.log.debug('moving ana to %s' % angles[1])
             ana._startInvAng(angles[1])
-        mono.wait()
-        if self.scanmode != 'DIFF':
-            ana.wait()
-        phi.wait()
-        psi.wait()
+        waiters = [mono, phi, psi]
         if alpha is not None:
-            alpha.wait()
+            waiters.append(alpha)
+        if self.scanmode != 'DIFF':
+            waiters.append(ana)
+        multiWait(waiters)
         # make sure index members read the latest value
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
