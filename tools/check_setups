@@ -129,7 +129,8 @@ def check_parameter(log, devname, name, value):
 def check_setupfile(filename):
     log = logging.getLogger(filename)
     good = True
-    namespace = {'device': lambda c, **kw: (c, kw)}
+    namespace = {'device': lambda c, **kw: (c, kw),
+                 'setupname': path.basename(filename)[:-3]}
     # check syntax
     try:
         execfile(filename, namespace)
