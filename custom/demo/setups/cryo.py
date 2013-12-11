@@ -11,6 +11,26 @@ devices = dict(
                       speed = 6,
                       unit = 'K',
                      ),
+
+# for testing frm2.ccr module
+    T_stick   = device('devices.generic.VirtualTemperature',
+                      abslimits = (2, 600),
+                      warnlimits = (0, 600),
+                      speed = 6,
+                      unit = 'K',
+                     ),
+
+    T_tube   = device('devices.generic.VirtualTemperature',
+                      abslimits = (0, 300),
+                      warnlimits = (0, 300),
+                      speed = 6,
+                      unit = 'K',
+                     ),
+
+    T_ccr    = device('frm2.ccr.CCRControl',
+                      stick = 'T_stick',
+                      tube = 'T_tube',
+                     ),
 )
 
 startupcode = '''
