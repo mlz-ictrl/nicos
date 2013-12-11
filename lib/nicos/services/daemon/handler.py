@@ -88,7 +88,7 @@ def command(needcontrol=False, needscript=None, name=None):
         wrapper.__name__ = func.__name__
         wrapper.orig_function = func
         daemon_commands[name or func.__name__] = wrapper
-        return wrapper
+        return func
     return deco
 
 stop_queue = object()
@@ -316,7 +316,7 @@ class ConnectionHandler(BaseRequestHandler):
 
         Same as queue(), but will reject the command if a script is running.
         """
-        self.queue((name, code))
+        self.queue(name, code)
 
     @command()
     def queue(self, name, code):
