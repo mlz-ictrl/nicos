@@ -148,10 +148,6 @@ class ResiVAxis(Moveable):
     def doWait(self):
         # the moves are currently blocking due to restrictions in the underlying hardware access layer.
         pass
-    def doStatus(self):
-        return self._adevs['basedevice'].status()
-    def doStop(self):
-        return self._adevs['basedevice'].stop()
 
 class ResiSample(Sample):
     """Cell object representing sample geometry."""

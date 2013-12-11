@@ -380,9 +380,6 @@ class TASIndex(Moveable, AutoDevice):
         current[self.index] = pos
         self._adevs['tas'].start(current)
 
-    def doWait(self):
-        self._adevs['tas'].wait()
-
 
 class Wavevector(Moveable):
     """

@@ -28,7 +28,7 @@
 from nicos.utils import lazy_property
 from nicos.core import anytype, dictof, none_or, floatrange, listof, \
      PositionError, ConfigurationError, Moveable, Readable, Param, \
-     Override, status, InvalidValueError, multiStop
+     Override, status, InvalidValueError, multiStatus
 from nicos.devices.abstract import MappedReadable, MappedMoveable
 
 
@@ -73,12 +73,6 @@ class Switcher(MappedMoveable):
         self._adevs['moveable'].start(target)
         if self.blockingmove:
             self._adevs['moveable'].wait()
-
-    def doWait(self):
-        self._adevs['moveable'].wait()
-
-    def doStop(self):
-        self._adevs['moveable'].stop()
 
     def _readRaw(self, maxage=0):
         """Return raw position value of the moveable."""
@@ -246,9 +240,6 @@ class MultiSwitcher(MappedMoveable):
                 self.log.debug('waiting for %r'%d)
                 d.wait()
 
-    def doStop(self):
-        multiStop(self.devices)
-
     def _readRaw(self, maxage=0):
         return tuple(d.read(maxage) for d in self.devices)
 
@@ -281,11 +272,7 @@ class MultiSwitcher(MappedMoveable):
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
         # reflect its status
-        move_status = (0, 'X')
-        for d in self.devices:
-            s = d.status(maxage)
-            if move_status[0] < s[0]:
-                move_status = s
+        move_status = multiStatus(self.devices, maxage)
         if move_status[0] != status.OK:
             return move_status
         return MappedReadable.doStatus(self, maxage)

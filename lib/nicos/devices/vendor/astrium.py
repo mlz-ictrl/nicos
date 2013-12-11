@@ -191,7 +191,7 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
         # we have to check for the speed reaching the target speed.
         inittime = currenttime()
         while currenttime() < inittime + self.timeout:
-            if abs(self.read() - self.target) < self.precision:
+            if abs(self.read() - self.target) < self.precision: # XXX: inconsistent with doStatus!
                 return
         raise MoveError(self, 'selector did not reach %d rpm in %s seconds' %
                         (self.target, self.timeout))
@@ -268,8 +268,3 @@ class SelectorLambda(Moveable):
         self.log.debug('moving selector to %f rpm' % speed)
         self._adevs['seldev'].start(speed)
 
-    def doStatus(self, maxage=0):
-        return self._adevs['seldev'].status(maxage)
-
-    def doWait(self):
-        self._adevs['seldev'].wait()

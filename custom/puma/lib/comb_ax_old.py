@@ -71,7 +71,7 @@ class CombAxis(Moveable):
         self._adevs['main_ax'].wait()
         if self.iscomb == True:
             relpos = self._fixpos - self._adevs['main_ax'].read(0)
-            self._adevs['fix_ax'].start(relpos)
+            self._adevs['fix_ax'].start(relpos) # ??? start in doWait?????
             self._adevs['fix_ax'].wait()
 
     def doStatus(self, maxage=0):

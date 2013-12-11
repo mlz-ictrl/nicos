@@ -30,8 +30,7 @@ from time import sleep, time as currenttime
 import IO
 
 from nicos.core import Readable, Moveable, HasLimits, Param, Override, \
-     NicosError, intrange, oneof, status, requires, ADMIN, waitForStatus, \
-     listof
+     NicosError, intrange, oneof, status, requires, ADMIN, listof
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
 
@@ -328,15 +327,17 @@ class SpeedReadout(Readable):
 
 
 class PropertyChanger(Moveable):
+    """This is essentially a ParamDevice
+
+    and can be replace once Controller uses single setters
+    (NICOS-style interface).
+    """
     attached_devices = {
         'chopper': (Controller, 'Chopper controller'),
     }
 
     def doStatus(self, maxage=0):
         return status.OK, 'no status info'
-
-    def doWait(self):
-        waitForStatus(self._adevs['chopper'])
 
     def doRead(self, maxage=0):
         return getattr(self._adevs['chopper'], self._prop)

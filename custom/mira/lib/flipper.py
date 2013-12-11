@@ -24,8 +24,7 @@
 
 """Class for Mezei spin flipper."""
 
-from nicos.core import Moveable, Param, Override, oneof, tupleof, status, \
-    multiWait
+from nicos.core import Moveable, Param, Override, oneof, tupleof
 
 
 class Flipper(Moveable):
@@ -63,9 +62,3 @@ class Flipper(Moveable):
         else:
             self._adevs['flip'].start(0)
             self._adevs['corr'].start(0)
-
-    def doStatus(self, maxage=0):
-        return status.OK, 'idle'
-
-    def doWait(self):
-        multiWait((self._adevs['flip'], self._adevs['corr']))

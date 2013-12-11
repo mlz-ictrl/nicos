@@ -102,14 +102,3 @@ class Julabo(TacoDevice, HasLimits, Moveable):
         if abs(self.read() - self.setpoint) > self.tolerance:
             return status.BUSY, 'ramping'
         return status.OK, 'idle'
-
-    def doWait(self):
-        while 1:
-            a = self.doStatus()[0]
-            if a == status.OK:
-                break
-            if time.time() >= self._stime + self.timeout:
-                self.log.warning("timeout occurred - did not reach "
-                                 "selected temperature in time")
-                break
-            sleep(1)

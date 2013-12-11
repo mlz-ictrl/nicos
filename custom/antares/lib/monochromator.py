@@ -28,7 +28,7 @@ from math import asin, sin, tan, radians, degrees
 
 from nicos.utils import lazy_property
 from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
-     Override, status, none_or, multiWait
+     Override, status, none_or
 from nicos.core.utils import multiStatus
 
 class Monochromator(HasLimits, Moveable):
@@ -98,7 +98,7 @@ class Monochromator(HasLimits, Moveable):
             d.start(v)
 
     def doStatus(self, maxage=0):
-        st = multiStatus(self.devices, maxage)
+        st = multiStatus(self._adevs.items(), maxage)
         if st[0] == status.OK:
             # check position
             try:
@@ -127,6 +127,3 @@ class Monochromator(HasLimits, Moveable):
                 raise PositionError('%s is too far away for %.4f Angstroms' %
                                     (d, lam))
         return lam
-
-    def doWait(self):
-        multiWait(self.devices)

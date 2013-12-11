@@ -126,6 +126,7 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
         return sign * self._taco_guard(self._dev.read)
 
     def doWait(self):
+        # XXX: inconsistent with doStatus!
         while self._thread and self._thread.isAlive():
             self._thread.join(1)
         waitForStatus(self, 0.5)
@@ -239,8 +240,3 @@ class LambdaField(HasLimits, Moveable):
         assert abs(B(I) - value) < 0.1
         self._adevs['controller'].start(I)
 
-    def doStatus(self, maxage=0):
-        return self._adevs['controller'].status(maxage)
-
-    def doWait(self):
-        self._adevs['controller'].wait()

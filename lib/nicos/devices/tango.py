@@ -30,7 +30,7 @@ FRM-II/JCNS TANGO interface for the respective device classes.
 
 import PyTango
 
-from nicos.core import Param, Override, NicosError, status, waitForStatus, \
+from nicos.core import Param, Override, NicosError, status, \
      Readable, Moveable, HasLimits, Device, tangodev, DeviceMixinBase
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
@@ -82,9 +82,6 @@ class PyTangoDevice(DeviceMixinBase):
         nicosState = mapping.get(tangoState, status.UNKNOWN)
 
         return (nicosState, tangoStatus)
-
-    def doWait(self):
-        waitForStatus(self)
 
     def doVersion(self):
         return [(self.tangodevice, self._dev.version)]

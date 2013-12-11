@@ -27,7 +27,7 @@
 from time import sleep
 
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
-    AutoDevice, InvalidValueError, tupleof, multiWait, multiStop
+    AutoDevice, InvalidValueError, tupleof, multiStatus
 from nicos.devices.abstract import CanReference
 
 
@@ -200,12 +200,6 @@ class Slit(CanReference, Moveable):
             else:
                 self.log.warning('%s cannot be referenced' % ax)
 
-    def doWait(self):
-        multiWait(self._axes)
-
-    def doStop(self):
-        multiStop(self._axes)
-
     def _doReadPositions(self, maxage):
         cl, cr, cb, ct = [d.read(maxage) for d in self._axes]
         if self.coordinates == 'opposite':
@@ -243,10 +237,7 @@ class Slit(CanReference, Moveable):
                    Value('%s.top' % self, unit=self.unit, fmtstr='%.2f')
 
     def doStatus(self, maxage=0):
-        svalues = [d.status(maxage) for d in self._axes]
-        return max(s[0] for s in svalues), 'axis status: ' + \
-               ', '.join('%s=%s' % (n, s[1])
-                         for (s, n) in zip(svalues, self._axnames))
+        return multiStatus(zip(self._axnames, self._axes))
 
     def doReadUnit(self):
         return self._adevs['left'].unit
@@ -295,9 +286,6 @@ class SlitAxis(Moveable, AutoDevice):
         currentpos = self._adevs['slit']._doReadPositions(0.1)
         positions = self._convertStart(target, currentpos)
         return self._adevs['slit']._doIsAllowedPositions(positions)
-
-    def doWait(self):
-        self._adevs['slit'].wait()
 
 
 class CenterXSlitAxis(SlitAxis):

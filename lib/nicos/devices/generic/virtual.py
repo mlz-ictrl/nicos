@@ -78,10 +78,6 @@ class VirtualMotor(Motor, HasOffset):
     def doStatus(self, maxage=0):
         return self.curstatus
 
-    def doWait(self):
-        while self.curstatus[0] == status.BUSY:
-            time.sleep(0.1)
-
     def doStop(self):
         if self.speed != 0 and \
            self._thread is not None and self._thread.isAlive():

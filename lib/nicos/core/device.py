@@ -33,7 +33,7 @@ from nicos import session
 from nicos.core import status
 from nicos.core import MASTER, SIMULATION, SLAVE
 from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel, \
-     waitForStatus
+     waitForStatus, multiWait, multiStop, multiStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
      anytype, none_or, limits, dictof, listof, tupleof
 from nicos.core.errors import NicosError, ConfigurationError, \
@@ -958,7 +958,9 @@ class Readable(Device):
            device.  It is only called if the last cached value is out of
            date, or no cache is available.
 
-           If no ``doStatus()`` is implemented, ``status()`` returns
+           If no ``doStatus()`` is implemented, ``status()`` tries to determine
+           the status via `nicos.core.utils.multiStatus` of the attached devices.
+           If that is not possible, it returns
            ``status.UNKNOWN, 'doStatus not implemented'``.
 
            The *maxage* parameter should be given to status() calls of
@@ -975,6 +977,8 @@ class Readable(Device):
                 raise ProgrammingError(self, 'status constant %r is unknown' %
                                        value[0])
             return value
+        if self._adevs:
+            return multiStatus(self._adevs, maxage)
         return (status.UNKNOWN, 'doStatus not implemented')
 
     def poll(self, n=0, maxage=0):
@@ -1035,8 +1039,7 @@ class Readable(Device):
 
         .. method:: doReset()
 
-           This method is called if implemented.  Otherwise, ``reset()`` is a
-           no-op.
+           This method is called if implemented.  Otherwise, this is a no-op.
         """
         if self._mode == SLAVE:
             raise ModeError('reset not possible in slave mode')
@@ -1280,7 +1283,7 @@ class Moveable(Readable):
                     # legacy case, custom doWait, but no doStatus!!!
                     self.log.warning('Legacywarning: %r has a doWait, but no '
                                      'doStatus, please fix it!' % self.__class__)
-                    lastval = self.doWait() # prefer functionality for the moment....
+                lastval = self.doWait() # prefer functionality for the moment....
                 # no else needed as this is basically a NOP
                 # (status returns UNKNOWN, default doWait() returns immediately....)
         finally:
@@ -1300,10 +1303,16 @@ class Moveable(Readable):
         """Wait until movement of device is completed.
 
         This default implementation is supposed to be overriden in derived
-        classes and just polls the status of the device until it is not BUSY
-        anymore.  For details how this is done, have a look into
+        classes and just waits for all attached devices and then polls the status
+        of the device itself until it is not BUSY anymore.  For details how
+        this is done, have a look into `nicos.core.utils.multiWait` and
         `nicos.core.utils.waitForStatus`.
+
+        Implementation hint: normally you would only need to override this in
+        very special cases as it already handles most cases correctly.
         """
+        if self._adevs:
+            multiWait(self._adevs)
         waitForStatus(self)
 
     @usermethod
@@ -1325,7 +1334,8 @@ class Moveable(Readable):
         .. method:: doStop()
 
            This is called to actually stop the device.  If not present,
-           :meth:`stop` will be a no-op.
+           :meth:`stop` will try to stop all attached_devices, if any.
+           Otherwise this is a no-op.
 
         The `stop` method will return the device status after stopping.
         """
@@ -1343,6 +1353,8 @@ class Moveable(Readable):
                 raise AccessError(self, 'cannot stop device: %s' % err)
         if hasattr(self, 'doStop'):
             self.doStop()
+        elif self._adevs:
+            multiStop(self._adevs)
         if self._cache:
             self._cache.invalidate(self, 'value')
             self._cache.invalidate(self, 'status')

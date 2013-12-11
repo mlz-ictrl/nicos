@@ -25,11 +25,10 @@
 
 """Taco motor class for NICOS."""
 
-from Motor import Motor as TACOMotor
+from Motor import Motor as TACOMotor # pylint: disable=F0401
 import TACOStates
 
-from nicos.core import status, waitForStatus, Param, Override, \
-     oneof
+from nicos.core import status, oneof, Param, Override
 from nicos.devices.abstract import CanReference, Motor as BaseMotor
 from nicos.devices.taco.core import TacoDevice
 
@@ -69,9 +68,6 @@ class Motor(CanReference, TacoDevice, BaseMotor):
 
     def doStart(self, target):
         self._taco_guard(self._dev.start, target)
-
-    def doWait(self):
-        waitForStatus(self)
 
     def doSetPosition(self, target):
         self._taco_guard(self._dev.setpos, target)

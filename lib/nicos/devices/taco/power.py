@@ -28,10 +28,10 @@ from time import sleep
 
 import DEVERRORS
 import TACOStates
-from PowerSupply import CurrentControl, VoltageControl
+from PowerSupply import CurrentControl, VoltageControl # pylint: disable=F0401
 
 from nicos.core import status, Moveable, HasOffset, HasLimits, Param, \
-     MoveError, NicosError, waitForStatus
+     MoveError, NicosError
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -92,10 +92,6 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
             return status.BUSY, 'stopping'
         else:
             return status.ERROR, TACOStates.stateDescription(state)
-
-    def doWait(self):
-        # XXX add a timeout?
-        waitForStatus(self, 0.5)
 
 
 class CurrentSupply(Supply):

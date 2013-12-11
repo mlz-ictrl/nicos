@@ -27,7 +27,7 @@ from nicos.utils import lazy_property
 from nicos.devices.generic import Switcher
 from nicos.core import anytype, dictof, none_or, floatrange, listof, oneof, \
      NicosError, ConfigurationError, Readable, Override, \
-     Param, status, tupleof, TimeoutError#, PositionError
+     Param, status, tupleof
 from nicos.core.utils import formatStatus
 
 
@@ -49,7 +49,7 @@ class SenseSwitch(Switcher):
 
     parameters = {
         'timeout': Param('Max. allowed time to reach the requested position',
-                         type=float, default=3, settable=True, mandatory=False,
+                         type=float, default=13, settable=True, mandatory=False,
                          unit='s'),
     }
 
@@ -88,9 +88,6 @@ class SenseSwitch(Switcher):
         if self.blockingmove:
             self.wait()
 
-    def doStop(self):
-        self._adevs['moveable'].stop()
-
     def _read(self):
         pos = [d.read(0) for d in self.devices]  # or doRead ???
         self.log.debug('_read: %s' % (', '.join(
@@ -126,14 +123,6 @@ class SenseSwitch(Switcher):
 #            return res
 #        raise PositionError(self, 'unknown position of %s' %
 #                            ', '.join(str(d) for d in self.devices))
-
-
-    def doWait(self):
-        for _ in range(10 + int(self.timeout / 1)):
-            if self.status(0)[0] != status.BUSY:
-                return
-            time.sleep(1)
-        raise TimeoutError(self, 'Target not reached within timeout')
 
     def doStatus(self, maxage=0):
         '''determine status of this device'''

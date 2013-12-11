@@ -30,9 +30,9 @@ import time
 import struct
 import threading
 from nicos.core import Param, Override, listof, none_or, oneof, \
-                        oneofdict, floatrange, intrange, status, \
+                        oneofdict, floatrange, intrange, status, waitForStatus, \
                         InvalidValueError, UsageError, CommunicationError, \
-                        TimeoutError, PositionError
+                        PositionError
 from nicos.core.device import usermethod, requires
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.taco.core import TacoDevice
@@ -289,13 +289,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
         return code, msg
 
     def doWait(self):
-        self.log.debug('doWait')
-        for _ in range(300):
-            time.sleep(1)
-            if self.doStatus()[0] == status.BUSY:
-                continue
-            return
-        raise TimeoutError(self, 'Device timed out wait during wait!')
+        waitForStatus(self, timeout=300)
 
     @requires(level='admin')
     def doReference(self):

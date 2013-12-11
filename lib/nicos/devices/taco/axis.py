@@ -62,10 +62,6 @@ class Axis(TacoDevice, BaseAxis, CanReference):
     def doStart(self, target):
         self._taco_guard(self._dev.start, target + self.offset)
 
-    def doWait(self):
-        # XXX add a timeout?
-        waitForStatus(self, 0.3)
-
     def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read) - self.offset
 

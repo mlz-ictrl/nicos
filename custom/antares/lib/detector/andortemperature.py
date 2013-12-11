@@ -21,8 +21,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import HasLimits, HasPrecision, Moveable, status, \
-    waitForStatus
+from nicos.core import HasLimits, HasPrecision, Moveable, status
 
 from nicos.antares.detector.pytangodevice import PyTangoDevice
 
@@ -68,5 +67,3 @@ class AndorTemperature(PyTangoDevice, HasLimits, HasPrecision, Moveable):
         else:
             self._tangoSetAttrGuard('cooler', 'OFF')
 
-    def doWait(self):
-        waitForStatus(self)

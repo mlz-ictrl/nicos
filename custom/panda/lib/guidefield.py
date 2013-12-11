@@ -33,8 +33,8 @@
 import numpy as np
 
 from nicos.utils import lazy_property
-from nicos.core import Moveable, Param, Override, status, LimitError, \
-    InvalidValueError, multiWait, multiStop
+from nicos.core import Moveable, Param, Override, LimitError, \
+    InvalidValueError, multiStop, multiStatus
 from nicos.core.params import nonemptylistof, floatrange, tupleof
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.abstract import MappedMoveable
@@ -178,22 +178,6 @@ class GuideField(MappedMoveable):
     def doRead(self, maxage=0):
         return self.target
 
-    def doStop(self):
-        multiStop(self.coils + [self.alpha])
-
-    def doWait(self):
-        multiWait(self.coils + [self.alpha])
-
-    def doStatus(self, maxage=0):
-        stc,stm = status.OK, []
-        for d in self.coils + [self.alpha]:
-            dsc, dsm = d.status(maxage)
-            if dsc > stc:
-                stc = dsc
-            if dsc > status.OK:
-                stm.append(dsm)
-        return stc, ', '.join(stm) or 'Idle'
-
     def _B2I(self, B=np.array([0.0, 0.0, 0.0])):
         """rotate the requested field around z-axis by beta first we get alpha
         from the spectrometer alpha is the angle between X-axis and \vec{Q} and
@@ -321,6 +305,7 @@ class Flipper(MappedMoveable):
                                           'device!' % target)
 
     def doStop(self):
+        # don't stop wavevector!
         multiStop((self.field, self.compensate))
 
     def doRead(self, maxage=0):
@@ -329,4 +314,5 @@ class Flipper(MappedMoveable):
         return self._inverse_mapping.get(0)
 
     def doStatus(self, maxage=0):
-        return self.field.status(maxage)
+        return multiStatus((('field', self.field),
+                             ('compensate', self.compensate)), maxage)

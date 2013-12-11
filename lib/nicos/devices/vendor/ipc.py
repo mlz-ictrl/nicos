@@ -31,12 +31,12 @@ from time import sleep
 from threading import RLock
 
 from IO import StringIO
-from RS485Client import RS485Client
+from RS485Client import RS485Client # pylint: disable=F0401
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
      none_or, usermethod, Device, Readable, Moveable, Param, Override, \
      NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
-     TimeoutError, waitForStatus
+     waitForStatus
 from nicos.utils import closeSocket, lazy_property, HardwareStub
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
@@ -897,7 +897,7 @@ class Motor(NicosMotor):
 
     def doWait(self):
         sleep(0.1)
-        waitForStatus(self, 0.2, self.timeout, errorstates=())
+        waitForStatus(self, 0.2, errorstates=())
 
     def doStop(self):
         if self._hwtype == 'single':
@@ -1233,15 +1233,6 @@ class SlitMotor(NicosMotor):
     def doStart(self, target):
         target = self._tosteps(target)
         self._adevs['bus'].send(self.addr, self.side+160, target, 4)
-
-    def doWait(self):
-        total = self.timeout
-        timeslice = max(0.3, total / 10.5)
-        while self.doStatus()[0] == status.BUSY:
-            if total <= 0:
-                raise TimeoutError(self, 'timeout while waiting')
-            sleep(timeslice)
-            total -= timeslice
 
     def doReset(self):
         if self._adevs['bus'].get(self.addr, self.side + 166) != 9999 and \

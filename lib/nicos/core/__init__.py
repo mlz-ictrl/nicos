@@ -43,4 +43,4 @@ from nicos.core.data import Dataset, DataSink
 from nicos.core.scan import Scan
 from nicos.core.image import ImageInfo, ImageType, ImageSink, ImageProducer
 from nicos.core.utils import multiStatus, waitForStatus, multiWait, \
-    multiStop, formatStatus, GUEST, USER, ADMIN, ACCESS_LEVELS
+    multiStop, multiReset, formatStatus, GUEST, USER, ADMIN, ACCESS_LEVELS

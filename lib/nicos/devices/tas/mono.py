@@ -29,8 +29,7 @@ from math import pi, cos, sin, asin, radians, degrees, sqrt
 from time import time
 
 from nicos.core import Moveable, HasLimits, HasPrecision, Param, Override, \
-    listof, oneof, ComputationError, LimitError, status, multiStatus, \
-    multiWait, multiStop
+    listof, oneof, ComputationError, LimitError, status, multiStatus, multiReset
 
 THZ2MEV = 4.1356675
 ANG2MEV = 81.804165
@@ -125,20 +124,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                               2 * self._adevs['theta'].precision
         self._axisprecision *= 1.25
 
-        self._movelist = []
-        for drive in ['theta', 'twotheta', 'focush', 'focusv']:
-            if self._adevs[drive]:
-                self._movelist.append(self._adevs[drive])
-
-    def doStop(self):
-        multiStop(self._movelist)
-
-    def doWait(self):
-        multiWait(self._movelist)
-
     def doReset(self):
-        for device in self._movelist:
-            device.reset()
+        multiReset(self._adevs.values())
         self._focwarnings = 3
 
     def doStart(self, pos):
@@ -235,6 +222,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         return self._fromlambda(wavelength(self.dvalue, self.order, tt/2.0))
 
     def doStatus(self, maxage=0):
+        # order is important here.
         const, text = multiStatus(((name, self._adevs[name]) for name in
             ['theta', 'twotheta', 'focush', 'focusv']), maxage)
         if const == status.OK:  # all idle; check also angle relation

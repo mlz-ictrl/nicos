@@ -41,6 +41,39 @@ ADMIN = 20
 ACCESS_LEVELS = {0: 'guest', 10: 'user', 20: 'admin'}
 
 
+def devIter(devices, baseclass=None, onlydevs=False):
+    """Filtering generator over the given devices.
+
+    Iterates over the given devices. If the `baseclass` argument is specified
+    (not `None`), filter out (ignore) those devices which do not belong to the
+    given baseclass. If the boolean `onlydevs` argument is `False` (default),
+    yield (name, devices) tuples otherwise just the devices.
+    The given devices argument can either be a dictionary (_adevs, _sdevs,...)
+    or a list of (name, device) tuples or a simple list of devices.
+    """
+    if baseclass is None:
+        # avoid import loop and still default to Device
+        from nicos.core.device import Device
+        baseclass = Device
+    # convert dict to list of name:dev tuples
+    if isinstance(devices, dict):
+        devices = devices.items()
+    else:
+        try: # to convert list of devices into desired format
+            devices = [(dev.name, dev) for dev in devices]
+        except AttributeError:
+            pass # not convertible, must be right format already...
+    for devname, dev in devices:
+        # handle _adev style entries correctly
+        if isinstance(dev, (tuple, list)):
+            for subdev in dev:
+                if isinstance(subdev, baseclass):
+                    yield subdev if onlydevs else (subdev.name, subdev)
+        else:
+            if isinstance(dev, baseclass):
+                yield dev if onlydevs else (devname, dev)
+
+
 def multiStatus(devices, maxage=None):
     """Combine the status of multiple devices to form a single status value.
 
@@ -54,11 +87,11 @@ def multiStatus(devices, maxage=None):
     The resulting state text is a combination of the status texts of all
     devices.
     """
+    from nicos.core import Readable
+    # get to work
     rettext = []
     retstate = status.OK
-    for devname, dev in devices:
-        if dev is None:
-            continue
+    for devname, dev in devIter(devices, Readable):
         state, text = dev.status(maxage)
         if '=' in text:
             rettext.append('%s=(%s)' % (devname, text))
@@ -66,7 +99,10 @@ def multiStatus(devices, maxage=None):
             rettext.append('%s=%s' % (devname, text))
         if state > retstate:
             retstate = state
-    return retstate, ', '.join(rettext)
+    if rettext:
+        return retstate, ', '.join(rettext)
+    else:
+        return status.UNKNOWN, 'no status could be determined (no doStatus implemented?)'
 
 
 def waitForStatus(device, delay=0.3, timeout=None,
@@ -79,6 +115,11 @@ def waitForStatus(device, delay=0.3, timeout=None,
     `status.BUSY`.
     """
     started = currenttime()
+    if timeout is None and 'timeout' in device.parameters:
+        try:
+            timeout = float(device.timeout)
+        except (TypeError, ValueError):
+            pass
     while True:
         st = device.status(0)
         if device.loglevel == 'debug':
@@ -109,42 +150,55 @@ def formatStatus(st):
     return const + (message and ': ' + message or '')
 
 
+def _multiMethod(baseclass, method, devices, *args, **kwargs):
+    """Calls a method on a list of devices.
+
+    The first given exception is re-raised after all method calls have been
+    finished, all other exceptions are logged and not re-raised.
+
+    Additional arguments are used when calling the method.
+    The same arguments are used for *ALL* calls.
+    """
+    first_exc = None
+    for dev in devIter(devices, baseclass, onlydevs=True):
+        try:
+            # method has to be provided by baseclass!
+            getattr(dev, method)(*args, **kwargs)
+        except Exception:
+            if not first_exc:
+                first_exc = sys.exc_info()
+            else:
+                dev.log.exception('during %s()' % method)
+    if first_exc:
+        raise first_exc  # pylint: disable=E0702
+
+
 def multiWait(devices):
-    """Wait for every device in the *devices* list.
+    """Wait for every 'waitable' device in the *devices* list.
 
     The first given exception is re-raised after all wait() calls have been
     finished, all other exceptions are logged and not re-raised.
     """
-    first_exc = None
-    for dev in devices:
-        try:
-            dev.wait()
-        except Exception:
-            if not first_exc:
-                first_exc = sys.exc_info()
-            else:
-                dev.log.exception('during wait()')
-    if first_exc:
-        raise first_exc  # pylint: disable=E0702
-
+    from nicos.core import Moveable
+    _multiMethod(Moveable, 'wait', devices)
 
 def multiStop(devices):
-    """Stop every device in the *devices* list.
+    """Stop every 'stoppable' device in the *devices* list.
 
     The first given exception is re-raised after all stop() calls have been
     finished, all other exceptions are logged and not re-raised.
     """
-    first_exc = None
-    for dev in devices:
-        try:
-            dev.stop()
-        except Exception:
-            if not first_exc:
-                first_exc = sys.exc_info()
-            else:
-                dev.log.exception('during stop()')
-    if first_exc:
-        raise first_exc  # pylint: disable=E0702
+    from nicos.core import Moveable
+    _multiMethod(Moveable, 'stop', devices)
+
+def multiReset(devices):
+    """Resets every 'resetable' device in the *devices* list.
+
+    The first given exception is re-raised after all reset() calls have been
+    finished, all other exceptions are logged and not re-raised.
+    """
+    from nicos.core import Readable
+    _multiMethod(Readable, 'reset', devices)
 
 
 def getExecutingUser():
