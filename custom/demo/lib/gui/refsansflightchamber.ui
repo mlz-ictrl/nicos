@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>231</width>
+    <height>223</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Refsans Flight chamber</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>                Value</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Target</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="ValueDisplay" name="valueDisplay">
+     <property name="dev" stdset="0">
+      <string>nok2</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_2">
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="key" stdset="0">
+      <string>nok2.target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="ValueDisplay" name="valueDisplay_3">
+     <property name="dev" stdset="0">
+      <string>nok3</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_6">
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="key" stdset="0">
+      <string>nok3.target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="ValueDisplay" name="valueDisplay_4">
+     <property name="dev" stdset="0">
+      <string>nok4</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_7">
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="key" stdset="0">
+      <string>nok4.target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="ValueDisplay" name="valueDisplay_5">
+     <property name="dev" stdset="0">
+      <string>nok5a</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_8">
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="key" stdset="0">
+      <string>nok5a.target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="ValueDisplay" name="valueDisplay_9">
+     <property name="dev" stdset="0">
+      <string>nok5b</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_12">
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="key" stdset="0">
+      <string>nok5b.target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="ValueDisplay" name="valueDisplay_10">
+     <property name="dev" stdset="0">
+      <string>nok6</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_13">
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="key" stdset="0">
+      <string>nok6.target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="ValueDisplay" name="valueDisplay_11">
+     <property name="dev" stdset="0">
+      <string>nok7</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_14">
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="key" stdset="0">
+      <string>nok7.target</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="ValueDisplay" name="valueDisplay_15">
+     <property name="dev" stdset="0">
+      <string>nok8</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="ValueDisplay" name="valueDisplay_16">
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="key" stdset="0">
+      <string>nok8.target</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ValueDisplay</class>
+   <extends>QWidget</extends>
+   <header>nicos.guisupport.display</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

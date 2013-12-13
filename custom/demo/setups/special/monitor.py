@@ -18,7 +18,8 @@ _expcolumn = Column(
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
-                 Field(name='Last Image file', key='exp/lastimage'))], 'sans'),
+                 Field(name='Last Image file', key='exp/lastimage'))],
+                 ['sans', 'refsans']),
 )
 
 _axisblock = Block(
@@ -31,6 +32,24 @@ _axisblock = Block(
     ],
     'tas')  # this is the name of a setup that must be loaded in the
             # NICOS master instance for this block to be displayed
+
+_refsansblock = Block(
+    'Axes',
+    [
+        BlockRow(Field(gui='custom/demo/lib/gui/refsansflightchamber.ui')),
+        BlockRow(Field(widget='nicos.refsans.monitorwidgets.VRefsans',
+                       width=40, height=30,
+                       nok2dev='nok2',
+                       nok3dev='nok3',
+                       nok4dev='nok4',
+                       nok5adev='nok5a',
+                       nok5bdev='nok5b',
+                       nok6dev='nok6',
+                       nok7dev='nok7',
+                       nok8dev='nok8',
+                      )),
+    ],
+    'refsans')
 
 _detectorblock = Block(
     'Detector',
@@ -107,10 +126,6 @@ _sansblock = Block(
     ],
     'sans')
 
-_rightcolumn = Column(_axisblock, _tempblock)
-
-_leftcolumn = Column(_tasblock, _sansblock)
-
 _pgaablock = Block(
     'PGAA',
     [BlockRow(
@@ -128,6 +143,10 @@ _pgaablock = Block(
 
 _pgaacolumn = Column(_pgaablock)
 
+_rightcolumn = Column(_axisblock, _tempblock,)
+
+_leftcolumn = Column(_tasblock, _sansblock, _refsansblock,)
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
@@ -136,7 +155,7 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
-                     layout = [Row(_expcolumn), Row(_rightcolumn, _leftcolumn),
+                     layout = [Row(_expcolumn), Row(_leftcolumn,_rightcolumn,),
                                Row(_pgaacolumn),],
                     ),
 )
