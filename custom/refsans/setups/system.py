@@ -36,14 +36,16 @@ modules = ['nicos.commands.standard']
 
 devices = dict(
     REFSANS   = device('devices.instrument.Instrument',
-                      instrument = 'REFSANS'),
+                       instrument = 'REFSANS',
+                      ),
 
     Sample   = device('devices.experiment.Sample'),
 
     Exp      = device('devices.experiment.Experiment',
                       dataroot = '/users/data',
                       sample = 'Sample',
-                      elog = False),
+                      elog = False,
+                     ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
 

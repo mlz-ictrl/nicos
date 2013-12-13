@@ -31,7 +31,7 @@ from TACOClient import TACOError
 import TACOStates
 
 
-class Axis(GenericAxis) :
+class Axis(GenericAxis):
     """ Refsans NOK Axis """
 
     attached_devices = {
@@ -51,7 +51,7 @@ class Axis(GenericAxis) :
 #   def doInit(self, mode) :
 #       super(Axis, self).doInit(mode)
 
-    def _movestep1(self, units) :
+    def _movestep1(self, units):
         """ Checks the current position of the axis and decides what's to do.
             If the new position is above the current it does nothing.
             Otherwise it tries to move to a position below the desired position.
@@ -59,7 +59,8 @@ class Axis(GenericAxis) :
             @param units desired position
         """
         if self.read() <= units:
-            self.log.debug('movestep1 returns 0 -> new pos is above or equal current %f' % (units))
+            self.log.debug(self, 'movestep1 returns 0 -> new pos is above or '
+                           'equal current %f' % (units))
             return 0
         else:
             llimit = self.usermin
@@ -72,7 +73,7 @@ class Axis(GenericAxis) :
                 return 1
             return 0
 
-    def _movestep2(self, units) :
+    def _movestep2(self, units):
         """
            This function moves the axis to the given position
            @param units
@@ -91,7 +92,7 @@ class Axis(GenericAxis) :
         else:
             self._adevs['motor'].start(units)
 
-    def readsteps(self) :
+    def readsteps(self):
         """
            This method reads the current motor counter
         """
@@ -100,7 +101,7 @@ class Axis(GenericAxis) :
         except TACOError:
             raise CommunicationError(self, 'Could not read steps')
 
-    def printstatus(self, what = 'TACO') :
+    def printstatus(self, what = 'TACO'):
         if (what.upper() == 'TACO') :
             return self._adevs['motor']._dev.deviceStatus()
         elif (what.upper() == 'HIGH') :

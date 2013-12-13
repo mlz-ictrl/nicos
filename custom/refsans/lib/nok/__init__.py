@@ -22,6 +22,5 @@
 #
 # *****************************************************************************
 
-from nicos.refsans.nok.coder import Coder
-from nicos.refsans.nok.coder import CoderReference
+from nicos.refsans.nok.coder import Coder, CoderReference
 from nicos.refsans.nok.axis import Axis

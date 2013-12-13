@@ -1,20 +1,22 @@
 NOK = 'B1'
-nok = NOK.lower()
-nethost = '//refsanssrv.refsans.frm2/'
 
 description = '%s setup' % (NOK)
+
+nok = NOK.lower()
+
+nethost = 'refsanssrv.refsans.frm2'
 
 includes = ['nokref',]
 
 devices = {
         nok + 'portr' : device('devices.taco.io.AnalogInput',
                                description = 'Voltage input of the %s coder (reactor side)' % (NOK),
-                               tacodevice = nethost + 'test/wb_a/2_2',
+                               tacodevice = '//%s/test/wb_a/2_2' % (nethost,),
                                lowlevel = True,
                               ),
         nok + 'ports' : device('devices.taco.io.AnalogInput',
                                description = 'Voltage input of the %s coder (sample side)' % (NOK),
-                               tacodevice = nethost + 'test/wb_a/2_3',
+                               tacodevice = '//%s/test/wb_a/2_3' % (nethost,),
                                lowlevel = True,
                               ),
         nok + 'obsr'  : device('refsans.nok.Coder',
@@ -24,7 +26,7 @@ devices = {
                                snr = 7787,
                                length = 500,
                                sensitivity = 1.922,
-                               port = nok + 'portr',
+                               port = '%sportr' % (nok,),
                                ref = 'nrefa2',
                               ),
         nok + 'obss'  : device('refsans.nok.Coder',
@@ -34,7 +36,7 @@ devices = {
                                snr = 7785,
                                length = 500,
                                sensitivity = 1.922,
-                               port = nok + 'ports',
+                               port = '%sports' % (nok,),
                                ref = 'nrefa2',
                               ),
 #       nok1 = device('refsans.nok.Nok',

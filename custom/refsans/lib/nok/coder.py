@@ -24,8 +24,6 @@
 
 """REFSANS NOK coder class for NICOS."""
 
-import sys
-
 from nicos.core import Override, status, oneofdict, oneof, Param
 from nicos.devices.abstract import Coder as BaseCoder
 from nicos.devices.taco.io import AnalogInput
@@ -44,37 +42,43 @@ class CoderReference(AnalogInput) :
                           default = 18.0, # 9.0 * 2
                           settable = False,
                          ),
-        'reflow'  : Param('Low reference',
-                          type = float,
-                          default = 17.0, # 8.0 * 2
-                          settable = False,
-                         ),
+        'reflow' : Param('Low reference',
+                         type = float,
+                         default = 17.0, # 8.0 * 2 XXX
+                         settable = False,
+                        ),
         }
 
-    def doRead(self, maxage=0) :
+    def doRead(self, maxage=0):
         ref = self._read()
         if abs(ref) >= self.refhigh :
-            self.log.error(self,  'Reference voltage to high : %f > %f' % (ref, self.refhigh))
+            self.log.error(self,  'Reference voltage to high : %f > %f' %
+                           (ref, self.refhigh))
         if   abs(ref) <  self.reflow:
-            self.log.error(self, 'Reference voltage to low : %f < %f' % (ref, self.reflow))
+            self.log.error(self, 'Reference voltage to low : %f < %f' %
+                           (ref, self.reflow))
         elif abs(ref) <  self.refwarn:
-            self.log.warning(self, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn))
+            self.log.warning(self, 'Reference voltage seems to be to low : ' \
+                                   '%f < %f' % (ref, self.refwarn))
         return ref
 
-    def doStatus(self, maxage=0) :
+    def doStatus(self, maxage=0):
         ref = self._read()
         if abs(ref) >= self.refhigh :
-            return status.ERROR,  'Reference voltage to high : %f > %f' % (ref, self.refhigh)
+            return status.ERROR,  'Reference voltage to high : %f > %f' % \
+                                    (ref, self.refhigh)
         if   abs(ref) <  self.reflow:
-            return status.ERROR, 'Reference voltage to low : %f < %f' % (ref, self.reflow)
+            return status.ERROR, 'Reference voltage to low : %f < %f' % \
+                                    (ref, self.reflow)
         elif abs(ref) <  self.refwarn:
-            return status.ERROR, 'Reference voltage seems to be to low : %f < %f' % (ref, self.refwarn)
+            return status.ERROR, 'Reference voltage seems to be to low : '\
+                                 '%f < %f' % (ref, self.refwarn)
         else:
             return status.OK, ''
 
     def _read(self) :
-        # Range of RAWValue, if it is outside of expection, the cable may be broken
-        # test range of ref lack of resolution 9.5 < ref > 10 clip!
+        # Range of RAWValue, if it is outside of expection, the cable may be
+        # broken test range of ref lack of resolution 9.5 < ref > 10 clip!
         ref = 2.0 * self._taco_guard(self._dev.read)
         return ref
 
@@ -93,41 +97,41 @@ class Coder(BaseCoder):
     }
 
     parameters = {
-        'corr'    : Param('Correction type',
-                          type = oneof('none', 'mul', 'table'),
-                          default = 'mul',
-                         ),
+        'corr' : Param('Correction type',
+                       type = oneof('none', 'mul', 'table'),
+                       default = 'mul',
+                      ),
         'tabfile' : Param('Correction table file',
                           type = str,
                           mandatory = False,
                          ),
-        'mul'     : Param('Multiplier',
-                          type = float,
-                          default = 1.0,
-                         ),
-        'off'     : Param('Offset',
-                          type = float,
-                          default = 0.0,
-                         ),
-        'snr'     : Param('Serial number',
-                          type = int,
-                          settable = False,
-                          mandatory = True,
-                         ),
-        'length'  : Param('Potionmeter length',
-                          type = float,
-                          settable = False,
-                          default = 250,
-                         ),
+        'mul' : Param('Multiplier',
+                      type = float,
+                      default = 1.0,
+                     ),
+        'off' : Param('Offset',
+                      type = float,
+                      default = 0.0,
+                     ),
+        'snr' : Param('Serial number',
+                      type = int,
+                      settable = False,
+                      mandatory = True,
+                     ),
+        'length' : Param('Potionmeter length',
+                         type = float,
+                         settable = False,
+                         default = 250,
+                        ),
         'sensitivity' : Param('Sensitivity',
                               type = float,
                               mandatory = True,
                              ),
-        'phys'        : Param('Physically connected and working?',
-                              type = str,
-                              mandatory = False,
-                              default = 'OK',
-                             ),
+        'phys' : Param('Physically connected and working?',
+                       type = str,
+                       mandatory = False,
+                       default = 'OK',
+                      ),
         'position' : Param('Position',
                            type = oneofdict({'top' : -1, 'bottom' : 1}),
                            mandatory = False,
@@ -141,7 +145,7 @@ class Coder(BaseCoder):
         # self._taco_guard(self._dev.setpos, target)
         pass
 
-    def doInit(self, mode) :
+    def doInit(self, mode):
         pass
 
     def __formula(self, data, direction):
@@ -151,7 +155,7 @@ class Coder(BaseCoder):
         """
         self.log.debug(self, '%f %f', (data[0], data[1]))
         E = self.position / self.sensitivity * 1000
-        self.log.debug(self, 'E = %f' % (E, ))
+        self.log.debug(self, 'E = %f' % (E,))
         tmp = E * data[0] / data[1]
         lkorr = self.corr
         if lkorr == 'table':
@@ -164,58 +168,67 @@ class Coder(BaseCoder):
                 tmp *= self.mul
             return tmp + self.off
         else:
-            if   lkorr == 'none':
+            if lkorr == 'none':
                 tmp = data[0] # /E
             elif lkorr ==  'mul':
-                tmp = self.mul * data[0] #/E
+                tmp = self.mul * data[0] # / E
             return (tmp, self.off + data[1])
 
-    def doStatus(self, maxage=0) :
-        if self.phys == 'OK' :
+    def doStatus(self, maxage=0):
+        if self.phys == 'OK':
             return status.OK, ''
-        else :
-            return status.ERROR, self.phys #'Physically not connected or other problems. Ask instrument responsible'
+        else:
+            # Physically not connected or other problems.
+            # Ask instrument responsible
+            return status.ERROR, self.phys
 
-    def doRead (self, typ='POS') :
+    def doRead (self, typ='POS'):
         """
         1. ref must be in a given range (depend on ADC)
         2. RAWvalue must be in a given range (depend on NOK)
         """
         self.log.debug(self, 'poti read')
-        ref    = 0
+        ref = 0
         RAWValue = 0
         self.log.debug(self, 'poti read enter while')
-        while True:
-            exit_ = True
-            try:
-                ref = self._adevs['ref'].read() # due to resistors
-            except Exception:
+        exit_ = False
+        while not exit_:
+            exit_ = False
+            for _ in range(2):
                 try:
-                    ref = self._adevs['ref'].read() # due to resistors
+                    # due to resistors
+                    ref = self._adevs['ref'].read()
+                    break
                 except Exception:
-                    self.log.error(self,  'readerror REF 2. (1/2));')
+                    self.log.exception(self, 'readerror REF 2. (1/2))')
                     exit_ = False
-            try:
-                RAWValue = self._adevs['port'].read() # let it so the box must work
-            except Exception:
+            for _ in range(2):
                 try:
-                    RAWValue = self._adevs['port'].read() # let it so the box must work
+                    # let it so the box must work
+                    RAWValue = self._adevs['port'].read()
+                    break
                 except Exception:
-                    self.log.error('readerror RAWVALUE 2. (2/2);')
+                    self.log.exception(self, 'readerror RAWVALUE 2. (2/2);')
                     exit_ = False
-            if exit_:
-                break
-        self.log.debug(self, 'raw value = %f reference value = %f', (RAWValue, ref))
+        self.log.debug(self, 'raw value = %f reference value = %f',
+                       (RAWValue, ref))
         try:
             Position = self.__formula([RAWValue, ref], True)
             self.log.debug(self, 'okay')
-            if 'OFF'       == typ.upper():
-                return {'off':-RAWValue/ref}
-            elif 'POS'       == typ.upper():
+            if 'OFF' == typ.upper():
+                return {'off' : -RAWValue / ref}
+            elif 'POS'== typ.upper():
                 return Position
             elif 'PARAMETER' == typ.upper():
-                return {'corr' : self.corr, 'off' : self.off, 'sensitivity' : self.sensitivity, 'mul' : self.mul, 'avg' : 'auto'}
+                return {'corr' : self.corr,
+                        'off' : self.off,
+                        'sensitivity' : self.sensitivity,
+                        'mul' : self.mul,
+                        'avg' : 'auto'}
             else:
-                return {'corr' : self.corr, 'RAWValue' : RAWValue, 'ref' : ref, 'Position' : Position}
+                return {'corr' : self.corr,
+                        'RAWValue' : RAWValue,
+                        'ref' : ref,
+                        'Position' : Position}
         except Exception:
-            self.log.error(self, 'calc.Error : %s' % (str(sys.exc_info()[1])))
+            self.log.exception(self, 'calc.Error')
