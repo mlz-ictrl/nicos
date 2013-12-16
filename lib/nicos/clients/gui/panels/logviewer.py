@@ -144,7 +144,7 @@ class LogViewerPanel(Panel, DlgUtils):
         toDateTime = filters['toDateTime']
         levels = filters['levels']
 
-        result = ''
+        result = []
         dateStr = fileDate.toString('yyyy-MM-dd ')
 
         with open(path, 'r') as f:
@@ -161,7 +161,7 @@ class LogViewerPanel(Panel, DlgUtils):
                 # append line continuations
                 if len(parts) < 2:
                     if lastLineAdded:
-                        result += self._colorizeLevel(line, lastLevel)
+                        result.append(self._colorizeLevel(line, lastLevel))
                     continue
 
                 dateTime = QDateTime.fromString(parts[0], 'HH:mm:ss,zzz')
@@ -181,11 +181,11 @@ class LogViewerPanel(Panel, DlgUtils):
                 # add current day to the line
                 line = dateStr + line
 
-                result += self._colorizeLevel(line, level)
+                result.append(self._colorizeLevel(line, level))
                 lastLineAdded = True
                 lastLevel = level
 
-        return result
+        return ''.join(result)
 
     def _colorizeLevel(self, line, level):
         style = {
