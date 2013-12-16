@@ -170,21 +170,27 @@ class TAS(Instrument, Moveable):
             self._spurionCheck(pos)
 
     def doStatus(self, maxage=0):
-        return multiStatus(((name, self._adevs[name]) for name in
-                            ['mono', 'ana', 'phi', 'psi', 'alpha']), maxage)
+        if self.scanmode == 'DIFF':
+            return multiStatus(((name, self._adevs[name]) for name in
+                                ['mono', 'phi', 'psi', 'alpha']), maxage)
+        else:
+            return multiStatus(((name, self._adevs[name]) for name in
+                                ['mono', 'ana', 'phi', 'psi', 'alpha']), maxage)
 
     def doWriteScatteringsense(self, val):
         for v in val:
             if v not in [-1, 1]:
                 raise ConfigurationError('invalid scattering sense %s' % v)
 
+    def doWriteScanmode(self, val):
+        if val == 'DIFF':
+            self.log.warning('Switching to two-axis mode; you are responsible '
+                             'for moving the analyzer axes to the desired '
+                             'position')
+
     def doUpdateScatteringsense(self, val):
         self._adevs['mono']._scatsense = val[0]
         self._adevs['ana']._scatsense = val[2]
-
-    def doUpdateScanmode(self, val):
-        if val not in SCANMODES:
-            raise ConfigurationError('invalid scanmode: %r' % val)
 
     def doReadUnit(self):
         return 'rlu rlu rlu %s' % self.energytransferunit
@@ -256,7 +262,8 @@ class TAS(Instrument, Moveable):
                 why += 'target position %s outside limits for %s: %s -- ' % \
                     (dev.format(value, unit=True), dev, devwhy)
         self.log.info('ki:            %8.3f A-1' % angles[0])
-        self.log.info('kf:            %8.3f A-1' % angles[1])
+        if self.scanmode != 'DIFF':
+            self.log.info('kf:            %8.3f A-1' % angles[1])
         self.log.info('2theta sample: %8.3f deg' % angles[2])
         self.log.info('theta sample:  %8.3f deg' % angles[3])
         if self._adevs['alpha'] is not None:
