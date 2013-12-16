@@ -257,8 +257,13 @@ class ImageProducer(DeviceMixinBase):
                 imageinfo.header.update(dataset.headerinfo)
             dataset.imageinfos = imageinfos
         self._imageinfos = imageinfos
-        self.lastfilename = path.relpath(imageinfos[0].filepath,
-                                         session.experiment.proposalpath)
+        for ii in imageinfos:
+            if ii.filepath:
+                self.lastfilename = path.relpath(imageinfos[0].filepath,
+                                                 session.experiment.proposalpath)
+                break
+        else:
+            self.lastfilename = '<none>'
 
     def addInfo(self, dataset, category, valuelist):
         for imageinfo in self._imageinfos:

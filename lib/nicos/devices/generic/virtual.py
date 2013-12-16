@@ -297,14 +297,16 @@ class Virtual2DDetector(ImageProducer, Measurable):
 
     def _run(self,  maxtime):
         try:
-            for i in range(int(maxtime)):
-                array = self._generate(i+1).astype('<u4')
+            starttime = now = time.time()
+            while True:
+                array = self._generate(now - starttime).astype('<u4')
                 self._buf = array
                 self.lastcounts = array.sum()
                 self.updateImage(array)
-                if self._stopflag:
+                if self._stopflag or now > (starttime + maxtime):
                     break
-                time.sleep(1)
+                time.sleep(min(1, maxtime - now + starttime))
+                now = time.time()
         finally:
             self._stopflag = False
             self._mythread = None
@@ -324,7 +326,8 @@ class Virtual2DDetector(ImageProducer, Measurable):
         return self._buf
 
     def clearImage(self):
-        self._buf = None
+        self._buf = self._generate(0).astype('<u4')
+        self.lastcounts = 0
 
     def doRead(self, maxage=0):
         return [self.lastcounts, self.lastfilename]
@@ -338,8 +341,10 @@ class Virtual2DDetector(ImageProducer, Measurable):
         return not self._mythread
 
     def _generate(self, t):
-        dst = self._adevs['distance'].read() * 5
-        coll = self._adevs['collimation'].read()
+        dst = (self._adevs['distance'].read() * 5) if self._adevs['distance'] \
+              else 5
+        coll = self._adevs['collimation'].read() if self._adevs['collimation'] \
+              else '15m'
         xx, yy = np.meshgrid(np.linspace(-64, 63, 128), np.linspace(-64, 63, 128))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
         sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)
