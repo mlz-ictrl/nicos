@@ -217,8 +217,13 @@ class DeviceMeta(DeviceMixinMeta):
                     elif self._mode == SIMULATION:
                         if umethod:
                             umethod(self, value)
+                        if chatty:
+                            oldvalue = self._params[param]
+                            self.log.info('%s set to %r (was %r)' %
+                                          (param, value, oldvalue))
                         self._params[param] = value
                         return
+                    oldvalue = getattr(self, param)
                     if wmethod:
                         # allow doWrite to override the value
                         rv = wmethod(self, value)
@@ -227,7 +232,6 @@ class DeviceMeta(DeviceMixinMeta):
                     if umethod:
                         umethod(self, value)
                     if chatty:
-                        oldvalue = getattr(self, param)
                         self.log.info('%s set to %r (was %r)' % (param, value,
                                                                  oldvalue))
                     self._params[param] = value
