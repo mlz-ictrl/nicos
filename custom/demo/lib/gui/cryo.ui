@@ -142,6 +142,8 @@
       <stringlist>
        <string>T</string>
        <string>T.setpoint</string>
+       <string>T.heater</string>
+       <string>Ts</string>
       </stringlist>
      </property>
     </widget>
