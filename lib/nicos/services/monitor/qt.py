@@ -211,7 +211,14 @@ class Monitor(BaseMonitor):
                 field['max'] = repr(field['max'])
 
             if 'gui' in field:
-                instance = uic.loadUi(findResource(field.pop('gui')))
+                resource = findResource(field.pop('gui'))
+                try:
+                    instance = uic.loadUi(resource)
+                except Exception, err:
+                    self.log.exception('could not load .ui file %r, ignoring' %
+                                       resource)
+                    return QLabel('%r could not be loaded:\n%s' %
+                                  (resource, err))
                 for child in instance.findChildren(NicosWidget):
                     _setup(child)
                 return instance
