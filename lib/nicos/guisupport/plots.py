@@ -31,14 +31,9 @@ from time import time as currenttime, strftime, localtime
 from PyQt4.QtGui import QWidget, QPen, QBrush
 from PyQt4.QtCore import Qt, SIGNAL, QTimer, QSize
 
-try:
-    from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
-         QwtPlotZoomer, QwtPicker, QwtPlotPicker, QwtPlotPanner, QwtScaleDraw, \
-         QwtText, QwtLinearScaleEngine, QwtScaleDiv, QwtDoubleInterval
-    plot_available = True
-except (ImportError, RuntimeError):
-    QwtPlot = QWidget
-    plot_available = False
+from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
+    QwtPlotZoomer, QwtPicker, QwtPlotPicker, QwtPlotPanner, QwtScaleDraw, \
+    QwtText, QwtLinearScaleEngine, QwtScaleDiv, QwtDoubleInterval
 
 from nicos.guisupport.widget import NicosWidget, PropDef
 

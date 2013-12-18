@@ -34,8 +34,13 @@ from nicos.utils import findResource
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
 from nicos.guisupport.display import ValueDisplay
-from nicos.guisupport.plots import TrendPlot, plot_available
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
+
+try:
+    from nicos.guisupport.plots import TrendPlot
+    plot_available = True
+except (RuntimeError, ImportError):
+    plot_available = False
 
 
 class MonitorWindow(QMainWindow):
