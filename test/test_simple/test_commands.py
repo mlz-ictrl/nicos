@@ -40,7 +40,7 @@ from nicos.commands.device import set #pylint: disable=W0622
 from nicos.commands.basic import help, dir  #pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
-     CreateDevice, DestroyDevice, CreateAllDevices, \
+     CreateDevice, RemoveDevice, CreateAllDevices, \
      NewExperiment, FinishExperiment, AddUser, NewSample, \
      Remark, SetMode, ClearCache, UserInfo, run, edit
 from nicos.commands.output import printdebug, printinfo, printwarning, \
@@ -94,8 +94,8 @@ def test_basic_commands():
     assert 'motor' not in session.devices
     CreateDevice('motor')
     assert 'motor' in session.devices
-    DestroyDevice('motor')
-    assert raises(UsageError, DestroyDevice)
+    RemoveDevice('motor')
+    assert raises(UsageError, RemoveDevice)
     assert 'motor' not in session.devices
     CreateAllDevices()
     assert 'motor' in session.devices

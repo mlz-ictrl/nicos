@@ -36,7 +36,7 @@ Setup-related commands
 .. autofunction:: ListSetups
 .. autofunction:: CreateDevice
 .. autofunction:: CreateAllDevices
-.. autofunction:: DestroyDevice
+.. autofunction:: RemoveDevice
 .. autofunction:: SetMode
 
 Experiment-related commands

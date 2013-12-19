@@ -25,7 +25,7 @@
 from nicos.services.daemon.auth import auth_entry, ListAuthenticator, User, \
      AuthenticationError
 from nicos.core import GUEST, USER
-from nicos.commands.basic import DestroyDevice
+from nicos.commands.basic import RemoveDevice
 
 from test.utils import raises
 
@@ -57,7 +57,7 @@ def test_passwd_user():
     assert Auth.authenticate('guest', 'somepw') == User('guest', GUEST)
     assert raises(AuthenticationError, Auth.authenticate, 'user', 'nouser')
     assert raises(AuthenticationError, Auth.authenticate, 'joedoe', '')
-    DestroyDevice(Auth)
+    RemoveDevice(Auth)
 
 def test_any_user():
     Auth = ListAuthenticator('authenicator',
@@ -72,7 +72,7 @@ def test_any_user():
     assert Auth.authenticate('joedoe', '') == User('joedoe', GUEST)
     assert Auth.authenticate('joedoe', '') != User('joedoe', USER)
     assert raises(AuthenticationError, Auth.authenticate, 'user', 'user_')
-    DestroyDevice(Auth)
+    RemoveDevice(Auth)
 
 def test_empty_user():
     Auth = ListAuthenticator('authenicator',
@@ -81,7 +81,7 @@ def test_empty_user():
                                       ],
                             )
     assert Auth.authenticate('joedoe', 'passwd') == User('joedoe', USER)
-    DestroyDevice(Auth)
+    RemoveDevice(Auth)
 
 def teardown_module():
     pass

@@ -52,7 +52,7 @@ __all__ = [
     'help', 'dir', 'ListCommands', 'sleep',
     'NewSetup', 'AddSetup', 'RemoveSetup', 'ListSetups',
     '_Restart', 'Keep',
-    'CreateDevice', 'DestroyDevice', 'CreateAllDevices',
+    'CreateDevice', 'RemoveDevice', 'DestroyDevice', 'CreateAllDevices',
     'NewExperiment', 'FinishExperiment', 'AddUser', 'NewSample',
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode',
@@ -317,14 +317,14 @@ def CreateDevice(*devnames):
 @usercommand
 @helparglist('devname, ...')
 @spmsyntax(Multi(AnyDev))
-def DestroyDevice(*devnames):
-    """Destroy all given devices.
+def RemoveDevice(*devnames):
+    """Remove all given devices from the currently loaded setup.
 
-    "Destroy" means that the device is unloaded and will be unavailable until it
+    "Remove" means that the device is unloaded and will be unavailable until it
     is created again using `CreateDevice`.  Examples:
 
-    >>> DestroyDevice(stx)         # destroy "stx" device
-    >>> DestroyDevice(stx, sty)    # destroy two devices by name
+    >>> RemoveDevice(stx)         # destroy "stx" device
+    >>> RemoveDevice(stx, sty)    # destroy two devices by name
     """
     if not devnames:
         raise UsageError('At least one device is required')
@@ -332,6 +332,18 @@ def DestroyDevice(*devnames):
         if isinstance(devname, Device):
             devname = devname.name
         session.destroyDevice(devname)
+
+
+# XXX: remove this in version 2.6
+
+@hiddenusercommand
+@helparglist('devname, ...')
+@spmsyntax(Multi(AnyDev))
+def DestroyDevice(*devnames):
+    session.log.warning("The 'DestroyDevice' command is deprecated, please use"\
+                        " 'RemoveDevice'")
+    RemoveDevice(*devnames)
+
 
 @usercommand
 def CreateAllDevices():
