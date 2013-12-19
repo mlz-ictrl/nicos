@@ -75,19 +75,30 @@ class View(QObject):
                     log.error('Error getting history for %s.', key)
                     history = []
                 ltime = 0
+                lvalue = None
                 interval = self.interval
-                x, y = np.zeros(len(history)), np.zeros(len(history))
+                maxdelta = max(2*interval, 11)
+                x, y = np.zeros(2*len(history)), np.zeros(2*len(history))
                 i = 0
                 for vtime, value in history:
-                    if value is not None and vtime > ltime + interval:
-                        x[i] = max(vtime, fromtime)
-                        if isinstance(value, str):
-                            # create a new unique integer value for the string
-                            value = string_mapping.setdefault(
-                                value, len(string_mapping))
-                        y[i] = value
-                        ltime = x[i]
+                    if value is None:
+                        continue
+                    delta = vtime - ltime
+                    if delta < interval:
+                        # value comes too fast -> ignore
+                        continue
+                    if isinstance(value, str):
+                        # create a new unique integer value for the string
+                        value = string_mapping.setdefault(
+                            value, len(string_mapping))
+                    if delta > maxdelta and lvalue is not None:
+                        # synthesize a point inbetween
+                        x[i] = vtime - interval
+                        y[i] = lvalue
                         i += 1
+                    x[i] = ltime = max(vtime, fromtime)
+                    y[i] = lvalue = value
+                    i += 1
                 x.resize((2*i or 100,))
                 y.resize((2*i or 100,))
                 # keydata is a list of five items: x value array, y value array,
