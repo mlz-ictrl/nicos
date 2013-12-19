@@ -187,6 +187,8 @@ class TrendPlot(QwtPlot, NicosWidget):
         self.zoomer = QwtPlotZoomer(QwtPlot.xBottom, QwtPlot.yLeft,
                                     self.canvas())
         self.zoomer.initMousePattern(2)  # don't bind middle button
+        self.connect(self.zoomer, SIGNAL('zoomed(const QwtDoubleRect &)'),
+                     self.on_zoomer_zoomed)
 
         self.panner = QwtPlotPanner(self.canvas())
         self.panner.setMouseButton(Qt.MidButton)
@@ -232,6 +234,13 @@ class TrendPlot(QwtPlot, NicosWidget):
                 self.invTransform(QwtPlot.xBottom, point.x()))),
             self.invTransform(QwtPlot.yLeft, point.y()))
         self.emit(SIGNAL('widgetInfo'), info)
+
+    def on_zoomer_zoomed(self, rect):
+        # when zooming completely out, reset to auto scaling
+        if self.zoomer.zoomRectIndex() == 0:
+            self.setAxisAutoScale(QwtPlot.xBottom)
+            self.setAxisAutoScale(QwtPlot.yLeft)
+            self.zoomer.setZoomBase()
 
     def addcurve(self, keyid, title):
         curve = QwtPlotCurve(title)

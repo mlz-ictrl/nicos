@@ -285,8 +285,11 @@ class NicosPlot(QwtPlot, DlgUtils):
                      self.on_legendClicked)
 
     def on_zoomer_zoomed(self, rect):
-        #print self.zoomer.zoomStack()
-        pass
+        # when zooming completely out, reset to auto scaling
+        if self.zoomer.zoomRectIndex() == 0:
+            self.setAxisAutoScale(QwtPlot.xBottom)
+            self.setAxisAutoScale(QwtPlot.yLeft)
+            self.zoomer.setZoomBase()
 
     def setFonts(self, font, bold, larger):
         self.setFont(font)
