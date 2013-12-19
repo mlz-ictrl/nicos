@@ -482,6 +482,7 @@ class BaseHistoryWindow(object):
         hassym = view.plot.hasSymbols
         view.plot = None
         self.openView(view)
+        self.actionSymbols.setChecked(hassym)
         view.plot.setSymbols(hassym)
 
     @qtsig('')
