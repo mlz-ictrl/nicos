@@ -90,36 +90,40 @@ class View(QObject):
                         i += 1
                 x.resize((2*i or 100,))
                 y.resize((2*i or 100,))
-                self.keydata[key] = [x, y, i]
+                # keydata is a list of five items: x value array, y value array,
+                # index of last value, index of last "real" value (not counting
+                # synthesized points from the timer, see below), last received
+                # value (even if thrown away)
+                self.keydata[key] = [x, y, i, i, lvalue]
                 if string_mapping:
                     self.keyinfo[key] = ', '.join('%s=%s' % (v, k) for (k, v) in
                                                   string_mapping.iteritems())
         else:
-            self.keydata = dict((key, [np.zeros(500), np.zeros(500), 0])
+            self.keydata = dict((key, [np.zeros(500), np.zeros(500), 0, 0, None])
                                 for key in keys)
 
         self.listitem = None
         self.plot = None
         if self.totime is None:
             # add another point with the same value every interval time (but not
-            # more often than 10 seconds)
-            self.timer = QTimer(self, interval=max(interval, 10)*1000)
+            # more often than 11 seconds)
+            self.timer = QTimer(self, interval=max(interval, 11)*1000)
             self.timer.timeout.connect(self.on_timer_timeout)
-            # XXX: this is somehow still broken: the window now doesn't show
-            # new values
-            #self.timer.start()
+            self.timer.start()
 
     def on_timer_timeout(self):
         for key, kd in self.keydata.iteritems():
             if kd[0][kd[2]-1] < currenttime() - self.interval:
-                self.newValue(currenttime(), key, '=', kd[1][kd[2]-1])
+                self.newValue(currenttime(), key, '=', kd[4], real=False)
 
-    def newValue(self, time, key, op, value):
+    def newValue(self, time, key, op, value, real=True):
         if op != '=':
             return
         kd = self.keydata[key]
         n = kd[2]
-        if n and kd[0][n-1] > time - self.interval:
+        real_n = kd[3]
+        kd[4] = value
+        if real_n > 0 and kd[0][real_n-1] > time - self.interval:
             return
         # double array size if array is full
         if n == kd[0].shape[0]:
@@ -129,14 +133,22 @@ class View(QObject):
                 # don't add more points, make existing ones more sparse
                 kd[0][:n/2] = kd[0][1::2]
                 kd[1][:n/2] = kd[1][1::2]
-                n = kd[2] = n/2
+                n = kd[2] = kd[3] = n/2
             else:
                 kd[0].resize((2*kd[0].shape[0],))
                 kd[1].resize((2*kd[1].shape[0],))
         # fill next entry
-        kd[0][n] = time
-        kd[1][n] = value
-        kd[2] += 1
+        if not real and real_n < n:
+            # do not generate endless amounts of synthesized points, one
+            # is enough
+            kd[0][n-1] = time
+            kd[1][n-1] = value
+        else:
+            kd[0][n] = time
+            kd[1][n] = value
+            kd[2] += 1
+            if real:
+                kd[3] = kd[2]
         # check sliding window
         if self.window:
             i = -1
@@ -150,6 +162,7 @@ class View(QObject):
                 kd[0][0:n-i] = kd[0][i+1:n+1].copy()
                 kd[1][0:n-i] = kd[1][i+1:n+1].copy()
                 kd[2] -= i+1
+                kd[3] -= i+1
         if self.plot:
             self.plot.pointsAdded(key)
 
@@ -688,14 +701,14 @@ class ViewPlot(NicosPlot):
         plotcurve.setPen(pen)
         plotcurve.setSymbol(self.nosymbol)
         plotcurve.setStyle(QwtPlotCurve.Lines)
-        x, y, n = self.view.keydata[key]
+        x, y, n = self.view.keydata[key][:3]
         plotcurve.setData(x[:n], y[:n])
         self.addPlotCurve(plotcurve, replot)
 
     def pointsAdded(self, whichkey):
         for key, plotcurve in zip(self.view.keys, self.plotcurves):
             if key == whichkey:
-                x, y, n = self.view.keydata[key]
+                x, y, n = self.view.keydata[key][:3]
                 plotcurve.setData(x[:n], y[:n])
                 self.replot()
                 return
