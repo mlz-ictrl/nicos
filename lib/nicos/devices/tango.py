@@ -162,7 +162,7 @@ class PyTangoDevice(DeviceMixinBase):
                     # This line explicitly logs '=> None' for commands which
                     # does not return a value. This indicates that the command
                     # execution ended.
-                    self.log.debug('\t=> %r' % result)
+                    self.log.debug('\t=> %r' % (str(result)[:300],))
 
                 return result
             except PyTango.DevFailed as e:

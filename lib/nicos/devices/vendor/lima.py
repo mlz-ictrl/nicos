@@ -21,38 +21,29 @@
 #
 # *****************************************************************************
 
-from nicos import session
-
-from nicos.core import Measurable
-from nicos.core import Param
-from nicos.core import status
-from nicos.core import tupleof
-from nicos.core import oneof
-from nicos.core import Override
-from nicos.core import ConfigurationError
-from nicos.core import SIMULATION
-
-from nicos.antares.detector.pytangodevice import PyTangoDevice
-from nicos.antares.detector import ImageStorageFits
-
 import time
 import numpy
 
-
-class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
-
-    HSSPEEDS = [5, 3, 1, 0.05]  # Values from camera manual
-    VSSPEEDS = [38.55, 76.95]  # Values from camera manual
-    PGAINS = [1, 2, 4]  # Values from camera manual
+from nicos.core import ImageProducer, ImageType, Param, Device, \
+    Measurable, AutoDevice, status, tupleof, oneof, tangodev, \
+    Override, ConfigurationError, HasLimits, HasPrecision, Moveable
+from nicos.devices.tango import PyTangoDevice
 
 
+class HwDevice(PyTangoDevice, AutoDevice, Device):
+    pass
+
+
+class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
+    """
+    This device class can be used together with the LIMA TANGO server
+    to control all common parameters and actions of the supported cameras.
+
+    For hardware specific additions, have a look at the particular class.
+    """
     parameters = {
-        'hwdevice'        : Param('Hardware device name',
-                                type=str, mandatory=True, preinit=True),
-        'fastshutter'     : Param('Fast shutter device name',
-                                type=str, mandatory=True),
-        'movefastshutter' : Param('Open fast shutter before each acquisition',
-                                type=bool, settable=True, default=True),
+        'hwdevice': Param('Hardware specific tango device', type=tangodev,
+                          default='', preinit=True),
         'imagewidth'      : Param('Image width',
                                 type=int, volatile=True, category='general'),
         'imageheight'     : Param('Image height',
@@ -73,25 +64,16 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                 default=0, volatile=True, category='general'),
         'shutteropentime' : Param('Shutter open time',
                                 type=float, settable=True, default=0,
-                                volatile=True, category='general'),
+                                volatile=False, category='general'),
         'shutterclosetime' : Param('Shutter open time',
                                 type=float, settable=True, default=0,
-                                volatile=True, category='general'),
+                                volatile=False, category='general'),
         'shuttermode'     : Param('Shutter mode',
                                 type=oneof('always_open', 'always_closed', 'auto'),
                                 settable=True, default='auto', volatile=True,
                                 category='general'),
-        'hsspeed'         : Param('Horizontal shift speed',
-                                type=oneof(*HSSPEEDS), settable=True, default=5,
-                                unit='MHz', volatile=True, category='general'),
-        'vsspeed'         : Param('Vertical shift speed',
-                                type=oneof(*VSSPEEDS), settable=True, default=76.95,
-                                unit='ms/shift', volatile=True, category='general'),
-        'pgain'           : Param('Preamplifier gain',
-                                type=oneof(*PGAINS), settable=True, default=4,
-                                volatile=True, category='general'),
         'expotime'        : Param('Exposure time',
-                                type=float, settable=False, volatile=True,
+                                type=float, settable=False, volatile=False,
                                 category='general'),
         'cameramodel'     : Param('Camera type/model',
                                 type=str, settable=False,
@@ -99,55 +81,51 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                 category='general'),
     }
 
-    parameter_overrides = {
-        'subdir' : Override(settable=True)
-    }
-
     def doPreinit(self, mode):
         PyTangoDevice.doPreinit(self, mode)
 
-        # Don't create HW device in simulation mode
-        if mode != SIMULATION:
-            self._hwDev = self._createPyTangoDevice(self.hwdevice)
+        # Create hw specific device if given
+        self._hwDev = None
+        if self.hwdevice:
+            self._hwDev = HwDevice(self.name + '._hwDev',
+                                      tangodevice=self.hwdevice, lowlevel=True)
 
     def doInit(self, mode):
+        # Determine image type
+        shape = (self.imagewidth, self.imageheight)
+        self.imagetype = ImageType(shape, self._getImageType())
+
         self._startTime = None
-        self._fileCounter = 0
-        self._fastShutter = session.getDevice(self.fastshutter)
+
+    def doSetPreset(self, **preset):
+        if 't' in preset:
+            self._dev.acq_expo_time = preset['t']
+
+    def doRead(self, _maxage=0):
+        return self.lastfilename
 
     def doStart(self):
-        self._tangoFuncGuard(self._dev.prepareAcq)
-
-        # open the fast shutter automatically if the shutter mode is
-        # always_open or auto.
-        # Note: Closing the shutter is not necessary. This will be handled
-        # by a hardware signal.
-        if self.shuttermode in ['always_open', 'auto'] and self.movefastshutter:
-            self._fastShutter.maw('open')
-
-            # sleep is necessary as the jcns tango server does not provide
-            # a proper status.
-            time.sleep(0.1)
+        self._dev.prepareAcq()
 
         self._startTime = time.time()
-        self._tangoFuncGuard(self._dev.startAcq)
-        self._newFile()
+
+        self._dev.startAcq()
 
     def doStop(self):
-        self._tangoFuncGuard(self._dev.stopAcq)
+        self._dev.stopAcq()
 
-    def doStatus(self, maxage=0):
+    def doStatus(self, maxage=0):  #pylint: disable=W0221
         statusMap = {
              'Ready' : status.OK,
              'Running' : status.BUSY,
              'Fault' : status.ERROR,
              }
 
-        # limaStatus = self._tangoGetAttrGuard('acq_status')
-        limaStatus = self._tangoGetAttrGuard('acq_status')
+        limaStatus = self._dev.acq_status
         nicosStatus = statusMap.get(limaStatus, status.UNKNOWN)
 
         if nicosStatus == status.BUSY and self._startTime is not None:
+
             deltaTime = time.time() - self._startTime
 
             if deltaTime <= self.shutteropentime:
@@ -161,12 +139,10 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
             else:
                 limaStatus += ' (Readout)'
 
-        return (nicosStatus, limaStatus)
 
-    def doSetPreset(self, **preset):
-        if 't' in preset:
-            exposureTime = preset['t']
-            self._tangoSetAttrGuard('acq_expo_time', exposureTime)
+        self.log.debug('## (%r, %r)' % (nicosStatus, limaStatus))
+
+        return (nicosStatus, limaStatus)
 
     def doIsCompleted(self):
         if self.doStatus()[0] == status.BUSY:
@@ -174,31 +150,31 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         return True
 
     def doReadImagewidth(self):
-        return self._tangoGetAttrGuard('image_width')
+        return self._dev.image_width
 
     def doReadImageheight(self):
-        return self._tangoGetAttrGuard('image_height')
+        return self._dev.image_height
 
     def doReadRoi(self):
-        return tuple(self._tangoGetAttrGuard('image_roi').tolist())
+        return tuple(self._dev.image_roi.tolist())
 
     def doWriteRoi(self, value):
-        self._tangoSetAttrGuard('image_roi', value)
+        self._dev.image_roi = value
 
     def doReadBin(self):
-        return tuple(self._tangoGetAttrGuard('image_bin').tolist())
+        return tuple(self._dev.image_bin.tolist())
 
     def doWriteBin(self, value):
-        self._tangoSetAttrGuard('image_bin', value)
+        self._dev.image_bin = value
 
     def doReadFlip(self):
-        return tuple(self._tangoGetAttrGuard('image_flip').tolist())
+        return tuple(self._dev.image_flip.tolist())
 
     def doWriteFlip(self, value):
-        self._tangoSetAttrGuard('image_flip', value)
+        self._dev.image_flip = value
 
     def doReadRotation(self):
-        rot = self._tangoGetAttrGuard('image_rotation')
+        rot = self._dev.image_rotation
 
         if rot == 'NONE':
             return 0
@@ -210,22 +186,22 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         if value == 0:
             writeVal = 'NONE'
 
-        self._tangoSetAttrGuard('image_rotation', writeVal)
+        self._dev.image_rotation = writeVal
 
     def doReadShutteropentime(self):
-        return self._tangoGetAttrGuard('shutter_open_time')
+        return self._dev.shutter_open_time
 
     def doWriteShutteropentime(self, value):
-        self._tangoSetAttrGuard('shutter_open_time', value)
+        self._dev.shutter_open_time = value
 
     def doReadShutterclosetime(self):
-        return self._tangoGetAttrGuard('shutter_close_time')
+        return self._dev.shutter_close_time
 
     def doWriteShutterclosetime(self, value):
-        self._tangoSetAttrGuard('shutter_close_time', value)
+        self._dev.shutter_close_time = value
 
     def doReadShuttermode(self):
-        internalMode = self._tangoGetAttrGuard('shutter_mode')
+        internalMode = self._dev.shutter_mode
 
         if internalMode in ['AUTO_FRAME', 'AUTO_SEQUENCE']:
             # this detector is only used in single acq mode,
@@ -249,18 +225,81 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                      % internalMode)
 
     def doWriteShuttermode(self, value):
-
         if value == 'auto':
-            self._tangoSetAttrGuard('shutter_mode', 'AUTO_FRAME')
+            self._dev.shutter_mode = 'AUTO_FRAME'
         elif value == 'always_open':
-            self._tangoSetAttrGuard('shutter_mode', 'MANUAL')
-            self._tangoFuncGuard(self._dev.openShutterManual)
+            self._dev.shutter_mode = 'MANUAL'
+            self._dev.openShutterManual()
         elif value == 'always_closed':
-            self._tangoSetAttrGuard('shutter_mode', 'MANUAL')
-            self._tangoFuncGuard(self._dev.closeShutterManual)
+            self._dev.shutter_mode = 'MANUAL'
+            self._dev.closeShutterManual()
+
+    def doReadExpotime(self):
+        return self._dev.acq_expo_time
+
+    def doReadCameramodel(self):
+        camType = self._dev.camera_type
+        camModel = self._dev.camera_model
+
+        return '%s (%s)' % (camType, camModel)
+
+    def readFinalImage(self):
+        response = self._dev.readImage(0)
+        imgDataStr = response[1]  # response is a tuple (type name, data)
+
+        dt = numpy.dtype(self._getImageType())
+        dt = dt.newbyteorder('<')
+
+        imgData = numpy.frombuffer(imgDataStr,
+                                   dt,
+                                   offset=64)
+        imgData = numpy.reshape(imgData, (self.imageheight, self.imagewidth))
+
+        return imgData
+
+    def _getImageType(self):
+        imageType = self._dev.image_type
+
+        mapping = {
+                   'Bpp8' : numpy.uint8,
+                   'Bpp8S' : numpy.int8,
+                   'Bpp16' : numpy.uint16,
+                   'Bpp16S' : numpy.int16,
+                   'Bpp32' : numpy.uint32,
+                   'Bpp32S' : numpy.int32,
+                   }
+
+        return mapping.get(imageType, numpy.uint32)
+
+
+class Andor2LimaCCD(GenericLimaCCD):
+    """
+    This device class is an extension to the GenericLimaCCD that adds the
+    hardware specific functionality for all Andor SDK2 based cameras.
+    """
+
+    HSSPEEDS = [5, 3, 1, 0.05]  # Values from sdk manual
+    VSSPEEDS = [38.55, 76.95]  # Values from sdk manual
+    PGAINS = [1, 2, 4]  # Values from sdk manual
+
+    parameters = {
+        'hsspeed'         : Param('Horizontal shift speed',
+                                type=oneof(*HSSPEEDS), settable=True, default=5,
+                                unit='MHz', volatile=True, category='general'),
+        'vsspeed'         : Param('Vertical shift speed',
+                                type=oneof(*VSSPEEDS), settable=True, default=76.95,
+                                unit='ms/shift', volatile=True, category='general'),
+        'pgain'           : Param('Preamplifier gain',
+                                type=oneof(*PGAINS), settable=True, default=4,
+                                volatile=True, category='general'),
+    }
+
+    parameter_overrides = {
+        'hwdevice': Override(mandatory=True),
+    }
 
     def doReadHsspeed(self):
-        index = self._tangoFuncGuard(self._hwDev.__getattr__, 'adc_speed')
+        index = self._hwDev._dev.adc_speed
 
         try:
             return self.HSSPEEDS[index]
@@ -269,12 +308,11 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                      '(index: %d)' % index)
 
     def doWriteHsspeed(self, value):
-        index = self.HSSPEEDS.index(value)  # value can only be valid thanks
-                                            # to param validation
-        self._tangoFuncGuard(self._hwDev.__setattr__, 'adc_speed', index)
+        index = self.HSSPEEDS.index(value)
+        self._hwDev._dev.adc_speed = index
 
     def doReadVsspeed(self):
-        index = self._tangoFuncGuard(self._hwDev.__getattr__, 'vs_speed')
+        index = self._hwDev._dev.vs_speed
 
         try:
             return self.VSSPEEDS[index]
@@ -282,14 +320,12 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
             raise ConfigurationError(self, 'Camera uses unknown vs speed '
                                      '(index: %d)' % index)
 
-
     def doWriteVsspeed(self, value):
-        index = self.VSSPEEDS.index(value)  # value can only be valid thanks
-                                            # to param validation
-        self._tangoFuncGuard(self._hwDev.__setattr__, 'vs_speed', index)
+        index = self.VSSPEEDS.index(value)
+        self._hwDev._dev.vs_speed = index
 
     def doReadPgain(self):
-        index = self._tangoFuncGuard(self._hwDev.__getattr__, 'p_gain')
+        index = self._hwDev._dev.p_gain
 
         try:
             return self.PGAINS[index]
@@ -298,49 +334,51 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
                                      'gain (index: %d)' % index)
 
     def doWritePgain(self, value):
-        index = self.PGAINS.index(value)  # value can only be valid thanks
-                                          # to param validation
-        self._tangoFuncGuard(self._hwDev.__setattr__, 'p_gain', index)
+        index = self.PGAINS.index(value)
+        self._hwDev._dev.p_gain = index
 
-    def doReadExpotime(self):
-        return self._tangoFuncGuard(self._dev.__getattr__, 'acq_expo_time')
 
-    def doReadCameramodel(self):
-        camType = self._tangoFuncGuard(self._dev.__getattr__, 'camera_type')
-        camModel = self._tangoFuncGuard(self._dev.__getattr__, 'camera_model')
+class Andor2TemperatureController(PyTangoDevice,
+                                  HasLimits, HasPrecision, Moveable):
+    """
+    This devices provides access to the cooling feature of Andor2 cameras.
+    """
 
-        return '%s (%s)' % (camType, camModel)
+    def doRead(self, maxage=0):
+        return self._dev.temperature
 
-    def _readImageFromHw(self):
-        response = self._tangoFuncGuard(self._dev.readImage, 0)
-        imgDataStr = response[1]  # response is a tuple (type name, data)
-        imgHeader = imgDataStr[:64]
+    def doStatus(self, maxage=0):  #pylint: disable=W0221
+        coolerState = self._dev.cooler
+        temperature = self.doRead()
+        sp = self._dev.temperature_sp
 
-        imgData = numpy.frombuffer(imgDataStr, '<u2', offset=64)
-        imgData = numpy.reshape(imgData, (self.imageheight, self.imagewidth))
+        nicosState = status.UNKNOWN
 
-        self.log.debug('Image header:')
-        self._hexdump(imgHeader)
+        if self._isCoolerEnabled():
+            if abs(temperature - sp) < self.precision:
+                nicosState = status.OK
+            else:
+                nicosState = status.BUSY
+        else:
+            if temperature > -10:
+                nicosState = status.OK
+            else:
+                nicosState = status.BUSY
 
-        return imgData
+        return (nicosState, coolerState)
 
-    def _hexdump(self, data, logFunc=None):
+    def doStart(self, value):
+        if value > -10:
+            self._setCoolerEnabled(False)
+        else:
+            self._dev.temperature_sp = value
+            self._setCoolerEnabled(True)
 
-        # IMPROVABLE!!
+    def _setCoolerEnabled(self, value):
+        if value:
+            self._dev.cooler = 'ON'
+        else:
+            self._dev.cooler = 'OFF'
 
-        if logFunc is None:
-            logFunc = self.log.debug
-
-        for i in range((len(data) + 7) // 8):
-            startByte = hex(i * 8)
-
-            wordStr = ' '.join('{0:<6}'.format(hex(ord(data[j + 1])
-                           * 256 + ord(data[j])))[2:] for j in range(i * 8, i * 8 + 8, 2))
-
-            byteStr = ' '.join('{0:<4}'.format(hex(ord(c)))[2:] for c in data[i * 8:i * 8 + 7])
-
-            charStr = ''.join(c if 32 < ord(c) < 128 else '.' for c in data[i * 8:i * 8 + 7])
-
-            line = '%s: \t%s - %s\t%s' % (startByte, wordStr, byteStr, charStr)
-
-            logFunc(line)
+    def _isCoolerEnabled(self):
+        return True if self._dev.cooler == 'ON' else False
