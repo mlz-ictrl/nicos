@@ -42,8 +42,8 @@ from nicos.commands.output import printinfo, printerror
 __all__ = [
     'move', 'drive', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
     'reset', 'set', 'get', 'getall', 'setall', 'info', 'fix', 'release',
-    'adjust', 'version', 'history', 'limits', 'resetlimits', 'reference',
-    'ListParams', 'ListMethods', 'ListDevices',
+    'unfix', 'adjust', 'version', 'history', 'limits', 'resetlimits',
+    'reference', 'ListParams', 'ListMethods', 'ListDevices',
 ]
 
 
