@@ -198,6 +198,9 @@ class SetupsPanel(Panel, DlgUtils):
         DlgUtils.__init__(self, 'Setup')
         loadUi(self, 'setup_setups.ui', 'panels')
 
+        self._setupinfo = {}
+        self._loaded = set()
+
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
@@ -205,6 +208,9 @@ class SetupsPanel(Panel, DlgUtils):
     def on_client_connected(self):
         # fill setups
         self._setupinfo = self.client.eval('session.getSetupInfo()', {})
+        all_loaded = self.client.eval('session.loaded_setups', set())
+        self._loaded = set()
+        self._loaded_basic = None
         self.basicSetup.clear()
         self.optSetups.clear()
         default_flags = Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | \
@@ -216,10 +222,15 @@ class SetupsPanel(Panel, DlgUtils):
                     continue
                 if info['group'] == 'basic':
                     QListWidgetItem(name, self.basicSetup)
+                    if name in self._loaded:
+                        self._loaded_basic = name
                 elif info['group'] == 'optional':
                     item = QListWidgetItem(name, self.optSetups)
                     item.setFlags(default_flags)
-                    item.setCheckState(Qt.Unchecked)
+                    if name in all_loaded:
+                        self._loaded.add(name)
+                    item.setCheckState(Qt.Checked if name in all_loaded
+                                       else Qt.Unchecked)
         self.basicSetup.setCurrentItem(keep)
 
     def on_basicSetup_currentItemChanged(self, item, old):
@@ -261,12 +272,22 @@ class SetupsPanel(Panel, DlgUtils):
         setups = []
         cmd = 'NewSetup'
         basic = str(self.basicSetup.currentItem().text())
+        # calculate the new setups
+        setups = set()
         if basic == '<keep current>':
+            if self._loaded_basic:
+                setups.add(self._loaded_basic)
+        else:
+            setups.add(basic)
+        for item in iterChecked(self.optSetups):
+            setups.add(str(item.text()))
+        to_add = setups - self._loaded
+        to_remove = self._loaded - setups
+        # new setups only?
+        if to_add and not to_remove:
             cmd = 'AddSetup'
         else:
-            setups.append(basic)
-        for item in iterChecked(self.optSetups):
-            setups.append(str(item.text()))
+            cmd = 'NewSetup'
         if setups:
             self.client.tell('queue', '',
                              '%s(%s)' % (cmd, ', '.join(map(repr, setups))))
