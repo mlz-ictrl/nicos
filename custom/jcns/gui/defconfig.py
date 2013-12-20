@@ -30,72 +30,53 @@ __version__ = "$Revision$"
 from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, \
      tabbed, docked
 
-config = ('Default', [
-        tabbed(
-               ('Instrument',
-                docked(
-                    vsplit(
-                        hsplit(
-                            panel('expinfo.ExpInfoPanel'),
-                            vsplit(
-                                panel('cmdbuilder.CommandPanel'),
-                                panel('status.ScriptStatusPanel'),
-                            ),
-                        ),
-                    tabbed(
-                         ('All output',
-                          panel('console.ConsolePanel',
-                          hasinput=False, hasmenu=False,
-                          ),
-                         ),
-                         ('Errors/Warnings',
-                           panel('errors.ErrorPanel'),
-                         ),
-                         ),
-                        ),
-                        ('NICOS devices',
-                         panel('devices.DevicesPanel',
-                               icons=True,
-                               dockpos='right',
-                              ),
-                        ),
-                    ),
-               ),
-#              panel('watch.WatchPanel'),
-               ('Script Editor',
+main_window = tabbed(
+    ('Instrument', docked(
+        vsplit(
+            hsplit(
+                panel('expinfo.ExpInfoPanel'),
                 vsplit(
-                    panel('scriptbuilder.CommandsPanel'),
-                    panel('editor.EditorPanel',
-                       tools = [
-                          tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
-                    ]),
+                    panel('cmdbuilder.CommandPanel'),
+                    panel('status.ScriptStatusPanel'),
                 ),
-               ),
-               ('Scan Plotting',
-                panel('scans.ScansPanel')
-               ),
-               ('Device Plotting',
-                panel('history.HistoryPanel')
-               ),
-               ('Logbook',
-                panel('elog.ELogPanel')
-               ),
-               ('Live display',
-                panel('live.LiveDataPanel')
-               ),
+            ),
+            tabbed(
+                ('All output',
+                    panel('console.ConsolePanel',
+                          hasinput=False, hasmenu=False)),
+                ('Errors/Warnings',
+                    panel('errors.ErrorPanel')),
+            ),
         ),
-#        window('Setup', 'setup', True, panel('setup_panel.SetupPanel')),
-    ], [
-        tool('Calculator', 'calculator.CalculatorTool'),
-        tool('Neutron cross-sections', 'website.WebsiteTool',
-             url='http://www.ncnr.nist.gov/resources/n-lengths/'),
-        tool('Neutron activation', 'website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/activation/'),
-        tool('Neutron calculations', 'website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/neutroncalc/'),
-        tool('Report NICOS bug', 'website.WebsiteTool',
-             url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
-        tool('Emergency stop button', 'estop.EmergencyStopTool',
-             runatstartup=True),
-    ]
+        ('NICOS devices',
+            panel('devices.DevicesPanel', icons=True, dockpos='right')),
+    )),
+    ('Script Editor',
+        vsplit(
+            panel('scriptbuilder.CommandsPanel'),
+            panel('editor.EditorPanel',
+                tools = [
+                    tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+            ]),
+        )),
+    ('Scan Plotting', panel('scans.ScansPanel')),
+    ('Device Plotting', panel('history.HistoryPanel')),
+    ('Logbook', panel('elog.ELogPanel')),
+#    ('Live display', panel('live.LiveDataPanel')),
 )
+
+windows = []
+
+tools = [
+    tool('Calculator', 'calculator.CalculatorTool'),
+    tool('Neutron cross-sections', 'website.WebsiteTool',
+         url='http://www.ncnr.nist.gov/resources/n-lengths/'),
+    tool('Neutron activation', 'website.WebsiteTool',
+         url='http://www.frm2.tum.de/intranet/activation/'),
+    tool('Neutron calculations', 'website.WebsiteTool',
+         url='http://www.frm2.tum.de/intranet/neutroncalc/'),
+    tool('Report NICOS bug', 'website.WebsiteTool',
+         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+    tool('Emergency stop button', 'estop.EmergencyStopTool',
+         runatstartup=True),
+]
