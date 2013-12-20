@@ -54,6 +54,7 @@ class ExpPanel(Panel, DlgUtils):
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -90,6 +91,10 @@ class ExpPanel(Panel, DlgUtils):
             self.queryDBButton.setVisible(True)
         else:
             self.queryDBButton.setVisible(False)
+
+    def on_client_experiment(self, proposal):
+        # just reinitialize
+        self.on_client_connected()
 
     @qtsig('')
     def on_finishButton_clicked(self):
