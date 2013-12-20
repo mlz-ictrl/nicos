@@ -48,6 +48,8 @@ class SettingsDialog(QDialog, DlgUtils):
         self.confirmExit.setChecked(main.confirmexit)
         self.showTrayIcon.setChecked(main.showtrayicon)
         self.autoReconnect.setChecked(main.autoreconnect)
+        self.autoSaveLayout.setChecked(main.autosavelayout)
+        self.manualSaveLayout.setChecked(not main.autosavelayout)
 
         # connection data page
         self.connpresets = main.connpresets
@@ -60,16 +62,25 @@ class SettingsDialog(QDialog, DlgUtils):
         self.main.confirmexit = self.confirmExit.isChecked()
         self.main.showtrayicon = self.showTrayIcon.isChecked()
         self.main.autoreconnect = self.autoReconnect.isChecked()
+        self.main.autosavelayout = self.autoSaveLayout.isChecked()
         with self.sgroup as settings:
             settings.setValue('connpresets', self.connpresets)
             settings.setValue('instrument', QVariant(self.main.instrument))
             settings.setValue('confirmexit', QVariant(self.main.confirmexit))
             settings.setValue('showtrayicon', QVariant(self.main.showtrayicon))
             settings.setValue('autoreconnect', QVariant(self.main.autoreconnect))
+            settings.setValue('autosavelayout', QVariant(self.main.autosavelayout))
         if self.main.showtrayicon:
             self.main.trayIcon.show()
         else:
             self.main.trayIcon.hide()
+
+    @qtsig('')
+    def on_saveLayoutBtn_clicked(self):
+        self.main.saveWindowLayout()
+        for win in self.main.windows.values():
+            win.saveWindowLayout()
+        self.showInfo('The window layout was saved.')
 
     @qtsig('')
     def on_settingAdd_clicked(self):

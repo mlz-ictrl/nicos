@@ -273,6 +273,8 @@ class MainWindow(QMainWindow, DlgUtils):
                                            QVariant(True)).toBool()
         self.autoreconnect = settings.value('autoreconnect',
                                             QVariant(True)).toBool()
+        self.autosavelayout = settings.value('autosavelayout',
+                                             QVariant(True)).toBool()
 
         self.update()
 
@@ -280,13 +282,18 @@ class MainWindow(QMainWindow, DlgUtils):
         for wtype in [x.toInt()[0] for x in open_wintypes]:
             self.createWindow(wtype)
 
+    def saveWindowLayout(self):
+        with self.sgroup as settings:
+            settings.setValue('geometry', QVariant(self.saveGeometry()))
+            settings.setValue('windowstate', QVariant(self.saveState()))
+            settings.setValue('splitstate',
+                QVariant([sp.saveState() for sp in self.splitters]))
+            open_wintypes = self.windows.keys()
+            settings.setValue('auxwindows', QVariant(open_wintypes))
+
     def saveSettings(self, settings):
-        settings.setValue('geometry', QVariant(self.saveGeometry()))
-        settings.setValue('windowstate', QVariant(self.saveState()))
-        settings.setValue('splitstate',
-                          QVariant([sp.saveState() for sp in self.splitters]))
-        open_wintypes = self.windows.keys()
-        settings.setValue('auxwindows', QVariant(open_wintypes))
+        if self.autosavelayout:
+            self.saveWindowLayout()
         settings.setValue('autoconnect', QVariant(self.client.connected))
         settings.setValue('connpresets', self.connpresets)
         settings.setValue('lastpreset', self.lastpreset)

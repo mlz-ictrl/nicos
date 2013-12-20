@@ -72,11 +72,7 @@ class AuxiliaryWindow(QMainWindow):
             if panelobj.panelName == panelName:
                 return panelobj
 
-    def closeEvent(self, event):
-        for pnl in self.panels:
-            if not pnl.requestClose():
-                event.ignore()
-                return
+    def saveWindowLayout(self):
         with self.sgroup as settings:
             settings.setValue('geometry', QVariant(self.saveGeometry()))
             settings.setValue('windowstate', QVariant(self.saveState()))
@@ -84,6 +80,14 @@ class AuxiliaryWindow(QMainWindow):
                               QVariant([sp.saveState() for sp in self.splitters]))
             settings.setValue('font', QVariant(self.user_font))
             settings.setValue('color', QVariant(self.user_color))
+
+    def closeEvent(self, event):
+        for pnl in self.panels:
+            if not pnl.requestClose():
+                event.ignore()
+                return
+        if self.mainwindow.autosavelayout:
+            self.saveWindowLayout()
         for pnl in self.panels:
             with pnl.sgroup as settings:
                 pnl.saveSettings(settings)
