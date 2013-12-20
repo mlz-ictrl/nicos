@@ -103,7 +103,6 @@ class MainWindow(QMainWindow, DlgUtils):
         self.connect(self.client, SIGNAL('clientexec'), self.on_client_clientexec)
         self.connect(self.client, SIGNAL('plugplay'), self.on_client_plugplay)
         self.connect(self.client, SIGNAL('watchdog'), self.on_client_watchdog)
-        self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
 
         # data handling setup
         self.data = DataHandler(self.client)
@@ -325,13 +324,12 @@ class MainWindow(QMainWindow, DlgUtils):
 
         event.accept()
 
-    def setTitlebar(self, connected, setups=()):
+    def setTitlebar(self, connected):
         inststr = str(self.instrument) or 'NICOS'
         if connected:
             hoststr = '%s at %s:%s' % (self.client.login, self.client.host,
                                        self.client.port)
-            self.setWindowTitle('%s [%s] - %s' % (inststr, ', '.join(setups),
-                                                  hoststr))
+            self.setWindowTitle('%s - %s' % (inststr, hoststr))
         else:
             self.setWindowTitle('%s - disconnected' % inststr)
 
@@ -412,10 +410,9 @@ class MainWindow(QMainWindow, DlgUtils):
         self.setStatus('idle')
         self._reconnecting = False
 
+        self.setTitlebar(True)
         # get all server status info
         initstatus = self.client.ask('getstatus')
-        # handle setups
-        self.setTitlebar(True, initstatus['setups'][1])
         # handle initial status
         self.on_client_status(initstatus['status'])
         # propagate info to all components
@@ -425,9 +422,6 @@ class MainWindow(QMainWindow, DlgUtils):
         for panel in self.panels:
             if isinstance(panel, ConsolePanel) and panel.hasinput:
                 panel.commandInput.setFocus()
-
-    def on_client_setup(self, data):
-        self.setTitlebar(True, data[1])
 
     def on_client_status(self, data):
         status = data[0]
