@@ -237,7 +237,6 @@ def createWindowItem(item, window, menuwindow):
             # around the central widget
             central = QWidget(subwindow)
             layout = QVBoxLayout()
-            layout.setContentsMargins(0, 0, 0, 0)
             item = createWindowItem(subitem, window, subwindow)
             if isinstance(item, Panel):
                 item.hideTitle()
