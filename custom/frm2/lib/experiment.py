@@ -81,6 +81,10 @@ class Experiment(BaseExperiment):
                 self.log.error('No permission for this experiment from radiation '
                                'protection! Please call 14955 (14739/929-090).')
 
+        kwds['permission_security'] = info.get('permission_security', 'no')
+        kwds['permission_radiation_protection'] = \
+            info.get('permission_radiation_protection', 'no')
+
         what = []
         info['instrument'] = instrument
         # Extract NEW information
