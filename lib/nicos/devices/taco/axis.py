@@ -230,7 +230,15 @@ class HoveringAxis(Axis):
 
     def doStart(self, target):
         if self._poll_thread:
-            raise NicosError(self, 'axis is already moving')
+            self.stop()
+            self.log.info('waiting for axis to stop...')
+            for _i in range(100):
+                if self._poll_thread is None:
+                    break
+                sleep(0.1)
+            else:
+                raise NicosError(self, 'axis is already moving and does not '
+                                 'appear to stop')
         if abs(target - self.read()) < self.precision:
             return
         self._poll_thread = threading.Thread(target=self._pollthread,
