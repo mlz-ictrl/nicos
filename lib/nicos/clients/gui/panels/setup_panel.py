@@ -68,6 +68,10 @@ class ExpPanel(Panel, DlgUtils):
             self.users.setText(decodeAny(values[2]))
             self.localContact.setText(decodeAny(values[3]))
             self.sampleName.setText(decodeAny(values[4]))
+        emails = self.client.eval('[e.receivers for e in session.notifiers '
+            'if "nicos.devices.notifiers.Mailer" in e.classes]', [])
+        self._orig_email = sum(emails, [])
+        self.notifEmails.setPlainText(decodeAny('\n'.join(self._orig_email)))
 
     def on_client_connected(self):
         # fill proposal
@@ -98,10 +102,11 @@ class ExpPanel(Panel, DlgUtils):
         users = unicode(self.users.text()).encode('utf-8')
         local = unicode(self.localContact.text()).encode('utf-8')
         sample = unicode(self.sampleName.text()).encode('utf-8')
+        emails = unicode(self.notifEmails.toPlainText()).encode('utf-8')
 
         # read all values from propdb
         try:
-            result = self.client.eval('session.experiment._fillProposal(%s,{})'
+            result = self.client.eval('session.experiment._fillProposal(%s, {})'
                                       % prop, None)
 
             if result:
@@ -111,6 +116,8 @@ class ExpPanel(Panel, DlgUtils):
                 self.localContact.setText(decodeAny(result.get('localcontact',
                                                                local)))
                 self.sampleName.setText(decodeAny(result.get('sample', sample)))
+                self.notifEmails.setPlainText(
+                    decodeAny(result.get('user_email', emails)))
                 # check permissions:
                 failed = []
                 if result.get('permission_security', 'no') != 'yes':
@@ -118,8 +125,8 @@ class ExpPanel(Panel, DlgUtils):
                 if result.get('permission_radiation_protection', 'no') != 'yes':
                     failed.append('* Radiation protection (Tel. 14955)')
                 if failed:
-                    self.showError('Proposal lacks sufficient permissions '\
-                                   'to be performed !\n\n' + '\n'.join(failed))
+                    self.showError('Proposal lacks sufficient permissions '
+                                   'to be performed!\n\n' + '\n'.join(failed))
             else:
                 self.showInfo('Reading proposaldb failed for an unknown reason.'
                               ' Please check logfiles for hints....')
@@ -147,6 +154,8 @@ class ExpPanel(Panel, DlgUtils):
         title = unicode(self.expTitle.text()).encode('utf-8')
         users = unicode(self.users.text()).encode('utf-8')
         local = unicode(self.localContact.text()).encode('utf-8')
+        email = unicode(self.notifEmails.toPlainText()).encode('utf-8').split('\n')
+        email = filter(None, email)  # remove empty lines
 
         # check conditions
         if self.client.eval('session.experiment.serviceexp', True) and \
@@ -183,6 +192,10 @@ class ExpPanel(Panel, DlgUtils):
         if sample != self._orig_proposal_info[4]:
             self.client.tell('queue', '', 'NewSample(%r)' % sample)
             done.append('New sample name set.')
+        if email != self._orig_email:
+            self.client.tell('queue', '',
+                             'SetMailReceivers(%s)' % ', '.join(map(repr, email)))
+            done.append('New mail receivers set.')
 
         # tell user about everything we did
         if done:
