@@ -59,6 +59,9 @@ def devIter(devices, baseclass=None, onlydevs=False):
     if isinstance(devices, dict):
         devices = devices.items()
     else:
+        # we iterate twice: make sure to convert generators
+        # to a list first
+        devices = list(devices)
         try: # to convert list of devices into desired format
             devices = [(dev.name, dev) for dev in devices]
         except AttributeError:
