@@ -32,6 +32,7 @@ import time
 from os import path
 from uuid import uuid1
 from StringIO import StringIO
+from textwrap import dedent
 
 # both will fail on M$win
 try:
@@ -858,7 +859,11 @@ class Experiment(Device):
                              self.mailtemplate, exc=1)
             mailbody = 'See data in attachment.'
 
-        stats = self._statistics()
+        try:
+            stats = self._statistics()
+        except Exception:
+            self.log.exception('could not gather experiment statistics')
+            stats = {}
         stats.update(self.propinfo)
         mailbody, _, _ = expandTemplate(mailbody, stats)
 
@@ -874,18 +879,18 @@ class Experiment(Device):
             # not small enough -> upload and send link
             self.log.info('Zipfile is too big to send via email and will be '
                           'uploaded to a temporary storge for download.')
-            mailbody += """
+            mailbody += dedent("""
             =====
 
             Due to size limitations, the attachment was put to a temporary storage,
-            where it will be kept for SEVEN DAYS and then it will be deleted.
+            where it will be kept for four weeks and then it will be deleted.
 
             Please download the data from:
             %s
-            within the next seven days.
+            within the next four weeks.
 
-            We apologize for the inconvinience.
-            """ % ftpUpload(zipname)
+            We apologize for the inconvenience.
+            """) % ftpUpload(zipname)
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
                      [], 1 if self.loglevel == 'debug' else 0)
 
