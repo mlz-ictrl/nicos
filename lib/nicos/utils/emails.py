@@ -24,7 +24,6 @@
 
 """Utilities for sending E-Mails."""
 
-import os
 from os import path
 
 # do not call this file email.py !
@@ -62,12 +61,12 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
         except ValueError, e:
             errors.append(e)
     for fn in attach_files:
-        if not os.exists(fn):
+        if not path.exists(fn):
             errors.append('Attachment %r does not exist, please check config!' % fn)
-        if not os.isfile(fn):
+        if not path.isfile(fn):
             errors.append('Attachment %r is not a file, please check config!' % fn)
     if errors:
-        return ['No mail send because of invalid parameters'] + errors
+        return ['No mail sent because of invalid parameters'] + errors
 
     # construct msg according to
     # http://docs.python.org/library/email-examples.html#email-examples
