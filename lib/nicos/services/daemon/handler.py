@@ -359,14 +359,15 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
-    def update(self, newcode):
+    def update(self, newcode, reason):
         """Update the currently running script.
 
         :param newcode: new code for the current script
+        :param reason: user-specified reason for the update
         :returns: ok or error (e.g. if the script differs in executing code)
         """
         try:
-            self.controller.current_script.update(newcode,
+            self.controller.current_script.update(newcode, reason,
                                                   self.controller, self.user)
         except ScriptError, err:
             self.write(NAK, str(err))

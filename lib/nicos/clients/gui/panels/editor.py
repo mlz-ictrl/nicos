@@ -32,7 +32,7 @@ from logging import WARNING
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
      QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
      QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
-     QFileSystemModel, QTabWidget, QStyle
+     QFileSystemModel, QTabWidget, QStyle, QInputDialog
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
      QStringList, QFileSystemWatcher
 
@@ -594,7 +594,12 @@ class EditorPanel(Panel):
             return
         if not self.checkDirty(self.currentEditor, askonly=True):
             return
-        self.client.tell('update', script)
+        reason, ok = QInputDialog.getText(self, 'Update reason',
+            'For the logbook, you can enter a reason for the update here:',
+            text='no reason specified')
+        if not ok:
+            return
+        self.client.tell('update', script, unicode(reason).encode('utf-8'))
 
     @qtsig('')
     def on_actionGet_triggered(self):

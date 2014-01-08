@@ -174,7 +174,7 @@ class ScriptRequest(Request):
             if self.name:
                 session.elog_event('scriptend', self.name)
 
-    def update(self, text, controller, user):
+    def update(self, text, reason, controller, user):
         """Update the code with a new script.
 
         This method is called from a different thread than execute(),
@@ -213,7 +213,8 @@ class ScriptRequest(Request):
             self.code, self.blocks = newcode, newblocks
             # let the client know of the update
             controller.eventfunc('processing', self.serialize())
-            session.log.log(INPUT, format_script(self, 'UPDATE'))
+            updatemsg = 'UPDATE (%s)' % reason if reason else 'UPDATE'
+            session.log.log(INPUT, format_script(self, updatemsg))
         finally:
             # let the script continue execution in any case
             self._run.set()

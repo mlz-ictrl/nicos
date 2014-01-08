@@ -32,9 +32,10 @@ import cPickle as pickle
 
 DEFAULT_PORT = 1301
 
-# protocol version
+# protocol version, increment this whenever making changes to command
+# arguments or adding new commands
 
-PROTO_VERSION = 8
+PROTO_VERSION = 9
 
 # message serialization/deserialization
 

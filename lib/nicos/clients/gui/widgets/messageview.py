@@ -62,7 +62,7 @@ redbold.setFontWeight(QFont.Bold)
 
 command_re = re.compile(r'>>> \[([^ ]+) .*?\]  (.*?)\n')
 script_re = re.compile(r'>>> \[([^ ]+) .*?\] -{20} ?(.*?)\n')
-update_re = re.compile(r'UPDATE \[([^ ]+) .*?\] -{20} ?(.*?)\n')
+update_re = re.compile(r'UPDATE (?:\(.*?\) )?\[([^ ]+) .*?\] -{20} ?(.*?)\n')
 
 # time formatter
 

@@ -252,6 +252,21 @@ class NicosCmdClient(NicosClient):
         finally:
             self.in_question = False
 
+    def ask_input(self, question):
+        """Prompt user for a line of input."""
+        self.in_question = True
+        try:
+            try:
+                # see set_status() for an explanation of the special chars here
+                ans = self.readline('\x01\r\x1b[K' + colorize('bold',
+                                    '\x02# ' + question + ' \x01') + '\x02',
+                                    add_history=False)
+            except (KeyboardInterrupt, EOFError):
+                return ''
+            return ans
+        finally:
+            self.in_question = False
+
     # -- event (signal) handlers
 
     def initial_update(self):
@@ -426,7 +441,7 @@ class NicosCmdClient(NicosClient):
                 script = data.get('script')
                 if script is None:
                     return
-                self.current_filename = data.get('name', '')
+                self.current_filename = data.get('name') or ''
                 script = script.splitlines() or ['']
                 if script != self.current_script:
                     self.current_script = script
@@ -788,7 +803,8 @@ class NicosCmdClient(NicosClient):
             except Exception, e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
-            self.tell('update', code)
+            reason = self.ask_input('Reason for updating:')
+            self.tell('update', code, reason)
         elif cmd in ('sim', 'simulate'):
             if not arg:
                 self.put_error('Need a file name or code as argument.')
