@@ -37,6 +37,12 @@ DEFAULT_PORT = 1301
 
 PROTO_VERSION = 9
 
+# old versions with which the client is still compatible
+# changed in 8->9: "update" command takes an additional reason argument
+# changed in 7->8: "experiment" event added, client can live without it
+
+COMPATIBLE_PROTO_VERSIONS = [7, 8]
+
 # message serialization/deserialization
 
 # one-byte responses without length

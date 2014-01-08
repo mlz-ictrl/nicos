@@ -33,7 +33,7 @@ import threading
 import numpy as np
 
 from nicos.protocols.daemon import serialize, unserialize, ACK, STX, NAK, \
-     LENGTH, RS, PROTO_VERSION, DAEMON_EVENTS
+     LENGTH, RS, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS
 
 BUFSIZE = 8192
 TIMEOUT = 30.0
@@ -50,6 +50,10 @@ class NicosClient(object):
     def __init__(self):
         self.host = ''
         self.port = 0
+
+        # if the daemon uses an old protocol version that we still support,
+        # we need to fix up some requests -- this is set to the old version
+        self.compat_proto = 0
 
         self.socket = None
         self.event_socket = None
@@ -106,8 +110,12 @@ class NicosClient(object):
                 raise ProtocolError('daemon version missing from response')
             daemon_proto = banner.get('protocol_version', 0)
             if daemon_proto != PROTO_VERSION:
-                raise ProtocolError('daemon uses protocol %d, but we expect %d'
-                                    % (daemon_proto, PROTO_VERSION))
+                if daemon_proto in COMPATIBLE_PROTO_VERSIONS:
+                    self.compat_proto = daemon_proto
+                else:
+                    raise ProtocolError('daemon uses protocol %d, but this '
+                                        'client requires protocol %d'
+                                        % (daemon_proto, PROTO_VERSION))
         except Exception, err:
             self.signal('failed', 'Server (%s:%d) handshake failed: %s.'
                          % (conndata['host'], conndata['port'], err))
@@ -251,6 +259,8 @@ class NicosClient(object):
 
     def _write(self, strings):
         """Write a command to the server."""
+        if self.compat_proto:
+            strings = self._compat_transform_command(strings)
         string = RS.join(map(str, strings))
         self.socket.sendall(STX + LENGTH.pack(len(string)) + string)
 
@@ -273,6 +283,18 @@ class NicosClient(object):
                 raise ProtocolError('connection broken')
             buf += read
         return start[0], buf
+
+    def _compat_transform_command(self, strings):
+        """Transform a command for compatibility mode with old daemons."""
+        if self.compat_proto <= 8 and strings[0] == 'update':
+            # remove the "reason" argument
+            strings = strings[:-1]
+        return strings
+
+    def _compat_transform_reply(self, commandstrings, reply):
+        """Transform a command reply for compatibility mode with old daemons."""
+        # currently, no transformation is needed here.
+        return reply
 
     def tell(self, *command):
         """Excecute a command that does not generate a response.
@@ -310,6 +332,8 @@ class NicosClient(object):
                 ret, data = self._read()
                 if ret != STX:
                     raise ErrorResponse(data)
+                if self.compat_proto:
+                    return self._compat_transform_reply(command, unserialize(data))
                 return unserialize(data)
         except (Exception, KeyboardInterrupt), err:
             return self.handle_error(err)
