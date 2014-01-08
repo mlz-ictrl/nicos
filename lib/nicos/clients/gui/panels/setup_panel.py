@@ -209,7 +209,7 @@ class ExpPanel(Panel, DlgUtils):
 
 
 class SetupsPanel(Panel, DlgUtils):
-    panelName = 'Setups setup'
+    panelName = 'Setup selection'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
@@ -218,10 +218,12 @@ class SetupsPanel(Panel, DlgUtils):
 
         self._setupinfo = {}
         self._loaded = set()
+        self._loaded_basic = None
 
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
 
     def on_client_connected(self):
         # fill setups
@@ -240,8 +242,9 @@ class SetupsPanel(Panel, DlgUtils):
                     continue
                 if info['group'] == 'basic':
                     QListWidgetItem(name, self.basicSetup)
-                    if name in self._loaded:
+                    if name in all_loaded:
                         self._loaded_basic = name
+                        self._loaded.add(name)
                 elif info['group'] == 'optional':
                     item = QListWidgetItem(name, self.optSetups)
                     item.setFlags(default_flags)
@@ -251,8 +254,11 @@ class SetupsPanel(Panel, DlgUtils):
                                        else Qt.Unchecked)
         self.basicSetup.setCurrentItem(keep)
 
+    def on_client_setup(self, data):
+        self.on_client_connected()
+
     def on_basicSetup_currentItemChanged(self, item, old):
-        if item.text() != '<keep current>':
+        if item and item.text() != '<keep current>':
             self.showSetupInfo(item.text())
 
     def on_basicSetup_itemClicked(self, item):
@@ -260,7 +266,8 @@ class SetupsPanel(Panel, DlgUtils):
             self.showSetupInfo(item.text())
 
     def on_optSetups_currentItemChanged(self, item, old):
-        self.showSetupInfo(item.text())
+        if item:
+            self.showSetupInfo(item.text())
 
     def on_optSetups_itemClicked(self, item):
         self.showSetupInfo(item.text())
@@ -292,18 +299,22 @@ class SetupsPanel(Panel, DlgUtils):
         basic = str(self.basicSetup.currentItem().text())
         # calculate the new setups
         setups = set()
+        new_basic = False
         if basic == '<keep current>':
             if self._loaded_basic:
                 setups.add(self._loaded_basic)
         else:
             setups.add(basic)
+            new_basic = True
         for item in iterChecked(self.optSetups):
             setups.add(str(item.text()))
+
         to_add = setups - self._loaded
         to_remove = self._loaded - setups
-        # new setups only?
-        if to_add and not to_remove:
+        # new setups only and no basic setup change?
+        if to_add and not to_remove and not new_basic:
             cmd = 'AddSetup'
+            setups = to_add
         else:
             cmd = 'NewSetup'
         if setups:
