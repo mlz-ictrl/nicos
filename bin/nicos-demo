@@ -8,7 +8,7 @@ ELOG=1
 WATCHDOG=1
 DAEMON=1
 GUICONFIG=""
-GUIUSER="guest@localhost"
+GUIUSER="guest:guest@localhost"
 
 help() {
     echo "Usage: $0 [options]"
@@ -22,16 +22,19 @@ help() {
     echo "     -M            do not start status monitor"
     echo "     -m monitor    use the 'monitor' setup instead of the default monitor setup"
     echo "     -N            do not start any client"
-    echo "     -t            use nicos console instead of gui"
+    echo "     -T            use nicos text client instead of gui"
+    echo "     -t            use nicos console instead of daemon and gui"
     echo "     -c file       use 'file' instead of the default GUI config file"
     echo "     -u user       use the 'user' for the gui login"
     exit 1
 }
 
-while getopts CDEWtNMc:u:m:h name; do
+while getopts CDEWtTNMc:u:m:h name; do
     case "$name" in
         t)
           CONSOLE=1;;
+        T)
+          TEXTCLIENT=1;;
         N)
           NOCLIENT=1;;
         M)
@@ -112,8 +115,12 @@ elif [ "$DAEMON" = "1" ]; then
     sleep 1
     echo '.'
     if [ "$NOCLIENT" = "0" ]; then
-        echo 'Services started, starting GUI.'
-        bin/nicos-gui $GUICONFIG $GUIUSER '' "$@"
+        if [ "$TEXTCLIENT" = "1" ]; then
+            bin/nicos-client $GUIUSER
+        else
+            echo 'Services started, starting GUI.'
+            bin/nicos-gui $GUICONFIG $GUIUSER '' "$@"
+        fi
     else
         echo 'Services started, press Enter to stop them.'
         read dummy

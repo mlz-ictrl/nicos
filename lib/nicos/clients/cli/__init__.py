@@ -486,6 +486,9 @@ class NicosCmdClient(NicosClient):
             elif name == 'mode':
                 self.current_mode = data
                 self.set_status(self.status)
+            elif name == 'setup':
+                self.instrument = self.eval('session.instrument.instrument',
+                                            self.instrument)
             elif name == 'debugging':
                 self.debug_mode = data
                 readline_finish_callback(False)
