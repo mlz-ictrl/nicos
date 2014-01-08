@@ -254,7 +254,7 @@ main-install:
 		echo "============================================================="; \
 		echo "Installing FRM II specific setups (overwriting existing files!)..."; \
 		mkdir $(VOPT) $(ROOTDIR)/setups/frm2; \
-		cp -pr $(VOPT) custom/frm2/setups/* $(ROOTDIR)/setups/frm2; \
+		cp -pr $(VOPT) custom/frm2/setups/*.py $(ROOTDIR)/setups/frm2; \
 	fi
 	@echo "============================================================="
 	@echo "Running setup check..."

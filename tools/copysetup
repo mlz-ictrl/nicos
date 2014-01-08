@@ -103,6 +103,11 @@ def copytreewithbackup(src, dst, symlinks=False, ignore=None):
         raise shutil.Error(errors)
 
 
+def ignore_function(dir, names):
+    # do not copy backup files
+    return set(name for name in names if name.endswith('~'))
+
+
 if __name__ == '__main__':
 
     import optparse
@@ -116,4 +121,4 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
 
-    copytreewithbackup(args[0], args[1])
+    copytreewithbackup(args[0], args[1], ignore=ignore_function)
