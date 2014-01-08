@@ -104,8 +104,9 @@ def copytreewithbackup(src, dst, symlinks=False, ignore=None):
 
 
 def ignore_function(dir, names):
-    # do not copy backup files
-    return set(name for name in names if name.endswith('~'))
+    # do not copy backup files or hidden files
+    return set(name for name in names
+               if name.endswith('~') or name.startswith('.'))
 
 
 if __name__ == '__main__':
