@@ -65,7 +65,7 @@ class CascadeTofRAWFormat(SingleRAWFileFormat):
 
     def saveImage(self, imageinfo, image):
         gzfp = gzip.GzipFile(mode='wb', fileobj=imageinfo.file)
-        image.tofile(gzfp)
+        gzfp.write(buffer(image))
         self._writeHeader(imageinfo.imagetype, imageinfo.header, gzfp)
         gzfp.close()
 
@@ -74,10 +74,25 @@ class MiraXMLFormat(ImageSink):
 
     fileFormat = 'MiraXML'
 
+    parameters = {
+        'monchannel':   Param('Monitor channel to read from master detector',
+                              type=int, settable=True),
+    }
+
+    attached_devices = {
+        'master':    (MultiChannelDetector, 'Master to control measurement time'
+                      ' in slave mode and to read monitor counts'),
+        'mono':      (Monochromator, 'Monochromator device to read out'),
+        'sampledet': (Readable, 'Sample-detector distance readout'),
+    }
+
     parameter_overrides = {
         'filenametemplate': Override(default=['mira_cas_%08d.xml'],
                                      settable=False),
     }
+
+    def doInit(self, mode):
+        self._padimg = cascadeclient.PadImage()
 
     def acceptImageType(self, imagetype):
         # only for 2-D data
@@ -91,11 +106,11 @@ class MiraXMLFormat(ImageSink):
         tmp = cascadeclient.TmpImage()
         self._padimg.LoadMem(image.tostring(), 128*128*4)
         tmp.ConvertPAD(self._padimg)
-        # XXX
         mon = self._adevs['master']._adevs['monitors'][self.monchannel - 1]
+        timer = self._adevs['master']._adevs['timer']
         tmp.WriteXML(imageinfo.filepath, self._adevs['sampledet'].read(),
                      2*pi/self._adevs['mono']._readInvAng(),
-                     self._last_preset, mon.read()[0])
+                     timer.read()[0], mon.read()[0])
 
 
 class CascadeDetector(ImageProducer, Measurable):
@@ -103,8 +118,6 @@ class CascadeDetector(ImageProducer, Measurable):
     attached_devices = {
         'master':    (MultiChannelDetector, 'Master to control measurement time'
                       ' in slave mode and to read monitor counts'),
-        'mono':      (Monochromator, 'Monochromator device to read out'),
-        'sampledet': (Readable, 'Sample-detector distance readout'),
     }
 
     parameters = {
@@ -125,8 +138,6 @@ class CascadeDetector(ImageProducer, Measurable):
                               type=listof(int), settable=True),
         'lastcontrast': Param('Contrast of the last measurement',
                               type=listof(float), settable=True),
-        'monchannel':   Param('Monitor channel to read from master detector',
-                              type=int, settable=True),
         'fitfoil':      Param('Foil for contrast fitting', type=int, default=0,
                               settable=True),
     }
@@ -198,7 +209,6 @@ class CascadeDetector(ImageProducer, Measurable):
     def doPreinit(self, mode):
         if mode != SIMULATION:
             self._client = cascadeclient.NicosClient()
-            self._padimg = cascadeclient.PadImage()
             self.doReset()
 
     def doInit(self, mode):
