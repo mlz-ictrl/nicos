@@ -93,8 +93,12 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
 from nicos.guisupport.widget import NicosWidget
 
 # imported for side effects
-from nicos.guisupport import (display, led,  # pylint: disable=W0611
-     plots, typedvalue)
+from nicos.guisupport import display, led, typedvalue  # pylint: disable=W0611
+try:
+    from nicos.guisupport import plots  # pylint: disable=W0611
+except (ImportError, RuntimeError):
+    # Qwt may be missing
+    pass
 
 # import other modules to make their widgets known to __subclasses__()
 for addmod in os.environ.get('NICOSDESIGNER_MODULES', '').split(':'):
