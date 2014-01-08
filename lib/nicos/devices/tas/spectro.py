@@ -101,6 +101,7 @@ class TAS(Instrument, Moveable):
                                       fmtstr='%.3f', index=3, lowlevel=True,
                                       tas=self)
         self._last_calpos = None
+        self._waiters = []
 
     def doShutdown(self):
         for name in ['h', 'k', 'l', 'E']:
@@ -155,19 +156,21 @@ class TAS(Instrument, Moveable):
         if self.scanmode != 'DIFF':
             self.log.debug('moving ana to %s' % angles[1])
             ana._startInvAng(angles[1])
-        waiters = [mono, phi, psi]
+        self._waiters = [mono, phi, psi]
         if alpha is not None:
-            waiters.append(alpha)
+            self._waiters.append(alpha)
         if self.scanmode != 'DIFF':
-            waiters.append(ana)
-        multiWait(waiters)
+            self._waiters.append(ana)
+        # spurion check
+        if self.spurioncheck and self._mode == SIMULATION:
+            self._spurionCheck(pos)
+
+    def doWait(self):
+        multiWait(self._waiters)
         # make sure index members read the latest value
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
                 index._cache.invalidate(index, 'value')
-        # spurion check
-        if self.spurioncheck and self._mode == SIMULATION:
-            self._spurionCheck(pos)
 
     def doStatus(self, maxage=0):
         if self.scanmode == 'DIFF':
