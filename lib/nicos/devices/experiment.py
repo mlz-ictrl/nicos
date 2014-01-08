@@ -690,7 +690,12 @@ class Experiment(Device):
                                  exc=1)
             zipname = None
             if self.zipdata or self.sendmail:
-                zipname = self._zip()
+                try:
+                    zipname = self._zip()
+                except Exception:
+                    self.log.warning('could not zip up experiment data',
+                                     exc=1)
+                    # zipname will stay None and no email is sent
             if self.sendmail and zipname:
                 receivers = None
                 if args:
