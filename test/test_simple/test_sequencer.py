@@ -118,7 +118,7 @@ def test_sequence_items():
     sc.run()
     assert sc.wait() == True
     b = time.time()
-    assert 0.09 <= b - a <= 0.11
+    assert 0.09 <= b - a <= 0.13
 
     # NOP
     sn = SeqNOP()
