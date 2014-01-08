@@ -24,6 +24,7 @@ devices = dict(
                       sendmail = True,
                       serviceexp = 'service',
                       sample = 'Sample',
+                      reporttemplate = '',
                      ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),

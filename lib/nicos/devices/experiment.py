@@ -683,7 +683,11 @@ class Experiment(Device):
 
         # zip up the experiment data if wanted
         if self.proptype == 'user':
-            self._generateExpReport(**kwds)
+            try:
+                self._generateExpReport(**kwds)
+            except Exception:
+                self.log.warning('could not generate experimental report',
+                                 exc=1)
             zipname = None
             if self.zipdata or self.sendmail:
                 zipname = self._zip()
@@ -921,7 +925,8 @@ class Experiment(Device):
 
     def _statistics(self):
         """Return some statistics about the current experiment in a dict.
-        May need improvements."""
+        May need improvements.
+        """
 
         # get start of proposal from cache history
         hist, d = [], 7
@@ -967,13 +972,15 @@ class Experiment(Device):
     def _generateExpReport(self, **kwds):
         if self._mode == SIMULATION:
             return # dont touch fs if in simulation!
+        if not self.reporttemplate:
+            return
         # read and translate ExpReport template
         self.log.debug('looking for template in %r' % self.templatepath)
         try:
             data = self.getTemplate(self.reporttemplate)
         except IOError:
-            self.log.warning('reading Experimental Report template %s failed, '
-                             'please fetch a copy from the UserOffice' %
+            self.log.warning('reading experimental report template %s failed, '
+                             'please fetch a copy from the User Office' %
                              self.reporttemplate)
             return # nothing to do about it.
 
@@ -1023,7 +1030,6 @@ class Experiment(Device):
             fp.write(newcontent)
         self.log.info('An experimental report template was created at %r for '
                       'your convenience.' % path.join(self.proposalpath, newfn))
-
 
     def doWriteRemark(self, remark):
         if remark:
