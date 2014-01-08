@@ -144,7 +144,7 @@ class NicosConsoleFormatter(Formatter):
             if os.name == 'nt':
                 return ''
             # special behavior for ACTION messages: use them as terminal title
-            fmtstr = r'\033]0;%s%%(message)s\007' % namefmt
+            fmtstr = '\x1b]0;%s%%(message)s\x07' % namefmt
         else:
             if levelno <= DEBUG:
                 fmtstr = self.colorize('darkgray', '%s%%(message)s' % namefmt)
