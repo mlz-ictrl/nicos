@@ -292,9 +292,7 @@ def test_specialscans():
 def test_twodscan():
     m = session.getDevice('motor')
     m2 = session.getDevice('motor2')
-    twodscan(m, 0, 1, 3, m2, 0, 1, 3, '2d')
+    twodscan(m, 0, 1, 2, m2, 0, 1, 2, '2d')
     dataset = session.experiment._last_datasets[-1]
     assert dataset.scaninfo.startswith('2d')
-    assert dataset.xresults == [[0., 0.], [0., 1.], [0., 2.],
-                                [1., 2.], [1., 1.], [1., 0.],
-                                [2., 0.], [2., 1.], [2., 2.]]
+    assert dataset.xresults == [[0., 1.], [1., 1.]]

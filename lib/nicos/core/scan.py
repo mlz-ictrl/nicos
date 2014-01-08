@@ -40,6 +40,13 @@ from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 
 
+# Exceptions at which a scan point is measured anyway.
+CONTINUE_EXCEPTIONS = (PositionError, MoveError, TimeoutError)
+# Exceptions at which a scan point is skipped.
+SKIP_EXCEPTIONS = (InvalidValueError, LimitError, CommunicationError,
+                   ComputationError)
+
+
 class SkipPoint(Exception):
     """Custom exception class to skip a scan point."""
 
@@ -188,15 +195,14 @@ class Scan(object):
         - raise `SkipPoint` to skip current point and continue with next point
         - return: to ignore error and continue with current point
         """
-        if isinstance(err, (PositionError, MoveError, TimeoutError)):
+        if isinstance(err, CONTINUE_EXCEPTIONS):
             # continue counting anyway
             if what == 'read':
                 printwarning('Readout problem', exc=1)
             else:
                 printwarning('Positioning problem, continuing', exc=1)
             return
-        elif isinstance(err, (InvalidValueError, LimitError,
-                              CommunicationError, ComputationError)):
+        elif isinstance(err, SKIP_EXCEPTIONS):
             if what == 'read':
                 printwarning('Readout problem', exc=1)
             else:
@@ -597,38 +603,6 @@ class ContinuousScan(Scan):
             device.stop()
             device.speed = original_speed
             self.endScan()
-
-
-class TwoDimScan(Scan):
-    """
-    Special scan class for two-dimensional scans.
-    """
-
-    def __init__(self, dev1, start1, step1, numpoints1,
-                 dev2, start2, step2, numpoints2,
-                 firstmoves=None, multistep=None, detlist=None,
-                 envlist=None, preset=None, scaninfo=None):
-        scantype = '2D'
-        devices = [dev1, dev2]
-        positions = []
-        for i in range(numpoints1):
-            dev1value = start1 + i*step1
-            # move dev2 forward in one row, then move it back in the next row
-            if i % 2 == 0:
-                positions.extend([dev1value, start2 + j*step2]
-                                 for j in range(numpoints2))
-            else:
-                positions.extend([dev1value, start2 + (numpoints2-j-1)*step2]
-                                 for j in range(numpoints2))
-        self._pointsperrow = numpoints2
-        Scan.__init__(self, devices, positions, firstmoves, multistep,
-                      detlist, envlist, preset, scaninfo, scantype)
-
-    def preparePoint(self, num, xvalues):
-        if num > 1 and (num-1) % self._pointsperrow == 0:
-            for sink in self._sinks:
-                sink.addBreak(self.dataset)
-        Scan.preparePoint(self, num, xvalues)
 
 
 class DevStatistics(object):

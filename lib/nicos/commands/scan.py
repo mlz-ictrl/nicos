@@ -26,11 +26,12 @@
 
 from nicos import session
 from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
-     NicosError
+    NicosError
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
-     TwoDimScan, StopScan
+    StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
 from nicos.commands import usercommand, helparglist
+from nicos.commands.output import printwarning
 
 
 __all__ = [
@@ -233,19 +234,29 @@ def twodscan(dev1, start1, step1, numpoints1,
              *args, **kwargs):
     """Two-dimensional scan of two devices.
 
+    This is a convenience function that runs a number of scans over *dev2*
+    with *dev1* at a different position for each.
+
     Example:
 
     >>> twodscan(phi, 0, 1, 10, psi, 0, 2, 10, t=1)
     """
-    scanstr = _infostr('twodscan',
-                       (dev1, start1, step1, numpoints1,
-                        dev2, start2, step2, numpoints2) + args, kwargs)
-    preset, scaninfo, detlist, envlist, move, multistep = \
-        _handleScanArgs(args, kwargs, scanstr)
-    scan = TwoDimScan(dev1, start1, step1, numpoints1,
-                      dev2, start2, step2, numpoints2,
-                      move, multistep, detlist, envlist, preset, scaninfo)
-    scan.run()
+    for j in range(numpoints1):
+        dev1value = start1 + j*step1
+        try:
+            dev1.maw(dev1value)
+        except NicosError, err:
+            if isinstance(err, CONTINUE_EXCEPTIONS):
+                printwarning('Positioning problem of %s at %s, scanning %s '
+                             'anyway' % (dev1, dev1.format(dev1value, unit=True),
+                                         dev2), exc=1)
+            elif isinstance(err, SKIP_EXCEPTIONS):
+                printwarning('Skipping scan at %s = %s' %
+                             (dev1, dev1.format(dev1value, unit=True)), exc=1)
+                continue
+            else:
+                raise
+        scan(dev2, start2, step2, numpoints2, dev1, *args, **kwargs)
 
 
 ADDSCANHELP1 = """
