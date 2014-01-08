@@ -91,6 +91,13 @@ _column2 = Column(
         BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
                  Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
     ], 'ccr5'),
+    Block('Furnace (IRF01)', [
+        BlockRow(Field(name='Setpoint', key='t_irf01/setpoint', unitkey='t_irf01/unit', format='%.2f'),
+                 Field(name='Temp', dev='T_irf01')),
+        BlockRow(Field(name='P', key='t_irf01/p'), Field(name='I', key='t_irf01/i'),
+                 Field(name='D', key='t_irf01/d')),
+        BlockRow(Field(name='Heater power', key='t_irf01/heaterpower', unit='%', format='%.2f')),
+    ], 'irf01'),
     Block('3He-4He insert (cryo3)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),

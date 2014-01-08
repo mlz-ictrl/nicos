@@ -1,4 +1,5 @@
 description = 'fully virtual TAS setup'
+group = 'basic'
 
 includes = ['base']
 

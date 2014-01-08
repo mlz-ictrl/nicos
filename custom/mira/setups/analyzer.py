@@ -1,4 +1,5 @@
 description = 'analyzer table'
+group = 'lowlevel'
 
 devices = dict(
 #    ath      = device('mira.axis.PhytronAxis',

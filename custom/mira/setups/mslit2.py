@@ -1,7 +1,5 @@
 description = 'IPC slit after mono2 shielding'
-group = 'optional'
-
-
+group = 'lowlevel'
 
 devices = dict(
     ms2bus    = device('devices.vendor.ipc.IPCModBusTacoSerial',

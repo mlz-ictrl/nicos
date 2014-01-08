@@ -1,4 +1,5 @@
 description = 'IPC slits serial #7 and #6'
+group = 'lowlevel'
 
 includes = ['system']
 

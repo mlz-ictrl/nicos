@@ -9,6 +9,9 @@ devices = dict(
     psd_tofformat = device('mira.cascade.CascadeTofRAWFormat',
                            lowlevel = True),
     psd_xmlformat = device('mira.cascade.MiraXMLFormat',
+                           master = 'det',
+                           sampledet = 'sampledet',
+                           mono = 'mono',
                            lowlevel = True),
 
     psd    = device('mira.cascade.CascadeDetector',
@@ -17,8 +20,6 @@ devices = dict(
                     server = 'miracascade.mira.frm2:1234',
                     slave = True,
                     master = 'det',
-                    sampledet = 'sampledet',
-                    mono = 'mono',
                     fileformats = ['psd_padformat', 'psd_tofformat',
                                    'psd_xmlformat']),
 
