@@ -39,10 +39,10 @@ from nicos.utils import closeSocket
 from nicos.services.daemon.auth import AuthenticationError, User
 from nicos.services.daemon.utils import LoggerWrapper
 from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
-     ScriptError, RequestError
+    ScriptError, RequestError
 from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
-     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
-     ACK, STX, NAK, LENGTH, RS, PROTO_VERSION
+    STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
+    ACK, STX, NAK, LENGTH, RS, PROTO_VERSION, BREAK_NOW
 
 
 READ_BUFSIZE = 4096
@@ -378,14 +378,15 @@ class ConnectionHandler(BaseRequestHandler):
     def break_(self, level):
         """Pause the current script at the next breakpoint.
 
-        :param level: stop level of breakpoint as a string
+        :param level: stop level of breakpoint, constants are defined in
+           `nicos.protocols.daemon`:
 
-           * '1' - pause after current scan/line in the script
-           * '2' - pause after scan point/breakpoint with level "2"
-           * '3' - pause in the middle of counting
+           * BREAK_AFTER_LINE - pause after current scan/line in the script
+           * BREAK_AFTER_STEP - pause after scan point/breakpoint with level "2"
+           * BREAK_NOW - pause in the middle of counting
         :returns: ok or error (e.g. if script is already paused)
         """
-        level = int(level)
+        level = int(level)  # all arguments are strings at first
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
@@ -393,7 +394,7 @@ class ConnectionHandler(BaseRequestHandler):
         else:
             session.log.info('Pause requested by %s' % self.user.name)
             self.controller.set_break(('break', level, self.user.name))
-            if level >= 3:
+            if level >= BREAK_NOW:
                 session.should_pause_count = 'Paused by %s' % self.user.name
             self.log.info('script pause request')
             self.write(ACK)
@@ -417,11 +418,12 @@ class ConnectionHandler(BaseRequestHandler):
     def stop(self, level):
         """Abort the paused script.
 
-        :param level: stop level as a string
+        :param level: stop level, constants are defined in
+           `nicos.protocols.daemon`:
 
-           * '1' - stop after current scan/line in the script
-           * '2' - stop after scan point/breakpoint with level "2"
-           * '3' - stop in the middle of counting (but due to the special
+           * BREAK_AFTER_LINE - stop after current scan/line in the script
+           * BREAK_AFTER_STEP - stop after scan point/breakpoint with level "2"
+           * BREAK_NOW - stop in the middle of counting (but due to the special
              way the breakpoint while counting is implemented, it will
              actually just stop there if paused before, otherwise this is
              equivalent to level '2')

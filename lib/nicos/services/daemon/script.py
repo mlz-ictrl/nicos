@@ -39,9 +39,10 @@ from nicos import session
 from nicos.utils.loggers import INPUT
 from nicos.services.daemon.auth import system_user
 from nicos.services.daemon.utils import format_exception_cut_frames, \
-     format_script, fixup_script, update_linecache
+    format_script, fixup_script, update_linecache
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
+from nicos.protocols.daemon import BREAK_AFTER_LINE
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
 from nicos.core import SIMULATION, SLAVE, MASTER
 
@@ -325,7 +326,7 @@ class ExecutionController(Controller):
         if fn.startswith('<break>'):  # '<break>n' means stoplevel n
             bplevel = int(fn[7:])
         else:
-            bplevel = 1
+            bplevel = BREAK_AFTER_LINE
         # flag is a tuple (mode, required stoplevel, user name)
         if flag[1] < bplevel or flag[0] == 'stop':
             # don't pause/stop here...

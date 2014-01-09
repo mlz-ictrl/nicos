@@ -27,12 +27,14 @@
 import time
 
 from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
-     QPixmap, QColor
+    QPixmap, QColor
 from PyQt4.QtCore import Qt, QTimer, QVariant, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
+from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP, \
+    BREAK_AFTER_LINE
 
 
 class ScriptQueue(object):
@@ -215,7 +217,7 @@ class ScriptStatusPanel(Panel):
     @qtsig('')
     def on_actionBreak_triggered(self):
         self.mainwindow.action_start_time = time.time()
-        self.client.tell('break', '2')
+        self.client.tell('break', BREAK_AFTER_STEP)
 
     @qtsig('')
     def on_actionBreak2_triggered(self):
@@ -224,7 +226,7 @@ class ScriptStatusPanel(Panel):
     @qtsig('')
     def on_actionBreakCount_triggered(self):
         self.mainwindow.action_start_time = time.time()
-        self.client.tell('break', '3')
+        self.client.tell('break', BREAK_NOW)
 
     @qtsig('')
     def on_actionContinue_triggered(self):
@@ -234,7 +236,7 @@ class ScriptStatusPanel(Panel):
     @qtsig('')
     def on_actionStop_triggered(self):
         self.mainwindow.action_start_time = time.time()
-        self.client.tell('stop', '3')
+        self.client.tell('stop', BREAK_NOW)
 
     @qtsig('')
     def on_actionStop2_triggered(self):
@@ -243,7 +245,7 @@ class ScriptStatusPanel(Panel):
     @qtsig('')
     def on_actionFinish_triggered(self):
         self.mainwindow.action_start_time = time.time()
-        self.client.tell('stop', '1')
+        self.client.tell('stop', BREAK_AFTER_LINE)
 
     @qtsig('')
     def on_actionEmergencyStop_triggered(self):

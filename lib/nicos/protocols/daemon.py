@@ -64,6 +64,12 @@ STATUS_RUNNING  = 0   # execution running
 STATUS_INBREAK  = 1   # execution halted, in break function
 STATUS_STOPPING = 2   # stop exception raised, waiting for propagation
 
+# break/stop level constants
+
+BREAK_AFTER_LINE = 1  # break after current command in script
+BREAK_AFTER_STEP = 2  # break after scan step (or any breakpoint with level 2)
+BREAK_NOW = 3         # break "now" (i.e. also while counting)
+
 # daemon event specification
 
 # key: event name

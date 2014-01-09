@@ -50,7 +50,7 @@ from nicos.utils import colorize, which, formatDuration, formatEndtime, \
 from nicos.utils.loggers import ACTION, INPUT
 from nicos.utils.graceplot import grace_available, GracePlotter
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
-     STATUS_IDLE, STATUS_IDLEEXC
+    STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE, MASTER
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -734,13 +734,13 @@ class NicosCmdClient(NicosClient):
         if res == 'I':
             return
         elif res == 'H':
-            # Stoplevel 2 is "everywhere possible"
-            self.tell('stop', '2')
+            # this is basically "stop at any well-defined breakpoint"
+            self.tell('stop', BREAK_AFTER_STEP)
             self.stop_pending = True
             self.set_status(self.status)
         elif res == 'L':
-            # Stoplevel 1 is "everywhere in script, or after a scan"
-            self.tell('stop', '1')
+            # this is "everywhere after a command in the script"
+            self.tell('stop', BREAK_AFTER_LINE)
             self.stop_pending = True
             self.set_status(self.status)
         else:
@@ -826,7 +826,7 @@ class NicosCmdClient(NicosClient):
         elif cmd in ('e', 'edit'):
             self.edit_file(arg)
         elif cmd == 'break':
-            self.tell('break', '2')
+            self.tell('break', BREAK_AFTER_STEP)
         elif cmd in ('cont', 'continue'):
             self.tell('continue')
         elif cmd in ('s', 'stop'):
