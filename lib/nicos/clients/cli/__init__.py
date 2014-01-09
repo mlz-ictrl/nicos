@@ -826,7 +826,7 @@ class NicosCmdClient(NicosClient):
         elif cmd in ('e', 'edit'):
             self.edit_file(arg)
         elif cmd == 'break':
-            self.tell('break')
+            self.tell('break', '2')
         elif cmd in ('cont', 'continue'):
             self.tell('continue')
         elif cmd in ('s', 'stop'):

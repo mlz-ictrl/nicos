@@ -215,7 +215,7 @@ class ScriptStatusPanel(Panel):
     @qtsig('')
     def on_actionBreak_triggered(self):
         self.mainwindow.action_start_time = time.time()
-        self.client.tell('break')
+        self.client.tell('break', '2')
 
     @qtsig('')
     def on_actionBreak2_triggered(self):
@@ -234,7 +234,7 @@ class ScriptStatusPanel(Panel):
     @qtsig('')
     def on_actionStop_triggered(self):
         self.mainwindow.action_start_time = time.time()
-        self.client.tell('stop')
+        self.client.tell('stop', '3')
 
     @qtsig('')
     def on_actionStop2_triggered(self):

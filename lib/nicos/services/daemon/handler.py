@@ -375,20 +375,17 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(ACK)
 
     @command(needcontrol=True, needscript=True, name='break')
-    def break_(self, level=None):
+    def break_(self, level):
         """Pause the current script at the next breakpoint.
 
-        :param level: stop level of breakpoint as a string (default 2)
+        :param level: stop level of breakpoint as a string
 
            * '1' - pause after current scan/line in the script
            * '2' - pause after scan point/breakpoint with level "2"
            * '3' - pause in the middle of counting
         :returns: ok or error (e.g. if script is already paused)
         """
-        if level is None:
-            level = 2  # which means after scan point
-        else:
-            level = int(level)
+        level = int(level)
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
@@ -417,10 +414,10 @@ class ConnectionHandler(BaseRequestHandler):
             self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
-    def stop(self, level=None):
+    def stop(self, level):
         """Abort the paused script.
 
-        :param level: stop level as a string (default 3)
+        :param level: stop level as a string
 
            * '1' - stop after current scan/line in the script
            * '2' - stop after scan point/breakpoint with level "2"
@@ -430,11 +427,7 @@ class ConnectionHandler(BaseRequestHandler):
              equivalent to level '2')
         :returns: ok or error
         """
-        if level is None:
-            level = 3  # which means normally after scan point, the default,
-                       # but when counting is paused, right now
-        else:
-            level = int(level)
+        level = int(level)
         if self.controller.status == STATUS_STOPPING:
             self.write(ACK)
         elif self.controller.status == STATUS_RUNNING:
@@ -496,7 +489,7 @@ class ConnectionHandler(BaseRequestHandler):
         self.write(ACK)
 
     @command()
-    def eval(self, expr, stringify=''):
+    def eval(self, expr, stringify):
         """Evaluate and return an expression.
 
         :param expr: Python expression
@@ -725,7 +718,7 @@ class ConnectionHandler(BaseRequestHandler):
     # -- Miscellaneous commands ------------------------------------------------
 
     @command(needcontrol=True)
-    def debug(self, code=''):
+    def debug(self, code):
         """Start a pdb session in the script thread context.  Experimental!
 
         The daemon is put into debug mode.  Replies to pdb queries can be given
