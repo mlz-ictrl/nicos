@@ -31,7 +31,7 @@ import os
 from os import path
 
 from nicos.core import Param, UsageError
-from nicos.utils import disableDirectory, enableDirectory, ensureDirectory
+from nicos.utils import disableDirectory
 from nicos.devices.experiment import Experiment
 from nicos.frm2.proposaldb import queryCycle
 
@@ -88,11 +88,11 @@ class ResiExperiment(Experiment):
             except ValueError:
                 pass
             else:
-                self._fillProposal(propnumber) # wrong way around !
+                self._fillProposal(propnumber)  # wrong way around !
 
         # create new data path and expand templates
         os.symlink(proposal, self.proposalsymlink)
-        Experiment.datapathChanged() # is this needed here?
+        Experiment.datapathChanged(self)  # is this needed here?
 
         self._handleTemplates(proposal, kwds)
 
