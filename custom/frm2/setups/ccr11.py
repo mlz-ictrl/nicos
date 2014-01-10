@@ -4,7 +4,9 @@ group = 'optional'
 
 includes = ['alias_T']
 
-nethost = 'ccr11'       # old style
+# setupname is set by nicos before loading this file
+# setupname = filename - '.py' extension
+nethost = setupname
 
 devices = {
     'T_%s' % setupname : device('frm2.ccr.CCRControl',
@@ -19,7 +21,7 @@ devices = {
 
     'T_%s_stick' % setupname : device('devices.taco.TemperatureController',
                                         description = 'The control device of the sample(stick)',
-                                        tacodevice = '//%s/ccr/ls336/control2' % nethost,
+                                        tacodevice = '//%s/ccr/stick/control2' % nethost,
                                         abslimits = (0, 600),
                                         unit = 'K',
                                         fmtstr = '%.3f',
@@ -29,7 +31,7 @@ devices = {
 
     'T_%s_tube' % setupname : device('devices.taco.TemperatureController',
                                        description = 'The control device of the tube',
-                                       tacodevice = '//%s/ccr/ls336/control1' % nethost,
+                                       tacodevice = '//%s/ccr/tube/control1' % nethost,
                                        abslimits = (0, 300),
                                        warnlimits = (0, 300),
                                        unit = 'K',
@@ -40,7 +42,7 @@ devices = {
 
     'T_%s_A' % setupname : device('devices.taco.TemperatureSensor',
                                    description = '(optional) Sample Temperature',
-                                   tacodevice = '//%s/ccr/ls336/sensora' % nethost,
+                                   tacodevice = '//%s/ccr/sample/sensora' % nethost,
                                    unit = 'K',
                                    fmtstr = '%.3f',
                                    pollinterval = 5,
@@ -49,7 +51,7 @@ devices = {
 
     'T_%s_B' % setupname : device('devices.taco.TemperatureSensor',
                                    description = '(regulation) Temperature at the stick',
-                                   tacodevice = '//%s/ccr/ls336/sensorb' % nethost,
+                                   tacodevice = '//%s/ccr/stick/sensorb' % nethost,
                                    unit = 'K',
                                    fmtstr = '%.3f',
                                    pollinterval = 5,
@@ -58,7 +60,7 @@ devices = {
 
     'T_%s_C' % setupname : device('devices.taco.TemperatureSensor',
                                    description = 'Temperature of the coldhead',
-                                   tacodevice = '//%s/ccr/ls336/sensorc' % nethost,
+                                   tacodevice = '//%s/ccr/coldhead/sensorc' % nethost,
                                    warnlimits = (0, 300),
                                    unit = 'K',
                                    fmtstr = '%.3f',
@@ -68,7 +70,7 @@ devices = {
 
     'T_%s_D' % setupname : device('devices.taco.TemperatureSensor',
                                    description = '(regulation) Temperature at thermal coupling to the stick',
-                                   tacodevice = '//%s/ccr/ls336/sensord' % nethost,
+                                   tacodevice = '//%s/ccr/tube/sensord' % nethost,
                                    warnlimits = (0, 300),
                                    unit = 'K',
                                    fmtstr = '%.3f',
@@ -140,4 +142,5 @@ startupcode = """
 T.alias = T_%s
 Ts.alias = T_%s_B
 AddEnvironment(T, Ts)
-""" % (setupname, setupname, )
+printinfo("Please set T_%s.mode to either 'stick' or 'tube' according to your needs.")
+""" % (setupname, setupname, setupname, )
