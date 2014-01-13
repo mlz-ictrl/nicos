@@ -88,7 +88,6 @@ class Scan(object):
             allenvlist = session.experiment.sampleenv
             if envlist is not None:
                 allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
-        session.experiment.advanceScanCounter()
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
         if self._multistep:
@@ -132,6 +131,8 @@ class Scan(object):
                                   for det in dataset.detlist), ())
         if self._multistep:
             dataset.yvalueinfo = dataset.yvalueinfo * self._mscount
+        # advanceImageCounter can not be called later as the updated value may be used by the sinks...
+        session.experiment.advanceScanCounter()
         for sink in self._sinks:
             sink.prepareDataset(dataset)
         for sink in self._sinks:

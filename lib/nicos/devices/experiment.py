@@ -323,6 +323,11 @@ class Experiment(Device):
     #
     # counter stuff
     #
+    # Note: handling of counters in simulation mode differs slightly from
+    #       normal mode: counter values are kept (and updated) in private vars
+    #       instead of the usual file and no file will be touched or created.
+    _lastimage = None # only used in sim-mode
+    _lastscan = None # only used in sim-mode
 
     @property
     def scanCounterPath(self):
@@ -330,11 +335,14 @@ class Experiment(Device):
 
     def advanceScanCounter(self):
         """increments the value of the scancounter and returns it"""
-        updateFileCounter(self.scanCounterPath, self.lastscan + 1)
+        if self._mode != SIMULATION:
+            updateFileCounter(self.scanCounterPath, self.lastscan + 1)
+        else:
+            self._lastscan = 1 + (self._lastscan or self.lastscan)
         return self.lastscan
 
     def doReadLastscan(self):
-        return readFileCounter(self.scanCounterPath)
+        return self._lastscan or readFileCounter(self.scanCounterPath)
 
     def createScanFile(self, nametemplate, *subdirs, **kwargs):
         """creates an scanfile acccording to the given nametemplate in the given
@@ -344,6 +352,9 @@ class Experiment(Device):
         relative to proposalpath, i.e. the 'file path within the current
         experiment' and the filehandle to the already opened (for writing)
         file which has the right FS attributes.
+
+        Note: in Simulation mode, the returned 'filehandle' is actually a
+        memory only file-like object.
         """
         fullfilename, fp = self.createDataFile(nametemplate, self.lastscan,
                                                *subdirs, **kwargs)
@@ -364,12 +375,16 @@ class Experiment(Device):
             # -> if two such detectors are used, each one gets a different number
             # -> no file collisions!
             if isinstance(det, ImageProducer):
-                updateFileCounter(self.imageCounterPath, self.lastimage + 1)
+                if self._mode != SIMULATION:
+                    updateFileCounter(self.imageCounterPath, self.lastimage + 1)
+                else:
+                    # simulate counting up...
+                    self._lastimage = 1 + (self._lastimage or self.lastimage)
                 det.prepareImageFile(dataset)
         return self.lastimage
 
     def doReadLastimage(self):
-        return readFileCounter(self.imageCounterPath)
+        return self._lastimage or readFileCounter(self.imageCounterPath)
 
     def createImageFile(self, nametemplate, *subdirs, **kwargs):
         """creates an imagefile acccording to the given nametemplate in the
@@ -382,6 +397,9 @@ class Experiment(Device):
 
         the nametemplate may contain references like %(counter)s,
         %(scanpoint)s or %(proposal)s which replaced with appropriate values.
+
+        Note: in Simulation mode, the returned 'filehandle' is actually a
+        memory only file-like object.
         """
         fullfilename, fp = self.createDataFile(nametemplate, self.lastimage,
                                                *subdirs, **kwargs)
@@ -460,15 +478,15 @@ class Experiment(Device):
         filename = filenames[0]
         otherfiles = filenames[1:]
         fullfilename = self.getDataFilename(filename, *subdirs)
-        if path.isfile(fullfilename):
-            raise ProgrammingError('Data file named %r already exists! '
-                                   'Check filenametemplates!' %
-                                   fullfilename)
         if self._mode == SIMULATION or kwargs.get('nofile'):
             self.log.debug('Not creating any file, returning a StringIO '
                            'buffer instead.')
             fp = StringIO()
         else:
+            if path.isfile(fullfilename):
+                raise ProgrammingError('Data file named %r already exists! '
+                                       'Check filenametemplates!' %
+                                       fullfilename)
             self.log.debug('Creating file %r' % fullfilename)
             fp = open(fullfilename, 'wb')
             if self.managerights:
