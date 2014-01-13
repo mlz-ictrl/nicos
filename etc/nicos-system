@@ -144,7 +144,7 @@ def start_daemon(name):
     except:
         procname, instname = name, None
     executable = path.join(root_path, 'bin', 'nicos-%s' % procname)
-    os.system('%s%s -d' % (executable, ' -S %s' % (instname,) if instname
+    os.system('%s%s -d' % (executable, ' -S %s' % (name,) if instname
                            else '', ))
     pid = read_pidfile(name, wait=10)
     if not pid:
