@@ -285,9 +285,9 @@ class DaemonCommand(PyModulelevel):
     def handle_signature(self, sig, signode):
         if sig in keyword.kwlist:
             # append '_' to Python keywords
-            self.object = getattr(ConnectionHandler, sig+'_').orig_function
+            self.object = getattr(ConnectionHandler, sig+'_')
         else:
-            self.object = getattr(ConnectionHandler, sig).orig_function
+            self.object = getattr(ConnectionHandler, sig)
         args = inspect.getargspec(self.object)
         del args[0][0]  # remove self
         sig = '%s%s' % (sig, inspect.formatargspec(*args))
