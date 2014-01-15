@@ -110,7 +110,7 @@ class ResiDevice(Moveable):
         print 'args:', args
         self._hardware.Goto(**args)
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         statustext = {0:'idle', 1:'moving'}
         hwstatus = self._hardware.hw.isrunning()
         return hwstatus, statustext[hwstatus]
