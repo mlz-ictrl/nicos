@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['alias_T']
 
-nethost = 'ccr11'
+nethost = 'ccr22'
 
 devices = {
     'T_%s_stick' % (nethost, ) : device('devices.taco.TemperatureController',

@@ -8,8 +8,8 @@ nethost = 'ccr10'
 
 devices = {
     'T_%s_stick' % (nethost, ) : device('devices.taco.TemperatureController',
-                                        description = 'The control device to the sample',
-                                        tacodevice = '//%s/ccr/ls336/control2' % (nethost, ),
+                                        description = 'The control device of the sample(stick)',
+                                        tacodevice = '//%s/ccr/stick/control2' % nethost,
                                         abslimits = (0, 600),
                                         unit = 'K',
                                         fmtstr = '%.3f',
@@ -19,7 +19,7 @@ devices = {
 
     'T_%s_tube' % (nethost, ) : device('devices.taco.TemperatureController',
                                        description = 'The control device of the tube',
-                                       tacodevice = '//%s/ccr/ls336/control1' % (nethost, ),
+                                       tacodevice = '//%s/ccr/tube/control1' % nethost,
                                        abslimits = (0, 400),
                                        unit = 'K',
                                        fmtstr = '%.3f',
@@ -28,8 +28,8 @@ devices = {
                                       ),
 
     'T_%s_A' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'Temperature at the tube',
-                                   tacodevice = '//%s/ccr/ls336/sensora' % (nethost, ),
+                                   description = '(optional) Sample Temperature',
+                                   tacodevice = '//%s/ccr/sample/sensora' % nethost,
                                    unit = 'K',
                                    fmtstr = '%.3f',
                                    pollinterval = 5,
@@ -37,8 +37,8 @@ devices = {
                                   ),
 
     'T_%s_B' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'Temperature at the tube',
-                                   tacodevice = '//%s/ccr/ls336/sensorb' % (nethost, ),
+                                   description = '(regulation) Temperature at the stick',
+                                   tacodevice = '//%s/ccr/stick/sensorb' % nethost,
                                    unit = 'K',
                                    fmtstr = '%.3f',
                                    pollinterval = 5,
@@ -46,8 +46,8 @@ devices = {
                                   ),
 
     'T_%s_C' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'Temperature at the sample stick',
-                                   tacodevice = '//%s/ccr/ls336/sensorc' % (nethost, ),
+                                   description = 'Temperature of the coldhead',
+                                   tacodevice = '//%s/ccr/coldhead/sensorc' % nethost,
                                    unit = 'K',
                                    fmtstr = '%.3f',
                                    pollinterval = 5,
@@ -55,8 +55,8 @@ devices = {
                                   ),
 
     'T_%s_D' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'Temperature at the sample stick',
-                                   tacodevice = '//%s/ccr/ls336/sensord' % (nethost, ),
+                                   description = '(regulation) Temperature at thermal coupling to the stick',
+                                   tacodevice = '//%s/ccr/tube/sensord' % nethost,
                                    unit = 'K',
                                    fmtstr = '%.3f',
                                    pollinterval = 5,
