@@ -34,7 +34,7 @@ devices = dict(
     ),
 
     #~ # MFH is first device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
-    #~ mfh_step = device('panda.ipc.Motor',
+    #~ mfh_step = device('devices.vendor.ipc.Motor',
             #~ bus = 'bus5',
             #~ addr = MOTOR(1),
             #~ slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev
@@ -181,7 +181,7 @@ devices = dict(
 
     #
     # MTH is fith device and has 1 stepper, 0 poti, 1 coder
-    mth_step = device('panda.ipc.Motor',
+    mth_step = device('devices.vendor.ipc.Motor',
             bus = 'bus5',
             addr = MOTOR(5),
             slope = -8000,
@@ -230,8 +230,8 @@ devices = dict(
     ),
 
     #
-    # MS1 is seventh device and has 1 stepper, 0 poti, 0 coder
-    ms1_step = device('panda.ipc.Motor',
+    # MS1 is seventh device and has 1 stepper, 0 poti, 1 coder
+    ms1_step = device('devices.vendor.ipc.Motor',
             bus = 'bus5',
             #~ addr = MOTOR(7), #original
             addr = MOTOR(6),        #test
@@ -268,7 +268,7 @@ devices = dict(
 
     #
     # MFV is eigth device and has 1 stepper, 0 poti, 0 coder and maybe 1 something else (resolver)
-    #~ mfv_step = device('panda.ipc.Motor',
+    #~ mfv_step = device('devices.vendor.ipc.Motor',
             #~ bus = 'bus5',
             #~ addr = MOTOR(8),
             #~ slope = 900*24*2/360,       # 900:1 gear, 24 steps per rev, 36ßdeg per rev

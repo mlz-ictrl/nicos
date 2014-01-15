@@ -21,7 +21,7 @@ devices = dict(
                               dvalue = 3.45,
                               scatteringsense = -1,
                              ),
-    afh_heusler_step = device('panda.ipc.Motor',
+    afh_heusler_step = device('devices.vendor.ipc.Motor',
                           description = 'stepper for horizontal focus of heusler ana',
                           bus = 'bus1',
                           addr = MOTOR(8),
