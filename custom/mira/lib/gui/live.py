@@ -148,24 +148,23 @@ class LiveDataPanel(Panel):
                     self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
     def on_client_liveparams(self, params):
-        _tag, filename, dtype, nx, ny, nt, runtime = params
-        self._runtime = runtime
-        self._filename = filename
-        if dtype == '<u4' and nx == 128 and ny == 128:
+        tag, filename, dtype, nx, ny, nt, runtime = params
+        if dtype == '<u4' and nx == 128 and ny == 128 and tag != 'MiraXML':
             if nt == 1:
                 self._format = 'pad'
-                return
             elif nt == 128:
                 self._format = 'tof'
-                return
-        print 'Unsupported live data format:', params
-        self._format = None
+            self._runtime = runtime
+            self._filename = filename
+        else:
+            #print 'Unsupported live data format:', params
+            self._format = None
 
     def on_client_livedata(self, data):
         if self._format not in ('pad', 'tof'):
             return
-        self._last_data = data
-        if not self._no_direct_display:
+        if not self._no_direct_display and data:
+            self._last_data = data
             if self._format == 'pad':
                 self.widget.LoadPadMem(data, 128*128*4)
                 cts = self.widget.GetPad().GetCounts()
