@@ -13,6 +13,8 @@ devices = dict(
                            sampledet = 'sampledet',
                            mono = 'mono',
                            lowlevel = True),
+    psd_liveview  = device('devices.fileformats.liveview.LiveViewSink',
+                           lowlevel = True),
 
     psd    = device('mira.cascade.CascadeDetector',
                     description = 'CASCADE detector',
@@ -21,7 +23,7 @@ devices = dict(
                     slave = True,
                     master = 'det',
                     fileformats = ['psd_padformat', 'psd_tofformat',
-                                   'psd_xmlformat']),
+                                   'psd_xmlformat', 'psd_liveview']),
 
     PSDHV  = device('devices.vendor.iseg.IsegHV',
                     description = 'High voltage supply for the CASCADE detector (usually -2850 V)',
