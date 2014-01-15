@@ -331,7 +331,7 @@ class ImageProducer(DeviceMixinBase):
                         imageinfo.imagetype.shape[1] if len(imageinfo.imagetype.shape) > 1 else 1,
                         imageinfo.imagetype.shape[2] if len(imageinfo.imagetype.shape) > 2 else 1,
                         imageinfo.endtime-imageinfo.begintime,
-                        None)
+                        '')
             else:
                 self.log.error("Can't save Image, got no data!")
                 return
