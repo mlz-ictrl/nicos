@@ -578,7 +578,7 @@ class ControlDialog(QDialog):
             else:
                 self.moveBtn = None
 
-            if params.get('fixed'):
+            if params.get('fixed') and self.moveBtn:
                 self.moveBtn.setEnabled(False)
                 self.moveBtn.setText('(fixed)')
 
