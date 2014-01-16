@@ -27,7 +27,7 @@
 from math import sqrt, log
 
 try:
-    from scipy.odr import Model, RealData, ODR
+    from scipy.odr.odrpack import Model, RealData, ODR
     from scipy import exp, array, arange, piecewise
 except ImportError:
     has_odr = False

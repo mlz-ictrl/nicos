@@ -27,7 +27,7 @@
 from numpy import array, power, linspace, isscalar, asarray, inf, diagonal, sqrt
 
 try:
-    from scipy.optimize import leastsq
+    from scipy.optimize.minpack import leastsq
 except ImportError:
     leastsq = None
 
@@ -84,7 +84,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
         return popt, pcov
 
 try:
-    from scipy.optimize import curve_fit
+    from scipy.optimize.minpack import curve_fit
 except ImportError:
     pass
 
