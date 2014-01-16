@@ -173,7 +173,7 @@ def _multiMethod(baseclass, method, devices, *args, **kwargs):
             else:
                 dev.log.exception('during %s()' % method)
     if first_exc:
-        raise first_exc  # pylint: disable=E0702
+        raise first_exc[0], first_exc[1], first_exc[2]  # pylint: disable=E0702
 
 
 def multiWait(devices):

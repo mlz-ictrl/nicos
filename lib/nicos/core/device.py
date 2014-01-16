@@ -735,8 +735,8 @@ class Device(object):
             if hasattr(self, 'doShutdown'):
                 try:
                     self.doShutdown()
-                except Exception, e:
-                    caughtExc = e
+                except Exception:
+                    caughtExc = sys.exc_info()
 
         for adev in self._adevs.values():
             if isinstance(adev, list):
@@ -748,7 +748,7 @@ class Device(object):
         session.explicit_devices.discard(self._name)
         # re-raise the doShutdown error
         if caughtExc is not None:
-            raise caughtExc  # pylint: disable=E0702
+            raise caughtExc[0], caughtExc[1], caughtExc[2]  # pylint: disable=E0702
 
     @usermethod
     def version(self):
