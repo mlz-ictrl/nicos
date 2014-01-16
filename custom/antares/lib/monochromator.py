@@ -34,7 +34,7 @@ from nicos.core.utils import multiStatus
 class Monochromator(HasLimits, Moveable):
     """Monochromator device of antares.
 
-    used to tune the double monochromator to a wavelength between 2.7 and 6.5
+    Used to tune the double monochromator to a wavelength between 2.7 and 6.5
     Angstroms.  Can be moved to None to get a white beam.
 
     Experimental version.

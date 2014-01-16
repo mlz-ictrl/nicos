@@ -35,6 +35,13 @@ from nicos.frm2.experiment import Experiment as FRM2Experiment
 
 
 class Experiment(FRM2Experiment):
+    """
+    The Antares specific experiment devices makes the last open beam and dark
+    images accessible via parameters.
+
+    For internal usage: It also provides darkimagedir, openbeamdir, photodir,
+    extradirs and samplesymlink as properties.
+    """
 
     parameters = dict(
         # for display purposes....

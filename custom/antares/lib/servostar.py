@@ -30,6 +30,11 @@ from nicos.devices.taco import Motor as TacoMotor
 
 # Just redefine doStatus as this doesn't work correctly with the ServoStarTacoServer
 class ServoStarMotor(TacoMotor):
+    """
+    This device handles the DISABLED taco state thats given from the servostar
+    server when the hardware is idle.
+    """
+
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
         if state == TACOStates.DISABLED:

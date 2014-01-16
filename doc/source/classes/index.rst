@@ -1,7 +1,7 @@
 Device classes
 ==============
 
-This is an overview of all device classes that are part of the NICOS core
+This is an overview of all device classes that are part of the NICOS
 distribution.
 
 .. toctree::
@@ -13,3 +13,4 @@ distribution.
    taco/index
    tango
    vendor/index
+   custom/index
