@@ -167,11 +167,7 @@ class TacoDevice(DeviceMixinBase):
         return (status.ERROR, TACOStates.stateDescription(state))
 
     def doReset(self):
-        self.log.info('Resetting TACO device; if this does not help try '
-                      'restarting the server.')
-        self._taco_guard(self._dev.deviceReset)
-        if self._taco_guard(self._dev.isDeviceOff):
-            self._taco_guard(self._dev.deviceOn)
+        self._taco_reset(self._dev)
 
     def doReadUnit(self):
         # explicitly configured unit has precendence
@@ -372,6 +368,27 @@ class TacoDevice(DeviceMixinBase):
             msg = addmsg + ': ' + msg
         exc = cls(self, msg, tacoerr=err.errcode)
         raise exc, None, tb
+
+    def _taco_reset(self, client, resetcall='deviceReset'):
+        try:
+            hostname = client.getServerHost()
+            servername = client.getServerProcessName()
+            personalname = client.getServerPersonalName()
+            self.log.info('Resetting TACO device; if this does not help try '
+                          'restarting the %s named %s on host %s.' %
+                          (servername, personalname, hostname))
+        except AttributeError:  # older version without these API calls
+            self.log.info('Resetting TACO device; if this does not help try '
+                          'restarting the server.')
+        try:
+            if resetcall == 'deviceReset':
+                self._taco_guard(client.deviceReset)
+            else:
+                self._taco_guard(client.deviceInit)
+        except Exception, err:
+            self.log.warning('%s failed with %s' % (resetcall, err))
+        if self._taco_guard(client.isDeviceOff):
+            self._taco_guard(client.deviceOn)
 
     def _taco_multitry(self, what, tries, func, *args):
         """Try the TACO method *func* with given *args* for the number of times

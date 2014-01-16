@@ -72,17 +72,7 @@ class Axis(TacoDevice, BaseAxis, CanReference):
         return 2*(s/a)**0.5
 
     def doReset(self):
-        self.log.info('Resetting TACO device; if this does not help try '
-                      'restarting the server.')
-        try:
-            if self.resetcall == 'deviceReset':
-                self._taco_guard(self._dev.deviceReset)
-            else:
-                self._taco_guard(self._dev.deviceInit)
-        except Exception:
-            pass
-        if self._taco_guard(self._dev.isDeviceOff):
-            self._taco_guard(self._dev.deviceOn)
+        self._taco_reset(self._dev, self.resetcall)
 
     @usermethod
     @requires(level='admin', helpmsg='use adjust() to set a new offset')
