@@ -182,9 +182,7 @@ class PyTangoDevice(DeviceMixinBase):
 
 class AnalogInput(PyTangoDevice, Readable):
     """
-    Represents a TANGO AnalogInput device. This class does only support
-    devices which fulfill the official FRM-II/JCNS TANGO interface for
-    AnalogInput devices.
+    Represents the client to a TANGO AnalogInput device.
     """
 
     valuetype = float
@@ -202,10 +200,7 @@ class AnalogInput(PyTangoDevice, Readable):
 
 class Sensor(AnalogInput, Coder):
     """
-    Represents a TANGO Sensor device.
-
-    This class only supports devices which fulfill the official FRM-II/JCNS
-    TANGO interface for Sensor devices.
+    Represents the client to a TANGO Sensor device.
     """
 
     def doSetPosition(self, value):
@@ -214,10 +209,7 @@ class Sensor(AnalogInput, Coder):
 
 class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
     """
-    Represents a TANGO AnalogOutput device.
-
-    This class only supports devices which fulfill the official FRM-II/JCNS
-    TANGO interface for AnalogOutput devices.
+    Represents the client to a TANGO AnalogOutput device.
     """
 
     valuetype = float
@@ -248,10 +240,7 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
 
 class Actuator(AnalogOutput, NicosMotor):
     """
-    Represents a TANGO Actuator device.
-
-    This class only supports devices which fulfill the official FRM-II/JCNS
-    TANGO interface for Actuator devices.
+    Represents the client to a TANGO Actuator device.
     """
 
     def doReadSpeed(self):
@@ -266,10 +255,7 @@ class Actuator(AnalogOutput, NicosMotor):
 
 class Motor(CanReference, Actuator):
     """
-    Represents a TANGO Motor device.
-
-    This class only supports devices which fulfill the official FRM-II/JCNS
-    TANGO interface for Motor devices.
+    Represents the client to a TANGO Motor device.
     """
 
     parameters = {
@@ -299,10 +285,7 @@ class Motor(CanReference, Actuator):
 
 class TemperatureController(Actuator):
     """
-    Represents a TANGO TemperatureController device.
-
-    This class only supports devices which fulfill the official FRM-II/JCNS
-    TANGO interface for TemperatureController devices.
+    Represents the client to a TANGO TemperatureController device.
     """
 
     parameters = {
@@ -349,10 +332,7 @@ class TemperatureController(Actuator):
 
 class DigitalInput(PyTangoDevice, Readable):
     """
-    Represents a TANGO DigitalInput device.
-
-    This class only supports devices which fulfill the official FRM-II/JCNS
-    TANGO interface for DigitalInput devices.
+    Represents the client to a TANGO DigitalInput device.
     """
 
     valuetype = int
@@ -366,10 +346,7 @@ class DigitalInput(PyTangoDevice, Readable):
 
 class DigitalOutput(PyTangoDevice, Moveable):
     """
-    Represents a TANGO DigitalOutput device.
-
-    This class only supports devices which fulfill the official FRM-II/JCNS
-    TANGO interface for DigitalOutput devices.
+    Represents the client to a TANGO DigitalOutput device.
     """
 
     valuetype = int
@@ -386,10 +363,7 @@ class DigitalOutput(PyTangoDevice, Moveable):
 
 class StringIO(PyTangoDevice, Device):
     """
-    Represents a TANGO StringIO device.
-
-    This class does only support devices which fulfill the official FRM-II/JCNS
-    TANGO interface for StringIO devices.
+    Represents the client to a TANGO StringIO device.
     """
 
     parameters = {

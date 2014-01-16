@@ -11,4 +11,5 @@ distribution.
    generic/index
    tas
    taco/index
+   tango
    vendor/index
