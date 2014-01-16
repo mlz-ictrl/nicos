@@ -22,43 +22,6 @@
 #
 # *****************************************************************************
 
-"""Class for Mezei spin flipper."""
+"""Generic device classes for polarized neutron scattering."""
 
-from nicos.core import Moveable, Param, Override, oneof, tupleof
-
-
-class Flipper(Moveable):
-    """
-    Class for a Mezei flipper consisting of flipper and correction current.
-    """
-
-    hardware_access = False
-
-    attached_devices = {
-        'flip': (Moveable, 'flipper current'),
-        'corr': (Moveable, 'correction current'),
-    }
-
-    parameters = {
-        'currents': Param('Flipper and correction current', settable=True,
-                          type=tupleof(float, float)),
-    }
-
-    parameter_overrides = {
-        'unit': Override(mandatory=False, default=''),
-    }
-
-    valuetype = oneof('on', 'off')
-
-    def doRead(self, maxage=0):
-        if abs(self._adevs['flip'].read(maxage)) > 0.05:
-            return 'on'
-        return 'off'
-
-    def doStart(self, value):
-        if value == 'on':
-            self._adevs['flip'].start(self.currents[0])
-            self._adevs['corr'].start(self.currents[1])
-        else:
-            self._adevs['flip'].start(0)
-            self._adevs['corr'].start(0)
+from nicos.devices.polarized.flipper import MezeiFlipper

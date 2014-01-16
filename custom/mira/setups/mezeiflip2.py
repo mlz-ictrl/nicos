@@ -10,7 +10,7 @@ devices = dict(
                   tacodevice = '//mirasrv/mira/ttiql/tti2_2',
                   abslimits = (0, 5)),
 
-    flipx = device('mira.flipper.Flipper',
+    flipx = device('devices.polarized.MezeiFlipper',
                   description = 'Second Mezei flipper (after sample)',
                   flip = 'dct3',
                   corr = 'dct4'),

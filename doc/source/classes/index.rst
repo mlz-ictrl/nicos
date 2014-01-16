@@ -9,6 +9,7 @@ distribution.
    system
    abstract
    generic/index
+   polarized
    tas
    taco/index
    tango
