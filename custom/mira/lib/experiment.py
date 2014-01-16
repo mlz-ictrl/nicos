@@ -29,6 +29,10 @@ from nicos.frm2.experiment import Experiment
 
 
 class MiraExperiment(Experiment):
+    """Experiment object customization for MIRA.
+
+    Currently only the template path is set by default.
+    """
 
     parameter_overrides = {
         'templates':   Override(default='template'),

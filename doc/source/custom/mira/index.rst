@@ -20,4 +20,18 @@ Service setups
 
     setups/special/*
 
+Commands
+========
 
+.. toctree::
+    :maxdepth: 1
+
+    commands
+
+Custom classes
+==============
+
+.. toctree::
+    :maxdepth: 1
+
+    classes

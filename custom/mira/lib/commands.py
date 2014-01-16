@@ -34,6 +34,7 @@ from nicos.commands.device import move, read
 
 @usercommand
 def FlushCryo():
+    """Flush CCR5 sample tube with Helium and then evacuate it again."""
     CryoGas = session.getDevice('ccr5_gas_switch')
     CryoVac = session.getDevice('ccr5_vacuum_switch')
     Pcryo = session.getDevice('ccr5_p1')
@@ -53,6 +54,7 @@ def FlushCryo():
 
 @usercommand
 def SetCryoGas(target):
+    """Open CCR5 sample tube gas valve until target pressure is reached."""
     CryoGas = session.getDevice('ccr5_gas_switch')
     Pcryo = session.getDevice('ccr5_p1')
     move(CryoGas,'on')
@@ -62,6 +64,7 @@ def SetCryoGas(target):
 
 @usercommand
 def SetCryoVac(target):
+    """Open CCR5 sample tube vacuum valve until target pressure is reached."""
     CryoVac = session.getDevice('ccr5_vacuum_switch')
     Pcryo = session.getDevice('ccr5_p1')
     move(CryoVac,'on')

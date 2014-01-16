@@ -115,6 +115,11 @@ class MiraXMLFormat(ImageSink):
 
 
 class CascadeDetector(ImageProducer, Measurable):
+    """CASCADE-MIEZE detector.
+
+    Controls the detector via a connection to the CASCADE socket server running
+    on a Windows machine.
+    """
 
     attached_devices = {
         'master':    (MultiChannelDetector, 'Master to control measurement time'

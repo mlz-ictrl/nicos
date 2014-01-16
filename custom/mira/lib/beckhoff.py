@@ -33,9 +33,13 @@ from nicos.core import SIMULATION
 
 
 class DigitalOutput(BaseDigitalOutput):
+    """Device object for a digital output device via a Beckhoff modbus
+    interface.
+
+    Modeled after `~nicos.devices.taco.io.PartialDigitalOutput` from the TACO
+    module.
     """
-    Device object for a digital output device via a Beckhoff modbus interface.
-    """
+
     taco_class = Modbus
     valuetype = listof(int)
 
@@ -73,6 +77,12 @@ class DigitalOutput(BaseDigitalOutput):
 
 
 class NamedDigitalOutput(BaseNamedDigitalOutput):
+    """Device object for a digital output device via a Beckhoff modbus
+    interface.
+
+    Modeled after `~nicos.devices.taco.io.NamedDigitalOutput` from the TACO
+    module.
+    """
     taco_class = Modbus
 
     parameters = {

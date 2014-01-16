@@ -34,6 +34,11 @@ from nicos.devices.taco.axis import Axis as TacoAxis
 
 
 class PhytronAxis(TacoAxis):
+    """
+    A Phytron specific axis -- on doReset() it tries to reset the Phytron
+    controller as well as the TACO server.
+    """
+
     def _reset_phytron(self):
         motor = Motor.Motor(self._taco_guard(self._dev.deviceQueryResource, 'motor'))
         iodev = self._taco_guard(motor.deviceQueryResource, 'iodev')
