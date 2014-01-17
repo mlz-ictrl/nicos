@@ -9,27 +9,13 @@ executables located in the ``bin`` subdirectory of the NICOS source.  These
 components are:
 
 
-.. index:: nicos-console, nicos-ipython, nicos-gui, nicos-client
+.. index:: nicos-aio, nicos-ipython, nicos-gui, nicos-client
 
 Shells
 ======
 
 These components allow the user -- in some form or other -- to interact with the
 NICOS system and execute commands.
-
-.. describe:: nicos-console
-              nicos-ipython
-
-   These are the most basic NICOS shells.  ``nicos-console`` presents to the
-   user a slightly enhanced builtin Python shell, where commands can be
-   executed.
-
-   ``nicos-ipython`` is a version of ``nicos-console`` that uses the `IPython
-   <http://ipython.org/>`_ shell instead of the builtin Python shell.
-
-.. .. describe:: nicos-web
-..    This is a web-frontend version of the NICOS console.  It implements a simple
-..    web server that presents a console-like user interface via the web browser.
 
 .. describe:: nicos-gui
 
@@ -42,6 +28,16 @@ NICOS system and execute commands.
 .. describe:: nicos-client
 
    This is a text based client for the server-client execution shell.
+
+.. describe:: nicos-aio
+
+   This is the most basic NICOS shell.  ``nicos-aio`` (short for "all-in-one")
+   takes the job of the daemon and gui, and presents to the user a slightly
+   enhanced builtin Python shell, where commands can be executed.
+
+.. .. describe:: nicos-web
+..    This is a web-frontend version of the NICOS console.  It implements a simple
+..    web server that presents a console-like user interface via the web browser.
 
 
 .. index:: nicos-monitor, nicos-history

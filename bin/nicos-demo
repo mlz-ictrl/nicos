@@ -23,7 +23,7 @@ help() {
     echo "     -m monitor    use the 'monitor' setup instead of the default monitor setup"
     echo "     -N            do not start any client"
     echo "     -T            use nicos text client instead of gui"
-    echo "     -t            use nicos console instead of daemon and gui"
+    echo "     -t            use nicos standalone console instead of daemon and gui"
     echo "     -c file       use 'file' instead of the default GUI config file"
     echo "     -u user       use the 'user' for the gui login"
     exit 1
@@ -107,7 +107,7 @@ fi
 if [ "$CONSOLE" = "1" ]; then
     echo
     echo 'Services started, starting console.'
-    bin/nicos-console
+    bin/nicos-aio
 elif [ "$DAEMON" = "1" ]; then
     bin/nicos-daemon >/dev/null &
     DAEMONPID=$!

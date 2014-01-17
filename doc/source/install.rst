@@ -77,25 +77,18 @@ the source directory.  For this, you have to build the C modules once using
   cd nicos-core
   make inplace
 
-Now you can start the individual :ref:`components <components>`.  A minimal
-setup that uses all the major components can be started using ::
-
-  bin/nicos-cache &
-  bin/nicos-poller &
-  bin/nicos-console
-
-The console will load the demo setups from ``custom/demo/setups``.  The startup
-setup contains a few devices that show basic usage of the NICOS system.  Call
-``help()`` in the console to get a list of commands, and ``listdevices()`` to
-get a list of devices that can be manipulated.  You can also call ``help(dev)``
-to get help for an individual device.
-
-A more involved combination of programs is started automatically by ::
+Now you can start the individual :ref:`components <components>`.  A setup that
+uses all the major components can be started using ::
 
   bin/nicos-demo
 
 This starts the cache, poller, electronic logbook, and daemon services, and also
 starts the graphical interface and a status monitor.
+
+The console will load the demo setups from ``custom/demo/setups``.  The startup
+setup contains a few devices that show basic usage of the NICOS system.  Call
+``help()`` to get a list of commands.  You can also call ``help(dev)`` to get
+help for an individual device.
 
 .. You can continue with :ref:`the first steps <firststeps>` from here.
 
