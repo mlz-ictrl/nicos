@@ -60,6 +60,9 @@ class MonitorWindow(QMainWindow):
                 self.showNormal()
             else:
                 self.showFullScreen()
+        elif event.text() == 'r':
+            # resize/refresh/redraw
+            self.resize(self.sizeHint())
         return QMainWindow.keyPressEvent(self, event)
 
     def closeEvent(self, event):
