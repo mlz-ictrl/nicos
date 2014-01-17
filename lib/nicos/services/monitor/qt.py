@@ -240,13 +240,15 @@ class Monitor(BaseMonitor):
                 plotwidget = self._plots.get(field['plot'])
                 if plotwidget:
                     plotwidget.devices += [field.get('dev', field.get('key', ''))]
+                    plotwidget.names += [field.get('name', field.get('dev', field.get('key', '')))]
                     return None
                 plotwidget = TrendPlot(groupframe)
                 plotwidget.plotinterval = field.get('plotinterval', 3600)
                 plotwidget.setFont(labelfont)
                 plotwidget.setSource(self)
                 self._plots[field['plot']] = plotwidget
-                plotwidget.devices += [field.get('dev', field.get('key', ''))]
+                plotwidget.devices = [field.get('dev', field.get('key', ''))]
+                plotwidget.names = [field.get('name', field.get('dev', field.get('key', '')))]
                 master.connect(plotwidget, SIGNAL('widgetInfo'), self.newWidgetInfo)
                 return plotwidget
             else:
@@ -291,7 +293,6 @@ class Monitor(BaseMonitor):
                     blocklayout_outer.addWidget(blockbox)
                     blocklayout_outer.addStretch()
                     columnlayout.addLayout(blocklayout_outer)
-                    columnlayout.addStretch()
                 columnlayout.addStretch()
                 boxlayout.addLayout(columnlayout)
             displaylayout.addLayout(boxlayout)

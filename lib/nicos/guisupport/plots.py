@@ -148,7 +148,7 @@ class TrendPlot(QwtPlot, NicosWidget):
     designer_description = 'A trend plotter for one or more devices'
     designer_icon = ':/plotter'
 
-    colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.magenta, Qt.cyan, Qt.darkGray]
+    colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan, Qt.darkGray]
 
     #pylint: disable=W0231
     def __init__(self, parent, designMode=False):
@@ -207,7 +207,10 @@ class TrendPlot(QwtPlot, NicosWidget):
 
     properties = {
         'devices':      PropDef('QStringList', []),
+        'names':        PropDef('QStringList', []),
         'plotinterval': PropDef(int, 3600),
+        'height':       PropDef(int, 10),
+        'width':        PropDef(int, 30),
     }
 
     def propertyUpdated(self, pname, value):
@@ -286,7 +289,7 @@ class TrendPlot(QwtPlot, NicosWidget):
         if not self.plotx[key]:
             # restrict time of first value to 1 minute past at
             # maximum, so that it doesn't get culled in updateplot()
-            self.plotx[key].append(max(time, currenttime()-60))
+            self.plotx[key].append(max(time, currenttime() - 60))
         else:
             self.plotx[key].append(time)
         self.ploty[key].append(value)
@@ -294,10 +297,11 @@ class TrendPlot(QwtPlot, NicosWidget):
         self.updateplot(key, curve)
 
     def registerKeys(self):
-        for key in self.props['devices']:
+        for key, name in map(None, self.props['devices'], self.props['names']):
+            if name == None:
+                name = key
             key = str(key)
-            okey = key
             if '.' not in key and '/' not in key:
                 key += '/value'
             keyid = self._source.register(self, key)
-            self.addcurve(keyid, okey)
+            self.addcurve(keyid, name)
