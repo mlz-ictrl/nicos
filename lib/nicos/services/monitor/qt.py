@@ -352,9 +352,21 @@ class Monitor(BaseMonitor):
         emitdict = {}
         for setup, boxes in self._onlymap.iteritems():
             if setup.startswith('!'):
-                enabled = setup[1:] not in self._setups
+                if setup.endswith('*'):
+                    enabled = True
+                    for s in self._setups:
+                        if s.startswith(setup[1:-1]):
+                            enabled = False
+                else:
+                    enabled = setup[1:] not in self._setups
             else:
-                enabled = setup in self._setups
+                if setup.endswith('*'):
+                    enabled = False
+                    for s in self._setups:
+                        if s.startswith(setup[:-1]):
+                            enabled = True
+                else:
+                    enabled = setup in self._setups
             for k in boxes:
-                emitdict[k] = emitdict.get(k, False) or enabled
+                emitdict[k] = emitdict.get(k, True) and enabled
         self._master.emit(SIGNAL('reconfigure'), emitdict)
