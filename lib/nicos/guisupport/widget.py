@@ -26,6 +26,8 @@
 Base class for NICOS UI widgets.
 """
 
+from copy import copy
+
 from PyQt4.QtGui import QFont, QFontMetrics
 from PyQt4.QtCore import QString, QStringList, SIGNAL, \
      pyqtProperty, pyqtWrapperType
@@ -197,7 +199,10 @@ class PropDef(object):
             return unicode(value)
         if isinstance(value, QStringList):
             return map(unicode, value)  # creates a normal list as well
-        return value
+        if isinstance(value, QFont):
+            # QFont doesn't like to be copied with copy()...
+            return QFont(value)
+        return copy(value)
 
 
 class AutoPropMeta(pyqtWrapperType):
