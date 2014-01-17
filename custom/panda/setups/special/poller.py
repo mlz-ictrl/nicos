@@ -13,9 +13,9 @@ devices = dict(
                     autosetup = False,
                     poll = ['lakeshore', 'detector', 'befilter', 'cryo1',
                             'cryo3', 'cryo4', 'cryo5', 'magnet75', '7T5',
-                            'ccr11', 'panda', 'sat'],
+                            'ccr11', 'ccr16', 'panda', 'sat'],
                     alwayspoll = [],
                     neverpoll = [],
-                    #~ blacklist=['sB'],
+                    #~ blacklist=['sB', 'ss1', 'ss2'],
                     ),
 )
