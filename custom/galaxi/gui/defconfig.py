@@ -2,15 +2,15 @@
 from nicos.clients.gui.config import docked, vsplit, panel, window, tool
 
 main_window = docked(
-	vsplit(
-		panel('status.ScriptStatusPanel'),
-		panel('console.ConsolePanel'),
-	),
-	('JCNS Logo', panel('generic.GenericPanel',
-                        uifile='custom/galaxi/lib/gui/jcnslogo.ui',
-                       ),
+    vsplit(
+        panel('status.ScriptStatusPanel'),
+        panel('console.ConsolePanel'),
     ),
-	('NICOS devices', panel('devices.DevicesPanel', icons=True))
+    ('JCNS Logo', panel('generic.GenericPanel',
+                        uifile='custom/galaxi/lib/gui/jcnslogo.ui',
+                    ),
+    ),
+    ('NICOS devices', panel('devices.DevicesPanel', icons=True))
 )
 windows = [
     window('Editor', 'editor',
