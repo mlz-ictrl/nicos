@@ -26,11 +26,10 @@
 
 import sys
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.Qwt5 import *
+from PyQt4.QtGui import QMainWindow, QApplication
 from PyQt4.uic import loadUi
 
+# pylint: disable=F0401
 from livewidget import LWWidget, LWData
 
 
