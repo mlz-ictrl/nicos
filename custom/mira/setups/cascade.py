@@ -25,7 +25,7 @@ devices = dict(
                     fileformats = ['psd_padformat', 'psd_tofformat',
                                    'psd_xmlformat', 'psd_liveview']),
 
-    PSDHV  = device('devices.vendor.iseg.IsegHV',
+    PSDHV  = device('mira.iseg.CascadeIsegHV',
                     description = 'High voltage supply for the CASCADE detector (usually -2850 V)',
                     tacodevice = '//mirasrv/mira/network/rs12_4',
                     abslimits = (-3000, 0),
