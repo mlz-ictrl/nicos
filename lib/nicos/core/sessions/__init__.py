@@ -340,11 +340,10 @@ class Session(object):
                     continue
                 modname = filename[:-3]
                 try:
-                    modfile = imp.find_module(modname, [root])
-                    code = modfile[0].read()
-                    modfile[0].close()
-                except (ImportError, IOError) as err:
-                    self.log.exception('Could not find or read setup '
+                    with open(path.join(root, filename), 'r') as modfile:
+                        code = modfile.read()
+                except IOError as err:
+                    self.log.exception('Could not read setup '
                                        'module %r: %s' % (modname, err))
                     self._setup_info[modname] = None
                     continue
@@ -356,7 +355,7 @@ class Session(object):
                 try:
                     exec code in ns
                 except Exception as err:
-                    self.log.exception('An error occurred while reading '
+                    self.log.exception('An error occurred while processing '
                                        'setup %s: %s' % (modname, err))
                     continue
                 info = {
