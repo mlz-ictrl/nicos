@@ -24,6 +24,8 @@
 
 """NICOS commands tests."""
 
+from __future__ import print_function
+
 from nicos.core import UsageError
 
 from nicos.commands.utility import RangeListByStep, RangeListByCount, RangeListLog, \
@@ -116,7 +118,7 @@ def test_floatrange():
 
 def test_rangelistlog():
     l3 = RangeListLog(1., 2., 3)
-    print l3
+    print(l3)
     assert len (l3) == 3
     assert l3[0] == 1.
     assert l3[-1] == 2.
@@ -139,7 +141,7 @@ def test_rangelistlog():
 def test_rangelistgeneral():
     l1 = RangeListGeneral(1,2,5)
     assert len(l1) == 5
-    l2 = RangeListGeneral(1, 2, 10, lambda (x): 1/x)
+    l2 = RangeListGeneral(1, 2, 10, lambda x: 1/x)
     assert len(l2) == 10
     assert numpy.allclose(l2, [1.0, 1.05882352941, 1.125, 1.2,
                                1.28571428571, 1.38461538462, 1.5,

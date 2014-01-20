@@ -24,10 +24,12 @@
 
 """NICOS test suite."""
 
+from __future__ import print_function
+
 import sys
 
 from test.utils import cleanup
 
 def setup_package():
-    print >> sys.stderr, 'Setting up main test package, cleaning old test dir...'
+    print('Setting up main test package, cleaning old test dir...', file=sys.stderr)
     cleanup()

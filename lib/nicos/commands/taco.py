@@ -165,7 +165,7 @@ def TacoStatus(server=''):
             else:
                 ok = state == st.DEVICE_NORMAL
 
-        print '%s %s %s %s' % (darkgray('[' + disp.ljust(15) + ']'),
-                               blue(dev.ljust(35)),
-                               ok and darkgreen('  ok:') or red('FAIL:'),
-                               ok and status or bold(status))
+        printinfo('%s %s %s %s' % (darkgray('[' + disp.ljust(15) + ']'),
+                                   blue(dev.ljust(35)),
+                                   ok and darkgreen('  ok:') or red('FAIL:'),
+                                   ok and status or bold(status)))

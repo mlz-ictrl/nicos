@@ -45,7 +45,7 @@ def format_exception_cut_frames(cut=0):
     """
     typ, val, tb = sys.exc_info()
     res = ['Traceback (most recent call last):\n']
-    tbres = traceback.format_tb(tb, sys.maxint)
+    tbres = traceback.format_tb(tb, sys.maxsize)
     res += tbres[cut:]
     res += traceback.format_exception_only(typ, val)
     return ''.join(res)

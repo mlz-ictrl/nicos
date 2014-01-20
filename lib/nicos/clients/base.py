@@ -47,7 +47,7 @@ class ErrorResponse(Exception):
 
 
 class NicosClient(object):
-    def __init__(self):
+    def __init__(self, log_func):
         self.host = ''
         self.port = 0
 
@@ -55,6 +55,7 @@ class NicosClient(object):
         # we need to fix up some requests -- this is set to the old version
         self.compat_proto = 0
 
+        self.log_func = log_func
         self.socket = None
         self.event_socket = None
         self.lock = threading.Lock()
@@ -178,7 +179,7 @@ class NicosClient(object):
                 # while got < length:
                 #     read = recv(length - got)
                 #     if not read:
-                #         print 'Error in event handler: connection broken'
+                #         self.log_func('Error in event handler: connection broken')
                 #         return
                 #     buf += read
                 #     got += len(read)
@@ -210,12 +211,12 @@ class NicosClient(object):
                     else:
                         data = buffer(buf, sep+1)
                 except Exception as err:
-                    print 'Garbled event (%s): %r' % \
-                          (err, str(buffer(buf))[:100])
+                    self.log_func('Garbled event (%s): %r' %
+                                  (err, str(buffer(buf))[:100]))
                 else:
                     self.signal(event, data)
             except Exception as err:
-                print 'Error in event handler:', err
+                self.log_func('Error in event handler: %s' % err)
                 return
 
     def disconnect(self):

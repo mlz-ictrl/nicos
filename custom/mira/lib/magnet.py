@@ -239,4 +239,3 @@ class LambdaField(HasLimits, Moveable):
                        % (B1, B2, Iv, I))
         assert abs(B(I) - value) < 0.1
         self._adevs['controller'].start(I)
-

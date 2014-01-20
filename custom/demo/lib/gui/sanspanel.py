@@ -167,7 +167,8 @@ class SANSPanel(Panel):
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
 
-    def on_client_cache(self, (time, key, op, value)):
+    def on_client_cache(self, data):
+        _time, key, _op, value = data
         if key == 'exp/action':
             self.curstatus.setText(cache_load(value) or 'Idle')
 
@@ -190,7 +191,7 @@ class SANSPanel(Panel):
         self._filename = fname
         if dtype not in DATATYPES:
             self._format = None
-            print 'Unsupported live data format:', params
+            self.log.warning('Unsupported live data format: %r' % params)
             return
         self._format = dtype
         self._nx = nx

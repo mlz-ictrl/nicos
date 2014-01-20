@@ -24,6 +24,8 @@
 
 """Utilities for the other methods."""
 
+from __future__ import print_function
+
 import os
 import re
 import sys
@@ -155,7 +157,7 @@ def formatDocstring(s, indentation=''):
     """Format a docstring into lines for display on the console."""
     lines = s.expandtabs().splitlines()
     # Find minimum indentation of any non-blank lines after first line.
-    margin = sys.maxint
+    margin = sys.maxsize
     for line in lines[1:]:
         content = len(line.lstrip())
         if content:
@@ -164,7 +166,7 @@ def formatDocstring(s, indentation=''):
     # Add uniform indentation.
     if lines:
         lines[0] = indentation + lines[0].lstrip()
-    if margin == sys.maxint:
+    if margin == sys.maxsize:
         margin = 0
     for i in range(1, len(lines)):
         lines[i] = indentation + lines[i][margin:]
@@ -565,12 +567,12 @@ def daemonize():
             sys.stdout.close()
             sys.exit(0)
     except OSError as err:
-        print >> sys.stderr, 'fork #1 failed:', err
+        print('fork #1 failed:', err, file=sys.stderr)
         sys.exit(1)
 
     # decouple from parent environment
     os.chdir('/')
-    os.umask(0002)
+    os.umask(0o002)
     os.setsid()
 
     # do second fork
@@ -580,7 +582,7 @@ def daemonize():
             sys.stdout.close()
             sys.exit(0)
     except OSError as err:
-        print >> sys.stderr, 'fork #2 failed:', err
+        print('fork #2 failed:', err, file=sys.stderr)
 
     # now I am a daemon!
 

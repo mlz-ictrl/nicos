@@ -64,7 +64,7 @@ class NicosError(Exception):
             elif not isinstance(args[0], basestring):
                 self.device = args[0]
                 args[0] = '[%s] ' % args[0].name
-        if kwds and kwds.has_key('wikicode'):
+        if 'wikicode' in kwds:
             self.wikiinfo = kwds['wikicode']
             args.append('\nAdditional information: %s%d' %
                         (WIKI_URL, kwds['wikicode']))

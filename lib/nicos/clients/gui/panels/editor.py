@@ -482,7 +482,8 @@ class EditorPanel(Panel):
             idx = self.treeModel.setRootPath(initialdir)
             self.fileTree.setRootIndex(idx)
 
-    def on_client_cache(self, (time, key, op, value)):
+    def on_client_cache(self, data):
+        (_time, key, _op, _value) = data
         if key.endswith('/scriptpath'):
             self.on_client_connected()
 
@@ -496,7 +497,8 @@ class EditorPanel(Panel):
             if message[2] >= WARNING:
                 self.simOutViewErrors.addMessage(message)
 
-    def on_client_simresult(self, (timing, devinfo)):
+    def on_client_simresult(self, data):
+        (timing, devinfo) = data
         if not self.waiting_sim_result:
             return
         self.waiting_sim_result = False

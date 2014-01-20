@@ -26,6 +26,8 @@
 in dependence of loaded_setups.
 """
 
+from __future__ import print_function
+
 from nicos.clients.gui.utils import checkSetupSpec
 
 # setupspec : loaded_setups : result
@@ -49,5 +51,5 @@ def test_checkSetupSpec():
         # print is here to aid in finding the offending input parameters
         # as the stacktrace doesn't output locals
         res = checkSetupSpec(spec, setups)
-        print 'testing checkSetupSpec(%r, %r) == %r: %r' % (spec, setups, result, res),
+        print('testing checkSetupSpec(%r, %r) == %r: %r' % (spec, setups, result, res), end=' ')
         assert res == result

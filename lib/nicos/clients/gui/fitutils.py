@@ -39,8 +39,8 @@ class FitError(Exception):
     pass
 
 
-def fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
-                    modelfunc, beta0):
+def fit_peak_common(xdata, ydata, yerr, xyb, xy0, xyw, modelfunc, beta0):
+    xb, x0 = xyb[0], xy0[0]
     totalwidth = abs(x0 - xb)
     xmin = x0 - totalwidth
     xmax = x0 + totalwidth
@@ -71,7 +71,10 @@ def gauss(beta, x):
     # beta: [background, height, center, sigma]
     return abs(beta[0]) + beta[1]*exp(-(x-beta[2])**2 / (2*beta[3]**2))
 
-def fit_gauss(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw)):
+def fit_gauss(xdata, ydata, yerr, xyb, xy0, xyw):
+    (xb, yb) = xyb
+    (x0, y0) = xy0
+    (xw, yw) = xyw
     beta0 = [yb, abs(y0-yb), x0, abs(x0-xw)/fwhm_to_sigma]
     return fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
                            gauss, beta0)
@@ -85,7 +88,10 @@ def pseudo_voigt(beta, x):
         # Gaussian
         (1 - eta) * exp(-log(2) * ((x-beta[2]) / beta[3])**2))
 
-def fit_pseudo_voigt(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw)):
+def fit_pseudo_voigt(xdata, ydata, yerr, xyb, xy0, xyw):
+    (xb, yb) = xyb
+    (x0, y0) = xy0
+    (xw, yw) = xyw
     beta0 = [yb, abs(y0-yb), x0, abs(x0-xw), 0.5]
     return fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
                            pseudo_voigt, beta0)
@@ -96,7 +102,10 @@ def pearson_vii(beta, x):
     return abs(beta[0]) + beta[1] / \
            (1 + (2**(1/beta[4]) - 1)*((x-beta[2]) / beta[3])**2) ** beta[4]
 
-def fit_pearson_vii(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw)):
+def fit_pearson_vii(xdata, ydata, yerr, xyb, xy0, xyw):
+    (xb, yb) = xyb
+    (x0, y0) = xy0
+    (xw, yw) = xyw
     beta0 = [yb, abs(y0-yb), x0, abs(x0-xw), 5.0]
     return fit_peak_common(xdata, ydata, yerr, (xb, yb), (x0, y0), (xw, yw),
                            pearson_vii, beta0)
@@ -113,7 +122,8 @@ def tc_curve(beta, T):
         return abs(B)
     return piecewise(T, [T < Tc], [tc_curve_1, tc_curve_2])
 
-def fit_tc(xdata, ydata, yerr, (Tb, Ib), (Tc, Ic)):
+def fit_tc(xdata, ydata, yerr, TIb, TIc):
+    Ib, Tc = TIb[1], TIc[0]
     if not len(xdata):
         raise FitError('No data in plot')
     Tmin, Tmax = xdata.min(), xdata.max()
@@ -134,7 +144,9 @@ def fit_tc(xdata, ydata, yerr, (Tb, Ib), (Tc, Ic)):
     return out.beta, Tfine, tc_curve(out.beta, Tfine)
 
 
-def fit_linear(xdata, ydata, yerr, (x1, y1), (x2, y2)):
+def fit_linear(xdata, ydata, yerr, xy1, xy2):
+    (x1, y1) = xy1
+    (x2, y2) = xy2
     if not len(xdata):
         raise FitError('No data in plot')
     indices = (x1 <= xdata) & (xdata <= x2)

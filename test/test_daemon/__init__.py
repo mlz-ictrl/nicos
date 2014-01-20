@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import os
 import sys
 import time
@@ -38,7 +40,7 @@ daemon = None
 
 def setup_package():
     global cache, daemon  #pylint: disable=W0603
-    print >> sys.stderr, '\nSetting up daemon test, cleaning old test dir...'
+    print('\nSetting up daemon test, cleaning old test dir...', file=sys.stderr)
     session.__class__ = TestSession
     session.__init__('testdaemon')
     cleanup()

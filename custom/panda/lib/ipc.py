@@ -118,7 +118,7 @@ class MotorUntested(_Motor):
             self._store()
             _Motor.reset(self)
             # move by one step (so far this always worked)
-            if self.doReadSteps() & 1L:
+            if self.doReadSteps() & 1:
                 bus.send(self.addr, 35) # go in negative direction
             else:
                 bus.send(self.addr, 34) # go in positive direction

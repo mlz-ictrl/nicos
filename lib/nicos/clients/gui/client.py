@@ -28,6 +28,7 @@ from weakref import ref
 
 from PyQt4.QtCore import QObject, SIGNAL
 
+from nicos.utils.loggers import NicosLogger
 from nicos.clients.base import NicosClient
 from nicos.protocols.cache import OP_TELLOLD, cache_load
 from nicos.protocols.daemon import DAEMON_EVENTS
@@ -37,9 +38,11 @@ class NicosGuiClient(NicosClient, QObject):
     siglist = ['connected', 'disconnected', 'broken', 'failed', 'error'] + \
               DAEMON_EVENTS.keys()
 
-    def __init__(self, parent):
+    def __init__(self, parent, parent_logger):
         QObject.__init__(self, parent)
-        NicosClient.__init__(self)
+        logger = NicosLogger('client')
+        logger.parent = parent_logger
+        NicosClient.__init__(self, logger.warning)
         self._reg_keys = {}
         QObject.connect(self, SIGNAL('cache'), self.on_cache_event)
         QObject.connect(self, SIGNAL('connected'), self.on_connected_event)
@@ -55,7 +58,8 @@ class NicosGuiClient(NicosClient, QObject):
         self._reg_keys.setdefault(key, []).append(ref(widget))
         return key
 
-    def on_cache_event(self, (time, key, op, value)):
+    def on_cache_event(self, data):
+        (time, key, op, value) = data
         if key in self._reg_keys:
             try:
                 cvalue = cache_load(value)

@@ -323,9 +323,9 @@ def guessCorrectCommand(source, attribute=False):
         # for attributes, use a list of existing attributes instead
         if attribute:
             obj = None
-            if session.namespace.has_key(object_parts[0]):
+            if object_parts[0] in session.namespace:
                 obj = session.namespace.globals[object_parts[0]]
-            if session.local_namespace.has_key(object_parts[0]):
+            if object_parts[0] in session.local_namespace:
                 obj = session.local_namespace.locals[object_parts[0]]
             for i in range(1, len(object_parts)):
                 try:

@@ -160,7 +160,7 @@ class ExpPanel(Panel, DlgUtils):
         users = unicode(self.users.text()).encode('utf-8')
         local = unicode(self.localContact.text()).encode('utf-8')
         email = unicode(self.notifEmails.toPlainText()).encode('utf-8').split('\n')
-        email = filter(None, email)  # remove empty lines
+        email = [_f for _f in email if _f]  # remove empty lines
 
         # check conditions
         if self.client.eval('session.experiment.serviceexp', True) and \

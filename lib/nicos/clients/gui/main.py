@@ -24,6 +24,8 @@
 
 """NICOS GUI main window and application startup."""
 
+from __future__ import print_function
+
 import os
 import sys
 import time
@@ -91,7 +93,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.action_start_time = None
 
         # connect the client's events
-        self.client = NicosGuiClient(self)
+        self.client = NicosGuiClient(self, self.log)
         self.connect(self.client, SIGNAL('error'), self.on_client_error)
         self.connect(self.client, SIGNAL('broken'), self.on_client_broken)
         self.connect(self.client, SIGNAL('failed'), self.on_client_failed)
@@ -573,10 +575,10 @@ class MainWindow(QMainWindow, DlgUtils):
 log = None
 
 def usage():
-    print 'usage: %s [options] [user_name [password]]' % (sys.argv[0])
-    print '   -h|--help : print this page'
-    print "   -c|--config-file file_name : use the configuration file" \
-          " 'file_name'"
+    print('usage: %s [options] [user_name [password]]' % sys.argv[0])
+    print('   -h|--help : print this page')
+    print("   -c|--config-file file_name : use the configuration file"
+          " 'file_name'")
 
 def main(argv):
     global log

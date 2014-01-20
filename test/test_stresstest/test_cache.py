@@ -24,6 +24,8 @@
 
 """NICOS cache tests."""
 
+from __future__ import print_function
+
 from nicos import session
 from time import sleep
 
@@ -53,7 +55,7 @@ def basicCacheTest(name, setup):
         cachedval = cc.get_explicit('testcache', key, None)
         cachedval2 = cc.get_explicit('testcache', key, None)
 
-        print cachedval_local, cachedval, cachedval2
+        print(cachedval_local, cachedval, cachedval2)
         assert cachedval_local == testval
         assert cachedval[2] == testval
         assert cachedval2[2] == testval
@@ -77,7 +79,7 @@ def restartServerCacheTest(name, setup):
         cc.flush()
         cachedval2 = cc.get_explicit('testcache', key, None)
 
-        print cachedval2
+        print(cachedval2)
         assert cachedval_local == testval
         assert cachedval2[2] == testval
     finally:

@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import time
 
 from nicos import nicos_version
@@ -35,7 +37,7 @@ class TestClient(NicosClient):
         self._signals = []
         self._estatus = STATUS_IDLE
         self._disconnecting = False
-        NicosClient.__init__(self)
+        NicosClient.__init__(self, print)
 
     def signal(self, name, data=None, exc=None):  # pylint: disable=W0221
         if name == 'error':

@@ -19,7 +19,7 @@ def find_packages():
 def find_ui_files():
     """Find all Qt .ui files in nicos.clients.gui subpackages."""
     res = {}
-    for root, dirs, files in os.walk('lib/nicos/clients/gui'):
+    for root, _dirs, files in os.walk('lib/nicos/clients/gui'):
         uis = [uifile for uifile in files if uifile.endswith('.ui')]
         if uis:
             res[root[4:].replace('/', '.')] = uis
@@ -35,7 +35,7 @@ py_modules = [name[:-3] for name in os.listdir('lib') if name.endswith('.py')]
 
 class no_install(install):
     def initialize_options(self):
-        print 'Please use "make install" to install NICOS.'
+        print('Please use "make install" to install NICOS.')
         sys.exit(1)
 
 package_data = {'nicos.services.web': ['jquery.js', 'support.js'],

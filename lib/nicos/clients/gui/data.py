@@ -134,7 +134,8 @@ class DataHandler(QObject):
         if self.currentset.uid in origins:
             self.dependent.append(dataset)
 
-    def on_client_datapoint(self, (xvalues, yvalues)):
+    def on_client_datapoint(self, data):
+        (xvalues, yvalues) = data
         if not self.currentset:
             raise DataError('No current set, trying to add a point')
         self.currentset.xresults.append(xvalues)
@@ -144,7 +145,8 @@ class DataHandler(QObject):
         for depset in self.dependent:
             self.emit(SIGNAL('pointsAdded'), depset)
 
-    def on_client_datacurve(self, (title, xvalues, yvalues)):
+    def on_client_datacurve(self, data):
+        (title, xvalues, yvalues) = data
         if not self.currentset:
             raise DataError('No current set, trying to add a curve')
         newc = Curve()

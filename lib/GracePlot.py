@@ -1,4 +1,4 @@
-#pylint: disable-all
+# pylint: skip-file
 """
 GracePlot.py -- A high-level Python interface to the Grace plotting package
 
@@ -78,6 +78,8 @@ The GracePlot instance no longer depends on any grace_np process as of April 1,
 incompatible with python < 2.4.
 
 """
+
+from __future__ import print_function
 
 __version__ = "1.44"
 __author__ = "Marcus Mendenhall <mendenhall@users.sourceforge.net> (maintainer)"
@@ -329,7 +331,7 @@ class GracePlot:
             raise Disconnected("Grace process has been terminated")
         cmd=cmd.strip()
         if cmd:
-            if self.debug: print cmd
+            if self.debug: print(cmd)
             self._transmit_queue.put(cmd+"\n")
 
     def _flush(self):
@@ -372,7 +374,7 @@ class GracePlot:
         try:
             ext = devs[string.lower(format)]
         except KeyError:
-            print 'Unknown format.  Known formats are\n%s' % devs.keys()
+            print('Unknown format.  Known formats are\n%s' % devs.keys())
             return
 
         if filename[-len(ext):] != ext:
@@ -402,16 +404,17 @@ class GracePlot:
             return self.g[item]
         elif type(item) == tuple and len(item) <= 2:
             if item[0] >= self.rows or item[1] >= self.cols:
-                raise IndexError, 'graph index out of range'
+                raise IndexError('graph index out of range')
             return self.g[item[0]*self.cols + item[1]]
         else:
-            raise TypeError, 'graph index must be integer or two integers'
+            raise TypeError('graph index must be integer or two integers')
 
     def load_parameter_file(self, param_file_name):
         """load a grace *.par file"""
         self.write('getp "%s"' % param_file_name)
 
-    def assign_color(self, idx, (r, g, b), name):
+    def assign_color(self, idx, xxx_todo_changeme, name):
+        (r, g, b) = xxx_todo_changeme
         self.write('map color %d to (%d, %d, %d), "%s"' % (idx, r, g, b, name))
 
     def aspect_scale(self, x, y):
@@ -479,7 +482,7 @@ class GraceGraph:
             self._hold = not self._hold
             return lastVal
         if onoff not in [0, 1]:
-            raise RuntimeError, "Valid arguments to hold() are 0 or 1."
+            raise RuntimeError("Valid arguments to hold() are 0 or 1.")
         self._hold = onoff
         return lastVal
 
@@ -772,7 +775,7 @@ class GraceGraph:
                 self.x=testset[0]
                 self.y=testset[1]
             except:
-                raise IndexError,'xy data is in wrong form'
+                raise IndexError('xy data is in wrong form')
             datasets.append(Data(x=self.x,y=self.y))
 
         self.plot(datasets)

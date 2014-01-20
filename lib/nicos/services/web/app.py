@@ -24,6 +24,8 @@
 
 """Web interface for NICOS."""
 
+from __future__ import print_function
+
 import os
 import sys
 import json
@@ -312,7 +314,7 @@ class NicosApp(object):
             code = compile(code, '<stdin>', 'single', 0, 1)
             exec code in session.namespace, session.local_namespace
         except SystemExit:
-            print QUIT_MESSAGE
+            print(QUIT_MESSAGE)
         except:
             session.logUnhandledException(sys.exc_info())
         return None

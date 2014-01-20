@@ -24,6 +24,8 @@
 
 """Session classes for simple and noninteractive use."""
 
+from __future__ import print_function
+
 import sys
 import signal
 
@@ -87,7 +89,7 @@ class NoninteractiveSession(Session):
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
-                print >> sys.stderr, 'Fatal error while initializing:', err
+                print('Fatal error while initializing:', err, file=sys.stderr)
             return 1
 
         start_args = start_args or ()
@@ -119,7 +121,7 @@ class ScriptSession(Session):
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
-                print >> sys.stderr, 'Fatal error while initializing:', err
+                print('Fatal error while initializing:', err, file=sys.stderr)
             return 1
 
         # Load the initial setup and handle becoming master.
@@ -151,7 +153,7 @@ class SimulationSession(Session):
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
-                print >> sys.stderr, 'Fatal error while initializing:', err
+                print('Fatal error while initializing:', err, file=sys.stderr)
             return 1
 
         # Give a sign of life and then tell the log handler to only log

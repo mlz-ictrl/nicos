@@ -186,7 +186,7 @@ class NicosLogfileFormatter(Formatter):
             s = formatExtendedTraceback(*ei)
         else:
             s = ''.join(traceback.format_exception(ei[0], ei[1], ei[2],
-                                                   sys.maxint))
+                                                   sys.maxsize))
             if s.endswith('\n'):
                 s = s[:-1]
         return s

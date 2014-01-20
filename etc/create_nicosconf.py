@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import sys, glob, os
 
 sysuser, sysgroup, sysumask, nethost, setups, services, addvars = sys.argv[1:8]
@@ -35,12 +37,12 @@ except KeyError:
 pythonpath = ':'.join(glob.glob(tacobase + '/lib*/python*/site-packages'))
 if not pythonpath:
     # set some working default, if the taco dir does not exist yet
-    print >> sys.stderr, '''\
+    print('''\
 Warning: There seems to be no TACO installed in %s,
 setting up a default anyway.
 
 If TACO is installed in a non-standard place,
-set DSHOME to point to this directory.''' % tacobase
+set DSHOME to point to this directory.''' % tacobase, file=sys.stderr)
     pyversion = sys.version_info
     pythonpath = ':'.join('/opt/taco/%s/python%1d.%1d/site-packages' %
                           (libdir, pyversion[0], pyversion[1])
@@ -73,7 +75,7 @@ services_replacements = (       # replace the first string with the second
 for m, r in services_replacements:
     services = services.replace(m, r)
 addvars = addvars.replace(';','\n')
-print '''\
+print('''\
 [nicos]
 # The system user to use for daemons.
 user = %(sysuser)s
@@ -98,4 +100,4 @@ PAGER = cat
 NETHOST = %(nethost)s
 # Add additional environment variables here.
 %(addvars)s
-''' % locals()
+''' % locals())

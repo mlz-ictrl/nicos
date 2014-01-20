@@ -26,6 +26,7 @@
 Python interface to the _pyctl module, to control the execution of Python
 code via a C trace function.
 """
+from __future__ import absolute_import
 
 __all__ = ['LINENO_ALL', 'LINENO_TOPLEVEL', 'LINENO_NAME',
            'Controller', 'ControlStop']
@@ -43,7 +44,7 @@ try:
 except ImportError:
     try:
         #pylint: disable=W0403
-        from _pyctl import ControlStop, Controller as _Controller
+        from ._pyctl import ControlStop, Controller as _Controller
     except ImportError:
         ControlStop = BaseException
         class _Controller(object):

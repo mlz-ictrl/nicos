@@ -73,7 +73,7 @@ def usercommandWrapper(func):
             # find last call frame
             while traceback.tb_next:
                 traceback = traceback.tb_next
-            if traceback.tb_frame.f_code is wrapped.func_code:
+            if traceback.tb_frame.f_code is wrapped.__code__:
                 printerror('Usage error: invalid arguments for %s()'
                            % func.__name__)
                 help(func)

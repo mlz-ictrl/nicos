@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 from nicos import session
 from nicos.core import status, LimitError, InvalidValueError
 from nicos.core.sessions.utils import MASTER
@@ -45,10 +47,10 @@ def test_slit():
 
     slit.opmode = '4blades'
     slit.maw([1, 2, 3, 4])
-    print [motor_right.doRead(),
+    print([motor_right.doRead(),
            motor_left.doRead(),
            motor_bottom.doRead(),
-           motor_top.doRead()]
+           motor_top.doRead()])
     assert motor_left.doRead() == 1
     assert motor_right.doRead() == 2
     assert motor_bottom.doRead() == 3

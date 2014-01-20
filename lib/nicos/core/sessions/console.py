@@ -24,6 +24,8 @@
 
 """Session class for console interface."""
 
+from __future__ import print_function
+
 import os
 import pdb
 import sys
@@ -127,7 +129,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             if prompt == sys.ps1:
                 # do not stop immediately on continuation lines; here the user
                 # usually just wants to abort the input
-                print
+                print()
                 self.session.immediateStop()
                 return ''
             else:
@@ -167,7 +169,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
 
             return
         if code.softspace(sys.stdout, 0):
-            print
+            print()
         #self.locals.clear()
 
 

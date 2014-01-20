@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 f = open('PCWSPGR.DAT')     # from PowderCell
 g = open('nph-list_table')  # from www.cryst.ehu.es
 
@@ -34,11 +36,11 @@ for line in g:
     else:
         sg_by_hm[hm] = (nr, 1)
 
-print 'sg_by_num = {'
+print('sg_by_num = {')
 for k in sorted(sg_by_num):
-    print '   %-9s: %s,' % (k, sg_by_num[k])
-print '}\n'
-print 'sg_by_hm = {'
+    print('   %-9s: %s,' % (k, sg_by_num[k]))
+print('}\n')
+print('sg_by_hm = {')
 for k in sorted(sg_by_hm):
-    print '   %-9r: %s,' % (k, sg_by_hm[k])
-print '}'
+    print('   %-9r: %s,' % (k, sg_by_hm[k]))
+print('}')

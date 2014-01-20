@@ -73,7 +73,7 @@ class TimeScaleEngine(QwtLinearScaleEngine):
         try:
             ticks = self._buildTimeTicks(x1, x2)
         except Exception:
-            print '!!! could not build ticking for', x1, 'and', x2
+            # print('!!! could not build ticking for', x1, 'and', x2)
             ticks = [], [], [x1, x2]
         #print ticks
         scalediv = QwtScaleDiv(interval, *ticks)

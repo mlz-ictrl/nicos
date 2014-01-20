@@ -26,6 +26,8 @@
 Plotting tools for triple-axis spectrometers.
 """
 
+from __future__ import print_function
+
 import os
 import time
 from fractions import gcd
@@ -48,16 +50,16 @@ def pylab_key_handler(event):
                       orientation='landscape', papertype='a4')
         res = os.system('lp %s' % filename)
         if res == 0:
-            print 'Successfully sent file %s to the printer!' % filename
+            print('Successfully sent file %s to the printer!' % filename)
         else:
-            print 'Error on sending file %s to the printer!' % filename
+            print('Error on sending file %s to the printer!' % filename)
 
     elif event.key == 'e':
         # create more or less unique filename
         filename = '/tmp/tas%s.pdf' % time.strftime('%j%H%M')
         pylab.savefig(filename, dpi=72, facecolor='w', edgecolor='w',
                       orientation='landscape', papertype='a4')
-        print 'Successfully exported file %s!' % filename
+        print('Successfully exported file %s!' % filename)
 
     elif event.key == 'q':
         pylab.close()
@@ -463,8 +465,9 @@ def plot_resscan(cfg, par, hkles, fignum='Scan resolution', resmat=None):
         if not resmat.ERROR:
             elliplist.append(resmat.resellipse())
         else:
-            print '%+1.4f %+1.4f %+1.4f %+1.4f => scattering triangle did not ' \
-                'close for this point => excluded from simulation' %  (h[i], k[i], l[i], e[i])
+            print('%+1.4f %+1.4f %+1.4f %+1.4f => scattering triangle did not '
+                  'close for this point => excluded from simulation' %
+                  (h[i], k[i], l[i], e[i]))
             errors.append(i)
 
     # remove points for that scattering triangle did not close

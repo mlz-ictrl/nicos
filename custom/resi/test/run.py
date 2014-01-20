@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import os
 import sys
 import shutil
@@ -30,8 +32,8 @@ from os import path
 
 def cleanup(rootdir):
     if path.exists(rootdir):
-        print 'Cleaning old test output dir...'
-        print '-' * 70
+        print('Cleaning old test output dir...')
+        print('-' * 70)
         shutil.rmtree(rootdir)
     os.mkdir(rootdir)
     os.mkdir(rootdir + '/cache')
@@ -40,7 +42,7 @@ def cleanup(rootdir):
 try:
     import nose
 except ImportError:
-    print 'The "nose" package is required to run this test suite.'
+    print('The "nose" package is required to run this test suite.')
     sys.exit(1)
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
@@ -54,13 +56,13 @@ cleanup(rootdir)
 #
 #print 'Cache PID = %s' % cache.pid
 #print '-' * 70
-print 'Running NICOS test suite...'
-print '-' * 70
+print('Running NICOS test suite...')
+print('-' * 70)
 try:
     nose.main()
 finally:
     # kill the cache server
-    print '-' * 70
+    print('-' * 70)
 #    print 'Killing cache server...'
 #    os.kill(cache.pid, signal.SIGTERM)
 #    os.waitpid(cache.pid, 0)

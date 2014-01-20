@@ -7,6 +7,7 @@ This script parses a directory tree looking for python modules and packages and
 creates ReST files appropriately to create code documentation with Sphinx.
 It also creates a modules index (named modules.<suffix>).
 """
+from __future__ import print_function
 
 # This code was refactored by Robin Keller, rkeller@cars.com. The -1 option
 # was added to allow the script to only generate one module per file.
@@ -59,9 +60,9 @@ def write_file(name, text, opts):
         return
     fname = os.path.join(opts.destdir, "%s.%s" % (name, opts.suffix))
     if not opts.force and os.path.isfile(fname):
-        print 'File %s already exists, skipping.' % fname
+        print('File %s already exists, skipping.' % fname)
     else:
-        print 'Creating file %s.' % fname
+        print('Creating file %s.' % fname)
         f = open(fname, 'w')
         f.write(text)
         f.close()
@@ -260,14 +261,22 @@ def main():
     parser = optparse.OptionParser(usage="""usage: %prog [options] <package path> [exclude paths, ...]
 
 Note: By default this script will not overwrite already created files.""")
-    parser.add_option("-n", "--doc-header", action="store", dest="header", help="Documentation Header (default=Project)", default="Project")
-    parser.add_option("-d", "--dest-dir", action="store", dest="destdir", help="Output destination directory", default="")
-    parser.add_option("-s", "--suffix", action="store", dest="suffix", help="module suffix (default=txt)", default="txt")
-    parser.add_option("-m", "--maxdepth", action="store", dest="maxdepth", help="Maximum depth of submodules to show in the TOC (default=4)", type="int", default=4)
-    parser.add_option("-r", "--dry-run", action="store_true", dest="dryrun", help="Run the script without creating the files")
-    parser.add_option("-f", "--force", action="store_true", dest="force", help="Overwrite all the files")
-    parser.add_option("-t", "--no-toc", action="store_true", dest="notoc", help="Don't create the table of content file")
-    parser.add_option("-1", "--one-module", action="store_true", dest="onemodule", help="Store only one module per file")
+    parser.add_option("-n", "--doc-header", action="store", dest="header",
+                      help="Documentation Header (default=Project)", default="Project")
+    parser.add_option("-d", "--dest-dir", action="store", dest="destdir",
+                      help="Output destination directory", default="")
+    parser.add_option("-s", "--suffix", action="store", dest="suffix",
+                      help="module suffix (default=txt)", default="txt")
+    parser.add_option("-m", "--maxdepth", action="store", dest="maxdepth",
+                      help="Maximum depth of submodules to show in the TOC (default=4)", type="int", default=4)
+    parser.add_option("-r", "--dry-run", action="store_true", dest="dryrun",
+                      help="Run the script without creating the files")
+    parser.add_option("-f", "--force", action="store_true", dest="force",
+                      help="Overwrite all the files")
+    parser.add_option("-t", "--no-toc", action="store_true", dest="notoc",
+                      help="Don't create the table of content file")
+    parser.add_option("-1", "--one-module", action="store_true", dest="onemodule",
+                      help="Store only one module per file")
     (opts, args) = parser.parse_args()
     if not args:
         parser.error("package path is required.")
@@ -280,9 +289,9 @@ Note: By default this script will not overwrite already created files.""")
                 excludes = normalize_excludes(rootpath, excludes)
                 recurse_tree(rootpath, excludes, opts)
             else:
-                print '%s is not a valid output destination directory.' % opts.destdir
+                print('%s is not a valid output destination directory.' % opts.destdir)
         else:
-            print '%s is not a valid directory.' % rootpath
+            print('%s is not a valid directory.' % rootpath)
 
 
 if __name__ == '__main__':

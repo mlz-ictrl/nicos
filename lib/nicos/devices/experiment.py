@@ -921,7 +921,7 @@ class Experiment(Device):
             self.log.warning('moving compressed file into proposal dir failed',
                              exc=1)
             # at least withdraw the access rights
-            os.chmod(zipname, self.managerights.get('disableFileMode', 0400))
+            os.chmod(zipname, self.managerights.get('disableFileMode', 0o400))
 
     def _setMode(self, mode):
         if self.elog:

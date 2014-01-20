@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import sys
 from nicos import session
 
@@ -31,7 +33,7 @@ cache = None
 
 def setup_package():
     global cache  #pylint: disable=W0603
-    print >> sys.stderr, '\nSetting up simple test, cleaning old test dir...'
+    print('\nSetting up simple test, cleaning old test dir...', file=sys.stderr)
     session.__class__ = TestSession
     session.__init__('test_simple')
     cleanup()

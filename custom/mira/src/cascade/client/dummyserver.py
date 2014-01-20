@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import socket, struct, time
 import numpy
 
@@ -38,12 +40,12 @@ ram = numpy.random.randint(0, 10000, 128 * 128 * 128).astype('<u4')
 while True:
     try:
         conn, addr = x.accept()
-        print 'got connection'
+        print('got connection')
         while True:
             length = conn.recv(4)
             l, = struct.unpack('i', length)
             cmd = conn.recv(l)
-            print 'got cmd:', cmd
+            print('got cmd:', cmd)
             if cmd.startswith('CMD_config_cdr'):
                 cfg = dict(v.split('=') for v in cmd[14:-1].split())
                 if 'time' in cfg: mt = float(cfg['time'])
@@ -63,4 +65,4 @@ while True:
             length = struct.pack('i', len(resp))
             conn.send(length + resp)
     except Exception as e:
-        print 'EXCEPTION:', e
+        print('EXCEPTION:', e)

@@ -59,8 +59,8 @@ def command(needcontrol=False, needscript=None, name=None):
     parameters can be set to avoid boilerplate in the handler functions.
     """
     def deco(func):
-        nargsmax = func.func_code.co_argcount - 1
-        nargsmin = nargsmax - len(func.func_defaults or ())
+        nargsmax = func.__code__.co_argcount - 1
+        nargsmin = nargsmax - len(func.__defaults__ or ())
         def wrapper(self, args):
             if not nargsmin <= len(args) <= nargsmax:
                 self.write(NAK, 'invalid number of arguments')

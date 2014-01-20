@@ -93,7 +93,7 @@ class StateChange(Exception):
 class NicosCmdClient(NicosClient):
 
     def __init__(self, conndata, plot_on=False):
-        NicosClient.__init__(self)
+        NicosClient.__init__(self, self.put_error)
         # connection data as a dictionary
         self.conndata = conndata
         # whether to suppress printing history and other info on connection
@@ -452,8 +452,8 @@ class NicosCmdClient(NicosClient):
                     self.pending_requests[data['reqno']] = data
                 self.set_status(self.status)
             elif name == 'blocked':
-                removed = filter(None,
-                    (self.pending_requests.pop(reqno, None) for reqno in data))
+                removed = [_f for _f in (self.pending_requests.pop(reqno, None)
+                                         for reqno in data) if _f]
                 if removed:
                     self.put_client('%d script(s) or command(s) removed from '
                                     'queue.' % len(removed))

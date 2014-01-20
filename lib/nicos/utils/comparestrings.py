@@ -22,6 +22,8 @@
 # Use freely, but please attribute when using.
 # from http://starship.python.net/crew/hooft/
 
+from __future__ import print_function
+
 # How much does it cost to make a hole in one of the strings?
 GAPOPENPENALTY = -0.3
 # How much does it cost to elongate a hole in one of the strings?
@@ -153,6 +155,6 @@ if __name__ == "__main__":
             if not s1:
                 break
             s2 = raw_input("s2: ")
-            print "Score:", compare(s1, s2)
+            print("Score:", compare(s1, s2))
     except (EOFError, KeyboardInterrupt):
         pass

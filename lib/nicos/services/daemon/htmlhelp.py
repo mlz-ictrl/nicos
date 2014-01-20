@@ -98,8 +98,7 @@ class HelpGenerator(object):
         else:
             try:
                 return publish_parts(markup, writer_name='html')['fragment']
-            except Exception as err:
-                print err
+            except Exception:
                 return '<pre>' + escape(markup) + '</pre>'
 
     def gen_helpindex(self):

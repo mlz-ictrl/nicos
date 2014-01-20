@@ -202,7 +202,7 @@ class DeviceDocumenter(ClassDocumenter):
             n = 0
             for name, (args, doc) in sorted(self.object.commands.iteritems()):
                 func = getattr(self.object, name)
-                funccls = func.__module__ + '.' + func.im_class.__name__
+                funccls = func.__module__ + '.' + func.__self__.__class__.__name__
                 if funccls != myclsname:
                     basecmdinfo.append((funccls, name))
                     continue

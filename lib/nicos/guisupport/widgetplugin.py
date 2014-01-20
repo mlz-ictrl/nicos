@@ -25,6 +25,7 @@
 """
 Qt designer plugin for NICOS UI widgets.
 """
+from __future__ import print_function
 
 import os
 
@@ -58,7 +59,7 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
             return self.widget_class(parent, designMode=True)
         except Exception as e:
             name = self.widget_class.__name__
-            print "Designer plugin error creating %s: %s" % (name, str(e))
+            print("Designer plugin error creating %s: %s" % (name, e))
             return None
 
     def name(self):

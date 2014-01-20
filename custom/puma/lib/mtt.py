@@ -297,7 +297,7 @@ class MTT_Axis(Axis):
         if inh == 1:
             self._adevs['motor'].stop()
             t = 20
-            print 'Waiting for MB. mtt =', self.read(0)
+            self.log.debug('Waiting for MB. mtt = %s' % self.read(0))
             while self._adevs['io_flag'].read(0) == 1:
                 sleep(1)
 #                print 'Waiting for MB'
@@ -306,6 +306,6 @@ class MTT_Axis(Axis):
                     self._setErrorState(MoveError,
                           'timeout occured during wait for mobile block change')
                     self._stoprequest = 2
-                    print 'Error state =', self._errorstate
+                    self.log.debug('Error state = %s' % self._errorstate)
                     break
         return inh

@@ -31,6 +31,8 @@ neutrons.instruments.tas.tasres from the neutrons Python package, compiled by
 Marc Janoschek.
 """
 
+from __future__ import print_function
+
 from numpy import pi, radians, degrees, sin, cos, tan, arcsin, arccos, \
      arctan2, absolute, sqrt, real, matrix, diag, cross, dot, array, arange, \
      zeros, concatenate, reshape, delete, exp
@@ -876,7 +878,7 @@ Resolution Info:
         msg += '===============================\n'
         for i in range(len(self.cfg)):
             msg += '%2i' % i + ('%1.3f   :  ' % self.cfg[i]).rjust(16) + '%s\n' % self.cfgnames[i]
-        print msg
+        print(msg)
 
     def resellipse(self):
         """Returns the projections of the resolution ellipse of a triple axis."""
@@ -1024,9 +1026,9 @@ def calc_MC(x, fit_par, sqw, resmat, NMC):
         resmat.calcResEllipsoid(*QE)
 
         if resmat.ERROR:
-            print 'Scattering triangle will not close for point: ' \
-                'qh = %1.3f qk = %1.3f ql = %1.3f en = %1.3f' % tuple(QE)
-            print 'Attention: Intensity is therefore equal to zero at this point!'
+            print('Scattering triangle will not close for point: '
+                  'qh = %1.3f qk = %1.3f ql = %1.3f en = %1.3f' % tuple(QE))
+            print('Attention: Intensity is therefore equal to zero at this point!')
             continue
         sigma = resmat.calcSigma()
         xp = matrix(zeros((4, NMC)))

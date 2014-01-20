@@ -339,7 +339,8 @@ class BaseHistoryWindow(object):
         # since one can't change the current item if it's the only one
         self.on_viewList_currentItemChanged(item, None)
 
-    def newvalue_callback(self, (time, key, op, value)):
+    def newvalue_callback(self, data):
+        (_time, key, op, value) = data
         if key not in self.keyviews:
             return
         value = cache_load(value)

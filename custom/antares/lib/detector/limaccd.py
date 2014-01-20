@@ -331,7 +331,7 @@ class LimaCCD(PyTangoDevice, ImageStorageFits, Measurable):
         if logFunc is None:
             logFunc = self.log.debug
 
-        for i in range((len(data) + 7) / 8):
+        for i in range((len(data) + 7) // 8):
             startByte = hex(i * 8)
 
             wordStr = ' '.join('{0:<6}'.format(hex(ord(data[j + 1])

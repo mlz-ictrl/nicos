@@ -28,6 +28,8 @@ Created on 30.05.2011
 @author: pedersen
 """
 
+from __future__ import print_function
+
 import sys
 import math
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
@@ -93,8 +95,8 @@ class ResiDevice(Moveable):
         try:
             self._hardware.LoadRmat()
         except RuntimeError as e:
-            print e
-            print 'Setting a default cell (quartz): 4.9287,4.9827,5.3788, 90,90,120'
+            print(e)
+            print('Setting a default cell (quartz): 4.9287,4.9827,5.3788, 90,90,120')
             self._hardware.SetCellParam(a=4.9287, b=4.9287, c=5.3788, alpha=90.000, beta=90.000, gamma=120.000)
         self._hardware.cell.conventionalsystem = 'triclinic'
         self._hardware.cell.standardize = 0
@@ -107,7 +109,7 @@ class ResiDevice(Moveable):
         return ResiPositionProxy(self._hardware.GetPosition(maxage))
 
     def doStart(self, args):
-        print 'args:', args
+        print('args:', args)
         self._hardware.Goto(**args)
 
     def doStatus(self, maxage=0):

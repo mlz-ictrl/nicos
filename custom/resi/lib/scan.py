@@ -27,6 +27,7 @@ Created on 06.06.2011
 
 @author: pedersen
 """
+from __future__ import print_function
 
 from nicos import session
 #from nicos.core.scan import Scan, TimeScan, ContinuousScan, ManualScan
@@ -59,36 +60,36 @@ def measuredataset(**kw):
 
     '''
     dev = session.getDevice('resi')
-    print 'measure', kw
+    print('measure', kw)
     if not kw:
         raise UsageError('at least one argument is required')
 
-    if kw.has_key('dataset'):
+    if 'dataset' in kw:
         ds = kw['dataset']
         del kw['dataset']
-    elif kw.has_key('thmin'):
-        if not kw.has_key('thmax'):
+    elif 'thmin' in kw:
+        if 'thmax' not in kw:
             raise UsageError('thmin and thmax need to be given both')
         else:
             ds = dev._hardware.getScanDataset(thmax=kw['thmax'], thmin=kw['thmin'])
             del kw['thmax']
             del kw['thmin']
-    elif kw.has_key('thmax'):
-        if not kw.has_key('thmin'):
+    elif 'thmax' in kw:
+        if 'thmin' not in kw:
             raise UsageError('thmin and thmax need to be given both')
         else:
             ds = dev._hardware.getScanDataset(thmax=kw['thmax'], thmin=kw['thmin'])
             del kw['thmax']
             del kw['thmin']
-    elif kw.has_key('dmin'):
-        if not kw.has_key('dmax'):
+    elif 'dmin' in kw:
+        if 'dmax' not in kw:
             raise UsageError('dmin and dmax need to be given both')
         else:
             ds = dev._hardware.getScanDataset(dmax=kw['dmax'], dmin=kw['dmin'])
             del kw['dmax']
             del kw['dmin']
-    elif kw.has_key('dmax'):
-        if not kw.has_key('dmin'):
+    elif 'dmax' in kw:
+        if 'dmin' not in kw:
             raise UsageError('dmin and dmax need to be given both')
         else:
             ds = dev._hardware.getScanDataset(dmax=kw['dmax'], dmin=kw['dmin'])

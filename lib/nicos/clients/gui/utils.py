@@ -24,6 +24,8 @@
 
 """NICOS GUI utilities."""
 
+from __future__ import print_function
+
 import os
 import socket
 import logging
@@ -259,7 +261,7 @@ class DlgPresets(object):
                     val = val.toString()
                 getattr(self, 'set_' + ctl.__class__.__name__)(ctl, val)
             except Exception as err:
-                print ctl, err
+                print(ctl, err)
         self.settings.endGroup()
 
     def save(self):
@@ -270,7 +272,7 @@ class DlgPresets(object):
                 val = getattr(self, 'get_' + ctl.__class__.__name__)(ctl)
                 self.settings.setValue(entry, QVariant(val))
             except Exception as err:
-                print err
+                print(err)
         self.settings.endGroup()
         self.settings.sync()
 

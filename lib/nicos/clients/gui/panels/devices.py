@@ -236,7 +236,8 @@ class DevicesPanel(Panel):
             self.on_client_cache((None, ldevname + '/' + key, OP_TELL,
                                   cache_dump(value)))
 
-    def on_client_device(self, (action, devlist)):
+    def on_client_device(self, data):
+        (action, devlist) = data
         if action == 'create':
             for devname in devlist:
                 self._create_device_item(devname, add_cat=True)
@@ -256,7 +257,8 @@ class DevicesPanel(Panel):
                             self.tree.indexOfTopLevelItem(catitem))
                         del self._catitems[str(catitem.text(0))]
 
-    def on_client_cache(self, (time, key, op, value)):
+    def on_client_cache(self, data):
+        (_time, key, op, value) = data
         ldevname, subkey = key.split('/')
         if ldevname not in self._devinfo:
             return

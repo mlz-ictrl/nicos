@@ -24,6 +24,8 @@
 
 """NICOS generic devices test suite."""
 
+from __future__ import print_function
+
 from nicos import session
 from nicos.core import PositionError, NicosError, LimitError, \
      ConfigurationError, InvalidValueError, status
@@ -139,8 +141,8 @@ def test_paramdev():
     pd.maw(1)
     assert v1.speed == 1
 
-    print pd.unit
-    print v1.unit
+    print(pd.unit)
+    print(v1.unit)
     assert pd.unit == v1.unit + '/s'
     assert pd.status()[0] == status.OK
 

@@ -25,6 +25,8 @@
 
 """Tests for the cache."""
 
+from __future__ import print_function
+
 from nicos import session
 from time import sleep
 
@@ -132,7 +134,7 @@ def test_05cachereadonlyobjects():
     rol1 = cc.get('testcache', 'rolist')
     rol = cc.get_explicit('testcache', 'rolist', None)
     assert rol[2] != None
-    print type(rol1), type(testval1)
+    print(type(rol1), type(testval1))
     assert type(rol1) == type(testval1)
     assert type(rol[2]) == type(testval1)
 
@@ -141,7 +143,7 @@ def test_05cachereadonlyobjects():
     cc.flush()
     rod = cc.get_explicit('testcache', 'rodict', None)
     assert rod[2] != None
-    print type(rod[2]), type(testval2)
+    print(type(rod[2]), type(testval2))
     assert type(rod[2]) == type(testval2)
 
     testval3 = readonlylist((testval1, testval2, 'C'))
@@ -149,7 +151,7 @@ def test_05cachereadonlyobjects():
     cc.flush()
     rol = cc.get_explicit('testcache', 'rolist2', None)
     assert rol[2] != None
-    print type(rol[2]), type(testval3)
+    print(type(rol[2]), type(testval3))
     assert type(rol[2]) == type(testval3)
     assert type(rol[2][0]) == type(testval1)
     assert type(rol[2][1]) == type(testval2)
@@ -159,7 +161,7 @@ def test_05cachereadonlyobjects():
     cc.flush()
     rod = cc.get_explicit('testcache', 'rodict2', None)
     assert rod[2] != None
-    print type(rod[2]), type(testval4)
+    print(type(rod[2]), type(testval4))
     assert type(rod[2]) == type(testval4)
     assert type(rod[2]['A']) == type(testval1)
     assert type(rod[2]['B']) == type(testval2)

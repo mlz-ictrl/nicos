@@ -24,6 +24,8 @@
 
 """NICOS tests for some utility modules."""
 
+from __future__ import print_function
+
 import sys
 import cPickle as pickle
 
@@ -76,7 +78,7 @@ def test_readonlylist_hashable():
     l = readonlylist([1, 2, 3])
     assert l == [1, 2, 3]
     dt = {l:'testval'}
-    print dt.keys()
+    print(dt.keys())
     assert dt[readonlylist([1, 2, 3])] == 'testval'
 
 def test_repeater():
