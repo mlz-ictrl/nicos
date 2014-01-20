@@ -156,6 +156,38 @@ class Mailer(Notifier):
         return True
 
 
+# Implements the GSM03.38 encoding for SMS messages, including escape-encoded
+# chars, generated from ftp://ftp.unicode.org/Public/MAPPINGS/ETSI/GSM0338.TXT
+
+GSM0338_MAP = {
+    u'\x0c': '\x1b\n', u' ': ' ', u'\xa3': '\x01', u'$': '\x02', u'\xa7': '_',
+    u'\u03a9': '\x15', u'(': '(', u',': ',', u'0': '0', u'4': '4', u'8': '8',
+    u'<': '<', u'\xbf': '`', u'D': 'D', u'H': 'H', u'L': 'L',
+    u'P': 'P', u'T': 'T', u'X': 'X', u'\\': '\x1b/', u'\xdf': '\x1e', u'd': 'd',
+    u'\xe7': '\t', u'h': 'h', u'l': 'l', u'p': 'p', u't': 't', u'x': 'x',
+    u'|': '\x1b@', u'\u039e': '\x1a', u'\xa0': '\x1b', u'#': '#', u'\xa4': '$',
+    u"'": "'", u'\u03a6': '\x12', u'+': '+', u'\u20ac': '\x1be', u'/': '/',
+    u'3': '3', u'7': '7', u';': ';', u'?': '?', u'C': 'C', u'\xc4': '['
+    , u'G': 'G', u'K': 'K', u'O': 'O', u'S': 'S', u'W': 'W', u'\xd8': '\x0b',
+    u'[': '\x1b<', u'\xdc': '^', u'_': '\x11', u'\xe0': '\x7f', u'c': 'c',
+    u'\xe4': '{', u'g': 'g', u'\xe8': '\x04', u'k': 'k', u'\xec': '\x07',
+    u'o': 'o', u's': 's', u'w': 'w', u'\xf8': '\x0c', u'{': '\x1b(',
+    u'\xfc': '~', u'\n': '\n', u'\u0393': '\x13', u'\u039b': '\x14',
+    u'\xa1': '@', u'\u03a3': '\x18', u'"': '"', u'\xa5': '\x03', u'&': '&',
+    u'*': '*', u'.': '.', u'2': '2', u'6': '6', u':': ':', u'>': '>',
+    u'B': 'B', u'\xc5': '\x0e', u'F': 'F', u'\xc9': '\x1f', u'J': 'J',
+    u'N': 'N', u'\xd1': ']', u'R': 'R', u'V': 'V', u'Z': 'Z', u'^': '\x1b\x14',
+    u'b': 'b', u'\xe5': '\x0f', u'f': 'f', u'\xe9': '\x05', u'j': 'j',
+    u'n': 'n', u'\xf1': '}', u'r': 'r', u'v': 'v', u'\xf9': '\x06', u'z': 'z',
+    u'~': '\x1b=', u'\r': '\r', u'\u0394': '\x10', u'\u0398': '\x19', u'!': '!',
+    u'\u03a0': '\x16', u'%': '%', u')': ')', u'\u03a8': '\x17', u'-': '-',
+    u'1': '1', u'5': '5', u'9': '9', u'=': '=', u'A': 'A', u'E': 'E',
+    u'\xc6': '\x1c', u'I': 'I', u'M': 'M', u'Q': 'Q', u'U': 'U', u'\xd6': '\\',
+    u'Y': 'Y', u']': '\x1b>', u'a': 'a', u'e': 'e', u'\xe6': '\x1d', u'i': 'i',
+    u'm': 'm', u'q': 'q', u'\xf2': '\x08', u'u': 'u', u'\xf6': '|', u'y': 'y',
+    u'}': '\x1b)'
+}
+
 class SMSer(Notifier):
     """SMS notifications via smslink client program (sendsms)."""
 
@@ -166,6 +198,12 @@ class SMSer(Notifier):
         'subject':   Param('Body prefix', type=str, default='NICOS'),
     }
 
+    def _transcode(self, string):
+        """Re-encode UTF-8 string into SMS encoding (GSM 03.38)."""
+        if not isinstance(string, text_type):
+            string = string.decode('utf-8')
+        return ''.join(GSM0338_MAP.get(c, '') for c in string)
+
     def send(self, subject, body, what=None, short=None, important=True):
         if not important:
             return
@@ -173,7 +211,7 @@ class SMSer(Notifier):
         if not receivers:
             return
         body = self.subject + ': ' + (short or body)
-        body = body[:160]
+        body = self._transcode(body)[:160]
         self.log.debug('sending SMS to %s' % ', '.join(receivers))
         try:
             for receiver in receivers:
