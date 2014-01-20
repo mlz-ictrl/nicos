@@ -56,7 +56,7 @@ __all__ = [
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', '_trace', 'timer',
-    'LogEntry', 'LogAttach',
+    'LogEntry', '_LogAttach',
 ]
 
 
@@ -805,27 +805,14 @@ def LogEntry(entry):
     session.elog_event('entry', entry)
 
 
-@usercommand
-@helparglist('description, paths[, names]')
-def LogAttach(description, paths, names=None):
+@hiddenusercommand
+def _LogAttach(description, paths, names):
     """Attach one or more files to the electronic logbook.
 
-    The file *paths* must be accessible from the machine on which the electronic
-    logbook daemon runs (i.e. on a common network share).  They will be renamed
-    using the given *names*, if given, otherwise the current names are used.
+    The file *paths* should be temporary file names accessible from the machine
+    on which the electronic logbook daemon runs (i.e. on a common network
+    share).  They will be moved to the logbook using the given *names*.
 
-    Examples:
-
-    >>> LogAttach('quick fit of peak', '/tmp/peakfit.png', 'peak_100.png')
-    >>> LogAttach('calibrations', ['/tmp/cal1.dat', '/tmp/cal2.dat'])
-
-    In the NICOS GUI, the respective dialog can be used to easily add files to
-    the logbook.
+    This is intended to be used from the NICOS GUI, from the respective dialogs.
     """
-    if isinstance(paths, basestring):
-        paths = [paths]
-    if isinstance(names, basestring):
-        names = [names]
-    if names is None:
-        names = [path.basename(f) for f in paths]
     session.elog_event('attachment', (description, paths, names))

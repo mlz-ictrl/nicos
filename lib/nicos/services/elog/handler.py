@@ -27,7 +27,7 @@
 from os import path
 from cgi import escape
 from time import strftime, localtime
-from shutil import copyfile
+from shutil import move
 
 from nicos.services.elog.utils import formatMessage, pretty1, pretty2
 from nicos.services.elog.genplot import plotDataset
@@ -387,15 +387,13 @@ class Handler(object):
         description, fpaths, names = data
         links = []
         for fpath, name in zip(fpaths, names):
-            if not name:
-                name = path.basename(fpath)
             fullname = path.join(self.logdir, name)
             oname = name; i = 0
             while path.exists(fullname):
                 i += 1
                 name = oname + str(i)
                 fullname = path.join(self.logdir, name)
-            copyfile(fpath, fullname)
+            move(fpath, fullname)
             links.append('<a href="%s">%s</a>' % (name, escape(oname)))
         text = '<b>%s:</b> %s' % (escape(description) or 'Attachment',
                                   ' '.join(links))
