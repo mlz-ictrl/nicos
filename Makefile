@@ -76,7 +76,7 @@ livewidget-inplace: src/livewidget/python/livewidget.so
 livewidget-install:
 
 livewidget-install-gui: src/livewidget/python/livewidget.so
-	cp $(VOPT) src/livewidget/python/livewidget.so $(ROOTDIR)/lib/nicos/clients/gui
+	cp $(VOPT) src/livewidget/python/livewidget.so $(DESTDIR)$(ROOTDIR)/lib/nicos/clients/gui
 
 livewidget-clean:
 	cd src/livewidget && ${MAKE} clean
@@ -192,79 +192,81 @@ main-install:
 	@echo "============================================================="
 	@echo "Installing NICOS to $(ROOTDIR)..."
 	@echo "============================================================="
-	install $(VOPT) -d $(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts,template}
+	install $(VOPT) -d $(DESTDIR)$(ROOTDIR)/{bin,doc,etc,lib,log,pid,setups,scripts,template}
 	# the next line can be removed once all installations use the new scheme
-	rm -f $(VOPT) $(ROOTDIR)/lib/nicos/services/daemon/_pyctl.so
+	rm -f $(VOPT) $(DESTDIR)$(ROOTDIR)/lib/nicos/services/daemon/_pyctl.so
 	# install the C module in a platform-specific directory
-	mkdir -p $(VOPT) $(ROOTDIR)/lib/plat-$(PYPLATFORM)
-	mv $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/nicos/services/daemon/_pyctl.so $(ROOTDIR)/lib/plat-$(PYPLATFORM)
-	cp -pr $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/* $(ROOTDIR)/lib
-	cp -pr $(VOPT) pid/README $(ROOTDIR)/pid
-	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/pid
-	cp -pr $(VOPT) log/README $(ROOTDIR)/log
-	chown $(SYSUSER):$(SYSGROUP) $(ROOTDIR)/log
-	cp -pr $(VOPT) etc/nicos-system $(ROOTDIR)/etc
-	cp -pr $(VOPT) build/scripts-$(PYVERSION)/* $(ROOTDIR)/bin
-	-cp -pr $(VOPT) doc/build/html/* $(ROOTDIR)/doc
+	mkdir -p $(VOPT) $(DESTDIR)$(ROOTDIR)/lib/plat-$(PYPLATFORM)
+	mv $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/nicos/services/daemon/_pyctl.so $(DESTDIR)$(ROOTDIR)/lib/plat-$(PYPLATFORM)
+	cp -pr $(VOPT) build/lib.$(PYPLATFORM)-$(PYVERSION)/* $(DESTDIR)$(ROOTDIR)/lib
+	cp -pr $(VOPT) pid/README $(DESTDIR)$(ROOTDIR)/pid
+	chown $(SYSUSER):$(SYSGROUP) $(DESTDIR)$(ROOTDIR)/pid
+	cp -pr $(VOPT) log/README $(DESTDIR)$(ROOTDIR)/log
+	chown $(SYSUSER):$(SYSGROUP) $(DESTDIR)$(ROOTDIR)/log
+	cp -pr $(VOPT) etc/nicos-system $(DESTDIR)$(ROOTDIR)/etc
+	cp -pr $(VOPT) build/scripts-$(PYVERSION)/* $(DESTDIR)$(ROOTDIR)/bin
+	-cp -pr $(VOPT) doc/build/html/* $(DESTDIR)$(ROOTDIR)/doc
 	$(PYTHON) etc/create_nicosconf.py "$(SYSUSER)" "$(SYSGROUP)" \
           "$(SYSUMASK)" "$(NETHOST)" "$(ROOTDIR)/setups" "$(SERVICES)" \
-          "$(ENVIRONMENT)" > $(ROOTDIR)/nicos.conf
+          "$(ENVIRONMENT)" > $(DESTDIR)$(ROOTDIR)/nicos.conf
 	if [ -f $(INSTRDIR)/gui/defconfig.py ]; then \
-	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/clients/gui"; fi
+	  cp -p $(INSTRDIR)/gui/defconfig.py "$(DESTDIR)$(ROOTDIR)/lib/nicos/clients/gui"; fi
 	@echo "============================================================="
 	@echo "Installing instrument specific modules..."
 	@for custdir in custom/*; do \
 		if [ -d $${custdir}/lib ]; then \
-			mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$${custdir#*/}; \
-			cp -pr $(VOPT) $${custdir}/lib/* $(ROOTDIR)/lib/nicos/$${custdir#*/}; \
+			mkdir -p $(VOPT) $(DESTDIR)$(ROOTDIR)/lib/nicos/$${custdir#*/}; \
+			cp -pr $(VOPT) $${custdir}/lib/* $(DESTDIR)$(ROOTDIR)/lib/nicos/$${custdir#*/}; \
 		fi; \
 	done
 	@echo "============================================================="
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
 		echo "Installing FRM II specific modules..."; \
-		mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/frm2; \
-		cp -pr $(VOPT) custom/frm2/lib/* $(ROOTDIR)/lib/nicos/frm2; \
+		mkdir -p $(VOPT) $(DESTDIR)$(ROOTDIR)/lib/nicos/frm2; \
+		cp -pr $(VOPT) custom/frm2/lib/* $(DESTDIR)$(ROOTDIR)/lib/nicos/frm2; \
 		echo "============================================================="; \
 	fi
 	# merge templates
 	@echo "Installing templates (overwriting existing files)..."
-	#~ mkdir -p $(VOPT) $(ROOTDIR)/template
-	cp -pr $(VOPT) template $(ROOTDIR)
+	#~ mkdir -p $(VOPT) $(DESTDIR)$(ROOTDIR)/template
+	cp -pr $(VOPT) template $(DESTDIR)$(ROOTDIR)
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
 		echo "Installing FRM II specific templates (overwriting existing files!)..."; \
-		cp -pr $(VOPT) custom/frm2/template $(ROOTDIR); \
+		cp -pr $(VOPT) custom/frm2/template $(DESTDIR)$(ROOTDIR); \
 	fi
 	@if [ -d $(INSTRDIR)/template ]; then \
-		cp -pr $(VOPT) $(INSTRDIR)/template $(ROOTDIR); \
+		cp -pr $(VOPT) $(INSTRDIR)/template $(DESTDIR)$(ROOTDIR); \
 	fi
 	# merge template/README
-	cp -p $(VOPT) template/README $(ROOTDIR)/template/README
+	cp -p $(VOPT) template/README $(DESTDIR)$(ROOTDIR)/template/README
 	@if [ "$(FRM2)" == 1 -a -f custom/frm2/template/README ]; then \
-		cat custom/frm2/template/README >> $(ROOTDIR)/template/README; \
+		cat custom/frm2/template/README >> $(DESTDIR)$(ROOTDIR)/template/README; \
 	fi
 	@if [ -f $(INSTRDIR)/template/README ]; then \
-		cat $(INSTRDIR)/template/README >> $(ROOTDIR)/template/README; \
+		cat $(INSTRDIR)/template/README >> $(DESTDIR)$(ROOTDIR)/template/README; \
 	fi
 	# install setup files
 	@echo "Installing setups (backing up existing files)..."
-	$(PYTHON) tools/copysetup $(INSTRDIR)/setups/ $(ROOTDIR)/setups
+	$(PYTHON) tools/copysetup $(INSTRDIR)/setups/ $(DESTDIR)$(ROOTDIR)/setups
 	@if [ "$(FRM2)" = 1 ]; then \
 		echo "============================================================="; \
 		echo "Installing FRM II specific setups (overwriting existing files!)..."; \
-		mkdir $(VOPT) $(ROOTDIR)/setups/frm2; \
-		cp -pr $(VOPT) custom/frm2/setups/*.py $(ROOTDIR)/setups/frm2; \
+		mkdir $(VOPT) $(DESTDIR)$(ROOTDIR)/setups/frm2; \
+		cp -pr $(VOPT) custom/frm2/setups/*.py $(DESTDIR)$(ROOTDIR)/setups/frm2; \
 	fi
 	@echo "============================================================="
 	@echo "Running setup check..."
-	-PYTHONPATH=$(ROOTDIR)/lib $(PYTHON) tools/check_setups $(ROOTDIR)/setups
+	-PYTHONPATH=$(DESTDIR)$(ROOTDIR)/lib $(PYTHON) tools/check_setups $(DESTDIR)$(ROOTDIR)/setups
 	@echo "============================================================="
 	@echo "Everything is now installed to $(ROOTDIR)."
 	@echo "============================================================="
 	@echo "Trying to create system-wide symbolic links..."
-	-ln -sf $(VOPT) -t /etc/init.d $(ROOTDIR)/etc/nicos-system
-	-ln -sf $(VOPT) -t /usr/bin $(ROOTDIR)/bin/*
+	mkdir -p $(DESTDIR)/etc/init.d
+	mkdir -p $(DESTDIR)/usr/bin
+	-ln -sf $(VOPT) -t $(DESTDIR)/etc/init.d $(ROOTDIR)/etc/nicos-system
+	-ln -sf $(VOPT) -t $(DESTDIR)/usr/bin $(ROOTDIR)/bin/*
 	@echo "============================================================="
 	@echo "Finished."
 	@echo "============================================================="
@@ -281,20 +283,21 @@ main-install-gui:
 	@echo "============================================================="
 	@echo "Installing only NICOS GUI to $(ROOTDIR)..."
 	@echo "============================================================="
-	install $(VOPT) -d $(ROOTDIR)/{bin,lib,scripts}
-	cp -pr $(VOPT) build/lib*/* $(ROOTDIR)/lib
-	cp -pr $(VOPT) build/scripts*/nicos-gui $(ROOTDIR)/bin
+	install $(VOPT) -d $(DESTDIR)$(ROOTDIR)/{bin,lib,scripts}
+	cp -pr $(VOPT) build/lib*/* $(DESTDIR)$(ROOTDIR)/lib
+	cp -pr $(VOPT) build/scripts*/nicos-gui $(DESTDIR)$(ROOTDIR)/bin
 	if [ -f $(INSTRDIR)/gui/defconfig.py ]; then \
-	  cp -p $(INSTRDIR)/gui/defconfig.py "$(ROOTDIR)/lib/nicos/clients/gui"; fi
+	  cp -p $(INSTRDIR)/gui/defconfig.py "$(DESTDIR)$(ROOTDIR)/lib/nicos/clients/gui"; fi
 	@echo "============================================================="
 	@echo "Installing custom modules..."
-	mkdir -p $(VOPT) $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
-	cp -pr $(VOPT) $(INSTRDIR)/lib/* $(ROOTDIR)/lib/nicos/$(INSTRUMENT)
+	mkdir -p $(VOPT) $(DESTDIR)$(ROOTDIR)/lib/nicos/$(INSTRUMENT)
+	cp -pr $(VOPT) $(INSTRDIR)/lib/* $(DESTDIR)$(ROOTDIR)/lib/nicos/$(INSTRUMENT)
 	@echo "============================================================="
 	@echo "The GUI is now installed to $(ROOTDIR)."
 	@echo "Trying to create system-wide symbolic link..."
 	@echo "============================================================="
-	-ln -sf $(VOPT) -t /usr/bin $(ROOTDIR)/bin/nicos-gui
+	mkdir -p $(DESTDIR)/usr/bin
+	-ln -sf $(VOPT) -t $(DESTDIR)/usr/bin $(ROOTDIR)/bin/nicos-gui
 	@echo "============================================================="
 	@echo "Finished, now running custom install..."
 	@echo "============================================================="
