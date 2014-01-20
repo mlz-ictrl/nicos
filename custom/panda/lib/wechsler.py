@@ -1,13 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
-# Module:
-#   $Id$
-#
-# Author:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
-#
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2013 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2014 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -22,6 +16,9 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Author:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
