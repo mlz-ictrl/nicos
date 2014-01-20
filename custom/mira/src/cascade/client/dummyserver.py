@@ -62,5 +62,5 @@ while True:
                 resp = 'ERR_unknown command'
             length = struct.pack('i', len(resp))
             conn.send(length + resp)
-    except Exception, e:
+    except Exception as e:
         print 'EXCEPTION:', e

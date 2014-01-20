@@ -50,7 +50,7 @@ class Temp(Readable):
         try:
             tree = parse(URL)
             return float(tree.find('//tr[3]/td[4]/span').text[:-2].strip())
-        except Exception, err:
+        except Exception as err:
             raise NicosError(self, 'Meteo site not responding or changed format: '
                              '%s' % err)
 

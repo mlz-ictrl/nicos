@@ -164,7 +164,7 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
             else:
                 ps, pcov = curve_fit(ff, xs, ys, guess)[0], None
                 chi2 = ((ys - ff(xs, *ps))**2).sum() / ndf
-        except RuntimeError, err:
+        except RuntimeError as err:
             print err
             return
         if isinstance(pcov, ndarray):
@@ -229,7 +229,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         try:
             f = open(fpath, 'r')
             break
-        except IOError, e:
+        except IOError as e:
             continue
     else:
         raise Exception('could not find file %s to plot' % filename)
@@ -607,7 +607,7 @@ for filenumber in filelist:
             thedata = getdatafromfile(filename, fileprefix, newxcol, newycol,
                                       normflag,
                                       monitorcorrection, xcolhint, **kwargs)
-        except Exception, err:
+        except Exception as err:
             print 'Could not read data file %r: %s' % (filename, err)
             sys.exit(1)
         xs, ys, dys, title, subtitle, xaxis, yaxis, legend, xcolhint = thedata

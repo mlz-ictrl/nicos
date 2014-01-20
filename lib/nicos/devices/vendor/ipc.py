@@ -287,7 +287,7 @@ class IPCModBusRS232(IPCModBus):
             try:
                 # command might fail if no value was transmitted
                 return int(response[2:-3])
-            except ValueError, err:
+            except ValueError as err:
                 raise CommunicationError(
                     self, 'invalid response: missing value (%s)' % err)
 
@@ -383,7 +383,7 @@ class IPCModBusTCP(IPCModBusRS232):
                     response += data
                     if response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
                         return response
-        except (socket.error, select.error), err:
+        except (socket.error, select.error) as err:
             if last_try:
                 raise CommunicationError(
                     self, 'tcp connection failed: %s' % err)
@@ -429,7 +429,7 @@ class IPCModBusSerial(IPCModBusRS232):
                 response += data
                 if response and response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
                     return response
-        except IOError, err:
+        except IOError as err:
             if last_try:
                 raise CommunicationError(self, 'serial line failed: %s' % err)
             # try reopening connection
@@ -556,7 +556,7 @@ class Coder(NicosCoder):
                 sleep(1)
                 # try again
                 value = bus.get(self.addr, 150)
-        except NicosError, e:
+        except NicosError as e:
             # record last error to return it from doStatus()
             self._lasterror = str(e)
             raise

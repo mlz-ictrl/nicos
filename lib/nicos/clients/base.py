@@ -89,11 +89,11 @@ class NicosClient(object):
         self.socket.settimeout(TIMEOUT)
         try:
             self.socket.connect((conndata['host'], conndata['port']))
-        except socket.error, err:
+        except socket.error as err:
             msg = err.args[1] if len(err.args) >= 2 else str(err)
             self.signal('failed', 'Server connection failed: %s.' % msg, err)
             return
-        except Exception, err:
+        except Exception as err:
             self.signal('failed', 'Server connection failed: %s.' % err, err)
             return
 
@@ -116,7 +116,7 @@ class NicosClient(object):
                     raise ProtocolError('daemon uses protocol %d, but this '
                                         'client requires protocol %d'
                                         % (daemon_proto, PROTO_VERSION))
-        except Exception, err:
+        except Exception as err:
             self.signal('failed', 'Server (%s:%d) handshake failed: %s.'
                          % (conndata['host'], conndata['port'], err))
             return
@@ -139,7 +139,7 @@ class NicosClient(object):
         self.event_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.event_socket.connect((conndata['host'], conndata['port']))
-        except socket.error, err:
+        except socket.error as err:
             msg = err.args[1]
             self.signal('failed', 'Event connection failed: %s.' % msg, err)
             return
@@ -209,12 +209,12 @@ class NicosClient(object):
                         data = unserialize(buf[sep+1:].tostring())
                     else:
                         data = buffer(buf, sep+1)
-                except Exception, err:
+                except Exception as err:
                     print 'Garbled event (%s): %r' % \
                           (err, str(buffer(buf))[:100])
                 else:
                     self.signal(event, data)
-            except Exception, err:
+            except Exception as err:
                 print 'Error in event handler:', err
                 return
 
@@ -311,7 +311,7 @@ class NicosClient(object):
                 if ret != ACK:
                     raise ErrorResponse(data)
                 return True
-        except (Exception, KeyboardInterrupt), err:
+        except (Exception, KeyboardInterrupt) as err:
             return self.handle_error(err)
 
     def ask(self, *command, **kwds):
@@ -335,7 +335,7 @@ class NicosClient(object):
                 if self.compat_proto:
                     return self._compat_transform_reply(command, unserialize(data))
                 return unserialize(data)
-        except (Exception, KeyboardInterrupt), err:
+        except (Exception, KeyboardInterrupt) as err:
             return self.handle_error(err)
 
     def eval(self, expr, default=Ellipsis, stringify=False):
@@ -365,7 +365,7 @@ class NicosClient(object):
                 if ret != STX:
                     raise ErrorResponse(data)
                 return unserialize(data)
-        except (Exception, KeyboardInterrupt), err:
+        except (Exception, KeyboardInterrupt) as err:
             return self.handle_error(err)
 
     # high-level functionality

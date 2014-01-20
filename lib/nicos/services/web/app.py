@@ -257,7 +257,7 @@ class NicosApp(object):
             else:
                 ctype = 'text/javascript'
                 response = self.rpc(environ)
-        except Exception, err:
+        except Exception as err:
             ctype = 'text/plain'
             status = '500 Internal Server Error'
             response = 'Error: ' + escape(str(err))
@@ -283,7 +283,7 @@ class NicosApp(object):
             handler = getattr(self, self.json_exports[request['method']])
             response = handler(*request['params'])
             return json.dumps({'result': response, 'error': None})
-        except Exception, err:
+        except Exception as err:
             try:
                 errmsg = '%s: %s' % (err.__class__.__name__, err)
             except Exception:

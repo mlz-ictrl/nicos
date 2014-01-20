@@ -171,7 +171,7 @@ class MCC2Monoframe(MCC2core, Readable):
         try:
             _ = self.doRead(maxage)
             return (status.OK, 'idle')
-        except HardwareError, e:
+        except HardwareError as e:
             return (status.ERROR, str(e))
 
     # following activates only half of enable switch,

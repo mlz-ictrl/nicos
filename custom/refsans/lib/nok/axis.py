@@ -81,7 +81,7 @@ class Axis(GenericAxis):
         self.motorstart(units)
         # try :
         #     self.motorstart(units)
-        # except TACOError, e:
+        # except TACOError as e:
         #     return 1
         return 0
 

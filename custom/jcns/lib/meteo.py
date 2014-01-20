@@ -28,7 +28,7 @@ from nicos.core.errors import NicosError
 try:
     _thirdparty_available = True
     import requests
-except ImportError, e:
+except ImportError as e:
     _thirdparty_available = False
     _import_error = e
 # local library

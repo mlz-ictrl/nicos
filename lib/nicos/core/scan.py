@@ -228,7 +228,7 @@ class Scan(object):
         for dev, val in where:
             try:
                 dev.start(val)
-            except NicosError, err:
+            except NicosError as err:
                 # handleError can reraise for fatal error, return False
                 # to skip this point and True to measure anyway
                 self.handleError('move', dev, val, err)
@@ -239,7 +239,7 @@ class Scan(object):
         for dev, val in waitdevs:
             try:
                 dev.wait()
-            except NicosError, err:
+            except NicosError as err:
                 self.handleError('wait', dev, val, err)
 
     def readPosition(self):
@@ -248,7 +248,7 @@ class Scan(object):
         for dev in self._devices:
             try:
                 val = dev.read()
-            except NicosError, err:
+            except NicosError as err:
                 self.handleError('read', dev, None, err)
                 val = [None] * len(dev.valueInfo())
             if isinstance(val, list):
@@ -265,7 +265,7 @@ class Scan(object):
                     val = dev.read(start, finished)
                 else:
                     val = dev.read(0)
-            except NicosError, err:
+            except NicosError as err:
                 self.handleError('read', dev, None, err)
                 val = [None] * len(dev.valueInfo())
             if isinstance(val, list):

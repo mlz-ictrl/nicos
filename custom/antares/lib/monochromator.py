@@ -103,7 +103,7 @@ class Monochromator(HasLimits, Moveable):
             # check position
             try:
                 _ = self.doRead(maxage)
-            except PositionError, e:
+            except PositionError as e:
                 return status.NOTREACHED, str(e)
         return st
 

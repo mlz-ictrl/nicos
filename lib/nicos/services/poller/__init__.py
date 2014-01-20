@@ -111,7 +111,7 @@ class Poller(Device):
                         stval, rdval = dev.poll(i, maxage=maxage)
                         self.log.debug('%-10s status = %-25s, value = %s' %
                                        (dev, stval, rdval))
-                except Exception, err:
+                except Exception as err:
                     if errcount < 5:
                         # only print the warning the first five times
                         self.log.warning('error reading %s' % dev, exc=err)
@@ -175,7 +175,7 @@ class Poller(Device):
                     session.cache.addCallback(dev, 'target', reconfigure)
                     session.cache.addCallback(dev, 'pollinterval', reconfigure)
                     state[0] = 'normal'
-                except NicosError, err:
+                except NicosError as err:
                     self.log.warning('error creating %s, trying again in '
                                      '%d sec' % (devname, waittime), exc=err)
                     self._long_sleep(waittime)
@@ -264,7 +264,7 @@ class Poller(Device):
         for pid in self._childpids.keys():
             try:
                 os.kill(pid, signal.SIGTERM)
-            except Exception, err:
+            except Exception as err:
                 self.log.error(str(err))
 
     def statusinfo(self):
@@ -381,7 +381,7 @@ class Poller(Device):
         while True:
             try:
                 pid, ret = os.wait()
-            except OSError, err:
+            except OSError as err:
                 if err.errno == errno.EINTR:
                     # raised when the signal handler is fired
                     continue
@@ -430,7 +430,7 @@ class Poller(Device):
         for pid in self._childpids:
             try:
                 os.kill(pid, signal.SIGTERM)
-            except OSError, err:
+            except OSError as err:
                 if err.errno == errno.ESRCH:
                     # process was already terminated
                     continue

@@ -176,7 +176,7 @@ class NicosCmdClient(NicosClient):
         while readline_result is Ellipsis:
             try:
                 res = select.select([sys.stdin, self.wakeup_pipe_r], [], [], 1)[0]
-            except select.error, e:
+            except select.error as e:
                 if e.args[0] == errno.EINTR:
                     continue
                 librl.rl_callback_handler_remove()
@@ -337,7 +337,7 @@ class NicosCmdClient(NicosClient):
             func = getattr(__import__(modname, None, None, [funcname]),
                            funcname)
             self.clientexec_queue.put((func, what[1:]))
-        except Exception, err:
+        except Exception as err:
             self.put_error('During "clientexec": %s.' % err)
 
     def showhelp(self, html):
@@ -517,7 +517,7 @@ class NicosCmdClient(NicosClient):
             elif name in ('error', 'failed', 'broken'):
                 self.put_error(data)
             # and we ignore all other signals
-        except Exception, e:
+        except Exception as e:
             self.put_error('In event handler: %s.' % e)
 
     # -- clientexec (plotting) thread
@@ -573,7 +573,7 @@ class NicosCmdClient(NicosClient):
         try:
             self.connect(self.conndata,
                          eventmask=('liveparams', 'livedata', 'watch'))
-        except RuntimeError, err:
+        except RuntimeError as err:
             self.put_error('Cannot connect: %s.' % err)
 
     def help(self, arg):
@@ -780,7 +780,7 @@ class NicosCmdClient(NicosClient):
             fpath = path.join(self.scriptpath, arg)
             try:
                 code = open(fpath).read()
-            except Exception, e:
+            except Exception as e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
             if self.status in ('running', 'paused') and cmd != 'run!':
@@ -800,7 +800,7 @@ class NicosCmdClient(NicosClient):
             fpath = path.join(self.scriptpath, arg)
             try:
                 code = open(fpath).read()
-            except Exception, e:
+            except Exception as e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
             reason = self.ask_input('Reason for updating:')
@@ -815,7 +815,7 @@ class NicosCmdClient(NicosClient):
             if path.isfile(fpath) or fpath.endswith(('.py', '.txt')):
                 try:
                     code = open(fpath).read()
-                except Exception, e:
+                except Exception as e:
                     self.put_error('Unable to open file: %s.' % e)
                     return
                 self.simulating = True

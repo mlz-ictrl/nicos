@@ -45,7 +45,7 @@ class ProposalDB(object):
                                        '/.nicos/credentials')
             else:
                 credentials = readFile(session.experiment.propdb)
-        except IOError, e:
+        except IOError as e:
             raise ConfigurationError('Can\'t read credentials '
                                      'for propdb-access from file: %s' % e)
         credentials = credentials[0]

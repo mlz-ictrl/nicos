@@ -106,7 +106,7 @@ class Acqiris(Channel):
         try:
             obj = rootContext.resolve([CosNaming.NameComponent(
                                         self.objname, 'caress_object'),])
-        except CosNaming.NamingContext.NotFound, ex:
+        except CosNaming.NamingContext.NotFound as ex:
             raise ConfigurationError(self, 'Name not found: %s' % (ex,))
 
         self._caressObject = obj._narrow(CARESS.CORBADevice)
@@ -137,14 +137,14 @@ class Acqiris(Channel):
             result = self._caressObject.get_attribute(self._cid,
                                                       'detector_channels')
             self.log.debug('Get attribute "detector_channels": %r' % (result,))
-        except CARESS.ErrorDescription, ex:
+        except CARESS.ErrorDescription as ex:
             self.log.info('Attribute "detector_channels" not found: %s' % (ex,))
 
         try:
             result = self._caressObject.get_attribute(self._cid,
                                                       'detector_pixelwidth')
             self.log.debug('Get attribute "detector_pixelwidth": %r' % (result,))
-        except CARESS.ErrorDescription, ex:
+        except CARESS.ErrorDescription as ex:
             self.log.info('Attribute "detector_pixelwidth" not found: %s' % (ex,))
 
         self._initialized = False

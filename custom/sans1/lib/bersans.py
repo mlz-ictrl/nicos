@@ -245,7 +245,7 @@ class BerSANSFileFormat(ImageSink):
         try:
             SD = '%.1f' % (session.getDevice('det1_z1a').read() -
                            session.getDevice('x_2b').read())
-        except Exception, e:
+        except Exception as e:
             self.log.warning("can't detemine SD (detector distance), "
                              "using 0 instead: %s"%e)
             SD = 0

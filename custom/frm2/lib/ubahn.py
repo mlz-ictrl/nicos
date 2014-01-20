@@ -59,7 +59,7 @@ class UBahn(Readable):
             tree = parse(URL % self.station)
             return ', '.join(n.text for n in
                              tree.findall('//td[@class="inMinColumn"]'))
-        except Exception, err:
+        except Exception as err:
             raise NicosError(self, 'MVG site not responding or changed format: '
                              '%s' % err)
 

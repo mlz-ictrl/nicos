@@ -109,7 +109,7 @@ class CellBase(object):
             alphastar[1] = arccos((co[0] * co[2] - co[1])/(si[0] * si[2]))
             alphastar[2] = arccos((co[0] * co[1] - co[2])/(si[0] * si[1]))
             return [astar, alphastar]
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating reciprocal '
                                    'lattice' % err)
 
@@ -119,18 +119,18 @@ class CellBase(object):
             mul = self._lattice[0] * self._lattice[1] * self._lattice[2]
             V = mul * sqrt(1 - dot(co, co) + 2*co[0]*co[1]*co[2])
             return V
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating real space cell '
                                    'volume' % err)
 
     def cal_volume_rec(self):
         try:
             return 1 / self.cal_volume_real()
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating reciprocal space cell '
                                    'volume' % err)
 
@@ -150,18 +150,18 @@ class CellBase(object):
                        2 * mul[0] * mul[2] * co[1] + \
                        2 * mul[1] * mul[2] * co[0]
             return sqrt(sqresult)
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating d value in '
                                    'real space' % err)
 
     def cal_dvalue_rec(self, Qhkl):
         try:
             return 1 / self.cal_dvalue_real(Qhkl)
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating d value in '
                                    'reciprocal space' % err)
 
@@ -194,9 +194,9 @@ class CellBase(object):
             # XXX use self.coordinatesystem instead of hardcoded 1?
             U = self.cal_Umatrix(vec1, vec2, vec3, 1)
             return dot(U, B)
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating UB matrix' % err)
 
     def cal_Umatrix(self, vec1, vec2, vec3, direction):
@@ -217,9 +217,9 @@ class CellBase(object):
                 U[0] = - vec2 / norm(vec2)
                 U[1] = vec1 / norm(vec1)
             return U
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating U matrix' % err)
 
     def hkl2Qcart(self, h, k, l):
@@ -246,9 +246,9 @@ class CellBase(object):
             mat_inv = inv(self._matrix)
             result = dot(Qlab, matcardan_inv)
             return dot(mat_inv, result)
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when transforming Qlab -> hkl' % err)
 
     def Qcart2hkl(self, Qcart):
@@ -270,9 +270,9 @@ class CellBase(object):
             Qcart[1] = ki * sin(psi) + kf * sin(phi - psi)
 
             return Qcart
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when transforming angles -> Q cartesian'
                                    % err)
 
@@ -315,9 +315,9 @@ class CellBase(object):
 
             Y *= R2D
             return Y
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating angle (r1, Q)' % err)
 
     def _metric(self, a, alpha):
@@ -369,9 +369,9 @@ class CellBase(object):
                 elif a > 1:
                     an = 0
             return an
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating angle between vectors'
                                    % err)
 
@@ -386,9 +386,9 @@ class CellBase(object):
             else:
                 raise ComputationError('scattering triangle not closed when '
                                        'calculating phi angle')
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating phi angle' % err)
 
     def cal_kf(self, ny, ki):
@@ -436,9 +436,9 @@ class CellBase(object):
             else:
                 raise ComputationError('energy transfer of %s THz not possible '
                                        'with phi = %s' % (ny, phi))
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating k_i' % err)
 
     def cal_ki3(self, Qlab, ny, alpha):
@@ -454,9 +454,9 @@ class CellBase(object):
             else:
                 raise ComputationError('energy transfer of %s THz not possible;'
                                        ' scattering triangle not closed' % ny)
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating k_i' % err)
 
     def cal_psi(self, y, alpha):
@@ -483,9 +483,9 @@ class CellBase(object):
             else:
                 raise ComputationError('energy transfer of %s THz not possible;'
                                        ' scattering triangle not closed' % ny)
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating alpha' % err)
 
     def cal_alpha2(self, y, psi):
@@ -588,9 +588,9 @@ class CellBase(object):
                 psi += 360
 
             return [ki, kf, phi, psi, alpha]
-        except ComputationError, err:
+        except ComputationError as err:
             raise
-        except Exception, err:
+        except Exception as err:
             raise ComputationError('%s when calculating angles for hkl' % err)
 
     hkl2angle = cal_angles
@@ -647,7 +647,7 @@ class Cell(Device, CellBase):
     def doWriteSpacegroup(self, val):
         try:
             get_spacegroup(val)
-        except NicosError, err:
+        except NicosError as err:
             self.log.warning('%s; new value will be ignored' % err)
 
 

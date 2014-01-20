@@ -317,7 +317,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 return ANG2MEV / value**2
             elif unit == 'THz':
                 return ANG2MEV / THZ2MEV / value**2
-        except (ArithmeticError, ValueError), err:
+        except (ArithmeticError, ValueError) as err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
                                    (value, unit, err))
 
@@ -333,7 +333,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 return sqrt(ANG2MEV / value)
             elif unit == 'THz':
                 return sqrt(ANG2MEV / THZ2MEV / value)
-        except (ArithmeticError, ValueError), err:
+        except (ArithmeticError, ValueError) as err:
             raise ComputationError(self, 'cannot convert %s A to %s: %s' %
                                    (value, unit, err))
 

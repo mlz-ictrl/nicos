@@ -407,7 +407,7 @@ class ExecutionController(Controller):
             if stringify:
                 return repr(ret)
             return ret
-        except Exception, err:
+        except Exception as err:
             if stringify:
                 return '<cannot be evaluated: %s>' % err
             return err
@@ -453,7 +453,7 @@ class ExecutionController(Controller):
             try:
                 expr = val.partition(':')[0]
                 ret[val] = repr(eval(expr, self.namespace))
-            except Exception, err:
+            except Exception as err:
                 ret[val] = '<cannot be evaluated: %s>' % err
         return ret
 
@@ -573,7 +573,7 @@ class ExecutionController(Controller):
                 start_time = time.time()
                 try:
                     self.current_script.execute(self)
-                except ControlStop, err:
+                except ControlStop as err:
                     # block all pending scripts
                     self.block_requests(range(self.reqno_work + 1,
                                               self.reqno_latest + 1))
@@ -581,9 +581,9 @@ class ExecutionController(Controller):
                         self.execute_estop(err.args[2])
                     else:
                         session.log.info('Script stopped by %s' % (err.args[2],))
-                except BdbQuit, err:  #pylint: disable=E0701
+                except BdbQuit as err:  #pylint: disable=E0701
                     session.log.error('Script stopped through debugger')
-                except Exception, err:  #pylint: disable=E0701
+                except Exception as err:  #pylint: disable=E0701
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     session.logUnhandledException(cut_frames=2)

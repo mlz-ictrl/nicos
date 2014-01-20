@@ -103,7 +103,7 @@ class THM(Measurable):
         try:
             os.write(self._io, q + '\n')
             ret = os.read(self._io, 2000).rstrip()
-        except OSError, err:
+        except OSError as err:
             self.log.debug('exception in query: %s' % err)
             if t == 0:
                 raise CommunicationError(self, 'error querying: %s' % err)
@@ -116,7 +116,7 @@ class THM(Measurable):
     def _execute(self, q, t=5, wait=0):
         try:
             os.write(self._io, q + '\n')
-        except OSError, err:
+        except OSError as err:
             if t == 0:
                 raise CommunicationError(self, 'error executing: %s' % err)
             time.sleep(0.5)
@@ -129,7 +129,7 @@ class THM(Measurable):
         try:
             os.write(self._io, '*STB?\n')
             status = os.read(self._io, 100).rstrip()
-        except OSError, err:
+        except OSError as err:
             if t == 0:
                 raise CommunicationError(self, 'error getting status: %s' % err)
             time.sleep(0.5)
@@ -149,7 +149,7 @@ class THM(Measurable):
         self.log.info('Zeroing sensor, please wait a few seconds...')
         try:
             self._execute('CAL', wait=5)
-        except OSError, err:
+        except OSError as err:
             if err.errno == 110:
                 return
             raise

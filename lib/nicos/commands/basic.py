@@ -652,7 +652,7 @@ def _RunScript(filename, statdevices, debug=False):
     printinfo('running user script: ' + fn)
     try:
         fp = open(fn, 'r')
-    except Exception, e:
+    except Exception as e:
         if session.mode == SIMULATION:
             session.log.exception('Simulation: error opening script')
             return

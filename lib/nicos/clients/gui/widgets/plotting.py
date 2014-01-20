@@ -523,7 +523,7 @@ class NicosPlot(QwtPlot, DlgUtils):
                     self.fitvalues
             x, y, title, labelx, labely, interesting, lineinfo = \
                 self.fitcallbacks[0](args)  #pylint: disable=E1102
-        except FitError, err:
+        except FitError as err:
             self.showInfo('Fitting failed: %s.' % err)
             if self.fitPicker:
                 self.fitPicker.setEnabled(False)

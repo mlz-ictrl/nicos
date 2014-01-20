@@ -203,7 +203,7 @@ class SpaceMap(object):
             angles = self.cell.cal_angles(hkl, self.ny, self.mode, self.const,
                 self.tasinfo['scatteringsense'][1], self.tasinfo['axiscoupling'],
                 self.tasinfo['psi360'])
-        except Exception, err:
+        except Exception as err:
             text = 'hkl = (%.4f %.4f %.4f) E = %.4f %s: impossible position: %s' % \
                 (hkl[0], hkl[1], hkl[2], self.E, self.tasinfo['energytransferunit'], err)
             textobj.set_text(text)

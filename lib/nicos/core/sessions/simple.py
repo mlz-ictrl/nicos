@@ -83,7 +83,7 @@ class NoninteractiveSession(Session):
                 writePidfile(appname)
 
             session._beforeStart(maindev)
-        except Exception, err:
+        except Exception as err:
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
@@ -115,7 +115,7 @@ class ScriptSession(Session):
 
         try:
             session.__init__(appname)
-        except Exception, err:
+        except Exception as err:
             try:
                 session.log.exception('Fatal error while initializing')
             finally:
@@ -147,7 +147,7 @@ class SimulationSession(Session):
 
         try:
             session.__init__(SIMULATION)
-        except Exception, err:
+        except Exception as err:
             try:
                 session.log.exception('Fatal error while initializing')
             finally:

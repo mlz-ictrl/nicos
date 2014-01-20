@@ -228,7 +228,7 @@ class TacoDevice(DeviceMixinBase):
         try:
             dev = class_(devname)
             dev.deviceVersion()
-        except TACOError, err:
+        except TACOError as err:
             self._raise_taco(err, 'Could not connect to device %r; make sure '
                              'the device server is running' % devname)
 
@@ -238,14 +238,14 @@ class TacoDevice(DeviceMixinBase):
                     self.log.warning('%r : client network timeout changed to: '
                                      '%.2f s' % (devname, timeout))
                 dev.setClientNetworkTimeout(timeout)
-        except TACOError, err:
+        except TACOError as err:
             self.log.warning('Setting TACO network timeout failed: '
                               '[TACO %d] %s' % (err.errcode, err))
 
         try:
             if dev.isDeviceOff():
                 dev.deviceOn()
-        except TACOError, err:
+        except TACOError as err:
             self.log.warning('Switching TACO device %r on failed: '
                               '[TACO %d] %s' % (devname, err.errcode, err))
             try:
@@ -253,7 +253,7 @@ class TacoDevice(DeviceMixinBase):
                     if resetok:
                         dev.deviceReset()
                 dev.deviceOn()
-            except TACOError, err:
+            except TACOError as err:
                 self._raise_taco(err, 'Switching device %r on after '
                                  'reset failed' % devname)
 
@@ -265,7 +265,7 @@ class TacoDevice(DeviceMixinBase):
         self.__lock.acquire()
         try:
             ret = function(*args)
-        except TACOError, err:
+        except TACOError as err:
             # for performance reasons, starting the loop and querying
             # self.tacotries only triggers in the error case
             if self.tacotries > 1:
@@ -279,7 +279,7 @@ class TacoDevice(DeviceMixinBase):
                         ret = function(*args)
                         self.log.debug('TACO return: %r' % (ret,))
                         return ret
-                    except TACOError, err:
+                    except TACOError as err:
                         if tries == 0:
                             break  # and fall through to _raise_taco
                         self.log.warning('TACO %s failed again' %
@@ -305,7 +305,7 @@ class TacoDevice(DeviceMixinBase):
         self.__lock.acquire()
         try:
             return function(*args)
-        except TACOError, err:
+        except TACOError as err:
             # for performance reasons, starting the loop and querying
             # self.tacotries only triggers in the error case
             if self.tacotries > 1:
@@ -317,7 +317,7 @@ class TacoDevice(DeviceMixinBase):
                     tries -= 1
                     try:
                         return function(*args)
-                    except TACOError, err:
+                    except TACOError as err:
                         if tries == 0:
                             break  # and fall through to _raise_taco
             self._raise_taco(err, '%s%r' % (function.__name__, args))
@@ -338,7 +338,7 @@ class TacoDevice(DeviceMixinBase):
             self._dev.deviceUpdateResource(resname, value)
             self._dev.deviceOn()
             self.log.debug('TACO resource update successful')
-        except TACOError, err:
+        except TACOError as err:
             self._raise_taco(err, 'While updating %s resource' % resname)
         finally:
             self.__lock.release()
@@ -385,7 +385,7 @@ class TacoDevice(DeviceMixinBase):
                 self._taco_guard(client.deviceReset)
             else:
                 self._taco_guard(client.deviceInit)
-        except Exception, err:
+        except Exception as err:
             self.log.warning('%s failed with %s' % (resetcall, err))
         if self._taco_guard(client.isDeviceOff):
             self._taco_guard(client.deviceOn)

@@ -70,7 +70,7 @@ class focus_Axis(Axis):
     def _positioningThread(self):
         try:
             self._preMoveAction()
-        except Exception, err:
+        except Exception as err:
             self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
             return
         target = self._target
@@ -92,14 +92,14 @@ class focus_Axis(Axis):
         for (pos, precise) in positions:
             try:
                 self._positioning(pos, precise)
-            except Exception, err:
+            except Exception as err:
                 self._setErrorState(MoveError,
                                     'error in positioning: %s' % err)
             if self._stoprequest == 2 or self._errorstate:
                 break
         try:
             self._postMoveAction()
-        except Exception, err:
+        except Exception as err:
             self._setErrorState(MoveError,
                                 'error in post-move action: %s' % err)
 
@@ -179,7 +179,7 @@ class focus_Axis(Axis):
             elif self._stoprequest == 0:
                 try:
                     self._duringMoveAction(pos)
-                except Exception, err:
+                except Exception as err:
                     self._setErrorState(MoveError,
                                         'error in during-move action: %s' % err)
                     self._stoprequest = 1

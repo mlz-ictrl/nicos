@@ -122,7 +122,7 @@ class Beckhoff(Device):
                 try: sock.close() # be kind and close down everything
                 except Exception: pass
                 self.log.debug('Communicate: socket closed, looping outer loop again')
-            except Exception, err:
+            except Exception as err:
                 self.log.warning('Communicate: Something bad happened, relooping: %s' % err)
                 request = yield ('')
         self.log.debug('Communicate: This should never happen: End of While True: Loop !!!')

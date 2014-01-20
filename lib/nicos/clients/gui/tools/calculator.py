@@ -168,9 +168,9 @@ class CalculatorTool(QDialog):
                     given['2Theta'] = 2*math.asin(arg)
                 else:
                     given['Lambda'] = 2*given['D']*math.sin(given['2Theta']/2)/given['N']
-        except ZeroDivisionError, err:
+        except ZeroDivisionError as err:
             self.errorLabel.setText('Error: division by zero.')
-        except ValueError, err:
+        except ValueError as err:
             self.errorLabel.setText('Error: %s.' % err)
         else:
             self.errorLabel.setText('')
@@ -210,7 +210,7 @@ class CalculatorTool(QDialog):
                 self.propT.setText('%.4f' % (H**2/(2*M_N*K_B*lam**2*1e-20)))
             if self.sender() is not self.propV:
                 self.propV.setText('%.2f' % (H/M_N/(lam*1e-10)))
-        except Exception, err:
+        except Exception as err:
             self.propError.setText('Error: %s' % err)
         else:
             self.propError.setText('')

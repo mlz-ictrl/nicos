@@ -118,7 +118,7 @@ class CommandLinePanel(Panel):
         # if not (sscript.startswith(('#', '?', '.', ':')) or sscript.endswith('?')):
         #     try:
         #         compile(script+'\n', 'script', 'single')
-        #     except SyntaxError, err:
+        #     except SyntaxError as err:
         #         QMessageBox.information(
         #             self, 'Command', 'Syntax error in command: %s' % err.msg)
         #         self.commandInput.setCursorPosition(err.offset)

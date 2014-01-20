@@ -78,7 +78,7 @@ class FreeSpace(Readable):
             else:
                 st = os.statvfs(path)
                 return (st.f_frsize * st.f_bavail) / self._factor
-        except OSError, err:
+        except OSError as err:
             raise NicosError(self, 'could not determine free space: %s' % err)
 
     def doStatus(self, maxage=0):

@@ -138,7 +138,7 @@ class CacheWorker(object):
                 # TypeError is raised when the connection gets closed and set to
                 # None and select finds no fileno()
                 return
-            except select.error, err:
+            except select.error as err:
                 self.log.warning('error in select', exc=err)
             if self.sock not in res[0]:
                 # no data arrived, wait some more
@@ -166,7 +166,7 @@ class CacheWorker(object):
                 return ''
             try:
                 ret = self._handle_line(line)
-            except Exception, err:
+            except Exception as err:
                 self.log.warning('error handling line %r' % line, exc=err)
             else:
                 #self.log.debug('return is %r' % ret)
@@ -279,7 +279,7 @@ class CacheUDPWorker(CacheWorker):
         # any needed responses synchronously
         try:
             self._process_data(self.data, self._sendall)
-        except Exception, err:
+        except Exception as err:
             self.log.warning('error handling UDP data %r' % self.data, exc=err)
         self.closedown()
 

@@ -160,7 +160,7 @@ class MappedReadable(HasMapping, Readable):
             if r == self.fallback:
                 return status.NOTREACHED, 'not one of the configured values'
             return status.OK, 'idle'
-        except PositionError, e:
+        except PositionError as e:
             return status.NOTREACHED, str(e)
 
     def doRead(self, maxage=0):

@@ -58,7 +58,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     for a in [mailsender] + receiverlist:
         try:
             mailaddress(a)
-        except ValueError, e:
+        except ValueError as e:
             errors.append(e)
     for fn in attach_files:
         if not path.exists(fn):
@@ -94,7 +94,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     session.log.info('Sending data files via eMail to %s' % receivers)
     try:
         mailer.sendmail(mailsender, receiverlist + [mailsender], msg.as_string())
-    except Exception, e:
+    except Exception as e:
         return [str(e)]
     finally:
         mailer.quit()

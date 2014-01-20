@@ -91,7 +91,7 @@ class AlphaStorage(VirtualMotor):
         if self._callback is not None:
             try:
                 self._callback() #pylint: disable=E1102
-            except Exception, e:
+            except Exception as e:
                 self.log.error('Calling callback failed, %r' % e, exc=1)
 
 

@@ -186,5 +186,5 @@ def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
             funcinv = func
         ufuncinv = numpy.frompyfunc(funcinv,1,1)
         return ufuncinv(res).astype(numpy.float64)
-    except Exception, e:
+    except Exception as e:
         raise RuntimeError(str(e))

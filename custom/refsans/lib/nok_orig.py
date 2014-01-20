@@ -469,7 +469,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 try:
                     if llimit > units or llimit > (units - self._backlash): self.motorstart(llimit)
                     else :                                                  self.motorstart(units - self._backlash)
-                except TACOError, e:
+                except TACOError as e:
                     return 1
             return 0
 

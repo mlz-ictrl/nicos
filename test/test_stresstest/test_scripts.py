@@ -65,7 +65,7 @@ class ScriptSessionTest(ScriptSession):
             else:
                 self.log.addHandler(loggers.NicosLogfileHandler(log_path, prefix))
                 self._master_handler = None
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             self.log.error('cannot open log file: %s' % err)
 
 

@@ -239,7 +239,7 @@ class SequencerMixin(DeviceMixinBase):
             for action in step:
                 try:
                     action.check()
-                except Exception, e:
+                except Exception as e:
                     self.log.debug('action.check failed with %r' % e)
                     self.log.debug('_checkFailed returned %r' %
                                     self._checkFailed(i, action, e))
@@ -292,7 +292,7 @@ class SequencerMixin(DeviceMixinBase):
                     self.log.debug(' - Action: %s' % repr(action))
                     try:
                         action.run()
-                    except Exception, e:
+                    except Exception as e:
                         # if this raises, abort the sequence...
                         self.log.debug('action.run raised %r' % e)
                         code = self._runFailed(i, action, e)
@@ -300,7 +300,7 @@ class SequencerMixin(DeviceMixinBase):
                         if code:
                             try:
                                 action.retry(code)
-                            except Exception, e:
+                            except Exception as e:
                                 self.log.debug('action.retry failed with %r' %
                                                 e)
                                 self.log.debug('_retryFailed returned %r' %
@@ -317,7 +317,7 @@ class SequencerMixin(DeviceMixinBase):
                             if action.wait():
                                 # wait finished
                                 waiters.remove(action)
-                        except Exception, e:
+                        except Exception as e:
                             self.log.debug('action.wait failed with %r' % e)
                             # if this raises, abort the sequence...
                             code = self._waitFailed(i, action, e)
@@ -342,7 +342,7 @@ class SequencerMixin(DeviceMixinBase):
                             # stop all actions, record errors
                             try:
                                 action.stop()
-                            except Exception, e:
+                            except Exception as e:
                                 self.log.debug('action.stop failed with %r' % e)
                                 failed.append((action, e))
                             # signal those errors, captured earlier
@@ -360,11 +360,11 @@ class SequencerMixin(DeviceMixinBase):
                 self.log.debug('Sequence finished')
                 self._set_seq_status(status.OK, 'idle')
 
-        except NicosError, e:
+        except NicosError as e:
             self._set_seq_status(status.ERROR, 'error %r upon ' % e +
                                  self._seq_status[1])
             self.log.error(self._seq_status[1], exc=1)
-        except Exception, e:
+        except Exception as e:
             self.log.error(e, exc=1)
 
     def doWait(self):

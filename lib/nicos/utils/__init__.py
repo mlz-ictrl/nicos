@@ -345,7 +345,7 @@ def importString(import_name, prefixes=()):
     for fullname in [modname] + [p + modname for p in prefixes]:
         try:
             mod = __import__(fullname, {}, {}, fromlist)
-        except ImportError, err:
+        except ImportError as err:
             errors.append('[%s] %s' % (fullname, err))
         else:
             break
@@ -419,7 +419,7 @@ def removePidfile(appname):
     filename = os.path.join(Session.config.control_path, 'pid', appname + '.pid')
     try:
         os.unlink(filename)
-    except OSError, err:
+    except OSError as err:
         if err.errno == errno.ENOENT:
             return
         raise
@@ -438,12 +438,12 @@ def enableDisableFileItem(filepath, mode, owner=None, group=None):
         group = group or stats.st_gid
         try:
             os.chown(filepath, owner, group)
-        except OSError, e:
+        except OSError as e:
             session.log.debug('chown(%r, %d, %d) failed: %s' %
                                (filepath, owner, group, e))
     try:
         os.chmod(filepath, mode)
-    except OSError, e:
+    except OSError as e:
         session.log.debug('chmod(%r, %o) failed: %s' % (filepath, mode, e))
         return True
     return False
@@ -564,7 +564,7 @@ def daemonize():
         if pid > 0:
             sys.stdout.close()
             sys.exit(0)
-    except OSError, err:
+    except OSError as err:
         print >> sys.stderr, 'fork #1 failed:', err
         sys.exit(1)
 
@@ -579,7 +579,7 @@ def daemonize():
         if pid > 0:
             sys.stdout.close()
             sys.exit(0)
-    except OSError, err:
+    except OSError as err:
         print >> sys.stderr, 'fork #2 failed:', err
 
     # now I am a daemon!
@@ -803,7 +803,7 @@ def readFileCounter(counterpath):
     """
     try:
         currentcounter = int(readFile(counterpath)[0])
-    except IOError, err:
+    except IOError as err:
         # if the file doesn't exist yet, this is ok, but reraise all other
         # exceptions
         if err.errno == errno.ENOENT:
@@ -836,7 +836,7 @@ def watchFileTime(filename, log, interval=1.0):
         while 1:
             try:
                 return getmtime(filename)
-            except OSError, err:
+            except OSError as err:
                 log.error('got exception checking for mtime of %r: %s' %
                           (filename, err))
                 sleep(interval / 2)

@@ -75,7 +75,7 @@ def requires(**access):
         def new_func(*args, **kwds):
             try:
                 session.checkAccess(access)
-            except AccessError, err:
+            except AccessError as err:
                 msg = 'cannot do %s: %s' % (func.__name__, err)
                 if 'helpmsg' in access:
                     msg += ' (%s)' % access['helpmsg']
@@ -204,7 +204,7 @@ class DeviceMeta(DeviceMixinMeta):
                     pconv = self.parameters[param].type
                     try:
                         value = pconv(value)
-                    except (ValueError, TypeError), err:
+                    except (ValueError, TypeError) as err:
                         if pconv is str and isinstance(value, unicode):
                             value = value.encode('utf-8')
                         else:
@@ -619,7 +619,7 @@ class Device(object):
         # coerce the value to the correct type
         try:
             value = paraminfo.type(value)
-        except (ValueError, TypeError), err:
+        except (ValueError, TypeError) as err:
             raise ConfigurationError(
                 self, '%r is an invalid value for parameter '
                 '%s: %s' % (value, param, err))
@@ -704,7 +704,7 @@ class Device(object):
         for category, name, unit in self._infoparams:
             try:
                 parvalue = getattr(self, name)
-            except Exception, err:
+            except Exception as err:
                 self.log.warning('error getting %s parameter for info()' %
                                   name, exc=err)
                 continue
@@ -884,7 +884,7 @@ class Readable(Device):
                 self._sim_value = self.read()  # cached value is ok here
                 self.log.debug('last value before simulation mode is %r' %
                                 (self._sim_value,))
-            except Exception, err:
+            except Exception as err:
                 self.log.warning('error reading last value', exc=err)
         self._sim_active = sim_active
         Device._setMode(self, mode)
@@ -975,7 +975,7 @@ class Readable(Device):
         if hasattr(self, 'doStatus'):
             try:
                 value = self._get_from_cache('status', self.doStatus, maxage)
-            except NicosError, err:
+            except NicosError as err:
                 value = (status.ERROR, str(err))
             if value[0] not in status.statuses:
                 raise ProgrammingError(self, 'status constant %r is unknown' %
@@ -1076,7 +1076,7 @@ class Readable(Device):
         try:
             val = self.read()
             yield ('general', 'value', self.format(val, unit=True))
-        except Exception, err:
+        except Exception as err:
             self._info_errcount += 1
             # only display the message for the first 5 times and then
             # every 20 measurements. always display if in debugmode
@@ -1089,7 +1089,7 @@ class Readable(Device):
             self._info_errcount = 0
         try:
             st = self.status()
-        except Exception, err:
+        except Exception as err:
             yield ('status', 'status', 'Error: %s' % err)
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
@@ -1206,11 +1206,11 @@ class Moveable(Readable):
         if self.requires:
             try:
                 session.checkAccess(self.requires)
-            except AccessError, err:
+            except AccessError as err:
                 raise AccessError(self, 'cannot start device: %s' % err)
         try:
             pos = self.valuetype(pos)
-        except (ValueError, TypeError), err:
+        except (ValueError, TypeError) as err:
             raise InvalidValueError(self, '%r is an invalid value for this '
                                     'device: %s' % (pos, err))
         ok, why = self.isAllowed(pos)
@@ -1353,7 +1353,7 @@ class Moveable(Readable):
         if self.requires:
             try:
                 session.checkAccess(self.requires)
-            except AccessError, err:
+            except AccessError as err:
                 raise AccessError(self, 'cannot stop device: %s' % err)
         if hasattr(self, 'doStop'):
             self.doStop()
@@ -1840,7 +1840,7 @@ class Measurable(Readable):
         """
         try:
             st = self.status()
-        except Exception, err:
+        except Exception as err:
             self.log.warning('error getting status for info()', exc=err)
             yield ('status', 'status', 'Error: %s' % err)
         else:

@@ -184,7 +184,7 @@ class ConsolePanel(Panel):
             fn = unicode(fn).encode(sys.getfilesystemencoding())
             with codecs.open(fn, 'w', 'utf-8') as f:
                 f.write(unicode(self.outView.getOutputString()))
-        except Exception, err:
+        except Exception as err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)
 
     @qtsig('')
@@ -243,7 +243,7 @@ class ConsolePanel(Panel):
         # if not (sscript.startswith(('#', '?', '.', ':')) or sscript.endswith('?')):
         #     try:
         #         compile(script+'\n', 'script', 'single')
-        #     except SyntaxError, err:
+        #     except SyntaxError as err:
         #         QMessageBox.information(
         #             self, 'Command', 'Syntax error in command: %s' % err.msg)
         #         self.commandInput.setCursorPosition(err.offset)

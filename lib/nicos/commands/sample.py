@@ -135,7 +135,7 @@ def activation(formula=None, instrument=None,
     qs = ACTIVATIONURL + qs
     try:
         response = urllib2.urlopen(qs)
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError as e:
         session.log.warning('Error opening: %s' % qs)
         session.log.warning(e)
         return None

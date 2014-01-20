@@ -53,7 +53,7 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
     def doReadRamp(self):
         try:
             return self._taco_guard(self._dev.ramp)
-        except NicosError, err:
+        except NicosError as err:
             if err.tacoerr == DEVERRORS.DevErr_CommandNotImplemented:
                 return 0
             raise

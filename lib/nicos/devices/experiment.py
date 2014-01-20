@@ -545,7 +545,7 @@ class Experiment(Device):
                 if isinstance(v, str):
                     try:
                         r = f(v)
-                    except Exception, e:
+                    except Exception as e:
                         raise ConfigurationError(self,
                             'managerights: illegal value for key %r: %r (%s)' %\
                                               (k, v, e), exc=1)
@@ -557,7 +557,7 @@ class Experiment(Device):
                 if isinstance(v, str):
                     try:
                         r = int(v,8)  # filemodes are given in octal!
-                    except Exception, e:
+                    except Exception as e:
                         raise ConfigurationError(self,
                             'managerights: illegal value for key %r: %r (%s)' %\
                                               (k, v, e), exc=1)
@@ -745,7 +745,7 @@ class Experiment(Device):
         try:
             with open(path.join(self.templatepath, tmplname), 'rb') as f:
                 return f.read()
-        except OSError, e:
+        except OSError as e:
             self.log.error(self, 'Can\'t read template %r (%s), please check settings' %
                             (tmplname, e))
             raise

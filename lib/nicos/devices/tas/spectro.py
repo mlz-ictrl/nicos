@@ -120,7 +120,7 @@ class TAS(Instrument, Moveable):
             angles = self._adevs['cell'].cal_angles(
                 [qh, qk, ql], ny, self.scanmode, self.scanconstant,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
-        except ComputationError, err:
+        except ComputationError as err:
             return False, str(err)
         # check limits for the individual axes
         for devname, value in zip(['mono', 'ana', 'phi', 'psi', 'alpha'], angles):
@@ -243,7 +243,7 @@ class TAS(Instrument, Moveable):
             angles = self._adevs['cell'].cal_angles(
                 [qh, qk, ql], ny, sm, sc,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
-        except ComputationError, err:
+        except ComputationError as err:
             if checkonly:
                 self.log.error('cannot calculate position: %s' % err)
                 return

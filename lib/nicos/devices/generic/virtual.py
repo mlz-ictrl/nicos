@@ -383,7 +383,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
     def __run(self):
         try:
             self.__moving()
-        except Exception, e:
+        except Exception as e:
             self.log.exception(e)
             self.curstatus = status.ERROR, str(e)
 

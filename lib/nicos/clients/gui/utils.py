@@ -258,7 +258,7 @@ class DlgPresets(object):
                 else:
                     val = val.toString()
                 getattr(self, 'set_' + ctl.__class__.__name__)(ctl, val)
-            except Exception, err:
+            except Exception as err:
                 print ctl, err
         self.settings.endGroup()
 
@@ -269,7 +269,7 @@ class DlgPresets(object):
             try:
                 val = getattr(self, 'get_' + ctl.__class__.__name__)(ctl)
                 self.settings.setValue(entry, QVariant(val))
-            except Exception, err:
+            except Exception as err:
                 print err
         self.settings.endGroup()
         self.settings.sync()

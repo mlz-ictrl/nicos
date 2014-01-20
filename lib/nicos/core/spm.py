@@ -294,7 +294,7 @@ class SPMHandler(object):
             if not hasattr(cmdobj, 'is_usercommand'):
                 return []
             return self.complete_command(cmdobj, tokens[1:], word)
-        except Exception, err:
+        except Exception as err:
             self.session.log.debug('error during completion: %s' % err)
             return []
 
@@ -332,7 +332,7 @@ class SPMHandler(object):
         for lineno, command in enumerate(code.splitlines()):
             try:
                 lines.append(self.handle_line(command))
-            except SPMError, err:
+            except SPMError as err:
                 err.args = ('in %s, line %d: ' % (fn or 'unnamed',
                                                   lineno + 1) + err.args[0],)
                 raise
@@ -354,7 +354,7 @@ class SPMHandler(object):
             return 'sim(%r)' % code
         try:
             commands = self.tokenize(command)
-        except NoParse, err:
+        except NoParse as err:
             return self.error('could not parse starting at %s, expected %s' %
                               (srepr(err.token), err.expected))
         code = []
@@ -465,7 +465,7 @@ class SPMHandler(object):
                 break
             try:
                 parg = element.handle(args[0], self.session)
-            except NoParse, err:
+            except NoParse as err:
                 return self.error('invalid argument at %s, expected %s' %
                                   (srepr(err.token), err.expected))
             cmdargs.append(parg)
@@ -485,7 +485,7 @@ class SPMHandler(object):
             if opt in options:
                 try:
                     val = options[opt].handle(val, self.session)
-                except NoParse, err:
+                except NoParse as err:
                     return self.error('invalid argument at %s, expected %s' %
                                       (srepr(err.token), err.expected))
             else:

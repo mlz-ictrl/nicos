@@ -555,7 +555,7 @@ class EditorPanel(Panel):
         # XXX: this does not apply to .txt (SPM) scripts
         #try:
         #    compile(script, 'script', 'exec')
-        #except SyntaxError, err:
+        #except SyntaxError as err:
         #    self.showError('Syntax error in script: %s' % err)
         #    self.currentEditor.setCursorPosition(err.lineno - 1, err.offset)
         #    return
@@ -711,7 +711,7 @@ class EditorPanel(Panel):
         try:
             with open(fn) as f:
                 text = f.read().decode('utf8')
-        except Exception, err:
+        except Exception as err:
             return self.showError('Opening file failed: %s' % err)
         self.editor.setText(text)
         self.clearSimPane()
@@ -724,7 +724,7 @@ class EditorPanel(Panel):
         try:
             with open(fn) as f:
                 text = f.read().decode('utf8')
-        except Exception, err:
+        except Exception as err:
             if quiet:
                 return
             return self.showError('Opening file failed: %s' % err)
@@ -788,7 +788,7 @@ class EditorPanel(Panel):
                     f.write(str(editor.text().toUtf8()))
             finally:
                 self.saving = False
-        except Exception, err:
+        except Exception as err:
             self.showError('Writing file failed: %s' % err)
             return False
 

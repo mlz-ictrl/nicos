@@ -153,7 +153,7 @@ class ConnectionHandler(BaseRequestHandler):
                 self.sock.sendall(prefix)
             else:
                 self.sock.sendall(prefix + LENGTH.pack(len(msg)) + msg)
-        except socket.error, err:
+        except socket.error as err:
             self.log.error('write: connection broken (%s)' % err)
             raise CloseConnection
 
@@ -178,7 +178,7 @@ class ConnectionHandler(BaseRequestHandler):
                     raise CloseConnection
                 buf += read
             return buf.split(RS)
-        except socket.error, err:
+        except socket.error as err:
             self.log.error('read: connection broken (%s)' % err)
             raise CloseConnection
 
@@ -248,7 +248,7 @@ class ConnectionHandler(BaseRequestHandler):
                 try:
                     self.user = auth.authenticate(login, passw)
                     break
-                except AuthenticationError, err:
+                except AuthenticationError as err:
                     continue
             else:  # no "break": all authenticators failed
                 self.log.error('authentication failed: %s' % err)
@@ -296,7 +296,7 @@ class ConnectionHandler(BaseRequestHandler):
                 send(STX + LENGTH.pack(len(event) + len(data) + 1) + event + RS)
                 # then, send data separately (doesn't create temporary strings)
                 send(data)
-            except Exception, err:
+            except Exception as err:
                 if isinstance(err, socket.error) and err.args[0] == errno.EPIPE:
                     # close sender on broken pipe
                     self.log.warning('broken pipe in event sender')
@@ -331,7 +331,7 @@ class ConnectionHandler(BaseRequestHandler):
         try:
             self.controller.new_request(ScriptRequest(code, name, self.user,
                                                       handler=self))
-        except RequestError, err:
+        except RequestError as err:
             self.write(NAK, str(err))
             return
         # take control of the session
@@ -369,7 +369,7 @@ class ConnectionHandler(BaseRequestHandler):
         try:
             self.controller.current_script.update(newcode, reason,
                                                   self.controller, self.user)
-        except ScriptError, err:
+        except ScriptError as err:
             self.write(NAK, str(err))
             return
         self.write(ACK)
@@ -500,7 +500,7 @@ class ConnectionHandler(BaseRequestHandler):
         self.log.debug('evaluating expression in script context\n%s' % expr)
         try:
             retval = self.controller.eval_expression(expr, self, bool(stringify))
-        except Exception, err:
+        except Exception as err:
             self.log.exception('exception in eval command')
             self.write(NAK, 'exception raised while evaluating: %s' % err)
         else:
@@ -520,9 +520,9 @@ class ConnectionHandler(BaseRequestHandler):
         try:
             self.controller.simulate_script(code, name or None, self.user,
                                             prefix)
-        except SPMError, err:
+        except SPMError as err:
             self.write(NAK, 'syntax error in script: %s' % err)
-        except Exception, err:
+        except Exception as err:
             self.log.exception('exception in simulate command')
             self.write(NAK, 'exception raised running simulation: %s' % err)
         else:

@@ -222,7 +222,7 @@ class Monitor(BaseMonitor):
                 resource = findResource(field.pop('gui'))
                 try:
                     instance = uic.loadUi(resource)
-                except Exception, err:
+                except Exception as err:
                     self.log.exception('could not load .ui file %r, ignoring' %
                                        resource)
                     return QLabel('%r could not be loaded:\n%s' %

@@ -341,7 +341,7 @@ class Axis(BaseAxis, CanReference):
     def __positioningThread(self):
         try:
             self._preMoveAction()
-        except Exception, err:
+        except Exception as err:
             self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
             return
         target = self._target
@@ -371,14 +371,14 @@ class Axis(BaseAxis, CanReference):
         for (pos, precise) in positions:
             try:
                 self.__positioning(pos, precise)
-            except Exception, err:
+            except Exception as err:
                 self._setErrorState(MoveError,
                                     'error in positioning: %s' % err)
             if self._stoprequest == 2 or self._errorstate:
                 break
         try:
             self._postMoveAction()
-        except Exception, err:
+        except Exception as err:
             self._setErrorState(MoveError,
                                 'error in post-move action: %s' % err)
 
@@ -458,7 +458,7 @@ class Axis(BaseAxis, CanReference):
             elif self._stoprequest == 0:
                 try:
                     self._duringMoveAction(pos)
-                except Exception, err:
+                except Exception as err:
                     self._setErrorState(MoveError,
                                         'error in during-move action: %s' % err)
                     self._stoprequest = 1

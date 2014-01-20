@@ -122,7 +122,7 @@ devices = dict(
 startupcode = """
 try:
     _=(ana, mono, mfv, mfh, focibox)
-except NameError, e:
+except NameError as e:
     printerror("The requested setup 'panda' is not fully loaded!")
     raise NameError('One of the required devices is not loaded : %s, please check!' % e)
 

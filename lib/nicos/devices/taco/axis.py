@@ -248,7 +248,7 @@ class HoveringAxis(Axis):
         sleep(0.1)
         try:
             waitForStatus(self, 0.2)
-        except Exception, err:
+        except Exception as err:
             self._wait_exception = err
             raise
         finally:

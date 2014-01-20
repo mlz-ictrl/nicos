@@ -92,7 +92,7 @@ class ResiDevice(Moveable):
         self._hardware = HuberScan()
         try:
             self._hardware.LoadRmat()
-        except RuntimeError, e:
+        except RuntimeError as e:
             print e
             print 'Setting a default cell (quartz): 4.9287,4.9827,5.3788, 90,90,120'
             self._hardware.SetCellParam(a=4.9287, b=4.9287, c=5.3788, alpha=90.000, beta=90.000, gamma=120.000)

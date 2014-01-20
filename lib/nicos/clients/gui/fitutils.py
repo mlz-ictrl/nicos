@@ -173,7 +173,7 @@ def fit_arby(xdata, ydata, yerr, fcnstr, params, guesses, xlimits):
     exec 'from numpy import *' in ns
     try:
         fcn = eval('lambda (%s), x: %s' % (', '.join(params), fcnstr), ns)
-    except SyntaxError, e:
+    except SyntaxError as e:
         raise FitError('Syntax error in function: %s' % e)
     if yerr is not None and yerr.shape == 1:
         dyfit = yerr[indices]

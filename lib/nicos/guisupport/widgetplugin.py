@@ -56,7 +56,7 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
         try:
             # pylint: disable=E1102
             return self.widget_class(parent, designMode=True)
-        except Exception, e:
+        except Exception as e:
             name = self.widget_class.__name__
             print "Designer plugin error creating %s: %s" % (name, str(e))
             return None

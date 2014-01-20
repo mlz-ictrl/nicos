@@ -377,7 +377,7 @@ class Panda_mtt(Axis):
         Idea is partially based on the backlash correction code, which it replace for this axis'''
         try:
             self._preMoveAction()
-        except Exception, err:
+        except Exception as err:
             self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
             return
         target = self._target
@@ -408,14 +408,14 @@ class Panda_mtt(Axis):
             try:
                 self.log.debug('go to '+self.fmtstr%pos)
                 self._Axis__positioning(pos, precise)
-            except Exception, err:
+            except Exception as err:
                 self._setErrorState(MoveError,
                                     'error in positioning: %s' % err)
             if self._stoprequest == 2 or self._errorstate:
                 break
         try:
             self._postMoveAction()
-        except Exception, err:
+        except Exception as err:
             self._setErrorState(MoveError,
                                 'error in post-move action: %s' % err)
 

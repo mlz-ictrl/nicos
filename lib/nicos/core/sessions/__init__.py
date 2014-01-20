@@ -217,7 +217,7 @@ class Session(object):
                 self.log.info('checking master status...')
                 try:
                     cache.lock(MASTER)
-                except CacheLockError, err:
+                except CacheLockError as err:
                     raise ModeError('another master is already active: %s' %
                                     sessionInfo(err.locked_by))
                 else:
@@ -343,7 +343,7 @@ class Session(object):
                     modfile = imp.find_module(modname, [root])
                     code = modfile[0].read()
                     modfile[0].close()
-                except (ImportError, IOError), err:
+                except (ImportError, IOError) as err:
                     self.log.exception('Could not find or read setup '
                                        'module %r: %s' % (modname, err))
                     self._setup_info[modname] = None
@@ -355,7 +355,7 @@ class Session(object):
                 }
                 try:
                     exec code in ns
-                except Exception, err:
+                except Exception as err:
                     self.log.exception('An error occurred while reading '
                                        'setup %s: %s' % (modname, err))
                     continue
@@ -423,10 +423,10 @@ class Session(object):
     def _nicos_import(self, modname, member='*'):
         try:
             mod = __import__('nicos.' + modname, None, None, [member])
-        except ImportError, err1:
+        except ImportError as err1:
             try:
                 mod = __import__(modname, None, None, [member])
-            except ImportError, err2:
+            except ImportError as err2:
                 # handle ImportError due to missing dependencies of the
                 # requested module smartly: if the module name starts with
                 # "nicos.", the more useful exception is the second one,
@@ -483,7 +483,7 @@ class Session(object):
             self.log.info('importing module %s... ' % modname)
             try:
                 mod = self._nicos_import(modname)
-            except Exception, err:
+            except Exception as err:
                 self.log.error('Exception importing %s: %s' % (modname, err))
                 return
             for name, command in mod.__dict__.iteritems():
@@ -939,7 +939,7 @@ class Session(object):
         modname, clsname = devclsname.rsplit('.', 1)
         try:
             devcls = self._nicos_import(modname, clsname)
-        except (ImportError, AttributeError), err:
+        except (ImportError, AttributeError) as err:
             raise ConfigurationError('failed to import device class %r: %s'
                                      % (devclsname, err))
         try:
@@ -1069,7 +1069,7 @@ class Session(object):
             else:
                 self.log.addHandler(NicosLogfileHandler(log_path, prefix))
                 self._master_handler = None
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             self.log.error('cannot open log file: %s' % err)
 
     def getLogger(self, name):

@@ -49,5 +49,5 @@ mod, cls, dev, cmd, args = sys.argv[1:]
 method = getattr(getattr(__import__(mod), cls)(dev), cmd)
 try:
     sys.stdout.write(cache_dump(method(*cache_load(args))))
-except Exception, err:
+except Exception as err:
     sys.stderr.write(str(err))

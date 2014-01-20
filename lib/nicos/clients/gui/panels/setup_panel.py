@@ -135,7 +135,7 @@ class ExpPanel(Panel, DlgUtils):
             else:
                 self.showInfo('Reading proposaldb failed for an unknown reason.'
                               ' Please check logfiles for hints....')
-        except Exception, e:
+        except Exception as e:
             self.log.warning(e, exc=1)
             self.showInfo('Reading proposaldb failed for an unknown reason. '
                           'Please check logfiles....\n' + repr(e))

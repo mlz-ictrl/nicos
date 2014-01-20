@@ -73,7 +73,7 @@ class MemographValue(Readable):
             return info[self.valuename]
         except ConfigurationError:  # pass through error raised above
             raise
-        except Exception, err:
+        except Exception as err:
             raise CommunicationError(self, 'Memograph not responding or '
                                      'changed format: %s' % err)
 

@@ -117,14 +117,14 @@ def TacoStatus(server=''):
     def check_PowerSupplyCurrentControl(dev, client, state):
         try:
             client.execute(cmds.READ_DOUBLE)
-        except TACOClient.TACOError, err:
+        except TACOClient.TACOError as err:
             return 'not readable: %s' % err
         else:
             return True
     def check_IOAnalogInput(dev, client, state):
         try:
             client.execute(cmds.READ_DOUBLE)
-        except TACOClient.TACOError, err:
+        except TACOClient.TACOError as err:
             return 'not readable: %s' % err
         else:
             return True
@@ -138,7 +138,7 @@ def TacoStatus(server=''):
             client = TACOClient.Client(dev)
             state = client.deviceState()
             status = st.stateDescription(state)
-        except TACOClient.TACOError, err:
+        except TACOClient.TACOError as err:
             ok = False
             disp = '-' * 15
             errmsg = err.args[0]

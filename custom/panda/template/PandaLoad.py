@@ -797,7 +797,7 @@ def PandaLoad(filename):
                             self.__dict__['%s_unit' % k] = v.split()[1]
                             #~ print "UNITS", k, v.split()
                         else: print "X: ", k, v.split()
-                    except Exception, e:
+                    except Exception as e:
                         print e
                         #~ pass #ignore bad lines.....
 

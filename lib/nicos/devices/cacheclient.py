@@ -107,7 +107,7 @@ class BaseCacheClient(Device):
             self.log.debug('connecting to %s:%s' % self._address)
             self._socket.connect(self._address)
             self._connect_action()
-        except Exception, err:
+        except Exception as err:
             self._disconnect('unable to connect to %s:%s: %s' %
                              (self._address + (err,)))
         else:
@@ -223,7 +223,7 @@ class BaseCacheClient(Device):
                     try:
                         res = select.select([self._socket], writelist, [],
                                             self._selecttimeout)
-                    except select.error, e:
+                    except select.error as e:
                         if e[0] == 4:  # EINTR
                             continue
                         raise
@@ -304,7 +304,7 @@ class BaseCacheClient(Device):
                     self._secsocket = socket.socket(socket.AF_INET,
                                                     socket.SOCK_STREAM)
                     self._secsocket.connect(self._address)
-                except Exception, err:
+                except Exception as err:
                     self.log.warning('unable to connect secondary socket to %s:%s: %s' %
                                       (self._address + (err,)))
                     self._secsocket = None

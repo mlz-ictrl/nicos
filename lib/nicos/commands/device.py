@@ -169,7 +169,7 @@ def read(*devlist):
     for dev in devlist:
         try:
             dev = session.getDevice(dev, Readable)
-        except UsageError, err:
+        except UsageError as err:
             err.args = (err.args[0] + ', try info(%s)' % dev,)
             raise
         try:

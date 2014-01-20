@@ -165,6 +165,6 @@ class PamAuthenticator(Authenticator):
             return User(username, ADMIN)
         except AuthenticationError:
             raise
-        except Exception, err:
+        except Exception as err:
             raise AuthenticationError('exception during PAM authentication: %s'
                                       % err)

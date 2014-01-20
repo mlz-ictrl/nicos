@@ -45,6 +45,6 @@ class Frm2Authenticator(Authenticator):
             return User(username, USER)
         except AuthenticationError:
             raise
-        except Exception, err:
+        except Exception as err:
             raise AuthenticationError('exception during authenticate(): %s'
                                       % err)

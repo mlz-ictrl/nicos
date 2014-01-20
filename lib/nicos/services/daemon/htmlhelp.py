@@ -98,7 +98,7 @@ class HelpGenerator(object):
         else:
             try:
                 return publish_parts(markup, writer_name='html')['fragment']
-            except Exception, err:
+            except Exception as err:
                 print err
                 return '<pre>' + escape(markup) + '</pre>'
 

@@ -107,7 +107,7 @@ class Switcher(MappedMoveable):
             if r not in self.mapping:
                 return status.NOTREACHED, 'unconfigured position of %s or '\
                                        'still moving' % self._adevs['moveable']
-        except PositionError, e:
+        except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
 
@@ -157,7 +157,7 @@ class ReadonlySwitcher(MappedReadable):
             if self.read(maxage) == self.fallback:
                 return status.NOTREACHED, 'unconfigured position of %s or '\
                                        'still moving' % self._adevs['moveable']
-        except PositionError, e:
+        except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
 

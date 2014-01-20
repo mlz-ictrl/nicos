@@ -245,7 +245,7 @@ def twodscan(dev1, start1, step1, numpoints1,
         dev1value = start1 + j*step1
         try:
             dev1.maw(dev1value)
-        except NicosError, err:
+        except NicosError as err:
             if isinstance(err, CONTINUE_EXCEPTIONS):
                 printwarning('Positioning problem of %s at %s, scanning %s '
                              'anyway' % (dev1, dev1.format(dev1value, unit=True),
