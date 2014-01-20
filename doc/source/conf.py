@@ -2,10 +2,11 @@
 
 import sys, os
 sys.path.insert(0, os.path.abspath('../../lib'))
+sys.path.insert(0, os.path.abspath('..')) # for custom extensions
 
 import nicos
 
-extensions = ['sphinx.ext.autodoc','rst2pdf.pdfbuilder']
+extensions = ['sphinx.ext.autodoc','rst2pdf.pdfbuilder', 'ext.setupdoc']
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
@@ -45,6 +46,7 @@ html_theme_options = {'sidebarbgcolor': '#EDF1F3',
                       'codebgcolor': '#F5F7F6',
                       }
 html_static_path = ['_static']
+html_style = 'nicos.css'
 
 latex_documents = [
   ('index', 'NICOS.tex', u'NICOS v2 Documentation',

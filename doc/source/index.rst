@@ -19,6 +19,7 @@ Instrument responsible and user related chapters:
    services/index
    classes/index
    commands
+   custom/index
 
 Developer related chapters:
 

@@ -1,0 +1,7 @@
+Setups
+======
+
+.. toctree::
+
+   antares/index
+

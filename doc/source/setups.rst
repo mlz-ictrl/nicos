@@ -27,6 +27,8 @@ A setup file can consist of the following entries, all of which are optional:
 
       description = 'triple-axis measurement setup'
 
+.. _setup_group:
+
 ``group``
    A string giving the group of the setup.  The following groups are
    recognized:
