@@ -32,9 +32,9 @@ Field = lambda *args, **kwds: args or kwds
 
 
 _sc1 = Block('Sample Changer 1', [
-    BlockRow(Field(name='Position', dev='sc1_sw'),),
+    BlockRow(Field(name='Position', dev='sc1_y'),),
     BlockRow(Field(name='sc1', dev='sc1'),),
-], 'sc1')
+], )
 
 _table = Block('Sample Table', [
     BlockRow(Field(name='z-2a', dev='z_2a'),),
@@ -62,7 +62,7 @@ _htf03 = Block('HTF03', [
              Field(name='I', key='t_htf03/i', format='%i'),
              Field(name='D', key='t_htf03/d', format='%i'),
             ),
-])
+], 'htf03')
 
 _spinflipper = Block('Spin Flipper', [
     BlockRow(
@@ -104,61 +104,48 @@ _sans1magnet = Block('Sans1 Magnet', [
             ),
 ])
 
+_amagnet = Block('Garfield Magnet', [
+    BlockRow(Field(name='Lambda out', dev='l_out'),),
+    #BlockRow(Field(name='Lambda in', dev='l_in'),),
+], 'amagnet')
+
 _newport = Block('NewPort', [
     BlockRow(
              Field(name='NP 02 position', dev='sth_newport02'),
              Field(name='NP 03 position', dev='sth_newport03'),
             ),
-])
+], 'newport0*')
 
-_ccr10 = Block('CCR10', [
-    BlockRow(Field(name='Setpoint', key='t_ccr10_tube/setpoint',
-                   unitkey='t/unit'),),
-    BlockRow(
-             Field(name='A', dev='T_ccr10_A'),
-             Field(name='B', dev='T_ccr10_B'),
-            ),
-])
 
-_ccr11 = Block('CCR11', [
-    BlockRow(Field(name='Setpoint', key='t_ccr11_tube/setpoint',
-                   unitkey='t/unit'),),
-    BlockRow(
-             Field(name='A', dev='T_ccr11_A'),
-             Field(name='B', dev='T_ccr11_B'),
-            ),
-    BlockRow(
-             Field(name='C', dev='T_ccr11_C'),
-             Field(name='D', dev='T_ccr11_D'),
-            ),
-])
+ccrs = []
+for i in range(10, 22 + 1):
+    ccrs.append(Block('CCR%d' % i, [
+        BlockRow(
+            Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
+                   unitkey='t/unit'),
+        ),
+        BlockRow(
+             Field(name='A', dev='T_ccr%d_A' % i),
+             Field(name='B', dev='T_ccr%d_B' % i),
+        ),
+        BlockRow(
+             Field(name='C', dev='T_ccr%d_C' % i),
+             Field(name='D', dev='T_ccr%d_D' % i),
+        ),
+    ], 'ccr%d' % i))
 
-_ccr12 = Block('CCR12', [
-    BlockRow(Field(name='Setpoint', key='t_ccr12_tube/setpoint',
-                   unitkey='t/unit'),),
-    BlockRow(
-             Field(name='A', dev='T_ccr12_A'),
-             Field(name='B', dev='T_ccr12_B'),
-            ),
-])
 
-_ccr16 = Block('CCR16', [
-    BlockRow(Field(name='Setpoint', key='t_ccr16_tube/setpoint',
-                   unitkey='t/unit'),),
-    BlockRow(
-             Field(name='A', dev='T_ccr16_A'),
-             Field(name='B', dev='T_ccr16_B'),
-            ),
-])
-
-_ccr18 = Block('CCR18', [
-    BlockRow(Field(name='Setpoint', key='t_ccr18_tube/setpoint',
-                   unitkey='t/unit'),),
-    BlockRow(
-             Field(name='A', dev='T_ccr18_A'),
-             Field(name='B', dev='T_ccr18_B'),
-            ),
-])
+_birmag = Block('17 T Magnet', [
+        BlockRow(
+                 Field(name='helium level', dev='helevel_birmag', width=13),
+                 Field(name='field birmag', dev='field_birmag', width=13),),
+        BlockRow(
+                 Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
+                 Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),),
+        BlockRow(
+                 Field(name='Temp a birmag', dev='ta_birmag', width=13),
+                 Field(name='Temp b birmag', dev='tb_birmag', width=13),),
+], 'birmag')
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
@@ -172,11 +159,11 @@ devices = dict(
                      prefix='nicos/',
                      valuefont='Consolas',
                      layout=[
-                              [
-                                 [_sc1, _table],
-                                 [_htf03, _spinflipper, _sans1magnet, _newport],
-                                 [_ccr10, _ccr11, _ccr12, _ccr16, _ccr18],
-                              ],
+                                Row(
+                                    Column(_sc1, _table, _amagnet, _newport),
+                                    Column(_htf03, _spinflipper, _sans1magnet),
+                                    Column(*ccrs) + Column(_birmag),
+                                ),
                             ],
                     ),
 )

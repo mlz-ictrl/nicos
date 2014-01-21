@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-description = 'Spin Flipper'
+description = 'Birmingham Magnet 17T'
 
 includes = ['system']
 
@@ -31,37 +31,29 @@ group = 'optional'
 nethost = 'spinflip.sans1.frm2'
 
 devices = dict(
-    p_sf = device('devices.taco.AnalogInput',
-                        tacodevice = '//%s/sans1/ag1016/power' % (nethost,),
-                        fmtstr = '%.1f',
-                    ),
-
-    f_sf = device('devices.taco.AnalogInput',
-                        tacodevice = '//%s/sans1/ag1016/frequency' % (nethost,),
-                        fmtstr = '%.1f',
-                    ),
-
-    forward_sf = device('devices.taco.AnalogInput',
-                        tacodevice = '//%s/sans1/ag1016/forward' % (nethost,),
-                        fmtstr = '%.1f',
-                    ),
-
-    reverse_sf = device('devices.taco.AnalogInput',
-                        tacodevice = '//%s/sans1/ag1016/reverse' % (nethost,),
-                        fmtstr = '%.1f',
-                    ),
-
-    t_sf = device('devices.taco.AnalogInput',
-                        tacodevice = '//%s/sans1/ag1016/temperature' % (nethost,),
+    field_birmag = device('devices.taco.AnalogInput',
+                        tacodevice = '//%s/spinflip/birmag/field' % (nethost,),
                         fmtstr = '%.3f',
                     ),
-    a_agilent1 = device('devices.taco.AnalogInput',
-                        tacodevice = '//%s/sans1/agilent1/amp' % (nethost,),
+    ta_birmag = device('devices.taco.AnalogInput',
+                        tacodevice = '//%s/spinflip/birmag/sensa' % (nethost,),
                         fmtstr = '%.3f',
                     ),
-    f_agilent1 = device('devices.taco.AnalogInput',
-                        tacodevice = '//%s/sans1/agilent1/freq' % (nethost,),
-                        fmtstr = '%.0f',
+    tb_birmag = device('devices.taco.AnalogInput',
+                        tacodevice = '//%s/spinflip/birmag/sensb' % (nethost,),
+                        fmtstr = '%.3f',
+                    ),
+    sp1_birmag = device('devices.taco.AnalogInput',
+                        tacodevice = '//%s/spinflip/birmag/sp1' % (nethost,),
+                        fmtstr = '%.3f',
+                    ),
+    sp2_birmag = device('devices.taco.AnalogInput',
+                        tacodevice = '//%s/spinflip/birmag/sp2' % (nethost,),
+                        fmtstr = '%.3f',
+                    ),
+    helevel_birmag = device('devices.taco.AnalogInput',
+                        tacodevice = '//%s/spinflip/birmag/helevel' % (nethost,),
+                        fmtstr = '%.3f',
                     ),
 
 )

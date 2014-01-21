@@ -68,19 +68,23 @@ _sans1general = Column(
         BlockRow(
                  Field(name='Reactor', dev='ReactorPower', width=12, format = '%.2f', unit='MW'),
                  Field(name='6 Fold Shutter', dev='Sixfold', width=12),
-                 Field(name='NL4a', dev='NL4a', width=12),),
+                 Field(name='NL4a', dev='NL4a', width=12),
+                 ),
         BlockRow(
                  Field(name='T in', dev='t_in_memograph', width=12, unit='C'),
                  Field(name='T out', dev='t_out_memograph', width=12, unit='C'),
-                 Field(name='Reflow', dev='reflow_memograph', width=12, unit='l/min'),),
+                 Field(name='Cooling', dev='cooling_memograph', width=12, unit='kW'),
+                 ),
         BlockRow(
                  Field(name='Flow in', dev='flow_in_memograph', width=12, unit='l/min'),
                  Field(name='Flow out', dev='flow_out_memograph', width=12, unit='l/min'),
-                 Field(name='Leakage', dev='leak_memograph', width=12, unit='l/min'),),
+                 Field(name='Leakage', dev='leak_memograph', width=12, unit='l/min'),
+                 ),
         BlockRow(
+                 Field(name='P in', dev='p_in_memograph', width=12, unit='bar'),
+                 Field(name='P out', dev='p_out_memograph', width=12, unit='bar'),
                  Field(name='Crane Pos', dev='Crane', width=12, unit='m'),
-                 Field(name='FAK 40 Cap', dev='FAK40_Cap', width=12),
-                 Field(name='FAK 40 Pres', dev='FAK40_Press', width=12),),
+                      ),
                 ],
         ),
 )

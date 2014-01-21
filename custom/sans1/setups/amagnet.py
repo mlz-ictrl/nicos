@@ -18,30 +18,34 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Andreas Wilhem <andreas.wilhelm@frm2.tum.de>
+#   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'setup for the poller'
-group = 'special'
+description = 'Garfield Magnet'
 
-sysconfig = dict(
-    cache = 'sans1ctrl.sans1.frm2'
-)
+includes = ['system']
+
+# group = 'optional'
+
+nethost = 'amagnet.sans1.frm2'
 
 devices = dict(
-   Poller = device('services.poller.Poller',
-                   alwayspoll = ['collimation', 'pressure',
-                                 'table_top',
-                                 'table_bottom', 'detector',
-                                 'spin_flipper',
-                                 'reactor', 'selector', 'sc1',
-                                 'guidehall', 'nl4a', 'memograph',
-                                 'ccmsans', 'amagnet',
-                                 'newport02', 'newport03',
-                                 'ccr10', 'ccr12', 'ccr16', 'ccr18',
-                                 'htf03','birmag',
-                                ],
-                   blacklist = [],
-                  ),
+    l_in = device('devices.taco.CurrentSupply',
+                     description = 'Current from power supply into the magnet',
+                     tacodevice = '//%s/amagnet/lambda/in' % (nethost,),
+                     abslimits = (-1, 160),
+                     fmtstr = '%.3f',
+                     maxage = 120,
+                     pollinterval = 15,
+                    ),
+    l_out = device('devices.taco.CurrentSupply',
+                     description = 'Current from magnet to power supply',
+                     tacodevice = '//%s/amagnet/lambda/out' % (nethost,),
+                     abslimits = (-1, 160),
+                     fmtstr = '%.3f',
+                     maxage = 120,
+                     pollinterval = 15,
+                    ),
+
 )

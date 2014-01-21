@@ -36,6 +36,8 @@ devices = dict(
                         tacodevice = '//%s/sans1/qmesydaq/timer' % (nethost, ),
                         fmtstr = '%.0f',
                         lowlevel = True,
+                        maxage = 120,
+                        pollinterval = 15,
                        ),
 
 #   det1_t_ist = device('devices.taco.FRMTimerChannel',
@@ -77,6 +79,8 @@ devices = dict(
                       unit = 'V',
                       supply = 'hv_supply',
                       discharger = 'hv_discharge',
+                      maxage = 120,
+                      pollinterval = 15,
                      ),
     hv_current = device('devices.taco.AnalogInput',
                         tacodevice = '//%s/sans1/iseg/hv-current' % (nethost, ),

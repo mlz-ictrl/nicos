@@ -28,8 +28,26 @@
     </stringlist>
    </property>
   </widget>
+  <widget class="ValueDisplay" name="valueDisplay">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>40</y>
+     <width>87</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="dev" stdset="0">
+    <string>ta_birmag</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ValueDisplay</class>
+   <extends>QWidget</extends>
+   <header>nicos.guisupport.display</header>
+  </customwidget>
   <customwidget>
    <class>TrendPlot</class>
    <extends>QwtPlot</extends>
