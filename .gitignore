@@ -9,7 +9,7 @@ pylint_*.txt
 .noseids
 setup.cfg
 MANIFEST
-nicos.conf
+/nicos.conf
 
 log/*/current
 

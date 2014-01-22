@@ -53,13 +53,10 @@ from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
     NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
     SIMULATION, MAINTENANCE
+from nicos.core.sessions.setups import readSetups
 from nicos.pycompat import builtins, exec_, string_types, \
-    itervalues, iteritems, listvalues, listitems
+    itervalues, iteritems, listvalues
 
-
-SETUP_GROUPS = set([
-    'basic', 'optional', 'lowlevel', 'simulated', 'special'
-])
 
 
 class Session(object):
@@ -82,10 +79,15 @@ class Session(object):
         user = None
         group = None
         umask = None
+        instrument = None
         control_path = path.join(path.dirname(__file__), '..', '..', '..', '..')
-        setups_path  = 'setups'
+        custom_paths = 'custom' # ':' separated list of paths, relative
+                                # to control_path or absolute
+        custom_path = None      # the first existing of custom_paths
+        setup_subdirs = None     # groups to be used like 'panda,frm2'
         logging_path = 'log'
         simple_mode = False
+        services = 'cache,poller'
 
     log = None
     name = 'session'
@@ -116,13 +118,9 @@ class Session(object):
         self.explicit_setups = []
         # current "sysconfig" dictionary resulting from setup files
         self.current_sysconfig = {}
-        # path to setup files
-        self._setup_path = path.join(self.config.control_path,
-                                     self.config.setups_path)
-        if not path.isdir(self._setup_path) and path.isdir(
-            path.join(self.config.control_path, 'custom/demo/setups')):
-            self._setup_path = path.join(self.config.control_path,
-                                         'custom/demo/setups')
+        # paths to setup files
+        self._setup_paths = [path.join(self.config.custom_path, p.strip(), 'setups')
+                             for p in self.config.setup_subdirs.split(',')]
         # devices failed and succeeded to create in the current setup process
         self._failed_devices = None
         self._success_devices = None
@@ -315,97 +313,27 @@ class Session(object):
             umethod(value)
         self.log.info('synchronization complete')
 
-    def setSetupPath(self, path):
-        """Set the path to the setup files.
+    def setSetupPath(self, *paths):
+        """Set the paths to the setup files.
 
-        Normally, the setup path is given in nicos.conf and does not need to be
+        Normally, the setup paths are given in nicos.conf and do not need to be
         set explicitly.
         """
-        self._setup_path = path
+        self._setup_paths = paths
         self.readSetups()
 
     def getSetupPath(self):
-        """Return the current setup path."""
-        return self._setup_path
+        """Return the current list of setup paths."""
+        return list(self._setup_paths)
 
     def readSetups(self):
         """Read information of all existing setups, and validate them.
 
-        Setup modules are looked for in the directory given by the "setups_path"
-        entry in nicos.conf, or by "control_path"/setups.
+        Setup modules are looked for in subdirectories of the configured
+        "custom_path".
         """
         self._setup_info.clear()
-        for root, _, files in os.walk(self._setup_path, topdown=False):
-            for filename in files:
-                if not filename.endswith('.py'):
-                    continue
-                modname = filename[:-3]
-                try:
-                    with open(path.join(root, filename), 'r') as modfile:
-                        code = modfile.read()
-                except IOError as err:
-                    self.log.exception('Could not read setup '
-                                       'module %r: %s' % (modname, err))
-                    self._setup_info[modname] = None
-                    continue
-                # device() is a helper function to make configuration prettier
-                ns = {
-                    'device': lambda cls, **params: (cls, params),
-                    'setupname': modname,
-                }
-                try:
-                    exec_(code, ns)
-                except Exception as err:
-                    self.log.exception('An error occurred while processing '
-                                       'setup %s: %s' % (modname, err))
-                    continue
-                info = {
-                    'description': ns.get('description', modname),
-                    'group': ns.get('group', 'optional'),
-                    'sysconfig': ns.get('sysconfig', {}),
-                    'includes': ns.get('includes', []),
-                    'excludes': ns.get('excludes', []),
-                    'modules': ns.get('modules', []),
-                    'devices': ns.get('devices', {}),
-                    'startupcode': ns.get('startupcode', ''),
-                    'extended': ns.get('extended', {}),
-                    'filename': path.join(root, filename),
-                }
-                if info['group'] not in SETUP_GROUPS:
-                    self.log.warning('Setup %s has an invalid group (valid groups '
-                        'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
-                    info['group'] = 'optional'
-                if modname in self._setup_info:
-                    # setup already exists; override/extend with new values
-                    oldinfo = self._setup_info[modname] or {}
-                    oldinfo['description'] = ns.get('description',
-                                                    oldinfo['description'])
-                    oldinfo['group'] = ns.get('group', oldinfo['group'])
-                    oldinfo['sysconfig'].update(info['sysconfig'])
-                    oldinfo['includes'].extend(info['includes'])
-                    oldinfo['excludes'].extend(info['excludes'])
-                    oldinfo['modules'].extend(info['modules'])
-                    oldinfo['devices'].update(info['devices'])
-                    # remove devices overridden by "None" entries completely
-                    for devname, value in listitems(oldinfo['devices']):
-                        if value is None:
-                            del oldinfo['devices'][devname]
-                    oldinfo['startupcode'] += '\n' + info['startupcode']
-                    oldinfo['extended'].update(info['extended'])
-                    oldinfo['filename'] = path.join(root, filename)
-                    self.log.debug('%r setup partially merged with version '
-                                   'from parent directory' % modname)
-                else:
-                    self._setup_info[modname] = info
-        # check if all includes exist
-        for name, info in iteritems(self._setup_info):
-            if info is None:
-                continue  # erroneous setup
-            for include in info['includes']:
-                if not self._setup_info.get(include):
-                    self.log.error('Setup %s includes setup %s which does not '
-                                   'exist or has errors' % (name, include))
-                    self._setup_info[name] = None
+        self._setup_info.update(readSetups(self._setup_paths, self.log))
 
     def getSetupInfo(self):
         """Return information about all existing setups.
@@ -470,8 +398,9 @@ class Session(object):
                     % setupname)
             elif setupname not in self._setup_info:
                 raise ConfigurationError(
-                    'Setup %s does not exist (setup path is %s)' %
-                    (setupname, path.normpath(self._setup_path)))
+                    'Setup %s does not exist (setup paths are %s)' %
+                    (setupname,
+                     ', '.join(path.normpath(p) for p in self._setup_paths)))
 
         from nicos.commands import usercommandWrapper
         failed_devs = []

@@ -40,21 +40,12 @@ from logging import Logger
 if sys.version_info[:2] < (2, 6):
     raise ImportError('NICOS requires Python 2.6 or higher')
 
-# Add instrument-specific directories to the package path.
-pkgpath = path.join(path.dirname(__file__), '..', '..', 'custom')
-if path.isdir(pkgpath):
-    for subdir in os.listdir(pkgpath):
-        mod = sys.modules['nicos.' + subdir] = types.ModuleType('nicos.' + subdir)
-        mod.__path__ = [path.join(pkgpath, subdir, 'lib')]
-        globals()[subdir] = mod
-
 # Add platform-specific directories (lib/plat-PLATFORM)
 sys.path.append(path.join(path.dirname(__file__), '..',
                           'plat-%s' % distutils.util.get_platform()))
 
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.
-
 class Session(object):
     log = Logger('Nicos early logger')
 
@@ -62,6 +53,15 @@ session = Session()
 
 
 # Read config file and set environment variables.
+from nicos.utils import applyConfig
+applyConfig()
 
-from nicos.utils import readConfig
-readConfig()
+# Add instrument-specific directories to the package path.
+from nicos.core.sessions import Session
+
+pkgpath = Session.config.custom_path
+if path.isdir(pkgpath):
+    for subdir in os.listdir(pkgpath):
+        mod = sys.modules['nicos.' + subdir] = types.ModuleType('nicos.' + subdir)
+        mod.__path__ = [path.join(pkgpath, subdir, 'lib')]
+        globals()[subdir] = mod

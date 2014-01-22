@@ -104,6 +104,8 @@ help for an individual device.
 Configure and build the distribution at an instrument
 -----------------------------------------------------
 
+.. XXX this needs to be changed!
+
 For specific instruments, we will set up a set of setups and customizations for
 that instrument.  When this is done, the installation process looks like this::
 
@@ -129,6 +131,12 @@ At startup, all NICOS processes read a file called ``nicos.conf``; it should be
 located in the "root" directory of the NICOS installation, i.e. the directory
 containing the ``lib`` directory.
 
+A file with default settings for each instrument is expected in
+``custom/instrumentname/nicos.conf`` and will be loaded automatically.  The
+instrument can either be specified implicitly by the middle part of the
+fully-qualified hostname, given by an ``INSTRUMENT`` environment variable, or in
+the "root" ``nicos.conf`` file (see below).
+
 The file ``nicos.conf`` is an INI-style configuration file.  It contains only
 the most basic configuration for the whole NICOS system; all further
 configuration is done in setup files, see :ref:`setups`.  For existing
@@ -138,21 +146,24 @@ The possible entries are:
 
 * Under the section ``[nicos]``:
 
-  * ``setups_path`` -- path to the setup files; by default, the setups in
-    ``custom/demo/setups`` will be used
+  * ``instrument`` -- the instrument name to find the instrument specific
+    ``nicos.conf`` (if not guessable from the hostname)
+  * ``custom_paths`` -- paths (separated by ``:``) to look for the "custom"
+    directory (with instrument-specific libs and setups); the first one that
+    exists will be used
+  * ``setup_subdirs`` -- the subdirectories of the custom path with setups to
+    use, separated by ``,`` (e.g. ``panda,frm2``)
   * ``user`` -- system user to use when becoming a daemon
   * ``group`` -- system group to use when becoming a daemon
   * ``logging_path`` -- the root path for all NICOS related log files, by
     default the ``log/`` directory in the installation root will be used
-
-* Under the section ``[services]``:
 
   * ``services`` -- a comma-separated list of NICOS daemons to start and stop
     with the provided :ref:`init script <initscript>`. If ``none`` is specified,
     no services will be started. This is useful as a fallback and for getting
     nicos up and running.
 
-  * ``<hostname>_services`` -- a comma-separated list of NICOS daemons to start
+  * ``services_<hostname>`` -- a comma-separated list of NICOS daemons to start
     and stop with the provided :ref:`init script <initscript>` running on host
     <hostname> (short name as output by `hostname -s`). If the script is executed
     on a host for which there is no such entry, the entry ``services`` is used as

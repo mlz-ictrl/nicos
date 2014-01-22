@@ -44,6 +44,7 @@ from nicos import nicos_version
 from nicos.utils import parseConnectionString, importString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
+from nicos.core.sessions import Session
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
@@ -601,7 +602,9 @@ def main(argv):
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 
-    configfile = path.join(path.dirname(__file__), 'defconfig.py')
+    configfile = path.join(Session.config.custom_path,
+                           Session.config.instrument,
+                           'gui', 'defconfig.py')
     stylefile = path.join(userpath, 'style.qss')
     styleRoot = path.splitext(stylefile)[0]
     try:

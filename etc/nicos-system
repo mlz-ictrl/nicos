@@ -33,11 +33,12 @@ from os import path
 thisfile = path.abspath(__file__)
 while path.islink(thisfile):
     thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
-root_path = path.normpath(path.join(path.dirname(thisfile), '..'))
+control_path = path.normpath(path.join(path.dirname(thisfile), '..'))
+sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
 
-class NicosConfigParser(ConfigParser.SafeConfigParser):
-    def optionxform(self, key):
-        return key
+# We need to read the nicos.conf file, so let nicos/__init__.py do that.
+from nicos.core.sessions import Session
+
 
 def read_config():
     hostname = ''
@@ -48,24 +49,13 @@ def read_config():
             'Could not figure out host name (%s).' % str(e)
         print >>sys.stderr, \
             'Continue with nonspecific services.'
-
     host_spec_services = '%s_services' % hostname
-    cfg = NicosConfigParser()
-    cfg.read(path.join(root_path, 'nicos.conf'))
-    if cfg.has_section('environment'):
-        for name in cfg.options('environment'):
-            value = cfg.get('environment', name)
-            os.environ[name] = value
-    if hostname and cfg.has_option('services', host_spec_services):
-        services = cfg.get('services', host_spec_services)
-    elif cfg.has_option('services', 'services'):
-        services = cfg.get('services', 'services')
+
+    if hostname and hasattr(Session.config, host_spec_services):
+        services = getattr(Session.config, host_spec_services)
     else:
-        services = 'cache,poller'
-    if cfg.has_option('nicos', 'logging_path'):
-        log_path = cfg.get('nicos', 'logging_path')
-    else:
-        log_path = path.join(root_path, 'log')
+        services = Session.config.services
+    log_path = path.join(control_path, Session.config.logging_path)
     if services.lower().strip() in ['', 'none']:
         services = []
     else:
@@ -104,7 +94,7 @@ else:
 
 def read_pidfile(name, wait=0):
     begin = time.time()
-    pidpath = path.join(root_path, 'pid', '%s.pid' % name)
+    pidpath = path.join(control_path, 'pid', '%s.pid' % name)
     while True:
         try:
             pid = file(pidpath, 'rb').read()
@@ -143,7 +133,7 @@ def start_daemon(name):
         procname, instname = name.split('-')
     except:
         procname, instname = name, None
-    executable = path.join(root_path, 'bin', 'nicos-%s' % procname)
+    executable = path.join(control_path, 'bin', 'nicos-%s' % procname)
     os.system('%s%s -d' % (executable, ' -S %s' % (name,) if instname
                            else '', ))
     pid = read_pidfile(name, wait=10)

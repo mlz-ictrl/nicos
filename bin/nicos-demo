@@ -11,6 +11,11 @@ DAEMON=1
 GUICONFIG=""
 GUIUSER="guest:guest@localhost"
 
+if [ -z "$INSTRUMENT" ]; then
+    INSTRUMENT=demo
+fi
+export INSTRUMENT
+
 help() {
     echo "Usage: $0 [options]"
     echo "  options:"

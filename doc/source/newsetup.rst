@@ -27,8 +27,8 @@ Setting up the new instrument customization
 
 * Copy the ``custom/skeleton`` directory to ``custom/instname``.
 
-* Adapt the ``custom/instname/make.conf`` file.  It has comments for values that
-  might need to be changed.
+* Adapt the ``custom/instname/nicos.conf`` file.  It has comments for values
+  that might need to be changed.
 
 * Adapt the basic setups for the daemons in ``custom/instname/setups/special``;
   in particular, you probably want to replace "localhost" by the instrument
@@ -68,15 +68,10 @@ Adding setups and libraries
 * Setups can be created in ``custom/instname/setups`` and installed normally.
   Modules go under ``custom/instname/lib``.  The script ``tools/check_setups``
   is very helpful when writing new setups.  It can be called from the checkout,
-  and is also automatically run on ``make install``. 
+  and is also automatically run on ``make install``.
 
 * To test setups and modules with the checkout instead of the installed copy,
-  copy the ``nicos.conf`` file from the install dir to the checkout dir, and
-  change the ``setups_path`` entry::
-
-    [nicos]
-    ...
-    setups_path = custom/instname/setups
+  you can set the environment variable ``INSTRUMENT`` to the instrument name.
 
 * Modules like ``custom/instname/lib/foo.py`` can be imported as
   ``nicos.instname.foo`` (or, in setups, also ``instname.foo``).

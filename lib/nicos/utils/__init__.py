@@ -29,6 +29,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+import glob
 import errno
 import signal
 import socket
@@ -377,22 +378,105 @@ class NicosConfigParser(configparser.SafeConfigParser):
         return key
 
 def readConfig():
-    fn = path.normpath(path.join(path.dirname(__file__),
-                                 '../../../nicos.conf'))
-    cfg = NicosConfigParser()
-    cfg.read(fn)
-    if cfg.has_section('environment'):
-        for name in cfg.options('environment'):
-            value = cfg.get('environment', name)
-            if name == 'PYTHONPATH':
-                # needs to be special-cased
-                sys.path[:0] = value.split(':')
-            else:
-                os.environ[name] = value
+    """Read the basic NICOS configuration.  This is a multi-step process:
+
+    * First, we read the "local" nicos.conf (the one in the root dir)
+      and try to find out our instrument from it or the environment.
+    * Then, find the instrument-specific nicos.conf and read its values.
+    * Finally, go back to the "local" config and overwrite values from the
+      instrument-specific config with those given in the root.
+    """
+    # Get the root path of the NICOS install.
+    nicos_root = path.normpath(path.join(path.dirname(__file__), '../../..'))
+
+    # Read the local config from the standard path.
+    local_cfg = NicosConfigParser()
+    local_cfg.read(path.join(nicos_root, 'nicos.conf'))
+
+    # Try to find a good value for the instrument name, either from the
+    # environment, from the local config,  or from the hostname.
+    instr = None
+    if 'INSTRUMENT' in os.environ:
+        instr = os.environ['INSTRUMENT']
+    elif local_cfg.has_option('nicos', 'instrument'):
+        instr = local_cfg.get('nicos', 'instrument')
+    else:
+        try:
+            # Take the middle part of the domain name (machine.instrument.frm2)
+            domain = socket.getfqdn().split('.')[1]
+        except (ValueError, IndexError, socket.error):
+            pass
+        else:
+            # ... but only if a customization exists for it
+            if path.isdir(path.join(nicos_root, 'custom', domain)):
+                instr = domain
+    if instr is None:
+        print('No instrument configured or detected, using "demo" instrument.',
+              file=sys.stderr)
+        instr = 'demo'
+
+    # Now read the instrument-specific nicos.conf.
+    instr_cfg = NicosConfigParser()
+    instr_cfg.read(path.join(nicos_root, 'custom', instr, 'nicos.conf'))
+
+    # Now read the whole configuration from both locations, where the
+    # local config overrides the instrument specific config.
+    values = {'instrument': instr}
+    environment = {}
+    for cfg in (instr_cfg, local_cfg):
+        # Get nicos config values.
+        if cfg.has_section('nicos'):
+            for option in cfg.options('nicos'):
+                values[option] = cfg.get('nicos', option)
+        # Get environment variables.
+        if cfg.has_section('environment'):
+            for name in cfg.options('environment'):
+                environment[name] = cfg.get('environment', name)
+
+    return values, environment
+
+
+def applyConfig():
+    """Read and then apply the NICOS configuration."""
     from nicos.core.sessions import Session
-    if cfg.has_section('nicos'):
-        for option in cfg.options('nicos'):
-            setattr(Session.config, option, cfg.get('nicos', option))
+    confobj = Session.config
+
+    values, environment = readConfig()
+
+    # Apply session configuration values.
+    for key, value in values.items():
+        setattr(confobj, key, value)
+
+    # Apply environment variables.
+    for key, value in environment.items():
+        if key == 'PYTHONPATH':
+            # needs to be special-cased
+            sys.path[:0] = value.split(':')
+        else:
+            os.environ[key] = value
+
+    # Determine which custom_path to use
+    for cp in confobj.custom_paths.split(':'):
+        cp = path.abspath(path.join(confobj.control_path, cp.strip()))
+        if path.isdir(cp):
+            confobj.custom_path = cp
+            break
+    else:
+        print('No custom_paths entry exists, falling back to built-in!',
+              file=sys.stderr)
+        confobj.custom_path = path.abspath(path.join(confobj.control_path, 'custom'))
+
+    # Set a default setup_subdirs
+    if confobj.setup_subdirs is None:
+        confobj.setup_subdirs = confobj.instrument
+
+    # Set up PYTHONPATH for Taco libraries.
+    try:
+        tacobase = os.environ['DSHOME']
+    except KeyError:
+        tacobase = '/opt/taco'
+    sys.path.extend(glob.glob(tacobase + '/lib*/python%d.*/site-packages'
+                              % sys.version_info[0]))
 
 
 # simple file operations

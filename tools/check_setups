@@ -17,12 +17,16 @@ except ImportError:
 
 from nicos import session
 from nicos.core.errors import ConfigurationError
-from nicos.core.sessions import Session, SETUP_GROUPS
+from nicos.core.sessions import Session
+from nicos.core.sessions.setups import SETUP_GROUPS
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 
-# patch the session config (the "control_path_relative" param type requires a
-# valid Session.config, but "session" is currently just a bare object)
+# patch the session config ("session" is currently just a bare object)
 session.config = Session.config
+
+# get default custom paths
+default_dirs = [path.join(session.config.custom_path, p.strip(), 'setups')
+                for p in session.config.setup_subdirs.split(',')]
 
 # generate stub TACO modules as needed to be able to import nicos.devices.taco
 # modules and check parameters
@@ -259,6 +263,9 @@ parser.add_option('-o', '--outfile', dest='filename', action='store',
                  )
 
 opts, args = parser.parse_args()
+
+if not args:
+    args = default_dirs
 
 logging.basicConfig()
 root_log = logging.getLogger()
