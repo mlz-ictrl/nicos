@@ -466,7 +466,7 @@ class NicosPlot(QwtPlot, DlgUtils):
         printer.setOrientation(QPrinter.Landscape)
         printer.setOutputFileName('')
         if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
-            self.currentPlot.print_(printer)
+            self.print_(printer)
             return True
         return False
 
