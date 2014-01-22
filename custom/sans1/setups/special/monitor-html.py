@@ -120,7 +120,7 @@ _atpolcolumn = Column(
 )
 
 _sanscolumn = Column(
-    Block('SANS',[
+    Block('Collimation',[
         BlockRow(
                  Field(dev='bg1', name='bg1', width=5),
                  Field(dev='bg2', name='bg2', width=5),
@@ -147,7 +147,36 @@ _birmag = Column(
                  Field(name='Temp a birmag', dev='ta_birmag', width=13),
                  Field(name='Temp b birmag', dev='tb_birmag', width=13),
                 ),
-        ], 'birmag'
+        ], '!always!birmag'
+    ),
+)
+
+_sansmagnet = Column(
+    Block('Sans1 Magnet', [
+        BlockRow(
+                 Field(name='Field', dev='b_overall'),
+                ),
+        BlockRow(
+                 Field(name='Power Supply 1', dev='b_left'),
+                 Field(name='Power Supply 2', dev='b_right'),
+                ),
+        BlockRow(
+                 Field(name='CH Stage 1', dev='t_1'),
+                 Field(name='CH Stage 2', dev='t_2'),
+                ),
+        BlockRow(
+                 Field(name='Shield Top', dev='t_3'),
+                 Field(name='Shield Bottom', dev='t_4'),
+                ),
+        BlockRow(
+                 Field(name='Magnet TL', dev='t_5'),
+                 Field(name='Magnet TR', dev='t_6'),
+                ),
+        BlockRow(
+                 Field(name='Magnet BL', dev='t_8'),
+                 Field(name='Magnet BR', dev='t_7'),
+                ),
+        ],'!always!sansmagnet'
     ),
 )
 
@@ -167,7 +196,7 @@ devices = dict(
                                  Row(_sans1general, _table, _sans1det),
                                  Row(_selcolumn, _pressurecolumn),
                                  Row(_atpolcolumn, _sanscolumn),
-                                 Row(_birmag),
+                                 Row(_sansmagnet, _birmag),
                                ],
                     ),
 )

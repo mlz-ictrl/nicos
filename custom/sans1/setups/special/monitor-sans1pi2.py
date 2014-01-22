@@ -34,7 +34,7 @@ Field = lambda *args, **kwds: args or kwds
 _sc1 = Block('Sample Changer 1', [
     BlockRow(Field(name='Position', dev='sc1_y'),),
     BlockRow(Field(name='sc1', dev='sc1'),),
-], )
+], '!always!sc1')
 
 _table = Block('Sample Table', [
     BlockRow(Field(name='z-2a', dev='z_2a'),),
@@ -46,7 +46,7 @@ _table = Block('Sample Table', [
     BlockRow(Field(name='y-2b', dev='y_2b'),),
     BlockRow(Field(name='z-2b', dev='z_2b'),),
     BlockRow(Field(name='x-2b', dev='x_2b'),),
-])
+], '!always!table')
 
 _htf03 = Block('HTF03', [
     BlockRow(Field(name='Temperature', dev='T_htf03', format='%.2f', unit='C')),
@@ -78,9 +78,9 @@ _spinflipper = Block('Spin Flipper', [
              Field(name='Ampl HP33220a', dev='a_agilent1'),
              Field(name='Freq HP33220a', dev='f_agilent1'),
             ),
-])
+], 'spinflipper')
 
-_sans1magnet = Block('Sans1 Magnet', [
+_sansmagnet = Block('Sans1 Magnet', [
     BlockRow(Field(name='Field', dev='b_overall'),),
     BlockRow(
              Field(name='Power Supply 1', dev='b_left'),
@@ -102,7 +102,7 @@ _sans1magnet = Block('Sans1 Magnet', [
              Field(name='Magnet BL', dev='t_8'),
              Field(name='Magnet BR', dev='t_7'),
             ),
-])
+], '!always!sansmagnet')
 
 _amagnet = Block('Garfield Magnet', [
     BlockRow(Field(name='Lambda out', dev='l_out'),),
@@ -145,7 +145,7 @@ _birmag = Block('17 T Magnet', [
         BlockRow(
                  Field(name='Temp a birmag', dev='ta_birmag', width=13),
                  Field(name='Temp b birmag', dev='tb_birmag', width=13),),
-], 'birmag')
+], '!always!birmag')
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
@@ -161,7 +161,7 @@ devices = dict(
                      layout=[
                                 Row(
                                     Column(_sc1, _table, _amagnet, _newport),
-                                    Column(_htf03, _spinflipper, _sans1magnet),
+                                    Column(_htf03, _spinflipper, _sansmagnet),
                                     Column(*ccrs) + Column(_birmag),
                                 ),
                             ],
