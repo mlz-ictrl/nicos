@@ -4,38 +4,35 @@ ANTARES instrument
 Custom experiment
 -----------------
 
-.. module:: nicos.antares.experiment
-
-.. autoclass:: Experiment()
+.. automodule:: nicos.antares.experiment
+    :members:
+    :undoc-members:
 
 Monochromator
 -------------
 
-.. module:: nicos.antares.monochromator
-
-.. autoclass:: Monochromator()
+.. automodule:: nicos.antares.monochromator
+    :members:
+    :undoc-members:
 
 Detector
 --------
 
-.. module:: nicos.antares.ikonl
-
-.. autoclass:: AntaresIkonLCCD()
-
-.. autoclass:: AntaresAndorIkonLTC()
+.. automodule:: nicos.antares.ikonl
+    :members:
+    :undoc-members:
 
 Advanced Tango devices
 ----------------------
 
-.. module:: nicos.antares.partialdio
-
-.. autoclass:: PartialDigitalInput()
-
-.. autoclass:: PartialDigitalOutput()
+.. automodule:: nicos.antares.partialdio
+    :members:
+    :undoc-members:
 
 Taco workarounds
 ----------------
 
-.. module:: nicos.antares.servostar
+.. automodule:: nicos.antares.servostar
+    :members:
+    :undoc-members:
 
-.. autoclass:: ServoStarMotor()

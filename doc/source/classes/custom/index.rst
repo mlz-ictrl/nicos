@@ -7,3 +7,4 @@ They are sometimes not as well-tested as the device classes in "nicos.devices", 
 .. toctree::
 
    antares
+   panda
