@@ -129,7 +129,8 @@ class SetupDirective(Directive):
             return None
 
         ns = {
-              'device': lambda cls, **params: (cls, params)
+              'device': lambda cls, **params: (cls, params),
+              'setupname' : setupName
               }
 
         try:
@@ -237,8 +238,6 @@ class SetupDirective(Directive):
                 rst.append('%s| %s' % (self.indention*2, devParams['description']))
                 rst.append('')
 
-            #explicitParams = []
-            #inplicitParams = []
             paramRows = [('Parameter', 'Default', 'Configured')]
 
             for paramName in sorted(klass.parameters.keys()):
@@ -252,17 +251,6 @@ class SetupDirective(Directive):
                 else:
                     paramRows += [(self._buildParamLink(paramName, paramInfo), repr(paramInfo.default), '')]
 
-
-
-                #if paramName in devParams:
-                #    explicitParams += [(self._buildParamLink(paramName, paramInfo), devParams[paramName])]
-                #else:
-                #    inplicitParams += [(self._buildParamLink(paramName, paramInfo), paramInfo.default)]
-
-            #rst.append('%s**Explicit set parameters** \n' % (self.indention*2))
-            #rst.append(self._buildVerticalListTable(explicitParams, 2))
-            #rst.append('%s**Implicit parameters (defaults)** \n\n' % (self.indention*2))
-            #rst.append(self._buildVerticalListTable(inplicitParams, 2))
             rst.append(self._buildListTable(paramRows, 2))
             rst.append('')
 
@@ -336,6 +324,10 @@ class SetupdirDirective(SetupDirective):
         relPath = self.arguments[0]
         path = os.path.join(self.base_path, relPath)
         path = os.path.abspath(path)
+
+        if not os.path.isdir(path):
+            self.error('Setup directory does not exist: %s' % path)
+            return []
 
 
         for entry in sorted(os.listdir(path)): # explicitely NOT recursive!
