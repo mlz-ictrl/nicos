@@ -131,7 +131,7 @@ class Monitor(BaseCacheClient):
 
         # start a thread checking for modification of the setup file
         checker = threading.Thread(target=self._checker, name='refresh checker')
-        checker.setDaemon(True)
+        checker.daemon = True
         checker.start()
 
         self.initGui()

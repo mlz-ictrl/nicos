@@ -89,5 +89,5 @@ class PandaExperiment(Experiment):
         # something needs to check the return value, if the process ends
         thread = threading.Thread(target=checker, name='Checking Editor')
         # don't block on closing python if the editor is still running...
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()

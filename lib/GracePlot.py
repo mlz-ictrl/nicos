@@ -279,7 +279,7 @@ class GracePlot:
         transmitter=threading.Thread(target=_sender,
             args=(self._transmit_queue, self.grace.stdin,
                   redraw_interval, auto_redraw))
-        transmitter.setDaemon(True)
+        transmitter.daemon = True
         transmitter.start()
         self._transmitter=transmitter
 

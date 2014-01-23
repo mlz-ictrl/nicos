@@ -153,7 +153,7 @@ class NicosCmdClient(NicosClient):
         # set up clientexec (plotting) thread
         self.clientexec_queue = Queue.Queue()
         self.clientexec_thread = Thread(target=self.clientexec_thread_entry)
-        self.clientexec_thread.setDaemon(True)
+        self.clientexec_thread.daemon = True
         self.clientexec_thread.start()
 
         # pre-set prompt to sane default

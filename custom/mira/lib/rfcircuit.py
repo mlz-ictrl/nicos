@@ -93,7 +93,7 @@ class RFCurrent(HasLimits, Moveable):
         Moveable._setMode(self, mode)
         if mode == MASTER:
             self._rfthread = threading.Thread(target=self._rfcontrol)
-            self._rfthread.setDaemon(True)
+            self._rfthread.daemon = True
             self._rfthread.start()
 
     def doReadUnit(self):

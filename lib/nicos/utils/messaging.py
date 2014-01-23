@@ -55,7 +55,7 @@ class SimulationSupervisor(Thread):
         Thread.__init__(self, target=self._target,
                         args=(daemon, scriptname, prefix, setups, code),
                         name='SimulationSupervisor')
-        self.setDaemon(True)
+        self.daemon = True
 
     def _target(self, daemon, scriptname, prefix, setups, code):
         socket = zmq_ctx.socket(zmq.PULL)

@@ -525,7 +525,7 @@ class ExecutionController(Controller):
             raise RuntimeError('script thread already started')
         self.thread = Thread(target=self.script_thread_entry, args=args,
                              name='daemon script_thread')
-        self.thread.setDaemon(True)
+        self.thread.daemon = True
         self.thread.start()
 
     def script_thread_entry(self):

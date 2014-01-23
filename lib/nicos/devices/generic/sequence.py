@@ -263,7 +263,7 @@ class SequencerMixin(DeviceMixinBase):
         self._seq_stopflag = False
         self._seq_thread = threading.Thread(target=self._run,
                                           args=(sequence,))
-        self._seq_thread.setDaemon(True)
+        self._seq_thread.daemon = True
         self._seq_thread.start()
 
     def _run(self, sequence):

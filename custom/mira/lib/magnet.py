@@ -116,7 +116,7 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
         if value == 0:
             value = 0.001
         self._thread = threading.Thread(target=self._move_to, args=(value,))
-        self._thread.setDaemon(True)
+        self._thread.daemon = True
         self._thread.start()
 
     def doRead(self, maxage=0):

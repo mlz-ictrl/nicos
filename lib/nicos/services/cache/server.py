@@ -81,14 +81,14 @@ class CacheWorker(object):
         # start receiver thread
         self.receiver = threading.Thread(None, self._receiver_thread,
                                          'receiver %s' % name, args=())
-        self.receiver.setDaemon(True)
+        self.receiver.daemon = True
         self.receiver.start()
 
     def start_sender(self, name):
         self.send_queue = Queue.Queue()
         self.sender = threading.Thread(None, self._sender_thread,
                                        'sender %s' % name, args=())
-        self.sender.setDaemon(True)
+        self.sender.daemon = True
         self.sender.start()
 
     def __str__(self):

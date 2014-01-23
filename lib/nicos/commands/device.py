@@ -253,7 +253,7 @@ def stop(*devlist):
     for dev in devlist:
         stopthread = threading.Thread(target=stopdev, args=(dev,),
                                       name='device stopper')
-        stopthread.setDaemon(True)
+        stopthread.daemon = True
         stopthread.start()
     while len(finished) != len(devlist):
         time.sleep(0.1)

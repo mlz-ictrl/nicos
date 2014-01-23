@@ -233,7 +233,7 @@ class HoveringAxis(Axis):
             return
         self._poll_thread = threading.Thread(target=self._pollthread,
                                              name='%s polling thread' % self)
-        self._poll_thread.setDaemon(True)
+        self._poll_thread.daemon = True
         self._wait_exception = None
         self._adevs['switch'].move(self.switchvalues[1])
         try:

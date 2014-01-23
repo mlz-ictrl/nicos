@@ -89,7 +89,7 @@ class BaseCacheClient(Device):
         # create worker thread, but do not start yet, leave that to subclasses
         self._worker = threading.Thread(target=self._worker_thread,
                                         name='CacheClient worker')
-        self._worker.setDaemon(True)
+        self._worker.daemon = True
 
     def _getCache(self):
         return None

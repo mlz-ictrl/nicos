@@ -66,7 +66,7 @@ class VirtualMotor(Motor, HasOffset):
             self.curstatus = (status.BUSY, 'virtual moving')
             self._thread = threading.Thread(target=self.__moving, args=(pos,),
                                             name='virtual motor %s' % self)
-            self._thread.setDaemon(True)
+            self._thread.daemon = True
             self._thread.start()
         else:
             self.curstatus = (status.BUSY, 'virtual moving')
@@ -158,7 +158,7 @@ class VirtualTimer(Channel):
             self.__finish = False
             thr = threading.Thread(target=self.__thread,
                                    name='virtual timer %s' % self)
-            thr.setDaemon(True)
+            thr.daemon = True
             thr.start()
 
     def doIsCompleted(self):
@@ -320,7 +320,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
             self._window = deque([], ceil(self.window/self.loopdelay))
             self._thread = threading.Thread(target=self.__run,
                                         name='Cryo simulator %s' % self)
-            self._thread.setDaemon(True)
+            self._thread.daemon = True
             self._thread.start()
 
     def doStart(self, pos):

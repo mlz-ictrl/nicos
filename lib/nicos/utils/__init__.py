@@ -250,7 +250,7 @@ def runAsync(func):
     def inner(*args, **kwargs):
         thr = threading.Thread(target=func, args=args, kwargs=kwargs,
                                name='runAsync %s' % func)
-        thr.setDaemon(True)
+        thr.daemon = True
         thr.start()
     return inner
 

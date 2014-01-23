@@ -98,7 +98,7 @@ class Mailer(Notifier):
                 self.log.info('%smail sent to %s' % (
                     what and what + ' ' or '', ', '.join(receivers)))
         mail_thread = threading.Thread(target=send, name='mail sender')
-        mail_thread.setDaemon(True)
+        mail_thread.daemon = True
         mail_thread.start()
 
     def _sendmail(self, address, to, cc, subject, text):

@@ -73,7 +73,7 @@ class Server(TCPServer):
         t = threading.Thread(target=self.process_request_thread,
                              args=(request, client_address, client_id),
                              name='request handler')
-        t.setDaemon(True)
+        t.daemon = True
         t.start()
 
     def process_request_thread(self, request, client_address, client_id):
@@ -108,7 +108,7 @@ class Server(TCPServer):
         event_thread = threading.Thread(target=handler.event_sender,
                                         args=(request,),
                                         name='event_sender %d' % handler.ident)
-        event_thread.setDaemon(True)
+        event_thread.daemon = True
         event_thread.start()
         self.pending_clients.pop((host, clid), None)
         # don't call the usual handler
@@ -198,7 +198,7 @@ class NicosDaemon(Device):
 
         self._watch_worker = threading.Thread(target=self._watch_entry,
                                               name='daemon watch monitor')
-        self._watch_worker.setDaemon(True)
+        self._watch_worker.daemon = True
         self._watch_worker.start()
 
     def _watch_entry(self):

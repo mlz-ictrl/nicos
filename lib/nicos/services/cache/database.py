@@ -339,7 +339,7 @@ class FlatfileCacheDatabase(CacheDatabase):
 
         self._stoprequest = False
         self._cleaner = threading.Thread(target=self._clean, name='cleaner')
-        self._cleaner.setDaemon(True)
+        self._cleaner.daemon = True
         self._cleaner.start()
 
     def doShutdown(self):

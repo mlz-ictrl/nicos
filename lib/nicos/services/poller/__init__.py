@@ -214,14 +214,14 @@ class Poller(Device):
                                       target=self._worker_thread,
                                       args=(devname, event))
             worker.event = event
-            worker.setDaemon(True)
+            worker.daemon = True
             worker.start()
             self._workers.append(worker)
 
         # start a thread checking for modification of the setup file
         checker = threading.Thread(target=self._checker, name='refresh checker',
                                    args=(setup,))
-        checker.setDaemon(True)
+        checker.daemon = True
         checker.start()
 
     def _checker(self, setupname):
