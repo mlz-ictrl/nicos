@@ -24,6 +24,13 @@
 
 """Python 2/3 compatibility."""
 
+__all__ = [
+    'builtins',
+    'OrderedDict', 'get_thread_id'
+]
+
+import threading
+
 # Pylint cannot handle submodules created by "six".  Import them here to
 # ignore the Pylint errors only once.
 from six.moves import builtins  # pylint: disable=F0401
@@ -32,3 +39,8 @@ try:
     from collections import OrderedDict  # pylint: disable=E0611
 except ImportError:
     from ordereddict import OrderedDict
+
+try:
+    get_thread_id = threading._get_ident
+except AttributeError:
+    get_thread_id = threading.get_ident

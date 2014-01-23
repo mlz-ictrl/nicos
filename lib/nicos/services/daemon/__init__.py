@@ -26,7 +26,6 @@
 
 import time
 import Queue
-import select
 import socket
 import weakref
 import threading
@@ -35,7 +34,7 @@ from SocketServer import TCPServer
 from nicos import nicos_version
 from nicos.core import listof, Device, Param, ConfigurationError
 from nicos.utils import closeSocket
-
+from nicos.pycompat import get_thread_id
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
 from nicos.services.daemon.handler import ConnectionHandler
@@ -126,12 +125,12 @@ class Server(TCPServer):
             self.pending_clients[host, client_id] = handler
             self.handler_ident += 1
             handler.ident = self.handler_ident
-            self.handlers[threading._get_ident()] = handler
+            self.handlers[get_thread_id()] = handler
 
     def unregister_handler(self, ident):
         """Remove a handler from the handlers dictionary."""
         with self.handler_ident_lock:
-            del self.handlers[threading._get_ident()]
+            del self.handlers[get_thread_id()]
 
     def handle_error(self, request, client_address):
         """Last chance exception handling."""
