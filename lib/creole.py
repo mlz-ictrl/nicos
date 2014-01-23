@@ -9,6 +9,8 @@
 import re
 import sys
 
+from six.moves import xrange
+
 
 class DocNode(object):
     """

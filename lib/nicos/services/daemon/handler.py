@@ -30,8 +30,6 @@ import os
 import errno
 import socket
 import tempfile
-from Queue import Queue, Full
-from SocketServer import BaseRequestHandler
 
 from nicos import session, nicos_version
 from nicos.core import ADMIN, ConfigurationError, SPMError
@@ -43,6 +41,7 @@ from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
 from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
     ACK, STX, NAK, LENGTH, RS, PROTO_VERSION, BREAK_NOW
+from nicos.pycompat import queue, socketserver
 
 
 READ_BUFSIZE = 4096
@@ -94,7 +93,7 @@ def command(needcontrol=False, needscript=None, name=None):
 stop_queue = object()
 
 
-class ConnectionHandler(BaseRequestHandler):
+class ConnectionHandler(socketserver.BaseRequestHandler):
     """
     This class is the SocketServer "request handler" implementation for the
     daemon server.  One instance of this class is created for every control
@@ -117,7 +116,7 @@ class ConnectionHandler(BaseRequestHandler):
     """
 
     def __init__(self, request, client_address, client_id, server):
-        self.event_queue = Queue(1024)
+        self.event_queue = queue.Queue(1024)
         self.event_mask = set()
         # bind often used daemon attributes to self
         self.daemon = server.daemon
@@ -131,7 +130,8 @@ class ConnectionHandler(BaseRequestHandler):
         self._buffer = ''
         try:
             # this calls self.handle()
-            BaseRequestHandler.__init__(self, request, client_address, server)
+            socketserver.BaseRequestHandler.__init__(
+                self, request, client_address, server)
         except CloseConnection:
             # in case the client hasn't opened the event connection, stop
             # waiting for it
@@ -140,7 +140,7 @@ class ConnectionHandler(BaseRequestHandler):
             self.log.exception('unhandled exception')
         try:
             self.event_queue.put(stop_queue, False)
-        except Full:
+        except queue.Full:
             # the event queue has already overflown because the event sender was
             # already closed; so we can ignore this
             pass

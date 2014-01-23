@@ -27,12 +27,12 @@
 from __future__ import print_function
 
 import sys
-import cPickle as pickle
 
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
      bitDescription, parseConnectionString, formatExtendedFrame, \
      formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
      comparestrings
+from nicos.pycompat import cPickle as pickle
 
 from test.utils import raises
 

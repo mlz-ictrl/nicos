@@ -133,7 +133,11 @@ import subprocess
 import time
 import threading
 import weakref
-import Queue
+
+try:
+    import Queue
+except ImportError:
+    import queue as Queue
 
 class Disconnected(Exception):
     """Thrown when xmgrace unexpectedly disconnects from the pipe.
@@ -954,17 +958,17 @@ class Data:
 
         strlist=['with g%d.s%d' % (gID, count)]
         if new_x:
-            strlist += ['x[%d]=%s' % (idx, self.x_format_string % new_x[idx]) for idx in xrange(len(x)) if x[idx]!=new_x[idx]]
+            strlist += ['x[%d]=%s' % (idx, self.x_format_string % new_x[idx]) for idx in range(len(x)) if x[idx]!=new_x[idx]]
             self.x=tuple(new_x) #make a copy!
         if new_y:
-            strlist += ['y[%d]=%s' % (idx, self.y_format_string % new_y[idx]) for idx in xrange(len(y)) if y[idx]!=new_y[idx]]
+            strlist += ['y[%d]=%s' % (idx, self.y_format_string % new_y[idx]) for idx in range(len(y)) if y[idx]!=new_y[idx]]
             self.y=tuple(new_y) #make a copy!
 
         #now, go through all the extra dx and dy values available and output them.
         if new_dylist:
             strlist += ['y%d[%d]=%g' % (dyidx+1, idx, dyl[idx])
                 for (dyidx, (olddyl, dyl)) in enumerate(zip(self.dylist, new_dylist))
-                for idx in xrange(len(dyl))
+                for idx in range(len(dyl))
                 if olddyl[idx] != dyl[idx]]
             self.dylist=[tuple(e) for e in new_dylist] #make copies!
 

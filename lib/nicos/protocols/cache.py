@@ -186,12 +186,12 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 """
 
 import re
-import cPickle as pickle
 from ast import parse, Str, Num, Tuple, List, Dict, BinOp, UnaryOp, \
      Add, Sub, USub, Name, Call
 from base64 import b64encode, b64decode
 
 from nicos.utils import readonlylist, readonlydict
+from nicos.pycompat import cPickle as pickle
 
 DEFAULT_CACHE_PORT = 14869
 

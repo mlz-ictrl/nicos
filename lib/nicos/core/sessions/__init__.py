@@ -30,11 +30,9 @@ Only for internal usage by functions and methods.
 """
 
 import os
-import imp
 import sys
 import inspect
 import logging
-import __builtin__
 from os import path
 
 from six import exec_
@@ -57,6 +55,7 @@ from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
      NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
      SIMULATION, MAINTENANCE
+from nicos.pycompat import builtins
 
 
 SETUP_GROUPS = set([
@@ -186,7 +185,7 @@ class Session(object):
             self.namespace[name] = getattr(numpy, name)
         # remove interactive Python interpreter stuff
         for name in ['credits', 'copyright', 'license', 'exit', 'quit']:
-            __builtin__.__dict__.pop(name, None)
+            builtins.__dict__.pop(name, None)
 
     @property
     def mode(self):
@@ -847,7 +846,7 @@ class Session(object):
             ListMethods(obj)
             ListParams(obj)
         elif not inspect.isfunction(obj):
-            __builtin__.help(obj)
+            builtins.help(obj)
         else:
             # for functions, print arguments and docstring
             real_func = getattr(obj, 'real_func', obj)

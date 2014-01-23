@@ -31,7 +31,6 @@ import weakref
 import traceback
 from os import path
 from bdb import BdbQuit
-from Queue import Queue
 from threading import Lock, Event, Thread
 
 from six import exec_
@@ -46,6 +45,7 @@ from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
 from nicos.core import SIMULATION, SLAVE, MASTER
+from nicos.pycompat import queue
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000
@@ -285,7 +285,7 @@ class ExecutionController(Controller):
         self.setup = startupsetup  # first setup on start
         self.simmode = simmode and SIMULATION or SLAVE
                                    # start in simulation mode?
-        self.queue = Queue()       # user scripts get put here
+        self.queue = queue.Queue() # user scripts get put here
         self.current_script = None # currently executed script
         self.namespace = session.namespace
                                    # namespace in which scripts execute

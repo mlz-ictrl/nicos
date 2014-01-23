@@ -35,13 +35,14 @@ import socket
 import linecache
 import threading
 import traceback
-import ConfigParser
 from os import path
 from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, \
      S_IROTH, S_IXOTH
 from time import time as currenttime, strftime, strptime, localtime, mktime, \
      sleep
 from itertools import islice, chain
+
+from nicos.pycompat import configparser, xrange as range  # pylint: disable=W0622
 
 try:
     import grp
@@ -369,7 +370,7 @@ def safeFilename(fn):
 
 # read nicos.conf files
 
-class NicosConfigParser(ConfigParser.SafeConfigParser):
+class NicosConfigParser(configparser.SafeConfigParser):
     def optionxform(self, key):
         return key
 
@@ -827,7 +828,7 @@ def allDays(fromtime, totime):
     """Determine days of an interval between two timestamps."""
     tmfr = int(mktime(localtime(fromtime)[:3] + (0, 0, 0, 0, 0, -1)))
     tmto = int(min(currenttime(), totime))
-    for tmday in xrange(tmfr, tmto, 86400):
+    for tmday in range(tmfr, tmto, 86400):
         lt = localtime(tmday)
         yield str(lt[0]), '%02d-%02d' % lt[1:3]
 

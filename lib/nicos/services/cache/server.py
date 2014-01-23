@@ -35,7 +35,6 @@ module `nicos.protocols.cache`.  It also contains the documentation of the used
 line protocol.
 """
 
-import Queue
 import select
 import socket
 import threading
@@ -44,7 +43,9 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import Device, Param
 from nicos.utils import loggers, closeSocket
-#pylint: disable=W0611
+from nicos.pycompat import queue
+
+# pylint: disable=W0611
 from nicos.services.cache.database import CacheDatabase, FlatfileCacheDatabase, \
      MemoryCacheDatabase, MemoryCacheDatabaseWithHistory
 from nicos.protocols.cache import msg_pattern, line_pattern, \
@@ -85,7 +86,7 @@ class CacheWorker(object):
         self.receiver.start()
 
     def start_sender(self, name):
-        self.send_queue = Queue.Queue()
+        self.send_queue = queue.Queue()
         self.sender = threading.Thread(None, self._sender_thread,
                                        'sender %s' % name, args=())
         self.sender.daemon = True

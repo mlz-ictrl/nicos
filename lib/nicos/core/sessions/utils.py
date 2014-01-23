@@ -31,7 +31,6 @@ import socket
 import keyword
 import exceptions
 import rlcompleter
-import __builtin__
 
 try:
     import readline
@@ -41,6 +40,7 @@ except ImportError:
 from nicos import session
 from nicos.core import Device, UsageError, \
      MASTER, SLAVE, SIMULATION, MAINTENANCE
+from nicos.pycompat import builtins
 
 
 EXECUTIONMODES = [MASTER, SLAVE, SIMULATION, MAINTENANCE]
@@ -243,7 +243,7 @@ class NicosCompleter(object):
         for word in keyword.kwlist:
             if word[:n] == text and word not in self.hidden_keyword:
                 matches.append(word)
-        for nspace in [__builtin__.__dict__, self.namespace, self.namespace2]:
+        for nspace in [builtins.__dict__, self.namespace, self.namespace2]:
             for word, val in nspace.items():
                 if word[:n] == text and word != '__builtins__':
                     matches.append(self._callable_postfix(val, word))

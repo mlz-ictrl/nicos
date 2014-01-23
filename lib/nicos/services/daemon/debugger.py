@@ -28,10 +28,11 @@ A remote debugger for the NICOS daemon.
 
 import sys
 from pdb import Pdb
-from Queue import Queue
+
+from nicos.pycompat import queue
 
 
-class FakeStdin(Queue):
+class FakeStdin(queue.Queue):
     """A Queue that can pose as a stream with a readline() method."""
     def readline(self):
         return self.get()

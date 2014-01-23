@@ -25,7 +25,8 @@
 """NICOS daemon protocol helpers."""
 
 import struct
-import cPickle as pickle
+
+from nicos.pycompat import cPickle as pickle
 
 
 # default port for the daemon

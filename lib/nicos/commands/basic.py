@@ -29,7 +29,6 @@ import sys
 import time
 import inspect
 import traceback
-import __builtin__
 from os import path
 
 from six import exec_
@@ -45,6 +44,7 @@ from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printexception
 from nicos.core import SIMULATION, MASTER, MAINTENANCE
+from nicos.pycompat import builtins
 
 CO_DIVISION = 0x2000
 
@@ -83,7 +83,7 @@ def help(obj=None):  #pylint: disable=W0622
     """
     session.showHelp(obj)
 
-__builtin__.__orig_dir = __builtin__.dir
+builtins.__orig_dir = builtins.dir
 
 @hiddenusercommand
 @helparglist('[object]')
@@ -91,7 +91,7 @@ def dir(obj=None):  #pylint: disable=W0622
     """Show all public attributes for the given object."""
     if obj is None:
         return sorted(sys._getframe(1).f_locals)
-    return [name for name in __builtin__.__orig_dir(obj)
+    return [name for name in builtins.__orig_dir(obj)
             if not name.startswith(('_', 'do'))]
 
 @usercommand

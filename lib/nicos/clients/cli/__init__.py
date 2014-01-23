@@ -29,7 +29,6 @@ import sys
 import glob
 import time
 import errno
-import Queue
 import random
 import select
 import signal
@@ -37,7 +36,6 @@ import getpass
 import readline
 import tempfile
 import subprocess
-import ConfigParser
 import ctypes, ctypes.util
 from os import path
 from time import strftime, localtime
@@ -52,6 +50,8 @@ from nicos.utils.graceplot import grace_available, GracePlotter
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
     STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE, MASTER
+from nicos.pycompat import queue, configparser
+
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}
@@ -151,7 +151,7 @@ class NicosCmdClient(NicosClient):
         self.wakeup_pipe_r, self.wakeup_pipe_w = os.pipe()
 
         # set up clientexec (plotting) thread
-        self.clientexec_queue = Queue.Queue()
+        self.clientexec_queue = queue.Queue()
         self.clientexec_thread = Thread(target=self.clientexec_thread_entry)
         self.clientexec_thread.daemon = True
         self.clientexec_thread.start()
@@ -522,7 +522,7 @@ class NicosCmdClient(NicosClient):
 
     # -- clientexec (plotting) thread
 
-    def clientexec_thread_entry(self, empty=Queue.Empty):
+    def clientexec_thread_entry(self, empty=queue.Empty):
         """This thread executes "clientexec" (i.e. plotting) requests and runs
         the matplotlib event loop in the meantime.
         """
@@ -1121,7 +1121,7 @@ def main(argv):
     if not argv[0].endswith('nicos-client'):
         configsection = path.basename(argv[0])
 
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read([path.expanduser('~/.nicos-client')])
 
     # check for plotting switch

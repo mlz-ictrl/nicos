@@ -30,6 +30,8 @@ from PyQt4.QtGui import QApplication, QKeyEvent, QLineEdit, QCompleter, \
      QStringListModel
 from PyQt4.QtCore import Qt, SIGNAL, QEvent
 
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
+
 wordsplit_re = re.compile(r'[ \t\n\"\\\'`@$><=;|&{(\[]')
 
 
@@ -150,9 +152,9 @@ class HistoryLineEdit(QLineEdit):
 
     def stepHistoryUntil(self, prefix, direction):
         if direction == 'up':
-            lookrange = xrange(self._current - 1, -1, -1)
+            lookrange = range(self._current - 1, -1, -1)
         else:
-            lookrange = xrange(self._current + 1, len(self.history))
+            lookrange = range(self._current + 1, len(self.history))
         for i in lookrange:
             if self.history[i].startsWith(prefix):
                 self._current = i

@@ -26,7 +26,6 @@
 
 import time
 import threading
-import __builtin__
 
 from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString
@@ -37,6 +36,7 @@ from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo, printerror
+from nicos.pycompat import builtins
 
 
 __all__ = [
@@ -689,7 +689,7 @@ def ListMethods(dev):
     """
     dev = session.getDevice(dev, Device)
     items = []
-    listed = __builtin__.set()
+    listed = builtins.set()
     def _list(cls):
         if cls in listed: return
         listed.add(cls)

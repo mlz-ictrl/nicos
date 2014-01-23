@@ -29,7 +29,8 @@ import pydoc
 import inspect
 import threading
 from cgi import escape
-from cStringIO import StringIO
+
+from six import StringIO
 
 try:
     from docutils.core import publish_parts

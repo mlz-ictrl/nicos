@@ -48,6 +48,7 @@ from nicos.utils.loggers import INPUT, INFO
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
 from nicos.core import SIMULATION, SLAVE, MASTER
+from nicos.pycompat import input as input_func
 
 
 DEFAULT_BINDINGS = '''\
@@ -126,7 +127,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         sys.stdout.write(colorcode(self.session._pscolor))
         self.session._prompting = True
         try:
-            inp = raw_input(prompt)
+            inp = input_func(prompt)
         except KeyboardInterrupt:
             if prompt == sys.ps1:
                 # do not stop immediately on continuation lines; here the user
@@ -273,7 +274,7 @@ class ConsoleSession(Session):
             self.log.info('<L> stop after current scan')
             self.log.info('<S> immediate stop')
             try:
-                reply = raw_input('---> ')
+                reply = input_func('---> ')
             except RuntimeError:
                 # when already in readline(), this will be raised
                 reply = 'S'
@@ -323,8 +324,8 @@ class ConsoleSession(Session):
         # respond to level= keyword
         if 'passcode' in required:
             code = required['passcode']
-            if raw_input('Please enter "%s" to proceed, or press Enter to '
-                         'cancel: ' % code) != code:
+            if input_func('Please enter "%s" to proceed, or press Enter to '
+                          'cancel: ' % code) != code:
                 raise AccessError('passcode not correct')
         return Session.checkAccess(self, required)
 

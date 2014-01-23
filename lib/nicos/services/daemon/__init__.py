@@ -25,30 +25,28 @@
 """NICOS daemon package."""
 
 import time
-import Queue
 import socket
 import weakref
 import threading
-from SocketServer import TCPServer
 
 from nicos import nicos_version
 from nicos.core import listof, Device, Param, ConfigurationError
 from nicos.utils import closeSocket
-from nicos.pycompat import get_thread_id
+from nicos.pycompat import get_thread_id, queue, socketserver
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.protocols.daemon import serialize, DEFAULT_PORT, DAEMON_EVENTS
 
 
-class Server(TCPServer):
+class Server(socketserver.TCPServer):
     def __init__(self, daemon, address, handler):
         self.daemon = daemon
         self.handler_ident_lock = threading.Lock()
         self.handlers = weakref.WeakValueDictionary()
         self.handler_ident = 0
         self.pending_clients = {}
-        TCPServer.__init__(self, address, handler)
+        socketserver.TCPServer.__init__(self, address, handler)
 
     def _handle_request_noblock(self):
         # overwritten to support passing client_id to process_request
@@ -224,7 +222,7 @@ class NicosDaemon(Device):
         for handler in self._server.handlers.values():
             try:
                 handler.event_queue.put((event, data), True, 0.05)
-            except Queue.Full:
+            except queue.Full:
                 self.log.warning('handler %s: event queue full' % handler.ident)
 
     def emit_event_private(self, event, data):
@@ -235,7 +233,7 @@ class NicosDaemon(Device):
         if handler:
             try:
                 handler.event_queue.put((event, data), True, 0.05)
-            except Queue.Full:
+            except queue.Full:
                 self.log.warning('handler %s: event queue full' % handler.ident)
 
     def clear_handlers(self):

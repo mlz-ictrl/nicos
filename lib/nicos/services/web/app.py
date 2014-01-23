@@ -35,7 +35,6 @@ import threading
 from cgi import escape
 from time import sleep
 from hashlib import md5
-from SocketServer import ThreadingMixIn
 from wsgiref.simple_server import WSGIServer
 
 from six import exec_
@@ -43,6 +42,7 @@ from six import exec_
 from nicos import session
 from nicos.utils import formatExtendedTraceback
 from nicos.utils.loggers import DATEFMT, ACTION, INPUT, INFO, DEBUG, WARNING
+from nicos.pycompat import socketserver
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
 
@@ -235,7 +235,7 @@ class WebHandler(logging.Handler):
             self.buffer.append(self.format(record))
 
 
-class MTWSGIServer(ThreadingMixIn, WSGIServer):
+class MTWSGIServer(socketserver.ThreadingMixIn, WSGIServer):
     """A multi-threaded WSGI server."""
 
 

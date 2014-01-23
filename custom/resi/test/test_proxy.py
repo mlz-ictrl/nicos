@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 from nicos.resi import residevice
-import cPickle as pickle
+from nicos.pycompat import cPickle as pickle
 
 
 def test_pickable():

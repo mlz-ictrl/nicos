@@ -26,13 +26,14 @@
 """NICOS Sample related usercommands"""
 
 import json
-import urllib2
-
 
 from nicos import session
 from nicos.core import UsageError, ConfigurationError
 from nicos.commands import usercommand
 from nicos.utils import printTable
+from nicos.pycompat import urllib
+
+
 ACTIVATIONURL = 'https://www.frm2.tum.de/intranet/activation/'
 
 @usercommand
@@ -134,8 +135,8 @@ def activation(formula=None, instrument=None,
             % locals()
     qs = ACTIVATIONURL + qs
     try:
-        response = urllib2.urlopen(qs)
-    except urllib2.HTTPError as e:
+        response = urllib.request.urlopen(qs)
+    except urllib.error.HTTPError as e:
         session.log.warning('Error opening: %s' % qs)
         session.log.warning(e)
         return None

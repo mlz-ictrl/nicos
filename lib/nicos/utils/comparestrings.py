@@ -24,6 +24,7 @@
 
 from __future__ import print_function
 
+
 # How much does it cost to make a hole in one of the strings?
 GAPOPENPENALTY = -0.3
 # How much does it cost to elongate a hole in one of the strings?
@@ -146,15 +147,3 @@ def test():
     assert compare("Test", "test") == len("test") - 1.0 + CAPITALIZESCORE
     assert compare("rest", "test") == len("test") - 1.0 + NEXTKEYSCORE
     assert compare("rest", "crest") == len("rest") + GAPOPENPENALTY
-
-if __name__ == "__main__":
-    test()
-    try:
-        while True:
-            s1 = raw_input("s1: ")
-            if not s1:
-                break
-            s2 = raw_input("s2: ")
-            print("Score:", compare(s1, s2))
-    except (EOFError, KeyboardInterrupt):
-        pass

@@ -27,7 +27,6 @@
 import os
 import sys
 import time
-import cPickle as pickle
 from time import time as currenttime, localtime, mktime, strftime
 
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
@@ -46,6 +45,7 @@ from nicos.clients.gui.fitutils import fit_linear
 from nicos.clients.gui.widgets.plotting import NicosPlot
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
+from nicos.pycompat import cPickle as pickle
 
 
 class View(QObject):

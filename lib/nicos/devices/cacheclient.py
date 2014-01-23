@@ -25,7 +25,6 @@
 
 """NICOS cache clients."""
 
-import Queue
 import select
 import socket
 import threading
@@ -38,6 +37,7 @@ from nicos.protocols.cache import msg_pattern, line_pattern, \
      cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
      OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, \
      CYCLETIME, BUFSIZE
+from nicos.pycompat import queue
 
 
 class BaseCacheClient(Device):
@@ -81,7 +81,7 @@ class BaseCacheClient(Device):
         self._prefixcallbacks = {}
 
         self._stoprequest = False
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self._sync = True  # must be set to False on forking, since no thread
                            # can signal task_done anymore
         self._synced = True
@@ -238,7 +238,7 @@ class BaseCacheClient(Device):
                         for _ in range10:
                             tosend += self._queue.get(False)
                             itemcount += 1
-                    except Queue.Empty:
+                    except queue.Empty:
                         pass
                     # write data
                     try:
@@ -275,7 +275,7 @@ class BaseCacheClient(Device):
                 while 1:
                     tosend += self._queue.get(False)
                     itemcount += 1
-            except Queue.Empty:
+            except queue.Empty:
                 pass
             try:
                 self._socket.sendall(tosend)

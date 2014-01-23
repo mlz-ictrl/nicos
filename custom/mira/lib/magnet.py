@@ -38,6 +38,7 @@ from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput
 from nicos.utils.fitting import Fit
 from nicos.core import SIMULATION
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 
 class LambdaController(HasLimits, TacoDevice, Moveable):
@@ -88,7 +89,7 @@ class LambdaController(HasLimits, TacoDevice, Moveable):
             # half a second is the communication time
             delay = (60 / self.ramp) * 5 - 0.5
             steps, _fraction = divmod(abs(diff), stepwidth)
-            for _i in xrange(int(steps)):
+            for _i in range(int(steps)):
                 if self._stopflag:
                     self.log.debug('got stop flag, quitting ramp')
                     return

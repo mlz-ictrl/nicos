@@ -46,6 +46,7 @@ except ImportError:
 
 from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.fitutils import has_odr, FitError
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 from nicos.guisupport.plots import ActivePlotPicker, TimeScaleEngine, \
     TimeScaleDraw
@@ -692,7 +693,7 @@ def cloneToGrace(plot, saveall="", pause=0.2):
                 g('s%s line linestyle 1' % index)
             else:
                 g('s%s line linestyle 0' % index)
-            for i in xrange(curve.dataSize()):
+            for i in range(curve.dataSize()):
                 g('%s.s%s point %g, %g' %
                   (graph, index, curve._x[i], curve._y[i]))
                 if curve._dy is not None:

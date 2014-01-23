@@ -28,7 +28,8 @@ from cgi import escape
 from time import sleep, time as currenttime
 from datetime import datetime
 from threading import RLock
-from cStringIO import StringIO
+
+from six import BytesIO
 
 try:
     import matplotlib
@@ -224,7 +225,7 @@ class Plot(object):
             # no data yet in plot
             return ''
         self.figure.tight_layout()
-        io = StringIO()
+        io = BytesIO()
         self.figure.savefig(io, format='svg', facecolor=(0,0,0,0))
         return ('<img src="data:image/svg+xml;base64,%s" '
                 'style="width: %sex; height: %sex">' % (

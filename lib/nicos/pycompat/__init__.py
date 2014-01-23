@@ -25,16 +25,18 @@
 """Python 2/3 compatibility."""
 
 __all__ = [
-    'builtins',
+    'builtins', 'cPickle', 'socketserver', 'input',
+    'queue', 'xrange', 'configparser', 'urllib',
     'OrderedDict', 'get_thread_id'
 ]
 
-import six
 import threading
 
 # Pylint cannot handle submodules created by "six".  Import them here to
 # ignore the Pylint errors only once.
-from six.moves import builtins  # pylint: disable=F0401
+from six.moves import builtins, cPickle, socketserver  # pylint: disable=F0401
+from six.moves import queue, configparser, urllib      # pylint: disable=F0401
+from six.moves import xrange, input  # pylint: disable=F0401,W0622
 
 try:
     from collections import OrderedDict  # pylint: disable=E0611

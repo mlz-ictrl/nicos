@@ -28,11 +28,11 @@
 import os
 import re
 import time
-
 from os import path
 from uuid import uuid1
-from StringIO import StringIO
 from textwrap import dedent
+
+from six import BytesIO
 
 # both will fail on M$win
 try:
@@ -479,9 +479,9 @@ class Experiment(Device):
         otherfiles = filenames[1:]
         fullfilename = self.getDataFilename(filename, *subdirs)
         if self._mode == SIMULATION or kwargs.get('nofile'):
-            self.log.debug('Not creating any file, returning a StringIO '
+            self.log.debug('Not creating any file, returning a BytesIO '
                            'buffer instead.')
-            fp = StringIO()
+            fp = BytesIO()
         else:
             if path.isfile(fullfilename):
                 raise ProgrammingError('Data file named %r already exists! '
