@@ -20,6 +20,8 @@
 #     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #     OTHER DEALINGS IN THE SOFTWARE.
 
+# Used for Python 2.6 only -- do not adapt for Python 3.
+
 from UserDict import DictMixin
 
 class OrderedDict(dict, DictMixin):

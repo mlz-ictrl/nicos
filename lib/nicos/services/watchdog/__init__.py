@@ -24,15 +24,14 @@
 
 """The NICOS watchdog daemon."""
 
+import ast
 import subprocess
 from os import path
 from time import time as currenttime, strftime
 
-import ast
-from ordereddict import OrderedDict
-
 from nicos import session
 from nicos.core import Param, Override, listof, dictof, anytype
+from nicos.pycompat import OrderedDict
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.devices.notifiers import Notifier, Mailer
 from nicos.devices.cacheclient import BaseCacheClient

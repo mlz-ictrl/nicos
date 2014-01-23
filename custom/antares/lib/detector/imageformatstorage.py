@@ -22,11 +22,11 @@
 # *****************************************************************************
 
 import pyfits
-from ordereddict import OrderedDict
 
-from nicos.devices.generic import FreeSpace
-from nicos.core import DataSink, ImageProducer
 from nicos import session
+from nicos.core import DataSink, ImageProducer
+from nicos.pycompat import OrderedDict
+from nicos.devices.generic import FreeSpace
 
 
 # XXX: to be rewritten with the new interface

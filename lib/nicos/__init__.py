@@ -30,8 +30,8 @@ __version__   = "$Revision$"
 nicos_version = "2.5.0-dev"
 
 import os
-import new
 import sys
+import types
 from os import path
 import distutils.util
 from logging import Logger
@@ -44,7 +44,7 @@ if sys.version_info[:2] < (2, 6):
 pkgpath = path.join(path.dirname(__file__), '..', '..', 'custom')
 if path.isdir(pkgpath):
     for subdir in os.listdir(pkgpath):
-        mod = sys.modules['nicos.' + subdir] = new.module('nicos.' + subdir)
+        mod = sys.modules['nicos.' + subdir] = types.ModuleType('nicos.' + subdir)
         mod.__path__ = [path.join(pkgpath, subdir, 'lib')]
         globals()[subdir] = mod
 
