@@ -26,6 +26,16 @@
 #include <structmember.h>
 #include <pythread.h>
 
+#if PY_MAJOR_VERSION >= 3
+#define STRING_AS_STRING PyUnicode_AsUTF8
+#define STRING_CHECK PyUnicode_Check
+#define CODE_CAST PyObject
+#else
+#define STRING_AS_STRING PyString_AsString
+#define STRING_CHECK PyString_Check
+#define CODE_CAST PyCodeObject
+#endif
+
 
 typedef struct {
     PyObject_HEAD
@@ -128,8 +138,8 @@ trace_function(CtlrObject *self, PyFrameObject *frame, int what, PyObject *arg)
 
     if (what == PyTrace_LINE) {
         if (self->lineno_behavior == LINENO_NAME &&
-            strcmp(PyString_AS_STRING(frame->f_code->co_filename),
-                   PyString_AS_STRING(self->break_only_in_filename)) == 0)
+            strcmp(STRING_AS_STRING(frame->f_code->co_filename),
+                   STRING_AS_STRING(self->break_only_in_filename)) == 0)
             set_lineno(self, frame->f_lineno);
         else if (self->lineno_behavior == LINENO_TOPLEVEL &&
                  frame == self->toplevelframe)
@@ -143,14 +153,14 @@ trace_function(CtlrObject *self, PyFrameObject *frame, int what, PyObject *arg)
         return 0;
     case REQ_BREAK:
         /* always break if frame filename starts with <break> */
-        if (strncmp(PyString_AS_STRING(frame->f_code->co_filename), "<break>", 7) != 0) {
+        if (strncmp(STRING_AS_STRING(frame->f_code->co_filename), "<break>", 7) != 0) {
             if (self->break_only_in_toplevel && frame != self->toplevelframe) {
                 /* keep the break request, but wait until in toplevel */
                 return 0;
             }
             if (self->break_only_in_filename &&
-                strcmp(PyString_AS_STRING(frame->f_code->co_filename),
-                       PyString_AS_STRING(self->break_only_in_filename)) != 0) {
+                strcmp(STRING_AS_STRING(frame->f_code->co_filename),
+                       STRING_AS_STRING(self->break_only_in_filename)) != 0) {
                 /* keep the break request, but wait until in frame with
                    the specified filename */
                 return 0;
@@ -245,7 +255,7 @@ ctlr_init(CtlrObject *self, PyObject *args, PyObject *kwds)
         return -1;
     if (break_only_in_filename == Py_None)
         break_only_in_filename = NULL;
-    if (break_only_in_filename && !PyString_Check(break_only_in_filename)) {
+    if (break_only_in_filename && !STRING_CHECK(break_only_in_filename)) {
         PyErr_SetString(PyExc_TypeError, "break_only_in_filename arg must be "
                         "a string");
         return -1;
@@ -331,7 +341,7 @@ ctlr_start_exec(CtlrObject *self, PyObject *args)
         Py_INCREF(self->requestarg);
     }
     PyEval_SetTrace((Py_tracefunc)trace_function, (PyObject *)self);
-    ret = PyEval_EvalCode((PyCodeObject *)code, globals, locals);
+    ret = PyEval_EvalCode((CODE_CAST *)code, globals, locals);
     reset(self, ret == NULL);
     return ret;
 }
@@ -418,8 +428,12 @@ static PyMemberDef ctlr_members[] = {
 };
 
 static PyTypeObject CtlrType = {
+#if PY_MAJOR_VERSION >= 3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
     PyObject_HEAD_INIT(NULL)
     0,					/* ob_size		*/
+#endif
     "_pyctl.Controller",		/* tp_name		*/
     sizeof(CtlrObject),			/* tp_basicsize		*/
     0,					/* tp_itemsize		*/
@@ -461,11 +475,58 @@ static PyTypeObject CtlrType = {
     0,					/* tp_free		*/
 };
 
-
 static PyMethodDef functions[] = {
     {NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_pyctl",
+    0,    /* m_doc */
+    -1,   /* m_size */
+    functions, /* m_methods */
+    NULL, /* m_reload */
+    NULL, /* m_traverse */
+    NULL, /* m_clear */
+    NULL  /* m_free */
+};
+
+PyMODINIT_FUNC
+PyInit__pyctl(void)
+{
+    PyObject *module;
+
+    Py_TYPE(&CtlrType) = &PyType_Type;
+    if (PyType_Ready(&CtlrType) < 0)
+        return NULL;
+
+    module = PyModule_Create(&moduledef);
+    if (module == NULL)
+        return NULL;
+
+    Py_INCREF((PyObject *)&CtlrType);
+    PyModule_AddObject(module, "Controller", (PyObject *)&CtlrType);
+
+    ControlStop = PyErr_NewException("_pyctl.ControlStop",
+                                     PyExc_BaseException, NULL);
+    if (ControlStop == NULL) {
+        Py_DECREF(module);
+        return NULL;
+    }
+    Py_INCREF(ControlStop);
+    PyModule_AddObject(module, "ControlStop", ControlStop);
+
+    ControllerError = PyErr_NewException("_pyctl.ControllerError", NULL, NULL);
+    if (ControllerError == NULL) {
+        Py_DECREF(module);
+        return NULL;
+    }
+    Py_INCREF(ControllerError);
+    PyModule_AddObject(module, "ControllerError", ControllerError);
+    return module;
+}
+#else
 void
 init_pyctl(void)
 {
@@ -486,3 +547,4 @@ init_pyctl(void)
         PyModule_AddObject(module, "ControllerError", ControllerError);
     }
 }
+#endif
