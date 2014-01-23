@@ -32,6 +32,7 @@ from PyQt4.QtGui import QDialog, QPixmap, QTreeWidgetItem, QDoubleValidator
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi, DlgPresets
+from nicos.pycompat import iteritems
 
 
 M_N = 1.6749274e-27
@@ -175,7 +176,7 @@ class CalculatorTool(QDialog):
         else:
             self.errorLabel.setText('')
             # now, fill the disabled text fields
-            for fld, conv in needed.iteritems():
+            for fld, conv in iteritems(needed):
                 getattr(self, 'input'+fld).setText('%.3f' % (given[fld]/conv))
             if self.chkSampleDet.isChecked():
                 sd = tofloat(self.inputSampleDet)

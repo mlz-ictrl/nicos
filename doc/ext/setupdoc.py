@@ -206,7 +206,7 @@ class SetupDirective(Directive):
         rst = rstSnipDevices.split()
         rst.append('')
 
-        for devName, (devClass, devParams) in sorted(devices_dict.iteritems()):
+        for devName, (devClass, devParams) in sorted(devices_dict.items()):
 
             if not devClass.startswith('nicos.'):
                 devClass = 'nicos.' + devClass
@@ -229,7 +229,7 @@ class SetupDirective(Directive):
 
             paramRows = [('Parameter', 'Default', 'Configured')]
 
-            for param_name in sorted(klass.parameters.keys()):
+            for param_name in sorted(klass.parameters):
                 param_info = klass.parameters[param_name]
 
                 if not param_info.userparam or param_name in EXCLUDE_PARAMS:

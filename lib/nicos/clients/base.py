@@ -382,7 +382,7 @@ class NicosClient(object):
         If *only_explicit* is true, only devices that are in the NICOS
         namespace will be returned (i.e. no lowlevel devices).
         """
-        query = 'list(dn for (dn, d) in session.devices.iteritems() ' \
+        query = 'list(dn for (dn, d) in session.devices.items() ' \
                 'if %r in d.classes' % needs_class
         if only_explicit:
             query += ' and dn in session.explicit_devices'
@@ -407,7 +407,7 @@ class NicosClient(object):
         all attributes of the `.Param` instance for the parameter.
         """
         query = 'dict((pn, pi.serialize()) for (pn, pi) in ' \
-                'session.getDevice(%r).parameters.iteritems())' % devname
+                'session.getDevice(%r).parameters.items())' % devname
         return self.eval(query, {})
 
     def getDeviceParams(self, devname):

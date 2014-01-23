@@ -31,10 +31,10 @@ from time import time as currenttime, strftime
 
 from nicos import session
 from nicos.core import Param, Override, listof, dictof, anytype
-from nicos.pycompat import OrderedDict
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.devices.notifiers import Notifier, Mailer
 from nicos.devices.cacheclient import BaseCacheClient
+from nicos.pycompat import OrderedDict, iteritems, listitems
 
 
 class LCDict(dict):
@@ -104,7 +104,7 @@ class Watchdog(BaseCacheClient):
         # create all notifier devices
         self._all_notifiers = []
         self._notifiers = {'': []}
-        for key, devnames in self.notifiers.iteritems():
+        for key, devnames in iteritems(self.notifiers):
             self._notifiers[key] = notiflist = []
             for devname in devnames:
                 dev = session.getDevice(devname, Notifier)
@@ -242,7 +242,7 @@ class Watchdog(BaseCacheClient):
     def _wait_data(self):
         t = currenttime()
         # don't use iteritems() here, the dict is changed in the loop
-        for eid, wentry in self._watch_expired.items():
+        for eid, wentry in listitems(self._watch_expired):
             if t > wentry[0]:
                 # warn that we cannot check the condition anymore
                 del self._watch_expired[eid]
@@ -252,7 +252,7 @@ class Watchdog(BaseCacheClient):
                 self._put_message('warning', msg)
                 for notifier in self._notifiers[self._entries[eid].type]:
                     notifier.send('New warning from NICOS', msg)
-        for eid, wentry in self._watch_grace.items():
+        for eid, wentry in listitems(self._watch_grace):
             if t > wentry[0]:
                 # grace time expired
                 del self._watch_grace[eid]

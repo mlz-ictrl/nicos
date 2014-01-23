@@ -25,9 +25,9 @@
 """Core data handling classes."""
 
 from nicos import session
-from nicos.core import Device, Param, listof, INFO_CATEGORIES
+from nicos.core import Device, Param, listof, INFO_CATEGORIES, SIMULATION
 from nicos.utils import lazy_property
-from nicos.core import SIMULATION
+from nicos.pycompat import iteritems
 
 
 class Dataset(object):
@@ -121,7 +121,7 @@ class Dataset(object):
         headerinfo = self.headerinfo = {}
         # XXX: if updatedict is given, only update those devices positions
         # instead of reading all
-        for _, device in sorted(session.devices.iteritems()):
+        for _, device in sorted(iteritems(session.devices)):
             if device.lowlevel:
                 continue
             for category, key, value in device.info():

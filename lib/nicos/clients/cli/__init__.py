@@ -50,7 +50,7 @@ from nicos.utils.graceplot import grace_available, GracePlotter
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
     STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE, MASTER
-from nicos.pycompat import queue, configparser
+from nicos.pycompat import queue, configparser, iteritems
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -493,7 +493,7 @@ class NicosCmdClient(NicosClient):
                         (formatDuration(timing), formatEndtime(timing)))
                     if devinfo:
                         dnwidth = max(map(len, devinfo))
-                        sorteditems = sorted(devinfo.iteritems())
+                        sorteditems = sorted(iteritems(devinfo))
                         for devname, (_, dmin, dmax) in sorteditems:
                             self.put('#   %-*s: %10s  <->  %-10s' %
                                      (dnwidth, devname, dmin, dmax))
@@ -657,7 +657,7 @@ class NicosCmdClient(NicosClient):
             return
         self.put_client('Showing pending scripts or commands. '
                         'Use "/cancel number" to remove.')
-        for reqno, script in sorted(self.pending_requests.iteritems()):
+        for reqno, script in sorted(iteritems(self.pending_requests)):
             if 'name' in script and script['name']:
                 short = script['name']
             else:

@@ -34,6 +34,7 @@ from nicos.utils import lazy_property
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
+from nicos.pycompat import iteritems
 
 
 class TacoSerial(TacoDevice, Device):
@@ -97,7 +98,7 @@ class MCC2core(Device):
         """Pushes configured params from the setup files to the hardware"""
         self.log.warning('Sending configured parameters to HW')
         t = self._config
-        for k,v in t.iteritems():
+        for k, v in iteritems(t):
             m = getattr(self, 'doWrite' + k.title(), None)
             if m:
                 self.log.debug(self, 'Setting %r to %r'%(k, v))

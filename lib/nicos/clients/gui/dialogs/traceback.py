@@ -29,6 +29,7 @@ from PyQt4.QtGui import QDialog, QPushButton, QFont, QTreeWidgetItem, \
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi
+from nicos.pycompat import iteritems
 
 
 class TracebackDialog(QDialog):
@@ -74,5 +75,5 @@ class TracebackDialog(QDialog):
             item = QTreeWidgetItem(self.tree, [line])
             item.setFirstColumnSpanned(True)
             item.setFont(0, boldfont)
-            for var, value in bindings.iteritems():
+            for var, value in iteritems(bindings):
                 QTreeWidgetItem(item, ['', var, value])

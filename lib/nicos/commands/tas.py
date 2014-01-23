@@ -40,6 +40,7 @@ from nicos.commands.scan import _infostr, ADDSCANHELP2, cscan
 from nicos.commands.device import maw, read
 from nicos.commands.output import printinfo, printwarning
 from nicos.commands.analyze import gauss
+from nicos.pycompat import iteritems
 
 
 __all__ = [
@@ -76,7 +77,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
             envlist.append(arg)
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
-    for key, value in kwargs.iteritems():
+    for key, value in iteritems(kwargs):
         if key == 'h' or key == 'H':
             Q[0] = value
         elif key == 'k' or key == 'K':

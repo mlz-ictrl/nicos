@@ -36,7 +36,7 @@ from nicos.protocols.daemon import DAEMON_EVENTS
 
 class NicosGuiClient(NicosClient, QObject):
     siglist = ['connected', 'disconnected', 'broken', 'failed', 'error'] + \
-              DAEMON_EVENTS.keys()
+              list(DAEMON_EVENTS)
 
     def __init__(self, parent, parent_logger):
         QObject.__init__(self, parent)

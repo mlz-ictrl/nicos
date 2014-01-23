@@ -72,7 +72,7 @@ def auth_entry(val=None):
         raise ValueError('user password must be a string')
     val[1] = val[1].strip()
     if isinstance(val[2], str):
-        for i, name in ACCESS_LEVELS.iteritems():
+        for i, name in ACCESS_LEVELS.items():
             if name == val[2].strip():
                 val[2] = i
                 break
@@ -84,7 +84,7 @@ def auth_entry(val=None):
         raise ValueError('access level must be one of %s' %
                          ', '.join(map(repr, ACCESS_LEVELS.values())))
     else:
-        if val[2] not in ACCESS_LEVELS.keys():
+        if val[2] not in ACCESS_LEVELS:
             raise ValueError('access level must be one of %s' %
                              ', '.join(map(repr, ACCESS_LEVELS.values())))
     return tuple(val)

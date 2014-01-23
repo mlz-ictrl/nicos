@@ -36,6 +36,7 @@ import zmq
 from nicos import session
 from nicos.protocols.daemon import serialize, unserialize
 from nicos.utils.loggers import TRANSMIT_ENTRIES
+from nicos.pycompat import iteritems
 
 
 zmq_ctx = zmq.Context()
@@ -122,7 +123,7 @@ class SimLogSender(logging.Handler):
         from nicos.core import Readable
         # Collect information on timing and range of all devices
         self.starttime = self.session.clock.time
-        for devname, dev in self.session.devices.iteritems():
+        for devname, dev in iteritems(self.session.devices):
             if isinstance(dev, Readable):
                 self.devices.append(devname)
                 dev._sim_min = None

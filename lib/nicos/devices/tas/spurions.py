@@ -109,11 +109,11 @@ def check_powderrays(ki, dlist, phi=None):
     ret = []
 
     if phi is not None:
-        for my_line in lines1_list.keys():
+        for my_line in lines1_list:
             if abs(lines1_list[my_line] - phi) < 2:
                 ret.append('powder line: %s at %6.3f deg' %
                            (my_line, lines1_list[my_line]))
-        for my_line in lines2_list.keys():
+        for my_line in lines2_list:
             if abs(lines2_list[my_line] - phi) < 2:
                 ret.append('powder line from 2ki: %s at %6.3f deg' %
                            (my_line, lines2_list[my_line]))

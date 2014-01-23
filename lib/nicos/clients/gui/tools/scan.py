@@ -108,7 +108,7 @@ class ScanTool(QDialog):
 
         self._devices = sorted(parent.client.eval(
             '[(dev.name, dev.unit) '
-            'for (name, dev) in session.devices.iteritems() '
+            'for (name, dev) in session.devices.items() '
             'if name in session.explicit_devices and hasattr(dev, "maw")]',
             []))
 

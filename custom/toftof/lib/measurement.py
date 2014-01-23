@@ -327,7 +327,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
         olddevlogs = self._devicelogs.copy()
         self._devicelogs.clear()
         self.log.debug('closing device logs')
-        for devname, fp in olddevlogs.iteritems():
+        for devname, fp in olddevlogs.items():
             try:
                 fp.close()
             except Exception:

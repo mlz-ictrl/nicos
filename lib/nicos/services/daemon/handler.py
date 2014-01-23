@@ -579,7 +579,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             requests = request_queue,
             mode     = session.mode,
             setups   = (session.loaded_setups, session.explicit_setups),
-            devices  = session.devices.keys(),
+            devices  = list(session.devices),
         )))
 
     @command()

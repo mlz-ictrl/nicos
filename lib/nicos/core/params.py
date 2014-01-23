@@ -30,6 +30,7 @@ from os import path
 
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError
+from nicos.pycompat import iteritems
 
 
 INFO_CATEGORIES = [
@@ -315,7 +316,7 @@ class dictof(object):
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         ret = {}
-        for k, v in val.iteritems():
+        for k, v in iteritems(val):
             ret[self.keyconv(k)] = self.valconv(v)
         return readonlydict(ret)
 
@@ -382,7 +383,7 @@ class oneofdict(object):
         self.vals = vals
 
     def __call__(self, val=None):
-        if val in self.vals.keys():
+        if val in self.vals:
             val = self.vals[val]
         elif val not in self.vals.values():
             raise ValueError('invalid value: %s, must be one of %s' %

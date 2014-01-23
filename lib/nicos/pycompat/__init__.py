@@ -28,10 +28,12 @@ __all__ = [
     'builtins', 'cPickle', 'socketserver', 'input',
     'queue', 'xrange', 'configparser', 'urllib',
     'reraise', 'exec_', 'add_metaclass', 'BytesIO', 'StringIO',
-    'OrderedDict', 'get_thread_id', 'escape_html',
     'string_types', 'integer_types', 'text_type', 'binary_type',
+    'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
+    'OrderedDict', 'get_thread_id', 'escape_html',
 ]
 
+import six
 import threading
 
 # Pylint cannot handle submodules created by "six".  Import them here to
@@ -43,6 +45,7 @@ from six.moves import xrange, input  # pylint: disable=F0401,W0622
 # For consistency import everything from "six" here.
 from six import reraise, exec_, add_metaclass, BytesIO, StringIO
 from six import string_types, integer_types, text_type, binary_type
+from six import iteritems, itervalues, iterkeys
 
 try:
     from collections import OrderedDict  # pylint: disable=E0611
@@ -58,3 +61,12 @@ try:
     from html import escape as escape_html  # pylint: disable=F0401
 except ImportError:
     from cgi import escape as escape_html
+
+if six.PY2:
+    listitems = dict.items
+    listvalues = dict.values
+else:
+    def listitems(d):
+        return list(d.items())
+    def listvalues(d):
+        return list(d.values())

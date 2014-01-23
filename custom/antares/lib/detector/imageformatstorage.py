@@ -25,7 +25,7 @@ import pyfits
 
 from nicos import session
 from nicos.core import DataSink, ImageProducer
-from nicos.pycompat import OrderedDict
+from nicos.pycompat import OrderedDict, iteritems
 from nicos.devices.generic import FreeSpace
 
 
@@ -52,7 +52,7 @@ class ImageStorageFits(ImageProducer):
         hdu = pyfits.PrimaryHDU(imgData)
 
         # add header entries
-        for key, value in headerData.iteritems():
+        for key, value in iteritems(headerData):
             # Add HIERARCH keyword to make long keys possible.
             # To get a consistent looking header, add it to every key.
             key = ('HIERARCH %s' % key).strip()
@@ -83,7 +83,7 @@ class ImageStorageFits(ImageProducer):
         data['devices'] = session.devices.keys()
 
         # Query parameters and current value of all interesting devices
-        for deviceName, device in session.devices.iteritems():
+        for deviceName, device in iteritems(session.devices):
 
             # Skip Experiment, DataSink, FreeSpace and lowlevel devices
             if isinstance(device, (DataSink, FreeSpace)) \

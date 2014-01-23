@@ -40,7 +40,7 @@ from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
-from nicos.pycompat import reraise, add_metaclass
+from nicos.pycompat import reraise, add_metaclass, itervalues, iteritems
 
 
 def usermethod(func):
@@ -126,11 +126,11 @@ class DeviceMeta(DeviceMixinMeta):
 
     def __new__(mcs, name, bases, attrs): #@NoSelf
         if 'parameters' in attrs:
-            for pinfo in attrs['parameters'].itervalues():
+            for pinfo in itervalues(attrs['parameters']):
                 pinfo.classname = attrs['__module__'] + '.' + name
         for base in bases:
             if hasattr(base, 'parameters'):
-                for pinfo in base.parameters.itervalues():
+                for pinfo in itervalues(base.parameters):
                     if pinfo.classname is None:
                         pinfo.classname = base.__module__ + '.' + base.__name__
         newtype = type.__new__(mcs, name, bases, attrs)
@@ -148,7 +148,7 @@ class DeviceMeta(DeviceMixinMeta):
             if adevname != adevname.lower():
                 raise ProgrammingError('%r device: attached device name %r is '
                                        'not all-lowercase' % (name, adevname))
-        for param, info in newtype.parameters.iteritems():
+        for param, info in iteritems(newtype.parameters):
             # parameter names are always lowercased (enforce this)
             if param != param.lower():
                 raise ProgrammingError('%r device: parameter name %r is not '
@@ -437,7 +437,7 @@ class Device(object):
         self._subscriptions = []
 
         # validate and create attached devices
-        for aname, entry in sorted(self.attached_devices.iteritems()):
+        for aname, entry in sorted(iteritems(self.attached_devices)):
             if not isinstance(entry, tuple) or len(entry) != 2:
                 raise ProgrammingError(self, 'attached device entry for %r is '
                                        'invalid; the value should be of the '
@@ -553,7 +553,7 @@ class Device(object):
         notfromcache = []
         later = []
 
-        for param, paraminfo in self.parameters.iteritems():
+        for param, paraminfo in iteritems(self.parameters):
             if paraminfo.preinit:
                 _init_param(param, paraminfo)
             else:

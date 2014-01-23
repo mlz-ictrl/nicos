@@ -36,9 +36,10 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status, listof, Device, Readable, Param, NicosError, \
-     ConfigurationError
+    ConfigurationError
 from nicos.utils import whyExited, watchFileTime
 from nicos.devices.generic.alias import DeviceAlias
+from nicos.pycompat import listitems
 
 
 class Poller(Device):
@@ -261,7 +262,7 @@ class Poller(Device):
             # do nothing for single pollers
             return
         self.log.info('got SIGUSR1, restarting all pollers')
-        for pid in self._childpids.keys():
+        for pid in list(self._childpids):
             try:
                 os.kill(pid, signal.SIGTERM)
             except Exception as err:
@@ -280,7 +281,7 @@ class Poller(Device):
             self.log.info(', '.join(info))
             self.log.info('current stacktraces for each thread:')
             active = threading._active
-            for tid, frame in sys._current_frames().items():
+            for tid, frame in listitems(sys._current_frames()):
                 if tid in active:
                     name = active[tid].getName()
                 else:
@@ -409,7 +410,7 @@ class Poller(Device):
             sleep(0.5)
             if not self._children:
                 break
-            for setup, ch in self._children.items():
+            for setup, ch in listitems(self._children):
                 ret = ch.poll()
                 if ret is not None:
                     # a process exited; restart if necessary

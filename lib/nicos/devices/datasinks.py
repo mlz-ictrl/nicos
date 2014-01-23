@@ -33,6 +33,7 @@ from nicos.utils import parseDateString
 from nicos.utils.graceplot import GracePlot, GracePlotter
 from nicos.commands.output import printinfo, printwarning
 from nicos.core.sessions.console import ConsoleSession
+from nicos.pycompat import iteritems
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -54,7 +55,7 @@ class ConsoleSink(DataSink):
     def beginDataset(self, dataset):
         printinfo('=' * 100)
         printinfo('Starting scan:      ' + (dataset.scaninfo or ''))
-        for name, value in dataset.sinkinfo.iteritems():
+        for name, value in iteritems(dataset.sinkinfo):
             if name == 'continuation':
                 continue
             printinfo('%-20s%s' % (name+':', value))

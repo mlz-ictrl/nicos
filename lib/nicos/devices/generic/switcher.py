@@ -30,6 +30,7 @@ from nicos.core import anytype, dictof, none_or, floatrange, listof, \
      PositionError, ConfigurationError, Moveable, Readable, Param, \
      Override, status, InvalidValueError, multiStatus
 from nicos.devices.abstract import MappedReadable, MappedMoveable
+from nicos.pycompat import iteritems
 
 
 class Switcher(MappedMoveable):
@@ -81,7 +82,7 @@ class Switcher(MappedMoveable):
     def _mapReadValue(self, pos):
         """Override default inverse mapping to allow a deviation <= precision"""
         prec = self.precision
-        for name, value in self.mapping.iteritems():
+        for name, value in iteritems(self.mapping):
             if prec:
                 if abs(pos - value) <= prec:
                     return name
@@ -134,7 +135,7 @@ class ReadonlySwitcher(MappedReadable):
 
     def _mapReadValue(self, pos):
         prec = self.precision
-        for name, value in self.mapping.iteritems():
+        for name, value in iteritems(self.mapping):
             if prec:
                 if abs(pos - value) <= prec:
                     return name
@@ -211,7 +212,7 @@ class MultiSwitcher(MappedMoveable):
 
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)
-        for t in self.mapping.itervalues():
+        for t in self.mapping.values():
             if len(t) != len(self.devices):
                 raise ConfigurationError(self, 'Switcher state entries and '
                                        'moveables list must be of equal length')
@@ -250,7 +251,7 @@ class MultiSwitcher(MappedMoveable):
             precisions = self.precision
             if len(precisions) == 1:
                 precisions = [precisions[0]] * len(self.devices)
-        for name, values in self.mapping.iteritems():
+        for name, values in iteritems(self.mapping):
             if hasprec:
                 for p, v, prec in zip(pos, values, precisions):
                     if prec:

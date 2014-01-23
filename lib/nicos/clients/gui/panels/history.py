@@ -45,7 +45,7 @@ from nicos.clients.gui.fitutils import fit_linear
 from nicos.clients.gui.widgets.plotting import NicosPlot
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle
+from nicos.pycompat import cPickle as pickle, iteritems
 
 
 class View(QObject):
@@ -108,7 +108,7 @@ class View(QObject):
                 self.keydata[key] = [x, y, i, i, lvalue]
                 if string_mapping:
                     self.keyinfo[key] = ', '.join('%s=%s' % (v, k) for (k, v) in
-                                                  string_mapping.iteritems())
+                                                  iteritems(string_mapping))
         else:
             self.keydata = dict((key, [np.zeros(500), np.zeros(500), 0, 0, None])
                                 for key in keys)
@@ -123,7 +123,7 @@ class View(QObject):
             self.timer.start()
 
     def on_timer_timeout(self):
-        for key, kd in self.keydata.iteritems():
+        for key, kd in iteritems(self.keydata):
             if kd[0][kd[2]-1] < currenttime() - self.interval:
                 self.newValue(currenttime(), key, '=', kd[4], real=False)
 
@@ -590,7 +590,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addSeparator()
         pmenu = QMenu('&Presets', self)
         delmenu = QMenu('Delete', self)
-        for preset, info in self.presetdict.iteritems():
+        for preset, info in iteritems(self.presetdict):
             paction = QAction(preset, self)
             pdelaction = QAction(preset, self)
             info = pickle.loads(str(info.toString()))

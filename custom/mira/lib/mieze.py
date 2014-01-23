@@ -86,7 +86,7 @@ class MiezeMaster(Moveable):
         index = self._findsetting(target)
         setting = self.curtable[index]
         self._started_devs = []
-        devs = sorted(setting.iteritems())
+        devs = sorted(setting.items())
         for devname, devvalue in devs:
             if devname.startswith('amp'):
                 self.log.debug('moving %r to %r' % (devname, 0))
@@ -129,7 +129,7 @@ class MiezeMaster(Moveable):
     def listtunings(self):
         """List all existing tuning tables."""
         data = []
-        for name, table in self.tunetables.iteritems():
+        for name, table in self.tunetables.items():
             data.append((name,
                          ', '.join(setting['_name_'] for setting in table)))
         self.log.info('all tuning tables:')
@@ -147,7 +147,7 @@ class MiezeMaster(Moveable):
         valueidx = dict((val, idx) for idx, val in enumerate(all_values))
         for idx, setting in enumerate(self.curtable):
             values = ['---'] * len(all_values)
-            for devname, devvalue in setting.iteritems():
+            for devname, devvalue in setting.items():
                 if not devname.startswith('_'):
                     values[valueidx[devname]] = str(devvalue)[:15]
             data.append((str(idx), setting['_name_'], '%.3f' %
@@ -189,7 +189,7 @@ class MiezeMaster(Moveable):
             index = len(table)
             table.append({'_name_': name, '_tau_': 0})
             setting = table[index]
-        for devname, devvalue in values.iteritems():
+        for devname, devvalue in values.items():
             setting[devname] = devvalue
         table[index] = setting
         self.curtable = table
@@ -202,7 +202,7 @@ class MiezeMaster(Moveable):
         index = self._findsetting(name)
         table = self.curtable[:]
         setting = table[index].copy()
-        for devname, devvalue in values.iteritems():
+        for devname, devvalue in values.items():
             setting[devname] = devvalue
         table[index] = setting
         self.curtable = table

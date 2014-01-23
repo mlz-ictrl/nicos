@@ -41,7 +41,7 @@ except ImportError:
 from nicos.core import Param
 from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.pycompat import BytesIO
+from nicos.pycompat import BytesIO, iteritems
 
 
 HEAD = '''\
@@ -428,7 +428,7 @@ class Monitor(BaseMonitor):
             self._warnlabel.text = ''
 
     def reconfigureBoxes(self):
-        for setup, boxes in self._onlymap.iteritems():
+        for setup, boxes in iteritems(self._onlymap):
             for block in boxes:
                 if setup.startswith('!'):
                     block.enabled = setup[1:] not in self._setups

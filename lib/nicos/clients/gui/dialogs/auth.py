@@ -72,7 +72,7 @@ class ConnectionDialog(QDialog):
         loadUi(self, 'auth.ui', 'dialogs')
         self.connpresets = connpresets
 
-        self.presetOrAddr.addItems(connpresets.keys())
+        self.presetOrAddr.addItems(list(connpresets))
         self.presetOrAddr.setEditText(lastpreset)
         if not lastpreset:
             # if we have no stored last preset connection, put in the raw data

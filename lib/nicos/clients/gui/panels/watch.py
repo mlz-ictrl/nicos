@@ -31,6 +31,7 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
 from nicos.clients.gui.panels import Panel
 from nicos.protocols.daemon import serialize
+from nicos.pycompat import iteritems
 
 
 class WatchPanel(Panel):
@@ -60,7 +61,7 @@ class WatchPanel(Panel):
     def on_client_watch(self, data):
         values = data
         names = set()
-        for name, val in values.iteritems():
+        for name, val in iteritems(values):
             name = name[:name.find(':')]
             if name in self.watch_items:
                 self.watch_items[name].setText(1, str(val))

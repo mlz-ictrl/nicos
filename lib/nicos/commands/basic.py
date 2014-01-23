@@ -42,7 +42,8 @@ from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printexception
 from nicos.core import SIMULATION, MASTER, MAINTENANCE
-from nicos.pycompat import builtins, exec_
+from nicos.pycompat import builtins, exec_, iteritems
+
 
 CO_DIVISION = 0x2000
 
@@ -263,7 +264,7 @@ def ListSetups(listall=False):
     """
     printinfo('Available setups:')
     items = []
-    for name, info in session.getSetupInfo().iteritems():
+    for name, info in iteritems(session.getSetupInfo()):
         if info is None:
             items.append((name, '', '<could not be read, check syntax>', ''))
             continue
@@ -356,7 +357,7 @@ def CreateAllDevices():
     """
     session.startMultiCreate()
     try:
-        for devname, (_, devconfig) in session.configured_devices.iteritems():
+        for devname, (_, devconfig) in iteritems(session.configured_devices):
             if devconfig.get('lowlevel', False):
                 continue
             try:

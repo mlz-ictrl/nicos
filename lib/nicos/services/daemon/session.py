@@ -119,7 +119,7 @@ class DaemonSession(NoninteractiveSession):
             script = self.daemon_device.current_script()
             rlevel = required['level']
             if isinstance(rlevel, str):
-                for k, v in ACCESS_LEVELS.iteritems():
+                for k, v in ACCESS_LEVELS.items():
                     if v == rlevel:
                         rlevel = k
                         break

@@ -270,7 +270,7 @@ class BerSANSFileFormat(ImageSink):
         for _, valuelist in imageinfo.header.items():
             for dev, key, value in valuelist:
                 imageinfo.data['%s_%s' % (dev.name, key)] = value
-                nicosheader.append('%s_%s=%s' %(dev.name, key, value))
+                nicosheader.append('%s_%s=%s' % (dev.name, key, value))
         self.log.debug('nicosheader starts with: %40s' % '\n'.join(nicosheader))
         imageinfo.data['NICOSHeader'] = '\n'.join(sorted(nicosheader))
 
@@ -283,4 +283,3 @@ class BerSANSFileFormat(ImageSink):
             line.tofile(imageinfo.file, sep=',', format='%d')
             imageinfo.file.write('\n')
         imageinfo.file.flush()
-

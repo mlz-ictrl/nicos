@@ -41,9 +41,10 @@ from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgPresets
 from nicos.clients.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
-     fit_pseudo_voigt, fit_pearson_vii, fit_arby
+    fit_pseudo_voigt, fit_pearson_vii, fit_arby
 from nicos.clients.gui.widgets.plotting import NicosPlot, ErrorBarPlotCurve, \
-     cloneToGrace
+    cloneToGrace
+from nicos.pycompat import itervalues
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -131,7 +132,7 @@ class ScansPanel(Panel):
         self.user_font = font
         self.user_color = back
 
-        for plot in self.setplots.itervalues():
+        for plot in itervalues(self.setplots):
             plot.setCanvasBackground(back)
             plot.replot()
 
@@ -139,7 +140,7 @@ class ScansPanel(Panel):
         bold.setBold(True)
         larger = QFont(font)
         larger.setPointSize(font.pointSize() * 1.6)
-        for plot in self.setplots.itervalues():
+        for plot in itervalues(self.setplots):
             plot.setFonts(font, bold, larger)
 
     def enablePlotActions(self, on):

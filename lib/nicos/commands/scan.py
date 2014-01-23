@@ -32,6 +32,7 @@ from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printwarning
+from nicos.pycompat import iteritems
 
 
 __all__ = [
@@ -92,7 +93,7 @@ def _handleScanArgs(args, kwargs, scaninfo):
             envlist.append(arg)
         else:
             raise UsageError('unsupported scan argument: %r' % arg)
-    for key, value in kwargs.iteritems():
+    for key, value in iteritems(kwargs):
         if key in session.devices and isinstance(session.devices[key],
                                                  Moveable):
             if isinstance(value, list):

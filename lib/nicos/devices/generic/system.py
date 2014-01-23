@@ -102,5 +102,5 @@ class FreeSpace(Readable):
         factor = units.get(unit, None)
         if factor is None:
             raise ConfigurationError('Unsupported unit, allowed: %s' %
-                                     ','.join(units.keys()))
+                                     ','.join(units))
         self._factor = factor

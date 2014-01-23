@@ -23,13 +23,14 @@
 # *****************************************************************************
 
 import time
+
 from nicos.utils import lazy_property
 from nicos.devices.generic import Switcher
 from nicos.core import anytype, dictof, none_or, floatrange, listof, oneof, \
      NicosError, ConfigurationError, Readable, Override, \
      Param, status, tupleof
 from nicos.core.utils import formatStatus
-
+from nicos.pycompat import iteritems
 
 
 class SenseSwitch(Switcher):
@@ -67,7 +68,7 @@ class SenseSwitch(Switcher):
         return [self._adevs['moveable'], self._adevs['readable']]
 
     def doInit(self, mode):
-        for t in self.mapping.itervalues():
+        for t in self.mapping.values():
             if len(t) != 2:
                 raise ConfigurationError(self, 'All mapping state entries '
                                        'must have a length of 2')
@@ -98,7 +99,7 @@ class SenseSwitch(Switcher):
             precisions = self.precision
             if len(precisions) == 1:
                 precisions = [precisions[0]] * len(self.devices)
-        for name, values in self.mapping.iteritems():
+        for name, values in iteritems(self.mapping):
             if hasprec:
                 for d, p, v, prec in zip(self.devices, pos, values, precisions):
                     if prec:

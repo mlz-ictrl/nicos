@@ -53,7 +53,7 @@ class SettingsDialog(QDialog, DlgUtils):
 
         # connection data page
         self.connpresets = main.connpresets
-        for setting, cdata in main.connpresets.iteritems():
+        for setting, cdata in main.connpresets.items():
             QListWidgetItem(setting + ' (%s:%s)' % (cdata[0], cdata[1]),
                             self.settinglist).setData(32, setting)
 

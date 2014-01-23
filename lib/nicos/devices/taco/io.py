@@ -85,7 +85,7 @@ class NamedDigitalInput(DigitalInput):
     }
 
     def doInit(self, mode):
-        self._reverse = dict((v, k) for (k, v) in self.mapping.iteritems())
+        self._reverse = dict((v, k) for (k, v) in self.mapping.items())
 
     def doRead(self, maxage=0):
         value = self._taco_guard(self._dev.read)
@@ -140,8 +140,9 @@ class NamedDigitalOutput(DigitalOutput):
     }
 
     def doInit(self, mode):
-        self._reverse = dict((v, k) for (k, v) in self.mapping.iteritems())
-        self.valuetype = oneof(*(self.mapping.keys() + self.mapping.values()))
+        self._reverse = dict((v, k) for (k, v) in self.mapping.items())
+        self.valuetype = oneof(*(list(self.mapping.keys()) +
+                                 list(self.mapping.values())))
 
     def doStart(self, target):
         value = self.mapping.get(target, target)

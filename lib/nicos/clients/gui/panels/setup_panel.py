@@ -31,6 +31,7 @@ from nicos.utils import decodeAny
 from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils
+from nicos.pycompat import iteritems
 
 
 def iterChecked(listwidget):
@@ -275,7 +276,7 @@ class SetupsPanel(Panel, DlgUtils):
     def showSetupInfo(self, setup):
         info = self._setupinfo[str(setup)]
         devs = []
-        for devname, devconfig in info['devices'].iteritems():
+        for devname, devconfig in iteritems(info['devices']):
             if not devconfig[1].get('lowlevel'):
                 devs.append(devname)
         devs = ', '.join(sorted(devs))

@@ -35,6 +35,7 @@ from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
+from nicos.pycompat import iteritems
 
 
 foregroundBrush = {
@@ -176,7 +177,7 @@ class DevicesPanel(Panel):
         loaded_setups = set(state['setups'][0])
         self._dev2setup = {}
         setupinfo = self.client.eval('session.getSetupInfo()', {})
-        for setupname, info in setupinfo.iteritems():
+        for setupname, info in iteritems(setupinfo):
             if info is None:
                 continue
             if setupname not in loaded_setups:
@@ -232,7 +233,7 @@ class DevicesPanel(Panel):
         self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', '', [], None, None]
 
         # let the cache handler process all properties
-        for key, value in params.iteritems():
+        for key, value in iteritems(params):
             self.on_client_cache((None, ldevname + '/' + key, OP_TELL,
                                   cache_dump(value)))
 
@@ -494,7 +495,7 @@ class ControlDialog(QDialog):
 
         # put parameter values in the list widget
         self.paramList.clear()
-        for key, value in sorted(params.iteritems()):
+        for key, value in sorted(iteritems(params)):
             if self.paraminfo.get(key) and self.paraminfo[key]['userparam']:
                 self.paramItems[key] = \
                     QTreeWidgetItem(self.paramList, [key, str(value)])

@@ -39,7 +39,7 @@ except ImportError:
 from nicos import session
 from nicos.core import Device, UsageError, \
      MASTER, SLAVE, SIMULATION, MAINTENANCE
-from nicos.pycompat import builtins
+from nicos.pycompat import builtins, iteritems
 
 
 BUILTIN_EXCEPTIONS = set(name for name in dir(builtins)
@@ -222,7 +222,7 @@ class NicosCompleter(object):
                         k.startswith(text) and
                         isinstance(session.devices[k], cls)]
             elif command in self.special_setups:
-                all_setups = [name for (name, info) in session._setup_info.iteritems()
+                all_setups = [name for (name, info) in iteritems(session._setup_info)
                               if info and info['group'] in ('basic', 'optional', '')]
                 if command == 'NewSetup':
                     candidates = all_setups
@@ -319,9 +319,9 @@ def guessCorrectCommand(source, attribute=False):
         # compile a list of existing commands
         allowed_keys = [x for x in session._exported_names
                         if hasattr(session.namespace[x], 'is_usercommand')]
-        allowed_keys += __builtins__.keys()
-        allowed_keys += session.local_namespace.keys()
-        allowed_keys += session.namespace.keys()
+        allowed_keys += list(__builtins__)
+        allowed_keys += list(session.local_namespace)
+        allowed_keys += list(session.namespace)
         # for attributes, use a list of existing attributes instead
         if attribute:
             obj = None

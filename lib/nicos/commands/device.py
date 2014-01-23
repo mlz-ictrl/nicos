@@ -36,7 +36,7 @@ from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo, printerror
-from nicos.pycompat import builtins
+from nicos.pycompat import builtins, itervalues, iteritems
 
 
 __all__ = [
@@ -328,7 +328,7 @@ def getall(*names):
     lists the offset for all devices with an "offset" parameter.
     """
     items = []
-    for name, dev in sorted(session.devices.iteritems()):
+    for name, dev in sorted(iteritems(session.devices)):
         pvalues = []
         for param in names:
             if param in dev.parameters:
@@ -350,7 +350,7 @@ def setall(param, value):
 
     set the offset for all devices to zero.
     """
-    for dev in session.devices.itervalues():
+    for dev in itervalues(session.devices):
         if param not in dev.parameters:
             continue
         prevalue = getattr(dev, param)
@@ -372,7 +372,7 @@ def info(*devlist):
     >>> info(Sample)     # show information relevant to the Sample object
     """
     if not devlist:
-        devlist = [dev for dev in session.devices.itervalues()
+        devlist = [dev for dev in itervalues(session.devices)
                    if not dev.lowlevel]
     bycategory = {}
     for dev in devlist:
@@ -657,7 +657,7 @@ def ListParams(dev):
                       'Aliased device, parameters of that device follow'))
         dev = aliasdev
     devunit = getattr(dev, 'unit', '')
-    for name, info in sorted(dev.parameters.iteritems()):
+    for name, info in sorted(iteritems(dev.parameters)):
         if not info.userparam:
             continue
         try:
@@ -693,7 +693,7 @@ def ListMethods(dev):
     def _list(cls):
         if cls in listed: return
         listed.add(cls)
-        for name, (args, doc) in sorted(cls.commands.iteritems()):
+        for name, (args, doc) in sorted(iteritems(cls.commands)):
             items.append((dev.name + '.' + name + args, cls.__name__, doc))
         for base in cls.__bases__:
             if issubclass(base, Device):

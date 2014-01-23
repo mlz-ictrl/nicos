@@ -113,7 +113,7 @@ class Server(socketserver.TCPServer):
 
     def server_close(self):
         """Close the server socket and all client sockets."""
-        for handler in self.handlers.values():
+        for handler in list(self.handlers.values()):
             closeSocket(handler.sock)
         closeSocket(self.socket)
 

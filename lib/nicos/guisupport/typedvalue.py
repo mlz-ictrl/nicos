@@ -35,6 +35,7 @@ from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
 from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
 from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.pycompat import iteritems
 
 
 class DeviceValueEdit(NicosWidget, QWidget):
@@ -536,7 +537,7 @@ class DictOfWidget(ItemsWidget):
         self.valtype = valtype
         self.client = client
 
-        for keyval in curvalue.iteritems():
+        for keyval in iteritems(curvalue):
             self.insertItem(*self.createItem(keyval))
 
     def createItem(self, keyval=None):

@@ -25,6 +25,7 @@
 import numpy
 
 from nicos.core import ImageSink, NicosError
+from nicos.pycompat import iteritems
 
 try:
     import pyfits
@@ -62,7 +63,7 @@ class FITSFileFormat(ImageSink):
         hdu.writeto(info.file)
 
     def _buildHeader(self, header, hdu):
-        for _cat, dataSets in header.iteritems():
+        for _cat, dataSets in iteritems(header):
             for dev, attr, attrVal in dataSets:
                 # The FITS standard defines max 8 characters for a header key.
                 # To make longer keys possible, we use the HIERARCH keyword
@@ -82,6 +83,3 @@ class FITSFileFormat(ImageSink):
 
                 for item in splittedHeaderItems:
                     hdu.header.append((key, item))
-
-
-

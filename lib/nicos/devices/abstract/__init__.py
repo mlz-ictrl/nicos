@@ -28,6 +28,7 @@ from nicos.core import status, usermethod, DeviceMixinBase, Readable, \
     Moveable, HasLimits, HasOffset, HasPrecision, HasMapping, \
     ConfigurationError, ModeError, ProgrammingError, PositionError, \
     InvalidValueError, Param, Override, oneof, SLAVE
+from nicos.pycompat import iteritems
 
 
 class Coder(HasPrecision, Readable):
@@ -147,7 +148,7 @@ class MappedReadable(HasMapping, Readable):
             raise ConfigurationError(self, 'Value of fallback parameter is '
                                      'not allowed to be in the mapping!')
         self._inverse_mapping = {}
-        for k, v in self.mapping.iteritems():
+        for k, v in iteritems(self.mapping):
             self._inverse_mapping[v] = k
 
     def doStatus(self, maxage=0):

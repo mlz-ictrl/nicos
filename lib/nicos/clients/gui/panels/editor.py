@@ -47,6 +47,7 @@ from nicos.utils import formatDuration, formatEndtime, importString
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import showToolText, loadUi, setBackgroundColor
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
+from nicos.pycompat import iteritems
 
 COMMENT_STR = '## '
 
@@ -508,7 +509,7 @@ class EditorPanel(Panel):
         self.simFinished.setText(formatEndtime(timing))
 
         # device ranges
-        for devname, (_, dmin, dmax) in devinfo.iteritems():
+        for devname, (_, dmin, dmax) in iteritems(devinfo):
             if dmin is not None:
                 item = QTreeWidgetItem([devname, dmin, '-', dmax])
                 self.simRanges.addTopLevelItem(item)
@@ -643,7 +644,7 @@ class EditorPanel(Panel):
         if self.saving:
             return
         editor = watcher = None
-        for editor, watcher in self.watchers.iteritems():
+        for editor, watcher in iteritems(self.watchers):
             if watcher is self.sender():
                 break
         else:

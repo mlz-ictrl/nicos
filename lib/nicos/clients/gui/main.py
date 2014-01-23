@@ -43,11 +43,11 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 from nicos import nicos_version
 from nicos.utils import parseConnectionString, importString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
-     NicosLogger, initLoggers
+    NicosLogger, initLoggers
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-     loadBasicWindowSettings, loadUserStyle, getXDisplay, DebugHandler
+    loadBasicWindowSettings, loadUserStyle, getXDisplay, DebugHandler
 from nicos.clients.gui.config import gui_config
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
@@ -58,8 +58,8 @@ from nicos.clients.gui.dialogs.debug import DebugConsole
 from nicos.clients.gui.dialogs.settings import SettingsDialog
 from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
-     STATUS_IDLEEXC
-from nicos.pycompat import exec_
+    STATUS_IDLEEXC
+from nicos.pycompat import exec_, iteritems, listvalues
 
 
 class MainWindow(QMainWindow, DlgUtils):
@@ -261,7 +261,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.autoconnect = settings.value('autoconnect').toBool()
 
         self.connpresets = dict((str(k), v) for (k, v) in
-            (settings.value('connpresets').toPyObject() or {}).iteritems())
+            iteritems(settings.value('connpresets').toPyObject() or {}))
         self.lastpreset = str(settings.value('lastpreset').toString())
         if self.lastpreset in self.connpresets:
             cdata = self.connpresets[self.lastpreset]
@@ -291,7 +291,7 @@ class MainWindow(QMainWindow, DlgUtils):
             settings.setValue('windowstate', QVariant(self.saveState()))
             settings.setValue('splitstate',
                 QVariant([sp.saveState() for sp in self.splitters]))
-            open_wintypes = self.windows.keys()
+            open_wintypes = list(self.windows)
             settings.setValue('auxwindows', QVariant(open_wintypes))
 
     def saveSettings(self, settings):
@@ -321,7 +321,7 @@ class MainWindow(QMainWindow, DlgUtils):
             with panel.sgroup as settings:
                 panel.saveSettings(settings)
 
-        for window in self.windows.values():
+        for window in listvalues(self.windows):
             if not window.close():
                 event.ignore()
                 return
@@ -379,7 +379,7 @@ class MainWindow(QMainWindow, DlgUtils):
         # propagate to panels
         for panel in self.panels:
             panel.updateStatus(status, exception)
-        for window in self.windows.itervalues():
+        for window in self.windows.values():
             for panel in window.panels:
                 panel.updateStatus(status, exception)
 

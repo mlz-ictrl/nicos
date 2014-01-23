@@ -35,7 +35,7 @@ from PyQt4.QtCore import QString, QStringList, SIGNAL, \
 from nicos.utils import lazy_property
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.pycompat import add_metaclass
+from nicos.pycompat import add_metaclass, iteritems
 
 # Import resources file
 import nicos.guisupport.gui_rc  #pylint: disable=W0611
@@ -220,7 +220,7 @@ class AutoPropMeta(pyqtWrapperType):
         newprops.update(attrs.get('properties', {}))
         newtype.properties = newprops
 
-        for prop, pdef in sorted(newprops.iteritems()):
+        for prop, pdef in sorted(iteritems(newprops)):
             def getter(self, prop=prop):
                 return self.props[prop]
             def setter(self, value, prop=prop):
@@ -268,7 +268,7 @@ class NicosWidget(NicosListener):
         return {}
 
     def __init__(self):
-        for prop, pdef in self.properties.iteritems():
+        for prop, pdef in iteritems(self.properties):
             if prop not in self.props:
                 if callable(pdef.default):
                     self.props[prop] = PropDef.convert(pdef.default(self))

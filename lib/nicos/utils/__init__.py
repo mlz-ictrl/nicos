@@ -42,7 +42,7 @@ from time import time as currenttime, strftime, strptime, localtime, mktime, \
      sleep
 from itertools import islice, chain
 
-from nicos.pycompat import configparser, xrange as range  # pylint: disable=W0622
+from nicos.pycompat import configparser, iteritems, xrange as range  # pylint: disable=W0622
 
 try:
     import grp
@@ -97,7 +97,7 @@ class readonlydict(dict):
         update = _no
 
     def __getnewargs__(self):
-        return (dict(self.iteritems()),)
+        return (dict(iteritems(self)),)
 
     def __reduce__(self):
         return dict.__reduce__(self)
@@ -721,7 +721,7 @@ def colorcode(name):
     return _codes.get(name, '')
 
 def nocolor():
-    for key in _codes.keys():
+    for key in list(_codes):
         _codes[key] = ''
 
 if os.name == 'nt':
@@ -752,7 +752,7 @@ def whyExited(status):
 
 def formatExtendedFrame(frame):
     ret = []
-    for key, value in frame.f_locals.iteritems():
+    for key, value in iteritems(frame.f_locals):
         try:
             valstr = repr(value)[:256]
         except Exception:

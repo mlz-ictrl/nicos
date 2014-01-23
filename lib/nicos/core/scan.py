@@ -38,6 +38,7 @@ from nicos.core.constants import SIMULATION, SLAVE
 from nicos.utils import Repeater
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
+from nicos.pycompat import iteritems
 
 
 # Exceptions at which a scan point is measured anyway.
@@ -138,7 +139,7 @@ class Scan(object):
         for sink in self._sinks:
             sink.beginDataset(dataset)
         bycategory = {}
-        for _, device in sorted(session.devices.iteritems()):
+        for _, device in sorted(iteritems(session.devices)):
             if device.lowlevel:
                 continue
             for category, key, value in device.info():
@@ -164,7 +165,7 @@ class Scan(object):
         # propagate to the relevant objects
         for det in self._detlist:
             if isinstance(det, ImageProducer):
-                for catinfo, bycategory in self.dataset.headerinfo.iteritems():
+                for catinfo, bycategory in iteritems(self.dataset.headerinfo):
                     det.addHeader(catinfo, bycategory)
                 det.addHeader('scan', [(self, 'pointnum', '%d' % num)])
 

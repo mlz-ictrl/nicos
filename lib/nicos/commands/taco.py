@@ -51,7 +51,7 @@ def TacoRes(dev):
     """List all resources for the given TACO device."""
     cl = _client(dev)
     items = []
-    for res, info in sorted(cl.deviceQueryResourceInfo().iteritems()):
+    for res, info in sorted(cl.deviceQueryResourceInfo().items()):
         try:
             rv = cl.deviceQueryResource(res)
         except Exception:

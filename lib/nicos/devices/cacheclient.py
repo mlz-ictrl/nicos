@@ -37,7 +37,7 @@ from nicos.protocols.cache import msg_pattern, line_pattern, \
      cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
      OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, \
      CYCLETIME, BUFSIZE
-from nicos.pycompat import queue
+from nicos.pycompat import queue, iteritems
 
 
 class BaseCacheClient(Device):
@@ -411,7 +411,7 @@ class CacheClient(BaseCacheClient):
         # get all current values from the cache
         BaseCacheClient._connect_action(self)
         # tell the server all our rewrites
-        for newprefix, oldprefix in self._inv_rewrites.iteritems():
+        for newprefix, oldprefix in iteritems(self._inv_rewrites):
             self._queue.put(newprefix + OP_REWRITE + oldprefix + '\n')
 
     def _wait_data(self):
@@ -601,7 +601,7 @@ class CacheClient(BaseCacheClient):
         time = currenttime()
         devprefix = str(dev).lower() + '/'
         with self._dblock:
-            for dbkey in self._db.keys():
+            for dbkey in list(self._db):
                 if dbkey.startswith(devprefix):
                     if exclude and dbkey.rsplit('/', 1)[-1] in exclude:
                         continue
@@ -614,7 +614,7 @@ class CacheClient(BaseCacheClient):
         """Clear all cache keys."""
         time = currenttime()
         with self._dblock:
-            for dbkey in self._db.keys():
+            for dbkey in list(self._db):
                 msg = '%s@%s%s%s\n' % (time, self._prefix, dbkey, OP_TELL)
                 self._db.pop(dbkey, None)
                 self._queue.put(msg)

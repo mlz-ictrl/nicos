@@ -47,7 +47,7 @@ else:
 from nicos import session
 from nicos.core import Device
 from nicos.utils import formatDocstring
-from nicos.pycompat import StringIO, escape_html
+from nicos.pycompat import StringIO, escape_html, iteritems
 
 
 STYLE = '''
@@ -143,7 +143,7 @@ class HelpGenerator(object):
                    '<th>From setup</th><th>Description</th></tr>')
         setupinfo = session.getSetupInfo()
         devsetups = {}
-        for sname, info in setupinfo.iteritems():
+        for sname, info in iteritems(setupinfo):
             if info is None:
                 continue
             for devname in info['devices']:
@@ -167,7 +167,7 @@ class HelpGenerator(object):
             return escape_html(devname)
         def listsetups(group):
             setups = []
-            for setupname, info in sorted(session.getSetupInfo().iteritems()):
+            for setupname, info in sorted(iteritems(session.getSetupInfo())):
                 if info is None or info['group'] != group:
                     continue
                 setups.append('<tr><td><tt>%s</tt></td><td>%s</td>'
@@ -218,7 +218,7 @@ class HelpGenerator(object):
                    '<th>Unit</th><th>Settable?</th><th>Value type</th>'
                    '<th>Description</th></tr>')
         devunit = getattr(dev, 'unit', '')
-        for name, info in sorted(dev.parameters.iteritems()):
+        for name, info in sorted(iteritems(dev.parameters)):
             if not info.userparam:
                 continue
             try:
@@ -247,7 +247,7 @@ class HelpGenerator(object):
         def _list(cls):
             if cls in listed: return
             listed.add(cls)
-            for name, (args, doc) in sorted(cls.commands.iteritems()):
+            for name, (args, doc) in sorted(iteritems(cls.commands)):
                 ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
                            (escape_html(dev.name + '.' + name + args), cls.__name__,
                             escape_html(doc)))

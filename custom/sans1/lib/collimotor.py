@@ -22,24 +22,23 @@
 #
 # *****************************************************************************
 
-"""Devices for the Beckhoff Busklemmensystem."""
-
-from Modbus import Modbus
+"""Devices for the SANS-1 collimation system."""
 
 import time
 import struct
 import threading
-from nicos.core import Param, Override, listof, none_or, oneof, \
-                        oneofdict, floatrange, intrange, status, waitForStatus, \
-                        InvalidValueError, UsageError, CommunicationError, \
-                        PositionError
+
+from Modbus import Modbus
+
+from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
+    floatrange, intrange, status, waitForStatus, InvalidValueError, \
+    UsageError, CommunicationError, PositionError, SIMULATION
 from nicos.core.device import usermethod, requires
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.taco.core import TacoDevice
-from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput,\
-                                   DigitalInput, NamedDigitalInput
+from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput, \
+    DigitalInput, NamedDigitalInput
 from nicos.devices.generic import Switcher
-from nicos.core import SIMULATION
 
 
 class Sans1ColliSwitcher(Switcher):
@@ -55,10 +54,10 @@ class Sans1ColliSwitcher(Switcher):
         prec = self.precision
         def myiter(mapping):
             # use position names beginning with P as last option
-            for name, value in mapping.iteritems():
+            for name, value in mapping.items():
                 if name[0] != 'P':
                     yield name, value
-            for name, value in mapping.iteritems():
+            for name, value in mapping.items():
                 if name[0] == 'P':
                     yield name, value
         for name, value in myiter(self.mapping):
@@ -461,8 +460,8 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
         try:
             index = int(self._paridx.get(index,index))
         except ValueError:
-            UsageError(self, 'Unknown parameter %r, try one of %s' %
-                       (index,', '.join(self._paridx.keys()+self._paridx.values)))
+            raise UsageError(self, 'Unknown parameter %r, try one of %s' %
+                             (index, ', '.join(self._paridx)))
         if self._readStatusWord() & (1<<7):
             raise UsageError(self, 'Can not access Parameters while Motor is '
                                     'moving, please stop it first!')

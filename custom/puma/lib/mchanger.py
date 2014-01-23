@@ -64,10 +64,10 @@ class Mchanger(Moveable):
         # replaced devicename by device and make a local copy
         devices = self.changing_positions.keys()
         self._changing_values = dict(zip(map(session.getDevice, devices),
-                                             self.changing_positions.values()))
+                                         self.changing_positions.values()))
         devices = self.init_positions.keys()
         self._init_values = dict(zip(map(session.getDevice, devices),
-                                             self.init_positions.values()))
+                                     self.init_positions.values()))
 
     def doStart(self, target):
         try:

@@ -35,6 +35,7 @@ from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
 from nicos.guisupport.display import ValueDisplay
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
+from nicos.pycompat import iteritems
 
 try:
     from nicos.guisupport.plots import TrendPlot
@@ -311,7 +312,7 @@ class Monitor(BaseMonitor):
 
         def reconfigure(emitdict):
             master._reconfiguring = True
-            for (layout, blockbox), enabled in emitdict.iteritems():
+            for (layout, blockbox), enabled in iteritems(emitdict):
                 blockbox.enableDisplay(layout, enabled)
             master.layout().activate()
         master.connect(master, SIGNAL('reconfigure'), reconfigure)
@@ -354,7 +355,7 @@ class Monitor(BaseMonitor):
 
     def reconfigureBoxes(self):
         emitdict = {}
-        for setup, boxes in self._onlymap.iteritems():
+        for setup, boxes in iteritems(self._onlymap):
             if setup.startswith('!'):
                 if setup.endswith('*'):
                     enabled = True

@@ -191,7 +191,7 @@ from ast import parse, Str, Num, Tuple, List, Dict, BinOp, UnaryOp, \
 from base64 import b64encode, b64decode
 
 from nicos.utils import readonlylist, readonlydict
-from nicos.pycompat import cPickle as pickle
+from nicos.pycompat import cPickle as pickle, iteritems
 
 DEFAULT_CACHE_PORT = 14869
 
@@ -254,7 +254,7 @@ def cache_dump(obj):
         res.append(')')
     elif isinstance(obj, dict):
         res.append('{')
-        for key, value in obj.iteritems():
+        for key, value in iteritems(obj):
             res.append(cache_dump(key))
             res.append(':')
             res.append(cache_dump(value))

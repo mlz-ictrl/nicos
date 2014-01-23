@@ -53,7 +53,8 @@ from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
      NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
      SIMULATION, MAINTENANCE
-from nicos.pycompat import builtins, exec_, string_types
+from nicos.pycompat import builtins, exec_, string_types, \
+    itervalues, iteritems, listvalues, listitems
 
 
 SETUP_GROUPS = set([
@@ -247,7 +248,7 @@ class Session(object):
         # switch mode, taking care to switch "higher level" devices before
         # "lower level" (because higher level devices may need attached devices
         # still working in order to read out their last value)
-        devs = self.devices.values()
+        devs = listvalues(self.devices)
         switched = set()
         while devs:
             for dev in devs[:]:
@@ -291,9 +292,9 @@ class Session(object):
             self.loadSetup(setups)
         # cache keys are always lowercase, while device names can be mixed,
         # so we build a map once to get fast lookup
-        lowerdevs = dict((d.name.lower(), d) for d in self.devices.itervalues())
+        lowerdevs = dict((d.name.lower(), d) for d in itervalues(self.devices))
         umethods_to_call = []
-        for key, value in db.iteritems():
+        for key, value in iteritems(db):
             if key.count('/') != 1:
                 continue
             dev, param = key.split('/')
@@ -385,7 +386,7 @@ class Session(object):
                     oldinfo['modules'].extend(info['modules'])
                     oldinfo['devices'].update(info['devices'])
                     # remove devices overridden by "None" entries completely
-                    for devname, value in oldinfo['devices'].items():
+                    for devname, value in listitems(oldinfo['devices']):
                         if value is None:
                             del oldinfo['devices'][devname]
                     oldinfo['startupcode'] += '\n' + info['startupcode']
@@ -396,7 +397,7 @@ class Session(object):
                 else:
                     self._setup_info[modname] = info
         # check if all includes exist
-        for name, info in self._setup_info.iteritems():
+        for name, info in iteritems(self._setup_info):
             if info is None:
                 continue  # erroneous setup
             for include in info['includes']:
@@ -484,7 +485,7 @@ class Session(object):
             except Exception as err:
                 self.log.error('Exception importing %s: %s' % (modname, err))
                 return
-            for name, command in mod.__dict__.iteritems():
+            for name, command in iteritems(mod.__dict__):
                 if getattr(command, 'is_usercommand', False):
                     if name.startswith('_') and command.__name__ != name:
                         # it's a usercommand, but imported under a different
@@ -539,8 +540,8 @@ class Session(object):
 
             self.configured_devices.update(info['devices'])
 
-            sysconfig.update(info['sysconfig'].iteritems())
-            devlist.update(info['devices'].iteritems())
+            sysconfig.update(iteritems(info['sysconfig']))
+            devlist.update(iteritems(info['devices']))
             startupcode.append(info['startupcode'])
 
             return sysconfig, devlist, startupcode
@@ -621,7 +622,7 @@ class Session(object):
         if autocreate_devices is None:
             autocreate_devices = self.autocreate_devices
         if autocreate_devices:
-            for devname, (_, devconfig) in sorted(devlist.iteritems()):
+            for devname, (_, devconfig) in sorted(iteritems(devlist)):
                 if devconfig.get('lowlevel', False):
                     continue
                 try:
@@ -670,7 +671,7 @@ class Session(object):
         This shuts down all created devices and clears the NICOS namespace.
         """
         # shutdown according to device dependencies
-        devs = self.devices.values()
+        devs = listvalues(self.devices)
         already_shutdown = set()
         while devs:
             for dev in devs[:]:
@@ -910,7 +911,7 @@ class Session(object):
             raise NicosError('creation already failed once; not retrying')
         if devname not in self.configured_devices:
             found_in = []
-            for sname, info in self._setup_info.iteritems():
+            for sname, info in iteritems(self._setup_info):
                 if info is None:
                     continue
                 if devname in info['devices']:

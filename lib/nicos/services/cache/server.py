@@ -43,7 +43,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import Device, Param
 from nicos.utils import loggers, closeSocket
-from nicos.pycompat import queue
+from nicos.pycompat import queue, listitems, listvalues
 
 # pylint: disable=W0611
 from nicos.services.cache.database import CacheDatabase, FlatfileCacheDatabase, \
@@ -384,7 +384,7 @@ class CacheServer(Device):
         while not self._stoprequest:
             # loop through connections, first to remove dead ones,
             # secondly to try to reconnect
-            for addr, client in self._connected.items():
+            for addr, client in listitems(self._connected):
                 if client:
                     if not client.is_active(): # dead or stopped
                         self.log.info('client connection %s closed' % addr)
@@ -431,11 +431,11 @@ class CacheServer(Device):
     def quit(self):
         self.log.info('quitting...')
         self._stoprequest = True
-        for client in self._connected.values():
+        for client in listvalues(self._connected):
             self.log.info('closing client %s' % client)
             if client.is_active():
                 client.closedown()
-        for client in self._connected.values():
+        for client in listvalues(self._connected):
             self.log.info('waiting for %s' % client)
             client.join()
         self.log.info('waiting for server')

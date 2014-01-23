@@ -35,6 +35,7 @@ from nicos import session
 from nicos.core import Device, Param, ConfigurationError, intrange
 from nicos.utils import ensureDirectory, allDays
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_LOCK, FLAG_NO_STORE
+from nicos.pycompat import iteritems, listitems
 
 try:  # Windows compatibility: it does not provide os.link
     os_link = os.link
@@ -161,7 +162,7 @@ class MemoryCacheDatabase(CacheDatabase):
         ret = set()
         with self._db_lock:
             # look for matching keys
-            for dbkey, entries in self._db.iteritems():
+            for dbkey, entries in iteritems(self._db):
                 if key not in dbkey:
                     continue
                 lastent = entries[-1]
@@ -448,10 +449,10 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._midnight = mktime(ltime[:3] + (0,) * (8-3) + (ltime[8],))
         self._nextmidnight = self._midnight + 86400
         # roll over all file descriptors
-        for category, (fd, _, db) in self._cat.iteritems():
+        for category, (fd, _, db) in iteritems(self._cat):
             fd.close()
             fd = self._cat[category][0] = self._create_fd(category)
-            for subkey, entry in db.iteritems():
+            for subkey, entry in iteritems(db):
                 if entry.value:
                     fd.write('%s\t%s\t%s\t%s\n' % (
                         subkey, entry.time,
@@ -524,10 +525,10 @@ class FlatfileCacheDatabase(CacheDatabase):
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
         # look for matching keys
-        for cat, (_, lock, db) in self._cat.items():
+        for cat, (_, lock, db) in listitems(self._cat):
             prefix = cat + '/' if cat != 'nocat' else ''
             with lock:
-                for subkey, entry in db.iteritems():
+                for subkey, entry in iteritems(db):
                     if key not in prefix+subkey:
                         continue
                     # check for removed keys
@@ -603,9 +604,9 @@ class FlatfileCacheDatabase(CacheDatabase):
     def _clean(self):
         def cleanonce():
             with self._cat_lock:
-                for cat, (fd, lock, db) in self._cat.iteritems():
+                for cat, (fd, lock, db) in iteritems(self._cat):
                     with lock:
-                        for subkey, entry in db.iteritems():
+                        for subkey, entry in iteritems(db):
                             if not entry.value or entry.expired:
                                 continue
                             time = currenttime()

@@ -946,7 +946,7 @@ class Experiment(Device):
     def newSample(self, name, parameters):
         """Called by `.NewSample`."""
         self.sample.samplename = name
-        for param, value in parameters.iteritems():
+        for param, value in parameters.items():
             setattr(self.sample, param, value)
         self.datapathChanged()  # may have changed...
 
