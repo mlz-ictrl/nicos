@@ -17,11 +17,6 @@ data/
 
 doc/build/
 doc/source/auto
-doc/_sources/
-doc/_static/
-doc/auto/
-doc/objects.inv
-doc/searchindex.js
 doc/source/custom/*/setups
 
 .coverage
@@ -39,20 +34,6 @@ test/root/
 *.so.*
 *.pyd
 *~
-*.sbf
-*.exp
-sip*.cpp
-sip*.h
-moc_*.cpp
-*_moc.cpp
-ui_*.h
-
-src/livewidget/livewidget
-src/livewidget/Makefile
-src/livewidget/python/Makefile
-src/livewidget/python/lw_*.cpp
-src/livewidget/python/lw_*.h
-
 
 #Eclipse:
 .project

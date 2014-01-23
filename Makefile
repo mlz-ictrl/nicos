@@ -45,42 +45,6 @@ inplace:
 	-${MAKE} custom-inplace
 
 
-LIVEWIDGET_DEPS=src/livewidget/livewidget.pro \
-src/livewidget/lw_common.h \
-src/livewidget/lw_controls.cpp \
-src/livewidget/lw_controls.h \
-src/livewidget/lw_data.cpp \
-src/livewidget/lw_data.h \
-src/livewidget/lw_histogram.cpp \
-src/livewidget/lw_histogram.h \
-src/livewidget/lw_imageproc.cpp \
-src/livewidget/lw_imageproc.h \
-src/livewidget/lw_main.cpp \
-src/livewidget/lw_plot.cpp \
-src/livewidget/lw_plot.h \
-src/livewidget/lw_profile.cpp \
-src/livewidget/lw_profile.h \
-src/livewidget/lw_widget.cpp \
-src/livewidget/lw_widget.h \
-src/livewidget/python/configure.py
-
-
-src/livewidget/python/livewidget.so: $(LIVEWIDGET_DEPS)
-	cd src/livewidget/python && python configure.py && ${MAKE}
-
-livewidget-gui: src/livewidget/python/livewidget.so
-
-livewidget-inplace: src/livewidget/python/livewidget.so
-	-cp $(VOPT) src/livewidget/python/livewidget.so lib/nicos/clients/gui
-
-livewidget-install:
-
-livewidget-install-gui: src/livewidget/python/livewidget.so
-	cp $(VOPT) src/livewidget/python/livewidget.so $(DESTDIR)$(ROOTDIR)/lib/nicos/clients/gui
-
-livewidget-clean:
-	cd src/livewidget && ${MAKE} clean
-
 T = test
 
 test:

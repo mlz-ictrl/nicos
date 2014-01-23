@@ -40,9 +40,6 @@ Setting up the new instrument customization
 * Create more setup files as needed, and do not hesitate to refer to other
   instruments' setup files for that!
 
-* For instruments that use the 2-D live data display ("livewidget"), see
-  ``custom/toftof/make.conf`` as a template how to set up the Make rules.
-
 Building and installing
 -----------------------
 
