@@ -26,6 +26,8 @@
 
 import re
 
+from six import add_metaclass
+
 from nicos import session
 from nicos.core import Device, Param, ConfigurationError, NicosError, \
     none_or, nicosdev, usermethod
@@ -33,11 +35,11 @@ from nicos.core.device import DeviceMixinMeta
 from nicos.core import SIMULATION, MASTER
 
 
+# Use the DeviceMixinMeta metaclass here to provide the instancecheck
+# Not derived from DeviceMixinBase as this class is not a mixin.
+@add_metaclass(DeviceMixinMeta)
 class NoDevice(object):
     """A class that represents "no device" attached."""
-    # Use the DeviceMixinMeta metaclass here to provide the instancecheck
-    # Not derived from DeviceMixinBase as this class is not a mixin.
-    __metaclass__ = DeviceMixinMeta
 
     def __init__(self, name):
         self.name = name

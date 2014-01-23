@@ -29,7 +29,7 @@ import types
 import inspect
 from time import time as currenttime, sleep
 
-from six import reraise
+from six import reraise, add_metaclass
 
 from nicos import session
 from nicos.core import status
@@ -106,6 +106,7 @@ class DeviceMixinMeta(type):
         return issubclass(inst.__class__, cls)
 
 
+@add_metaclass(DeviceMixinMeta)
 class DeviceMixinBase(object):
     """
     Base class for all NICOS device mixin classes not derived from `Device`.
@@ -113,7 +114,6 @@ class DeviceMixinBase(object):
     This class sets the correct metaclass and is easier to use than setting the
     metaclass on each mixin class.  Mixins **must** derive from this class.
     """
-    __metaclass__ = DeviceMixinMeta
 
 
 class DeviceMeta(DeviceMixinMeta):
@@ -270,6 +270,8 @@ class DeviceMeta(DeviceMixinMeta):
 
         return newtype
 
+
+@add_metaclass(DeviceMeta)
 class Device(object):
     """
     An object that has a list of parameters that are read from the configuration
@@ -283,7 +285,6 @@ class Device(object):
     * doVersion()
     """
 
-    __metaclass__ = DeviceMeta
     __mergedattrs__ = ['parameters', 'parameter_overrides', 'attached_devices']
 
     # A dictionary mapping device names to classes (or lists of classes) that

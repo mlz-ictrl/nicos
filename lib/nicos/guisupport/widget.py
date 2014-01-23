@@ -28,6 +28,8 @@ Base class for NICOS UI widgets.
 
 from copy import copy
 
+from six import add_metaclass
+
 from PyQt4.QtGui import QFont, QFontMetrics
 from PyQt4.QtCore import QString, QStringList, SIGNAL, \
      pyqtProperty, pyqtWrapperType
@@ -237,6 +239,7 @@ class AutoPropMeta(pyqtWrapperType):
         return newtype
 
 
+@add_metaclass(AutoPropMeta)
 class NicosWidget(NicosListener):
     """Base mixin class for a widget that can receive cache events.
 
@@ -244,7 +247,6 @@ class NicosWidget(NicosListener):
     can only derive from one PyQt base class, and that base class will be
     different for different widgets.
     """
-    __metaclass__ = AutoPropMeta
 
     # source for cache keys
     _source = None
