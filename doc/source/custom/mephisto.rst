@@ -2,13 +2,22 @@
 Mephisto setups
 ===============
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/mephisto/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/mephisto/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/mephisto/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/mephisto/setups/special/*
+
 

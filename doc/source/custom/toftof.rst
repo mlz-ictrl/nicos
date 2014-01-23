@@ -1,14 +1,23 @@
-=============
+==============
 Toftof setups
-=============
-
-Normal setups
-=============
-
-.. setupdir:: custom/toftof/setups
-
-Special setups
 ==============
 
-.. setupdir:: custom/toftof/setups/special
+Instrument setups
+=================
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/toftof/setups/*
+
+Service setups
+==============
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/toftof/setups/special/*
+
 

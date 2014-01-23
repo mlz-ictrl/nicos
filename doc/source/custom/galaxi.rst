@@ -2,13 +2,22 @@
 Galaxi setups
 =============
 
-Normal setups
-=============
+Intrument setups
+================
 
-.. setupdir:: custom/galaxi/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/galaxi/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/galaxi/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/galaxi/setups/special/*
+
 

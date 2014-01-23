@@ -2,13 +2,22 @@
 PGAA setups
 ===========
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/pgaa/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/pgaa/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/pgaa/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/pgaa/setups/special/*
+
 

@@ -2,13 +2,22 @@
 Refsans setups
 ==============
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/refsans/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/refsans/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/refsans/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/refsans/setups/special/*
+
 

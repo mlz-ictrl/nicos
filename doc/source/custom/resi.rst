@@ -2,13 +2,22 @@
 Resi setups
 ===========
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/resi/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/resi/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/resi/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/resi/setups/special/*
+
 

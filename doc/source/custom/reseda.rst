@@ -2,13 +2,22 @@
 Reseda setups
 =============
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/reseda/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/reseda/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/reseda/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/reseda/setups/special/*
+
 

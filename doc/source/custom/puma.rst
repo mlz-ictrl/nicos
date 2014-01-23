@@ -2,13 +2,22 @@
 Puma setups
 ===========
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/puma/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/puma/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/puma/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/puma/setups/special/*
+
 

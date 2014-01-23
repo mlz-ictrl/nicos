@@ -2,5 +2,13 @@
 JCNS setups
 ===========
 
-.. setupdir:: custom/jcns/setups
+Instrument setups
+=================
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/jcns/setups/*
+
 

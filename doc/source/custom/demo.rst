@@ -2,13 +2,22 @@
 Demo setups
 ===========
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/demo/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/demo/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/demo/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/demo/setups/special/*
+
 

@@ -2,13 +2,22 @@
 Sample environment setups
 =========================
 
-Normal setups
-=============
+Basic setups
+============
 
-.. setupdir:: custom/se/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/se/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/se/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/se/setups/special/*
+
 

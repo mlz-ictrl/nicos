@@ -2,13 +2,22 @@
 Mira setups
 ===========
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/mira/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/mira/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/mira/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/mira/setups/special/*
+
 

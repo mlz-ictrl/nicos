@@ -2,13 +2,22 @@
 Panda setups
 ============
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/panda/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/panda/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/panda/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/panda/setups/special/*
+
 

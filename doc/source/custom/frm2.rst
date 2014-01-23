@@ -2,5 +2,10 @@
 FRM II setups
 =============
 
-.. setupdir:: custom/frm2/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/frm2/setups/*
+
 

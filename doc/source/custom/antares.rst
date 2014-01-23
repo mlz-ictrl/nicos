@@ -2,13 +2,22 @@
 Antares setups
 ==============
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/antares/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/antares/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/antares/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/antares/setups/special/*
+
 

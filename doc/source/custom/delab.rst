@@ -2,13 +2,22 @@
 Detector laboratory setups
 ==========================
 
-Normal setups
-=============
+Laboratory setups
+=================
 
-.. setupdir:: custom/delab/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/delab/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/delab/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/delab/setups/special/*
+
 

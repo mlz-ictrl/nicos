@@ -23,12 +23,17 @@
 
 import os
 import os.path
+import shutil
 
 from docutils import nodes
 from docutils.statemachine import ViewList
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.docstrings import prepare_docstring
+
+###############################################################################
+##                                 Directives                                ##
+###############################################################################
 
 #
 # Rst snippets
@@ -41,12 +46,14 @@ rstSnipIncludes = '''| **Included setups:** %(includes)s'''
 rstSnipExcludes = '''| **Excluded setups:** %(excludes)s'''
 rstSnipModules = '''| **Used modules:** %(modules)s'''
 rstSnipDevices = '''
-**Devices**
+Devices
+-------
 
 '''
 
 rstSnipStartupcode = '''
-**Startup code**
+Startup code
+------------
 
 ::
 
@@ -73,7 +80,7 @@ rstSnipSetup = '''
 %(rst_startupcode)s
 '''
 
-devClassCache = {} # cache for already imported device classes
+devClassCache = {}  # cache for already imported device classes
 
 
 class SetupDirective(Directive):
@@ -93,6 +100,8 @@ class SetupDirective(Directive):
         return self._generateSetupNodes(self.arguments[0])
 
     def _generateSetupNodes(self, relPath):
+        self.env.note_dependency(os.path.join(self.base_path, relPath))
+
         info = self._readSetup(relPath)
 
         if info:
@@ -159,7 +168,7 @@ class SetupDirective(Directive):
         return result
 
     def _buildSetupRst(self, setupInfo):
-        setupInfo['setupname_underline'] = '-' * len(setupInfo['setupname'])
+        setupInfo['setupname_underline'] = '=' * len(setupInfo['setupname'])
 
         setupInfo['rst_group'] = self._buildGroupBlock(setupInfo)
         setupInfo['rst_includes'] = self._buildIncludesBlock(setupInfo)
@@ -231,10 +240,14 @@ class SetupDirective(Directive):
                 continue
 
             rst.append('.. _%s-%s:\n' % (setupInfo['setupname'], devName))
-            rst.append('%s| **%s (**\\ :class:`%s.%s`\\ **):**\n' % (self.indention, devName, klass.__module__, klass.__name__))
+            rst.append(devName)
+            rst.append('~' * len(devName))
+            rst.append('')
+            rst.append('Device class: :class:`%s.%s`' % (klass.__module__, klass.__name__))
+            rst.append('')
 
             if 'description' in devParams:
-                rst.append('%s| %s' % (self.indention*2, devParams['description']))
+                rst.append('| %s' % (devParams['description']))
                 rst.append('')
 
             paramRows = [('Parameter', 'Default', 'Configured')]
@@ -242,15 +255,23 @@ class SetupDirective(Directive):
             for paramName in sorted(klass.parameters.keys()):
                 paramInfo = klass.parameters[paramName]
 
-                if not paramInfo.userparam or paramName == 'description':
+                if not paramInfo.userparam \
+                or paramName in ['description', 'passwd', 'target']:
                     continue
 
                 if paramName in devParams:
-                    paramRows += [(self._buildParamLink(paramName, paramInfo), repr(paramInfo.default), repr(devParams[paramName]))]
-                else:
-                    paramRows += [(self._buildParamLink(paramName, paramInfo), repr(paramInfo.default), '')]
+                    paramValue = repr(devParams[paramName])
+                    if len(paramValue) > 76:
+                        paramValue = paramValue[:77] + ' ...'
 
-            rst.append(self._buildListTable(paramRows, 2))
+                    paramRows += [(self._buildParamLink(paramName, paramInfo),
+                                   repr(paramInfo.default),
+                                   paramValue)]
+                else:
+                    paramRows += [(self._buildParamLink(paramName, paramInfo),
+                                   repr(paramInfo.default), '')]
+
+            rst.append(self._buildListTable(paramRows))
             rst.append('')
 
         return '\n'.join(rst)
@@ -316,6 +337,7 @@ class SetupDirective(Directive):
             self.error('Could not get class from module %s' % classPath)
         return None
 
+
 class SetupdirDirective(SetupDirective):
     def run(self):
         nodes = []
@@ -341,7 +363,98 @@ class SetupdirDirective(SetupDirective):
 
         return nodes
 
+###############################################################################
+##                                   Events                                  ##
+###############################################################################
+
+rstSnipSetupFile = '''
+.. setup:: %(setupname)s
+
+'''
+
+
+def _getListOfCustoms(doc_dir):
+    files = os.listdir(doc_dir)
+
+    return [entry[:-4] for entry in files
+            if os.path.isfile(os.path.join(doc_dir, entry))
+            and entry.endswith('.rst')
+            and entry != 'index.rst']
+
+
+def _getListOfSetups(root, relPath=''):
+    dirPath = os.path.join(root, relPath)
+
+    if not os.path.isdir(dirPath):
+        return []
+
+    result = []
+
+    for entry in os.listdir(dirPath):
+        fullEntry = os.path.join(root, relPath, entry)
+        if os.path.isdir(fullEntry):
+            result += _getListOfSetups(root, os.path.join(relPath, entry))
+        else:
+            if not entry.endswith('.py') or entry == '__init__.py':
+                continue
+
+            result.append((relPath, entry))
+
+    return result
+
+
+def _genSetupFileRst(setupName):
+    return rstSnipSetupFile % { 'setupname' : setupName }
+
+
+def setupdoc_builder_inited(app):
+    baseDir = app.config.setupdoc_base_dir
+    custDocDir = os.path.abspath(app.config.setupdoc_custom_doc_dir)
+    setupDocDir = os.path.join(custDocDir, 'setups')
+
+    customs = _getListOfCustoms(custDocDir)
+
+    for custom in customs:
+        relPath = os.path.join('custom', custom, 'setups')
+        setups = _getListOfSetups(baseDir, relPath)
+
+        for setup in setups:
+            destDir = os.path.join(setupDocDir, setup[0])
+            rstFile = os.path.join(destDir, setup[1]).replace('.py', '.rst')
+            setupName = os.path.join(setup[0], setup[1])
+
+            if os.path.isfile(rstFile):
+                continue
+            try:
+                os.makedirs(destDir)
+            except OSError:
+                # ignore already existent dirs
+                pass
+
+            with open(rstFile, 'w') as f:
+                f.write(_genSetupFileRst(setupName))
+
+
+def setupdoc_build_finished(app, doctree):
+    if app.config.setupdoc_cleanup_after_build:
+        custDocDir = os.path.abspath(app.config.setupdoc_custom_doc_dir)
+        setupDocDir = os.path.join(custDocDir, 'setups')
+
+        if os.path.isdir(setupDocDir):
+            shutil.rmtree(setupDocDir)
+
+
+###############################################################################
+##                                   Setup                                   ##
+###############################################################################
 
 def setup(app):
+    app.add_config_value('setupdoc_base_dir', '..', '')
+    app.add_config_value('setupdoc_custom_doc_dir', 'source/custom', '')
+    app.add_config_value('setupdoc_cleanup_after_build', True, '')
+
     app.add_directive('setup', SetupDirective)
     app.add_directive('setupdir', SetupdirDirective)
+
+    app.connect('builder-inited', setupdoc_builder_inited)
+    app.connect('build-finished', setupdoc_build_finished)

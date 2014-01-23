@@ -2,13 +2,22 @@
 Sans 1 setups
 =============
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/sans1/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/sans1/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/sans1/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/sans1/setups/special/*
+
 

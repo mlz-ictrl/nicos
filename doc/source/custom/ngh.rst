@@ -2,13 +2,22 @@
 Neutron guide hall setups
 =========================
 
-Normal setups
-=============
+Instrument setups
+=================
 
-.. setupdir:: custom/ngh/setups
+.. toctree::
+    :maxdepth: 1
+    :glob:
 
-Special setups
+    setups/custom/ngh/setups/*
+
+Service setups
 ==============
 
-.. setupdir:: custom/ngh/setups/special
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    setups/custom/ngh/setups/special/*
+
 
