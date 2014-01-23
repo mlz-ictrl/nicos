@@ -200,7 +200,7 @@ class PropDef(object):
         if isinstance(value, QString):
             return unicode(value)
         if isinstance(value, QStringList):
-            return map(unicode, value)  # creates a normal list as well
+            return [unicode(s) for s in value]
         if isinstance(value, QFont):
             # QFont doesn't like to be copied with copy()...
             return QFont(value)

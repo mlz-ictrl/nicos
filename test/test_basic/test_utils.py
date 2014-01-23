@@ -100,10 +100,8 @@ def test_functions():
     assert parseConnectionString('user:pass@host:1301', 1302) == \
         ('user', 'pass', 'host', 1301)
 
-    assert map(tuple, chunks(range(10), 3)) == [(0, 1, 2),
-                                                (3, 4, 5),
-                                                (6, 7, 8),
-                                                (9,)]
+    assert list(map(tuple, chunks(range(10), 3))) == \
+        [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
 
 def test_traceback():
     a = 1  # pylint: disable=W0612

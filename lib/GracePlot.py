@@ -898,7 +898,7 @@ class Data:
                 x=pairs[:,0]
                 y=pairs[:,1]
             except:
-                x, y = map(None, *tuple(pairs)) #unzip zipped data pairs
+                x, y = zip(*tuple(pairs)) #unzip zipped data pairs
 
         self.x=x
 

@@ -226,7 +226,7 @@ class MiezeMaster(Moveable):
 
             mieze.ordersettings('46_69', '72_108', '200_300')
         """
-        indices = map(self._findsetting, names)
+        indices = [self._findsetting(n) for n in names]
         other_indices = set(range(len(self.curtable))) - set(indices)
         new_table = [self.curtable[i] for i in chain(indices, other_indices)]
         self.curtable = new_table

@@ -286,7 +286,7 @@ class ComboWidget(QComboBox):
     def __init__(self, parent, values, curvalue):
         QComboBox.__init__(self, parent)
         self._values = sorted(values, key=str)
-        self._textvals = map(str, self._values)
+        self._textvals = list(map(str, self._values))
         self.addItems(self._textvals)
         if curvalue in self._values:
             self.setCurrentIndex(self._values.index(curvalue))

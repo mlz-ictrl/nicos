@@ -29,6 +29,7 @@ __all__ = [
     'OrderedDict', 'get_thread_id'
 ]
 
+import six
 import threading
 
 # Pylint cannot handle submodules created by "six".  Import them here to

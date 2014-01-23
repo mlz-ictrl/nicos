@@ -402,7 +402,7 @@ DEFAULT_FILE_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 def readFile(filename):
     fp = open(filename, 'rb')
     try:
-        return map(str.strip, fp)
+        return [line.strip() for line in fp]
     finally:
         fp.close()
 

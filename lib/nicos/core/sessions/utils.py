@@ -229,12 +229,12 @@ class NicosCompleter(object):
                                   if setup not in session.explicit_setups]
                 else:
                     candidates = session.explicit_setups
-                candidates = map(repr, candidates)
+                candidates = list(map(repr, candidates))
                 if line.endswith('('):
                     return candidates
                 return [c[1:-1] for c in candidates if c[1:].startswith(text)]
             elif command == 'SetMode':
-                candidates = map(repr, EXECUTIONMODES)
+                candidates = list(map(repr, EXECUTIONMODES))
                 if line.endswith('('):
                     return candidates
                 return [c[1:-1] for c in candidates if c[1:].startswith(text)]

@@ -336,7 +336,7 @@ def getall(*names):
             else:
                 pvalues.append(None)
         if any(v is not None for v in pvalues):
-            items.append([name] + map(str, pvalues))
+            items.append([name] + list(map(str, pvalues)))
     printTable(('device',) + names, items, printinfo)
 
 @usercommand

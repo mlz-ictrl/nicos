@@ -277,7 +277,7 @@ class ScansPanel(Panel):
         contuids = dataset.sinkinfo.get('continuation')
         if contuids:
             alluids = contuids.split(',') + [dataset.uid]
-            self._combine(COMBINE, map(self.data.uid2set.get, alluids))
+            self._combine(COMBINE, list(map(self.data.uid2set.get, alluids)))
 
     def on_data_pointsAdded(self, dataset):
         if dataset.uid in self.setplots:

@@ -487,7 +487,7 @@ def anytype(val=None):
 def vec3(val=None):
     """a 3-vector"""
     val = val if val is not None else [0, 0, 0]
-    ret = map(float, val)
+    ret = [float(v) for v in val]
     if len(ret) != 3:
         raise ValueError('value needs to be a 3-element vector')
     return readonlylist(ret)

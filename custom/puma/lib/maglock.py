@@ -87,8 +87,8 @@ class MagLock(Moveable):
 #            raise NicosError(self, 'depot at unknown position')
 #            return
         bitmask = self._bitmask(magpos)
-        val = map(str, [(self._adevs['io_open'].read(0) & bitmask) / bitmask,
-                         (self._adevs['io_closed'].read (0) & bitmask) / bitmask])
+        val = list(map(str, [(self._adevs['io_open'].read(0) & bitmask) / bitmask,
+                             (self._adevs['io_closed'].read(0) & bitmask) / bitmask]))
         self.log.debug('Sensing switches are in State %s' % val)
         return ''.join(val)
 
