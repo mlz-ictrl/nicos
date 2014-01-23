@@ -35,6 +35,8 @@ from os import path
 from logging import ERROR, WARNING, DEBUG
 from functools import wraps
 
+from six import reraise, exec_
+
 from nose.tools import assert_raises #pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
@@ -121,7 +123,7 @@ class TestLogHandler(ColoredConsoleHandler):
         if record.levelno >= ERROR and self._raising:
             if record.exc_info:
                 # raise the original exception
-                raise record.exc_info[1], None, record.exc_info[2]
+                reraise(*record.exc_info)
             else:
                 raise ErrorLogged(record.message)
         elif record.levelno >= WARNING:
@@ -209,7 +211,7 @@ class TestSession(Session):
             lambda src: compile(src, filename, symbol))
         if code is None:
             return
-        exec code in self.namespace, self.local_namespace
+        exec_(code, self.namespace, self.local_namespace)
 
 TestSession.config.user = None
 TestSession.config.group = None

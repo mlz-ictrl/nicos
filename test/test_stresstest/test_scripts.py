@@ -27,6 +27,8 @@ import re
 import logging
 from os import path
 
+from six import exec_
+
 from nicos.utils import loggers
 from nicos.core.sessions.simple import ScriptSession
 
@@ -75,7 +77,7 @@ def run_script_session(setup, code):
     session.__init__('TestScriptSession')
     session.handleInitialSetup(setup)
     try:
-        exec code in session.namespace
+        exec_(code, session.namespace)
     finally:
         session.shutdown()
 

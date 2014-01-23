@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-#pylint: disable-all
+# pylint: skip-file
+
 # Creole parser/HTML converter, from http://devel.sheep.art.pl/creole/.
 # Copyright 2007 by Radomir Dopieralski. Licensed under the BSD license.
 
@@ -159,7 +160,7 @@ class Rules(object):
             import unicodedata
             up_case = u''.join(unichr(i) for i in xrange(sys.maxunicode)
                                if unicodedata.category(unichr(i))=='Lu')
-            self.wiki = ur'''(?P<wiki>[%s]\w+[%s]\w+)''' % (up_case, up_case)
+            self.wiki = u'''(?P<wiki>[%s]\\w+[%s]\\w+)''' % (up_case, up_case)
             inline_elements.insert(3, self.wiki)
         self.inline_re = c('|'.join(inline_elements), re.X | re.U)
 

@@ -27,6 +27,8 @@
 import sys
 import codeop
 
+from six import exec_
+
 # prevent importing the traceback.py from this package
 traceback = __import__('traceback')
 
@@ -142,7 +144,7 @@ class ConsoleBox(QPlainTextEdit):
             command = self.getConstruct(command)
             if not command:
                 return
-            exec command in self.namespace
+            exec_(command, self.namespace)
         except SystemExit:
             self.emit(SIGNAL('close'))
         except:

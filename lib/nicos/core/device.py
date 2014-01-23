@@ -29,6 +29,8 @@ import types
 import inspect
 from time import time as currenttime, sleep
 
+from six import reraise
+
 from nicos import session
 from nicos.core import status
 from nicos.core import MASTER, SIMULATION, SLAVE
@@ -343,14 +345,14 @@ class Device(object):
         try:
             # initialize device
             self.init()
-        except:  # here, really *all* exceptions are intended
+        except:  # really *all* exceptions # pylint: disable=W0702
             t, v, tb = sys.exc_info()
             try:
                 self.shutdown()
             except Exception:
                 self.log.warning('could not shutdown after creation failed',
                                  exc=1)
-            raise t, v, tb
+            reraise(t, v, tb)
 
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
@@ -748,7 +750,7 @@ class Device(object):
         session.explicit_devices.discard(self._name)
         # re-raise the doShutdown error
         if caughtExc is not None:
-            raise caughtExc[0], caughtExc[1], caughtExc[2]  # pylint: disable=E0702
+            reraise(*caughtExc)
 
     @usermethod
     def version(self):

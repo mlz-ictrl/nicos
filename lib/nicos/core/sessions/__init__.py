@@ -37,6 +37,8 @@ import logging
 import __builtin__
 from os import path
 
+from six import exec_
+
 import numpy
 
 from nicos.core.spm import SPMHandler
@@ -353,7 +355,7 @@ class Session(object):
                     'setupname': modname,
                 }
                 try:
-                    exec code in ns
+                    exec_(code, ns)
                 except Exception as err:
                     self.log.exception('An error occurred while processing '
                                        'setup %s: %s' % (modname, err))
@@ -638,7 +640,7 @@ class Session(object):
             for code in startupcode:
                 if code:
                     try:
-                        exec code in self.namespace
+                        exec_(code, self.namespace)
                     except Exception:
                         self.log.exception('error running startup code, ignoring')
 

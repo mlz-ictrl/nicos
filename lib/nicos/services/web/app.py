@@ -38,6 +38,8 @@ from hashlib import md5
 from SocketServer import ThreadingMixIn
 from wsgiref.simple_server import WSGIServer
 
+from six import exec_
+
 from nicos import session
 from nicos.utils import formatExtendedTraceback
 from nicos.utils.loggers import DATEFMT, ACTION, INPUT, INFO, DEBUG, WARNING
@@ -312,7 +314,7 @@ class NicosApp(object):
             raise RuntimeError('session taken over by another client.')
         try:
             code = compile(code, '<stdin>', 'single', 0, 1)
-            exec code in session.namespace, session.local_namespace
+            exec_(code, session.namespace, session.local_namespace)
         except SystemExit:
             print(QUIT_MESSAGE)
         except:

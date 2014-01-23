@@ -25,9 +25,11 @@
 """Session class used with the NICOS daemon."""
 
 import sys
-import __builtin__
+
+from six import exec_
 
 from nicos.core import AccessError, ACCESS_LEVELS
+from nicos.pycompat import builtins
 from nicos.utils.loggers import INFO
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
@@ -93,7 +95,7 @@ class DaemonSession(NoninteractiveSession):
         # startup objects are still in there
         self.namespace.clear()
         # but afterwards we have to automatically import objects again
-        self.namespace['__builtins__'] = __builtin__.__dict__
+        self.namespace['__builtins__'] = builtins.__dict__
         self.initNamespace()
 
         self._exported_names.clear()
@@ -108,7 +110,7 @@ class DaemonSession(NoninteractiveSession):
         self.emitfunc('livedata', data)
 
     def breakpoint(self, level):
-        exec self._bpcode[level]
+        exec_(self._bpcode[level])
 
     def clearExperiment(self):
         # reset cached messages

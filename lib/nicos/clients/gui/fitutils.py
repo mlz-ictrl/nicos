@@ -26,6 +26,8 @@
 
 from math import sqrt, log
 
+from six import exec_
+
 try:
     from scipy.odr.odrpack import Model, RealData, ODR
     from scipy import exp, array, arange, piecewise
@@ -182,7 +184,7 @@ def fit_arby(xdata, ydata, yerr, fcnstr, params, guesses, xlimits):
         raise FitError('No data in plot')
     yfit = ydata[indices]
     ns = {}
-    exec 'from numpy import *' in ns
+    exec_('from numpy import *', ns)
     try:
         fcn = eval('lambda (%s), x: %s' % (', '.join(params), fcnstr), ns)
     except SyntaxError as e:

@@ -29,6 +29,8 @@ from __future__ import print_function
 import sys
 import signal
 
+from six import exec_
+
 from nicos import session
 from nicos.utils import daemonize, setuser, writePidfile, removePidfile
 from nicos.core.sessions import Session
@@ -128,7 +130,7 @@ class ScriptSession(Session):
         session.handleInitialSetup(setup, mode)
 
         # Execute the script code and shut down.
-        exec code in session.namespace
+        exec_(code, session.namespace)
         session.shutdown()
 
 
@@ -181,7 +183,7 @@ class SimulationSession(Session):
         session.log_sender.begin_exec()
         # Execute the script code.
         try:
-            exec code in session.namespace
+            exec_(code, session.namespace)
         except:  # pylint: disable=W0702
             session.log.exception('Exception in simulation')
         else:

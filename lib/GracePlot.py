@@ -37,7 +37,7 @@ p.plot(d1)
 p.text('test',.51,.51,color=2)
 
 p.title('Funding: Ministry of Silly Walks')
-p.ylabel('Funding (Pounds\S10\N)')
+p.ylabel('Funding (Pounds\\S10\\N)')
 p.xlimit(0, 6)  # Set limits of x-axis
 ######################################################################
 

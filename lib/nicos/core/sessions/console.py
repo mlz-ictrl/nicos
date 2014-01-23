@@ -34,6 +34,8 @@ import time
 import signal
 import traceback
 
+from six import exec_
+
 try:
     import readline
 except ImportError:  # on Windows (without pyreadline)
@@ -146,7 +148,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         # record starting time to decide whether to send notification
         start_time = time.time()
         try:
-            exec codeobj in self.globals, self.locals
+            exec_(codeobj, self.globals, self.locals)
         except NicosInteractiveStop:
             pass
         except KeyboardInterrupt:

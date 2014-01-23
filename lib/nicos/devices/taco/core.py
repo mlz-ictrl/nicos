@@ -30,6 +30,8 @@ import threading
 from time import sleep
 from subprocess import Popen, PIPE
 
+from six import reraise
+
 import TACOStates
 from TACOClient import TACOError
 try:
@@ -367,7 +369,7 @@ class TacoDevice(DeviceMixinBase):
         if addmsg is not None:
             msg = addmsg + ': ' + msg
         exc = cls(self, msg, tacoerr=err.errcode)
-        raise exc, None, tb
+        reraise(cls, exc, tb)
 
     def _taco_reset(self, client, resetcall='deviceReset'):
         try:

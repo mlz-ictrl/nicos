@@ -34,6 +34,8 @@ import subprocess
 import getopt
 from os import path
 
+from six import exec_
+
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
      QFontDialog, QColorDialog
@@ -627,7 +629,7 @@ def main(argv):
     with open(configfile, 'rb') as fp:
         configcode = fp.read()
     ns = {}
-    exec configcode in ns
+    exec_(configcode, ns)
     if 'config' in ns:
         # backward compatibility
         gui_conf = gui_config(ns['config'][1][0],

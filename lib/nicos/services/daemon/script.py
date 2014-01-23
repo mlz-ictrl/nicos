@@ -24,6 +24,7 @@
 
 """Thread that executes user scripts."""
 
+import ast
 import sys
 import time
 import weakref
@@ -33,7 +34,7 @@ from bdb import BdbQuit
 from Queue import Queue
 from threading import Lock, Event, Thread
 
-import ast
+from six import exec_
 
 from nicos import session
 from nicos.utils.loggers import INPUT
@@ -394,7 +395,7 @@ class ExecutionController(Controller):
         session.log.log(INPUT, format_script(temp_request, '---'))
         self.last_handler = weakref.ref(handler)
         try:
-            exec temp_request.code[0] in self.namespace
+            exec_(temp_request.code[0], self.namespace)
         finally:
             self.last_handler = None
 

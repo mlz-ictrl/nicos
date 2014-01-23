@@ -32,6 +32,8 @@ import traceback
 import __builtin__
 from os import path
 
+from six import exec_
+
 from nicos import session
 from nicos.core import requires, Device, Readable, ModeError, NicosError, \
      UsageError
@@ -635,7 +637,7 @@ def _RunScript(filename, statdevices, debug=False):
         compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
             try:
-                exec compiled in session.namespace, session.local_namespace
+                exec_(compiled, session.namespace, session.local_namespace)
             except Exception:
                 if debug:
                     traceback.print_exc()
@@ -657,7 +659,7 @@ def _RunCode(code, debug=False):
     if session.mode == SIMULATION:
         starttime = session.clock.time
     try:
-        exec code in session.namespace, session.local_namespace
+        exec_(code, session.namespace, session.local_namespace)
     except Exception:
         if debug:
             traceback.print_exc()

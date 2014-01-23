@@ -26,8 +26,9 @@
 """NICOS core utility functions."""
 
 import sys
-
 from time import sleep, localtime, time as currenttime
+
+from six import reraise
 
 from nicos import session
 from nicos.core import status
@@ -173,7 +174,7 @@ def _multiMethod(baseclass, method, devices, *args, **kwargs):
             else:
                 dev.log.exception('during %s()' % method)
     if first_exc:
-        raise first_exc[0], first_exc[1], first_exc[2]  # pylint: disable=E0702
+        reraise(*first_exc)
 
 
 def multiWait(devices):
