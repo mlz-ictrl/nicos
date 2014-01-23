@@ -30,13 +30,13 @@ import threading
 from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
-     HasLimits, UsageError, AccessError, formatStatus, INFO_CATEGORIES
+    HasLimits, UsageError, AccessError, formatStatus, INFO_CATEGORIES
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
 from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo, printerror
-from nicos.pycompat import builtins, itervalues, iteritems
+from nicos.pycompat import builtins, itervalues, iteritems, number_types
 
 
 __all__ = [
@@ -134,7 +134,7 @@ def wait(*devlist):
                    if isinstance(session.devices[devname],
                                  (Moveable, Measurable))]
     for dev in devlist:
-        if isinstance(dev, (int, float, long)):
+        if isinstance(dev, number_types):
             sleep(dev)
             continue
         dev = session.getDevice(dev, (Moveable, Measurable))
@@ -506,7 +506,7 @@ def history(dev, key='value', fromtime=None, totime=None):
             key = parseDateString(key)
         except ValueError:
             pass
-    if isinstance(key, (int, long, float)):
+    if isinstance(key, number_types):
         totime = fromtime
         fromtime = key
         key = 'value'
@@ -514,9 +514,9 @@ def history(dev, key='value', fromtime=None, totime=None):
         fromtime = -24
     # Device.history() accepts number of hours only when negative (anything
     # > 10000 is taken to be a Unix timestamp)
-    if isinstance(fromtime, (int, long, float)) and 0 < fromtime < 10000:
+    if isinstance(fromtime, number_types) and 0 < fromtime < 10000:
         fromtime = -fromtime
-    if isinstance(totime, (int, long, float)) and 0 < totime < 10000:
+    if isinstance(totime, number_types) and 0 < totime < 10000:
         totime = -totime
     # history() already accepts strings as fromtime and totime arguments
     hist = session.getDevice(dev, Device).history(key, fromtime, totime)

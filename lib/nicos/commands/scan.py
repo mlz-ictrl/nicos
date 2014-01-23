@@ -32,7 +32,7 @@ from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printwarning
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, number_types
 
 
 __all__ = [
@@ -83,7 +83,7 @@ def _handleScanArgs(args, kwargs, scaninfo):
     for arg in args:
         if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
-        elif isinstance(arg, (int, long, float)):
+        elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
             detlist.append(arg)

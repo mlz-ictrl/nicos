@@ -29,6 +29,7 @@ __all__ = [
     'queue', 'xrange', 'configparser', 'urllib',
     'reraise', 'exec_', 'add_metaclass', 'BytesIO', 'StringIO',
     'string_types', 'integer_types', 'text_type', 'binary_type',
+    'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
     'OrderedDict', 'get_thread_id', 'escape_html',
 ]
@@ -46,6 +47,8 @@ from six.moves import xrange, input  # pylint: disable=F0401,W0622
 from six import reraise, exec_, add_metaclass, BytesIO, StringIO
 from six import string_types, integer_types, text_type, binary_type
 from six import iteritems, itervalues, iterkeys
+
+number_types = integer_types + (float,)
 
 try:
     from collections import OrderedDict  # pylint: disable=E0611

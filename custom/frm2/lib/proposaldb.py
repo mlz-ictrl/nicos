@@ -35,6 +35,7 @@ except ImportError:
 from nicos import session
 from nicos.core import ConfigurationError, InvalidValueError
 from nicos.utils import readFile
+from nicos.pycompat import integer_types
 
 
 class ProposalDB(object):
@@ -91,7 +92,7 @@ def queryProposal(pnumber, instrument=None):
     """Query the FRM-II proposal database for information about the given
     proposal number.
     """
-    if not isinstance(pnumber, (int, long)):
+    if not isinstance(pnumber, integer_types):
         raise InvalidValueError('proposal number must be an integer')
     # check still needed?
     if session.instrument is None:

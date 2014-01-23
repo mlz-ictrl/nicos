@@ -38,7 +38,7 @@ from nicos.core.constants import SIMULATION, SLAVE
 from nicos.utils import Repeater
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, number_types
 
 
 # Exceptions at which a scan point is measured anyway.
@@ -585,7 +585,7 @@ class ContinuousScan(Scan):
                                                             currenttime())
                 starttime = currenttime()
                 diff = [read[i] - last[i]
-                        if isinstance(read[i], (int, long, float)) else read[i]
+                        if isinstance(read[i], number_types) else read[i]
                         for i in range(len(read))]
                 self.dataset.curpoint += 1
                 self.addPoint(actualpos, diff)

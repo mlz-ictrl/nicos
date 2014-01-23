@@ -29,7 +29,9 @@ from time import time as currenttime, sleep
 from collections import deque
 
 from nicos.core import status, Readable, Moveable, HasLimits, Param, \
-     CommunicationError, TimeoutError, CacheError
+    CommunicationError, TimeoutError, CacheError
+from nicos.pycompat import number_types
+
 
 CACHE_NOSTATUS_STRING = 'no status found in cache'
 CACHE_NOVALUE_STRING = 'no value found in cache'
@@ -142,7 +144,7 @@ class CacheWriter(HasLimits, CacheReader, Moveable):
             if len(values) == histlen:  # enough values ?
                 if max(values) - min(values) <= self.tolerance:
                     # we are 'kind of' stable
-                    if type(self.target) not in [float, int, long]:
+                    if type(self.target) not in number_types:
                         # stable, but no target to compare with -> OK
                         self.log.debug('Stable but no target given')
                         break

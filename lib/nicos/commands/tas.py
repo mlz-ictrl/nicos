@@ -40,7 +40,7 @@ from nicos.commands.scan import _infostr, ADDSCANHELP2, cscan
 from nicos.commands.device import maw, read
 from nicos.commands.output import printinfo, printwarning
 from nicos.commands.analyze import gauss
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, number_types
 
 
 __all__ = [
@@ -67,7 +67,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
     for arg in args:
         if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
-        elif isinstance(arg, (int, long, float)):
+        elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
             detlist.append(arg)

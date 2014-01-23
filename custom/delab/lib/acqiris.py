@@ -27,18 +27,20 @@
 import sys
 from omniORB import CORBA
 import CosNaming
+
 from nicos.delab import CARESS
 
 sys.modules['CARESS'] = sys.modules['nicos.delab.CARESS']
 import omniORB
 omniORB.updateModule('CARESS')
 
-from nicos.core import Param, Override, Value, status, oneof
+from nicos.core import Param, Override, Value, status, oneof, SIMULATION
 from nicos.devices.generic.detector import Channel
 from nicos.core.errors import CommunicationError, ConfigurationError, \
-        NicosError, UsageError, ProgrammingError
+    NicosError, UsageError, ProgrammingError
 from nicos.utils import readFileCounter, updateFileCounter
-from nicos.core import SIMULATION
+from nicos.pycompat import integer_types
+
 
 COUNTER_ID  = 100
 TIMER_ID    = 101
@@ -189,7 +191,7 @@ class Acqiris(Channel):
 
         if isinstance(self.preselection, (float, )):
             value = CARESS.Value(l=int(self.preselection))
-        elif isinstance(self.preselection, (int, long)):
+        elif isinstance(self.preselection, integer_types):
             value = CARESS.Value(l=self.preselection)
         self.log.debug('preselection : %r' % (value,))
         result = self._caressObject.load_module(LOADMASTER, self._cid, value)

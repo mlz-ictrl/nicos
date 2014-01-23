@@ -32,7 +32,7 @@ from nicos.core.errors import UsageError
 from nicos.core.constants import SIMULATION
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, number_types
 
 
 __all__ = [
@@ -153,7 +153,7 @@ def count(*detlist, **preset):
     """
     detectors = []
     for det in detlist:
-        if isinstance(det, (int, long, float)):
+        if isinstance(det, number_types):
             preset['t'] = det
             continue
         elif isinstance(det, str):

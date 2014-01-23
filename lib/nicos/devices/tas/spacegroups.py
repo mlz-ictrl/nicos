@@ -29,7 +29,7 @@ Extracted from PowderCell's PCWSPGR.DAT file.
 """
 
 from nicos.core import NicosError
-from nicos.pycompat import string_types
+from nicos.pycompat import string_types, integer_types
 
 
 def get_spacegroup(sg):
@@ -38,7 +38,7 @@ def get_spacegroup(sg):
         if sghm is None:
             raise NicosError('space group with H-M symbol %r not found' % sg)
         sg = sghm
-    elif isinstance(sg, (int, long)):
+    elif isinstance(sg, integer_types):
         sg = (sg, 1)
     try:
         return sg_by_num[sg]

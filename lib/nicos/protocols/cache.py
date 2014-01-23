@@ -187,11 +187,12 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
 import re
 from ast import parse, Str, Num, Tuple, List, Dict, BinOp, UnaryOp, \
-     Add, Sub, USub, Name, Call
+    Add, Sub, USub, Name, Call
 from base64 import b64encode, b64decode
 
 from nicos.utils import readonlylist, readonlydict
-from nicos.pycompat import cPickle as pickle, iteritems
+from nicos.pycompat import cPickle as pickle, iteritems, \
+    number_types, text_type, binary_type
 
 DEFAULT_CACHE_PORT = 14869
 
@@ -236,9 +237,11 @@ line_pattern = re.compile(r'([^\r\n]*)\r?\n')
 
 # PyON -- "Python object notation"
 
+repr_types = number_types + (text_type, binary_type)
+
 def cache_dump(obj):
     res = []
-    if isinstance(obj, (int, long, bool, float, str, unicode)):
+    if isinstance(obj, repr_types):
         res.append(repr(obj))
     elif isinstance(obj, list):
         res.append('[')
@@ -301,7 +304,7 @@ def ast_eval(node):
              isinstance(node.right, Num) and \
              isinstance(node.right.n, complex) and \
              isinstance(node.left, Num) and \
-             isinstance(node.left.n, (int, long, float)):
+             isinstance(node.left.n, number_types):
             left = node.left.n
             right = node.right.n
             if isinstance(node.op, Add):
