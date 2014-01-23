@@ -29,7 +29,6 @@ import re
 import time
 import socket
 import keyword
-import exceptions
 import rlcompleter
 
 try:
@@ -42,6 +41,9 @@ from nicos.core import Device, UsageError, \
      MASTER, SLAVE, SIMULATION, MAINTENANCE
 from nicos.pycompat import builtins
 
+
+BUILTIN_EXCEPTIONS = set(name for name in dir(builtins)
+                         if name.endswith(('Error', 'Warning')))
 
 EXECUTIONMODES = [MASTER, SLAVE, SIMULATION, MAINTENANCE]
 
@@ -106,7 +108,7 @@ class NicosCompleter(object):
 
     attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
                        'temporary', 'log', 'valuetype', 'mro'])
-    global_hidden = set(dir(exceptions)) | set(['basestring', 'buffer',
+    global_hidden = BUILTIN_EXCEPTIONS | set(['basestring', 'buffer',
                         'bytearray', 'bytes', 'callable', 'classmethod',
                         'coerce', 'cmp', 'compile', 'delattr', 'eval',
                         'execfile', 'filter', 'frozenset', 'getattr',
