@@ -87,7 +87,6 @@ class SetupDirective(Directive):
         Directive.__init__(self, *args, **kwargs)
 
         self.env = self.state.document.settings.env
-        self.debug = self.env.app.debug
         self.error = self.env.app.warn
 
     def run(self):
