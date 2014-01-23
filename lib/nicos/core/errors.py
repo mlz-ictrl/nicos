@@ -24,6 +24,9 @@
 
 """Exception classes for usage in NICOS."""
 
+from nicos.pycompat import string_types
+
+
 WIKI_URL = 'https://trac.frm2.tum.de/projects/NICOS/wiki/NicosError/'
 
 
@@ -61,7 +64,7 @@ class NicosError(Exception):
         if args:
             if args[0] is None:
                 del args[0]
-            elif not isinstance(args[0], basestring):
+            elif not isinstance(args[0], string_types):
                 self.device = args[0]
                 args[0] = '[%s] ' % args[0].name
         if 'wikicode' in kwds:

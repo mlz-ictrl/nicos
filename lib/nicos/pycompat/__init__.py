@@ -29,6 +29,7 @@ __all__ = [
     'queue', 'xrange', 'configparser', 'urllib',
     'reraise', 'exec_', 'add_metaclass', 'BytesIO', 'StringIO',
     'OrderedDict', 'get_thread_id', 'escape_html',
+    'string_types', 'integer_types', 'text_type', 'binary_type',
 ]
 
 import threading
@@ -41,6 +42,7 @@ from six.moves import xrange, input  # pylint: disable=F0401,W0622
 
 # For consistency import everything from "six" here.
 from six import reraise, exec_, add_metaclass, BytesIO, StringIO
+from six import string_types, integer_types, text_type, binary_type
 
 try:
     from collections import OrderedDict  # pylint: disable=E0611

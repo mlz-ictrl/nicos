@@ -29,10 +29,11 @@ Extracted from PowderCell's PCWSPGR.DAT file.
 """
 
 from nicos.core import NicosError
+from nicos.pycompat import string_types
 
 
 def get_spacegroup(sg):
-    if isinstance(sg, basestring):
+    if isinstance(sg, string_types):
         sghm = sg_by_hm.get(sg.replace(' ', ''))
         if sghm is None:
             raise NicosError('space group with H-M symbol %r not found' % sg)

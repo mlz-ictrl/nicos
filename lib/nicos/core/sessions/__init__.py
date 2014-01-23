@@ -53,7 +53,7 @@ from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
      NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
      SIMULATION, MAINTENANCE
-from nicos.pycompat import builtins, exec_
+from nicos.pycompat import builtins, exec_, string_types
 
 
 SETUP_GROUPS = set([
@@ -450,7 +450,7 @@ class Session(object):
         if not self._setup_info:
             self.readSetups()
 
-        if isinstance(setupnames, basestring):
+        if isinstance(setupnames, string_types):
             setupnames = [setupnames]
         else:
             setupnames = list(setupnames)
