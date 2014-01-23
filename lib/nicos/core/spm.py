@@ -312,7 +312,7 @@ class SPMHandler(object):
         # assume we're completing the last word on the command line
         if multargs or len(args) <= posargs:
             # is it a positional argument
-            el = islice(arguments, len(args)-1, len(args)).next()
+            el = next(islice(arguments, len(args)-1, len(args)))
             return el.complete(word, self.session, args)
         else:
             # must be an option

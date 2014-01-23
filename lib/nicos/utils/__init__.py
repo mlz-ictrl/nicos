@@ -112,6 +112,8 @@ class Repeater(object):
     def next(self):
         return self.object
 
+    __next__ = next  # Python 3
+
     def __len__(self):
         return 0
 
@@ -326,7 +328,7 @@ def chunks(iterable, size):
     sourceiter = iter(iterable)
     while True:
         chunkiter = islice(sourceiter, size)
-        yield chain([chunkiter.next()], chunkiter)
+        yield chain([next(chunkiter)], chunkiter)
 
 
 def importString(import_name, prefixes=()):

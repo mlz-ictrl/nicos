@@ -15,7 +15,7 @@ for line in f:
         hm = sp[8].strip()
 
         sp_hm = hm.replace(' ', '')
-        sp_cond = f.next()
+        sp_cond = next(f)
         conditions = [int(sp_cond[2*i:2*i+2]) for i in range(14)]
         if sp_hm in sg_by_hm:
             if sp_hm not in ('R3', 'R-3', 'R32', 'R3m', 'R3c',

@@ -84,8 +84,8 @@ def test_readonlylist_hashable():
 def test_repeater():
     r = Repeater(1)
     it = iter(r)
-    assert it.next() == 1
-    assert it.next() == 1
+    assert next(it) == 1
+    assert next(it) == 1
     assert r[23] == 1
 
 def test_functions():

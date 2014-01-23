@@ -50,7 +50,7 @@ class Beckhoff(Device):
     }
     def doInit(self, mode):
         c = self.communicator()
-        c.next()
+        next(c)
         self._communicate = c.send
 
     def communicate(self, request ):
