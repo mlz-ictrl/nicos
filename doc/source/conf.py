@@ -262,6 +262,7 @@ class DeviceDocumenter(ClassDocumenter):
             self.add_line('', '<autodoc>')
             self.indent += self.content_indent
             descr = info.description or ''
+            descr = descr.decode('utf-8')
             if descr and not descr.endswith('.'): descr += '.'
             if not info.mandatory:
                 descr += ' Default value: ``%r``.' % (info.default,)
