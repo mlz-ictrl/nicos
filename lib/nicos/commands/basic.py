@@ -41,8 +41,7 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.utils import formatDuration, printTable
 from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
-from nicos.commands.output import printinfo, printwarning, printerror, \
-     printexception
+from nicos.commands.output import printinfo, printwarning, printexception
 from nicos.core import SIMULATION, MASTER, MAINTENANCE
 
 CO_DIVISION = 0x2000
@@ -55,8 +54,7 @@ __all__ = [
     'CreateDevice', 'RemoveDevice', 'DestroyDevice', 'CreateAllDevices',
     'NewExperiment', 'FinishExperiment', 'AddUser', 'NewSample',
     'Remark', 'SetMode', 'SetSimpleMode',
-    'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode',
-    'edit', 'run', 'sim',
+    'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', '_trace', 'timer',
     'LogEntry', 'LogAttach',
 ]
@@ -588,36 +586,6 @@ def _scriptfilename(filename):
     if session._spmode:
         return fn + '.txt'
     return fn + '.py'
-
-
-@usercommand
-def edit(filename):
-    """Edit the script file given by file name.
-
-    If the file name is not absolute, it is relative to the experiment script
-    directory.
-
-    Examples:
-
-    >>> edit('night_16jul')       # edit file in the current script dir
-    >>> edit('/data/scripts/maint/vanadium')     # edit by complete filename
-
-    The editor is given by the ``EDITOR`` environment variable, which can be
-    conveniently set in the nicos.conf file.
-    """
-    if 'EDITOR' not in os.environ:
-        printerror('no EDITOR environment variable is set, cannot edit')
-        return
-    fn = _scriptfilename(filename)
-    printinfo('starting editor...')
-    os.system('$EDITOR "%s"' % fn)
-    reply = raw_input('<R>un or <S>imulate the script? ')
-    if reply.upper() == 'R':
-        run(filename)
-    elif reply.upper() == 'S':
-        sim(filename)
-
-Edit = edit
 
 
 class _ScriptScope(object):

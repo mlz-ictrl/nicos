@@ -25,7 +25,6 @@
 """NICOS commands tests."""
 
 import os
-import __builtin__
 
 from nicos import session
 from nicos.core import UsageError, LimitError
@@ -42,12 +41,12 @@ from nicos.commands.basic import ListCommands, sleep, \
      NewSetup, AddSetup, RemoveSetup, ListSetups, \
      CreateDevice, RemoveDevice, CreateAllDevices, \
      NewExperiment, FinishExperiment, AddUser, NewSample, \
-     Remark, SetMode, ClearCache, UserInfo, run, edit
+     Remark, SetMode, ClearCache, UserInfo, run
 from nicos.commands.output import printdebug, printinfo, printwarning, \
      printerror, printexception
 from nicos.core.sessions.utils import MASTER, SLAVE
 
-from test.utils import ErrorLogged, raises, requires
+from test.utils import ErrorLogged, raises
 
 def setup_module():
     session.loadSetup('axis')
@@ -125,23 +124,6 @@ def test_basic_commands():
 
     with UserInfo('userinfo'):
         assert 'userinfo' == session._actionStack[-1]
-
-@requires(os.name == 'posix')
-def test_edit_command():
-    ensureDirectory(session.experiment.scriptpath)
-    old_editor = os.environ.get('EDITOR')
-    old_raw_input = __builtin__.raw_input
-    os.environ['EDITOR'] = 'touch'
-    __builtin__.raw_input = lambda prompt: ''
-    try:
-        edit('test.py')
-    finally:
-        if old_editor:
-            os.environ['EDITOR'] = old_editor
-        __builtin__.raw_input = old_raw_input
-    testpath = os.path.join(session.experiment.scriptpath, 'test.py')
-    assert os.path.isfile(testpath)
-    os.unlink(testpath)
 
 def test_run_command():
     # create a test script in the current scriptpath

@@ -53,10 +53,6 @@ Experiment-related commands
 Script-related commands
 -----------------------
 
-Do not use these commands from the GUI client, rather use its editor which
-provides Run and Simulate commands.
-
-.. autofunction:: edit
 .. autofunction:: run
 
 Simulation mode commands
