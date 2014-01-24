@@ -193,7 +193,7 @@ class BaseCacheClient(Device):
         return data[i:]
 
     def _worker_thread(self):
-        data = ''
+        data = b''
         range10 = range(10)
         process = self._process_data
 
@@ -208,7 +208,7 @@ class BaseCacheClient(Device):
             data = process(data)
 
             # wait for a whole line of data to arrive
-            while '\n' not in data and not self._stoprequest:
+            while b'\n' not in data and not self._stoprequest:
 
                 # optionally do some action while waiting
                 self._wait_data()
@@ -252,7 +252,7 @@ class BaseCacheClient(Device):
                         # after reconnect
                         for _ in range(itemcount):
                             self._queue.task_done()
-                        data = ''
+                        data = b''
                         self._queue.put(tosend)
                         break
                     for _ in range(itemcount):
@@ -262,11 +262,11 @@ class BaseCacheClient(Device):
                     try:
                         newdata = self._socket.recv(BUFSIZE)
                     except Exception:
-                        newdata = ''
+                        newdata = b''
                     if not newdata:
                         # no new data from blocking read -> abort
                         self._disconnect('disconnect: recv failed')
-                        data = ''
+                        data = b''
                         break
                     data += newdata
 
@@ -292,7 +292,7 @@ class BaseCacheClient(Device):
         # end of while loop
         self._disconnect()
 
-    def _single_request(self, tosend, sentinel='\n', retry=2, sync=False):
+    def _single_request(self, tosend, sentinel=b'\n', retry=2, sync=False):
         """Communicate over the secondary socket."""
         if not self._socket:
             self._disconnect('single request: no socket')
@@ -321,7 +321,7 @@ class BaseCacheClient(Device):
                 self._secsocket.sendall(to_utf8(tosend))
 
                 # read response
-                data, n = '', 0
+                data, n = b'', 0
                 while not data.endswith(sentinel) and n < 1000:
                     data += self._secsocket.recv(BUFSIZE)
                     n += 1
@@ -704,8 +704,8 @@ class SyncCacheClient(BaseCacheClient):
         self._socket.sendall(to_utf8(msg))
 
         # read response
-        data, n = '', 0
-        while not data.endswith('###!\n') and n < 1000:
+        data, n = b'', 0
+        while not data.endswith(b'###!\n') and n < 1000:
             data += self._socket.recv(BUFSIZE)
             n += 1
 

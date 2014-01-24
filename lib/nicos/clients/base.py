@@ -275,11 +275,11 @@ class NicosClient(object):
             return start, ''
         if len(start) != 5:
             raise ProtocolError('connection broken')
-        if start[0] not in (NAK, STX):
+        if start[0:1] not in (NAK, STX):
             raise ProtocolError('invalid response %r' % start)
         # it has a length...
         length, = LENGTH.unpack(start[1:])
-        buf = ''
+        buf = b''
         while len(buf) < length:
             read = self.socket.recv(BUFSIZE)
             if not read:

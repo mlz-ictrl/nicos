@@ -210,7 +210,7 @@ class NicosCmdClient(NicosClient):
         """Put a line of output, preserving the prompt afterwards."""
         self.out.write('\r\x1b[K%s\n' % string)
         self.out.flush()
-        os.write(self.wakeup_pipe_w, ' ')
+        os.write(self.wakeup_pipe_w, b' ')
 
     def put_error(self, string):
         """Put a client error message."""
@@ -329,7 +329,7 @@ class NicosCmdClient(NicosClient):
         self.prompt = '\x01' + colorize(self.stcolmap[status],
             '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
             (self.modemap[self.current_mode], status, pending)) + '\x02'
-        os.write(self.wakeup_pipe_w, ' ')
+        os.write(self.wakeup_pipe_w, b' ')
 
     def clientexec(self, what):
         """Handles the "clientexec" signal."""

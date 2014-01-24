@@ -129,7 +129,7 @@ class CacheWorker(object):
                 self.closedown()
 
     def _receiver_thread(self):
-        data = ''
+        data = b''
         while not self.stoprequest:
             data = self._process_data(data, self.send_queue.put)
             # wait for data with 3 times the client timeout
@@ -149,7 +149,7 @@ class CacheWorker(object):
             try:
                 newdata = self.sock.recv(BUFSIZE)
             except Exception:
-                newdata = ''
+                newdata = b''
             if not newdata:
                 # no data received from blocking read, break connection
                 break

@@ -51,8 +51,8 @@ class Logbook(BaseCacheClient):
                              (OP_ASK, OP_ASK))
 
         # read response
-        data, n = '', 0
-        while not data.endswith('###!\n') and n < 1000:
+        data, n = b'', 0
+        while not data.endswith(b'###!\n') and n < 1000:
             data += self._socket.recv(8192)
             n += 1
 

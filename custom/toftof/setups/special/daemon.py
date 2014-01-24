@@ -10,7 +10,7 @@ devices = dict(
                     hashing = 'md5',
                     # first entry is the user name, second the hashed password, third the user level
                     passwd = [('guest', '', 'guest'),
-                              ('user', hashlib.md5('user').hexdigest(), 'user'),
+                              ('user', hashlib.md5(b'user').hexdigest(), 'user'),
                               ('root', 'f88868f6f9fe65b21dadc685ef6ad99f', 'admin'),
                              ],
                    ),
