@@ -102,7 +102,7 @@ class GuideField(MappedMoveable):
     a given current needs the alpha-virtualmotor for calculations
     """
     attached_devices = {
-        'alpha' : (AlphaStorage, 'Device which provides the current \alpha'),
+        'alpha' : (AlphaStorage, 'Device which provides the current \\alpha'),
         'coils' : ([VectorCoil], 'List of 3 devices used for the vector field'),
     }
     parameter_overrides = {
@@ -180,7 +180,7 @@ class GuideField(MappedMoveable):
 
     def _B2I(self, B=np.array([0.0, 0.0, 0.0])):
         """rotate the requested field around z-axis by beta first we get alpha
-        from the spectrometer alpha is the angle between X-axis and \vec{Q} and
+        from the spectrometer alpha is the angle between X-axis and \\vec{Q} and
         is in degrees
         """
         # read alpha, calculate beta
@@ -212,7 +212,7 @@ class GuideField(MappedMoveable):
         * Bqperp: component perpendicular to q, but within the scattering plane
         * Bqpar:  component parallel to q (within scattering plane)
         * Bz:     component perpendicular to the scattering plane
-        (if TwoTheta==0 & \hbar\omega=0 then this coordinate-system is the same
+        (if TwoTheta==0 & \\hbar\\omega=0 then this coordinate-system is the same
         as the XYZ of the coils)
         """
         # subtract offset (The field, which is already there, doesn't need to be
