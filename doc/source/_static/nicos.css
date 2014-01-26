@@ -28,3 +28,6 @@ dl.class, dl.function, dl.data {
     border-bottom: 1px solid #999;
 }
 
+div.viewcode-block:target {
+    background-color: white;
+}
