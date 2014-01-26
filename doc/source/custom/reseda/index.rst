@@ -1,15 +1,15 @@
 =============
-Galaxi setups
+Reseda setups
 =============
 
-Intrument setups
-================
+Instrument setups
+=================
 
 .. toctree::
     :maxdepth: 1
     :glob:
 
-    setups/custom/galaxi/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/galaxi/setups/special/*
+    setups/special/*
 
 

@@ -1,6 +1,6 @@
-=============
-Sans 1 setups
-=============
+==============
+Refsans setups
+==============
 
 Instrument setups
 =================
@@ -9,7 +9,7 @@ Instrument setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/sans1/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/sans1/setups/special/*
+    setups/special/*
 
 

@@ -1,6 +1,6 @@
-==============
-Antares setups
-==============
+===========
+Puma setups
+===========
 
 Instrument setups
 =================
@@ -9,7 +9,7 @@ Instrument setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/antares/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/antares/setups/special/*
+    setups/special/*
 
 

@@ -1,15 +1,15 @@
-===========
-Demo setups
-===========
+==========================
+Detector laboratory setups
+==========================
 
-Instrument setups
+Laboratory setups
 =================
 
 .. toctree::
     :maxdepth: 1
     :glob:
 
-    setups/custom/demo/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/demo/setups/special/*
+    setups/special/*
 
 

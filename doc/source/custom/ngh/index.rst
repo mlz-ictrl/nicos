@@ -1,6 +1,6 @@
-===========
-Resi setups
-===========
+=========================
+Neutron guide hall setups
+=========================
 
 Instrument setups
 =================
@@ -9,7 +9,7 @@ Instrument setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/resi/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/resi/setups/special/*
+    setups/special/*
 
 

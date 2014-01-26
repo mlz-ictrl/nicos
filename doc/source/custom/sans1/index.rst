@@ -1,6 +1,6 @@
-==============
-Toftof setups
-==============
+=============
+Sans 1 setups
+=============
 
 Instrument setups
 =================
@@ -9,7 +9,7 @@ Instrument setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/toftof/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/toftof/setups/special/*
+    setups/special/*
 
 

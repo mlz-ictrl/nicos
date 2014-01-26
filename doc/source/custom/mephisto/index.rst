@@ -1,6 +1,6 @@
-===========
-Mira setups
-===========
+===============
+Mephisto setups
+===============
 
 Instrument setups
 =================
@@ -9,7 +9,7 @@ Instrument setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/mira/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/mira/setups/special/*
+    setups/special/*
 
 

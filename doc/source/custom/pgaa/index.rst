@@ -1,6 +1,6 @@
-===============
-Mephisto setups
-===============
+===========
+PGAA setups
+===========
 
 Instrument setups
 =================
@@ -9,7 +9,7 @@ Instrument setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/mephisto/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/mephisto/setups/special/*
+    setups/special/*
 
 

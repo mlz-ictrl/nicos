@@ -9,7 +9,7 @@ Basic setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/se/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/se/setups/special/*
+    setups/special/*
 
 

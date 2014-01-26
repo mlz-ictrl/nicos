@@ -6,5 +6,5 @@ Custom specific setups
     :maxdepth: 1
     :glob:
 
-    *
+    */index
 

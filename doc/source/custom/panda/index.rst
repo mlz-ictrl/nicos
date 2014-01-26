@@ -1,6 +1,6 @@
-=========================
-Neutron guide hall setups
-=========================
+============
+Panda setups
+============
 
 Instrument setups
 =================
@@ -9,7 +9,7 @@ Instrument setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/ngh/setups/*
+    setups/*
 
 Service setups
 ==============
@@ -18,6 +18,6 @@ Service setups
     :maxdepth: 1
     :glob:
 
-    setups/custom/ngh/setups/special/*
+    setups/special/*
 
 
