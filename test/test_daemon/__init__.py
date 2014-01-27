@@ -34,6 +34,7 @@ from os import path
 
 from test.utils import TestSession, cleanup, rootdir, startCache, killCache
 from nicos import session
+from nicos.protocols.daemon import ENQ, LENGTH, serialize, command2code
 
 cache = None
 daemon = None
@@ -58,8 +59,12 @@ def setup_package():
         except socket.error:
             time.sleep(0.2)
         else:
-            s.send(('\x42' * 16) + # ident
-                   '\x03\x00\x00\x00\x07guest\x1e\x1e\x03\x00\x00\x00\x04quit')
+            auth = serialize(({'login': 'guest', 'passwd': '', 'display': ''},))
+            s.send((b'\x42' * 16) + # ident
+                   ENQ + command2code['authenticate'] +
+                   LENGTH.pack(len(auth)) + auth)
+            empty = serialize(())
+            s.send(ENQ + command2code['quit'] + LENGTH.pack(len(empty)) + empty)
             time.sleep(0.1)
             s.close()
             break

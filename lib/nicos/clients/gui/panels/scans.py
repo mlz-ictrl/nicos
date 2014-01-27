@@ -366,7 +366,7 @@ class ScansPanel(Panel):
         fname = str(newdlg.filename.text())
         pathname = self.currentPlot.savePng()
         with open(pathname, 'rb') as fp:
-            remotefn = self.client.ask('transfer', fp.read().encode('base64'))
+            remotefn = self.client.ask('transfer', fp.read())
         self.client.eval('_LogAttach(%r, [%r], [%r])' % (descr, remotefn, fname))
         os.unlink(pathname)
 

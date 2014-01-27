@@ -40,7 +40,8 @@ from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
     ScriptError, RequestError
 from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
-    ACK, STX, NAK, LENGTH, RS, PROTO_VERSION, BREAK_NOW
+    ENQ, ACK, STX, NAK, LENGTH, PROTO_VERSION, BREAK_NOW, code2command, \
+    DAEMON_COMMANDS, event2code
 from nicos.pycompat import queue, socketserver
 
 
@@ -50,7 +51,7 @@ READ_BUFSIZE = 4096
 class CloseConnection(Exception):
     """Raised to unconditionally close the connection."""
 
-daemon_commands = {}
+command_wrappers = {}
 
 def command(needcontrol=False, needscript=None, name=None):
     """
@@ -86,11 +87,12 @@ def command(needcontrol=False, needscript=None, name=None):
                 self.write(NAK, 'exception occurred executing command')
         wrapper.__name__ = func.__name__
         wrapper.orig_function = func
-        daemon_commands[name or func.__name__] = wrapper
+        command_wrappers[name or func.__name__] = wrapper
         return func
     return deco
 
 stop_queue = object()
+no_msg = object()
 
 
 class ConnectionHandler(socketserver.BaseRequestHandler):
@@ -146,13 +148,14 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             pass
         server.unregister_handler(self.ident)
 
-    def write(self, prefix, msg=None):
+    def write(self, prefix, msg=no_msg):
         """Write a message to the client."""
         try:
-            if msg is None:
+            if msg is no_msg:  # cannot use None, it might be a reply
                 self.sock.sendall(prefix)
             else:
-                self.sock.sendall(prefix + LENGTH.pack(len(msg)) + msg)
+                ser_msg = serialize(msg)
+                self.sock.sendall(prefix + LENGTH.pack(len(ser_msg)) + ser_msg)
         except socket.error as err:
             self.log.error('write: connection broken (%s)' % err)
             raise CloseConnection
@@ -160,24 +163,29 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
     def read(self):
         """Read a command and arguments from the client."""
         try:
-            # receive first byte (must be STX) + length
-            start = self.sock.recv(5)
-            if len(start) != 5:
+            # receive: ENQ (1 byte) + commandcode (2) + length (4)
+            start = self.sock.recv(7)
+            if len(start) != 7:
                 self.log.error('read: connection broken')
                 raise CloseConnection
-            if start[0] != STX:
-                self.log.error('read: invalid command')
+            if start[0:1] != ENQ:
+                self.log.error('read: invalid command header')
                 raise CloseConnection
             # it has a length...
-            length, = LENGTH.unpack(start[1:])
-            buf = ''
+            length, = LENGTH.unpack(start[3:])
+            buf = b''
             while len(buf) < length:
                 read = self.sock.recv(min(READ_BUFSIZE, length-len(buf)))
                 if not read:
                     self.log.error('read: connection broken')
                     raise CloseConnection
                 buf += read
-            return buf.split(RS)
+            try:
+                return code2command[start[1:3]], unserialize(buf)
+            except Exception:
+                self.log.error('read: invalid command or garbled data', exc=1)
+                self.write(NAK, 'invalid command or garbled data')
+                raise CloseConnection
         except socket.error as err:
             self.log.error('read: connection broken (%s)' % err)
             raise CloseConnection
@@ -227,38 +235,43 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         authenticators, hashing = self.daemon.get_authenticators()
 
         # announce version and authentication modality
-        self.write(STX, serialize(dict(
+        self.write(STX, dict(
             daemon_version = nicos_version,
             pw_hashing = hashing,
             protocol_version = PROTO_VERSION,
-        )))
+        ))
 
         # read login credentials
-        credentials = self.read()
-        if len(credentials) != 3:
-            self.log.error('invalid login: credentials=%r' % credentials)
+        cmd, (credentials,) = self.read()
+        if cmd != 'authenticate' or not isinstance(credentials, dict) or \
+           not all(v in credentials for v in ('login', 'passwd', 'display')):
+            self.log.error('invalid login: %r, credentials=%r' %
+                           (cmd, credentials))
             self.write(NAK, 'invalid credentials')
             raise CloseConnection
-        login, passw, display = credentials
 
         # check login data according to configured authentication
-        self.log.info('auth request: login=%r display=%r' % (login, display))
+        login = credentials['login']
+        self.log.info('auth request: login=%r display=%r' %
+                      (login, credentials['display']))
         if authenticators:
+            auth_err = None
             for auth in authenticators:
                 try:
-                    self.user = auth.authenticate(login, passw)
+                    self.user = auth.authenticate(login, credentials['passwd'])
                     break
                 except AuthenticationError as err:
+                    auth_err = err  # Py3 clears "err" after the except block
                     continue
             else:  # no "break": all authenticators failed
-                self.log.error('authentication failed: %s' % err)
+                self.log.error('authentication failed: %s' % auth_err)
                 self.write(NAK, 'credentials not accepted')
                 raise CloseConnection
         else:
             self.user = User(login, ADMIN)
 
         # of course this only works for the client that logged in last
-        os.environ['DISPLAY'] = display
+        os.environ['DISPLAY'] = credentials['display']
 
         # acknowledge the login
         self.log.info('login succeeded, access level %d' % self.user.level)
@@ -266,13 +279,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         # start main command loop
         while 1:
-            request = self.read()
-            command, cmdargs = request[0], request[1:]
-            if command not in daemon_commands:
-                self.log.warning('got unknown command: %s' % command)
-                self.write(NAK, 'unknown command')
-                continue
-            daemon_commands[command](self, cmdargs)
+            command, data = self.read()
+            command_wrappers[command](self, data)
 
     # -- Event thread entry point ----------------------------------------------
 
@@ -291,9 +299,10 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             event, data = item
             if event in event_mask:
                 continue
+            evtcode = event2code[event]
             try:
                 # first, send length header and event name
-                send(STX + LENGTH.pack(len(event) + len(data) + 1) + event + RS)
+                send(STX + evtcode + LENGTH.pack(len(data)))
                 # then, send data separately (doesn't create temporary strings)
                 send(data)
             except Exception as err:
@@ -343,7 +352,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """Mark the given request number (or all, if '*') so that it is not
         executed.
 
-        :param reqno: request number, or '*'
+        :param reqno: (int) request number, or '*'
         :returns: ok or error (e.g. if the given script is not in the queue)
         """
         if reqno == '*':
@@ -378,7 +387,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
     def break_(self, level):
         """Pause the current script at the next breakpoint.
 
-        :param level: stop level of breakpoint, constants are defined in
+        :param level: (int) stop level of breakpoint, constants are defined in
            `nicos.protocols.daemon`:
 
            * BREAK_AFTER_LINE - pause after current scan/line in the script
@@ -386,7 +395,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
            * BREAK_NOW - pause in the middle of counting
         :returns: ok or error (e.g. if script is already paused)
         """
-        level = int(level)  # all arguments are strings at first
+        level = int(level)
         if self.controller.status == STATUS_STOPPING:
             self.write(NAK, 'script is already stopping')
         elif self.controller.status == STATUS_INBREAK:
@@ -418,7 +427,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
     def stop(self, level):
         """Abort the paused script.
 
-        :param level: stop level, constants are defined in
+        :param level: (int) stop level, constants are defined in
            `nicos.protocols.daemon`:
 
            * BREAK_AFTER_LINE - stop after current scan/line in the script
@@ -495,16 +504,17 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """Evaluate and return an expression.
 
         :param expr: Python expression
+        :param stringify: (bool) if True, return the `repr` of the result
         :returns: result of evaluation or an error if exception raised
         """
         self.log.debug('evaluating expression in script context\n%s' % expr)
         try:
-            retval = self.controller.eval_expression(expr, self, bool(stringify))
+            retval = self.controller.eval_expression(expr, self, stringify)
         except Exception as err:
             self.log.exception('exception in eval command')
             self.write(NAK, 'exception raised while evaluating: %s' % err)
         else:
-            self.write(STX, serialize(retval))
+            self.write(STX, retval)
 
     @command()
     def simulate(self, name, code, prefix):
@@ -537,7 +547,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: list of matches
         """
         matches = sorted(set(self.controller.complete_line(line, lastword)))
-        self.write(STX, serialize(matches))
+        self.write(STX, matches)
 
     # -- Runtime information commands ------------------------------------------
 
@@ -547,7 +557,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         :returns: version string
         """
-        self.write(STX, serialize(nicos_version))
+        self.write(STX, nicos_version)
 
     @command()
     def getstatus(self):
@@ -572,7 +582,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         current_script = self.controller.current_script
         request_queue = self.controller.get_queue()
-        self.write(STX, serialize(dict(
+        self.write(STX, dict(
             status   = (self.controller.status, self.controller.lineno),
             script   = current_script and current_script.text or '',
             watch    = self.controller.eval_watch_expressions(),
@@ -580,7 +590,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             mode     = session.mode,
             setups   = (session.loaded_setups, session.explicit_setups),
             devices  = list(session.devices),
-        )))
+        ))
 
     @command()
     def getmessages(self, n):
@@ -590,9 +600,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: list of messages (each message being a list of logging fields)
         """
         if n == '*':
-            self.write(STX, serialize(self.daemon._messages))
+            self.write(STX, self.daemon._messages)
         else:
-            self.write(STX, serialize(self.daemon._messages[-int(n):]))
+            self.write(STX, self.daemon._messages[-int(n):])
 
     @command()
     def getscript(self):
@@ -601,7 +611,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: code of the current script
         """
         current_script = self.controller.current_script
-        self.write(STX, serialize(current_script and current_script.text or ''))
+        self.write(STX, current_script and current_script.text or '')
 
     @command()
     def gethistory(self, key, fromtime, totime):
@@ -613,9 +623,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: list of (time, value) tuples
         """
         if not session.cache:
-            self.write(STX, serialize([]))
+            self.write(STX, [])
         history = session.cache.history('', key, float(fromtime), float(totime))
-        self.write(STX, serialize(history))
+        self.write(STX, history)
 
     @command()
     def getcachekeys(self, query):
@@ -627,13 +637,13 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: list of (time, value) tuples
         """
         if not session.cache:
-            self.write(STX, serialize([]))
+            self.write(STX, [])
             return
         if ',' in query:
             result = session.cache.query_db(query.split(','))
         else:
             result = session.cache.query_db(query)
-        self.write(STX, serialize(result))
+        self.write(STX, result)
 
     @command()
     def gettrace(self):
@@ -641,7 +651,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         :returns: stack trace as a string
         """
-        self.write(STX, serialize(self.controller.current_location(True)))
+        self.write(STX, self.controller.current_location(True))
 
     # -- Watch expression commands ---------------------------------------------
 
@@ -652,7 +662,6 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :param vallist: list of expressions to add
         :returns: ack or error
         """
-        vallist = unserialize(vallist)
         if not isinstance(vallist, list):
             self.write(NAK, 'wrong argument type for add_values: %s' %
                        vallist.__class__.__name__)
@@ -674,7 +683,6 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :param vallist: list of expressions to remove, or ['*'] to remove all
         :returns: ack or error
         """
-        vallist = unserialize(vallist)
         if not isinstance(vallist, list):
             self.write(NAK, 'wrong argument type for del_values: %s' %
                        vallist.__class__.__name__)
@@ -699,23 +707,23 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
     def getdataset(self, index):
         """Get one or more datasets.
 
-        :param index: index of the dataset or '*' for all datasets
+        :param index: (int) index of the dataset or '*' for all datasets
         :returns: a list of datasets if index is '*', or a single dataset
            otherwise; or None if the dataset does not exist
         """
         if index == '*':
             try:
-                self.write(STX, serialize(session.experiment._last_datasets))
+                self.write(STX, session.experiment._last_datasets)
             # session.experiment may be None or a stub
             except (AttributeError, ConfigurationError):
-                self.write(STX, serialize(None))
+                self.write(STX, None)
         else:
             index = int(index)
             try:
                 dataset = session.experiment._last_datasets[index]
-                self.write(STX, serialize(dataset))
+                self.write(STX, dataset)
             except (IndexError, AttributeError, ConfigurationError):
-                self.write(STX, serialize(None))
+                self.write(STX, None)
 
     # -- Miscellaneous commands ------------------------------------------------
 
@@ -761,7 +769,6 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :param events: a serialized list of event names
         :returns: ack
         """
-        events = unserialize(events)
         self.event_mask.update(events)
         self.write(ACK)
 
@@ -774,10 +781,10 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         """
         fd, filename = tempfile.mkstemp(prefix='nicos')
         try:
-            os.write(fd, content.decode('base64'))
+            os.write(fd, content)
         finally:
             os.close(fd)
-        self.write(STX, serialize(filename))
+        self.write(STX, filename)
 
     @command(needcontrol=True)
     def unlock(self):
@@ -799,3 +806,17 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         self.log.info('disconnect')
         self.write(ACK)
         raise CloseConnection
+
+    @command()
+    def authenticate(self, data):
+        """Authenticate the client.
+
+        This command may only be used during handshake.
+        """
+        raise CloseConnection
+
+
+# make sure we handle all protocol defined commands
+for cmd in DAEMON_COMMANDS:
+    if cmd not in command_wrappers:
+        raise RuntimeError('Daemon command %s not handled by server!' % cmd)

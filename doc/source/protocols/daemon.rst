@@ -14,7 +14,12 @@ Frame format
 
 **Command connection**
 
-A data frame on the command connection has one of three types: "ok", "error" or
+A "request" frame on the command connection begins with the ASCII byte ENQ
+(0x5), followed by a 2-byte "command code", and the length of the payload as a
+network-order (big-endian) unsigned 32-bit integer.  The payload must be a
+serialized Python tuple with the arguments for the command.
+
+A reply frame on the command connection has one of three types: "ok", "error" or
 "data".  The first byte selects the type with the ASCII values ACK (0x6), NAK
 (0x15) and STX (0x2) respectively.
 
@@ -22,23 +27,19 @@ A data frame on the command connection has one of three types: "ok", "error" or
 
 For "error" and "data" frames, the following four bytes encode the length of the
 payload (i.e. frame length excluding first byte and length) as a network-order
-(big-endian) unsigned 32-bit integer.
+unsigned 32-bit integer.
 
-For "error" frames, the payload is a simple string explaining the error.
+In both cases, the payload is a serialized Python object -- for "error" frames
+it should unserialize to a simple string explaining the error.
 
 For "data" frames sent from the daemon to the client, the payload is a
 serialized Python object.
 
-For "data" frames sent from the client to the daemon (commands), the command is
-separated from arguments by ASCII value RS (0x1E).  There can be any number of
-arguments separated by RS, as long as the command accepts them.  Arguments are
-not serialized, so only strings are allowed.
-
 **Event connection**
 
-On this connection, all data flows from daemon to client.  Frames look like a
-"data" frame on the command connection, with the event name and one data item
-separated by RS.
+On this connection, all data flows from daemon to client.  "Event" frames
+consist of an STX byte, a 2-byte "event code", a payload length encoded as
+usual, and the payload being the event data.
 
 For most events, the data is a serialized Python object, except for those where
 a lot of raw data has to be transferred, such that serialization is both slow
@@ -68,18 +69,19 @@ with a serialized dictionary with at least the following keys:
   or 'plain'; the client should hash passwords with the given algorithm (except
   if it is 'plain') before sending
 
-The daemon then expects a data frame with three strings (separated by RS),
-giving the login name, the password (possibly hashed) and a string to use as the
-:envvar:`DISPLAY` environment variable on the server.  The latter is mostly
-obsolete, as it is incompatible with logins from multiple machines; no value
-needs to be transferred.
+The daemon then expects a "authenticate" command with a serialized dictionary,
+giving the login name (key "login"), the password (possibly hashed) (key
+"passwd") and a string to use as the :envvar:`DISPLAY` environment variable on
+the server (key "display").  The latter is mostly obsolete, as it is
+incompatible with logins from multiple machines; no value needs to be
+transferred.
 
 If the login name and password are accepted, the daemon sends back an "ok" frame
-and connection is ready to accept commands.
+and connection is ready to accept further commands.
 
 At this time, the client can open a second connection to the server port and
 send the client ID.  This connection will be detected as the event connection,
-and the client can then start receiving data frames on this connection.
+and the client can then start receiving event frames on this connection.
 
 
 Daemon functionality

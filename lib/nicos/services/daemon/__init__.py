@@ -217,7 +217,7 @@ class NicosDaemon(Device):
 
     def emit_event(self, event, data):
         """Emit an event to all handlers."""
-        if DAEMON_EVENTS[event]:
+        if DAEMON_EVENTS[event][0]:
             data = serialize(data)
         for handler in self._server.handlers.values():
             try:
@@ -227,7 +227,7 @@ class NicosDaemon(Device):
 
     def emit_event_private(self, event, data):
         """Emit an event to only the calling handler."""
-        if DAEMON_EVENTS[event]:
+        if DAEMON_EVENTS[event][0]:
             data = serialize(data)
         handler = self._controller.get_current_handler()
         if handler:

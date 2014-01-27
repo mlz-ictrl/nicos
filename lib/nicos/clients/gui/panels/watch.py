@@ -30,7 +30,6 @@ from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
 from nicos.clients.gui.panels import Panel
-from nicos.protocols.daemon import serialize
 from nicos.pycompat import iteritems
 
 
@@ -84,7 +83,7 @@ class WatchPanel(Panel):
                                         'New expression to watch:')
         if not ok:
             return
-        newexpr = serialize([str(expr) + ':default'])
+        newexpr = [str(expr) + ':default']
         self.client.tell('watch', newexpr)
 
     @qtsig('')
@@ -93,7 +92,7 @@ class WatchPanel(Panel):
         if not item:
             return
         expr = item.text(0)
-        delexpr = serialize([str(expr) + ':default'])
+        delexpr = [str(expr) + ':default']
         self.client.tell('unwatch', delexpr)
 
     @qtsig('')

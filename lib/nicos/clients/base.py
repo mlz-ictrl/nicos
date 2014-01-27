@@ -32,8 +32,9 @@ import threading
 
 import numpy as np
 
-from nicos.protocols.daemon import serialize, unserialize, ACK, STX, NAK, \
-     LENGTH, RS, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS
+from nicos.protocols.daemon import serialize, unserialize, ENQ, ACK, STX, NAK, \
+    LENGTH, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS, \
+    command2code, code2event
 from nicos.pycompat import to_utf8
 
 BUFSIZE = 8192
@@ -104,10 +105,9 @@ class NicosClient(object):
 
         # read banner
         try:
-            ret, data = self._read()
+            ret, banner = self._read()
             if ret != STX:
                 raise ProtocolError('invalid response format')
-            banner = unserialize(data)
             if 'daemon_version' not in banner:
                 raise ProtocolError('daemon version missing from response')
             daemon_proto = banner.get('protocol_version', 0)
@@ -131,11 +131,18 @@ class NicosClient(object):
             password = hashlib.sha1(to_utf8(password)).hexdigest()
         elif pw_hashing == 'md5':
             password = hashlib.md5(to_utf8(password)).hexdigest()
-        if not self.tell(conndata['login'], password, conndata['display']):
+
+        auth_dict = {
+            'login': conndata['login'],
+            'passwd': password,
+            'display': conndata['display'],
+        }
+
+        if not self.tell('authenticate', auth_dict):
             return
 
         if eventmask:
-            self.tell('eventmask', serialize(eventmask))
+            self.tell('eventmask', eventmask)
 
         # connect to event port
         self.event_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -167,28 +174,15 @@ class NicosClient(object):
         recvinto = self.event_socket.recv_into
         while 1:
             try:
-                # receive length
-                start = recv(5)
-                if len(start) != 5 or start[0] != STX:
+                # receive STX (1 byte) + eventcode (2) + length (4)
+                start = recv(7)
+                if len(start) != 7 or start[0:1] != STX:
                     if not self.disconnecting:
                         self.signal('broken', 'Server connection broken.')
                         self._close()
                     return
-                length, = LENGTH.unpack(start[1:])
+                length, = LENGTH.unpack(start[3:])
                 got = 0
-                # buf = ''
-                # while got < length:
-                #     read = recv(length - got)
-                #     if not read:
-                #         self.log_func('Error in event handler: connection broken')
-                #         return
-                #     buf += read
-                #     got += len(read)
-                # try:
-                #     event, data = buf.split(RS, 1)
-                #     if DAEMON_EVENTS[event]:
-                #         data = unserialize(data)
-
                 # read into a pre-allocated buffer to avoid copying lots of data
                 # around several times
                 buf = np.zeros(length, 'c')  # replace with bytearray+memoryview
@@ -202,16 +196,12 @@ class NicosClient(object):
                         return
                     got += read
                 try:
-                    start = buf[:15].tostring()
-                    sep = start.find(RS)
-                    if sep == -1:
-                        raise ValueError
-                    event = start[:sep]
+                    event = code2event[start[1:3]]
                     # serialized or raw event data?
-                    if DAEMON_EVENTS[event]:
-                        data = unserialize(buf[sep+1:].tostring())
+                    if DAEMON_EVENTS[event][0]:
+                        data = unserialize(buf.tostring())
                     else:
-                        data = buffer(buf, sep+1)
+                        data = buffer(buf)
                 except Exception as err:
                     self.log_func('Garbled event (%s): %r' %
                                   (err, str(buffer(buf))[:100]))
@@ -260,19 +250,20 @@ class NicosClient(object):
             self.signal('broken', msg, err)
             self._close()
 
-    def _write(self, strings):
+    def _write(self, command, args):
         """Write a command to the server."""
         if self.compat_proto:
-            strings = self._compat_transform_command(strings)
-        string = RS.join(map(str, strings))
-        self.socket.sendall(STX + LENGTH.pack(len(string)) + string)
+            args = self._compat_transform_command(command, args)
+        data = serialize(args)
+        self.socket.sendall(ENQ + command2code[command] +
+                            LENGTH.pack(len(data)) + data)
 
     def _read(self):
         """Receive a response from the server."""
         # receive first byte + (possibly) length
         start = self.socket.recv(5)
         if start == ACK:
-            return start, ''
+            return start, None
         if len(start) != 5:
             raise ProtocolError('connection broken')
         if start[0:1] not in (NAK, STX):
@@ -285,21 +276,20 @@ class NicosClient(object):
             if not read:
                 raise ProtocolError('connection broken')
             buf += read
-        return start[0], buf
+        try:
+            return start[0:1], unserialize(buf)
+        except Exception as err:
+            return start[0:1], self.handle_error(err)
 
-    def _compat_transform_command(self, strings):
+    def _compat_transform_command(self, command, args):
         """Transform a command for compatibility mode with old daemons."""
-        if self.compat_proto <= 8 and strings[0] == 'update':
-            # remove the "reason" argument
-            strings = strings[:-1]
-        return strings
+        return args
 
-    def _compat_transform_reply(self, commandstrings, reply):
+    def _compat_transform_reply(self, command, reply):
         """Transform a command reply for compatibility mode with old daemons."""
-        # currently, no transformation is needed here.
         return reply
 
-    def tell(self, *command):
+    def tell(self, command, *args):
         """Excecute a command that does not generate a response.
 
         The arguments are the command and its parameter(s), if necessary.
@@ -309,7 +299,7 @@ class NicosClient(object):
             return
         try:
             with self.lock:
-                self._write(command)
+                self._write(command, args)
                 ret, data = self._read()
                 if ret != ACK:
                     raise ErrorResponse(data)
@@ -317,7 +307,7 @@ class NicosClient(object):
         except (Exception, KeyboardInterrupt) as err:
             return self.handle_error(err)
 
-    def ask(self, *command, **kwds):
+    def ask(self, command, *args, **kwds):
         """Excecute a command that generates a response, and return the response.
 
         The arguments are the command and its parameter(s), if necessary.
@@ -331,13 +321,13 @@ class NicosClient(object):
             return
         try:
             with self.lock:
-                self._write(command)
+                self._write(command, args)
                 ret, data = self._read()
                 if ret != STX:
                     raise ErrorResponse(data)
                 if self.compat_proto:
-                    return self._compat_transform_reply(command, unserialize(data))
-                return unserialize(data)
+                    return self._compat_transform_reply(command, data)
+                return data
         except (Exception, KeyboardInterrupt) as err:
             return self.handle_error(err)
 
@@ -351,25 +341,12 @@ class NicosClient(object):
 
         If *stringify* is true, the result is returned as a string.
         """
-        result = self.ask('eval', expr, stringify and '1' or '', quiet=True)
+        result = self.ask('eval', expr, bool(stringify), quiet=True)
         if isinstance(result, Exception):
             if default is not Ellipsis:
                 return default
             raise result  #pylint: disable=E0702
         return result
-
-    def read(self):
-        if not self.socket:
-            self.signal('error', 'You are not connected to a server.')
-            return
-        try:
-            with self.lock:
-                ret, data = self._read()
-                if ret != STX:
-                    raise ErrorResponse(data)
-                return unserialize(data)
-        except (Exception, KeyboardInterrupt) as err:
-            return self.handle_error(err)
 
     # high-level functionality
 

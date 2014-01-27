@@ -228,8 +228,7 @@ class ELogPanel(Panel, DlgUtils):
             newname = path.basename(fname)
         desc = text_type(dlg.fileDesc.text())
         filecontent = open(fname, 'rb').read()
-        # file content may contain \x1e characters; encode to base64
-        remotefn = self.client.ask('transfer', filecontent.encode('base64'))
+        remotefn = self.client.ask('transfer', filecontent)
         self.client.eval('_LogAttach(%r, [%r], [%r])' % (desc, remotefn, newname))
         self.timer.start(750)
 

@@ -36,26 +36,38 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 9
+PROTO_VERSION = 10
 
 # old versions with which the client is still compatible
-# changed in 8->9: "update" command takes an additional reason argument
-# changed in 7->8: "experiment" event added, client can live without it
+# none at present
 
-COMPATIBLE_PROTO_VERSIONS = [7, 8]
+COMPATIBLE_PROTO_VERSIONS = []
 
 # message serialization/deserialization
 
-# one-byte responses without length
-ACK = '\x06'   # executed ok, no further information follows
+# to encode payload lengths as network-order 32-bit unsigned int
+LENGTH = struct.Struct('>I')
 
-# responses with length, encoded as a 32-bit integer
-STX = '\x03'   # executed ok, reply follows
-NAK = '\x15'   # error occurred, message follows
-LENGTH = struct.Struct('>I')   # used to encode length
+# command frame (client -> daemon)
+# frame format: ENQ + commandcode (3 bytes) + LENGTH + payload
+ENQ = b'\x05'
 
-# argument separator in client commands
-RS = '\x1e'
+# one-byte response without length
+# frame format: ACK
+ACK = b'\x06'   # executed ok, no further information follows
+
+# error response with payload
+# frame format: NAK + LENGTH + payload
+NAK = b'\x15'   # error occurred, message follows
+
+# response with payload
+# frame format: STX + LENGTH + payload
+STX = b'\x03'   # executed ok, reply follows
+
+# also for events
+# frame format: STX + eventcode (3 bytes) + LENGTH + payload
+
+# to serialize/unserialize payload data:
 
 def serialize(data):
     """Serialize an object."""
@@ -77,56 +89,116 @@ BREAK_AFTER_LINE = 1  # break after current command in script
 BREAK_AFTER_STEP = 2  # break after scan step (or any breakpoint with level 2)
 BREAK_NOW = 3         # break "now" (i.e. also while counting)
 
+# daemon command specification
+
+# tuples of
+# - command name
+# - command code (integer < 65535, will be converted to 2 bytes)
+
+DAEMON_COMMANDS = {
+    # script control commands
+    'start':          0x01,
+    'simulate':       0x02,
+    'queue':          0x03,
+    'unqueue':        0x04,
+    'update':         0x05,
+    # script flow commands
+    'break':          0x11,
+    'continue':       0x12,
+    'stop':           0x13,
+    'emergency':      0x14,
+    # async execution commands
+    'exec':           0x21,
+    'eval':           0x22,
+    # watch variable commands
+    'watch':          0x31,
+    'unwatch':        0x32,
+    # enquiries
+    'getversion':     0x41,
+    'getstatus':      0x42,
+    'getmessages':    0x43,
+    'getscript':      0x44,
+    'gethistory':     0x45,
+    'getcachekeys':   0x46,
+    'gettrace':       0x47,
+    'getdataset':     0x48,
+    # miscellaneous commands
+    'complete':       0x51,
+    'transfer':       0x52,
+    'debug':          0x53,
+    'debuginput':     0x54,
+    # connection related commands
+    'eventmask':      0x61,
+    'unlock':         0x62,
+    'quit':           0x63,
+    'authenticate':   0x64,  # only used during handshake
+}
+
+_codefmt = struct.Struct('>H')
+
+command2code, code2command = {}, {}
+for _name, _number in DAEMON_COMMANDS.items():
+    _enc = _codefmt.pack(_number)
+    command2code[_name] = _enc
+    code2command[_enc] = _name
+
 # daemon event specification
 
 # key: event name
-# value: whether the event data is serialized
+# value: - whether the event data is serialized or raw bytes
+#        - event code (integer < 65535, will be converted to 2 bytes)
 
 # IMPORTANT: add new events to the documentation too!
 
 DAEMON_EVENTS = {
     # a new message arrived
-    'message': True,
+    'message':     (True, 0x1001),
     # a new request arrived
-    'request': True,
+    'request':     (True, 0x1002),
     # a request is now being processed
-    'processing': True,
+    'processing':  (True, 0x1003),
     # one or more requests have been blocked from execution
-    'blocked': True,
+    'blocked':     (True, 0x1004),
     # the execution status changed
-    'status': True,
+    'status':      (True, 0x1005),
     # the watched variables changed
-    'watch': True,
+    'watch':       (True, 0x1006),
     # the mode changed
-    'mode': True,
+    'mode':        (True, 0x1007),
     # a new cache value has arrived
-    'cache': True,
+    'cache':       (True, 0x1008),
     # a new dataset was created
-    'dataset': True,
+    'dataset':     (True, 0x1009),
     # a new point was added to a dataset
-    'datapoint': True,
+    'datapoint':   (True, 0x100A),
     # a new fit curve was added to a dataset
-    'datacurve': True,
+    'datacurve':   (True, 0x100B),
     # new parameters for the data sent with the "livedata" event
-    'liveparams': True,
+    'liveparams':  (True, 0x100C),
     # live detector data to display
-    'livedata': False,
+    'livedata':    (False, 0x100D),
     # a simulation finished with the given result
-    'simresult': True,
+    'simresult':   (True, 0x100E),
     # request to display given help page
-    'showhelp': True,
+    'showhelp':    (True, 0x100F),
     # request to execute something on the client side
-    'clientexec': True,
+    'clientexec':  (True, 0x1010),
     # a watchdog notification has arrived
-    'watchdog': True,
+    'watchdog':    (True, 0x1011),
     # the remote-debugging status changed
-    'debugging': True,
+    'debugging':   (True, 0x1012),
     # a plug-and-play/sample-environment event occurred
-    'plugplay': True,
+    'plugplay':    (True, 0x1013),
     # a setup was loaded or unloaded
-    'setup': True,
+    'setup':       (True, 0x1014),
     # a device was created or destroyed
-    'device': True,
+    'device':      (True, 0x1015),
     # the experiment has changed
-    'experiment' : True,
+    'experiment' : (True, 0x1016),
 }
+
+event2code, code2event = {}, {}
+for _name, (_, _number) in DAEMON_EVENTS.items():
+    _enc = _codefmt.pack(_number)
+    event2code[_name] = _enc
+    code2event[_enc] = _name
