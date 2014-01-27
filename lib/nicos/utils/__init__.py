@@ -222,6 +222,8 @@ def getVersions(obj):
 
 def closeSocket(sock, socket=socket):
     """Do our best to close a socket."""
+    if sock is None:
+        return
     try:
         sock.shutdown(socket.SHUT_RDWR)
     except socket.error:

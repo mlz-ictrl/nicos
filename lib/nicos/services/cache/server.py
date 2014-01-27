@@ -100,11 +100,11 @@ class CacheWorker(object):
 
     def closedown(self):
         # try our best to close the connection gracefully
-        if self.sock is None:
-            return
-        self.stoprequest = True
-        closeSocket(self.sock)
-        self.sock = None
+        # assign to local to avoid race condition (self.sock
+        # set to None by someone else calling closedown)
+        sock, self.sock, self.stoprequest = self.sock, None, True
+        if sock is not None:
+            closeSocket(sock)
 
     def join(self):
         self.send_queue.put('end')   # to wake from blocking get()
