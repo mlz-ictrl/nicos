@@ -1,6 +1,6 @@
-=============
-Reseda setups
-=============
+======
+Reseda
+======
 
 Instrument setups
 =================

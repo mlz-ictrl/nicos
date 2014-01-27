@@ -1,6 +1,6 @@
-=============
-Galaxi setups
-=============
+======
+Galaxi
+======
 
 Intrument setups
 ================

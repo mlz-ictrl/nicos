@@ -1,6 +1,6 @@
-===========
-Resi setups
-===========
+====
+Resi
+====
 
 Instrument setups
 =================

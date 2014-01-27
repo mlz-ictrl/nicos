@@ -1,6 +1,6 @@
-==============
-Toftof setups
-==============
+======
+Toftof
+======
 
 Instrument setups
 =================

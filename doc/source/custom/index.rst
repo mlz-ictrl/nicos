@@ -1,6 +1,6 @@
 
-Custom specific setups
-======================
+Custom specific documentation
+=============================
 
 .. toctree::
     :maxdepth: 1

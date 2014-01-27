@@ -1,6 +1,6 @@
-=========================
-Neutron guide hall setups
-=========================
+==================
+Neutron guide hall
+==================
 
 Instrument setups
 =================

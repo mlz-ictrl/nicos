@@ -1,6 +1,6 @@
-===============
-Mephisto setups
-===============
+========
+Mephisto
+========
 
 Instrument setups
 =================

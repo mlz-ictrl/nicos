@@ -1,6 +1,6 @@
-===========
-Puma setups
-===========
+====
+Puma
+====
 
 Instrument setups
 =================

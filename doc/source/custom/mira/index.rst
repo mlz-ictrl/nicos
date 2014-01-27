@@ -1,6 +1,6 @@
-===========
-Mira setups
-===========
+====
+Mira
+====
 
 Instrument setups
 =================

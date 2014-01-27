@@ -1,6 +1,6 @@
-============
-Panda setups
-============
+=====
+Panda
+=====
 
 Instrument setups
 =================
@@ -19,5 +19,14 @@ Service setups
     :glob:
 
     setups/special/*
+
+Custom classes
+==============
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    classes/*
 
 

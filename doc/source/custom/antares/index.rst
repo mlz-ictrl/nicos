@@ -1,6 +1,6 @@
-==============
-Antares setups
-==============
+=======
+Antares
+=======
 
 Instrument setups
 =================
@@ -20,4 +20,11 @@ Service setups
 
     setups/special/*
 
+Custom classes
+==============
 
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    classes/*

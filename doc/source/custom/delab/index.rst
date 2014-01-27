@@ -1,6 +1,6 @@
-==========================
-Detector laboratory setups
-==========================
+===================
+Detector laboratory
+===================
 
 Laboratory setups
 =================

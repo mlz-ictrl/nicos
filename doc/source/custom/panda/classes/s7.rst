@@ -1,0 +1,6 @@
+S7
+--
+
+.. automodule:: nicos.panda.s7
+    :members:
+    :undoc-members:

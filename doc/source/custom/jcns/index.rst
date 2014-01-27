@@ -1,6 +1,6 @@
-===========
-JCNS setups
-===========
+====
+JCNS
+====
 
 Instrument setups
 =================

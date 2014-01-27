@@ -1,6 +1,6 @@
-=============
-FRM II setups
-=============
+======
+FRM II
+======
 
 .. toctree::
     :maxdepth: 1

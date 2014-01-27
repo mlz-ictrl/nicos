@@ -1,6 +1,6 @@
-=========================
-Sample environment setups
-=========================
+==================
+Sample environment
+==================
 
 Basic setups
 ============

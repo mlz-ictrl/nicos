@@ -1,6 +1,6 @@
-===========
-PGAA setups
-===========
+====
+PGAA
+====
 
 Instrument setups
 =================

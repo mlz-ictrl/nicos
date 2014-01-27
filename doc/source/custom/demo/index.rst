@@ -1,6 +1,6 @@
-===========
-Demo setups
-===========
+====
+Demo
+====
 
 Instrument setups
 =================

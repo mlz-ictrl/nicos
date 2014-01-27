@@ -1,6 +1,6 @@
-==============
-Refsans setups
-==============
+=======
+Refsans
+=======
 
 Instrument setups
 =================
