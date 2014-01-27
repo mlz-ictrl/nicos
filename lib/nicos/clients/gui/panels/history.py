@@ -26,7 +26,6 @@
 
 import os
 import sys
-import time
 from time import time as currenttime, localtime, mktime, strftime
 
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
@@ -127,14 +126,14 @@ class View(QObject):
             if kd[0][kd[2]-1] < currenttime() - self.interval:
                 self.newValue(currenttime(), key, '=', kd[4], real=False)
 
-    def newValue(self, time, key, op, value, real=True):
+    def newValue(self, vtime, key, op, value, real=True):
         if op != '=':
             return
         kd = self.keydata[key]
         n = kd[2]
         real_n = kd[3]
         kd[4] = value
-        if real_n > 0 and kd[0][real_n-1] > time - self.interval:
+        if real_n > 0 and kd[0][real_n-1] > vtime - self.interval:
             return
         # double array size if array is full
         if n == kd[0].shape[0]:
@@ -152,10 +151,10 @@ class View(QObject):
         if not real and real_n < n:
             # do not generate endless amounts of synthesized points, one
             # is enough
-            kd[0][n-1] = time
+            kd[0][n-1] = vtime
             kd[1][n-1] = value
         else:
-            kd[0][n] = time
+            kd[0][n] = vtime
             kd[1][n] = value
             kd[2] += 1
             if real:
@@ -163,7 +162,7 @@ class View(QObject):
         # check sliding window
         if self.window:
             i = -1
-            threshold = time - self.window
+            threshold = vtime - self.window
             while kd[0][i+1] < threshold and i < n:
                 if kd[0][i+2] > threshold:
                     kd[0][i+1] = threshold
@@ -340,12 +339,12 @@ class BaseHistoryWindow(object):
         self.on_viewList_currentItemChanged(item, None)
 
     def newvalue_callback(self, data):
-        (_time, key, op, value) = data
+        (vtime, key, op, value) = data
         if key not in self.keyviews:
             return
         value = cache_load(value)
         for view in self.keyviews[key]:
-            view.newValue(time, key, op, value)
+            view.newValue(vtime, key, op, value)
 
     def _createViewFromDialog(self, info):
         parts = [part.strip().lower().replace('.', '/')
@@ -797,8 +796,8 @@ class ViewPlot(NicosPlot):
                 elif fmtno == 1:
                     fp.write('%s\t%.10f\n' % (curve.x(i), curve.y(i)))
                 else:
-                    fp.write('%s\t%.10f\n' % (time.strftime(
-                        '%Y-%m-%d.%H:%M:%S', time.localtime(curve.x(i))),
+                    fp.write('%s\t%.10f\n' % (strftime(
+                        '%Y-%m-%d.%H:%M:%S', localtime(curve.x(i))),
                         curve.y(i)))
 
 
