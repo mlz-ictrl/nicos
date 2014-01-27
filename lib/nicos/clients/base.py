@@ -34,6 +34,7 @@ import numpy as np
 
 from nicos.protocols.daemon import serialize, unserialize, ACK, STX, NAK, \
      LENGTH, RS, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS
+from nicos.pycompat import to_utf8
 
 BUFSIZE = 8192
 TIMEOUT = 30.0
@@ -63,10 +64,10 @@ class NicosClient(object):
         self.disconnecting = False
         self.version = None
         self.gzip = False
-        #pylint: disable=E1121
-        # spuriuos warnig due to hashlib magic
-        self.client_id = hashlib.md5('%s%s' %
-                                     (time.time(), os.getpid())).digest()
+
+        unique_id = to_utf8(str(time.time()) + str(os.getpid()))
+        # spurious warning due to hashlib magic # pylint: disable=E1121
+        self.client_id = hashlib.md5(unique_id).digest()
 
     def signal(self, name, *args):
         # must be overwritten
@@ -127,9 +128,9 @@ class NicosClient(object):
             password = conndata['passwd']
         pw_hashing = banner.get('pw_hashing', 'sha1')
         if pw_hashing == 'sha1':
-            password = hashlib.sha1(password).hexdigest()
+            password = hashlib.sha1(to_utf8(password)).hexdigest()
         elif pw_hashing == 'md5':
-            password = hashlib.md5(password).hexdigest()
+            password = hashlib.md5(to_utf8(password)).hexdigest()
         if not self.tell(conndata['login'], password, conndata['display']):
             return
 
@@ -190,7 +191,8 @@ class NicosClient(object):
 
                 # read into a pre-allocated buffer to avoid copying lots of data
                 # around several times
-                buf = np.zeros(length, 'c')
+                buf = np.zeros(length, 'c')  # replace with bytearray+memoryview
+                                             # on Py3 only.
                 while got < length:
                     read = recvinto(buf[got:], length - got)
                     if not read:

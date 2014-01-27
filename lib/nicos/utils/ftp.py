@@ -31,6 +31,7 @@ from ftplib import FTP
 from hashlib import md5
 
 from nicos import session
+from nicos.pycompat import to_utf8
 
 
 #
@@ -52,7 +53,7 @@ def ftpUpload(filename):
     returns a http download link for download purposes.
     """
     # we like to obscure the data at least a little bit.
-    subdir = md5(filename + str(time.time())).hexdigest()
+    subdir = md5(to_utf8(filename + str(time.time()))).hexdigest()
     basename = path.basename(filename)
 
     try:

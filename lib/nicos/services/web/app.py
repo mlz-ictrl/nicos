@@ -40,7 +40,7 @@ from wsgiref.simple_server import WSGIServer
 from nicos import session
 from nicos.utils import formatExtendedTraceback
 from nicos.utils.loggers import DATEFMT, ACTION, INPUT, INFO, DEBUG, WARNING
-from nicos.pycompat import socketserver, exec_
+from nicos.pycompat import socketserver, exec_, to_utf8
 
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
@@ -295,7 +295,7 @@ class NicosApp(object):
 
     def _start_session(self):
         self.session_number += 1
-        self.current_sid = md5(str(self.session_number)).hexdigest()
+        self.current_sid = md5(to_utf8(str(self.session_number))).hexdigest()
         return self.current_sid
 
     def _output(self, sid):

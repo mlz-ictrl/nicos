@@ -30,7 +30,7 @@ from os import path
 
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, text_type
 
 
 INFO_CATEGORIES = [
@@ -446,10 +446,10 @@ def mailaddress(val=None):
     """a valid mail address"""
     if val is None:
         return ''
-    val = unicode(val)
-    parts = val.split(u'@')
-    parts[-1] = parts[-1].encode('idna')
-    val = u'@'.join(parts)
+    val = text_type(val)
+    parts = val.split('@')
+    parts[-1] = parts[-1].encode('idna').decode('ascii')
+    val = '@'.join(parts)
     if not mailaddress_re.match(val):
         raise ValueError('%r is not a valid email address' % val)
     return val

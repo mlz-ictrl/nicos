@@ -401,14 +401,14 @@ DEFAULT_DIR_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH
 DEFAULT_FILE_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 
 def readFile(filename):
-    fp = open(filename, 'rb')
+    fp = open(filename, 'r')
     try:
         return [line.strip() for line in fp]
     finally:
         fp.close()
 
 def writeFile(filename, lines):
-    fp = open(filename, 'wb')
+    fp = open(filename, 'w')
     try:
         fp.writelines(lines)
     finally:

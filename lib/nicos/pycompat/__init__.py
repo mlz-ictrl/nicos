@@ -48,7 +48,7 @@ from six import reraise, exec_, add_metaclass, BytesIO, StringIO
 from six import string_types, integer_types, text_type, binary_type
 from six import iteritems, itervalues, iterkeys
 
-number_types = integer_types + (float,)
+# functionality in addition to what "six" provides
 
 try:
     from collections import OrderedDict  # pylint: disable=E0611
@@ -65,6 +65,8 @@ try:
 except ImportError:
     from cgi import escape as escape_html
 
+# missing dict helpers to get a list of items/values
+
 if six.PY2:
     listitems = dict.items
     listvalues = dict.values
@@ -73,3 +75,35 @@ else:
         return list(d.items())
     def listvalues(d):
         return list(d.values())
+
+# all builtin number types (useful for isinstance checks)
+
+number_types = integer_types + (float,)
+
+# missing str/bytes helpers
+
+if six.PY2:
+    # encode str/unicode (Py2) or str (Py3) to bytes, using UTF-8
+    def to_utf8(s):
+        if isinstance(s, str):
+            return s
+        return s.encode('utf-8')  # will complain for any other type
+    # encode str/unicode (Py2) or str (Py3) to bytes, using selected encoding
+    def to_encoding(s, encoding, errors='strict'):
+        if isinstance(s, str):
+            return s
+        return s.encode(encoding, errors)
+    def from_utf8(s):
+        if isinstance(s, unicode):
+            return s
+        return s.decode('utf-8')
+    def from_encoding(s, encoding, errors='strict'):
+        if isinstance(s, unicode):
+            return s
+        return s.decode(encoding, errors)
+else:
+    # on Py3, UTF-8 is the default encoding already
+    to_utf8 = str.encode
+    to_encoding = str.encode
+    from_utf8 = bytes.decode
+    from_encoding = bytes.decode
