@@ -75,8 +75,8 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
                                 'on the type of device',
                                 type=str, category='general', settable=True,
                                 chatty=True),
-        'maxheaterpower':    Param('Maximum heater output', unit='W',
-                                category='general'),
+        'maxheaterpower': Param('Maximum heater output', unit='W',
+                                settable=True, category='general'),
     }
 
     def doRead(self, maxage=0):
