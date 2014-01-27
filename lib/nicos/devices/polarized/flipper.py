@@ -19,32 +19,25 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
 """Spin flipper classes."""
 
-from nicos.core import Moveable, Param, Override, oneof, tupleof
+from nicos.core import Moveable, Param, Override, oneof, tupleof, multiStop, \
+     nonemptylistof
 
 
-class MezeiFlipper(Moveable):
+class BaseFlipper(Moveable):
     """
-    Class for a Mezei type flipper consisting of flipper and correction current.
-
-    For the state "on" the two power supplies are moved to the values given by
-    the `currents` parameter, for "off" they are moved to zero.
+    Base class for a flipper device, which can be moved "on" and "off".
     """
-
     hardware_access = False
 
     attached_devices = {
-        'flip': (Moveable, 'flipper current'),
-        'corr': (Moveable, 'correction current'),
-    }
-
-    parameters = {
-        'currents': Param('Flipper and correction current', settable=True,
-                          type=tupleof(float, float)),
+        'flip': (Moveable, 'flipping current'),
+        'corr': (Moveable, 'correction current, compensating the ext. field'),
     }
 
     parameter_overrides = {
@@ -54,9 +47,24 @@ class MezeiFlipper(Moveable):
     valuetype = oneof('on', 'off')
 
     def doRead(self, maxage=0):
-        if abs(self._adevs['flip'].read(maxage)) > 0.05:
+        if abs(self._adevs['corr'].read(maxage)) > 0.05:
             return 'on'
         return 'off'
+
+
+class MezeiFlipper(BaseFlipper):
+    """
+    Class for a Mezei type flipper consisting of flipper and correction current.
+
+    For the state "on" the two power supplies are moved to the values given by
+    the `currents` parameter, for "off" they are moved to zero.
+    """
+
+    parameters = {
+        'currents': Param('Flipper and correction current', settable=True,
+                          type=tupleof(float, float)),
+    }
+
 
     def doStart(self, value):
         if value == 'on':
@@ -65,3 +73,47 @@ class MezeiFlipper(Moveable):
         else:
             self._adevs['flip'].start(0)
             self._adevs['corr'].start(0)
+
+
+class KFlipper(BaseFlipper):
+    """
+    Class for an momentum dependent type flipper consisting of flipper and correction field.
+
+    So far only used at PANDA, but would work on other TAS-like instruments.
+    For the state "on" the two power supplies are moved to the values calculated
+    from the `flipcurrent` parameter and the value of the `compcurrent`,
+    for "off" they are moved to zero.
+    The current neutron momentum is read from a `wavevector` device which
+    should be attached to the relevant monochromator/analyser,
+    depending on the location of the spinflipper.
+    """
+    attached_devices = {
+        'kvalue' : (Moveable, 'Device reading current k value, needed for '
+                                  'calculation of flipping current.'),
+    }
+
+    parameters = {
+        'compcurrent' : Param('Current in A for the compensation coils, if active',
+                              settable=True, type=float, unit='A',
+                             ),
+        'flipcurrent' : Param('polynomial in wavevector to calculate the '
+                              'correct flipping current.',
+                              settable=True, type=nonemptylistof(float),
+                              unit='A', # actually A * Angstroms ** index
+                             ),
+    }
+
+    def doStart(self, value):
+        if value == 'on':
+            # query current momentum and calculate polinomial
+            k = self._adevs['kvalue'].read(0)
+            flip_current = sum(v * (k ** i) for i, v in enumerate(self.flipcurrent))
+            self._adevs['flip'].start(flip_current)
+            self._adevs['corr'].start(self.compcurrent)
+        else:
+            self._adevs['flip'].start(0)
+            self._adevs['corr'].start(0)
+
+    def doStop(self):
+        # doStop needs to be implemented this way to not stop the kvalue device!
+        multiStop((self.field, self.compensate))

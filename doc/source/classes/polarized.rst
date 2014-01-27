@@ -13,3 +13,4 @@ Flipper class
 .. module:: nicos.devices.polarized.flipper
 
 .. autoclass:: MezeiFlipper()
+.. autoclass:: KFlipper()

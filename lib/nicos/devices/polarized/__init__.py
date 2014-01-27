@@ -24,4 +24,4 @@
 
 """Generic device classes for polarized neutron scattering."""
 
-from nicos.devices.polarized.flipper import MezeiFlipper
+from nicos.devices.polarized.flipper import MezeiFlipper, KFlipper

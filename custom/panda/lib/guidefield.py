@@ -1,9 +1,32 @@
-# Polarized support for Panda
-# (c) 2009 by Enrico Faulhaber
-# put under GPLv2 Licence
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2014 by the NICOS contributors (see AUTHORS)
 #
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
+# *****************************************************************************
+
+"""Polarized support for Panda"""
+
 # v0.5
 # uses a MappedMoveable now
+# Also uses AnalogIO, as CurrentSupply needs an implemented ramp,
+# which not all PowersupplyServers implement.
 #
 # v0.4
 # Now works with the new generic.Switcher as base
@@ -33,9 +56,8 @@
 import numpy as np
 
 from nicos.utils import lazy_property
-from nicos.core import Moveable, Param, Override, LimitError, \
-    InvalidValueError, multiStop, multiStatus
-from nicos.core.params import nonemptylistof, floatrange, tupleof
+from nicos.core import Param, Override, LimitError
+from nicos.core.params import floatrange, tupleof
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.abstract import MappedMoveable
 #~ from nicos.devices.taco import CurrentSupply
@@ -252,67 +274,3 @@ class GuideField(MappedMoveable):
         return self._I2B(F) + np.array(self.background)
 
 
-class Flipper(MappedMoveable):
-    """ class to set the currents of an Spinflipper
-    to either 'on' or 'off'
-    """
-    attached_devices = {
-        'field'   : (Moveable, 'CurrentSupply for the Flipping current'),
-        'compensate' : (Moveable, 'CurrentSupply for the compensation field'),
-        'wavevector' : (Moveable, 'Device reading current k, needed for '
-                                  'calculation of flipping current.'),
-    }
-    parameters = {
-        'compcurrent' : Param('Current in A for the compensation coils, if active',
-                              settable=True, type=float, unit='A',
-                             ),
-        'flipcurrent' : Param('polynomial in wavevector to calculate the '
-                              'correct flipping current.',
-                              settable=True, type=nonemptylistof(float),
-                              unit='A', # actually A * Angstroms ** index
-                             ),
-    }
-    parameter_overrides = {
-        'mapping' : Override(settable=False, mandatory=False, userparam=False,
-                             default=dict(off=0, on=1),
-                            ),
-        'precision' : Override(mandatory=False),
-    }
-
-    @lazy_property
-    def field(self):
-        return self._adevs['field']
-
-    @lazy_property
-    def compensate(self):
-        return self._adevs['compensate']
-
-    @lazy_property
-    def wavevector(self):
-        return self._adevs['wavevector']
-
-    def doStart(self, target):
-        if self.mapping.get(target, target) == 0:
-            self.field.start(0.)
-            self.compensate.start(0)
-        elif self.mapping.get(target, target) == 1:
-            k = self.wavevector.read(0)
-            self.field.start(
-                sum(v * (k ** i) for i, v in enumerate(self.flipcurrent)))
-            self.compensate.start(self.compcurrent)
-        else:
-            raise InvalidValueError(self, '%r is an invalid value for this '
-                                          'device!' % target)
-
-    def doStop(self):
-        # don't stop wavevector!
-        multiStop((self.field, self.compensate))
-
-    def doRead(self, maxage=0):
-        if self.target:
-            return self.target
-        return self._inverse_mapping.get(0)
-
-    def doStatus(self, maxage=0):
-        return multiStatus((('field', self.field),
-                             ('compensate', self.compensate)), maxage)
