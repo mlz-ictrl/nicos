@@ -50,7 +50,7 @@ from nicos.utils.graceplot import grace_available, GracePlotter
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
     STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE, MASTER
-from nicos.pycompat import queue, configparser, iteritems
+from nicos.pycompat import queue, configparser, iteritems, to_encoding
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -171,7 +171,9 @@ class NicosCmdClient(NicosClient):
         Thanks to ctypes this is possible without a custom C module.
         """
         global readline_result
-        librl.rl_callback_handler_install(prompt, c_readline_finish_callback)
+        term_encoding = sys.stdout.encoding
+        librl.rl_callback_handler_install(to_encoding(prompt, term_encoding),
+                                          c_readline_finish_callback)
         readline_result = Ellipsis
         while readline_result is Ellipsis:
             try:
@@ -190,7 +192,7 @@ class NicosCmdClient(NicosClient):
                 os.read(self.wakeup_pipe_r, 1)
                 if not self.in_question:
                     # question has an alternate prompt that never changes
-                    librl.rl_set_prompt(self.prompt)
+                    librl.rl_set_prompt(to_encoding(self.prompt, term_encoding))
                 librl.rl_forced_update_display()
         if readline_result:
             # add to history, but only if requested and not the same as the
@@ -202,7 +204,7 @@ class NicosCmdClient(NicosClient):
             raise EOFError
         elif readline_result is False:
             raise StateChange
-        return readline_result
+        return readline_result.decode(term_encoding)
 
     def put(self, string):
         """Put a line of output, preserving the prompt afterwards."""
