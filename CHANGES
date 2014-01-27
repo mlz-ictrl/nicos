@@ -4,65 +4,114 @@ Changelog for NICOS 2
 Release 2.5.0
 -------------
 
-- A new interface for >= 2-D image data has been implemented in the module
-  "nicos.core.image".  It consists of a base class for detectors,
-  "ImageProducer", and a base class for image sinks, "ImageSink".  Each
-  ImageProducer can have multiple sinks as attached devices.  The image sinks
-  are automatically provided with the detector image data and header information
-  for use in their data files.
+* Commands
 
-- File counters have been made consistent -- there is always just one global
-  counter for scan files and image files -- and are now handled by the
-  Experiment device.
+  - NewExperiment() now warns if the proposal comes from the proposal database
+    and has no approval from the radioprotection or safety departments.
 
-- QMesyDAQ detectors are now supported.
+  - Added the "setalign()" command for triple-axis mode as an easier alternative
+    to manipulating "Sample.psi0" by hand.
 
-- GUI: the "devices" side panel has been improved: the dialog opened by clicking
-  single devices now has more features, such as a graphical way for setting
-  limits and referencing devices, and for setting new alias targets.
+  - Added the "activation()" command to query sample activation from the NICOS
+    command line using the new FRM-II web-based activation calculator.
 
-- If sending data via email is configured and the attachment gets too big,
-  it will be uploaded to a temporary location to be downloaded by the user.
+  - Removed several unused or now obsolete commands: "Remember()", "LogAttach()",
+    "Edit()".
 
-- The Experiment device was rewritten to avoid storing copies of the datapath
-  in other devices, which might use a stale version under certain circumstances.
+  - Added "RemoveDevice()" command as the new preferred way of spelling
+    "DestroyDevice()".  The old name will still be available for one version.
 
-- The watchdog daemon now can have a unlimited of different condition "types",
-  each of which has a separate list of notifiers.
+  - The "twodscan()" command was changed to run a series of normal 1-dimensional
+    scans, so that its result can be plotted and analyzed more easily.
 
-- NewExperiment() now warns if the proposal comes from the proposal database
-  and has no approval from the radioprotection or safety departments.
+* Device classes
 
-- The file modes and owners to set on current/old experiment data files can now
-  be finely tuned (Experiment.managerights parameter).
+  - A new interface for >= 2-D image data has been implemented in the module
+    "nicos.core.image".  It consists of a base class for detectors,
+    "ImageProducer", and a base class for image sinks, "ImageSink".  Each
+    ImageProducer can have multiple sinks as attached devices.  The image sinks
+    are automatically provided with the detector image data and header
+    information for use in their data files.
 
-- GUI: the "setup" panel can now include instrument-specific tabs, like fields
-  to enter names of all samples inside a sample changer.
+  - Created new HasMapping mixin class for mapped devices, implemented abstract
+    MappedReadable and MappedMoveable device skeletons using _readRaw and
+    _startRaw methods as counterparts to doRead and doStart, but working with
+    mapped (RAW) values.
 
-- Simulation mode: the simulation is now executed in a fresh subprocess, not by
-  fork()ing the current NICOS process.  Output from simulation is now saved
-  in a log file.  As a consequence, the simulation code cannot use objects in
-  the namespace of the running process; they have to be re-created in the
-  simulated script.
+  - Switcher classes got support for a fallback parameter whose value is
+    returned if none of the mapping entries matches.
 
-- GUI: the data of a curve displayed in the "Device history" panel can now be
-  saved to disk as a plain-text file.
+  - Create a LockedDevice mixin which is used for devices needing a special
+    lock/unlock precedure using another device.
 
-- Added the "activation()" command to query sample activation from the NICOS
-  command line using the new FRM-II web-based activation calculator.
+  - Added default implementations for "doWait", "doReset", "doStatus" and
+    "doStop" that propagate the action to attached devices.
 
-- Removed the "Remember()" command.
+  - TACO temperature controllers can now set the maximum heater power via a
+    NICOS parameter.
 
-- Created new HasMapping mixin class for mapped devices, implemented abstract
-  MappedReadable and MappedMoveable device skeletons using _readRaw and
-  _startRaw methods as counterparts to doRead and doStart, but working with
-  mapped (RAW) values.
+  - QMesyDAQ detectors are now supported.
 
-- Switcher classes got support for a fallback parameter whose value is returned
-  if none of the mapping entries matches.
+  - Astrium selectors are now supported.
 
-- Create a LockedDevice mixin which is used for devices needing a special
-  lock/unlock precedure using another device.
+  - New VirtualTemperature implementation with more realistic heat flow and PID
+    control.
+
+* Other changes
+
+  - Simulation mode: the simulation is now executed in a fresh subprocess, not
+    by fork()ing the current NICOS process.  Output from simulation is now saved
+    in a log file.  As a consequence, the simulation code cannot use objects in
+    the namespace of the running process; they have to be re-created in the
+    simulated script.
+
+  - The Experiment device was rewritten to avoid storing copies of the datapath
+    in other devices, which might use a stale version under certain
+    circumstances.
+
+  - File counters have been made consistent -- there is always just one global
+    counter for scan files and image files -- and are now handled by the
+    Experiment device.
+
+  - If sending data via email is configured and the attachment gets too big, it
+    will be uploaded to a temporary location to be downloaded by the user.
+
+  - The file modes and owners to set on current/old experiment data files can
+    now be finely tuned (Experiment.managerights parameter).
+
+* GUI
+
+  - The "experiment setup" panel now allows to finish the experiment with a
+    button.
+
+  - The "experiment info" panel now has "..." buttons that directly lead to the
+    respective dialogs where the shown item can be changed.
+
+  - The "devices" side panel has been improved: the dialog opened by clicking
+    single devices now has more features, such as a graphical way for setting
+    limits and referencing devices, and for setting new alias targets.
+
+  - The "setup" panel can now include instrument-specific tabs, like fields to
+    enter names of all samples inside a sample changer.
+
+  - The data of a curve displayed in the "Device history" panel can now be saved
+    to disk as a plain-text file.
+
+  - When using the "update script" command, the GUI now asks for a reason and
+    saves this reason in the experiment log.
+
+* Services
+
+  - The watchdog daemon now can have a unlimited of different condition "types",
+    each of which has a separate list of notifiers.
+
+* Documentation
+
+  - TANGO bindings are now documented.
+
+  - Instrument specific setups and some classes are now documented.
+
+* Code modernized for upcoming Python 3 compatibility.
 
 Release 2.4.0
 -------------
