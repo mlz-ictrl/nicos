@@ -29,8 +29,6 @@ from time import sleep, time as currenttime
 from datetime import datetime
 from threading import RLock
 
-from six import BytesIO
-
 try:
     import matplotlib
     matplotlib.use('agg')
@@ -43,6 +41,7 @@ except ImportError:
 from nicos.core import Param
 from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
+from nicos.pycompat import BytesIO
 
 
 HEAD = '''\

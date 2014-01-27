@@ -27,7 +27,8 @@
 __all__ = [
     'builtins', 'cPickle', 'socketserver', 'input',
     'queue', 'xrange', 'configparser', 'urllib',
-    'OrderedDict', 'get_thread_id'
+    'reraise', 'exec_', 'add_metaclass', 'BytesIO', 'StringIO',
+    'OrderedDict', 'get_thread_id', 'escape_html',
 ]
 
 import threading
@@ -38,6 +39,9 @@ from six.moves import builtins, cPickle, socketserver  # pylint: disable=F0401
 from six.moves import queue, configparser, urllib      # pylint: disable=F0401
 from six.moves import xrange, input  # pylint: disable=F0401,W0622
 
+# For consistency import everything from "six" here.
+from six import reraise, exec_, add_metaclass, BytesIO, StringIO
+
 try:
     from collections import OrderedDict  # pylint: disable=E0611
 except ImportError:
@@ -47,3 +51,8 @@ try:
     get_thread_id = threading._get_ident
 except AttributeError:
     get_thread_id = threading.get_ident
+
+try:
+    from html import escape as escape_html  # pylint: disable=F0401
+except ImportError:
+    from cgi import escape as escape_html

@@ -27,8 +27,6 @@
 import sys
 import codeop
 
-from six import exec_
-
 # prevent importing the traceback.py from this package
 traceback = __import__('traceback')
 
@@ -37,6 +35,7 @@ from PyQt4.QtGui import QMainWindow, QPlainTextEdit, QFont, QTextOption, \
 from PyQt4.QtCore import Qt, QCoreApplication, SIGNAL
 
 from nicos.protocols.daemon import DAEMON_EVENTS
+from nicos.pycompat import exec_
 
 
 class StdoutProxy(object):

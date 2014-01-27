@@ -32,8 +32,6 @@ from os import path
 from uuid import uuid1
 from textwrap import dedent
 
-from six import BytesIO
-
 # both will fail on M$win
 try:
     from pwd import getpwnam
@@ -60,6 +58,7 @@ from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
+from nicos.pycompat import BytesIO
 
 
 class Sample(Device):

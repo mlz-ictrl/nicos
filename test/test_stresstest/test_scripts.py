@@ -27,10 +27,9 @@ import re
 import logging
 from os import path
 
-from six import exec_
-
 from nicos.utils import loggers
 from nicos.core.sessions.simple import ScriptSession
+from nicos.pycompat import exec_
 
 # import all public symbols from nicos.core to get all nicos exceptions
 from nicos.core import * #pylint: disable=W0611,W0401

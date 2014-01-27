@@ -37,12 +37,11 @@ from time import sleep
 from hashlib import md5
 from wsgiref.simple_server import WSGIServer
 
-from six import exec_
-
 from nicos import session
 from nicos.utils import formatExtendedTraceback
 from nicos.utils.loggers import DATEFMT, ACTION, INPUT, INFO, DEBUG, WARNING
-from nicos.pycompat import socketserver
+from nicos.pycompat import socketserver, exec_
+
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
 

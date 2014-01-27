@@ -35,8 +35,6 @@ from os import path
 from logging import ERROR, WARNING, DEBUG
 from functools import wraps
 
-from six import reraise, exec_
-
 from nose.tools import assert_raises #pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
@@ -44,6 +42,8 @@ from nicos.core import Moveable, HasLimits, DataSink, status
 from nicos.core.sessions import Session
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 from nicos.core.sessions.utils import MASTER
+from nicos.pycompat import reraise, exec_
+
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
 

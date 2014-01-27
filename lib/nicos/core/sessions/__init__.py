@@ -35,8 +35,6 @@ import inspect
 import logging
 from os import path
 
-from six import exec_
-
 import numpy
 
 from nicos.core.spm import SPMHandler
@@ -55,7 +53,7 @@ from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
      NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
      SIMULATION, MAINTENANCE
-from nicos.pycompat import builtins
+from nicos.pycompat import builtins, exec_
 
 
 SETUP_GROUPS = set([

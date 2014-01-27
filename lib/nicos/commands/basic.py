@@ -31,8 +31,6 @@ import inspect
 import traceback
 from os import path
 
-from six import exec_
-
 from nicos import session
 from nicos.core import requires, Device, Readable, ModeError, NicosError, \
      UsageError
@@ -44,7 +42,7 @@ from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printexception
 from nicos.core import SIMULATION, MASTER, MAINTENANCE
-from nicos.pycompat import builtins
+from nicos.pycompat import builtins, exec_
 
 CO_DIVISION = 0x2000
 

@@ -33,8 +33,6 @@ from os import path
 from bdb import BdbQuit
 from threading import Lock, Event, Thread
 
-from six import exec_
-
 from nicos import session
 from nicos.utils.loggers import INPUT
 from nicos.services.daemon.auth import system_user
@@ -45,7 +43,7 @@ from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
 from nicos.core import SIMULATION, SLAVE, MASTER
-from nicos.pycompat import queue
+from nicos.pycompat import queue, exec_
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000

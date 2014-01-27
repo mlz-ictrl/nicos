@@ -28,8 +28,6 @@ Base class for NICOS UI widgets.
 
 from copy import copy
 
-from six import add_metaclass
-
 from PyQt4.QtGui import QFont, QFontMetrics
 from PyQt4.QtCore import QString, QStringList, SIGNAL, \
      pyqtProperty, pyqtWrapperType
@@ -37,6 +35,7 @@ from PyQt4.QtCore import QString, QStringList, SIGNAL, \
 from nicos.utils import lazy_property
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
+from nicos.pycompat import add_metaclass
 
 # Import resources file
 import nicos.guisupport.gui_rc  #pylint: disable=W0611

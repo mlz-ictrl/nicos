@@ -28,11 +28,10 @@
 import sys
 from time import sleep, localtime, time as currenttime
 
-from six import reraise
-
 from nicos import session
 from nicos.core import status
 from nicos.core.errors import TimeoutError, MoveError, PositionError
+from nicos.pycompat import reraise
 
 
 # user access levels

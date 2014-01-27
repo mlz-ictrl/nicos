@@ -26,15 +26,13 @@
 
 import sys
 
-from six import exec_
-
 from nicos.core import AccessError, ACCESS_LEVELS
-from nicos.pycompat import builtins
 from nicos.utils.loggers import INFO
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.cacheclient import DaemonCacheClient
 from nicos.services.daemon.htmlhelp import HelpGenerator
+from nicos.pycompat import builtins, exec_
 
 
 class DaemonSession(NoninteractiveSession):

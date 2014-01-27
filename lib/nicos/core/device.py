@@ -29,8 +29,6 @@ import types
 import inspect
 from time import time as currenttime, sleep
 
-from six import reraise, add_metaclass
-
 from nicos import session
 from nicos.core import status
 from nicos.core import MASTER, SIMULATION, SLAVE
@@ -42,6 +40,7 @@ from nicos.core.errors import NicosError, ConfigurationError, \
      ProgrammingError, UsageError, LimitError, ModeError, \
      CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
+from nicos.pycompat import reraise, add_metaclass
 
 
 def usermethod(func):

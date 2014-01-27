@@ -34,8 +34,6 @@ import time
 import signal
 import traceback
 
-from six import exec_
-
 try:
     import readline
 except ImportError:  # on Windows (without pyreadline)
@@ -48,7 +46,7 @@ from nicos.utils.loggers import INPUT, INFO
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
 from nicos.core import SIMULATION, SLAVE, MASTER
-from nicos.pycompat import input as input_func
+from nicos.pycompat import input as input_func, exec_
 
 
 DEFAULT_BINDINGS = '''\

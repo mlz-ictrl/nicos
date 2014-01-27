@@ -26,8 +26,6 @@
 
 from math import sqrt, log
 
-from six import exec_
-
 try:
     from scipy.odr.odrpack import Model, RealData, ODR
     from scipy import exp, array, arange, piecewise
@@ -35,6 +33,8 @@ except ImportError:
     has_odr = False
 else:
     has_odr = True
+
+from nicos.pycompat import exec_
 
 
 class FitError(Exception):

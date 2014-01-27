@@ -30,8 +30,6 @@ import threading
 from time import sleep
 from subprocess import Popen, PIPE
 
-from six import reraise
-
 import TACOStates
 from TACOClient import TACOError
 try:
@@ -53,6 +51,7 @@ from nicos.core import status, tacodev, intrange, floatrange, Param, \
 from nicos.utils import HardwareStub
 from nicos.protocols.cache import cache_dump, cache_load
 from nicos.core import SIMULATION
+from nicos.pycompat import reraise
 
 
 class TacoDevice(DeviceMixinBase):

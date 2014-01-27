@@ -34,8 +34,6 @@ import subprocess
 import getopt
 from os import path
 
-from six import exec_
-
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
      QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
      QFontDialog, QColorDialog
@@ -61,6 +59,7 @@ from nicos.clients.gui.dialogs.settings import SettingsDialog
 from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
      STATUS_IDLEEXC
+from nicos.pycompat import exec_
 
 
 class MainWindow(QMainWindow, DlgUtils):

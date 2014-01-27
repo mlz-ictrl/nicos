@@ -29,12 +29,11 @@ from __future__ import print_function
 import sys
 import signal
 
-from six import exec_
-
 from nicos import session
 from nicos.utils import daemonize, setuser, writePidfile, removePidfile
 from nicos.core.sessions import Session
 from nicos.core import SIMULATION, SLAVE
+from nicos.pycompat import exec_
 
 
 class NoninteractiveSession(Session):

@@ -28,9 +28,6 @@ import sys
 import pydoc
 import inspect
 import threading
-from cgi import escape
-
-from six import StringIO
 
 try:
     from docutils.core import publish_parts
@@ -50,6 +47,8 @@ else:
 from nicos import session
 from nicos.core import Device
 from nicos.utils import formatDocstring
+from nicos.pycompat import StringIO, escape_html
+
 
 STYLE = '''
 body    { font-family: 'Helvetica', 'Arial', sans-serif;
@@ -90,17 +89,17 @@ class HelpGenerator(object):
 
     def gen_heading(self, title, id_=''):
         if id_:
-            id_ = ' id="%s"' % escape(id_)
-        return '<h3%s>%s</h3>' % (id_, escape(title))
+            id_ = ' id="%s"' % escape_html(id_)
+        return '<h3%s>%s</h3>' % (id_, escape_html(title))
 
     def gen_markup(self, markup):
         if publish_parts is None:
-            return '<pre>' + escape(markup) + '</pre>'
+            return '<pre>' + escape_html(markup) + '</pre>'
         else:
             try:
                 return publish_parts(markup, writer_name='html')['fragment']
             except Exception:
-                return '<pre>' + escape(markup) + '</pre>'
+                return '<pre>' + escape_html(markup) + '</pre>'
 
     def gen_helpindex(self):
         ret = ['<p class="menu">'
@@ -125,8 +124,8 @@ class HelpGenerator(object):
             else:
                 argspec = inspect.formatargspec(*inspect.getargspec(real_func))
             signature = '<tt><a href="cmd:%s">%s</a></tt><small>' % \
-                ((real_func.__name__,)*2) + escape(argspec) + '</small>'
-            docstring = escape(real_func.__doc__ or ' ').splitlines()[0]
+                ((real_func.__name__,)*2) + escape_html(argspec) + '</small>'
+            docstring = escape_html(real_func.__doc__ or ' ').splitlines()[0]
             cmds.append('<tr><td>%s</td><td>%s</td></tr>' %
                         (signature, docstring))
         cmds.sort()
@@ -154,7 +153,7 @@ class HelpGenerator(object):
             ret.append('<tr><td><tt><a href="dev:%s">%s</a></tt></td>'
                        '<td>%s</td><td>%s</td><td>%s</td>' %
                        (dev, dev, dev.__class__.__name__,
-                        devsetups.get(devname, ''), escape(dev.description)))
+                        devsetups.get(devname, ''), escape_html(dev.description)))
         ret.append('</table>')
         ret.append(self.gen_heading('Setups', 'setups'))
         ret.append('<p>These are the available setups.  Use '
@@ -163,9 +162,9 @@ class HelpGenerator(object):
                    ' to load one or more completely new ones.</p>')
         def devlink(devname):
             if devname in session.devices:
-                return '<a href="dev:%s">%s</a>' % (escape(devname),
-                                                    escape(devname))
-            return escape(devname)
+                return '<a href="dev:%s">%s</a>' % (escape_html(devname),
+                                                    escape_html(devname))
+            return escape_html(devname)
         def listsetups(group):
             setups = []
             for setupname, info in sorted(session.getSetupInfo().iteritems()):
@@ -175,7 +174,7 @@ class HelpGenerator(object):
                               '<td>%s</td><td>%s</td></tr>' %
                               (setupname,
                                setupname in session.loaded_setups and 'yes' or '',
-                               escape(info['description']),
+                               escape_html(info['description']),
                                ', '.join(map(devlink, sorted(info['devices'])))))
             ret.append('<table width="100%"><tr><th>Name</th><th>Loaded</th>'
                        '<th>Description</th><th>Devices</th></tr>')
@@ -196,7 +195,7 @@ class HelpGenerator(object):
             argspec = inspect.formatargspec(*inspect.getargspec(real_func))
         ret.append(self.gen_heading('Help on the %s command' % real_func.__name__))
         ret.append('<p class="usage">Usage: <tt>' +
-                   escape(real_func.__name__ + argspec) +
+                   escape_html(real_func.__name__ + argspec) +
                    '</tt></p>')
         docstring = '\n'.join(formatDocstring(real_func.__doc__ or ''))
         ret.append(self.gen_markup(docstring))
@@ -209,7 +208,7 @@ class HelpGenerator(object):
                    (dev.name, dev.__class__.__name__))
         if dev.description:
             ret.append('<p class="devdesc">Device description: ' +
-                       escape(dev.description) + '</p>')
+                       escape_html(dev.description) + '</p>')
         if dev.__class__.__doc__:
             clsdoc = '\n'.join(formatDocstring(dev.__class__.__doc__))
             ret.append('<p class="clsdesc">Device class description:</p>' +
@@ -238,8 +237,8 @@ class HelpGenerator(object):
                 ptype = info.type.__doc__ or '?'
             ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td>'
                        '<td>%s</td><td>%s</td><td>%s</td></tr>' %
-                       (name, escape(vstr), escape(unit), settable,
-                        escape(ptype), escape(info.description)))
+                       (name, escape_html(vstr), escape_html(unit), settable,
+                        escape_html(ptype), escape_html(info.description)))
         ret.append('</table>')
         ret.append('<h4>Device methods</h4>')
         ret.append('<table width="100%"><tr><th>Method</th><th>From class</th>'
@@ -250,8 +249,8 @@ class HelpGenerator(object):
             listed.add(cls)
             for name, (args, doc) in sorted(cls.commands.iteritems()):
                 ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
-                           (escape(dev.name + '.' + name + args), cls.__name__,
-                            escape(doc)))
+                           (escape_html(dev.name + '.' + name + args), cls.__name__,
+                            escape_html(doc)))
             for base in cls.__bases__:
                 if issubclass(base, Device):
                     _list(base)
@@ -286,7 +285,7 @@ class HelpGenerator(object):
                 sys.stdout = old_stdout
             ret = self.strout.getvalue()
         return self.gen_heading('Python help on %r' % obj) + \
-            '<pre>' + escape(ret) + '</pre>'
+            '<pre>' + escape_html(ret) + '</pre>'
 
     def generate(self, obj):
         if obj is None:

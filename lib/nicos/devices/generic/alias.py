@@ -26,13 +26,12 @@
 
 import re
 
-from six import add_metaclass
-
 from nicos import session
 from nicos.core import Device, Param, ConfigurationError, NicosError, \
     none_or, nicosdev, usermethod
 from nicos.core.device import DeviceMixinMeta
 from nicos.core import SIMULATION, MASTER
+from nicos.pycompat import add_metaclass
 
 
 # Use the DeviceMixinMeta metaclass here to provide the instancecheck
