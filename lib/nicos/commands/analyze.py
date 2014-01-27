@@ -24,6 +24,8 @@
 
 """Module for data analyzing user commands."""
 
+from __future__ import division
+
 from math import sqrt
 
 import numpy as np
@@ -134,7 +136,7 @@ COLHELP = """
 def center_of_mass(*columns):
     """Calculate the center of mass x-coordinate of the last scan."""
     xs, ys, _, _ = _getData(columns)
-    cm = (xs*ys).sum() / float(ys.sum())
+    cm = (xs * ys).sum() / ys.sum()
     return float(cm)
 
 center_of_mass.__doc__ += COLHELP.replace('func(', 'center_of_mass(')

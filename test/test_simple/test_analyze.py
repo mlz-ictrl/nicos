@@ -73,7 +73,7 @@ def test_center_of_mass():
 def test_root_mean_square():
     generate_dataset()
     result = root_mean_square()
-    assert 10.148 < result < 10.149
+    assert 10.176 < result < 10.177
 
 def test_poly():
     if not odrmod:
