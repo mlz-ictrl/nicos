@@ -52,7 +52,7 @@ def _fixType(dev, args, mkpos):
                 if len(l) != len(args[0][0]):
                     raise UsageError('all position lists must have the same '
                                      'number of entries')
-            values = zip(*args[0])
+            values = list(zip(*args[0]))
             restargs = args[1:]
         else:
             if len(args) < 3:
@@ -67,7 +67,7 @@ def _fixType(dev, args, mkpos):
     else:
         devs = [dev]
         if isinstance(args[0], list):
-            values = zip(args[0])
+            values = list(zip(args[0]))
             restargs = args[1:]
         else:
             if len(args) < 3:

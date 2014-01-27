@@ -77,8 +77,8 @@ class SequenceItem(object):
 
         Returns a string describing the given arg-tuple and kwargs dictionary.
         """
-        return ', '.join(map(repr, args) + \
-                           ['%s=%r' % (k,v) for k,v in sorted(kwargs.items())])
+        return ', '.join(list(map(repr, args)) +
+                         ['%s=%r' % kv for kv in sorted(kwargs.items())])
 
 
 class SeqDev(SequenceItem):

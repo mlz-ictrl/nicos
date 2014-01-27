@@ -788,7 +788,7 @@ class DataSetPlot(NicosPlot):
         beta, x, y = fit_arby(*args)
         labelx = x[0]
         labely = y.max()
-        interesting = zip(self.fitvalues[1], beta)
+        interesting = list(zip(self.fitvalues[1], beta))
         return x, y, title, labelx, labely, interesting, None
 
     def arby_pick_callback(self):

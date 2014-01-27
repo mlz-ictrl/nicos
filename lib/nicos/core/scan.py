@@ -219,7 +219,7 @@ class Scan(object):
 
     def moveTo(self, position):
         """Move scan devices to *position*, a list of positions."""
-        return self.moveDevices(zip(self._devices, position))
+        return self.moveDevices(list(zip(self._devices, position)))
 
     def moveDevices(self, where, wait=True):
         """Move to *where*, which is a list of (dev, position) tuples.
