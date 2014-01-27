@@ -26,6 +26,7 @@
 
 from cgi import escape
 from time import sleep, time as currenttime
+from binascii import b2a_base64
 from datetime import datetime
 from threading import RLock
 
@@ -41,7 +42,7 @@ except ImportError:
 from nicos.core import Param
 from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.pycompat import BytesIO, iteritems
+from nicos.pycompat import BytesIO, iteritems, from_utf8
 
 
 HEAD = '''\
@@ -228,7 +229,8 @@ class Plot(object):
         self.figure.savefig(io, format='svg', facecolor=(0,0,0,0))
         return ('<img src="data:image/svg+xml;base64,%s" '
                 'style="width: %sex; height: %sex">' % (
-                    io.getvalue().encode('base64'), self.width, self.height))
+                    from_utf8(b2a_base64(io.getvalue())),
+                    self.width, self.height))
 
 
 class Monitor(BaseMonitor):
