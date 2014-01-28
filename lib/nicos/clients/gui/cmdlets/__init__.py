@@ -29,6 +29,7 @@ from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
+from nicos.pycompat import text_type
 
 invalid = QColor('#ffcccc')
 
@@ -323,8 +324,8 @@ class NewSample(Cmdlet):
 
     def generate(self, mode):
         if mode == 'simple':
-            return 'NewSample %r\n' % unicode(self.samplename.text())
-        return 'NewSample(%r)\n' % unicode(self.samplename.text())
+            return 'NewSample %r\n' % text_type(self.samplename.text())
+        return 'NewSample(%r)\n' % text_type(self.samplename.text())
 
 
 all_cmdlets = [Move, Count, Scan, CScan, Sleep, Configure, NewSample]

@@ -31,7 +31,7 @@ from nicos.utils import decodeAny
 from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, text_type
 
 
 def iterChecked(listwidget):
@@ -104,11 +104,11 @@ class ExpPanel(Panel, DlgUtils):
     @qtsig('')
     def on_queryDBButton_clicked(self):
         prop = str(self.proposalNum.text())
-        title = unicode(self.expTitle.text()).encode('utf-8')
-        users = unicode(self.users.text()).encode('utf-8')
-        local = unicode(self.localContact.text()).encode('utf-8')
-        sample = unicode(self.sampleName.text()).encode('utf-8')
-        emails = unicode(self.notifEmails.toPlainText()).encode('utf-8')
+        title = text_type(self.expTitle.text()).encode('utf-8')
+        users = text_type(self.users.text()).encode('utf-8')
+        local = text_type(self.localContact.text()).encode('utf-8')
+        sample = text_type(self.sampleName.text()).encode('utf-8')
+        emails = text_type(self.notifEmails.toPlainText()).encode('utf-8')
 
         # read all values from propdb
         try:
@@ -117,6 +117,7 @@ class ExpPanel(Panel, DlgUtils):
 
             if result:
                 # now transfer it into gui
+                # XXX check: is the result bytes or str on Python 3?
                 self.expTitle.setText(decodeAny(result.get('title', title)))
                 self.users.setText(decodeAny(result.get('user', users)))
                 self.localContact.setText(decodeAny(result.get('localcontact',
@@ -157,10 +158,10 @@ class ExpPanel(Panel, DlgUtils):
 
         # proposal settings
         prop = str(self.proposalNum.text())
-        title = unicode(self.expTitle.text()).encode('utf-8')
-        users = unicode(self.users.text()).encode('utf-8')
-        local = unicode(self.localContact.text()).encode('utf-8')
-        email = unicode(self.notifEmails.toPlainText()).encode('utf-8').split('\n')
+        title = text_type(self.expTitle.text()).encode('utf-8')
+        users = text_type(self.users.text()).encode('utf-8')
+        local = text_type(self.localContact.text()).encode('utf-8')
+        email = text_type(self.notifEmails.toPlainText()).encode('utf-8').split(b'\n')
         email = [_f for _f in email if _f]  # remove empty lines
 
         # check conditions
@@ -194,7 +195,7 @@ class ExpPanel(Panel, DlgUtils):
             if local != self._orig_proposal_info[3]:
                 self.client.tell('queue', '', 'Exp.localcontact = %r' % local)
                 done.append('New local contact set.')
-        sample = unicode(self.sampleName.text()).encode('utf-8')
+        sample = text_type(self.sampleName.text()).encode('utf-8')
         if sample != self._orig_proposal_info[4]:
             self.client.tell('queue', '', 'NewSample(%r)' % sample)
             done.append('New sample name set.')

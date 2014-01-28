@@ -18,7 +18,7 @@ gui: lib/nicos/guisupport/gui_rc.py
 	-${MAKE} custom-gui
 
 lib/nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
-	-$(RCC) -o lib/nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
+	-$(RCC) -py3 -o lib/nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
 
 clean-backups:
 	@if [[ -e "$(ROOTDIR)/bin.bak" ]]; then rm -rI "$(ROOTDIR)/bin.bak"; fi

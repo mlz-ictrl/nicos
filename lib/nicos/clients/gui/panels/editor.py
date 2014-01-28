@@ -47,7 +47,7 @@ from nicos.utils import formatDuration, formatEndtime, importString
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import showToolText, loadUi, setBackgroundColor
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, text_type
 
 COMMENT_STR = '## '
 
@@ -602,7 +602,7 @@ class EditorPanel(Panel):
             text='no reason specified')
         if not ok:
             return
-        self.client.tell('update', script, unicode(reason).encode('utf-8'))
+        self.client.tell('update', script, text_type(reason))
 
     @qtsig('')
     def on_actionGet_triggered(self):
@@ -701,7 +701,7 @@ class EditorPanel(Panel):
                                          'Script files (*.py *.txt)')
         if fn.isEmpty():
             return
-        self.openFile(unicode(fn).encode(sys.getfilesystemencoding()))
+        self.openFile(text_type(fn).encode(sys.getfilesystemencoding()))
         self.addToRecentf(fn)
 
     @qtsig('')
@@ -720,7 +720,7 @@ class EditorPanel(Panel):
         self.clearSimPane()
 
     def openRecentFile(self):
-        fn = unicode(self.sender().text()).encode(sys.getfilesystemencoding())
+        fn = text_type(self.sender().text()).encode(sys.getfilesystemencoding())
         self.openFile(fn)
 
     def openFile(self, fn, quiet=False):
@@ -811,11 +811,12 @@ class EditorPanel(Panel):
             defaultext = '.py'
             flt = 'Script files (*.py *.txt)'
         fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir, flt)
-        fn = unicode(fn).encode(sys.getfilesystemencoding())
+        fn = text_type(fn)
         if fn == '':
             return False
         if '.' not in fn:
             fn += defaultext
+        fn = fn.encode(sys.getfilesystemencoding())
         self.addToRecentf(fn)
         self.watchers[editor].removePath(self.filenames[editor])
         self.filenames[editor] = fn

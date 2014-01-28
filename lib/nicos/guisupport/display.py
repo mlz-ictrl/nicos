@@ -41,6 +41,7 @@ from nicos.utils import decodeAny
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.pycompat import text_type
 
 
 _black = QColor('black')
@@ -291,7 +292,7 @@ class ValueDisplay(NicosWidget, QWidget):
 
     def update_namelabel(self):
         name = self.props['name'] or self.props['dev'] or self.props['key']
-        self.namelabel.setText(escape(unicode(name)) +
+        self.namelabel.setText(escape(text_type(name)) +
             ' <font color="#888888">%s</font><font color="#0000ff">%s</font> ' %
             (escape(self.props['unit'].strip()), self._isfixed))
 

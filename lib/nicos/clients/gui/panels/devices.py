@@ -35,7 +35,7 @@ from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, text_type
 
 
 foregroundBrush = {
@@ -409,7 +409,7 @@ class DevicesPanel(Panel):
             if not ok:
                 return
             self.client.tell('queue', '', 'fix(%s, %r)' %
-                             (self._menu_dev, unicode(reason)))
+                             (self._menu_dev, text_type(reason)))
 
     @qtsig('')
     def on_actionRelease_triggered(self):
@@ -660,7 +660,7 @@ class ControlDialog(QDialog):
         if not ok:
             return
         self.client.tell('queue', '', 'fix(%s, %r)' %
-                         (self.devname, unicode(reason)))
+                         (self.devname, text_type(reason)))
 
     @qtsig('')
     def on_actionRelease_triggered(self):

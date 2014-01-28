@@ -30,12 +30,12 @@ from copy import copy
 
 from PyQt4.QtGui import QFont, QFontMetrics
 from PyQt4.QtCore import QString, QStringList, SIGNAL, \
-     pyqtProperty, pyqtWrapperType
+    pyqtProperty, pyqtWrapperType
 
 from nicos.utils import lazy_property
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.pycompat import add_metaclass, iteritems
+from nicos.pycompat import add_metaclass, iteritems, text_type
 
 # Import resources file
 import nicos.guisupport.gui_rc  #pylint: disable=W0611
@@ -197,9 +197,9 @@ class PropDef(object):
     @staticmethod
     def convert(value):
         if isinstance(value, QString):
-            return unicode(value)
+            return text_type(value)
         if isinstance(value, QStringList):
-            return [unicode(s) for s in value]
+            return [text_type(s) for s in value]
         if isinstance(value, QFont):
             # QFont doesn't like to be copied with copy()...
             return QFont(value)

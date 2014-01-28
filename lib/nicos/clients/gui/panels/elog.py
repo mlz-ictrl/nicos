@@ -36,6 +36,7 @@ from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
+from nicos.pycompat import text_type
 
 
 class ELogPanel(Panel, DlgUtils):
@@ -181,7 +182,7 @@ class ELogPanel(Panel, DlgUtils):
             'Please enter the new sample name:')
         if not ok or not name:
             return
-        name = unicode(name)
+        name = text_type(name)
         self.client.eval('NewSample(%r)' % name)
         self.timer.start(750)
 
@@ -192,7 +193,7 @@ class ELogPanel(Panel, DlgUtils):
             'as a heading and will also appear in the data files.')
         if not ok or not remark:
             return
-        remark = unicode(remark)
+        remark = text_type(remark)
         self.client.eval('Remark(%r)' % remark)
         self.timer.start(750)
 
@@ -204,7 +205,7 @@ class ELogPanel(Panel, DlgUtils):
             lambda link: dlg.helpFrame.setVisible(True))
         if dlg.exec_() != QDialog.Accepted:
             return
-        text = unicode(dlg.freeFormText.toPlainText())
+        text = text_type(dlg.freeFormText.toPlainText())
         if not text:
             return
         self.client.eval('LogEntry(%r)' % text)
@@ -219,13 +220,13 @@ class ELogPanel(Panel, DlgUtils):
         dlg.fileSelect.clicked.connect(on_fileSelect_clicked)
         if dlg.exec_() != QDialog.Accepted:
             return
-        fname = unicode(dlg.fileName.text())
+        fname = text_type(dlg.fileName.text())
         if not path.isfile(fname):
             return self.showError('The given file name is not a valid file.')
-        newname = unicode(dlg.fileRename.text())
+        newname = text_type(dlg.fileRename.text())
         if not newname:
             newname = path.basename(fname)
-        desc = unicode(dlg.fileDesc.text())
+        desc = text_type(dlg.fileDesc.text())
         filecontent = open(fname, 'rb').read()
         # file content may contain \x1e characters; encode to base64
         remotefn = self.client.ask('transfer', filecontent.encode('base64'))

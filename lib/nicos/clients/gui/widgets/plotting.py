@@ -26,7 +26,6 @@
 """NICOS GUI plotting helpers."""
 
 import os
-import sys
 import time
 import tempfile
 
@@ -46,7 +45,7 @@ except ImportError:
 
 from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.fitutils import has_odr, FitError
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
+from nicos.pycompat import text_type, xrange as range  # pylint: disable=W0622
 
 from nicos.guisupport.plots import ActivePlotPicker, TimeScaleEngine, \
     TimeScaleDraw
@@ -444,7 +443,7 @@ class NicosPlot(QwtPlot, DlgUtils):
     def savePlot(self):
         filename = QFileDialog.getSaveFileName(
             self, 'Select file name', '', 'PDF files (*.pdf)')
-        filename = unicode(filename).encode(sys.getfilesystemencoding())
+        filename = text_type(filename)
         if filename == '':
             return None
         if '.' not in filename:

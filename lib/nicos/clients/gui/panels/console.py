@@ -24,9 +24,9 @@
 
 """NICOS GUI virtual console panel component."""
 
+import io
 import sys
 import time
-import codecs
 
 from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QColor, \
      QPrinter, QPrintDialog, QAbstractPrintDialog
@@ -39,6 +39,7 @@ from nicos.clients.gui.utils import loadUi, setBackgroundColor, setForegroundCol
      enumerateWithProgress, ScriptExecQuestion
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE
+from nicos.pycompat import text_type
 
 
 class ConsolePanel(Panel):
@@ -181,9 +182,9 @@ class ConsolePanel(Panel):
         if fn.isEmpty():
             return
         try:
-            fn = unicode(fn).encode(sys.getfilesystemencoding())
-            with codecs.open(fn, 'w', 'utf-8') as f:
-                f.write(unicode(self.outView.getOutputString()))
+            fn = text_type(fn).encode(sys.getfilesystemencoding())
+            with io.open(fn, 'w', encoding='utf-8') as f:
+                f.write(text_type(self.outView.getOutputString()))
         except Exception as err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)
 
