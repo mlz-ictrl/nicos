@@ -299,6 +299,10 @@ def ast_eval(node):
              isinstance(node.operand, Name) and \
              node.operand.id in _safe_names:
             return -_safe_names[node.operand.id]
+        elif isinstance(node, UnaryOp) and \
+             isinstance(node.op, USub) and \
+             isinstance(node.operand, Num):
+            return -node.operand.n
         elif isinstance(node, BinOp) and \
              isinstance(node.op, (Add, Sub)) and \
              isinstance(node.right, Num) and \
@@ -311,7 +315,7 @@ def ast_eval(node):
                 return left + right
             else:
                 return left - right
-        raise ValueError('malformed literal string')
+        raise ValueError('malformed literal string with %s' % node)
     return _convert(node)
 
 def cache_load(entry):
