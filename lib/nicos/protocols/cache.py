@@ -232,7 +232,7 @@ msg_pattern = re.compile(r'''
     \s* $
     ''', re.X)
 
-line_pattern = re.compile(r'([^\r\n]*)\r?\n')
+line_pattern = re.compile(br'([^\r\n]*)\r?\n')
 
 
 # PyON -- "Python object notation"

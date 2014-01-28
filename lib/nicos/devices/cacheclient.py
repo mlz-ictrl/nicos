@@ -37,7 +37,7 @@ from nicos.protocols.cache import msg_pattern, line_pattern, \
      cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
      OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, \
      CYCLETIME, BUFSIZE
-from nicos.pycompat import queue, iteritems
+from nicos.pycompat import queue, iteritems, to_utf8, from_utf8
 
 
 class BaseCacheClient(Device):
@@ -144,26 +144,29 @@ class BaseCacheClient(Device):
         # send request for all keys and updates....
         # (send a single request for a nonexisting key afterwards to
         # determine the end of data)
-        self._socket.sendall('@%s%s\n%s%s\n' %
-                             (self._prefix, OP_WILDCARD, END_MARKER, OP_ASK))
+        msg = '@%s%s\n%s%s\n' % (self._prefix, OP_WILDCARD, END_MARKER, OP_ASK)
+        self._socket.sendall(to_utf8(msg))
 
         # read response
-        data, n = '', 0
-        while not data.endswith(END_MARKER + OP_TELLOLD + '\n') and n < 1000:
+        data, n = b'', 0
+        sentinel = to_utf8(END_MARKER + OP_TELLOLD + '\n')
+        while not data.endswith(sentinel) and n < 1000:
             data += self._socket.recv(BUFSIZE)
             n += 1
 
         # send request for all updates
-        self._socket.sendall('@%s%s\n' % (self._prefix, OP_SUBSCRIBE))
+        msg = '@%s%s\n' % (self._prefix, OP_SUBSCRIBE)
+        self._socket.sendall(to_utf8(msg))
         for prefix in self._prefixcallbacks:
-            self._socket.sendall('@%s%s\n' % (prefix, OP_SUBSCRIBE))
+            msg = '@%s%s\n' % (prefix, OP_SUBSCRIBE)
+            self._socket.sendall(to_utf8(msg))
 
         self._process_data(data)
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         raise NotImplementedError('implement _handle_msg in subclasses')
 
-    def _process_data(self, data,
+    def _process_data(self, data, sync_str=to_utf8(SYNC_MARKER + OP_TELLOLD),
                       lmatch=line_pattern.match, mmatch=msg_pattern.match):
         # n = 0
         i = 0  # avoid making a string copy for every line
@@ -171,11 +174,11 @@ class BaseCacheClient(Device):
         while match:
             line = match.group(1)
             i = match.end()
-            if SYNC_MARKER + OP_TELLOLD in line:
+            if sync_str in line:
                 self.log.debug('process data: received sync: %r' % line)
                 self._synced = True
             else:
-                msgmatch = mmatch(line)
+                msgmatch = mmatch(from_utf8(line))
                 # ignore invalid lines
                 if msgmatch:
                     # n += 1
@@ -242,7 +245,7 @@ class BaseCacheClient(Device):
                         pass
                     # write data
                     try:
-                        self._socket.sendall(tosend)
+                        self._socket.sendall(to_utf8(tosend))
                     except Exception:
                         self._disconnect('disconnect: send failed')
                         # report data as processed, but then re-queue it to send
@@ -278,7 +281,7 @@ class BaseCacheClient(Device):
             except queue.Empty:
                 pass
             try:
-                self._socket.sendall(tosend)
+                self._socket.sendall(to_utf8(tosend))
             except Exception:
                 self.log.debug('exception while sending last batch of updates',
                                exc=1)
@@ -315,7 +318,7 @@ class BaseCacheClient(Device):
             with self._sec_lock:
                 # write request
                 # self.log.debug("get_explicit: sending %r" % tosend)
-                self._secsocket.sendall(tosend)
+                self._secsocket.sendall(to_utf8(tosend))
 
                 # read response
                 data, n = '', 0
@@ -339,7 +342,7 @@ class BaseCacheClient(Device):
         while match:
             line = match.group(1)
             i = match.end()
-            msgmatch = mmatch(line)
+            msgmatch = mmatch(from_utf8(line))
             if not msgmatch:
                 # ignore invalid lines
                 continue
@@ -640,7 +643,7 @@ class CacheClient(BaseCacheClient):
         tosend = '%s-%s@%s%s%s\n###?\n' % (fromtime, totime,
                                            self._prefix, key, OP_ASK)
         ret = []
-        for msgmatch in self._single_request(tosend, '###!\n', sync=False):
+        for msgmatch in self._single_request(tosend, b'###!\n', sync=False):
             # process data
             time, value = msgmatch.group('time'), msgmatch.group('value')
             if time is None:
@@ -697,8 +700,8 @@ class SyncCacheClient(BaseCacheClient):
 
     def _connect_action(self):
         # like for BaseCacheClient, but without request for updates
-        self._socket.sendall('@%s%s\n###%s\n' %
-                             (self._prefix, OP_WILDCARD, OP_ASK))
+        msg = '@%s%s\n###%s\n' % (self._prefix, OP_WILDCARD, OP_ASK)
+        self._socket.sendall(to_utf8(msg))
 
         # read response
         data, n = '', 0

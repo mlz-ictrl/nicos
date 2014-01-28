@@ -43,7 +43,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import Device, Param
 from nicos.utils import loggers, closeSocket
-from nicos.pycompat import queue, listitems, listvalues
+from nicos.pycompat import queue, listitems, listvalues, from_utf8, to_utf8
 
 # pylint: disable=W0611
 from nicos.services.cache.database import CacheDatabase, FlatfileCacheDatabase, \
@@ -118,7 +118,7 @@ class CacheWorker(object):
             if self.sock is None:  # connection already closed
                 return
             try:
-                self.sock.sendall(data)
+                self.sock.sendall(to_utf8(data))
             except socket.timeout:
                 self.log.warning(self, 'send timed out, shutting down')
                 self.closedown()
@@ -166,9 +166,9 @@ class CacheWorker(object):
             if not line:
                 self.log.info('got empty line, closing connection')
                 self.closedown()
-                return ''
+                return b''
             try:
-                ret = self._handle_line(line)
+                ret = self._handle_line(from_utf8(line))
             except Exception as err:
                 self.log.warning('error handling line %r' % line, exc=err)
             else:
@@ -281,7 +281,8 @@ class CacheUDPWorker(CacheWorker):
         # we will never read any more data: just process what we got and send
         # any needed responses synchronously
         try:
-            self._process_data(self.data, self._sendall)
+            self._process_data(self.data,
+                               lambda reply: self._sendall(to_utf8(reply)))
         except Exception as err:
             self.log.warning('error handling UDP data %r' % self.data, exc=err)
         self.closedown()
