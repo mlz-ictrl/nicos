@@ -141,6 +141,8 @@ class CacheWorker(object):
                 return
             except select.error as err:
                 self.log.warning('error in select', exc=err)
+                self.closedown()
+                return
             if self.sock not in res[0]:
                 # no data arrived, wait some more
                 continue
