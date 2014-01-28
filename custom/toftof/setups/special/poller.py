@@ -12,7 +12,7 @@ devices = dict(
                     poll = ['chopper', 'reactor', 'vacuum', 'voltage', 'table'] +
                            ['slit', 'safety', 'system'] +
                            ['he3', 'htf', 'ls', 'biofurnace', 'cryo_ccr'] +
-                           ['pressure'],
+                           ['pressure', 'ccr17',],
                     alwayspoll = [],
                     blacklist = []),
 )
