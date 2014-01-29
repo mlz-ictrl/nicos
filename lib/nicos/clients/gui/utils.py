@@ -174,9 +174,8 @@ class DlgUtils(object):
             ctl.setText(fname)
 
     def viewTextFile(self, fname):
-        f = open(fname)
-        contents = f.read()
-        f.close()
+        with open(fname) as f:
+            contents = f.read()
         qd = QDialog(self, 'PreviewDlg', True)
         qd.setCaption('File preview')
         qd.resize(QSize(500, 500))

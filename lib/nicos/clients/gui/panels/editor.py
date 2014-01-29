@@ -24,6 +24,7 @@
 
 """NICOS GUI user editor window."""
 
+import io
 import sys
 import time
 from os import path
@@ -660,8 +661,8 @@ class EditorPanel(Panel):
         else:
             # reload without asking
             try:
-                with open(self.filenames[editor]) as f:
-                    text = f.read().decode('utf8')
+                with io.open(self.filenames[editor], 'r', encoding='utf-8') as f:
+                    text = f.read()
             except Exception:
                 return
             editor.setText(text)
@@ -712,8 +713,8 @@ class EditorPanel(Panel):
         if not self.checkDirty(self.currentEditor):
             return
         try:
-            with open(fn) as f:
-                text = f.read().decode('utf8')
+            with io.open(fn, 'r', encoding='utf-8') as f:
+                text = f.read()
         except Exception as err:
             return self.showError('Opening file failed: %s' % err)
         self.editor.setText(text)
@@ -725,8 +726,8 @@ class EditorPanel(Panel):
 
     def openFile(self, fn, quiet=False):
         try:
-            with open(fn) as f:
-                text = f.read().decode('utf8')
+            with io.open(fn, 'r', encoding='utf-8') as f:
+                text = f.read()
         except Exception as err:
             if quiet:
                 return
@@ -787,8 +788,8 @@ class EditorPanel(Panel):
         try:
             self.saving = True
             try:
-                with open(self.filenames[editor], 'w') as f:
-                    f.write(str(editor.text().toUtf8()))
+                with io.open(self.filenames[editor], 'w', encoding='utf-8') as f:
+                    f.write(text_type(editor.text()))
             finally:
                 self.saving = False
         except Exception as err:

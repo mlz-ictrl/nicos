@@ -101,8 +101,8 @@ class THM(Measurable):
 
     def _query(self, q, t=5):
         try:
-            os.write(self._io, q + '\n')
-            ret = os.read(self._io, 2000).rstrip()
+            os.write(self._io, q.encode() + b'\n')
+            ret = os.read(self._io, 2000).rstrip().decode()
         except OSError as err:
             self.log.debug('exception in query: %s' % err)
             if t == 0:
@@ -115,7 +115,7 @@ class THM(Measurable):
 
     def _execute(self, q, t=5, wait=0):
         try:
-            os.write(self._io, q + '\n')
+            os.write(self._io, q.encode() + b'\n')
         except OSError as err:
             if t == 0:
                 raise CommunicationError(self, 'error executing: %s' % err)
@@ -127,8 +127,8 @@ class THM(Measurable):
 
     def _check_status(self, t=3):
         try:
-            os.write(self._io, '*STB?\n')
-            status = os.read(self._io, 100).rstrip()
+            os.write(self._io, b'*STB?\n')
+            status = os.read(self._io, 100).rstrip().decode()
         except OSError as err:
             if t == 0:
                 raise CommunicationError(self, 'error getting status: %s' % err)
@@ -137,7 +137,7 @@ class THM(Measurable):
             return self._check_status(t-1)
         if status != '0':
             self.log.warning('status byte = %s, clearing' % status)
-            os.write(self._io, '*CLS\n')
+            os.write(self._io, b'*CLS\n')
 
     @usermethod
     def zero(self):

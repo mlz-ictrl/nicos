@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-import sys, os
+import os
+import sys
 from os import path
 
 if path.isdir('.git'):
@@ -33,6 +34,6 @@ else:
 
 fpath = path.join(sys.argv[1], 'nicos', '__init__.py')
 contents = open(fpath, 'rb').read()
-new_contents = contents.replace('$Revision$', current_version)
+new_contents = contents.replace(b'$Revision$', current_version.encode())
 if contents != new_contents:
     open(fpath, 'wb').write(new_contents)

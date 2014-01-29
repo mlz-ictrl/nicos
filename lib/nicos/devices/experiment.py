@@ -742,7 +742,7 @@ class Experiment(Device):
     def getTemplate(self, tmplname):
         """returns the content of the requested template"""
         try:
-            with open(path.join(self.templatepath, tmplname), 'rb') as f:
+            with open(path.join(self.templatepath, tmplname), 'r') as f:
                 return f.read()
         except OSError as e:
             self.log.error(self, 'Can\'t read template %r (%s), please check settings' %
@@ -835,7 +835,7 @@ class Experiment(Device):
                     self.log.warning('could not translate template file %s' % fn,
                                      exc=1)
             # save result
-            with open(finalname, 'wb') as fp:
+            with open(finalname, 'w') as fp:
                 fp.write(content)
             os.chmod(finalname, self.managerights.get('enableFileMode',
                                                       DEFAULT_FILE_MODE))
@@ -1053,7 +1053,7 @@ class Experiment(Device):
         newcontent, _, _ = expandTemplate(data, stats)
         newfn, _, _ = expandTemplate(self.reporttemplate, stats)
 
-        with open(path.join(self.proposalpath, newfn), 'wb') as fp:
+        with open(path.join(self.proposalpath, newfn), 'w') as fp:
             fp.write(newcontent)
         self.log.info('An experimental report template was created at %r for '
                       'your convenience.' % path.join(self.proposalpath, newfn))

@@ -28,7 +28,7 @@ class RadMon(Readable):
             raise NicosError(self, 'ERROR in mantissa')
         if err2:
             raise NicosError(self, 'ERROR in exponent')
-        return 0.01 * float(out1 + 'e-' + out2) * 1e6  # convert to uSv/h
+        return 0.01 * float(out1 + b'e-' + out2) * 1e6  # convert to uSv/h
 
     def doStatus(self, maxage=0):
         return status.OK, ''

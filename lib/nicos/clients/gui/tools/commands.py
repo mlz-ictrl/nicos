@@ -55,5 +55,5 @@ class CommandsTool(QDialog):
                                     (time.strftime('%H:%M:%S'), cmd))
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
-        out = proc.communicate()[0]
+        out = proc.communicate()[0].decode()
         self.outputBox.appendPlainText(out)

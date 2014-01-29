@@ -164,7 +164,7 @@ def _sender(queue, pipe, redraw_interval, auto_redraw):
             now=time.time()
             if sent_commands and (redraw_now or (redraw_soon and \
                now > (last_redraw_time+ 0.9*redraw_interval) ) ):
-                pipe.write("redraw\n")
+                pipe.write(b"redraw\n")
                 # nothing to do, but we sent stuff before, so redraw
                 pipe.flush()
                 sent_commands=False
@@ -183,7 +183,7 @@ def _sender(queue, pipe, redraw_interval, auto_redraw):
             elif data == -3: #redraw soon
                 redraw_soon=True
             else:
-                pipe.write(data)
+                pipe.write(data.encode())
                 sent_commands=True
             timeout=redraw_interval
         except Empty:
