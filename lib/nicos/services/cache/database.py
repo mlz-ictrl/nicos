@@ -152,7 +152,7 @@ class MemoryCacheDatabase(CacheDatabase):
                 return ['%s+%s@%s%s%s\n' % (lastent.time, lastent.ttl,
                                             key, op, lastent.value)]
             else:
-                return [key + op + lastent.value]
+                return [key + op + lastent.value + '\n']
         if ts:
             return ['%s@%s%s%s\n' % (lastent.time, key, OP_TELL, lastent.value)]
         else:
