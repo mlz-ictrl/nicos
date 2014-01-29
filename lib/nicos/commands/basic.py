@@ -24,6 +24,7 @@
 
 """Module for basic user commands."""
 
+import io
 import os
 import sys
 import time
@@ -620,14 +621,14 @@ def _RunScript(filename, statdevices, debug=False):
             dev._sim_max = None
     printinfo('running user script: ' + fn)
     try:
-        fp = open(fn, 'r')
+        fp = io.open(fn, 'r', encoding='utf-8')
     except Exception as e:
         if session.mode == SIMULATION:
             session.log.exception('Simulation: error opening script')
             return
         raise NicosError('cannot open script %r: %s' % (filename, e))
     with fp:
-        code = unicode(fp.read(), 'utf-8')
+        code = fp.read()
         # quick guard against self-recursion
         if session.experiment and session.experiment.scripts and \
                 code.strip() == session.experiment.scripts[-1].strip():

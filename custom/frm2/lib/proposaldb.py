@@ -35,7 +35,7 @@ except ImportError:
 from nicos import session
 from nicos.core import ConfigurationError, InvalidValueError
 from nicos.utils import readFile
-from nicos.pycompat import integer_types
+from nicos.pycompat import integer_types, text_type
 
 
 class ProposalDB(object):
@@ -155,7 +155,7 @@ def queryProposal(pnumber, instrument=None):
             info[key] = value
     # convert all values to utf-8
     for k in info:
-        info[k] = unicode(info[k]).encode('utf-8')
+        info[k] = text_type(info[k]).encode('utf-8')
     return info.pop('instrument', 'None'), info
 
 def queryUser(user):

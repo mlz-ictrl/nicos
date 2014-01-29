@@ -33,14 +33,15 @@ from nicos import session
 from nicos.core import status
 from nicos.core import MASTER, SIMULATION, SLAVE
 from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel, \
-     waitForStatus, multiWait, multiStop, multiStatus
+    waitForStatus, multiWait, multiStop, multiStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
-     anytype, none_or, limits, dictof, listof, tupleof
+    anytype, none_or, limits, dictof, listof, tupleof
 from nicos.core.errors import NicosError, ConfigurationError, \
-     ProgrammingError, UsageError, LimitError, ModeError, \
-     CommunicationError, CacheLockError, InvalidValueError, AccessError
+    ProgrammingError, UsageError, LimitError, ModeError, \
+    CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
-from nicos.pycompat import reraise, add_metaclass, itervalues, iteritems
+from nicos.pycompat import reraise, add_metaclass, itervalues, iteritems, \
+    text_type
 
 
 def usermethod(func):
@@ -206,7 +207,8 @@ class DeviceMeta(DeviceMixinMeta):
                     try:
                         value = pconv(value)
                     except (ValueError, TypeError) as err:
-                        if pconv is str and isinstance(value, unicode):
+                        if pconv is str and isinstance(value, text_type):
+                            # will fire on Python 2 only
                             value = value.encode('utf-8')
                         else:
                             raise ConfigurationError(

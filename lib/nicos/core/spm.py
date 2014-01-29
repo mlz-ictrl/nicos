@@ -47,7 +47,7 @@ import re
 from itertools import chain, cycle, islice
 
 from nicos.core import Device, SPMError
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, srepr
 
 
 id_re = re.compile('[a-zA-Z_][a-zA-Z0-9_]*$')
@@ -56,12 +56,6 @@ string2_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 spaces_re  = re.compile(r'\s+')
 nospace_re = re.compile(r'[^ \t;]+')
 
-
-def srepr(u):
-    """repo() without 'u' prefix for Unicode strings."""
-    if isinstance(u, unicode):
-        return repr(u.encode('unicode-escape'))
-    return repr(u)
 
 def spmsyntax(*arguments, **options):
     """Decorator to give a function specific SPM syntax advice, for parameter

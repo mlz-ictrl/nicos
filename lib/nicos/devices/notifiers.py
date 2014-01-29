@@ -33,6 +33,7 @@ from email.charset import Charset, QP
 from email.utils import formatdate, make_msgid
 
 from nicos.core import listof, mailaddress, usermethod, Device, Param
+from nicos.pycompat import text_type
 
 EMAIL_CHARSET = 'utf-8'
 
@@ -106,12 +107,12 @@ class Mailer(Notifier):
         if not address:
             self.log.debug('no sender address given, not sending anything')
             return False
-        if isinstance(subject, unicode):
+        if isinstance(subject, text_type):
             subject = subject.encode(EMAIL_CHARSET)
 
         # Create a text/plain body using CRLF (see RFC2822)
         text = text.replace(u'\n', u'\r\n')
-        if isinstance(text, unicode):
+        if isinstance(text, text_type):
             text = text.encode(EMAIL_CHARSET)
 
         # Create a message using EMAIL_CHARSET and quoted printable

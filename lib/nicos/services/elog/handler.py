@@ -24,6 +24,7 @@
 
 """The NICOS electronic logbook."""
 
+import io
 from os import path
 from cgi import escape
 from time import strftime, localtime
@@ -31,13 +32,14 @@ from shutil import move
 
 from nicos.services.elog.utils import formatMessage, pretty1, pretty2
 from nicos.services.elog.genplot import plotDataset
+from nicos.pycompat import to_utf8
 
 try:
     import creole
 except ImportError:
     creole = None
 
-FRAMESET = '''\
+FRAMESET = u'''\
 <html>
 <head>
 <title>%s logbook: %s</title>
@@ -49,7 +51,7 @@ FRAMESET = '''\
 </html>
 '''
 
-PROLOG = '''\
+PROLOG = b'''\
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
@@ -169,7 +171,7 @@ function msghide() {
 <body>
 '''
 
-PROLOG_TOC = '''\
+PROLOG_TOC = b'''\
 <p class="showlinks">
   <a href="javascript:parent.content.msgshow()">Show all messages</a><br>
   <a href="javascript:parent.content.msghide()">Hide all messages</a>
@@ -192,18 +194,20 @@ class HtmlWriter(object):
         if self.fd:
             self.endstate()
             self.fd.close()
-            self.fd_toc.write('</ul>' * self.toc_level)
+            self.fd_toc.write(u'</ul>' * self.toc_level)
             self.fd_toc.close()
         self.toc_level = 0
 
     def create_or_open(self, filename):
         if not path.isfile(filename):
-            open(filename, 'wb').close()
-        return open(filename, 'r+b')
+            io.open(filename, 'wb').close()
+        # we have to open in binary mode since we want to seek from the end,
+        # which the text wrapper doesn't support
+        return io.open(filename, 'r+b')
 
     def open(self, directory, instr, proposal):
         self.close()
-        open(path.join(directory, 'logbook.html'), 'wb').write(
+        io.open(path.join(directory, 'logbook.html'), 'w').write(
             FRAMESET % (instr, proposal))
         self.fd = self.create_or_open(path.join(directory, 'content.html'))
         self.fd.seek(0, 2)
@@ -216,7 +220,9 @@ class HtmlWriter(object):
             self.fd_toc.write(PROLOG + PROLOG_TOC)
             self.fd_toc.flush()
 
-    def emit(self, html, suffix=''):
+    def emit(self, html, suffix=u''):
+        html = to_utf8(html)
+        suffix = to_utf8(suffix)
         if self.fd:
             self.fd.write(html)
             # write suffix now, but place file pointer so that it's overwritten
@@ -232,15 +238,9 @@ class HtmlWriter(object):
     def newstate(self, state, prefix, suffix, html):
         if state != self.curstate:
             self.endstate()
-            if isinstance(suffix, unicode):
-                suffix = suffix.encode('utf-8')
-            if isinstance(prefix, unicode):
-                prefix = prefix.encode('utf-8')
             self.statesuffix = suffix
             self.curstate = state
             self.emit(prefix)
-        if isinstance(html, unicode):
-            html = html.encode('utf-8')
         self.emit(html, self.statesuffix)
 
     def timestamp(self, time):
@@ -253,9 +253,8 @@ class HtmlWriter(object):
             self.curstate = None
 
     def emit_toc(self, html):
+        html = to_utf8(html)
         if self.fd_toc:
-            if isinstance(html, unicode):
-                html = html.encode('utf-8')
             self.fd_toc.write(html)
             self.fd_toc.flush()
 

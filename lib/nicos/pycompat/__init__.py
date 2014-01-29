@@ -101,9 +101,15 @@ if six.PY2:
         if isinstance(s, unicode):
             return s
         return s.decode(encoding, errors)
+    def srepr(u):
+        """repr() without 'u' prefix for Unicode strings."""
+        if isinstance(u, unicode):
+            return repr(u.encode('unicode-escape'))
+        return repr(u)
 else:
     # on Py3, UTF-8 is the default encoding already
     to_utf8 = str.encode
     to_encoding = str.encode
     from_utf8 = bytes.decode
     from_encoding = bytes.decode
+    srepr = repr
