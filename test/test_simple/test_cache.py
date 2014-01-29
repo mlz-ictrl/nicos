@@ -110,7 +110,7 @@ def test_04writeToRewritten():
     key = 'value'
     cc.put('testcache', key, testval1)
     cc.flush()
-    cachedval1 =  cc.get_explicit('testcache', key, Ellipsis)
+    cachedval1 = cc.get_explicit('testcache', key, Ellipsis)
     cc.put('testrewrite2', key, testval2)
     cc.flush()
     cachedval2 = cc.get_explicit('testrewrite2', key, Ellipsis)
@@ -138,7 +138,7 @@ def test_05cachereadonlyobjects():
     assert type(rol1) == type(testval1)
     assert type(rol[2]) == type(testval1)
 
-    testval2 = readonlydict((('A', 'B'), ('C','D')))
+    testval2 = readonlydict((('A', 'B'), ('C', 'D')))
     cc.put('testcache', 'rodict', testval2)
     cc.flush()
     rod = cc.get_explicit('testcache', 'rodict', None)
@@ -156,7 +156,7 @@ def test_05cachereadonlyobjects():
     assert type(rol[2][0]) == type(testval1)
     assert type(rol[2][1]) == type(testval2)
 
-    testval4 = readonlydict((('A',testval1), ('B', testval2), ('C', 'D')))
+    testval4 = readonlydict((('A', testval1), ('B', testval2), ('C', 'D')))
     cc.put('testcache', 'rodict2', testval4)
     cc.flush()
     rod = cc.get_explicit('testcache', 'rodict2', None)
@@ -190,10 +190,21 @@ def test_06cacheReader():
     # this needn't work immediately
     sleep(0.2)
     assert rd1.read() == testval2
+
+
+def test_06acacheReader():
+    cc = session.cache
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache='localhost:14877')
+    testval = 'testr3'
+    key = 'value'
+    rd1 = session.getDevice('reader1')
+    cc.clear('reader1')
+    cc.flush()
     cc2.put(rd1, key, testval, ttl=0.1)
     cc2.flush()
+    # just make sure we put the value into the cache
     assert rd1.read() == testval
-    sleep(0.51)  # sleep longer than ttl + self.maxage
+    sleep(0.71)  # sleep longer than ttl (0.1) + self.maxage (0.1) + 0.5
     assert session.testhandler.warns(rd1.read, warns_clear=True,
                 warns_text='value timed out in cache, this should be '
                                  'considered as an error!')
@@ -218,7 +229,7 @@ def test_07cacheWriter():
     assert wrt1.read() == testval
     cc2.put(wrt1, key, testval2, ttl=0.1)
     cc2.flush()
-    sleep(0.51)  # ttl+ wrt1.maxage
+    sleep(0.71)  # ttl+ wrt1.maxage
     assert session.testhandler.warns(wrt1.read, warns_clear=True,
                 warns_text='value timed out in cache, this should be '
                                  'considered as an error!')

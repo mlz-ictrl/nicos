@@ -152,9 +152,11 @@ class TestLogHandler(ColoredConsoleHandler):
         _text = kwds.pop('warns_text', None)
 
         plen = len(self._warnings)
-        func(*args, **kwds)
+        ret = func(*args, **kwds)
         plen_after = len(self._warnings)
         if plen == plen_after:
+            print (ret)
+            print (self._warnings)
             return False
         if not _text:
             if plen + 1 == plen_after:
