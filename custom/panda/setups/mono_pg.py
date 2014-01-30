@@ -19,10 +19,15 @@ devices = dict(
                          reltheta = True,
                          focush = 'mfh_pg',
                          focusv = 'mfv_pg',
-                         hfocuspars = [29.188, -1.1611, 0.6019],
+                         #hfocuspars = [29.188, -1.1611, 0.6019],
+                         #changed to upgoing curve on 20.1.2014, calibration from 19.10.2013
+                         hfocuspars = [306.91, -4.0565, 0.1346],
                          hfocusflat = 343.9,
-                         vfocuspars = [557.79, -215.59, 66.843, -9.6554, 0.5228],
-                         vfocusflat = 17.3,
+                         #vfocusflat = 17.3,
+                         #vfocuspars = [557.79, -215.59, 66.843, -9.6554, 0.5228],
+                         #NEW values from 20.1.2014:
+                         vfocuspars = [327.8,  -215.59, 66.843, -9.6554, 0.5228],
+                         vfocusflat = 150,
                          abslimits = (1, 10),
                          dvalue = 3.355,
                          scatteringsense = -1,
