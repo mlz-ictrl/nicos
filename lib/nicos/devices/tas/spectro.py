@@ -27,7 +27,7 @@
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
     ConfigurationError, ComputationError, LimitError, oneof, multiStatus, \
-    multiWait
+    multiWait, waitForStatus
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV
 from nicos.devices.tas import spurions
@@ -167,6 +167,9 @@ class TAS(Instrument, Moveable):
 
     def doWait(self):
         multiWait(self._waiters)
+        # in case an attached device was started,
+        # but the wait is called on the tas device.
+        waitForStatus(self)
         # make sure index members read the latest value
         for index in (self.h, self.k, self.l, self.E):
             if index._cache:
