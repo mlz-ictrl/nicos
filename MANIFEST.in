@@ -16,6 +16,7 @@ include pid/README
 include data/README data/cache/.keep
 
 recursive-include test *.py
+recursive-include test/script_templates *.template
 prune test/root
 
 include doc/Makefile
