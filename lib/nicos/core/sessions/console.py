@@ -169,7 +169,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                 guessCorrectCommand(source, attribute=True)
 
             return
-        if code.softspace(sys.stdout, 0):
+        if hasattr(code, 'softspace') and code.softspace(sys.stdout, 0):
             print()
         #self.locals.clear()
 
