@@ -310,9 +310,26 @@ def startCache(setup='cache', wait=5):
     sys.stderr.write('%s ok] ' % cache.pid)
     return cache
 
+
 def killCache(cache):
     sys.stderr.write(' [cache kill %s... ' % cache.pid)
     if cache.poll() is None:
         cache.terminate()
         cache.wait()
     sys.stderr.write('ok] ')
+
+
+def hasGnuplot():
+    ''' Check for the presence of gnuplot in the environment
+
+        To be used with the `requires` decorator.
+    '''
+    try:
+        gpProcess = subprocess.Popen(b'gnuplot', shell=True, stdin=subprocess.PIPE,
+                                     stdout=None)
+        gpProcess.communicate(b'exit')
+        if gpProcess.returncode:
+            return False
+    except (IOError, ValueError):
+        return False
+    return True
