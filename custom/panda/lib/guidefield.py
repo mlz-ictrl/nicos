@@ -183,7 +183,7 @@ class GuideField(MappedMoveable):
         self.alpha._callback = None
 
     def _alphaCallBack(self):
-        if self.target and self.target in self.mapping:
+        if self.target != 'unknown' and self.target in self.mapping:
             self.doStart(self.target)
 
     def _startRaw(self, orient):
@@ -191,7 +191,7 @@ class GuideField(MappedMoveable):
             orient = np.array(orient)
             # set requested field (may try to compensate background)
             self._setfield(self.field * orient)
-        else:	# switch off completely
+        else:  # switch off completely
             self.coils[0].doStart(0.0)
             self.coils[1].doStart(0.0)
             self.coils[2].doStart(0.0)
