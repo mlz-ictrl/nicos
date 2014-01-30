@@ -862,7 +862,7 @@ class Session(object):
         self.deviceCallback('create', self._success_devices)
         self._success_devices = None
 
-    def getDevice(self, dev, cls=None, source=None):
+    def getDevice(self, dev, cls=None, source=None, replace_aliasdevs_by=None):
         """Return a device *dev* from the current setup.
 
         If *dev* is a string, the corresponding device will be looked up or
@@ -875,7 +875,8 @@ class Session(object):
             if dev in self.devices:
                 dev = self.devices[dev]
             elif dev in self.configured_devices:
-                dev = self.createDevice(dev)
+                dev = self.createDevice(dev,
+                                     replace_aliasdevs_by=replace_aliasdevs_by)
             else:
                 raise ConfigurationError(source,
                     'device %r not found in configuration' % dev)
@@ -890,7 +891,8 @@ class Session(object):
                              'device must be a %s' % (cls or Device).__name__)
         return dev
 
-    def createDevice(self, devname, recreate=False, explicit=False):
+    def createDevice(self, devname, recreate=False, explicit=False,
+                       replace_aliasdevs_by=None):
         """Create device given by a device name.
 
         If device exists and *recreate* is true, destroy and create it again.
@@ -931,6 +933,11 @@ class Session(object):
         except (ImportError, AttributeError), err:
             raise ConfigurationError('failed to import device class %r: %s'
                                      % (devclsname, err))
+        if replace_aliasdevs_by is not None:
+            from nicos.devices.generic.alias import DeviceAlias
+            if issubclass(devcls, DeviceAlias):
+                devcls = replace_aliasdevs_by
+                devconfig = {}
         try:
             dev = devcls(devname, **devconfig)
         except Exception:

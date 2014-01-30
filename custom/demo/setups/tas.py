@@ -3,7 +3,7 @@ group = 'basic'
 
 modules = ['nicos.commands.tas']
 
-includes = ['cryo']
+includes = ['cryo', 'misc']
 
 sysconfig = dict(
     instrument = 'tas',
@@ -20,7 +20,7 @@ devices = dict(
                       collimation = '60 30 30 60',
                       cell = 'Sample',
                       phi = 'phi',
-                      psi = 'psi',
+                      psi = 'sth',
                       mono = 'mono',
                       ana = 'ana',
                       alpha = None,
@@ -37,6 +37,10 @@ devices = dict(
                       abslimits = (0, 50),
                       unit = 'deg',
                      ),
+
+    sth = device('devices.generic.DeviceAlias',
+                    description='Aliasdevice',
+                    ),
 
     psi      = device('devices.generic.VirtualMotor',
                       description = 'sample rotation angle',

@@ -39,6 +39,7 @@ from nicos.core import status, listof, Device, Readable, Param, NicosError, \
      ConfigurationError
 from nicos.utils import whyExited, watchFileTime
 from nicos.devices.generic.alias import DeviceAlias
+from nicos.devices.generic.cache import CacheReader
 
 
 class Poller(Device):
@@ -158,8 +159,8 @@ class Poller(Device):
                     if not isinstance(dev, Readable):
                         self.log.debug('%s is not a readable' % dev)
                         return
-                    if isinstance(dev, DeviceAlias):
-                        self.log.debug('%s is an alias, not polling' % dev)
+                    if isinstance(dev, (DeviceAlias, CacheReader)):
+                        self.log.debug('%s is an alias or a CacheReader, not polling' % dev)
                         return
                     # keep track of some parameters via cache callback
                     session.cache.addCallback(dev, 'target', reconfigure)

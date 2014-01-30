@@ -24,13 +24,16 @@
 
 """Session class used with the NICOS poller."""
 
-from nicos.core import ConfigurationError, Device
+from nicos.core import Device
+from nicos.core.params import Override
 from nicos.core.sessions.simple import NoninteractiveSession
-from nicos.devices.generic.alias import DeviceAlias
 from nicos.devices.generic.cache import CacheReader
 
 
 class PollerCacheReader(CacheReader):
+    parameter_overrides = {
+        'unit' : Override(mandatory=False),
+    }
 
     def _initParam(self, param, paraminfo=None):
         # This method is called on init when a parameter is not in the cache.
@@ -43,7 +46,8 @@ class PollerCacheReader(CacheReader):
 
 class PollerSession(NoninteractiveSession):
 
-    def getDevice(self, dev, cls=None, source=None):
+    def getDevice(self, dev, cls=None, source=None,
+                    replace_aliasdevs_by=PollerCacheReader):
         """Override device creation for the poller.
 
         With the "alias device" mechanism, aliases can point to any device in
@@ -56,11 +60,5 @@ class PollerSession(NoninteractiveSession):
         polled by another process, and we can get current values for the device
         via the CacheReader.
         """
-        try:
-            # Note the change of any required baseclass to Device, so that the
-            # CacheReader can stand in for any attached device.
-            return NoninteractiveSession.getDevice(self, dev, Device, source)
-        except ConfigurationError:  # device not found
-            if isinstance(source, DeviceAlias):
-                return PollerCacheReader(dev, unit='')
-            raise
+        return NoninteractiveSession.getDevice(self, dev, Device, source,
+                                     replace_aliasdevs_by=replace_aliasdevs_by)
