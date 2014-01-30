@@ -25,6 +25,8 @@
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
 from os import path
+import subprocess
+from nose import SkipTest
 
 from nicos import session
 
@@ -39,11 +41,24 @@ def setup_module():
     session.loadSetup('scanning')
     session.setMode(MASTER)
 
+
 def teardown_module():
     session.unloadSetup()
 
 
-def test_scan():
+def _check_gnuplot():
+    try:
+        gpProcess = subprocess.Popen(b'gnuplot', shell=True, stdin=subprocess.PIPE,
+                                 stdout=None)
+        gpProcess.communicate(b'exit')
+        if gpProcess.returncode:
+            raise SkipTest
+    except (IOError, ValueError):
+        raise SkipTest
+
+
+def test_scan_gen_elog():
+    _check_gnuplot()
     m = session.getDevice('motor')
     mm = session.getDevice('manual')
     mm.move(0)
