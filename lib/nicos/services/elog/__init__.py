@@ -28,6 +28,7 @@ from nicos.core import Param, Override, oneof
 from nicos.services.elog.handler import Handler
 from nicos.protocols.cache import OP_TELL, OP_ASK, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
+from nicos.pycompat import to_utf8
 
 
 class Logbook(BaseCacheClient):
@@ -47,8 +48,8 @@ class Logbook(BaseCacheClient):
 
     def _connect_action(self):
         # request current directory for the handler to start up correctly
-        self._socket.sendall('logbook/directory%s\n###%s\n' %
-                             (OP_ASK, OP_ASK))
+        self._socket.sendall(
+            to_utf8('logbook/directory%s\n###%s\n' % (OP_ASK, OP_ASK)))
 
         # read response
         data, n = b'', 0
@@ -57,7 +58,7 @@ class Logbook(BaseCacheClient):
             n += 1
 
         # send request for all relevant updates
-        self._socket.sendall('@logbook/%s\n' % OP_SUBSCRIBE)
+        self._socket.sendall(to_utf8('@logbook/%s\n' % OP_SUBSCRIBE))
 
         self._process_data(data)
 

@@ -194,7 +194,7 @@ class HtmlWriter(object):
         if self.fd:
             self.endstate()
             self.fd.close()
-            self.fd_toc.write(u'</ul>' * self.toc_level)
+            self.fd_toc.write(b'</ul>' * self.toc_level)
             self.fd_toc.close()
         self.toc_level = 0
 
