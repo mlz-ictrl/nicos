@@ -22,7 +22,7 @@ devices = dict(
                       collimation = '60 30 30 60',
                       cell = 'Sample',
                       phi = 'phi',
-                      psi = 'psi',
+                      psi = 'sth',
                       mono = 'mono',
                       ana = 'ana',
                       alpha = None,
@@ -38,6 +38,10 @@ devices = dict(
     alpha    = device('devices.generic.VirtualMotor',
                       abslimits = (0, 50),
                       unit = 'deg',
+                     ),
+
+    sth      = device('devices.generic.DeviceAlias',
+                      alias = 'psi',
                      ),
 
     psi      = device('devices.generic.VirtualMotor',

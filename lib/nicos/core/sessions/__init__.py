@@ -872,7 +872,7 @@ class Session(object):
         self.deviceCallback('create', self._success_devices)
         self._success_devices = None
 
-    def getDevice(self, dev, cls=None, source=None):
+    def getDevice(self, dev, cls=None, source=None, replace_classes=None):
         """Return a device *dev* from the current setup.
 
         If *dev* is a string, the corresponding device will be looked up or
@@ -880,12 +880,15 @@ class Session(object):
 
         *cls* gives a class, or tuple of classes, that *dev* needs to be an
         instance of.
+
+        *replace_classes* can be used to replace configured device classes.
+        If given, it is a tuple of ``(old_class, new_class, new_devconfig)``.
         """
         if isinstance(dev, str):
             if dev in self.devices:
                 dev = self.devices[dev]
             elif dev in self.configured_devices:
-                dev = self.createDevice(dev)
+                dev = self.createDevice(dev, replace_classes=replace_classes)
             else:
                 raise ConfigurationError(source,
                     'device %r not found in configuration' % dev)
@@ -900,7 +903,8 @@ class Session(object):
                              'device must be a %s' % (cls or Device).__name__)
         return dev
 
-    def createDevice(self, devname, recreate=False, explicit=False):
+    def createDevice(self, devname, recreate=False, explicit=False,
+                     replace_classes=None):
         """Create device given by a device name.
 
         If device exists and *recreate* is true, destroy and create it again.
@@ -941,6 +945,12 @@ class Session(object):
         except (ImportError, AttributeError) as err:
             raise ConfigurationError('failed to import device class %r: %s'
                                      % (devclsname, err))
+        if replace_classes is not None:
+            for orig_class, replace_class, class_config in replace_classes:
+                if issubclass(devcls, orig_class):
+                    devcls = replace_class
+                    devconfig = class_config
+                    break
         try:
             dev = devcls(devname, **devconfig)
         except Exception:

@@ -28,9 +28,8 @@ import re
 
 from nicos import session
 from nicos.core import Device, Param, ConfigurationError, NicosError, \
-    none_or, nicosdev, usermethod
+    none_or, nicosdev, usermethod, SIMULATION, MASTER, MAINTENANCE
 from nicos.core.device import DeviceMixinMeta
-from nicos.core import SIMULATION, MASTER
 from nicos.pycompat import add_metaclass
 
 
@@ -100,7 +99,9 @@ class DeviceAlias(Device):
                              'alias devclass', exc=1)
             self._cls = Device
         Device.__init__(self, name, **config)
-        if self._cache:
+        if self._cache and self._mode in (MASTER, MAINTENANCE):
+            # re-set alias to configured device every time... necessary to clean
+            # up old assignments pointing to now nonexisting devices
             self.alias = config.get('alias', self._cache.get(self, 'alias', ''))
         self._initialized = True
 
