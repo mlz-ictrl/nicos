@@ -28,12 +28,12 @@ import time
 
 from nicos import session
 from nicos.core import listof, none_or, Device, Param, Override, \
-     ConfigurationError, DataSink, usermethod
+    ConfigurationError, DataSink, usermethod
 from nicos.utils import parseDateString
 from nicos.utils.graceplot import GracePlot, GracePlotter
 from nicos.commands.output import printinfo, printwarning
 from nicos.core.sessions.console import ConsoleSession
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, listitems, TextIOWrapper
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -317,7 +317,7 @@ class AsciiDatafileSink(DatafileSink):
         self._fname = shortname
         self._setROParam('lastpoint', 0)
         self._fullfname = longname
-        self._file = fp
+        self._file = TextIOWrapper(fp)
         dataset.sinkinfo['filepath'] = self._fullfname
         dataset.sinkinfo['filename'] = self._fname
         dataset.sinkinfo['number'] = session.experiment.lastscan
@@ -326,7 +326,7 @@ class AsciiDatafileSink(DatafileSink):
         self._userinfo = dataset.scaninfo
         self._file.write('%s NICOS data file, created at %s\n' %
                          (self._commentc*3, time.strftime(TIMEFMT)))
-        for name, value in dataset.sinkinfo.items() + \
+        for name, value in listitems(dataset.sinkinfo) + \
                 [('info', dataset.scaninfo)]:
             self._file.write('%s %25s : %s\n' % (self._commentc, name, value))
         self._file.flush()

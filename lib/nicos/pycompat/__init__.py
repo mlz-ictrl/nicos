@@ -35,6 +35,7 @@ __all__ = [
 ]
 
 import six
+import codecs
 import threading
 
 # Pylint cannot handle submodules created by "six".  Import them here to
@@ -106,6 +107,8 @@ if six.PY2:
         if isinstance(u, unicode):
             return repr(u.encode('unicode-escape'))
         return repr(u)
+    # on Py2, io.TextIOWrapper exists but only accepts Unicode objects
+    TextIOWrapper = codecs.lookup('utf-8').streamwriter
 else:
     # on Py3, UTF-8 is the default encoding already
     to_utf8 = str.encode
@@ -113,3 +116,4 @@ else:
     from_utf8 = bytes.decode
     from_encoding = bytes.decode
     srepr = repr
+    from io import TextIOWrapper
