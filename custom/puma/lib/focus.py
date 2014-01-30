@@ -77,15 +77,15 @@ class focus_Axis(Axis):
 
         if target == 0:
             target = self.flatpos
-        elif self.target > self.uplimit:
+        elif target > self.uplimit:
             target = self.uplimit
-        elif  self.target < self.lowlimit:
+        elif target < self.lowlimit:
             target = self.lowlimit
 
         self._errorstate = None
         positions = [(target, True)]
 
-        direct = (self.target - self.read(0))*(self.read(0) - self.startpos)
+        direct = (target - self.read(0))*(self.read(0) - self.startpos)
         if direct < 0:
             positions.insert(0, (self.startpos, True))
 
