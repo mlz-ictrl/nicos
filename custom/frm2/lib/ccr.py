@@ -122,7 +122,7 @@ class CCRControl(HasLimits, Moveable):
             self.__start_tube_stick(self.tube.absmax, target)
 
     def doRead(self, maxage=0):
-        if self.stick.target != 'unknown':
+        if self.stick.target is not None:
             if self.stick.target >= self.tube.absmax:
                 return self.stick.read(maxage)
         if self.regulationmode in ('stick', 'both'):
@@ -159,7 +159,7 @@ class CCRControl(HasLimits, Moveable):
                               self.stick.name, attrname, stickval,
                               self.name, attrname))
             # try to take the 'more important' one
-            if self.stick.target != 'unknown' and \
+            if self.stick.target is not None and \
                self.stick.target > self.tube.absmax:
                 res = stickval
             else:
@@ -202,7 +202,7 @@ class CCRControl(HasLimits, Moveable):
                        (value, self.name))
 
     def doReadSetpoint(self):
-        if self.stick.target != 'unknown':
+        if self.stick.target is not None:
             if self.stick.target >= self.tube.absmax:
                 return self.stick.setpoint
         # take the more important one, closer to the sample.

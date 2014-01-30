@@ -180,7 +180,7 @@ def read(*devlist):
         unit = dev.unit
         if isinstance(dev, Moveable):
             target = dev.target
-            if target != 'unknown' and dev.format(target) != dev.format(value):
+            if target is not None and dev.format(target) != dev.format(value):
                 dev.log.info('at %20s %-5s  (target: %20s %s)' %
                     (dev.format(value), unit, dev.format(target), unit))
             else:

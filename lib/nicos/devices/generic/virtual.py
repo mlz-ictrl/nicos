@@ -451,7 +451,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
                                       -maxdelta, maxdelta)
                     self.log.debug('setpoint changes to %r' % setpoint)
                 except (TypeError, ValueError):
-                    # self.target might be "unknown"
+                    # self.target might be None
                     pass
             self._window.append(regulation)
             # temperature is stable when all recorded values in the window

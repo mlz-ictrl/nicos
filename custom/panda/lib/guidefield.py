@@ -183,7 +183,7 @@ class GuideField(MappedMoveable):
         self.alpha._callback = None
 
     def _alphaCallBack(self):
-        if self.target != 'unknown' and self.target in self.mapping:
+        if self.target in self.mapping:
             self.doStart(self.target)
 
     def _startRaw(self, orient):

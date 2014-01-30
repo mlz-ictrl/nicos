@@ -1120,7 +1120,7 @@ class Moveable(Readable):
 
     parameters = {
         'target': Param('Last target position of a start() action',
-                        unit='main', type=anytype, default='unknown'),
+                        unit='main', type=anytype, default=None),
         'fixed':  Param('None if the device is not fixed, else a string '
                         'describing why', settable=False, userparam=False,
                         type=str),
@@ -1281,7 +1281,7 @@ class Moveable(Readable):
                 self.log.debug('device fixed, not waiting: %s' % self.fixed)
             elif hasattr(self, 'doStatus'): #might really wait
                 session.beginActionScope('Waiting: %s -> %s' %
-                                     (self, self.format(self.target)))
+                                         (self, self.format(self.target)))
                 try:
                     lastval = self.doWait()
                 finally:
