@@ -45,6 +45,8 @@ except (RuntimeError, ImportError):
 
 
 class MonitorWindow(QMainWindow):
+    _wantFullScreen = False
+
     def __init__(self):
         self._reconfiguring = False
         QMainWindow.__init__(self)
@@ -57,10 +59,11 @@ class MonitorWindow(QMainWindow):
         if event.text() == 'q':
             self.close()
         elif event.text() == 'f':
-            if self.isFullScreen():
-                self.showNormal()
-            else:
+            self._wantFullScreen = not self._wantFullScreen
+            if self._wantFullScreen:
                 self.showFullScreen()
+            else:
+                self.showNormal()
         elif event.text() == 'r':
             # resize/refresh/redraw
             self.resize(self.sizeHint())
@@ -74,7 +77,7 @@ class MonitorWindow(QMainWindow):
     def event(self, event):
         if self._reconfiguring and event.type() == 76:  # LayoutRequest
             self._reconfiguring = False
-            if self.isFullScreen():
+            if self._wantFullScreen:
                 self.showFullScreen()
             else:
                 self.resize(self.sizeHint())
@@ -142,6 +145,7 @@ class Monitor(BaseMonitor):
 
         if self._geometry == 'fullscreen':
             master.showFullScreen()
+            master._wantFullScreen = True
             QCursor.setPos(master.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
             w, h, x, y = self._geometry
