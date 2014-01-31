@@ -1127,7 +1127,7 @@ class Moveable(Readable):
         'fixedby':  Param('Who fixed it?', settable=False, userparam=False,
                           type=none_or(tupleof(str, int)), default=None),
         'requires': Param('Access requirements for moving the device',
-                          type=dictof(str, anytype)),
+                          type=dictof(str, anytype), userparam=False),
     }
 
     # The type of the device value, used for typechecking in doStart().
