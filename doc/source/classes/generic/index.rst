@@ -24,3 +24,5 @@ setup file.
    paramdev
    alias
    virtual
+   magnet
+

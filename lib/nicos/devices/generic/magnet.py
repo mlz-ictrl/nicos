@@ -1,0 +1,255 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2014 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
+# *****************************************************************************
+
+"""
+Class for Magnets powered by unipolar power supplies.
+"""
+import math
+
+from nicos import session
+from nicos.utils import clamp
+from nicos.utils.fitting import Fit
+from nicos.core import Moveable, HasLimits, status, ConfigurationError, \
+     LimitError, usermethod, NicosError
+from nicos.core.params import Param, Override, tupleof
+from nicos.core.utils import multiStop
+from nicos.devices.generic.sequence import SeqDev, BaseSequencer
+
+
+class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
+    """
+    Base clase for magnet supplies having an unipolar current source
+    and a switching box for reversing the current (or not).
+
+    Details of the switching need to be implemented in subclasses.
+    This class contains the sequencing logic needed to reverse the field.
+    Also a non-linear relationship between field and current
+    is possible by specifying an odd polynom.
+    """
+
+    attached_devices = {
+        'currentsource':(Moveable, 'unipolar Powersupply'),
+    }
+
+    parameters = {
+        'ramp' : Param('Target rate of field change per minute', unit='main/min',
+                        mandatory=False, settable=True),
+        'calibration': Param('Coefficients for calibration '
+                             'function: [c0, c1, c2, c3, c4] calculates '
+                             'B(I) = Ic0 + c1*erf(c2*I) + c3*atan(c4*I)'
+                             ' in T', type=tupleof(float, float, float, float, float), settable=True,
+                             chatty=True),
+    }
+
+    parameter_overrides = {
+        'unit' : Override(mandatory=False, default='T'),
+        'abslimits' : Override(mandatory=False, volatile=True),
+    }
+
+    def _current2field(self, current, *coefficients):
+        """
+        returns field in T for given current in A
+
+        should be monotic and asymetric or _field2current will fail!
+        defaults to a linear function of the current + some lorentzian like corrections.
+        B(I) = I*(c0 + c1/(c2+I**2) + c3/(c4+I**4) + ...)
+
+        Note: This may be overridden in derived classes.
+        """
+        v = coefficients or self.calibration
+        if len(v) != 5:
+            self.log.warning('Wrong number of coefficients in calibration data!'
+                             ' Need exactly 5 coefficients!')
+        return current * v[0] + v[1] * math.erf(v[2] * current) + v[3] * math.atan(v[4] * current)
+
+    def _field2current(self, field):
+        """
+        returns required current in A for requested field in T
+
+        default implementation does a binary search using _current2field
+        which must be monotone for this to work!
+        """
+        # binary search/bisection
+        maxcurr = self._adevs['currentsource'].abslimits[1]
+        mincurr = -maxcurr
+        maxfield = self._current2field(maxcurr)
+        minfield = -maxfield
+        if not minfield <= field <= maxfield:
+            raise LimitError(self, 'requested field %g %s out of range %g..%g %s' %
+                             (field, self.unit, minfield, maxfield, self.unit))
+        while minfield <= field <= maxfield:
+            # binary search
+            trycurr = 0.5 * (mincurr + maxcurr)
+            tryfield = self._current2field(trycurr)
+            if field == tryfield:
+                self.log.debug('current for %g T is %g A' % (field, trycurr))
+                return trycurr # Gotcha!
+            elif field > tryfield:
+                # retry upper interval
+                mincurr = trycurr
+                minfield = self._current2field(mincurr)
+            else:
+                # retry lower interval
+                maxcurr = trycurr
+                maxfield = self._current2field(maxcurr)
+            # if interval is so small, that any error within is acceptable:
+            if maxfield - minfield < 1e-4:
+                ratio = (field - minfield) / (maxfield - minfield)
+                trycurr = (maxcurr - mincurr) * ratio + mincurr
+                self.log.debug('current for %g T is %g A' % (field, trycurr))
+                return trycurr
+        raise ConfigurationError(self, '_current2field polynome not monotonic!')
+
+    def _get_field_polarity(self):
+        """Returns sign of field polarity (+1 or -1)
+
+        and may return 0 for zero field.
+
+        Note: need to be defined in derived classes.
+        """
+        return 0
+
+    def _seq_set_field_polarity(self, polarity, sequence):
+        """Appends the needed Actions to set the requested polarity
+
+        to the given sequence. Must be able to handle polarities of +1, 0, -1
+        and switch to that polarity correctly. If sensible, this may also do nothing.
+
+        Note: need to be defined in derived classes.
+        """
+        raise NotImplementedError('please use a proper derived class and implement this there!')
+
+    # pylint: disable=W0221
+    def _generateSequence(self, value):
+        sequence = []
+        currentsource = self._adevs['currentsource']
+        if value != 0:
+            need_pol = +1 if value > 0 else -1
+            curr_pol = self._get_field_polarity()
+            # if the switch values are not correct, drive to zero and switch
+            if curr_pol != need_pol:
+                if currentsource.read() != 0:
+                    sequence.append(SeqDev(currentsource, 0.))
+                self._seq_set_field_polarity(need_pol, sequence) # insert switching Sequence
+        sequence.append(SeqDev(currentsource, abs(value)))
+        if value == 0:
+            self._seq_set_field_polarity(0, sequence)
+        return sequence
+
+    def doRead(self, maxage=0):
+        absfield = self._current2field(self._adevs['currentsource'].read(maxage))
+        return self._get_field_polarity() * absfield
+
+    def doStart(self, target):
+        BaseSequencer.doStart(self, self._field2current(target))
+
+    def doStop(self):
+        BaseSequencer.doStop(self)
+        if self.status()[0] == status.BUSY:
+            multiStop(self._adevs)
+
+    def doReset(self):
+        BaseSequencer.doReset(self)
+        return self._adevs['currentsource'].reset()
+
+    def doReadRamp(self):
+        return self.calibration[0]*abs(self._adevs['currentsource'].ramp)
+
+    def doWriteRamp(self, newramp):
+        self._adevs['currentsource'].ramp = newramp / self.calibration[0]
+
+    def doReadAbslimits(self):
+        maxcurr = self._adevs['currentsource'].abslimits[1]
+        maxfield = self._current2field(maxcurr)
+        # get configured limits if any, or take max of source
+        limits = self._config.get('abslimits', (-maxfield, maxfield))
+        # in any way, clamp limits to what the source can handle
+        limits = [clamp(i, -maxfield, maxfield) for i in limits]
+        return min(limits), max(limits)
+
+    def doWriteUserlimits(self, limits):
+        HasLimits.doWriteUserlimits(self, limits)
+        currentsource = self._adevs['currentsource']
+        # all Ok, set source to max of pos/neg field current
+        maxcurr = max(abs(self._field2current(i)) for i in limits)
+        currentsource.userlimits = (0, maxcurr)
+
+    def doTime(self, startval, target):
+        # get difference in current
+        delta = abs(self._field2current(target) - self._field2current(startval))
+        # ramp is per minute, doTime should return seconds
+        return 60 * delta / self._adevs['currentsource'].ramp
+
+    @usermethod
+    def calibrate(self, fieldcolumn, *scannumbers):
+        """Calibrate the B to I conversion, argument is one or more scan numbers.
+
+        The first argument specifies the name of the device which should
+        be used as a measuring device for the field.
+
+        Example:
+
+        >>> B_mira.calibrate(Bf, 351)
+        """
+        scans = session.experiment._last_datasets
+        self.log.info('determining calibration from scans, please wait...')
+        Is = []
+        Bs = []
+        currentcolumn = self._adevs['currentsource'].name
+        for scan in scans:
+            if scan.sinkinfo.get('number') not in scannumbers:
+                continue
+            if fieldcolumn not in scan.ynames or \
+                    currentcolumn not in scan.xnames:
+                self.log.info('%s is not a calibration scan'
+                              % scan.sinkinfo['number'])
+                continue
+            xindex = scan.xnames.index(currentcolumn)
+            yindex = scan.ynames.index(fieldcolumn)
+            yunit = scan.yunits[yindex]
+            if yunit == 'T':
+                factor = 1.0
+            elif yunit == 'mT':
+                factor = 1e-3
+            elif yunit == 'uT':
+                factor = 1e-6
+            elif yunit == 'G':
+                factor = 1e-4
+            elif yunit == 'kG':
+                factor = 1e-1
+            else:
+                raise NicosError(self, 'unknown unit for B field '
+                                 'readout: %r' % yunit)
+            for xr, yr in zip(scan.xresults, scan.yresults):
+                Is.append(xr[xindex])
+                Bs.append(yr[yindex] * factor)
+        if not Is:
+            self.log.error('no calibration data found')
+            return
+        fit = Fit(self._current2field, ['c%d' % i for i in range(len(self.calibration))], [1] * len(self.calibration))
+        res = fit.run('calibration', Is, Bs, [1] * len(Bs))
+        if res._failed:
+            self.log.warning('fit failed')
+            return
+        self.calibration = res._pars[1]
