@@ -27,6 +27,7 @@
 import time
 
 import IO
+import Motor
 
 from nicos.core import CommunicationError
 from nicos.devices.taco.axis import Axis as TacoAxis
@@ -34,7 +35,7 @@ from nicos.devices.taco.axis import Axis as TacoAxis
 
 class PhytronAxis(TacoAxis):
     def _reset_phytron(self):
-        motor = self._getMotor()
+        motor = Motor.Motor(self._taco_guard(self._dev.deviceQueryResource, 'motor'))
         iodev = self._taco_guard(motor.deviceQueryResource, 'iodev')
         addr = self._taco_guard(motor.deviceQueryResource, 'address')
         client = IO.StringIO(iodev)
