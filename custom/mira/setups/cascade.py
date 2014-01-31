@@ -36,14 +36,6 @@ devices = dict(
                     unit = 'V',
                     fmtstr = '%d'),
 
-    PSDGas = device('devices.taco.NamedDigitalInput',
-                    description = 'Sensor to indicate low pressure in counting gas of CASCADE',
-                    mapping = {'empty': 0, 'okay': 1},
-                    warnlimits = ('okay', 'okay'),
-                    pollinterval = 10,
-                    maxage = 30,
-                    tacodevice = '//mirasrv/mira/io/psdgas'),
-
     dtx    = device('mira.axis.PhytronAxis',
                     description = 'Detector translation along the beam on Franke table',
                     tacodevice = '//mirasrv/mira/axis/dtx',

@@ -13,10 +13,10 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-    dict(condition = 'cooltemp_value > 30',
-         message = 'Cooling water temperature exceeds 30C, check FAK40 or MIRA Leckmon!',
-         type = 'critical',
-    ),
+#    dict(condition = 'cooltemp_value > 30',
+#         message = 'Cooling water temperature exceeds 30C, check FAK40 or MIRA Leckmon!',
+#         type = 'critical',
+#    ),
     dict(condition = 'psdgas_value == "empty"',
          message = 'PSD gas is empty, change bottle very soon!',
          type = 'critical',

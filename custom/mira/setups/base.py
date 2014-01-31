@@ -65,6 +65,14 @@ devices = dict(
                        mapping = {'closed': 0, 'open': 1},
                        warnlimits = ('open', 'open')),
 
+    PSDGas = device('devices.taco.NamedDigitalInput',
+                    description = 'Sensor to indicate low pressure in counting gas of CASCADE',
+                    mapping = {'empty': 0, 'okay': 1},
+                    warnlimits = ('okay', 'okay'),
+                    pollinterval = 10,
+                    maxage = 30,
+                    tacodevice = '//mirasrv/mira/io/psdgas'),
+
     # Cooling   = device('devices.taco.NamedDigitalInput',
     #                    description = 'Sensor for MIRA cooling water filling level',
     #                    mapping = {'refill': 0, 'okay': 1},

@@ -61,7 +61,7 @@ _column2 = Column(
     #    BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
     ], 'euler'),
     Block('Cryostat (CCR5)', [
-        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+        BlockRow(Field(name='Setpoint', key='T_ccr5/setpoint', unitkey='T_ccr5/unit', format='%.2f'),
                  Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
                  Field(name='C', dev='T_ccr5_C')),
         BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
@@ -117,7 +117,7 @@ _column2 = Column(
                  ),
     ], 'cryo3'),
     Block('3He insert (cryo4)', [
-        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+        BlockRow(Field(name='Setpoint', key='T_cryo4/setpoint', unitkey='T_cryo4/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
         BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
                  Field(name='D', key='t/d', width=4),
