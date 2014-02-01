@@ -337,9 +337,9 @@ class VirtualRealTemperature(HasLimits, Moveable):
         self.start(self.setpoint)
 
     def doPoll(self, nr):
-        self.pollParam('setpoint', 1)
-        self.pollParam('curvalue', 1)
-        self.pollParam('curstatus', 1)
+        self._pollParam('setpoint', 1)
+        self._pollParam('curvalue', 1)
+        self._pollParam('curstatus', 1)
 
     #
     # parameters
@@ -411,8 +411,6 @@ class VirtualRealTemperature(HasLimits, Moveable):
             newregulation = max(0, regulation + (heater * 0.01 * self.maxpower
                 + heatflow - self.__coolerPower(regulation)) /
                 self.__coolerCP(regulation) * self.loopdelay)
-            self.log.debug('newsample = %.5f, newregulation = %.5f' %
-                           (newsample, newregulation))
 
             # b) see
             # www.cds.caltech.edu/~murray/books/AM08/pdf/am06-pid_16Sep06.pdf
@@ -432,7 +430,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
             D = Tf / (Tf + h) * D - \
                 kd / (Tf + h) * (newregulation - regulation)
             v = P + I + D
-            heater = clamp(v, 0, 100)
+            heater = clamp(v, 0., 100.)
             self.log.debug('PID: P = %.2f, I = %.2f, D = %.2f, heater = %.2f' %
                            (P, I, D, heater))
             I += ki * h * error + kt * h * (heater - v)
@@ -467,7 +465,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
             self._setROParam('setpoint', setpoint)
             self._setROParam('regulation', regulation)
             self._setROParam('sample', sample)
-            self._setROParam('heater', heater)
+            self._setROParam('heaterpower', heater)
             time.sleep(self.loopdelay)
 
 
