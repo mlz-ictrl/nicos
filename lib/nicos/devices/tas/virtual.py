@@ -27,7 +27,7 @@
 from time import time as currenttime
 from numpy import random
 
-from nicos.core import Readable, Measurable, Param, Value
+from nicos.core import Readable, Measurable, Param, Value, status
 
 
 class VirtualTasDetector(Measurable):
@@ -80,6 +80,11 @@ class VirtualTasDetector(Measurable):
         if 't' in self._lastpreset and self.realtime:
             return currenttime() - self._counting_started >= self._lastpreset['t']
         return True
+
+    def doStatus(self, maxage=0):
+        if not self.isCompleted():
+            return status.BUSY, 'counting'
+        return status.OK, 'idle'
 
     def doRead(self, maxage=0):
         return self._lastresult
