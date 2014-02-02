@@ -30,8 +30,8 @@ from time import time as currenttime, localtime, mktime, strftime
 
 from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
-     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, \
-     QFileDialog, QLabel, QComboBox, QMessageBox
+    QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, \
+    QFileDialog, QLabel, QComboBox, QMessageBox
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
@@ -48,11 +48,10 @@ from nicos.pycompat import cPickle as pickle, iteritems
 
 
 class View(QObject):
-    def __init__(self, name, keys, interval, fromtime, totime,
+    def __init__(self, parent, name, keys, interval, fromtime, totime,
                  yfrom, yto, window, dlginfo, query_func):
-        QObject.__init__(self)
+        QObject.__init__(self, parent)
         self.name = name
-        self.dlginfo = dlginfo
         self.keys = keys
         self.interval = interval
         self.window = window
@@ -391,7 +390,7 @@ class BaseHistoryWindow(object):
                 return
         else:
             yfrom = yto = None
-        view = View(name, keys, interval, fromtime, totime, yfrom, yto,
+        view = View(self, name, keys, interval, fromtime, totime, yfrom, yto,
                     window, info, self.gethistory_callback)
         self.views.append(view)
         view.listitem = QListWidgetItem(view.name, self.viewList)
@@ -648,6 +647,14 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         for view in self.views:
             if view.plot:
                 view.plot.setFonts(font, bold, larger)
+
+    def requestClose(self):
+        # Always succeeds, but break up circular references so that the panel
+        # object can be deleted properly.
+        for v in self.views:
+            v.plot = None
+        self.currentPlot = None
+        return True
 
     def gethistory_callback(self, key, fromtime, totime):
         return self.client.ask('gethistory', key, str(fromtime), str(totime))

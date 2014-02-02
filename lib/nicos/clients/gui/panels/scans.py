@@ -28,7 +28,7 @@ import os
 import time
 
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
-     QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
+    QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
 from PyQt4.Qwt5 import QwtPlot, QwtPlotItem, QwtText, QwtLog10ScaleEngine
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
@@ -142,6 +142,13 @@ class ScansPanel(Panel):
         larger.setPointSize(font.pointSize() * 1.6)
         for plot in itervalues(self.setplots):
             plot.setFonts(font, bold, larger)
+
+    def requestClose(self):
+        # Always succeeds, but break up circular references so that the panel
+        # object can be deleted properly.
+        self.currentPlot = None
+        self.setplots.clear()
+        return True
 
     def enablePlotActions(self, on):
         for action in [
