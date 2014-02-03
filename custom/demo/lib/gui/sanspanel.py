@@ -29,16 +29,17 @@ import time
 from os import path
 
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
-     QStatusBar, QSizePolicy, QListWidgetItem, QPushButton, QStyle, \
-     QDialogButtonBox, QColor
+    QStatusBar, QSizePolicy, QListWidgetItem, QPushButton, QStyle, \
+    QDialogButtonBox, QColor
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi, setBackgroundColor
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.livewidget import LWWidget, LWData, Logscale, \
-     MinimumMaximum, Integrate, Histogram, CreateProfile
 from nicos.protocols.cache import cache_load
+
+from nicoslivewidget import LWWidget, LWData, Logscale, MinimumMaximum, \
+    Integrate, Histogram, CreateProfile
 
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4'))

@@ -54,7 +54,8 @@ Requirements
   - numpy
   - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
-  - cfitsio (optional, for detector live view)
+  - nicos-livewidget (optional, for detector live view)
+  - cfitisio (optional, required by nicos-livewidget)
 
 * Under Windows:
 

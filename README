@@ -51,7 +51,8 @@ Requirements
   - numpy
   - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
-  - cfitsio (optional, for the detector live view)
+  - nicos-livewidget (optional, for detector live view)
+  - cfitsio (optional, required by nicos-livewidget)
 
 * For development (running tests, generating documentation):
   - nose

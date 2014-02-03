@@ -30,18 +30,19 @@ from os import path
 from math import sin, radians, pi
 
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
-     QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont, \
-     QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame
+    QMenu, QToolBar, QStatusBar, QSizePolicy, QListWidgetItem, QLabel, QFont, \
+    QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
-     QwtPlotMarker, QwtSymbol
+    QwtPlotMarker, QwtSymbol
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.livewidget import LWWidget, LWData, Logscale, \
-     MinimumMaximum, BrightnessContrast, Integrate, Histogram, TYPE_FITS, \
-     ShowGrid, Grayscale, Normalize, Darkfield, Despeckle, CreateProfile
+
+from nicoslivewidget import LWWidget, LWData, Logscale, MinimumMaximum, \
+    BrightnessContrast, Integrate, Histogram, TYPE_FITS, ShowGrid, Grayscale, \
+    Normalize, Darkfield, Despeckle, CreateProfile
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
