@@ -27,10 +27,9 @@
 from PyQt4.QtGui import QInputDialog
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL
 
-from nicos.utils import importString
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
-    DetEnvPanel
+    DetEnvPanel, GenericSamplePanel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.widget import NicosWidget
 
@@ -52,7 +51,7 @@ class ExpInfoPanel(Panel):
         self._sample_panel = None
 
     def setOptions(self, options):
-        self._sample_panel = options.get('sample_panel')
+        self._sample_panel = options.get('sample_panel', GenericSamplePanel)
 
     def hideTitle(self):
         self.titleLbl.setVisible(False)
@@ -65,31 +64,24 @@ class ExpInfoPanel(Panel):
 
     @qtsig('')
     def on_proposalBtn_clicked(self):
-        dlg = PanelDialog(self, self.client, ExpPanel)
+        dlg = PanelDialog(self, self.client, ExpPanel, 'Proposal info')
         dlg.exec_()
 
     @qtsig('')
     def on_setupBtn_clicked(self):
-        dlg = PanelDialog(self, self.client, SetupsPanel)
+        dlg = PanelDialog(self, self.client, SetupsPanel, 'Setups')
         dlg.exec_()
 
     @qtsig('')
     def on_sampleBtn_clicked(self):
-        if self._sample_panel:
-            pnlclass = importString(self._sample_panel,
-                                    ('nicos.clients.gui.panels.',))
-            dlg = PanelDialog(self, self.client, pnlclass)
-            dlg.exec_()
-            return
-        sample, ok = QInputDialog.getText(self, 'New sample',
-            'Please enter the sample name.')
-        if not ok or not sample:
-            return
-        self.client.tell('queue', '', 'NewSample(%r)' % sample)
+        dlg = PanelDialog(self, self.client, self._sample_panel,
+                          'Sample information')
+        dlg.exec_()
 
     @qtsig('')
     def on_detenvBtn_clicked(self):
-        dlg = PanelDialog(self, self.client, DetEnvPanel)
+        dlg = PanelDialog(self, self.client, DetEnvPanel,
+                          'Detectors and environment')
         dlg.exec_()
 
     @qtsig('')

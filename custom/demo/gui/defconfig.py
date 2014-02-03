@@ -24,7 +24,8 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import vsplit, window, panel, tool, docked, tabbed
+from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
+    tabbed, setups
 
 main_window = docked(
     vsplit(
@@ -37,15 +38,18 @@ main_window = docked(
            icons=True, dockpos='right',
           )
     ),
-    ('Experiment Information and Setup', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
+    ('Experiment Information and Setup',
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+           sample_panel=tabbed(
+               ('Sample changer', panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                                       image = 'custom/sans1/lib/gui/sampleChanger11.png',
+                                       positions = 11), setups('sans')),
+               ('TAS sample', panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel'), setups('tas')),
+           )
+       )),
 )
 
 windows = [
-    window('Setup', 'setup',
-        tabbed(('Experiment', panel('setup_panel.ExpPanel')),
-               ('Setups',     panel('setup_panel.SetupsPanel')),
-               ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
-        )),
     window('Editor', 'editor',
         vsplit(
             panel('scriptbuilder.CommandsPanel'),

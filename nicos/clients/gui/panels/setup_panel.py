@@ -392,13 +392,14 @@ class DetEnvPanel(Panel, DlgUtils):
             self.showInfo('\n'.join(done))
 
 
-class TasSamplePanel(Panel, DlgUtils):
-    panelName = 'TAS sample setup'
+class GenericSamplePanel(Panel, DlgUtils):
+    panelName = 'Sample setup'
+    uiName = 'setup_sample.ui'
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
         DlgUtils.__init__(self, 'Setup')
-        loadUi(self, 'setup_tassample.ui', 'panels')
+        loadUi(self, self.uiName, 'panels')
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)
 
@@ -412,14 +413,26 @@ class TasSamplePanel(Panel, DlgUtils):
                 parent = parent.parentWidget()
             parent.close()
 
-    def applyChanges(self):
-        new_vals = {}
-        code = ''
-        for edit in [self.samplenameEdit, self.latticeEdit, self.anglesEdit,
-                     self.orient1Edit, self.orient2Edit, self.psi0Edit,
-                     self.spacegroupEdit, self.mosaicEdit]:
-            new_vals[edit.param] = edit.getValue()
-            code += 'Sample.%s = %r\n' % (edit.param, edit.getValue())
+    def getEditBoxes(self):
+        return [self.samplenameEdit]
 
-        self.client.tell('queue', '', code)
+    def applyChanges(self):
+        code = ''
+        for edit in self.getEditBoxes():
+            if edit.param == 'samplename':
+                code += 'NewSample(%r)\n' % edit.getValue()
+            else:
+                code += 'Sample.%s = %r\n' % (edit.param, edit.getValue())
+
+        self.client.tell('queue', '', code.rstrip())
         self.showInfo('Sample parameters changed.')
+
+
+class TasSamplePanel(GenericSamplePanel):
+    panelName = 'TAS sample setup'
+    uiName = 'setup_tassample.ui'
+
+    def getEditBoxes(self):
+        return [self.samplenameEdit, self.latticeEdit, self.anglesEdit,
+                self.orient1Edit, self.orient2Edit, self.psi0Edit,
+                self.spacegroupEdit, self.mosaicEdit]
