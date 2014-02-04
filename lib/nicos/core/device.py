@@ -582,7 +582,7 @@ class Device(object):
                     def updateparam(key, value, time, umethod=umethod):
                         umethod(value)
                     self._cache.addCallback(self, param, updateparam)
-                    self._subscriptions.append(param)
+                    self._subscriptions.append((param, updateparam))
 
         if self._cache:
             self._cache.put('_lastconfig_', self._name, self._config)
@@ -732,8 +732,8 @@ class Device(object):
 
             # remove subscriptions to parameter value updates
             if self._cache:
-                for param in self._subscriptions:
-                    self._cache.removeCallback(self, param)
+                for param, func in self._subscriptions:
+                    self._cache.removeCallback(self, param, func)
 
             # execute custom shutdown actions
             if hasattr(self, 'doShutdown'):

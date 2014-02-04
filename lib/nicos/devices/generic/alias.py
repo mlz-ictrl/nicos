@@ -211,8 +211,8 @@ class DeviceAlias(Device):
         if self._mode != SIMULATION:
             # remove subscriptions to parameter value updates
             if self._cache:
-                for param in self._subscriptions:
-                    self._cache.removeCallback(self, param)
+                for param, func in self._subscriptions:
+                    self._cache.removeCallback(self, param, func)
         session.devices.pop(self._name, None)
         session.explicit_devices.discard(self._name)
 

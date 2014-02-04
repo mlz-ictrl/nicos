@@ -333,7 +333,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
             except Exception:
                 pass
             if self._cache:
-                self._cache.removeCallback(devname, 'value')
+                self._cache.removeCallback(devname, 'value', self._logCallback)
 
     def _saveDataFile(self):
         try:

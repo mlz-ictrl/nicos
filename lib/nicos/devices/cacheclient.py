@@ -457,25 +457,37 @@ class CacheClient(BaseCacheClient):
             with self._dblock:
                 self._db[key] = (value, time)
             if key in self._callbacks and self._do_callbacks:
-                try:
-                    self._callbacks[key](key, value, time)
-                except Exception:
-                    self.log.warning('error in cache callback', exc=1)
+                with self._dblock:
+                    # copy is intented here to avoid races with add/removeCallback
+                    callbacks = tuple(self._callbacks[key])
+                for callback in callbacks:
+                    try:
+                        callback(key, value, time)
+                    except Exception:
+                        self.log.warning('error in cache callback', exc=1)
 
     def _propagate(self, args):
         pass
 
     def addCallback(self, dev, key, function):
         """Add a callback to be called when the given device/subkey value is
-        updated.  There can be only one callback per subkey.
+        updated. Multiple callbacks are called in the order of their registration.
 
         The callback is also called if the value is expired or deleted.
         """
-        self._callbacks[('%s/%s' % (dev, key)).lower()] = function
+        with self._dblock: # {}.setdefault may not be threadsafe
+            cbs = self._callbacks.setdefault(('%s/%s' % (dev, key)).lower(), [])
+            cbs.append(function) # this is supposed to be safe, but why bother?
 
-    def removeCallback(self, dev, key):
-        """Remove a callback for the given device/subkey, if present."""
-        self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
+    def removeCallback(self, dev, key, function):
+        """Remove the given callback for the given device/subkey, if present."""
+        with self._dblock:
+            cbs = self._callbacks.get(('%s/%s' % (dev, key)).lower(), None)
+            if cbs and function and function in cbs:
+                cbs.remove(function)
+                if not cbs:
+                    # emty list: remove!
+                    self._callbacks.pop(('%s/%s' % (dev, key)).lower(), None)
 
     def addPrefixCallback(self, prefix, function):
         """Add a "prefix" callback, which is called for every key and value
