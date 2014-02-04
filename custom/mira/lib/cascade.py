@@ -34,10 +34,11 @@ from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
     CommunicationError, TimeoutError, NicosError, Readable, Measurable, \
     ImageProducer, ImageSink, ImageType
-from nicos.mira import cascadeclient  # pylint: disable=E0611
 from nicos.devices.generic import MultiChannelDetector
 from nicos.devices.fileformats.raw import SingleRAWFileFormat
 from nicos.core import SIMULATION
+
+import nicoscascadeclient as cascadeclient  # pylint: disable=F0401
 
 
 class CascadePadRAWFormat(SingleRAWFileFormat):

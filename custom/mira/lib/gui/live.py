@@ -27,16 +27,15 @@
 import os
 from os import path
 
-from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QPrintDialog, \
-     QDialog, QMenu, QToolBar, QSizePolicy, QListWidgetItem, \
-     QDoubleSpinBox, QLabel
+from PyQt4.QtGui import QStatusBar, QFileDialog, QPrinter, QListWidgetItem, \
+    QDoubleSpinBox, QPrintDialog, QDialog, QMenu, QToolBar, QSizePolicy, QLabel
 from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 
-from nicos.mira.gui.cascadewidget import CascadeWidget, TmpImage
+from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=F0401
 
 
 class LiveDataPanel(Panel):
