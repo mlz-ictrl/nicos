@@ -33,6 +33,7 @@ import numpy as np
 from collections import deque
 
 from nicos import session
+from nicos.utils import clamp
 from nicos.services.poller.psession import PollerSession
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
     none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
@@ -268,8 +269,6 @@ class VirtualTemperature(VirtualMotor):
         return cval
 
 
-def clamp(value, minval, maxval):
-    return min(max(value, minval), maxval)
 
 
 class VirtualRealTemperature(HasLimits, Moveable):

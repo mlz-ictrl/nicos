@@ -26,7 +26,7 @@
 
 from nicos.core import Moveable, HasLimits, Override, Param, SIMULATION, \
      ConfigurationError, InvalidValueError, ProgrammingError, oneof, floatrange
-from nicos.utils import lazy_property
+from nicos.utils import lazy_property, clamp
 
 class CCRControl(HasLimits, Moveable):
     """Class implementing requirements from SE-group
@@ -186,7 +186,7 @@ class CCRControl(HasLimits, Moveable):
         rampmax = self.parameters['ramp'].type.to
         if rampmin <= ramp <= rampmax:
             return ramp
-        clampramp = max(min(ramp, rampmax), rampmin)
+        clampramp = clamp(ramp, rampmin, rampmax)
         self.log.warning('Ramp parameter %.3g is outside of the allowed range '
                          '%.3g..%.3g, setting it to %.3g' % (
                          ramp, rampmin, rampmax, clampramp ))

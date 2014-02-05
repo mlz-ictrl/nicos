@@ -893,3 +893,8 @@ def findResource(filepath):
             return location
     # we have not found anything, sorry...
     return ''
+
+def clamp(value, minval, maxval):
+    """returns a value clamped to the given interval [minval, maxval]"""
+    minval, maxval = min(minval, maxval), max(minval, maxval)
+    return min(max(value, minval), maxval)
