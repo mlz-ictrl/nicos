@@ -27,6 +27,15 @@ _selcolumn = Column(
     ),
 )
 
+_ubancolumn = Column(
+    Block('U-Bahn', [
+        BlockRow(
+                 Field(name='Train', dev='Ubahn'),
+                ),
+        ],
+    ),
+)
+
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
@@ -133,23 +142,23 @@ _sanscolumn = Column(
     ),
 )
 
-_birmag = Column(
-    Block('17T Magnet', [
-        BlockRow(
-                 Field(name='helium level', dev='helevel_birmag', width=13),
-                 Field(name='field birmag', dev='field_birmag', width=13),
-                ),
-        BlockRow(
-                 Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
-                 Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),
-                ),
-        BlockRow(
-                 Field(name='Temp a birmag', dev='ta_birmag', width=13),
-                 Field(name='Temp b birmag', dev='tb_birmag', width=13),
-                ),
-        ], '!always!birmag'
-    ),
-)
+#~ _birmag = Column(
+    #~ Block('17T Magnet', [
+        #~ BlockRow(
+                 #~ Field(name='helium level', dev='helevel_birmag', width=13),
+                 #~ Field(name='field birmag', dev='field_birmag', width=13),
+                #~ ),
+        #~ BlockRow(
+                 #~ Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
+                 #~ Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),
+                #~ ),
+        #~ BlockRow(
+                 #~ Field(name='Temp a birmag', dev='ta_birmag', width=13),
+                 #~ Field(name='Temp b birmag', dev='tb_birmag', width=13),
+                #~ ),
+        #~ ], '!always!birmag'
+    #~ ),
+#~ )
 
 _sansmagnet = Column(
     Block('Sans1 Magnet', [
@@ -180,6 +189,47 @@ _sansmagnet = Column(
     ),
 )
 
+_spinflipper = Column(
+    Block('SpinFlipper', [
+    BlockRow(
+             Field(name='Power', dev='p_sf'),
+             Field(name='Frequency', dev='f_sf'),
+            ),
+    BlockRow(
+             Field(name='Forward', dev='forward_sf'),
+             Field(name='Reverse', dev='reverse_sf'),
+            ),
+    BlockRow(Field(name='Temperature of AG1016', dev='t_sf'),),
+    BlockRow(
+             Field(name='Ampl HP33220a', dev='a_agilent1'),
+             Field(name='Freq HP33220a', dev='f_agilent1'),
+            ),
+        ], 'spin_flipper'
+    ),
+)
+
+ccrs = []
+for i in range(10, 22 + 1):
+    ccrs.append(Block('CCR%d' % i, [
+        BlockRow(
+            Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
+                   unitkey='t/unit'),
+            Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
+                   unitkey=''),
+        ),
+        BlockRow(
+             Field(name='A', dev='T_ccr%d_A' % i),
+             Field(name='B', dev='T_ccr%d_B' % i),
+        ),
+        BlockRow(
+             Field(name='C', dev='T_ccr%d_C' % i),
+             Field(name='D', dev='T_ccr%d_D' % i),
+        ),
+    ], 'ccr%d' % i))
+ccrs = Column(*tuple(ccrs))
+
+
+
 devices = dict(
     Monitor = device('services.monitor.html.Monitor',
                      title = 'SANS-1 Status monitor',
@@ -194,9 +244,9 @@ devices = dict(
                      layout = [
                                  Row(_expcolumn),
                                  Row(_sans1general, _table, _sans1det),
-                                 Row(_selcolumn, _pressurecolumn),
+                                 Row(_ubancolumn,_selcolumn, _pressurecolumn),
                                  Row(_atpolcolumn, _sanscolumn),
-                                 Row(_sansmagnet, _birmag),
+                                 Row(_sansmagnet,_spinflipper, ccrs),
                                ],
                     ),
 )

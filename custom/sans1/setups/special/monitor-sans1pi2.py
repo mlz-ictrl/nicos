@@ -78,7 +78,7 @@ _spinflipper = Block('Spin Flipper', [
              Field(name='Ampl HP33220a', dev='a_agilent1'),
              Field(name='Freq HP33220a', dev='f_agilent1'),
             ),
-], 'spinflipper')
+], 'spin_flipper')
 
 _sansmagnet = Block('Sans1 Magnet', [
     BlockRow(Field(name='Field', dev='b_overall'),),
@@ -123,6 +123,8 @@ for i in range(10, 22 + 1):
         BlockRow(
             Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
                    unitkey='t/unit'),
+            Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
+                   unitkey='t/unit'),
         ),
         BlockRow(
              Field(name='A', dev='T_ccr%d_A' % i),
@@ -145,7 +147,7 @@ _birmag = Block('17 T Magnet', [
         BlockRow(
                  Field(name='Temp a birmag', dev='ta_birmag', width=13),
                  Field(name='Temp b birmag', dev='tb_birmag', width=13),),
-], '!always!birmag')
+], 'birmag')
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',

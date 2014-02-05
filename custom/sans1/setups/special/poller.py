@@ -40,7 +40,7 @@ devices = dict(
                                  'ccmsans', 'amagnet',
                                  'newport02', 'newport03',
                                  'ccr10', 'ccr12', 'ccr16', 'ccr18',
-                                 'htf03','birmag',
+                                 'htf03','birmag','ubahn',
                                 ],
                    blacklist = [],
                   ),

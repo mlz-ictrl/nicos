@@ -51,6 +51,15 @@ _selcolumn = Column(
         ),
 )
 
+_ubahncolumn = Column(
+    Block('U-Bahn', [
+        BlockRow(
+                 Field(name='Train', dev='UBahn'),
+                 )
+               ],
+        ),
+)
+
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
@@ -279,7 +288,7 @@ devices = dict(
                                  Row(_expcolumn),
                                  #Row(_testcolumn),
                                  Row(_sans1general, _sans1det),
-                                 Row(_selcolumn, _pressurecolumn),
+                                 Row(_ubahncolumn,_selcolumn, _pressurecolumn),
                                  Row(_atpolcolumn, _sanscolumn, _detvesselcolumn),
                                ],
                     ),

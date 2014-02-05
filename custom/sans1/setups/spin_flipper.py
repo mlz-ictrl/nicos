@@ -28,7 +28,7 @@ includes = ['system']
 
 group = 'optional'
 
-nethost = 'spinflip.sans1.frm2'
+nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
     p_sf = device('devices.taco.AnalogInput',
