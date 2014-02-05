@@ -231,11 +231,11 @@ class CollimatorTable(NicosWidget, QWidget):
                      (self.props['name'] and 2.5 * self._scale or 0))
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
-        self.curstr = strvalue
+        self._curstr = strvalue
         self.update()
 
     def on_devStatusChange(self, dev, code, status, expired):
-        self.curstatus = code
+        self._curstatus = code
         self.update()
 
     def paintEvent(self, event):
@@ -266,7 +266,7 @@ class CollimatorTable(NicosWidget, QWidget):
         try:
             p = self.props['options'].index(self._curstr)
         except ValueError:
-            p = 0
+            p = len(self.props['options']) // 2 + 0.5
 
         painter.setFont(self.valueFont)
 
