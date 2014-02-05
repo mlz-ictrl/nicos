@@ -38,7 +38,7 @@ Requirements
 * Optional for the basic system:
   - the TACO Python libraries
   - scipy (for fitting)
-  - MySQLdb (for proposal DB query)
+  - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - pyserial (for TACO-less serial line communication)
   - matplotlib (for resolution plots)
   - gnuplot (for plots in the electronig logbook)

@@ -28,9 +28,12 @@ import os
 import datetime
 
 try:
-    import MySQLdb
+    import mysql.connector as DB
 except ImportError:
-    MySQLdb = None
+    try:
+        import MySQLdb as DB
+    except ImportError:
+        DB = None
 
 from nicos import session
 from nicos.core import ConfigurationError, InvalidValueError
@@ -56,11 +59,11 @@ class ProposalDB(object):
         except ValueError:
             raise ConfigurationError('%r is an invalid credentials string '
                                      '("user@host:dbname")' % credentials)
-        if MySQLdb is None:
+        if DB is None:
             raise ConfigurationError('MySQL adapter is not installed')
 
     def __enter__(self):
-        self.conn = MySQLdb.connect(host=self.host,
+        self.conn = DB.connect(host=self.host,
                                     user=self.user,
                                     db=self.db,
                                     charset='utf8')
