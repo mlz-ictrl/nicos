@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'demo',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'liveplot'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'serialsink', 'liveplot'],
     notifiers = [],
 )
 
@@ -34,6 +34,8 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink'),
 
     liveplot = device('devices.datasinks.GraceSink'),
+
+    serialsink = device('devices.datasinks.SerializedSink'),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',

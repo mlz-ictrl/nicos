@@ -25,6 +25,7 @@
 """Data sink classes for NICOS."""
 
 import time
+from os import path
 
 from nicos import session
 from nicos.core import listof, none_or, Device, Param, Override, \
@@ -33,7 +34,8 @@ from nicos.utils import parseDateString
 from nicos.utils.graceplot import GracePlot, GracePlotter
 from nicos.commands.output import printinfo, printwarning
 from nicos.core.sessions.console import ConsoleSession
-from nicos.pycompat import iteritems, listitems, TextIOWrapper
+from nicos.pycompat import iteritems, listitems, TextIOWrapper, \
+    cPickle as pickle
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -376,3 +378,27 @@ class AsciiDatafileSink(DatafileSink):
         self._file.close()
         self._file = None
         self._setROParam('lastpoint', 0)
+
+
+class SerializedSink(DatafileSink):
+    """A data sink that writes serialized datasets to a single file.
+
+    Can be used to retrieve and redisplay past datasets.
+    """
+    def endDataset(self, dataset):
+        serial_file = path.join(session.experiment.datapath, 'all_datasets')
+        if path.isfile(serial_file):
+            try:
+                with open(serial_file, 'rb') as fp:
+                    datasets = pickle.load(fp)
+            except Exception:
+                self.log.warning('could not load serialized datasets', exc=1)
+                datasets = {}
+        else:
+            datasets = {}
+        datasets[session.experiment.lastscan] = dataset
+        try:
+            with open(serial_file, 'wb') as fp:
+                pickle.dump(datasets, fp, pickle.HIGHEST_PROTOCOL)
+        except Exception:
+            self.log.warning('could not save serialized datasets', exc=1)
