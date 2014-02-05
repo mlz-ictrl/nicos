@@ -67,6 +67,13 @@ Requirements
   - nose
   - coverage (optional)
 
+If not supplied by the distribution (see below), most dependencies
+(except PytQt, PyQwt, sip) can be installed from the
+python package reopsitory:
+
+  pip install -r requirements.txt
+
+pip can be obtained from http://www.pip-installer.org/en/latest/installing.html
 
 Configure and build in-place for experimenting
 ----------------------------------------------

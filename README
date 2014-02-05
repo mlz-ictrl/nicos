@@ -63,6 +63,13 @@ Requirements
   - pyreadline (optional, for the console to work)
   - colorama (optional, for colored console output)
 
+If not supplied by the distribution (see below), most dependencies
+(except PytQt, PyQwt, sip) can be installed from the
+python package reopsitory:
+
+  pip install -r requirements.txt
+
+pip can be obtained from http://www.pip-installer.org/en/latest/installing.html
 
 Packages to install for common distributions
 --------------------------------------------
