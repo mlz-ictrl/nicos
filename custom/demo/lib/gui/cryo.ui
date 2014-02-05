@@ -142,7 +142,7 @@
       <stringlist>
        <string>T</string>
        <string>T.setpoint</string>
-       <string>T.heater</string>
+       <string>T.heaterpower</string>
        <string>Ts</string>
       </stringlist>
      </property>
