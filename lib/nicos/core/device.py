@@ -976,18 +976,20 @@ class Readable(Device):
         """
         if self._sim_active:
             return (status.OK, 'simulated ok')
-        if hasattr(self, 'doStatus'):
-            try:
-                value = self._get_from_cache('status', self.doStatus, maxage)
-            except NicosError as err:
-                value = (status.ERROR, str(err))
-            if value[0] not in status.statuses:
-                raise ProgrammingError(self, 'status constant %r is unknown' %
-                                       value[0])
-            return value
+        try:
+            value = self._get_from_cache('status', self.doStatus, maxage)
+        except NicosError as err:
+            value = (status.ERROR, str(err))
+        if value[0] not in status.statuses:
+            raise ProgrammingError(self, 'status constant %r is unknown' %
+                                   value[0])
+        return value
+
+    def doStatus(self, maxage=0):
         if self._adevs:
             return multiStatus(self._adevs, maxage)
         return (status.UNKNOWN, 'doStatus not implemented')
+
 
     def poll(self, n=0, maxage=0):
         """Get status and value directly from the device and put both values
@@ -1014,15 +1016,15 @@ class Readable(Device):
                 ret = self.doPoll(n)
             except Exception:
                 self.log.debug('error in doPoll', exc=1)
-        if ret is not None:
-            self._cache.put(self, 'status', ret[0], currenttime(), self.maxage)
-            self._cache.put(self, 'value', ret[1], currenttime(), self.maxage)
+        if ret is not None and ret[0] is not None:
+            ct = currenttime()
+            self._cache.put(self, 'status', ret[0], ct, self.maxage)
+            self._cache.put(self, 'value', ret[1], ct, self.maxage)
             return ret[0], ret[1]
-        stval = None
-        if hasattr(self, 'doStatus'):
-            stval = self.status(maxage)
-        rdval = self.read(maxage)
-        return stval, rdval
+        # updates shall always get through to the cache
+        self._cache.invalidate(self, 'value')
+        self._cache.invalidate(self, 'status')
+        return self.status(maxage), self.read(maxage)
 
     def _pollParam(self, name, with_ttl=0):
         """Read a parameter value from the hardware and put its value into the
@@ -1055,6 +1057,8 @@ class Readable(Device):
             return
         if hasattr(self, 'doReset'):
             self.doReset()
+        # make sure, status is propagated to the cache after a reset
+        self._cache.invalidate(self, 'status')
         return self.status(0)
 
     def format(self, value, unit=False):
