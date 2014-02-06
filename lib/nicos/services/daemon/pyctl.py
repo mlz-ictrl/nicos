@@ -44,7 +44,7 @@ try:
 except ImportError:
     try:
         #pylint: disable=W0403
-        from ._pyctl import ControlStop, Controller as _Controller
+        from _pyctl import ControlStop, Controller as _Controller
     except ImportError:
         ControlStop = BaseException
         class _Controller(object):
