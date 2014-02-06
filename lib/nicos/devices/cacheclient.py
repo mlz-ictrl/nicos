@@ -51,6 +51,8 @@ class BaseCacheClient(Device):
         'prefix': Param('Cache key prefix', type=str, mandatory=True),
     }
 
+    remote_callbacks = True
+
     def doInit(self, mode):
         try:
             host, port = self.cache.split(':')
@@ -72,7 +74,7 @@ class BaseCacheClient(Device):
         if self._prefix:
             self._prefix += '/'
         self._selecttimeout = CYCLETIME  # seconds
-        self._do_callbacks = True
+        self._do_callbacks = self.remote_callbacks
         self._disconnect_warnings = 0
         # maps newprefix -> oldprefix without self._prefix prepended
         self._inv_rewrites = {}
@@ -115,7 +117,7 @@ class BaseCacheClient(Device):
             self._connected = True
             self._disconnect_warnings = 0
         self._startup_done.set()
-        self._do_callbacks = True
+        self._do_callbacks = self.remote_callbacks
 
     def _disconnect(self, why=''):
         self._connected = False
@@ -457,14 +459,17 @@ class CacheClient(BaseCacheClient):
             with self._dblock:
                 self._db[key] = (value, time)
             if key in self._callbacks and self._do_callbacks:
-                with self._dblock:
-                    # copy is intented here to avoid races with add/removeCallback
-                    callbacks = tuple(self._callbacks[key])
-                for callback in callbacks:
-                    try:
-                        callback(key, value, time)
-                    except Exception:
-                        self.log.warning('error in cache callback', exc=1)
+                self._call_callbacks(key, value, time)
+
+    def _call_callbacks(self, key, value, time):
+        with self._dblock:
+            # copy is intented here to avoid races with add/removeCallback
+            callbacks = tuple(self._callbacks[key])
+        for callback in callbacks:
+            try:
+                callback(key, value, time)
+            except Exception:
+                self.log.warning('error in cache callback', exc=1)
 
     def _propagate(self, args):
         pass

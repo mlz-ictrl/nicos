@@ -35,12 +35,17 @@ from os import path
 from time import time as currenttime, sleep
 
 from nicos import session
-from nicos.core import status, listof, Device, Readable, Param, NicosError, \
+from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError
-from nicos.utils import whyExited, watchFileTime, clamp
+from nicos.utils import whyExited, watchFileTime
 from nicos.devices.generic.alias import DeviceAlias
 from nicos.devices.generic.cache import CacheReader
-from nicos.pycompat import listitems
+from nicos.pycompat import listitems, queue as Queue
+
+
+POLL_MIN_VALID_TIME = 0.25 # latest time slot to poll before value times out due to maxage
+POLL_BUSY_INTERVAL = 1.0   # if dev is busy, poll this often
+POLL_MIN_WAIT = 0.1        # minimum amount of time between two calls to poll()
 
 
 class Poller(Device):
@@ -64,138 +69,210 @@ class Poller(Device):
         self._workers = []
         self._creation_lock = threading.Lock()
 
-    def _long_sleep(self, interval):
-        # a sleep interruptible by stoprequest (otherwise, when we quit the
-        # poller, processes with failed devices will stay around until the
-        # recreate interval is expired, which can be a long time)
-        te = currenttime() + interval
-        while currenttime() < te:
-            if self._stoprequest:
-                return
-            sleep(1)
+    def _worker_thread(self, devname, queue):
 
-    def _worker_thread(self, devname, event):
-        state = ['unused']
+        def reconfigure_dev_target(key, value, time, oldvalues={}):  # pylint: disable=W0102
+            if value != oldvalues.get(key):
+                queue.put('dev_target', False)
+                oldvalues[key] = value
 
-        def reconfigure(key, value, time):
-            # cache valuechange callback
-            # if the target changes, assume that the state will be 'moving'
-            # and shorten the poll interval
-            if key.endswith('target'):
-                state[0] = 'nowmoving'
-            # if the pollinterval or maxage change, update on the next occasion
-            elif key.endswith(('pollinterval', 'maxage')):
-                state[0] = 'newpollpars'
-            # wake up sleeper
-            event.set()
+        def reconfigure_dev_status(key, value, time, oldvalues={}):  # pylint: disable=W0102
+            if value[0] != oldvalues.get(key):
+                if value[0] == status.BUSY: # just went busy, wasn't before!
+                    queue.put('dev_busy', False)
+                else:
+                    queue.put('dev_normal', False)
+                oldvalues[key] = value[0] # only store status code!
+
+        def reconfigure_adev_value(key, value, time, oldvalues={}):  # pylint: disable=W0102
+            if value != oldvalues.get(key):
+                queue.put('adev_value', False)
+                oldvalues[key] = value
+
+        def reconfigure_adev_target(key, value, time, oldvalues={}): # pylint: disable=W0102
+            if value != oldvalues.get(key):
+                queue.put('adev_target', False)
+                oldvalues[key] = value
+
+        def reconfigure_adev_status(key, value, time, oldvalues={}): # pylint: disable=W0102
+            if value[0] != oldvalues.get(key):
+                if value[0] == status.BUSY: # just went busy, wasn't before!
+                    queue.put('adev_busy', False)
+                else:
+                    queue.put('adev_normal', False)
+                oldvalues[key] = value[0] # only store status code!
+
+        def reconfigure_param(key, value, time):
+            queue.put('param', False)
 
         def poll_loop(dev):
-            # the wait between pollings is controlled by an Event, so that
-            # events from other threads (e.g. quit or cache updates) can
-            # trigger a wakeup
-            wait_event = event.wait
-            clear_event = event.clear
-            # get the initial interval
-            interval = dev.pollinterval
-            active = interval is not None
-            if interval is None:
-                interval = 3600
-            # try to avoid polling the same hardware device too often
-            def_maxage = 0 if dev.hardware_access else dev.maxage / 3.
-            maxage = def_maxage
-            errcount = 0
-            i = 0
-            stval, rdval = None, None
-            while not self._stoprequest:
-                i += 1
-                try:
-                    if active:
-                        stval, rdval = dev.poll(i, maxage=maxage)
-                        self.log.debug('%-10s status = %-25s, value = %s' %
-                                       (dev, stval, rdval))
-                except Exception as err:
-                    if errcount < 5:
-                        # only print the warning the first five times
-                        self.log.warning('error reading %s' % dev, exc=err)
-                    elif errcount == 5:
-                        # make the interval a bit larger
-                        interval *= 5
-                    errcount += 1
-                else:
-                    if errcount > 0:
-                        interval = dev.pollinterval
-                        errcount = 0
-                # state change?
-                if state[0] == 'nowmoving':
-                    # if the device is moving, use a fixed very small interval
-                    # to get an initial value update quickly
-                    interval = 0.25
-                    # always get the initial update fresh, even for non-hwdevs
-                    maxage = 0.1
-                    state[0] = 'moving'
-                elif state[0] == 'moving':
-                    # revert to standard maxage handling
-                    maxage = def_maxage
-                    # check for end of moving: if the device is idle or error,
-                    # revert to normal polling interval
-                    if stval and stval[0] != status.BUSY:
-                        state[0] = 'normal'
-                        interval = dev.pollinterval
-                    else:
-                        # else set a smallish interval to follow the device
-                        # while it is moving
-                        interval = 1.0
-                # poll interval changed
-                elif state[0] == 'newpollpars':
-                    interval = dev.pollinterval
-                    active = interval is not None
-                    if interval is None:
-                        interval = 3600
-                    def_maxage = 0 if dev.hardware_access else dev.maxage / 3.
-                    state[0] = 'normal'
-                # now wait until either the poll interval is elapsed, or
-                # something interesting happens
-                wait_event(interval)
-                clear_event()
+            """
+            Polling a device and react to updates received via cache
 
-        dev = None
+            The wait between pollings is controlled by an Queue, so that
+            events from other threads (e.g. quit or cache updates) can
+            trigger a wakeup.
+
+            Based on the events received, the polling interval is adjusted.
+
+            Read errors in the device raise and this gets restarted from the
+            outer loop. If the received event is 'quit' we just exit here.
+            """
+            # get the initial values
+            interval = dev.pollinterval
+            maxage = dev.maxage
+
+            i = 0
+            lastpoll = 0 # last timestamp of succesfull poll
+            # en/disable debug logging
+            do_log = (self.loglevel == 'debug')
+
+            while not self._stoprequest:
+                # determine maximum waiting time with a default of 1h
+                ct = currenttime()
+                nextpoll = lastpoll + (interval or 3600)
+                timesout = lastpoll + dev.maxage - POLL_MIN_VALID_TIME
+                maxwait = min(nextpoll - ct, timesout - ct)
+                if do_log:
+                    self.log.debug('%-10s: maxwait is %g (nextpoll=%g, timesout=%g)'
+                               % (dev, maxwait, nextpoll-ct, timesout-ct))
+
+                # only wait for events if there is time, otherwise just poll
+                if maxwait > 0:
+                    # wait for event
+                    try:
+                        # if the timeout is reached, this raises Queue.Empty
+                        event = queue.get(True, maxwait)
+                        if do_log:
+                            self.log.debug('%-10s: Event %s' % (dev, event))
+
+                        # handle events....
+                        # use pass to trigger a poll or continue to just fetch the next event
+                        if event == 'adev_busy':  # one of our attached_devices went busy
+                            interval = POLL_BUSY_INTERVAL
+                            maxage = POLL_BUSY_INTERVAL / 5
+                            # also poll
+                        elif event == 'adev_normal':  # one of our attached_devices is no more busy
+                            pass # also poll
+                        elif event == 'adev_target':  # one of our attached_devices got new target
+                            interval = POLL_BUSY_INTERVAL
+                            maxage = POLL_BUSY_INTERVAL / 5
+                            continue
+                        elif event == 'adev_value':  # one of our attached_devices changed value
+                            interval = POLL_BUSY_INTERVAL
+                            maxage = POLL_BUSY_INTERVAL / 5
+                            continue
+                        elif event == 'dev_busy':  # our device went busy
+                            interval = POLL_BUSY_INTERVAL
+                            maxage = POLL_BUSY_INTERVAL / 5
+                            continue
+                        elif event == 'dev_normal':  # our device is no more busy
+                            continue
+                        elif event == 'dev_target':  # our device got new target
+                            interval = POLL_BUSY_INTERVAL
+                            maxage = POLL_BUSY_INTERVAL / 5
+                            continue
+                        elif event == 'dev_value':  # our device changed value
+                            continue
+                        elif event == 'param':  # update local vars
+                            interval = dev.pollinterval
+                            maxage = dev.maxage
+                            continue
+                        elif event == 'quit':  # stop doing anything
+                            return
+
+                    except Queue.Empty:
+                        pass # just poll if timed out
+                else:
+                    if do_log:
+                        self.log.debug('%-10s ignoring events for one round' % dev)
+
+                # also do rate-limiting if too many events occur which would
+                # retrigger this device
+                if lastpoll + POLL_MIN_WAIT > currenttime():
+                    if do_log:
+                        self.log.debug('%-10s: rate-limiting poll()' % dev)
+                    continue
+
+                # only poll if enabled
+                if dev.pollinterval is not None:
+                    i += 1
+                    # if the polling fails, raise into outer loop which handles this...
+                    stval, rdval = dev.poll(i, maxage=maxage)
+                    if do_log:
+                        self.log.debug('%-10s: status = %-25s, value = %s' %
+                                       (dev, stval, rdval))
+                    # adjust timing of we are no longer busy
+                    if stval is not None and stval[0] != status.BUSY:
+                        interval = dev.pollinterval
+                        maxage = dev.maxage
+                # keep track of when we last (tried to) poll
+                lastpoll = currenttime()
+            # end of while not self._stoprequest
+        # end of poll_loop(dev)
+
+        errcount = 0
         waittime = 30
+        dev = None
+        registered = False
+
         while not self._stoprequest:
-            if dev is None:
-                try:
+            try:
+                if dev is None:
                     # device creation should be serialized due to the many
                     # global state updates in the session object
                     with self._creation_lock:
                         dev = session.getDevice(devname)
                     if not isinstance(dev, Readable):
-                        self.log.debug('%s is not a readable' % dev)
+                        self.log.info('%s is not a readable' % dev)
                         return
                     if isinstance(dev, (DeviceAlias, CacheReader)):
-                        self.log.debug('%s is a DeviceAlias or a CacheReader, '
+                        self.log.info('%s is a DeviceAlias or a CacheReader, '
                                        'not polling' % dev)
                         return
+
+                if not registered:
+                    self.log.debug('%-10s: registering callbacks' % dev)
                     # keep track of some parameters via cache callback
-                    session.cache.addCallback(dev, 'target', reconfigure)
-                    session.cache.addCallback(dev, 'pollinterval', reconfigure)
-                    state[0] = 'normal'
-                except NicosError as err:
-                    self.log.warning('error creating %s, trying again in '
-                                     '%d sec' % (devname, waittime), exc=err)
-                    self._long_sleep(waittime)
-                    # use exponential back-off for the waittime; in the worst
-                    # case wait 10 minutes between attempts
-                    # (could we have some way of knowing if another NICOS
-                    # session creates an instance of this device, and in that
-                    # case retry immediately?)
-                    waittime = min(waittime*2, 600)
-                    continue
-            self.log.info('starting polling loop for %s' % dev)
-            try:
+                    #~ session.cache.addCallback(dev, 'value', reconfigure_dev_value) # spams events
+                    session.cache.addCallback(dev, 'target', reconfigure_dev_target)
+                    session.cache.addCallback(dev, 'status', reconfigure_dev_status) # may spam events
+                    session.cache.addCallback(dev, 'maxage', reconfigure_param)
+                    session.cache.addCallback(dev, 'pollinterval', reconfigure_param)
+                    # also subscribe to value and status updates of attached devices.
+                    for adev in dev._adevs.values():
+                        if not isinstance(adev, Readable):
+                            continue
+                        session.cache.addCallback(adev, 'value', reconfigure_adev_value)
+                        session.cache.addCallback(adev, 'target', reconfigure_adev_target)
+                        session.cache.addCallback(adev, 'status', reconfigure_adev_status)
+                registered = True
+
+                self.log.info('%-10s: starting polling loop' % dev)
                 poll_loop(dev)
-            except Exception:
-                # should not happen (all exception-prone paths are protected
-                # above), but if it does, the device will not be polled anymore
-                self.log.exception('error in polling loop')
+
+            except Exception as err:
+                errcount +=  1
+                # only warn 5 times in a row, and later occasionally
+                if (errcount < 5) or (errcount % 10 == 0):
+                    if dev is None:
+                        self.log.warning('error creating %s, retrying in '
+                                         '%d sec' % (devname, waittime), exc=err)
+                    else:
+                        self.log.warning('%-10s: error polling, retrying in '
+                                         '%d sec' % (dev, waittime), exc=err)
+                elif errcount % 5 == 0:
+                    # use exponential back-off for the waittime; in the worst
+                    # case wait 15 minutes between attempts
+                    waittime = min(2 * waittime, 900)
+                # sleep up to waittime seconds
+                try:
+                    queue.get(True, waittime)  # may return earlier
+                except Queue.Empty:
+                    pass
+        # end of while not self._stoprequest
+    # end of _worker_thread
+
 
     def start(self, setup=None):
         self._setup = setup
@@ -212,20 +289,24 @@ class Poller(Device):
                 self.log.debug('not polling %s, it is blacklisted' % devname)
                 continue
             self.log.debug('starting thread for %s' % devname)
-            event = threading.Event()
+            queue = Queue.Queue()
             worker = threading.Thread(name='%s poller' % devname,
                                       target=self._worker_thread,
-                                      args=(devname, event))
-            worker.event = event
+                                      args=(devname, queue))
+            worker.queue = queue
             worker.daemon = True
             worker.start()
             self._workers.append(worker)
+            # start staggered to not poll all devs at once....
+            # use just a small delay, exact value does not matter
+            sleep(0.0719)
 
         # start a thread checking for modification of the setup file
         checker = threading.Thread(target=self._checker, name='refresh checker',
                                    args=(setup,))
         checker.daemon = True
         checker.start()
+        self.log.info('%s poller startup complete' % setup)
 
     def _checker(self, setupname):
         fn = session._setup_info[setupname]['filename']
@@ -254,7 +335,7 @@ class Poller(Device):
         self.log.info('poller quitting...')
         self._stoprequest = True
         for worker in self._workers:
-            worker.event.set()
+            worker.queue.put('quit', False) # wake up to quit
         for worker in self._workers:
             worker.join()
         self.log.info('poller finished')

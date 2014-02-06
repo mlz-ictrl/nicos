@@ -405,10 +405,6 @@ class Wavevector(Moveable):
                           mandatory=True),
     }
 
-    parameter_overrides = {
-        'maxage':   Override(default=0.01),
-    }
-
     attached_devices = {
         'base': (Moveable, 'Device to move (mono or ana)'),
         'tas':  (TAS, 'The spectrometer for setting scanmode'),
@@ -458,7 +454,6 @@ class Energy(Moveable):
     }
 
     parameter_overrides = {
-        'maxage':   Override(default=0.01),
         'unit':     Override(volatile=True),
     }
 
@@ -519,7 +514,6 @@ class Wavelength(Moveable):
     }
 
     parameter_overrides = {
-        'maxage':   Override(default=0.01),
         'unit':     Override(volatile=True),
     }
 

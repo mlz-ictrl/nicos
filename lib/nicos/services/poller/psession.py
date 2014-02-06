@@ -28,6 +28,28 @@ from nicos.core import Device, Override
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.generic.cache import CacheReader
 from nicos.devices.generic.alias import DeviceAlias
+from nicos.devices.cacheclient import CacheClient
+from nicos.protocols.cache import OP_TELL
+
+
+class PollerCacheClient(CacheClient):
+    """Special cache client for the poller.
+
+    Callbacks are normally only called for cache updates that are sent to
+    us, but not updates we send to the cache.
+
+    For the poller, we want callbacks (that trigger polling of superdevices
+    among other things) to be called even if the update comes from this
+    process (i.e. another thread calling another device).
+    """
+
+    remote_callbacks = False  # no "normal" callbacks on remote updates
+
+    # but use _propagate to call callbacks always
+    def _propagate(self, args):
+        time, key, op, value = args
+        if op == OP_TELL and key in self._callbacks:
+            self._call_callbacks(key, value, time)
 
 
 class PollerCacheReader(CacheReader):
@@ -45,6 +67,8 @@ class PollerCacheReader(CacheReader):
 
 
 class PollerSession(NoninteractiveSession):
+
+    cache_class = PollerCacheClient
 
     # pylint: disable=W0102
     def getDevice(self, dev, cls=None, source=None,
