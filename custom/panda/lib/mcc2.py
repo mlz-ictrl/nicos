@@ -109,6 +109,7 @@ class MCC2core(Device):
             self.rampcurrent = self._config['rampcurrent']
         except Exception:
             pass
+        self.store()
 
     def doReset(self):
         pass
