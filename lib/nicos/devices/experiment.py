@@ -1076,7 +1076,9 @@ class Experiment(Device):
         if self.proposalsymlink and hasattr(os, 'symlink'):
             self.log.debug('setting symlink %s to %s' %
                            (self.proposalsymlink, self.proposalpath))
-            os.symlink(self.proposalpath, self.proposalsymlink)
+            os.symlink(path.relpath(self.proposalpath,
+                                    path.dirname(self.proposalsymlink)),
+                       self.proposalsymlink)
 
         if self.samplesymlink and path.islink(self.samplesymlink):
             self.log.debug('removing symlink %s' % self.samplesymlink)
