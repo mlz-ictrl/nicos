@@ -584,6 +584,7 @@ class Experiment(Device):
         """Called by `.NewExperiment`."""
         if self._mode == SIMULATION:
             raise UsageError('Simulating switching experiments is not supported!')
+
         try:
             # if proposal can be converted to a number, use the canonical form
             # and prepend prefix
@@ -591,6 +592,9 @@ class Experiment(Device):
         except ValueError:
             pass
         self.log.debug('new proposal real name is %s' % proposal)
+
+        if not proposal:
+            raise UsageError('Proposal name/number cannot be empty')
 
         # check proposal type (can raise)
         proptype = self.getProposalType(proposal)
