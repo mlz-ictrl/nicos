@@ -44,9 +44,13 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='Sel NG', dev='sel_ng_sw'),
-                 Field(name='Sel tilt', dev='sel_tilt'),
-                 )
+                 Field(name='Speed', dev='selector'),
+                 Field(name='Lambda', dev='selector_lambda'),
+                 ),
+         BlockRow(
+                 Field(name='Position', dev='sel_ng_sw'),
+                 Field(name='Tilt', dev='sel_tilt'),
+                 ),
                ],
         ),
 )
@@ -116,23 +120,6 @@ _sans1det = Column(
         ),
 )
 
-#~ _atpolcolumn = Column(
-    #~ Block('Attenuator / Polarizer',[
-      #~ BlockRow(
-        #~ Field(dev='at', name='Att',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ #options=['OPEN','x1000','x100','x10'],
-              #~ options=['x10','x100','x1000','OPEN'],
-              #~ width=7,height=7),
-        #~ Field(dev='ng_pol', name='Pol',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ #options=['NG','POL1','POL2','LAS'],
-              #~ options=['LAS','POL2','POL1','NG'],
-              #~ width=5,height=7),),
-                #~ ],
-        #~ ),
-#~ )
-
 _atpolcolumn = Column(
     Block('Attenuator / Polarizer',[
       BlockRow(
@@ -144,106 +131,76 @@ _atpolcolumn = Column(
 )
 
 
-#~ _sanscolumn = Column(
-    #~ Block('SANS',[
-      #~ BlockRow(
-#        Field(dev='at', name='Att',
-#              widget='nicos.sans1.monitorwidgets.CollimatorTable',
-#              #options=['OPEN','x1000','x100','x10'],
-#              options=['x10','x100','x1000','OPEN'],
-#              width=7,height=7),
-#        Field(dev='ng_pol', name='Pol',
-#              widget='nicos.sans1.monitorwidgets.CollimatorTable',
-#              #options=['NG','POL1','POL2','LAS'],
-#              options=['LAS','POL2','POL1','NG'],
-#              width=5,height=7),
-        #~ Field(dev='col_20a', name='20a',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ #options=['NG','COL','free','LAS'],
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_20b', name='20b',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_16a', name='16a',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_16b', name='16b',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_12a', name='12a',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_12b', name='12b',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_8a', name='8a',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_8b', name='8b',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_4a', name='4a',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_4b', name='4b',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_2a', name='2a',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),
-        #~ Field(dev='col_2b', name='2b',
-              #~ widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              #~ options=['LAS','free','COL','NG'],
-              #~ width=5,height=7),),
-#        Field(dev=['det_pos1', 'det_pos1_x','det_pos1_tilt', 'det_pos2'],
-#                name='Detector position',
-#                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21),),
-#     BlockRow(
-#        Field(dev='col', name='Collimation length',
-#              widget='nicos.sans1.monitorwidgets.BeamOption',
-#              width=13, height=4),
-                #~ ],
-        #~ ),
-#~ )
-
 _sanscolumn = Column(
-    Block('SANS',[
+    Block('Collimation',[
       BlockRow(
         Field(dev='bg1', name='bg1', width=5),
         Field(dev='bg2', name='bg2', width=5),
         Field(dev='sa1', name='sa1', width=5),
               ),
       BlockRow(
-        Field(dev='col_20a', name='20a', width=5),
-        Field(dev='col_16a', name='16a', width=5),
-        Field(dev='col_12a', name='12a', width=5),
-        Field(dev='col_8a', name='8a', width=5),
-        Field(dev='col_4a', name='4a', width=5),
-        Field(dev='col_2a', name='2a', width=5),
-              ),
-      BlockRow(
-        Field(dev='col_20b', name='20b', width=5),
-        Field(dev='col_16b', name='16b', width=5),
-        Field(dev='col_12b', name='12b', width=5),
-        Field(dev='col_8b', name='8b', width=5),
-        Field(dev='col_4b', name='4b', width=5),
-        Field(dev='col_2b', name='2b', width=5),
-              ),
+        Field(dev='at', name='Att',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['x10','x100','x1000','OPEN'],
+              width=6.5,height=7),
+        Field(dev='ng_pol', name='Pol',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','POL2','POL1','NG'],
+              width=5.5,height=7),
+        Field(dev='col_20a', name='20a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_20b', name='20b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_16a', name='16a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_16b', name='16b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_12a', name='12a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_12b', name='12b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_8a', name='8a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_8b', name='8b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_4a', name='4a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_4b', name='4b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_2a', name='2a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_2b', name='2b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+                         ),
       BlockRow(
         Field(dev='col', name='col'),
               ),
-    ])
+                ],
+        ),
 )
 
 _detvesselcolumn = Column(
@@ -255,22 +212,6 @@ _detvesselcolumn = Column(
               ),
          ],),
 )
-
-#~ _testblock = Block(
-    #~ 'Test',
-    #~ [
-     #~ BlockRow(Field(gui='custom/sans1/lib/gui/test.ui')),
-#~ #     BlockRow('mth', 'mtt'),
-#~ #     BlockRow('psi', 'phi'),
-#~ #     BlockRow('ath', 'att'),
-    #~ ],
-#~ )  # this is the name of a setup that must be loaded in the
-            #~ # NICOS master instance for this block to be displayed
-
-#~ _testcolumn = Column(_testblock)
-
-#~ _fullcolumn = Column(_atpolblock, _sansblock)
-#~ _sanscolumn
 
 
 devices = dict(
@@ -286,10 +227,9 @@ devices = dict(
                      padding = 3,
                      layout = [
                                  Row(_expcolumn),
-                                 #Row(_testcolumn),
                                  Row(_sans1general, _sans1det),
                                  Row(_ubahncolumn,_selcolumn, _pressurecolumn),
-                                 Row(_atpolcolumn, _sanscolumn, _detvesselcolumn),
+                                 Row(_sanscolumn, _detvesselcolumn),
                                ],
                     ),
 )

@@ -27,7 +27,7 @@ _selcolumn = Column(
     ),
 )
 
-_ubancolumn = Column(
+_ubahncolumn = Column(
     Block('U-Bahn', [
         BlockRow(
                  Field(name='Train', dev='Ubahn'),
@@ -185,9 +185,16 @@ _sansmagnet = Column(
                  Field(name='Magnet BL', dev='t_8'),
                  Field(name='Magnet BR', dev='t_7'),
                 ),
-        ],'!always!sansmagnet'
+        ],'sansmagnet'
     ),
 )
+
+_sc1 = Column(
+    Block('Sample Changer 1', [
+      BlockRow(
+       Field(name='Position', dev='sc1_y'),
+       Field(name='sc1', dev='sc1'),),
+], '!always!sc1'),)
 
 _spinflipper = Column(
     Block('SpinFlipper', [
@@ -226,7 +233,7 @@ for i in range(10, 22 + 1):
              Field(name='D', dev='T_ccr%d_D' % i),
         ),
     ], 'ccr%d' % i))
-ccrs = Column(*tuple(ccrs))
+_ccrs = Column(*tuple(ccrs))
 
 
 
@@ -244,9 +251,9 @@ devices = dict(
                      layout = [
                                  Row(_expcolumn),
                                  Row(_sans1general, _table, _sans1det),
-                                 Row(_ubancolumn,_selcolumn, _pressurecolumn),
+                                 Row(_ubahncolumn,_selcolumn, _pressurecolumn),
                                  Row(_atpolcolumn, _sanscolumn),
-                                 Row(_sansmagnet,_spinflipper, ccrs),
+                                 Row(_sansmagnet,_spinflipper, _ccrs,_sc1),
                                ],
                     ),
 )

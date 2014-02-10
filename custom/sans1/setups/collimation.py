@@ -92,7 +92,7 @@ devices = dict(
 
     ng_pol = device('sans1.collimotor.Sans1ColliSwitcher',
                     description = 'Neutronguide polariser',
-                    mapping = dict(P1=0, P2=117, P3=234, P4=351, NG=0, POL1=117, POL2=234, LAS=354),
+                    mapping = dict(NG=0, POL1=117, POL2=234, LAS=354),
                     moveable = 'ng_pol_m',
                     ),
     ng_pol_m = device('sans1.collimotor.Sans1ColliMotor',

@@ -270,7 +270,7 @@ class CollimatorTable(NicosWidget, QWidget):
 
         painter.setFont(self.valueFont)
 
-        h0 = max(2.5 * self._scale, 2 * self._scale + 4)
+        h0 = max(2 * self._scale, 2 * self._scale + 4)
         painter.setClipRect(0, yoff, w, h)
         for i, t in enumerate(self.props['options']):
             y = h * 0.5 + yoff + h0 * (p - i - 0.45)

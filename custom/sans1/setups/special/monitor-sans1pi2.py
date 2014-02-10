@@ -102,7 +102,7 @@ _sansmagnet = Block('Sans1 Magnet', [
              Field(name='Magnet BL', dev='t_8'),
              Field(name='Magnet BR', dev='t_7'),
             ),
-], '!always!sansmagnet')
+], 'sansmagnet')
 
 _amagnet = Block('Garfield Magnet', [
     BlockRow(Field(name='Lambda out', dev='l_out'),),
