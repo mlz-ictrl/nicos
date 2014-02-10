@@ -41,9 +41,14 @@ def zipFiles(zipfilename, rootdir):
     zf = zipfile.ZipFile(zipfilename, 'w', zipfile.ZIP_DEFLATED, True)
     nfiles = 0
     try:
-        for root, _dirs, files in os.walk(rootdir):
+        # os.walk will not follow symlinks
+        for root, dirs, files in os.walk(rootdir):
+            # prune hidden dirs
+            dirs[:] = [tdir for tdir in dirs if not tdir.startswith('.')]
             xroot = root[len(rootdir):].strip('/').strip('\\')
             for fn in files:
+                if fn.startswith('.'):
+                    continue  # ignore hidden files
                 zf.write(path.join(root, fn), path.join(xroot, fn))
                 nfiles += 1
                 if nfiles % 500 == 0:

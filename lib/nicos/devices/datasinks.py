@@ -386,7 +386,7 @@ class SerializedSink(DatafileSink):
     Can be used to retrieve and redisplay past datasets.
     """
     def endDataset(self, dataset):
-        serial_file = path.join(session.experiment.datapath, 'all_datasets')
+        serial_file = path.join(session.experiment.datapath, '.all_datasets')
         if path.isfile(serial_file):
             try:
                 with open(serial_file, 'rb') as fp:
