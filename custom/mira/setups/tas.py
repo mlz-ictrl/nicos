@@ -1,7 +1,7 @@
 description = 'MIRA triple-axis setup'
 group = 'basic'
 
-includes = ['base', 'mono2', 'analyzer', 'detector']
+includes = ['base', 'mono2', 'analyzer', 'detector', 'alias_sth']
 
 modules = ['nicos.commands.tas']
 
@@ -13,17 +13,13 @@ devices = dict(
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
                     cell = 'Sample',
                     phi = 'phi',
-                    psi = 'om',
+                    psi = 'sth',
                     mono = 'mono',
                     ana = 'ana',
                     alpha = None,
                     scatteringsense = (-1, 1, -1),
                     axiscoupling = False,
                     psi360 = False),
-
-    vom    = device('devices.generic.VirtualMotor',
-                    abslimits = (-360, 360),
-                    unit = 'deg'),
 
     ki     = device('devices.tas.Wavevector',
                     description = 'Incoming wavevector, also sets constant-ki mode when moved',

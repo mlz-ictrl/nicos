@@ -26,6 +26,10 @@ _column1 = Column(
                                'stt': 'phi', 'ath': 'ath', 'att': 'att', 'tas': 'mira'})),
     ], 'tas'),
     Block('MIRA Magnet', [BlockRow('I')], 'miramagnet'),
+    Block('Garfield Magnet', [
+        BlockRow(Field(name='on/off', dev='garfield_onoff')),
+        BlockRow('I_garfield'),
+    ], 'garfield'),
     Block('FRM Magnet', [
         BlockRow('B', Field(name='sth', dev='sth_m7T5_stick'),
                  Field(name='T1', dev='m7T5_T1', width=6),

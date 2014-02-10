@@ -33,17 +33,6 @@ devices = dict(
                       switchvalues = (0, 1),
                       fmtstr = '%.3f'),
 
-#    att      = device('mira.axis.PhytronAxis',
-#                      description = 'analyzer two-theta',
-#                      tacodevice = '//mirasrv/mira/axis/att',
-#                      abslimits = (-90 - 135, -90 + 135),
-#                      fmtstr = '%.2f',
-#                      offset = -90.0),
-    vatt     = device('devices.generic.VirtualMotor',
-                      description = 'Virtual analyzer two-theta',
-                      abslimits = (-180, 180),
-                      unit = 'deg'),
-
     ana      = device('devices.tas.Monochromator',
                       description = 'Analyzer unit (see ana.unit for setting new unit)',
                       unit = 'A-1',

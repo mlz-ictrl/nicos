@@ -14,14 +14,22 @@ devices = dict(
                     axiscoupling = False,
                     psi360 = False,
                     cell = 'Sample',
-                    phi = 'phi',
-                    psi = 'om',
-                    mono = 'mono',
-                    ana = 'ana',
+                    phi = 'vphi',
+                    psi = 'vom',
+                    mono = 'vmono',
+                    ana = 'vana',
                     alpha = None,
                     scatteringsense = (-1, 1, -1)),
 
-    mono   = device('devices.tas.Monochromator',
+    vom    = device('devices.generic.VirtualMotor',
+                    abslimits = (-360, 360),
+                    unit = 'deg'),
+
+    vphi   = device('devices.generic.VirtualMotor',
+                    abslimits = (0, 120),
+                    unit = 'deg'),
+
+    vmono  = device('devices.tas.Monochromator',
                     unit = 'A-1',
                     theta = 'vmth',
                     twotheta = 'vmtt',
@@ -30,7 +38,7 @@ devices = dict(
                     abslimits = (0.1, 10),
                     dvalue = 3.325),
 
-    ana    = device('devices.tas.Monochromator',
+    vana   = device('devices.tas.Monochromator',
                     unit = 'A-1',
                     theta = 'vath',
                     twotheta = 'vatt',
@@ -57,13 +65,13 @@ devices = dict(
 
     ki     = device('devices.tas.Wavevector',
                     unit = 'A-1',
-                    base = 'mono',
+                    base = 'vmono',
                     tas = 'mira',
                     scanmode = 'CKI'),
 
     kf     = device('devices.tas.Wavevector',
                     unit = 'A-1',
-                    base = 'ana',
+                    base = 'vana',
                     tas = 'mira',
                     scanmode = 'CKF'),
 )

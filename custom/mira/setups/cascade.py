@@ -39,6 +39,7 @@ devices = dict(
     dtx    = device('mira.axis.PhytronAxis',
                     description = 'Detector translation along the beam on Franke table',
                     tacodevice = '//mirasrv/mira/axis/dtx',
+                    fmtstr = '%.1f',
                     abslimits = (0, 1490),
                     pollinterval = 5,
                     maxage = 10),

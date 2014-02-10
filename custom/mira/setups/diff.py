@@ -1,7 +1,7 @@
 description = 'MIRA2 diffraction setup'
 group = 'basic'
 
-includes = ['base', 'mono2', 'detector']
+includes = ['base', 'mono2', 'detector', 'alias_sth']
 
 modules = ['nicos.commands.tas']
 
@@ -13,26 +13,13 @@ devices = dict(
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
                     cell = 'Sample',
                     phi = 'phi',
-                    psi = 'om',
+                    psi = 'sth',
                     mono = 'mono',
                     ana = 'vana',
                     alpha = None,
                     scatteringsense = (-1, 1, -1),
                     axiscoupling = False,
                     psi360 = False),
-
-#    sth       = device('devices.generic.DeviceAlias',
-#                       description = 'currently used sample-theta',
-#                       devclass = 'nicos.core.Moveable'),
-
-#    vmono      = device('devices.tas.Monochromator',
-#                      unit = 'A-1',
-#                      dvalue = 3.355,
-#                      theta = 'vath',
-#                      twotheta = 'vatt',
-#                      focush = None,
-#                      focusv = None,
-#                      abslimits = (0.1, 10)),
 
     vana      = device('devices.tas.Monochromator',
                       description = 'virtual analyzer',
