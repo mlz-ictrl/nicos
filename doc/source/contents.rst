@@ -1,10 +1,12 @@
-Documentation contents
-======================
+.. only:: pdf or latex
 
-Instrument responsible and user related chapters:
+   .. include:: introduction.rst
+
+For Instrument responsibles and Users
+=====================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    install
    components
@@ -12,12 +14,12 @@ Instrument responsible and user related chapters:
    services/index
    classes/index
    commands
-   custom/index
 
-Developer related chapters:
+For Developers
+==============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    sessionapi
    deviceapi
@@ -26,12 +28,24 @@ Developer related chapters:
    newsetup
    gui/index
 
-General information:
+General information
+===================
 
 .. toctree::
 
    changes
    glossary
 
+.. only:: customdoc
+
+   Instrument specific documentation
+   =================================
+
+   .. toctree::
+      :maxdepth: 2
+
+      custom/index
+
 * :ref:`genindex`
 * :ref:`modindex`
+* :ref:`search`

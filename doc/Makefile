@@ -3,6 +3,9 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
+ifeq ($(CUSTOMDOC),1)
+SPHINXOPTS    =-t customdoc
+endif
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = build
@@ -36,6 +39,7 @@ help:
 	@echo "  pdf        to make a pdf file with rst2pdf (if installed)"
 	@echo 
 	@echo "Add FULLCODE=1 to the commandline to include the complete code docs"
+	@echo "Add CUSTOMDOC=1 to the commandline to include the custom docs"
 
 clean:
 	-rm -rf $(BUILDDIR)/*

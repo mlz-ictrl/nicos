@@ -50,11 +50,11 @@ html_static_path = ['_static']
 html_style = 'nicos.css'
 
 latex_documents = [
-  ('index', 'NICOS.tex', u'NICOS v2 Documentation',
+  ('contents', 'NICOS.tex', u'NICOS v2 Documentation',
    u'NICOS contributors', 'manual'),
 ]
 pdf_documents = [
-  ('index', 'NICOS', u'NICOS v2 Documentation',
+  ('contents', 'NICOS', u'NICOS v2 Documentation',
    u'NICOS contributors', 'manual'),
 ]
 # A comma-separated list of custom stylesheets. Example:
