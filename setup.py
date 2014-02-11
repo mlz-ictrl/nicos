@@ -25,7 +25,7 @@ def find_ui_files():
             res[root[4:].replace('/', '.')] = uis
     return res
 
-sys.path.append('lib')
+sys.path.insert(0, 'lib')
 import nicos
 
 scripts = ['bin/' + name for name in os.listdir('bin')
