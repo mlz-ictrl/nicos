@@ -1112,7 +1112,7 @@ class Session(object):
                 exc_info[1].device.log.error(exc_info=exc_info)
                 return
         if cut_frames:
-            etype, evalue, tb = exc_info
+            etype, evalue, tb = exc_info  # pylint: disable=W0633
             while cut_frames:
                 tb = tb.tb_next
                 cut_frames -= 1

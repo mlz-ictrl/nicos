@@ -28,7 +28,7 @@ import os
 import datetime
 
 try:
-    import mysql.connector as DB
+    import mysql.connector as DB  #pylint: disable=F0401
 except ImportError:
     try:
         import MySQLdb as DB

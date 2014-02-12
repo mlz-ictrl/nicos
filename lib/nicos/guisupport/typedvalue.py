@@ -545,7 +545,7 @@ class DictOfWidget(ItemsWidget):
             key = self.keytype()
             val = self.valtype()
         else:
-            key, val = keyval
+            key, val = keyval  # pylint: disable=W0633
         keywidget = create(self, self.keytype, key, client=self.client)
         self.connect(keywidget, SIGNAL('dataChanged'),
                      lambda: self.emit(SIGNAL('dataChanged')))

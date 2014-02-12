@@ -148,7 +148,7 @@ class Monitor(BaseMonitor):
             master._wantFullScreen = True
             QCursor.setPos(master.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
-            w, h, x, y = self._geometry
+            w, h, x, y = self._geometry  # pylint: disable=W0633
             master.setGeometry(x, y, w, h)
 
         self._bgcolor = QColor('gray')

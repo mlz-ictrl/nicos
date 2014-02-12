@@ -423,7 +423,7 @@ class NicosCmdClient(NicosClient):
                 else:
                     self.put_message(data)
             elif name == 'status':
-                status, line = data
+                status, line = data  # pylint:disable=W0633
                 if status == STATUS_IDLE or status == STATUS_IDLEEXC:
                     new_status = 'idle'
                     self.stop_pending = False
@@ -489,7 +489,7 @@ class NicosCmdClient(NicosClient):
                 self.showhelp(data[1])
             elif name == 'simresult':
                 if self.simulating:
-                    timing, devinfo = data
+                    timing, devinfo = data  # pylint: disable=W0633
                     self.put_client('Simulated minimum runtime: %s '
                         '(finishes approximately %s). Device ranges:' %
                         (formatDuration(timing), formatEndtime(timing)))
