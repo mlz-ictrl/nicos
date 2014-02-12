@@ -31,7 +31,7 @@ import threading
 
 from nicos import session
 from nicos.core import Param, Override, none_or, anytype, tupleof, status, \
-    NicosError, MoveError, ProgrammingError
+    NicosError, MoveError, ProgrammingError, ConfigurationError, LimitError
 from nicos.core.device import Moveable, DeviceMixinBase
 
 
@@ -91,7 +91,7 @@ class SeqDev(SequenceItem):
     def check(self):
         res = self.dev.isAllowed(*self.args, **self.kwargs)
         if not res[0]:
-            raise MoveError(res[1])
+            raise LimitError(self.dev, res[1])
     def run(self):
         self.dev.start(*self.args, **self.kwargs)
     def wait(self):
@@ -130,6 +130,9 @@ class SeqMethod(SequenceItem):
     def __init__(self, dev, method, *args, **kwargs):
         SequenceItem.__init__(self, dev=dev, method=method, args=args,
                                     kwargs=kwargs)
+    def check(self):
+        if not hasattr(self.dev, self.method):
+            raise ConfigurationError(self.dev, 'method %s does not exist!' % self.method)
     def run(self):
         getattr(self.dev, self.method)(*self.args)
     def __repr__(self):
@@ -155,15 +158,17 @@ class SeqSleep(SequenceItem):
         self.stopflag = False
         self.endtime = 0
     def run(self):
-        session.beginActionScope(self.reason or 'Sleeping %s (H:M:S)' %
-                                 timedelta(seconds = self.duration))
+        if self.duration > 3:
+            session.beginActionScope(self.reason or 'Sleeping %s (H:M:S)' %
+                                     timedelta(seconds = self.duration))
         self.endtime = currenttime() + self.duration
     def wait(self):
         if self.stopflag == False and self.endtime > currenttime():
             # arbitrary choice of max 5s
             time.sleep(min(5, self.endtime - currenttime()))
             return False
-        session.endActionScope()
+        if self.duration > 3:
+            session.endActionScope()
         return True
     def stop(self):
         self.stopflag = True
@@ -173,7 +178,7 @@ class SeqSleep(SequenceItem):
             return 'waiting: %s' + str(timedelta(seconds = round(self.endtime -
                                                                currenttime())))
         else:
-            return 'wait(%d)' % self.duration
+            return 'wait(%g)' % self.duration
 
 
 class SeqNOP(SequenceItem):
@@ -223,9 +228,10 @@ class SequencerMixin(DeviceMixinBase):
 
     def _set_seq_status(self, newstatus=status.OK, newstatusstring='unknown'):
         """Set the current sequence status"""
+        oldstatus = self.status()
         self._seq_status = (newstatus, newstatusstring.strip())
         self.log.debug(self._seq_status[1])
-        if self._cache:
+        if self._cache and oldstatus != self._seq_status:
             self._cache.put(self, 'status', self._seq_status,
                             time.time(), self.maxage)
 
@@ -240,7 +246,7 @@ class SequencerMixin(DeviceMixinBase):
                 try:
                     action.check()
                 except Exception as e:
-                    self.log.debug('action.check failed with %r' % e)
+                    self.log.error('action.check for %r failed with %r' % (action, e))
                     self.log.debug('_checkFailed returned %r' %
                                     self._checkFailed(i, action, e))
                     # if the above does not raise, consider this as OK
