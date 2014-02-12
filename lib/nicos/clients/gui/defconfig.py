@@ -37,7 +37,7 @@ main_window = docked(
            icons=True, dockpos='right',
           )
     ),
-    ('Experiment info', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
+    ('Experiment Information and Setup', panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
 )
 
 windows = [
