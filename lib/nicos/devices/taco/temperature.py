@@ -222,6 +222,10 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
                                  % err)
         return limits
 
+    def doReadMaxheaterpower(self):
+        return float(self._taco_guard(self._dev.deviceQueryResource,
+                                       'maxpower'))
+
     def doWriteP(self, value):
         self._taco_guard(self._dev.setPParam, value)
 
@@ -234,63 +238,39 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
     def doWriteRamp(self, value):
         self._taco_guard(self._dev.setRamp, value)
 
-    def doWriteTolerance(self, value):
-        # writing the "tolerance" resource is only allowed when stopped
-        self.log.warning('Stopping Device to set tolerance, '
-                         'you may need to start/move it again.')
+    def __stop_and_set(self, resource, value):
+        # helper for all resources which need to stop the devices first.
+        # do it, but give a warning
+        self.log.warning('Stopping device to set %r, you may need to '
+                         'start/move it again.' % resource)
         self._taco_guard(self._dev.stop)
-        self._taco_update_resource('tolerance', str(value))
+        self._taco_update_resource(resource, str(value))
+
+    def doWriteTolerance(self, value):
+        self.__stop_and_set('tolerance', value)
 
     def doWriteWindow(self, value):
-        # writing the "window" resource is only allowed when stopped
-        self.log.warning('Stopping Device to set window, '
-                         'you may need to start/move it again.')
-        self._taco_guard(self._dev.stop)
-        self._taco_update_resource('window', str(value))
+        self.__stop_and_set('window', value)
 
     def doWriteTimeout(self, value):
-        # writing the "timeout" resource is only allowed when stopped
-        self.log.warning('Stopping Device to set timeout, '
-                         'you may need to start/move it again.')
-        self._taco_guard(self._dev.stop)
-        self._taco_update_resource('timeout', str(value))
+        self.__stop_and_set('timeout', value)
 
     def doWriteControlchannel(self, value):
-        # writing the "channel" resource is only allowed when stopped
-        self.log.warning('Stopping Device to change control channel, '
-                         'you may need to start/move it again.')
-        self._taco_guard(self._dev.stop)
-        self._taco_update_resource('channel', value)
+        self.__stop_and_set('channel', value)
 
     def doWriteMode(self, value):
         modes = {'manual': '1', 'zone': '2', 'openloop': '3'}
-        # writing the "defaultmode" resource is only allowed when stopped
-        self.log.warning('Stopping Device to set mode, '
-                         'you may need to start/move it again.')
-        self._taco_guard(self._dev.stop)
-        self._taco_update_resource('defaultmode', modes[value])
-
-    def doReadMaxheaterpower(self):
-        return float(self._taco_guard(self._dev.deviceQueryResource,
-                                       'maxpower'))
+        self.__stop_and_set('defaultmode', modes[value])
 
     def doWriteMaxheaterpower(self, value):
-        # writing the "maxpower" resource is only allowed when stopped
-        self.log.warning('Stopping Device to set maximum heater power, '
-                         'you may need to start/move it again.')
-        self._taco_guard(self._dev.stop)
-        self._taco_update_resource('maxpower', str(value))
+        self.__stop_and_set('maxpower', value)
 
     def doWriteUserlimits(self, limits):
         wlimits = HasLimits.doWriteUserlimits(self, limits)
         if wlimits:
             limits = wlimits
-        # writing the "user*" resources is only allowed when stopped
-        self._taco_guard(self._dev.stop)
-        self.log.warning('Stopping Device to change limits, you may need to '
-                         'start/move it again.')
         try:
-            self._dev.deviceUpdateResource('usermax', limits[1])
+            self.__stop_and_set('usermax', limits[1])
         except Exception as err:
             if str(err) != 'resource not supported':
                 self.log.warning('Error during update of usermax resource: %s'
