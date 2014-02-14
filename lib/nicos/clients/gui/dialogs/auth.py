@@ -40,7 +40,7 @@ class ConnectionDialog(QDialog):
         ret = self.exec_()
         if ret != QDialog.Accepted:
             return None, None, None, None
-        new_addr = str(self.presetOrAddr.currentText())
+        new_addr = self.presetOrAddr.currentText()
         new_data = {}
         new_name = preset_name = ''
         if new_addr in connpresets:
@@ -61,10 +61,10 @@ class ConnectionDialog(QDialog):
                 port = DEFAULT_PORT
             new_data['host'] = host
             new_data['port'] = port
-            new_data['login'] = str(self.userName.text())
-        passwd = str(self.password.text())
+            new_data['login'] = self.userName.text()
+        passwd = self.password.text()
         if not new_name:
-            preset_name = str(self.newPresetName.text())
+            preset_name = self.newPresetName.text()
         return new_name, new_data, passwd, preset_name
 
     def __init__(self, parent, connpresets, lastpreset, lastdata):
@@ -85,8 +85,8 @@ class ConnectionDialog(QDialog):
         self.resize(QSize(self.width(), self.minimumSize().height()))
 
     def on_presetOrAddr_editTextChanged(self, text):
-        if str(text) in self.connpresets:
-            conn = self.connpresets[str(text)]
+        if text in self.connpresets:
+            conn = self.connpresets[text]
             self.userName.setText(conn[2])
             self.presetFrame.hide()
         else:

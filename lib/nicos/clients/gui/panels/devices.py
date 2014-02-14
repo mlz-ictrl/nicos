@@ -27,7 +27,8 @@
 from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
     QDialog, QMessageBox, QPushButton
-from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp
+from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
+    QByteArray
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
@@ -35,7 +36,7 @@ from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
-from nicos.pycompat import iteritems, text_type
+from nicos.pycompat import iteritems
 
 
 foregroundBrush = {
@@ -139,7 +140,7 @@ class DevicesPanel(Panel):
         settings.setValue('headers', self.tree.header().saveState())
 
     def loadSettings(self, settings):
-        self._headerstate = settings.value('headers').toByteArray()
+        self._headerstate = settings.value('headers', b'', QByteArray)
 
     def hideTitle(self):
         self.titleLbl.setVisible(False)
@@ -261,7 +262,7 @@ class DevicesPanel(Panel):
                         if catitem.childCount() == 0:
                             self.tree.takeTopLevelItem(
                                 self.tree.indexOfTopLevelItem(catitem))
-                            del self._catitems[str(catitem.text(0))]
+                            del self._catitems[catitem.text(0)]
 
     def on_client_cache(self, data):
         (_time, key, op, value) = data
@@ -377,7 +378,7 @@ class DevicesPanel(Panel):
         if item is None:
             return
         if item.type() == 1001:
-            self._menu_dev = str(item.text(0))
+            self._menu_dev = item.text(0)
             ldevname = self._menu_dev.lower()
             if 'nicos.core.device.Moveable' in self._devinfo[ldevname][5]:
                 self.devmenu.popup(self.tree.viewport().mapToGlobal(point))
@@ -414,7 +415,7 @@ class DevicesPanel(Panel):
             if not ok:
                 return
             self.client.tell('queue', '', 'fix(%s, %r)' %
-                             (self._menu_dev, text_type(reason)))
+                             (self._menu_dev, reason))
 
     @qtsig('')
     def on_actionRelease_triggered(self):
@@ -445,7 +446,7 @@ class DevicesPanel(Panel):
     def on_tree_itemActivated(self, item, column):
         if item.type() != 1001:
             return
-        devname = str(item.text(0))
+        devname = item.text(0)
         self._open_control_dialog(devname)
 
     def _open_control_dialog(self, devname):
@@ -664,8 +665,7 @@ class ControlDialog(QDialog):
             'Please enter the reason for fixing %s:' % self.devname)
         if not ok:
             return
-        self.client.tell('queue', '', 'fix(%s, %r)' %
-                         (self.devname, text_type(reason)))
+        self.client.tell('queue', '', 'fix(%s, %r)' % (self.devname, reason))
 
     @qtsig('')
     def on_actionRelease_triggered(self):
@@ -674,7 +674,7 @@ class ControlDialog(QDialog):
     @qtsig('')
     def on_setAliasBtn_clicked(self):
         self.client.tell('queue', '', '%s.alias = %r' %
-                         (self.devname, str(self.aliasTarget.getValue())))
+                         (self.devname, self.aliasTarget.getValue()))
 
     def closeEvent(self, event):
         event.accept()
@@ -690,7 +690,7 @@ class ControlDialog(QDialog):
         self.paramItems[subkey].setText(1, str(value))
 
     def on_paramList_itemClicked(self, item):
-        pname = str(item.text(0))
+        pname = item.text(0)
         if not self.paraminfo[pname]['settable']:
             return
         mainunit = self.paramvalues.get('unit', 'main')

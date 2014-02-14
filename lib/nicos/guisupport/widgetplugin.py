@@ -74,7 +74,7 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
         return QIcon(self.widget_class.designer_icon)
 
     def domXml(self):
-        name = str(self.name())
+        name = self.name()
         lowerName = name[0].lower() + name[1:]
         return '<widget class="%s" name="%s" />\n' % (name, lowerName)
 

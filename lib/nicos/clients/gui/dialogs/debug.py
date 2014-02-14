@@ -35,7 +35,7 @@ from PyQt4.QtGui import QMainWindow, QPlainTextEdit, QFont, QTextOption, \
 from PyQt4.QtCore import Qt, QCoreApplication, SIGNAL
 
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.pycompat import exec_, text_type
+from nicos.pycompat import exec_
 
 
 class StdoutProxy(object):
@@ -83,7 +83,7 @@ class ConsoleBox(QPlainTextEdit):
 
     def getCommand(self):
         doc = self.document()
-        curr_line = text_type(doc.findBlockByLineNumber(doc.lineCount() - 1).text())
+        curr_line = doc.findBlockByLineNumber(doc.lineCount() - 1).text()
         return curr_line[len(self.ps1):]
 
     def setCommand(self, command):

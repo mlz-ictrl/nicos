@@ -31,7 +31,7 @@ from os import path
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
     QStatusBar, QSizePolicy, QListWidgetItem, QPushButton, QStyle, \
     QDialogButtonBox, QColor
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
+from PyQt4.QtCore import Qt, QByteArray, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi, setBackgroundColor
@@ -110,11 +110,11 @@ class SANSPanel(Panel):
         self.widget.setInstrumentOption(self._instrument)
 
     def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter').toByteArray()
+        self.splitterstate = settings.value('splitter', b'', QByteArray)
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
-        settings.setValue('geometry', QVariant(self.saveGeometry()))
+        settings.setValue('geometry', self.saveGeometry())
 
     def getMenus(self):
         self.menu = menu = QMenu('&Live data', self)
@@ -153,7 +153,7 @@ class SANSPanel(Panel):
     def on_fileList_itemClicked(self, item):
         if item is None:
             return
-        fname = item.data(32).toString()
+        fname = item.data(32)
         if fname == '':
             if self._no_direct_display:
                 self._no_direct_display = False

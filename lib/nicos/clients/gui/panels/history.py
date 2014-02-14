@@ -32,7 +32,7 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtLog10ScaleEngine
 from PyQt4.QtGui import QDialog, QFont, QPen, QListWidgetItem, QToolBar, \
     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, \
     QFileDialog, QLabel, QComboBox, QMessageBox
-from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, SIGNAL
+from PyQt4.QtCore import QObject, QTimer, QDateTime, QByteArray, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 import numpy as np
@@ -251,7 +251,7 @@ class NewViewDialog(QDialog, DlgUtils):
 
     def setIntervalFromSimple(self, text):
         try:
-            _itime, interval = parseTimeSpec(str(text))
+            _itime, interval = parseTimeSpec(text)
         except Exception:
             pass
         else:
@@ -260,18 +260,18 @@ class NewViewDialog(QDialog, DlgUtils):
     def accept(self):
         if self.simpleTime.isChecked():
             try:
-                parseTimeSpec(str(self.simpleTimeSpec.text()))
+                parseTimeSpec(self.simpleTimeSpec.text())
             except ValueError:
                 self.showSimpleHelp()
                 return
         if self.customY.isChecked():
             try:
-                float(str(self.customYFrom.text()))
+                float(self.customYFrom.text())
             except ValueError:
                 self.showError('You have to input valid y axis limits.')
                 return
             try:
-                float(str(self.customYTo.text()))
+                float(self.customYTo.text())
             except ValueError:
                 self.showError('You have to input valid y axis limits.')
                 return
@@ -279,19 +279,19 @@ class NewViewDialog(QDialog, DlgUtils):
 
     def infoDict(self):
         return dict(
-            devices = str(self.devices.currentText()),
-            name = str(self.namebox.text()),
+            devices = self.devices.currentText(),
+            name = self.namebox.text(),
             simpleTime = self.simpleTime.isChecked(),
-            simpleTimeSpec = str(self.simpleTimeSpec.text()),
+            simpleTimeSpec = self.simpleTimeSpec.text(),
             slidingWindow = self.slidingWindow.isChecked(),
             frombox = self.frombox.isChecked(),
             tobox = self.tobox.isChecked(),
             fromdate = self.fromdate.dateTime().toTime_t(),
             todate = self.todate.dateTime().toTime_t(),
-            interval = str(self.interval.text()),
+            interval = self.interval.text(),
             customY = self.customY.isChecked(),
-            customYFrom = str(self.customYFrom.text()),
-            customYTo = str(self.customYTo.text()),
+            customYFrom = self.customYFrom.text(),
+            customYTo = self.customYTo.text(),
         )
 
 
@@ -592,7 +592,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         for preset, info in iteritems(self.presetdict):
             paction = QAction(preset, self)
             pdelaction = QAction(preset, self)
-            info = pickle.loads(str(info.toString()))
+            info = pickle.loads(str(info))
             def launchpreset(on, info=info):
                 self._createViewFromDialog(info)
             def delpreset(on, name=preset, pact=paction, pdelact=pdelaction):
@@ -625,8 +625,8 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         return [bar]
 
     def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter').toByteArray()
-        self.presetdict = settings.value('presets').toMap()
+        self.splitterstate = settings.value('splitter', b'', QByteArray)
+        self.presetdict = settings.value('presets', type=object)
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
@@ -668,8 +668,8 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
-        descr = str(newdlg.description.text())
-        fname = str(newdlg.filename.text())
+        descr = newdlg.description.text()
+        fname = newdlg.filename.text()
         pathname = self.currentPlot.savePng()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())

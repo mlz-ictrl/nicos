@@ -36,7 +36,6 @@ from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
-from nicos.pycompat import text_type
 
 
 class ELogPanel(Panel, DlgUtils):
@@ -138,7 +137,7 @@ class ELogPanel(Panel, DlgUtils):
     def on_page_unsupportedContent(self, reply):
         if reply.url().scheme() != 'file':
             return
-        filename = str(reply.url().path())
+        filename = reply.url().path()
         if filename.endswith('.dat'):
             content = open(filename).read()
             window = QMainWindow(self)
@@ -182,7 +181,6 @@ class ELogPanel(Panel, DlgUtils):
             'Please enter the new sample name:')
         if not ok or not name:
             return
-        name = text_type(name)
         self.client.eval('NewSample(%r)' % name)
         self.timer.start(750)
 
@@ -193,7 +191,6 @@ class ELogPanel(Panel, DlgUtils):
             'as a heading and will also appear in the data files.')
         if not ok or not remark:
             return
-        remark = text_type(remark)
         self.client.eval('Remark(%r)' % remark)
         self.timer.start(750)
 
@@ -205,7 +202,7 @@ class ELogPanel(Panel, DlgUtils):
             lambda link: dlg.helpFrame.setVisible(True))
         if dlg.exec_() != QDialog.Accepted:
             return
-        text = text_type(dlg.freeFormText.toPlainText())
+        text = dlg.freeFormText.toPlainText()
         if not text:
             return
         self.client.eval('LogEntry(%r)' % text)
@@ -220,13 +217,13 @@ class ELogPanel(Panel, DlgUtils):
         dlg.fileSelect.clicked.connect(on_fileSelect_clicked)
         if dlg.exec_() != QDialog.Accepted:
             return
-        fname = text_type(dlg.fileName.text())
+        fname = dlg.fileName.text()
         if not path.isfile(fname):
             return self.showError('The given file name is not a valid file.')
-        newname = text_type(dlg.fileRename.text())
+        newname = dlg.fileRename.text()
         if not newname:
             newname = path.basename(fname)
-        desc = text_type(dlg.fileDesc.text())
+        desc = dlg.fileDesc.text()
         filecontent = open(fname, 'rb').read()
         remotefn = self.client.ask('transfer', filecontent)
         self.client.eval('_LogAttach(%r, [%r], [%r])' % (desc, remotefn, newname))

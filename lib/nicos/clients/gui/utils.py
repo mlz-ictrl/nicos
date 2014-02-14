@@ -35,7 +35,7 @@ from PyQt4 import uic
 from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
     QPushButton, QFont, QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, \
     QVBoxLayout, QColor, QStyle
-from PyQt4.QtCore import Qt, QSettings, QVariant, QDateTime, QSize, SIGNAL
+from PyQt4.QtCore import Qt, QSettings, QDateTime, QSize, QByteArray, SIGNAL
 
 # re-exported for compatibility
 from nicos.guisupport.utils import (setForegroundColor,  # pylint: disable=W0611
@@ -63,11 +63,9 @@ def dialogFromUi(parent, uiname, subdir=''):
 
 
 def loadBasicWindowSettings(window, settings):
-    geometry = settings.value('geometry').toByteArray()
-    window.restoreGeometry(geometry)
-    windowstate = settings.value('windowstate').toByteArray()
-    window.restoreState(windowstate)
-    window.splitstate = settings.value('splitstate').toList()
+    window.restoreGeometry(settings.value('geometry', b'', QByteArray))
+    window.restoreState(settings.value('windowstate', b'', QByteArray))
+    window.splitstate = settings.value('splitstate', b'', QByteArray)
 
 
 def loadUserStyle(window, settings):
@@ -147,7 +145,7 @@ class DlgUtils(object):
                                     buttons, defbutton) == QMessageBox.Yes
 
     def selectInputFile(self, ctl, text='Choose an input file'):
-        previous = str(ctl.text())
+        previous = ctl.text()
         if previous:
             startdir = path.dirname(previous)
         else:
@@ -157,7 +155,7 @@ class DlgUtils(object):
             ctl.setText(fn)
 
     def selectOutputFile(self, ctl, text='Choose an output filename'):
-        previous = str(ctl.text())
+        previous = ctl.text()
         if previous:
             startdir = path.dirname(previous)
         else:
@@ -167,7 +165,7 @@ class DlgUtils(object):
             ctl.setText(fn)
 
     def selectDirectory(self, ctl, text='Choose a directory'):
-        previous = str(ctl.text())
+        previous = ctl.text()
         startdir = previous or '.'
         fname = QFileDialog.getExistingDirectory(self, text, startdir)
         if fname:
@@ -252,12 +250,8 @@ class DlgPresets(object):
         self.settings.beginGroup(self.group)
         for (ctl, default) in self.ctls:
             entry = 'presets/' + ctl.objectName()
-            val = self.settings.value(entry, QVariant(default))
+            val = self.settings.value(entry, default, type(default))
             try:
-                if type(default) is int:
-                    val = val.toInt()[0]
-                else:
-                    val = val.toString()
                 getattr(self, 'set_' + ctl.__class__.__name__)(ctl, val)
             except Exception as err:
                 print(ctl, err)
@@ -269,7 +263,7 @@ class DlgPresets(object):
             entry = 'presets/' + ctl.objectName()
             try:
                 val = getattr(self, 'get_' + ctl.__class__.__name__)(ctl)
-                self.settings.setValue(entry, QVariant(val))
+                self.settings.setValue(entry, val)
             except Exception as err:
                 print(err)
         self.settings.endGroup()

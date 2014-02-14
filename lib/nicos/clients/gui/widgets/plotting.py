@@ -45,7 +45,7 @@ except ImportError:
 
 from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.fitutils import has_odr, FitError
-from nicos.pycompat import text_type, xrange as range  # pylint: disable=W0622
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 from nicos.guisupport.plots import ActivePlotPicker, TimeScaleEngine, \
     TimeScaleDraw
@@ -443,7 +443,6 @@ class NicosPlot(QwtPlot, DlgUtils):
     def savePlot(self):
         filename = QFileDialog.getSaveFileName(
             self, 'Select file name', '', 'PDF files (*.pdf)')
-        filename = text_type(filename)
         if filename == '':
             return None
         if '.' not in filename:
@@ -617,7 +616,7 @@ def cloneToGrace(plot, saveall="", pause=0.2):
     Cloned from the Qwt5.qplt module and applied some fixes.
     """
     g = GraceProcess(debug=0)
-    g('title "%s"' % str(plot.title().text()).replace('"', '\\"'))
+    g('title "%s"' % plot.title().text().replace('"', '\\"'))
     #g('subtitle "%s"' % self.last_plotinfo['subtitle'].replace('"', '\\"'))
     index = 0
     for xAxis, yAxis, graph, xPlace, yPlace in (

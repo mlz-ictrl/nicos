@@ -29,7 +29,7 @@
 """
 
 from PyQt4.QtDBus import QDBusInterface
-from PyQt4.QtCore import QVariant, QStringList
+from PyQt4.QtCore import QVariant
 
 try:
     import xmpp  # pylint: disable=F0401
@@ -53,7 +53,7 @@ class DBusNotifier(Notifier):
                             'dialog-error',           # app_icon
                             subject,                  # summary
                             body,                     # body
-                            QStringList(),            # actions
+                            [],                       # actions
                             {},                       # hints
                             10000,                    # timeout (in ms)
         )

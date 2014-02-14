@@ -25,7 +25,7 @@
 """Always-on-top emergency stop button."""
 
 from PyQt4.QtGui import QDialog, QPushButton, QHBoxLayout
-from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtCore import SIGNAL, Qt, QByteArray
 
 from nicos.clients.gui.utils import SettingGroup
 
@@ -39,8 +39,7 @@ class EmergencyStopTool(QDialog):
 
         self.sgroup = SettingGroup('EstopTool')
         with self.sgroup as settings:
-            geometry = settings.value('geometry').toByteArray()
-            self.restoreGeometry(geometry)
+            self.restoreGeometry(settings.value('geometry', b'', QByteArray))
 
         self.btn = QPushButton('STOP', self)
         self.btn.setStyleSheet('''

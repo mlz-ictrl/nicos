@@ -43,7 +43,7 @@ class HelpWindow(QMainWindow):
     def showHelp(self, data):
         pseudourl, html = data
         if self._next_scrollpos is None:
-            self.history.append((str(self.webView.url().toString()),
+            self.history.append((self.webView.url().toString(),
                                  self.webView.page().mainFrame().scrollPosition()))
             if len(self.history) > 100:
                 self.history = self.history[-100:]
@@ -55,14 +55,14 @@ class HelpWindow(QMainWindow):
         self.show()
 
     def on_webView_linkClicked(self, url):
-        if url.toString().startsWith('#'):
+        if url.toString().startswith('#'):
             frame = self.webView.page().mainFrame()
-            self.history.append((str(self.webView.url().toString()),
+            self.history.append((self.webView.url().toString(),
                                  frame.scrollPosition()))
             el = frame.findFirstElement(url.toString())
             frame.setScrollPosition(el.geometry().topLeft())
         else:
-            target = str(url.toString())
+            target = url.toString()
             self.client.eval('session.showHelp(%r)' % target)
 
     @qtsig('')

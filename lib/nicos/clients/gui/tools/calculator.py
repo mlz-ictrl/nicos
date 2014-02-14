@@ -43,7 +43,7 @@ MEV = 1.6021766e-22
 
 def tofloat(ctl):
     try:
-        return float(str(ctl.text()))
+        return float(ctl.text())
     except ValueError:
         return 0.0
 

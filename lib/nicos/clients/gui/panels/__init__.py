@@ -28,7 +28,7 @@ import time
 
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
     QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
@@ -65,7 +65,7 @@ class AuxiliaryWindow(QMainWindow):
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
-                sp.restoreState(st.toByteArray())
+                sp.restoreState(st)
 
     def getPanel(self, panelName):
         for panelobj in self.panels:
@@ -74,12 +74,12 @@ class AuxiliaryWindow(QMainWindow):
 
     def saveWindowLayout(self):
         with self.sgroup as settings:
-            settings.setValue('geometry', QVariant(self.saveGeometry()))
-            settings.setValue('windowstate', QVariant(self.saveState()))
+            settings.setValue('geometry', self.saveGeometry())
+            settings.setValue('windowstate', self.saveState())
             settings.setValue('splitstate',
-                              QVariant([sp.saveState() for sp in self.splitters]))
-            settings.setValue('font', QVariant(self.user_font))
-            settings.setValue('color', QVariant(self.user_color))
+                              [sp.saveState() for sp in self.splitters])
+            settings.setValue('font', self.user_font)
+            settings.setValue('color', self.user_color)
 
     def closeEvent(self, event):
         for pnl in self.panels:

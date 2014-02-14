@@ -27,7 +27,7 @@
 import time
 
 from PyQt4.QtGui import QMenu, QAction, QMessageBox, QColor
-from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig, QVariant, QStringList
+from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, setBackgroundColor, \
      ScriptExecQuestion
@@ -60,12 +60,12 @@ class CommandPanel(Panel):
             self.mapping.setdefault(cmdlet.category, []).append(action)
 
     def loadSettings(self, settings):
-        self.cmdhistory = list(settings.value('cmdhistory').toStringList())
+        self.cmdhistory = settings.value('cmdhistory') or []
 
     def saveSettings(self, settings):
         # only save 100 entries of the history
         cmdhistory = self.commandInput.history[-100:]
-        settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
+        settings.setValue('cmdhistory', cmdhistory)
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
@@ -126,7 +126,7 @@ class CommandPanel(Panel):
 
     @qtsig('')
     def on_simBtn_clicked(self):
-        script = str(self.commandInput.text().toUtf8())
+        script = self.commandInput.text()
         if not script:
             return
         self.client.tell('simulate', '', script, 'sim')
@@ -136,7 +136,7 @@ class CommandPanel(Panel):
 
     @qtsig('')
     def on_runBtn_clicked(self):
-        script = str(self.commandInput.text().toUtf8())
+        script = self.commandInput.text()
         if not script:
             return
         action = 'queue'

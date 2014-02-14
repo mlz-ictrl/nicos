@@ -27,12 +27,13 @@
 import time
 
 from PyQt4.QtGui import QColor, QMessageBox
-from PyQt4.QtCore import QVariant, QStringList, SIGNAL
+from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, ScriptExecQuestion, \
      setBackgroundColor, setForegroundColor
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE
+
 
 class CommandLinePanel(Panel):
     panelName = 'CommandLinePanel'
@@ -54,12 +55,12 @@ class CommandLinePanel(Panel):
         pass
 
     def loadSettings(self, settings):
-        self.cmdhistory = list(settings.value('cmdhistory').toStringList())
+        self.cmdhistory = settings.value('cmdhistory') or []
 
     def saveSettings(self, settings):
         # only save 100 entries of the history
         cmdhistory = self.commandInput.history[-100:]
-        settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
+        settings.setValue('cmdhistory', cmdhistory)
 
     def getMenus(self):
         return []
@@ -100,7 +101,7 @@ class CommandLinePanel(Panel):
 
     def on_commandInput_textChanged(self, text):
         try:
-            script = str(self.commandInput.text().toUtf8())
+            script = self.commandInput.text()
             if not script or script.strip().startswith('#'):
                 return
             compile(script+'\n', 'script', 'single')
@@ -110,7 +111,7 @@ class CommandLinePanel(Panel):
             setForegroundColor(self.commandInput, QColor("#000000"))
 
     def on_commandInput_returnPressed(self):
-        script = str(self.commandInput.text().toUtf8())
+        script = self.commandInput.text()
         if not script:
             return
         # XXX: this does not apply in SPM mode

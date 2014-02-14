@@ -224,7 +224,7 @@ class MessageView(QTextBrowser):
         content = self.toPlainText().split('\n').filter(*fltargs).join('\n')
         window = QMainWindow(self)
         window.resize(600, 800)
-        window.setWindowTitle('Lines matching %r' % str(what))
+        window.setWindowTitle('Lines matching %r' % what)
         widget = QTextEdit(window)
         widget.setFont(self.font())
         window.setCentralWidget(widget)

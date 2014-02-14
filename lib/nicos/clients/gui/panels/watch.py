@@ -83,7 +83,7 @@ class WatchPanel(Panel):
                                         'New expression to watch:')
         if not ok:
             return
-        newexpr = [str(expr) + ':default']
+        newexpr = [expr + ':default']
         self.client.tell('watch', newexpr)
 
     @qtsig('')
@@ -92,7 +92,7 @@ class WatchPanel(Panel):
         if not item:
             return
         expr = item.text(0)
-        delexpr = [str(expr) + ':default']
+        delexpr = [expr + ':default']
         self.client.tell('unwatch', delexpr)
 
     @qtsig('')
@@ -101,5 +101,5 @@ class WatchPanel(Panel):
                                         'Expression to evaluate:')
         if not ok:
             return
-        ret = self.client.eval(str(expr), stringify=True)
+        ret = self.client.eval(expr, stringify=True)
         QMessageBox.information(self, 'Result', ret)

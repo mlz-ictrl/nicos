@@ -56,7 +56,7 @@ class HistoryLineEdit(QLineEdit):
     def event(self, event):
         # need to reimplement the general event handler to enable catching Tab
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
-            fullstring = str(self.text())
+            fullstring = self.text()
             lastword = wordsplit_re.split(fullstring)[-1]
             #pylint: disable=E1121
             matches = self.completion_callback(fullstring, lastword)
@@ -156,7 +156,7 @@ class HistoryLineEdit(QLineEdit):
         else:
             lookrange = range(self._current + 1, len(self.history))
         for i in lookrange:
-            if self.history[i].startsWith(prefix):
+            if self.history[i].startswith(prefix):
                 self._current = i
                 self.setText(self.history[i])
                 self.setCursorPosition(len(prefix))

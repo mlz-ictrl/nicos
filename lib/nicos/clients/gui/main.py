@@ -37,7 +37,7 @@ from os import path
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
     QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
     QFontDialog, QColorDialog
-from PyQt4.QtCore import Qt, QTimer, QSize, QVariant, SIGNAL
+from PyQt4.QtCore import Qt, QTimer, QSize, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version
@@ -147,7 +147,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
         if len(self.splitstate) == len(self.splitters):
             for sp, st in zip(self.splitters, self.splitstate):
-                sp.restoreState(st.toByteArray())
+                sp.restoreState(st)
 
         if not self.gui_conf.windows:
             self.menuBar().removeAction(self.menuWindows.menuAction())
@@ -258,48 +258,44 @@ class MainWindow(QMainWindow, DlgUtils):
         # geometry and window appearance
         loadBasicWindowSettings(self, settings)
 
-        self.autoconnect = settings.value('autoconnect').toBool()
+        self.autoconnect = settings.value('autoconnect', True, bool)
 
         self.connpresets = dict((str(k), v) for (k, v) in
-            iteritems(settings.value('connpresets').toPyObject() or {}))
-        self.lastpreset = str(settings.value('lastpreset').toString())
+            iteritems(settings.value('connpresets', {})))
+        self.lastpreset = settings.value('lastpreset', '')
         if self.lastpreset in self.connpresets:
             cdata = self.connpresets[self.lastpreset]
             self.connectionData['host']  = str(cdata[0])
             self.connectionData['port']  = int(cdata[1])
             self.connectionData['login'] = str(cdata[2])
 
-        self.instrument = settings.value('instrument').toString()
-        self.confirmexit = settings.value('confirmexit',
-                                          QVariant(True)).toBool()
-        self.showtrayicon = settings.value('showtrayicon',
-                                           QVariant(True)).toBool()
-        self.autoreconnect = settings.value('autoreconnect',
-                                            QVariant(True)).toBool()
-        self.autosavelayout = settings.value('autosavelayout',
-                                             QVariant(True)).toBool()
+        self.instrument = settings.value('instrument', '')
+        self.confirmexit = settings.value('confirmexit', True, bool)
+        self.showtrayicon = settings.value('showtrayicon', True, bool)
+        self.autoreconnect = settings.value('autoreconnect', True, bool)
+        self.autosavelayout = settings.value('autosavelayout', True, bool)
 
         self.update()
 
-        open_wintypes = settings.value('auxwindows').toList()
-        for wtype in [x.toInt()[0] for x in open_wintypes]:
+        open_wintypes = settings.value('auxwindows') or []
+        for wtype in open_wintypes:
             self.createWindow(wtype)
 
     def saveWindowLayout(self):
         with self.sgroup as settings:
-            settings.setValue('geometry', QVariant(self.saveGeometry()))
-            settings.setValue('windowstate', QVariant(self.saveState()))
+            settings.setValue('geometry', self.saveGeometry())
+            settings.setValue('windowstate', self.saveState())
             settings.setValue('splitstate',
-                QVariant([sp.saveState() for sp in self.splitters]))
+                [sp.saveState() for sp in self.splitters])
             open_wintypes = list(self.windows)
-            settings.setValue('auxwindows', QVariant(open_wintypes))
+            settings.setValue('auxwindows', open_wintypes)
 
     def saveSettings(self, settings):
-        settings.setValue('autoconnect', QVariant(self.client.connected))
+        settings.setValue('autoconnect', self.client.connected)
         settings.setValue('connpresets', self.connpresets)
         settings.setValue('lastpreset', self.lastpreset)
-        settings.setValue('font', QVariant(self.user_font))
-        settings.setValue('color', QVariant(self.user_color))
+        settings.setValue('font', self.user_font)
+        settings.setValue('color', self.user_color)
 
     def closeEvent(self, event):
         if self.confirmexit and QMessageBox.question(

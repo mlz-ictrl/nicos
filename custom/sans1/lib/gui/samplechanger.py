@@ -30,7 +30,7 @@ positions.
 from PyQt4.QtGui import QDialogButtonBox, QLabel, QPixmap, QTableWidget, \
     QAbstractButton, QStylePainter, QStyleOptionHeader, QStyle, QLineEdit,\
     QAbstractItemView, QVBoxLayout
-from PyQt4.QtCore import SIGNAL, QString, Qt, QSize, QEvent
+from PyQt4.QtCore import SIGNAL, Qt, QSize, QEvent
 
 from nicos.core import ProgrammingError
 from nicos.clients.gui.utils import DlgUtils
@@ -198,7 +198,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         # insert the optional image at top...
         if image:
             l = QLabel(self)
-            l.setText(QString(image))
+            l.setText(image)
             # insert above scrollArea
             self.vBoxLayout.insertWidget(0, l, alignment=Qt.AlignHCenter)
             p = QPixmap()
@@ -214,7 +214,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         self._tableWidget.setRowCount(self._numSamples)
         # fill in widgets into grid
         for pos in range(self._numSamples):
-            self._tableWidget.setCellWidget(pos, 0, QLineEdit(QString('')))
+            self._tableWidget.setCellWidget(pos, 0, QLineEdit(''))
 
         self._tableWidget.horizontalHeader().setStretchLastSection(100)
         # now fill in data

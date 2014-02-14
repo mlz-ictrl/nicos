@@ -30,8 +30,7 @@ import time
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, QPen, \
     QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
 from PyQt4.Qwt5 import QwtPlot, QwtPlotItem, QwtText, QwtLog10ScaleEngine
-from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import QByteArray, Qt, SIGNAL, pyqtSignature as qtsig
 
 import numpy as np
 
@@ -64,7 +63,7 @@ def combineattr(it, attr, sep=' | '):
     return combinestr((getattr(x, attr) for x in it), sep=sep)
 
 def itemuid(item):
-    return str(item.data(32).toString())
+    return str(item.data(32))
 
 arby_functions = {
     'Gaussian x2': ('a + b*exp(-(x-x1)**2/s1**2) + c*exp(-(x-x2)**2/s2**2)',
@@ -123,7 +122,7 @@ class ScansPanel(Panel):
         self.updateList()
 
     def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter').toByteArray()
+        self.splitterstate = settings.value('splitter', b'', QByteArray)
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
@@ -362,8 +361,8 @@ class ScansPanel(Panel):
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
-        descr = str(newdlg.description.text())
-        fname = str(newdlg.filename.text())
+        descr = newdlg.description.text()
+        fname = newdlg.filename.text()
         pathname = self.currentPlot.savePng()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())
@@ -681,7 +680,7 @@ class DataSetPlot(NicosPlot):
         if dlg.exec_() != QDialog.Accepted:
             return
         # evaluate selection
-        op = str(dlg.operation.text())
+        op = dlg.operation.text()
         curves = []
         for i in range(dlg.list.count()):
             li = dlg.list.item(i)
@@ -807,7 +806,7 @@ class DataSetPlot(NicosPlot):
         for name in sorted(arby_functions):
             QListWidgetItem(name, dlg.oftenUsed)
         def click_cb(item):
-            func, params = arby_functions[str(item.text())]
+            func, params = arby_functions[item.text()]
             dlg.function.setText(func)
             dlg.fitparams.setPlainText('\n'.join(
                 p + ' = ' for p in params.split()))
@@ -817,19 +816,19 @@ class DataSetPlot(NicosPlot):
         if ret != QDialog.Accepted:
             return False
         pr.save()
-        fcn = str(dlg.function.text())
+        fcn = dlg.function.text()
         try:
-            xmin = float(str(dlg.xfrom.text()))
+            xmin = float(dlg.xfrom.text())
         except ValueError:
             xmin = None
         try:
-            xmax = float(str(dlg.xto.text()))
+            xmax = float(dlg.xto.text())
         except ValueError:
             xmax = None
         if xmin is not None and xmax is not None and xmin > xmax:
             xmax, xmin = xmin, xmax
         params, values = [], []
-        for line in str(dlg.fitparams.toPlainText()).splitlines():
+        for line in dlg.fitparams.toPlainText().splitlines():
             name_value = line.strip().split('=', 2)
             if len(name_value) < 2:
                 continue

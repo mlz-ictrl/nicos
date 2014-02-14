@@ -29,8 +29,7 @@ from os import path
 
 from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
     QStatusBar, QSizePolicy, QDoubleSpinBox, QListWidgetItem
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import QByteArray, Qt, SIGNAL, SLOT, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
@@ -95,7 +94,7 @@ class LiveDataPanel(Panel):
                      self.on_widget_customContextMenuRequested)
 
     def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter').toByteArray()
+        self.splitterstate = settings.value('splitter', b'', QByteArray)
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
@@ -204,6 +203,6 @@ class LiveDataPanel(Panel):
 
     def closeEvent(self, event):
         with self.sgroup as settings:
-            settings.setValue('geometry', QVariant(self.saveGeometry()))
+            settings.setValue('geometry', self.saveGeometry())
         event.accept()
         self.emit(SIGNAL('closed'), self)

@@ -31,11 +31,11 @@ from os import path
 from logging import WARNING
 
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
-     QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
-     QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
-     QFileSystemModel, QTabWidget, QStyle, QInputDialog
-from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QVariant, \
-     QStringList, QFileSystemWatcher
+    QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
+    QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
+    QFileSystemModel, QTabWidget, QStyle, QInputDialog
+from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QByteArray, \
+    QFileSystemWatcher
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
@@ -48,7 +48,7 @@ from nicos.utils import formatDuration, formatEndtime, importString
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import showToolText, loadUi, setBackgroundColor
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
-from nicos.pycompat import iteritems, text_type
+from nicos.pycompat import iteritems
 
 COMMENT_STR = '## '
 
@@ -243,7 +243,7 @@ class EditorPanel(Panel):
 
         if self.openfiles:
             for fn in self.openfiles:
-                self.openFile(str(fn), quiet=True)
+                self.openFile(fn, quiet=True)
         else:
             self.newFile()
 
@@ -432,19 +432,18 @@ class EditorPanel(Panel):
             self.actionUndo.setEnabled(dirty)
             self.window.setWindowModified(dirty)
             index = self.tabber.currentIndex()
-            tt = str(self.tabber.tabText(index)).rstrip('*')
+            tt = self.tabber.tabText(index).rstrip('*')
             self.tabber.setTabText(index, tt + (dirty and '*' or ''))
 
     def loadSettings(self, settings):
-        self.recentf = list(settings.value('recentf').toStringList())
-        self.splitterstate = settings.value('splitter').toByteArray()
-        self.openfiles = list(settings.value('openfiles').toStringList())
+        self.recentf = settings.value('recentf') or []
+        self.splitterstate = settings.value('splitter', b'', QByteArray)
+        self.openfiles = settings.value('openfiles') or []
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
-        settings.setValue('openfiles', QVariant(QStringList(
-            [self.filenames[e] for e in self.editors if self.filenames[e]]
-        )))
+        settings.setValue('openfiles',
+            [self.filenames[e] for e in self.editors if self.filenames[e]])
 
     def requestClose(self):
         for editor in self.editors:
@@ -519,7 +518,7 @@ class EditorPanel(Panel):
         self.simPane.show()
 
     def on_fileTree_doubleClicked(self, idx):
-        fpath = str(self.treeModel.filePath(idx))
+        fpath = self.treeModel.filePath(idx)
         for i, editor in enumerate(self.editors):
             if self.filenames[editor] == fpath:
                 self.tabber.setCurrentIndex(i)
@@ -556,7 +555,7 @@ class EditorPanel(Panel):
                 getattr(self.currentEditor, 'print')(printer)
 
     def validateScript(self):
-        script = str(self.currentEditor.text().toUtf8()) + '\n'
+        script = self.currentEditor.text() + '\n'
         # XXX: this does not apply to .txt (SPM) scripts
         #try:
         #    compile(script, 'script', 'exec')
@@ -604,7 +603,7 @@ class EditorPanel(Panel):
             text='no reason specified')
         if not ok:
             return
-        self.client.tell('update', script, text_type(reason))
+        self.client.tell('update', script, reason)
 
     @qtsig('')
     def on_actionGet_triggered(self):
@@ -703,7 +702,7 @@ class EditorPanel(Panel):
                                          'Script files (*.py *.txt)')
         if fn.isEmpty():
             return
-        self.openFile(text_type(fn).encode(sys.getfilesystemencoding()))
+        self.openFile(fn.encode(sys.getfilesystemencoding()))
         self.addToRecentf(fn)
 
     @qtsig('')
@@ -722,7 +721,7 @@ class EditorPanel(Panel):
         self.clearSimPane()
 
     def openRecentFile(self):
-        fn = text_type(self.sender().text()).encode(sys.getfilesystemencoding())
+        fn = self.sender().text().encode(sys.getfilesystemencoding())
         self.openFile(fn)
 
     def openFile(self, fn, quiet=False):
@@ -767,8 +766,8 @@ class EditorPanel(Panel):
             self.menuRecent.addAction(new_action)
             self.recentf_actions.append(new_action)
         with self.sgroup as settings:
-            settings.setValue('recentf', QVariant(QStringList(
-                [a.text() for a in self.recentf_actions])))
+            settings.setValue('recentf',
+                [a.text() for a in self.recentf_actions])
 
     @qtsig('')
     def on_actionSave_triggered(self):
@@ -790,7 +789,7 @@ class EditorPanel(Panel):
             self.saving = True
             try:
                 with io.open(self.filenames[editor], 'w', encoding='utf-8') as f:
-                    f.write(text_type(editor.text()))
+                    f.write(editor.text())
             finally:
                 self.saving = False
         except Exception as err:
@@ -813,7 +812,6 @@ class EditorPanel(Panel):
             defaultext = '.py'
             flt = 'Script files (*.py *.txt)'
         fn = QFileDialog.getSaveFileName(self, 'Save script', initialdir, flt)
-        fn = text_type(fn)
         if fn == '':
             return False
         if '.' not in fn:
@@ -869,7 +867,7 @@ class EditorPanel(Panel):
             # iterate over the lines
             action = []
             for line in range(line1, endLine+1):
-                if self.currentEditor.text(line).startsWith(COMMENT_STR):
+                if self.currentEditor.text(line).startswith(COMMENT_STR):
                     self.currentEditor.setSelection(line, 0, line, clen)
                     self.currentEditor.removeSelectedText()
                     action.append(-1)
@@ -894,7 +892,7 @@ class EditorPanel(Panel):
             # comment line
             line, _ = self.currentEditor.getCursorPosition()
             self.currentEditor.beginUndoAction()
-            if self.currentEditor.text(line).startsWith(COMMENT_STR):
+            if self.currentEditor.text(line).startswith(COMMENT_STR):
                 self.currentEditor.setSelection(line, 0, line, clen)
                 self.currentEditor.removeSelectedText()
             else:
@@ -902,7 +900,7 @@ class EditorPanel(Panel):
             self.currentEditor.endUndoAction()
 
     def on_simOutView_anchorClicked(self, url):
-        url = str(url.toString())
+        url = url.toString()
         if url.startswith('trace:'):
             TracebackDialog(self, self.simOutView, url[6:]).show()
 

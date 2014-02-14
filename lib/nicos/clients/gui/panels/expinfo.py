@@ -33,7 +33,6 @@ from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
     DetEnvPanel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import text_type
 
 
 class ExpInfoPanel(Panel):
@@ -86,7 +85,6 @@ class ExpInfoPanel(Panel):
             'Please enter the sample name.')
         if not ok or not sample:
             return
-        sample = text_type(sample)
         self.client.tell('queue', '', 'NewSample(%r)' % sample)
 
     @qtsig('')
@@ -101,5 +99,4 @@ class ExpInfoPanel(Panel):
             'as a heading and will also appear in the data files.')
         if not ok or not remark:
             return
-        remark = text_type(remark)
         self.client.tell('queue', '', 'Remark(%r)' % remark)

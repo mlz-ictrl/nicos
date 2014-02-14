@@ -24,10 +24,13 @@
 
 """Qt version of instrument monitor."""
 
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+
 from PyQt4 import uic
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
-     QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
-     QCursor
+    QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, QCursor
 from PyQt4.QtCore import Qt, SIGNAL
 
 from nicos.utils import findResource

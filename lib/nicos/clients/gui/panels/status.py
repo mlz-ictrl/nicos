@@ -28,7 +28,7 @@ import time
 
 from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
     QPixmap, QColor
-from PyQt4.QtCore import Qt, QTimer, QVariant, SIGNAL
+from PyQt4.QtCore import Qt, QTimer, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
@@ -55,7 +55,7 @@ class ScriptQueue(object):
 
     def append(self, request):
         item = QListWidgetItem(self._format_item(request))
-        item.setData(Qt.UserRole, QVariant(request['reqno']))
+        item.setData(Qt.UserRole, request['reqno'])
         self._no2item[request['reqno']] = item
         self._view.addItem(item)
         # delay showing the frame for 20 msecs, so that it doesn't flicker in
@@ -262,6 +262,6 @@ class ScriptStatusPanel(Panel):
         item = self.queueView.currentItem()
         if not item:
             return
-        reqno = item.data(Qt.UserRole).toInt()
+        reqno = item.data(Qt.UserRole)
         if self.client.tell('unqueue', str(reqno[0])):
             self.script_queue.remove(reqno[0])

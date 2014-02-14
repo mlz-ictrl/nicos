@@ -34,7 +34,7 @@ from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMainWindow, \
     QBrush, QPen, QComboBox, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
     QwtPlotMarker, QwtSymbol
-from PyQt4.QtCore import Qt, QVariant, SIGNAL, SLOT
+from PyQt4.QtCore import QByteArray, Qt, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 
 from nicos.clients.gui.utils import loadUi, DlgUtils
@@ -114,11 +114,11 @@ class LiveDataPanel(Panel):
             self.on_client_connected()
 
     def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter').toByteArray()
+        self.splitterstate = settings.value('splitter', b'', QByteArray)
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
-        settings.setValue('geometry', QVariant(self.saveGeometry()))
+        settings.setValue('geometry', self.saveGeometry())
         if self._toftof_profile:
             self._toftof_profile.close()
 
@@ -205,8 +205,8 @@ class LiveDataPanel(Panel):
     def on_fileList_itemClicked(self, item):
         if item is None:
             return
-        fname = item.data(32).toString()
-        ftag = item.data(34).toString()
+        fname = item.data(32)
+        ftag = item.data(34)
         if fname == '':
             # show always latest live image
             if self._no_direct_display:

@@ -301,7 +301,7 @@ class ScanTool(QDialog):
 
         # scan
         else:
-            devname = str(self.deviceName.text())
+            devname = self.deviceName.text()
             if not devname:
                 devname = self._devices[self.deviceList.currentRow()][0]
 

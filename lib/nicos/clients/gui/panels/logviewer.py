@@ -99,7 +99,7 @@ class LogViewerPanel(Panel, DlgUtils):
             result['levels'].append('INPUT')
 
         # determine desired nicos service
-        result['service'] = str(self.serviceComboBox.currentText().toLower())
+        result['service'] = self.serviceComboBox.currentText().lower()
 
         # determine desired date/time range
         result['fromDateTime'] = self.dateTimeEditFrom.dateTime()
@@ -119,7 +119,7 @@ class LogViewerPanel(Panel, DlgUtils):
 
         while True:
             # determine logfile name
-            dateStr = str(fromDateTime.toString('yyyy-MM-dd'))
+            dateStr = fromDateTime.toString('yyyy-MM-dd')
             logFile = '%s-%s.log' % (service, dateStr)
 
             # determine logfile path

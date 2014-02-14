@@ -64,7 +64,7 @@ class ErrorPanel(Panel):
 
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
-        url = str(url.toString())
+        url = url.toString()
         if url.startswith('trace:'):
             TracebackDialog(self, self.outView, url[6:]).show()
 

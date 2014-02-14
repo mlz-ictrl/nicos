@@ -29,7 +29,6 @@ from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
-from nicos.pycompat import text_type
 
 invalid = QColor('#ffcccc')
 
@@ -151,7 +150,7 @@ class Scan(Cmdlet):
         self.seconds.valueChanged.connect(self.changed)
 
     def on_device_change(self, text):
-        unit = self.client.getDeviceParam(str(text), 'unit')
+        unit = self.client.getDeviceParam(text, 'unit')
         self.unit1.setText(unit or '')
         self.unit2.setText(unit or '')
         self.changed()
@@ -209,7 +208,7 @@ class CScan(Cmdlet):
         self.seconds.valueChanged.connect(self.changed)
 
     def on_device_change(self, text):
-        unit = self.client.getDeviceParam(str(text), 'unit')
+        unit = self.client.getDeviceParam(text, 'unit')
         self.unit1.setText(unit or '')
         self.unit2.setText(unit or '')
         self.changed()
@@ -288,8 +287,8 @@ class Configure(Cmdlet):
                      self.on_parameter_change)
 
     def on_device_change(self, text):
-        self.paraminfo = self.client.getDeviceParamInfo(str(text))
-        self.paramvalues = dict(self.client.getDeviceParams(str(text)))
+        self.paraminfo = self.client.getDeviceParamInfo(text)
+        self.paramvalues = dict(self.client.getDeviceParams(text))
         self.parameter.clear()
         self.parameter.addItems(sorted(p for p in self.paraminfo
                                        if self.paraminfo[p]['settable'] and
@@ -324,8 +323,8 @@ class NewSample(Cmdlet):
 
     def generate(self, mode):
         if mode == 'simple':
-            return 'NewSample %r\n' % text_type(self.samplename.text())
-        return 'NewSample(%r)\n' % text_type(self.samplename.text())
+            return 'NewSample %r\n' % self.samplename.text()
+        return 'NewSample(%r)\n' % self.samplename.text()
 
 
 all_cmdlets = [Move, Count, Scan, CScan, Sleep, Configure, NewSample]

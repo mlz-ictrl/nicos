@@ -30,7 +30,7 @@ import time
 
 from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QColor, \
      QPrinter, QPrintDialog, QAbstractPrintDialog
-from PyQt4.QtCore import QVariant, QStringList, SIGNAL
+from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt
 
 from nicos.utils import chunks
@@ -39,7 +39,6 @@ from nicos.clients.gui.utils import loadUi, setBackgroundColor, setForegroundCol
      enumerateWithProgress, ScriptExecQuestion
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE
-from nicos.pycompat import text_type
 
 
 class ConsolePanel(Panel):
@@ -88,12 +87,12 @@ class ConsolePanel(Panel):
             self.inputFrame.setVisible(expert)
 
     def loadSettings(self, settings):
-        self.cmdhistory = list(settings.value('cmdhistory').toStringList())
+        self.cmdhistory = settings.value('cmdhistory') or []
 
     def saveSettings(self, settings):
         # only save 100 entries of the history
         cmdhistory = self.commandInput.history[-100:]
-        settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
+        settings.setValue('cmdhistory', cmdhistory)
 
     def getMenus(self):
         if self.hasmenu:
@@ -152,11 +151,11 @@ class ConsolePanel(Panel):
 
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
-        url = str(url.toString().toUtf8())
+        url = url.toString()
         if url.startswith('exec:'):
             # Direct execution is too dangerous. Just insert it in the editor.
             if self.inputFrame.isVisible():
-                self.commandInput.setText(url[5:].decode('utf8'))
+                self.commandInput.setText(url[5:])
                 self.commandInput.setFocus()
         elif url.startswith('edit:'):
             if not self.mainwindow.editor_wintype:
@@ -182,9 +181,9 @@ class ConsolePanel(Panel):
         if fn.isEmpty():
             return
         try:
-            fn = text_type(fn).encode(sys.getfilesystemencoding())
+            fn = fn.encode(sys.getfilesystemencoding())
             with io.open(fn, 'w', encoding='utf-8') as f:
-                f.write(text_type(self.outView.getOutputString()))
+                f.write(self.outView.getOutputString())
         except Exception as err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)
 
@@ -211,7 +210,7 @@ class ConsolePanel(Panel):
 
     @qtsig('')
     def on_grepSearch_clicked(self):
-        st = str(self.grepText.text())
+        st = self.grepText.text()
         if not st:
             return
         found = self.outView.findNext(st, self.grepRegex.isChecked())
@@ -219,14 +218,14 @@ class ConsolePanel(Panel):
 
     @qtsig('')
     def on_grepOccur_clicked(self):
-        st = str(self.grepText.text())
+        st = self.grepText.text()
         if not st:
             return
         self.outView.occur(st, self.grepRegex.isChecked())
 
     def on_commandInput_textChanged(self, text):
         try:
-            script = str(self.commandInput.text().toUtf8())
+            script = self.commandInput.text()
             if not script or script.strip().startswith('#'):
                 return
             compile(script+'\n', 'script', 'single')
@@ -236,7 +235,7 @@ class ConsolePanel(Panel):
             setForegroundColor(self.commandInput, QColor("#000000"))
 
     def on_commandInput_returnPressed(self):
-        script = str(self.commandInput.text().toUtf8())
+        script = self.commandInput.text()
         if not script:
             return
         # XXX: this does not apply in SPM mode

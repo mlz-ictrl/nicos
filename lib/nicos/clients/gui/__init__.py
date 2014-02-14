@@ -23,3 +23,7 @@
 # *****************************************************************************
 
 """NICOS GUI application package."""
+
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)

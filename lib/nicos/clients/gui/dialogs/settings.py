@@ -25,7 +25,7 @@
 """NICOS GUI settings window."""
 
 from PyQt4.QtGui import QDialog, QTreeWidgetItem, QListWidgetItem
-from PyQt4.QtCore import QVariant, pyqtSignature as qtsig
+from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 
@@ -65,11 +65,11 @@ class SettingsDialog(QDialog, DlgUtils):
         self.main.autosavelayout = self.autoSaveLayout.isChecked()
         with self.sgroup as settings:
             settings.setValue('connpresets', self.connpresets)
-            settings.setValue('instrument', QVariant(self.main.instrument))
-            settings.setValue('confirmexit', QVariant(self.main.confirmexit))
-            settings.setValue('showtrayicon', QVariant(self.main.showtrayicon))
-            settings.setValue('autoreconnect', QVariant(self.main.autoreconnect))
-            settings.setValue('autosavelayout', QVariant(self.main.autosavelayout))
+            settings.setValue('instrument', self.main.instrument)
+            settings.setValue('confirmexit', self.main.confirmexit)
+            settings.setValue('showtrayicon', self.main.showtrayicon)
+            settings.setValue('autoreconnect', self.main.autoreconnect)
+            settings.setValue('autosavelayout', self.main.autosavelayout)
         if self.main.showtrayicon:
             self.main.trayIcon.show()
         else:
@@ -89,7 +89,7 @@ class SettingsDialog(QDialog, DlgUtils):
             return
         if dlg.name.text() == '':
             return
-        name = str(dlg.name.text())
+        name = dlg.name.text()
         while name in self.connpresets:
             name += '_'
         cdata = [dlg.host.text(), dlg.port.value(), dlg.login.text()]
@@ -102,7 +102,7 @@ class SettingsDialog(QDialog, DlgUtils):
         item = self.settinglist.currentItem()
         if item is None:
             return
-        del self.connpresets[str(item.data(32).toString())]
+        del self.connpresets[str(item.data(32))]
         self.settinglist.takeItem(self.settinglist.row(item))
 
     @qtsig('')
@@ -110,9 +110,9 @@ class SettingsDialog(QDialog, DlgUtils):
         item = self.settinglist.currentItem()
         if item is None:
             return
-        cdata = self.connpresets[str(item.data(32).toString())]
+        cdata = self.connpresets[str(item.data(32))]
         dlg = dialogFromUi(self, 'settings_conn.ui', 'dialogs')
-        dlg.name.setText(item.data(32).toString())
+        dlg.name.setText(item.data(32))
         dlg.name.setEnabled(False)
         dlg.host.setText(cdata[0])
         dlg.port.setValue(cdata[1])

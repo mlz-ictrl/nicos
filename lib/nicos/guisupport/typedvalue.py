@@ -295,7 +295,7 @@ class ComboWidget(QComboBox):
                      lambda idx: self.emit(SIGNAL('dataChanged')))
 
     def getValue(self):
-        return self._values[self._textvals.index(str(self.currentText()))]
+        return self._values[self._textvals.index(self.currentText())]
 
 class ButtonWidget(QWidget):
 
@@ -310,7 +310,7 @@ class ButtonWidget(QWidget):
         self.setLayout(layout)
 
     def on_button_pressed(self):
-        self.emit(SIGNAL('valueChosen'), str(self.sender().text()))
+        self.emit(SIGNAL('valueChosen'), self.sender().text())
 
     def getValue(self):
         return None
@@ -361,7 +361,7 @@ class ExprWidget(QLineEdit):
                      lambda txt: self.emit(SIGNAL('dataChanged')))
 
     def getValue(self):
-        return cache_load(str(self.text()))
+        return cache_load(self.text())
 
 class CheckWidget(QWidget):
 

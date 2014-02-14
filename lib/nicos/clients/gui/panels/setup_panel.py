@@ -31,7 +31,7 @@ from nicos.utils import decodeAny
 from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils
-from nicos.pycompat import iteritems, text_type
+from nicos.pycompat import iteritems
 
 
 def iterChecked(listwidget):
@@ -103,12 +103,12 @@ class ExpPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_queryDBButton_clicked(self):
-        prop = str(self.proposalNum.text())
-        title = text_type(self.expTitle.text()).encode('utf-8')
-        users = text_type(self.users.text()).encode('utf-8')
-        local = text_type(self.localContact.text()).encode('utf-8')
-        sample = text_type(self.sampleName.text()).encode('utf-8')
-        emails = text_type(self.notifEmails.toPlainText()).encode('utf-8')
+        prop = self.proposalNum.text()
+        title = self.expTitle.text().encode('utf-8')
+        users = self.users.text().encode('utf-8')
+        local = self.localContact.text().encode('utf-8')
+        sample = self.sampleName.text().encode('utf-8')
+        emails = self.notifEmails.toPlainText().encode('utf-8')
 
         # read all values from propdb
         try:
@@ -157,11 +157,11 @@ class ExpPanel(Panel, DlgUtils):
         done = []
 
         # proposal settings
-        prop = str(self.proposalNum.text())
-        title = text_type(self.expTitle.text()).encode('utf-8')
-        users = text_type(self.users.text()).encode('utf-8')
-        local = text_type(self.localContact.text()).encode('utf-8')
-        email = text_type(self.notifEmails.toPlainText()).encode('utf-8').split(b'\n')
+        prop = self.proposalNum.text()
+        title = self.expTitle.text().encode('utf-8')
+        users = self.users.text().encode('utf-8')
+        local = self.localContact.text().encode('utf-8')
+        email = self.notifEmails.toPlainText().encode('utf-8').split(b'\n')
         email = [_f for _f in email if _f]  # remove empty lines
 
         # check conditions
@@ -195,7 +195,7 @@ class ExpPanel(Panel, DlgUtils):
             if local != self._orig_proposal_info[3]:
                 self.client.tell('queue', '', 'Exp.localcontact = %r' % local)
                 done.append('New local contact set.')
-        sample = text_type(self.sampleName.text()).encode('utf-8')
+        sample = self.sampleName.text().encode('utf-8')
         if sample != self._orig_proposal_info[4]:
             self.client.tell('queue', '', 'NewSample(%r)' % sample)
             done.append('New sample name set.')
@@ -298,7 +298,7 @@ class SetupsPanel(Panel, DlgUtils):
     def applyChanges(self):
         setups = []
         cmd = 'NewSetup'
-        basic = str(self.basicSetup.currentItem().text())
+        basic = self.basicSetup.currentItem().text()
         # calculate the new setups
         setups = set()
         new_basic = False
@@ -309,7 +309,7 @@ class SetupsPanel(Panel, DlgUtils):
             setups.add(basic)
             new_basic = True
         for item in iterChecked(self.optSetups):
-            setups.add(str(item.text()))
+            setups.add(item.text())
 
         to_add = setups - self._loaded
         to_remove = self._loaded - setups
@@ -373,7 +373,7 @@ class DetEnvPanel(Panel, DlgUtils):
         done = []
 
         # detectors
-        new_detlist = [str(item.text()) for item in iterChecked(self.detectors)]
+        new_detlist = [item.text() for item in iterChecked(self.detectors)]
         if set(new_detlist) != set(self._orig_detlist):
             self.client.tell('queue', '',
                              'SetDetectors(%s)' % ', '.join(new_detlist))
@@ -381,7 +381,7 @@ class DetEnvPanel(Panel, DlgUtils):
             self._orig_detlist = new_detlist
 
         # sample env
-        new_envlist = [str(item.text()) for item in iterChecked(self.sampleenv)]
+        new_envlist = [item.text() for item in iterChecked(self.sampleenv)]
         if set(new_envlist) != set(self._orig_envlist):
             self.client.tell('queue', '',
                              'SetEnvironment(%s)' % ', '.join(new_envlist))

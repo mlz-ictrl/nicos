@@ -26,3 +26,7 @@
 The nicos.guisupport package contains PyQt UI elements for use in graphical
 NICOS applications.
 """
+
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)

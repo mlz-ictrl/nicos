@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 
 from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen
-from PyQt4.QtCore import QSize, Qt, QStringList
+from PyQt4.QtCore import QSize, Qt
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
 
@@ -37,7 +37,7 @@ class Tube2(NicosWidget, QWidget):
         NicosWidget.__init__(self)
 
     properties = {
-        'devices':   PropDef('QStringList', QStringList()),
+        'devices':   PropDef('QStringList', []),
         'height':    PropDef(int, 10),
         'width':     PropDef(int, 30),
         'name':      PropDef(str, ''),
@@ -216,7 +216,7 @@ class CollimatorTable(NicosWidget, QWidget):
 
     properties = {
         'dev':       PropDef(str, ''),
-        'options':   PropDef('QStringList', QStringList()),
+        'options':   PropDef('QStringList', []),
         'height':    PropDef(int, 4),
         'width':     PropDef(int, 10),
         'name':      PropDef(str, ''),
