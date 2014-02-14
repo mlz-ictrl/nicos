@@ -2,11 +2,16 @@
 BASEDIR=${BASEDIR:-"$PWD/nicos-stack"}
 MAKEOPTS="-j5"
 
-PYVERSION=${PYVERSION:-2}
+PYVERSIONMAJOR=${PYVERSIONMAJOR:-2}
 
 dofetch=1
 dobuild=1
 domkvenv=1
+
+buildpython=1
+buildqt=1
+buildpyqt=1
+buildpyqwt=1
 
 function usage() {
   echo "install a nicos stack"
@@ -18,15 +23,21 @@ function usage() {
   echo "  --nofetch               do not fetch files"
   echo "  --nobuild               do not build"
   echo "  --nomkvenv              do not create a venv"
+  echo " partial building: assumes that previous part have been built already"
+  echo "  --nopython              do not build python"
+  echo "  --noqt                  do not build Qt/QScintilla"
+  echo "  --nopyqt                do not build PyQt/SIP"
+  echo "  --nopyqwt               do not build PyQWT/QWT"
+  echo
   echo "  -h | --help             this help"
   echo
-  echo "enviroment vars : PYVERSION BASEDIR"
+  echo "enviroment vars : PYVERSIONMAJOR BASEDIR"
  }
 
 while [ "$1" != "" ]; do
     case $1 in
         -p | --pythonver )        shift
-                                PYVERSION=$1
+                                PYVERSIONMAJOR=$1
                                 ;;
         -v | --verbose )        set -v
                                 ;;
@@ -40,6 +51,14 @@ while [ "$1" != "" ]; do
                                 ;;
         --nobuild )             dobuild=0
                                 ;;
+        --nopython )            buildpython=0
+                                ;;
+        --noqt )                buildqt=0
+                                ;;
+        --nopyqt )              buildpyqt=0
+                                ;;
+        --nopyqwtn )            buildpyqwt=0
+                                ;;
         --nomkvenv )            domkvenv=0
                                 ;;
         * )                     usage
@@ -49,7 +68,7 @@ while [ "$1" != "" ]; do
 done
 
 
-if [ $PYVERSION -eq 3 ] ; then
+if [ $PYVERSIONMAJOR -eq 3 ] ; then
    PYVERSION="3.3.4"
 else
    PYVERSION="2.7.6"
@@ -71,6 +90,7 @@ $WGET https://trac.frm2.tum.de/externalpackages/Python-2.7.6.tar.xz
 $WGET https://trac.frm2.tum.de/externalpackages/Python-3.3.4.tar.xz
 $WGET https://trac.frm2.tum.de/externalpackages/PyQt-x11-gpl-4.10.1.tar.gz
 $WGET https://trac.frm2.tum.de/externalpackages/PyQwt-5.2.0.tar.gz
+$WGET https://trac.frm2.tum.de/externalpackages/pyqwt5.2.1-frm2.tar.gz
 $WGET https://trac.frm2.tum.de/externalpackages/sip-4.14.6.tar.gz
 $WGET https://trac.frm2.tum.de/externalpackages/QScintilla-gpl-2.7.1.tar.gz
 $WGET https://trac.frm2.tum.de/externalpackages/qt-everywhere-opensource-src-4.8.5.tar.gz
@@ -90,6 +110,7 @@ da8939b5679a075e30c6632e54dc5abf  QScintilla-gpl-2.7.1.tar.gz
 2044725530450d0517393882dc4b7508  setuptools-2.1.tar.gz
 d6493b9f0a7911566545f694327314c4  sip-4.14.6.tar.gz
 d3d915836c1ada1be731ccaa12412b98  virtualenv-1.11.2.tar.gz
+4856155c5c4fa53401154881da021a62  pyqwt5.2.1-frm2.tar.gz
 EOF
 if [ $? -ne 0 ]; then
     echo "some files failed md5check, please redownload"
@@ -98,11 +119,9 @@ fi;
 
 }
 
-function build
-{
-# create build dir and start building
-mkdir -p $BASEDIR/build
 
+function build_python
+{
 #build python and a minimal set of required extra packages
 cd $BASEDIR/build
 tar xJf $BASEDIR/download/Python-$PYVERSION.tar.xz
@@ -128,8 +147,10 @@ $BASEDIR/python-$PYVERSION/bin/$PYEXEC setup.py install
 cd $BASEDIR/build
 # get numpy as well
 $BASEDIR/python-$PYVERSION/bin/pip install numpy
+}
 
-
+function build_qt
+{
 #build Qt and Qt-related packages
 cd $BASEDIR/build
 tar xzf $BASEDIR/download/qt-everywhere-opensource-src-4.8.5.tar.gz
@@ -145,28 +166,67 @@ cd QScintilla-gpl-2.7.1/
 cd Qt4Qt5/
 $BASEDIR/qt-4.8.5/bin/qmake
 make $MAKEOPTS && make install
-export PATH=$BASEDIR/python-$PYVERSION/bin/:$BASEDIR/qt-4.8.5/bin/:$PATH
+}
 
 
+function build_pyqt
+{
 # PyQt and needed helpers
 cd $BASEDIR/build
 tar xzf $BASEDIR/download/sip-4.14.6.tar.gz
 cd sip-4.14.6/
 $BASEDIR/python-$PYVERSION/bin/$PYEXEC configure.py -b $BASEDIR/python-$PYVERSION/bin/ -d $BASEDIR/python-$PYVERSION/lib/python$PYBASEVER/site-packages/ -e $BASEDIR/python-$PYVERSION/include/ -v $BASEDIR/python-$PYVERSION/share/sip
 make $MAKEOPTS && make install
+
+
 cd $BASEDIR/build
 tar xzf $BASEDIR/download/PyQt-x11-gpl-4.10.1.tar.gz
 cd PyQt-x11-gpl-4.10.1/
 $BASEDIR/python-$PYVERSION/bin/$PYEXEC configure.py -q $BASEDIR/qt-4.8.5/bin/qmake --confirm-license
 make $MAKEOPTS && make install
+}
 
-
+function build_pyqwt
+{
 #PyQwt (supplies Qwt as well)
 cd $BASEDIR/build
-tar xzf $BASEDIR/download/PyQwt-5.2.0.tar.gz
-cd PyQwt-5.2.0/
-make $MAKEOPTS 4 && make install-4
+if [ $PYVERSIONMAJOR -eq 3 ] ;then
+    tar xzf $BASEDIR/download/pyqwt5.2.1-frm2.tar.gz
+    cd pyqwt5/
+    sed -i -e 's/python/python3/' GNUMakefile
+    make qwt-5.2.1
+    ln -s qwt-5.2.1 qwt-5.2
+    make $MAKEOPTS 4 && make install-4
+else
+    tar xzf $BASEDIR/download/PyQwt-5.2.0.tar.gz
+    cd pyqwt5
+    make $MAKEOPTS 4 && make install-4
+fi
+}
 
+function build
+{
+# create build dir and start building
+mkdir -p $BASEDIR/build
+
+if [ $buildpython -eq 1 ]; then
+  build_python
+fi
+export PATH=$BASEDIR/python-$PYVERSION/bin/:$PATH
+
+if [ $buildqt -eq 1 ]; then
+  build_qt
+fi
+
+export PATH=$BASEDIR/qt-4.8.5/bin/:$PATH
+
+if [ $buildpyqt -eq 1 ]; then
+  build_pyqt
+fi
+
+if [ $buildpyqwt -eq 1 ]; then
+  build_pyqwt
+fi
 }
 
 function mkvenv
