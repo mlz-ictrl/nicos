@@ -29,6 +29,7 @@ from os import path
 from cgi import escape
 from time import strftime, localtime
 from shutil import move
+from logging import ERROR
 
 from nicos.services.elog.utils import formatMessage, pretty1, pretty2
 from nicos.services.elog.genplot import plotDataset
@@ -125,6 +126,7 @@ pre, tt   { font-family: 'Dejavu Sans Mono', 'Bitstream Vera Sans Mono',
 .messages .input { font-weight: bold; }
 .messages .warn  { color: #c000c0; }
 .messages .err   { font-weight: bold; color: #c00000; }
+.errblock .messages { display: block; }
 ul.toc        { padding-left: 20px; list-style-type: square;
                 font-size: 90%; }
 body > ul.toc { padding-left: 0; }
@@ -400,12 +402,18 @@ class Handler(object):
         self.out.newstate('plain', '', '', '<p class="attach">%s</p>\n' % text)
 
     def handle_message(self, time, message):
-        msg = formatMessage(message)
-        if msg:
+        formatted = formatMessage(message)
+        if not formatted:
+            return
+        if message[2] == ERROR:
+            self.out.newstate('messages_error',
+                              '<div class="errblock"><pre class="messages">\n',
+                              '</pre></div>\n', formatted)
+        else:
             self.out.newstate('messages',
                 '<div class="msgblock" onclick="hideshow(this)">'
                 '<span class="msglabel">Messages</span>'
-                '<pre class="messages">\n', '</pre></div>\n', msg)
+                '<pre class="messages">\n', '</pre></div>\n', formatted)
 
     #def handle_scanbegin(self, time, dataset):
     #    print 'Scan begin:', dataset
@@ -485,4 +493,3 @@ class Handler(object):
 # more ideas:
 # - internal links -> reference scan numbers or attachments
 # - integrated latex $foo$ syntax
-# - show errors in messages (or at least summary: "1 error")
