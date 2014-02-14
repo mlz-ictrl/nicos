@@ -86,6 +86,8 @@ def requires(**access):
                 raise AccessError(msg)
             return func(*args, **kwds)
         new_func.__name__ = func.__name__
+        new_func.__doc__ = func.__doc__
+        new_func.real_func = func
         return new_func
     return decorator
 

@@ -30,6 +30,8 @@
   inherited by base classes
 """
 
+import inspect
+
 from sphinx import addnodes
 from sphinx.domains import ObjType
 from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
@@ -171,8 +173,21 @@ class DeviceDocumenter(ClassDocumenter):
                           for (name, info) in baseparaminfo), '<autodoc>')
 
 
+def process_signature(app, objtype, fullname, obj, options, args, retann):
+    # for user commands, fix the signature:
+    # a) use original function for functions wrapped by decorators
+    # b) use designated "helparglist" for functions that have it
+    if objtype == 'function' and fullname.startswith('nicos.commands.'):
+        while hasattr(obj, 'real_func'):
+            obj = obj.real_func
+        if hasattr(obj, 'help_arglist'):
+            return '(' + obj.help_arglist + ')', retann
+        else:
+            return inspect.formatargspec(*inspect.getargspec(obj)), retann
+
 
 def setup(app):
     app.add_directive_to_domain('py', 'parameter', PyParameter)
     app.add_autodocumenter(DeviceDocumenter)
+    app.connect('autodoc-process-signature', process_signature)
     PythonDomain.object_types['parameter'] = ObjType('parameter', 'attr', 'obj')

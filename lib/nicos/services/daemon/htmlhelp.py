@@ -114,7 +114,7 @@ class HelpGenerator(object):
             real_func = getattr(obj, 'real_func', obj)
             if real_func.__name__.startswith('_'):
                 continue
-            if real_func.is_hidden:
+            if getattr(real_func, 'is_hidden', False):
                 continue
             if real_func.__name__ != name:
                 # it's an alias, don't show it again
