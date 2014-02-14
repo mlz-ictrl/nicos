@@ -405,7 +405,11 @@ class Device(object):
         return [c.__module__ + '.' + c.__name__ for c in self.__class__.__mro__]
 
     def doUpdateLoglevel(self, value):
-        self.log.setLevel(loggers.loglevels[value])
+        if session.sessiontype == 'poller':
+            # suppress debug/info messages from ordinary devices in the poller
+            self.log.setLevel(loggers.WARNING)
+        else:
+            self.log.setLevel(loggers.loglevels[value])
 
     def init(self):
         """Initialize the object; this is called by the NICOS system when the

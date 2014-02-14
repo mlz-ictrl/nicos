@@ -138,6 +138,8 @@ class SimulationSession(Session):
     Subclass of Session for spawned simulation processes.
     """
 
+    sessiontype = 'simulation'
+
     @classmethod
     def run(cls, port, prefix, setups, code):
         from nicos.utils.messaging import SimLogSender

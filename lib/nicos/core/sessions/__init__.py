@@ -90,6 +90,7 @@ class Session(object):
     log = None
     name = 'session'
     cache_class = CacheClient
+    sessiontype = 'main'
 
     def __str__(self):
         # used for cache operations

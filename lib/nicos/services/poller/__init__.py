@@ -37,7 +37,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError
-from nicos.utils import whyExited, watchFileTime
+from nicos.utils import whyExited, watchFileTime, loggers
 from nicos.devices.generic.alias import DeviceAlias
 from nicos.devices.generic.cache import CacheReader
 from nicos.pycompat import listitems, queue as Queue
@@ -68,6 +68,11 @@ class Poller(Device):
         self._stoprequest = False
         self._workers = []
         self._creation_lock = threading.Lock()
+
+    def doUpdateLoglevel(self, value):
+        # override this since the base Device does not set a new loglevel in
+        # a poller session
+        self.log.setLevel(loggers.loglevels[value])
 
     def _worker_thread(self, devname, queue):
 

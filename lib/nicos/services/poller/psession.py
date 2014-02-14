@@ -69,6 +69,7 @@ class PollerCacheReader(CacheReader):
 class PollerSession(NoninteractiveSession):
 
     cache_class = PollerCacheClient
+    sessiontype = 'poller'
 
     # pylint: disable=W0102
     def getDevice(self, dev, cls=None, source=None,
