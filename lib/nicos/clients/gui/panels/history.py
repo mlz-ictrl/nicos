@@ -52,6 +52,7 @@ class View(QObject):
                  yfrom, yto, window, dlginfo, query_func):
         QObject.__init__(self, parent)
         self.name = name
+        self.dlginfo = dlginfo
         self.keys = keys
         self.interval = interval
         self.window = window
