@@ -29,6 +29,7 @@ from nicos.utils import lazy_property
 from nicos.core import anytype, dictof, none_or, floatrange, listof, \
      PositionError, ConfigurationError, Moveable, Readable, Param, \
      Override, status, InvalidValueError, multiStatus
+from nicos.core.params import Attach
 from nicos.devices.abstract import MappedReadable, MappedMoveable
 from nicos.pycompat import iteritems
 
@@ -181,10 +182,14 @@ class MultiSwitcher(MappedMoveable):
 
     and still have the underlying continuously moveable devices available for
     debugging purposes.
+
     """
     attached_devices = {
-        'moveables': ([Moveable], 'The N (continuous) devices which are'
-                                  ' controlled'),
+        'moveables': Attach('The N (continuous) devices which are'
+                                  ' controlled', Moveable, multiple=True),
+        'readables': Attach('0 to N (continuous) devices which are'
+                                  ' used for read back only', Readable,
+                                  optional=True, multiple=True),
     }
 
     parameters = {
@@ -208,7 +213,7 @@ class MultiSwitcher(MappedMoveable):
 
     @lazy_property
     def devices(self):
-        return self._adevs['moveables']
+        return self._adevs['moveables'] + self._adevs['readables']
 
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)
@@ -225,15 +230,17 @@ class MultiSwitcher(MappedMoveable):
 
     def _startRaw(self, target):
         """target is the raw value, i.e. a list of positions"""
+        moveables = self._adevs['moveables']
         if not isinstance(target, (tuple, list)) or \
-            len(target) != len(self.devices):
+            len(target) < len(moveables):
             raise InvalidValueError(self,'doStart needs a tuple of %d positions '
-                                    'for this device!' % len(self.devices))
-        for d, t in zip(self.devices, target):
+                                    'for this device!' % len(moveables))
+        # only check and move the moveables, which are first in self.devices
+        for d, t in zip(moveables, target):
             if not d.isAllowed(t):
                 raise InvalidValueError(self, 'target value %r not accepted by '
                                         'device %s' % (t, d.name))
-        for d, t in zip(self.devices, target):
+        for d, t in zip(moveables, target):
             self.log.debug('moving %r to %r' % (d, t))
             d.start(t)
         if self.blockingmove:
