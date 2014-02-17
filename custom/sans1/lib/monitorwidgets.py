@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush
+from PyQt4.QtGui import QPainter, QWidget, QColor, QBrush, QPen
 from PyQt4.QtCore import QSize, Qt, QStringList
 
 from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
@@ -256,11 +256,18 @@ class CollimatorTable(NicosWidget, QWidget):
         else:
             yoff = 0
 
-        painter.setBrush(_blue)
+        # cache pen
+        pen = painter.pen()
+
+        painter.setPen(QPen(_blue.color()))
+
         y = h * 0.5 + yoff
         painter.drawLine(0, y, w, y)
         painter.drawLine(0, y+1, w, y+1)
         painter.drawLine(0, y+2, w, y+2)
+
+        # reset pen
+        painter.setPen(pen)
 
         painter.setBrush(statusbrush[self._curstatus])
         try:
