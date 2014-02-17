@@ -248,15 +248,20 @@ class DevicesPanel(Panel):
                 if devname.lower() in self._devitems:
                     # remove device item...
                     item = self._devitems[devname.lower()]
-                    catitem = item.parent()
-                    catitem.removeChild(item)
                     del self._devitems[devname.lower()]
                     del self._devinfo[devname.lower()]
-                    # and remove category item if it has no further children
-                    if catitem.childCount() == 0:
-                        self.tree.takeTopLevelItem(
-                            self.tree.indexOfTopLevelItem(catitem))
-                        del self._catitems[str(catitem.text(0))]
+                    try:
+                        catitem = item.parent()
+                    except RuntimeError:
+                        # Qt object has already been destroyed
+                        pass
+                    else:
+                        catitem.removeChild(item)
+                        # and remove category item if it has no further children
+                        if catitem.childCount() == 0:
+                            self.tree.takeTopLevelItem(
+                                self.tree.indexOfTopLevelItem(catitem))
+                            del self._catitems[str(catitem.text(0))]
 
     def on_client_cache(self, data):
         (_time, key, op, value) = data
