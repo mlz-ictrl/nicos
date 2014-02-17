@@ -29,7 +29,7 @@ import copy
 from os import path
 
 from nicos.utils import readonlylist, readonlydict
-from nicos.core.errors import ProgrammingError
+from nicos.core.errors import ProgrammingError, ConfigurationError
 from nicos.pycompat import iteritems, text_type
 
 
@@ -184,6 +184,94 @@ class Override(object):
         for attr in self._kw:
             setattr(newinfo, attr, self._kw[attr])
         return newinfo
+
+
+class Attach(object):
+    """Specifies required properties of the attached dev(s) of an device class.
+
+    The `.Device.attached_devices` attribute contains a mapping of internal
+    names of attached devices to instances of this class.
+    During device creation, attached devices are stored as a mapping of
+    internal device name to the attached device itself as `.Device._adevs`.
+    Attached devices also contain a set `.Devices._sdevs` which contains
+    the names of devices using this particular device as an attached device
+    (two way linkage).
+
+    Attributes (equivalent to constructor arguments):
+
+    - *description*: a concise description of the attached devices.
+
+    - *devclass*: the class, the attached Device must be a subclass of.
+      This is used to restrict the possible configurations to devices
+      possessing a certain interface.  If an attached device is specified
+      in the setup file which is not a valid subclass, a
+      `ConfigurationError` is raised.
+
+    - *optional*: if True, the attached device does not need to be specified
+      in the config file and is assumed to be of the value None.
+      Defaults to False.
+
+    - *multiple*: Either False, specifying that there shall be exactly one
+      attached device (default), or True, allowing any number (including zero)
+      attached devices, or a tuple of (min, max) to require a number of devices
+      in the given range.
+
+    Only description and class are mandatory parameters.
+    """
+    def __init__(self, description, devclass, optional=False, multiple=False):
+        # first check all our parameters.
+        if isinstance(multiple, tuple):
+            if len(multiple) != 2 or multiple[0] > multiple[1]:
+                raise ProgrammingError('multiple should be a bool or a tuple '
+                                       'of two integers')
+        elif not isinstance(multiple, bool):
+            raise ProgrammingError('multiple should be a bool or a tuple '
+                                   'of two integers')
+        if optional not in (True, False):
+            raise ProgrammingError('optional should be a boolean')
+        # no set member values
+        self.description = description
+        self.devclass = devclass
+        self.optional = optional
+        self.multiple = multiple
+        self.single = not multiple  # always a bool
+
+    def check(self, dev, aname, configargs):
+        """Checks if the given arguments are valid for this entry.
+
+        Also returns a list of all attached devices which should be created.
+        May raise a configurationError, if something is wrongly configured.
+        """
+        args = configargs if isinstance(configargs, (tuple, list)) else [configargs]
+        if self.single:
+            if args == [None]:
+                if not self.optional:
+                    raise ConfigurationError(dev, "device misses device %r in "
+                                             "configuration" % aname)
+            if len(args) != 1:
+                raise ConfigurationError(dev, "need a single device for attached "
+                                         "device %s, got %r" % (aname, configargs))
+        elif isinstance(self.multiple, tuple):
+            if args == [None] and self.optional:
+                args = [None] * self.multiple[0]
+            if len(args) < self.multiple[0]:
+                raise ConfigurationError(dev, "need at least %d devices for %r, "
+                                         "got %r" % (self.multiple[0], aname, args))
+            elif len(args) >= self.multiple[1]:
+                raise ConfigurationError(dev, "can only handle %d devices for %r, "
+                                         "got %r" % (self.multiple[1], aname, args))
+        else:
+            if args == [None]:
+                args = []
+        return args
+
+    def __repr__(self):
+        s = 'Attach(%r, %r' % (self.description, self.devclass)
+        if self.multiple:
+            s += ', multiple=%s' % self.multiple
+        if self.optional:
+            s += ', optional=%r' % self.optional
+        return s + ')'
 
 
 class Value(object):

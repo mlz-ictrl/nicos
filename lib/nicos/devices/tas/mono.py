@@ -29,7 +29,8 @@ from math import pi, cos, sin, asin, radians, degrees, sqrt
 from time import time
 
 from nicos.core import Moveable, HasLimits, HasPrecision, Param, Override, \
-    listof, oneof, ComputationError, LimitError, status, multiStatus, multiReset
+    listof, oneof, ComputationError, LimitError, status, multiStatus, \
+    multiReset, Attach
 
 THZ2MEV = 4.1356675
 ANG2MEV = 81.804165
@@ -61,10 +62,12 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     """
 
     attached_devices = {
-        'theta':    (HasPrecision, 'Monochromator rocking angle'),
-        'twotheta': (HasPrecision, 'Monochromator scattering angle'),
-        'focush':   (Moveable, 'Horizontal focusing axis'),
-        'focusv':   (Moveable, 'Vertical focusing axis'),
+        'theta':    Attach('Monochromator rocking angle', HasPrecision),
+        'twotheta': Attach('Monochromator scattering angle', HasPrecision),
+        'focush':   Attach('Horizontal focusing axis', Moveable,
+                           optional=True),
+        'focusv':   Attach('Vertical focusing axis', Moveable,
+                           optional=True),
     }
 
     hardware_access = False

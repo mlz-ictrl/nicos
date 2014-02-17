@@ -27,7 +27,7 @@
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
     ConfigurationError, ComputationError, LimitError, oneof, multiStatus, \
-    multiWait, waitForStatus
+    multiWait, waitForStatus, Attach
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV
 from nicos.devices.tas import spurions
@@ -48,12 +48,13 @@ class TAS(Instrument, Moveable):
     """
 
     attached_devices = {
-        'cell':  (Cell, 'Unit cell object to calculate angles'),
-        'mono':  (Monochromator, 'Monochromator device'),
-        'ana':   (Monochromator, 'Analysator device'),
-        'phi':   (Moveable, 'Sample scattering angle'),
-        'psi':   (Moveable, 'Sample rocking angle'),
-        'alpha': (Moveable, 'Device moved to "alpha" angle between ki and Q'),
+        'cell':  Attach('Unit cell object to calculate angles', Cell),
+        'mono':  Attach('Monochromator device', Monochromator),
+        'ana':   Attach('Analysator device', Monochromator),
+        'phi':   Attach('Sample scattering angle', Moveable),
+        'psi':   Attach('Sample rocking angle', Moveable),
+        'alpha': Attach('Device moved to "alpha" angle between ki and Q',
+                        Moveable, optional=True),
     }
 
     parameters = {

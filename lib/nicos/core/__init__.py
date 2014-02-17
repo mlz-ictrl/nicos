@@ -38,7 +38,7 @@ from nicos.core.device import Device, DeviceMixinBase, AutoDevice, \
 from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
     listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
     vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \
-    relative_path, absolute_path, subdir, mailaddress, limits
+    relative_path, absolute_path, subdir, mailaddress, limits, Attach
 from nicos.core.data import Dataset, DataSink
 from nicos.core.scan import Scan
 from nicos.core.image import ImageInfo, ImageType, ImageSink, ImageProducer

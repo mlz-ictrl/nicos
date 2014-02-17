@@ -37,7 +37,7 @@ from nicos.utils import clamp
 from nicos.services.poller.psession import PollerSession
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
     none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
-    ImageProducer, ImageType, SIMULATION
+    ImageProducer, ImageType, SIMULATION, Attach
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import Channel
 
@@ -473,8 +473,9 @@ class Virtual2DDetector(ImageProducer, Measurable):
     four peaks of scattering intensity."""
 
     attached_devices = {
-        'distance':    (Moveable, 'the detector distance for simulation'),
-        'collimation': (Readable, 'the collimation'),
+        'distance':    Attach('The detector distance for simulation', Moveable,
+                              optional=True),
+        'collimation': Attach('The collimation', Readable, optional=True),
     }
 
     parameters = {

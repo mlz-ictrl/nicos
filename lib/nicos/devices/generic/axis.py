@@ -30,7 +30,7 @@ from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
      NicosError, PositionError, MoveError, waitForStatus, floatrange, \
-     Param
+     Param, Attach
 from nicos.devices.abstract import Axis as BaseAxis, Motor, Coder, CanReference
 
 
@@ -38,10 +38,10 @@ class Axis(BaseAxis, CanReference):
     """Axis implemented in Python, with NICOS devices for motor and coders."""
 
     attached_devices = {
-        'motor': (Motor, 'Axis motor device'),
-        'coder': (Coder, 'Main axis encoder device'),
-        'obs':   ([Coder], 'Auxiliary encoders used to verify position, '
-                  'can be empty'),
+        'motor': Attach('Axis motor device', Motor),
+        'coder': Attach('Main axis encoder device', Coder),
+        'obs':   Attach('Auxiliary encoders used to verify position', Coder,
+                        optional=True, multiple=True),
     }
 
     parameter_overrides = {

@@ -35,7 +35,7 @@ from nicos.core import MASTER, SIMULATION, SLAVE
 from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel, \
     waitForStatus, multiWait, multiStop, multiStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
-    anytype, none_or, limits, dictof, listof, tupleof
+    anytype, none_or, limits, dictof, listof, tupleof, Attach
 from nicos.core.errors import NicosError, ConfigurationError, \
     ProgrammingError, UsageError, LimitError, ModeError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
@@ -146,11 +146,17 @@ class DeviceMeta(DeviceMixinMeta):
                     newentry.update(getattr(base, entry))
             newentry.update(attrs.get(entry, {}))
             setattr(newtype, entry, newentry)
-        for adevname in newtype.attached_devices:
+        for adevname, entry in newtype.attached_devices.items():
             # adev names are always lowercased
             if adevname != adevname.lower():
                 raise ProgrammingError('%r device: attached device name %r is '
                                        'not all-lowercase' % (name, adevname))
+            # backwards compatibility: convert all entries to Attach objects
+            if not isinstance(entry, Attach):
+                _multiple = isinstance(entry[0], list)
+                _devclass = entry[0][0] if _multiple else entry[0]
+                newtype.attached_devices[adevname] = \
+                    Attach(entry[1], _devclass, multiple=_multiple)
         for param, info in iteritems(newtype.parameters):
             # parameter names are always lowercased (enforce this)
             if param != param.lower():
@@ -446,47 +452,25 @@ class Device(object):
 
         # validate and create attached devices
         for aname, entry in sorted(iteritems(self.attached_devices)):
-            if not isinstance(entry, tuple) or len(entry) != 2:
+            if not isinstance(entry, Attach):
                 raise ProgrammingError(self, 'attached device entry for %r is '
-                                       'invalid; the value should be of the '
-                                       'form (cls, docstring)' % aname)
-            cls = entry[0]
-            if aname not in self._config:
-                raise ConfigurationError(
-                    self, 'device misses device %r in configuration' % aname)
-            value = self._config.pop(aname)
-            if value is None:
-                if isinstance(cls, list):
-                    self._adevs[aname] = []
-                else:
-                    self._adevs[aname] = None
-                continue
-            if isinstance(cls, list):
-                cls = cls[0]
-                if not isinstance(value, list):
-                    raise ConfigurationError(
-                        self, '%r should be a list of device names, not %r'
-                        % (aname, value))
-                devlist = []
-                self._adevs[aname] = devlist
-                for i, devname in enumerate(value):
+                                       'invalid; the value should be a '
+                                       'nicos.core.Attach object' % aname)
+            value = self._config.pop(aname, None)
+            devlist = []
+            for i, devname in enumerate(entry.check(self, aname, value)):
+                dev = None
+                if devname is not None:
                     try:
-                        dev = session.getDevice(devname, cls, source=self)
+                        dev = session.getDevice(devname, entry.devclass,
+                                                source=self)
                     except UsageError:
                         raise ConfigurationError(
                             self, 'device %r item %d has wrong type (should be '
-                            '%s' % (aname, i, cls.__name__))
-                    devlist.append(dev)
+                            '%s' % (aname, i+1, entry.devclass.__name__))
                     dev._sdevs.add(self._name)
-            else:
-                try:
-                    dev = session.getDevice(value, source=self)
-                except UsageError:
-                    raise ConfigurationError(
-                        self, 'device %r has wrong type (should be %s)' %
-                        (aname, cls.__name__))
-                self._adevs[aname] = dev
-                dev._sdevs.add(self._name)
+                devlist.append(dev)
+            self._adevs[aname] = devlist[0] if entry.single else devlist
 
         self._cache = self._getCache()
         lastconfig = None
