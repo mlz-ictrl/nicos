@@ -35,8 +35,8 @@ import getopt
 from os import path
 
 from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
-     QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
-     QFontDialog, QColorDialog
+    QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
+    QFontDialog, QColorDialog
 from PyQt4.QtCore import Qt, QTimer, QSize, QVariant, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
@@ -295,8 +295,6 @@ class MainWindow(QMainWindow, DlgUtils):
             settings.setValue('auxwindows', QVariant(open_wintypes))
 
     def saveSettings(self, settings):
-        if self.autosavelayout:
-            self.saveWindowLayout()
         settings.setValue('autoconnect', QVariant(self.client.connected))
         settings.setValue('connpresets', self.connpresets)
         settings.setValue('lastpreset', self.lastpreset)
@@ -315,6 +313,8 @@ class MainWindow(QMainWindow, DlgUtils):
                 event.ignore()
                 return
 
+        if self.autosavelayout:
+            self.saveWindowLayout()
         with self.sgroup as settings:
             self.saveSettings(settings)
         for panel in self.panels:
