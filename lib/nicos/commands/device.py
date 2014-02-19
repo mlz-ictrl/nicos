@@ -36,7 +36,8 @@ from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
 from nicos.commands.output import printinfo, printerror
-from nicos.pycompat import builtins, itervalues, iteritems, number_types
+from nicos.pycompat import builtins, itervalues, iteritems, number_types, \
+    string_types
 
 
 __all__ = [
@@ -502,7 +503,7 @@ def history(dev, key='value', fromtime=None, totime=None):
     >>> history(mth, 'speed', '2012-05-04', '2012-05-08')  # between two days
     """
     # support calling history(dev, -3600)
-    if isinstance(key, str):
+    if isinstance(key, string_types):
         try:
             key = parseDateString(key)
         except ValueError:

@@ -37,6 +37,8 @@ from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
     QVBoxLayout, QColor, QStyle
 from PyQt4.QtCore import Qt, QSettings, QDateTime, QSize, QByteArray, SIGNAL
 
+from nicos.pycompat import string_types
+
 # re-exported for compatibility
 from nicos.guisupport.utils import (setForegroundColor,  # pylint: disable=W0611
                                     setBackgroundColor)
@@ -110,7 +112,7 @@ def checkSetupSpec(setupspec, setups):
     checkSetupSpec(['a'], ['a',...]) -> True
     checkSetupSpec(['!a'], ['a',...]) -> False
     """
-    if isinstance(setupspec, str):
+    if isinstance(setupspec, string_types):
         setupspec = [setupspec]
     if not setups:
         return True # no setups -> visible (safety)

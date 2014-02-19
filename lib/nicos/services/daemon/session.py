@@ -32,7 +32,7 @@ from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.cacheclient import DaemonCacheClient
 from nicos.services.daemon.htmlhelp import HelpGenerator
-from nicos.pycompat import builtins, exec_
+from nicos.pycompat import builtins, exec_, string_types
 
 
 class DaemonSession(NoninteractiveSession):
@@ -118,7 +118,7 @@ class DaemonSession(NoninteractiveSession):
         if 'level' in required:
             script = self.daemon_device.current_script()
             rlevel = required['level']
-            if isinstance(rlevel, str):
+            if isinstance(rlevel, string_types):
                 for k, v in ACCESS_LEVELS.items():
                     if v == rlevel:
                         rlevel = k
@@ -141,7 +141,7 @@ class DaemonSession(NoninteractiveSession):
         except Exception:
             self.log.warning('Could not generate the help for %r' % obj, exc=1)
             return
-        if not isinstance(obj, str):
+        if not isinstance(obj, string_types):
             self.log.info('Showing help in the calling client...')
         self.emitfunc_private('showhelp', data)
 

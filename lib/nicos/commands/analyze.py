@@ -34,6 +34,7 @@ from nicos import session
 from nicos.core import NicosError, UsageError
 from nicos.utils import printTable
 from nicos.utils.fitting import Fit
+from nicos.pycompat import string_types
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import cscan
 from nicos.commands.device import maw
@@ -72,13 +73,13 @@ def _getData(columns):
     else:
         raise UsageError('you can give none, one or two columns names or numbers')
 
-    if isinstance(xcol, str):
+    if isinstance(xcol, string_types):
         try:
             xcol = dataset.xnames.index(xcol) + 1
         except ValueError:
             raise NicosError('no such X column name: %r' % xcol)
 
-    if isinstance(ycol, str):
+    if isinstance(ycol, string_types):
         try:
             ycol = dataset.ynames.index(ycol) + 1
         except ValueError:

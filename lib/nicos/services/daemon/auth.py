@@ -24,13 +24,14 @@
 
 """NICOS daemon authentication and user abstraction."""
 
+from collections import namedtuple
+
 from nicos.core import Device, Param, listof, oneof, GUEST, USER, ADMIN, \
     ACCESS_LEVELS
-from collections import namedtuple
+from nicos.pycompat import string_types
 
 
 User = namedtuple('User', 'name level')
-
 
 system_user = User('system', ADMIN)
 
@@ -65,13 +66,13 @@ def auth_entry(val=None):
     if len(val) != 3:
         raise ValueError('auth entry needs to be a 3-tuple '
                          '(name, password, accesslevel)')
-    if not isinstance(val[0], str):
+    if not isinstance(val[0], string_types):
         raise ValueError('user name must be a string')
     val[0] = val[0].strip()
-    if not isinstance(val[1], str):
+    if not isinstance(val[1], string_types):
         raise ValueError('user password must be a string')
     val[1] = val[1].strip()
-    if isinstance(val[2], str):
+    if isinstance(val[2], string_types):
         for i, name in ACCESS_LEVELS.items():
             if name == val[2].strip():
                 val[2] = i

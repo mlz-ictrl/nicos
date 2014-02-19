@@ -42,7 +42,7 @@ except ImportError:
 from nicos.core import Param
 from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.pycompat import BytesIO, iteritems, from_utf8
+from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
 
 
 HEAD = '''\
@@ -104,7 +104,7 @@ class Field(object):
     plotinterval = 3600   # time span of plot
 
     def __init__(self, prefix, desc):
-        if isinstance(desc, str):
+        if isinstance(desc, string_types):
             desc = {'dev': desc}
         if 'dev' in desc:
             dev = desc.pop('dev')
@@ -341,7 +341,7 @@ class Monitor(BaseMonitor):
                     blk.add('</table>\n  </div>')
                     add(blk)
                     if len(block) > 2 and block[2]:
-                        setupnames = [block[2]] if isinstance(block[2], str) \
+                        setupnames = [block[2]] if isinstance(block[2], string_types) \
                                      else block[2]
                         for setupname in setupnames:
                             self._onlymap.setdefault(setupname, []).append(blk)

@@ -45,7 +45,7 @@ except ImportError:
 
 from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.fitutils import has_odr, FitError
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
+from nicos.pycompat import string_types, xrange as range  # pylint: disable=W0622
 
 from nicos.guisupport.plots import ActivePlotPicker, TimeScaleEngine, \
     TimeScaleDraw
@@ -547,7 +547,7 @@ class NicosPlot(QwtPlot, DlgUtils):
         textmarker.setYAxis(curve.yAxis())
         textmarker.setLabel(QwtText(
             '\n'.join((n + ': ' if n else '') +
-                      (v if isinstance(v, str) else '%g' % v)
+                      (v if isinstance(v, string_types) else '%g' % v)
                       for (n, v) in interesting)))
 
         # check that the given position is inside the viewport

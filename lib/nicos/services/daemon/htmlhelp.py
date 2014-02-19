@@ -47,7 +47,7 @@ else:
 from nicos import session
 from nicos.core import Device
 from nicos.utils import formatDocstring
-from nicos.pycompat import StringIO, escape_html, iteritems
+from nicos.pycompat import StringIO, escape_html, iteritems, string_types
 
 
 STYLE = '''
@@ -294,7 +294,7 @@ class HelpGenerator(object):
     def generate(self, obj):
         if obj is None:
             obj = 'index'
-        if isinstance(obj, str) and obj not in self._specialtopics:
+        if isinstance(obj, string_types) and obj not in self._specialtopics:
             return obj, self.header + self.gen_helptarget(obj) + self.footer
         elif isinstance(obj, Device):
             return 'dev:%s' % obj, \

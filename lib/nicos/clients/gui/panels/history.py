@@ -44,7 +44,7 @@ from nicos.clients.gui.fitutils import fit_linear
 from nicos.clients.gui.widgets.plotting import NicosPlot
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle, iteritems
+from nicos.pycompat import cPickle as pickle, iteritems, string_types
 
 
 class View(QObject):
@@ -86,7 +86,7 @@ class View(QObject):
                     if delta < interval:
                         # value comes too fast -> ignore
                         continue
-                    if isinstance(value, str):
+                    if isinstance(value, string_types):
                         # create a new unique integer value for the string
                         value = string_mapping.setdefault(
                             value, len(string_mapping))

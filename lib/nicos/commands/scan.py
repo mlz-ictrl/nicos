@@ -32,7 +32,7 @@ from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printwarning
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import iteritems, number_types, string_types
 
 
 __all__ = [
@@ -81,7 +81,7 @@ def _fixType(dev, args, mkpos):
 def _handleScanArgs(args, kwargs, scaninfo):
     preset, detlist, envlist, move, multistep = {}, [], None, [], []
     for arg in args:
-        if isinstance(arg, str):
+        if isinstance(arg, string_types):
             scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, number_types):
             preset['t'] = arg
@@ -116,7 +116,8 @@ def _infostr(fn, args, kwargs):
         elif isinstance(x, float):
             return str(x)
         return repr(x)
-    argsrepr = ', '.join(devrepr(a) for a in args if not isinstance(a, str))
+    argsrepr = ', '.join(devrepr(a) for a in args
+                         if not isinstance(a, string_types))
     if kwargs:
         kwargsrepr = ', '.join('%s=%r' % kv for kv in kwargs.items())
         return '%s(%s, %s)' % (fn, argsrepr, kwargsrepr)

@@ -32,7 +32,8 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Measurable, Device, Param, Value, Override, NicosError, \
-     intrange, listof, status, ImageProducer
+    intrange, listof, status, ImageProducer
+from nicos.pycompat import string_types
 
 from nicos.devices.vendor.toni import DelayBox
 from nicos.toftof.chopper import Controller
@@ -293,7 +294,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
         i = 5001
         for dev in ['ReactorPower', 'chDS'] + session.experiment.sampleenv:
             try:
-                if isinstance(dev, str):
+                if isinstance(dev, string_types):
                     dev = session.getDevice(dev)
                 fn = self.lastfilename.replace('0000.raw', '%04d.raw' % i)
                 self._devicelogs[dev.name.lower()] = fp = open(fn, 'w')

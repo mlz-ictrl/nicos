@@ -30,6 +30,7 @@ import subprocess
 from nicos.commands import usercommand
 from nicos.commands.output import printinfo
 from nicos.utils import printTable
+from nicos.pycompat import string_types
 
 from nicos.devices.taco.core import TacoDevice
 
@@ -159,7 +160,7 @@ def TacoStatus(server=''):
             checker = locals().get('check_' + dtype, None)
             if checker:
                 ok = checker(dev, client, state)
-                if isinstance(ok, str):
+                if isinstance(ok, string_types):
                     status = ok
                     ok = False
             else:

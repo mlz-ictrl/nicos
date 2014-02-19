@@ -32,7 +32,7 @@ from nicos.core.errors import UsageError
 from nicos.core.constants import SIMULATION
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import iteritems, number_types, string_types
 
 
 __all__ = [
@@ -156,7 +156,7 @@ def count(*detlist, **preset):
         if isinstance(det, number_types):
             preset['t'] = det
             continue
-        elif isinstance(det, str):
+        elif isinstance(det, string_types):
             preset['info'] = det
             continue
         if not isinstance(det, Measurable):

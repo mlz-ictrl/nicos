@@ -35,7 +35,9 @@ from email.mime.multipart import MIMEMultipart
 import smtplib
 
 from nicos import session
+from nicos.pycompat import string_types
 from nicos.core.params import mailaddress
+
 
 def sendMail(mailserver, receiverlist, mailsender, topic, body,
              attach_files=(), debuglevel=0):
@@ -53,7 +55,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     """
     # try to check parameters
     errors = []
-    if isinstance(receiverlist, str):
+    if isinstance(receiverlist, string_types):
         receiverlist = receiverlist.replace(',', ' ').split()
     for a in [mailsender] + receiverlist:
         try:

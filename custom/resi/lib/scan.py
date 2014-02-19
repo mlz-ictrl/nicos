@@ -34,8 +34,10 @@ from nicos import session
 #from nicos.core import Device, Measurable, Moveable, Readable
 from nicos.core import UsageError
 from nicos.commands import usercommand
+from nicos.pycompat import string_types
 
 from nicos.resi import residevice
+
 
 @usercommand
 def measuredataset(**kw):
@@ -116,7 +118,7 @@ def Center(axis, *args, **kw):
         raise UsageError('This command only works with the resi device')
     if  isinstance(axis, residevice.ResiVAxis):
         axis = axis.name
-    elif not isinstance(axis,str):
+    elif not isinstance(axis, string_types):
         raise UsageError('This command works only with RESI axes')
     dev._hardware.Center(axis=axis, *args, **kw)
 

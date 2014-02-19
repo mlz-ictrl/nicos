@@ -41,18 +41,18 @@ from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink
 from nicos.core.device import Device
 from nicos.core.errors import NicosError, UsageError, ModeError, \
-     ConfigurationError, AccessError, CacheError
+    ConfigurationError, AccessError, CacheError
 from nicos.devices.notifiers import Notifier
 from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
-     ColoredConsoleHandler, NicosLogfileHandler
+    ColoredConsoleHandler, NicosLogfileHandler
 from nicos.devices.instrument import Instrument
 from nicos.devices.cacheclient import CacheClient, CacheLockError, \
-     SyncCacheClient
+    SyncCacheClient
 from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
-     NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
-     SIMULATION, MAINTENANCE
+    NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
+    SIMULATION, MAINTENANCE
 from nicos.pycompat import builtins, exec_, string_types, \
     itervalues, iteritems, listvalues, listitems
 
@@ -601,7 +601,7 @@ class Session(object):
             else:
                 if value is None:
                     dev = self._def_sysconfig[key]
-                elif not isinstance(value, str):
+                elif not isinstance(value, string_types):
                     raise ConfigurationError('sysconfig %s entry must be '
                                              'a device name' % key)
                 elif key == 'experiment' and value not in (None, 'Exp'):
@@ -885,7 +885,7 @@ class Session(object):
         *replace_classes* can be used to replace configured device classes.
         If given, it is a tuple of ``(old_class, new_class, new_devconfig)``.
         """
-        if isinstance(dev, str):
+        if isinstance(dev, string_types):
             if dev in self.devices:
                 dev = self.devices[dev]
             elif dev in self.configured_devices:

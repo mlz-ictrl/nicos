@@ -35,7 +35,7 @@ from nicos.utils import printTable
 from nicos.commands import usercommand
 from nicos.commands.scan import _fixType, _handleScanArgs, _infostr, _ManualScan
 from nicos.commands.output import printinfo
-from nicos.pycompat import integer_types
+from nicos.pycompat import integer_types, string_types
 
 
 class MiezeMaster(Moveable):
@@ -247,7 +247,7 @@ class MiezeScan(Scan):
         if settings is not None:
             if settings == '*' or settings == -1:
                 settings = [sett['_name_'] for sett in miezedev.curtable]
-            elif isinstance(settings, (str,) + integer_types):
+            elif isinstance(settings, string_types + integer_types):
                 settings = [settings]
             self._nsettings = len(settings)
             new_devices = devices + [miezedev]
@@ -289,7 +289,7 @@ class MiezeManualScan(ManualScan):
             if settings == '*' or settings == -1:
                 self.settings = [sett['_name_']
                                  for sett in self.miezedev.curtable]
-            elif isinstance(settings, (str,) + integer_types):
+            elif isinstance(settings, string_types + integer_types):
                 self.settings = [settings]
             else:
                 self.settings = settings

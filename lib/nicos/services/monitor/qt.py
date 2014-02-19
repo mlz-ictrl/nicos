@@ -38,7 +38,7 @@ from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
 from nicos.guisupport.display import ValueDisplay
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, string_types
 
 try:
     from nicos.guisupport.plots import TrendPlot
@@ -219,7 +219,7 @@ class Monitor(BaseMonitor):
                 master.connect(widget, SIGNAL('widgetInfo'), self.newWidgetInfo)
                 return widget
 
-            if isinstance(field, str):
+            if isinstance(field, string_types):
                 field = {'dev': field}
             if 'min' in field:
                 field['min'] = repr(field['min'])
@@ -294,7 +294,7 @@ class Monitor(BaseMonitor):
                             rowlayout.addStretch()
                             blocklayout.addLayout(rowlayout)
                     if len(block) > 2 and block[2]:
-                        setupnames = [block[2]] if isinstance(block[2], str) \
+                        setupnames = [block[2]] if isinstance(block[2], string_types) \
                                      else block[2]
                         for setupname in setupnames:
                             self._onlymap.setdefault(setupname, []).append(

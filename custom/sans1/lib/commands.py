@@ -28,6 +28,8 @@ from nicos import session
 from nicos.core import ConfigurationError
 from nicos.core.spm import spmsyntax, Int, String
 from nicos.commands import usercommand, helparglist
+from nicos.pycompat import string_types
+
 from nicos.sans1.sans1_sample import Sans1Sample # pylint: disable=E0611,F0401
 
 
@@ -47,7 +49,7 @@ def SetSample(idx, name = None):
     If several sample names need to be specified, several calls to SetSample are
     required.
     """
-    if name is None and isinstance(idx, str):
+    if name is None and isinstance(idx, string_types):
         idx, name = name, idx
     sd = session.experiment.sample   # get Sans1Sample device
     if not isinstance(sd, Sans1Sample):

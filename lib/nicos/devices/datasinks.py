@@ -34,7 +34,7 @@ from nicos.utils import parseDateString
 from nicos.utils.graceplot import GracePlot, GracePlotter
 from nicos.commands.output import printinfo, printwarning
 from nicos.core.sessions.console import ConsoleSession
-from nicos.pycompat import iteritems, listitems, TextIOWrapper, \
+from nicos.pycompat import iteritems, listitems, TextIOWrapper, string_types, \
     cPickle as pickle
 
 
@@ -176,7 +176,7 @@ class GraceSink(DataSink):
         # if "key" is a string we have to determine if it's a parameter name or
         # a date string; since valid date strings cannot be parameter names this
         # is quite easy to do
-        if isinstance(key, str):
+        if isinstance(key, string_types):
             try:
                 key = parseDateString(key)
             except ValueError:

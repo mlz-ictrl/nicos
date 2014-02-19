@@ -48,7 +48,7 @@ from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
     ENQ, ACK, STX, NAK, LENGTH, PROTO_VERSION, BREAK_NOW, code2command, \
     DAEMON_COMMANDS, event2code
-from nicos.pycompat import queue, socketserver
+from nicos.pycompat import queue, socketserver, string_types
 
 
 READ_BUFSIZE = 4096
@@ -691,7 +691,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                        vallist.__class__.__name__)
             return
         for val in vallist:
-            if not isinstance(val, str):
+            if not isinstance(val, string_types):
                 self.write(NAK, 'wrong type for add_values item: %s' %
                            val.__class__.__name__)
                 return
@@ -712,7 +712,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                        vallist.__class__.__name__)
             return
         for val in vallist:
-            if not isinstance(val, str):
+            if not isinstance(val, string_types):
                 self.write(NAK, 'wrong type for del_values item: %s' %
                            val.__class__.__name__)
                 return

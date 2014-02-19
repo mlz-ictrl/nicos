@@ -41,7 +41,7 @@ from nicos.core.errors import NicosError, ConfigurationError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
 from nicos.pycompat import reraise, add_metaclass, itervalues, iteritems, \
-    text_type
+    text_type, string_types
 
 
 def usermethod(func):
@@ -663,13 +663,13 @@ class Device(object):
         else:
             if fromtime is None:
                 fromtime = -1
-            if isinstance(fromtime, str):
+            if isinstance(fromtime, string_types):
                 fromtime = parseDateString(fromtime)
             elif fromtime < 0:
                 fromtime = currenttime() + fromtime * 3600
             if totime is None:
                 totime = currenttime()
-            elif isinstance(totime, str):
+            elif isinstance(totime, string_types):
                 totime = parseDateString(totime, enddate=True)
             elif totime < 0:
                 totime = currenttime() + totime * 3600

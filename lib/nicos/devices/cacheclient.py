@@ -34,10 +34,10 @@ from nicos import session
 from nicos.core import Device, Param, CacheLockError, CacheError
 from nicos.utils import closeSocket
 from nicos.protocols.cache import msg_pattern, line_pattern, \
-     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
-     OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, \
-     CYCLETIME, BUFSIZE
-from nicos.pycompat import queue, iteritems, to_utf8, from_utf8
+    cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
+    OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, \
+    CYCLETIME, BUFSIZE
+from nicos.pycompat import queue, iteritems, to_utf8, from_utf8, string_types
 
 
 class BaseCacheClient(Device):
@@ -689,7 +689,7 @@ class CacheClient(BaseCacheClient):
 
     def query_db(self, query, tries=3):
         with self._dblock:
-            if isinstance(query, str):
+            if isinstance(query, string_types):
                 return [(k, self._db[k][0]) for k in self._db if k.startswith(query)]
             else:
                 query = set(query)

@@ -50,15 +50,15 @@ from nicos.core import listof, anytype, oneof, \
 from nicos.core.params import subdir
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
-     enableDirectory, readonlydict, lazy_property, printTable, \
-     DEFAULT_FILE_MODE, readFileCounter, updateFileCounter
+    enableDirectory, readonlydict, lazy_property, printTable, \
+    DEFAULT_FILE_MODE, readFileCounter, updateFileCounter
 from nicos.core.utils import DeviceValueDict
 from nicos.utils.ftp import ftpUpload
 from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
-from nicos.pycompat import BytesIO
+from nicos.pycompat import BytesIO, string_types
 
 
 class Sample(Device):
@@ -456,7 +456,7 @@ class Experiment(Device):
         In SIMULATION mode this returns a file-like object to avoid accessing
         or changing the filesystem.
         """
-        if isinstance(nametemplate, str):
+        if isinstance(nametemplate, string_types):
             nametemplate = [nametemplate]
         # translate entries
         filenames = []
@@ -541,7 +541,7 @@ class Experiment(Device):
             # check values and transform them to save time later
             for k, f in [('owner', getpwnam), ('group', getgrnam)]:
                 v = mrinfo.get(k)
-                if isinstance(v, str):
+                if isinstance(v, string_types):
                     try:
                         r = f(v)
                     except Exception as e:
@@ -553,7 +553,7 @@ class Experiment(Device):
             for k in ['enableDirMode', 'enableFileMode',
                        'disableDirMode', 'disableFileMode']:
                 v = mrinfo.get(k, None)
-                if isinstance(v, str):
+                if isinstance(v, string_types):
                     try:
                         r = int(v,8)  # filemodes are given in octal!
                     except Exception as e:
