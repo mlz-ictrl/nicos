@@ -163,7 +163,7 @@
                 <bool>true</bool>
                </property>
                <property name="columnCount">
-                <number>4</number>
+                <number>6</number>
                </property>
                <attribute name="headerDefaultSectionSize">
                 <number>50</number>
@@ -189,6 +189,16 @@
                <column>
                 <property name="text">
                  <string>max</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string/>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>aliases</string>
                 </property>
                </column>
               </widget>

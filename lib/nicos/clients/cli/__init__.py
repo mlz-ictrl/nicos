@@ -497,9 +497,10 @@ class NicosCmdClient(NicosClient):
                         dnwidth = max(map(len, devinfo))
                         sorteditems = sorted(iteritems(devinfo),
                                              key=lambda x: x[0].lower())
-                        for devname, (_, dmin, dmax) in sorteditems:
-                            self.put('#   %-*s: %10s  <->  %-10s' %
-                                     (dnwidth, devname, dmin, dmax))
+                        for devname, (_, dmin, dmax, aliases) in sorteditems:
+                            aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
+                            self.put('#   %-*s: %10s  <->  %-10s %s' %
+                                     (dnwidth, devname, dmin, dmax, aliascol))
                 self.simulating = False
             elif name == 'mode':
                 self.current_mode = data

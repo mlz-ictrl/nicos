@@ -510,9 +510,10 @@ class EditorPanel(Panel):
         self.simFinished.setText(formatEndtime(timing))
 
         # device ranges
-        for devname, (_, dmin, dmax) in iteritems(devinfo):
+        for devname, (_dval, dmin, dmax, aliases) in iteritems(devinfo):
             if dmin is not None:
-                item = QTreeWidgetItem([devname, dmin, '-', dmax])
+                aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
+                item = QTreeWidgetItem([devname, dmin, '-', dmax, '', aliascol])
                 self.simRanges.addTopLevelItem(item)
 
         self.simPane.show()

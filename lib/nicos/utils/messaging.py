@@ -115,16 +115,20 @@ class SimLogSender(logging.Handler):
         self.socket.connect('tcp://127.0.0.1:%d' % port)
         self.session = session
         self.devices = []
+        self.aliases = []
 
     def begin_setup(self):
         self.level = logging.ERROR  # log only errors before code starts
 
     def begin_exec(self):
         from nicos.core import Readable
+        from nicos.devices.generic import DeviceAlias
         # Collect information on timing and range of all devices
         self.starttime = self.session.clock.time
         for devname, dev in iteritems(self.session.devices):
-            if isinstance(dev, Readable):
+            if isinstance(dev, DeviceAlias):
+                self.aliases.append(devname)
+            elif isinstance(dev, Readable):
                 self.devices.append(devname)
                 dev._sim_min = None
                 dev._sim_max = None
@@ -143,9 +147,16 @@ class SimLogSender(logging.Handler):
             dev = self.session.devices.get(devname)
             if dev and dev._sim_min is not None:
                 try:
-                    devinfo[dev] = (dev.format(dev._sim_value),
-                                    dev.format(dev._sim_min),
-                                    dev.format(dev._sim_max))
+                    devinfo[dev.name] = (dev.format(dev._sim_value),
+                                         dev.format(dev._sim_min),
+                                         dev.format(dev._sim_max),
+                                         [])
                 except Exception:
                     pass
+        for devname in self.aliases:
+            adev = self.session.devices.get(devname)
+            if adev and adev.alias:
+                devname = session.devices[adev.alias].name
+                if devname in devinfo:
+                    devinfo[devname][3].append(adev.name)
         self.socket.send(serialize((stoptime, devinfo)))
