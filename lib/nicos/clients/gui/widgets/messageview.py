@@ -29,10 +29,11 @@ from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
 from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
-     QTextCursor, QMainWindow, QTextEdit
+    QTextCursor, QMainWindow, QTextEdit
 from PyQt4.QtCore import Qt, QRegExp
 
 from nicos.utils.loggers import INPUT, ACTION
+from nicos.pycompat import from_maybe_utf8
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -172,7 +173,7 @@ class MessageView(QTextBrowser):
         textcursor = self.textCursor()
         textcursor.movePosition(QTextCursor.End)
         textcursor.setCharFormat(fmt or std)
-        textcursor.insertText(text.decode('utf8', 'replace'))
+        textcursor.insertText(from_maybe_utf8(text))
 
     def addMessage(self, message):
         bar = self.verticalScrollBar()

@@ -98,6 +98,7 @@ if six.PY2:
         if isinstance(s, unicode):
             return s
         return s.decode('utf-8')
+    from_maybe_utf8 = from_utf8
     def from_encoding(s, encoding, errors='strict'):
         if isinstance(s, unicode):
             return s
@@ -115,5 +116,9 @@ else:
     to_encoding = str.encode
     from_utf8 = bytes.decode
     from_encoding = bytes.decode
+    def from_maybe_utf8(s):
+        if isinstance(s, str):
+            return s
+        return s.decode()
     srepr = repr
     from io import TextIOWrapper

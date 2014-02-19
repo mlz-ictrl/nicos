@@ -33,11 +33,11 @@ from PyQt4.QtGui import QDialogButtonBox, QLabel, QPixmap, QTableWidget, \
 from PyQt4.QtCore import SIGNAL, QString, Qt, QSize, QEvent
 
 from nicos.core import ProgrammingError
-from nicos.utils import decodeAny
 from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow, TearOffTabWidget
 from nicos.utils import findResource
+from nicos.pycompat import from_maybe_utf8
 
 
 class TableWidget(QTableWidget):
@@ -225,7 +225,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         if not isinstance(samplenames, dict):
             return
         for i in range(self._numSamples):
-            samplename = decodeAny(samplenames.get(i + 1, ''))
+            samplename = from_maybe_utf8(samplenames.get(i + 1, ''))
             self._tableWidget.cellWidget(i, 0).setText(samplename)
 
     def _applyChanges(self):

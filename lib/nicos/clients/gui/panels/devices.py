@@ -288,8 +288,8 @@ class DevicesPanel(Panel):
             if ldevname in self._control_dialogs:
                 self._control_dialogs[ldevname].valuelabel.setText(
                     fmted + ' ' + devinfo[3])
-            if (devinfo[6] is not None and devinfo[0] < devinfo[6]) or \
-               (devinfo[7] is not None and devinfo[0] > devinfo[7]):
+            if (devinfo[6] is not None and devinfo[0] != '-' and devinfo[0] < devinfo[6]) or \
+               (devinfo[7] is not None and devinfo[0] != '-' and devinfo[0] > devinfo[7]):
                 devitem.setBackground(1, backgroundBrush[ERROR])
             else:
                 devitem.setBackground(1, backgroundBrush[OK])
@@ -357,8 +357,8 @@ class DevicesPanel(Panel):
             st = OK
             if value:
                 devinfo[6], devinfo[7] = value
-                if (devinfo[6] is not None and devinfo[0] < devinfo[6]) or \
-                   (devinfo[7] is not None and devinfo[0] > devinfo[7]):
+                if (devinfo[6] is not None and devinfo[0] != '-' and devinfo[0] < devinfo[6]) or \
+                   (devinfo[7] is not None and devinfo[0] != '-' and devinfo[0] > devinfo[7]):
                     st = ERROR
             devitem.setBackground(1, backgroundBrush[st])
         elif subkey == 'classes':

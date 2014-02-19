@@ -37,11 +37,10 @@ from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN, \
     statuses
-from nicos.utils import decodeAny
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import text_type
+from nicos.pycompat import text_type, from_maybe_utf8
 
 
 _black = QColor('black')
@@ -91,7 +90,7 @@ class ValueLabel(NicosWidget, SqueezedLabel):
         NicosWidget.__init__(self)
         if designMode:
             self.setText('(value display)')
-        self._callback = lambda value, strvalue: decodeAny(strvalue)
+        self._callback = lambda value, strvalue: from_maybe_utf8(strvalue)
 
     def setFormatCallback(self, callback):
         self._callback = callback
