@@ -43,7 +43,7 @@ from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
 from nicos.core import SIMULATION, SLAVE, MASTER
-from nicos.pycompat import queue, exec_
+from nicos.pycompat import queue, exec_, text_type
 
 # compile flag to activate new division
 CO_DIVISION = 0x2000
@@ -120,8 +120,10 @@ class ScriptRequest(Request):
 
     def parse(self, splitblocks=True, compilecode=True):
         if compilecode:
-            compiler = lambda src: compile('# coding: utf-8\n' + src + '\n',
-                                           '<script>', 'single', CO_DIVISION)
+            def compiler(src):
+                if not isinstance(src, text_type):
+                    src = src.decode('utf-8')
+                return compile(src + '\n', '<script>', 'single', CO_DIVISION)
         else:
             compiler = lambda src: src
         if '\n' not in self.text:
