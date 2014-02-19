@@ -95,20 +95,25 @@ possible with the device:
       Device classes can also have an :attr:`attached_devices` attribute that
       defines the class's "attached devices" it needs to operate, such as a
       low-level communication device, or motor and encoders for an axis class.
-      It maps the "internal name" (the device will be available as an attribute
-      with that name) to the type of the device (which usually is an abstract
-      type), and a string describing the purpose of the device.  For example::
+      It maps the "internal name" to the type of the device (which usually is
+      an abstract type), and a string describing the purpose of the device.
+
+      For example::
 
          attached_devices = {
-             'motor': (nicos.devices.abstract.Motor, 'The motor to move'),
-             'coder': (nicos.devices.abstract.Coder, 'The coder for reading position'),
+             'motor': Attach('the motor to move', nicos.devices.abstract.Motor),
+             'coder': Attach('The coder for reading position', nicos.devices.abstract.Coder),
          }
 
       The actual attached devices for a specific instance (given in the
-      instance's configuration) are then type-checked against these types.  As a
-      special case, if the type is a list containing one type, such as
-      ``[Readable]``, the corresponding entry in the configuration must be a
-      list of zero to many instances of that type.
+      instance's configuration) are then type-checked against these types.
+      See :class:`~nicos.core.params.Attach` for the full syntax and options.
+
+      During device creation, attached devices are stored as a mapping of
+      internal device name to the attached device itself as Device._adevs.
+      Attached devices also contain a set Devices._sdevs which contains
+      the names of devices using this particular device as an
+      attached device (two way linkage).
 
       The :attr:`attached_devices` attribute does *not* need to contain the
       entries of base classes again, they are automatically merged.

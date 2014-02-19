@@ -61,6 +61,8 @@ writing device classes.  They are re-exported in :mod:`nicos.core`.
 
 .. autoclass:: Value
 
+.. autoclass:: Attach(self, description, devclass, optional=False, multiple=False)
+
 .. data:: INFO_CATEGORIES
 
    The categories allowed for `.Device.info()` are:
@@ -73,6 +75,7 @@ writing device classes.  They are re-exported in :mod:`nicos.core`.
    * ``'precisions'`` -- Precisions
    * ``'status'`` -- Instrument status (reserved for `status()` values)
    * ``'general'`` -- Instrument state, i.e. everything else of importance
+
 
 Converter functions
 -------------------

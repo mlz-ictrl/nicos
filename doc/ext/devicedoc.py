@@ -116,14 +116,21 @@ class DeviceDocumenter(ClassDocumenter):
         if getattr(self.object, 'attached_devices', None):
             self.add_line('**Attached devices**', '<autodoc>')
             self.add_line('', '<autodoc>')
-            for adev, (cls, doc) in sorted(
+            for adev, attach in sorted(
                     self.object.attached_devices.iteritems()):
-                if isinstance(cls, list):
-                    atype = 'a list of `~%s.%s`' % (cls[0].__module__,
-                                                    cls[0].__name__)
+                if attach.multiple:
+                    n = ''
+                    if isinstance(attach.multiple, tuple):
+                        n = '%d to %d ' % attach.multiple
+                    atype = 'a list of %s`~%s.%s`' % (n, attach.devclass.__module__,
+                                                      attach.devclass.__name__)
                 else:
-                    atype = '`~%s.%s`' % (cls.__module__, cls.__name__)
-                descr = doc + (not doc.endswith('.') and '.' or '')
+                    atype = '`~%s.%s`' % (attach.devclass.__module__,
+                                          attach.devclass.__name__)
+                if attach.optional:
+                    atype += ' (optional)'
+                descr = attach.description + \
+                        (not attach.description.endswith('.') and '.' or '')
                 self.add_line('.. parameter:: %s' % adev, '<autodoc>')
                 self.add_line('', '<autodoc>')
                 self.add_line('   %s Type: %s.' %  (descr, atype), '<autodoc>')

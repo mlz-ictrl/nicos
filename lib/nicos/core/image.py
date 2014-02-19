@@ -32,7 +32,7 @@ import numpy
 from nicos import session
 from nicos.core.device import Device, DeviceMixinBase
 from nicos.core.errors import NicosError, ProgrammingError
-from nicos.core.params import Param, subdir, listof
+from nicos.core.params import Param, Attach, subdir, listof
 
 
 class ImageInfo(object):
@@ -214,7 +214,8 @@ class ImageProducer(DeviceMixinBase):
     """
 
     attached_devices = {
-        'fileformats' : ([ImageSink], 'Filesavers for all wanted fileformats.')
+        'fileformats' : Attach('Filesavers for all wanted fileformats',
+                               ImageSink, multiple=True),
     }
 
     parameters = {
