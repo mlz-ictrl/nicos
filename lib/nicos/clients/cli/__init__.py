@@ -495,7 +495,8 @@ class NicosCmdClient(NicosClient):
                         (formatDuration(timing), formatEndtime(timing)))
                     if devinfo:
                         dnwidth = max(map(len, devinfo))
-                        sorteditems = sorted(iteritems(devinfo))
+                        sorteditems = sorted(iteritems(devinfo),
+                                             key=lambda x: x[0].lower())
                         for devname, (_, dmin, dmax) in sorteditems:
                             self.put('#   %-*s: %10s  <->  %-10s' %
                                      (dnwidth, devname, dmin, dmax))

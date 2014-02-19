@@ -139,7 +139,8 @@ class Scan(object):
         for sink in self._sinks:
             sink.beginDataset(dataset)
         bycategory = {}
-        for _, device in sorted(iteritems(session.devices)):
+        for _, device in sorted(iteritems(session.devices),
+                                key=lambda name_dev: name_dev[0].lower()):
             if device.lowlevel:
                 continue
             for category, key, value in device.info():

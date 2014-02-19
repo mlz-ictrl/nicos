@@ -121,7 +121,8 @@ class Dataset(object):
         headerinfo = self.headerinfo = {}
         # XXX: if updatedict is given, only update those devices positions
         # instead of reading all
-        for _, device in sorted(iteritems(session.devices)):
+        for _, device in sorted(iteritems(session.devices),
+                                key=lambda name_dev: name_dev[0].lower()):
             if device.lowlevel:
                 continue
             for category, key, value in device.info():

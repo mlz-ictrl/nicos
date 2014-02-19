@@ -165,7 +165,7 @@ def read(*devlist):
         devlist = [session.devices[devname]
                    for devname in session.explicit_devices
                    if isinstance(session.devices[devname], Readable)]
-        devlist.sort(key=lambda dev: dev.name)
+        devlist.sort(key=lambda dev: dev.name.lower())
     for dev in devlist:
         try:
             dev = session.getDevice(dev, Readable)
@@ -206,7 +206,7 @@ def status(*devlist):
         devlist = [session.devices[devname]
                    for devname in session.explicit_devices
                    if isinstance(session.devices[devname], Readable)]
-        devlist.sort(key=lambda dev: dev.name)
+        devlist.sort(key=lambda dev: dev.name.lower())
     for dev in devlist:
         dev = session.getDevice(dev, Readable)
         try:
@@ -328,7 +328,8 @@ def getall(*names):
     lists the offset for all devices with an "offset" parameter.
     """
     items = []
-    for name, dev in sorted(iteritems(session.devices)):
+    for name, dev in sorted(iteritems(session.devices),
+                            key=lambda nd: nd[0].lower()):
         pvalues = []
         for param in names:
             if param in dev.parameters:
@@ -713,7 +714,7 @@ def ListDevices():
     """
     printinfo('All created devices:')
     items = []
-    for devname in sorted(session.explicit_devices):
+    for devname in sorted(session.explicit_devices, key=lambda d: d.lower()):
         dev = session.devices[devname]
         items.append((dev.name, dev.__class__.__name__, dev.description))
     printTable(('name', 'type', 'description'), items, printinfo)

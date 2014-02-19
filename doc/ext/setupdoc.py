@@ -206,7 +206,8 @@ class SetupDirective(Directive):
         rst = rstSnipDevices.split()
         rst.append('')
 
-        for devName, (devClass, devParams) in sorted(devices_dict.items()):
+        for devName, (devClass, devParams) in sorted(devices_dict.items(),
+                                                     key=lambda d: d[0].lower()):
 
             if not devClass.startswith('nicos.'):
                 devClass = 'nicos.' + devClass

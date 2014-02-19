@@ -71,6 +71,9 @@ pre.literal-block, pre.doctest-block
         { font-size: 13pt; }
 '''
 
+def lower(s):
+    return s.lower()
+
 
 class HelpGenerator(object):
 
@@ -148,7 +151,7 @@ class HelpGenerator(object):
                 continue
             for devname in info['devices']:
                 devsetups[devname] = sname
-        for devname in sorted(session.explicit_devices):
+        for devname in sorted(session.explicit_devices, key=lower):
             dev = session.devices[devname]
             ret.append('<tr><td><tt><a href="dev:%s">%s</a></tt></td>'
                        '<td>%s</td><td>%s</td><td>%s</td>' %
@@ -175,7 +178,8 @@ class HelpGenerator(object):
                               (setupname,
                                setupname in session.loaded_setups and 'yes' or '',
                                escape_html(info['description']),
-                               ', '.join(map(devlink, sorted(info['devices'])))))
+                               ', '.join(map(devlink,
+                                             sorted(info['devices'], key=lower)))))
             ret.append('<table width="100%"><tr><th>Name</th><th>Loaded</th>'
                        '<th>Description</th><th>Devices</th></tr>')
             ret.extend(setups)
