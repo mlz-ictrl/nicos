@@ -24,6 +24,12 @@
      </property>
      <item>
       <widget class="QLabel" name="actionLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
          <weight>75</weight>
