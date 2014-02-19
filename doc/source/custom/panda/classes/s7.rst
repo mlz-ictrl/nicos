@@ -1,6 +1,6 @@
 S7
 --
 
-.. automodule:: nicos.panda.s7
+.. automodule:: nicos.panda.panda_s7
     :members:
     :undoc-members:
