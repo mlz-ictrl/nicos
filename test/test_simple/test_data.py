@@ -57,12 +57,12 @@ class CHandler(Handler):
 
 def test_sinks():
     exp = session.experiment
-    exp.new(1234, user='testuser')
     exp._setROParam('dataroot', path.join(session.config.control_path,
                                           'testdata'))
+    exp.new(1234, user='testuser')
 
-    assert exp.datapath == path.join(session.config.control_path, 'testdata',
-                                     year, 'p1234', 'data')
+    assert path.abspath(exp.datapath) == path.abspath(path.join(session.config.control_path, 'testdata',
+                                     year, 'p1234', 'data'))
     m = session.getDevice('motor2')
     det = session.getDevice('det')
 

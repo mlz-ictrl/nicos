@@ -166,6 +166,8 @@ class Experiment(Device):
         'propinfo':     Param('dict of info for the current proposal', type=dict,
                               default={}, settable=False, userparam=False),
         # dir param
+        'proposalpath': Param('proposal prefix upon creation of experiment', type=str,
+                              userparam=False, mandatory=False, settable=True),
         'sampledir':    Param('Sample specific subdir', type=subdir, default='',
                               userparam=False, mandatory=False, settable=True),
         # counter
@@ -194,7 +196,10 @@ class Experiment(Device):
     #
 
     def proposalpath_of(self, proposal):
-        """proposalpath of a given proposal"""
+        """proposalpath of a given proposal
+
+        defaults to <dataroot>/<year>/<proposal>)
+        """
         return path.join(self.dataroot, time.strftime("%Y"), proposal)
 
     @property
@@ -311,13 +316,6 @@ class Experiment(Device):
     # end hooks
     #
 
-    @property
-    def proposalpath(self):
-        """current proposalpath (defaults to <dataroot>/<year>/<proposal>)
-
-        DON'T OVERRIDE!
-        """
-        return self.proposalpath_of(self.proposal)
 
     #
     # counter stuff
@@ -663,6 +661,7 @@ class Experiment(Device):
         # newSample also calls datapathChanged, which (re-)creates all needed
         # dirs and adjusts possible symlinks
         self.proposal = proposal
+        self.proposalpath = self.proposalpath_of(proposal) # change proposalpath to new value
         self.newSample(kwds.get('sample', ''), {})
 
         # debug output

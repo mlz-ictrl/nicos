@@ -62,6 +62,8 @@ def test_experiment():
     exp._setROParam('dataroot', path.join(rootdir, 'data'))
     exp.proposal = 'service'
     exp.proptype = 'service'
+    # if there is no exp.new, we need to adjust proposalpath ourselfs!
+    exp.proposalpath = exp.proposalpath_of(exp.proposal)
 
     # create the needed script file
     spath = path.join(rootdir, 'data', year,
