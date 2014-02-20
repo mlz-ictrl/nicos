@@ -377,9 +377,26 @@ class BaseCacheClient(Device):
                     break
                 sleep(CYCLETIME)
 
-
     def quit(self):
         self._stoprequest = True
+
+    def lock(self, key, ttl=None, unlock=False, sessionid=None):
+        """Locking/unlocking: opens a separate connection."""
+        tosend = '%s%s%s%s%s\n' % (
+            self._prefix, key.lower(), OP_LOCK,
+            unlock and '-' or '+', sessionid or session.sessionid)
+        if ttl is not None:
+            tosend = ('+%s@' % ttl) + tosend
+        for msgmatch in self._single_request(tosend, sync=False):
+            if msgmatch.group('value'):
+                raise CacheLockError(msgmatch.group('value'))
+            return
+        # no response received; let's assume standalone mode
+        self.log.warning('allowing lock/unlock operation without cache '
+                         'connection')
+
+    def unlock(self, key, sessionid=None):
+        return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)
 
 
 class CacheClient(BaseCacheClient):
@@ -668,24 +685,6 @@ class CacheClient(BaseCacheClient):
             if value:
                 ret.append((float(time), cache_load(value)))
         return ret
-
-    def lock(self, key, ttl=None, unlock=False, sessionid=None):
-        """Locking/unlocking: opens a separate connection."""
-        tosend = '%s%s%s%s%s\n' % (
-            self._prefix, key.lower(), OP_LOCK,
-            unlock and '-' or '+', sessionid or session.sessionid)
-        if ttl is not None:
-            tosend = ('+%s@' % ttl) + tosend
-        for msgmatch in self._single_request(tosend, sync=False):
-            if msgmatch.group('value'):
-                raise CacheLockError(msgmatch.group('value'))
-            return
-        # no response received; let's assume standalone mode
-        self.log.warning('allowing lock/unlock operation without cache '
-                         'connection')
-
-    def unlock(self, key, sessionid=None):
-        return self.lock(key, ttl=None, unlock=True, sessionid=sessionid)
 
     def query_db(self, query, tries=3):
         with self._dblock:

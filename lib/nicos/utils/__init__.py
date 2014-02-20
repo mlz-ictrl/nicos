@@ -42,6 +42,7 @@ from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, \
 from time import time as currenttime, strftime, strptime, localtime, mktime, \
      sleep
 from itertools import islice, chain
+from functools import wraps
 
 from nicos.pycompat import configparser, iteritems, xrange as range  # pylint: disable=W0622
 
@@ -1004,3 +1005,34 @@ def clamp(value, minval, maxval):
     """returns a value clamped to the given interval [minval, maxval]"""
     minval, maxval = min(minval, maxval), max(minval, maxval)
     return min(max(value, minval), maxval)
+
+
+def timedRetryOnExcept(max_retries=1, timeout=1, ex=None):
+    """ Wrapper: Try a call and retry it on an exception
+
+    max_retries: how often to retry
+    timeout: how long to sleep between tries
+    ex: Only catch specified exceptions, if None: Only catch
+       `Exception`
+
+    all other args are passed to func
+    if max_retries is exhaused, the exception is rethrown
+    """
+
+    if ex is None:
+        ex = Exception
+
+    def outer(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            assert max_retries > 0
+            x = max_retries
+            while x:
+                try:
+                    return func(*args, **kwargs)
+                except ex:
+                    x -= 1
+                    sleep(timeout)
+            raise
+        return wrapper
+    return outer

@@ -31,8 +31,9 @@ import sys
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
      bitDescription, parseConnectionString, formatExtendedFrame, \
      formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
-     comparestrings
+     comparestrings, timedRetryOnExcept
 from nicos.pycompat import cPickle as pickle
+from nicos.core.errors import NicosError
 
 from test.utils import raises
 
@@ -122,3 +123,46 @@ def test_traceback():
 
 def test_comparestrings():
     comparestrings.test()
+
+
+def test_retryOnExcept():
+
+    def raising_func(x):
+        x += 1
+        if x < 2:
+            raise NicosError
+        return x
+
+    @timedRetryOnExcept()
+    def wr(x):
+        x = raising_func(x)
+        return x
+
+    @timedRetryOnExcept(max_retries=3)
+    def wr2(x):
+        x = raising_func(x)
+        return x
+
+    def raising_func2(x):
+        if x < 2:
+            raise Exception('test exception')
+        return x
+
+    @timedRetryOnExcept(ex=NicosError)
+    def wr3(x):
+        x = raising_func2(x)
+        return x
+
+    # Make sure we get the inner error in case of too many retries
+    x = 0
+    assert raises(NicosError, wr, x)
+
+    # Make sure we get success if inner succeeds
+    x = 2
+    ret = wr2(x)
+    assert ret == 3
+
+    # assert we get
+    x = 0
+    assert raises(Exception, wr3, x)
+    assert x == 0

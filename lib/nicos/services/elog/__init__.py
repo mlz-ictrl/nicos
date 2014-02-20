@@ -23,11 +23,16 @@
 # *****************************************************************************
 
 """The NICOS electronic logbook."""
+import sys
+from time import time as currenttime
 
-from nicos.core import Param, Override, oneof
+from nicos.core import Param, Override, oneof, ModeError, CacheLockError, \
+                       CacheError
+from nicos.core.sessions.utils import sessionInfo
 from nicos.services.elog.handler import Handler
 from nicos.protocols.cache import OP_TELL, OP_ASK, OP_SUBSCRIBE, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
+from nicos.utils import timedRetryOnExcept
 from nicos.pycompat import to_utf8
 
 
@@ -45,8 +50,26 @@ class Logbook(BaseCacheClient):
         BaseCacheClient.doInit(self, mode)
         # this is run in the main thread
         self._handler = Handler(self.log, self.plotformat)
+        # the execution master lock needs to be refreshed every now and then
+        self._islocked = False
+        self._lock_expires = 0.
+        self._locktimeout = 5.
 
     def _connect_action(self):
+
+        @timedRetryOnExcept(max_retries=1, timeout=self._locktimeout, ex=CacheLockError)
+        def trylock():
+            return self.lock('elog')
+
+        try:
+            trylock()
+        except CacheLockError as err:
+            self.log.info('another elog is already active: %s' %
+                                    sessionInfo(err.locked_by))
+            sys.exit(-1)
+        else:
+            self._islocked = True
+
         # request current directory for the handler to start up correctly
         self._socket.sendall(
             to_utf8('logbook/directory%s\n###%s\n' % (OP_ASK, OP_ASK)))
@@ -74,6 +97,19 @@ class Logbook(BaseCacheClient):
                 self._handler.handlers[key](time, value)
             except Exception:
                 self.log.exception('Error in handler for: %s=%r' % (key, value))
+
+    def _wait_data(self):
+        if self._islocked:
+            time = currenttime()
+            if time > self._lock_expires:
+                self._lock_expires = time + self._locktimeout - 1
+                self.lock('elog', self._locktimeout)
+
+    def _disconnect(self, why = None):
+        if self._islocked and self._stoprequest and self._connected:
+            self._islocked = False
+            self.unlock('elog')
+        BaseCacheClient._disconnect(self, why)
 
     def doShutdown(self):
         self._handler.close()
