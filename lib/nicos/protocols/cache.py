@@ -204,6 +204,9 @@ OP_TELLOLD = '!'
 OP_LOCK = '$'
 OP_REWRITE = '~'
 
+OP_LOCK_LOCK = '+'
+OP_LOCK_UNLOCK = '-'
+
 # put flags between key and op...
 FLAG_NO_STORE = '#'
 

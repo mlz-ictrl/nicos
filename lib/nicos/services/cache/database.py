@@ -34,7 +34,8 @@ from collections import deque
 from nicos import session
 from nicos.core import Device, Param, ConfigurationError, intrange
 from nicos.utils import ensureDirectory, allDays
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_LOCK, FLAG_NO_STORE
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_LOCK, \
+     OP_LOCK_LOCK, OP_LOCK_UNLOCK, FLAG_NO_STORE
 from nicos.pycompat import iteritems, listitems
 
 try:  # Windows compatibility: it does not provide os.link
@@ -98,7 +99,7 @@ class CacheDatabase(Device):
             entry = self._locks.get(key)
             # want to lock?
             req, client_id = value[0], value[1:]
-            if req == '+':
+            if req == OP_LOCK_LOCK:
                 if entry and entry.value != client_id and \
                      (not entry.ttl or entry.time + entry.ttl >= currenttime()):
                     # still locked by different client, deny (tell the client
@@ -114,7 +115,7 @@ class CacheDatabase(Device):
                     self._locks[key] = Entry(time, ttl, client_id)
                     return key + OP_LOCK + '\n'
             # want to unlock?
-            elif req == '-':
+            elif req == OP_LOCK_UNLOCK:
                 if entry and entry.value != client_id:
                     # locked by different client, deny
                     self.log.debug('unlock request %s=%s, but locked by %s' %

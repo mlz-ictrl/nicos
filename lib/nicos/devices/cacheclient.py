@@ -35,8 +35,8 @@ from nicos.core import Device, Param, CacheLockError, CacheError
 from nicos.utils import closeSocket
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
-    OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, \
-    CYCLETIME, BUFSIZE
+    OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, \
+    OP_REWRITE, END_MARKER, SYNC_MARKER, CYCLETIME, BUFSIZE
 from nicos.pycompat import queue, iteritems, to_utf8, from_utf8, string_types
 
 
@@ -384,7 +384,8 @@ class BaseCacheClient(Device):
         """Locking/unlocking: opens a separate connection."""
         tosend = '%s%s%s%s%s\n' % (
             self._prefix, key.lower(), OP_LOCK,
-            unlock and '-' or '+', sessionid or session.sessionid)
+            unlock and OP_LOCK_UNLOCK or OP_LOCK_LOCK,
+            sessionid or session.sessionid)
         if ttl is not None:
             tosend = ('+%s@' % ttl) + tosend
         for msgmatch in self._single_request(tosend, sync=False):
