@@ -4,7 +4,9 @@ group = 'optional'
 
 includes = ['alias_T']
 
-nethost = 'ccr13'       # old style
+# setupname is set by nicos before loading this file
+# setupname = filename - '.py' extension
+nethost = setupname
 
 devices = {
     'T_%s' % setupname : device('frm2.ccr.CCRControl',
@@ -140,4 +142,5 @@ startupcode = """
 T.alias = T_%s
 Ts.alias = T_%s_B
 AddEnvironment(T, Ts)
-""" % (setupname, setupname, )
+printinfo("Please set T_%s.regulationmode to either 'stick' or 'tube' according to your needs.")
+""" % (setupname, setupname, setupname, )
