@@ -78,10 +78,14 @@ devices = {
                                    maxage = 6,
                                   ),
 
-    '%s_compressor_switch' % setupname : device('devices.taco.DigitalOutput',
-                                                 description = 'Switch for the compressor',
-                                                 tacodevice = '//%s/ccr/plc/on' % nethost,
-                                                ),
+    '%s_compressor_switch' % setupname : device('frm2.ccr.CompressorSwitch',
+                                                description = 'Switch for the compressor',
+                                                tacodevice = '//%s/ccr/plc/on' % nethost,
+                                                offdev = '//%s/ccr/plc/off' % nethost,
+                                                readback = '//%s/ccr/plc/fbcooler' % nethost,
+                                                statusdev = '//%s/ccr/plc/state' % nethost,
+                                                mapping = {'on' : 1, 'off' : 0},
+                                               ),
 
     '%s_gas_set' % setupname : device('devices.taco.DigitalOutput',
                                        description = 'Switch for the gas valve',
