@@ -49,7 +49,7 @@ class Switch(NamedDigitalOutput):
     }
 
     def doInit(self, mode):
-        super(Switch, self).doInit(mode)
+        NamedDigitalOutput.doInit(self, mode)
         if mode != SIMULATION:
             self._remote = self._create_client(devname=self.remote,
                            class_=IO.DigitalOutput, resetok=True, timeout=None)
