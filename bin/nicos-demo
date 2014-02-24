@@ -3,7 +3,6 @@ MAKE=${MAKE:-"make"}
 PYTHON=${PYTHON:-"python"}
 CONSOLE=0
 NOCLIENT=0
-NOCOMPILE=0
 MONI=1
 ELOG=1
 WATCHDOG=1
@@ -21,7 +20,6 @@ help() {
     echo "  options:"
     echo "     -h            display this help"
     echo
-    echo "     -C            do not (re-)compile before starting"
     echo "     -D            disable daemon"
     echo "     -E            disable electronic logbook"
     echo "     -W            disable watchdog"
@@ -45,8 +43,6 @@ while getopts CDEWtTNMc:u:m:h name; do
           NOCLIENT=1;;
         M)
           MONI=0;;
-        C)
-          NOCOMPILE=1;;
         c)
           GUICONFIG="-c $OPTARG";;
         u)
@@ -67,11 +63,6 @@ while getopts CDEWtTNMc:u:m:h name; do
 done
 shift $(($OPTIND - 1))
 
-if [ "$NOCOMPILE" = "0" ]; then
-    echo -n 'Compiling in-place... '
-    ${MAKE} inplace > /dev/null
-    echo 'done.'
-fi
 
 echo -n 'Starting NICOS demo system, please wait: '
 $PYTHON bin/nicos-cache >/dev/null &

@@ -29,7 +29,8 @@ Requirements
 ------------
 
 * At least Python 2.6
-  - python-devel (headers and static library)
+
+* nicos-pyctl
 
 * numpy
 

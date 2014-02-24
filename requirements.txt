@@ -1,6 +1,8 @@
 --extra-index-url http://trac.frm2.tum.de:9019/simple
 --allow-external nicoslivewidget
 nicoslivewidget>=1.0
+--allow-external nicos-pyctl
+nicos-pyctl>=1.0
 --allow-external mysql-connector-python
 mysql-connector-python>=1.1.5
 Sphinx>=1.2.1

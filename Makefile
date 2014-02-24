@@ -1,4 +1,4 @@
-.PHONY: install clean inplace install-inplace test lint jenkinslintall jenkinslint changelint \
+.PHONY: install clean install-inplace test lint jenkinslintall jenkinslint changelint \
 	check test-coverage release help
 
 SHELL=/bin/bash
@@ -18,12 +18,7 @@ clean-demo: clean
 	-rm -rf data/logbook data/20*
 	-rm data/current
 
-inplace:
-	rm -rf build
-	$(PYTHON) setup.py $(QOPT) build_ext
-	cp build/lib*/nicos/services/daemon/*.so lib/nicos/services/daemon
-
-install: inplace
+install:
 	@echo "Installing to $(DESTDIR)$(PREFIX)..."
 	@echo
 	@if [ -z "$(PREFIX)" ]; then echo "PREFIX is empty!"; exit 1; fi
@@ -32,9 +27,8 @@ install: inplace
 	for f in test resources data src .gitattributes .gitignore requirements.txt setup.py pylintrc Makefile MANIFEST.in; do \
 		rm -r $(DESTDIR)$(PREFIX)/$$f; \
 	done
-	cp build/lib*/nicos/services/daemon/*.so $(DESTDIR)$(PREFIX)/lib
 
-inplace-install: inplace
+inplace-install:
 	-ln -sf -t /etc/init.d $(PWD)/etc/nicos-system
 	-ln -sf -t /usr/bin $(PWD)/bin/*
 

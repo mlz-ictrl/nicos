@@ -40,18 +40,13 @@ from nicos.protocols.daemon import STATUS_RUNNING, STATUS_INBREAK
 #    1) try the in-package version (for inplace builds)
 #    2) try version from platform specific directory (no package prefix)
 try:
-    from nicos.services.daemon._pyctl import ControlStop, Controller as _Controller
+    from nicospyctl.pyctl import ControlStop, Controller as _Controller
 except ImportError:
-    try:
-        #pylint: disable=W0403
-        from _pyctl import ControlStop, Controller as _Controller
-    except ImportError:
-        ControlStop = BaseException
-        class _Controller(object):
-            def __init__(self, *args, **kwds):
-                raise ImportError('Please compile the _pyctl C module. '
-                                  '(When running from the source directory, '
-                                  'try "make inplace".)')
+    ControlStop = BaseException
+
+    class _Controller(object):
+        def __init__(self, *args, **kwds):
+            raise ImportError('Please install the nicos-pyctl package.')
 
 # defines from the C module
 LINENO_ALL      = 0   # trace all line numbers
