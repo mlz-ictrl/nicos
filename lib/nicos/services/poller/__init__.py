@@ -37,7 +37,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError
-from nicos.utils import whyExited, watchFileTime, loggers
+from nicos.utils import whyExited, watchFileContent, loggers
 from nicos.devices.generic.alias import DeviceAlias
 from nicos.devices.generic.cache import CacheReader
 from nicos.pycompat import listitems, queue as Queue
@@ -318,7 +318,7 @@ class Poller(Device):
         if not path.isfile(fn):
             self.log.warning('setup watcher could not find %r' % fn)
             return
-        watchFileTime(fn, self.log)
+        watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting poller process')
         self.quit()
 

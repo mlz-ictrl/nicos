@@ -856,6 +856,28 @@ def watchFileTime(filename, log, interval=1.0):
             return
         sleep(interval)
 
+def watchFileContent(filename, log, interval=1.0):
+    """Watch a file until its content changes; then return."""
+    def get_content():
+        # File could be unavailable temporary on nfs mounts,
+        # so let's retry it
+        while True:
+            try:
+                with open(filename, 'r') as f:
+                    return f.read().strip()
+            except IOError as err:
+                log.error('got exception checking for content of %r: %s' %
+                          (filename, err))
+                sleep(interval / 2)
+                continue
+
+    content = get_content()
+    sleep(interval)
+    while True:
+        if get_content() != content:
+            return
+        sleep(interval)
+
 
 def decodeAny(string):
     """Try to decode the string from UTF-8 or latin9 encoding."""
