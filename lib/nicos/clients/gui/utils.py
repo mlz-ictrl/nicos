@@ -67,7 +67,10 @@ def dialogFromUi(parent, uiname, subdir=''):
 def loadBasicWindowSettings(window, settings):
     window.restoreGeometry(settings.value('geometry', b'', QByteArray))
     window.restoreState(settings.value('windowstate', b'', QByteArray))
-    window.splitstate = settings.value('splitstate', b'', QByteArray)
+    try:
+        window.splitstate = settings.value('splitstate', b'', QByteArray)
+    except TypeError:
+        window.splitstate= b''
 
 
 def loadUserStyle(window, settings):

@@ -178,7 +178,7 @@ class ConsolePanel(Panel):
     @qtsig('')
     def on_actionSave_triggered(self):
         fn = QFileDialog.getSaveFileName(self, 'Save', '', 'All files (*.*)')
-        if fn.isEmpty():
+        if not fn:
             return
         try:
             fn = fn.encode(sys.getfilesystemencoding())

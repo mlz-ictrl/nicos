@@ -60,7 +60,7 @@ from nicos.clients.gui.dialogs.settings import SettingsDialog
 from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
     STATUS_IDLEEXC
-from nicos.pycompat import exec_, iteritems, listvalues
+from nicos.pycompat import exec_, iteritems, listvalues, text_type
 
 
 class MainWindow(QMainWindow, DlgUtils):
@@ -279,7 +279,12 @@ class MainWindow(QMainWindow, DlgUtils):
         self.update()
 
         open_wintypes = settings.value('auxwindows') or []
+        if isinstance(open_wintypes, text_type):
+            open_wintypes = [int(w) for w in open_wintypes.split(',')]
+
         for wtype in open_wintypes:
+            if isinstance(wtype, text_type):
+                wtype = int(wtype)
             self.createWindow(wtype)
 
     def saveWindowLayout(self):

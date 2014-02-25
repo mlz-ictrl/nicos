@@ -700,7 +700,7 @@ class EditorPanel(Panel):
             initialdir = self.client.eval('session.experiment.scriptpath', '')
         fn = QFileDialog.getOpenFileName(self, 'Open script', initialdir,
                                          'Script files (*.py *.txt)')
-        if fn.isEmpty():
+        if not fn:
             return
         self.openFile(fn.encode(sys.getfilesystemencoding()))
         self.addToRecentf(fn)

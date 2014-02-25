@@ -76,6 +76,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         map(dictPrintType.pop, [gr.PRINT_JPEG, gr.PRINT_TIF])
         self._saveTypes = (";;".join(dictPrintType.values()) + ";;" +
                            ";;".join(gr.GRAPHIC_TYPE.values()))
+        self._saveName = None
         self._plot = Plot(viewport=(.1, .85, .15, .88))
         self._axes = PlotAxes()
         self._plot.addAxes(self._axes)
@@ -222,19 +223,26 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             self.plotcurves.append(plotcurve)
 
     def savePlot(self):
-        qpath = QtGui.QFileDialog.getSaveFileName(self, "", "", self._saveTypes,
-                                                  gr.PRINT_TYPE[gr.PRINT_PDF])
-        if qpath:
-            path = unicode(qpath)
-            (_p, suffix) = os.path.splitext(path)
-            suffix = suffix.lower()
-            if suffix and (suffix[1:] in gr.PRINT_TYPE.keys() or
-                           suffix[1:] in gr.GRAPHIC_TYPE):
-                self.save(path)
-                self._saveName = os.path.basename(path)
-            else:
-                raise Exception("Unsupported file format")
-        return self._saveName
+        saveName = None
+        dialog = QtGui.QFileDialog(self, "Select file name", "",
+                                   self._saveTypes)
+        dialog.selectNameFilter(gr.PRINT_TYPE[gr.PRINT_PDF])
+        dialog.setNameFilterDetailsVisible(True)
+        dialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
+        if dialog.exec_() == QtGui.QDialog.Accepted:
+            qpath = dialog.selectedFiles()[0]
+            if qpath:
+                path = unicode(qpath)
+                (_p, suffix) = os.path.splitext(path)
+                suffix = suffix.lower()
+                if suffix and (suffix[1:] in gr.PRINT_TYPE.keys() or
+                               suffix[1:] in gr.GRAPHIC_TYPE):
+                    self.save(path)
+                    saveName = os.path.basename(path)
+                    self._saveName = saveName
+                else:
+                    raise Exception("Unsupported file format")
+        return saveName
 
     @property
     def plot(self):

@@ -149,7 +149,7 @@ class ExpPanel(Panel, DlgUtils):
         else:
             # Only the next interesting widget title isn't empty
             parent = self.parentWidget()
-            while parent.windowTitle().simplified().isEmpty():
+            while not parent.windowTitle():
                 parent = parent.parentWidget()
             parent.close()
 
@@ -291,7 +291,7 @@ class SetupsPanel(Panel, DlgUtils):
         else:
             # Only the next interesting widget title isn't empty
             parent = self.parentWidget()
-            while parent.windowTitle().simplified().isEmpty():
+            while not parent.windowTitle():
                 parent = parent.parentWidget()
             parent.close()
 
@@ -365,7 +365,7 @@ class DetEnvPanel(Panel, DlgUtils):
         else:
             # Only the next interesting widget title isn't empty
             parent = self.parentWidget()
-            while parent.windowTitle().simplified().isEmpty():
+            while not parent.windowTitle():
                 parent = parent.parentWidget()
             parent.close()
 
@@ -408,7 +408,7 @@ class TasSamplePanel(Panel, DlgUtils):
         else:
             # Only the next interesting widget title isn't empty
             parent = self.parentWidget()
-            while parent.windowTitle().simplified().isEmpty():
+            while not parent.windowTitle():
                 parent = parent.parentWidget()
             parent.close()
 

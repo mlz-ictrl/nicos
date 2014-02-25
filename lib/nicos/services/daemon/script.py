@@ -224,7 +224,9 @@ class ScriptRequest(Request):
     def _splitblocks(self, text):
         """Parse a script into multiple blocks."""
         codelist = []
-        mod = ast.parse('# coding: utf-8\n' + text + '\n', '<script>')
+        if not isinstance(text, text_type):
+            text = text.decode('utf-8')
+        mod = ast.parse(text + '\n', '<script>')
         assert isinstance(mod, ast.Module)
         # construct an individual compilable unit for each block
         for toplevel in mod.body:

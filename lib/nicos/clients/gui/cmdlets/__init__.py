@@ -172,8 +172,8 @@ class Scan(Cmdlet):
         # that short-circuits evaluation and therefore skips marking all but the
         # first invalid control
         valid = [
-            self.markValid(self.start, not self.start.text().isEmpty()),
-            self.markValid(self.step, not self.step.text().isEmpty()),
+            self.markValid(self.start, self.start.text()),
+            self.markValid(self.step, self.step.text()),
             self.markValid(self.seconds, self.seconds.value() > 0),
         ]
         return all(valid)
@@ -229,8 +229,8 @@ class CScan(Cmdlet):
 
     def isValid(self):
         valid = [
-            self.markValid(self.start, not self.start.text().isEmpty()),
-            self.markValid(self.step, not self.step.text().isEmpty()),
+            self.markValid(self.start, self.start.text()),
+            self.markValid(self.step, self.step.text()),
             self.markValid(self.seconds, self.seconds.value() > 0),
         ]
         return all(valid)

@@ -608,20 +608,23 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addSeparator()
         pmenu = QMenu('&Presets', self)
         delmenu = QMenu('Delete', self)
-        for preset, info in iteritems(self.presetdict):
-            paction = QAction(preset, self)
-            pdelaction = QAction(preset, self)
-            info = pickle.loads(str(info))
-            def launchpreset(on, info=info):
-                self._createViewFromDialog(info)
-            def delpreset(on, name=preset, pact=paction, pdelact=pdelaction):
-                pmenu.removeAction(pact)
-                delmenu.removeAction(pdelact)
-                self.presetdict.pop(name, None)
-            self.connect(paction, SIGNAL('triggered(bool)'), launchpreset)
-            pmenu.addAction(paction)
-            self.connect(pdelaction, SIGNAL('triggered(bool)'), delpreset)
-            delmenu.addAction(pdelaction)
+        try:
+            for preset, info in iteritems(self.presetdict):
+                paction = QAction(preset, self)
+                pdelaction = QAction(preset, self)
+                info = pickle.loads(str(info))
+                def launchpreset(on, info=info):
+                    self._createViewFromDialog(info)
+                def delpreset(on, name=preset, pact=paction, pdelact=pdelaction):
+                    pmenu.removeAction(pact)
+                    delmenu.removeAction(pdelact)
+                    self.presetdict.pop(name, None)
+                self.connect(paction, SIGNAL('triggered(bool)'), launchpreset)
+                pmenu.addAction(paction)
+                self.connect(pdelaction, SIGNAL('triggered(bool)'), delpreset)
+                delmenu.addAction(pdelaction)
+        except AttributeError:
+            self.presetdict = {}
         if self.presetdict:
             pmenu.addSeparator()
             pmenu.addMenu(delmenu)
@@ -646,7 +649,15 @@ class HistoryPanel(Panel, BaseHistoryWindow):
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', b'', QByteArray)
-        self.presetdict = settings.value('presets', type=object)
+        presetval = settings.value('presets')
+        if presetval is not None:
+            # there may be a problem reading the preset value...
+            try:
+                self.presetdict = presetval
+            except TypeError:
+                self.presetdict = {}
+        else:
+            self.presetdict = {}
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
