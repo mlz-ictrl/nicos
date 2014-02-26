@@ -1,5 +1,5 @@
 .PHONY: install clean install-inplace test lint jenkinslintall jenkinslint changelint \
-	check test-coverage release help
+	check test-coverage release help install-requirements
 
 SHELL=/bin/bash
 
@@ -31,6 +31,15 @@ install:
 inplace-install:
 	-ln -sf -t /etc/init.d $(PWD)/etc/nicos-system
 	-ln -sf -t /usr/bin $(PWD)/bin/*
+
+install-requirements:
+	@echo "Trying to install up-to-date requirements using pip"
+	@echo "If something goes wrong, try updating by hand, maybe you need root privileges"
+	@echo "Updating pip..."
+	pip install "pip>=1.5"
+	@echo "Install requirements"
+	pip install -r requirements.txt
+
 
 check:
 	$(PYTHON) tools/check_setups $(CHECK_DIRS)
