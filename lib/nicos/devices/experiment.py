@@ -519,6 +519,10 @@ class Experiment(Device):
                                      'named "Sample", please fix your system '
                                      'setup')
         if self.elog and mode != SIMULATION:
+            if not self.proposalpath:
+                self.log.warning('Proposalpath was not set, initiating a service experiment.')
+                self._setROParam('proposalpath', self.proposalpath_of(self.serviceexp or 'service'))
+                self._setROParam('proptype', 'service')
             ensureDirectory(path.join(self.proposalpath, 'logbook'))
             session.elog_event('directory', (self.proposalpath,
                                              instname, self.proposal))
