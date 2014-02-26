@@ -27,7 +27,7 @@
 import numpy
 
 from nicos.core import Param, Override, Value, status, oneofdict, oneof, \
-    ImageProducer, ImageType, Measurable
+    ImageProducer, ImageType, Measurable, Attach
 from nicos.devices.fileformats import LiveViewSink
 from nicos.devices.taco.detector import FRMChannel, FRMTimerChannel, \
     FRMCounterChannel
@@ -96,10 +96,12 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
 
     # only one of those is required, all others are optional!
     attached_devices = {
-        'events' : (QMesyDAQCounter, 'Timer channel'),
-        'timer':    (QMesyDAQTimer, 'Timer channel'),
-        'monitors': ([QMesyDAQCounter], 'Monitor channels'),
-        'counters': ([QMesyDAQCounter], 'Counter channels')
+        'events' :  Attach('Events channel', QMesyDAQCounter, optional=True),
+        'timer':    Attach('Timer channel', QMesyDAQTimer),
+        'monitors': Attach('Monitor channels', QMesyDAQCounter, multiple=True,
+                            optional=True),
+        'counters': Attach('Counter channels', QMesyDAQCounter, multiple=True,
+                            optional=True),
     }
 
     taco_class = Detector
