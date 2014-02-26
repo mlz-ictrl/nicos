@@ -29,7 +29,7 @@ from math import sqrt
 from time import strftime
 
 try:
-    import GracePlot
+    import nicos._vendor.GracePlot as GracePlot
     grace_available = True
 except ImportError:
     GracePlot = None

@@ -36,7 +36,7 @@ from nicos.services.elog.genplot import plotDataset
 from nicos.pycompat import to_utf8
 
 try:
-    import creole
+    import nicos._vendor.creole as creole
 except ImportError:
     creole = None
 

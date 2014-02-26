@@ -152,7 +152,8 @@ class PamAuthenticator(Authenticator):
 
     def authenticate(self, username, password):
         try:
-            import pam, pwd
+            import nicos._vendor.pam as pam
+            import pwd
             message = pam.authenticate(username, password)
             if message:
                 raise AuthenticationError('PAM authentication failed: %s'

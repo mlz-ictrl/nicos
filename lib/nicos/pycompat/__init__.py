@@ -34,27 +34,27 @@ __all__ = [
     'OrderedDict', 'get_thread_id', 'escape_html',
 ]
 
-import six
+from nicos._vendor import six
 import codecs
 import threading
 
 # Pylint cannot handle submodules created by "six".  Import them here to
 # ignore the Pylint errors only once.
-from six.moves import builtins, cPickle, socketserver  # pylint: disable=F0401
-from six.moves import queue, configparser, urllib      # pylint: disable=F0401
-from six.moves import xrange, input  # pylint: disable=F0401,W0622
+from nicos._vendor.six.moves import builtins, cPickle, socketserver  # pylint: disable=F0401
+from nicos._vendor.six.moves import queue, configparser, urllib      # pylint: disable=F0401
+from nicos._vendor.six.moves import xrange, input  # pylint: disable=F0401,W0622
 
 # For consistency import everything from "six" here.
-from six import reraise, exec_, add_metaclass, BytesIO, StringIO
-from six import string_types, integer_types, text_type, binary_type
-from six import iteritems, itervalues, iterkeys
+from nicos._vendor.six import reraise, exec_, add_metaclass, BytesIO, StringIO
+from nicos._vendor.six import string_types, integer_types, text_type, binary_type
+from nicos._vendor.six import iteritems, itervalues, iterkeys
 
 # functionality in addition to what "six" provides
 
 try:
     from collections import OrderedDict  # pylint: disable=E0611
 except ImportError:
-    from ordereddict import OrderedDict
+    from nicos._vendor.ordereddict import OrderedDict
 
 try:
     get_thread_id = threading._get_ident
