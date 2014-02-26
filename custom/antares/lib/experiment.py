@@ -125,6 +125,7 @@ class Experiment(FRM2Experiment):
                              'which got replaced.')
             self.log.info('New Samplename is %r' % sampledir)
 
+        # setting self.sampledir also maintains the symlink if needed
         self.sampledir = sampledir
         FRM2Experiment.newSample(self, name, parameters)
 

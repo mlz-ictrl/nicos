@@ -198,7 +198,8 @@ class Experiment(Device):
     def proposalpath_of(self, proposal):
         """proposalpath of a given proposal
 
-        defaults to <dataroot>/<year>/<proposal>)
+        defaults to <dataroot>/<year>/<proposal>
+        last component MUST be the proposal.
         """
         return path.join(self.dataroot, time.strftime("%Y"), proposal)
 
@@ -258,7 +259,7 @@ class Experiment(Device):
         """dataroot based location of 'current' sample symlink to maintain,
         or empty string
         """
-        return ''
+        return self.proposalsymlink if self.sampledir else ''
 
     @lazy_property
     def skiptemplates(self):
@@ -313,9 +314,52 @@ class Experiment(Device):
         pass
 
     #
-    # end hooks
+    # end hooks: dont override any method defined below in derived classes!
     #
 
+    #
+    # other path handling stuff
+    #
+
+    def doWriteProposalpath(self, newproposalpath):
+        # handle current symlink
+        self._set_symlink(self.proposalsymlink, path.relpath(newproposalpath,
+                                    path.dirname(self.proposalsymlink)))
+        # HACK: we need the getters to provide the right values....
+        self._setROParam('proposalpath', newproposalpath)
+        # create all needed subdirs...
+        for _dir in self.allpaths:
+            ensureDirectory(_dir, **self.managerights)
+
+        # tell elog
+        if self.elog:
+            instname = session.instrument and session.instrument.instrument or ''
+            session.elog_event('directory', (newproposalpath, instname,
+                                             path.basename(newproposalpath)))
+
+    def doWriteSampledir(self, newsampledir):
+        # handle current symlink
+        self._set_symlink(self.samplesymlink, path.join(self.proposalpath, newsampledir))
+
+        # HACK: we need the getters to provide the right values....
+        self._setROParam('sampledir', newsampledir)
+        # create all needed subdirs...
+        for _dir in self.allpaths:
+            ensureDirectory(_dir, **self.managerights)
+
+
+    def _set_symlink(self, location, target):
+        if not target or not location:
+            return
+        if hasattr(os, 'symlink'):
+            if path.islink(location):
+                self.log.debug('removing symlink %s' % location)
+                os.unlink(location)
+            ensureDirectory(path.join(path.dirname(location), target),
+                            **self.managerights)
+            self.log.debug('setting symlink %s to %s' %
+                           (location, target))
+            os.symlink(target, location)
 
     #
     # counter stuff
@@ -662,10 +706,10 @@ class Experiment(Device):
         self.users = kwds.get('user', '')
         self.localcontact = kwds.get('localcontact', '')
 
-        # newSample also calls datapathChanged, which (re-)creates all needed
-        # dirs and adjusts possible symlinks
+        # assignment to proposalpath/sampledir adjusts possible symlinks
         self.proposal = proposal
         self.proposalpath = self.proposalpath_of(proposal) # change proposalpath to new value
+        # newSample also (re-)creates all needed dirs
         self.newSample(kwds.get('sample', ''), {})
 
         # debug output
@@ -955,7 +999,9 @@ class Experiment(Device):
         self.sample.samplename = name
         for param, value in parameters.items():
             setattr(self.sample, param, value)
-        self.datapathChanged()  # may have changed...
+        # (re-) create all needed (sub)dirs
+        for _dir in self.allpaths:
+            ensureDirectory(_dir, **self.managerights)
 
     def _statistics(self):
         """Return some statistics about the current experiment in a dict.
@@ -1068,37 +1114,6 @@ class Experiment(Device):
     def doWriteRemark(self, remark):
         if remark:
             session.elog_event('remark', remark)
-
-    def datapathChanged(self):
-        if self._mode == SIMULATION:
-            return # dont touch fs if in simulation!
-
-        for _dir in self.allpaths:
-            ensureDirectory(_dir, **self.managerights)
-
-        # manage symlinks, if requested
-        if self.proposalsymlink and path.islink(self.proposalsymlink):
-            self.log.debug('removing symlink %s' % self.proposalsymlink)
-            os.unlink(self.proposalsymlink)
-        if self.proposalsymlink and hasattr(os, 'symlink'):
-            self.log.debug('setting symlink %s to %s' %
-                           (self.proposalsymlink, self.proposalpath))
-            os.symlink(path.relpath(self.proposalpath,
-                                    path.dirname(self.proposalsymlink)),
-                       self.proposalsymlink)
-
-        if self.samplesymlink and path.islink(self.samplesymlink):
-            self.log.debug('removing symlink %s' % self.samplesymlink)
-            os.unlink(self.samplesymlink)
-        if self.samplesymlink and hasattr(os, 'symlink'):
-            self.log.debug('setting symlink %s to %s' %
-                           (self.samplesymlink, self.sampledir))
-            os.symlink(self.sampledir, self.samplesymlink)
-
-        # inform elog about changed paths.
-        if self.elog:
-            instname = session.instrument and session.instrument.instrument or ''
-            session.elog_event('directory', (self.proposalpath, instname, self.proposal))
 
     #
     # dataset stuff
