@@ -30,7 +30,7 @@ from os import path
 
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError, ConfigurationError
-from nicos.pycompat import iteritems, text_type
+from nicos.pycompat import iteritems, text_type, string_types
 
 
 INFO_CATEGORIES = [
@@ -364,6 +364,13 @@ class nonemptylistof(object):
         if not isinstance(val, (list, tuple)) or len(val) < 1:
             raise ValueError('value needs to be a nonempty list')
         return readonlylist(map(self.conv, val))
+
+def nonemptystring(s):
+    """a non-empty string"""
+    if not isinstance(s, string_types) or s == '':
+        raise ValueError('must be a non-empty string!')
+    return s
+
 
 class tupleof(object):
 

@@ -47,7 +47,7 @@ from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
     Param, Dataset, NicosError, ConfigurationError, UsageError, \
     ProgrammingError, SIMULATION, MASTER, ImageProducer
-from nicos.core.params import subdir
+from nicos.core.params import subdir, nonemptystring
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
     enableDirectory, readonlydict, lazy_property, printTable, \
@@ -158,7 +158,7 @@ class Experiment(Device):
                                 '(in templates)',
                               type=str, default='experimental_report.rtf'),
         'serviceexp':   Param('Name of proposal to switch to after user '
-                              'experiment', type=str),
+                              'experiment', type=nonemptystring, default='service'),
         'servicescript': Param('Script to run for service time', type=str,
                                default='', settable=True),
         'pausecount':   Param('Reason for pausing the count loop', type=str,
@@ -274,7 +274,7 @@ class Experiment(Device):
             raise UsageError(self, 'The proposal names "template" and "current"'
                              ' are reserved and cannot be used')
         # check for defines service 'proposal'
-        if self.serviceexp and proposal == self.serviceexp:
+        if proposal == self.serviceexp:
             return 'service'
         # all proposals starting with the define prefix are user-type,
         # all others are service
@@ -565,7 +565,7 @@ class Experiment(Device):
         if self.elog and mode != SIMULATION:
             if not self.proposalpath:
                 self.log.warning('Proposalpath was not set, initiating a service experiment.')
-                self._setROParam('proposalpath', self.proposalpath_of(self.serviceexp or 'service'))
+                self._setROParam('proposalpath', self.proposalpath_of(self.serviceexp))
                 self._setROParam('proptype', 'service')
             ensureDirectory(path.join(self.proposalpath, 'logbook'))
             session.elog_event('directory', (self.proposalpath,
@@ -623,7 +623,7 @@ class Experiment(Device):
         """Return True if the current experiment must be finished before
         starting a new one.
         """
-        return self.serviceexp and self.proptype == 'user'
+        return self.proptype == 'user'
 
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
@@ -782,10 +782,7 @@ class Experiment(Device):
         self._afterFinishHook()
 
         # switch to service experiment (will hide old data if configured)
-        if self.serviceexp:
-            self.new(self.serviceexp)
-        else:
-            self.log.debug('no service experiment configured, cannot switch')
+        self.new(self.serviceexp)
 
     #
     # template stuff
