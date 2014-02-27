@@ -213,13 +213,20 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
             self._dev.deviceQueryResource, 'defaultmode')[:-1])]
 
     def doReadUserlimits(self):
-        limits = list(self.userlimits)
-        try:
-            limits[1] = self._dev.deviceQueryResource('usermax')
-        except Exception as err:
-            if str(err) != 'resource not supported':
-                self.log.warning('Error during query of usermax resource: %s'
-                                 % err)
+        ''' Try to get uptodate values from the hardware
+
+            If one of the limits is not supported, we keep any set
+            limit value.
+        '''
+
+        limits = self._params['userlimits']
+        for i, res in enumerate(['usermin', 'usermax']):
+            try:
+                limits[i] = self._dev.deviceQueryResource(res)
+            except Exception as err:
+                if res(err) != 'resource not supported':
+                    self.log.warning('Could not query %s : %s'
+                                 % (res, err))
         return limits
 
     def doReadMaxheaterpower(self):
