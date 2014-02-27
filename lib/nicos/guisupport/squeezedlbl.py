@@ -27,7 +27,7 @@ A label that "squeezes" its text, inserting an ellipsis if necessary.
 """
 
 from PyQt4.QtGui import QLabel
-from PyQt4.QtCore import Qt, pyqtProperty
+from PyQt4.QtCore import Qt
 
 from nicos.pycompat import text_type
 
@@ -37,7 +37,6 @@ class SqueezedLabel(QLabel):
 
     def __init__(self, *args):
         self._fulltext = ''
-        self._squeezed = True
         QLabel.__init__(self, *args)
         self._squeeze()
 
@@ -56,7 +55,7 @@ class SqueezedLabel(QLabel):
 
     def _squeeze(self, text=None):
         if text is None:
-            text = self.text()
+            text = self._fulltext or self.text()
         fm = self.fontMetrics()
         labelwidth = self.size().width()
         squeezed = False
@@ -67,19 +66,9 @@ class SqueezedLabel(QLabel):
                 new_lines.append(fm.elidedText(line, Qt.ElideRight, labelwidth))
             else:
                 new_lines.append(line)
-        if squeezed and self.squeezed:
+        if squeezed:
             QLabel.setText(self, '\n'.join(map(text_type, new_lines)))
             self.setToolTip(self._fulltext)
         else:
             QLabel.setText(self, self._fulltext)
             self.setToolTip('')
-
-    def get_squeezed(self):
-        return self._squeezed
-    def set_squeezed(self, value):
-        self._squeezed = value
-        self._squeeze(self._fulltext)
-    def reset_squeezed(self):
-        self.squeezed = True
-
-    squeezed = pyqtProperty('bool', get_squeezed, set_squeezed, reset_squeezed)
