@@ -61,7 +61,7 @@ def test_experiment():
     # setup test scenario
     exp._setROParam('dataroot', path.join(rootdir, 'data'))
     exp.proposal = 'service'
-    exp.proptype = 'service'
+    exp._setROParam('proptype', 'service')
     # if there is no exp.new, we need to adjust proposalpath ourselfs!
     exp.proposalpath = exp.proposalpath_of(exp.proposal)
 

@@ -112,7 +112,7 @@ class Experiment(Device):
                               category='experiment'),
         'proposal':     Param('Current proposal number or proposal string',
                               type=str, settable=True, category='experiment'),
-        'proptype':     Param('Current proposal type', settable=True,
+        'proptype':     Param('Current proposal type', settable=False, userparam=False,
                               type=oneof('service', 'user', 'other')),
         'propprefix':   Param('Prefix of the proposal if is a number', type=str,
                               settable=True, default='p'),
@@ -699,7 +699,7 @@ class Experiment(Device):
         self._setROParam('lastimagefile','')
 
         # set new experiment properties given by caller
-        self.proptype = proptype
+        self._setROParam('proptype', proptype)
         kwds = self._newPropertiesHook(proposal, kwds)
         self._setROParam('propinfo', kwds)
         self.title = kwds.get('title', '')
