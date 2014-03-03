@@ -24,7 +24,7 @@ install:
 	@if [ -z "$(PREFIX)" ]; then echo "PREFIX is empty!"; exit 1; fi
 	mkdir -p $(DESTDIR)$(PREFIX)
 	git archive HEAD | (cd $(DESTDIR)$(PREFIX); tar xf -)
-	for f in test resources data src .gitattributes .gitignore requirements.txt setup.py pylintrc Makefile MANIFEST.in; do \
+	for f in test resources data .gitattributes .gitignore requirements.txt setup.py pylintrc Makefile MANIFEST.in; do \
 		rm -r $(DESTDIR)$(PREFIX)/$$f; \
 	done
 
