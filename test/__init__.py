@@ -26,10 +26,14 @@
 
 from __future__ import print_function
 
+import os
 import sys
 
 from test.utils import cleanup
 
 def setup_package():
-    print('Setting up main test package, cleaning old test dir...', file=sys.stderr)
+    # make the test suite run the same independent of the hostname
+    os.environ['INSTRUMENT'] = 'test'
+    print('Setting up main test package, cleaning old test dir...',
+          file=sys.stderr)
     cleanup()

@@ -23,10 +23,7 @@ install:
 	@echo
 	@if [ -z "$(PREFIX)" ]; then echo "PREFIX is empty! Do not run make install on instruments"; exit 1; fi
 	mkdir -p $(DESTDIR)$(PREFIX)
-	git archive HEAD | (cd $(DESTDIR)$(PREFIX); tar xf -)
-	for f in test resources data .gitattributes .gitignore requirements.txt setup.py pylintrc Makefile MANIFEST.in; do \
-		rm -r $(DESTDIR)$(PREFIX)/$$f; \
-	done
+	python setup.py install --prefix=$(DESTDIR)$(PREFIX)
 
 inplace-install:
 	-ln -sf -t /etc/init.d $(PWD)/etc/nicos-system

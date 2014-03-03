@@ -30,10 +30,9 @@ import time
 import traceback
 from os import path
 from logging import addLevelName, Manager, Logger, LogRecord, Formatter, \
-     Handler, DEBUG, INFO, WARNING, ERROR
+    Handler, DEBUG, INFO, WARNING, ERROR
 
 from nicos import session
-from nicos.core import NicosError
 from nicos.utils import colorize, formatExtendedTraceback
 
 
@@ -77,6 +76,7 @@ class NicosLogger(Logger):
         if exc_info:
             if msgs:
                 msgs += ('-',)
+            from nicos.core.errors import NicosError
             if issubclass(exc_info[0], NicosError):
                 msgs += (exc_info[0].category + ' -', exc_info[1],)
             else:

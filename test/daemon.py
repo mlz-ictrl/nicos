@@ -40,6 +40,8 @@ else:
 from nicos.utils import loggers
 from nicos.services.daemon.session import DaemonSession
 
+from test.utils import rootdir
+
 
 class TestDaemonSession(DaemonSession):
 
@@ -74,7 +76,6 @@ class TestDaemonSession(DaemonSession):
 
 TestDaemonSession.config.user = None
 TestDaemonSession.config.group = None
-TestDaemonSession.config.control_path = \
-    path.join(path.dirname(__file__), 'root')
+TestDaemonSession.config.control_path = rootdir
 
 TestDaemonSession.run('daemon', 'Daemon')

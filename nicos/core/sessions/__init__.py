@@ -81,10 +81,8 @@ class Session(object):
         umask = None
         instrument = None
         control_path = path.join(path.dirname(__file__), '..', '..', '..', '..')
-        custom_paths = 'custom' # ':' separated list of paths, relative
-                                # to control_path or absolute
-        custom_path = None      # the first existing of custom_paths
-        setup_subdirs = None     # groups to be used like 'panda,frm2'
+        custom_path = None    # the path to find custom subdirs
+        setup_subdirs = None  # groups to be used like 'panda,frm2'
         pid_path = 'pid'
         logging_path = 'log'
         simple_mode = False

@@ -40,6 +40,8 @@ else:
 from nicos.utils import loggers
 from nicos.core.sessions.simple import NoninteractiveSession
 
+from test.utils import rootdir
+
 
 class TestCacheSession(NoninteractiveSession):
 
@@ -66,8 +68,8 @@ class TestCacheSession(NoninteractiveSession):
 
 NoninteractiveSession.config.user = None
 NoninteractiveSession.config.group = None
-NoninteractiveSession.config.control_path = \
-    path.join(path.dirname(__file__), 'root')
+NoninteractiveSession.config.control_path = rootdir
+
 try:
     setup = sys.argv[1]
 except IndexError:
