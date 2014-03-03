@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -27,10 +28,9 @@
 import time
 import random
 import threading
-from math import exp, ceil, sqrt
+from math import exp, atan
 
 import numpy as np
-from collections import deque
 
 from nicos import session
 from nicos.utils import clamp
@@ -291,18 +291,25 @@ class VirtualRealTemperature(HasLimits, Moveable):
                            settable=True, unit='s', type=floatrange(0.2, 10)),
         'timeout':   Param('Timeout for wait()', default=900, settable=True,
                            unit='s', category='general'),
-        'setpoint':  Param('Current setpoint', settable=False, unit='main',
+        'setpoint':  Param('Current setpoint', settable=True, unit='main',
                            category='general'),
-        'heaterpower': Param('Simulated heater output power in percent',
-                           settable=False, unit='%'),
+        'heater':    Param('Simulated heater output power in percent',
+                           settable=True, unit='%'),
+        'heaterpower': Param('Simulated heater output power in Watt',
+                           settable=False, unit='W'),
         'maxpower':  Param('Max heater power in W', settable=True, unit='W',
                            default=100),
         'p':         Param('P-value for regulation', settable=True,
-                           default=100, unit='%/main'),
+                           default=200, unit='%/main'),
         'i':         Param('I-value for regulation', settable=True,
-                           default=10, unit='%/mains'),
+                           default=5, unit='%/mains'),
         'd':         Param('D-value for regulation', settable=True,
-                           default=2, unit='%s/main'),
+                           default=1, unit='%s/main'),
+        'mode' :     Param('PID control or open loop heater mode',
+                           settable=True, default='manualpid',
+                           type=oneof('manualpid', 'manual', 'openloop')),
+        'speedup' :  Param('speed up simulation by a factor', settable=True,
+                           default=1, unit='', type=floatrange(0.01, 100)),
     }
 
     parameter_overrides = {
@@ -311,12 +318,14 @@ class VirtualRealTemperature(HasLimits, Moveable):
 
     _thread = None
     _window = None
+    _starttime = 0
 
     def doInit(self, mode):
         if mode == SIMULATION:
             return
         if not isinstance(session, PollerSession): # dont run in the poller!
-            self._window = deque([], ceil(self.window/self.loopdelay))
+            self._window = []
+            self._statusLock = threading.Lock()
             self._thread = threading.Thread(target=self.__run,
                                         name='Cryo simulator %s' % self)
             self._thread.daemon = True
@@ -324,7 +333,15 @@ class VirtualRealTemperature(HasLimits, Moveable):
 
     def doStart(self, pos):
         # do nothing more, its handled in the thread...
-        self.curstatus = status.BUSY, 'moving'
+        with self._statusLock:
+            # insert target position into history
+            # if target is far away -> loop goes busy
+            # else loop sets to stable again....
+            self._setROParam('target', pos)
+            currtime = time.time()
+            self._window.append( (currtime, pos))
+            self._starttime = currtime
+            self.curstatus = status.BUSY, 'moving'
 
     def doRead(self, maxage=0):
         return self.regulation + self.jitter * (0.5 - random.random())
@@ -341,43 +358,42 @@ class VirtualRealTemperature(HasLimits, Moveable):
         self._pollParam('curstatus', 1)
 
     #
-    # parameters
+    # Parameters
     #
-
-    def doWriteWindow(self, window):
-        self._window = deque(self._window if self._window else [],
-                             ceil(window/self.loopdelay))
-    def doWriteLoopdelay(self, loopdelay):
-        self._window = deque(self._window if self._window else [],
-                             ceil(self.window/loopdelay))
+    def doWriteMaxpower(self, newpower):
+        self.heater = clamp(self.heater * self.maxpower / float(newpower), 0, 100)
 
     #
     # calculation helpers
     #
     def __coolerPower(self, temp):
         """returns cooling power in W at given temperature"""
-        # 0 below 2K, increasing quadratic up to 40K, is 50W above 40K
-        return max(min(100, temp**2 / 16) - 0.25, 0) / 2.
+        # quadratic up to 42K, is linear from 40W@42K to 100W@600K
+        #~ return clamp((temp-2)**2 / 32., 0., 40.) + temp * 0.1
+        return clamp(15 * atan(temp * 0.01) ** 3, 0., 40.) + temp * 0.1 - 0.2
 
     def __coolerCP(self, temp):
         """heat capacity of cooler at given temp"""
-        return 100
+        return 75 * atan(temp / 50)**2 + 1
 
     def __heatLink(self, coolertemp, sampletemp):
         """heatflow from sample to cooler. may be negative..."""
-        return clamp(sampletemp-coolertemp, -10, 10)
+        flow = (sampletemp - coolertemp) * ((coolertemp + sampletemp) ** 2)/400.
+        cp = clamp(self.__coolerCP(coolertemp)*self.__sampleCP(sampletemp), 1, 10)
+        return clamp(flow, -cp, cp)
 
     def __sampleCP(self, temp):
-        return 10
+        return 3 * atan(temp / 30) + \
+                12 * temp / ((temp - 12.)**2 + 10) + 0.5
 
     def __sampleLeak(self, temp):
-        return 1
+        return 0.02/temp
 
     #
     # Model is a cooling source with __coolingPower and __coolerCP capacity
     # here we have THE heater and the regulation thermometer
     # this is connected via a __heatLink to a sample with __heatCapacity and
-    # __leak thermal flow, here we have the sample thermometer
+    # here we have the sample thermometer
     #
     def __run(self):
         try:
@@ -389,83 +405,154 @@ class VirtualRealTemperature(HasLimits, Moveable):
     def __moving(self):
         # complex thread handling:
         # a) simulation of cryo (heat flow, thermal masses,....)
-        # b) PID temperature controller with optional windup control
+        # b) optional PID temperature controller with windup control
         # c) generating status+updated value+ramp
-        # this thread is no supposed to exit!
+        # this thread is not supposed to exit!
 
         # local state keeping:
         regulation = self.regulation
         sample = self.sample
-        setpoint = self.setpoint
+        timestamp = time.time()
         stable = False
         heater = 0
+        lastflow = 0
+        last_heaters = (0, 0)
+        delta = 0
         I = D = 0
+        lastD = 0
+        damper = 1
+        lastmode = self.mode
         while True:
+            t = time.time()
+            h = t - timestamp
+            if h < self.loopdelay / damper:
+                time.sleep(clamp(self.loopdelay / damper - h, 0.1, 60))
+                continue
+            h *= self.speedup
             # a)
+            sample = self.sample
+            regulation = self.regulation
+            heater = self.heater
+
             heatflow = self.__heatLink(regulation, sample)
             self.log.debug('sample = %.5f, regulation = %.5f, heatflow = %.5g'
                            % (sample, regulation, heatflow))
-            newsample = max(0, sample + (self.__sampleLeak(sample) - heatflow) /
-                               self.__sampleCP(sample) * self.loopdelay)
+            newsample = max(0, sample + (self.__sampleLeak(sample) - heatflow) / self.__sampleCP(sample) * h)
+            newsample = clamp(newsample, sample, regulation) # avoid instabilities due to too small CP
             newregulation = max(0, regulation + (heater * 0.01 * self.maxpower
                 + heatflow - self.__coolerPower(regulation)) /
-                self.__coolerCP(regulation) * self.loopdelay)
+                self.__coolerCP(regulation) * h)
 
             # b) see
-            # www.cds.caltech.edu/~murray/books/AM08/pdf/am06-pid_16Sep06.pdf
-            error = setpoint - newregulation
-            h = self.loopdelay
-            kp = self.p / 10        # LakeShore P = 10*k_p
-            ki = kp * self.i / 500  # LakeShore I = 500/T_i
-            kd = kp * self.d / 2    # LakeShore D = 2*T_d
-            if self.i:
-                # Windup control time constant
-                kt = sqrt(500 / self.i * self.d / 2)
+            # http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
+            if self.mode !='openloop':
+                # fix artefacts due to too big timesteps
+                # actually i would prefer reducing loopdelay, but i have no good idea on when to increase it back again
+                if heatflow * lastflow != -100:
+                    if (newregulation - newsample) * (regulation - sample) < 0:
+                        #~ newregulation = (newregulation + regulation) / 2
+                        #~ newsample = (newsample + sample) / 2
+                        damper +=1
+                lastflow = heatflow
+
+                error = self.setpoint - newregulation
+                #~ # use a simple filter to smooth delta a little
+                delta = (delta + regulation - newregulation) / 2.
+
+
+                kp = self.p / 10.        # LakeShore P = 10*k_p
+                ki = kp * abs(self.i) / 500.  # LakeShore I = 500/T_i
+                kd = kp * abs(self.d) / 2.    # LakeShore D = 2*T_d
+
+                P = kp * error
+                I += ki * error * h
+                D = kd * delta / h
+
+                # avoid reset windup
+                I = clamp(I, 0., 100.) # I is in %
+
+                # avoid jumping heaterpower if switching back to pid mode
+                if lastmode != self.mode:
+                    # adjust some values upon switching back on
+                    I = self.heater - P - D
+
+                v = P + I + D
+                # in damping mode, use a weighted sum of old + new heaterpower
+                if damper > 1:
+                    v = ((damper ** 2 - 1) * self.heater + v) / damper ** 2
+
+                # damp oscillations due to D switching signs
+                if D * lastD < -0.2:
+                    v = (v + heater) / 2.
+                # clamp new heater power to 0..100%
+                heater = clamp(v, 0., 100.)
+                lastD = D
+
+                self.log.debug('PID: P = %.2f, I = %.2f, D = %.2f, heater = %.2f' %
+                               (P, I, D, heater))
+
+                # check for turn-around points to detect oscillations -> increase damper
+                x,y = last_heaters
+                if (x + 0.1 < y and y > heater + 0.1) or (x > y + 0.1 and y + 0.1 < heater):
+                    damper += 1
+                last_heaters = (y, heater)
+
             else:
-                kt = 0
-            Tf = self.d / 20        # Differential filtering time constant
+                # self.heaterpower is set manually, not by pid
+                heater = self.heater
+                last_heaters = (0, 0)
 
-            P = kp * error
-            D = Tf / (Tf + h) * D - \
-                kd / (Tf + h) * (newregulation - regulation)
-            v = P + I + D
-            heater = clamp(v, 0., 100.)
-            self.log.debug('PID: P = %.2f, I = %.2f, D = %.2f, heater = %.2f' %
-                           (P, I, D, heater))
-            I += ki * h * error + kt * h * (heater - v)
-
+            heater = round(heater, 3)
             sample = newsample
             regulation = newregulation
+            lastmode = self.mode
 
             # c)
             if self.setpoint != self.target:
                 if self.ramp == 0:
                     maxdelta = 10000
                 else:
-                    maxdelta = self.ramp / 60 * self.loopdelay
+                    maxdelta = self.ramp / 60. * h
                 try:
-                    setpoint += clamp(self.target - setpoint,
-                                      -maxdelta, maxdelta)
-                    self.log.debug('setpoint changes to %r' % setpoint)
+                    self.setpoint = round(self.setpoint +
+                                          clamp(self.target - self.setpoint,
+                                         -maxdelta, maxdelta), 3)
+                    self.log.debug('setpoint changes to %r' % self.setpoint)
                 except (TypeError, ValueError):
                     # self.target might be None
                     pass
-            self._window.append(regulation)
+
+            # keep max self.window seconds long history
+            self._window.append((t, regulation))
+            while t - self._window[0][0] > self.window:
+                self._window.pop(0)
+
             # temperature is stable when all recorded values in the window
             # differ from setpoint by less than tolerance
-            stable = max(abs(x - self.setpoint) for x in self._window) \
-                <= self.tolerance
-            # but status is only OK if setpoint is already at target
-            if stable and setpoint == self.target:
-                # XXX TODO: timeout
-                self.curstatus = status.OK, 'stable'
-            else:
-                self.curstatus = status.BUSY, 'moving'
-            self._setROParam('setpoint', setpoint)
-            self._setROParam('regulation', regulation)
-            self._setROParam('sample', sample)
-            self._setROParam('heaterpower', heater)
-            time.sleep(self.loopdelay)
+            with self._statusLock:
+                stable = max(abs(x - self.setpoint) for _, x in self._window) \
+                    <= self.tolerance
+                fullwindow = len(self._window) >= self.window / float(self.loopdelay)
+                # but status is only OK if setpoint is already at target
+                if stable and fullwindow and (self.setpoint == self.target):
+                    # XXX TODO: timeout
+                    self.curstatus = status.OK, 'stable'
+                    damper -= (damper - 1) / 10. # max value for damper is 11
+                    self._starttime = 0
+                else:
+                    if self._starttime + self.timeout >= t:
+                        self.curstatus = status.BUSY, 'moving'
+                    elif self._starttime > 0:
+                        self.curstatus = status.NOTREACHED, 'timeout'
+                    else:
+                        # unstable: BUSY, or NOTREACHED ???
+                        self.curstatus = status.BUSY, 'unstable'
+            damper -= (damper - 1) / 20.
+            self._setROParam('regulation', round(regulation, 3))
+            self._setROParam('sample', round(sample, 3))
+            self._setROParam('heaterpower', round(heater * self.maxpower * 0.01, 3))
+            self.heater = heater
+            timestamp = t
 
 
 class Virtual2DDetector(ImageProducer, Measurable):

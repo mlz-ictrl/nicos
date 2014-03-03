@@ -9,8 +9,8 @@ devices = dict(
 
     T_demo   = device('devices.generic.virtual.VirtualRealTemperature',
                       description = 'A virtual (but realistic) temperature controller',
-                      abslimits = (2, 300),
-                      warnlimits = (0, 300),
+                      abslimits = (2, 1000),
+                      warnlimits = (0, 325),
                       ramp = 60,
                       unit = 'K',
                       jitter = 0,
