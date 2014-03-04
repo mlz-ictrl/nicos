@@ -240,27 +240,8 @@ devices = dict(
                       slope = 200*4, # FULL steps per turn * turns per mm
                       microsteps = 8,
                       unit = 'mm',
-                      refpos = -9.999, #XXX: Angabe fehlt in Doku !!!
+                      refpos = -5.14, #needs to be checked by O. Frank !!!
                       abslimits = (-400, 600),
-                      lowlevel = True,
-                    ),
-
-    bg2 = device('sans1.collimotor.Sans1ColliSwitcher',
-                      description = 'Background slit2',
-                      mapping = {'P1':0, 'P2':90, 'P3':180, 'P4':270,
-                                 '28mm':0, '20mm':90, '12mm':180, 'OPEN':270 },
-                      moveable = 'bg2_m',
-                      ),
-    bg2_m = device('sans1.collimotor.Sans1ColliMotor',
-                      description = 'Background slit2 motor',
-                      # IP-adresse: 172.16.17.5
-                      tacodevice='//%s/sans1/coll/col-8m'% (nethost,),
-                      address = 0x4020+0*10,
-                      slope = 200*0.16, # FULL steps per turn * turns per mm
-                      microsteps = 8,
-                      unit = 'deg',
-                      refpos = -1.5,
-                      abslimits = (-40, 300),
                       lowlevel = True,
                     ),
 
@@ -297,6 +278,35 @@ devices = dict(
                       unit = 'mm',
                       refpos = -4.13,
                       abslimits = (-400, 600),
+                      lowlevel = True,
+                    ),
+
+    bg2 = device('devices.generic.MultiSwitcher',
+                      description = 'Background slit2',
+                      precision = [0.1, None],
+                      fallback = 'out of beam',
+                      blockingmove = False,
+                      moveables = ['bg2_m'],
+                      readables = ['col_8b'],
+                      mapping = {'28mm':[0, 'COL'], '20mm': [90, 'COL'], '12mm':[180, 'COL'], 'OPEN':[270, 'COL']},
+                      ),
+
+#   bg2 = device('sans1.collimotor.Sans1ColliSwitcher',
+#                      description = 'Background slit2',
+#                      mapping = {'28mm':0, '20mm':90, '12mm':180, 'OPEN':270 },
+#                      moveable = 'bg2_m',
+#                      ),
+
+    bg2_m = device('sans1.collimotor.Sans1ColliMotor',
+                      description = 'Background slit2 motor',
+                      # IP-adresse: 172.16.17.5
+                      tacodevice='//%s/sans1/coll/col-8m'% (nethost,),
+                      address = 0x4020+0*10,
+                      slope = 200*0.16, # FULL steps per turn * turns per mm
+                      microsteps = 8,
+                      unit = 'deg',
+                      refpos = -1.5,
+                      abslimits = (-40, 300),
                       lowlevel = True,
                     ),
 

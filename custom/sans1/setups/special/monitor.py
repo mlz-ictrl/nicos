@@ -18,252 +18,212 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'setup for the status monitor for SANS1'
+description = 'setup for the status monitor'
 group = 'special'
 
-_ = dict
+Row = Column = Block = BlockRow = lambda *args: args
+Field = lambda *args, **kwds: args or kwds
 
-_pressuretube = (
-    'Pressure Tube',
-    [
-        [
-            _( name='Nose', dev='tub_p2'),
-            _( name='Tube', dev='tub_p1'),
-        ],
-    ],
-   #~ 'tube_environment',
+_expcolumn = Column(
+    Block('Experiment hoho', [
+        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
+                 Field(name='Title',    key='exp/title',    width=20,
+                       istext=True, maxlen=20),
+                 Field(name='Current status', key='exp/action', width=50,
+                       istext=True, maxlen=40),
+                 Field(name='Last file', key='det/lastfilenumber'),
+            )
+        ],# 'experiment'
+    ),
 )
 
-_pressurecoll = (
-    'Pressure Collimation',
-    [
-        [
-            _( name='Pump', dev='coll_p3'),
-            _( name='Tube', dev='coll_p1'),
-            _( name='Nose', dev='coll_p2'),
-        ],
-    ],
+_selcolumn = Column(
+    Block('Selector', [
+        BlockRow(
+                 Field(name='Speed', dev='selector'),
+                 ),
+        BlockRow(
+                 Field(name='Lambda', dev='selector_lambda'),
+                 ),
+        BlockRow(
+                 Field(name='Position', dev='sel_ng_sw'),
+                 ),
+        BlockRow(
+                 Field(name='Tilt', dev='sel_tilt'),
+                 ),
+               ],
+        ),
 )
 
-_lengthcoll = (
-    'Collimation length',
-    [
-        [
-            _( name='length', dev='col'),
-        ],
-    ],
+_pressurecolumn = Column(
+    Block('Pressure', [
+        BlockRow(
+                 Field(name='Col Pump', dev='coll_p3'),
+                 Field(name='Col Tube', dev='coll_p1'),
+                 Field(name='Col Nose', dev='coll_p2'),
+                 Field(name='Det Nose', dev='tub_p2'),
+                 Field(name='Det Tube', dev='tub_p1'),
+                 )],
+        ),
 )
 
-_sc1 = (
-    'Sample Changer 1',
-    [
-        [
-            _( name='Position', dev='sc1_sw'),
-        ], [
-            _( name='sc1', dev='sc1'),
-        ],
-    ],
+_sans1general = Column(
+    Block('General', [
+        BlockRow(
+                 Field(name='Reactor', dev='ReactorPower', width=8, format = '%.2f', unit='MW'),
+                 Field(name='6 Fold Shutter', dev='Sixfold', width=8),
+                 Field(name='NL4a', dev='NL4a', width=8),
+                 Field(name='T in', dev='t_in_memograph', width=8, unit='C'),
+                 Field(name='T out', dev='t_out_memograph', width=8, unit='C'),
+                 Field(name='Cooling', dev='cooling_memograph', width=8, unit='kW'),
+                 Field(name='Flow in', dev='flow_in_memograph', width=8, unit='l/min'),
+                 Field(name='Flow out', dev='flow_out_memograph', width=8, unit='l/min'),
+                 Field(name='Leakage', dev='leak_memograph', width=8, unit='l/min'),
+                 Field(name='P in', dev='p_in_memograph', width=8, unit='bar'),
+                 Field(name='P out', dev='p_out_memograph', width=8, unit='bar'),
+                 Field(name='Crane Pos', dev='Crane', width=8, unit='m'),
+                      ),
+                ],
+        ),
 )
 
-_table = (
-    'Sample Table',
-    [
-        [
-            _( name='z-2a', dev='z_2a'),
-         ], [
-            _(name='y-2a', dev='y_2a'),
-         ], [
-            _(name='x-2a', dev='x_2a'),
-        ], [
-            _(name='phi-2b', dev='phi_2b'),
-         ], [
-            _(name='chi-2b', dev='chi_2b'),
-         ], [
-            _(name='omega-2b', dev='omega_2b'),
-        ], [
-            _(name='y-2b', dev='y_2b'),
-         ], [
-            _(name='z-2b', dev='z_2b'),
-         ], [
-            _(name='x-2b', dev='x_2b'),
-        ],
-    ],
-)
-
-_sans1magnet = (
-    'Sans1Magnet',
-    [
-        [
-            _(name='Field', dev='b_overall'),
-         ], [
-            _(name='Power Supply 1', dev='b_left'),
-            _(name='Power Supply 2', dev='b_right'),
-        ]
-    ],
-)
-
-_newport02 = (
-    'NewPort 02',
-    [
-        [
-            _(name='position', dev='sth_newport02'),
-         ],
-    ],
-)
-
-_ccr10 = (
-    'CCR10',
-    [
-        [
-            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
-            ], [
-            _( name='A', dev='T_ccr10_A'),
-            _( name='B', dev='T_ccr10_B'),
-        ],
-    ],
-)
-
-_ccr11 = (
-    'CCR11',
-    [
-        [
-            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
-            ], [
-            _( name='A', dev='T_ccr11_A'),
-            _( name='B', dev='T_ccr11_B'),
-            ], [
-            _( name='C', dev='T_ccr11_C'),
-            _( name='D', dev='T_ccr11_D'),
-        ],
-    ],
+_atpolcolumn = Column(
+    Block('Attenuator / Polarizer',[
+      BlockRow(
+               Field(dev='at', name='Att', width=7),
+               Field(dev='ng_pol', name='Pol', width=7),
+              ),
+      ],
+   ),
 )
 
 
-_ccr12 = (
-    'CCR12',
-    [
-        [
-            _( name='Setpoint', key='t/setpoint', unitkey='t/unit',),
-            ], [
-            _( name='A', dev='T_ccr12_A'),
-            _( name='B', dev='T_ccr12_B'),
-        ],
-    ],
+_sanscolumn = Column(
+    Block('Collimation',[
+      BlockRow(
+        Field(dev='at', name='Att',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['x10','x100','x1000','OPEN'],
+              width=6.5,height=7),
+        Field(dev='ng_pol', name='Pol',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','POL2','POL1','NG'],
+              width=5.5,height=7),
+        Field(dev='col_20a', name='20a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_20b', name='20b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_16a', name='16a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_16b', name='16b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_12a', name='12a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_12b', name='12b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_8a', name='8a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_8b', name='8b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_4a', name='4a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_4b', name='4b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_2a', name='2a',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+        Field(dev='col_2b', name='2b',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['LAS','free','COL','NG'],
+              width=5,height=7),
+                         ),
+      BlockRow(
+        Field(dev='col', name='col'),
+        Field(dev='bg1', name='bg1', width=5),
+        Field(dev='bg2', name='bg2', width=5),
+        Field(dev='sa1', name='sa1', width=5),
+              ),
+                ],
+        ),
 )
 
-_htf03 = (
-    'HTF03',
-    [
-        [
-               _(name='Temperature', dev='t_htf03'),
-        ]
-    ],
-#    'magnet_sans1'
+_detvesselcolumn = Column(
+    Block('Detector Vessel',[
+      BlockRow(
+        Field(dev=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
+                name='Detector position',
+                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21000),
+              ),
+         ],),
 )
 
-_spinflipper = (
-    'Spin Flipper',
-    [
-        [
-            _(name='Power', dev='p_sf'),
-            _(name='Frequency', dev='f_sf'),
-         ], [
-            _(name='Forward', dev='forward_sf'),
-            _(name='Reverse', dev='reverse_sf'),
-         ], [
-            _(name='Temperature of AG1016', dev='t_sf'),
-         ], [
-            _(name='Ampl HP33220a', dev='a_agilent1'),
-            _(name='Freq HP33220a', dev='f_agilent1'),
-        ]
-    ],
-#    'magnet_sans1'
+_sans1det = Column(
+    Block('Detector', [
+        BlockRow(
+        Field(dev=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
+                name='Detector position',
+                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21000),
+                 ),
+        BlockRow(
+                 Field(name='t', dev='det1_t_ist', width=8),
+                 Field(name='t preset', dev='det_1_t_soll', width=8),
+                 Field(name='Voltage', dev='hv', width=8),
+#                 ),
+#        BlockRow(
+                 Field(name='det1_z', dev='det1_z1a', width=8),
+                 Field(name='det1_omg', dev='det1_omega1a', width=8),
+                 Field(name='det1_x', dev='det1_x1a', width=8),
+#                 ),
+#        BlockRow(
+                 Field(name='bs1_x', dev='bs1_x1a', width=8),
+                 Field(name='bs1_y', dev='bs1_y1a', width=8),
+                 ),
+                ],
+        ),
 )
-
-_sans1detector = (
-    'Detector',
-    [
-        [
-            _(name='t', dev='det1_t_ist'),
-            _(name='t set', dev='det1_t_soll'),
-        ], [
-            _(name='Voltage',dev='hv'),#,width=8),
-            _(name='det1_z-1a',dev='det1_z1a'),
-        ], [
-            _(name='det1_omg-1a',dev='det1_omega1a'),
-            _(name='det1_x-1a',dev='det1_x1a'),
-        ], [
-            _(name='bs1_x-1a',dev='bs1_x1a'),
-            _(name='bs1_y-1a',dev='bs1_y1a'),
-        ]
-    ]
-)
-
-_sans1sel = (
-    'Selector',
-    [
-        [
-            _( name='sel-ng', dev='sel_ng_sw'),
-         #], [
-         #   _( name='sel-ng', dev='sel_ng'),
-        ], [
-            _(name='sel-tilt', dev='sel_tilt'),
-        ]
-    ],
-)
-
-_sans1general = (
-    'General',
-    [
-        [
-            _(name='Reactor', dev='ReactorPower'),
-            _(name='6 Fold Shutter', dev='Sixfold'),
-            _(name='NL4a', dev='NL4a'),
-        ], [
-            _(name='T in', dev='t_in_memograph'),
-            _(name='T out', dev='t_out_memograph'),
-            _(name='Cooling', dev='cooling_memograph'),
-        ], [
-            _(name='Flow in', dev='flow_in_memograph'),
-            _(name='Flow out', dev='flow_out_memograph'),
-            _(name='Leakage', dev='leak_memograph'),
-        ], [
-            _(name='Pressure in', dev='p_in_memograph'),
-            _(name='Pressure out', dev='p_out_memograph'),
-        ], [
-            _(name='Crane Pos', dev='Crane'),
-            _(name='FAK 40 Cap', dev='FAK40_Cap'),
-            _(name='FAK 40 Pres', dev='FAK40_Press'),
-        ]
-    ],
-#    'magnet_sans1'
-)
-
-
 
 devices = dict(
-    #~ Monitor = device('nicos.monitor.qt.Monitor',
     Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'SANS-1 status monitor',
-                     loglevel = 'info',
+                     loglevel = 'debug',
+#                     loglevel = 'info',
                      cache = 'sans1ctrl.sans1.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
-                     fontsize = 12,
-                     padding = 3,
+                     fontsize = 12,#12
+                     padding = 3,#3
                      layout = [
-                                [
-                                  [_sans1sel,],
-                                  [_pressurecoll,_lengthcoll,_sans1detector,_sans1general],
-                                  [_sc1,_table,],
-                                  [_htf03,_spinflipper,_sans1magnet,_newport02],
-                                  [_pressuretube,_ccr10,_ccr11,_ccr12],
-                                ],
-                              ],
-                    )
+                                 Row(_expcolumn),
+                                 Row(_sans1general),
+                                 Row(_pressurecolumn),
+                                 Row(_selcolumn, _sanscolumn),
+                                 Row(_sans1det),
+                               ],
+                    ),
 )

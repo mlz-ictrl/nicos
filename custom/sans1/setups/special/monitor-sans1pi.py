@@ -29,7 +29,7 @@ Row = Column = Block = BlockRow = lambda *args: args
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
-    Block('Experiment', [
+    Block('Experiment hoho', [
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title',    key='exp/title',    width=20,
                        istext=True, maxlen=20),
@@ -45,21 +45,16 @@ _selcolumn = Column(
     Block('Selector', [
         BlockRow(
                  Field(name='Speed', dev='selector'),
+                 ),
+        BlockRow(
                  Field(name='Lambda', dev='selector_lambda'),
                  ),
-         BlockRow(
+        BlockRow(
                  Field(name='Position', dev='sel_ng_sw'),
+                 ),
+        BlockRow(
                  Field(name='Tilt', dev='sel_tilt'),
                  ),
-               ],
-        ),
-)
-
-_ubahncolumn = Column(
-    Block('U-Bahn', [
-        BlockRow(
-                 Field(name='Train', dev='UBahn'),
-                 )
                ],
         ),
 )
@@ -79,43 +74,19 @@ _pressurecolumn = Column(
 _sans1general = Column(
     Block('General', [
         BlockRow(
-                 Field(name='Reactor', dev='ReactorPower', width=12, format = '%.2f', unit='MW'),
-                 Field(name='6 Fold Shutter', dev='Sixfold', width=12),
-                 Field(name='NL4a', dev='NL4a', width=12),
-                 ),
-        BlockRow(
-                 Field(name='T in', dev='t_in_memograph', width=12, unit='C'),
-                 Field(name='T out', dev='t_out_memograph', width=12, unit='C'),
-                 Field(name='Cooling', dev='cooling_memograph', width=12, unit='kW'),
-                 ),
-        BlockRow(
-                 Field(name='Flow in', dev='flow_in_memograph', width=12, unit='l/min'),
-                 Field(name='Flow out', dev='flow_out_memograph', width=12, unit='l/min'),
-                 Field(name='Leakage', dev='leak_memograph', width=12, unit='l/min'),
-                 ),
-        BlockRow(
-                 Field(name='P in', dev='p_in_memograph', width=12, unit='bar'),
-                 Field(name='P out', dev='p_out_memograph', width=12, unit='bar'),
-                 Field(name='Crane Pos', dev='Crane', width=12, unit='m'),
+                 Field(name='Reactor', dev='ReactorPower', width=8, format = '%.2f', unit='MW'),
+                 Field(name='6 Fold Shutter', dev='Sixfold', width=8),
+                 Field(name='NL4a', dev='NL4a', width=8),
+                 Field(name='T in', dev='t_in_memograph', width=8, unit='C'),
+                 Field(name='T out', dev='t_out_memograph', width=8, unit='C'),
+                 Field(name='Cooling', dev='cooling_memograph', width=8, unit='kW'),
+                 Field(name='Flow in', dev='flow_in_memograph', width=8, unit='l/min'),
+                 Field(name='Flow out', dev='flow_out_memograph', width=8, unit='l/min'),
+                 Field(name='Leakage', dev='leak_memograph', width=8, unit='l/min'),
+                 Field(name='P in', dev='p_in_memograph', width=8, unit='bar'),
+                 Field(name='P out', dev='p_out_memograph', width=8, unit='bar'),
+                 Field(name='Crane Pos', dev='Crane', width=8, unit='m'),
                       ),
-                ],
-        ),
-)
-
-_sans1det = Column(
-    Block('Detector', [
-        BlockRow(
-                 Field(name='t ist', dev='det1_t_ist', width=13),
-                 Field(name='t set', dev='det_1_t_soll', width=13),),
-        BlockRow(
-                 Field(name='Voltage', dev='hv', width=13),
-                 Field(name='det1_z-1a', dev='det1_z1a', width=13),),
-        BlockRow(
-                 Field(name='det1_omg-1a', dev='det1_omega1a', width=13),
-                 Field(name='det1_x-1a', dev='det1_x1a', width=13),),
-        BlockRow(
-                 Field(name='bs1_x-1a', dev='bs1_x1a', width=13),
-                 Field(name='bs1_y-1a', dev='bs1_y1a', width=13),),
                 ],
         ),
 )
@@ -133,11 +104,6 @@ _atpolcolumn = Column(
 
 _sanscolumn = Column(
     Block('Collimation',[
-      BlockRow(
-        Field(dev='bg1', name='bg1', width=5),
-        Field(dev='bg2', name='bg2', width=5),
-        Field(dev='sa1', name='sa1', width=5),
-              ),
       BlockRow(
         Field(dev='at', name='Att',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
@@ -198,6 +164,9 @@ _sanscolumn = Column(
                          ),
       BlockRow(
         Field(dev='col', name='col'),
+        Field(dev='bg1', name='bg1', width=5),
+        Field(dev='bg2', name='bg2', width=5),
+        Field(dev='sa1', name='sa1', width=5),
               ),
                 ],
         ),
@@ -213,6 +182,30 @@ _detvesselcolumn = Column(
          ],),
 )
 
+_sans1det = Column(
+    Block('Detector', [
+        BlockRow(
+        Field(dev=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
+                name='Detector position',
+                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21000),
+                 ),
+        BlockRow(
+                 Field(name='t', dev='det1_t_ist', width=8),
+                 Field(name='t preset', dev='det_1_t_soll', width=8),
+                 Field(name='Voltage', dev='hv', width=8),
+#                 ),
+#        BlockRow(
+                 Field(name='det1_z', dev='det1_z1a', width=8),
+                 Field(name='det1_omg', dev='det1_omega1a', width=8),
+                 Field(name='det1_x', dev='det1_x1a', width=8),
+#                 ),
+#        BlockRow(
+                 Field(name='bs1_x', dev='bs1_x1a', width=8),
+                 Field(name='bs1_y', dev='bs1_y1a', width=8),
+                 ),
+                ],
+        ),
+)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
@@ -223,13 +216,14 @@ devices = dict(
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
-                     fontsize = 12,
-                     padding = 3,
+                     fontsize = 11,#12
+                     padding = 2,#3
                      layout = [
                                  Row(_expcolumn),
-                                 Row(_sans1general, _sans1det),
-                                 Row(_ubahncolumn,_selcolumn, _pressurecolumn),
-                                 Row(_sanscolumn, _detvesselcolumn),
+                                 Row(_sans1general),
+                                 Row(_pressurecolumn),
+                                 Row(_selcolumn, _sanscolumn),
+                                 Row(_sans1det),
                                ],
                     ),
 )
