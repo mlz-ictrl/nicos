@@ -23,7 +23,7 @@ public key authentication is enabled.
 
 The bug tracker and project wiki are at
 
-  https://trac.frm2.tum.de/projects/nicos/
+  https://forge.frm2.tum.de/projects/nicos/
 
 
 .. _requirements:
@@ -36,6 +36,7 @@ Requirements
 * numpy
 
 * pyzmq version >= 2
+* nicos-pyctl
 
 * Optional for the basic system:
 
@@ -54,7 +55,7 @@ Requirements
   - numpy
   - PyQwt (optional, for plots)
   - scipy (optional, for fitting)
-  - nicos-livewidget (optional, for detector live view)
+  - nicoslivewidget (optional, for detector live view)
   - cfitisio (optional, required by nicos-livewidget)
 
 * Under Windows:
@@ -69,21 +70,14 @@ Requirements
 
 If not supplied by the distribution (see below), most dependencies
 (except PytQt, PyQwt, sip) can be installed from the
-python package reopsitory:
+python package repository:
 
   pip install -r requirements.txt
 
 pip can be obtained from http://www.pip-installer.org/en/latest/installing.html
 
-Configure and build in-place for experimenting
+Configure for experimenting
 ----------------------------------------------
-
-For development and testing purposes, NICOS components can be run directly from
-the source directory.  For this, you have to build the C modules once using
-``make inplace``::
-
-  cd nicos-core
-  make inplace
 
 Now you can start the individual :ref:`components <components>`.  A setup that
 uses all the major components can be started using ::
@@ -113,13 +107,10 @@ that instrument.  When this is done, the installation process looks like this::
   make
   [sudo] make install INSTRUMENT=<instrument name>
 
-The customization is located in a subdirectory of ``custom/``.  It contains a
-file called ``make.conf`` that tells the "make install" routine where to install
-the libraries, and a few basic settings to make in ``nicos.conf`` (see
-:ref:`nicosconf`).
 
-The configuration will be installed as ``/opt/nicos/setups`` by default, but
-that is also configurable for each instrument.
+The customization is located in a subdirectory of ``custom/``.  It contains a
+file called ``nicos.conf`` that tells the NICOS how the system shall behave (see
+:ref:`nicosconf`).
 
 
 .. _nicosconf:
