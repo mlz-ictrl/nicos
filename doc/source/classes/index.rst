@@ -14,4 +14,3 @@ distribution.
    taco/index
    tango
    vendor/index
-   custom/index

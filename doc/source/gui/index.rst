@@ -9,7 +9,6 @@ with a few APIs provided by the NICOS base library.
 
 .. toctree::
 
-   invocation
    defconfig
    panels
    designer

@@ -1,6 +1,5 @@
 .. _components:
 
-==============================
 Components of the NICOS system
 ==============================
 
@@ -12,7 +11,7 @@ components are:
 .. index:: nicos-aio, nicos-ipython, nicos-gui, nicos-client
 
 Shells
-======
+------
 
 These components allow the user -- in some form or other -- to interact with the
 NICOS system and execute commands.
@@ -43,7 +42,7 @@ NICOS system and execute commands.
 .. index:: nicos-monitor, nicos-history
 
 Other clients
-=============
+-------------
 
 These programs are clients that don't provide shell functionality.
 
@@ -62,7 +61,7 @@ These programs are clients that don't provide shell functionality.
 .. index:: nicos-cache, nicos-daemon, nicos-poller, nicos-elog, nicos-watchdog
 
 Daemons
-=======
+-------
 
 These programs provide services and are designed to run as daemons once per
 instrument.

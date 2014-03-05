@@ -16,7 +16,7 @@ Preparations
 * Install all pre-requisites (see :ref:`requirements`).  If TACO is needed, make
   sure the Python client libraries are installed.
 
-* Run ``make inplace`` and check if ``bin/nicos-demo`` works.  On X-less
+* Run ``make`` and check if ``bin/nicos-demo`` works.  On X-less
   machines, use ``bin/nicos-demo -t``.  If something fails here, you might have
   missed a dependency.
 

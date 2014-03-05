@@ -1,6 +1,4 @@
-
-Custom specific documentation
-=============================
+.. only:: customdoc
 
 .. toctree::
     :maxdepth: 1

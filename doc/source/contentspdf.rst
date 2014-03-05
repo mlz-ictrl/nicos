@@ -1,10 +1,7 @@
-**********************
-Documentation Contents
-**********************
-
 .. toctree::
    :maxdepth: 2
 
+   welcome
    user
    instresp
    developer

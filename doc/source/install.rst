@@ -76,6 +76,17 @@ python package repository:
 
 pip can be obtained from http://www.pip-installer.org/en/latest/installing.html
 
+For xBuntu 12.04:
+
+Install pip:
+  sudo apt-get install python-pip
+
+If your system pip is too old (pip >=1.4 is required) you can update with:
+
+  sudo pip install --upgrade pip
+  hash -r
+
+
 Configure for experimenting
 ----------------------------------------------
 
