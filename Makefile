@@ -21,7 +21,7 @@ clean-demo: clean
 install:
 	@echo "Installing to $(DESTDIR)$(PREFIX)..."
 	@echo
-	@if [ -z "$(PREFIX)" ]; then echo "PREFIX is empty!"; exit 1; fi
+	@if [ -z "$(PREFIX)" ]; then echo "PREFIX is empty! Do not run make install on instruments"; exit 1; fi
 	mkdir -p $(DESTDIR)$(PREFIX)
 	git archive HEAD | (cd $(DESTDIR)$(PREFIX); tar xf -)
 	for f in test resources data .gitattributes .gitignore requirements.txt setup.py pylintrc Makefile MANIFEST.in; do \
