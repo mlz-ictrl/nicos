@@ -38,7 +38,7 @@ notifiers = {
 
 devices = dict(
     # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
+    mailer   = device('devices.notifiers.Mailer',
                       sender = 'me@frm2.tum.de',
                       receivers = ['me@frm2.tum.de', 'you@frm2.tum.de'],
                       subject = 'NICOS Warning',
