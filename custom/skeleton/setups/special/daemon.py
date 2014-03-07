@@ -20,6 +20,14 @@ devices = dict(
                               ('admin', hashlib.md5(b'admin').hexdigest(), 'admin')],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
+                    # 'localhost' will normally bind the daemon to the loopback
+                    # device, therefore just clients on the same machine will be
+                    # able to connect !
+                    # '' will bind the daemon to all network interfaces in the
+                    # machine
+                    # If server is a hostname (official computer name) or an IP
+                    # address the daemon service will be bound the the
+                    # corresponding network interface.
                     server = 'localhost',
                     authenticators = ['Auth'], # or ['Auth', 'UserDB']
                     loglevel = 'info',
