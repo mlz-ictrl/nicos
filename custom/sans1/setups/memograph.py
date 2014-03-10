@@ -9,6 +9,7 @@ devices = dict(
                             valuename = 'T_in SANS1',
                             description = 'inlet temperature memograph',
                             fmtstr = '%.2F',
+                            warnlimits = (-1, 17.5), #-1 no lower value
     ),
     t_out_memograph = device('frm2.memograph.MemographValue',
                             hostname = 'memograph03.care.frm2',
@@ -51,6 +52,7 @@ devices = dict(
                             valuename = 'Leak SANS1',
                             description = 'leakage memograph',
                             fmtstr = '%.2F',
+                            warnlimits = (-1, 1), #-1 no lower value
     ),
     cooling_memograph = device('frm2.memograph.MemographValue',
                             hostname = 'memograph03.care.frm2',

@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -29,7 +29,7 @@ Row = Column = Block = BlockRow = lambda *args: args
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
-    Block('Experiment hoho', [
+    Block('Experiment', [
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title',    key='exp/title',    width=20,
                        istext=True, maxlen=20),
