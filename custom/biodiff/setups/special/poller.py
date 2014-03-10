@@ -4,7 +4,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'localhost'
+    cache = 'phys.biodiff.frm2'
 )
 
 devices = dict(

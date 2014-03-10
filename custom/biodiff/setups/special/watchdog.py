@@ -55,7 +55,7 @@ devices = dict(
                      ),
 
     Watchdog = device('services.watchdog.Watchdog',
-                      cache = 'localhost:14869',
+                      cache = 'phys.biodiff.frm2:14869',
                       notifiers = notifiers,
                       mailreceiverkey = 'email/receivers',
                       watch = watchlist,

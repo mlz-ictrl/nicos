@@ -20,7 +20,7 @@ devices = dict(
                               ('admin', hashlib.md5(b'admin').hexdigest(), 'admin')],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'localhost',
+                    server = '',
                     authenticators = ['Auth'], # or ['Auth', 'UserDB']
                     loglevel = 'info',
                    ),
