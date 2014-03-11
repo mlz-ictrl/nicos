@@ -14,13 +14,18 @@ modules = ['nicos.commands.standard']
 
 devices = dict(
     TOFTOF   = device('devices.instrument.Instrument',
+                      description = 'The famous TOFTOF instrument',
                       responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>, ' \
                                     'G. Simeoni <giovanna.simeoni@frm2.tum.de>',
-                      instrument = 'TOFTOF'),
+                      instrument = 'TOFTOF',
+                     ),
 
-    Sample   = device('devices.experiment.Sample'),
+    Sample   = device('devices.experiment.Sample',
+                      description = 'The current used sample',
+                     ),
 
     Exp      = device('frm2.experiment.Experiment',
+                      description = 'The current running experiment',
                       dataroot = '/users/data',
                       sample = 'Sample',
                       localcontact = 'W. Lohstroh, G. Simeoni',
@@ -28,7 +33,11 @@ devices = dict(
                       sendmail = True,
                       mailsender = 'nicos.toftof@frm2.tum.de',
                       propdb = '/opt/nicos/setups/userdb',
-                      elog = True),
+                      elog = True,
+                      scancounter = 'scancounter',
+                      # filecounter = '/users/data/counter',
+                      imagecounter = 'counter',
+                     ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
 
@@ -37,13 +46,17 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink'),
 
     emailer  = device('devices.notifiers.Mailer',
+                      description = 'Notfiyer service to send emails',
                       sender = 'nicos.toftof@frm2.tum.de',
                       copies = ['wiebke.lohstroh@frm2.tum.de',
                                 'giovanna.simeoni@frm2.tum.de'],
-                      subject = 'TOFTOF'),
+                      subject = 'TOFTOF',
+                     ),
 
     smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2'),
+                      description = 'Notfiyer service to send SMS',
+                      server = 'triton.admin.frm2',
+                     ),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
