@@ -84,10 +84,33 @@ def test_tacodev():
     assert raises(ValueError, tacodev, 'test/device')
 
 def test_tangodev():
-    assert tangodev('tango://host:123/test/custom/device') == \
-        'tango://host:123/test/custom/device'
+    def td_assert(testname, name):
+        assert tangodev(name) == name
+    def td_raises(testname, name):
+        assert raises(ValueError, tangodev, name)
+    valid_names = ['tango://host:123/test/custom/device',
+                   'tango://test/custom/dev',
+                   'tango://host:123/test/custom/device#dbase=no',
+                   'tango://host:123/test/custom/device#dbase=yes',
+                  ]
+    invalid_names = {'Invalid dbase setting': 'tango://host:123/test/custom/dev#dbase=y',
+                     'Typo in dbase setting': 'tango://host:123/test/custom/dev#dbas=no',
+                     'Wrong separator to dbase setting': 'tango://host:123/test/custom/dev~dbase=no',
+                     'Missing dbase flag': 'tango://host:123/test/custom/dev#dbase',
+                     'Tango attribute': 'tango://host:123/test/custom/dev/attr',
+                     'Device property': 'tango://host:123/test/custom/dev->prop',
+                     'Attribute property': 'tango://host:123/test/custom/dev/attr->prop',
+                     'Missing tango scheme': 'test/custom/device',
+                     }
     assert tangodev() == ''
-    assert raises(ValueError, tangodev, 'test/custom/device')
+    for validname in valid_names:
+        # assert tangodev(validname) == validname
+        yield td_assert, 'valid tango name', validname
+
+    for key, invalidname in invalid_names.iteritems():
+        # assert raises(ValueError, tangodev, invalidname)
+        # yield td_raises(invalidname)
+        yield td_raises, key, invalidname
 
 def test_anytype():
     assert anytype('foo') == 'foo'

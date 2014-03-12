@@ -518,7 +518,13 @@ def tacodev(val=None):
         raise ValueError('%r is not a valid Taco device name' % val)
     return val
 
-tangodev_re = re.compile(r'^(tango:)?//[\w.-]+:[\d]+/[\w-]+/[\w-]+/[\w-]+$', re.I)
+# allow only tango device names according tango spec
+# http://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/ds_prog/node13.html
+# without any attributes and properties
+# the device name must begin with 'tango://'
+tangodev_re = re.compile(
+    r'^(tango://)([\w.-]+(:[\d]+)?/)?([\w-]+/){2}[\w-]+(#dbase=(no|yes))?$', re.I)
+#   r'^(tango://)([\w.-]+(:[\d]+)?/)?([\w-]+/){2}[\w-]+(/[\w-]+)?(->[\w-]+)?(#dbase=(no|yes))?$', re.I)
 
 def tangodev(val=None):
     """a valid tango device"""
