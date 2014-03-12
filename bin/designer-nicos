@@ -6,9 +6,9 @@ thisfile = path.abspath(__file__)
 while path.islink(thisfile):
     thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
 
-os.environ['PYTHONPATH'] = path.normpath(path.dirname(thisfile) + '/../lib')
+os.environ['PYTHONPATH'] = path.normpath(path.dirname(thisfile) + '/..')
 os.environ['PYQTDESIGNERPATH'] = \
-    path.normpath(path.dirname(thisfile) + '/../lib/nicos/guisupport')
+    path.normpath(path.dirname(thisfile) + '/../nicos/guisupport')
 
 modules = []
 args = []

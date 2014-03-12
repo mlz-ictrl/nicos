@@ -1,11 +1,12 @@
 [run]
-source = lib/nicos
+source = nicos
 omit =
-	lib/nicos/devices/taco/*
-	lib/nicos/commands/taco.py
-	lib/nicos/devices/tango/*
-	lib/nicos/devices/vendor/*
-	lib/nicos/services/monitor/qt.py
-	lib/nicos/clients/gui/*
-	lib/nicos/guisupport/*
+	nicos/devices/taco/*
+	nicos/commands/taco.py
+	nicos/devices/tango/*
+	nicos/devices/vendor/*
+	nicos/services/monitor/qt.py
+	nicos/clients/gui/*
+	nicos/guisupport/*
+	nicos/_vendor
 parallel = true

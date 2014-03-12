@@ -1,7 +1,7 @@
 LICENSE INFO for NICOS
 ======================
 
-* The external modules under lib/ are copyrighted by their respective authors
+* The external modules under nicos/_vendor are copyrighted by their respective authors
   and distributed under the licenses given in the source files.
 
 * The images under resources/icons are from the Tango Desktop project

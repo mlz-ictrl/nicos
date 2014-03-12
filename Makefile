@@ -6,8 +6,8 @@ SHELL=/bin/bash
 RCC = pyrcc4
 PYTHON = /usr/bin/env python
 
-lib/nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
-	-$(RCC) -py3 -o lib/nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
+nicos/guisupport/gui_rc.py: resources/nicos-gui.qrc
+	-$(RCC) -py3 -o nicos/guisupport/gui_rc.py resources/nicos-gui.qrc
 
 clean:
 	rm -rf build
@@ -64,11 +64,11 @@ test-coverage:
 	exit $$RESULT
 
 lint:
-	-PYTHONPATH=lib pylint --rcfile=./pylintrc lib/nicos/ $(shell find custom/ -name \*.py)
+	-PYTHONPATH=. pylint --rcfile=./pylintrc nicos/ $(shell find custom/ -name \*.py)
 
 jenkinslintall: CUSTOMPYFILES = $(shell find custom/ -name \*.py)
 jenkinslintall:
-	-pylint --rcfile=./pylintrc --files-output=y lib/nicos/
+	-pylint --rcfile=./pylintrc --files-output=y nicos/
 	-if [[ -n "$(CUSTOMPYFILES)" ]]; then \
 		pylint --rcfile=./pylintrc --files-output=y $(CUSTOMPYFILES); \
 	else echo 'no custom python files'; fi

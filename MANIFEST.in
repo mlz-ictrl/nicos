@@ -23,4 +23,4 @@ include doc/Makefile
 recursive-include doc/source *
 recursive-include doc/build/html *
 
-recursive-include lib/nicos/clients/gui/tools/calculator_images *
+recursive-include nicos/clients/gui/tools/calculator_images *

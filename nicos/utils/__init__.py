@@ -388,7 +388,7 @@ def readConfig():
       instrument-specific config with those given in the root.
     """
     # Get the root path of the NICOS install.
-    nicos_root = path.normpath(path.join(path.dirname(__file__), '../../..'))
+    nicos_root = path.normpath(path.join(path.dirname(__file__), '../..'))
 
     # Read the local config from the standard path.
     local_cfg = NicosConfigParser()
@@ -434,6 +434,7 @@ def readConfig():
             for name in cfg.options('environment'):
                 environment[name] = cfg.get('environment', name)
 
+    values['control_path'] = nicos_root
     return values, environment
 
 
@@ -987,14 +988,12 @@ def findResource(filepath):
     """
     # may be extended to also find files specified like nicos.core.util
     def myiter(filepath):
-        nicos_root = path.abspath(path.join(path.dirname(__file__),
-                                            '..', '..', '..'))
         if path.isabs(filepath):
             yield filepath
             return
-        yield path.join(nicos_root, filepath)
+        yield path.join(session.config.control_path, filepath)
         if filepath.startswith('custom/'):
-            yield path.join(nicos_root, custom_re.sub('lib/nicos/\\1/', filepath))
+            yield path.join(session.config.custom_path, filepath[7:])
     for location in myiter(filepath):
         if path.exists(location):
             return location

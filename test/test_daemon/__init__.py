@@ -46,7 +46,7 @@ def setup_package():
     session.__init__('testdaemon')
     cleanup()
     cache = startCache()
-    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib') + ':' + \
+    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..') + ':' + \
         path.join(rootdir, '..', '..')
     daemon = subprocess.Popen([sys.executable,
                                path.join(rootdir, '..', 'daemon.py')])

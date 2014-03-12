@@ -293,7 +293,7 @@ def startCache(setup='cache', wait=5):
     sys.stderr.write(' [cache start... ')
 
     # start the cache server
-    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..', 'lib')
+    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..')
     cache = subprocess.Popen([sys.executable,
                               path.join(rootdir, '..', 'cache.py'), setup])
     if wait:

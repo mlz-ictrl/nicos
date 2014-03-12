@@ -1,11 +1,11 @@
 import os, sys
-from distutils.core import setup, Extension
+from distutils.core import setup
 from distutils.command.install import install
 
 def find_packages():
     """Return a list of all nicos subpackages."""
     out = ['nicos']
-    stack = [('lib/nicos', 'nicos.')]
+    stack = [('nicos', 'nicos.')]
     while stack:
         where, prefix = stack.pop(0)
         for name in os.listdir(where):
@@ -19,19 +19,17 @@ def find_packages():
 def find_ui_files():
     """Find all Qt .ui files in nicos.clients.gui subpackages."""
     res = {}
-    for root, _dirs, files in os.walk('lib/nicos/clients/gui'):
+    for root, _dirs, files in os.walk('nicos/clients/gui'):
         uis = [uifile for uifile in files if uifile.endswith('.ui')]
         if uis:
-            res[root[4:].replace('/', '.')] = uis
+            res[root.replace('/', '.')] = uis
     return res
 
-sys.path.insert(0, 'lib')
 import nicos
 
 scripts = ['bin/' + name for name in os.listdir('bin')
            if name.startswith('nicos-')]
 
-py_modules = [name[:-3] for name in os.listdir('lib') if name.endswith('.py')]
 
 class no_install(install):
     def initialize_options(self):
@@ -55,10 +53,7 @@ setup(
     url = 'https://trac.frm2.tum.de/projects/NICOS/',
 
     cmdclass = {'install': no_install},
-    py_modules = py_modules,
-    package_dir = {'': 'lib'},
     packages = find_packages(),
     package_data = package_data,
-    ext_modules = [Extension('nicos.services.daemon._pyctl', ['src/_pyctl.c'])],
     scripts = scripts,
 )
