@@ -273,7 +273,6 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             elif hashing == 'md5':
                 passw = hashlib.md5(passw).hexdigest()
 
-
         # check login data according to configured authentication
         login = credentials['login']
         self.log.info('auth request: login=%r display=%r' %
@@ -282,7 +281,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             auth_err = None
             for auth in authenticators:
                 try:
-                    self.user = auth.authenticate(login, credentials['passwd'])
+                    self.user = auth.authenticate(login, passw)
                     break
                 except AuthenticationError as err:
                     auth_err = err  # Py3 clears "err" after the except block
