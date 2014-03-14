@@ -52,22 +52,6 @@ class QMesyDAQChannel(FRMChannel):
                              IOCommon.MODE_PRESELECTION: 'preselection'})),
     }
 
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state == TACOStates.PRESELECTION_REACHED:
-            return status.OK, 'preselection reached'
-        elif state == TACOStates.STOPPED:
-            return status.OK, 'idle or paused'
-        elif state == TACOStates.DEVICE_NORMAL:
-            return status.OK, 'idle'
-        else:
-            return status.BUSY, TACOStates.stateDescription(state)
-
-    def doIsCompleted(self):
-        state = self._taco_guard(self._dev.deviceState)
-        self.log.debug('doIsCompleted: state=%d' % state)
-        return state in [TACOStates.PRESELECTION_REACHED, TACOStates.DEVICE_NORMAL]
-
     def doStart(self):
         self._taco_guard(self._dev.clear)
         self._taco_guard(self._dev.start)

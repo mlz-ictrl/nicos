@@ -68,12 +68,14 @@ class FRMChannel(TacoDevice, Channel):
             return status.OK, 'preselection reached'
         elif state == TACOStates.STOPPED:
             return status.OK, 'idle or paused'
+        elif state == TACOStates.DEVICE_NORMAL:
+            return status.OK, 'idle'
         else:
             return status.BUSY, TACOStates.stateDescription(state)
 
     def doIsCompleted(self):
         state = self._taco_guard(self._dev.deviceState)
-        return state == TACOStates.PRESELECTION_REACHED
+        return state in [TACOStates.PRESELECTION_REACHED, TACOStates.DEVICE_NORMAL]
 
     def doReset(self):
         if self._taco_guard(self._dev.deviceState) != TACOStates.STOPPED:
