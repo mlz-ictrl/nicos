@@ -1671,7 +1671,23 @@ class Measurable(Readable):
 
     @usermethod
     def setPreset(self, **preset):
-        """Set the new standard preset for this detector."""
+        """Set the new standard preset for this detector.
+
+        .. method:: doSetPreset(**preset)
+
+           This method must be present and is called to apply presets to the
+           detector.  Preset names can be any string, corresponding to some kind
+           of preselection that the detector supports.
+
+           Usually a 't' preset (time in seconds) is supported.
+
+           The dictionary passed contains the keys for *all* detectors that
+           participate in a measurement, so you should only process those that
+           the class understands and leave others alone.
+
+           The `presetInfo` method is called to determine the presets that the
+           class supports.
+        """
         self.doSetPreset(**preset)
 
     @usermethod

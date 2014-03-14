@@ -382,6 +382,8 @@ possible with the device:
 
    .. rubric:: Public methods
 
+   .. automethod:: setPreset
+
    .. automethod:: start
 
    .. automethod:: stop
