@@ -106,7 +106,7 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
     }
 
     # initial imagetype, will be updated upon readImage
-    _imagetype = ImageType((128, 128), '<u4')
+    imagetype = ImageType((128, 128), '<u4')
 
     def doPreinit(self, mode):
         self._counters = []
@@ -298,15 +298,15 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
         self.lastcounts = sum(res[3:]) # maybe also evaluate roi...?
         # evaluate shape return correctly reshaped numpy array
         if res[1:3] in [(1, 1), (0, 1), (1, 0), (0, 0)]: #1D array
-            self._imagetype = ImageType(shape=(res[0], ), dtype='<u4')
+            self.imagetype = ImageType(shape=(res[0], ), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
             return data
         elif res[2] in [0, 1]: #2D array
-            self._imagetype = ImageType(shape=(res[0], res[1]), dtype='<u4')
+            self.imagetype = ImageType(shape=(res[0], res[1]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
             return data.reshape((res[0], res[1]), order='C')
         else: #3D array
-            self._imagetype = ImageType(shape=(res[0], res[1], res[2]), dtype='<u4')
+            self.imagetype = ImageType(shape=(res[0], res[1], res[2]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
             return data.reshape((res[0], res[1], res[2]), order='C')
         return None
