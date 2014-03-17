@@ -31,14 +31,56 @@ import threading
 from Modbus import Modbus
 
 from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
-    floatrange, intrange, status, waitForStatus, InvalidValueError, \
-    UsageError, CommunicationError, PositionError, SIMULATION
+    floatrange, intrange, status, waitForStatus, InvalidValueError, Moveable, \
+    UsageError, CommunicationError, PositionError, SIMULATION, Attach
 from nicos.core.device import usermethod, requires
+from nicos.core.utils import multiStatus
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput, \
     DigitalInput, NamedDigitalInput
 from nicos.devices.generic import Switcher
+
+
+class Sans1ColliSlit(Switcher):
+    attached_devices = {
+        'table' : Attach('Guide table this slit is mounted on', Moveable),
+    }
+
+    parameters = {
+        'activeposition' : Param('Position of the table where this slit is active',
+                                  type=str),
+    }
+    parameter_overrides = {
+        'precision' : Override(default=0.1, mandatory=False),
+        'fallback'  : Override(default='N.A.', mandatory=False),
+        'blockingmove'  : Override(default=False, mandatory=False),
+    }
+
+    def _mapReadValue(self, pos):
+        prec = self.precision
+        if self._adevs['table'].read() != self.activeposition:
+            return 'N.A.'
+        for name, value in self.mapping.items():
+            if prec:
+                if abs(pos - value) <= prec:
+                    return name
+            elif pos == value:
+                return name
+        if self.fallback is not None:
+            if self.doStatus()[0] == status.BUSY:
+                return 'moving'
+            return self.fallback
+        if self.relax_mapping:
+            return self._adevs['moveable'].format(pos,True)
+        raise PositionError(self, 'unknown position of %s' %
+                            self._adevs['moveable'])
+
+    def doStatus(self, maxage=0):
+        if self._adevs['table'].read() != self.activeposition:
+            return multiStatus(self._adevs, maxage)
+        else:
+            return Switcher.doStatus(self, maxage)
 
 
 class Sans1ColliSwitcher(Switcher):

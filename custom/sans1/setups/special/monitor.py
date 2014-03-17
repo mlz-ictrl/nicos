@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -29,7 +29,7 @@ Row = Column = Block = BlockRow = lambda *args: args
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
-    Block('Experiment hoho', [
+    Block('Experiment', [
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title',    key='exp/title',    width=20,
                        istext=True, maxlen=20),
@@ -44,16 +44,16 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='Speed', dev='selector'),
+                 Field(name='Speed', dev='selector', width=8),
                  ),
-        BlockRow(
-                 Field(name='Lambda', dev='selector_lambda'),
+         BlockRow(
+                 Field(name='Lambda', dev='selector_lambda', width=8),
                  ),
-        BlockRow(
-                 Field(name='Position', dev='sel_ng_sw'),
+         BlockRow(
+                 Field(name='Position', dev='sel_ng_sw', width=8),
                  ),
-        BlockRow(
-                 Field(name='Tilt', dev='sel_tilt'),
+         BlockRow(
+                 Field(name='Tilt', dev='sel_tilt', width=8),
                  ),
                ],
         ),
@@ -77,12 +77,18 @@ _sans1general = Column(
                  Field(name='Reactor', dev='ReactorPower', width=8, format = '%.2f', unit='MW'),
                  Field(name='6 Fold Shutter', dev='Sixfold', width=8),
                  Field(name='NL4a', dev='NL4a', width=8),
+#                 ),
+#        BlockRow(
                  Field(name='T in', dev='t_in_memograph', width=8, unit='C'),
                  Field(name='T out', dev='t_out_memograph', width=8, unit='C'),
                  Field(name='Cooling', dev='cooling_memograph', width=8, unit='kW'),
+#                 ),
+#        BlockRow(
                  Field(name='Flow in', dev='flow_in_memograph', width=8, unit='l/min'),
                  Field(name='Flow out', dev='flow_out_memograph', width=8, unit='l/min'),
                  Field(name='Leakage', dev='leak_memograph', width=8, unit='l/min'),
+#                 ),
+#        BlockRow(
                  Field(name='P in', dev='p_in_memograph', width=8, unit='bar'),
                  Field(name='P out', dev='p_out_memograph', width=8, unit='bar'),
                  Field(name='Crane Pos', dev='Crane', width=8, unit='m'),
@@ -91,18 +97,7 @@ _sans1general = Column(
         ),
 )
 
-_atpolcolumn = Column(
-    Block('Attenuator / Polarizer',[
-      BlockRow(
-               Field(dev='at', name='Att', width=7),
-               Field(dev='ng_pol', name='Pol', width=7),
-              ),
-      ],
-   ),
-)
-
-
-_sanscolumn = Column(
+_collimationcolumn = Column(
     Block('Collimation',[
       BlockRow(
         Field(dev='at', name='Att',
@@ -121,6 +116,10 @@ _sanscolumn = Column(
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','free','COL','NG'],
               width=5,height=7),
+        Field(dev='bg1', name='bg1',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['50mm','OPEN','20mm','42mm','N.A.'],
+              width=7,height=7),
         Field(dev='col_16a', name='16a',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','free','COL','NG'],
@@ -145,6 +144,10 @@ _sanscolumn = Column(
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','free','COL','NG'],
               width=5,height=7),
+        Field(dev='bg2', name='bg2',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['28mm','20mm','12mm','OPEN','N.A.'],
+              width=7,height=7),
         Field(dev='col_4a', name='4a',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','free','COL','NG'],
@@ -161,49 +164,37 @@ _sanscolumn = Column(
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','free','COL','NG'],
               width=5,height=7),
+        Field(dev='sa1', name='sa1',
+              widget='nicos.sans1.monitorwidgets.CollimatorTable',
+              options=['50x50','30mm','20mm'],
+              width=7,height=7),
                          ),
       BlockRow(
         Field(dev='col', name='col'),
-        Field(dev='bg1', name='bg1', width=5),
-        Field(dev='bg2', name='bg2', width=5),
-        Field(dev='sa1', name='sa1', width=5),
               ),
                 ],
         ),
-)
-
-_detvesselcolumn = Column(
-    Block('Detector Vessel',[
-      BlockRow(
-        Field(dev=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
-                name='Detector position',
-                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21000),
-              ),
-         ],),
 )
 
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
         Field(dev=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
-                name='Detector position',
                 widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21000),
-                 ),
+              ),
         BlockRow(
+                 Field(name='det1_z-1a', dev='det1_z1a', width=8),
+                 Field(name='det1_omg-1a', dev='det1_omega1a', width=8),
+                 Field(name='det1_x-1a', dev='det1_x1a', width=8),
                  Field(name='t', dev='det1_t_ist', width=8),
-                 Field(name='t preset', dev='det_1_t_soll', width=8),
+                 Field(name='t pres.', dev='det_1_t_soll', width=8),
                  Field(name='Voltage', dev='hv', width=8),
-#                 ),
-#        BlockRow(
-                 Field(name='det1_z', dev='det1_z1a', width=8),
-                 Field(name='det1_omg', dev='det1_omega1a', width=8),
-                 Field(name='det1_x', dev='det1_x1a', width=8),
-#                 ),
-#        BlockRow(
+                 Field(name='Mon 1', dev='det1_mon1', width=8),
+                 Field(name='Mon 2', dev='det1_mon2', width=8),
                  Field(name='bs1_x', dev='bs1_x1a', width=8),
                  Field(name='bs1_y', dev='bs1_y1a', width=8),
                  ),
-                ],
+            ],
         ),
 )
 
@@ -222,7 +213,7 @@ devices = dict(
                                  Row(_expcolumn),
                                  Row(_sans1general),
                                  Row(_pressurecolumn),
-                                 Row(_selcolumn, _sanscolumn),
+                                 Row(_selcolumn,_collimationcolumn),
                                  Row(_sans1det),
                                ],
                     ),
