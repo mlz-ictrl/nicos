@@ -29,13 +29,12 @@ from math import sqrt
 
 # *** general constants ***
 
-h = 6.62606876e-34                      # Plancksches Wirkungsquantum [Js]
-mn = 1.67492842e-27                     # Neutronenmasse [kg]
-e = 1.60217733e-19                      # Elementarladung [C]
+h = 6.62606876e-34                      # Planck constant [Js]
+mn = 1.67492842e-27                     # Neutron mass [kg]
+e = 1.60217733e-19                      # Elementary charge [C]
 
 def sgn(x):
-    if x == 0: return 1.0
-    else: return x/abs(x)
+    return -1 if x < 0 else 1
 
 
 # *** TOFTOF specific constants ***
@@ -90,26 +89,24 @@ def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1, ch5_90deg_offset=0):
     """
     itv = 1.0
     if x == 5:
-        if ratio == 1:
-            itv = 1.0
-        elif ratio == 2:
-            itv = 0.5
+        if ratio == 2:
+            itv = 1.0 / 2.0
         elif ratio == 3:
-            itv = 2.0/3.0
+            itv = 2.0 / 3.0
         elif ratio == 4:
-            itv = 0.75
+            itv = 3.0 / 4.0
         elif ratio == 5:
-            itv = 0.8
+            itv = 4.0 / 5.0
         elif ratio == 6:
-            itv = 5.0/6.0
+            itv = 5.0 / 6.0
         elif ratio == 7:
-            itv = 6.0/7.0
+            itv = 6.0 / 7.0
         elif ratio == 8:
-            itv = 7.0/8.0
+            itv = 7.0 / 8.0
         elif ratio == 9:
-            itv = 7.0/9.0
+            itv = 7.0 / 9.0
         elif ratio == 10:
-            itv = 7.0/10.0
+            itv = 7.0 / 10.0
         else:
             itv = 1.0
     if crc:
@@ -122,9 +119,9 @@ def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1, ch5_90deg_offset=0):
         phi_1 += itv * st1[x]
     if ch5_90deg_offset and x == 5:
         phi_1 += 90.0
-    phi_2 = phi_1 - sgn(phi_1) * int(abs(phi_1)/360.0) * 360.0
-    phi_3 = phi_2 - sgn(phi_2) * int(abs(phi_2)/180.0) * 360.0
-    phi_4 = round(phi_3*100.0) / 100.0
+    phi_2 = phi_1 - sgn(phi_1) * int(abs(phi_1) / 360.0) * 360.0
+    phi_3 = phi_2 - sgn(phi_2) * int(abs(phi_2) / 180.0) * 360.0
+    phi_4 = round(phi_3 * 100.0) / 100.0
     # print x, phi_4
     return phi_4
 
@@ -143,7 +140,7 @@ def Eres1(li, w, st=0, crc=1, dL=0.0):
     x = 4.0
     if w == 0:
         return (0, 0)
-    wc = w/60.0
+    wc = w / 60.0
     if st == 0:
         ap = 13.82              # aperture P-Chopper
         am = 5.0                # aperture M-Chopper
@@ -154,22 +151,22 @@ def Eres1(li, w, st=0, crc=1, dL=0.0):
         else:
             ap = 13.82          # aperture P-Chopper
             am = 5.0 / 2.0      # aperture M-Chopper
-    tm = am/2.0/360/wc          # opening time M-Chopper
-    tp = ap/2.0/360/wc          # opening time P-Chopper
+    tm = am / (2.0 * 360 * wc)  # opening time M-Chopper
+    tp = ap / (2.0 * 360 * wc)  # opening time P-Chopper
     if crc == 0:
         tm *= 2.0
         tp *= 2.0
-    Lpm = a[7]-a[1]             # flight distance chopper1-chopper7
-    Lms = a[0]-a[7]             # flight distance chopper7-sample
+    Lpm = a[7] - a[1]           # flight distance chopper1-chopper7
+    Lms = a[0] - a[7]           # flight distance chopper7-sample
     Lsd = x                     # flight distance sample-detector
-    # Lpd = a[0]+x                # flight distance chopper1-detector
+    # Lpd = a[0] + x            # flight distance chopper1-detector
     li *= 1.0e-10
     lf = li
 
-    A = tm * (Lpm + Lms + lf**3/li**3 * Lsd)
-    B = tp * (Lms + lf**3/li**3 * Lsd)
+    A = tm * (Lpm + Lms + Lsd * (lf / li)**3)
+    B = tp * (Lms + Lsd * (lf / li)**3)
     C = Lpm * mn * lf * dL / h
-    dt = sqrt (A**2 + B**2 + C**2) / Lpm        # uncertainty in time
-    res = h**3/mn**2/e * dt/lf**3/Lsd           # uncertainty in energy
+    dt = sqrt(A**2 + B**2 + C**2) / Lpm        # uncertainty in time
+    res = h**3 / (mn**2 * e) * dt / (Lsd * lf**3) # uncertainty in energy
 
     return (res, dt)
