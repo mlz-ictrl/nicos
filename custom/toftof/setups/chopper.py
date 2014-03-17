@@ -24,7 +24,7 @@ devices = dict(
                           abslimits = (0.2, 16.0),
                           pollinterval = 10,
                           maxage = 12,
-                          unit = 'rpm',
+                          unit = 'AA',
                          ),
     chSpeed      = device('toftof.chopper.Speed',
                           description = 'Setpoint of the chopper speed',

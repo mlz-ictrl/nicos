@@ -53,7 +53,7 @@ class Controller(TacoDevice, Readable):
                                 default=90.0, unit='s'),
 
         # readonly hidden state parameters giving current values
-        'wavelength': Param('Selected wavelength', unit='A', userparam=False),
+        'wavelength': Param('Selected wavelength', unit='AA', userparam=False),
         'speed':      Param('Disk speed', unit='rpm', userparam=False),
         'ratio':      Param('Frame-overlap ratio', type=int, userparam=False),
         'crc':        Param('Counter-rotating mode', type=int, userparam=False),
