@@ -203,7 +203,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif isinstance(typ, params.tupleof):
         return MultiWidget(parent, typ.types, curvalue, client)
     elif typ == params.limits:
-        return LimitsWidget(parent, curvalue)
+        return LimitsWidget(parent, curvalue, client)
     elif isinstance(typ, params.floatrange):
         edw = EditWidget(parent, float, curvalue, fmtstr or '%.4g',
                          minmax=(typ.fr, typ.to))
@@ -277,8 +277,8 @@ class MultiWidget(QWidget):
 
 class LimitsWidget(MultiWidget):
 
-    def __init__(self, parent, curvalue):
-        MultiWidget.__init__(self, parent, (float, float), curvalue)
+    def __init__(self, parent, curvalue, client):
+        MultiWidget.__init__(self, parent, (float, float), curvalue, client)
         self._layout.insertWidget(0, QLabel('from', self))
         self._layout.insertWidget(2, QLabel('to', self))
 
