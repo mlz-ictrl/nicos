@@ -23,7 +23,7 @@ devices = dict(
                      # Use only 'localhost' if the cache is really running on
                      # the same machine, otherwise use the hostname (official
                      # computer name) or an IP address.
-                     cache = 'localhost:14869',
+                     cache = 'localhost',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,

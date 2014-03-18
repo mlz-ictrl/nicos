@@ -22,9 +22,9 @@ group = 'lowlevel'
 # sysconfig: A dictionary with basic system configuration values.
 # Possible values:
 #   - cache
-#       A string giving the hostname of the cache server (or
-#       hostname:port, if the cache runs on a port other than 14869).
-#       If this is omitted, no caching will be available.
+#       A string giving the hostname[:port] of the cache server,
+#       the default port is 14869.
+#       If this value is omitted, no caching will be available.
 #   - instrument
 #       The name of the instrument device, defined somewhere in a
 #       devices dictionary. The class for this device must be
