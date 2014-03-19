@@ -42,7 +42,11 @@ thisfile = path.abspath(__file__)
 while path.islink(thisfile):
     thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
 control_path = path.normpath(path.join(path.dirname(thisfile), '..'))
-sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/../lib'))
+
+try:
+    import nicos
+except ImportError:
+    sys.path.insert(0, control_path)
 
 # We need to read the nicos.conf file, so let nicos/__init__.py do that.
 from nicos.core.sessions import Session
