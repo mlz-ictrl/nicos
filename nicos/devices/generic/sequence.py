@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -32,7 +33,7 @@ import threading
 from nicos import session
 from nicos.core import Param, Override, none_or, anytype, tupleof, status, \
     NicosError, MoveError, ProgrammingError, ConfigurationError, LimitError
-from nicos.core.device import Moveable, DeviceMixinBase
+from nicos.core.device import Moveable, Measurable, DeviceMixinBase
 
 
 class SequenceItem(object):
@@ -564,3 +565,32 @@ class LockedDevice(BaseSequencer):
 
     def doIsAllowed(self, target):
         return self._adevs['device'].isAllowed(target)
+
+
+class MeasureSequencer(SequencerMixin, Measurable):
+    """Measurable performing a sequence necessary for the measurement.
+
+    Classes deriving from this need to implement this method:
+
+    .. automethod:: _generateSequence()
+
+    and define needed attached_devices.
+
+    Also, a `doRead()` method must be implemented.  `doStatus()` may need to be
+    overridden in special cases.
+
+    """
+
+    def doStart(self):
+        """Generates and starts a sequence if non is running.
+
+        Just calls ``self._startSequence(self._generateSequence())``
+
+        """
+        if self._seq_thread is not None:
+            raise NicosError(self, "Cannot start device, because it it busy.")
+        self._startSequence(self._generateSequence())
+
+    def doIsCompleted(self):
+        """Returns true if the sequence has finished."""
+        return (self._seq_thread is None and self.status(0) != status.BUSY)

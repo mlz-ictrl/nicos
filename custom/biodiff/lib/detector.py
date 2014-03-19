@@ -29,12 +29,12 @@ import numpy
 from PyTango import DevState, CommunicationFailed
 # local library
 import nicos.core.status as status
-from nicos.core.device import Measurable, Moveable
+from nicos.core.device import Moveable
 from nicos.devices.tango import PyTangoDevice, \
 DEFAULT_STATUS_MAPPING as DEFAULT_MAP_TANGO_STATUS
 from nicos.core.params import Param, Override, oneof, tupleof
 from nicos.core.errors import NicosError, CommunicationError
-from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqSleep
+from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep
 from nicos.core.image import ImageProducer, ImageType
 
 
@@ -196,35 +196,6 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
 
     def doWriteTimeerase(self, value):
         self._dev.ErasureDuration = value
-
-
-class MeasureSequencer(SequencerMixin, Measurable):
-    """Measurable performing a sequence necessary for the measurement.
-
-    Classes deriving from this need to implement this method:
-
-    .. automethod:: _generateSequence(target)
-
-    and define needed attached_devices.
-
-    Also, a `doRead()` method must be implemented.  `doStatus()` may need to be
-    overridden in special cases.
-
-    """
-
-    def doStart(self):
-        """Generates and starts a sequence if non is running.
-
-        Just calls ``self._startSequence(self._generateSequence(target))``
-
-        """
-        if self._seq_thread is not None:
-            raise NicosError(self, "Cannot start device, because it it busy.")
-        self._startSequence(self._generateSequence())
-
-    def doIsCompleted(self):
-        """Returns true if the sequence has finished."""
-        return (self._seq_thread is None and self.status(0) != status.BUSY)
 
 
 class ImagePlateDetector(MeasureSequencer, ImagePlateBase, ImageProducer):
