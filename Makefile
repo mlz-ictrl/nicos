@@ -29,6 +29,17 @@ inplace-install:
 	-ln -sf -t /etc/init.d $(PWD)/etc/nicos-system
 	-ln -sf -t /usr/bin $(PWD)/bin/*
 
+install-venv:
+	if [ -z "$(VENVNAME)" ]; then export VENVNAME=nicos-venv ; fi; \
+	if [ -z "$(USEPYTHON)" ]; then export USEPYTHON=`which python`; fi; \
+	echo "Installing into venv: $(DESTDIR)$${VENVNAME}"; \
+	echo "using $${USEPYTHON}"; \
+	virtualenv --system-site-packages -p $${USEPYTHON} $(DESTDIR)$${VENVNAME}; \
+	. $(DESTDIR)$${VENVNAME}/bin/activate; \
+	pip install "pip>=1.5" ; \
+	pip install -r requirements.txt ; \
+	python setup.py install
+
 install-requirements:
 	@echo "Trying to install up-to-date requirements using pip"
 	@echo "If something goes wrong, try updating by hand, maybe you need root privileges"
