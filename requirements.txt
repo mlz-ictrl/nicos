@@ -4,17 +4,17 @@ nicoslivewidget>=1.0
 --allow-external nicos-pyctl
 nicos-pyctl>=1.0
 --allow-external mysql-connector-python
-mysql-connector-python>=1.1.5
-Sphinx>=1.2.1
-coverage>=3.7.1
-lxml>=3.2.1
+mysql-connector-python>=1.0.7
+scipy>=0.9.0
 matplotlib>=1.1
-nose>=1.3.0
-numpy>=1.7.1
-pyfits>=3.1.2
-pyserial>=2.6
+numpy>=1.6.1
+pyserial>=2.5
 pyzmq>=13.1.0
-rst2pdf>=0.93.dev
-scipy>=0.13.2
+lxml>=2.3.2
+pyfits>=2.4.0
 rsa>=3.1.2
-gr>=0.4.3
+gr>=0.4.3,!=0.4.4
+coverage>=3.4
+nose>=1.1.2
+Sphinx>=1.2.1
+rst2pdf>=0.16
