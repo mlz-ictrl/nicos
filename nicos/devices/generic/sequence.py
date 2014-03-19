@@ -175,7 +175,7 @@ class SeqSleep(SequenceItem):
     def __repr__(self):
         if self.endtime:
             # already started, __repr__ is used for updating status strings.
-            return 'waiting: %s' + str(timedelta(seconds = round(self.endtime -
+            return 'waiting: ' + str(timedelta(seconds = round(self.endtime -
                                                                currenttime())))
         else:
             return 'wait(%g)' % self.duration
