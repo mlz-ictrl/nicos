@@ -13,7 +13,7 @@ try:
     import nicos
 except ImportError:
     thisfile = path.abspath(__file__)
-    sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..'))
+    sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
 
 from nicos import session
 from nicos.core.errors import ConfigurationError
