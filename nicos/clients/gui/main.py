@@ -537,6 +537,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.actionConnect.setChecked(False)  # gets set by connection event
         new_name, new_data, passwd, save = ConnectionDialog.getConnectionData(
             self, self.connpresets, self.lastpreset, self.connectionData)
+        passwd = passwd.encode('utf8')
         if new_data is None:
             return
         if save:
