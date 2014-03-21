@@ -1,4 +1,9 @@
 #!/bin/sh
+SCRIPTDIR=`dirname "$(readlink -f "$0")"`
+# this a rather simple solution,but should work in most cases.
+# see http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+# for more details
+
 MAKE=${MAKE:-"make"}
 PYTHON=${PYTHON:-"python"}
 CONSOLE=0
@@ -65,38 +70,38 @@ shift $(($OPTIND - 1))
 
 
 echo -n 'Starting NICOS demo system, please wait: '
-$PYTHON bin/nicos-cache >/dev/null &
+$PYTHON $SCRIPTDIR/nicos-cache >/dev/null &
 CACHEPID=$!
 echo -n 'cache '
 sleep 2
 
 if [ "$WATCHDOG" = "1" ] ; then
-    $PYTHON bin/nicos-watchdog >/dev/null &
+    $PYTHON $SCRIPTDIR/nicos-watchdog >/dev/null &
     WATCHDOGPID=$!
     echo -n 'watchdog '
     sleep 0.1
 fi
 
 if [ "$ELOG" = "1" ] ; then
-    $PYTHON bin/nicos-elog >/dev/null &
+    $PYTHON $SCRIPTDIR/nicos-elog >/dev/null &
     ELOGPID=$!
     echo -n 'elog '
     sleep 0.1
 fi
 
-$PYTHON bin/nicos-poller >/dev/null &
+$PYTHON $SCRIPTDIR/nicos-poller >/dev/null &
 POLLERPID=$!
 echo -n 'poller '
 sleep 0.1
 
 if [ "$MONI" = "1" ]; then
     if [ "$DAEMON" = "1" ]; then
-        $PYTHON bin/nicos-monitor $MONITOR >/dev/null &
+        $PYTHON $SCRIPTDIR/nicos-monitor $MONITOR >/dev/null &
         MONIPID=$!
         echo -n 'monitor '
         sleep 0.1
     else
-        $PYTHON bin/nicos-monitor $MONITOR >/dev/null
+        $PYTHON $SCRIPTDIR/nicos-monitor $MONITOR >/dev/null
         MONIPID=$!
     fi
 fi
@@ -104,19 +109,19 @@ fi
 if [ "$CONSOLE" = "1" ]; then
     echo
     echo 'Services started, starting console.'
-    $PYTHON bin/nicos-aio
+    $PYTHON $SCRIPTDIR/nicos-aio
 elif [ "$DAEMON" = "1" ]; then
-    $PYTHON bin/nicos-daemon >/dev/null &
+    $PYTHON $SCRIPTDIR/nicos-daemon >/dev/null &
     DAEMONPID=$!
     echo -n 'daemon'
     sleep 1
     echo '.'
     if [ "$NOCLIENT" = "0" ]; then
         if [ "$TEXTCLIENT" = "1" ]; then
-            $PYTHON bin/nicos-client $GUIUSER
+            $PYTHON $SCRIPTDIR/nicos-client $GUIUSER
         else
             echo 'Services started, starting GUI.'
-            $PYTHON bin/nicos-gui $GUICONFIG $GUIUSER '' "$@"
+            $PYTHON $SCRIPTDIR/nicos-gui $GUICONFIG $GUIUSER '' "$@"
         fi
     else
         echo 'Services started, press Enter to stop them.'
