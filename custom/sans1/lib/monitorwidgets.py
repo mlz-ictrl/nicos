@@ -41,8 +41,8 @@ class Tube2(NicosWidget, QWidget):
         'height':    PropDef(int, 10),
         'width':     PropDef(int, 30),
         'name':      PropDef(str, ''),
-        'posscale':  PropDef(float, 100),
-        'color':     PropDef('QColor', _magenta.color())
+        'posscale':  PropDef(float, 20000),
+        'color':     PropDef('QColor', _magenta.color()),
     }
 
     def sizeHint(self):
@@ -76,7 +76,7 @@ class Tube2(NicosWidget, QWidget):
         painter.setBrush(QBrush(self.color))
         painter.setRenderHint(QPainter.Antialiasing)
 
-        fontscale = self._scale
+        fontscale = float(self._scale)
         h = self.props['height'] * fontscale
         w = self.props['width'] * fontscale
         posscale = (w - 120) / self.props['posscale']
@@ -104,48 +104,48 @@ class Tube2(NicosWidget, QWidget):
         pos_val = self._curval[0]
         if pos_val is not None:
             pos_status = self._curstatus[0]
-            pos_str = self._curstr[0]
+            #pos_str = self._curstr[0]
             shift_val = self._curval[1]
             shift_status = self._curstatus[1]
-            shift_str = self._curstr[1]
+            #shift_str = self._curstr[1]
             # Not used at the moment, prepared for later use
             # tilt_val = self._curval[2]
             tilt_status = self._curstatus[2]
-            tilt_str = self._curstr[2]
-            if tilt_str.endswith('deg'):
-                tilt_str = tilt_str[:-3]+u'°'
+            #tilt_str = self._curstr[2]
+            #if tilt_str.endswith('deg'):
+            #    tilt_str = tilt_str[:-3]+u'°'
 
             stat = max(pos_status, shift_status, tilt_status)
             painter.setBrush(statusbrush[stat])
             painter.drawRect(60 + pos_val * posscale, 15 + yoff + shift_val * posscale,
                              fontscale, h - 20 - 4*posscale) #XXX tilt ???
-            painter.setFont(self.valueFont)
-            painter.drawText(60 + pos_val * posscale - 10.5 * fontscale,
-                             -5 + yoff + (shift_val - 4) * posscale + h - fontscale,
-                             10 * fontscale, 2 * fontscale, Qt.AlignRight, tilt_str)
-            painter.drawText(60 + pos_val * posscale + 1.5 * fontscale,
-                             -5 + yoff + (shift_val - 4) * posscale + h - fontscale,
-                             10 * fontscale, 2 * fontscale, Qt.AlignLeft, shift_str)
+#            painter.setFont(self.valueFont)
+#            painter.drawText(60 + pos_val * posscale - 10.5 * fontscale,
+#                             -5 + yoff + (shift_val - 4) * posscale + h - fontscale,
+#                             10 * fontscale, 2 * fontscale, Qt.AlignRight, tilt_str)
+#            painter.drawText(60 + pos_val * posscale + 1.5 * fontscale,
+#                             -5 + yoff + (shift_val - 4) * posscale + h - fontscale,
+#                             10 * fontscale, 2 * fontscale, Qt.AlignLeft, shift_str)
             minx = max(minx, 60 + pos_val * posscale + 5 - 4 * fontscale)
-            painter.drawText(minx,
-                             h + 10 + yoff, 8 * fontscale, 30, Qt.AlignCenter,
-                             pos_str)
+#            painter.drawText(minx,
+#                             h + 10 + yoff, 8 * fontscale, 30, Qt.AlignCenter,
+#                             pos_str)
             minx = minx + 8 * fontscale
 
-        # draw Detector 2
-        pos_val = self._curval[3]
-        if pos_val is not None:
-            pos_status = self._curstatus[3]
-            pos_str = self._curstr[3]
-
-            painter.setBrush(statusbrush[pos_status])
-            painter.drawRect(60 + pos_val * posscale, 15 + yoff,
-                             fontscale, h - 20 - 5 * posscale)
-            painter.setFont(self.valueFont)
-            minx = max(minx, 65 + pos_val * posscale - 4 * fontscale)
-            painter.drawText(minx, h + 10 + yoff,
-                             8 * fontscale, 30, Qt.AlignCenter, pos_str)
-            minx = minx + 8 * fontscale
+#        # draw Detector 2
+#        pos_val = self._curval[3]
+#        if pos_val is not None:
+#            pos_status = self._curstatus[3]
+#            pos_str = self._curstr[3]
+#
+#            painter.setBrush(statusbrush[pos_status])
+#            painter.drawRect(60 + pos_val * posscale, 15 + yoff,
+#                             fontscale, h - 20 - 5 * posscale)
+#            painter.setFont(self.valueFont)
+#            minx = max(minx, 65 + pos_val * posscale - 4 * fontscale)
+#            painter.drawText(minx, h + 10 + yoff,
+#                             8 * fontscale, 30, Qt.AlignCenter, pos_str)
+#            minx = minx + 8 * fontscale
 
 
 class BeamOption(NicosWidget, QWidget):

@@ -179,8 +179,8 @@ _collimationcolumn = Column(
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
-        Field(dev=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
-                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21000),
+        Field(devices=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
+                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10)#, max=21000),
               ),
         BlockRow(
                  Field(name='det1_z-1a', dev='det1_z1a', width=8),
