@@ -55,7 +55,9 @@ These programs are clients that don't provide shell functionality.
 
 .. describe:: nicos-history
 
-   This program plots values (e.g. temperatures) from the cache over time.
+   This GUI program plots values (e.g. temperatures) from the cache over time.
+
+   See :ref:`history`.
 
 
 .. index:: nicos-cache, nicos-daemon, nicos-poller, nicos-elog, nicos-watchdog

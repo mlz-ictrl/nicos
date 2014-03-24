@@ -12,7 +12,20 @@ import optparse
 from nicos.core.sessions.simple import SingleDeviceSession
 from nicos.clients.gui.panels.history import StandaloneHistoryApp
 
-parser = optparse.OptionParser()
+usage = '''Usage: %prog [options] [key ...]
+
+When some keys are given, they are opened as plots on startup.  For example:
+
+    %prog T_ccr5,T_ccr5.setpoint
+
+A time specification can be given with a colon:
+
+    %prog T_ccr5,T_ccr5.setpoint:24h
+
+A separate view plot is opened for each such argument.
+'''
+
+parser = optparse.OptionParser(usage=usage)
 parser.add_option('-c', '--cache', dest='cache', action='store',
                   help='CACHE server:port, defaults to localhost:14869',
                   default='localhost')
@@ -22,5 +35,6 @@ parser.add_option('-p', '--prefix', dest='prefix', action='store',
 opts, args = parser.parse_args()
 
 SingleDeviceSession.run('history', StandaloneHistoryApp,
-                        {'prefix': opts.prefix, 'cache': opts.cache},
+                        {'prefix': opts.prefix, 'cache': opts.cache,
+                         'views': args},
                         pidfile=False)

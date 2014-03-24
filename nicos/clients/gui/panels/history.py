@@ -45,6 +45,7 @@ except ImportError as e:
     _gr_available = False
     _import_error = e
 
+from nicos.core import Param, listof
 from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
@@ -318,6 +319,35 @@ class BaseHistoryWindow(object):
         self.currentPlot = None
 
         self.enablePlotActions(False)
+
+    def openViews(self, views):
+        """Open some views given by the specs in *views*, a list of strings.
+
+        Each string can be a comma-separated list of key names, and an optional
+        simple time spec (like "1h") separated by a colon.
+
+        If a view spec matches the name of a preset, it is used instead.
+        """
+        for viewspec in views:
+            timespec = '1h'
+            if ':' in viewspec:
+                viewspec, timespec = viewspec.rsplit(':', 1)
+            info = dict(
+                name = viewspec,
+                devices = viewspec,
+                simpleTime = True,
+                simpleTimeSpec = timespec,
+                slidingWindow = True,
+                frombox = False,
+                tobox = False,
+                fromdate = 0,
+                todate = 0,
+                interval = '',
+                customY = False,
+                customYFrom = '',
+                customYTo = '',
+            )
+            self._createViewFromDialog(info)
 
     def addPreset(self, name, info):
         # overridden in the Panel
@@ -806,6 +836,11 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 
 class StandaloneHistoryApp(CacheClient):
 
+    parameters = {
+        'views': Param('Strings specifying views (from command line)',
+                       type=listof(str)),
+    }
+
     def doInit(self, mode):
         import nicos.guisupport.gui_rc  #pylint: disable=W0612
 
@@ -816,6 +851,7 @@ class StandaloneHistoryApp(CacheClient):
         CacheClient.doInit(self, mode)
 
     def start(self):
+        self._window.openViews(self.views)
         self._window.show()
         try:
             self._qtapp.exec_()
