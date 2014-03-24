@@ -33,7 +33,7 @@ help() {
     exit 1
 }
 
-while getopts CDEWtTNMc:u:m:h name; do
+while getopts DEWtTNMc:u:m:h name; do
     case "$name" in
         t)
           CONSOLE=1;;
@@ -49,14 +49,14 @@ while getopts CDEWtTNMc:u:m:h name; do
           GUIUSER="$OPTARG";;
         m)
           MONITOR="-S monitor-$OPTARG";;
-	E)
-	  ELOG=0;;
-	W)
-	  WATCHDOG=0;;
-	D)
-	  DAEMON=0;;
-	h)
-	  help;;
+        E)
+          ELOG=0;;
+        W)
+          WATCHDOG=0;;
+        D)
+          DAEMON=0;;
+        h)
+          help;;
         -)
           break;;
     esac
