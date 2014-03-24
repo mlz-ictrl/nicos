@@ -380,8 +380,8 @@ class ViewPlot(NicosPlot):
         for key, plotcurve in zip(self.view.keys, self.plotcurves):
             if key == whichkey:
                 x, y, n,_, _ = self.view.keydata[key]
-                plotcurve.x = x[:n]
-                plotcurve.y = y[:n]
+                plotcurve.x = x[:n].copy()
+                plotcurve.y = y[:n].copy()
                 self._axes.addCurves(plotcurve)
                 InteractiveGRWidget.update(self)
                 return
