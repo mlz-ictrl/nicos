@@ -303,8 +303,6 @@ class NewViewDialog(QDialog, DlgUtils):
 
 class BaseHistoryWindow(object):
 
-    hasPresets = False
-
     def __init__(self):
         loadUi(self, 'history.ui', 'panels')
 
@@ -320,6 +318,10 @@ class BaseHistoryWindow(object):
         self.currentPlot = None
 
         self.enablePlotActions(False)
+
+    def addPreset(self, name, info):
+        # overridden in the Panel
+        pass
 
     def enablePlotActions(self, on):
         for action in [
@@ -425,8 +427,8 @@ class BaseHistoryWindow(object):
             return
         info = newdlg.infoDict()
         self._createViewFromDialog(info)
-        if newdlg.savePreset.isChecked() and self.hasPresets:
-            self.presetdict[str(info['name'])] = pickle.dumps(info)
+        if newdlg.savePreset.isChecked():
+            self.addPreset(info['name'], info)
 
     def newView(self, devices):
         newdlg = NewViewDialog(self)
@@ -476,10 +478,13 @@ class BaseHistoryWindow(object):
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
+        info = newdlg.infoDict()
+        if newdlg.savePreset.isChecked():
+            self.addPreset(info['name'], info)
         self.viewStack.pop()
         self.clearView(view)
         self.setCurrentView(None)
-        self._createViewFromDialog(newdlg.infoDict())
+        self._createViewFromDialog(info)
 
     @qtsig('')
     def on_actionCloseView_triggered(self):
@@ -566,14 +571,13 @@ class BaseHistoryWindow(object):
 class HistoryPanel(Panel, BaseHistoryWindow):
     panelName = 'History viewer'
 
-    hasPresets = True
-
     def __init__(self, parent, client):
         self.presetdict = {}
 
         Panel.__init__(self, parent, client)
         BaseHistoryWindow.__init__(self)
 
+        self.presetmenu = QMenu('&Presets', self)
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
         policy.setVerticalPolicy(QSizePolicy.Fixed)
@@ -606,7 +610,12 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addAction(self.actionLines)
         menu.addAction(self.actionLinearFit)
         menu.addSeparator()
-        pmenu = QMenu('&Presets', self)
+        self._refresh_presets()
+        return [menu, self.presetmenu]
+
+    def _refresh_presets(self):
+        pmenu = self.presetmenu
+        pmenu.clear()
         delmenu = QMenu('Delete', self)
         try:
             for preset, info in iteritems(self.presetdict):
@@ -619,6 +628,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
                     pmenu.removeAction(pact)
                     delmenu.removeAction(pdelact)
                     self.presetdict.pop(name, None)
+                    self._refresh_presets()
                 self.connect(paction, SIGNAL('triggered(bool)'), launchpreset)
                 pmenu.addAction(paction)
                 self.connect(pdelaction, SIGNAL('triggered(bool)'), delpreset)
@@ -628,7 +638,8 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         if self.presetdict:
             pmenu.addSeparator()
             pmenu.addMenu(delmenu)
-        return [menu, pmenu]
+        else:
+            pmenu.addAction('(no presets created)')
 
     def getToolbars(self):
         bar = QToolBar('History viewer')
@@ -687,6 +698,11 @@ class HistoryPanel(Panel, BaseHistoryWindow):
             v.plot = None
         self.currentPlot = None
         return True
+
+    def addPreset(self, name, info):
+        if name:
+            self.presetdict[name] = pickle.dumps(info)
+            self._refresh_presets()
 
     def gethistory_callback(self, key, fromtime, totime):
         return self.client.ask('gethistory', key, str(fromtime), str(totime))
