@@ -612,7 +612,7 @@ def main(argv):
 
     configfile = path.join(Session.config.custom_path,
                            Session.config.instrument,
-                           'gui', 'defconfig.py')
+                           'guiconfig.py')
     stylefile = path.join(userpath, 'style.qss')
     styleRoot = path.splitext(stylefile)[0]
     try:

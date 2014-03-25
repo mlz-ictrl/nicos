@@ -9,7 +9,7 @@ with a few APIs provided by the NICOS base library.
 
 .. toctree::
 
-   defconfig
+   config
    panels
    designer
    widgets

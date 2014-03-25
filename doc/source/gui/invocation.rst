@@ -3,7 +3,7 @@ GUI invocation
 
 The NICOS GUI is invoked with the ``nicos-gui`` script.
 
-For configuration of the interface please see :ref:`gui-defconfig`.
+For configuration of the interface please see :ref:`gui-config`.
 
 Usage of the script::
 

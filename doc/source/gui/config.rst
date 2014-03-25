@@ -1,14 +1,11 @@
-.. _gui-defconfig:
+.. _gui-config:
 
 GUI configuration
 =================
 
 The layout of the GUI client can be configured very extensively with the help of
-a configuration file usually called ``nicos/clients/gui/defconfig.py`` (another
+a configuration file usually called ``custom/<instrument>/guiconfig.py`` (another
 such file can be selected at startup with the ``-c`` option).
-
-An instrument-specific standard defconfig.py is usually copied to the NICOS
-installation directory when ``make install`` is executed.
 
 The configuration file is a Python module that uses several special functions
 that together describe the lay-out of Qt panels and windows.  These functions

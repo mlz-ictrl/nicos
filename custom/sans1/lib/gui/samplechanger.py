@@ -153,7 +153,7 @@ class CustomButtonPanel(Panel, DlgUtils):
 class SamplechangerSetupPanel(CustomButtonPanel):
     """Panel for samplechangers.
 
-    Accept two keyword options in defconfig.py:
+    Accept two keyword options in gui config:
     positions   - integer number of sample slots available, defaults to 11
     samplechanger - name of the main samplechanger device (must be Moveable or
                     DeviceAlias)
@@ -203,7 +203,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
                 l.setPixmap(p)
             else:
                 msg = 'Loading of Image %r failed:' % image
-                msg += '\n\nCheck defconfig.py for %r' % __file__
+                msg += '\n\nCheck GUI config file for %r' % __file__
                 self.showError(msg)
 
 

@@ -82,8 +82,9 @@ GUI configuration
 * On machines that should run only the GUI, use ``make install-gui`` instead of
   ``make install``.
 
-* A custom ``defconfig.py`` can go under ``custom/instname/gui/defconfig.py``,
-  see :ref:`gui-defconfig`.
+* A custom GUI config file can go under ``custom/instname/guiconfig.py``,
+  see :ref:`gui-config`.  It is easiest to use the one under ``custom/demo``
+  as a starting point.
 
 * Custom Python modules (e.g. with Panels) should go under
   ``custom/instname/lib/gui`` to be importable under ``nicos.instname.gui``.
