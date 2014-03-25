@@ -155,7 +155,7 @@ class DeviceParamEdit(DeviceValueEdit):
         parname = str(self.props['param'])
         if devname and parname:
             pvals = self._client.getDeviceParams(devname)
-            pinfo = self._client.getDeviceParamInfo(devname)
+            pinfo = self._client.getDeviceParamInfo(devname) or {}
             mainunit = pvals.get('unit', 'main')
             if parname not in pinfo:
                 punit = ''
