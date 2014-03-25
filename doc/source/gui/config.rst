@@ -178,6 +178,23 @@ Panels that come with NICOS are:
    Provides a panel with several labels that display basic information about the
    current experiment, such as experiment title, sample name and user name.
 
+   It also provides several buttons with which the user can change proposal
+   info, sample properties, scan environment and setups.
+
+   Options:
+
+   * ``sample_panel`` -- what to show when the user clicks on the "Sample"
+     button.  The value must be a panel configuration, e.g. ``panel('...')`` or
+     ``tabbed(...)``.
+
+     There are several panels that are useful for this:
+
+     - ``nicos.clients.gui.panels.setup_panel.GenericSamplePanel`` -- a panel
+       that only shows a single input box for the sample name.
+     - ``nicos.clients.gui.panels.setup_panel.TasSamplePanel`` -- a panel that
+       also shows input boxes for triple-axis sample properties (such as lattice
+       constants).
+
 .. figure:: experimentinfopanel.png
      :alt: experiment info panel
      :align: center
@@ -226,29 +243,6 @@ Panels that come with NICOS are:
 
 .. figure:: scriptbuilderpanel.png
      :alt: script builder panel
-     :align: center
-
-``setup_panel.ExpPanel``
-   Provides a panel to start up an experiment.
-
-.. figure:: experimentsetupspanel.png
-     :alt: experiment setup panel
-     :align: center
-
-``setup_panel.SetupsPanel``
-   Provides a panel to select the basic setups and additional setups depending
-   on the current instrument setup.
-
-.. figure:: commonsetupspanel.png
-     :alt: setup panel
-     :align: center
-
-``setup_panel.DetEnvPanel``
-   Provides a panel to select the detector and the environment. The environment
-   will be read at each scan point.
-
-.. figure:: detectorsetupspanel.png
-     :alt: detector setup panel
      :align: center
 
 ``status.ScriptStatusPanel``
