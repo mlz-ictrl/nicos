@@ -986,14 +986,15 @@ def findResource(filepath):
     replace "custom/instr/lib" with "lib/nicos/instr" for installed
     versions.
     """
+    from nicos.core.sessions import Session
     # may be extended to also find files specified like nicos.core.util
     def myiter(filepath):
         if path.isabs(filepath):
             yield filepath
             return
-        yield path.join(session.config.control_path, filepath)
+        yield path.join(Session.config.control_path, filepath)
         if filepath.startswith('custom/'):
-            yield path.join(session.config.custom_path, filepath[7:])
+            yield path.join(Session.config.custom_path, filepath[7:])
     for location in myiter(filepath):
         if path.exists(location):
             return location
