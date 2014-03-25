@@ -24,45 +24,50 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed, setups
+from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, \
+    tabbed, setups
 
-config = ('Default', [
-        tabbed(('SANS acquisition', panel('nicos.demo.gui.sanspanel.SANSPanel'), setups('sans')),
-               ('Expert mode',
-                vsplit(
-                    hsplit(
-                        panel('status.ScriptStatusPanel'),
-                        panel('watch.WatchPanel'),
-                        ),
-                    panel('console.ConsolePanel'),
-                )),
-               ('SampleChanger', panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
-                    image = 'custom/sans1/lib/gui/sampleChanger11.png',
-                    positions = 11), setups('sans')),
-               ('Setup',
-                    tabbed(('Experiment', panel('setup_panel.ExpPanel')),
-                           ('Setups',     panel('setup_panel.SetupsPanel')),
-                           ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
-                    )),
-        ),
-        window('Editor', 'editor', True,
-            panel('editor.EditorPanel',
-                  tools = [
-                      tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
-                  ])),
-        #window('Scans', 'plotter', True,
-        #    panel('scans.ScansPanel')),
-        window('Device History', 'find', True,
-            panel('history.HistoryPanel')),
-        window('Logbook', 'table', True,
-            panel('elog.ELogPanel')),
-    ], [
-        tool('Calculator', 'calculator.CalculatorTool'),
-        tool('Neutron cross-sections', 'website.WebsiteTool',
-             url='http://www.ncnr.nist.gov/resources/n-lengths/'),
-        tool('Neutron activation', 'website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/activation/'),
-        tool('Report NICOS bug', 'website.WebsiteTool',
-             url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
-    ]
+main_window = tabbed(
+    ('SANS acquisition',
+     panel('nicos.demo.gui.sanspanel.SANSPanel'), setups('sans')),
+    ('Expert mode',
+     vsplit(
+         hsplit(
+             panel('status.ScriptStatusPanel'),
+             panel('watch.WatchPanel'),
+         ),
+         panel('console.ConsolePanel'),
+     )),
+    ('SampleChanger', panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                            image = 'custom/sans1/lib/gui/sampleChanger11.png',
+                            positions = 11), setups('sans')),
+    ('Setup',
+     tabbed(('Experiment', panel('setup_panel.ExpPanel')),
+            ('Setups',     panel('setup_panel.SetupsPanel')),
+            ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+        )),
 )
+
+windows = [
+    window('Editor', 'editor', True,
+        panel('editor.EditorPanel',
+              tools = [
+                  tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+              ])),
+    #window('Scans', 'plotter', True,
+    #    panel('scans.ScansPanel')),
+    window('Device History', 'find', True,
+           panel('history.HistoryPanel')),
+    window('Logbook', 'table', True,
+           panel('elog.ELogPanel')),
+]
+
+tools = [
+    tool('Calculator', 'calculator.CalculatorTool'),
+    tool('Neutron cross-sections', 'website.WebsiteTool',
+         url='http://www.ncnr.nist.gov/resources/n-lengths/'),
+    tool('Neutron activation', 'website.WebsiteTool',
+         url='http://www.frm2.tum.de/intranet/activation/'),
+    tool('Report NICOS bug', 'website.WebsiteTool',
+         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+]
