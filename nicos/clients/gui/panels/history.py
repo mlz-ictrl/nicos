@@ -33,8 +33,8 @@ sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
 
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, \
     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
-from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL
-from PyQt4.QtCore import pyqtSignature as qtsig
+from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, QSettings, \
+    SIGNAL, pyqtSignature as qtsig
 
 import numpy as np
 try:
@@ -741,6 +741,10 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         BaseHistoryWindow.__init__(self)
         DlgUtils.__init__(self, 'History viewer')
 
+        self.settings = QSettings()
+        self.splitter.restoreState(
+            self.settings.value('splitstate', QByteArray()))
+
         self.app = app
         self.setCentralWidget(self.splitter)
         self.connect(self, SIGNAL('newvalue'), self.newvalue_callback)
@@ -794,6 +798,10 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 
     def gethistory_callback(self, key, fromtime, totime):
         return self.app.history(None, key, fromtime, totime)
+
+    def closeEvent(self, event):
+        self.settings.setValue('splitstate', self.splitter.saveState())
+        return QMainWindow.closeEvent(self, event)
 
 
 class StandaloneHistoryApp(CacheClient):
