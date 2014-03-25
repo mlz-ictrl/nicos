@@ -339,25 +339,6 @@ devices = dict(
                       lowlevel = True,
                     ),
 
-    sa1 = device('sans1.collimotor.Sans1ColliSwitcher',
-                      description = 'attenuation slits',
-                      mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
-                                 '50x50':0, '30mm':70, '20mm':140, '10mm':210 },
-                      moveable = 'sa1_m',
-                      ),
-    sa1_m = device('sans1.collimotor.Sans1ColliMotor',
-                      description = 'attenuation slits motor',
-                      # IP-adresse: 172.16.17.7
-                      tacodevice='//%s/sans1/coll/col-2m'% (nethost,),
-                      address = 0x4020+0*10,
-                      slope = 200*4, # FULL steps per turn * turns per mm
-                      microsteps = 8,
-                      unit = 'mm',
-                      refpos = -34.7,
-                      abslimits = (-40, 300),
-                      lowlevel = True,
-                    ),
-
     col_2a = device('sans1.collimotor.Sans1ColliSwitcher',
                       description = 'Collimotor 2a',
                       mapping = dict(P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, free=234, LAS=351),
@@ -395,6 +376,25 @@ devices = dict(
                       abslimits = (-400, 600),
                       fixed = 'unreliable, do not use !',
                       fixedby = ('setupfile', 99),      # deny release!
+                      lowlevel = True,
+                    ),
+
+    sa1 = device('sans1.collimotor.Sans1ColliSwitcher',
+                      description = 'attenuation slits',
+                      mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
+                                 '50x50':0, '10mm':70, '20mm':140, 'blocked':210 },
+                      moveable = 'sa1_m',
+                      ),
+    sa1_m = device('sans1.collimotor.Sans1ColliMotor',
+                      description = 'attenuation slits motor',
+                      # IP-adresse: 172.16.17.7
+                      tacodevice='//%s/sans1/coll/col-2m'% (nethost,),
+                      address = 0x4020+0*10,
+                      slope = 200*4, # FULL steps per turn * turns per mm
+                      microsteps = 8,
+                      unit = 'mm',
+                      refpos = -34.7,
+                      abslimits = (-40, 300),
                       lowlevel = True,
                     ),
 # pump devices of 172.17.17.10 are at modbus-tacodevice //sans1srv.sans.frm2/sans1/coll/pump

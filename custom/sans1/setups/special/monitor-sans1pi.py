@@ -44,16 +44,16 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='Speed', dev='selector', width=8),
+                 Field(name='speed', dev='selector', width=8),
                  ),
          BlockRow(
-                 Field(name='Lambda', dev='selector_lambda', width=8),
+                 Field(name='lambda', dev='selector_lambda', width=8),
                  ),
          BlockRow(
-                 Field(name='Position', dev='sel_ng_sw', width=8),
+                 Field(name='position', dev='sel_ng_sw', width=8),
                  ),
          BlockRow(
-                 Field(name='Tilt', dev='sel_tilt', width=8),
+                 Field(name='tilt', dev='sel_tilt', width=8),
                  ),
                ],
         ),
@@ -100,11 +100,11 @@ _sans1general = Column(
 _collimationcolumn = Column(
     Block('Collimation',[
       BlockRow(
-        Field(dev='at', name='Att',
+        Field(dev='at', name='att',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['x10','x100','x1000','OPEN'],
               width=6.5,height=9),
-        Field(dev='ng_pol', name='Pol',
+        Field(dev='ng_pol', name='pol',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','POL2','POL1','NG'],
               width=5.5,height=9),
@@ -166,7 +166,7 @@ _collimationcolumn = Column(
               width=5,height=9),
         Field(dev='sa1', name='sa1',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['50x50','30mm','20mm'],
+              options=['blocked','20mm','10mm','50x50'],
               width=7,height=9),
                          ),
       BlockRow(
@@ -180,17 +180,17 @@ _sans1det = Column(
     Block('Detector', [
         BlockRow(
         Field(devices=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
-                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10, max=21000),
+                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10)#, max=21000),
               ),
         BlockRow(
-                 Field(name='det1_z-1a', dev='det1_z1a', width=8),
-                 Field(name='det1_omg-1a', dev='det1_omega1a', width=8),
-                 Field(name='det1_x-1a', dev='det1_x1a', width=8),
+                 Field(name='det1_z', dev='det1_z1a', width=8),
+                 Field(name='det1_x', dev='det1_x1a', width=8),
+                 Field(name='det1_omg', dev='det1_omega1a', width=8),
                  Field(name='t', dev='det1_t_ist', width=8),
                  Field(name='t pres.', dev='det_1_t_soll', width=8),
-                 Field(name='Voltage', dev='hv', width=8),
-                 Field(name='Mon 1', dev='det1_mon1', width=8),
-                 Field(name='Mon 2', dev='det1_mon2', width=8),
+                 Field(name='voltage', dev='hv', width=8),
+                 Field(name='mon 1', dev='det1_mon1', width=8),
+                 Field(name='mon 2', dev='det1_mon2', width=8),
                  Field(name='bs1_x', dev='bs1_x1a', width=8),
                  Field(name='bs1_y', dev='bs1_y1a', width=8),
                  ),
