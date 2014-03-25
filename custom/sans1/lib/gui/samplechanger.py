@@ -34,7 +34,7 @@ from PyQt4.QtCore import SIGNAL, Qt, QSize, QEvent
 
 from nicos.core import ProgrammingError
 from nicos.clients.gui.utils import DlgUtils
-from nicos.clients.gui.panels import AuxiliaryWindow, Panel
+from nicos.clients.gui.panels import AuxiliaryWindow, Panel, PanelDialog
 from nicos.clients.gui.panels.tabwidget import DetachedWindow, TearOffTabWidget
 from nicos.utils import findResource
 from nicos.pycompat import from_maybe_utf8
@@ -126,16 +126,13 @@ class CustomButtonPanel(Panel, DlgUtils):
         tw = None
         while hasattr(obj, 'parent'):
             obj = obj.parent()
-            if isinstance(obj, DetachedWindow):
+            if isinstance(obj, (DetachedWindow, AuxiliaryWindow, PanelDialog)):
                 obj.close()
                 return
             elif isinstance(obj, TearOffTabWidget):
                 tw = obj
-            elif isinstance(obj, AuxiliaryWindow):
-                obj.close()
-                return
         # no window closing, use the tab left of us (if available) or the leftmost
-        if not(tw):
+        if not tw:
             self.showInfo('This button does not work in the current configuration.')
             return
         idx = tw.currentIndex()
@@ -168,9 +165,9 @@ class SamplechangerSetupPanel(CustomButtonPanel):
 
     def __init__(self, parent, client):
         CustomButtonPanel.__init__(self, parent, client,
-                                     buttons=QDialogButtonBox.Close | \
-                                             QDialogButtonBox.Apply | \
-                                             QDialogButtonBox.Ok)
+                                   buttons=QDialogButtonBox.Close |
+                                           QDialogButtonBox.Apply |
+                                           QDialogButtonBox.Ok)
         # our content is a simple widget ...
         self._tableWidget = TableWidget(self)
 
@@ -232,13 +229,14 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         code = ['ClearSamples()']
 
         for i in range(self._numSamples):
-            name = self._tableWidget.cellWidget(i, 0).text().trimmed().toUtf8()
-            if not name.isEmpty():
-                code.append('SetSample(%d, %r)' % (i + 1, str(name)))
+            name = self._tableWidget.cellWidget(i, 0).text().strip()
+            if name:
+                code.append('SetSample(%d, %r)' % (i + 1, name))
 
         self.client.tell('queue', '', '\n'.join(code) + '\n')
 
-        if self.client.ask('getstatus')['requests']:
+        st = self.client.ask('getstatus')
+        if st and st['requests']:
             self.showInfo('Name changes were queued and will be updated\n'
                           'after the currently executed script finished.')
 
