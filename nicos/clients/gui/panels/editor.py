@@ -669,7 +669,7 @@ class EditorPanel(Panel):
             editor.setModified(False)
         # re-add the filename to the watcher if it was deleted
         # (happens for programs that do delete-write on save)
-        if watcher.files().isEmpty():
+        if not watcher.files():
             watcher.addPath(self.filenames[editor])
 
     @qtsig('')
