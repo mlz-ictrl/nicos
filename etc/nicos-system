@@ -45,9 +45,8 @@ try:
 except ImportError:
     sys.path.insert(0, nicos_root)
 
-# We need to read the nicos.conf file, so let nicos/__init__.py do that.
-from nicos.core.sessions import Session
-
+# We need to read the nicos.conf file, so let nicos do that.
+from nicos import config
 
 def get_config():
     hostname = ''
@@ -60,12 +59,12 @@ def get_config():
             'Continue with nonspecific services.'
     host_spec_services = 'services_%s' % hostname
 
-    if hostname and hasattr(Session.config, host_spec_services):
-        services = getattr(Session.config, host_spec_services)
+    if hostname and hasattr(config, host_spec_services):
+        services = getattr(config, host_spec_services)
     else:
-        services = Session.config.services
-    log_path = path.join(nicos_root, Session.config.logging_path)
-    pid_path = path.join(nicos_root, Session.config.pid_path)
+        services = config.services
+    log_path = path.join(nicos_root, config.logging_path)
+    pid_path = path.join(nicos_root, config.pid_path)
     if services.lower().strip() in ['', 'none']:
         services = []
     else:

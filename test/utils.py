@@ -38,6 +38,7 @@ from functools import wraps
 from nose.tools import assert_raises #pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
+from nicos import config
 from nicos.core import Moveable, HasLimits, DataSink, status
 from nicos.core.sessions import Session
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
@@ -215,9 +216,9 @@ class TestSession(Session):
             return
         exec_(code, self.namespace, self.local_namespace)
 
-TestSession.config.user = None
-TestSession.config.group = None
-TestSession.config.nicos_root = rootdir
+config.user = None
+config.group = None
+config.nicos_root = rootdir
 
 
 class TestDevice(HasLimits, Moveable):

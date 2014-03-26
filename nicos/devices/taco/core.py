@@ -45,9 +45,10 @@ except ImportError:
     DevErr_IOError         = 4024
     DevErr_SystemError     = 4025
 
+from nicos import config
 from nicos.core import status, tacodev, intrange, floatrange, Param, \
-     Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
-     InvalidValueError, DeviceMixinBase
+    Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
+    InvalidValueError, DeviceMixinBase
 from nicos.utils import HardwareStub
 from nicos.protocols.cache import cache_dump, cache_load
 from nicos.core import SIMULATION
@@ -422,12 +423,10 @@ class TacoDevice(DeviceMixinBase):
 
 class TacoStub(object):
     def __init__(self, mod, cls, dev):
-        from nicos import session
         self.mod = mod
         self.cls = cls
         self.dev = dev
-        self.script = os.path.join(session.config.nicos_root,
-                                   'bin', 'nicos-tacoexec')
+        self.script = os.path.join(config.nicos_root, 'bin', 'nicos-tacoexec')
 
     def __getattr__(self, cmd):
         def method(*args):

@@ -24,9 +24,8 @@ code = args[3]
 # kill forcibly after 10 seconds
 signal.alarm(10)
 
+from nicos import config
 from nicos.core.sessions.simple import SimulationSession
-SimulationSession.config.nicos_root = rootdir
-# TODO: adapt this
-SimulationSession.config.setups_path = path.join(rootdir, '..', 'setups')
+config.nicos_root = rootdir
 
 SimulationSession.run(port, prefix, setups, code)

@@ -28,7 +28,7 @@ import time
 from os import path
 from logging import Handler
 
-from nicos import session
+from nicos import session, config
 from nicos.utils import readFile
 from nicos.commands.scan import scan
 from nicos.core.sessions.utils import MASTER
@@ -57,11 +57,11 @@ class CHandler(Handler):
 
 def test_sinks():
     exp = session.experiment
-    exp._setROParam('dataroot', path.join(session.config.nicos_root, 'testdata'))
+    exp._setROParam('dataroot', path.join(config.nicos_root, 'testdata'))
     exp.new(1234, user='testuser')
 
     assert path.abspath(exp.datapath) == \
-        path.abspath(path.join(session.config.nicos_root, 'testdata',
+        path.abspath(path.join(config.nicos_root, 'testdata',
                                      year, 'p1234', 'data'))
     m = session.getDevice('motor2')
     det = session.getDevice('det')
@@ -84,7 +84,7 @@ def test_sinks():
     assert contents == ['1']
 
 
-    fname = path.join(session.config.nicos_root, 'testdata',
+    fname = path.join(config.nicos_root, 'testdata',
                       year, 'p1234', 'data', 'p1234_00000001.dat')
     assert path.isfile(fname)
     contents = readFile(fname)

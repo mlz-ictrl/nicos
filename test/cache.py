@@ -37,6 +37,7 @@ else:
     # variable is set
     coverage.process_startup()
 
+from nicos import config
 from nicos.utils import loggers
 from nicos.core.sessions.simple import NoninteractiveSession
 
@@ -66,9 +67,9 @@ class TestCacheSession(NoninteractiveSession):
             logging.Formatter('[CACHE] %(asctime)s %(name)s: %(message)s'))
         self.log.addHandler(handler2)
 
-NoninteractiveSession.config.user = None
-NoninteractiveSession.config.group = None
-NoninteractiveSession.config.control_path = rootdir
+config.user = None
+config.group = None
+config.nicos_root = rootdir
 
 try:
     setup = sys.argv[1]

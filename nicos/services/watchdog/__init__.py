@@ -29,7 +29,7 @@ import subprocess
 from os import path
 from time import time as currenttime, strftime
 
-from nicos import session
+from nicos import session, config
 from nicos.core import Param, Override, listof, dictof, anytype
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.devices.notifiers import Notifier, Mailer
@@ -260,6 +260,6 @@ class Watchdog(BaseCacheClient):
 
     def _spawn_action(self, action):
         self.log.warning('will execute action %r' % action)
-        script = path.join(session.config.nicos_root, 'bin', 'nicos-script')
+        script = path.join(config.nicos_root, 'bin', 'nicos-script')
         subprocess.Popen([script, '-M', '-A', 'watchdog-action',
                           ','.join(self._setups), action])

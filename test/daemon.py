@@ -37,6 +37,7 @@ else:
     # variable is set
     coverage.process_startup()
 
+from nicos import config
 from nicos.utils import loggers
 from nicos.services.daemon.session import DaemonSession
 
@@ -74,8 +75,8 @@ class TestDaemonSession(DaemonSession):
             self.log.error('cannot open log file: %s' % err)
 
 
-TestDaemonSession.config.user = None
-TestDaemonSession.config.group = None
-TestDaemonSession.config.control_path = rootdir
+config.user = None
+config.group = None
+config.nicos_root = rootdir
 
 TestDaemonSession.run('daemon', 'Daemon')

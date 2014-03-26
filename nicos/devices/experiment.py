@@ -42,7 +42,7 @@ try:
 except ImportError:
     getgrnam = lambda x: (x, '', None, [])
 
-from nicos import session
+from nicos import session, config
 from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
     Param, Dataset, NicosError, ConfigurationError, UsageError, \
@@ -576,7 +576,7 @@ class Experiment(Device):
             session.addLogHandler(self._eloghandler)
         if self.templates == '':
             self._setROParam('templates',
-                path.abspath(path.join(session.config.nicos_root, 'template')))
+                path.abspath(path.join(config.nicos_root, 'template')))
 
     def doUpdateManagerights(self, mrinfo):
         """check and transform the managerights dict into values used later"""

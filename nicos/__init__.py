@@ -51,15 +51,10 @@ class Session(object):
 
 session = Session()
 
-
 # Read config file and set environment variables.
-from nicos.utils import applyConfig
-applyConfig()
+from nicos.configmod import config
 
-# Add instrument-specific directories to the package path.
-from nicos.core.sessions import Session
-
-pkgpath = Session.config.custom_path
+pkgpath = config.custom_path
 if path.isdir(pkgpath):
     for subdir in os.listdir(pkgpath):
         mod = sys.modules['nicos.' + subdir] = types.ModuleType('nicos.' + subdir)

@@ -29,7 +29,6 @@ from __future__ import print_function
 import os
 import re
 import sys
-import glob
 import errno
 import signal
 import socket
@@ -44,15 +43,14 @@ from time import time as currenttime, strftime, strptime, localtime, mktime, \
 from itertools import islice, chain
 from functools import wraps
 
-from nicos.pycompat import configparser, iteritems, xrange as range  # pylint: disable=W0622
-
 try:
     import grp
     import pwd
 except ImportError:
     grp = pwd = None
 
-from nicos import session
+from nicos import config, session
+from nicos.pycompat import iteritems, xrange as range  # pylint: disable=W0622
 
 
 def enumerate_start(iterable, start):
@@ -372,141 +370,6 @@ def safeFilename(fn):
     return re.compile('[^a-zA-Z0-9_.-]').sub('', fn)
 
 
-# read nicos.conf files
-
-class NicosConfigParser(configparser.SafeConfigParser):
-    def optionxform(self, key):
-        return key
-
-def findValidCustomPath(nicos_root, global_cfg):
-    """Get the custom dir path of the NICOS install.
-
-    The custom dirs can be specified by:
-    * environment variable NICOS_CUSTOM_DIR
-    * custom_paths in main `nicos.conf` (here a :-separated list is accepted,
-      the first existing dir wins).
-
-    Default is custom in nicos_root.
-    """
-    custom_path = None
-    if 'NICOS_CUSTOM_DIR' in os.environ:
-        cdir = os.environ['NICOS_CUSTOM_DIR']
-        if not path.isabs(cdir):
-            cdir = path.join(nicos_root, cdir)
-        if path.isdir(cdir):
-            custom_path = cdir
-
-    if custom_path is None and global_cfg.has_option('nicos', 'custom_paths'):
-        custom_paths = global_cfg.get('nicos', 'custom_paths')
-        for cdir in custom_paths.split(':'):
-            if not path.isabs(cdir):
-                cdir = path.join(nicos_root, cdir)
-            if path.isdir(cdir):
-                # use first existing custom dir from list
-                custom_path = cdir
-                break
-
-    if custom_path is None:
-        #print('The specified custom path does not exist, falling back '
-        #      'to built-in!', file=sys.stderr)
-        custom_path = path.abspath(path.join(nicos_root, 'custom'))
-
-    return custom_path
-
-def readConfig():
-    """Read the basic NICOS configuration.  This is a multi-step process:
-
-    * First, we read the "local" nicos.conf (the one in the root dir)
-      and try to find out our instrument from it or the environment.
-    * Then, find the instrument-specific nicos.conf and read its values.
-    * Finally, go back to the "local" config and overwrite values from the
-      instrument-specific config with those given in the root.
-    """
-    # Read the local config from the standard path.
-    # Get the root path of the NICOS install.
-    nicos_root = path.normpath(path.join(path.dirname(__file__), '../..'))
-    global_cfg = NicosConfigParser()
-    global_cfg.read(path.join(nicos_root, 'nicos', 'nicos.conf'))
-
-    custom_path = findValidCustomPath(nicos_root, global_cfg)
-
-    # Try to find a good value for the instrument name, either from the
-    # environment, from the local config,  or from the hostname.
-    instr = None
-    if 'INSTRUMENT' in os.environ:
-        instr = os.environ['INSTRUMENT']
-    elif global_cfg.has_option('nicos', 'instrument'):
-        instr = global_cfg.get('nicos', 'instrument')
-    else:
-        try:
-            # Take the middle part of the domain name (machine.instrument.frm2)
-            domain = socket.getfqdn().split('.')[1]
-        except (ValueError, IndexError, socket.error):
-            pass
-        else:
-            # ... but only if a customization exists for it
-            if path.isdir(path.join(custom_path, domain)):
-                instr = domain
-    if instr is None:
-        print('No instrument configured or detected, using "demo" instrument.',
-              file=sys.stderr)
-        instr = 'demo'
-
-    # Now read the instrument-specific nicos.conf.
-    instr_cfg = NicosConfigParser()
-    instr_cfg.read(path.join(custom_path, instr, 'nicos.conf'))
-
-    # Now read the whole configuration from both locations, where the
-    # local config overrides the instrument specific config.
-    values = {'instrument': instr}
-    environment = {}
-    for cfg in (instr_cfg, global_cfg):
-        # Get nicos config values.
-        if cfg.has_section('nicos'):
-            for option in cfg.options('nicos'):
-                values[option] = cfg.get('nicos', option)
-        # Get environment variables.
-        if cfg.has_section('environment'):
-            for name in cfg.options('environment'):
-                environment[name] = cfg.get('environment', name)
-
-    values['nicos_root'] = nicos_root
-    values['custom_path'] = custom_path
-    return values, environment
-
-
-def applyConfig():
-    """Read and then apply the NICOS configuration."""
-    from nicos.core.sessions import Session
-    confobj = Session.config
-
-    values, environment = readConfig()
-
-    # Apply session configuration values.
-    for key, value in values.items():
-        setattr(confobj, key, value)
-
-    # Apply environment variables.
-    for key, value in environment.items():
-        if key == 'PYTHONPATH':
-            # needs to be special-cased
-            sys.path[:0] = value.split(':')
-        else:
-            os.environ[key] = value
-
-    # Set a default setup_subdirs
-    if confobj.setup_subdirs is None:
-        confobj.setup_subdirs = confobj.instrument
-
-    # Set up PYTHONPATH for Taco libraries.
-    try:
-        tacobase = os.environ['DSHOME']
-    except KeyError:
-        tacobase = '/opt/taco'
-    sys.path.extend(glob.glob(tacobase + '/lib*/python%d.*/site-packages'
-                              % sys.version_info[0]))
-
-
 # simple file operations
 #
 # first constants, then functions
@@ -529,9 +392,7 @@ def writeFile(filename, lines):
         fp.close()
 
 def getPidfileName(appname):
-    from nicos.core.sessions import Session
-    return os.path.join(Session.config.control_path, Session.config.pid_path,
-                        appname + '.pid')
+    return os.path.join(config.nicos_root, config.pid_path, appname + '.pid')
 
 def writePidfile(appname):
     writeFile(getPidfileName(appname), [str(os.getpid())])
@@ -724,15 +585,14 @@ def setuser(recover=True):
     if hasattr(os, 'geteuid') and os.geteuid() != 0:
         return
     # switch user
-    from nicos.core.sessions import Session
-    user, group = Session.config.user, Session.config.group
+    user, group = config.user, config.group
     if group and grp is not None:
         gid = grp.getgrnam(group).gr_gid
         if recover:
             os.setegid(gid)
         else:
             os.setgid(gid)
-    if Session.config.user and pwd is not None:
+    if config.user and pwd is not None:
         uid = pwd.getpwnam(user).pw_uid
         if recover:
             os.seteuid(uid)
@@ -740,8 +600,8 @@ def setuser(recover=True):
             os.setuid(uid)
         if 'HOME' in os.environ:
             os.environ['HOME'] = pwd.getpwuid(uid).pw_dir
-    if Session.config.umask is not None and hasattr(os, 'umask'):
-        os.umask(int(Session.config.umask, 8))
+    if config.umask is not None and hasattr(os, 'umask'):
+        os.umask(int(config.umask, 8))
 
 # as copied from Python 3.3
 def which(cmd, mode=os.F_OK | os.X_OK, path=None):
@@ -1007,8 +867,6 @@ def decodeAny(string):
 
 # helper to access a certain nicos file which is non-python
 
-custom_re = re.compile('^custom/([^/]+)/lib/')
-
 def findResource(filepath):
     """Helper to find a certain nicos specific, but non-python file.
 
@@ -1016,20 +874,9 @@ def findResource(filepath):
     replace "custom/instr/lib" with "lib/nicos/instr" for installed
     versions.
     """
-    from nicos.core.sessions import Session
-    # may be extended to also find files specified like nicos.core.util
-    def myiter(filepath):
-        if path.isabs(filepath):
-            yield filepath
-            return
-        yield path.join(Session.config.nicos_root, filepath)
-        if filepath.startswith('custom/'):
-            yield path.join(Session.config.custom_path, filepath[7:])
-    for location in myiter(filepath):
-        if path.exists(location):
-            return location
-    # we have not found anything, sorry...
-    return ''
+    # XXX this should be phased out, it is not needed anymore...
+    return path.join(config.nicos_root, filepath)
+
 
 def clamp(value, minval, maxval):
     """returns a value clamped to the given interval [minval, maxval]"""

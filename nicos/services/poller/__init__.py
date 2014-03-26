@@ -34,7 +34,7 @@ import subprocess
 from os import path
 from time import time as currenttime, sleep
 
-from nicos import session
+from nicos import session, config
 from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError
 from nicos.utils import whyExited, watchFileContent, loggers
@@ -449,11 +449,7 @@ class Poller(Device):
             self._start_child(setup)
 
     def _start_child(self, setup):
-        if session.config.nicos_root:
-            poller_script = os.path.normpath(
-                os.path.join(session.config.nicos_root, 'bin', 'nicos-poller'))
-        else:
-            poller_script = 'nicos-poller'
+        poller_script = path.join(config.nicos_root, 'bin', 'nicos-poller')
         if os.name == 'nt':
             execute = [sys.executable, poller_script, setup]
         else:

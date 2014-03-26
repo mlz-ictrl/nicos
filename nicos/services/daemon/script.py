@@ -33,7 +33,7 @@ from os import path
 from bdb import BdbQuit
 from threading import Lock, Event, Thread
 
-from nicos import session
+from nicos import session, config
 from nicos.utils.loggers import INPUT
 from nicos.services.daemon.auth import system_user
 from nicos.services.daemon.utils import format_exception_cut_frames, \
@@ -403,7 +403,7 @@ class ExecutionController(Controller):
 
     def eval_expression(self, expr, handler, stringify=False):
         self.last_handler = weakref.ref(handler)
-        ns = {'session': session}
+        ns = {'session': session, 'config': config}
         ns.update(self.namespace)
         try:
             ret = eval(expr, ns)

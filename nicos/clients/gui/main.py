@@ -40,11 +40,10 @@ from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
 from PyQt4.QtCore import Qt, QTimer, QSize, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-from nicos import nicos_version
+from nicos import nicos_version, config
 from nicos.utils import parseConnectionString, importString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
-from nicos.core.sessions import Session
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
@@ -610,8 +609,7 @@ def main(argv):
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
 
-    configfile = path.join(Session.config.custom_path,
-                           Session.config.instrument,
+    configfile = path.join(config.custom_path, config.instrument,
                            'guiconfig.py')
     try:
         opts, args = getopt.getopt(argv[1:], 'c:h', ['config-file=', 'help'])

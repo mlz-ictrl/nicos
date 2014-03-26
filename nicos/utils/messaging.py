@@ -33,7 +33,7 @@ from threading import Thread
 
 import zmq
 
-from nicos import session
+from nicos import session, config
 from nicos.protocols.daemon import serialize, unserialize
 from nicos.utils.loggers import TRANSMIT_ENTRIES
 from nicos.pycompat import iteritems
@@ -49,8 +49,7 @@ class SimulationSupervisor(Thread):
     """
 
     def __init__(self, session, code, prefix):
-        scriptname = path.join(session.config.nicos_root,
-                               'bin', 'nicos-simulate')
+        scriptname = path.join(config.nicos_root, 'bin', 'nicos-simulate')
         daemon = getattr(session, 'daemon_device', None)
         setups = session.explicit_setups
         Thread.__init__(self, target=self._target,

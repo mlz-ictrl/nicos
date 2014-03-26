@@ -25,18 +25,14 @@ except ImportError:
     thisfile = path.abspath(__file__)
     sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
 
-from nicos import session
+from nicos import config
 from nicos.core.errors import ConfigurationError
-from nicos.core.sessions import Session
 from nicos.core.sessions.setups import SETUP_GROUPS
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 
-# patch the session config ("session" is currently just a bare object)
-session.config = Session.config
-
 # get default custom paths
-default_dirs = [path.join(session.config.custom_path, p.strip(), 'setups')
-                for p in session.config.setup_subdirs.split(',')]
+default_dirs = [path.join(config.custom_path, p.strip(), 'setups')
+                for p in config.setup_subdirs.split(',')]
 
 # generate stub TACO modules as needed to be able to import nicos.devices.taco
 # modules and check parameters

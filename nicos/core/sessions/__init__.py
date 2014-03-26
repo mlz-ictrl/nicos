@@ -37,6 +37,7 @@ from os import path
 
 import numpy
 
+from nicos import config
 from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink
 from nicos.core.device import Device
@@ -74,20 +75,6 @@ class Session(object):
 
     autocreate_devices = True
 
-    class config(object):
-        """Singleton for settings potentially overwritten later."""
-        user = None
-        group = None
-        umask = None
-        instrument = None
-        nicos_root = path.join(path.dirname(__file__), '..', '..', '..', '..')
-        custom_path = None    # the path to find custom subdirs
-        setup_subdirs = None  # groups to be used like 'panda,frm2'
-        pid_path = 'pid'
-        logging_path = 'log'
-        simple_mode = False
-        services = 'cache,poller'
-
     log = None
     name = 'session'
     cache_class = CacheClient
@@ -118,8 +105,8 @@ class Session(object):
         # current "sysconfig" dictionary resulting from setup files
         self.current_sysconfig = {}
         # paths to setup files
-        self._setup_paths = [path.join(self.config.custom_path, p.strip(), 'setups')
-                             for p in self.config.setup_subdirs.split(',')]
+        self._setup_paths = [path.join(config.custom_path, p.strip(), 'setups')
+                             for p in config.setup_subdirs.split(',')]
         # devices failed and succeeded to create in the current setup process
         self._failed_devices = None
         self._success_devices = None
@@ -141,7 +128,7 @@ class Session(object):
         # SPM mode or not?
         self._spmode = False
         self._spmhandler = SPMHandler(self)
-        self.setSPMode(self.config.simple_mode)
+        self.setSPMode(config.simple_mode)
         # plug&play info cache
         self._pnp_cache = {'descriptions': {}}
         # intrinsic count pause request
@@ -993,7 +980,7 @@ class Session(object):
         self.log = NicosLogger('nicos')
         self.log.setLevel(logging.INFO)
         self.log.parent = None
-        log_path = path.join(self.config.nicos_root, self.config.logging_path)
+        log_path = path.join(config.nicos_root, config.logging_path)
         if console:
             self.log.addHandler(ColoredConsoleHandler())
         try:

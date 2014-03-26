@@ -31,7 +31,7 @@ from os import path
 from time import time as currenttime, sleep, localtime, mktime
 from collections import deque
 
-from nicos import session
+from nicos import config
 from nicos.core import Device, Param, ConfigurationError, intrange
 from nicos.utils import ensureDirectory, allDays
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_LOCK, \
@@ -332,7 +332,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._cat_lock = threading.Lock()
         CacheDatabase.doInit(self, mode)
 
-        self._basepath = path.join(session.config.nicos_root, self.storepath)
+        self._basepath = path.join(config.nicos_root, self.storepath)
         ltime = localtime()
         self._year = str(ltime[0])
         self._currday = '%02d-%02d' % ltime[1:3]
