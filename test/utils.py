@@ -217,7 +217,7 @@ class TestSession(Session):
 
 TestSession.config.user = None
 TestSession.config.group = None
-TestSession.config.control_path = rootdir
+TestSession.config.nicos_root = rootdir
 
 
 class TestDevice(HasLimits, Moveable):

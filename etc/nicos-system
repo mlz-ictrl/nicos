@@ -38,12 +38,12 @@ import signal
 import ConfigParser
 from os import path
 
-control_path = path.dirname(path.dirname(path.realpath(__file__)))
+nicos_root = path.dirname(path.dirname(path.realpath(__file__)))
 
 try:
     import nicos
 except ImportError:
-    sys.path.insert(0, control_path)
+    sys.path.insert(0, nicos_root)
 
 # We need to read the nicos.conf file, so let nicos/__init__.py do that.
 from nicos.core.sessions import Session
@@ -64,8 +64,8 @@ def get_config():
         services = getattr(Session.config, host_spec_services)
     else:
         services = Session.config.services
-    log_path = path.join(control_path, Session.config.logging_path)
-    pid_path = path.join(control_path, Session.config.pid_path)
+    log_path = path.join(nicos_root, Session.config.logging_path)
+    pid_path = path.join(nicos_root, Session.config.pid_path)
     if services.lower().strip() in ['', 'none']:
         services = []
     else:
@@ -143,7 +143,7 @@ def start_daemon(name):
         procname, instname = name.split('-')
     except:
         procname, instname = name, None
-    executable = path.join(control_path, 'bin', 'nicos-%s' % procname)
+    executable = path.join(nicos_root, 'bin', 'nicos-%s' % procname)
     os.system('%s%s -d' % (executable, ' -S %s' % (name,) if instname
                            else '', ))
     pid = read_pidfile(name, wait=10)

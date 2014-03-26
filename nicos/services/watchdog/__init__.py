@@ -260,6 +260,6 @@ class Watchdog(BaseCacheClient):
 
     def _spawn_action(self, action):
         self.log.warning('will execute action %r' % action)
-        script = path.join(session.config.control_path, 'bin', 'nicos-script')
+        script = path.join(session.config.nicos_root, 'bin', 'nicos-script')
         subprocess.Popen([script, '-M', '-A', 'watchdog-action',
                           ','.join(self._setups), action])

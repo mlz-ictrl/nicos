@@ -55,7 +55,7 @@ class LogViewerPanel(Panel, DlgUtils):
 
     def on_client_connected(self):
         # determine log path via daemon
-        controlPath = self.client.eval('session.config.control_path', '')
+        controlPath = self.client.eval('session.config.nicos_root', '')
         loggingPath = self.client.eval('session.config.logging_path', '')
 
         self._logPath = os.path.join(controlPath, loggingPath)

@@ -576,7 +576,7 @@ class Experiment(Device):
             session.addLogHandler(self._eloghandler)
         if self.templates == '':
             self._setROParam('templates',
-                path.abspath(path.join(session.config.control_path, 'template')))
+                path.abspath(path.join(session.config.nicos_root, 'template')))
 
     def doUpdateManagerights(self, mrinfo):
         """check and transform the managerights dict into values used later"""

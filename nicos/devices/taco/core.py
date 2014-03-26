@@ -426,7 +426,7 @@ class TacoStub(object):
         self.mod = mod
         self.cls = cls
         self.dev = dev
-        self.script = os.path.join(session.config.control_path,
+        self.script = os.path.join(session.config.nicos_root,
                                    'bin', 'nicos-tacoexec')
 
     def __getattr__(self, cmd):

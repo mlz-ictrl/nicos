@@ -25,7 +25,7 @@ code = args[3]
 signal.alarm(10)
 
 from nicos.core.sessions.simple import SimulationSession
-SimulationSession.config.control_path = rootdir
+SimulationSession.config.nicos_root = rootdir
 # TODO: adapt this
 SimulationSession.config.setups_path = path.join(rootdir, '..', 'setups')
 

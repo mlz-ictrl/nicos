@@ -49,7 +49,7 @@ class SimulationSupervisor(Thread):
     """
 
     def __init__(self, session, code, prefix):
-        scriptname = path.join(session.config.control_path,
+        scriptname = path.join(session.config.nicos_root,
                                'bin', 'nicos-simulate')
         daemon = getattr(session, 'daemon_device', None)
         setups = session.explicit_setups

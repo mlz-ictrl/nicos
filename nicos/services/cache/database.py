@@ -332,7 +332,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._cat_lock = threading.Lock()
         CacheDatabase.doInit(self, mode)
 
-        self._basepath = path.join(session.config.control_path, self.storepath)
+        self._basepath = path.join(session.config.nicos_root, self.storepath)
         ltime = localtime()
         self._year = str(ltime[0])
         self._currday = '%02d-%02d' % ltime[1:3]

@@ -80,7 +80,7 @@ class Session(object):
         group = None
         umask = None
         instrument = None
-        control_path = path.join(path.dirname(__file__), '..', '..', '..', '..')
+        nicos_root = path.join(path.dirname(__file__), '..', '..', '..', '..')
         custom_path = None    # the path to find custom subdirs
         setup_subdirs = None  # groups to be used like 'panda,frm2'
         pid_path = 'pid'
@@ -993,7 +993,7 @@ class Session(object):
         self.log = NicosLogger('nicos')
         self.log.setLevel(logging.INFO)
         self.log.parent = None
-        log_path = path.join(self.config.control_path, self.config.logging_path)
+        log_path = path.join(self.config.nicos_root, self.config.logging_path)
         if console:
             self.log.addHandler(ColoredConsoleHandler())
         try:

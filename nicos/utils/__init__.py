@@ -470,7 +470,6 @@ def readConfig():
             for name in cfg.options('environment'):
                 environment[name] = cfg.get('environment', name)
 
-    values['control_path'] = nicos_root
     values['nicos_root'] = nicos_root
     values['custom_path'] = custom_path
     return values, environment
@@ -1023,7 +1022,7 @@ def findResource(filepath):
         if path.isabs(filepath):
             yield filepath
             return
-        yield path.join(Session.config.control_path, filepath)
+        yield path.join(Session.config.nicos_root, filepath)
         if filepath.startswith('custom/'):
             yield path.join(Session.config.custom_path, filepath[7:])
     for location in myiter(filepath):

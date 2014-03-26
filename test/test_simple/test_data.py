@@ -57,11 +57,11 @@ class CHandler(Handler):
 
 def test_sinks():
     exp = session.experiment
-    exp._setROParam('dataroot', path.join(session.config.control_path,
-                                          'testdata'))
+    exp._setROParam('dataroot', path.join(session.config.nicos_root, 'testdata'))
     exp.new(1234, user='testuser')
 
-    assert path.abspath(exp.datapath) == path.abspath(path.join(session.config.control_path, 'testdata',
+    assert path.abspath(exp.datapath) == \
+        path.abspath(path.join(session.config.nicos_root, 'testdata',
                                      year, 'p1234', 'data'))
     m = session.getDevice('motor2')
     det = session.getDevice('det')
@@ -84,7 +84,7 @@ def test_sinks():
     assert contents == ['1']
 
 
-    fname = path.join(session.config.control_path, 'testdata',
+    fname = path.join(session.config.nicos_root, 'testdata',
                       year, 'p1234', 'data', 'p1234_00000001.dat')
     assert path.isfile(fname)
     contents = readFile(fname)
