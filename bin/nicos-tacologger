@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import sys, os
+import sys
 from os import path
-thisfile = path.abspath(__file__)
-while path.islink(thisfile):
-    thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
-sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/..'))
+sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
+import os
 import ast
 import sys
 import select
@@ -55,7 +53,7 @@ class TacoLoggerClient(BaseCacheClient):
 
     def start(self):
         from PyQt4.QtCore import SIGNAL
-        from PyQt4.QtGui import QApplication, QMainWindow, QTextBrowser, QFont
+        from PyQt4.QtGui import QApplication, QMainWindow, QFont
         from nicos.clients.gui.outview import OutputView
         self._qtapp = QApplication(['qtapp'])
         self._window = QMainWindow()

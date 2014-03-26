@@ -2,13 +2,10 @@
 
 import sys, os
 from os import path
-thisfile = path.abspath(__file__)
-while path.islink(thisfile):
-    thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
+nicosdir = path.dirname(path.dirname(path.realpath(__file__)))
 
-os.environ['PYTHONPATH'] = path.normpath(path.dirname(thisfile) + '/..')
-os.environ['PYQTDESIGNERPATH'] = \
-    path.normpath(path.dirname(thisfile) + '/../nicos/guisupport')
+os.environ['PYTHONPATH'] = nicosdir
+os.environ['PYQTDESIGNERPATH'] = path.join(nicosdir, 'nicos', 'guisupport')
 
 modules = []
 args = []

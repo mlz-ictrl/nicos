@@ -25,14 +25,10 @@
 
 """Script to plot and fit NICOS data files."""
 
-import os
 import sys
 from os import path
 
-thisfile = path.abspath(__file__)
-while path.islink(thisfile):
-    thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
-sys.path.insert(0, path.normpath(path.dirname(thisfile) + '/..'))
+sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
 from numpy import array, linspace, sqrt, exp, log, log10, pi, piecewise, \
      argsort, concatenate, ndarray, diagonal
@@ -229,7 +225,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         try:
             f = open(fpath, 'r')
             break
-        except IOError as e:
+        except IOError:
             continue
     else:
         raise Exception('could not find file %s to plot' % filename)
