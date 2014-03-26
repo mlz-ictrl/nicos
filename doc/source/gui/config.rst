@@ -159,6 +159,13 @@ Panels that come with NICOS are:
      :alt: editor panel
      :align: center
 
+``elog.ELogPanel``
+   Provides a HTML widget for the electronic logbook.
+
+.. figure:: elogpanel.png
+     :alt: electronic logbook panel
+     :align: center
+
 ``errors.ErrorPanel``
    Provides an output view similar to the ConsolePanel, but that only displays
    messages with the WARNING and ERROR loglevel.
