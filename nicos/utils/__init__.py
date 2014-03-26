@@ -921,7 +921,10 @@ def allDays(fromtime, totime):
         yield str(lt[0]), '%02d-%02d' % lt[1:3]
 
 
-def watchFileTime(filename, log, interval=1.0):
+# Note, binding "sleep" as a local here since this function usually is run
+# in a thread, and to avoid tracebacks on shutdown we have to avoid using
+# globals that are set to None by Python on shutdown.
+def watchFileTime(filename, log, interval=1.0, sleep=sleep):
     """Watch a file until its mtime changes; then return."""
     def get_mtime(getmtime=path.getmtime):
         # os.path.getmtime() can raise "stale NFS file handle", so we
@@ -942,7 +945,8 @@ def watchFileTime(filename, log, interval=1.0):
             return
         sleep(interval)
 
-def watchFileContent(filename, log, interval=1.0):
+
+def watchFileContent(filename, log, interval=1.0, sleep=sleep):
     """Watch a file until its content changes; then return."""
     def get_content():
         # File could be unavailable temporary on nfs mounts,
@@ -956,7 +960,6 @@ def watchFileContent(filename, log, interval=1.0):
                           (filename, err))
                 sleep(interval / 2)
                 continue
-
     content = get_content()
     sleep(interval)
     while True:
