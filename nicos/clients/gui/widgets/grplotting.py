@@ -48,7 +48,8 @@ from nicos.clients.gui.fitutils import has_odr, FitError
 from nicos.clients.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
      fit_pseudo_voigt, fit_pearson_vii, fit_arby, fit_linear
 
-TIMEFMT = "%Y-%m-%d %H:%M:%S"
+DATEFMT = "%Y-%m-%d"
+TIMEFMT = "%H:%M:%S"
 
 
 class NicosPlot(InteractiveGRWidget, DlgUtils):
@@ -106,8 +107,11 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         gr.setcharup(1., 1.)
         gr.settextalign(gr.TEXT_HALIGN_LEFT, gr.TEXT_VALIGN_TOP)
         try:
-            gr.text(x, y, "%s"
-                    % time.strftime(TIMEFMT, time.localtime(float(svalue))))
+            dx = .015
+            gr.text(x - dx, y,
+                    time.strftime(DATEFMT, time.localtime(float(svalue))))
+            gr.text(x + dx, y,
+                    time.strftime(TIMEFMT, time.localtime(float(svalue))))
         except ValueError:
             gr.text(x, y, svalue)
         gr.setcharup(0., 1.)
@@ -156,9 +160,9 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
 #            else:
 #                self.setAxisScale(QwtPlot.yRight, scale[0], scale[1])
         if self.timeaxis:
-            self._plot.viewport = (.1, .85, .25, .88)
+            self._plot.viewport = (.1, .85, .18, .88)
             self._axes.setXtickCallback(self.xtickCallBack)
-            self._plot.offsetXLabel = -.12
+            self._plot.offsetXLabel = -.08
         InteractiveGRWidget.update(self)
 
     def showCurves(self, legend, on=True):
