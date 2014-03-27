@@ -41,6 +41,7 @@ from PyQt4.QtGui import QListWidgetItem, QDialog, QMessageBox
 from qtgr import InteractiveGRWidget
 from qtgr.events import GUIConnector, MouseEvent, LegendEvent, PickEvent
 from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar
+from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
 from nicos.clients.gui.dialogs.data import DataExportDialog
@@ -81,8 +82,10 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
                            ";;".join(gr.GRAPHIC_TYPE.values()))
         gr.setmarkersize(NicosPlot.GR_MARKER_SIZE)
         self._saveName = None
+        self._color = ColorIndexGenerator()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
         self._axes = PlotAxes()
+        self._axes.backgroundColor = 0
         self._plot.addAxes(self._axes)
         self._plot.title = self.titleString()
         self.addPlot(self._plot)
@@ -312,7 +315,8 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             x, y, title, _labelx, _labely, _interesting, _lineinfo = (
                             self.fitcallbacks[0](args)) #pylint: disable=E1102
 
-            resultcurve = PlotCurve(x, y, legend=title)
+            resultcurve = PlotCurve(x, y, legend=title,
+                                    linecolor=self._color.getNextColorIndex())
             self.addPlotCurve(resultcurve)
             self.statusMessage = None
             self.window.statusBar.showMessage("Fitting complete")
@@ -382,7 +386,9 @@ class ViewPlot(NicosPlot):
             curvename += ' (' + keyinfo + ')'
         x, y, n, _, _ = self.view.keydata[key]
         if n > 0:
-            self.addPlotCurve(PlotCurve(x[:n], y[:n], legend=curvename), replot)
+            self.addPlotCurve(PlotCurve(x[:n], y[:n], legend=curvename,
+                                    linecolor=self._color.getNextColorIndex()),
+                              replot)
 
     def pointsAdded(self, whichkey):
         for key, plotcurve in zip(self.view.keys, self.plotcurves):
@@ -567,7 +573,8 @@ class DataSetPlot(NicosPlot):
                 errbar = ErrorBar(x[:n], y[:n], dneg, dpos)
 
             plotcurve = PlotCurve(x[:n], y[:n], errbar,
-                                  legend=curve.full_description)
+                                  legend=curve.full_description,
+                                  linecolor=self._color.getNextColorIndex())
             if curve.disabled and not self.show_all:
                 plotcurve.visible = False
             self.addPlotCurve(plotcurve, replot)
