@@ -54,6 +54,8 @@ TIMEFMT = "%H:%M:%S"
 
 class NicosPlot(InteractiveGRWidget, DlgUtils):
 
+    GR_MARKER_SIZE = 1.
+
     def __init__(self, parent, window, timeaxis=False):
         InteractiveGRWidget.__init__(self, parent)
         DlgUtils.__init__(self, 'Plot')
@@ -77,6 +79,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         map(dictPrintType.pop, [gr.PRINT_JPEG, gr.PRINT_TIF])
         self._saveTypes = (";;".join(dictPrintType.values()) + ";;" +
                            ";;".join(gr.GRAPHIC_TYPE.values()))
+        gr.setmarkersize(NicosPlot.GR_MARKER_SIZE)
         self._saveName = None
         self._plot = Plot(viewport=(.1, .85, .15, .88))
         self._axes = PlotAxes()
