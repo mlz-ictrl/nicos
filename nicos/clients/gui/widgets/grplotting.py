@@ -95,6 +95,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self._guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
         self.logXinDomain.connect(self.on_logXinDomain)
         self.logYinDomain.connect(self.on_logYinDomain)
+        self.setLegend(True)
         self.updateDisplay()
 
     @property
