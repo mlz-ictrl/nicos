@@ -613,8 +613,6 @@ def main(argv):
     configfile = path.join(Session.config.custom_path,
                            Session.config.instrument,
                            'guiconfig.py')
-    stylefile = path.join(userpath, 'style.qss')
-    styleRoot = path.splitext(stylefile)[0]
     try:
         opts, args = getopt.getopt(argv[1:], 'c:h', ['config-file=', 'help'])
     except getopt.GetoptError as err:
@@ -624,8 +622,6 @@ def main(argv):
     for o, a in opts:
         if o  in ['-c', '--config-file']:
             configfile = a
-            styleRoot = path.splitext(configfile)[0]
-            stylefile = styleRoot + ".qss"
         elif o in ['-h', '--help']:
             usage()
             sys.exit()
@@ -645,18 +641,21 @@ def main(argv):
         gui_conf = gui_config(ns['main_window'], ns.get('windows', []),
                               ns.get('tools', []))
 
-    # check whether platform specific style file is present
-    stylePlatform = styleRoot + '-' + sys.platform + ".qss"
-    if path.isfile(stylePlatform):
-        stylefile = stylePlatform
-
-    if path.isfile(stylefile):
-        try:
-            with open(stylefile, 'r') as fd:
-                app.setStyleSheet(fd.read())
-        except Exception:
-            log.warning('Error setting user style sheet from %s' % stylefile,
-                        exc=1)
+    stylefiles = [
+        path.join(userpath, 'style-%s.qss' % sys.platform),
+        path.join(userpath, 'style.qss'),
+        path.splitext(configfile)[0] + '-%s.qss' % sys.platform,
+        path.splitext(configfile)[0] + '.qss',
+    ]
+    for stylefile in stylefiles:
+        if path.isfile(stylefile):
+            try:
+                with open(stylefile, 'r') as fd:
+                    app.setStyleSheet(fd.read())
+                break
+            except Exception:
+                log.warning('Error setting user style sheet from %s' % stylefile,
+                            exc=1)
 
     mainwindow = MainWindow(log, gui_conf)
     log.addHandler(DebugHandler(mainwindow))
