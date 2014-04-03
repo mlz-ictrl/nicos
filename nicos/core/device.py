@@ -1636,6 +1636,12 @@ class HasMapping(DeviceMixinBase):
         'unit':      Override(mandatory=False),
     }
 
+    def doIsAllowed(self, target):
+        if target not in self.mapping:
+            return False, 'unknown value: %r, must be one of %s' % \
+                (target, ', '.join(map(repr, sorted(self.mapping))))
+        return True, ''
+
 
 class Measurable(Readable):
     """

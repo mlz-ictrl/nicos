@@ -24,7 +24,7 @@
 
 name = 'test_sequencer setup'
 
-includes = ['stdsystem']
+includes = ['stdsystem', 'multiswitch']
 
 devices = dict(
     m1 = device('nicos.devices.generic.VirtualMotor',
@@ -37,6 +37,13 @@ devices = dict(
                  ),
     ld = device('nicos.devices.generic.sequence.LockedDevice',
                  device = 'm1',
+                 lock = 'm2',
+                 lockvalue = 10,
+                 unlockvalue = 0,
+                 keepfixed = True,
+                 ),
+    ld2 = device('nicos.devices.generic.sequence.LockedDevice',
+                 device = 'sc1',
                  lock = 'm2',
                  lockvalue = 10,
                  unlockvalue = 0,

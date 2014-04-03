@@ -27,8 +27,9 @@
 import time
 
 from nicos import session
-
-from nicos.devices.generic.sequence import SeqDev, SeqParam, SeqMethod, SeqCall, SeqSleep, SeqNOP
+from nicos.core import LimitError
+from nicos.devices.generic.sequence import SeqDev, SeqParam, SeqMethod, \
+    SeqCall, SeqSleep, SeqNOP
 
 from test.utils import raises
 
@@ -41,8 +42,10 @@ def setup_module():
 def teardown_module():
     session.unloadSetup()
 
+
 def test_lockeddevice():
-    session.getDevice('ld')
+    ld = session.getDevice('ld')
+    ld.move(3)
 
 def test_sequence_items():
     # Check SeqenceItems by instantiating and checking
@@ -127,3 +130,9 @@ def test_sequence_items():
     assert True == sn.wait()
     sn.stop()
     sn.retry(5)
+
+
+def test_locked_multiswitcher():
+    '''Guard against regression of #1315'''
+    lms = session.getDevice('ld2')
+    assert raises(LimitError, lms.move, 0)
