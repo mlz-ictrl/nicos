@@ -52,8 +52,8 @@ class Sans1ColliSlit(Switcher):
                                   type=str),
     }
     parameter_overrides = {
-        'precision' : Override(default=0.1, mandatory=False),
-        'fallback'  : Override(default='N.A.', mandatory=False),
+        'precision' : Override(default=0.1, mandatory=False, type=float),
+        'fallback' : Override(default='N.A.', mandatory=False, type=str),
         'blockingmove'  : Override(default=False, mandatory=False),
     }
 
@@ -292,6 +292,14 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
         errval = self._readErrorWord()
         code, msg = status.ERROR, ['Unknown Status value 0x%04x!' % statval]
 
+        # work around buggy SPS code:
+        # sometimes we get 0x0105..7, which should never happen
+         # as the lowest 3 bits are not relevant, check only the others and return BUSY
+         # also ignore the limit switch bits
+        #~ if statval & (0xfff8) == 0x0100:
+        if statval & (0xffe0) == 0x0100:
+            return status.BUSY, '0x010x!'
+
         # status Stuff
         if statval & (1<<7):
             code, msg = status.BUSY, ['busy']
@@ -302,7 +310,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
         elif statval & (1<<9):
             code, msg = status.ERROR, ['Overtemperature!']
         elif statval & (7<<10):   # check any of bit 10, 11, 12 at the same time!
-            code, msg = status.ERROR, ['Can not reach Target!']
+            code, msg = status.NOTREACHED, ['Can not reach Target!']
         if errval:
             code, msg = status.ERROR, ['Error']
             if errval & (1<<0): msg.append('Control voltage too low')
@@ -351,7 +359,10 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
             self._writeDestination(self._phys2steps(p))
             self._writeControlBit(2, 1)
             self.log.debug('doReference: %d) wait'%(2*i+2))
-            self.wait()
+            if i == 0:
+                self.wait()
+            else:
+                waitForStatus(self, timeout=10, errorstates=tuple())
         # now we should be deep in limit-switch -
         self.log.debug('doReference: 5) start the referencing')
         # do the referencing & update position to refpos
