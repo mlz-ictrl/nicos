@@ -26,8 +26,9 @@
 The nicos package contains all standard NICOS commands and devices.
 """
 
-__version__   = "$Revision$"
-nicos_version = "2.5.0-dev"
+__version__ = __import__('nicos._vendor.gitversion',
+                         globals(), locals(), ['*']).get_git_version()
+nicos_version = __version__
 
 import os
 import sys

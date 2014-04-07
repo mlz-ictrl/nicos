@@ -90,7 +90,8 @@ scripts = ['bin/' + name for name in os.listdir('bin')
            if name.startswith('nicos-')]
 
 
-package_data = {'nicos.services.web': ['jquery.js', 'support.js'],
+package_data = {'nicos': ['RELEASE-VERSION'],
+                'nicos.services.web': ['jquery.js', 'support.js'],
                 'nicos.clients.gui.tools.calculator_images':
                 ['braggfml.png', 'miezefml.png']}
 package_data.update(find_ui_files())

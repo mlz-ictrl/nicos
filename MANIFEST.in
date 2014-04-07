@@ -3,11 +3,10 @@ include LICENSE
 include Makefile
 include pylintrc
 include README
-
+include nicos/RELEASE-VERSION
 
 recursive-include custom *
 recursive-include etc *
-recursive-include src *
 recursive-include resources *
 recursive-include tools *
 

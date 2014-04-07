@@ -9,6 +9,7 @@ pylint_*.txt
 .noseids
 MANIFEST
 /nicos.conf
+nicos/RELEASE-VERSION
 
 log/*/current
 
