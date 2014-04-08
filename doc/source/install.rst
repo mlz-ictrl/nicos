@@ -53,7 +53,8 @@ Requirements
 
   - PyQt4
   - numpy
-  - PyQwt (optional, for plots)
+  - gr (optional, for plots)
+  - PyQwt (optional, for plots, alternate to gr)
   - scipy (optional, for fitting)
   - nicoslivewidget (optional, for detector live view)
   - cfitisio (optional, required by nicos-livewidget)
