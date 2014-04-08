@@ -19,35 +19,32 @@ group = 'special'
 # 'pausecount' -- if True, the count loop should be paused on the condition
 #     (default False)
 # 'action' -- code to execute if condition is true (default no code is executed)
-watchlist = [
-    dict(condition = 't_value > 100',
-         message = 'Temperature too high',
-         type = 'critical',
-         action = 'maw(T, 0)',
-        ),
-    dict(condition = 'phi_value > 100 and mono_value > 1.5',
-         message = 'phi angle too high for current mono setting',
-         gracetime = 5,
-        ),
-]
+watchlist = []
+#watchlist = [
+#    dict(condition = 't_value > 100',
+#         message = 'Temperature too high',
+#         type = 'critical',
+#         action = 'maw(T, 0)',
+#        ),
+#    dict(condition = 'phi_value > 100 and mono_value > 1.5',
+#         message = 'phi angle too high for current mono setting',
+#         gracetime = 5,
+#        ),
+#]
 
 notifiers = {
-    'default':  ['mailer'],
-    'critical': ['mailer', 'smser'],
+    'default':  ['email'],
+    'critical': ['email'],
 }
 
 devices = dict(
     # Configure source and copy addresses to an existing address.
     email    = device('devices.notifiers.Mailer',
-                      sender = 'me@frm2.tum.de',
-                      receivers = ['me@frm2.tum.de', 'you@frm2.tum.de'],
-                      subject = 'NICOS Warning',
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
+                      description = 'E-Mail notifier',
+                      sender = 'noreply@fz-juelich.de',
+                      receivers = ['u.ruecker@fz-juelich.de'],
+                      copies = ['l.fleischhauer-fuss@fz-juelich.de'],
+                      subject = 'NICOS Warning Galaxi',
                      ),
 
     Watchdog = device('services.watchdog.Watchdog',

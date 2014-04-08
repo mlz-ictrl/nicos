@@ -1,5 +1,5 @@
 # description: Description of the setup (detailed)
-description = 'system setup for GALAXI'
+description = 'system setup for GALAXI '
 
 # group: Group of the setup. The following groups are recognized:
 # - basic
@@ -49,10 +49,10 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'Galaxi',
+    instrument = 'galaxi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = ['email', 'smser'],
+    notifiers = [],
 )
 
 modules = ['nicos.commands.standard']
@@ -67,9 +67,9 @@ devices = dict(
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('galaxi.experiment.Experiment',
-                      description = 'Galaxi Experiment',
-                      dataroot = 'data',
+    Exp      = device('devices.experiment.Experiment',
+                      description = 'Galaxi Experiment ',
+                      dataroot = '/home/jcns/data',
                       sample = 'Sample',
                       localcontact = 'Ulrich Ruecker',
                       #mailsender = 'u.ruecker@fz-juelich.de',
@@ -83,34 +83,24 @@ devices = dict(
                      ),
 
 
-    Galaxi  = device('devices.instrument.Instrument',
-                     description = 'Galaxi Instrument',
-                     instrument='Galaxi',
+    galaxi  = device('devices.instrument.Instrument',
+                     description = 'Galaxi Instrument test',
+                     instrument='GALAXI',
                      responsible= 'Ulrich Ruecker <u.ruecker@fz-juelich.de>'
                     ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
-
-    conssink = device('devices.datasinks.ConsoleSink'),
-
-    daemonsink = device('devices.datasinks.DaemonSink'),
-
+    filesink = device('devices.datasinks.AsciiDatafileSink',
+                      description = 'Device storing scanfiles in Ascii output format.',
+                    ),
+    conssink = device('devices.datasinks.ConsoleSink',
+                      description = 'Device storing console output.',
+                    ),
+    daemonsink = device('devices.datasinks.DaemonSink',
+                      description = 'Device storing deamon output.',
+                    ),
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       path = None,
                       minfree = 5,
-                     ),
-
-    # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'nobody@frm2.tum.de',
-                      copies = ['nobody@frm2.tum.de'],
-                      subject = 'NICOS',
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
                      ),
 )

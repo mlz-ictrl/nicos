@@ -1,29 +1,43 @@
 # Default GALAXI GUI config
-from nicos.clients.gui.config import docked, vsplit, panel, window, tool
+"""NICOS GUI configuration for GALAXI."""
 
-main_window = docked(
-    vsplit(
-        panel('status.ScriptStatusPanel'),
-        panel('console.ConsolePanel'),
-    ),
-    ('JCNS Logo', panel('generic.GenericPanel',
-                        uifile='custom/galaxi/lib/gui/jcnslogo.ui',
-                    ),
-    ),
-    ('NICOS devices', panel('devices.DevicesPanel', icons=True))
-)
-windows = [
-    window('Editor', 'editor',
-        vsplit(
-            panel('scriptbuilder.CommandsPanel'),
-            panel('editor.EditorPanel'),
-        )
-    ),
-    window('Scans', 'plotter', panel('scans.ScansPanel')),
-]
-tools = [
-    tool('Calculator', 'calculator.CalculatorTool'),
-    tool('Report NICOS bug', 'website.WebsiteTool',
-         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new',
+from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
+
+config = ('Default', [
+        hsplit(
+            vsplit(
+                panel('generic.GenericPanel',
+                      uifile = 'custom/galaxi/lib/gui/jcnslogo.ui'),
+                panel('expinfo.ExpInfoPanel'),
+            ),
+            vsplit(
+                panel('status.ScriptStatusPanel'),
+                panel('console.ConsolePanel'),
+            ),
+            vsplit(
+                panel('devices.DevicesPanel'),
+            ),
         ),
-]
+        window('Setup', 'setup', True,
+            tabbed(('Experiment', panel('setup_panel.ExpPanel')),
+                   ('Setups',     panel('setup_panel.SetupsPanel')),
+            )),
+        window('Editor', 'editor', True,
+            vsplit(
+                panel('scriptbuilder.CommandsPanel'),
+                panel('editor.EditorPanel'))),
+        window('Scans', 'plotter', True,
+            panel('scans.ScansPanel')),
+        window('History', 'find', True,
+            panel('history.HistoryPanel')),
+        window('Logbook', 'table', True,
+            panel('elog.ELogPanel')),
+        window('Errors', 'errors', True,
+            panel('errors.ErrorPanel')),
+    ], [
+        tool('Calculator',
+             'nicos.clients.gui.tools.calculator.CalculatorTool'),
+        tool('Emergency stop button', 'estop.EmergencyStopTool',
+            runatstartup=True),
+    ]
+)
