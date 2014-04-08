@@ -28,7 +28,7 @@ import sys
 from omniORB import CORBA
 import CosNaming
 
-from nicos.delab import CARESS
+from nicos.delab import CARESS # pylint: disable=F0401,E0611
 
 sys.modules['CARESS'] = sys.modules['nicos.delab.CARESS']
 import omniORB
