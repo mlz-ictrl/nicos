@@ -35,7 +35,7 @@ devices = dict(
                                  'table_top', 'astrium',
                                  'table_bottom', 'detector',
                                  'spin_flipper',
-                                 'reactor', 'selector', 'sc1',
+                                 'reactor', 'selector_tower', 'sc1',
                                  'guidehall', 'nl4a', 'memograph',
                                  'ccmsans', 'amagnet',
                                  'newport02', 'newport03',

@@ -26,7 +26,7 @@ description = 'sample table devices'
 
 group = 'optional'
 
-includes = ['system', 'table_top', 'table_bottom']
+includes = ['table_top']
 
 nethost = '//sans1srv.sans1.frm2/'
 
@@ -39,12 +39,12 @@ devices = dict(
                                ),
 
     sc1_y    = device('devices.taco.axis.Axis',
-                    description = 'Sample Changer 1 Axis',
-                    lowlevel = True,
-                    tacodevice = nethost + 'sans1/samplechanger/y-sc1',
-                    fmtstr = '%.2f',
-                    abslimits = (-0, 600),
-                   ),
+                      description = 'Sample Changer 1 Axis',
+                      lowlevel = True,
+                      tacodevice = nethost + 'sans1/samplechanger/y-sc1',
+                      fmtstr = '%.2f',
+                      abslimits = (-0, 600),
+                     ),
 
     sc1    = device('devices.generic.MultiSwitcher',
                        description = 'Sample Changer 1 Huber device',

@@ -25,6 +25,7 @@
 
 #
 # Ist noch als AnNA.tel device vorhanden!!! geht noch nicht!!!
+# Monitor 1 z-Achse
 #
 
 description = 'Selector'
@@ -36,19 +37,21 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
-#   at    = device('devices.generic.Axis',
-#                  motor = 'atmot',
-#                  coder = 'atenc',
+#   mon1z    = device('devices.generic.Axis',
+#                  motor = 'mon1z_mot',
+#                  coder = 'mon1z_enc',
 #                  tacodevice = nethost + 'sel/sel/z',
 #                  fmtstr = '%.2f',
 #                  abslimits = (0, 500), #need to check
 #                 ),
-    atmot = device('devices.taco.motor.Motor',
+    mon1_mot = device('devices.taco.motor.Motor',
+                   description = 'mon1z motor',
                    tacodevice ='//%s/sans1/z/motor' % (nethost, ),
                    fmtstr = '%.2f',
                    abslimits = (0, 500), #need to check
                   ),
-    atenc = device('devices.taco.coder.Coder',
+    mon1_enc = device('devices.taco.coder.Coder',
+                   description = 'mon1z encoder',
                    tacodevice = '//%s/sans1/z/enc' % (nethost, ),
                    fmtstr = '%.2f',
                   ),

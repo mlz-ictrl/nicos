@@ -1,5 +1,7 @@
 description = 'memograph readout'
 
+includes = []
+
 group = 'lowlevel'
 
 devices = dict(
