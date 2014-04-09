@@ -61,7 +61,7 @@ def read_config():
             'Could not figure out host name (%s).' % str(e)
         print >>sys.stderr, \
             'Continue with nonspecific services.'
-    host_spec_services = '%s_services' % hostname
+    host_spec_services = 'services_%s' % hostname
 
     if hostname and hasattr(Session.config, host_spec_services):
         services = getattr(Session.config, host_spec_services)
