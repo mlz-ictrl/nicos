@@ -102,6 +102,8 @@ class CacheWorker(object):
         # try our best to close the connection gracefully
         # assign to local to avoid race condition (self.sock
         # set to None by someone else calling closedown)
+        #
+        # This may be called more than once!
         sock, self.sock, self.stoprequest = self.sock, None, True
         if sock is not None:
             closeSocket(sock)
@@ -329,6 +331,7 @@ class CacheServer(Device):
         # worker connections
         self._connected = {}
         self._adevs['db']._server = self
+        self._connectionLock = threading.Lock()
 
     def start(self):
         self._adevs['db'].initDatabase()
@@ -407,21 +410,25 @@ class CacheServer(Device):
             res = select.select(selectlist, [], [], CYCLETIME * 3)
             if not res[0]:
                 continue  # nothing to read -> continue loop
-            if self._serversocket in res[0] and not self._stoprequest:
-                # TCP connection came in
-                conn, addr = self._serversocket.accept()
-                addr = 'tcp://%s:%d' % addr
-                self.log.info('new connection from %s' % addr)
-                self._connected[addr] = CacheWorker(
-                    self._adevs['db'], conn, name=addr, loglevel=self.loglevel)
-            elif self._serversocket_udp in res[0] and not self._stoprequest:
-                # UDP data came in
-                data, addr = self._serversocket_udp.recvfrom(3072)
-                nice_addr = 'udp://%s:%d' % addr
-                self.log.info('new connection from %s' % nice_addr)
-                self._connected[nice_addr] = CacheUDPWorker(
-                    self._adevs['db'], self._serversocket_udp, name=nice_addr,
-                    data=data, remoteaddr=addr, loglevel=self.loglevel)
+            # lock aginst code in self.quit
+            with self._connectionLock:
+                if self._stoprequest:
+                    break
+                if self._serversocket in res[0]:
+                    # TCP connection came in
+                    conn, addr = self._serversocket.accept()
+                    addr = 'tcp://%s:%d' % addr
+                    self.log.info('new connection from %s' % addr)
+                    self._connected[addr] = CacheWorker(
+                        self._adevs['db'], conn, name=addr, loglevel=self.loglevel)
+                elif self._serversocket_udp in res[0]:
+                    # UDP data came in
+                    data, addr = self._serversocket_udp.recvfrom(3072)
+                    nice_addr = 'udp://%s:%d' % addr
+                    self.log.info('new connection from %s' % nice_addr)
+                    self._connected[nice_addr] = CacheUDPWorker(
+                        self._adevs['db'], self._serversocket_udp, name=nice_addr,
+                        data=data, remoteaddr=addr, loglevel=self.loglevel)
         if self._serversocket:
             closeSocket(self._serversocket)
         self._serversocket = None
@@ -434,13 +441,17 @@ class CacheServer(Device):
     def quit(self):
         self.log.info('quitting...')
         self._stoprequest = True
-        for client in listvalues(self._connected):
-            self.log.info('closing client %s' % client)
-            if client.is_active():
-                client.closedown()
-        for client in listvalues(self._connected):
-            self.log.info('waiting for %s' % client)
-            client.join()
+        # without locking, the _connected list may not have all clients yet....
+        with self._connectionLock:
+            for client in listvalues(self._connected):
+                self.log.info('closing client %s' % client)
+                if client.is_active():
+                    client.closedown()
+        with self._connectionLock:
+            for client in listvalues(self._connected):
+                self.log.info('waiting for %s' % client)
+                client.closedown() # make sure, the connection closes down
+                client.join()
         self.log.info('waiting for server')
         self._worker.join()
         self.log.info('server finished')
