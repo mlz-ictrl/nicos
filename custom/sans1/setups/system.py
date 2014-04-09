@@ -38,22 +38,31 @@ modules = ['nicos.commands.standard', 'sans1.commands']
 
 devices = dict(
     #~ Sample   = device('devices.experiment.Sample'),
-    Sample   = device('sans1.sans1_sample.Sans1Sample'),
+    Sample   = device('sans1.sans1_sample.Sans1Sample',
+                      description = 'sample',
+                     ),
 
     Instrument = device('devices.instrument.Instrument',
+                        description = 'instrument',
                         responsible = 'Dr. habil. Ralph Gilles',
                        ),
 
     Exp      = device('devices.experiment.Experiment',
+                      description = 'experiment',
                       dataroot = '/data/nicos',
                       sample = 'Sample'),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
+                      description = 'filesink',
                      ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink',
+                      description = 'conssink',
+                     ),
 
-    daemonsink = device('devices.datasinks.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink',
+                        description = 'daemonsink',
+                       ),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
