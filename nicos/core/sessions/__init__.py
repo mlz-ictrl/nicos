@@ -85,6 +85,7 @@ class Session(object):
                                 # to control_path or absolute
         custom_path = None      # the first existing of custom_paths
         setup_subdirs = None     # groups to be used like 'panda,frm2'
+        pid_path = 'pid'
         logging_path = 'log'
         simple_mode = False
         services = 'cache,poller'

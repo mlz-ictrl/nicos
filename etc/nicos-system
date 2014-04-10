@@ -38,10 +38,7 @@ import signal
 import ConfigParser
 from os import path
 
-thisfile = path.abspath(__file__)
-while path.islink(thisfile):
-    thisfile = path.join(path.dirname(thisfile), os.readlink(thisfile))
-control_path = path.normpath(path.join(path.dirname(thisfile), '..'))
+control_path = path.dirname(path.dirname(path.realpath(__file__)))
 
 try:
     import nicos
@@ -52,7 +49,7 @@ except ImportError:
 from nicos.core.sessions import Session
 
 
-def read_config():
+def get_config():
     hostname = ''
     try:
         hostname = socket.getfqdn().split('.')[0]
@@ -68,13 +65,14 @@ def read_config():
     else:
         services = Session.config.services
     log_path = path.join(control_path, Session.config.logging_path)
+    pid_path = path.join(control_path, Session.config.pid_path)
     if services.lower().strip() in ['', 'none']:
         services = []
     else:
         services = [svc.strip() for svc in services.split(',')]
-    return services, log_path
+    return services, log_path, pid_path
 
-SERVICES, LOG_PATH = read_config()
+SERVICES, LOG_PATH, PID_PATH = get_config()
 
 def usage():
     print >>sys.stderr, \
@@ -106,7 +104,7 @@ else:
 
 def read_pidfile(name, wait=0):
     begin = time.time()
-    pidpath = path.join(control_path, 'pid', '%s.pid' % name)
+    pidpath = path.join(PID_PATH, '%s.pid' % name)
     while True:
         try:
             pid = file(pidpath, 'rb').read()

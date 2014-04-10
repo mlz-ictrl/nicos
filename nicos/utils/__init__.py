@@ -502,16 +502,17 @@ def writeFile(filename, lines):
     finally:
         fp.close()
 
-def writePidfile(appname):
+def getPidfileName(appname):
     from nicos.core.sessions import Session
-    filename = os.path.join(Session.config.control_path, 'pid', appname + '.pid')
-    writeFile(filename, [str(os.getpid())])
+    return os.path.join(Session.config.control_path, Session.config.pid_path,
+                        appname + '.pid')
+
+def writePidfile(appname):
+    writeFile(getPidfileName(appname), [str(os.getpid())])
 
 def removePidfile(appname):
-    from nicos.core.sessions import Session
-    filename = os.path.join(Session.config.control_path, 'pid', appname + '.pid')
     try:
-        os.unlink(filename)
+        os.unlink(getPidfileName(appname))
     except OSError as err:
         if err.errno == errno.ENOENT:
             return
