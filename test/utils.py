@@ -310,7 +310,7 @@ def startCache(setup='cache', wait=5):
                 break
         else:
             raise Exception('cache failed to start within %s sec' % wait)
-    sys.stderr.write('%s ok] ' % cache.pid)
+    sys.stderr.write('%s ok] \n' % cache.pid)
     return cache
 
 
@@ -319,7 +319,7 @@ def killCache(cache):
     if cache.poll() is None:
         cache.terminate()
         cache.wait()
-    sys.stderr.write('ok] ')
+    sys.stderr.write('ok] \n')
 
 
 def hasGnuplot():
