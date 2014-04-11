@@ -43,11 +43,9 @@ watchlist = [
 
 devices = dict(
 
-    notifier = device('demo.notifier.DBusNotifier'),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'localhost:14869',
-                      notifiers = {'default': [], 'critical': ['notifier']},
+                      notifiers = {'default': [], 'critical': []},
                       watch = watchlist,
                      ),
 )

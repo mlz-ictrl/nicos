@@ -28,9 +28,6 @@
 * using Jabber.
 """
 
-from PyQt4.QtDBus import QDBusInterface
-from PyQt4.QtCore import QVariant
-
 try:
     import xmpp  # pylint: disable=F0401
 except ImportError:
@@ -45,6 +42,9 @@ NS_XHTML = 'http://www.w3.org/1999/xhtml'
 class DBusNotifier(Notifier):
 
     def send(self, subject, body, what=None, short=None, important=True):
+        from PyQt4.QtDBus import QDBusInterface
+        from PyQt4.QtCore import QVariant
+
         dbus_interface = QDBusInterface('org.freedesktop.Notifications',
                                         '/org/freedesktop/Notifications')
         dbus_interface.call('Notify',
