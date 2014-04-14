@@ -45,12 +45,15 @@ def teardown_module():
 
 def test_lockeddevice():
     ld = session.getDevice('ld')
+    sm1 = session.getDevice('sm1')
     ld.move(3)
+    ld.wait()
+    assert sm1.read(0) == 3
 
 def test_sequence_items():
     # Check SeqenceItems by instantiating and checking
-    m1 = session.getDevice('m1')
-    m2 = session.getDevice('m2')
+    sm1 = session.getDevice('sm1')
+    sm2 = session.getDevice('sm2')
 
     # parameter checking
     assert raises(TypeError, SeqDev)
@@ -61,45 +64,45 @@ def test_sequence_items():
     SeqNOP()
 
     # Device move
-    sd = SeqDev(m1, 3)
-    assert repr(sd) == 'maw(m1, 3)'
-    m1.start(0)
-    m1.wait()
-    assert m1.read(0) == 0
+    sd = SeqDev(sm1, 3)
+    assert repr(sd) == 'maw(sm1, 3)'
+    sm1.start(0)
+    sm1.wait()
+    assert sm1.read(0) == 0
 
     sd.check()
     sd.run()
     while not sd.wait():
         pass
-    assert m1.read(0) == 3
+    assert sm1.read(0) == 3
 
     # Param setting
-    sp = SeqParam(m2, 'speed', 1)
-    assert  'm2.speed' in repr(sp)
+    sp = SeqParam(sm2, 'speed', 1)
+    assert  'sm2.speed' in repr(sp)
     assert '=' in repr(sp)
     assert repr(sp).endswith('1')
 
-    m2.speed = 5
-    assert m2.speed == 5
+    sm2.speed = 5
+    assert sm2.speed == 5
     sp.check()
     sp.run()
     while not sp.wait():
         pass
-    assert m2.speed == 1
+    assert sm2.speed == 1
 
     # method calling, use fix/relase here
-    sm = SeqMethod(m1, 'fix', 'blubb')
-    assert repr(sm) == "m1.fix('blubb')"
+    sm = SeqMethod(sm1, 'fix', 'blubb')
+    assert repr(sm) == "sm1.fix('blubb')"
 
-    assert m1.fixed == ''
+    assert sm1.fixed == ''
 
     sm.check()
     sm.run()
     while not sm.wait():
         pass
-    assert 'blubb' in m1.fixed
+    assert 'blubb' in sm1.fixed
 
-    m1.release()
+    sm1.release()
 
     # Sleeping??
     sw = SeqSleep(1)
