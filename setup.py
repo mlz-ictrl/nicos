@@ -33,18 +33,26 @@ class nicosinstall(stinstall):
         if not path.isabs(self.install_log):
             self.install_log = path.join(self.install_base, self.install_log)
         self._expand_attrs(['install_pid', 'install_log'])
+        self.install_custom = path.join(self.install_base, 'custom')
+        self.install_etc = path.join(self.install_base, 'etc')
+        self.install_conf = path.join(self.install_base, 'nicos.conf')
+        self.true_custom = self.install_custom
+        self.true_etc = self.install_etc
+        self.true_pid = self.install_pid
+        self.true_log = self.install_log
 
         self.dump_dirs('post-finalize-custom')
         if self.root is not None:
-            self.change_roots('pid', 'log')
+            self.change_roots('custom', 'etc', 'pid', 'log', 'conf')
+        self.dump_dirs('post-finalize-custom_root')
 
     def run(self):
         stinstall.run(self)
         self.run_install_custom()
 
     def run_install_custom(self):
-        self.copy_tree('custom', path.join(self.install_base, 'custom'))
-        self.copy_tree('etc', path.join(self.install_base, 'etc'))
+        self.copy_tree('custom', self.install_custom)
+        self.copy_tree('etc', self.install_etc)
         mkpath(self.install_pid)
         mkpath(self.install_log)
         nicos_conf_tmpl = \
@@ -53,10 +61,9 @@ pid_path = %s
 logging_path = %s
 installed_from = %s
 """
-        confpath = path.join(self.install_base, 'nicos.conf')
-        with open(confpath, 'w') as cf:
-            cf.write(nicos_conf_tmpl % (self.install_pid,
-                                        self.install_log,
+        with open(self.install_conf, 'w') as cf:
+            cf.write(nicos_conf_tmpl % (self.true_pid,
+                                        self.true_log,
                                         path.abspath(os.curdir)))
 
 
