@@ -23,7 +23,7 @@
          <string>Back</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../../resources/nicos-gui.qrc">
           <normaloff>:/previous</normaloff>:/previous</iconset>
         </property>
         <property name="iconSize">
@@ -88,7 +88,7 @@
          <string>Contents</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../../resources/nicos-gui.qrc">
           <normaloff>:/home</normaloff>:/home</iconset>
         </property>
        </widget>
@@ -99,7 +99,7 @@
          <string>Close</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../../resources/nicos-gui.qrc">
           <normaloff>:/quit</normaloff>:/quit</iconset>
         </property>
         <property name="iconSize">
@@ -169,7 +169,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>
