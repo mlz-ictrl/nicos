@@ -103,7 +103,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../../../../../resources/nicos-gui.qrc">:/leds/status_white</pixmap>
+         <pixmap resource="../../../../resources/nicos-gui.qrc">:/leds/status_white</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -309,7 +309,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections>
   <connection>

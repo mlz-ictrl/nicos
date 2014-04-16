@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../resources/nicos-gui.qrc">
+   <iconset resource="../../../resources/nicos-gui.qrc">
     <normaloff>:/sunny</normaloff>:/sunny</iconset>
   </property>
   <property name="toolButtonStyle">
@@ -53,7 +53,7 @@
   </widget>
   <action name="actionClose">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/quit</normaloff>:/quit</iconset>
    </property>
    <property name="text">
@@ -81,7 +81,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections>
   <connection>

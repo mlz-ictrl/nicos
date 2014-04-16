@@ -74,7 +74,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../../resources/nicos-gui.qrc">
          <normaloff>:/remove</normaloff>:/remove</iconset>
        </property>
       </widget>
@@ -95,7 +95,7 @@
   <tabstop>delBtn</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>

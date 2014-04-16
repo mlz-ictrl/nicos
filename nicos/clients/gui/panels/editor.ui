@@ -484,7 +484,7 @@
   </layout>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/open</normaloff>:/open</iconset>
    </property>
    <property name="text">
@@ -499,7 +499,7 @@
   </action>
   <action name="actionNew">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/new</normaloff>:/new</iconset>
    </property>
    <property name="text">
@@ -517,7 +517,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/save</normaloff>:/save</iconset>
    </property>
    <property name="text">
@@ -537,7 +537,7 @@
   </action>
   <action name="actionPrint">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/print</normaloff>:/print</iconset>
    </property>
    <property name="text">
@@ -552,7 +552,7 @@
   </action>
   <action name="actionUndo">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/undo</normaloff>:/undo</iconset>
    </property>
    <property name="text">
@@ -567,7 +567,7 @@
   </action>
   <action name="actionRedo">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/redo</normaloff>:/redo</iconset>
    </property>
    <property name="text">
@@ -582,7 +582,7 @@
   </action>
   <action name="actionCut">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/cut</normaloff>:/cut</iconset>
    </property>
    <property name="text">
@@ -597,7 +597,7 @@
   </action>
   <action name="actionCopy">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/copy</normaloff>:/copy</iconset>
    </property>
    <property name="text">
@@ -612,7 +612,7 @@
   </action>
   <action name="actionPaste">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/paste</normaloff>:/paste</iconset>
    </property>
    <property name="text">
@@ -627,7 +627,7 @@
   </action>
   <action name="actionRun">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/continue</normaloff>:/continue</iconset>
    </property>
    <property name="text">
@@ -642,7 +642,7 @@
   </action>
   <action name="actionGet">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/get</normaloff>:/get</iconset>
    </property>
    <property name="text">
@@ -654,7 +654,7 @@
   </action>
   <action name="actionFind">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/find</normaloff>:/find</iconset>
    </property>
    <property name="text">
@@ -680,7 +680,7 @@
   </action>
   <action name="actionUpdate">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/refresh</normaloff>:/refresh</iconset>
    </property>
    <property name="text">
@@ -700,7 +700,7 @@
   </action>
   <action name="actionSimulate">
    <property name="icon">
-    <iconset resource="../../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
      <normaloff>:/simulate</normaloff>:/simulate</iconset>
    </property>
    <property name="text">
@@ -730,7 +730,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -47,7 +47,7 @@
         <string>Simulate</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../../resources/nicos-gui.qrc">
          <normaloff>:/simulate</normaloff>:/simulate</iconset>
        </property>
       </widget>
@@ -61,7 +61,7 @@
         <string>Run</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../../resources/nicos-gui.qrc">
          <normaloff>:/continue</normaloff>:/continue</iconset>
        </property>
       </widget>
@@ -176,7 +176,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>
