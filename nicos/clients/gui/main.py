@@ -61,12 +61,14 @@ from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, STATUS_IDLE, \
     STATUS_IDLEEXC
 from nicos.pycompat import exec_, iteritems, listvalues, text_type
 
+from nicos.clients.gui.config import tabbed
 
 class MainWindow(QMainWindow, DlgUtils):
     def __init__(self, log, gui_conf):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
+        self.menuTools.extraActions = []
 
         # our logger instance
         self.log = log
@@ -137,7 +139,7 @@ class MainWindow(QMainWindow, DlgUtils):
             loadUserStyle(self, settings)
 
         # create panels in the main window
-        widget = createWindowItem(self.gui_conf.main_window, self, self)
+        widget = createWindowItem(self.gui_conf.main_window, self, self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -199,6 +201,9 @@ class MainWindow(QMainWindow, DlgUtils):
         self.watchdogWindow = None
         # plug-n-play notification windows
         self.pnpWindows = {}
+
+        if isinstance(self.gui_conf.main_window, tabbed):
+            widget.tabChangedTab(0)
 
         # create initial state
         self.setStatus('disconnected')

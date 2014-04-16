@@ -102,6 +102,9 @@ class ScansPanel(Panel):
         self.bulk_adding = False
         self.no_openset = False
 
+        self.menus = None
+        self.bar = None
+
         self.data = self.mainwindow.data
 
         # maps set uid -> plot
@@ -169,51 +172,57 @@ class ScansPanel(Panel):
             self.actionAutoScale.setEnabled(False)
 
     def getMenus(self):
-        menu1 = QMenu('&Data plot', self)
-        menu1.addAction(self.actionSavePlot)
-        menu1.addAction(self.actionPrint)
-        menu1.addAction(self.actionAttachElog)
-        menu1.addSeparator()
-        menu1.addAction(self.actionResetPlot)
-        menu1.addAction(self.actionCombine)
-        menu1.addAction(self.actionClosePlot)
-        menu1.addAction(self.actionDeletePlot)
-        menu1.addSeparator()
-        menu1.addAction(self.actionUnzoom)
-        menu1.addAction(self.actionLogScale)
-        menu1.addAction(self.actionAutoScale)
-        menu1.addAction(self.actionNormalized)
-        menu1.addAction(self.actionShowAllCurves)
-        menu1.addAction(self.actionLegend)
-        menu1.addSeparator()
-        menu2 = QMenu('Data &manipulation', self)
-        menu2.addAction(self.actionModifyData)
-        menu2.addSeparator()
-        menu2.addAction(self.actionFitPeak)
-        menu2.addAction(self.actionFitPeakPV)
-        menu2.addAction(self.actionFitPeakPVII)
-        menu2.addAction(self.actionFitTc)
-        menu2.addSeparator()
-        menu2.addAction(self.actionFitArby)
-        return [menu1, menu2]
+        if not self.menus:
+            menu1 = QMenu('&Data plot', self)
+            menu1.addAction(self.actionSavePlot)
+            menu1.addAction(self.actionPrint)
+            menu1.addAction(self.actionAttachElog)
+            menu1.addSeparator()
+            menu1.addAction(self.actionResetPlot)
+            menu1.addAction(self.actionCombine)
+            menu1.addAction(self.actionClosePlot)
+            menu1.addAction(self.actionDeletePlot)
+            menu1.addSeparator()
+            menu1.addAction(self.actionUnzoom)
+            menu1.addAction(self.actionLogScale)
+            menu1.addAction(self.actionAutoScale)
+            menu1.addAction(self.actionNormalized)
+            menu1.addAction(self.actionShowAllCurves)
+            menu1.addAction(self.actionLegend)
+            menu1.addSeparator()
+            menu2 = QMenu('Data &manipulation', self)
+            menu2.addAction(self.actionModifyData)
+            menu2.addSeparator()
+            menu2.addAction(self.actionFitPeak)
+            menu2.addAction(self.actionFitPeakPV)
+            menu2.addAction(self.actionFitPeakPVII)
+            menu2.addAction(self.actionFitTc)
+            menu2.addSeparator()
+            menu2.addAction(self.actionFitArby)
+            self.menus = [menu1, menu2]
+
+        return self.menus
 
     def getToolbars(self):
-        bar = QToolBar('Scans')
-        bar.addAction(self.actionSavePlot)
-        bar.addAction(self.actionPrint)
-        bar.addSeparator()
-        bar.addAction(self.actionUnzoom)
-        bar.addAction(self.actionNormalized)
-        bar.addAction(self.actionLogScale)
-        bar.addAction(self.actionAutoScale)
-        bar.addAction(self.actionLegend)
-        bar.addAction(self.actionResetPlot)
-        bar.addAction(self.actionDeletePlot)
-        bar.addSeparator()
-        bar.addAction(self.actionCombine)
-        bar.addAction(self.actionFitPeak)
-        bar.addAction(self.actionFitArby)
-        return [bar]
+        if not self.bar:
+            bar = QToolBar('Scans')
+            bar.addAction(self.actionSavePlot)
+            bar.addAction(self.actionPrint)
+            bar.addSeparator()
+            bar.addAction(self.actionUnzoom)
+            bar.addAction(self.actionNormalized)
+            bar.addAction(self.actionLogScale)
+            bar.addAction(self.actionAutoScale)
+            bar.addAction(self.actionLegend)
+            bar.addAction(self.actionResetPlot)
+            bar.addAction(self.actionDeletePlot)
+            bar.addSeparator()
+            bar.addAction(self.actionCombine)
+            bar.addAction(self.actionFitPeak)
+            bar.addAction(self.actionFitArby)
+            self.bar = bar
+
+        return [self.bar]
 
     def updateList(self):
         self.datasetList.clear()

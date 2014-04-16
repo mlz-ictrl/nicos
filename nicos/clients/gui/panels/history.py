@@ -615,6 +615,9 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
+        self.menus = None
+        self.bar = None
+
         self.splitter.restoreState(self.splitterstate)
         self.connect(self.client, SIGNAL('cache'), self.newvalue_callback)
 
@@ -672,21 +675,24 @@ class HistoryPanel(Panel, BaseHistoryWindow):
             pmenu.addAction('(no presets created)')
 
     def getToolbars(self):
-        bar = QToolBar('History viewer')
-        bar.addAction(self.actionNew)
-        bar.addAction(self.actionEditView)
-        bar.addSeparator()
-        bar.addAction(self.actionSavePlot)
-        bar.addAction(self.actionPrint)
-        bar.addAction(self.actionSaveData)
-        bar.addSeparator()
-        bar.addAction(self.actionUnzoom)
-        bar.addAction(self.actionLogScale)
-        bar.addAction(self.actionAutoScale)
-        bar.addSeparator()
-        bar.addAction(self.actionResetView)
-        bar.addAction(self.actionDeleteView)
-        return [bar]
+        if not self.bar:
+            bar = QToolBar('History viewer')
+            bar.addAction(self.actionNew)
+            bar.addAction(self.actionEditView)
+            bar.addSeparator()
+            bar.addAction(self.actionSavePlot)
+            bar.addAction(self.actionPrint)
+            bar.addAction(self.actionSaveData)
+            bar.addSeparator()
+            bar.addAction(self.actionUnzoom)
+            bar.addAction(self.actionLogScale)
+            bar.addAction(self.actionAutoScale)
+            bar.addSeparator()
+            bar.addAction(self.actionResetView)
+            bar.addAction(self.actionDeleteView)
+            self.bar = bar
+
+        return [self.bar]
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', b'', QByteArray)
@@ -779,6 +785,9 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         self.setCentralWidget(self.splitter)
         self.connect(self, SIGNAL('newvalue'), self.newvalue_callback)
 
+        self.menus = None
+        self.bar = None
+
         for toolbar in self.getToolbars():
             self.addToolBar(toolbar)
         for menu in self.getMenus():
@@ -787,44 +796,50 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         self.setStatusBar(self.statusBar)
 
     def getMenus(self):
-        menu = QMenu('&History viewer', self)
-        menu.addAction(self.actionNew)
-        menu.addSeparator()
-        menu.addAction(self.actionSavePlot)
-        menu.addAction(self.actionPrint)
-        menu.addAction(self.actionSaveData)
-        menu.addSeparator()
-        menu.addAction(self.actionEditView)
-        menu.addAction(self.actionCloseView)
-        menu.addAction(self.actionDeleteView)
-        menu.addAction(self.actionResetView)
-        menu.addSeparator()
-        menu.addAction(self.actionLogScale)
-        menu.addAction(self.actionUnzoom)
-        menu.addAction(self.actionLegend)
-        menu.addAction(self.actionSymbols)
-        menu.addAction(self.actionLines)
-        menu.addAction(self.actionLinearFit)
-        menu.addSeparator()
-        menu.addAction(self.actionClose)
-        return [menu]
+        if not self.menus:
+            menu = QMenu('&History viewer', self)
+            menu.addAction(self.actionNew)
+            menu.addSeparator()
+            menu.addAction(self.actionSavePlot)
+            menu.addAction(self.actionPrint)
+            menu.addAction(self.actionSaveData)
+            menu.addSeparator()
+            menu.addAction(self.actionEditView)
+            menu.addAction(self.actionCloseView)
+            menu.addAction(self.actionDeleteView)
+            menu.addAction(self.actionResetView)
+            menu.addSeparator()
+            menu.addAction(self.actionLogScale)
+            menu.addAction(self.actionUnzoom)
+            menu.addAction(self.actionLegend)
+            menu.addAction(self.actionSymbols)
+            menu.addAction(self.actionLines)
+            menu.addAction(self.actionLinearFit)
+            menu.addSeparator()
+            menu.addAction(self.actionClose)
+            self.menus = menu
+
+        return [self.menu]
 
     def getToolbars(self):
-        bar = QToolBar('History viewer')
-        bar.addAction(self.actionNew)
-        bar.addAction(self.actionEditView)
-        bar.addSeparator()
-        bar.addAction(self.actionSavePlot)
-        bar.addAction(self.actionPrint)
-        bar.addAction(self.actionSaveData)
-        bar.addAction(self.actionClose)
-        bar.addSeparator()
-        bar.addAction(self.actionUnzoom)
-        bar.addAction(self.actionLogScale)
-        bar.addSeparator()
-        bar.addAction(self.actionResetView)
-        bar.addAction(self.actionDeleteView)
-        return [bar]
+        if not self.bar:
+            bar = QToolBar('History viewer')
+            bar.addAction(self.actionNew)
+            bar.addAction(self.actionEditView)
+            bar.addSeparator()
+            bar.addAction(self.actionSavePlot)
+            bar.addAction(self.actionPrint)
+            bar.addAction(self.actionSaveData)
+            bar.addAction(self.actionClose)
+            bar.addSeparator()
+            bar.addAction(self.actionUnzoom)
+            bar.addAction(self.actionLogScale)
+            bar.addSeparator()
+            bar.addAction(self.actionResetView)
+            bar.addAction(self.actionDeleteView)
+            self.bar = bar
+
+        return [self.bar]
 
     def gethistory_callback(self, key, fromtime, totime):
         return self.app.history(None, key, fromtime, totime)

@@ -48,6 +48,9 @@ class ELogPanel(Panel, DlgUtils):
 
         self.timer = QTimer(self, singleShot=True, timeout=self.on_timer_timeout)
 
+        self.menus = None
+        self.bar = None
+
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
@@ -58,44 +61,50 @@ class ELogPanel(Panel, DlgUtils):
                      self.on_page_unsupportedContent)
 
     def getMenus(self):
-        menu1 = QMenu('&Browser', self)
-        menu1.addAction(self.actionBack)
-        menu1.addAction(self.actionForward)
-        menu1.addSeparator()
-        menu1.addAction(self.actionRefresh)
-        menu1.addAction(self.actionPrint)
-        menu2 = QMenu('&Logbook', self)
-        menu2.addAction(self.actionAddComment)
-        menu2.addAction(self.actionAddRemark)
-        menu2.addSeparator()
-        menu2.addAction(self.actionAttachFile)
-        menu2.addSeparator()
-        menu2.addAction(self.actionNewSample)
-        return [menu1, menu2]
+        if not self.menus:
+            menu1 = QMenu('&Browser', self)
+            menu1.addAction(self.actionBack)
+            menu1.addAction(self.actionForward)
+            menu1.addSeparator()
+            menu1.addAction(self.actionRefresh)
+            menu1.addAction(self.actionPrint)
+            menu2 = QMenu('&Logbook', self)
+            menu2.addAction(self.actionAddComment)
+            menu2.addAction(self.actionAddRemark)
+            menu2.addSeparator()
+            menu2.addAction(self.actionAttachFile)
+            menu2.addSeparator()
+            menu2.addAction(self.actionNewSample)
+            self.menus = [menu1, menu2]
+
+        return self.menus
 
     def getToolbars(self):
-        bar = QToolBar('Logbook')
-        bar.addAction(self.actionBack)
-        bar.addAction(self.actionForward)
-        bar.addSeparator()
-        bar.addAction(self.actionRefresh)
-        bar.addAction(self.actionPrint)
-        bar.addSeparator()
-        bar.addAction(self.actionAddComment)
-        bar.addAction(self.actionAddRemark)
-        bar.addSeparator()
-        bar.addAction(self.actionNewSample)
-        bar.addAction(self.actionAttachFile)
-        bar.addSeparator()
-        box = QLineEdit(self)
-        btn = QPushButton('Search', self)
-        bar.addWidget(box)
-        bar.addWidget(btn)
-        def callback():
-            self.preview.findText(box.text(), QWebPage.FindWrapsAroundDocument)
-        box.returnPressed.connect(callback)
-        btn.clicked.connect(callback)
-        return [bar]
+        if not self.bar:
+            bar = QToolBar('Logbook')
+            bar.addAction(self.actionBack)
+            bar.addAction(self.actionForward)
+            bar.addSeparator()
+            bar.addAction(self.actionRefresh)
+            bar.addAction(self.actionPrint)
+            bar.addSeparator()
+            bar.addAction(self.actionAddComment)
+            bar.addAction(self.actionAddRemark)
+            bar.addSeparator()
+            bar.addAction(self.actionNewSample)
+            bar.addAction(self.actionAttachFile)
+            bar.addSeparator()
+            box = QLineEdit(self)
+            btn = QPushButton('Search', self)
+            bar.addWidget(box)
+            bar.addWidget(btn)
+            def callback():
+                self.preview.findText(box.text(), QWebPage.FindWrapsAroundDocument)
+            box.returnPressed.connect(callback)
+            btn.clicked.connect(callback)
+            self.bar = bar
+
+        return [self.bar]
 
     def on_timer_timeout(self):
         sig = SIGNAL('loadFinished(bool)')
