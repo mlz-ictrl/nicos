@@ -37,6 +37,8 @@ __all__ = ['get_git_version',]
 from subprocess import Popen, PIPE
 from os import path
 
+# Read config file and set environment variables.
+from nicos.configmod import config
 
 def get_releasefile_path():
     #due the way we import it, the path will point to the nicos dir.
@@ -47,7 +49,7 @@ def get_releasefile_path():
 def call_git_describe(abbrev=4):
     try:
         p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
-                  stdout=PIPE, stderr=PIPE)
+                  cwd=config.nicos_root, stdout=PIPE, stderr=PIPE)
         p.stderr.close()
         line = p.stdout.readlines()[0]
         return line.strip()
