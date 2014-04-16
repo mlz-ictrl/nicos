@@ -110,7 +110,7 @@ def readConfig():
     # Get the root path of the NICOS install.
     nicos_root = config.nicos_root
     global_cfg = NicosConfigParser()
-    global_cfg.read(path.join(nicos_root, 'nicos', 'nicos.conf'))
+    global_cfg.read(path.join(nicos_root, 'nicos.conf'))
 
     custom_path = findValidCustomPath(nicos_root, global_cfg)
 
