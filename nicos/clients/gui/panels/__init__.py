@@ -27,7 +27,7 @@
 import time
 
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-    QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette
+    QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette, QToolBar
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
@@ -56,7 +56,7 @@ class AuxiliaryWindow(QMainWindow):
             loadUserStyle(self, settings)
 
         self.setWindowTitle(config.name)
-        widget = createWindowItem(config.contents, self, self)
+        widget = createWindowItem(config.contents, self, self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -125,13 +125,26 @@ class PanelDialog(QDialog):
         if isinstance(panelcfg, type) and issubclass(panelcfg, Panel):
             panelcfg = panel('%s.%s' % (panelcfg.__module__,
                                         panelcfg.__name__))
-        pnl = createWindowItem(panelcfg, self, self)
+        pnl = createWindowItem(panelcfg, self, self, self.mainwindow)
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
         hbox.addWidget(pnl)
         self.setLayout(hbox)
         self.client = client
         self.setWindowTitle(title)
+
+
+class AuxiliarySubWindow(QMainWindow):
+    def __init__(self, parent):
+        QMainWindow.__init__(self, parent)
+        self.mainwindow = parent
+
+        self.panels = []
+
+    def getPanel(self, panelName):
+        for panelobj in self.panels:
+            if panelobj.panelName == panelName:
+                return panelobj
 
 
 class Panel(QWidget, DlgUtils):
@@ -143,6 +156,7 @@ class Panel(QWidget, DlgUtils):
         self.parentwindow = parent
         self.client = client
         self.mainwindow = parent.mainwindow
+        self.actions = set()
         self.log = NicosLogger(self.panelName)
         self.log.parent = self.mainwindow.log
         self.sgroup = SettingGroup(self.panelName)
@@ -185,7 +199,7 @@ class Panel(QWidget, DlgUtils):
         pass
 
 
-def createWindowItem(item, window, menuwindow):
+def createWindowItem(item, window, menuwindow, topwindow):
     dockPosMap = {'left':   Qt.LeftDockWidgetArea,
                   'right':  Qt.RightDockWidgetArea,
                   'top':    Qt.TopDockWidgetArea,
@@ -197,6 +211,8 @@ def createWindowItem(item, window, menuwindow):
         p = cls(menuwindow, window.client)
         p.setOptions(item.options)
         window.panels.append(p)
+        topwindow.panels.append(p)
+
         for toolbar in p.getToolbars():
             # this helps for serializing window state
             toolbar.setObjectName(toolbar.windowTitle())
@@ -206,28 +222,29 @@ def createWindowItem(item, window, menuwindow):
                 menuwindow.addToolBar(toolbar)
         for menu in p.getMenus():
             if hasattr(menuwindow, 'menuWindows'):
-                menuwindow.menuBar().insertMenu(
-                    menuwindow.menuWindows.menuAction(), menu)
+                p.actions.update((menuwindow.menuBar().insertMenu(
+                    menuwindow.menuWindows.menuAction(), menu),))
             else:
-                menuwindow.menuBar().addMenu(menu)
+                p.actions.update((menuwindow.menuBar().addMenu(menu),))
+
         p.setCustomStyle(window.user_font, window.user_color)
         return p
     elif isinstance(item, hsplit):
         sp = QSplitter(Qt.Horizontal)
         window.splitters.append(sp)
         for subitem in item:
-            sub = createWindowItem(subitem, window, menuwindow)
+            sub = createWindowItem(subitem, window, menuwindow, topwindow)
             sp.addWidget(sub)
         return sp
     elif isinstance(item, vsplit):
         sp = QSplitter(Qt.Vertical)
         window.splitters.append(sp)
         for subitem in item:
-            sub = createWindowItem(subitem, window, menuwindow)
+            sub = createWindowItem(subitem, window, menuwindow, topwindow)
             sp.addWidget(sub)
         return sp
     elif isinstance(item, tabbed):
-        tw = TearOffTabWidget()
+        tw = TearOffTabWidget(menuwindow)
         for _ in range(5):
             loaded_setups = window.client.eval('session.loaded_setups', [])
             if loaded_setups: # sometimes the first request returns nothing useful..???
@@ -240,24 +257,24 @@ def createWindowItem(item, window, menuwindow):
                 (title, subitem, setupSpec) = entry
                 if not checkSetupSpec(setupSpec, loaded_setups):
                     continue
-            subwindow = QMainWindow(tw)
+            subwindow = AuxiliarySubWindow(tw)
             subwindow.mainwindow = window.mainwindow
             subwindow.user_color = window.user_color
             # we have to nest one step to get consistent layout spacing
             # around the central widget
             central = QWidget(subwindow)
             layout = QVBoxLayout()
-            item = createWindowItem(subitem, window, subwindow)
+            item = createWindowItem(subitem, window, menuwindow, subwindow)
             if isinstance(item, Panel):
                 item.hideTitle()
             layout.addWidget(item)
             central.setLayout(layout)
             subwindow.setCentralWidget(central)
-            tw.addTab(subwindow, title)
+            tw.tabBar.tabIdx.append(tw.addTab(subwindow, title))
         return tw
     elif isinstance(item, docked):
         mainitem, dockitems = item
-        main = createWindowItem(mainitem, window, menuwindow)
+        main = createWindowItem(mainitem, window, menuwindow, topwindow)
         for title, item in dockitems:
             dw = QDockWidget(title, window)
             # prevent closing the dock widget
@@ -266,7 +283,7 @@ def createWindowItem(item, window, menuwindow):
             # make the dock title bold
             dw.setStyleSheet('QDockWidget { font-weight: bold; }')
             dw.setObjectName(title)
-            sub = createWindowItem(item, window, menuwindow)
+            sub = createWindowItem(item, window, menuwindow, topwindow)
             if isinstance(sub, Panel):
                 sub.hideTitle()
             dw.setWidget(sub)

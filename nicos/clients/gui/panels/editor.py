@@ -49,6 +49,8 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import showToolText, loadUi, setBackgroundColor
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.pycompat import iteritems
+from nicos.clients.gui.config import tabbed
+from nicos.clients.gui.panels.tabwidget import firstWindow
 
 COMMENT_STR = '## '
 
@@ -185,10 +187,14 @@ class EditorPanel(Panel):
         if not has_scintilla:
             self.actionComment.setEnabled(False)
 
+        self.menus = None
+        self.bar = None
         self.current_status = None
         self.recentf_actions = []
         self.searchdlg = None
         self.menuRecent = QMenu('Recent files')
+
+        self.menuToolsActions = []
 
         for fn in self.recentf:
             action = QAction(fn, self)
@@ -256,6 +262,13 @@ class EditorPanel(Panel):
         self.toolconfig = options.get('tools', '')
 
     def getMenus(self):
+        window = firstWindow(self)
+
+        isTabbed = False
+        if window:
+            if hasattr(window, 'gui_conf'):
+                isTabbed = isinstance(window.gui_conf.main_window, tabbed)
+
         menuFile = QMenu('&File', self)
         menuFile.addAction(self.actionNew)
         menuFile.addAction(self.actionOpen)
@@ -289,18 +302,36 @@ class EditorPanel(Panel):
         menuScript.addSeparator()
         menuScript.addAction(self.actionGet)
 
-        ret = [menuFile, menuView, menuEdit, menuScript]
+        menuTools = None
+        self.menuToolsActions = []
+
         if self.toolconfig:
-            menuTools = QMenu('&Tools', self)
             for i, tconfig in enumerate(self.toolconfig):
                 action = QAction(tconfig[0], self)
-                menuTools.addAction(action)
+                self.menuToolsActions.append(action)
+
                 def tool_callback(on, i=i):
                     self.runTool(i)
                 self.connect(action, SIGNAL('triggered(bool)'), tool_callback)
-            ret.append(menuTools)
 
-        return ret
+            if len(self.menuToolsActions) > 0:
+                if isTabbed:
+                    separator = QAction(self)
+                    separator.setSeparator(True)
+                    self.menuToolsActions.insert(0, separator)
+                else:
+                    menuTools = QMenu('&Tools', self)
+                    for action in self.menuToolsActions:
+                        menuTools.addAction(action)
+
+        if menuTools:
+            menus = [menuFile, menuView, menuEdit, menuScript, menuTools]
+        else:
+            menus = [menuFile, menuView, menuEdit, menuScript]
+
+        self.menus = menus
+
+        return self.menus
 
     def runTool(self, ttype):
         tconfig = self.toolconfig[ttype]
@@ -312,29 +343,32 @@ class EditorPanel(Panel):
         dialog.show()
 
     def getToolbars(self):
-        bar = QToolBar('Editor')
-        bar.addAction(self.actionNew)
-        bar.addAction(self.actionOpen)
-        bar.addAction(self.actionSave)
-        bar.addSeparator()
-        bar.addAction(self.actionPrint)
-        bar.addSeparator()
-        bar.addAction(self.actionUndo)
-        bar.addAction(self.actionRedo)
-        bar.addSeparator()
-        bar.addAction(self.actionCut)
-        bar.addAction(self.actionCopy)
-        bar.addAction(self.actionPaste)
-        bar.addSeparator()
-        bar.addAction(self.actionRun)
-        bar.addAction(self.actionSimulate)
-        bar.addAction(self.actionGet)
-        bar.addAction(self.actionUpdate)
-        showToolText(bar, self.actionRun)
-        showToolText(bar, self.actionSimulate)
-        showToolText(bar, self.actionGet)
-        showToolText(bar, self.actionUpdate)
-        return [bar]
+        if not self.bar:
+            bar = QToolBar('Editor')
+            bar.addAction(self.actionNew)
+            bar.addAction(self.actionOpen)
+            bar.addAction(self.actionSave)
+            bar.addSeparator()
+            bar.addAction(self.actionPrint)
+            bar.addSeparator()
+            bar.addAction(self.actionUndo)
+            bar.addAction(self.actionRedo)
+            bar.addSeparator()
+            bar.addAction(self.actionCut)
+            bar.addAction(self.actionCopy)
+            bar.addAction(self.actionPaste)
+            bar.addSeparator()
+            bar.addAction(self.actionRun)
+            bar.addAction(self.actionSimulate)
+            bar.addAction(self.actionGet)
+            bar.addAction(self.actionUpdate)
+            showToolText(bar, self.actionRun)
+            showToolText(bar, self.actionSimulate)
+            showToolText(bar, self.actionGet)
+            showToolText(bar, self.actionUpdate)
+            self.bar = bar
+
+        return [self.bar]
 
     def updateStatus(self, status, exception=False):
         self.current_status = status

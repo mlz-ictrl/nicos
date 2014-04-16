@@ -88,6 +88,8 @@ class ScriptStatusPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'status.ui', 'panels')
 
+        self.menus = None
+        self.bar = None
         self.queueFrame.hide()
         self.statusLabel.hide()
         self.pause_color = QColor('#ffdddd')
@@ -114,34 +116,40 @@ class ScriptStatusPanel(Panel):
             setBackgroundColor(widget, back)
 
     def getToolbars(self):
-        bar = QToolBar('Script control')
-        # unfortunately it is not wise to put a menu in its own dropdown menu,
-        # so we have to duplicate the actionBreak and actionStop...
-        dropdown1 = QMenu('', self)
-        dropdown1.addAction(self.actionBreak)
-        dropdown1.addAction(self.actionBreakCount)
-        self.actionBreak2.setMenu(dropdown1)
-        dropdown2 = QMenu('', self)
-        dropdown2.addAction(self.actionStop)
-        dropdown2.addAction(self.actionFinish)
-        self.actionStop2.setMenu(dropdown2)
-        bar.addAction(self.actionBreak2)
-        bar.addAction(self.actionContinue)
-        bar.addAction(self.actionStop2)
-        bar.addAction(self.actionEmergencyStop)
-        return [bar]
+        if not self.bar:
+            bar = QToolBar('Script control')
+            # unfortunately it is not wise to put a menu in its own dropdown menu,
+            # so we have to duplicate the actionBreak and actionStop...
+            dropdown1 = QMenu('', self)
+            dropdown1.addAction(self.actionBreak)
+            dropdown1.addAction(self.actionBreakCount)
+            self.actionBreak2.setMenu(dropdown1)
+            dropdown2 = QMenu('', self)
+            dropdown2.addAction(self.actionStop)
+            dropdown2.addAction(self.actionFinish)
+            self.actionStop2.setMenu(dropdown2)
+            bar.addAction(self.actionBreak2)
+            bar.addAction(self.actionContinue)
+            bar.addAction(self.actionStop2)
+            bar.addAction(self.actionEmergencyStop)
+            self.bar = bar
+
+        return [self.bar]
 
     def getMenus(self):
-        menu = QMenu('&Script control', self)
-        menu.addAction(self.actionBreak)
-        menu.addAction(self.actionBreakCount)
-        menu.addAction(self.actionContinue)
-        menu.addSeparator()
-        menu.addAction(self.actionStop)
-        menu.addAction(self.actionFinish)
-        menu.addSeparator()
-        menu.addAction(self.actionEmergencyStop)
-        return [menu]
+        if not self.menus:
+            menu = QMenu('&Script control', self)
+            menu.addAction(self.actionBreak)
+            menu.addAction(self.actionBreakCount)
+            menu.addAction(self.actionContinue)
+            menu.addSeparator()
+            menu.addAction(self.actionStop)
+            menu.addAction(self.actionFinish)
+            menu.addSeparator()
+            menu.addAction(self.actionEmergencyStop)
+            self.menus = [menu]
+
+        return self.menus
 
     def updateStatus(self, status, exception=False):
         isconnected = status != 'disconnected'
