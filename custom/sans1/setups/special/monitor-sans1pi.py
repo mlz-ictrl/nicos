@@ -44,16 +44,16 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='speed', dev='selector', width=8),
+                 Field(name='selector_rpm', dev='selector_rpm', width=8),
                  ),
          BlockRow(
-                 Field(name='lambda', dev='selector_lambda', width=8),
+                 Field(name='selector_lambda', dev='selector_lambda', width=8),
                  ),
          BlockRow(
-                 Field(name='position', dev='sel_ng_sw', width=8),
+                 Field(name='selector_ng', dev='sel_ng_sw', width=8),
                  ),
          BlockRow(
-                 Field(name='tilt', dev='sel_tilt', width=8),
+                 Field(name='selector_tilt', dev='sel_tilt', width=8),
                  ),
                ],
         ),
@@ -62,11 +62,11 @@ _selcolumn = Column(
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
-                 Field(name='Col Pump', dev='coll_p3'),
-                 Field(name='Col Tube', dev='coll_p1'),
-                 Field(name='Col Nose', dev='coll_p2'),
-                 Field(name='Det Nose', dev='tub_p2'),
-                 Field(name='Det Tube', dev='tub_p1'),
+                 Field(name='Col Pump', dev='coll_pump'),
+                 Field(name='Col Tube', dev='coll_tube'),
+                 Field(name='Col Nose', dev='coll_nose'),
+                 Field(name='Det Nose', dev='det_nose'),
+                 Field(name='Det Tube', dev='det_tube'),
                  )],
         ),
 )
@@ -100,11 +100,11 @@ _sans1general = Column(
 _collimationcolumn = Column(
     Block('Collimation',[
       BlockRow(
-        Field(dev='at', name='att',
+        Field(dev='col_att', name='att',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['x10','x100','x1000','OPEN'],
               width=6.5,height=9),
-        Field(dev='ng_pol', name='pol',
+        Field(dev='col_ng_pol', name='ng_pol',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','POL2','POL1','NG'],
               width=5.5,height=9),
@@ -116,7 +116,7 @@ _collimationcolumn = Column(
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','free','COL','NG'],
               width=5,height=9),
-        Field(dev='bg1', name='bg1',
+        Field(dev='col_bg1', name='bg1',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['50mm','OPEN','20mm','42mm','N.A.'],
               width=7,height=9),
@@ -144,7 +144,7 @@ _collimationcolumn = Column(
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','free','COL','NG'],
               width=5,height=9),
-        Field(dev='bg2', name='bg2',
+        Field(dev='col_bg2', name='bg2',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['28mm','20mm','12mm','OPEN','N.A.'],
               width=7,height=9),
@@ -164,9 +164,9 @@ _collimationcolumn = Column(
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
               options=['LAS','free','COL','NG'],
               width=5,height=9),
-        Field(dev='sa1', name='sa1',
+        Field(dev='col_sa1', name='sa1',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['blocked','20mm','10mm','50x50'],
+              options=['N.A.','20mm','10mm','50x50'],
               width=7,height=9),
                          ),
       BlockRow(
@@ -179,20 +179,20 @@ _collimationcolumn = Column(
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
-        Field(devices=['det1_z1a', 'det1_x1a','det1_omega1a', 'det_pos2'],
+        Field(devices=['det1_z', 'det1_x','det1_omega', 'det_pos2'],
                 widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10)#, max=21000),
               ),
         BlockRow(
-                 Field(name='det1_z', dev='det1_z1a', width=8),
-                 Field(name='det1_x', dev='det1_x1a', width=8),
-                 Field(name='det1_omg', dev='det1_omega1a', width=8),
+                 Field(name='det1_z', dev='det1_z', width=8),
+                 Field(name='det1_x', dev='det1_x', width=8),
+                 Field(name='det1_omg', dev='det1_omega', width=8),
                  Field(name='t', dev='det1_t_ist', width=8),
                  Field(name='t pres.', dev='det_1_t_soll', width=8),
-                 Field(name='voltage', dev='hv', width=8),
+                 Field(name='voltage', dev='det1_hv', width=8),
                  Field(name='mon 1', dev='det1_mon1', width=8),
                  Field(name='mon 2', dev='det1_mon2', width=8),
-                 Field(name='bs1_x', dev='bs1_x1a', width=8),
-                 Field(name='bs1_y', dev='bs1_y1a', width=8),
+                 Field(name='bs1_x', dev='bs1_x', width=8),
+                 Field(name='bs1_y', dev='bs1_y', width=8),
                  ),
             ],
         ),
@@ -207,14 +207,14 @@ devices = dict(
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
-                     fontsize = 10,#12
+                     fontsize = 12,#12
                      padding = 0,#3
                      layout = [
-                                 Row(_expcolumn),
-                                 Row(_sans1general),
-                                 Row(_pressurecolumn),
                                  Row(_selcolumn,_collimationcolumn),
                                  Row(_sans1det),
+                                 #Row(_sans1general),
+                                 Row(_pressurecolumn),
+                                 Row(_expcolumn),
                                ],
                     ),
 )

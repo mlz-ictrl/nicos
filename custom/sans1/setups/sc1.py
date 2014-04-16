@@ -26,7 +26,7 @@ description = 'sample table devices'
 
 group = 'optional'
 
-includes = ['table_top']
+includes = ['sample_table_2']
 
 nethost = '//sans1srv.sans1.frm2/'
 

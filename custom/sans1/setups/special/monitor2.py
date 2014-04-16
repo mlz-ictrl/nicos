@@ -34,22 +34,25 @@ Field = lambda *args, **kwds: args or kwds
 _sc1 = Block('Sample Changer 1', [
     BlockRow(Field(name='Position', dev='sc1_y'),),
     BlockRow(Field(name='sc1', dev='sc1'),),
-], 'sc1')
+], 'sc1'
+)
 
-_st2 = Block('Sample Table 2', [
+_st2 = Block('Sample Table', [
     BlockRow(Field(name='st2_z', dev='st2_z'),),
     BlockRow(Field(name='st2_y', dev='st2_y'),),
     BlockRow(Field(name='st2_x', dev='st2_x'),),
-], 'sample_table_2')
+], 'sample_table_2'
+)
 
-_st1 = Block('Sample Table 1', [
+_st1 = Block('Sample Table', [
     BlockRow(Field(name='st1_phi', dev='st1_phi'),),
     BlockRow(Field(name='st1_chi', dev='st1_chi'),),
     BlockRow(Field(name='st1_omg', dev='st1_omg'),),
     BlockRow(Field(name='st1_y', dev='st1_y'),),
     BlockRow(Field(name='st1_z', dev='st1_z'),),
     BlockRow(Field(name='st1_x', dev='st1_x'),),
-], 'sample_table_1')
+], 'sample_table_1'
+)
 
 _htf03 = Block('HTF03', [
     BlockRow(Field(name='Temperature', dev='T_htf03', format='%.2f', unit='C')),
@@ -152,7 +155,8 @@ _birmag = Block('17 T Magnet', [
                  Field(name='Temp b birmag', dev='tb_birmag', width=13),),
 ], 'birmag')
 
-_sans1general = Block('General', [
+_sans1general = Column(
+    Block('General', [
         BlockRow(
                  Field(name='Reactor', dev='ReactorPower', width=8, format = '%.2f', unit='MW'),
                  Field(name='6 Fold Shutter', dev='Sixfold', width=8),
@@ -174,6 +178,7 @@ _sans1general = Block('General', [
                  Field(name='Crane Pos', dev='Crane', width=8, unit='m'),
                       ),
                 ],
+        ),
 )
 
 devices = dict(
@@ -182,17 +187,14 @@ devices = dict(
                      title='SANS-1 status monitor',
                      cache='sans1ctrl.sans1.frm2',
                      font='Luxi Sans',
-                     fontsize=12,#12
+                     fontsize=15,#12
                      loglevel='info',
                      padding=0,#3
                      prefix='nicos/',
                      valuefont='Consolas',
                      layout=[
+                                Row(_sans1general),
                                 Row(
-                                    Column(_sans1general),
-                                    ),
-                                Row(
-                                    #Column(_sans1general),
                                     Column(_sc1, _st2, _st1, _amagnet, _newport),
                                     Column(_htf03, _spinflipper, _sansmagnet),
                                     Column(*ccrs) + Column(_birmag),

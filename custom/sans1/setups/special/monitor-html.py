@@ -39,34 +39,46 @@ _ubahncolumn = Column(
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
-                 Field(name='Col Pump', dev='coll_p3'),
-                 Field(name='Col Tube', dev='coll_p1'),
-                 Field(name='Col Nose', dev='coll_p2'),
-                 Field(name='Det Nose', dev='tub_p2'),
-                 Field(name='Det Tube', dev='tub_p1'),
+                 Field(name='Col Pump', dev='coll_pump'),
+                 Field(name='Col Tube', dev='coll_tube'),
+                 Field(name='Col Nose', dev='coll_nose'),
+                 Field(name='Det Nose', dev='det_nose'),
+                 Field(name='Det Tube', dev='det_tube'),
                  ),
         ],
     ),
 )
 
-_table = Column(
-    Block('Sample Table', [
+_table2 = Column(
+    Block('Sample Table 2', [
         BlockRow(
-                 Field(name='z-2a', dev='z_2a'),
-                 Field(name='y-2a', dev='y_2a'),
-                 Field(name='x-2a', dev='x_2a'),
+                 Field(name='st2_z', dev='st2_z', width=11),
+                 ),
+        BlockRow(
+                 Field(name='st2_y', dev='st2_y', width=11),
+                 ),
+        BlockRow(
+                 Field(name='st2_x', dev='st2_x', width=11),
+                 ),
+        ], 'sample_table_2'
+    ),
+)
+
+_table1 = Column(
+    Block('Sample Table 1', [
+        BlockRow(
+                 Field(name='st1_phi', dev='st1_phi', width=11),
+                 Field(name='st1_y', dev='st1_y', width=11),
+                 ),
+        BlockRow(
+                 Field(name='st1_chi', dev='st1_chi', width=11),
+                  Field(name='st1_z', dev='st1_z', width=11),
                 ),
         BlockRow(
-                 Field(name='phi-2b', dev='phi_2b'),
-                 Field(name='chi-2b', dev='chi_2b'),
-                 Field(name='omega-2b', dev='omega_2b'),
+                 Field(name='st1_omg', dev='st1_omg', width=11),
+                 Field(name='st1_x', dev='st1_x', width=11),
                 ),
-        BlockRow(
-                 Field(name='y-2b', dev='y_2b'),
-                 Field(name='z-2b', dev='z_2b'),
-                 Field(name='x-2b', dev='x_2b'),
-                ),
-        ],
+        ], 'sample_table_1'
     ),
 )
 
@@ -250,10 +262,10 @@ devices = dict(
                      fontsize = 17,
                      layout = [
                                  Row(_expcolumn),
-                                 Row(_sans1general, _table, _sans1det),
-                                 Row(_ubahncolumn,_selcolumn, _pressurecolumn),
+                                 Row(_sans1general, _table2, _table1, _sans1det),
+                                 Row(_ubahncolumn, _selcolumn, _pressurecolumn),
                                  Row(_atpolcolumn, _sanscolumn),
-                                 Row(_sansmagnet,_spinflipper, _ccrs,_sc1),
+                                 Row(_sansmagnet, _spinflipper, _ccrs, _sc1),
                                ],
                     ),
 )

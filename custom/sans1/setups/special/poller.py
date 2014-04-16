@@ -32,8 +32,8 @@ sysconfig = dict(
 devices = dict(
    Poller = device('services.poller.Poller',
                    alwayspoll = ['collimation', 'pressure',
-                                 'table_top', 'astrium',
-                                 'table_bottom', 'detector',
+                                 'sample_table_2', 'astrium',
+                                 'sample_table_1', 'detector',
                                  'spin_flipper',
                                  'reactor', 'selector_tower', 'sc1',
                                  'guidehall', 'nl4a', 'memograph',
