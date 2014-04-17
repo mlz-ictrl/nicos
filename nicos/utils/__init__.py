@@ -868,13 +868,10 @@ def decodeAny(string):
 # helper to access a certain nicos file which is non-python
 
 def findResource(filepath):
-    """Helper to find a certain nicos specific, but non-python file.
-
-    It prepends the "nicos root" if it is a relative path, and tries the
-    replace "custom/instr/lib" with "lib/nicos/instr" for installed
-    versions.
-    """
-    # XXX this should be phased out, it is not needed anymore...
+    """Helper to find a certain nicos specific, but non-python file."""
+    rmPrefix = 'custom/'
+    if filepath.startswith(rmPrefix):
+        return path.join(config.custom_path, filepath[len(rmPrefix):])
     return path.join(config.nicos_root, filepath)
 
 
