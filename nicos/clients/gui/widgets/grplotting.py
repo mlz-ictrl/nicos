@@ -225,11 +225,28 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         if curve:
             # update curve
             curve.x, curve.y = plotcurve.x, plotcurve.y
-            curve.errorBar1 = plotcurve.errorBar1
-            curve.errorBar2 = plotcurve.errorBar2
+            if plotcurve.errorBar1 and curve.errorBar1:
+                mcolor = curve.errorBar1.markercolor
+                curve.errorBar1 = plotcurve.errorBar1
+                curve.errorBar1.markercolor = mcolor
+            else:
+                curve.errorBar1 = plotcurve.errorBar1
+            if plotcurve.errorBar2 and curve.errorBar2:
+                mcolor = curve.errorBar2.markercolor
+                curve.errorBar2 = plotcurve.errorBar2
+                curve.errorBar2.markercolor = mcolor
+            else:
+                curve.errorBar2 = plotcurve.errorBar2
             if plotcurve not in self.plotcurves:
                 self.plotcurves.append(plotcurve)
         else:
+            color = self._color.getNextColorIndex()
+            plotcurve.linecolor = color
+            plotcurve.markercolor = color
+            if plotcurve.errorBar1:
+                plotcurve.errorBar1.markercolor = color
+            if plotcurve.errorBar2:
+                plotcurve.errorBar2.markercolor = color
             self._axes.addCurves(plotcurve)
             self.plotcurves.append(plotcurve)
 
@@ -315,8 +332,9 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             x, y, title, _labelx, _labely, _interesting, _lineinfo = (
                             self.fitcallbacks[0](args)) #pylint: disable=E1102
 
-            resultcurve = PlotCurve(x, y, legend=title,
-                                    linecolor=self._color.getNextColorIndex())
+            color = self._color.getNextColorIndex()
+            resultcurve = PlotCurve(x, y, legend=title, linecolor=color,
+                                    markercolor=color)
             self.addPlotCurve(resultcurve)
             self.statusMessage = None
             self.window.statusBar.showMessage("Fitting complete")
@@ -386,8 +404,9 @@ class ViewPlot(NicosPlot):
             curvename += ' (' + keyinfo + ')'
         x, y, n, _, _ = self.view.keydata[key]
         if n > 0:
+            color = self._color.getNextColorIndex()
             self.addPlotCurve(PlotCurve(x[:n], y[:n], legend=curvename,
-                                    linecolor=self._color.getNextColorIndex()),
+                                        linecolor=color, markercolor=color),
                               replot)
 
     def pointsAdded(self, whichkey):
@@ -573,8 +592,7 @@ class DataSetPlot(NicosPlot):
                 errbar = ErrorBar(x[:n], y[:n], dneg, dpos)
 
             plotcurve = PlotCurve(x[:n], y[:n], errbar,
-                                  legend=curve.full_description,
-                                  linecolor=self._color.getNextColorIndex())
+                                  legend=curve.full_description)
             if curve.disabled and not self.show_all:
                 plotcurve.visible = False
             self.addPlotCurve(plotcurve, replot)
@@ -601,7 +619,8 @@ class DataSetPlot(NicosPlot):
         if dy is not None:
             dneg = y - dy
             dpos = y + dy
-            errbar = ErrorBar(x[:n], y[:n], dneg, dpos)
+            errbar = ErrorBar(x[:n], y[:n], dneg, dpos,
+                              markercolor=plotcurve.markercolor)
             plotcurve.errorBar1 = errbar
         plotcurve.x = x[:n]
         plotcurve.y = y[:n]
