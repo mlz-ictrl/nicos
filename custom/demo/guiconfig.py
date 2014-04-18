@@ -55,7 +55,7 @@ windows = [
             panel('scriptbuilder.CommandsPanel'),
             panel('editor.EditorPanel',
               tools = [
-                  tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+                  tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
               ]))),
     window('Scans', 'plotter', panel('scans.ScansPanel')),
     window('History', 'find', panel('history.HistoryPanel')),
