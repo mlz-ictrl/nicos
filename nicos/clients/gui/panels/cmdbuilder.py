@@ -83,7 +83,7 @@ class CommandPanel(Panel):
 
     def getMenus(self):
         menus = []
-        for category in all_categories[::-1]:
+        for category in all_categories[::]:
             if category not in self.mapping:
                 return
             menu = QMenu('&' + category + ' commands', self)
