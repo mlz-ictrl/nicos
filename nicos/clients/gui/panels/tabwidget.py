@@ -91,7 +91,7 @@ class TearOffTabBar(QTabBar):
     def dragEnterEvent(self, event):
         mimedata = event.mimeData()
         formats = mimedata.formats()
-        if formats.contains('action') and \
+        if 'action' in formats and \
             mimedata.data('action') == 'application/tab-detach':
             event.acceptProposedAction()
         QTabBar.dragEnterEvent(self, event)
@@ -104,7 +104,7 @@ class TearOffTabBar(QTabBar):
     # def dragMoveEvent(self, event):
     #     mimedata = event.mimeData()
     #     formats = mimedata.formats()
-    #     if formats.contains('action') and \
+    #     if 'action' in formats and \
     #         mimedata.data('action') == 'application/tab-detach':
     #         self._dragMovedPos = event.pos()
     #         event.acceptProposedAction()
