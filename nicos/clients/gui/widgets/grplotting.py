@@ -75,6 +75,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self.fitstage = 0
         self.fitPicker = None
         self.fitcallbacks = [None, None]
+        self.mouselocation = None
 
         dictPrintType = dict(gr.PRINT_TYPE)
         map(dictPrintType.pop, [gr.PRINT_JPEG, gr.PRINT_TIF])
@@ -211,6 +212,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             self.update()
 
     def on_mouseMove(self, event):
+        self.mouselocation = event
         wc = event.getWC(self._plot.viewport)
         if self.statusMessage:
             msg = "%s (X = %g, Y = %g)" % (self.statusMessage, wc.x, wc.y)
@@ -812,42 +814,40 @@ class DataSetPlot(NicosPlot):
         return True
 
     def fitQuick(self):
-        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
-                          if self.plotcurves[i].isVisible()]
-        p = self.picker.trackerPosition()
-        whichcurve = None
-        whichindex = None
-        mindist = None
-        for i in visible_curves:
-            index, dist = self.plotcurves[i].closestPoint(p)
-            if mindist is None or dist < mindist:
-                whichcurve = i
-                whichindex = index
-                mindist = dist
-        self.fitcurve = self.plotcurves[whichcurve]
-        data = self.fitcurve.data()
-        # try to find good starting parameters
-        peakx, peaky = data.x(whichindex), data.y(whichindex)
-        # use either left or right end of curve as background
-        leftx, lefty = data.x(0), data.y(0)
-        rightx, righty = data.x(data.size() - 1), data.y(data.size() - 1)
-        if abs(peakx - leftx) > abs(peakx - rightx):
-            direction = -1
-            backx, backy = leftx, lefty
-        else:
-            direction = 1
-            backx, backy = rightx, righty
-        i = whichindex
-        while i > 0:
-            if data.y(i) < (peaky - backy) / 2.:
-                break
-            i += direction
-        if i != whichindex:
-            fwhmx = data.x(i)
-        else:
-            fwhmx = (peakx + backx) / 2.
-        self.fitvalues = [(backx, backy), (peakx, peaky), (fwhmx, peaky / 2.)]
-        self.fitparams = ['Background', 'Peak', 'Half Maximum']
-        self.fittype = 'Gauss'
-        self.fitcallbacks = [self.gauss_callback, None]
-        self._finishFit()
+        if self.mouselocation:
+            (coord, _axes, curve) = self._plot.pick(self.mouselocation.getNDC(),
+                                                    self.dwidth, self.dheight)
+            if curve:
+                self.fitcurve = curve
+                wc = coord.getWC(self._plot.viewport)
+                whichindex = None
+                for idx, y in enumerate(curve.y):
+                    if wc.y == y:
+                        whichindex = idx
+                        break
+                # try to find good starting parameters
+                peakx, peaky = wc.x, wc.y
+                # use either left or right end of curve as background
+                leftx, lefty = curve.x[0], curve.y[0]
+                rightx, righty = curve.x[-1], curve.y[-1]
+                if abs(peakx - leftx) > abs(peakx - rightx):
+                    direction = -1
+                    backx, backy = leftx, lefty
+                else:
+                    direction = 1
+                    backx, backy = rightx, righty
+                i = whichindex
+                while i > 0:
+                    if curve.y[i] < (peaky - backy) / 2.:
+                        break
+                    i += direction
+                if i != whichindex:
+                    fwhmx = curve.x[i]
+                else:
+                    fwhmx = (peakx + backx) / 2.
+                self.fitvalues = [(backx, backy), (peakx, peaky),
+                                  (fwhmx, peaky / 2.)]
+                self.fitparams = ['Background', 'Peak', 'Half Maximum']
+                self.fittype = 'Gauss'
+                self.fitcallbacks = [self.gauss_callback, None]
+                self._finishFit()
