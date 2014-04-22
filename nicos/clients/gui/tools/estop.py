@@ -24,10 +24,32 @@
 
 """Always-on-top emergency stop button."""
 
-from PyQt4.QtGui import QDialog, QPushButton, QHBoxLayout
-from PyQt4.QtCore import SIGNAL, Qt, QByteArray
+from PyQt4.QtGui import QDialog, QAbstractButton, QHBoxLayout, QIcon, \
+     QPainter
+from PyQt4.QtCore import SIGNAL, Qt, QByteArray, QSize, QPoint
 
 from nicos.clients.gui.utils import SettingGroup
+from nicos.guisupport import gui_rc  # pylint: disable=W0611
+
+
+class PicButton(QAbstractButton):
+    def __init__(self, icon, parent=None):
+        super(PicButton, self).__init__(parent)
+        self.icon = icon
+        self._size = QSize(100, 100)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        mode = QIcon.Active if self.isDown() else QIcon.Normal
+        pixmap = self.icon.pixmap(self._size, mode)
+        painter.drawPixmap(QPoint(0, 0), \
+                           pixmap.scaled(event.rect().size(), Qt.KeepAspectRatio))
+
+    def sizeHint(self):
+        return self._size
+
+    def maximumSize(self):
+        return self._size
 
 
 class EmergencyStopTool(QDialog):
@@ -41,28 +63,16 @@ class EmergencyStopTool(QDialog):
         with self.sgroup as settings:
             self.restoreGeometry(settings.value('geometry', b'', QByteArray))
 
-        self.btn = QPushButton('STOP', self)
-        self.btn.setStyleSheet('''
-        QPushButton {
-            color: yellow;
-            font-size: 24px;
-            font-weight: bold;
-            background-color: #ff0000;
-            border-style: solid;
-            border-width: 5px;
-            border-radius: 45px;
-            border-color: #cc0000;
-            max-width: 80px;
-            max-height: 80px;
-            min-width: 80px;
-            min-height: 80px;
-        }''')
+        icon = QIcon(':/estop')
+        icon.addFile(':/estopdown', mode=QIcon.Active)
+        self.btn = PicButton(icon, self)
 
         layout = QHBoxLayout()
         layout.addWidget(self.btn)
         layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(layout)
         self.connect(self.btn, SIGNAL('clicked()'), self.dostop)
+        self.setFixedSize(self.minimumSize())
 
     def dostop(self, *ignored):
         self.client.tell('emergency')
@@ -73,6 +83,8 @@ class EmergencyStopTool(QDialog):
 
     def closeEvent(self, event):
         self._saveSettings()
+        self.deleteLater()
+        self.accept()
 
     def __del__(self):
         # there is a bug in Qt where closeEvent isn't called when the
