@@ -241,13 +241,14 @@ class TearOffTabWidget(QTabWidget):
                     action.setVisible(False)
 
         if self.previousTabIdx < self.count():
-            for p in self.widget(self.previousTabIdx).panels:
-                if hasattr(p, 'menuToolsActions'):
-                    topLevelWindow = topLevelWidget(p)
+            if self.widget(self.previousTabIdx):
+                for p in self.widget(self.previousTabIdx).panels:
+                    if hasattr(p, 'menuToolsActions'):
+                        topLevelWindow = topLevelWidget(p)
 
-                    if hasattr(topLevelWindow, 'menuTools'):
-                        for action in p.menuToolsActions:
-                            topLevelWindow.menuTools.removeAction(action)
+                        if hasattr(topLevelWindow, 'menuTools'):
+                            for action in p.menuToolsActions:
+                                topLevelWindow.menuTools.removeAction(action)
 
         if self.widget(index):
             for p in self.widget(index).panels:
