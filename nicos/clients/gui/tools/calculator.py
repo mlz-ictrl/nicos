@@ -113,6 +113,10 @@ class CalculatorTool(QDialog):
                          self.braggcalc)
             inputbox.setValidator(dblval)
 
+    def closeEvent(self, event):
+        self.deleteLater()
+        self.accept()
+
     def doclose(self, *ignored):
         self.presets.save()
         self.close()

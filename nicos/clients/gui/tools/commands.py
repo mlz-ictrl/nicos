@@ -57,3 +57,7 @@ class CommandsTool(QDialog):
                                 stderr=subprocess.STDOUT)
         out = proc.communicate()[0].decode()
         self.outputBox.appendPlainText(out)
+
+    def closeEvent(self, event):
+        self.deleteLater()
+        self.accept()

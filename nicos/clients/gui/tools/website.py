@@ -44,3 +44,7 @@ class WebsiteTool(QDialog):
 
     def doclose(self, *ignored):
         self.close()
+
+    def closeEvent(self, event):
+        self.deleteLater()
+        self.accept()

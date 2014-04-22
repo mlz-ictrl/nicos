@@ -195,8 +195,12 @@ class ScanTool(QDialog):
     def close(self, *args):
         """Close the window and save the settings."""
         self.presets.save()
-        self.accept()
         return True
+
+    def closeEvent(self, event):
+        self.presets.save()
+        self.deleteLater()
+        self.accept()
 
     def clearAll(self):
         # Clear scan
