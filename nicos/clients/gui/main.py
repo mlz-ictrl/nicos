@@ -583,7 +583,7 @@ class MainWindow(QMainWindow, DlgUtils):
 log = None
 
 def usage():
-    print('usage: %s [options] [user_name [password]]' % sys.argv[0])
+    print('usage: %s [options] [host[:port] [user_name [password]]]' % sys.argv[0])
     print('   -h|--help : print this page')
     print("   -c|--config-file file_name : use the configuration file"
           " 'file_name'")
