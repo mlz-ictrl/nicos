@@ -84,14 +84,24 @@ class gui_config(object):
         """Return True if the config contains a panel with the given class."""
         if isinstance(config, window):
             return self._has_panel(config.contents, panel_classes)
-        elif isinstance(config, (hsplit, vsplit, tabbed)):
+        elif isinstance(config, (hsplit, vsplit)):
             for child in config:
                 if self._has_panel(child, panel_classes):
                     return True
         elif isinstance(config, panel):
             return config.clsname in panel_classes
+        elif isinstance(config, tabbed):
+            return any(self._has_panel(child[1], panel_classes)
+                       for child in config)
+        elif isinstance(config, docked):
+            if self._has_panel(config[0], panel_classes):
+                return True
+            return any(self._has_panel(child[1], panel_classes)
+                       for child in config[1])
 
     def find_panel(self, panel_classes):
+        if self._has_panel(self.main_window, panel_classes):
+            return -1
         for i, winconfig in enumerate(self.windows):
             if self._has_panel(winconfig, panel_classes):
                 return i

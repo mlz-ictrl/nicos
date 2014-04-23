@@ -209,6 +209,9 @@ class MainWindow(QMainWindow, DlgUtils):
         self.setStatus('disconnected')
 
     def createWindow(self, wtype):
+        # for the history_wintype or editor_wintype
+        if wtype == -1:
+            return self
         try:
             wconfig = self.gui_conf.windows[wtype]
         except IndexError:
@@ -226,6 +229,11 @@ class MainWindow(QMainWindow, DlgUtils):
             panel.updateStatus(self.current_status)
         window.show()
         return window
+
+    def getPanel(self, panelName):
+        for panelobj in self.panels:
+            if panelobj.panelName == panelName:
+                return panelobj
 
     def on_auxWindow_closed(self, window):
         del self.windows[window.type]
