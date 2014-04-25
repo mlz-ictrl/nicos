@@ -132,7 +132,7 @@ The ``nicos.conf`` configuration file
 
 At startup, all NICOS processes read a file called ``nicos.conf``; it should be
 located in the "root" directory of the NICOS installation, i.e. the directory
-containing the ``lib`` directory.
+containing the ``__init__.py`` main file.
 
 A file with default settings for each instrument is expected in
 ``custom/instrumentname/nicos.conf`` and will be loaded automatically.  The
