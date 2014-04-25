@@ -65,6 +65,9 @@ installed_from = %s
             cf.write(nicos_conf_tmpl % (self.true_pid,
                                         self.true_log,
                                         path.abspath(os.curdir)))
+            instr = os.getenv('INSTRUMENT')
+            if instr:
+                cf.write('\ninstrument = %s\n' % instr)
 
 
 def find_packages():
