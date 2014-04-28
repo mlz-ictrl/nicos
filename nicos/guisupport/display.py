@@ -37,23 +37,53 @@ from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
 
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN, \
     statuses
-from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
+from nicos.guisupport.utils import setBackgroundColor, setForegroundColor, \
+    setBothColors
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import text_type, from_maybe_utf8
 
 
-_black = QColor('black')
-_red   = QColor('red')
-_gray  = QColor('gray')
+defaultColorScheme = {
+    'fore': {
+        OK:         QColor('#00ff00'),
+        BUSY:       QColor('yellow'),
+        PAUSED:     QColor('yellow'),
+        ERROR:      QColor('red'),
+        NOTREACHED: QColor('red'),
+        UNKNOWN:    QColor('white'),
+    },
+    'back': {
+        OK:         QColor('black'),
+        BUSY:       QColor('black'),
+        PAUSED:     QColor('black'),
+        ERROR:      QColor('black'),
+        NOTREACHED: QColor('black'),
+        UNKNOWN:    QColor('black'),
+    },
+    'expired':      QColor('gray'),
+    'warn':         QColor('red'),
+}
 
-statusColor = {
-    OK:         QColor('#00ff00'),
-    BUSY:       QColor('yellow'),
-    PAUSED:     QColor('yellow'),
-    ERROR:      QColor('red'),
-    NOTREACHED: QColor('red'),
-    UNKNOWN:    QColor('white'),
+lightColorScheme = {
+    'fore': {
+        OK:         QColor('#00cc00'),
+        BUSY:       QColor('black'),
+        PAUSED:     QColor('black'),
+        ERROR:      QColor('black'),
+        NOTREACHED: QColor('black'),
+        UNKNOWN:    QColor('black'),
+    },
+    'back': {
+        OK:         QColor('white'),
+        BUSY:       QColor('yellow'),
+        PAUSED:     QColor('yellow'),
+        ERROR:      QColor('#ff4444'),
+        NOTREACHED: QColor('#ff4444'),
+        UNKNOWN:    QColor('white'),
+    },
+    'expired':      QColor('#cccccc'),
+    'warn':         QColor('#ff4444'),
 }
 
 
@@ -118,7 +148,7 @@ class ValueDisplay(NicosWidget, QWidget):
     designer_description = 'A widget with name/value labels'
     designer_icon = ':/table'
 
-    def __init__(self, parent, designMode=False, **kwds):
+    def __init__(self, parent, designMode=False, colorScheme=None, **kwds):
         # keys being watched
         self._mainkeyid = None
         self._statuskeyid = None
@@ -135,10 +165,13 @@ class ValueDisplay(NicosWidget, QWidget):
         self._lastchange = 0
         self._mouseover = False
         self._mousetimer = None
-        self._statuscolor = statusColor[UNKNOWN]
+
+        self._colorscheme = colorScheme or defaultColorScheme
 
         QWidget.__init__(self, parent, **kwds)
         NicosWidget.__init__(self)
+        self._statuscolors = self._colorscheme['fore'][UNKNOWN], \
+                             self._colorscheme['back'][UNKNOWN]
 
     properties = {
         'dev':        PropDef(str, ''),
@@ -189,10 +222,12 @@ class ValueDisplay(NicosWidget, QWidget):
             self.namelabel.setVisible(value)
         elif pname == 'showStatus':
             if not value:
-                setForegroundColor(self.valuelabel, statusColor[UNKNOWN])
+                setBothColors(self.valuelabel,
+                              (self._colorscheme['fore'][UNKNOWN],
+                               self._colorscheme['back'][UNKNOWN]))
         elif pname == 'showExpiration':
             if not value:
-                setBackgroundColor(self.valuelabel, statusColor[UNKNOWN])
+                setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
         elif pname == 'horizontal':
             self.reinitLayout()
         if pname in ('dev', 'name', 'unit'):
@@ -209,8 +244,8 @@ class ValueDisplay(NicosWidget, QWidget):
         valuelabel.setAlignment(Qt.AlignHCenter)
         valuelabel.setFrameShadow(QFrame.Sunken)
         valuelabel.setAutoFillBackground(True)
-        setBackgroundColor(valuelabel, _black)
-        setForegroundColor(valuelabel, statusColor[UNKNOWN])
+        setBackgroundColor(valuelabel, self._colorscheme['fore'][UNKNOWN])
+        setForegroundColor(valuelabel, self._colorscheme['back'][UNKNOWN])
         valuelabel.setLineWidth(2)
         self.valuelabel = valuelabel
         self.width = 8
@@ -251,9 +286,9 @@ class ValueDisplay(NicosWidget, QWidget):
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         # check expired values
         if expired and self.props['showExpiration']:
-            setBackgroundColor(self.valuelabel, _gray)
+            setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
         else:
-            setBackgroundColor(self.valuelabel, _black)
+            setBackgroundColor(self.valuelabel, self._colorscheme['back'][BUSY])
         self._applywarncolor(value)
         if self.props['maxlen'] > -1:
             self.valuelabel.setText(strvalue[:self.props['maxlen']])
@@ -261,24 +296,25 @@ class ValueDisplay(NicosWidget, QWidget):
             self.valuelabel.setText(strvalue)
         self._lastvalue = value
         self._lastchange = currenttime()
-        setForegroundColor(self.valuelabel, statusColor[BUSY])
+        setForegroundColor(self.valuelabel, self._colorscheme['fore'][BUSY])
         QTimer.singleShot(1000, self._applystatuscolor)
 
     def _applystatuscolor(self):
-        setForegroundColor(self.valuelabel, self._statuscolor)
+        setBothColors(self.valuelabel, self._statuscolors)
 
     def _applywarncolor(self, value):
         # check min/max values
         if (self._minvalue is not None and value < self._minvalue) or \
             (self._maxvalue is not None and value > self._maxvalue):
             self.namelabel.setAutoFillBackground(True)
-            setBackgroundColor(self.namelabel, _red)
+            setBackgroundColor(self.namelabel, self._colorscheme['warn'])
         else:
             self.namelabel.setAutoFillBackground(False)
 
     def on_devStatusChange(self, dev, code, status, expired):
         if self.props['showStatus']:
-            self._statuscolor = statusColor[code]
+            self._statuscolors = self._colorscheme['fore'][code], \
+                                 self._colorscheme['back'][code]
             self._laststatus = code, status
             self._applystatuscolor()
 

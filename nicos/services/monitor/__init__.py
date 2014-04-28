@@ -33,10 +33,10 @@ from os import path
 from time import sleep, strftime, time as currenttime
 
 from nicos import session
-from nicos.core import listof, Param, Override
+from nicos.core import listof, oneof, Param, Override
 from nicos.utils import watchFileContent
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, \
-     OP_WILDCARD, cache_load
+    OP_WILDCARD, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
 
 
@@ -65,6 +65,8 @@ class Monitor(BaseCacheClient):
                            settable=True),
         'resizable': Param('Whether the window is resizable', type=bool,
                            default=True),
+        'colors':    Param('Color scheme for value displays (dark or light '
+                           'background)', type=oneof('dark', 'light')),
     }
 
     parameter_overrides = {

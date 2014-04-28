@@ -36,7 +36,7 @@ from PyQt4.QtCore import Qt, SIGNAL
 from nicos.utils import findResource
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
-from nicos.guisupport.display import ValueDisplay
+from nicos.guisupport.display import ValueDisplay, lightColorScheme
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.pycompat import iteritems, string_types
 
@@ -154,6 +154,8 @@ class Monitor(BaseMonitor):
             w, h, x, y = self._geometry  # pylint: disable=W0633
             master.setGeometry(x, y, w, h)
 
+        # colors used for the display of watchdog warnings, not for the
+        # individual value displays
         self._bgcolor = QColor('gray')
         self._black = QColor('black')
         self._red = QColor('red')
@@ -206,6 +208,8 @@ class Monitor(BaseMonitor):
 
         displayframe = QFrame(master)
         self._plots = {}
+
+        colorScheme = lightColorScheme if self.colors == 'light' else None
 
         def _create_field(groupframe, field):
 
@@ -263,7 +267,7 @@ class Monitor(BaseMonitor):
                 master.connect(plotwidget, SIGNAL('widgetInfo'), self.newWidgetInfo)
                 return plotwidget
             else:
-                display = ValueDisplay(groupframe)
+                display = ValueDisplay(groupframe, colorScheme=colorScheme)
                 return _setup(display)
 
         # now iterate through the layout and create the widgets to display it

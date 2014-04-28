@@ -40,3 +40,13 @@ def setForegroundColor(widget, color):
     palette.setColor(QPalette.WindowText, color)
     widget.setForegroundRole(QPalette.WindowText)
     widget.setPalette(palette)
+
+
+def setBothColors(widget, colors):
+    palette = widget.palette()
+    palette.setColor(QPalette.WindowText, colors[0])
+    palette.setColor(QPalette.Window, colors[1])
+    palette.setColor(QPalette.Base, colors[1])
+    widget.setBackgroundRole(QPalette.Window)
+    widget.setForegroundRole(QPalette.WindowText)
+    widget.setPalette(palette)

@@ -155,6 +155,7 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
+                     colors = 'light',
                      layout = [Row(_expcolumn), Row(_leftcolumn,_rightcolumn,),
                                Row(_pgaacolumn),],
                     ),
