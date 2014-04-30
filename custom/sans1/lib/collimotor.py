@@ -26,16 +26,17 @@
 
 import time
 import struct
-import threading
 
 from Modbus import Modbus
 
 from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
     floatrange, intrange, status, waitForStatus, InvalidValueError, Moveable, \
-    UsageError, CommunicationError, PositionError, SIMULATION, Attach
+    UsageError, CommunicationError, PositionError, MoveError, SIMULATION, \
+    Attach
 from nicos.core.device import usermethod, requires
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import CanReference, Motor
+from nicos.devices.generic.sequence import SequencerMixin, SeqCall
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput, \
     DigitalInput, NamedDigitalInput
@@ -116,7 +117,7 @@ class Sans1ColliSwitcher(Switcher):
                             self._adevs['moveable'])
 
 
-class Sans1ColliMotor(TacoDevice, Motor, CanReference):
+class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
@@ -164,9 +165,10 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
         if mode != SIMULATION:
             self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
             if self.autopower == 'on':
-                threading.Thread(target=self._autopoweroff).start()
-
+                self._HW_disable()
+    #
     # access-helpers for accessing the fields inside the MotorControlBlock
+    #
     def _readControlBit(self, bit):
         self.log.debug('_readControlBit %d'%bit)
         value = self._taco_guard(self._dev.readInputRegisters,
@@ -235,43 +237,38 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
         return int(value * self.slope * self.microsteps * 1.6384e-2 )
 
     #
-    # nicos methods
+    # Hardware abstraction: which actions do we want to do...
     #
-    def doRead(self, maxage=0):
-        return self._steps2phys(self._readPosition())
+    def _HW_enable(self):
+        self._writeControlBit(0, 1)     # docu: bit0 = 1: enable
 
-    def doStart(self, value):
-        self.log.debug('doStart %r' % value)
-        self._writeControlBit(0, 1)     # docu: bit0 = 1: enable
-        if self.autozero is not None:
-            currentpos = self.read(0)
-            mindist = min(abs(currentpos - self.refpos), abs(value - self.refpos))
-            if mindist < self.autozero:
-                self._reference()
-                # returns after referencing has been done.
-        # now just go where commanded....
-        self._writeControlBit(0, 1)     # docu: bit0 = 1: enable
-        self.log.debug('Starting positioning')
-        self._writeDestination(self._phys2steps(value))
+    def _HW_disable(self):
+        self._writeControlBit(0, 0)     # docu: bit0 = 1: enable
+
+    def _HW_start(self, target):
+        self._writeDestination(self._phys2steps(target))
         self._writeControlBit(2, 1)     # docu: bit2 = go to absolute position, autoresets
-        if self.autopower == 'on':
-            threading.Thread(target=self._autopoweroff).start()
 
-    def _autopoweroff(self):
-        time.sleep(1)
-        self.log.debug('AutoPowerOff checking status')
-        while self.doStatus()[0]==status.BUSY:
-            time.sleep(1)
-        self.log.debug('AutoPowerOff')
-        self._writeControlBit(0, 0)     # docu: bit0 = 0: disable
+    def _HW_reference(self):
+        """Do the referencing and update position to refpos"""
+        self._writeControlBit(4, 1)     # docu: bit4 = reference, autoresets
+        # according to docu, the refpos is (also) a parameter of the KL....
 
-    def doStop(self):
+    def _HW_stop(self):
         self._writeControlBit(6, 1)     # docu: bit6 = stop, autoresets
 
-    def doReset(self):
-        self._writeControlBit(7, 1)     # docu: bit7 = ERROR-ACK, autoresets
+    def _HW_wait_while_BUSY(self):
+        # XXX timeout?
+        while not self._seq_stopflag:
+            time.sleep(0.1)
+            statval = self._readStatusWord()
+            # if motor moving==0 and target reached==1 -> break
+            if (statval & (1<<7) == 0) and (statval & (1<<6) ):
+                break
+            if statval & (1<<10): # limit switch triggered
+                break
 
-    def doStatus(self, maxage=0):
+    def _HW_status(self):
         ''' used Status bits:
         0-2 : Load-angle (0 good, 7 bad)
         3   : limit switch -
@@ -310,7 +307,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
         elif statval & (1<<9):
             code, msg = status.ERROR, ['Overtemperature!']
         elif statval & (7<<10):   # check any of bit 10, 11, 12 at the same time!
-            code, msg = status.NOTREACHED, ['Can not reach Target!']
+            code, msg = status.OK, ['Can not reach Target!']
         if errval:
             code, msg = status.ERROR, ['Error']
             if errval & (1<<0): msg.append('Control voltage too low')
@@ -337,43 +334,86 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference):
         self.log.debug('doStatus returns %r'%((code,msg),))
         return code, msg
 
+    #
+    # Sequencing stuff
+    #
+    def _gen_move_sequence(self, target):
+        # now generate a sequence of commands to execute in order
+        seq = []
+
+        # always enable before doing anything
+        seq.append(SeqCall(self._HW_enable))
+
+        # check autoreferencing feature
+        if self.autozero is not None:
+            currentpos = self.read(0)
+            mindist = min(abs(currentpos - self.refpos), abs(target - self.refpos))
+            if mindist < self.autozero:
+                seq.extend(self._gen_ref_sequence())
+
+        # now just go where commanded....
+        seq.append(SeqCall(self._HW_start, target))
+        seq.append(SeqCall(self._HW_wait_while_BUSY))
+
+        if self.autopower == 'on':
+            # disable if requested.
+            seq.append(SeqCall(self._HW_disable))
+
+        return seq
+
+    def _gen_ref_sequence(self):
+        seq = []
+        # try to mimic anatel: go to 5mm before refpos and then to the negative limit switch
+        seq.append(SeqCall(self._HW_start, self.refpos + 5.))
+        seq.append(SeqCall(self._HW_wait_while_BUSY))
+        seq.append(SeqCall(self._HW_start, self.absmin if self.absmin<self.refpos else self.refpos - 100))
+        seq.append(SeqCall(self._HW_wait_while_BUSY))
+        seq.append(SeqCall(self._HW_reference))
+        seq.append(SeqCall(self._HW_wait_while_BUSY))
+        return seq
+
+    #
+    # nicos methods
+    #
+    def doRead(self, maxage=0):
+        return self._steps2phys(self._readPosition())
+
+    def doStart(self, target):
+        if self._seq_thread is not None:
+            raise MoveError(self, 'Cannot start device, it is still moving!')
+        self._startSequence(self._gen_move_sequence(target))
+
+    def doStop(self):
+        if self._honor_stop:
+            self._seq_stopflag = True
+        self._HW_stop()
+
+    def doReset(self):
+        self._writeControlBit(7, 1)     # docu: bit7 = ERROR-ACK, autoresets
+        self._set_seq_status(status.OK, 'idle')
+
+    def doStatus(self, maxage=0):
+        """returns highest statusvalue"""
+        stati = [self._HW_status(), self._seq_status]
+        # sort by first element, i.e. status code
+        stati.sort(reverse=True)
+        # return highest (worst) status
+        return stati[0]
+
     def doWait(self):
+        if self._seq_thread:
+            self._seq_thread.join() # XXX timeout?
         waitForStatus(self, timeout=300)
 
     @requires(level='admin')
     def doReference(self):
-        self._writeControlBit(0, 1)     # docu: bit0 = 1: enable
-        self._reference()  # this is blocking until finished
-        if self.autopower:
-            self._writeControlBit(0, 0)     # docu: bit0 = 0: disable
-
-    def _reference(self):
-        self.log.debug('_reference begin')
-        if self.doStatus(0)[0] != status.OK:
-            raise UsageError(self, 'Referencing only possible if Idle! '
-                             'Hint: use stop or reset')
-        # first move to negative limit switch to mimic anatel
-        for i, p in enumerate([self.refpos + 5.,
-                               self.refpos - abs(self.usermax) - abs(self.usermin)]):
-            self.log.debug('doReference: %d) go to %.2f'% (2*i+1, p))
-            self._writeDestination(self._phys2steps(p))
-            self._writeControlBit(2, 1)
-            self.log.debug('doReference: %d) wait'%(2*i+2))
-            if i == 0:
-                self.wait()
-            else:
-                waitForStatus(self, timeout=10, errorstates=tuple())
-        # now we should be deep in limit-switch -
-        self.log.debug('doReference: 5) start the referencing')
-        # do the referencing & update position to refpos
-        self._writeControlBit(4, 1)
-        self.log.debug('doReference: 6) wait')
-        self.wait()
-        #~ currentpos = self.read(0)
-        #~ self.log.debug('doReference: 7) set current pos %.2f to refpos %.2f'%(
-            #~ self.mapping.get(currentpos, currentpos), self.refpos))
-        #~ self.writeParameter(1, self._phys2steps(self.refpos), False)
-        self.log.debug('doReference: Done...')
+        if self._seq_thread is not None:
+            raise MoveError(self, 'Cannot reference device, it is still moving!')
+        seq = self._gen_ref_sequence()
+        if self.autopower == 'on':
+            # disable if requested.
+            seq.append(SeqCall(self._HW_disable))
+        self._startSequence(seq)
 
     #~ # Parameter 1 : CurrentPosition
     #~ def doSetPosition(self, value):
