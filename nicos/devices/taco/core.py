@@ -264,6 +264,8 @@ class TacoDevice(DeviceMixinBase):
     def _taco_guard_log(self, function, *args):
         """Like _taco_guard(), but log the call."""
         self.log.debug('TACO call: %s%r' % (function.__name__, args))
+        if not self._dev:
+            raise NicosError(self, 'TACO Device not initialised')
         self.__lock.acquire()
         try:
             ret = function(*args)
@@ -304,6 +306,8 @@ class TacoDevice(DeviceMixinBase):
 
         If the `tacotries` parameter is > 1, the call is retried accordingly.
         """
+        if not self._dev:
+            raise NicosError(self, 'TACO device not initialised')
         self.__lock.acquire()
         try:
             return function(*args)
@@ -332,6 +336,8 @@ class TacoDevice(DeviceMixinBase):
         """Update the TACO resource *resname* to *value* (both must be strings),
         switching the device off and on.
         """
+        if not self._dev:
+            raise NicosError(self, 'TACO device not initialised')
         self.__lock.acquire()
         try:
             self.log.debug('TACO resource update: %s %s' %
