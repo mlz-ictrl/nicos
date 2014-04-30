@@ -24,9 +24,7 @@
 
 description = 'Selector'
 
-includes = ['system']
-
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'
 

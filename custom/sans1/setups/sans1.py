@@ -27,7 +27,7 @@ description = 'sans1 setup'
 
 group = 'basic'
 
-includes = ['system', 'collimation', 'detector', 'sample_table_2', 'det1',
+includes = ['system', 'collimation', 'detector', 'sample_table_1', 'det1',
             'pressure', 'selector_tower', 'astrium', 'memograph']
 
 devices = dict(

@@ -24,8 +24,6 @@
 
 description = 'Vacuum sensors of detector and collimation tube'
 
-includes = ['system']
-
 group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'

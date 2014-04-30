@@ -27,7 +27,7 @@ description = 'Sans1 Magnet'
 
 group = 'optional'
 
-includes = ['system', 'alias_B']
+includes = ['alias_B']
 
 nethost = 'ccmsans.sans1.frm2'
 

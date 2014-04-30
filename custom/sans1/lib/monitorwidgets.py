@@ -10,6 +10,7 @@ from nicos.guisupport.widget import NicosWidget, PropDef
 _magenta = QBrush(QColor('#A12F86'))
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))
+_grey = QBrush(QColor('lightgrey'))
 _black = QBrush(QColor('black'))
 _blue = QBrush(QColor('blue'))
 _red = QBrush(QColor('red'))
@@ -210,6 +211,7 @@ class CollimatorTable(NicosWidget, QWidget):
     def __init__(self, parent, designMode=False):
         self._curstr = ''
         self._curstatus = OK
+        self.shift = -1
 
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
@@ -217,6 +219,7 @@ class CollimatorTable(NicosWidget, QWidget):
     properties = {
         'dev':       PropDef(str, ''),
         'options':   PropDef('QStringList', []),
+        'disabled_options':   PropDef('QStringList', []),
         'height':    PropDef(int, 4),
         'width':     PropDef(int, 10),
         'name':      PropDef(str, ''),
@@ -270,17 +273,22 @@ class CollimatorTable(NicosWidget, QWidget):
         painter.setPen(pen)
 
         painter.setBrush(statusbrush[self._curstatus])
-        try:
-            p = self.props['options'].index(self._curstr)
-        except ValueError:
-            p = len(self.props['options']) // 2 + 0.5
+        if self._curstr in self.props['options']:
+            self.shift = self.props['options'].index(self._curstr)
+        if self._curstr in self.props['disabled_options']:
+            self.shift = len(self.props['options'])
 
         painter.setFont(self.valueFont)
 
         h0 = max(2 * self._scale, 2 * self._scale + 4)
         painter.setClipRect(0, yoff, w, h)
         for i, t in enumerate(self.props['options']):
-            y = h * 0.5 + yoff + h0 * (p - i - 0.45)
+            y = h * 0.5 + yoff + h0 * (self.shift - i - 0.45)
+            b = statusbrush[self._curstatus]
+            if t == self._curstr:
+                painter.setBrush(b)
+            else:
+                painter.setBrush(_grey if b == statusbrush[OK] else b)
             painter.drawRect(5, y + 2, w - 10, h0 - 4 )
             painter.drawText(5, y + 2, w - 10, h0 - 4,
                              Qt.AlignCenter, t)

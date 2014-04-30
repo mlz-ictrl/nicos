@@ -24,6 +24,8 @@
 
 description = 'system setup'
 
+group = 'lowlevel'
+
 sysconfig = dict(
     cache = 'sans1ctrl.sans1.frm2',
     instrument = 'Instrument',

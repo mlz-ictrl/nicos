@@ -26,7 +26,7 @@ description = 'Birmingham Magnet 17T'
 
 group = 'optional'
 
-includes = ['system', 'alias_B']
+includes = ['alias_B']
 
 nethost = 'spinflip.sans1.frm2'
 

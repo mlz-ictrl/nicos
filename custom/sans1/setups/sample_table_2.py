@@ -24,7 +24,7 @@
 
 description = 'top sample table devices'
 
-includes = ['system', 'sample_table_1']
+includes = ['sample_table_1']
 
 group = 'optional'
 

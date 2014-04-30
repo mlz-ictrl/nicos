@@ -29,7 +29,7 @@ includes = ['system']
 
 excludes = ['collimation']
 
-group = 'lowlevel'
+group = 'lowlevel' # should not be visible to users
 
 nethost = 'sans1srv.sans1.frm2'
 
