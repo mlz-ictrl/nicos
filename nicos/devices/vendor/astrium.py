@@ -117,6 +117,7 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
 
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='rpm'),
+        'precision' : Override(mandatory=False, type=float, default=0),
     }
 
     attached_devices = {
@@ -163,22 +164,24 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
                                % (_min, _max)
         return True, ''
 
-    def doStart(self, value):
+    def doStart(self, target):
+        if abs(self.doRead() - target) <= self.precision:
+            return
         # the SPEED command is sometimes not accepted immediately; we try a few
         # times with lots of time in between
         for _i in range(self.maxtries):
             try:
                 accepted, state = self._adevs['statedev'].communicate(
-                    'SPEED %05d' % value)
+                    'SPEED %05d' % target)
             except CommunicationError:
                 sleep(self.commdelay)
             else:
                 if not accepted:
                     raise InvalidValueError(self, 'speed of %d RPM not accepted'
                                             ' by selector (is it in a forbidden'
-                                            ' range?)' % value)
-                if state.get('RSPEED') == value:
-                    # we got a "requested speed" value back and it matches the
+                                            ' range?)' % target)
+                if state.get('RSPEED') == target:
+                    # we got a "requested speed" target back and it matches the
                     # one we tried to set -- done
                     return
                 self.log.debug('requested speed return not correct: %r' %
