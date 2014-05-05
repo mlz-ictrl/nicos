@@ -288,23 +288,29 @@ class Poller(Device):
         if setup == '[dummy]':
             return
 
-        session.loadSetup(setup, allow_startupcode=False)
-        for devname in session.getSetupInfo()[setup]['devices']:
-            if devname in self.blacklist:
-                self.log.debug('not polling %s, it is blacklisted' % devname)
-                continue
-            self.log.debug('starting thread for %s' % devname)
-            queue = Queue.Queue()
-            worker = threading.Thread(name='%s poller' % devname,
-                                      target=self._worker_thread,
-                                      args=(devname, queue))
-            worker.queue = queue
-            worker.daemon = True
-            worker.start()
-            self._workers.append(worker)
-            # start staggered to not poll all devs at once....
-            # use just a small delay, exact value does not matter
-            sleep(0.0719)
+        try:
+            session.loadSetup(setup, allow_startupcode=False)
+            for devname in session.getSetupInfo()[setup]['devices']:
+                if devname in self.blacklist:
+                    self.log.debug('not polling %s, it is blacklisted' % devname)
+                    continue
+                self.log.debug('starting thread for %s' % devname)
+                queue = Queue.Queue()
+                worker = threading.Thread(name='%s poller' % devname,
+                                          target=self._worker_thread,
+                                          args=(devname, queue))
+                worker.queue = queue
+                worker.daemon = True
+                worker.start()
+                self._workers.append(worker)
+                # start staggered to not poll all devs at once....
+                # use just a small delay, exact value does not matter
+                sleep(0.0719)
+
+        except ConfigurationError as err:
+            self.log.warning('Setup %r has failed to load!' % setup)
+            self.log.error(err, exc=True)
+            self.log.warning('Not polling any devices!')
 
         # start a thread checking for modification of the setup file
         checker = threading.Thread(target=self._checker, name='refresh checker',
