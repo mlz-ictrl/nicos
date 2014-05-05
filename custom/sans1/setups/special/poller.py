@@ -34,7 +34,7 @@ devices = dict(
                    alwayspoll = ['collimation', 'pressure',
                                  'sample_table_2', 'astrium',
                                  'sample_table_1', 'detector',
-                                 'spin_flipper',
+                                 'spinflipper',
                                  'reactor', 'selector_tower', 'sc1',
                                  'guidehall', 'nl4a', 'memograph',
                                  'ccmsans', 'amagnet',
