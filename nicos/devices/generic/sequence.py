@@ -317,6 +317,7 @@ class SequencerMixin(DeviceMixinBase):
                 # wait until all actions are finished
                 waiters = set(step)
                 while waiters:
+                    t = currenttime()
                     self._set_seq_status(status.BUSY, '   waiting for: ' +
                                                   ';'.join(map(repr, waiters)))
                     for action in list(waiters):
@@ -335,7 +336,10 @@ class SequencerMixin(DeviceMixinBase):
                     if self._seq_stopflag:
                         self.log.debug('Stopflag caught!')
                         break
-                    time.sleep(0.1)
+                    # 0.1s - code execution time
+                    t = .1 - (currenttime() - t)
+                    if waiters and t > 0:
+                        time.sleep(t)
 
                 # stop if requested
                 if self._seq_stopflag:
