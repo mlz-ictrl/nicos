@@ -68,7 +68,7 @@ devices = dict(
     # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
                       description = 'Experiment device',
-                      dataroot = '/home/jcns/data',
+                      dataroot = '~/data',
                       localcontact = "Tobias Schrader <t.schrader@fz-juelich.de>",
                       sendmail = True,
                       serviceexp = 'service',
