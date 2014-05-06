@@ -65,7 +65,7 @@ class Scan(object):
 
     def __init__(self, devices, positions, firstmoves=None, multistep=None,
                  detlist=None, envlist=None, preset=None, scaninfo=None,
-                 scantype=None):
+                 scantype=None, waitbeforecount=True):
         if session.mode == SLAVE:
             raise ModeError('cannot scan in slave mode')
         self.dataset = session.experiment.createDataset(scantype)
@@ -89,6 +89,7 @@ class Scan(object):
             allenvlist = session.experiment.sampleenv
             if envlist is not None:
                 allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
+        self._waitbeforecount = waitbeforecount
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
         if self._multistep:
@@ -218,9 +219,9 @@ class Scan(object):
             # consider all other errors to be fatal
             raise
 
-    def moveTo(self, position):
+    def moveTo(self, position, wait=True):
         """Move scan devices to *position*, a list of positions."""
-        return self.moveDevices(list(zip(self._devices, position)))
+        return self.moveDevices(list(zip(self._devices, position)), wait)
 
     def moveDevices(self, where, wait=True):
         """Move to *where*, which is a list of (dev, position) tuples.
@@ -300,15 +301,23 @@ class Scan(object):
         except SkipPoint:
             can_measure = False
         else:
-            can_measure = True
+            if not self._waitbeforecount:
+                # skip count at first point because we are scanning intervals
+                can_measure = False
+            else:
+                can_measure = True
         self.beginScan()
         try:
+            if self._waitbeforecount: # points
+                num = lambda i: i + 1
+            else: # intervals
+                num = lambda i: i
             for i, position in enumerate(self._positions):
-                self.preparePoint(i+1, position)
+                self.preparePoint(num(i), position)
                 try:
                     if position:
                         if i != 0:
-                            self.moveTo(position)
+                            self.moveTo(position, wait=self._waitbeforecount)
                         elif not can_measure:
                             continue
                     started = currenttime()
@@ -317,10 +326,13 @@ class Scan(object):
                         result = []
                         if self._multistep:
                             for i in range(self._mscount):
-                                self.moveDevices(self._mswhere[i])
-                                _count(self._detlist, self._preset, result,  dataset=self.dataset)
+                                self.moveDevices(self._mswhere[i],
+                                                 wait=self._waitbeforecount)
+                                _count(self._detlist, self._preset, result,
+                                       dataset=self.dataset)
                         else:
-                            _count(self._detlist, self._preset, result,  dataset=self.dataset)
+                            _count(self._detlist, self._preset, result,
+                                   dataset=self.dataset)
                     finally:
                         actualpos += self.readEnvironment(started, currenttime())
                         self.addPoint(actualpos, result)
