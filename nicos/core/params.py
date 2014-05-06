@@ -573,6 +573,9 @@ def relative_path(val=''):
         return val
     raise ValueError('%r is not a valid relative path (traverses outside)' % val)
 
+def expanded_path(val=''):
+    return path.expanduser(path.expandvars(val))
+
 def subdir(val=''):
     """a relative subdir (a string NOT containing any path.sep)"""
     val = str(val)

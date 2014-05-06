@@ -24,9 +24,12 @@
 
 """NICOS device class test suite."""
 
+import sys
 import os
 import time
 from os import path
+
+from nose.tools import assert_equal  # pylint: disable=E0611
 
 from nicos import session
 from nicos.utils import ensureDirectory, enableDirectory, readFileCounter
@@ -51,8 +54,9 @@ def teardown_module():
     session.unloadSetup()
 
 
-def datapath(*parts):
-    return path.join(rootdir, 'data', year, *parts)
+def datapath(*parts, **kwds):
+    extra = kwds.get('extra', 'data')
+    return path.join(rootdir, extra, year, *parts)
 
 
 def test_experiment():
@@ -92,7 +96,7 @@ def test_experiment():
     exp.sampledir = ''
 
     # for this proposal, remove access rights after switching back
-    exp._setROParam('managerights', dict( disableFileMode=0, disableDirMode=0))
+    exp._setROParam('managerights', dict(disableFileMode=0, disableDirMode=0))
 
     # then, go in proposal mode
     exp.new(999, 'etitle', 'me', 'you')
@@ -137,7 +141,7 @@ def test_experiment():
     assert exp.users == ''
 
     exp.addUser('A User')
-    #~ exp.users
+
     assert exp.users == 'A User'
     exp.addUser('Another User', 'another.user@experiment.com')
     assert exp.users == 'A User, Another User <another.user@experiment.com>'
@@ -149,3 +153,19 @@ def test_experiment():
 
     # and back to service
     exp.new('service')
+
+def test_expanduser_dataroot():
+    exp = session.experiment
+    dataroot = "~/data"
+    exp._setROParam("dataroot", dataroot)
+    assert_equal(exp.dataroot, path.expanduser(dataroot))
+#    assert exp.dataroot == path.expanduser(dataroot)
+
+def test_expandenv_dataroot():
+    exp = session.experiment
+    os.environ['TESTVAR'] = path.join(rootdir, 'xxx')
+    dataroot2 = "$TESTVAR" if sys.platform != "win32" else "%TESTVAR%"
+    exp._setROParam('dataroot', dataroot2)
+    assert_equal(exp.dataroot, path.expandvars(dataroot2))
+    exp.new('p888','etitle2', 'me2', 'you2')
+    assert os.access(datapath('p888', extra='xxx'), os.X_OK)

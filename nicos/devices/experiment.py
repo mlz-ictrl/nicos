@@ -47,7 +47,7 @@ from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
     Param, Dataset, NicosError, ConfigurationError, UsageError, \
     ProgrammingError, SIMULATION, MASTER, ImageProducer
-from nicos.core.params import subdir, nonemptystring
+from nicos.core.params import subdir, nonemptystring, expanded_path
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
     enableDirectory, readonlydict, lazy_property, printTable, \
@@ -124,7 +124,7 @@ class Experiment(Device):
                               type=str, settable=True, category='experiment'),
         # XXX: unfortunately tests need this to be non-absolute atm.
         'dataroot':     Param('Root data path under which all proposal specific'
-                              ' paths are created', type=str,
+                              ' paths are created', type=expanded_path,
                               default='/data', mandatory=True),
         'detlist':      Param('List of default detector device names',
                               type=listof(str), settable=True, userparam=False),
