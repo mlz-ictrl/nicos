@@ -97,14 +97,14 @@ class DeviceMixinMeta(type):
     This class provides the __instancecheck__ method for non-Device derived
     mixins.
     """
-    def __instancecheck__(cls, inst):  #pylint: disable=C0203
+    def __instancecheck__(cls, inst):  # pylint: disable=C0203
         from nicos.devices.generic import DeviceAlias, NoDevice
         if inst.__class__ == DeviceAlias and inst._initialized:
             if isinstance(inst._obj, NoDevice):
                 return issubclass(inst._cls, cls)
             return isinstance(inst._obj, cls)
         # does not work with Python 2.6!
-        #return type.__instancecheck__(cls, inst)
+        # return type.__instancecheck__(cls, inst)
         return issubclass(inst.__class__, cls)
 
 
@@ -127,7 +127,7 @@ class DeviceMeta(DeviceMixinMeta):
     in the class with those defined in all base classes.
     """
 
-    def __new__(mcs, name, bases, attrs): #@NoSelf
+    def __new__(mcs, name, bases, attrs):  # @NoSelf
         if 'parameters' in attrs:
             for pinfo in itervalues(attrs['parameters']):
                 pinfo.classname = attrs['__module__'] + '.' + name
@@ -138,7 +138,7 @@ class DeviceMeta(DeviceMixinMeta):
                         pinfo.classname = base.__module__ + '.' + base.__name__
         newtype = type.__new__(mcs, name, bases, attrs)
         # to debug MRO problems you could use this line
-        #print 'MRO:', newtype, newtype.mro()
+        # print 'MRO:', newtype, newtype.mro()
         for entry in newtype.__mergedattrs__:
             newentry = {}
             for base in reversed(bases):
@@ -176,7 +176,7 @@ class DeviceMeta(DeviceMixinMeta):
                 def getter(self, param=param):
                     if param not in self._params:
                         self._initParam(param)
-                    if self._cache and param != 'name': # no renaming !
+                    if self._cache and param != 'name':  # no renaming !
                         value = self._cache.get(self, param, Ellipsis)
                         if value is not Ellipsis:
                             self._params[param] = value
@@ -488,9 +488,9 @@ class Device(object):
                 # This commented code leads to problems if the same device is
                 # defined in the startup setup and the final loaded setup, e.g.
                 # for the Sample device
-                #self.log.warning('device changed class, clearing all cached '
+                # self.log.warning('device changed class, clearing all cached '
                 #                 'parameter values')
-                #self._cache.clear(self)
+                # self._cache.clear(self)
                 pass
 
         def _init_param(param, paraminfo):
@@ -504,7 +504,7 @@ class Device(object):
                               # is a valid value for some parameters
             if self._cache:
                 value = self._cache.get(self, param, Ellipsis)
-                if param == 'name': # clean up legacy, wrong values
+                if param == 'name':  # clean up legacy, wrong values
                     self._cache.put(self, 'name', self._name)
                     value = self._name
             if value is not Ellipsis:
@@ -857,10 +857,10 @@ class Readable(Device):
         'maxage':       Param('Maximum age of cached value and status (zero to '
                               'never use cached values, or None to cache them '
                               'indefinitely)', unit='s', settable=True,
-                              type=none_or(floatrange(0, 24*3600)), default=6),
+                              type=none_or(floatrange(0, 24 * 3600)), default=6),
         'pollinterval': Param('Polling interval for value and status (or None '
                               'to disable polling)', unit='s', settable=True,
-                              type=none_or(floatrange(0.5, 24*3600)), default=5),
+                              type=none_or(floatrange(0.5, 24 * 3600)), default=5),
         'warnlimits':   Param('Range in which the device value should be '
                               'in normal operation; warnings may be triggered '
                               'when it is outside', settable=True, chatty=True,
@@ -874,7 +874,7 @@ class Readable(Device):
         # value in simulation mode
         self._sim_active = self._mode == SIMULATION and self.hardware_access
         self._sim_old_value = None
-        self._sim_value = 0   # no way to configure a useful default...
+        self._sim_value = 0  # no way to configure a useful default...
         self._sim_min = None
         self._sim_max = None
         self._sim_started = None
@@ -919,10 +919,10 @@ class Readable(Device):
         if not self._cache:
             return func()
         val = None
-        if 1: # self.hardware_access:  XXX decide if this should be enabled
+        if 1:  # self.hardware_access:  XXX decide if this should be enabled
             if maxage != 0:
                 val = self._cache.get(self, name,
-                    mintime=currenttime()-maxage if maxage is not None else 0)
+                    mintime=currenttime() - maxage if maxage is not None else 0)
         if val is None:
             val = func(self.maxage if maxage is None else maxage)
             self._cache.put(self, name, val, currenttime(), self.maxage)
@@ -1293,7 +1293,7 @@ class Moveable(Readable):
         try:
             if self.fixed:
                 self.log.debug('device fixed, not waiting: %s' % self.fixed)
-            elif hasattr(self, 'doStatus'): #might really wait
+            elif hasattr(self, 'doStatus'):  # might really wait
                 session.beginActionScope('Waiting: %s -> %s' %
                                          (self, self.format(self.target)))
                 try:
@@ -1305,7 +1305,7 @@ class Moveable(Readable):
                     # legacy case, custom doWait, but no doStatus!!!
                     self.log.warning('Legacywarning: %r has a doWait, but no '
                                      'doStatus, please fix it!' % self.__class__)
-                lastval = self.doWait() # prefer functionality for the moment....
+                lastval = self.doWait()  # prefer functionality for the moment....
                 # no else needed as this is basically a NOP
                 # (status returns UNKNOWN, default doWait() returns immediately....)
         finally:
