@@ -37,7 +37,7 @@ devices = dict(
                               ('admin', hashlib.md5(b'admin').hexdigest(), 'admin')],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'localhost',
+                    server = 'sans1ctrl.sans1.frm2',
                     authenticators = ['Auth'], # or ['UserDB', 'Auth']
                     loglevel = 'debug',
                    ),
