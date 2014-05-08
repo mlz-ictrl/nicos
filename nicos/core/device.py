@@ -417,6 +417,33 @@ class Device(object):
         else:
             self.log.setLevel(loggers.loglevels[value])
 
+    def _attachDevices(self):
+        '''validate and create attached devices
+
+        '''
+        for aname, entry in sorted(iteritems(self.attached_devices)):
+            if not isinstance(entry, Attach):
+                raise ProgrammingError(self,
+                    'attached device entry for %r is '
+                    'invalid; the value should be a '
+                    'nicos.core.Attach object' %
+                    aname)
+            value = self._config.pop(aname, None)
+            devlist = []
+            for i, devname in enumerate(entry.check(self, aname, value)):
+                dev = None
+                if devname is not None:
+                    try:
+                        dev = session.getDevice(devname, entry.devclass, source=self)
+                    except UsageError:
+                        raise ConfigurationError(self,
+                            'device %r item %d has wrong type (should be '
+                            '%s' %
+                            (aname, i + 1, entry.devclass.__name__))
+                    dev._sdevs.add(self._name)
+                devlist.append(dev)
+            self._adevs[aname] = devlist[0] if entry.single else devlist
+
     def init(self):
         """Initialize the object; this is called by the NICOS system when the
         device instance has been created.
@@ -450,27 +477,7 @@ class Device(object):
         self._cache = None
         self._subscriptions = []
 
-        # validate and create attached devices
-        for aname, entry in sorted(iteritems(self.attached_devices)):
-            if not isinstance(entry, Attach):
-                raise ProgrammingError(self, 'attached device entry for %r is '
-                                       'invalid; the value should be a '
-                                       'nicos.core.Attach object' % aname)
-            value = self._config.pop(aname, None)
-            devlist = []
-            for i, devname in enumerate(entry.check(self, aname, value)):
-                dev = None
-                if devname is not None:
-                    try:
-                        dev = session.getDevice(devname, entry.devclass,
-                                                source=self)
-                    except UsageError:
-                        raise ConfigurationError(
-                            self, 'device %r item %d has wrong type (should be '
-                            '%s' % (aname, i+1, entry.devclass.__name__))
-                    dev._sdevs.add(self._name)
-                devlist.append(dev)
-            self._adevs[aname] = devlist[0] if entry.single else devlist
+        self._attachDevices()
 
         self._cache = self._getCache()
         lastconfig = None
@@ -501,6 +508,7 @@ class Device(object):
                     self._cache.put(self, 'name', self._name)
                     value = self._name
             if value is not Ellipsis:
+                value = self._validateType(value, param, paraminfo)
                 if param in self._ownparams:
                     self._params[param] = value
                     return
@@ -516,7 +524,7 @@ class Device(object):
                                 'configured value (%r), using configured '
                                 'since it was changed in the setup file' %
                                 (param, value, cfgvalue))
-                            value = cfgvalue
+                            value = self._validateType(cfgvalue, param, paraminfo)
                             self._cache.put(self, param, value)
                         elif prefercache:
                             self.log.warning(
@@ -528,7 +536,7 @@ class Device(object):
                                 'value of %s from cache (%r) differs from '
                                 'configured value (%r), using configured' %
                                 (param, value, cfgvalue))
-                            value = cfgvalue
+                            value = self._validateType(cfgvalue, param, paraminfo)
                             self._cache.put(self, param, value)
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
                 if umethod:
@@ -585,6 +593,23 @@ class Device(object):
         """Indirection needed by the Cache client itself."""
         return session.cache
 
+
+    def _validateType(self, value, param, paraminfo=None):
+        '''validtate and coerce the value to the correct type
+
+        '''
+
+        paraminfo = paraminfo or self.parameters[param]
+        try:
+            value = paraminfo.type(value)
+        except (ValueError, TypeError) as err:
+            raise ConfigurationError(
+                self,
+                '%r is an invalid value for parameter '
+                '%s: %s' %
+                (value, param, err))
+        return value
+
     def _initParam(self, param, paraminfo=None):
         """Get an initial value for the parameter, called when the cache
         doesn't contain such a value.
@@ -610,13 +635,7 @@ class Device(object):
             value = self._params[param]
         elif not done:
             value = self._config.get(param, paraminfo.default)
-        # coerce the value to the correct type
-        try:
-            value = paraminfo.type(value)
-        except (ValueError, TypeError) as err:
-            raise ConfigurationError(
-                self, '%r is an invalid value for parameter '
-                '%s: %s' % (value, param, err))
+        value = self._validateType(value, param, paraminfo)
         if self._cache:  # will not be there in simulation mode
             self._cache.put(self, param, value)
         # always call update methods, they should be working for simulation
@@ -631,6 +650,7 @@ class Device(object):
         This is useful for parameters that change at runtime, but indirectly,
         such as "last filenumber".
         """
+        value = self._validateType(value, param)
         self._params[param] = value
         if self._cache:
             self._cache.put(self, param, value)
