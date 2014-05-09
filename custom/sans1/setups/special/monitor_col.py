@@ -28,74 +28,7 @@ group = 'special'
 Row = Column = Block = BlockRow = lambda *args: args
 Field = lambda *args, **kwds: args or kwds
 
-_expcolumn = Column(
-    Block('Experiment', [
-        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=20,
-                       istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=50,
-                       istext=True, maxlen=40),
-                 Field(name='Last file', key='det/lastfilenumber'),
-            )
-        ],# 'experiment'
-    ),
-)
 
-_selcolumn = Column(
-    Block('Selector', [
-        BlockRow(
-                 Field(name='selector_rpm', dev='selector_rpm', width=8),
-                 ),
-         BlockRow(
-                 Field(name='selector_lambda', dev='selector_lambda', width=8),
-                 ),
-         BlockRow(
-                 Field(name='selector_ng', dev='sel_ng_sw', width=8),
-                 ),
-         BlockRow(
-                 Field(name='selector_tilt', dev='sel_tilt', width=8),
-                 ),
-               ],
-        ),
-)
-
-_pressurecolumn = Column(
-    Block('Pressure', [
-        BlockRow(
-                 Field(name='Col Pump', dev='coll_pump'),
-                 Field(name='Col Tube', dev='coll_tube'),
-                 Field(name='Col Nose', dev='coll_nose'),
-                 Field(name='Det Nose', dev='det_nose'),
-                 Field(name='Det Tube', dev='det_tube'),
-                 )],
-        ),
-)
-
-_sans1general = Column(
-    Block('General', [
-        BlockRow(
-                 Field(name='Reactor', dev='ReactorPower', width=8, format = '%.2f', unit='MW'),
-                 Field(name='6 Fold Shutter', dev='Sixfold', width=8),
-                 Field(name='NL4a', dev='NL4a', width=8),
-#                 ),
-#        BlockRow(
-                 Field(name='T in', dev='t_in_memograph', width=8, unit='C'),
-                 Field(name='T out', dev='t_out_memograph', width=8, unit='C'),
-                 Field(name='Cooling', dev='cooling_memograph', width=8, unit='kW'),
-#                 ),
-#        BlockRow(
-                 Field(name='Flow in', dev='flow_in_memograph', width=8, unit='l/min'),
-                 Field(name='Flow out', dev='flow_out_memograph', width=8, unit='l/min'),
-                 Field(name='Leakage', dev='leak_memograph', width=8, unit='l/min'),
-#                 ),
-#        BlockRow(
-                 Field(name='P in', dev='p_in_memograph', width=8, unit='bar'),
-                 Field(name='P out', dev='p_out_memograph', width=8, unit='bar'),
-                 Field(name='Crane Pos', dev='Crane', width=8, unit='m'),
-                      ),
-                ],
-        ),
-)
 
 _collimationcolumn = Column(
     Block('Collimation',[
@@ -172,6 +105,27 @@ _collimationcolumn = Column(
               disabled_options = ['N.A.'],
               width=7,height=9),
                          ),
+
+      BlockRow(
+        Field(dev='att_m', name='att_m', format='%.1f'),
+        Field(dev='ng_pol_m', name='ng_pol_m', format='%.1f'),
+        Field(dev='col_20a_m', name='20a_m', format='%.1f'),
+        Field(dev='col_20b_m', name='20b_m', format='%.1f'),
+        Field(dev='bg1_m', name='bg1_m', format='%.1f'),
+        Field(dev='col_16a_m', name='16a_m', format='%.1f'),
+        Field(dev='col_16b_m', name='16b_m', format='%.1f'),
+        Field(dev='col_12a_m', name='12a_m', format='%.1f'),
+        Field(dev='col_12b_m', name='12b_m', format='%.1f'),
+        Field(dev='col_8a_m', name='8a_m', format='%.1f'),
+        Field(dev='col_8b_m', name='8b_m', format='%.1f'),
+        Field(dev='bg2_m', name='bg2_m', format='%.1f'),
+        Field(dev='col_4a_m', name='4a_m', format='%.1f'),
+        Field(dev='col_4b_m', name='4b_m', format='%.1f'),
+        Field(dev='col_2a_m', name='2a_m', format='%.1f'),
+        Field(dev='col_2b_m', name='2b_m', format='%.1f'),
+        Field(dev='sa1_m', name='sa1_m', format='%.1f'),
+              ),
+
       BlockRow(
         Field(dev='col', name='col'),
               ),
@@ -179,27 +133,7 @@ _collimationcolumn = Column(
         ),
 )
 
-_sans1det = Column(
-    Block('Detector', [
-        BlockRow(
-        Field(devices=['det1_z', 'det1_x','det1_omega', 'det_pos2'],
-                widget='nicos.sans1.monitorwidgets.Tube2', width=30, height=10)#, max=21000),
-              ),
-        BlockRow(
-                 Field(name='det1_z', dev='det1_z', width=8, format='%i'),
-                 Field(name='det1_x', dev='det1_x', width=8),
-                 Field(name='det1_omg', dev='det1_omega', width=8),
-                 Field(name='t', dev='det1_t_ist', width=8),
-                 Field(name='t pres.', dev='det_1_t_soll', width=8),
-                 Field(name='voltage', dev='det1_hv', width=8, format='%i'),
-                 Field(name='mon 1', dev='det1_mon1', width=8),
-                 Field(name='mon 2', dev='det1_mon2', width=8),
-                 Field(name='bs1_x', dev='bs1_x', width=8, format='%.1f'),
-                 Field(name='bs1_y', dev='bs1_y', width=8, format='%.1f'),
-                 ),
-            ],
-        ),
-)
+
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
@@ -213,11 +147,7 @@ devices = dict(
                      fontsize = 15,#12
                      padding = 0,#3
                      layout = [
-                                 Row(_selcolumn,_collimationcolumn),
-                                 Row(_sans1det),
-                                 #Row(_sans1general),
-                                 Row(_pressurecolumn),
-                                 Row(_expcolumn),
+                                 Row(_collimationcolumn),
                                ],
                     ),
 )

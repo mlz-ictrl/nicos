@@ -37,7 +37,7 @@ nethost = 'sans1srv.sans1.frm2'
 devices = dict(
     col = device('nicos.devices.generic.LockedDevice',
                   description = 'sans1 primary collimation',
-                  lock = 'col_att',
+                  lock = 'att',
                   device = 'col_sw',
                   #lockvalue = None,     # go back to previous value
                   unlockvalue = 'x1000',
@@ -74,16 +74,17 @@ devices = dict(
                   lowlevel = True,
                 ),
 
-    col_att = device('sans1.collimotor.Sans1ColliSwitcher',
+    att = device('sans1.collimotor.Sans1ColliSwitcher',
                     description = 'Attenuator',
                     mapping = dict(OPEN=0, x1000=117, x100=234, x10=351),
-                    moveable = 'col_att_m',
+                    moveable = 'att_m',
                     pollinterval = 15,
                     maxage = 60,
                     ),
-    col_att_m = device('sans1.collimotor.Sans1ColliMotor',
+    att_m = device('sans1.collimotor.Sans1ColliMotor',
                     description = 'Attenuator motor',
-                    # IP-adresse: 172.16.17.1
+                    # IP-adresse: 172.16.17.1 alt
+                    # IP-adresse: 172.25.49.107 neu
                     tacodevice='//%s/sans1/coll/ng-pol'% (nethost,),
                     address = 0x4020+0*10,
                     slope = 200*4, # FULL steps per turn * turns per mm
@@ -92,18 +93,20 @@ devices = dict(
                     refpos = -23.0,
                     abslimits = (-400, 600),
                     lowlevel = True,
+                    autozero = 100,
                   ),
 
-    col_ng_pol = device('sans1.collimotor.Sans1ColliSwitcher',
+    ng_pol = device('sans1.collimotor.Sans1ColliSwitcher',
                     description = 'Neutronguide polariser',
                     mapping = dict(NG=0, POL1=117, POL2=234, LAS=354),
-                    moveable = 'col_ng_pol_m',
+                    moveable = 'ng_pol_m',
                     pollinterval = 15,
                     maxage = 60,
                     ),
-    col_ng_pol_m = device('sans1.collimotor.Sans1ColliMotor',
+    ng_pol_m = device('sans1.collimotor.Sans1ColliMotor',
                     description = 'Neutronguide polariser motor',
-                    # IP-adresse: 172.16.17.1
+                    # IP-adresse: 172.16.17.1 alt
+                    # IP-adresse: 172.25.49.107 neu
                     tacodevice='//%s/sans1/coll/ng-pol'% (nethost,),
                     address = 0x4020+1*10,
                     slope = 200*4, # FULL steps per turn * turns per mm
@@ -112,6 +115,7 @@ devices = dict(
                     refpos = -4.5,
                     abslimits = (-400, 600),
                     lowlevel = True,
+                    autozero = 100,
                   ),
 
     col_20a = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -125,7 +129,8 @@ devices = dict(
                       ),
     col_20a_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 20a motor',
-                      # IP-adresse: 172.16.17.2
+                      # IP-adresse: 172.16.17.2 alt
+                      # IP-adresse: 172.25.49.108 neu
                       tacodevice='//%s/sans1/coll/col-20m'% (nethost,),
                       address = 0x4020+0*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -134,6 +139,7 @@ devices = dict(
                       refpos = -5.39,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_20b = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -147,7 +153,8 @@ devices = dict(
                       ),
     col_20b_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 20b',
-                      # IP-adresse: 172.16.17.2
+                      # IP-adresse: 172.16.17.2 alt
+                      # IP-adresse: 172.25.49.108 neu
                       tacodevice='//%s/sans1/coll/col-20m'% (nethost,),
                       address = 0x4020+1*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -156,6 +163,7 @@ devices = dict(
                       refpos = -5.28,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_16a = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -169,7 +177,8 @@ devices = dict(
                       ),
     col_16a_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 16a motor',
-                      # IP-adresse: 172.16.17.3
+                      # IP-adresse: 172.16.17.3 alt
+                      # IP-adresse: 172.25.49.111 neu
                       tacodevice='//%s/sans1/coll/col-16m'% (nethost,),
                       address = 0x4020+1*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -178,12 +187,13 @@ devices = dict(
                       refpos = -4.29,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
-    col_bg1 = device('sans1.collimotor.Sans1ColliSlit',
+    bg1 = device('sans1.collimotor.Sans1ColliSlit',
                       description = 'Background slit1',
                       mapping = {'50mm':0, 'OPEN':90, '20mm':180, '42mm':270 },
-                      moveable = 'col_bg1_m',
+                      moveable = 'bg1_m',
                       table = 'col_16a',
                       activeposition = 'COL',
                       pollinterval = 15,
@@ -195,9 +205,10 @@ devices = dict(
                                  #~ '50mm':0, 'OPEN':90, '20mm':180, '42mm':270 },
                       #~ moveable = 'col_bg1_m',
                       #~ ),
-    col_bg1_m = device('sans1.collimotor.Sans1ColliMotor',
+    bg1_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Background slit1 motor',
-                      # IP-adresse: 172.16.17.3
+                      # IP-adresse: 172.16.17.3 alt
+                      # IP-adresse: 172.25.49.111 neu
                       tacodevice='//%s/sans1/coll/col-16m'% (nethost,),
                       address = 0x4020+0*10,
                       slope = 200*0.16, # FULL steps per turn * turns per mm
@@ -206,6 +217,7 @@ devices = dict(
                       refpos = -28.85,
                       abslimits = (-40, 300),
                       lowlevel = True,
+                      autozero = 50,
                     ),
 
     col_16b = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -219,7 +231,8 @@ devices = dict(
                       ),
     col_16b_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 16b motor',
-                      # IP-adresse: 172.16.17.3
+                      # IP-adresse: 172.16.17.3 alt
+                      # IP-adresse: 172.25.49.111 neu
                       tacodevice='//%s/sans1/coll/col-16m'% (nethost,),
                       address = 0x4020+2*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -228,6 +241,7 @@ devices = dict(
                       refpos = -2.31,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_12a = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -241,7 +255,8 @@ devices = dict(
                       ),
     col_12a_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 12a motor',
-                      # IP-adresse: 172.16.17.4
+                      # IP-adresse: 172.16.17.4 alt
+                      # IP-adresse: 172.25.49.112 neu
                       tacodevice='//%s/sans1/coll/col-12m'% (nethost,),
                       address = 0x4020+0*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -250,6 +265,7 @@ devices = dict(
                       refpos = -1.7,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_12b = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -263,7 +279,8 @@ devices = dict(
                       ),
     col_12b_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 12b motor',
-                      # IP-adresse: 172.16.17.4
+                      # IP-adresse: 172.16.17.4 alt
+                      # IP-adresse: 172.25.49.112 neu
                       tacodevice='//%s/sans1/coll/col-12m'% (nethost,),
                       address = 0x4020+1*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -272,6 +289,7 @@ devices = dict(
                       refpos = -5.14, #needs to be checked by O. Frank !!!
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_8a = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -285,7 +303,8 @@ devices = dict(
                       ),
     col_8a_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 8a motor',
-                      # IP-adresse: 172.16.17.5
+                      # IP-adresse: 172.16.17.5 alt
+                      # IP-adresse: 172.25.49.113 neu
                       tacodevice='//%s/sans1/coll/col-8m'% (nethost,),
                       address = 0x4020+1*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -294,6 +313,7 @@ devices = dict(
                       refpos = -3.88,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_8b = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -307,7 +327,8 @@ devices = dict(
                       ),
     col_8b_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 8b motor',
-                      # IP-adresse: 172.16.17.5
+                      # IP-adresse: 172.16.17.5 alt
+                      # IP-adresse: 172.25.49.113 neu
                       tacodevice='//%s/sans1/coll/col-8m'% (nethost,),
                       address = 0x4020+2*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -316,12 +337,13 @@ devices = dict(
                       refpos = -4.13,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
-    col_bg2 = device('sans1.collimotor.Sans1ColliSlit',
+    bg2 = device('sans1.collimotor.Sans1ColliSlit',
                       description = 'Background slit2',
                       mapping = {'28mm':0, '20mm':90, '12mm':180, 'OPEN':270 },
-                      moveable = 'col_bg2_m',
+                      moveable = 'bg2_m',
                       table = 'col_8b',
                       activeposition = 'COL',
                       pollinterval = 15,
@@ -332,9 +354,10 @@ devices = dict(
 #                      mapping = {'28mm':0, '20mm':90, '12mm':180, 'OPEN':270 },
 #                      moveable = 'col_bg2_m',
 #                      ),
-    col_bg2_m = device('sans1.collimotor.Sans1ColliMotor',
+    bg2_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Background slit2 motor',
-                      # IP-adresse: 172.16.17.5
+                      # IP-adresse: 172.16.17.5 alt
+                      # IP-adresse: 172.25.49.113 neu
                       tacodevice='//%s/sans1/coll/col-8m'% (nethost,),
                       address = 0x4020+0*10,
                       slope = 200*0.16, # FULL steps per turn * turns per mm
@@ -343,6 +366,7 @@ devices = dict(
                       refpos = -1.5,
                       abslimits = (-40, 300),
                       lowlevel = True,
+                      autozero = 50,
                     ),
 
     col_4a = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -356,7 +380,8 @@ devices = dict(
                       ),
     col_4a_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 4a motor',
-                      # IP-adresse: 172.16.17.6
+                      # IP-adresse: 172.16.17.6 alt
+                      # IP-adresse: 172.25.49.114 neu
                       tacodevice='//%s/sans1/coll/col-4m'% (nethost,),
                       address = 0x4020+1*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -365,6 +390,7 @@ devices = dict(
                       refpos = -9.37,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_4b = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -378,7 +404,8 @@ devices = dict(
                       ),
     col_4b_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 4b motor',
-                      # IP-adresse: 172.16.17.6
+                      # IP-adresse: 172.16.17.6 alt
+                      # IP-adresse: 172.25.49.114 neu
                       tacodevice='//%s/sans1/coll/col-4m'% (nethost,),
                       address = 0x4020+2*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -387,6 +414,7 @@ devices = dict(
                       refpos = -9.35,
                       abslimits = (-400, 600),
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_2a = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -400,7 +428,8 @@ devices = dict(
                       ),
     col_2a_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 2a motor',
-                      # IP-adresse: 172.16.17.7
+                      # IP-adresse: 172.16.17.7 alt
+                      # IP-adresse: 172.25.49.115 neu
                       tacodevice='//%s/sans1/coll/col-2m'% (nethost,),
                       address = 0x4020+1*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -409,8 +438,8 @@ devices = dict(
                       refpos = -8.,
                       abslimits = (-400, 600),
                       autopower = 'on',
-                      autozero = 10,
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
     col_2b = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -424,7 +453,8 @@ devices = dict(
                       ),
     col_2b_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 2b motor',
-                      # IP-adresse: 172.16.17.7
+                      # IP-adresse: 172.16.17.7 alt
+                      # IP-adresse: 172.25.49.115 neu
                       tacodevice='//%s/sans1/coll/col-2m'% (nethost,),
                       address = 0x4020+2*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -435,19 +465,21 @@ devices = dict(
                       fixed = 'unreliable, do not use !',
                       fixedby = ('setupfile', 99),      # deny release!
                       lowlevel = True,
+                      autozero = 100,
                     ),
 
-    col_sa1 = device('sans1.collimotor.Sans1ColliSwitcher',
+    sa1 = device('sans1.collimotor.Sans1ColliSwitcher',
                       description = 'attenuation slits',
                       mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
                                  '50x50':0, '10mm':70, '20mm':140, 'N.A.':210 },
-                      moveable = 'col_sa1_m',
+                      moveable = 'sa1_m',
                       pollinterval = 15,
                       maxage = 60,
                       ),
-    col_sa1_m = device('sans1.collimotor.Sans1ColliMotor',
+    sa1_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'attenuation slits motor',
-                      # IP-adresse: 172.16.17.7
+                      # IP-adresse: 172.16.17.7 alt
+                      # IP-adresse: 172.25.49.115 neu
                       tacodevice='//%s/sans1/coll/col-2m'% (nethost,),
                       address = 0x4020+0*10,
                       slope = 200*4, # FULL steps per turn * turns per mm
@@ -456,6 +488,7 @@ devices = dict(
                       refpos = -34.7,
                       abslimits = (-40, 300),
                       lowlevel = True,
+                      autozero = 50,
                     ),
 # pump devices of 172.17.17.10 are at modbus-tacodevice //sans1srv.sans.frm2/sans1/coll/pump
 )
