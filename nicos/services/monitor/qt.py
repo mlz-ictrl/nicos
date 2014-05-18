@@ -80,10 +80,11 @@ class MonitorWindow(QMainWindow):
     def event(self, event):
         if self._reconfiguring and event.type() == 76:  # LayoutRequest
             self._reconfiguring = False
+            # always resize first; works around layout bugs where the full
+            # screen window is actually made larger than the full screen
+            self.resize(self.sizeHint())
             if self._wantFullScreen:
                 self.showFullScreen()
-            else:
-                self.resize(self.sizeHint())
         return QMainWindow.event(self, event)
 
 
