@@ -33,10 +33,11 @@ from nicos import session
 from nicos.utils import updateFileCounter
 from nicos.core import SIMULATION
 import nicos.core.status as status
-from nicos.core.device import Moveable
+from nicos.core.device import Moveable, Measurable
 from nicos.devices.tango import PyTangoDevice, \
-DEFAULT_STATUS_MAPPING as DEFAULT_MAP_TANGO_STATUS
-from nicos.core.params import Param, Override, oneof, tupleof
+    DEFAULT_STATUS_MAPPING as DEFAULT_MAP_TANGO_STATUS
+from nicos.devices.vendor.lima import Andor2LimaCCD
+from nicos.core.params import Attach, Param, Override, oneof, tupleof
 from nicos.core.errors import NicosError, CommunicationError
 from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep
 from nicos.core.image import ImageProducer, ImageType
@@ -80,10 +81,10 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
                   "drumexpo": Param("Drum expo position in degree",
                                     type=float, settable=True, volatile=True,
                                     category="general"),
-                  "readspeed": Param("Readout velocity for the detector drum " +
-                                    "in rpm", type=float, settable=True,
-                                    volatile=True, category="general"),
-                  "erasespeed": Param("Erase velocity for the detector drum " +
+                  "readspeed": Param("Readout velocity for the detector drum "
+                                     "in rpm", type=float, settable=True,
+                                     volatile=True, category="general"),
+                  "erasespeed": Param("Erase velocity for the detector drum "
                                       "in rpm", type=float, settable=True,
                                       volatile=True, category="general"),
                   "freqlaser": Param("Frequency for the laser diode in Hz",
@@ -92,11 +93,12 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
                   "timeerase": Param("Erasure time in seconds", type=float,
                                      settable=True, volatile=True,
                                      category="general"),
-                  }
+                 }
 
-    parameter_overrides = {"unit": Override(default="", mandatory=False,
+    parameter_overrides = {
+                           "unit": Override(default="", mandatory=False,
                                             settable=False)
-                           }
+                          }
 
     def doInit(self, mode):
         self._lastStatus = None
@@ -105,12 +107,12 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
                       ImagePlateDrum.POS_ERASE: self._dev.StartErasureProcess,
                       ImagePlateDrum.POS_EXPO: self._dev.MoveExpoPosition,
                       ImagePlateDrum.POS_READ: self._dev.StartReadProcess,
-                      }
+                     }
         self._mapStop = {
                       ImagePlateDrum.POS_ERASE: self._dev.AbortErasureProcess,
                       ImagePlateDrum.POS_EXPO: self._dev.AbortExposureProcess,
                       ImagePlateDrum.POS_READ: self._dev.AbortReadProcess,
-                      }
+                     }
 
     def doStart(self, pos):
         self.log.debug("doStart: pos: %s" % pos)
@@ -126,8 +128,8 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
             if myStatus[0] == status.OK:
                 self.log.warning("Device already stopped.")
             else:
-                raise NicosError(self, "Internal moveTo state unknown. " +
-                                 "Check device status.")
+                raise NicosError(self, "Internal moveTo state unknown. "
+                                       "Check device status.")
 
     def doRead(self, maxage=0):
         return self.target
@@ -139,7 +141,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
             return (True, None)
         else:
             return (False, "Movement not allowed during device status '%s'"
-                    % (myStatus[0]))
+                           % (myStatus[0]))
 
     def doStatus(self, maxage=0, mapping=ImagePlateBase.MAP_STATUS): # pylint: disable=W0102
         # Workaround for status changes from busy to another state although the
@@ -147,8 +149,8 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
         st, msg = ImagePlateBase.doStatus(self, maxage, mapping)
         if self._lastStatus == status.BUSY and st != status.BUSY:
             self.log.debug("doStatus: leaving busy state (%d)? %d. "
-                           % (status.BUSY, st) +
-                           "Check again after a short delay.")
+                           "Check again after a short delay."
+                           % (status.BUSY, st))
             time.sleep(5)
             st, msg = ImagePlateBase.doStatus(self, 0, mapping)
             self.log.debug("doStatus: recheck result: %d" % st)
@@ -212,10 +214,10 @@ class ImagePlateDetector(MeasureSequencer, ImagePlateBase, ImageProducer):
                  }
 
     attached_devices = {
-                        "imgdrum": (Moveable, "Image Plate Detector Drum " +
-                                    "control device."),
-                        "gammashutter": (Moveable, "Gamma shutter"),
-                        "photoshutter": (Moveable, "Photo shutter"),
+                        "imgdrum": Attach("Image Plate Detector Drum "
+                                          "control device.", Moveable),
+                        "gammashutter": Attach("Gamma shutter", Moveable),
+                        "photoshutter": Attach("Photo shutter", Moveable),
                         }
 
     parameters = {
@@ -307,8 +309,8 @@ Retrying.""" % (action, exception))
             raise exception
 
     def doSetPreset(self, **preset):
-        if 't' in preset:
-            self._t = preset['t']
+        if "t" in preset:
+            self._t = preset["t"]
 
     def doPrepare(self):
         self.wait()
@@ -367,7 +369,7 @@ Retrying.""" % (action, exception))
         return self._dev.ImageFile
 
     def doWriteRoi(self, value):
-        self.log.warning("setting x offset and width are not supported " +
+        self.log.warning("setting x offset and width are not supported "
                          "- ignored.")
         self._dev.InterestZoneY = value[1]
         self._dev.InterestZoneH = value[3]
@@ -379,3 +381,22 @@ Retrying.""" % (action, exception))
 
     def doWriteFile(self, value):
         self._dev.ImageFile = value
+
+
+class Andor2LimaCCDFPGA(Andor2LimaCCD):
+    """Andor2LimaCCD Photoshutter control extension by FPGATimerChannel
+    device."""
+
+    attached_devices = {
+                        "fpga": Attach("ZEA-2 counter card, "
+                                       "photoshutter control", Measurable),
+                       }
+
+    def doSetPreset(self, **preset):
+        if "t" in preset:
+            self._adevs["fpga"].preselection = preset["t"]
+        Andor2LimaCCD.doSetPreset(self, **preset)
+
+    def doStart(self):
+        self._adevs["fpga"].start()
+        Andor2LimaCCD.doStart(self)
