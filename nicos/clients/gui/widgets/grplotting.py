@@ -39,7 +39,7 @@ from PyQt4 import QtGui
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QListWidgetItem, QDialog, QMessageBox
 from qtgr import InteractiveGRWidget
-from qtgr.events import GUIConnector, MouseEvent, LegendEvent, PickEvent
+from qtgr.events import GUIConnector, MouseEvent, LegendEvent
 from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar
 from gr.pygr.helper import ColorIndexGenerator
 
@@ -94,8 +94,8 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self._guiConn = GUIConnector(self)
         self._guiConn.connect(LegendEvent.ROI_CLICKED,
                               self.on_legendItemClicked)
-        self._guiConn.connect(PickEvent.PICK_PRESS, self.on_fitPicker_selected)
-        self._guiConn.connect(PickEvent.PICK_MOVE, self.on_mouseMove)
+        self._guiConn.connect(MouseEvent.MOUSE_PRESS,
+                              self.on_fitPicker_selected)
         self._guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
         self.logXinDomain.connect(self.on_logXinDomain)
         self.logYinDomain.connect(self.on_logYinDomain)
@@ -315,7 +315,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         if self.fitparams:
             self.statusMessage = "Fitting: Click on %s" % fitparams[0]
             self.window.statusBar.showMessage(self.statusMessage)
-            self.setPickMode(True)
+            self.setCursor(QtGui.QCursor(Qt.CrossCursor))
         else:
             self._finishFit()
 
@@ -343,16 +343,17 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             self.fittype = None
             self.fits += 1
             self.fitcurve = None
-            self.setPickMode(False)
             self.update()
         except FitError, err:
             self.showInfo('Fitting failed: %s.' % err)
-            self.setPickMode(False)
             self.fittype = None
             self.fitcurve = None
+        finally:
+            self.setCursor(QtGui.QCursor(Qt.ArrowCursor))
 
     def on_fitPicker_selected(self, point):
-        if self.fittype is not None:
+        if (self.fittype is not None
+            and point.getButtons() & MouseEvent.LEFT_BUTTON):
             p = point.getWC(self._plot.viewport)
             self.fitvalues.append((p.x , p.y))
             self.fitstage += 1
@@ -360,7 +361,6 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
                 paramname = self.fitparams[self.fitstage]
                 self.statusMessage = "Fitting: Click on %s" % paramname
                 self.window.statusBar.showMessage(self.statusMessage)
-                self.setPickMode(True)
             else:
                 self._finishFit()
 
