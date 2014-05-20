@@ -359,7 +359,7 @@ class DigitalOutput(PyTangoDevice, Moveable):
         return self._dev.value
 
     def doStart(self, value):
-        self._dev.value = int(value)
+        self._dev.value = self.valuetype(value)
 
 
 class StringIO(PyTangoDevice, Device):
