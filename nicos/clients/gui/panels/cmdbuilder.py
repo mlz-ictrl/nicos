@@ -33,6 +33,7 @@ from nicos.clients.gui.utils import loadUi, setBackgroundColor, \
      ScriptExecQuestion
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.cmdlets import all_cmdlets, all_categories
+from nicos.core import SIMULATION, SLAVE, MAINTENANCE
 
 
 class CommandPanel(Panel):
@@ -58,6 +59,9 @@ class CommandPanel(Panel):
                 self.selectCmdlet(cmdlet)
             action.triggered.connect(callback)
             self.mapping.setdefault(cmdlet.category, []).append(action)
+
+        self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
+        self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
     def loadSettings(self, settings):
         self.cmdhistory = settings.value('cmdhistory') or []
@@ -96,6 +100,19 @@ class CommandPanel(Panel):
             return self.client.ask('complete', fullstring, lastword)
         except Exception:
             return []
+
+    def on_client_initstatus(self, state):
+        self.on_client_mode(state['mode'])
+
+    def on_client_mode(self, mode):
+        if mode == SLAVE:
+            self.label.setText('slave >>')
+        elif mode == SIMULATION:
+            self.label.setText('SIM >>')
+        elif mode == MAINTENANCE:
+            self.label.setText('maint >>')
+        else:
+            self.label.setText('>>')
 
     def selectCmdlet(self, cmdlet):
         if self.current_cmdlet:
