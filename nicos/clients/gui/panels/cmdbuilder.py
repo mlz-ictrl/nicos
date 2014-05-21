@@ -52,6 +52,7 @@ class CommandPanel(Panel):
         self.idle_color = parent.user_color
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput
+        self.console = None
 
         for cmdlet in all_cmdlets:
             action = QAction(cmdlet.name, self)
@@ -62,6 +63,13 @@ class CommandPanel(Panel):
 
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
+
+    def post_init(self):
+        if self.console is None:
+            self.console = self.window.getPanel('Console')
+            if self.console:
+                self.console.outView.anchorClicked.connect(
+                                           self.on_consoleView_anchorClicked)
 
     def loadSettings(self, settings):
         self.cmdhistory = settings.value('cmdhistory') or []
@@ -103,6 +111,7 @@ class CommandPanel(Panel):
 
     def on_client_initstatus(self, state):
         self.on_client_mode(state['mode'])
+        self.post_init()
 
     def on_client_mode(self, mode):
         if mode == SLAVE:
@@ -113,6 +122,13 @@ class CommandPanel(Panel):
             self.label.setText('maint >>')
         else:
             self.label.setText('>>')
+
+    def on_consoleView_anchorClicked(self, url):
+        """Called when the user clicks a link in the out view."""
+        url = url.toString()
+        if url.startswith('exec:'):
+            self.commandInput.setText(url[5:])
+            self.commandInput.setFocus()
 
     def selectCmdlet(self, cmdlet):
         if self.current_cmdlet:
