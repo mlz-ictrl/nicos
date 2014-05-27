@@ -39,8 +39,8 @@ from nicos.core.image import ImageProducer, ImageType
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-03-24"
-__version__ = "0.1.0"
+__date__ = "2014-06-06"
+__version__ = "0.2.0"
 
 
 class ShutterStates(object):
@@ -118,7 +118,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
         self._moveTo = pos
         self._mapStart[pos]()
         if pos == ImagePlateDrum.POS_READ:
-            # temporary fix because the tango status is not updated instantely
+            # temporary fix because the tango status is not updated instantly
             myStatus = self.status(0)
             self.log.debug("DRUM STATUS: %d, %s" % (myStatus[0], myStatus[1]))
             self.log.debug("sleep 1 second")
@@ -259,31 +259,35 @@ class ImagePlateDetector(MeasureSequencer, ImagePlateBase, ImageProducer):
         self.imagetype = ImageType(ImagePlateDetector.MAP_SHAPE[self.pixelsize],
                                    numpy.uint16)
 
-    def _generateSequence(self, expoTime, *args, **kwargs):
+    def _generateSequence(self, expoTime, prepare=False, *args, **kwargs):
         seq = []
-        # close shutter
-        if self.ctrl_photoshutter:
-            seq.append(SeqDev(self.photoshutter, ShutterStates.CLOSED))
-        if self.ctrl_gammashutter:
-            seq.append(SeqDev(self.gammashutter, ShutterStates.CLOSED))
-        # erase and expo position
-        if self.erase:
-            seq.append(SeqDev(self.drum, ImagePlateDrum.POS_ERASE))
-        seq.append(SeqDev(self.drum, ImagePlateDrum.POS_EXPO))
-        # open shutter
-        if self.ctrl_gammashutter:
-            seq.append(SeqDev(self.gammashutter, ShutterStates.OPEN))
-        if self.ctrl_photoshutter:
-            seq.append(SeqDev(self.photoshutter, ShutterStates.OPEN))
-        # count
-        seq.append(SeqSleep(expoTime, "counting for %fs" % expoTime))
-        # close shutter
-        if self.ctrl_photoshutter:
-            seq.append(SeqDev(self.photoshutter, ShutterStates.CLOSED))
-        if self.ctrl_gammashutter:
-            seq.append(SeqDev(self.gammashutter, ShutterStates.CLOSED))
-        # start readout
-        seq.append(SeqDev(self.drum, ImagePlateDrum.POS_READ))
+        if prepare:
+            # close shutter
+            if self.ctrl_photoshutter:
+                seq.append(SeqDev(self.photoshutter, ShutterStates.CLOSED))
+            if self.ctrl_gammashutter:
+                seq.append(SeqDev(self.gammashutter, ShutterStates.CLOSED))
+            # erase and expo position
+            if self.erase:
+                seq.append(SeqDev(self.drum, ImagePlateDrum.POS_ERASE))
+            seq.append(SeqDev(self.drum, ImagePlateDrum.POS_EXPO))
+        if expoTime > 0:
+            # open shutter
+            if self.ctrl_gammashutter:
+                seq.append(SeqDev(self.gammashutter, ShutterStates.OPEN))
+            if self.ctrl_photoshutter:
+                seq.append(SeqDev(self.photoshutter, ShutterStates.OPEN))
+            # count
+            seq.append(SeqSleep(expoTime, "counting for %fs" % expoTime))
+            # close shutter
+            if self.ctrl_photoshutter:
+                seq.append(SeqDev(self.photoshutter, ShutterStates.CLOSED))
+            if self.ctrl_gammashutter:
+                seq.append(SeqDev(self.gammashutter, ShutterStates.CLOSED))
+            # start readout
+            seq.append(SeqDev(self.drum, ImagePlateDrum.POS_READ))
+            # expo position after readout
+            seq.append(SeqDev(self.drum, ImagePlateDrum.POS_EXPO))
         return seq
 
     def _runFailed(self, step, action, exception):
@@ -303,6 +307,12 @@ Retrying.""" % (action, exception))
     def doSetPreset(self, **preset):
         if 't' in preset:
             self._t = preset['t']
+
+    def doPrepare(self):
+        self._startSequence(self._generateSequence(expoTime=False,
+                                                   prepare=True))
+        # temporary fix because the status is not updated instantly
+        time.sleep(.3)
 
     def doStart(self):
         expoTime = self._t if self._t is not None else self.exposure_time
