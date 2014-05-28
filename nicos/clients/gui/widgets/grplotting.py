@@ -76,6 +76,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self.fitPicker = None
         self.fitcallbacks = [None, None]
         self.mouselocation = None
+        self._cursor = self.cursor()
 
         dictPrintType = dict(gr.PRINT_TYPE)
         map(dictPrintType.pop, [gr.PRINT_JPEG, gr.PRINT_TIF])
@@ -315,6 +316,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         if self.fitparams:
             self.statusMessage = "Fitting: Click on %s" % fitparams[0]
             self.window.statusBar.showMessage(self.statusMessage)
+            self._cursor = self.cursor()
             self.setCursor(QtGui.QCursor(Qt.CrossCursor))
         else:
             self._finishFit()
@@ -349,7 +351,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             self.fittype = None
             self.fitcurve = None
         finally:
-            self.setCursor(QtGui.QCursor(Qt.ArrowCursor))
+            self.setCursor(self._cursor)
 
     def on_fitPicker_selected(self, point):
         if (self.fittype is not None
