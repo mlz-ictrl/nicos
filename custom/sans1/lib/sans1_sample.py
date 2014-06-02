@@ -25,7 +25,7 @@
 """Sans1 Sample device."""
 
 from nicos import session
-from nicos.core import Param, Override, dictof
+from nicos.core import Param, Override, dictof, none_or
 from nicos.devices.experiment import Sample as NicosSample
 
 
@@ -38,10 +38,11 @@ class Sans1Sample(NicosSample):
     """
 
     parameters = {
-        'samplenames':  Param('Sample names', type=dictof(int, str), settable=True,
-                             category='sample', default={}),
-        'activesample': Param('Number of currently used sample on samplechanger',
-                              type=int, settable=True, category='sample'),
+        'samplenames':  Param('Sample names', type=dictof(int, str),
+                              settable=True, category='sample', default={}),
+        'activesample': Param('None or index of currently used sample on'
+                              ' samplechanger', type=none_or(int),
+                              settable=True, category='sample'),
     }
     parameter_overrides = {
         'samplename' : Override(volatile = True),
@@ -57,7 +58,7 @@ class Sans1Sample(NicosSample):
 
         if <idx> is 0 or None, use self.activesample instead"""
         if not idx:
-            idx = self.activesample
+            idx = self.activesample or 0
         d = {}
         d.update(self.samplenames)
         d[int(idx)] = name
@@ -81,9 +82,12 @@ class Sans1Sample(NicosSample):
         self.setName(None, name)
 
     def doWriteActivesample(self, num):
-        """change the current samplename to another one"""
+        """change the current sample to another one"""
         # self.samplename = self.getName(num)
         # maybe this is better (Exp.datapath adjustments?):
         # see for example the antares experiment.
         # sans people want to deviate from the default too :(
-        session.experiment.newSample(self.getName(num), {})
+        self._setROParam('activesample', num)
+        samplename = self.getName(num)
+        if 'Exp' in session.devices and samplename:
+            session.experiment.newSample(samplename, {})
