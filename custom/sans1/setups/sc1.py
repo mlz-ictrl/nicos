@@ -26,7 +26,7 @@ description = 'sample table devices'
 
 group = 'optional'
 
-includes = ['sample_table_2']
+includes = ['sample_table_2'] # includes 'sample_table_1'
 
 nethost = '//sans1srv.sans1.frm2/'
 
@@ -48,7 +48,7 @@ devices = dict(
 
     sc1    = device('devices.generic.MultiSwitcher',
                        description = 'Sample Changer 1 Huber device',
-                       moveables = ['sc1_y', 'z_2b', 'samplenameselector'],
+                       moveables = ['sc1_y', 'st1_z', 'samplenameselector'],
                        mapping = {'1':  [594.5, -31, 1],  '2': [535.5, -31, 2],
                                   '3':  [476.5, -31, 3],  '4': [417.5, -31, 4],
                                   '5':  [358.5, -31, 5],  '6': [299.5, -31, 6],
