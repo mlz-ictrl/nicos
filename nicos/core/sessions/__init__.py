@@ -589,10 +589,12 @@ class Session(object):
         # shutdown according to device dependencies
         devs = listvalues(self.devices)
         already_shutdown = set()
+        # outer loop: as long as there are devices...
         while devs:
+            deadlock = True
+            # inner loop: ... we try to shutdown each one of them...
             for dev in devs[:]:
-                # shutdown only those devices that don't have remaining
-                # dependencies
+                # ... but only if they don't have remaining dependencies
                 if dev._sdevs <= already_shutdown:
                     already_shutdown.add(dev.name)
                     self.unexport(dev.name, warn=False)
@@ -601,6 +603,15 @@ class Session(object):
                     except Exception:
                         dev.log.warning('exception while shutting down', exc=1)
                     devs.remove(dev)
+                    # This round (of outer loop) we had no deadlock, as we
+                    # shutdown at least one device: remember this fact
+                    deadlock = False
+            # inner loop complete: if we couldn't shutdown a single device, complain
+            if deadlock:
+                for dev in devs:
+                    dev.log.error('can not unload, dependency still active!')
+                raise NicosError(self, 'Deadlock detected! Session.unloadSetup'
+                                        ' failed on these devices: %r' % devs)
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
         self.devices.clear()
