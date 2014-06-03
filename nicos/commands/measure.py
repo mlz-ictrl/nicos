@@ -33,6 +33,7 @@ from nicos.core.constants import SIMULATION
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
 from nicos.pycompat import iteritems, number_types, string_types
+from nicos.core.utils import waitForStatus
 
 
 __all__ = [
@@ -181,6 +182,13 @@ def count(*detlist, **preset):
         printwarning('these preset keys were not recognized by any of '
                      'the detectors: %s -- detectors are %s' %
                      (', '.join(names), ', '.join(map(str, detectors))))
+    # preparation before count command
+    for det in detectors:
+        det.prepare()
+    # wait for preparation has been finished.
+    for det in detectors:
+        waitForStatus(det)
+    # start counting
     result = []
     _count(detectors, preset, result)
     i = 0

@@ -36,6 +36,7 @@ from nicos.core.errors import NicosError, LimitError, ModeError, TimeoutError, \
 from nicos.core.image import ImageProducer
 from nicos.core.constants import SIMULATION, SLAVE
 from nicos.utils import Repeater
+from nicos.core.utils import waitForStatus
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 from nicos.pycompat import iteritems, number_types
@@ -170,6 +171,11 @@ class Scan(object):
                 for catinfo, bycategory in iteritems(self.dataset.headerinfo):
                     det.addHeader(catinfo, bycategory)
                 det.addHeader('scan', [(self, 'pointnum', '%d' % num)])
+            # preparation before count command
+            det.prepare()
+        # wait for preparation has been finished.
+        for det in self._detlist:
+            waitForStatus(det)
 
     def addPoint(self, xvalues, yvalues):
         self.dataset.xresults.append(xvalues)

@@ -1859,6 +1859,23 @@ class Measurable(Readable):
             return [result]
         return result
 
+    def doPrepare(self):
+        pass
+
+    @usermethod
+    def prepare(self):
+        """Prepare measurement before counting.
+
+        .. method: doPrepare
+
+           If present, this is called to prepare the measurement.  This method
+           will be called before start counting and e.g. for scans before
+           moving to the next scan point.
+
+        """
+        if not self._sim_active:
+            return self.doPrepare()
+
     def save(self, exception=False):
         """Save the current measurement, if necessary.
 
