@@ -69,8 +69,6 @@ class Sans1ColliSlit(Switcher):
             elif pos == value:
                 return name
         if self.fallback is not None:
-            if self.doStatus()[0] == status.BUSY:
-                return 'moving'
             return self.fallback
         if self.relax_mapping:
             return self._adevs['moveable'].format(pos,True)
