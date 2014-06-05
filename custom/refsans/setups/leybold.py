@@ -20,13 +20,31 @@
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-description = 'setup for the electronic logbook'
-group = 'special'
+description = 'readout devices for Leybold Center 3'
+
+# not included by others
+group = 'optional'
+
+nethost = 'refsanssrv.refsans.frm2'
+tacodev = '//%s/test/center' % nethost
 
 devices = dict(
-    Logbook = device('services.elog.Logbook',
-                     prefix = 'logbook/',
-                     cache = 'refsans10.refsans.frm2'),
+    lc1 = device('nicos.devices.taco.AnalogInput',
+                 description = 'Leybold Center 3 Channel 1',
+                 tacodevice = '%s/center_0' % tacodev,
+                ),
+    lc2 = device('nicos.devices.taco.AnalogInput',
+                 description = 'Leybold Center 3 Channel 2',
+                 tacodevice = '%s/center_1' % tacodev,
+                ),
+    lc3 = device('nicos.devices.taco.AnalogInput',
+                 description = 'Leybold Center 3 Channel 3',
+                 tacodevice = '%s/center_2' % tacodev,
+                ),
 )
+
+startupcode = """
+"""
+

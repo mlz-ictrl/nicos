@@ -26,4 +26,5 @@ description = 'REFSANS basic setup'
 
 group = 'basic'
 
-includes = ['nok1', 'nok2', 'nok3', 'nok4', 'b1',]
+#~ includes = ['nok','leybold.py']
+includes = ['nok']

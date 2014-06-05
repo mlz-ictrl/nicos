@@ -20,13 +20,15 @@
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-description = 'setup for the electronic logbook'
-group = 'special'
 
-devices = dict(
-    Logbook = device('services.elog.Logbook',
-                     prefix = 'logbook/',
-                     cache = 'refsans10.refsans.frm2'),
-)
+description = 'NOK Devices for REFSANS, main file including all'
+
+group = 'lowlevel'
+
+includes = ['bs1',
+           'nok1', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b', 'nok6', 'nok7', 'nok8', 'nok9',
+           'x1',
+           'zb0', 'zb1', 'zb2', 'zb3']
+

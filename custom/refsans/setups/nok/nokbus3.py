@@ -18,8 +18,24 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-from nicos.refsans.virtual.nok import NOK
+# to be included by nok1
+group = 'lowlevel'
+
+nethost = 'refsanssrv.refsans.frm2'
+
+description = 'IPC Motor bus device configuration'
+
+includes = []
+
+devices = dict(
+    nokbus3 = device('devices.vendor.ipc.IPCModBusTaco',
+                      tacodevice = '//%s/test/ipcsms/3' % (nethost,),
+                      loglevel = 'info',
+                      lowlevel = True,
+                      bustimeout = 0.5,
+            ),
+)

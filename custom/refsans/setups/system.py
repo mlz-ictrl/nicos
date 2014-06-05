@@ -19,45 +19,61 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
 description = 'system setup'
 
+group = 'lowlevel'
+
 sysconfig = dict(
-    cache = 'localhost',
+    cache = 'refsans10.refsans.frm2',
     instrument = 'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'], # , 'liveplot'],
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'refsans.commands']
+
+# SYSTEM NEVER INCLUDES OTHER SETUPS !!!
+
 
 devices = dict(
-    REFSANS   = device('devices.instrument.Instrument',
-                       instrument = 'REFSANS',
-                      ),
-
-    Sample   = device('devices.experiment.Sample'),
-
-    Exp      = device('devices.experiment.Experiment',
-                      dataroot = '/users/data',
-                      sample = 'Sample',
-                      elog = False,
+    REFSANS  = device('devices.instrument.Instrument',
+                      description = 'Container storing Instrument properties',
+                      instrument = 'REFSANS',
+                      responsible = 'Mathias Pomm',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
+    Sample   = device('devices.experiment.Sample',
+                      description = 'Container storing Sample properties',
+                     ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    Exp      = device('devices.experiment.Experiment',
+                      description = 'Container storing Experiment properties',
+                      dataroot = '/data',
+                      sample = 'Sample',
+                      #~ elog = False,
+                     ),
 
-    daemonsink = device('devices.datasinks.DaemonSink'),
+    filesink = device('devices.datasinks.AsciiDatafileSink',
+                      description = 'Device saving scanfiles',
+                     ),
+
+    conssink = device('devices.datasinks.ConsoleSink',
+                      description = 'Device outputting logmessages to the console',
+                     ),
+
+    daemonsink = device('devices.datasinks.DaemonSink',
+                        description = 'The daemon Device, coordinating all the heavy lifting',
+                       ),
 
 #   liveplot = device('devices.datasinks.GraceSink'),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
-                      path = 'data',
                       minfree = 5,
                      ),
 )

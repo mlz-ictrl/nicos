@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -32,6 +32,6 @@ devices = dict(
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DB',
-                    server = 'localhost',
+                    server = 'refsans10.refsans.frm2',
                     loglevel = 'info'),
 )

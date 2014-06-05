@@ -19,10 +19,16 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
 description = 'minimal NICOS startup setup'
 group = 'lowlevel'
 
+sysconfig = dict(
+    cache = 'refsans10.refsans.frm2',
+)
+
+# STARTUP NEVER INCLUDES ANYTHING !!!
 includes = []

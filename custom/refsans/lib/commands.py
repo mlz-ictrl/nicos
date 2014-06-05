@@ -18,9 +18,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#  Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-from nicos.refsans.nok.coder import Coder, CoderReference
-from nicos.refsans.nok.axis import Axis
+"""Special commands only useable at REFSANS"""

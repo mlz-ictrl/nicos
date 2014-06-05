@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -26,11 +26,11 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'localhost'
+    cache = 'refsans10.refsans.frm2'
 )
 
 devices = dict(
     Poller = device('services.poller.Poller',
                     alwayspoll = [],
-                    blacklist = ['tas']),
+                    blacklist = []),
 )

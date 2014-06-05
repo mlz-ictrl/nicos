@@ -1,0 +1,153 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2009-2014 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
+# **************************************************************************
+
+
+description = "Devices for REFSANS's zb3"
+
+group = 'lowlevel'
+
+includes = ['nok_ref', 'nokbus3']
+
+nethost = 'refsanssrv.refsans.frm2'
+
+devices = dict(
+# masks:
+# 12.01.2010 10:34:54 (k1)
+# 12.06.2009 16:22:34 centertest2 (slit)
+    zb3        = device('nicos.refsans.nok_support.DoubleMotorNOK',
+                        description = 'ZB3',
+                        nok_start = 8837.5,
+                        nok_length = 13.0,
+                        nok_end = 8850.5,
+                        nok_gap = 1.0,
+                        inclinationlimits = (-10, 10),   # invented values, PLEASE CHECK!
+                        masks = dict(
+                                     k1   = [-110.0, 0.0, -2.64, 0.0],
+                                     slit = [0.0, 0.0, -2.63, -0.57],
+                                    ),
+                        motor_r = 'zb3r_axis',
+                        motor_s = 'zb3s_axis',
+                        nok_motor = [8843.5, 8850.5],
+                        backlash = -2,   # is this configured somewhere?
+                        precision = 0.05,
+                       ),
+
+# generated from global/inf/resources.inf, geometrie.inf, optic.inf
+    zb3r_axis  = device('nicos.devices.generic.Axis',
+                        description = 'Axis of ZB3, reactor side',
+                        motor = 'zb3r_motor',
+                        coder = 'zb3r_motor',
+                        obs = ['zb3r_obs'],
+                        backlash = 0,
+                        precision = 0.05,
+                        unit = 'mm',
+                        lowlevel = True,
+                       ),
+
+# generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
+    zb3r_motor = device('refsans.nok_support.NOKMotorIPC',
+                        description = 'IPC controlled Motor of ZB3, reactor side',
+                        abslimits = (-677.125, 99.125),
+                        userlimits = (-221.0, 95.0),
+                        bus = 'nokbus3',     # from ipcsms_*.res
+                        addr = 0x57,     # from resources.inf
+                        slope = 800.0,   # FULL steps per physical unit
+                        speed = 10,
+                        accel = 10,
+                        confbyte = 32,
+                        ramptype = 2,
+                        microstep = 1,
+                        refpos = 105.837,    # from ipcsms_*.res
+                        zerosteps = int(677.125 * 800),  # offset * slope
+                        lowlevel = True,
+                       ),
+
+# generated from global/inf/poti_tracing.inf
+    zb3r_obs   = device('refsans.nok_support.NOKPosition',
+                        description = 'Position sensing for ZB3, reactor side',
+                        reference = 'nok_refc1',
+                        measure = 'zb3r_poti',
+                        poly = [-140.539293, 1004.824 / 1.92],   # off, mul * 1000 / sensitivity, higher orders...
+                        serial = 7778,
+                        length = 500.0,
+                        lowlevel = True,
+                       ),
+
+# generated from global/inf/poti_tracing.inf
+    zb3r_poti  = device('refsans.nok_support.NOKMonitoredVoltage',
+                        description = 'Poti for ZB3, reactor side',
+                        tacodevice = '//%s/test/wb_c/1_2' % nethost,
+                        scale = -1,  # mounted from top
+                        lowlevel = True,
+                       ),
+
+# generated from global/inf/resources.inf, geometrie.inf, optic.inf
+    zb3s_axis  = device('nicos.devices.generic.Axis',
+                        description = 'Axis of ZB3, sample side',
+                        motor = 'zb3s_motor',
+                        coder = 'zb3s_motor',
+                        obs = ['zb3s_obs'],
+                        backlash = 0,
+                        precision = 0.05,
+                        unit = 'mm',
+                        lowlevel = True,
+                       ),
+
+# generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
+    zb3s_motor = device('refsans.nok_support.NOKMotorIPC',
+                        description = 'IPC controlled Motor of ZB3, sample side',
+                        abslimits = (-150.8125, 113.5625),
+                        userlimits = (-106.0, 113.562),
+                        bus = 'nokbus3',     # from ipcsms_*.res
+                        addr = 0x58,     # from resources.inf
+                        slope = 800.0,   # FULL steps per physical unit
+                        speed = 10,
+                        accel = 10,
+                        confbyte = 32,
+                        ramptype = 2,
+                        microstep = 1,
+                        refpos = 72.774,     # from ipcsms_*.res
+                        zerosteps = int(644.562 * 800),  # offset * slope
+                        lowlevel = True,
+                       ),
+
+# generated from global/inf/poti_tracing.inf
+    zb3s_obs   = device('refsans.nok_support.NOKPosition',
+                        description = 'Position sensing for ZB3, sample side',
+                        reference = 'nok_refc1',
+                        measure = 'zb3s_poti',
+                        poly = [-0.565827, 1000.571 / 3.842],    # off, mul * 1000 / sensitivity, higher orders...
+                        serial = 7547,
+                        length = 250.0,
+                        lowlevel = True,
+                       ),
+
+# generated from global/inf/poti_tracing.inf
+    zb3s_poti  = device('refsans.nok_support.NOKMonitoredVoltage',
+                        description = 'Poti for ZB3, sample side',
+                        tacodevice = '//%s/test/wb_c/1_3' % nethost,
+                        scale = 1,   # mounted from bottom
+                        lowlevel = True,
+                       ),
+)

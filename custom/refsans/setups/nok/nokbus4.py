@@ -20,13 +20,22 @@
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
-# *****************************************************************************
+# **************************************************************************
 
-description = 'setup for the electronic logbook'
-group = 'special'
+# to be included by nok1
+group = 'lowlevel'
+
+nethost = 'refsanssrv.refsans.frm2'
+
+description = 'IPC Motor bus device configuration'
+
+includes = []
 
 devices = dict(
-    Logbook = device('services.elog.Logbook',
-                     prefix = 'logbook/',
-                     cache = 'refsans10.refsans.frm2'),
+    nokbus4 = device('devices.vendor.ipc.IPCModBusTaco',
+                      tacodevice = '//%s/test/ipcsms/4' % (nethost,),
+                      loglevel = 'info',
+                      lowlevel = True,
+                      bustimeout = 0.5,
+            ),
 )

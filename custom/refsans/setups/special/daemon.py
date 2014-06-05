@@ -18,20 +18,27 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
 description = 'setup for the execution daemon'
 group = 'special'
 
-#import hashlib
+import hashlib
 
 devices = dict(
-    Auth   = device('services.daemon.auth.Authenticator'),
-    Daemon = device('services.daemon.NicosDaemon',
-                    server = 'localhost',
-                    authenticators = ['Auth'],
-                    loglevel = 'debug',
+    UserDB = device('frm2.auth.Frm2Authenticator'),
+    Auth   = device('services.daemon.auth.ListAuthenticator',
+                    hashing = 'md5',
+                    # first entry is the user name, second the hashed password, third the user level
+                    passwd = [('guest', '', 'guest'),
+                              ('user', hashlib.md5(b'user').hexdigest(), 'user'),
+                              ('admin', hashlib.md5(b'admin').hexdigest(), 'admin')],
                    ),
+    Daemon = device('services.daemon.NicosDaemon',
+                    server = 'refsans10.refsans.frm2',
+                    authenticators = ['UserDB', 'Auth']
+                   ),
+
 )

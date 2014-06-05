@@ -18,60 +18,68 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
 description = 'setup for the status monitor'
 group = 'special'
 
-_expcolumn = [
-    ('Experiment', [
-        [{'name': 'Proposal', 'key': 'exp/proposal', 'width': 7},
-         {'name': 'Title', 'key': 'exp/title', 'width': 20,
-          'istext': True, 'maxlen': 20},
-         {'name': 'Current status', 'key': 'exp/action', 'width': 30,
-          'istext': True},
-         {'name': 'Last file', 'key': 'exp/lastscan'}]]),
-]
+Row = Column = Block = BlockRow = lambda *args: args
+Field = lambda *args, **kwds: args or kwds
 
-_axisblock = (
-    'Axis devices',
-    [['a1', 'm1', 'c1'],
-     ['a2', 'm2']],
-    'misc')
+_expcolumn = Column(
+    Block('Experiment', [
+        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
+                 Field(name='Title',    key='exp/title',    width=20,
+                       istext=True, maxlen=20),
+                 Field(name='Current status', key='exp/action', width=50,
+                       istext=True, maxlen=40),
+                 Field(name='Last file', key='det/lastfilenumber'),
+            )
+        ],# 'experiment'
+    ),
+)
 
-_detectorblock = (
-    'Detector devices',
-    [[{'name': 'timer', 'dev': 'timer'},
-      {'name': 'ctr1', 'dev': 'ctr1'},
-      {'name': 'ctr2', 'dev': 'ctr2'}]],
-    'detector')
+# NOK's
+_noklist = 'nok1 nok2 nok3 nok4 nok5a zb0 nok5b zb1 nok6 zb2 nok7 zb3 nok8 bs1 nok9'.split()
+_nok_array = []
+for i in range(4):
+    if _noklist:
+        _r = []
+        for j in range(4):
+            if _noklist:
+                nok = _noklist.pop(0)
+                _r.append(Field(dev=nok, width=16))
+        _nok_array.append(BlockRow(*_r))
 
-_otherblock = (
-    'Other devices',
-    [[{'dev': 'slit', 'width': 20, 'name': 'Slit'}],
-     [{'dev': 'sw', 'width': 4, 'name': 'Switcher'}]],
-    'misc')
+_nokcolumn = Column(Block('NOK-System', _nok_array))
 
-_rightcolumn = [
-    _axisblock,
-    _detectorblock,
-]
-
-_leftcolumn = [
-    _otherblock,
-]
+_refcolumn = Column(
+    Block('References', [
+        BlockRow( Field(dev='nok_refa1', name='ref_A1'),
+                  Field(dev='nok_refb1', name='ref_B1'),
+                  Field(dev='nok_refc1', name='ref_C1'),),
+        BlockRow( Field(dev='nok_refa2', name='ref_A2'),
+                  Field(dev='nok_refb2', name='ref_B2'),
+                  Field(dev='nok_refc2', name='ref_C2'),),
+        ],
+    ),
+)
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
                      loglevel = 'info',
-                     cache = 'localhost:14869',
+                     cache = 'refsans10.refsans.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
+                     fontsize = 12,
                      padding = 5,
-                     layout = [[_expcolumn], [_rightcolumn, _leftcolumn]],
+                     layout = [
+                               Row(_expcolumn),
+                               Row(_nokcolumn, _refcolumn),
+                              ],
                     ),
 )
