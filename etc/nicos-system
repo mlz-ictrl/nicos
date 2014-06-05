@@ -27,6 +27,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -38,12 +39,26 @@ import signal
 import ConfigParser
 from os import path
 
+_DEFAULT = path.join(os.sep, 'etc', 'default', 'nicos-system')
 nicos_root = path.dirname(path.dirname(path.realpath(__file__)))
 
 try:
     import nicos
 except ImportError:
     sys.path.insert(0, nicos_root)
+
+if path.isfile(_DEFAULT) and not "INSTRUMENT" in os.environ:
+    try:
+        with open(_DEFAULT, 'r') as fd:
+            for line in fd:
+                if not line.startswith('#'):
+                    (key, sep, value) = line.partition('=')
+                    if sep:
+                        key = key.replace('export', '').strip()
+                        os.environ[key] = value.rstrip()
+    except IOError as e:
+        print >>sys.stderr, '  ERROR: %s' % e
+        print >>sys.stderr, 'WARNING: Ignoring defaults in %s.' % _DEFAULT
 
 # We need to read the nicos.conf file, so let nicos do that.
 from nicos import config
