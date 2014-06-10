@@ -33,14 +33,26 @@ from nicos.core.scan import Scan
 from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _handleScanArgs, _infostr
+from nicos.biodiff.motor import MicrostepMotor
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-06-03"
+__date__ = "2014-06-10"
 __version__ = "0.1.0"
 
 
 class RScan(Scan):
+
+    def moveTo(self, position, wait=True):
+        if wait:
+            # movement and counting separate
+            # do not use software based micro stepping
+            where = [(dev._adevs["motor"], pos) if type(dev) == MicrostepMotor
+                     else (dev, pos)
+                     for dev, pos in zip(self._devices, position)]
+            self.moveDevices(where, wait)
+        else:
+            Scan.moveTo(self, position, wait)
 
     def preparePoint(self, num, xvalues):
         if num > 0: # skip starting point, because of range scan (0..1, ...)
