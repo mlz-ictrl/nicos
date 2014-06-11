@@ -69,14 +69,10 @@ class ConsoleSink(DataSink):
         printinfo('\t'.join([''] + dataset.xunits + dataset.yunits).
                   expandtabs())
         printinfo('-' * 100)
-        if dataset.positions:
-            self._npoints = len(dataset.positions)
-        else:
-            self._npoints = 0
 
     def addPoint(self, dataset, xvalues, yvalues):
-        if self._npoints:
-            point = '%s/%s' % (dataset.curpoint, self._npoints)
+        if dataset.npoints:
+            point = '%s/%s' % (dataset.curpoint, dataset.npoints)
         else:
             point = str(dataset.curpoint)
         printinfo('\t'.join(

@@ -106,9 +106,12 @@ class Scan(object):
         self._sinks = self.dataset.sinks
         self.dataset.sinkinfo = {}
         try:
-            self._npoints = len(positions)  # can be zero if not known
+            npoints = len(positions)  # can be zero if not known
+            if not self._waitbeforecount and npoints > 1: # intervals
+                npoints -= 1
         except TypeError:
-            self._npoints = 0
+            npoints = 0
+        self.dataset.npoints = npoints
 
     def prepareScan(self, positions):
         session.beginActionScope('%s (moving to start)' % self.shortDesc())
@@ -158,10 +161,11 @@ class Scan(object):
         session.beginActionScope(self.shortDesc())
 
     def preparePoint(self, num, xvalues):
-        if self._npoints == 0:
+        if self.dataset.npoints == 0:
             session.beginActionScope('Point %d' % num)
         else:
-            session.beginActionScope('Point %d/%d' % (num, self._npoints))
+            session.beginActionScope('Point %d/%d' % (num,
+                                                      self.dataset.npoints))
         # update dataset values
         self.dataset.curpoint = num
         self.dataset.updateHeaderInfo(dict(zip(self._devices, xvalues)))

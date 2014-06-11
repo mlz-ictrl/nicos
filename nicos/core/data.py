@@ -115,6 +115,19 @@ class Dataset(object):
         self.sinkinfo = {}
         self.xresults = []
         self.yresults = []
+        # number of points/intervals
+        self._npoints = 0
+
+    @property
+    def npoints(self):
+        if self._npoints:
+            return self._npoints
+        else:
+            return len(self.positions)
+
+    @npoints.setter
+    def npoints(self, value):
+        self._npoints = value
 
     def updateHeaderInfo(self, updatedict=None):
         bycategory = {}
