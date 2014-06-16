@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 __author__  = "Christian Felder <c.felder@fz-juelich.de>"
-__date__    = "2014-05-23"
-__version__ = "0.1.0"
+__date__    = "2014-06-16"
+__version__ = "0.1.1"
 
 
 description = "Shutter setup"
@@ -18,12 +18,12 @@ _MAP_SHUTTER = {
 devices = dict(
                _gshutter = device("devices.tango.DigitalOutput",
                                   description = "Gamma shutter (low level)",
-                                  tangodevice = _TANGO_URL + "NlaShutter",
+                                  tangodevice = _TANGO_URL + "ExpShutter",
                                   lowlevel = True,
                                   ),
                _pshutter = device("devices.tango.DigitalOutput",
                                   description = "Photo shutter (low level)",
-                                  tangodevice = _TANGO_URL + "PhotoNlaShutter",
+                                  tangodevice = _TANGO_URL + "PhotoExpShutter",
                                   lowlevel = True,
                                   ),
                gammashutter = device("devices.generic.switcher.Switcher",

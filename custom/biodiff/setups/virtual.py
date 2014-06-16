@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 __author__  = "Christian Felder <c.felder@fz-juelich.de>"
-__date__    = "2014-05-05"
-__version__ = "0.1.0"
+__date__    = "2014-06-16"
+__version__ = "0.1.1"
 
 
 description = "Test setup for virtual devices"
@@ -19,4 +19,10 @@ devices = dict(
                               description = "Test device",
                               motor = "vmotor",
                               ),
+        gammashutter = device("devices.generic.ManualSwitch",
+                              description = "Gamma shutter (virtual)",
+                              states = ["open", "closed"]),
+        photoshutter = device("devices.generic.ManualSwitch",
+                              description = "Photo shutter (virtual)",
+                              states = ["open", "closed"]),
                )
