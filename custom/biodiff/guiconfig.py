@@ -42,7 +42,8 @@ main_window = tabbed(
             ),
             tabbed(
                 ('All output',
-                    panel('console.ConsolePanel')),
+                    panel('console.ConsolePanel',
+                          hasinput=False, hasmenu=False)),
                 ('Errors/Warnings',
                     panel('errors.ErrorPanel')),
             ),
@@ -55,7 +56,7 @@ main_window = tabbed(
             panel('scriptbuilder.CommandsPanel'),
             panel('editor.EditorPanel',
                 tools = [
-                    tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
+                    tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
             ]),
         )),
     ('Scan Plotting', panel('scans.ScansPanel')),
