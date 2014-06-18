@@ -337,7 +337,6 @@ class VirtualRealTemperature(HasLimits, Moveable):
             # insert target position into history
             # if target is far away -> loop goes busy
             # else loop sets to stable again....
-            self._setROParam('target', pos)
             currtime = time.time()
             self._window.append( (currtime, pos))
             self._starttime = currtime
