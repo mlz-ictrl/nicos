@@ -2,7 +2,7 @@ description = 'ANTARES garfield magnet'
 
 group = 'optional'
 
-includes = ['alias_b']
+includes = ['alias_B']
 
 taco_host = 'amagnet'
 
