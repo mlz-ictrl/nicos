@@ -30,7 +30,7 @@ from time import sleep, time as currenttime
 import IO
 
 from nicos.core import Readable, Moveable, HasLimits, Param, Override, \
-     NicosError, intrange, oneof, status, requires, ADMIN, listof
+     NicosError, intrange, oneof, status, requires, ADMIN, listof, tupleof
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
 
@@ -45,21 +45,24 @@ class Controller(TacoDevice, Readable):
                                   '(= 0) or with 90deg offset (= 1)',
                                   type=intrange(0, 1), mandatory=True),
         'phase_accuracy': Param('Required accuracy of the chopper phases',
-                                settable=True, default=10), # XXX unit?
+                                settable=True, default=10, type=float), # XXX unit?
         'speed_accuracy': Param('Required accuracy of the chopper speeds',
-                                settable=True, default=2),  # XXX unit?
-        'resolution':     Param('Current energy resolution', volatile=True),
+                                settable=True, default=2, type=float),  # XXX unit?
+        'resolution':     Param('Current energy resolution', volatile=True,
+                                type=tupleof(float, float),),
         'timeout':        Param('Timeout waiting for changes', settable=True,
-                                default=90.0, unit='s'),
+                                default=90.0, unit='s', type=float),
 
         # readonly hidden state parameters giving current values
-        'wavelength': Param('Selected wavelength', unit='AA', userparam=False),
-        'speed':      Param('Disk speed', unit='rpm', userparam=False),
+        'wavelength': Param('Selected wavelength', unit='AA', userparam=False,
+                            type=float,),
+        'speed':      Param('Disk speed', unit='rpm', userparam=False,
+                            type=int,),
         'ratio':      Param('Frame-overlap ratio', type=int, userparam=False),
         'crc':        Param('Counter-rotating mode', type=int, userparam=False),
         'slittype':   Param('Slit type', type=int, userparam=False),
         'phases':     Param('Current phases', type=listof(float), userparam=False),
-        'changetime': Param('Time of last change', userparam=False),
+        'changetime': Param('Time of last change', userparam=False, type=float),
     }
 
     def _read(self, n):
