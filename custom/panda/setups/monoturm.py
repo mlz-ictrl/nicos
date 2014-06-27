@@ -5,7 +5,8 @@ description = 'Monoturm, everything inside the Monochromator housing'
 group = 'lowlevel'
 
 # channel 1   2   3   4   5   6   7   8
-#        mfh mgx mtx mty mth mtt ms1 mfv
+#        --- mgx mtx mty mth mtt ms1 saph
+#                                    saphire is in saph setup
 
 # eases address settings: 0x5.. = stepper, 0x6.. = poti, 0x7.. = coder ; .. = channel
 MOTOR = lambda x: 0x50 + x

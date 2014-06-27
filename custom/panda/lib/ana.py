@@ -84,7 +84,7 @@ class AnaBlocks(Moveable):
             r = ['_','1','0','X' ][j] + r
         return status.OK, 'idle: ' + r
 
-    def doStart(self, pattern):
+    def doStart(self, pattern, force=None):
         if self._timer:
             try:
                 self._timer.cancel()
@@ -95,29 +95,36 @@ class AnaBlocks(Moveable):
             except Exception:
                 pass
             self._timer = None
-        old = self.doRead()
-        for i in range(18):
-            # try to be clever: only activate/deactivate bits which differ from current status....
-            if (pattern >> i) & 1  and (old >> i) & 1:
-                continue        # skip equal bits
-            if (pattern >> i) &1:   # bit is set:
-                self.log.debug('block %d is going up'%(i+1))
-                self.output2( 2*i, '01' )
-            else:
-                self.log.debug('block %d is going down'%(i+1))
-                self.output2( 2*i, '10' )
+        if pattern:
+            old = self.doRead()
+            for i in range(18):
+                # try to be clever: only activate/deactivate bits which differ from current status....
+                if (pattern >> i) & 1  and (old >> i) & 1:
+                    continue        # skip equal bits
+                if (pattern >> i) &1:   # bit is set:
+                    self.log.debug('block %d is going up'%(i+1))
+                    self.output2(2*i, '01')
+                else:
+                    self.log.debug('block %d is going down'%(i+1))
+                    self.output2(2*i, '10')
+        elif force:
+            for k, v in force:
+                self.output2(k, v)
         if self.powertime >= 1:
             import threading
             self._timer = threading.Timer(self.powertime, self.powersaver)
             self._timer.start()  # switch off down's after powertime seconds
 
+    @usermethod
+    def doTest19(self, what):
+        self.doStart(None, force={36:what})
+
     def powersaver(self):
-        for i in range(0, 36, 2):
-            #~ self.log.debug('Checking block %d'%(i/2+1))
+        for i in range(0, 38, 2):
             if self.input2(i) == '01':
                 self.log.debug('Save Power in AnaBlock %d'%(i/2+1))
                 self.output2(i,0)
-        #~ self.log.debug('Saved power')
+
 
 class ATT_Axis(Axis):
     attached_devices = {
@@ -157,6 +164,14 @@ class ATT_Axis(Axis):
                     blockup = 1
             code += blockup << j
         self._adevs['anablocks'].start(code)
+
+    @usermethod
+    def testblockup(self):
+        self._adevs['anablocks'].doTest19('01')
+
+    @usermethod
+    def testblockdown(self):
+        self._adevs['anablocks'].doTest19('10')
 
     @usermethod
     def allblocksdown(self):
