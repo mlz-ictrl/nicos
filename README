@@ -108,3 +108,8 @@ xBuntu 12.04
 * Development and documentation build:
 
   apt-get install python-sip-dev python-qt4-dev python-nose python-coverage python-sphinx
+
+* For the livewidget you have to install the Qwt development package:
+
+  apt-get install libqwt5-qt4-dev
+
