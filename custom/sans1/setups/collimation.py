@@ -171,10 +171,16 @@ devices = dict(
                       mapping = dict(NG=0, COL=117, free=234, LAS=351),
                       moveable = 'col_16a_m',
                       blockingmove = False,
-                      pollinterval = 15,
+                      pollinterval = 1,
                       maxage = 60,
                       lowlevel = True,
                       ),
+    #~ col_16a_a = device('devices.generic.Axis',
+                      #~ description = 'collimation table 16a',
+                      #~ motor = 'col_16a_m',
+                      #~ coder = 'col_16a_c',
+                      #~ precision = 0.01,
+                      #~ ),
     col_16a_m = device('sans1.collimotor.Sans1ColliMotor',
                       description = 'Collimotor 16a motor',
                       # IP-adresse: 172.16.17.3 alt
@@ -188,6 +194,16 @@ devices = dict(
                       abslimits = (-400, 600),
                       lowlevel = True,
                       autozero = 100,
+                    ),
+    col_16a_c = device('sans1.collimotor.Sans1ColliCoder',
+                      description = 'Collimotor 16a coder',
+                      # IP-adresse: 172.16.17.3 alt
+                      # IP-adresse: 172.25.49.111 neu
+                      tacodevice='//%s/sans1/coll/col-16m'% (nethost,),
+                      address = 0x4000+200+0*10,
+                      slope = 1000000, # resolution = nm
+                      unit = 'mm',
+                      lowlevel = True,
                     ),
 
     bg1 = device('sans1.collimotor.Sans1ColliSlit',

@@ -32,10 +32,10 @@ from Modbus import Modbus
 from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
     floatrange, intrange, status, waitForStatus, InvalidValueError, Moveable, \
     UsageError, CommunicationError, PositionError, MoveError, SIMULATION, \
-    Attach
+    Attach, HasOffset
 from nicos.core.device import usermethod, requires
 from nicos.core.utils import multiStatus
-from nicos.devices.abstract import CanReference, Motor
+from nicos.devices.abstract import CanReference, Motor, Coder
 from nicos.devices.generic.sequence import SequencerMixin, SeqCall
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput, \
@@ -118,6 +118,47 @@ class Sans1ColliSwitcher(Switcher):
             return self._adevs['moveable'].format(pos, True)
         raise PositionError(self, 'unknown position of %s' %
                             self._adevs['moveable'])
+
+
+class Sans1ColliCoder(TacoDevice, HasOffset, Coder):
+    """
+    Reads out the Coder for a collimation axis
+    """
+
+    taco_class = Modbus
+
+    parameters = {
+        # provided by parent class: speed, unit, fmtstr, warnlimits, abslimits,
+        #                           userlimits, precision and others
+        'address'    : Param('Starting offset of Motor control Block in words',
+                             type=int, mandatory=True, settable=False,
+                             userparam=False),
+        'slope'      : Param('Slope of the Coder in _FULL_ steps per _physical '
+                             'unit_', type=float, default=1000000., unit='steps/main',
+                             userparam=False, settable=True),
+    }
+
+    def doInit(self, mode):
+        # make sure we are in the right address range
+        if not (0x4000 <= self.address <= 0x47ff):
+            raise InvalidValueError(self,
+                'Invalid address 0x%04x, please check settings!' %
+                self.address)
+        # switch off watchdog, important before doing any write access
+        if mode != SIMULATION:
+            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
+
+    def doRead(self, maxage=0):
+        regs = self._taco_guard(self._dev.readHoldingRegisters,
+                                 (0, self.address, 2))
+        steps = struct.unpack('=i', struct.pack('<2H', *regs))[0]
+        value = steps / self.slope
+        self.log.debug('doRead: %d steps -> %s' %
+                       (steps, self.format(value, unit=True)))
+        return value - self.offset
+
+    def doStatus(self, maxage=0):
+        return status.OK, '' # not impl.
 
 
 class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
@@ -281,8 +322,12 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
         self._writeControlBit(4, 1)     # docu: bit4 = reference, autoresets
         # according to docu, the refpos is (also) a parameter of the KL....
 
-    def _HW_set_position(self, value):
-        if self._readStatusWord() & (1<<7):
+    def doSetPosition(self, value):
+        for _ in range(100):
+            if self._readStatusWord() & (1<<7):
+                continue
+            break
+        else:
             raise UsageError(self, 'Can not set position while motor is '
                                     'moving, please stop it first!')
 
@@ -444,7 +489,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
             self.absmin if self.absmin < self.refpos else self.refpos - 100))
         seq.append(SeqCall(self._HW_wait_while_BUSY))
         seq.append(SeqCall(self._HW_reference))
-        seq.append(SeqCall(self._HW_set_position, self.refpos))
+        seq.append(SeqCall(self.doSetPosition, self.refpos))
         seq.append(SeqCall(self._HW_wait_while_BUSY))
         return seq
 

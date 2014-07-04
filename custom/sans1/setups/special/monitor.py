@@ -33,9 +33,10 @@ _expcolumn = Column(
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title',    key='exp/title',    width=20,
                        istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=50,
+                 Field(name='Current status', key='exp/action', width=70,
                        istext=True, maxlen=40),
                  Field(name='Last file', key='det/lastfilenumber'),
+                 Field(name='Current Sample', key='sample/samplename', width=16),
             )
         ],# 'experiment'
     ),

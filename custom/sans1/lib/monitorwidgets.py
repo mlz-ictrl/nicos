@@ -156,6 +156,7 @@ class BeamOption(NicosWidget, QWidget):
     def __init__(self, parent, designMode=False):
         self._curstr = ''
         self._curstatus = OK
+        self._fixed = ''
 
         QWidget.__init__(self, parent)
         NicosWidget.__init__(self)
@@ -177,6 +178,10 @@ class BeamOption(NicosWidget, QWidget):
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         self._curstr = unitvalue
+        self.update()
+
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
+        self._fixed = fixed
         self.update()
 
     def on_devStatusChange(self, dev, code, status, expired):
@@ -211,6 +216,7 @@ class CollimatorTable(NicosWidget, QWidget):
     def __init__(self, parent, designMode=False):
         self._curstr = ''
         self._curstatus = OK
+        self._fixed = ''
         self.shift = -1
 
         QWidget.__init__(self, parent)
@@ -237,6 +243,10 @@ class CollimatorTable(NicosWidget, QWidget):
         self._curstr = strvalue
         self.update()
 
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
+        self._fixed = fixed
+        self.update()
+
     def on_devStatusChange(self, dev, code, status, expired):
         self._curstatus = code
         self.update()
@@ -248,24 +258,30 @@ class CollimatorTable(NicosWidget, QWidget):
         h = self._scale * 2.5 * self.props['height']
         w = self._scale * self.props['width']
 
+        # cache pen
+        pen = painter.pen()
+
         if self.props['name']:
             painter.setFont(self.font())
             if self._curstatus != OK:
                 painter.fillRect(0, 0, w, self._scale * 2.5,
                                  statusbrush[self._curstatus])
+            if self._fixed:
+                painter.setPen(QPen(_blue.color()))
+            else:
+                painter.setPen(QPen(_black.color()))
             painter.drawText(0, 0, w, self._scale * 2.5,
                              Qt.AlignCenter, self.props['name'])
+            painter.setPen(pen)
             yoff = self._scale * 2.5
         else:
             yoff = 0
 
-        # cache pen
-        pen = painter.pen()
 
         painter.setPen(QPen(_blue.color()))
 
         y = h * 0.5 + yoff
-        painter.drawLine(0, y, w, y)
+        painter.drawLine(0, y  , w, y  )
         painter.drawLine(0, y+1, w, y+1)
         painter.drawLine(0, y+2, w, y+2)
 
