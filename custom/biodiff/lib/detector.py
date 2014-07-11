@@ -96,7 +96,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
                                      category="general"),
                   }
 
-    parameter_overrides = {"unit": Override(default="deg", mandatory=False,
+    parameter_overrides = {"unit": Override(default="", mandatory=False,
                                             settable=False)
                            }
 
@@ -140,7 +140,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
                                  "Check device status.")
 
     def doRead(self, maxage=0):
-        return self._dev.DrumPosition
+        return self.target
 
     def doIsAllowed(self, pos):
         self.log.debug("doIsAllowed: pos: %s" % pos)
