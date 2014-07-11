@@ -286,8 +286,6 @@ class ImagePlateDetector(MeasureSequencer, ImagePlateBase, ImageProducer):
                 seq.append(SeqDev(self.gammashutter, ShutterStates.CLOSED))
             # start readout
             seq.append(SeqDev(self.drum, ImagePlateDrum.POS_READ))
-            # expo position after readout
-            seq.append(SeqDev(self.drum, ImagePlateDrum.POS_EXPO))
         return seq
 
     def _runFailed(self, step, action, exception):
