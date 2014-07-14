@@ -11,6 +11,7 @@ includes = [
     'reactor',
     'table',
     'slit',
+    'collimator',
 ]
 
 devices = dict(
