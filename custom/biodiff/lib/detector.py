@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+# standard library
+import time
 # third party
 import numpy
 from PyTango import DevState, CommunicationFailed
@@ -99,6 +101,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
                            }
 
     def doInit(self, mode):
+        self._lastStatus = None
         self._moveTo = None
         self._mapStart = {
                       ImagePlateDrum.POS_ERASE: self._dev.StartErasureProcess,
@@ -139,6 +142,20 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
         else:
             return (False, "Movement not allowed during device status '%s'"
                     % (myStatus[0]))
+
+    def doStatus(self, maxage=0, mapping=ImagePlateBase.MAP_STATUS): # pylint: disable=W0102
+        # Workaround for status changes from busy to another state although the
+        # operation has _not_ been completed.
+        st, msg = ImagePlateBase.doStatus(self, maxage, mapping)
+        if self._lastStatus == status.BUSY and st != status.BUSY:
+            self.log.debug("doStatus: leaving busy state (%d)? %d. "
+                           % (status.BUSY, st) +
+                           "Check again after a short delay.")
+            time.sleep(1)
+            st, msg = ImagePlateBase.doStatus(self, 0, mapping)
+            self.log.debug("doStatus: recheck result: %d" % st)
+        self._lastStatus = st
+        return st, msg
 
     def doWait(self):
         Moveable.doWait(self)
