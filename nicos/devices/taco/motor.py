@@ -70,6 +70,10 @@ class Motor(CanReference, TacoDevice, BaseMotor):
             return status.BUSY, 'moving'
         elif state in (TACOStates.INIT, TACOStates.RESETTING):
             return status.BUSY, 'referencing'
+        elif state == TACOStates.POSITIVE_ENDSTOP:
+            return status.OK, 'positive endstop reached'
+        elif state == TACOStates.NEGATIVE_ENDSTOP:
+            return status.OK, 'negative endstop reached'
         else:
             return status.ERROR, TACOStates.stateDescription(state)
 
