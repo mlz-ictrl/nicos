@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-# standard library
-import time
 # third party
 import numpy
 from PyTango import DevState, CommunicationFailed
@@ -117,15 +115,6 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
         self.log.debug("doStart: pos: %s" % pos)
         self._moveTo = pos
         self._mapStart[pos]()
-        if pos == ImagePlateDrum.POS_READ:
-            # temporary fix because the tango status is not updated instantly
-            myStatus = self.status(0)
-            self.log.debug("DRUM STATUS: %d, %s" % (myStatus[0], myStatus[1]))
-            self.log.debug("sleep 1 second")
-            time.sleep(1)
-            self.log.debug("sleeping done")
-            myStatus = self.status(0)
-            self.log.debug("DRUM STATUS: %d, %s" % (myStatus[0], myStatus[1]))
 
     def doStop(self):
         self.log.debug("doStop")
@@ -307,12 +296,12 @@ Retrying.""" % (action, exception))
             self._t = preset['t']
 
     def doPrepare(self):
+        self.wait()
         self._startSequence(self._generateSequence(expoTime=False,
                                                    prepare=True))
-        # temporary fix because the status is not updated instantly
-        time.sleep(.3)
 
     def doStart(self):
+        self.wait()
         expoTime = self._t if self._t is not None else self.exposure_time
         self._t = None
         self._startSequence(self._generateSequence(expoTime))
