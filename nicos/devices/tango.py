@@ -32,7 +32,8 @@ FRM-II/JCNS TANGO interface for the respective device classes.
 import PyTango
 
 from nicos.core import Param, Override, NicosError, status, \
-     Readable, Moveable, HasLimits, Device, tangodev, DeviceMixinBase
+     Readable, Moveable, HasLimits, Device, tangodev, DeviceMixinBase, oneof, \
+     dictof, intrange
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -345,6 +346,42 @@ class DigitalInput(PyTangoDevice, Readable):
         return self._dev.value
 
 
+class NamedDigitalInput(DigitalInput):
+    """A DigitalInput with numeric values mapped to names."""
+
+    parameters = {
+        'mapping': Param('A dictionary mapping state names to integers',
+                         type=dictof(str, int)),
+    }
+
+    def doInit(self, mode):
+        self._reverse = dict((v, k) for (k, v) in self.mapping.items())
+
+    def doRead(self, maxage=0):
+        value = self._dev.value
+        return self._reverse.get(value, value)
+
+
+class PartialDigitalInput(NamedDigitalInput):
+    """Base class for a TANGO DigitalInput with only a part of the full
+    bit width accessed.
+    """
+
+    parameters = {
+        'startbit': Param('Number of the first bit', type=int, default=0),
+        'bitwidth': Param('Number of bits', type=int, default=1),
+    }
+
+    def doInit(self, mode):
+        NamedDigitalInput.doInit(self, mode)
+        self._mask = (1 << self.bitwidth) - 1
+
+    def doRead(self, maxage=0):
+        raw_value = self._dev.value
+        value = (raw_value >> self.startbit) & self._mask
+        return self._reverse.get(value, value)
+
+
 class DigitalOutput(PyTangoDevice, Moveable):
     """
     Represents the client to a TANGO DigitalOutput device.
@@ -361,6 +398,61 @@ class DigitalOutput(PyTangoDevice, Moveable):
     def doStart(self, value):
         self._dev.value = self.valuetype(value)
 
+
+class NamedDigitalOutput(DigitalOutput):
+    """A DigitalOutput with numeric values mapped to names."""
+
+    parameters = {
+        'mapping': Param('A dictionary mapping state names to integer values',
+                         type=dictof(str, int), mandatory=True),
+    }
+
+    def doInit(self, mode):
+        self._reverse = dict((v, k) for (k, v) in self.mapping.items())
+        self.valuetype = oneof(*(list(self.mapping.keys()) +
+                                 list(self.mapping.values())))
+
+    def doStart(self, target):
+        value = self.mapping.get(target, target)
+        self._dev.value = self.valuetype(value)
+
+    def doRead(self, maxage=0):
+        value = self._dev.value
+        return self._reverse.get(value, value)
+
+
+class PartialDigitalOutput(NamedDigitalOutput):
+    """Base class for a TANGO DigitalOutput with only a part of the full
+    bit width accessed.
+    """
+
+    parameters = {
+        'startbit': Param('Number of the first bit', type=int, default=0),
+        'bitwidth': Param('Number of bits', type=int, default=1),
+    }
+
+    def doInit(self, mode):
+        NamedDigitalOutput.doInit(self, mode)
+        self._mask = (1 << self.bitwidth) - 1
+        self.valuetype = intrange(0, self._mask)
+
+    def doRead(self, maxage=0):
+        raw_value = self._dev.value
+        value = (raw_value >> self.startbit) & self._mask
+        return self._reverse.get(value, value)
+
+    def doStart(self, target):
+        value = self.mapping.get(target, target)
+        curvalue = self._dev.value
+        newvalue = (curvalue & ~(self._mask << self.startbit)) | \
+                   (value << self.startbit)
+        self._dev.value = self.valuetype(newvalue)
+
+    def doIsAllowed(self, target):
+        value = self.mapping.get(target, target)
+        if value < 0 or value > self._mask:
+            return False, '%d outside range [0,%d]' % (value, self._mask)
+        return True, ''
 
 class StringIO(PyTangoDevice, Device):
     """
