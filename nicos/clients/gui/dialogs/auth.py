@@ -26,6 +26,10 @@
 
 from PyQt4.QtGui import QDialog
 from PyQt4.QtCore import QSize
+try:
+    from PyQt4.QtCore import QPyNullVariant # pylint: disable=E0611
+except ImportError:
+    QPyNullVariant = None
 
 from nicos.protocols.daemon import DEFAULT_PORT
 from nicos.clients.gui.utils import loadUi
@@ -71,6 +75,8 @@ class ConnectionDialog(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'auth.ui', 'dialogs')
         self.connpresets = connpresets
+        if type(lastpreset) == QPyNullVariant:
+            lastpreset = None
 
         self.presetOrAddr.addItems(list(connpresets))
         self.presetOrAddr.setEditText(lastpreset)
