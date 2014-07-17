@@ -259,13 +259,11 @@ class Monitor(BaseMonitor):
                     plotwidget.names += [field.get('name', field.get('dev', field.get('key', '')))]
                     return None
                 plotwidget = TrendPlot(groupframe)
+                _setup(plotwidget)
                 plotwidget.plotinterval = field.get('plotinterval', 3600)
-                plotwidget.setFont(labelfont)
-                plotwidget.setSource(self)
                 self._plots[field['plot']] = plotwidget
                 plotwidget.devices = [field.get('dev', field.get('key', ''))]
                 plotwidget.names = [field.get('name', field.get('dev', field.get('key', '')))]
-                master.connect(plotwidget, SIGNAL('widgetInfo'), self.newWidgetInfo)
                 return plotwidget
             else:
                 display = ValueDisplay(groupframe, colorScheme=colorScheme)
