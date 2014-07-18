@@ -136,8 +136,10 @@ maxspeed: %.4f
         pos = self.read(0)
         s = self.microstep if target - pos >= 0 else -self.microstep
         n = int((target - pos) / s)
-        return [(SeqDev(self.motor, pos + i * s),
-                 SeqSleep(self._delay)) for i in range(1, n + 1)]
+        res = [(SeqDev(self.motor, pos + i * s),
+                SeqSleep(self._delay)) for i in range(1, n)]
+        res.append((SeqDev(self.motor, target), SeqSleep(self._delay)))
+        return res
 
     def _sequence(self, sequence):
         t = time.time()
