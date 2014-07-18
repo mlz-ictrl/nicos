@@ -10,7 +10,7 @@ devices = dict(
     Poller = device('services.poller.Poller',
                     autosetup = False,  # important! do not poll everything
                     poll = ['chopper', 'reactor', 'vacuum', 'voltage', 'table'] +
-                           ['slit', 'safety', 'system', 'collimator'] +
+                           ['slit', 'safety', 'system', 'collimator', 'ng'] +
                            ['he3', 'htf', 'ls', 'biofurnace', 'cryo_ccr'] +
                            ['pressure', 'ccr17',],
                     alwayspoll = [],
