@@ -36,6 +36,10 @@ from nicos.core import Param, Override, none_or, anytype, tupleof, status, \
 from nicos.core.device import Moveable, Measurable, DeviceMixinBase
 
 
+class StopSequence(Exception):
+    """Custom exception class to stop a sequence."""
+
+
 class SequenceItem(object):
     """Base class for actions of a sequence.
 
@@ -223,6 +227,7 @@ class SequencerMixin(DeviceMixinBase):
 
     _seq_thread = None
     _seq_stopflag = False
+    _seq_was_stopped = False
     _honor_stop = True      # may be needed to be false in special cases....
 
     hardware_access = False
@@ -268,6 +273,7 @@ class SequencerMixin(DeviceMixinBase):
     def _asyncSequence(self, sequence):
         """Starts a thread to execute the sequence."""
         self._seq_stopflag = False
+        self._seq_was_stopped = False
         self._seq_thread = threading.Thread(target=self._run,
                                           args=(sequence,))
         self._seq_thread.daemon = True
@@ -334,6 +340,7 @@ class SequencerMixin(DeviceMixinBase):
                                 if action.wait():
                                     waiters.remove(action)
                     if self._seq_stopflag:
+                        self._seq_was_stopped = True
                         self.log.debug('Stopflag caught!')
                         break
                     # 0.1s - code execution time
@@ -343,6 +350,7 @@ class SequencerMixin(DeviceMixinBase):
 
                 # stop if requested
                 if self._seq_stopflag:
+                    self._seq_was_stopped = True
                     self.log.debug('stopping actions: ' +
                                    ';'.join(map(repr, step)))
                     self._set_seq_status(status.BUSY, 'stopping at step %d: ' %
@@ -366,6 +374,7 @@ class SequencerMixin(DeviceMixinBase):
                                  'operation interrupted at step %d: ' %
                                  (i + 1) + ';'.join(map(repr,step)))
                         self.log.debug('stopping finished')
+                    break
 
             if not self._seq_stopflag:
                 self.log.debug('Sequence finished')
@@ -381,6 +390,8 @@ class SequencerMixin(DeviceMixinBase):
     def doWait(self):
         if self._seq_thread:
             self._seq_thread.join()
+            if self._seq_was_stopped:
+                raise StopSequence(self, self._seq_status[1])
 
     def doStatus(self, maxage=0):
         return self._seq_status
