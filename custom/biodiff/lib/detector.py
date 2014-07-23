@@ -47,7 +47,7 @@ class ShutterStates(object):
     """Shutter constants for opening and closing shutters."""
 
     OPEN = "open"
-    CLOSED = "closed"
+    CLOSED = "close"
 
 
 class ImagePlateBase(PyTangoDevice):

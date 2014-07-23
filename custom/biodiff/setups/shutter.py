@@ -12,7 +12,7 @@ _TANGO_SRV = "phys.biodiff.frm2:10000"
 _TANGO_URL = "tango://" + _TANGO_SRV + "/biodiff/FZJDP_Digital/"
 _MAP_SHUTTER = {
                 "open": 1,
-                "closed": 2,
+                "close": 2,
                 }
 
 devices = dict(
