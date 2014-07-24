@@ -154,13 +154,15 @@ Maybe step parameter has wrong sign.""")
     preset, scaninfo, detlist, envlist, move, multistep  = \
         _handleScanArgs(restargs, kwargs, scanstr)
     oldspeed = dev.speed
-    if len(values) > 1:
-        step = values[1][0] - values[0][0]
-    if 't' in preset:
-        speed = math.fabs(step / float(preset['t']))
-        dev.speed = speed
-    else:
-        raise UsageError("missing preset parameter t.")
-    RScan(devs, values, move, multistep, detlist, envlist, preset, scaninfo,
-          waitbeforecount=False).run()
-    dev.speed = oldspeed
+    try:
+        if len(values) > 1:
+            step = values[1][0] - values[0][0]
+        if 't' in preset:
+            speed = math.fabs(step / float(preset['t']))
+            dev.speed = speed
+        else:
+            raise UsageError("missing preset parameter t.")
+        RScan(devs, values, move, multistep, detlist, envlist, preset, scaninfo,
+              waitbeforecount=False).run()
+    finally:
+        dev.speed = oldspeed
