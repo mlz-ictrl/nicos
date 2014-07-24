@@ -626,7 +626,7 @@ class Motor(NicosMotor):
                             type=intrange(0, 255)),
         'accel':      Param('Motor acceleration (0..255)', settable=True,
                             type=intrange(0, 255)),
-        'confbyte':   Param('Configuration byte', type=intrange(0, 255),
+        'confbyte':   Param('Configuration byte', type=intrange(-1, 255),
                             settable=True),
         'ramptype':   Param('Ramp type', settable=True, type=intrange(1, 4)),
         'microstep':  Param('Microstepping mode', unit='steps', settable=True,
@@ -640,7 +640,7 @@ class Motor(NicosMotor):
         'stopdelay':  Param('Stop delay', type=floatrange(0, 25), unit='s',
                             settable=True),
         'divider':    Param('Speed divider', settable=True,
-                            type=intrange(0, 7)),
+                            type=intrange(-1, 7)),
         # volatile parameters to read/switch card features
         'inhibit':    Param('Inhibit input', default='off', volatile=True,
                             type=oneofdict({0: 'off', 1: 'on'})),
