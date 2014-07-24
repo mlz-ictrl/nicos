@@ -151,7 +151,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
             self.log.debug("doStatus: leaving busy state (%d)? %d. "
                            % (status.BUSY, st) +
                            "Check again after a short delay.")
-            time.sleep(1)
+            time.sleep(5)
             st, msg = ImagePlateBase.doStatus(self, 0, mapping)
             self.log.debug("doStatus: recheck result: %d" % st)
         self._lastStatus = st
