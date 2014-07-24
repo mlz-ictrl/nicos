@@ -21,7 +21,7 @@ devices = dict(
     ngc = device('toftof.neutronguide.NeutronGuideSwitcher',
                  description = 'The neutron guide changer/collimator',
                  moveable = 'ngc_motor',
-                 mapping = {'top':-15.7, 'bottom':-130,},
+                 mapping = {'linear': -15.7, 'focus': -130,},
                  requires = {'level': 'admin'},
                 ),
 )
