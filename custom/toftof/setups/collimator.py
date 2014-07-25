@@ -15,13 +15,14 @@ devices = dict(
                        userlimits = (-140.8, 0.),
                        abslimits = (-141.8, 0.),
                        requires = {'level': 'admin'},
+                       unit = 'mm',
                        lowlevel = True,
                       ),
 
     ngc = device('toftof.neutronguide.NeutronGuideSwitcher',
                  description = 'The neutron guide changer/collimator',
                  moveable = 'ngc_motor',
-                 mapping = {'linear': -15.7, 'focus': -130,},
+                 mapping = {'linear': -15.7, 'focus': -140.4,},
                  requires = {'level': 'admin'},
                 ),
 )
