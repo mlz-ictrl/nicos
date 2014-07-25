@@ -27,7 +27,7 @@
 from nicos.core import Param, usermethod, Moveable, status
 from nicos.devices.generic.axis import Axis
 
-from nicos.panda.wechsler import Beckhoff
+from nicos.panda.monochanger import Beckhoff
 
 class AnaBlocks(Moveable):
     attached_devices = {

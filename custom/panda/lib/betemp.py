@@ -27,7 +27,7 @@
 from nicos.core import Param, Override, status, oneof, Readable
 from nicos.devices.taco import AnalogInput
 
-from nicos.panda.wechsler import Beckhoff
+from nicos.panda.monochanger import Beckhoff
 
 
 class KL320xTemp(Readable):
