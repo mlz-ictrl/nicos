@@ -134,8 +134,13 @@ maxspeed: %.4f
 
     def _generateSequence(self, target, *args, **kwargs):
         pos = self.read(0)
-        s = self.microstep if target - pos >= 0 else -self.microstep
+        s = self.microstep if (target - pos) >= 0 else -self.microstep
         n = int((target - pos) / s)
+        # handle floating point overflows
+        # check whether or not one last microstep fits into movement to target.
+        if (math.fabs((pos + (n + 1) * s) - target)
+            < math.fabs(self.microstep / 10)):
+            n += 1
         res = [(SeqDev(self.motor, pos + i * s),
                 SeqSleep(self._delay)) for i in range(1, n)]
         res.append((SeqDev(self.motor, target), SeqSleep(self._delay)))
