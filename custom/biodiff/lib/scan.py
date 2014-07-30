@@ -34,11 +34,12 @@ from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.biodiff.motor import MicrostepMotor
+from nicos.biodiff.detector import ImagePlateDetector, ShutterStates
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-06-10"
-__version__ = "0.1.0"
+__date__ = "2014-07-30"
+__version__ = "0.2.0"
 
 
 class RScan(Scan):
@@ -57,6 +58,18 @@ class RScan(Scan):
     def preparePoint(self, num, xvalues):
         if num > 0: # skip starting point, because of range scan (0..1, ...)
             Scan.preparePoint(self, num, xvalues)
+            # Open Shutters before movement of scan devices (e.g. motor).
+            # Just for RScan because movement and counting should be done
+            # simultaneous.
+            where = []
+            for det in self._detlist:
+                if type(det) == ImagePlateDetector:
+                    if det.ctrl_gammashutter:
+                        where.append((det.gammashutter, ShutterStates.OPEN))
+                    if det.ctrl_photoshutter:
+                        where.append((det.photoshutter, ShutterStates.OPEN))
+            if where:
+                self.moveDevices(where)
         else:
             if self.dataset.npoints == 0:
                 session.beginActionScope('Point %d' % num)
