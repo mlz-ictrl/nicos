@@ -24,7 +24,7 @@
 
 """Always-on-top emergency stop button."""
 
-from PyQt4.QtGui import QDialog, QAbstractButton, QHBoxLayout, QIcon, \
+from PyQt4.QtGui import QMainWindow, QWidget, QAbstractButton, QHBoxLayout, QIcon, \
      QPainter
 from PyQt4.QtCore import SIGNAL, Qt, QByteArray, QSize, QPoint
 
@@ -52,12 +52,15 @@ class PicButton(QAbstractButton):
         return self._size
 
 
-class EmergencyStopTool(QDialog):
+class EmergencyStopTool(QMainWindow):
     def __init__(self, parent, client, **settings):
-        QDialog.__init__(self, parent)
+        QMainWindow.__init__(self, parent)
         self.client = client
         self.setWindowTitle(' ')  # window title is unnecessary
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        flags = self.windowFlags()
+        flags |= Qt.WindowStaysOnTopHint
+        flags ^= Qt.WindowMinimizeButtonHint
+        self.setWindowFlags(flags)
 
         self.sgroup = SettingGroup('EstopTool')
         with self.sgroup as settings:
@@ -67,12 +70,15 @@ class EmergencyStopTool(QDialog):
         icon.addFile(':/estopdown', mode=QIcon.Active)
         self.btn = PicButton(icon, self)
 
+        widget = QWidget(self)
         layout = QHBoxLayout()
         layout.addWidget(self.btn)
         layout.setContentsMargins(3, 3, 3, 3)
-        self.setLayout(layout)
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
         self.connect(self.btn, SIGNAL('clicked()'), self.dostop)
         self.setFixedSize(self.minimumSize())
+        self.show()
 
     def dostop(self, *ignored):
         self.client.tell('emergency')
@@ -84,7 +90,6 @@ class EmergencyStopTool(QDialog):
     def closeEvent(self, event):
         self._saveSettings()
         self.deleteLater()
-        self.accept()
 
     def __del__(self):
         # there is a bug in Qt where closeEvent isn't called when the
