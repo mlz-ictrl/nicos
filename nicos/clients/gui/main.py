@@ -169,8 +169,6 @@ class MainWindow(QMainWindow, DlgUtils):
             def tool_callback(on, i=i):
                 self.runTool(i)
             self.connect(action, SIGNAL('triggered(bool)'), tool_callback)
-            if tconfig.options and tconfig.options.get('runatstartup', False):
-                self.runTool(i)
 
         # timer for reconnecting
         self.reconnectTimer = QTimer(singleShot=True, timeout=self._reconnect)
@@ -266,6 +264,14 @@ class MainWindow(QMainWindow, DlgUtils):
         QMainWindow.show(self)
         if self.autoconnect and not self.client.connected:
             self.on_actionConnect_triggered(True)
+
+    def startup(self):
+        self.show()
+                # start autoload tools
+        for i, tconfig in enumerate(self.gui_conf.tools):
+            if tconfig.options and tconfig.options.get('runatstartup', False):
+                QTimer.singleShot(0,lambda: self.runTool(i))
+
 
     def loadSettings(self, settings):
         # geometry and window appearance
@@ -677,6 +683,6 @@ def main(argv):
             mainwindow.setConnData(*cdata)
             if len(args) > 1:
                 mainwindow.client.connect(mainwindow.connectionData, args[1])
-    mainwindow.show()
+    mainwindow.startup()
 
     return app.exec_()
