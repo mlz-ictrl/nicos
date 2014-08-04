@@ -180,12 +180,13 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
                     raise InvalidValueError(self, 'speed of %d RPM not accepted'
                                             ' by selector (is it in a forbidden'
                                             ' range?)' % target)
-                if state.get('RSPEED') == target:
+                rspeed = SelectorSpeed.valuetype(state.get('RSPEED'))
+                if rspeed == target:
                     # we got a "requested speed" target back and it matches the
                     # one we tried to set -- done
                     return
                 self.log.debug('requested speed return not correct: %r' %
-                               state.get('RSPEED'))
+                               rspeed)
                 sleep(self.commdelay)
         raise CommunicationError(self, 'selector did not execute speed request')
 
