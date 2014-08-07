@@ -664,7 +664,8 @@ class Experiment(Device):
         kwds['proposal'] = proposal
 
         # need to enable before checking templated files...
-        enableDirectory(self.proposalpath_of(proposal), **self.managerights)
+        if self.managerights:
+            enableDirectory(self.proposalpath_of(proposal), **self.managerights)
 
         if proptype != 'service':
             if self.templates:
