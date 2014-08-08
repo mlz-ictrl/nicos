@@ -11,7 +11,7 @@ devices = dict(
     # Pilz shutter control
     shutter1_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Shutter 1',
-                         tangodevice = '%s/antares/fzjdp/PilzShutter1' % tango_host,
+                         tangodevice = '%s/antares/fzjdp_digital/PilzShutter1' % tango_host,
                          lowlevel = True,
                         ),
     shutter1 = device('devices.generic.Switcher',
@@ -24,7 +24,7 @@ devices = dict(
 
     shutter2_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Shutter 2',
-                         tangodevice = '%s/antares/fzjdp/PilzShutter2' % tango_host,
+                         tangodevice = '%s/antares/fzjdp_digital/PilzShutter2' % tango_host,
                          lowlevel = True,
                         ),
     shutter2 = device('devices.generic.Switcher',
@@ -37,7 +37,7 @@ devices = dict(
 
     fastshutter_io = device('devices.tango.DigitalOutput',
                          description = 'Tango device for Fast shutter',
-                         tangodevice = '%s/antares/fzjdp/FastShutter' % tango_host,
+                         tangodevice = '%s/antares/fzjdp_digital/FastShutter' % tango_host,
                          lowlevel = True,
                         ),
     fastshutter = device('devices.generic.Switcher',

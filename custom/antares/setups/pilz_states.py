@@ -10,7 +10,7 @@ tango_host = 'tango://cpci01.antares.frm2:10000'
 devices = dict(
     emergency_io = device('devices.tango.DigitalInput',
                           description = 'Tango device for Emergency readout',
-                          tangodevice = '%s/antares/fzjdp/PilzEmergencyStop'
+                          tangodevice = '%s/antares/FZJDP_Digital/PilzEmergencyStop'
                               % tango_host,
                           lowlevel = True,
                          ),
@@ -28,7 +28,7 @@ devices = dict(
     # searchbuttons
     tourbutton1_io = device('devices.tango.DigitalInput',
                             description = 'Tango device for Tourbutton1',
-                            tangodevice = '%s/antares/fzjdp/PilzSecTourButton1'
+                            tangodevice = '%s/antares/FZJDP_Digital/PilzSecTourButton1'
                                 % tango_host,
                             lowlevel = True,
                            ),
@@ -41,7 +41,7 @@ devices = dict(
 
     tourbutton2_io = device('devices.tango.DigitalInput',
                             description = 'Tango device for Tourbutton2',
-                            tangodevice = '%s/antares/fzjdp/PilzSecTourButton2'
+                            tangodevice = '%s/antares/FZJDP_Digital/PilzSecTourButton2'
                                 % tango_host,
                             lowlevel = True,
                            ),
@@ -54,7 +54,7 @@ devices = dict(
 
     tourbutton3_io = device('devices.tango.DigitalInput',
                             description = 'Tango device for Tourbutton3',
-                            tangodevice = '%s/antares/fzjdp/PilzSecTourButton3'
+                            tangodevice = '%s/antares/FZJDP_Digital/PilzSecTourButton3'
                                 % tango_host,
                             lowlevel = True,
                            ),
@@ -68,7 +68,7 @@ devices = dict(
     # door state
     door_rot_io = device('devices.tango.DigitalInput',
                          description = 'Tango device for Rotating door',
-                         tangodevice = '%s/antares/fzjdp/PilzDoorRot'
+                         tangodevice = '%s/antares/FZJDP_Digital/PilzDoorRot'
                              % tango_host,
                          lowlevel = True,
                         ),
@@ -81,7 +81,7 @@ devices = dict(
 
     door_slide_io = device('devices.tango.DigitalInput',
                            description = 'Tango device for Sliding door',
-                           tangodevice = '%s/antares/fzjdp/PilzDoorSlide'
+                           tangodevice = '%s/antares/FZJDP_Digital/PilzDoorSlide'
                                % tango_host,
                            lowlevel = True,
                           ),
@@ -94,7 +94,7 @@ devices = dict(
 
     pilz_state_io = device('devices.tango.DigitalInput',
                            description = 'Tango device for Pilz state',
-                           tangodevice = '%s/antares/fzjdp/PilzFailure'
+                           tangodevice = '%s/antares/FZJDP_Digital/PilzFailure'
                                % tango_host,
                            lowlevel = True,
                           ),

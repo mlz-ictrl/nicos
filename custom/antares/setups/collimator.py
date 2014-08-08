@@ -12,7 +12,7 @@ devices = dict(
     # Collimator
     collimator_io = device('devices.tango.DigitalOutput',
                            description = 'Tango device for Collimator',
-                           tangodevice = '%s/antares/fzjdp/Collimator' % tango_host,
+                           tangodevice = '%s/antares/fzjdp_digital/Collimator' % tango_host,
                            lowlevel = True,
                           ),
     collimator = device('devices.generic.Switcher',
