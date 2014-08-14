@@ -76,10 +76,10 @@ devices = dict(
                      ),
 
     biodiff = device('devices.instrument.Instrument',
-                     description = 'Single crystal DIFFractometer ' +
+                     description = 'Single crystal DIFFractometer '
                                    'for BIOlogical macromolecules',
                      instrument = "BIODIFF",
-                     responsible = "Tobias Schrader <t.schrader@fz-juelihc.de>, " +
+                     responsible = "Tobias Schrader <t.schrader@fz-juelihc.de>, "
                                    "Andreas Ostermann <andreas.ostermann@frm2.tum.de>"
                     ),
 
@@ -103,13 +103,20 @@ devices = dict(
 
     # Configure source and copy addresses to an existing address.
     mailer    = device('devices.notifiers.Mailer',
-                      description = 'E-Mail notifier',
-                      sender = 'noreply@fz-juelich.de',
-                      receivers = ['t.scharder@fz-juelich.de',
-                                   'andreas.ostermann@frm2.tum.de'],
-                      copies = ['c.felder@fz-juelich.de'],
-                      subject = '[NICOS] BIODIFF',
-                     ),
+                       description = 'E-Mail notifier',
+                       sender = 'biodiff@frm2.tum.de',
+                       # receivers:
+                       # receive all notifications
+                       receivers = ['t.schrader@fz-juelich.de',
+                                    'andreas.ostermann@frm2.tum.de'],
+                       # copies:
+                       # receive just notifications with important flag,
+                       # e.g. errors
+                       copies = ['t.schrader@fz-juelich.de',
+                                 'andreas.ostermann@frm2.tum.de',
+                                 'c.felder@fz-juelich.de'],
+                       subject = '[NICOS] BIODIFF',
+                      ),
 
     # Configure SMS receivers if wanted and registered with IT.
     smser    = device('devices.notifiers.SMSer',
