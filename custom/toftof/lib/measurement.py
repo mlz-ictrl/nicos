@@ -175,6 +175,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
             tel = (calc.a[0]-calc.a[5]) * calc.mn * chwl * 1.0e-10 / calc.h + \
                 TOFoffset
             tel += self.delay
+            chratio = float(chratio)
             n = int(tel / (chratio / chspeed * 30.0))
             tel = tel - n * (chratio / chspeed * 30.0)
             tel = int(round(tel/5.0e-8))
