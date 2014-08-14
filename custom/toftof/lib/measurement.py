@@ -62,10 +62,12 @@ class TofTofMeasurement(Measurable, ImageProducer):
         # status parameters
         'laststats':       Param('Count statistics of the last measurement',
                                  type=listof(float), settable=True,),
+        'filenametemplate': Param('Templates for data file name',
+                                  type=str, default='%06d_0000.raw',
+                                  settable=True),
     }
 
     parameter_overrides = {
-        'nametemplate': Override(default='%06d_0000.raw'),
         'subdir': Override(default='', mandatory=False),
     }
 
@@ -192,7 +194,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
         self.log.debug('collecting status information')
         self._startheader = self._startHeader(interval, chdelay)
         # update interval: about every 30 seconds for 1024 time channels
-        self._updateevery = max(int(15.*ctr.timechannels/1024 * 40), 80)
+        self._updateevery = min(int(30.*ctr.timechannels/1024), 80)
 
         self._newFile()
         self._startheader.append('FileName: %s\n' % self.lastfilename)
@@ -203,12 +205,22 @@ class TofTofMeasurement(Measurable, ImageProducer):
         self._lastcounts = 0
         self._lastmoncounts = 0
         self._lasttemps = []
-        self.log.info('Measurement %06d started' % session.experiment.readImageCounter())
-        session.action('#%06d' % session.experiment.readImageCounter())
+        self.log.info('Measurement %06d started' % session.experiment.doReadLastimage())
+        session.action('#%06d' % session.experiment.doReadLastimage())
         self._measuring = True
         self._starttime = currenttime()
         self._lasttime = 0
         ctr.start()
+
+    def _newFile(self):
+        self.log.warning('Deprecated: _newFile')
+        exp = session.experiment
+        sname, lname, fp = exp.createImageFile(self.filenametemplate, self.subdir)
+        self._imagename = sname
+        self.lastfilename = self._relpath = lname
+        self._file = fp
+        self._counter = session.experiment.lastimage
+        self.log.info('self.lastfilename : %r' % self.lastfilename)
 
     def _startHeader(self, interval, chdelay):
         ctr = self._adevs['counter']
@@ -454,14 +466,21 @@ class TofTofMeasurement(Measurable, ImageProducer):
         self._adevs['counter'].reset()
 
     def doSave(self, exception=False):
-        self._saveDataFile()
+        _, moncounts, _, countsum, meastime, tempinfo = self._saveDataFile()
+        monrate = moncounts / meastime
+        detrate = countsum / meastime
         self.log.debug('saving current script')
         if session.experiment.scripts:
             script_fn = self.lastfilename.replace('0000.raw', '5200.raw')
             with open(script_fn, 'w') as fp:
                 fp.write(session.experiment.scripts[-1])
         self.log.info('Measurement %06d finished' %
-                      session.experiment.readImageCounter())
+                      session.experiment.doReadLastimage())
+        self.log.info('Monitor: average rate: %8.3f counts/s' % monrate)
+        self.log.info('Signal:  average rate: %8.3f counts/s' % detrate)
+        if tempinfo:
+            self.log.info('Sample:  current: %.4f %s, average: %.4f, '
+                          'stddev: %.4f, min: %.4f, max: %.4f' % tempinfo)
         self._measuring = False
         self._closeDeviceLogs()
         session.breakpoint(2)

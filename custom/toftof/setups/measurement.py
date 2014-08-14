@@ -24,6 +24,7 @@ devices = dict(
                chdelay = 'chdelay',
                counter = 'det',
                fileformats = [],
+               filenametemplate = '%06d_0000.raw',
               ),
 )
 
