@@ -39,8 +39,8 @@ from nicos.core.image import ImageProducer, ImageType
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-06-06"
-__version__ = "0.2.0"
+__date__ = "2014-08-14"
+__version__ = "0.2.1"
 
 
 class ShutterStates(object):
@@ -316,6 +316,11 @@ Retrying.""" % (action, exception))
         self.wait()
         self._startSequence(self._generateSequence(expoTime=False,
                                                    prepare=True))
+        # workaround: insert short delay for status changes because waiting
+        #             for preparation has been finished failed sometimes.
+        # waitForStatus in nicos.core.scan.Scan (preparePoint) accidentally
+        # returned immediately.
+        time.sleep(5)
 
     def doStart(self):
         self.wait()
