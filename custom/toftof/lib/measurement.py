@@ -48,6 +48,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
     and filesaver device according to the NICOS philosophy.
     """
 
+    _isStopped = False
+
     attached_devices = {
         'counter': Attach('The TOF counter', TofCounter),
         'chopper': Attach('The chopper controller', Controller),
@@ -85,6 +87,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         return ['info', 't', 'm']
 
     def doInit(self, mode):
+        self._isStopped = False
         with open(self.detinfofile, 'U') as fp:
             self._detinfo = list(fp)
         i = 0
@@ -130,8 +133,9 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self._attached_counter.timechannels = value
 
     def doStart(self):
+        self._isStopped = False
         ctr = self._attached_counter
-        ctr.stop()
+        # ctr.stop()
 
         try:
             rc = session.getDevice(self.rc)
@@ -407,6 +411,9 @@ class TofTofMeasurement(ImageProducer, Measurable):
                     tempinfo[4] -= 273.15
                     tempinfo[5] -= 273.15
                 tempinfo = tuple(tempinfo)
+        if self._isStopped:
+            return timeleft, moncounts, counts, countsum, meastime, tempinfo
+
         # more info
         head.append('MonitorCounts: %d\n' % moncounts)
         # next 3 fields are new in the data file
@@ -466,6 +473,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
 
     def doStop(self):
         self._attached_counter.stop()
+        self._isStopped = True
         self._measuring = False
         self._closeDeviceLogs()
 
