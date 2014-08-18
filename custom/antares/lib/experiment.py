@@ -60,15 +60,15 @@ class Experiment(FRM2Experiment):
 
     @property
     def darkimagedir(self):
-        return path.join(self.datadir, 'di')
+        return path.join(self.datapath, 'di')
 
     @property
     def openbeamdir(self):
-        return path.join(self.datadir, 'ob')
+        return path.join(self.datapath, 'ob')
 
     @property
     def photodir(self):
-        return path.join(self.sampledir, 'photos')
+        return path.join(self.samplepath, 'photos')
 
     @property
     def extradirs(self):
@@ -79,7 +79,7 @@ class Experiment(FRM2Experiment):
 
     @property
     def samplesymlink(self):
-        return path.join(self.proposaldir, 'current')
+        return path.join(self.proposalpath, 'current')
 
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
@@ -93,14 +93,14 @@ class Experiment(FRM2Experiment):
             u = 'default'
         u = u.replace(' ', '_')
 
-        symname = path.join(self.proposaldir, '..', '%s_%s_%s' %
+        symname = path.join(self.proposalpath, '..', '%s_%s_%s' %
                             (time.strftime('%F'), u, proposal))
         try:
             self.log.debug('create symlink %r -> %r' %
-                           (symname, self.proposaldir))
-            os.symlink(self.proposaldir, symname)
+                           (symname, self.proposalpath))
+            os.symlink(self.proposalpath, symname)
             self.log.info('Symlink %r -> %r created' %
-                           (symname, self.proposaldir))
+                           (symname, self.proposalpath))
         except OSError:
             self.log.warning('creation of symlink failed, already existing???')
 
@@ -131,9 +131,9 @@ class Experiment(FRM2Experiment):
 
         self.log.debug('new sample path: %s' % self.samplepath)
         self.log.debug('new data path: %s' % self.datapath)
-        self.log.debug('new dark image path: %s' % self.darkimagepath)
-        self.log.debug('new open beam image path: %s' % self.openbeampath)
-        self.log.debug('new measurement image path: %s' % self.photopath)
+        self.log.debug('new dark image path: %s' % self.darkimagedir)
+        self.log.debug('new open beam image path: %s' % self.openbeamdir)
+        self.log.debug('new measurement image path: %s' % self.photodir)
 
     def _newPropertiesHook(self, proposal, kwds):
         kwds = FRM2Experiment._newPropertiesHook(self, proposal, kwds)
