@@ -36,7 +36,7 @@ devices = dict(
                  abslimits = (-100, 0),
                  userlimits = (-100, 0),
                  unit = 'degC',
-                 precision = 1,
+                 precision = 3,
                  fmtstr = '%.0f',
                 ),
 )
