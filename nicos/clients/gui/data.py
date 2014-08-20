@@ -30,6 +30,8 @@ from itertools import chain
 
 import numpy as np
 
+# Wrong number of positional args -> wrong positive on emit
+# pylint: disable=E1121
 from PyQt4.QtGui import QApplication, QProgressDialog
 from PyQt4.QtCore import QObject, SIGNAL
 
