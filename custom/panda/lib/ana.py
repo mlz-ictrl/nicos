@@ -27,7 +27,7 @@
 from nicos.core import Param, usermethod, Moveable, status
 from nicos.devices.generic.axis import Axis
 
-from nicos.panda.monochanger import Beckhoff
+from nicos.panda.wechsler import Beckhoff
 
 class AnaBlocks(Moveable):
     attached_devices = {
@@ -95,11 +95,12 @@ class AnaBlocks(Moveable):
             except Exception:
                 pass
             self._timer = None
-        if pattern:
+        if pattern != None:
             old = self.doRead()
             for i in range(18):
                 # try to be clever: only activate/deactivate bits which differ from current status....
                 if (pattern >> i) & 1  and (old >> i) & 1:
+                    self.log.debug('skipping block %d'%(i+1))
                     continue        # skip equal bits
                 if (pattern >> i) &1:   # bit is set:
                     self.log.debug('block %d is going up'%(i+1))

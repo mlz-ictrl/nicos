@@ -1,18 +1,20 @@
-function [x, y, err, xname, yname,mname,optpars]=FRMdatdata(filespec)
+function [x, y, err, xname, yname, mname, optpars] = FRMdatdata(filespec)
 % Load .dat data from FRM2 files
 % Works with PANDA data in .dat format
 % Simon Ward, March 2012, simon.ward@psi.ch
+% Sandor Toth, August 2014, sandor.toth@psi.ch
 
 x=[]; y= []; err=[]; yname=''; xname=''; mname = ''; normval=1;
 
 %----- Parse filespec --------------------------------------
 
-[fspec filespec]=strtok(filespec,',');
+[fspec, filespec]=strtok(filespec,',');
 while ~isempty(filespec)
-    [s filespec]=strtok(filespec,',');
+    [s, filespec]=strtok(filespec,',');
     fspec=str2mat(fspec,s);
 end
-[nargs,nchars]=size(fspec);
+
+[~,nchars]=size(fspec);
 
 %----- Update scan parameters from filespec---------------------------
 
@@ -61,10 +63,10 @@ while(b)
         linDat=fgetl(fid);
         linDat=linDat(3:end);
         % Generate list of vairables
-        [lspec linspec]=strtok(linDat,char(9));
+        [lspec, linspec]=strtok(linDat,char(9));
         while ~isempty(linspec)
-            [s linspec]=strtok(linspec,char(9));
-            lspec=str2mat(lspec,s);
+            [s, linspec] = strtok(linspec,char(9));
+            lspec = str2mat(lspec,s);
         end
         % Find the location of the needed vairables in the variable list
         xpos=[];    ypos=[];    mpos=[];
@@ -106,7 +108,7 @@ while(b)
         end
         % Set return data
         %x=mean(data(1:end-1,xpos),2);
-        x=data(1:end-1,xpos(2));
+        x=data(1:end-1,xpos(end));
         y=data(1:end-1,ypos)./data(1:end-1,mpos);
         err=sqrt(data(1:end-1,ypos))./data(1:end-1,mpos);
         y=y*normval;
@@ -119,4 +121,14 @@ end
 % If something goes wrong, close the data file
 if clo~=0;
     fclose(fid);
+end
+
+% dat.x = x;
+% dat.y = y;
+% dat.e = err;
+% dat.xname = xname;
+% dat.yname = yname;
+% dat.mname = mname;
+% dat.optpars = [];
+
 end
