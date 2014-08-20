@@ -92,9 +92,11 @@ class Switcher(MappedMoveable):
         if self.fallback is not None:
             return self.fallback
         if self.relax_mapping:
-            return self._adevs['moveable'].format(pos,True)
-        raise PositionError(self, 'unknown position of %s' %
-                            self._adevs['moveable'])
+            return self._adevs['moveable'].format(pos, True)
+        raise PositionError(self, 'unknown position of %s: %s' %
+                            (self._adevs['moveable'],
+                             self._adevs['moveable'].format(pos, True))
+                            )
 
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
