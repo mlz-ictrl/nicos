@@ -26,6 +26,9 @@
 
 import os
 import struct
+
+import numpy
+
 from os import path
 from math import sin, radians, pi
 
@@ -166,13 +169,14 @@ class LiveDataPanel(Panel):
     def on_client_liveparams(self, params):
         tag, fname, dtype, nx, ny, nz, runtime = params
         self._runtime = runtime
-        if dtype not in DATATYPES:
+        normalized_type = numpy.dtype(dtype).str
+        if normalized_type not in DATATYPES:
             self._last_format = self._last_fname = None
             self.log.warning('Unsupported live data format: %s' % (params,))
             return
         self._last_tag = tag
         self._last_fname = fname
-        self._last_format = dtype
+        self._last_format = normalized_type
         self._nx = nx
         self._ny = ny
         self._nz = nz
