@@ -174,7 +174,7 @@ class LiveDataPanel(Panel):
             self._last_format = self._last_fname = None
             self.log.warning('Unsupported live data format: %s' % (params,))
             return
-        self._last_tag = tag
+        self._last_tag = tag.lower()
         self._last_fname = fname
         self._last_format = normalized_type
         self._nx = nx
@@ -188,7 +188,7 @@ class LiveDataPanel(Panel):
         # but display it right now only if on <Live> setting
         if self._no_direct_display:
             return
-        if self._last_format:
+        if len(data) and self._last_format:
             # we got live data with a specified format
             self.widget.setData(
                 LWData(self._nx, self._ny, self._nz, self._last_format, data))
