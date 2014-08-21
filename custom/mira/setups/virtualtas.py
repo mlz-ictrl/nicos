@@ -2,6 +2,7 @@ description = 'fully virtual TAS setup'
 group = 'basic'
 
 includes = ['base']
+excludes = ['tas']
 
 modules = ['nicos.commands.tas']
 

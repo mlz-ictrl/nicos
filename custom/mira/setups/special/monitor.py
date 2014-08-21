@@ -41,9 +41,10 @@ _column1 = Column(
                  Field(dev='NL6', min='open', width=6),
                  Field(dev='UBahn', width=5, istext=True, unit=' '),
                  Field(dev='OutsideTemp', name='Temp', width=4, unit=' ')),
-        BlockRow(#Field(dev='DoseRate', name='Rate', width=6), Field(dev='Cooling', width=6),
-                 #Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
-                 Field(dev='PSDGas', width=6),
+        BlockRow(#Field(dev='DoseRate', name='Rate', width=6),
+                 Field(dev='Cooling', width=6),
+                 Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
+                 #Field(dev='PSDGas', width=6),
                  Field(dev='FAKTemp', name='FAK40', width=6, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7)),
     ], 'reactor'),
@@ -111,5 +112,5 @@ devices = dict(
                      valuefont = 'Consolas',
                      fontsize = 12,
                      padding = 5,
-                     layout = [[_expcolumn], [_column1, _column2, _column3]])
+                     layout = [[_expcolumn], [_column1, _column2, _column3]]),
 )

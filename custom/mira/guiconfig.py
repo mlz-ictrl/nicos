@@ -37,15 +37,6 @@ windows = [
            panel('logviewer.LogViewerPanel')),
 ]
 
-maint_commands = [
-    ('Restart NICOS poller',
-     'ssh maint@mira1 sudo /etc/init.d/nicos-system restart poller'),
-    ('Restart NICOS daemon',
-     'ssh maint@mira1 sudo /etc/init.d/nicos-system restart daemon'),
-    ('Restart MIRA1 TACO servers',
-     'ssh maint@mira1 sudo /usr/local/bin/taco-system restart'),
-]
-
 
 MIEZE_settings = [
     '46_69',
@@ -63,9 +54,8 @@ MIEZE_settings = [
 ]
 
 tools = [
-    tool('Maintenance',
-         'nicos.clients.gui.tools.commands.CommandsTool',
-         commands=maint_commands),
+    tool('TACO control panel',
+         'ssh -XY maint@mira1 sudo tacocp'),
     tool('Calculator',
          'nicos.clients.gui.tools.calculator.CalculatorTool',
          mieze=MIEZE_settings),

@@ -25,7 +25,7 @@ _column1 = Column(
                        fields={'mth': 'm2th', 'mtt': 'm2tt', 'sth': 'om',
                                'stt': 'phi', 'ath': 'ath', 'att': 'att', 'tas': 'mira'})),
     ], 'tas'),
-    Block('MIRA Magnet', [BlockRow('I')], 'miramagnet'),
+    Block('MIRA Magnet', [BlockRow('I', 'B')], 'miramagnet'),
     Block('Garfield Magnet', [
         BlockRow(Field(name='on/off', dev='garfield_onoff')),
         BlockRow('I_garfield'),
