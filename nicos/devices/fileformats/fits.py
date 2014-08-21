@@ -71,7 +71,8 @@ class FITSFileFormat(ImageSink):
                 # To get a consistent looking header, add it to every key.
                 key = 'HIERARCH %s/%s' % (dev.name, attr)
 
-                value = str(attrVal).decode('ascii', 'ignore').encode()
+                # use only ascii characters and escapes if necessary.
+                value = str(attrVal).decode('ascii', 'ignore').encode('unicode_escape')
 
                 # Determine maximum possible value length (key dependend).
                 maxValLen = 63 - len(key)
