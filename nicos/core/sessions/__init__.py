@@ -275,6 +275,12 @@ class Session(object):
         if setups is not None and set(setups) != set(self.explicit_setups):
             self.unloadSetup()
             self.loadSetup(setups)
+        # set alias parameter first, needed to set parameters on alias devices
+        from nicos.devices.generic.alias import DeviceAlias
+        for devname, dev in iteritems(self.devices):
+            aliaskey = '%s/alias' % devname.lower()
+            if isinstance(dev, DeviceAlias) and aliaskey in db:
+                dev.alias = db[aliaskey]
         # cache keys are always lowercase, while device names can be mixed,
         # so we build a map once to get fast lookup
         lowerdevs = dict((d.name.lower(), d) for d in itervalues(self.devices))

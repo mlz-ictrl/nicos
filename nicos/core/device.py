@@ -408,9 +408,7 @@ class Device(object):
             self.log.setLevel(loggers.loglevels[value])
 
     def _attachDevices(self):
-        '''validate and create attached devices
-
-        '''
+        """Validate and create attached devices."""
         for aname, entry in sorted(iteritems(self.attached_devices)):
             if not isinstance(entry, Attach):
                 raise ProgrammingError(self,
@@ -420,15 +418,19 @@ class Device(object):
                     aname)
             value = self._config.pop(aname, None)
             devlist = []
+            class_needed = entry.devclass
+            if self._mode == SIMULATION:
+                # need to relax this instance check for simulation mode; aliases are
+                # not yet set correctly when the devices are created
+                class_needed = object
             for i, devname in enumerate(entry.check(self, aname, value)):
                 dev = None
                 if devname is not None:
                     try:
-                        dev = session.getDevice(devname, entry.devclass, source=self)
+                        dev = session.getDevice(devname, class_needed, source=self)
                     except UsageError:
                         raise ConfigurationError(self,
-                            'device %r item %d has wrong type (should be '
-                            '%s' %
+                            'device %r item %d has wrong type (should be %s)' %
                             (aname, i + 1, entry.devclass.__name__))
                     dev._sdevs.add(self._name)
                 devlist.append(dev)
