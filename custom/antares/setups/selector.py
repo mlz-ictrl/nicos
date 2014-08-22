@@ -1,5 +1,7 @@
 description = 'setup for the velocity selector'
 
+jcns_tango_host = 'tango://cpci01.antares.frm2:10000'
+
 devices = dict(
     selector_state = device('devices.vendor.astrium.SelectorState',
                       tacodevice = '//antaressrv/antares/network/selector',
@@ -82,5 +84,9 @@ devices = dict(
                       unit = 'mm/s',
                       fmtstr = '%.2f',
                       warnlimits = (0, 1),
+                     ),
+    selector_linear = device('devices.tango.Motor',
+                      description = 'Selector translation',
+                      tangodevice = '%s/antares/fzjs7/Selektor_linear' % jcns_tango_host,
                      ),
 )
