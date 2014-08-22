@@ -73,5 +73,10 @@ config = ('Default', [
         tool('Report NICOS bug',
              'nicos.clients.gui.tools.website.WebsiteTool',
              url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+        tool('Maintenance commands',
+             'nicos.clients.gui.tools.commands.CommandsTool',
+             commands=[
+                 ('TACO server control panel (beta)', 'SSH_ASKPASS=/usr/bin/ssh-askpass setsid /usr/bin/ssh -XY maint@antareshw.antares.frm2 "source /etc/tacoenv.sh && sudo /usr/bin/python /opt/tacocp/tacocp.py antaressrv.antares.frm2" && exit'),
+             ]),
     ]
 )
