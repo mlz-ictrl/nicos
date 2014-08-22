@@ -4,7 +4,7 @@ group = 'optional'
 includes = ['base', 'alias_B']
 
 devices = dict(
-    I_plus   = device('devices.taco.NamedDigitalOutput',
+    I_plus   = device('mira.magnet.PhytronWorkaround',
                       tacodevice = '//magnet2/magnet/switch/on',
                       mapping = {'off': 0, 'on': 1},
                       lowlevel = True),
