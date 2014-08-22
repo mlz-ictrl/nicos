@@ -22,8 +22,8 @@ _column1 = Column(
     ], 'mieze'),
     Block('TAS display', [
         BlockRow(Field(widget='nicos.demo.monitorwidgets.VTas', width=30, height=18,
-                       fields={'mth': 'm2th', 'mtt': 'm2tt', 'sth': 'om',
-                               'stt': 'phi', 'ath': 'ath', 'att': 'att', 'tas': 'mira'})),
+                       mthdev='m2th', mttdev='m2tt', sthdev='om', sttdev='phi',
+                       athdev='ath', attdev='att')),
     ], 'tas'),
     Block('MIRA Magnet', [BlockRow('I', 'B')], 'miramagnet'),
     Block('Garfield Magnet', [
