@@ -109,7 +109,15 @@ if six.PY2:
             return repr(u.encode('unicode-escape'))
         return repr(u)
     # on Py2, io.TextIOWrapper exists but only accepts Unicode objects
-    TextIOWrapper = codecs.lookup('utf-8').streamwriter
+    class TextIOWrapper(object):
+        def __init__(self, fp):
+            self.fp = fp
+        def write(self, s):
+            if isinstance(s, unicode):
+                s = s.encode('utf-8')
+            self.fp.write(s)
+        def __getattr__(self, att):
+            return getattr(self.fp, att)
 else:
     # on Py3, UTF-8 is the default encoding already
     to_utf8 = str.encode
