@@ -98,7 +98,7 @@ class Param(object):
                  mandatory=False, settable=False, volatile=False,
                  unit=None, category=None, preinit=False, prefercache=None,
                  userparam=True, chatty=False):
-        self.type = type
+        self.type = fixup_conv(type)
         if default is self._notset:
             default = type()
         self.default = default
@@ -340,11 +340,36 @@ def convdoc(conv):
         return conv.__name__
     return conv.__doc__ or ''
 
+def fixup_conv(conv):
+    """Fix-up a single converter type.
+
+    Currently this converts "str" to "string" which is a version that supports
+    Unicode strings by encoding to str on Python 2.
+    """
+    if conv is str:
+        return string
+    return conv
+
+
+def string(s=None):
+    """a string"""
+    if s is None:
+        return ''
+    try:
+        return str(s)
+    except UnicodeError:
+        # on Python 2, this converts Unicode to our preferred encoding
+        if isinstance(s, text_type):
+            return s.encode('utf-8')
+        raise
+
+
 class listof(object):
 
     def __init__(self, conv):
         self.__doc__ = 'a list of %s' % convdoc(conv)
-        self.conv = conv
+        if conv is str: conv = string
+        self.conv = fixup_conv(conv)
 
     def __call__(self, val=None):
         val = val if val is not None else []
@@ -356,7 +381,7 @@ class nonemptylistof(object):
 
     def __init__(self, conv):
         self.__doc__ = 'a non-empty list of %s' % convdoc(conv)
-        self.conv = conv
+        self.conv = fixup_conv(conv)
 
     def __call__(self, val=None):
         if val is None:
@@ -378,7 +403,7 @@ class tupleof(object):
         if not types:
             raise ProgrammingError('tupleof() needs some types as arguments')
         self.__doc__ = 'a tuple of (' + ', '.join(map(convdoc, types)) + ')'
-        self.types = types
+        self.types = [fixup_conv(typeconv) for typeconv in types]
 
     def __call__(self, val=None):
         if val is None:
@@ -403,8 +428,8 @@ class dictof(object):
     def __init__(self, keyconv, valconv):
         self.__doc__ = 'a dict of %s keys and %s values' % \
                         (convdoc(keyconv), convdoc(valconv))
-        self.keyconv = keyconv
-        self.valconv = valconv
+        self.keyconv = fixup_conv(keyconv)
+        self.valconv = fixup_conv(valconv)
 
     def __call__(self, val=None):
         val = val if val is not None else {}
@@ -489,7 +514,7 @@ class none_or(object):
 
     def __init__(self, conv):
         self.__doc__ = 'None or %s' % convdoc(conv)
-        self.conv = conv
+        self.conv = fixup_conv(conv)
 
     def __call__(self, val=None):
         if val is None:

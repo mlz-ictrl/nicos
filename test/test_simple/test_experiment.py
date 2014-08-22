@@ -151,6 +151,13 @@ def test_experiment():
                         'Athird User <athird.user@experiment.com> ' \
                         '(An Institute, Anywhere street, 12345 Anywhere)'
 
+    exp.users = 'Jülich'
+    exp.users = u'Jülich'
+
+    exp.scripts = ['Test ümlauts']
+    exp.scripts = [u'Test ümlauts']
+    assert exp.scripts == ['Test ümlauts']
+
     # and back to service
     exp.new('service')
 

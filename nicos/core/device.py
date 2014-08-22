@@ -211,17 +211,7 @@ class DeviceMeta(DeviceMixinMeta):
                 umethod = getattr(newtype, 'doUpdate' + param.title(), None)
                 def setter(self, value, param=param, wmethod=wmethod,
                            umethod=umethod, chatty=info.chatty):
-                    pconv = self.parameters[param].type
-                    try:
-                        value = pconv(value)
-                    except (ValueError, TypeError) as err:
-                        if pconv is str and isinstance(value, text_type):
-                            # will fire on Python 2 only
-                            value = value.encode('utf-8')
-                        else:
-                            raise ConfigurationError(
-                                self, '%r is an invalid value for parameter '
-                                '%s: %s' % (value, param, err))
+                    value = self._validateType(value, param)
                     if self._mode == SLAVE:
                         raise ModeError('setting parameter %s not possible in '
                                         'slave mode' % param)
@@ -603,10 +593,8 @@ class Device(object):
         try:
             value = paraminfo.type(value)
         except (ValueError, TypeError) as err:
-            raise ConfigurationError(
-                self,
-                '%r is an invalid value for parameter '
-                '%s: %s' %
+            raise ConfigurationError(self,
+                '%r is an invalid value for parameter %s: %s' %
                 (value, param, err))
         return value
 
