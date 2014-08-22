@@ -195,7 +195,10 @@ class Scan(object):
         session.endActionScope()
         for sink in self._sinks:
             sink.endDataset(self.dataset)
-        session.elog_event('scanend', self.dataset)
+        try:
+            session.elog_event('scanend', self.dataset)
+        except Exception:
+            session.log.debug('could not add scan to electronic logbook', exc=1)
         session.breakpoint(1)
 
     def handleError(self, what, dev, val, err):
