@@ -86,7 +86,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
 
         attachment = MIMEApplication(filedata, 'x-zip') # This may need adjustments!
         attachment['Content-Disposition'] = 'ATTACHMENT; filename="%s"' % \
-            path.basename(file)
+            path.basename(fn)
         msg.attach(attachment)
 
     # now comes the final part: send the mail
