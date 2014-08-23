@@ -214,7 +214,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
                             fmtstr=fmtstr or '%.4g')
         return AnnotatedWidget(parent, edw, '(range: %d to %d)' %
                                (typ.fr, typ.to))
-    elif typ in (int, float, str):
+    elif typ in (int, float, str, params.string):
         return EditWidget(parent, typ, curvalue, fmtstr or '%.4g')
     elif typ == bool:
         return ComboWidget(parent, [True, False], curvalue)
