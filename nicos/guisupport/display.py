@@ -291,9 +291,9 @@ class ValueDisplay(NicosWidget, QWidget):
             setBackgroundColor(self.valuelabel, self._colorscheme['back'][BUSY])
         self._applywarncolor(value)
         if self.props['maxlen'] > -1:
-            self.valuelabel.setText(strvalue[:self.props['maxlen']])
+            self.valuelabel.setText(from_maybe_utf8(strvalue[:self.props['maxlen']]))
         else:
-            self.valuelabel.setText(strvalue)
+            self.valuelabel.setText(from_maybe_utf8(strvalue))
         self._lastvalue = value
         self._lastchange = currenttime()
         setForegroundColor(self.valuelabel, self._colorscheme['fore'][BUSY])
