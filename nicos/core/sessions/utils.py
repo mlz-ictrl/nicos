@@ -269,7 +269,10 @@ class LoggingStdout(object):
     def write(self, text):
         if text.strip():
             session.log.info(text)
-        self.orig_stdout.write(text)
+        try:
+            self.orig_stdout.write(text)
+        except UnicodeEncodeError:
+            self.orig_stdout.write(text.encode('utf-8'))
 
     def flush(self):
         self.orig_stdout.flush()

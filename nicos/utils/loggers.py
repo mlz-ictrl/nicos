@@ -34,6 +34,7 @@ from logging import addLevelName, Manager, Logger, LogRecord, Formatter, \
 
 from nicos import session
 from nicos.utils import colorize, formatExtendedTraceback
+from nicos.pycompat import text_type, from_maybe_utf8, binary_type
 
 
 LOGFMT = '%(asctime)s : %(levelname)-7s : %(name)s: %(message)s'
@@ -81,7 +82,8 @@ class NicosLogger(Logger):
                 msgs += (exc_info[0].category + ' -', exc_info[1],)
             else:
                 msgs += (exc_info[0].__name__ + ' -', exc_info[1],)
-        msg = ' '.join(map(str, msgs))
+        msg = ' '.join(from_maybe_utf8(msg) if isinstance(msg, binary_type)
+                       else text_type(msg) for msg in msgs)
         return msg, exc_info
 
     def error(self, *msgs, **kwds):
@@ -219,7 +221,7 @@ class StreamHandler(Handler):
             msg = self.format(record)
             try:
                 self.stream.write(fs % msg)
-            except UnicodeError:
+            except UnicodeEncodeError:
                 self.stream.write(fs % msg.encode('utf-8'))
             self.flush()
         except Exception:
@@ -333,7 +335,10 @@ class ColoredConsoleHandler(StreamHandler):
 
     def emit(self, record): #pylint: disable=W0221
         msg = self.format(record)
-        self.stream.write(msg)
+        try:
+            self.stream.write(msg)
+        except UnicodeEncodeError:
+            self.stream.write(msg.encode('utf-8'))
         self.stream.flush()
 
 
