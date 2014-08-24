@@ -125,12 +125,13 @@ class PanelDialog(QDialog):
         if isinstance(panelcfg, type) and issubclass(panelcfg, Panel):
             panelcfg = panel('%s.%s' % (panelcfg.__module__,
                                         panelcfg.__name__))
+        elif isinstance(panelcfg, str):
+            panelcfg = panel(panelcfg)
         pnl = createWindowItem(panelcfg, self, self, self.mainwindow)
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
         hbox.addWidget(pnl)
         self.setLayout(hbox)
-        self.client = client
         self.setWindowTitle(title)
 
 
