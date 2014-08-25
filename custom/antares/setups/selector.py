@@ -8,6 +8,7 @@ devices = dict(
                       lowlevel = True,
                       pollinterval = 10,
                       maxage = 12,
+                      tacotries = 5,
                      ),
     selector = device('devices.vendor.astrium.SelectorSpeed',
                       description = 'Selector speed control',
