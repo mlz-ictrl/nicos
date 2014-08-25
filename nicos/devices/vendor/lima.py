@@ -209,7 +209,7 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
             # behaviour
             return 'auto'
         elif internalMode == 'MANUAL':
-            shutterState = self._tangoGetAttrGuard('shutter_manual_state')
+            shutterState = self._dev.shutter_manual_state
 
             if shutterState == 'OPEN':
                 return 'always_open'
