@@ -55,7 +55,7 @@ def take_ob(*detlist, **preset):
         lastImg = ccddevice.read(0)
         if lastImg:
             # only show the path relative to the proposalpath
-            lastImg = path.relpath(lastImg[0], exp.proposalpath)
+            lastImg = lastImg[0]
         else:
             lastImg = ''
 
@@ -85,7 +85,7 @@ def take_di(*detlist, **preset):
         lastImg = ccddevice.read(0)
         if lastImg:
             # only show the path relative to the proposalpath
-            lastImg = path.relpath(lastImg[0], exp.proposalpath)
+            lastImg = lastImg[0]
         else:
             lastImg = ''
 

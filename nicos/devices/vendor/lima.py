@@ -81,6 +81,10 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
                                 category='general'),
     }
 
+    parameter_overrides = {
+        'subdir':      Override(settable=True),
+    }
+
     def doPreinit(self, mode):
         PyTangoDevice.doPreinit(self, mode)
 
