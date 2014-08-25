@@ -83,8 +83,8 @@ class Experiment(FRM2Experiment):
 
     @usermethod
     def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
-        FRM2Experiment.new(self, proposal, title=None, localcontact=None,
-                           user=None, **kwds)
+        FRM2Experiment.new(self, proposal, title=title, localcontact=localcontact,
+                           user=user, **kwds)
 
         u = self.users
         for c in ',(<@':
