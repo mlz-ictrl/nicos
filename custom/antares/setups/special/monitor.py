@@ -170,6 +170,21 @@ _filterwheelblock = Block('Filterwheel', [
     'filterwheel',
 )
 
+_selectorblock = Block('Velocity Selector', [
+    BlockRow(
+        Field(name='Speed', dev='selector'), Field(name='Lambda',dev='selector_lambda'), Field(dev='selector_linear'),
+        ),
+    BlockRow(
+        Field(dev='selector_vacuum', name='Vacuum'), Field(dev='selector_rtemp', name='Rotor Temp'),
+        Field(dev='selector_vibrt', name='Vibration'),
+        ),
+    BlockRow(
+        Field(dev='selector_winlt', name='Water Inlet'), Field(dev='selector_woutt', name='Water Outlet'),
+        Field(name='Water Flow',dev='selector_wflow'),
+        ),
+    ],
+    'selector',
+)
 
 _leftcolumn = Column(
     _shutterblock,
@@ -193,6 +208,7 @@ _middlecolumn = Column(
 
 _rightcolumn = Column(
     _detectorblock,
+    _selectorblock,
 )
 
 devices = dict(
