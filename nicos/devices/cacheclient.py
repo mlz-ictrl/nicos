@@ -100,7 +100,7 @@ class BaseCacheClient(Device):
         self._stoprequest = True
         self._worker.join()
 
-    def _connect(self):
+    def _connect(self, socket=socket):
         self._do_callbacks = False
         self._startup_done.clear()
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
