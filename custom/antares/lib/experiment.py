@@ -59,6 +59,11 @@ class Experiment(FRM2Experiment):
     }
 
     @property
+    def scriptpath(self):
+        """path to the scripts of the current experiment"""
+        return path.join(self.proposalpath, 'scripts')
+
+    @property
     def darkimagedir(self):
         return path.join(self.datapath, 'di')
 
