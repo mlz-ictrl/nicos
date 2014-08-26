@@ -1,7 +1,7 @@
 description = 'PUMA triple-axis setup'
 
-includes = ['sampletable', 'detector', 'monochromator', 'analyser', 'ios', 'lengths', 'reactor', 'slits','lakeshore']
-#includes = ['sampletable', 'detector', 'monochromator', 'analyser', 'ios', 'lengths', 'reactor','lakeshore'] # no slits
+includes = ['sampletable', 'detector', 'monochromator', 'analyser', 'ios', 'lengths', 'reactor', 'slits', 'lakeshore']
+#includes = ['sampletable', 'detector', 'monochromator', 'analyser', 'ios', 'lengths', 'reactor', 'lakeshore'] # no slits
 
 modules = ['nicos.commands.tas']
 
