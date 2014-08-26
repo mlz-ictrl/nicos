@@ -320,11 +320,12 @@ def guessCorrectCommand(source, attribute=False):
             return
 
         # compile a list of existing commands
-        allowed_keys = [x for x in session._exported_names
-                        if hasattr(session.namespace[x], 'is_usercommand')]
-        allowed_keys += list(__builtins__)
-        allowed_keys += list(session.local_namespace)
-        allowed_keys += list(session.namespace)
+        allowed_keys = set([x for x in session._exported_names
+                            if hasattr(session.namespace[x], 'is_usercommand')])
+        allowed_keys.update(__builtins__)
+        allowed_keys -= NicosCompleter.global_hidden
+        allowed_keys.update(session.local_namespace)
+        allowed_keys.update(session.namespace)
         # for attributes, use a list of existing attributes instead
         if attribute:
             obj = None
@@ -338,7 +339,7 @@ def guessCorrectCommand(source, attribute=False):
                 except AttributeError:
                     base = '.'.join(object_parts[:i])
                     poi = object_parts[i]
-                    allowed_keys = dir(obj)
+                    allowed_keys = set(dir(obj))
                     break
             else:
                 return  # whole object chain exists -- error comes from
