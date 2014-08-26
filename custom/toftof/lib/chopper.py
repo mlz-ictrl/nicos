@@ -29,13 +29,61 @@ from time import sleep, time as currenttime
 
 import IO
 
-from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach, \
+from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach,\
     NicosError, intrange, oneof, status, requires, ADMIN, listof, tupleof, \
     HasTimeout
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
 
 from nicos.toftof import calculations as calc
+
+ACT_SPEED = 4181
+ACT_POS = 4191
+SPEED = 4150
+RATIO = 4507
+SLIT_TYPE = 4182
+CRM = 4183
+# The (set) phases for each channel are PHASE + 100 * channel
+PHASE_SET = 4048
+# The set speed for each channel is ACT_SPEED + channel
+ACT_SPEED = 4080
+ACT_SPEED = 4090
+# The current speed for each channel is CURRENT_SPEED + 100 * channel
+CURRENT_SPEED = 66
+# The phase for each channel is PHASE + channel
+ACT_PHASE = 4100
+ERR_SPEED = 4120
+ERR_PHASE = 4130
+# The states for each channel are STATE + channel
+STATUS = 4140
+ST_INACTIVE = 0
+ST_CALIB1 = 1
+ST_CALIB2 = 2
+ST_CALIB3 = 3
+ST_ASYNC = 4
+ST_SYNC = 5
+ST_IDLE = 6
+ST_POS = 7
+ST_ESTOP = 8
+
+# select channel
+AXIS_ID = 4073
+PAR_SPEED = 4074
+PAR_POS = 4075
+PAR_GEAR = 4076
+SET_PARAM = 4077
+
+# CHECK FOR TAKE OVER PARAMS
+DES_CMD = 4070
+C_READY = 0
+C_BRAKE = 1
+C_RESET = 2
+C_IDLE = 3
+C_RESUME = 4
+C_CALIBRATE = 5
+C_STOP = 6
+C_ACCEPT = 7
+C_NO_CMD = 9
 
 
 class Controller(TacoDevice, HasTimeout, Readable):
@@ -49,9 +97,9 @@ class Controller(TacoDevice, HasTimeout, Readable):
                                   '(= 0) or with 90deg offset (= 1)',
                                   type=intrange(0, 1), mandatory=True),
         'phase_accuracy': Param('Required accuracy of the chopper phases',
-                                settable=True, default=10, type=float),  # XXX unit?
+                                settable=True, default=10, type=float,),  # XXX unit?
         'speed_accuracy': Param('Required accuracy of the chopper speeds',
-                                settable=True, default=2, type=float),  # XXX unit?
+                                settable=True, default=2, type=float,),  # XXX unit?
         'resolution':     Param('Current energy resolution',
                                 volatile=True, type=tupleof(float, float),),
 
@@ -73,7 +121,7 @@ class Controller(TacoDevice, HasTimeout, Readable):
     }
 
     parameter_overrides = {
-        'timeout'       : Override(default=90),
+        'timeout': Override(default=90),
     }
 
     def _read(self, n):
@@ -83,14 +131,14 @@ class Controller(TacoDevice, HasTimeout, Readable):
     def _write(self, n, v):
         self._taco_guard(self._dev.writeLine, 'M%04d=%d' % (n, v))
         # wait for controller to process current commands
-        while self._read(4070) != 0:
+        while self._read(DES_CMD) != C_READY:
             sleep(0.04)
 
     def _write_multi(self, *values):
         tstr = ' '.join('M%04d=%d' % x for x in zip(values[::2], values[1::2]))
         self._taco_guard(self._dev.writeLine, tstr)
         # wait for controller to process current commands
-        while self._read(4070) != 0:
+        while self._read(DES_CMD) != C_READY:
             sleep(0.04)
 
     def doInit(self, mode):
@@ -98,25 +146,25 @@ class Controller(TacoDevice, HasTimeout, Readable):
         try:
             if mode == SIMULATION:
                 raise NicosError('not possible in dry-run/simulation mode')
-            wavelength = self._read(4181) / 1000.0
+            wavelength = self._read(ACT_SPEED) / 1000.0
             if wavelength == 0.0:
                 wavelength = 4.5
             self._setROParam('wavelength', wavelength)
-            self._setROParam('speed', round(self._read(4150) / 1118.4735))
-            self._setROParam('ratio', abs(self._read(4507)))
-            slittype = self._read(4182)
+            self._setROParam('speed', round(self._read(SPEED) / 1118.4735))
+            self._setROParam('ratio', abs(self._read(RATIO)))
+            slittype = self._read(SLIT_TYPE)
             if slittype == 2:  # XXX this looks strange
                 self._setROParam('slittype', 1)
             else:
                 self._setROParam('slittype', 0)
-            crc = self._read(4183)
+            crc = self._read(CRM)
             if crc == 1:
                 self._setROParam('crc', 0)
             else:
                 self._setROParam('crc', 1)
             for ch in range(2, 8):
                 phases.append(
-                    int(round(self._read(4048 + ch * 100) / 466.0378)))
+                    int(round(self._read(PHASE_SET + ch * 100) / 466.0378)))
             self._setROParam('phases', phases)
         except NicosError:
             self._setROParam('wavelength', 4.5)
@@ -134,8 +182,8 @@ class Controller(TacoDevice, HasTimeout, Readable):
 
     def _is_cal(self):
         for ch in range(1, 8):
-            ret = self._read(4140 + ch)
-            if ret in [0, 1, 2, 6, 8]:
+            ret = self._read(STATUS + ch)
+            if ret in [ST_INACTIVE, ST_CALIB1, ST_CALIB2, ST_IDLE, ST_ESTOP]:
                 return False
         return True
 
@@ -171,22 +219,44 @@ class Controller(TacoDevice, HasTimeout, Readable):
             r1 = 1
             r2 = 1.0
         rr = self.ratio + 1
-        self._write_multi(4073, 1, 4076, 0,  4074, self.speed,
-                          4075, phases[1], 4077,
-                          int(round(self.wavelength * 1000.0)), 4070, 7)
-        self._write_multi(4073, 2, 4076, r1, 4074, r2 * self.speed,
-                          4075, phases[2], 4077, int(self.slittype + 1),
-                          4070, 7)
-        self._write_multi(4073, 3, 4076, 1,  4074, self.speed,
-                          4075, phases[3], 4077, int(self.crc + 1), 4070, 7)
-        self._write_multi(4073, 4, 4076, 1,  4074, self.speed,
-                          4075, phases[4], 4070, 7)
-        self._write_multi(4073, 5, 4076, rr, 4074, -1 * self.speed,
-                          4075, phases[5], 4070, 7)
-        self._write_multi(4073, 6, 4076, 1,  4074, self.speed,
-                          4075, phases[6], 4070, 7)
-        self._write_multi(4073, 7, 4076, r1, 4074, r2 * self.speed,
-                          4075, phases[7], 4070, 7)
+        self._write_multi(AXIS_ID, 1,
+                          PAR_GEAR, 0,
+                          PAR_SPEED, self.speed,
+                          PAR_POS, phases[1],
+                          SET_PARAM, int(round(self.wavelength * 1000.0)),
+                          DES_CMD, C_ACCEPT)
+        self._write_multi(AXIS_ID, 2,
+                          PAR_GEAR, r1,
+                          PAR_SPEED, r2 * self.speed,
+                          PAR_POS, phases[2],
+                          SET_PARAM, int(self.slittype + 1),
+                          DES_CMD, C_ACCEPT)
+        self._write_multi(AXIS_ID, 3,
+                          PAR_GEAR, 1,
+                          PAR_SPEED, self.speed,
+                          PAR_POS, phases[3],
+                          SET_PARAM, int(self.crc + 1),
+                          DES_CMD, C_ACCEPT)
+        self._write_multi(AXIS_ID, 4,
+                          PAR_GEAR, 1,
+                          PAR_SPEED, self.speed,
+                          PAR_POS, phases[4],
+                          DES_CMD, C_ACCEPT)
+        self._write_multi(AXIS_ID, 5,
+                          PAR_GEAR, rr,
+                          PAR_SPEED, -1 * self.speed,
+                          PAR_POS, phases[5],
+                          DES_CMD, C_ACCEPT)
+        self._write_multi(AXIS_ID, 6,
+                          PAR_GEAR, 1,
+                          PAR_SPEED, self.speed,
+                          PAR_POS, phases[6],
+                          DES_CMD, C_ACCEPT)
+        self._write_multi(AXIS_ID, 7,
+                          PAR_GEAR, r1,
+                          PAR_SPEED, r2 * self.speed,
+                          PAR_POS, phases[7],
+                          DES_CMD, C_ACCEPT)
         self._setROParam('phases', phases)
         self._setROParam('changetime', currenttime())
 
@@ -194,18 +264,22 @@ class Controller(TacoDevice, HasTimeout, Readable):
         self._phases = [0] + [4500] * 7
         self._setROParam('speed', 0)
         for ch in range(1, 8):
-            self._write_multi(4073, ch, 4076, 0, 4074, self.speed,
-                              4075, self._phases[ch], 4070, 7)
+            self._write_multi(AXIS_ID, ch,
+                              PAR_GEAR, 0,
+                              PAR_SPEED, self.speed,
+                              PAR_POS, self._phases[ch],
+                              DES_CMD, C_ACCEPT)
         self._setROParam('changetime', currenttime())
 
     def _readspeeds(self):
-        return [abs(self._read(4080 + ch)) for ch in range(1, 8)]
+        return [abs(self._read(ACT_SPEED + ch)) for ch in range(1, 8)]
 
     def _readspeeds_actual(self):
-        return [abs(self._read(66 + ch * 100)) for ch in range(1, 8)]
+        return [abs(self._read(CURRENT_SPEED + ch * 100))
+                for ch in range(1, 8)]
 
     def _readphase(self, ch):
-        return self._read(4100 + ch) / 100.0
+        return self._read(ACT_PHASE + ch) / 100.0
 
     def doReadResolution(self):
         return calc.Eres1(self.wavelength, self.speed)
@@ -236,7 +310,7 @@ class Controller(TacoDevice, HasTimeout, Readable):
         if not self._is_cal():
             self._taco_guard(self._dev.writeLine, '$$$')
             sleep(3)
-            self._write(4070, 5)
+            self._write(DES_CMD, C_CALIBRATE)
             self._setROParam('speed', 0)
         self._setROParam('changetime', currenttime())
 
@@ -246,7 +320,7 @@ class Controller(TacoDevice, HasTimeout, Readable):
         stval = status.OK
         # read status values
         for ch in range(1, 8):
-            state = self._read(4140 + ch)
+            state = self._read(STATUS + ch)
             if state in errstates:
                 stval = status.ERROR
                 ret.append('ch %d: state is %s' % (ch, errstates[state]))
@@ -256,7 +330,7 @@ class Controller(TacoDevice, HasTimeout, Readable):
                 r2 = -1.0
             else:
                 r2 = 1.0
-            speed = self._read(4080 + ch) * r2
+            speed = self._read(ACT_SPEED + ch) * r2
             rat = 1.0
             if ch == 5:
                 if self.ratio > 1 and self.ratio <= 8:
@@ -271,7 +345,7 @@ class Controller(TacoDevice, HasTimeout, Readable):
                            (ch, speed, nominal))
         # read phases
         for ch in range(2, 8):
-            phase = self._read(4100 + ch)
+            phase = self._read(ACT_PHASE + ch)
             if abs(phase - self.phases[ch]) > self.phase_accuracy:
                 stval = status.BUSY
                 ret.append('ch %d: phase %s != nominal %s' %
@@ -287,8 +361,11 @@ class Controller(TacoDevice, HasTimeout, Readable):
         self._setROParam('phases', [0, -26, 1, 19, 13, 1, -13, 62])
         self._setROParam('speed', 0)
         for ch in range(1, 8):
-            self._write_multi(4073, ch, 4076, 0, 4074, self.speed,
-                              4075, self.phases[ch] + angle, 4070, 7)
+            self._write_multi(AXIS_ID, ch,
+                              PAR_GEAR, 0,
+                              PAR_SPEED, self.speed,
+                              PAR_POS, self.phases[ch] + angle,
+                              DES_CMD, C_ACCEPT)
         self._setROParam('changetime', currenttime())
 
     @requires(level=ADMIN)
@@ -301,8 +378,11 @@ class Controller(TacoDevice, HasTimeout, Readable):
             raise NicosError(self, 'invalid chopper number')
         self._adjust()
         self._setROParam('speed', 0)
-        self._write_multi(4073, ch, 4076, 0, 4074, self.speed,
-                          4075, int(round(angle * 100.0)), 4070, 7)
+        self._write_multi(AXIS_ID, ch,
+                          PAR_GEAR, 0,
+                          PAR_SPEED, self.speed,
+                          PAR_POS, int(round(angle * 100.0)),
+                          DES_CMD, C_ACCEPT)
         self._setROParam('changetime', currenttime())
 
     @requires(level=ADMIN)
@@ -313,7 +393,10 @@ class Controller(TacoDevice, HasTimeout, Readable):
         self._discSpeed = ds / 7.0
         if ch < 1 or ch > 7:
             raise NicosError(self, 'invalid chopper number')
-        self._write_multi(4073, ch, 4076, 0, 4074, ds, 4070, 7)
+        self._write_multi(AXIS_ID, ch,
+                          PAR_GEAR, 0,
+                          PAR_SPEED, ds,
+                          DES_CMD, C_ACCEPT)
         self._setROParam('changetime', currenttime())
 
 
