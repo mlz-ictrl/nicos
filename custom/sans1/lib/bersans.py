@@ -28,7 +28,7 @@ from time import strftime, time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, ImageSink
+from nicos.core import Override, ImageSink, Param, oneof
 from nicos.core.utils import DeviceValueDict
 
 # not a good solution: BerSANS keys are fixed, but devicenames
@@ -189,6 +189,11 @@ Operation=
 """
 
 class BerSANSFileFormat(ImageSink):
+    parameters = {
+        'flipimage' : Param('flip image after reading from det?',
+                            type=oneof('none','leftright','updown','both'),
+                            default='updown', mandatory=True, unit=''),
+    }
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False,
                                       userparam=False,
@@ -233,9 +238,13 @@ class BerSANSFileFormat(ImageSink):
                            'can only handle 2D-data!' % shape)
             return
 
-        # hack around TACO server deliverunging image upside-down:
-        # flip image downside up
-        image = np.flipud(image)
+        # respect flipping options
+        # XXX: check if this should go elsewhere!
+        # or each Filesaver needs this as well (-> stupid)
+        if self.flipimage in ['both', 'updown']:
+            image = np.flipud(image)
+        if self.flipimage in ['both', 'leftright']:
+            image = np.fliplr(image)
 
         # update info
         imageinfo.data.update(ToDate=strftime('%m/%d/%Y'),

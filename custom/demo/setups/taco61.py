@@ -7,6 +7,7 @@ devices = dict(
     BerSANSFileSaver  = device('sans1.bersans.BerSANSFileFormat',
                                description = 'Saves image data in BerSANS format',
                                filenametemplate = ['D%(counter)07d.001'],
+                               flipimage = 'none',
                                lowlevel = True,
                               ),
     RAWFileSaver      = device('nicos.devices.fileformats.RAWFileFormat',

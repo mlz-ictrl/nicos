@@ -44,7 +44,7 @@ devices = dict(
                       unit = 'mm',
                       refpos = -8.,
                       abslimits = (-400, 600),
-                      hw_disencfltr = 'enabled',
+                      #hw_disencfltr = 'enabled',
                       autozero = 20,
                       autopower =1,
                      ),

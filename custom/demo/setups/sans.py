@@ -136,6 +136,7 @@ devices = dict(
                                description = 'Saves image data in BerSANS format',
                                filenametemplate = ['D%(counter)07d.001',
                                '/%(proposal)s_%(counter)s_%(scanpoint)s.bersans'],
+                               flipimage = 'none',
                               ),
     RAWFileSaver      = device('devices.fileformats.RAWFileFormat',
                                description = 'Saves image data in RAW format',

@@ -35,6 +35,7 @@ devices = dict(
                                description = 'Saves image data in BerSANS format',
                                filenametemplate = ['D%(counter)07d.001',
                                                    '/data_user/D%(counter)07d.001'],
+                               flipimage = 'updown',
                                lowlevel = True,
                               ),
     #~ LiveViewSink = device('nicos.devices.fileformats.LiveViewSink',
