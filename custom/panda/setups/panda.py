@@ -117,17 +117,22 @@ devices = dict(
 )
 
 startupcode = '''
-_mymono = focibox.read(0)
-printinfo('detected mono is: %s, trying to load it' % _mymono)
-if _mymono == 'PG':
+from nicos import session
+from nicos.core import SIMULATION
+if session.mode == SIMULATION:
     AddSetup('mono_pg')
-elif _mymono == 'Si':
-    AddSetup('mono_si')
-elif _mymono == 'Cu':
-    AddSetup('mono_cu')
-elif _mymono == 'Heusler':
-    AddSetup('mono_heusler')
 else:
-    printerror('Wrong or no Mono on table!')
-del _mymono # clean up namespace
+    _mymono = focibox.read(0)
+    printinfo('detected mono is: %s, trying to load it' % _mymono)
+    if _mymono == 'PG':
+        AddSetup('mono_pg')
+    elif _mymono == 'Si':
+        AddSetup('mono_si')
+    elif _mymono == 'Cu':
+        AddSetup('mono_cu')
+    elif _mymono == 'Heusler':
+        AddSetup('mono_heusler')
+    else:
+        printerror('Wrong or no Mono on table!')
+    del _mymono # clean up namespace
 '''

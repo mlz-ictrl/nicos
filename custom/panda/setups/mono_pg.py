@@ -96,14 +96,21 @@ devices = dict(
 )
 
 startupcode = """
+from nicos import session
+from nicos.core import SIMULATION
+
 try:
     _=(ana, mono, mfv, mfh, focibox)
 except NameError as e:
     printerror("The requested setup 'panda' is not fully loaded!")
     raise NameError('One of the required devices is not loaded : %s, please check!' % e)
 
-if focibox.read(0) == 'PG':
-    from nicos import session
+if session.mode == SIMULATION:
+    mfh.alias = session.getDevice('mfh_pg')
+    mfv.alias = session.getDevice('mfv_pg')
+    mono.alias = session.getDevice('mono_pg')
+    ana.alias = session.getDevice('ana_pg')
+elif focibox.read(0) == 'PG':
     mfh.alias = session.getDevice('mfh_pg')
     mfv.alias = session.getDevice('mfv_pg')
     mono.alias = session.getDevice('mono_pg')
@@ -114,7 +121,7 @@ if focibox.read(0) == 'PG':
     focibox.comm('YMA', forcechannel=False) # enable output for mfv
     focibox.driverenable = True
     #maw(mtx, 0) #correct center of rotation for Si-mono only
-    del session
 else:
     printerror('WRONG MONO ON TABLE FOR SETUP mono_pg !!!')
+del session
 """
