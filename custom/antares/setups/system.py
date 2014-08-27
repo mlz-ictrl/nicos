@@ -7,13 +7,22 @@ sysconfig = dict(
     instrument = 'ANTARES',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    notifiers = ['email', 'smser'],
 )
 
 modules = ['nicos.commands.basic', 'nicos.commands.standard', 'antares.commands']
 
 devices = dict(
-    Sample   = device('devices.sample.Sample',
+    email    = device('devices.notifiers.Mailer',
+                      sender = 'mschulz@frm2.tum.de',
+                      copies = ['mschulz@frm2.tum.de'],
+                      subject = 'ANTARES'),
+
+    smser    = device('devices.notifiers.SMSer',
+                      receivers = ['015121100909'],
+                      server = 'triton.admin.frm2'),
+
+    Sample   = device('devices.experiment.Sample',
                        description = 'Default Sample',
                      ),
 
