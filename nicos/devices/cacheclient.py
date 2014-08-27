@@ -228,8 +228,8 @@ class BaseCacheClient(Device):
                     try:
                         res = select.select([self._socket], writelist, [],
                                             self._selecttimeout)
-                    except select.error as e:
-                        if e[0] == 4:  # EINTR
+                    except EnvironmentError as e:
+                        if e.errno == socket.EINTR:
                             continue
                         raise
                     break

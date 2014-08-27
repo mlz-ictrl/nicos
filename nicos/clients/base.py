@@ -221,8 +221,20 @@ class NicosClient(object):
                                   (err, str(buffer(buf))[:100]))
                 else:
                     self.signal(event, data)
+            except EnvironmentError as err:
+                if err.errno == socket.EINTR:
+                    continue
+                else:
+                    self.log_func('Error in event handler: %s' % err)
+                    if not self.disconnecting:
+                        self.signal('broken', 'Server connection broken.')
+                        self._close()
+                return
             except Exception as err:
-                self.log_func('Error in event handler: %s' % err)
+                self.log_func('Error in event handler: %s %s' % (type(err), err))
+                if not self.disconnecting:
+                    self.signal('broken', 'Server connection broken.')
+                    self._close()
                 return
 
     def disconnect(self):
