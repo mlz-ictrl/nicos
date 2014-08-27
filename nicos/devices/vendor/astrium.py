@@ -181,7 +181,7 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
                                             ' by selector (is it in a forbidden'
                                             ' range?)' % target)
                 rspeed = SelectorSpeed.valuetype(state.get('RSPEED'))
-                if rspeed == target:
+                if abs(rspeed - target) <= self.precision:
                     # we got a "requested speed" target back and it matches the
                     # one we tried to set -- done
                     return
