@@ -29,7 +29,7 @@ devices = dict(
                        instrument = 'RESI',
                         responsible = 'BP'),
 
-    Sample = device('devices.experiment.Sample'),
+    Sample = device('devices.sample.Sample'),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
 

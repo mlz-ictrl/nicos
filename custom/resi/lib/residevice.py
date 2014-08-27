@@ -36,7 +36,7 @@ sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/home/pedersen/Eclispe_projects/nonius_new/app')
 
 from nicos.core import Moveable, Param #@UnusedImport  pylint: disable=W0611
-from nicos.devices.experiment import Sample
+from nicos.devices.sample import Sample
 from nicos.core import vec3
 
 # imports from the nonius libs

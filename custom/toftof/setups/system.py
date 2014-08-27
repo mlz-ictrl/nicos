@@ -20,7 +20,7 @@ devices = dict(
                       instrument = 'TOFTOF',
                      ),
 
-    Sample   = device('devices.experiment.Sample',
+    Sample   = device('devices.sample.Sample',
                       description = 'The current used sample',
                      ),
 

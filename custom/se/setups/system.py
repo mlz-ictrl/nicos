@@ -14,7 +14,7 @@ devices = dict(
     SE   = device('devices.instrument.Instrument',
                       instrument = 'SE'),
 
-    Sample   = device('devices.experiment.Sample'),
+    Sample   = device('devices.sample.Sample'),
 
     Exp      = device('devices.experiment.Experiment',
                       localcontact = 'Harald Schneider <ha.schneider@fz-juelich.de>,' \

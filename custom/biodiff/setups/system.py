@@ -62,7 +62,7 @@ modules = ['nicos.commands.standard', 'biodiff.scan']
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Sample   = device('devices.experiment.Sample',
+    Sample   = device('devices.sample.Sample',
                       description = 'Sample under investigation'),
 
     # Configure dataroot here (usually /data).

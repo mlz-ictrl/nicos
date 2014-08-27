@@ -19,41 +19,34 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'system setup'
 
-sysconfig = dict(
-    cache = 'bunker.pgaa.frm2',
-    instrument = 'Instrument',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
-)
+"""NICOS Sample device."""
 
-modules = ['nicos.commands.standard']
+from nicos.core import Device, Param
+from nicos import session
 
-devices = dict(
-    Sample   = device('devices.sample.Sample'),
+class Sample(Device):
+    """A special device to represent a sample.
 
-    Instrument = device('devices.instrument.Instrument',
-                        responsible = 'Dr. Petra Kudejova',
-                       ),
+    An instance of this class is used as the *sample* attached device of the
+    `Experiment` object.  It can be subclassed to add special sample properties,
+    such as lattice and orientation calculations, or more parameters describing
+    the sample.
+    """
 
-    Exp      = device('devices.experiment.Experiment',
-                      dataroot = '/mnt/tequila/data/',
-                      sample = 'Sample'),
+    parameters = {
+        'samplename':  Param('Sample name', type=str, settable=True,
+                             category='sample'),
+    }
 
-    filesink = device('devices.datasinks.AsciiDatafileSink',
-                     ),
+    def reset(self):
+        """Reset experiment-specific information."""
+        self.samplename = ''
 
-    conssink = device('devices.datasinks.ConsoleSink'),
-
-    daemonsink = device('devices.datasinks.DaemonSink'),
-
-    Space    = device('devices.generic.FreeSpace',
-                      description = 'The amount of free space for storing data',
-                      minfree = 0.5,
-                     ),
-)
+    def doWriteSamplename(self, name):
+        if name:
+            session.elog_event('sample', name)

@@ -32,7 +32,7 @@ from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
 from numpy.linalg import inv, norm
 
 from nicos.core import Device, Param, ComputationError, vec3, anytype, NicosError
-from nicos.devices.experiment import Sample
+from nicos.devices.sample import Sample
 from nicos.devices.tas.spacegroups import get_spacegroup
 
 D2R = pi/180

@@ -26,7 +26,7 @@
 
 from nicos import session
 from nicos.core import Param, Override, dictof, none_or
-from nicos.devices.experiment import Sample as NicosSample
+from nicos.devices.sample import Sample as NicosSample
 
 
 class Sans1Sample(NicosSample):

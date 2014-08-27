@@ -31,7 +31,7 @@ excludes = ['tas', 'sans',]
 includes = []
 
 devices = dict(
-    Sample = device('devices.experiment.Sample'),
+    Sample = device('devices.sample.Sample'),
 
     nok2_r  = device('devices.generic.VirtualMotor',
                      lowlevel = True,

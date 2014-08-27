@@ -29,7 +29,7 @@ devices = dict(
                       mailsender = 'karl.zeitelhack@frm2.tum.de',
                      ),
 
-    Sample   = device('devices.experiment.Sample'),
+    Sample   = device('devices.sample.Sample'),
 
     DEL     = device('devices.instrument.Instrument',
                      instrument = 'DEL',

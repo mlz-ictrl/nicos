@@ -59,29 +59,9 @@ from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
 from nicos.pycompat import BytesIO, string_types
+from nicos.devices.sample import Sample
 
 
-class Sample(Device):
-    """A special device to represent a sample.
-
-    An instance of this class is used as the *sample* attached device of the
-    `Experiment` object.  It can be subclassed to add special sample properties,
-    such as lattice and orientation calculations, or more parameters describing
-    the sample.
-    """
-
-    parameters = {
-        'samplename':  Param('Sample name', type=str, settable=True,
-                             category='sample'),
-    }
-
-    def reset(self):
-        """Reset experiment-specific information."""
-        self.samplename = ''
-
-    def doWriteSamplename(self, name):
-        if name:
-            session.elog_event('sample', name)
 
 
 class Experiment(Device):

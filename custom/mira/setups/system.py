@@ -28,7 +28,7 @@ devices = dict(
                       mailsender = 'rgeorgii@frm2.tum.de',
                       propdb = '/etc/proposaldb'),
 
-    Sample   = device('devices.experiment.Sample'),
+    Sample   = device('devices.sample.Sample'),
 
     mira     = device('devices.instrument.Instrument',
                       instrument = 'MIRA',

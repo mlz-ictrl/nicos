@@ -47,7 +47,7 @@ devices = dict(
                       responsible = 'Mathias Pomm',
                      ),
 
-    Sample   = device('devices.experiment.Sample',
+    Sample   = device('devices.sample.Sample',
                       description = 'Container storing Sample properties',
                      ),
 

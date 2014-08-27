@@ -13,7 +13,7 @@ sysconfig = dict(
 modules = ['nicos.commands.basic', 'nicos.commands.standard', 'antares.commands']
 
 devices = dict(
-    Sample   = device('devices.experiment.Sample',
+    Sample   = device('devices.sample.Sample',
                        description = 'Default Sample',
                      ),
 

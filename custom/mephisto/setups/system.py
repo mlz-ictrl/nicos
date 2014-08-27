@@ -35,7 +35,7 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    Sample   = device('devices.experiment.Sample'),
+    Sample   = device('devices.sample.Sample'),
 
     Instrument = device('devices.instrument.Instrument',
                         responsible = 'Dr. Jens Klenke',
