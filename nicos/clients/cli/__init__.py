@@ -41,6 +41,8 @@ from os import path
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 from threading import Thread
+import traceback
+
 
 from nicos.clients.base import NicosClient
 from nicos.utils import colorize, which, formatDuration, formatEndtime, \
@@ -340,7 +342,8 @@ class NicosCmdClient(NicosClient):
                            funcname)
             self.clientexec_queue.put((func, what[1:]))
         except Exception as err:
-            self.put_error('During "clientexec": %s.' % err)
+            self.put_error('During "clientexec": %s.\n%s' % (err,
+                            '\n'.join(traceback.format_tb(sys.exc_info()[2]))))
 
     def showhelp(self, html):
         """Handles the "showhelp" signal.

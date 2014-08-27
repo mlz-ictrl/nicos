@@ -482,7 +482,9 @@ class MainWindow(QMainWindow, DlgUtils):
                            funcname)
             func(*data[1:])
         except Exception:
-            self.log.exception('Error during clientexec')
+            import traceback
+            self.log.exception('Error during clientexec:\n'+
+                               '\n'.join(traceback.format_tb(sys.exc_traceback)))
 
     def on_client_plugplay(self, data):
         windowkey = data[0:2] # (mode, setupname)
