@@ -120,7 +120,7 @@ devices = dict(
                          lowlevel = True,
                         ),
 
-    det1_z = device('devices.generic.sequence.LockedDevice',
+    det1_z = device('sans1.hv.HVLock',
                       description = 'detector 1 z position interlocked with high voltage supply',
                       device = 'det1_z_ax',
                       lock = 'det1_hv',
