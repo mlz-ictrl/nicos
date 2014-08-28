@@ -25,7 +25,7 @@
 """NICOS GUI command input widgets."""
 
 from PyQt4.QtGui import QWidget, QColor
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import QObject, Qt, pyqtSignal, SIGNAL, pyqtSignature as qtsig
 
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
@@ -38,19 +38,18 @@ class Cmdlet(QWidget):
     name = ''
     category = ''
 
+    cmdletUp = pyqtSignal()
+    cmdletDown = pyqtSignal()
+    cmdletRemove = pyqtSignal()
+
     def __init__(self, parent, client, uifile):
         self.client = client
         QWidget.__init__(self, parent)
         loadUi(self, uifile, 'cmdlets')
-
-    @qtsig('')
-    def on_delBtn_clicked(self):
-        self.removeSelf()
-
-    def removeSelf(self):
-        self.emit(SIGNAL('cmdletRemoved'), self)
-        self.parent().layout().removeWidget(self)
-        self.hide()
+        loadUi(self.buttons, 'buttons.ui', 'cmdlets')
+        self.buttons.upBtn.clicked.connect(self.cmdletUp)
+        self.buttons.downBtn.clicked.connect(self.cmdletDown)
+        self.buttons.delBtn.clicked.connect(self.cmdletRemove)
 
     def changed(self, *args):
         """Should be emitted whenever any value in the cmdlet changes."""

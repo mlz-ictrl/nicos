@@ -47,8 +47,9 @@ class CommandsPanel(Panel):
             action = QAction(cmdlet.name, self)
             def callback(on, cmdlet=cmdlet):
                 inst = cmdlet(self.frame, self.client)
-                self.connect(inst, SIGNAL('cmdletRemoved'),
-                             self.on_cmdletRemoved)
+                inst.cmdletUp.connect(self.on_cmdletUp)
+                inst.cmdletDown.connect(self.on_cmdletDown)
+                inst.cmdletRemove.connect(self.on_cmdletRemove)
                 self.runBtn.setVisible(True)
                 self.frame.layout().insertWidget(
                     self.frame.layout().count() - 2, inst)
@@ -66,9 +67,39 @@ class CommandsPanel(Panel):
             toolbtn.setMenu(menu)
             self.btnLayout.insertWidget(1, toolbtn)
 
-    def on_cmdletRemoved(self, cmdlet):
-        if self.frame.layout().count() < 3:
+    def on_cmdletRemove(self):
+        cmdlet = self.sender()
+        layout = self.frame.layout()
+
+        layout.removeWidget(cmdlet)
+        cmdlet.hide()
+
+        if layout.count() < 3:
             self.runBtn.setVisible(False)
+
+    def on_cmdletUp(self):
+        cmdlet = self.sender()
+        layout = self.frame.layout()
+
+        index = layout.indexOf(cmdlet)
+
+        if not index:
+            return
+
+        layout.removeWidget(cmdlet)
+        layout.insertWidget(index - 1, cmdlet)
+
+    def on_cmdletDown(self):
+        cmdlet = self.sender()
+        layout = self.frame.layout()
+
+        index = layout.indexOf(cmdlet)
+
+        if index >= (layout.count() - 3):
+            return
+
+        layout.removeWidget(cmdlet)
+        layout.insertWidget(index + 1, cmdlet)
 
     @qtsig('')
     def on_runBtn_clicked(self):

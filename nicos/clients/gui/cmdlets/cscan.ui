@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>655</width>
-    <height>102</height>
+    <height>119</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,19 +52,12 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="delBtn">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
-         <normaloff>:/remove</normaloff>:/remove</iconset>
+      <widget class="QWidget" name="buttons" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>156</width>
+         <height>34</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -281,7 +274,6 @@
   <tabstop>step</tabstop>
   <tabstop>numpoints</tabstop>
   <tabstop>seconds</tabstop>
-  <tabstop>delBtn</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
