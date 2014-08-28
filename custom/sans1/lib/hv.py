@@ -32,10 +32,10 @@ from nicos.devices.generic.sequence import BaseSequencer, LockedDevice, \
      SeqDev, SeqMethod, SeqParam, SeqSleep
 
 class HVLock(LockedDevice):
-    """A LockdDevice which cowardly refuse to go where it is already"""
+    """A LockedDevice which cowardly refuse to go where it is already"""
     def doStart(self, target):
         if target != self.read():
-            LockedDevice.doStart(target)
+            BaseSequencer.doStart(self, target)
 
 class Sans1HV(BaseSequencer):
     attached_devices = {
