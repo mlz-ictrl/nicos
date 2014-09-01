@@ -181,9 +181,11 @@ class ScriptStatusPanel(Panel):
     def setCurrentLine(self, line):
         if self.current_line != -1:
             item = self.traceView.item(self.current_line - 1)
-            if item: item.setIcon(self.otherlineicon)
+            if item:item.setIcon(self.otherlineicon)
         if 0 < line <= self.traceView.count():
-            self.traceView.item(line - 1).setIcon(self.curlineicon)
+            item = self.traceView.item(line - 1)
+            item.setIcon(self.curlineicon)
+            self.traceView.scrollToItem(item)
         self.current_line = line
 
     def on_client_request(self, request):
