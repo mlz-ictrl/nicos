@@ -819,7 +819,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
             menu.addAction(self.actionClose)
             self.menus = menu
 
-        return [self.menu]
+        return [self.menus]
 
     def getToolbars(self):
         if not self.bar:
