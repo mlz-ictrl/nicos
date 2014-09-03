@@ -20,7 +20,7 @@ group = 'special'
 #     (default False)
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition = 'center3_sens2_value - center3_sens1_value < 15',
+    dict(condition = '(center3_sens2_value - center3_sens1_value) < 15',
          message = 'He pressure in flight tubes too low',
          type = 'critical',
          setup = 'center3',
@@ -39,7 +39,7 @@ devices = dict(
                       subject = 'ANTARES'),
 
     smser    = device('devices.notifiers.SMSer',
-                      receivers = ['015121100909'] ,
+                      receivers = ['015121100909'],
                       server = 'triton.admin.frm2'),
 
     Watchdog = device('services.watchdog.Watchdog',

@@ -14,6 +14,7 @@ devices = dict(
                       description = 'Selector speed control',
                       tacodevice = '//antaressrv/antares/network/selector',
                       abslimits = (3100, 21000),
+                      blockedspeeds = [(3300,4200),(7500,9500)],
                       statedev = 'selector_state',
                       unit = 'rpm',
                       fmtstr = '%.0f',
