@@ -24,54 +24,62 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
+from nicos.clients.gui.config import vsplit, window, panel, tool, docked
+# additional available are hsplit, tabbed, setups
 
-config = ('Default', [
-        hsplit(
-            vsplit(
-                panel('status.ScriptStatusPanel'),
-#                panel('watch.WatchPanel'),
-                panel('console.ConsolePanel'),
-            ),
-            panel('devices.DevicesPanel'),
-        ),
-        window('Setup', 'setup', True,
-            tabbed(('Experiment', panel('setup_panel.ExpPanel')),
-                   ('Setups',     panel('setup_panel.SetupsPanel')),
-                   ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
-            )),
-        window('Editor', 'editor', True,
-            vsplit(
-#               panel('scriptbuilder.CommandsPanel'),
-                panel('editor.EditorPanel',
-                  tools = [
-#                     tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')
-                  ]))),
-#       window('Scans', 'plotter', True,
-#           panel('scans.ScansPanel')),
-        window('History', 'find', True,
-            panel('history.HistoryPanel')),
-        window('Logbook', 'table', True,
-            panel('elog.ELogPanel')),
-        window('Errors', 'errors', True,
-            panel('errors.ErrorPanel')),
-        window('Live data', 'live', True,
-            panel('live.LiveDataPanel',
-                  instrument = 'toftof')),
-    ], [
-        tool('Calculator',
-             'nicos.clients.gui.tools.calculator.CalculatorTool'),
-        tool('Neutron cross-sections',
-             'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://www.ncnr.nist.gov/resources/n-lengths/'),
-        tool('Neutron activation',
-             'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/activation/'),
-        tool('Neutron calculations',
-             'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/neutroncalc/'),
-        tool('Report NICOS bug',
-             'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
-    ]
+main_window = docked(
+    vsplit(
+        panel('status.ScriptStatusPanel'),
+#       panel('watch.WatchPanel'),
+        panel('console.ConsolePanel'),
+    ),
+    ('NICOS devices',
+     panel('devices.DevicesPanel', icons=True, dockpos='right',),
+    ),
+    ('Safety system',
+     panel('nicos.toftof.gui.safetypanel.SafetyPanel'),
+    ),
+    ('Experiment Information and Setup',
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')
+    ),
 )
+
+windows = [
+    window('Editor', 'editor',
+        vsplit(
+#           panel('scriptbuilder.CommandsPanel'),
+            panel('editor.EditorPanel',
+                  tools = [
+#                     tool('Scan Generator',
+#                          'nicos.clients.gui.tools.ScanTool'),
+                  ],
+                 ),
+        ),
+    ),
+#   window('Scans', 'plotter', panel('scans.ScansPanel'),),
+    window('History', 'find', panel('history.HistoryPanel'),),
+    window('Logbook', 'table', panel('elog.ELogPanel'),),
+    window('Errors', 'errors', panel('errors.ErrorPanel'),),
+    window('Live data', 'live', panel('live.LiveDataPanel',
+                                      instrument = 'toftof'),),
+]
+
+tools = [
+    tool('Calculator', 'calculator.CalculatorTool'),
+    tool('Neutron cross-sections', 'website.WebsiteTool',
+         url='http://www.ncnr.nist.gov/resources/n-lengths/'),
+    tool('Neutron activation', 'website.WebsiteTool',
+         url='http://www.frm2.tum.de/intranet/activation/'),
+    tool('Neutron calculations', 'website.WebsiteTool',
+         url='http://www.frm2.tum.de/intranet/neutroncalc/'),
+    tool('Report NICOS bug', 'website.WebsiteTool',
+         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+    tool('Emergency stop button', 'estop.EmergencyStopTool',
+         runatstartup=False,),
+]
+
+#       window('Setup', 'setup', True,
+#           tabbed(('Experiment', panel('setup_panel.ExpPanel')),
+#                  ('Setups',     panel('setup_panel.SetupsPanel')),
+#                  ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+#           )),
