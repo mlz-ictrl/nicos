@@ -706,7 +706,7 @@ class Session(object):
             except ModeError:
                 self.log.info('could not enter master mode; remaining slave',
                               exc=True)
-            except:
+            except Exception:
                 self.log.warning('could not enter master mode', exc=True)
             if setup != 'startup' or not self.cache:
                 return
