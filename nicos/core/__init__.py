@@ -32,7 +32,7 @@ from nicos.core.errors import NicosError, ProgrammingError, \
     HardwareError, TimeoutError, ComputationError, \
     CacheLockError, AccessError, CacheError, SPMError
 from nicos.core.device import Device, DeviceMixinBase, AutoDevice, \
-    Readable, Moveable, Measurable, \
+    Readable, Moveable, Measurable, DeviceAlias, NoDevice, \
     HasLimits, HasOffset, HasPrecision, HasMapping, \
     usermethod, requires
 from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \

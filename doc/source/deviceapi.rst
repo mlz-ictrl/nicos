@@ -407,6 +407,20 @@ possible with the device:
    All :meth:`Measurable.doRead` implementations must return tuples with values
    according to :meth:`valueInfo`.
 
+----------------------
+Special device classes
+----------------------
+
+``DeviceAlias``
+===============
+
+.. autoclass:: DeviceAlias()
+
+``NoDevice``
+===============
+
+.. autoclass:: NoDevice()
+
 
 -------------
 Mixin classes

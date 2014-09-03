@@ -24,11 +24,13 @@
 
 """Generic device classes using hardware-specific attached devices."""
 
+#backwards compatibility for config files
+from nicos.core.device import DeviceAlias, NoDevice
+
 from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.detector import MultiChannelDetector, \
      DetectorForecast
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
-from nicos.devices.generic.alias import DeviceAlias, NoDevice
 from nicos.devices.generic.paramdev import ParamDevice
 from nicos.devices.generic.slit import Slit
 from nicos.devices.generic.switcher import Switcher, ReadonlySwitcher, \

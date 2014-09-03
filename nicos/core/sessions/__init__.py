@@ -40,7 +40,7 @@ import numpy
 from nicos import config
 from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink
-from nicos.core.device import Device
+from nicos.core.device import Device, DeviceAlias
 from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
 from nicos.devices.notifiers import Notifier
@@ -276,7 +276,6 @@ class Session(object):
             self.unloadSetup()
             self.loadSetup(setups)
         # set alias parameter first, needed to set parameters on alias devices
-        from nicos.devices.generic.alias import DeviceAlias
         for devname, dev in iteritems(self.devices):
             aliaskey = '%s/alias' % devname.lower()
             if isinstance(dev, DeviceAlias) and aliaskey in db:

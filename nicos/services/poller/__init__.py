@@ -36,9 +36,8 @@ from time import time as currenttime, sleep
 
 from nicos import session, config
 from nicos.core import status, listof, Device, Readable, Param, \
-    ConfigurationError
+    ConfigurationError, DeviceAlias
 from nicos.utils import whyExited, watchFileContent, loggers
-from nicos.devices.generic.alias import DeviceAlias
 from nicos.devices.generic.cache import CacheReader
 from nicos.pycompat import listitems, queue as Queue
 

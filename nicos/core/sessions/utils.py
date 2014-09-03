@@ -38,7 +38,8 @@ except ImportError:
 
 from nicos import session
 from nicos.core import Device, UsageError, \
-     MASTER, SLAVE, SIMULATION, MAINTENANCE
+     MASTER, SLAVE, SIMULATION, MAINTENANCE, \
+     DeviceAlias
 from nicos.pycompat import builtins, iteritems
 
 
@@ -163,7 +164,6 @@ class NicosCompleter(object):
         (as revealed by dir()) are used as possible completions.  (For class
         instances, class members are also considered.)
         """
-        from nicos.devices.generic import DeviceAlias
 
         match = re.match(r"(\w+(\.\w+)*)\.(\w*)", text)
         if not match:

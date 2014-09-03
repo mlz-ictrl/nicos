@@ -27,15 +27,16 @@
 import sys
 import types
 import inspect
+import re
 from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
-from nicos.core import MASTER, SIMULATION, SLAVE
+from nicos.core.constants import MASTER, SIMULATION, SLAVE, MAINTENANCE
 from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel, \
     waitForStatus, multiWait, multiStop, multiStatus
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
-    anytype, none_or, limits, dictof, listof, tupleof, Attach
+    anytype, none_or, limits, dictof, listof, tupleof, nicosdev, Attach
 from nicos.core.errors import NicosError, ConfigurationError, \
     ProgrammingError, UsageError, LimitError, ModeError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
@@ -98,7 +99,6 @@ class DeviceMixinMeta(type):
     mixins.
     """
     def __instancecheck__(cls, inst):  # pylint: disable=C0203
-        from nicos.devices.generic import DeviceAlias, NoDevice
         if inst.__class__ == DeviceAlias and inst._initialized:
             if isinstance(inst._obj, NoDevice):
                 return issubclass(inst._cls, cls)
@@ -1928,3 +1928,236 @@ class Measurable(Readable):
         be overridden by all measurables that support more presets.
         """
         return ('t',)
+
+
+# Use the DeviceMixinMeta metaclass here to provide the instancecheck
+# Not derived from DeviceMixinBase as this class is not a mixin.
+@add_metaclass(DeviceMixinMeta)
+class NoDevice(object):
+    """A class that represents "no device" attached to a :class:`DeviceAlias`."""
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return '<none>'
+
+    def __getattr__(self, name):
+        raise ConfigurationError('alias %r does not point to any device' % self.name)
+
+    def __setattr__(self, name, value):
+        if name != 'name':
+            raise ConfigurationError('alias %r does not point to any device' % self.name)
+        object.__setattr__(self, name, value)
+
+
+class DeviceAlias(Device):
+    """
+    Generic "alias" device that can point all access to any other NICOS device.
+
+    The device that should be accessed is set using the "alias" parameter, which
+    can be configured and changed at runtime.  For example, with a DeviceAlias
+    instance *T*::
+
+        T.alias = Tcryo
+        read(T)   # will read Tcryo
+        T.alias = Toven
+        read(T)   # will read Toven
+
+    This allows to call e.g. the sample temperature by the same name in all
+    sample environment setups, but behind the scenes implement it using
+    different actual hardware devices.
+
+    If the "alias" parameter is empty, the alias points to a special "NoDevice"
+    object that raises a `ConfigurationError` on every access.
+    """
+
+    parameters = {
+        'alias':    Param('Device to alias', type=none_or(nicosdev),
+                          settable=True, chatty=True),
+        'devclass': Param('Class name that the aliased device must be an '
+                          'instance of', type=str, default='nicos.core.device.Device'),
+    }
+
+    _ownattrs = ['_obj', '_mode', '_cache', 'alias']
+    _ownparams = set(['alias', 'name', 'devclass'])
+    _initialized = False
+
+    __display__ = True
+
+    def __init__(self, name, **config):
+        self._obj = None
+        devclass = config.get('devclass', 'nicos.core.device.Device')
+        try:
+            modname, clsname = devclass.rsplit('.', 1)
+            self._cls = session._nicos_import(modname, clsname)
+        except Exception:
+            self.log.warning('could not import class %r; using Device as the '
+                             'alias devclass', exc=1)
+            self._cls = Device
+        Device.__init__(self, name, **config)
+        if self._cache and self._mode in (MASTER, MAINTENANCE):
+            # re-set alias to configured device every time... necessary to clean
+            # up old assignments pointing to now nonexisting devices
+            self.alias = config.get('alias', self._cache.get(self, 'alias', ''))
+        self._initialized = True
+
+    def __repr__(self):
+        if isinstance(self._obj, NoDevice):
+            return '<device %s, device alias pointing to nothing>' % self._name
+        if not self.description:
+            return '<device %s, alias to %s>' % (self._name, self._obj)
+        return '<device %s, alias to %s "%s">' % (self._name, self._obj,
+                                                  self.description)
+
+    def doUpdateAlias(self, devname):
+        if not devname:
+            self._obj = NoDevice(str(self))
+            if self._cache:
+                self._cache.unsetRewrite(str(self))
+                self._reinitParams()
+        else:
+            try:
+                newdev = session.getDevice(devname, (self._cls, DeviceAlias),
+                                           source=self)
+            except NicosError:
+                if not self._initialized:
+                    # should not raise an error, otherwise the device cannot
+                    # be created at all
+                    fromconfig = self._config.get('alias', 'nothing')
+                    self.log.warning('could not find aliased device %s, pointing '
+                                     'to target from setup file (%s)' %
+                                     (devname, fromconfig))
+                    if 'alias' not in self._config:
+                        newdev = None
+                    else:
+                        try:
+                            newdev = session.getDevice(self._config['alias'],
+                                                       (self._cls, DeviceAlias),
+                                                       source=self)
+                        except NicosError:
+                            self.log.error('could not find target from setup '
+                                           'file either, pointing to nothing',
+                                           exc=1)
+                            newdev = None
+                else:
+                    raise
+            if newdev is self:
+                raise NicosError(self, 'cannot set alias pointing to itself')
+            if newdev != self._obj:
+                self._obj = newdev
+                if self._cache:
+                    self._cache.setRewrite(str(self), devname)
+                    self._reinitParams()
+
+    def _reinitParams(self):
+        if self._mode != MASTER:  # only in the copy that changed the alias
+            return
+        # clear all cached parameters
+        self._cache.clear(str(self), exclude=self._ownparams)
+        # put the parameters from the original device in the cache under the
+        # name of the alias
+        if not isinstance(self._obj, Device):
+            return
+        for pname in self._obj.parameters:
+            if pname in self._ownparams:
+                continue
+            self._cache.put(self, pname, getattr(self._obj, pname))
+
+    # Device methods that would not be alias-aware
+
+    def valueInfo(self):
+        # override to replace name of the aliased device with the alias' name
+        new_info = []
+        rx = r'^%s\b' % re.escape(self._obj.name)
+        for v in self._obj.valueInfo():
+            new_v = v.copy()
+            # replace dev name, if at start of value name, with alias name
+            new_v.name = re.sub(rx, self.name, v.name)
+            new_info.append(new_v)
+        return tuple(new_info)
+
+    @usermethod
+    def info(self):
+        # override to use the object's "info" but add a note about the alias
+        if isinstance(self._obj, Device):
+            for v in self._obj.info():
+                yield v
+        yield ('instrument', 'alias', str(self._obj))
+
+    @usermethod
+    def version(self):
+        v = []
+        if isinstance(self._obj, Device):
+            v = self._obj.version()
+        v.extend(Device.version(self))
+        return v
+
+    # these methods must not be proxied
+
+    def __eq__(self, other):
+        return self is other
+
+    def __ne__(self, other):
+        return self is not other
+
+    def shutdown(self):
+        # re-implemented from Device to avoid running doShutdown
+        # of the pointed-to device prematurely
+        self.log.debug('shutting down device')
+        if self._mode != SIMULATION:
+            # remove subscriptions to parameter value updates
+            if self._cache:
+                for param, func in self._subscriptions:
+                    self._cache.removeCallback(self, param, func)
+        session.devices.pop(self._name, None)
+        session.explicit_devices.discard(self._name)
+
+    # generic proxying of missing attributes to the object
+
+    def __getattr__(self, name):
+        if not self._initialized:
+            raise AttributeError(name)
+        else:
+            if name in DeviceAlias._ownattrs:
+                return object.__getattr__(self, name)
+            return getattr(self._obj, name)
+
+    def __setattr__(self, name, value):
+        if name in DeviceAlias._ownattrs or not self._initialized:
+            object.__setattr__(self, name, value)
+        else:
+            setattr(self._obj, name, value)
+
+    def __delattr__(self, name):
+        if name in DeviceAlias._ownattrs or not self._initialized:
+            object.__delattr__(self, name)
+        else:
+            delattr(self._obj, name)
+
+
+# proxying of special methods to the object
+
+def make_method(name):
+    def method(self, *args, **kw):
+        return getattr(self._obj, name)(*args, **kw)
+    return method
+
+for name in [
+        '__abs__', '__add__', '__and__', '__call__', '__cmp__', '__coerce__',
+        '__contains__', '__delitem__', '__delslice__', '__div__', '__divmod__',
+        '__float__', '__floordiv__', '__ge__', '__getitem__',
+        '__getslice__', '__gt__', '__hash__', '__hex__', '__iadd__', '__iand__',
+        '__idiv__', '__idivmod__', '__ifloordiv__', '__ilshift__', '__imod__',
+        '__imul__', '__int__', '__invert__', '__ior__', '__ipow__', '__irshift__',
+        '__isub__', '__iter__', '__itruediv__', '__ixor__', '__le__', '__len__',
+        '__long__', '__lshift__', '__lt__', '__mod__', '__mul__',
+        '__neg__', '__oct__', '__or__', '__pos__', '__pow__', '__radd__',
+        '__rand__', '__rdiv__', '__rdivmod__', '__reduce__', '__reduce_ex__',
+        '__reversed__', '__rfloorfiv__', '__rlshift__', '__rmod__',
+        '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__',
+        '__rtruediv__', '__rxor__', '__setitem__', '__setslice__', '__sub__',
+        '__truediv__', '__xor__', 'next',
+    ]:
+    if hasattr(Device, name):
+        setattr(DeviceAlias, name, make_method(name))

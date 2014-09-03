@@ -27,8 +27,7 @@
 from time import sleep
 
 from nicos import session
-from nicos.core import UsageError, ConfigurationError
-from nicos.devices.generic.alias import NoDevice
+from nicos.core import UsageError, ConfigurationError, NoDevice
 from nicos.commands.device import read, adjust
 from test.utils import raises
 
