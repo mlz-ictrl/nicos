@@ -48,6 +48,7 @@ Requirements
   - pyfits (for the handling of FITS formatted files)
   - rsa
   - pyasn1
+  - python-ldap (for ldap authentication)
 
 * For the GUI and status monitor:
   - PyQt4

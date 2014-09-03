@@ -98,6 +98,8 @@ Authenticator classes
 
 .. module:: nicos.services.daemon.auth
 
+.. autoclass:: LDAPAuthenticator()
+
 .. autoclass:: ListAuthenticator()
 
 .. autoclass:: PamAuthenticator()
