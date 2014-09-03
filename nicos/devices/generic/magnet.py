@@ -23,8 +23,9 @@
 # *****************************************************************************
 
 """
-Class for Magnets powered by unipolar power supplies.
+Class for magnets powered by unipolar power supplies.
 """
+
 import math
 
 from nicos import session
@@ -53,13 +54,13 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
     }
 
     parameters = {
-        'ramp' : Param('Target rate of field change per minute', unit='main/min',
-                        mandatory=False, settable=True),
+        'ramp': Param('Target rate of field change per minute', unit='main/min',
+                      mandatory=False, settable=True, volatile=True),
         'calibration': Param('Coefficients for calibration '
                              'function: [c0, c1, c2, c3, c4] calculates '
                              'B(I) = Ic0 + c1*erf(c2*I) + c3*atan(c4*I)'
-                             ' in T', type=tupleof(float, float, float, float, float), settable=True,
-                             chatty=True),
+                             ' in T', type=tupleof(float, float, float, float, float),
+                             settable=True, chatty=True),
     }
 
     parameter_overrides = {
@@ -68,12 +69,9 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
     }
 
     def _current2field(self, current, *coefficients):
-        """
-        returns field in T for given current in A
+        """Return field in T for given current in A.
 
-        should be monotic and asymetric or _field2current will fail!
-        defaults to a linear function of the current + some lorentzian like corrections.
-        B(I) = I*(c0 + c1/(c2+I**2) + c3/(c4+I**4) + ...)
+        Should be monotic and asymetric or _field2current will fail!
 
         Note: This may be overridden in derived classes.
         """
@@ -84,11 +82,10 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         return current * v[0] + v[1] * math.erf(v[2] * current) + v[3] * math.atan(v[4] * current)
 
     def _field2current(self, field):
-        """
-        returns required current in A for requested field in T
+        """Return required current in A for requested field in T.
 
-        default implementation does a binary search using _current2field
-        which must be monotone for this to work!
+        Default implementation does a binary search using _current2field,
+        which must be monotonic for this to work!
         """
         # binary search/bisection
         maxcurr = self._adevs['currentsource'].abslimits[1]
@@ -247,7 +244,8 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         if not Is:
             self.log.error('no calibration data found')
             return
-        fit = Fit(self._current2field, ['c%d' % i for i in range(len(self.calibration))], [1] * len(self.calibration))
+        fit = Fit(self._current2field, ['c%d' % i for i in range(len(self.calibration))],
+                  [1] * len(self.calibration))
         res = fit.run('calibration', Is, Bs, [1] * len(Bs))
         if res._failed:
             self.log.warning('fit failed')
