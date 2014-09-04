@@ -98,8 +98,8 @@ class Experiment(FRM2Experiment):
             u = 'default'
         u = u.replace(' ', '_')
 
-        symname = path.join(self.proposalpath, '..', '%s_%s_%s' %
-                            (time.strftime('%F').replace('-', '_'), u, proposal))
+        symname = path.join(self.proposalpath, '..', '%s_%s_%s_%s' %
+                            (time.strftime('%F').replace('-', '_'), proposal, u, title))
         try:
             self.log.debug('create symlink %r -> %r' %
                            (symname, self.proposalpath))
