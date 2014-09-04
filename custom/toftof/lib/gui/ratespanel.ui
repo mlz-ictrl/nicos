@@ -21,7 +21,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="1">
-       <widget class="ValueDisplay" name="d_detrate_inst">
+       <widget class="ValueDisplay" name="d_detrate_inst" native="true">
         <property name="minimumSize">
          <size>
           <width>60</width>
@@ -32,10 +32,10 @@
          <string>%.3f</string>
         </property>
         <property name="item" stdset="0">
-         <number>6</number>
+         <number>1</number>
         </property>
         <property name="key" stdset="0">
-         <string>m.laststats</string>
+         <string>m.detectorrate</string>
         </property>
         <property name="name" stdset="0">
          <string>Inst. rate</string>
@@ -46,7 +46,7 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="ValueDisplay" name="d_detrate">
+       <widget class="ValueDisplay" name="d_detrate" native="true">
         <property name="minimumSize">
          <size>
           <width>60</width>
@@ -57,10 +57,10 @@
          <string>%.3f</string>
         </property>
         <property name="item" stdset="0">
-         <number>4</number>
+         <number>0</number>
         </property>
         <property name="key" stdset="0">
-         <string>m.laststats</string>
+         <string>m.detectorrate</string>
         </property>
         <property name="name" stdset="0">
          <string>Rate</string>
@@ -83,7 +83,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="ValueDisplay" name="d_monrate">
+       <widget class="ValueDisplay" name="d_monrate" native="true">
         <property name="minimumSize">
          <size>
           <width>60</width>
@@ -94,10 +94,10 @@
          <string>%.3f</string>
         </property>
         <property name="item" stdset="0">
-         <number>3</number>
+         <number>0</number>
         </property>
         <property name="key" stdset="0">
-         <string>m.laststats</string>
+         <string>m.monitorrate</string>
         </property>
         <property name="name" stdset="0">
          <string>Rate</string>
@@ -111,7 +111,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="ValueDisplay" name="d_monrate_inst">
+       <widget class="ValueDisplay" name="d_monrate_inst" native="true">
         <property name="minimumSize">
          <size>
           <width>60</width>
@@ -122,10 +122,10 @@
          <string>%.3f</string>
         </property>
         <property name="item" stdset="0">
-         <number>5</number>
+         <number>1</number>
         </property>
         <property name="key" stdset="0">
-         <string>m.laststats</string>
+         <string>m.monitorrate</string>
         </property>
         <property name="name" stdset="0">
          <string>Inst. rate</string>
@@ -158,10 +158,10 @@
     <widget class="TrendPlot" name="trendPlot">
      <property name="devices" stdset="0">
       <stringlist>
-       <string>m.laststats[3]</string>
-       <string>m.laststats[4]</string>
-       <string>m.laststats[5]</string>
-       <string>m.laststats[6]</string>
+       <string>m.detectorrate[0]</string>
+       <string>m.detectorrate[1]</string>
+       <string>m.monitorrate[0]</string>
+       <string>m.monitorrate[1]</string>
       </stringlist>
      </property>
      <property name="names" stdset="0">
@@ -178,6 +178,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QwtPlot</class>
+   <extends>QFrame</extends>
+   <header>qwt_plot.h</header>
+  </customwidget>
+  <customwidget>
    <class>ValueDisplay</class>
    <extends>QWidget</extends>
    <header>nicos.guisupport.display</header>
@@ -186,11 +191,6 @@
    <class>TrendPlot</class>
    <extends>QwtPlot</extends>
    <header>nicos.guisupport.plots</header>
-  </customwidget>
-  <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

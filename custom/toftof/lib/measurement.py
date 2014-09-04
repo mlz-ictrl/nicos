@@ -32,7 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Measurable, Device, Param, Value, Override, NicosError, \
-    intrange, listof, status, ImageProducer, Attach
+    intrange, listof, tupleof, status, ImageProducer, Attach
 from nicos.pycompat import string_types, from_maybe_utf8
 
 from nicos.devices.vendor.toni import DelayBox
@@ -74,6 +74,12 @@ class TofTofMeasurement(ImageProducer, Measurable):
                                   settable=True),
         'rc':               Param('Radial collimator motor device',
                                   type=str, settable=False, default='rc',),
+        'monitorrate':     Param('Monitor rate', type=tupleof(float, float),
+                                 settable=False, volatile=False,
+                                 mandatory=False,),
+        'detectorrate':    Param('Detector rate', type=tupleof(float, float),
+                                 settable=False, volatile=False,
+                                 mandatory=False,),
     }
 
     parameter_overrides = {
@@ -103,11 +109,11 @@ class TofTofMeasurement(ImageProducer, Measurable):
                 if 'None' not in ls[13]:
                     dmap[int(ls[12])] = float(ls[5])
                 dinfo.append(
-                    list(map(int, ls[:5])) + [float(ls[5])]
-                    + list(map(int, ls[6:8])) + [float(ls[8])]
-                    + list(map(int, ls[9:13]))
-                    + [' '.join(ls[13:-2]).strip("'")]
-                    + list(map(int, ls[-2:]))
+                    list(map(int, ls[:5])) + [float(ls[5])] +
+                    list(map(int, ls[6:8])) + [float(ls[8])] +
+                    list(map(int, ls[9:13])) +
+                    [' '.join(ls[13:-2]).strip("'")] +
+                    list(map(int, ls[-2:]))
                 )
         self._detinfo_parsed = dinfo
         self._anglemap = tuple((i - 1) for i in sorted(dmap,
@@ -347,7 +353,9 @@ class TofTofMeasurement(ImageProducer, Measurable):
     def _closeDeviceLogs(self):
         # first clear the dictionary, then close files, so that the callback
         # doesn't write to closed files
-        self.laststats = [0.0] * 7
+        self.laststats = [0.0] * 3
+        self._setROParam('monitorrate', (0.0, ) * 2)
+        self._setROParam('detectorrate', (0.0, ) * 2)
         olddevlogs = self._devicelogs.copy()
         self._devicelogs.clear()
         self.log.debug('closing device logs')
@@ -382,8 +390,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
             if timeleft > 0:
                 head.append('ToGo: %.0f s\n' % timeleft)
             head.append('Status: %5.1f %% completed\n' %
-                        (100. * (self._last_preset - timeleft)
-                         / self._last_preset))
+                        (100. * (self._last_preset - timeleft) /
+                         self._last_preset))
         # sample temperature is assumed to be the first device in the envlist
         tempinfo = []
         if session.experiment.sampleenv:
@@ -462,14 +470,15 @@ class TofTofMeasurement(ImageProducer, Measurable):
                 self.log.info('Sample:  current: %.4f %s, average: %.4f, '
                               'stddev: %.4f, min: %.4f, max: %.4f' % tempinfo)
             self.log.info('Monitor: rate: %8.3f counts/s, instantaneous rate: '
-                          '%8.3f counts/s' % (monrate, monrate_inst))
+                          '%8.3f counts/s' % (monrate, monrate_inst, ))
             self.log.info('Signal:  rate: %8.3f counts/s, instantaneous rate: '
-                          '%8.3f counts/s' % (detrate, detrate_inst))
+                          '%8.3f counts/s' % (detrate, detrate_inst, ))
         self._lasttime = meastime
         self._lastmoncounts = moncounts
         self._lastcounts = countsum
-        self.laststats = [meastime, moncounts, countsum, monrate, detrate,
-                          monrate_inst, detrate_inst, ]
+        self.laststats = [meastime, moncounts, countsum, ]
+        self._setROParam('monitorrate', (monrate, monrate_inst, ))
+        self._setROParam('detectorrate', (detrate, detrate_inst, ))
 
     def doFinish(self):
         self._attached_counter.finish()
@@ -501,6 +510,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
                           'stddev: %.4f, min: %.4f, max: %.4f' % tempinfo)
         self._measuring = False
         self._closeDeviceLogs()
+        self._setROParam('monitorrate', (0, 0))
+        self._setROParam('detectorrate', (0, 0))
         session.breakpoint(2)
 
     def doRead(self, maxage=0):
