@@ -39,6 +39,9 @@ main_window = docked(
     ('Safety system',
      panel('nicos.toftof.gui.safetypanel.SafetyPanel'),
     ),
+    ('Detector information',
+     panel('generic.GenericPanel', uifile='custom/toftof/lib/gui/ratespanel.ui'),
+    ),
     ('Experiment Information and Setup',
      panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')
     ),
