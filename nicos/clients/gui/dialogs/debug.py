@@ -146,7 +146,7 @@ class ConsoleBox(QPlainTextEdit):
             exec_(command, self.namespace)
         except SystemExit:
             self.emit(SIGNAL('close'))
-        except:
+        except:  # pylint: disable=W0702
             traceback_lines = traceback.format_exc().split('\n')
             # Remove traceback mentioning this file, and a linebreak
             for i in (2, 1, -1):

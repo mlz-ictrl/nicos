@@ -316,6 +316,6 @@ class NicosApp(object):
             exec_(code, session.namespace, session.local_namespace)
         except SystemExit:
             print(QUIT_MESSAGE)
-        except:
+        except:  # pylint: disable=W0702
             session.logUnhandledException(sys.exc_info())
         return None

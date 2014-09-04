@@ -34,7 +34,9 @@ import os
 import sys
 import types
 from os import path
-import distutils.util
+import distutils.util   # pylint: disable=F0401,E0611
+                        # workaround for a pylint bug:
+                        # https://bitbucket.org/logilab/pylint/issue/73/pylint-is-unable-to-import
 from logging import Logger
 
 # Check for Python version 2.6+.
