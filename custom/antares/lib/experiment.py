@@ -103,7 +103,7 @@ class Experiment(FRM2Experiment):
         try:
             self.log.debug('create symlink %r -> %r' %
                            (symname, self.proposalpath))
-            os.symlink(self.proposalpath, symname)
+            os.symlink(os.path.basename(self.proposalpath), symname)
             self.log.info('Symlink %r -> %r created' %
                            (symname, self.proposalpath))
         except OSError:
