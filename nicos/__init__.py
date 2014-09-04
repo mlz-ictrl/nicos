@@ -34,18 +34,12 @@ import os
 import sys
 import types
 from os import path
-import distutils.util   # pylint: disable=F0401,E0611
-                        # workaround for a pylint bug:
-                        # https://bitbucket.org/logilab/pylint/issue/73/pylint-is-unable-to-import
 from logging import Logger
 
 # Check for Python version 2.6+.
 if sys.version_info[:2] < (2, 6):
     raise ImportError('NICOS requires Python 2.6 or higher')
 
-# Add platform-specific directories (lib/plat-PLATFORM)
-sys.path.append(path.join(path.dirname(__file__), '..',
-                          'plat-%s' % distutils.util.get_platform()))
 
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.
