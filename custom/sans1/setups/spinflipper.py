@@ -28,48 +28,48 @@ includes = []
 
 group = 'optional'
 
-nethost = 'sans1srv.sans1.frm2'
+nethost = 'spinflip02.sans1.frm2'
 
 devices = dict(
     P_spinflipper = device('devices.taco.AnalogInput',
                            description = 'overall power of ag1016',
-                           tacodevice = '//%s/sans1/ag1016/power' % (nethost,),
+                           tacodevice = '//%s/spinflip/ag1016/power' % (nethost,),
                            fmtstr = '%.1f',
                           ),
 
     F_spinflipper = device('devices.taco.AnalogInput',
                            description = 'frequency of ag1016',
-                           tacodevice = '//%s/sans1/ag1016/frequency' % (nethost,),
+                           tacodevice = '//%s/spinflip/ag1016/frequency' % (nethost,),
                            fmtstr = '%.1f',
                           ),
 
     P_spinflipper_forward = device('devices.taco.AnalogInput',
                                    description = 'forward power of ag1016',
-                                   tacodevice = '//%s/sans1/ag1016/forward' % (nethost,),
+                                   tacodevice = '//%s/spinflip/ag1016/forward' % (nethost,),
                                    fmtstr = '%.1f',
                                   ),
 
     P_spinflipper_reverse = device('devices.taco.AnalogInput',
                                    description = 'reverse power of ag1016',
-                                   tacodevice = '//%s/sans1/ag1016/reverse' % (nethost,),
+                                   tacodevice = '//%s/spinflip/ag1016/reverse' % (nethost,),
                                    fmtstr = '%.1f',
                                   ),
 
     T_spinflipper_ag1016 = device('devices.taco.AnalogInput',
                                   description = 'temperature of ag1016',
-                                  tacodevice = '//%s/sans1/ag1016/temperature' % (nethost,),
+                                  tacodevice = '//%s/spinflip/ag1016/temperature' % (nethost,),
                                   fmtstr = '%.3f',
                                  ),
 
     A_spinflipper_agilent = device('devices.taco.AnalogInput',
                                    description = 'amplitude of the frequency generator',
-                                   tacodevice = '//%s/sans1/agilent1/amp' % (nethost,),
+                                   tacodevice = '//%s/spinflip/agilent/amp' % (nethost,),
                                    fmtstr = '%.3f',
                                   ),
 
     F_spinflipper_agilent = device('devices.taco.AnalogInput',
                                    description = 'frequency of the frequency generator',
-                                   tacodevice = '//%s/sans1/agilent1/freq' % (nethost,),
+                                   tacodevice = '//%s/spinflip/agilent/freq' % (nethost,),
                                    fmtstr = '%.0f',
                                   ),
 
