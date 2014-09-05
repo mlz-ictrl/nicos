@@ -587,10 +587,10 @@ class Device(object):
 
 
     def _validateType(self, value, param, paraminfo=None):
-        '''validtate and coerce the value to the correct type
+        """Validate and coerce the value of a parameter to the correct type.
 
-        '''
-
+        If the value can't be coerced, a ConfigurationError is raised.
+        """
         paraminfo = paraminfo or self.parameters[param]
         try:
             value = paraminfo.type(value)
