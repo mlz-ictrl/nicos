@@ -119,10 +119,13 @@ def test_experiment():
     assert exp.remark == 'proposal p999 started by you; sample is unknown'
 
     # try a small scan; check for data file written
-    scan(session.getDevice('axis'), 0, 1, 5, 0.01)
+    scan(session.getDevice('axis'), 0, 1, 5, 0.01, u'Meßzeit')
     assert path.isfile(datapath('..', 'scancounter'))
     nr = readFileCounter(datapath('..', 'scancounter'))
-    assert path.isfile(datapath('p999', 'data', 'p999_%08d.dat' % nr))
+    fn = datapath('p999', 'data', 'p999_%08d.dat' % nr)
+    assert path.isfile(fn)
+    with open(fn, 'rb') as fp:
+        assert u'Meßzeit'.encode('utf-8') in fp.read()
 
     # now, finish the experiment
     exp.finish()

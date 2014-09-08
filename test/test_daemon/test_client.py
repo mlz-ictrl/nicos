@@ -119,6 +119,23 @@ def test_simple():
         time.sleep(0.05)
         if client._estatus == STATUS_IDLE:
             break
+        if client._estatus == STATUS_IDLEEXC:
+            raise AssertionError('test failed with exception')
+
+def test_encoding():
+    client.tell('queue', 'Meßzeit.py', '''\
+# Kommentar: Meßzeit 1000s, d = 5 Å
+Remark("Meßzeit 1000s, d = 5 Å")
+scan(t_psi, t_psi(), 0.1, 1, "Meßzeit 1000s, d = 5 Å")
+''')
+
+    # wait until command is done
+    while True:
+        time.sleep(0.05)
+        if client._estatus == STATUS_IDLE:
+            break
+        if client._estatus == STATUS_IDLEEXC:
+            raise AssertionError('test script failed with exception')
 
 def test_htmlhelp():
     # NOTE: everything run with 'queue' will not show up in the coverage report,
