@@ -174,22 +174,45 @@ class ValueDisplay(NicosWidget, QWidget):
                              self._colorscheme['back'][UNKNOWN]
 
     properties = {
-        'dev':        PropDef(str, ''),
-        'key':        PropDef(str, ''),
-        'statuskey':  PropDef(str, ''),
-        'name':       PropDef(str, ''),
-        'unit':       PropDef(str, ''),
-        'item':       PropDef(int, -1),
-        'format':     PropDef(str, ''),
-        'maxlen':     PropDef(int, -1),
-        'width':      PropDef(int, 8),
-        'min':        PropDef(str, ''),
-        'max':        PropDef(str, ''),
-        'istext':     PropDef(bool, False),
-        'showName':   PropDef(bool, True),
-        'showStatus': PropDef(bool, True),
-        'showExpiration': PropDef(bool, True),
-        'horizontal': PropDef(bool, False),
+        'dev':        PropDef(str, '', 'NICOS device name, if set, display '
+                              'value of this device'),
+        'key':        PropDef(str, '', 'Cache key to display (without "nicos/" '
+                              'prefix), set either "dev" or this'),
+        'statuskey':  PropDef(str, '', 'Cache key to extract status information'
+                              ' for coloring value, if "dev" is given this is '
+                              'set automatically'),
+        'name':       PropDef(str, '', 'Name of the value to display above/'
+                              'left of the value; if "dev" is given this '
+                              'defaults to the device name'),
+        'unit':       PropDef(str, '', 'Unit of the value to display next to '
+                              'the name; if "dev" is given this defaults to '
+                              'the unit set in NICOS'),
+        'item':       PropDef(int, -1, 'Item to extract from a value that is '
+                              'a sequence of items'),
+        'format':     PropDef(str, '', 'Python format string to use for the '
+                              'value; if "dev" is given this defaults to the '
+                              '"fmtstr" set in NICOS'),
+        'maxlen':     PropDef(int, -1, 'Maximum length of the value string to '
+                              'allow; defaults to no limit'),
+        'width':      PropDef(int, 8, 'Width of the widget in units of the '
+                              'width of one character'),
+        'min':        PropDef(str, '', 'If given, and the value is below the '
+                              'minimum, the name will be displayed with a red '
+                              'background'),
+        'max':        PropDef(str, '', 'If given, and the value is above the '
+                              'maximum, the name will be displayed with a red '
+                              'background'),
+        'istext':     PropDef(bool, False, 'If given, a "text" font will be '
+                              'used for the value instead of the monospaced '
+                              'font used for numeric values'),
+        'showName':   PropDef(bool, True, 'If false, do not display the '
+                              'label for the value name'),
+        'showStatus': PropDef(bool, True, 'If false, do not display the '
+                              'device status as a color of the value text'),
+        'showExpiration': PropDef(bool, True, 'If false, do not display the '
+                                  'expiration of the cache key as a color'),
+        'horizontal': PropDef(bool, False, 'If true, display name label '
+                              'left of the value instead of above it'),
     }
 
     def propertyUpdated(self, pname, value):
