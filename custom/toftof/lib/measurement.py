@@ -61,7 +61,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
 
         # status parameters
         'laststats':       Param('Count statistics of the last measurement',
-                                 type=listof(float), settable=True),
+                                 type=listof(float), settable=True,),
     }
 
     parameter_overrides = {
@@ -326,6 +326,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
     def _closeDeviceLogs(self):
         # first clear the dictionary, then close files, so that the callback
         # doesn't write to closed files
+        self.laststats = [0.0] * 7
         olddevlogs = self._devicelogs.copy()
         self._devicelogs.clear()
         self.log.debug('closing device logs')
@@ -359,7 +360,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
             if timeleft > 0:
                 head.append('ToGo: %.0f s\n' % timeleft)
             head.append('Status: %5.1f %% completed\n' %
-                (100. * (self._last_preset - timeleft) / self._last_preset))
+                        (100. * (self._last_preset - timeleft) / self._last_preset))
         # sample temperature is assumed to be the first device in the envlist
         tempinfo = []
         if session.experiment.sampleenv:
@@ -423,7 +424,7 @@ class TofTofMeasurement(Measurable, ImageProducer):
             return
         self.log.debug('collecting progress info')
         _, moncounts, _, countsum, meastime, tempinfo = self._saveDataFile()
-        monrate = detrate = 0.0
+        monrate = detrate = monrate_inst = detrate_inst = 0.0
         if meastime > 0:
             monrate = moncounts / meastime
             monrate_inst = (moncounts - self._lastmoncounts) / \
@@ -441,7 +442,8 @@ class TofTofMeasurement(Measurable, ImageProducer):
         self._lasttime = meastime
         self._lastmoncounts = moncounts
         self._lastcounts = countsum
-        self.laststats = [meastime, moncounts, countsum, monrate, detrate]
+        self.laststats = [meastime, moncounts, countsum, monrate, detrate,
+                          monrate_inst, detrate_inst,]
 
     def doStop(self):
         self._adevs['counter'].stop()
