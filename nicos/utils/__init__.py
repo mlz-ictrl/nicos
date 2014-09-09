@@ -53,14 +53,6 @@ from nicos import config, session
 from nicos.pycompat import iteritems, xrange as range  # pylint: disable=W0622
 
 
-def enumerate_start(iterable, start):
-    """Replacement for two-argument enumerate() which is new in Python 2.6."""
-    i = start
-    for item in iterable:
-        yield (i, item)
-        i += 1
-
-
 class lazy_property(object):
     """A property that calculates its value only once."""
     def __init__(self, func):
