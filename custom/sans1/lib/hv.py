@@ -27,27 +27,54 @@
 
 from time import localtime, strftime, time as currenttime
 
-from nicos.core import Param, Override, none_or, Moveable, listof, tupleof
-from nicos.devices.generic.sequence import BaseSequencer, LockedDevice, \
-     SeqDev, SeqMethod, SeqParam, SeqSleep
+from nicos.core import Attach, Param, Override, Readable, Moveable, listof, \
+     tupleof, HasPrecision, status
+from nicos.devices.generic.sequence import BaseSequencer, \
+     SeqCall, SeqDev, SeqMethod, SeqParam, SeqSleep
 
-class HVLock(LockedDevice):
-    """A LockedDevice which cowardly refuse to go where it is already"""
-    def doStart(self, target):
-        if target != self.read():
-            BaseSequencer.doStart(self, target)
+from nicos.devices.taco.power import VoltageSupply as TacoVoltageSupply
+
+class VoltageSupply(HasPrecision, TacoVoltageSupply):
+    """work around a bug either in the taco server or in thehv supply itself
+
+    basically the idel status is returned at the end of the ramp,
+    even if the output voltage is nowhere near the target value
+    """
+    _was_stopped=False
+
+    def doStart(self, target): # pylint: disable=W0221
+        self._was_stopped = False
+        TacoVoltageSupply.doStart(self, target)
+
+    def doStop(self):
+        self._was_stopped = True
+        TacoVoltageSupply.doStop(self)
+        self.wait()
+        TacoVoltageSupply.doStart(self, self.read(0))
+        self.wait()
+
+    def doStatus(self, maxage=0):
+        tacostatus = TacoVoltageSupply.doStatus(self, maxage)
+        if self._was_stopped:
+            return tacostatus
+        if tacostatus[0] == status.OK:
+            if abs(self.target - self.doRead(maxage)) > self.precision:
+                return (status.BUSY, 'waiting for output voltage to stabilize')
+        return tacostatus
+
 
 class Sans1HV(BaseSequencer):
     attached_devices = {
-        'supply'     : (Moveable, 'NICOS Device for the highvoltage supply'),
-        'discharger' : (Moveable, 'Switch to activate the discharge resistors'),
+        'supply'     : Attach('NICOS Device for the highvoltage supply', Moveable),
+        'discharger' : Attach('Switch to activate the discharge resistors', Moveable),
+        'interlock' : Attach('Assume IDLE if set and Target is set to 0', Readable),
     }
 
     parameters = {
         'ramp'   : Param('current ramp speed (volt per minute)',
                           type=int, unit='main/min', settable=True, volatile=True),
         'lasthv'   : Param('when was hv applied last (timestamp)',
-                              type=none_or(float), userparam=False,
+                              type=float, userparam=False, default=0.0,
                               mandatory=False, settable=False),
         'maxofftime'   : Param('Maximum allowed Off-time for fast ramp-up',
                               type=int, unit='s', default=4 * 3600),
@@ -57,18 +84,17 @@ class Sans1HV(BaseSequencer):
                               type=int, unit='main/min', default=1200),
         'rampsteps'   : Param('Cold-ramp-up sequence (voltage, stabilize_minutes)',
                               type=listof(tupleof(int,int)), unit='',
-                              default=[(100, 5),
+                              default=[(70, 3),
                                        (300, 3),
                                        (500, 3),
                                        (800, 3),
                                        (1100, 3),
-                                       (1350, 3),
-                                       (1450, 3),
-                                       (1530, 10)]),
+                                       (1400, 3),
+                                       (1500, 10)]),
     }
 
     parameter_overrides = {
-        'abslimits' : Override(default=(0, 1530), mandatory=False),
+        'abslimits' : Override(default=(0, 1500), mandatory=False),
         'unit'      : Override(default='V', mandatory=False, settable=False),
     }
 
@@ -76,7 +102,7 @@ class Sans1HV(BaseSequencer):
     def _generateSequence(self, target, *args, **kwargs):
         hvdev = self._adevs['supply']
         disdev = self._adevs['discharger']
-        seq = []
+        seq = [SeqMethod(hvdev, 'stop'), SeqMethod(hvdev, 'wait')]
 
         now = currenttime()
 
@@ -85,8 +111,9 @@ class Sans1HV(BaseSequencer):
             # fast ramp
             seq.append(SeqParam(hvdev, 'ramp', self.fastramp))
             seq.append(SeqDev(disdev, 1 if self.read() > target else 0))
-            seq.append(SeqDev(hvdev, target))
-            self._setROParam('lasthv', now)
+            if self.read() > self.rampsteps[0][0]:
+                seq.append(SeqDev(hvdev, self.rampsteps[0][0]))
+            seq.append(SeqCall(hvdev.start, target))
             return seq
 
         # check off time
@@ -125,8 +152,9 @@ class Sans1HV(BaseSequencer):
 
     def doRead(self, maxage=0):
         voltage = self._adevs['supply'].read(maxage)
-        # everything below the first rampstep is no HV yet...
-        if voltage >= self.rampsteps[0][0]:
+        # everything below the last rampstep is no HV yet...
+        # bugfix: avoid floating point rounding errors
+        if voltage >= (self.rampsteps[-1][0] - 0.001):
             # just assigning does not work inside poller, but we want that!
             self._setROParam('lasthv', currenttime())
         return voltage
@@ -155,3 +183,23 @@ class Sans1HV(BaseSequencer):
     def doWriteRamp(self, value):
         self._adevs['supply'].ramp = value
         return self.doReadRamp()
+
+
+class Sans1HVOffDuration(Readable):
+    attached_devices = {
+        'hv_supply' : Attach('Sans1HV Device', Sans1HV),
+    }
+    parameter_overrides = {
+        'unit' : Override(mandatory=False),
+    }
+
+    valuetype=str
+
+    def doRead(self, maxage=0):
+        if self._adevs['hv_supply']:
+            secs = currenttime() - self._adevs['hv_supply'].lasthv
+            hours = int(secs / 3600)
+            mins = int(secs / 60) % 60
+            secs = int(secs) % 60
+            return "%g:%02d:%02d" % (hours, mins, secs)
+        return "never"
