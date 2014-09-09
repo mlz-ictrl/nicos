@@ -56,29 +56,29 @@ User=%(Exp.users)s
 SampleName=%(Sample.samplename)s
 Environment=%(Environment)s
 Position=%(Sample.activesample)s
-Omega=0.000000
-omega-2b=%(omega_2b)s
-Phi=0.000000
-phi-2b=%(phi_2b)s
-Chi=0.000000
-chi-2b=%(chi_2b)s
-BTableX=%(x_2b)s
-x-2b=%(x_2b)s
-BTableY=%(y_2b)s
-y-2b=%(y_2b)s
-BTableZ=%(z_2b)s
-z-2b=%(z_2b)s
-TTableX=%(x_2a)s
-x-2a=%(x_2a)s
-TTableY=%(y_2a)s
-y-2a=%(y_2a)s
-TTableZ=%(z_2a)s
-z-2a=%(z_2a)s
+Omega=%(st1_omg)s
+omega-2b=%(st1_omg)s
+Phi=%(st1_phi)s
+phi-2b=%(st1_phi)s
+Chi=%(st1_chi)s
+chi-2b=%(st1_chi)s
+BTableX=%(st1_x)s
+x-2b=%(st1_x)s
+BTableY=%(st1_y)s
+y-2b=%(st1_y)s
+BTableZ=%(st1_z)s
+z-2b=%(st1_z)s
+TTableX=%(st2_x)s
+x-2a=%(st2_x)s
+TTableY=%(st2_y)s
+y-2a=%(st2_y)s
+TTableZ=%(st2_z)s
+z-2a=%(st2_z)s
 Temperature=%(T)s
 TempDev=%(T)s
 Temp1=%(T)s
 Temp2=%(Ts)s
-Temp3=0.0
+Temp3=%(T_ccr19_D)s
 Temp4=0.0
 Temp5=0.0
 Magnet=%(B)s
@@ -105,14 +105,14 @@ IEEE9=
 IEEE10=
 
 %%Setup
-SelSelection=1
-Lambda=7.999687
-LambdaC=15921
-Tilting=-0.003994
-Attenuator=0
-Polarization=0
+SelSelection=%(selector_ng)s
+Lambda=%(selector_lambda)s
+LambdaC=%(selector_rpm)s
+Tilting=%(selector_tilt)s
+Attenuator=%(att)s
+Polarization=%(ng_pol)s
 PolNeutron=
-PolX=0.000000
+PolX=
 PolX_enc=
 Collimation=%(col)s
 Col1=0
@@ -140,27 +140,27 @@ col-20b=%(col_20b)s
 Col20=0
 col-20a=%(col_20a)s
 
-bg1=180.000000
-bg2=180.000000
-sa1=140.000000
+bg1=%(bg1)s
+bg2=%(bg2)s
+sa1=%(sa1)s
 DetSelection=1
-det_z-1a=%(det1_z1a)s
+det_z-1a=%(det1_z)s
 SD=%(SD)s
-SX=%(det1_x1a)s
+SX=%(det1_x)s
 SY=0
-SR=%(det1_omega1a)s
+SR=%(det1_omega)s
 DetHAngle=0.000000
-Beamstop=4
-BeamstopX=%(bs1_x1a)s
-BeamstopY=%(bs1_y1a)s
+Beamstop=85x85
+BeamstopX=%(bs1_x)s
+BeamstopY=%(bs1_y)s
 DetVoltage=%(hv)s
 Moni1Z=0.000000
 
 %%Counter
 Sum=%(Sum)s
 Time=%(Time)s
-Moni1=%(Moni1)s
-Moni2=%(Moni2)s
+Moni1=%(det1_mon1)s
+Moni2=%(det1_mon2)s
 Sum/Time=%(Sum_Time)s
 Sum/Moni1=%(Sum_Moni1)s
 Sum/Moni2=%(Sum_Moni2)s
@@ -185,9 +185,7 @@ Merged=
 Operation=
 
 %%Comment
-%(NICOSHeader)s
 
-%%Counts
 """
 
 class BerSANSFileFormat(ImageSink):
@@ -235,6 +233,10 @@ class BerSANSFileFormat(ImageSink):
                            'can only handle 2D-data!' % shape)
             return
 
+        # hack around TACO server deliverunging image upside-down:
+        # flip image downside up
+        image = np.flipud(image)
+
         # update info
         imageinfo.data.update(ToDate=strftime('%m/%d/%Y'),
                              ToTime=strftime('%r'),
@@ -243,19 +245,27 @@ class BerSANSFileFormat(ImageSink):
                              DataSizeY=shape[0],
                             )
         try:
-            SD = '%.1f' % (session.getDevice('det1_z1a').read() -
-                           session.getDevice('x_2b').read())
-        except Exception as e:
-            self.log.warning("can't detemine SD (detector distance), "
-                             "using 0 instead: %s"%e)
+            SD = '%.4f' % ((session.getDevice('det1_z').read() -
+                           session.getDevice('st1_x').read())
+                           /1000)
+        except Exception:
+            self.log.warning("can't determine SD (detector distance), "
+                             "using 0 instead", exc=1)
             SD = 0
 
-        Sum = image.sum()
         if imageinfo.endtime == 0:
             imageinfo.endtime = currenttime()
         Time = imageinfo.endtime - imageinfo.begintime
-        Moni1 = 1
-        Moni2 = 1
+        Sum = image.sum()
+        Moni1 = 0
+        Moni2 = 0
+        try:
+            Moni1 = float(session.getDevice('det1_mon1').read()[0])
+            Moni2 = float(session.getDevice('det1_mon2').read()[0])
+        except Exception:
+            self.log.warning("can't determine all monitors, "
+                             "using 0.0 instead", exc=1)
+
         imageinfo.data.update(
                              SD=SD,
                              Sum='%d' % Sum, Time='%.6f' % Time,
@@ -270,12 +280,20 @@ class BerSANSFileFormat(ImageSink):
         for _, valuelist in imageinfo.header.items():
             for dev, key, value in valuelist:
                 imageinfo.data['%s_%s' % (dev.name, key)] = value
-                nicosheader.append('%s_%s=%s' % (dev.name, key, value))
-        self.log.debug('nicosheader starts with: %40s' % '\n'.join(nicosheader))
-        imageinfo.data['NICOSHeader'] = '\n'.join(sorted(nicosheader))
+                nicosheader.append('%s_%s=%r' % (dev.name, key, value))
+        nicosheader = '\n'.join(sorted(l.decode('ascii', 'ignore').encode('unicode_escape') for l in nicosheader))
+        self.log.debug('nicosheader starts with: %40s' % nicosheader)
 
         # write Header
-        imageinfo.file.write(BERSANSHEADER % imageinfo.data)
+        for line in BERSANSHEADER.split('\n'):
+            self.log.debug('testing header line: %r' % line)
+            self.log.debug(line % imageinfo.data)
+            imageinfo.file.write(line % imageinfo.data)
+            imageinfo.file.write('\n')
+
+        # also append nicos header
+        imageinfo.file.write(nicosheader.replace('\\n','\n')) #? why needed?
+        imageinfo.file.write("\n\n%Counts\n")
 
         # write Data (one line per y)
         for y in range(shape[0]):
