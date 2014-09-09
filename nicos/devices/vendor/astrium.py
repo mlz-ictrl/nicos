@@ -259,7 +259,7 @@ class SelectorLambda(Moveable):
 
     def doRead(self, maxage=0):
         spd = self._adevs['seldev'].read(maxage)
-        return self._constant() / spd
+        return self._constant() / spd if spd else -1
 
     def doIsAllowed(self, value):
         if value == 0:
