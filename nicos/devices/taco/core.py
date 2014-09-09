@@ -117,6 +117,12 @@ class TacoDevice(DeviceMixinBase):
         'unit':        Override(mandatory=False),
     }
 
+    _TACO_IDLE_STATES = (TACOStates.ON, TACOStates.DEVICE_NORMAL)
+    _TACO_BUSY_STATES = (TACOStates.RAMP, TACOStates.MOVING,
+                                         TACOStates.STOPPING)
+    _TACO_ERROR_STATES = (TACOStates.FAULT, TACOStates.OFF,
+                                         TACOStates.ON_NOT_REACHED)
+
     # the TACO client class to instantiate
     taco_class = None
     # whether to call deviceReset() if the initial switch-on fails
@@ -161,11 +167,11 @@ class TacoDevice(DeviceMixinBase):
 
     def doStatus(self, maxage=0):
         state = self._taco_guard(self._dev.deviceState)
-        if state in (TACOStates.ON, TACOStates.DEVICE_NORMAL):
+        if state in self._TACO_IDLE_STATES:
             return (status.OK, TACOStates.stateDescription(state))
-        elif state in (TACOStates.RAMP, TACOStates.MOVING, TACOStates.STOPPING):
+        elif state in self._TACO_BUSY_STATES:
             return (status.BUSY, TACOStates.stateDescription(state))
-        # rather status.UNKNOWN?
+        # TODO: use _TACO_ERROR_STATES and treat all others as UNKNOWN
         return (status.ERROR, TACOStates.stateDescription(state))
 
     def doReset(self):

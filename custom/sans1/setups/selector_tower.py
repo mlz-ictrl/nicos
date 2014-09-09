@@ -48,7 +48,8 @@ devices = dict(
                          pollinterval = 15,
                          lowlevel = True,
                         ),
-    selector_ng_mot = device('devices.taco.motor.Motor',
+    #~ selector_ng_mot = device('devices.taco.motor.Motor',
+    selector_ng_mot = device('sans1.misc.Motor',
                         description = 'selector neutron guide motor',
                         tacodevice = '//%s/sel/z/motor' % (nethost, ),
                         fmtstr = '%.2f',
@@ -57,7 +58,8 @@ devices = dict(
                         userlimits = (-140, 142), #new
                         lowlevel = True,
                         ),
-    selector_ng_enc = device('devices.taco.coder.Coder',
+    #~ selector_ng_enc = device('devices.taco.coder.Coder',
+    selector_ng_enc = device('sans1.misc.Coder',
                         description = 'selector neutron guide encoder',
                         tacodevice = '//%s/sel/z/enc' % (nethost, ),
                         fmtstr = '%.2f',
@@ -86,18 +88,18 @@ devices = dict(
                            #offset = 1, old
                            offset = 1.72, #new
                           ),
-    selector_tilt_mot = device('devices.taco.motor.Motor',
+    selector_tilt_mot = device('sans1.misc.Motor',
                           description = 'selector tilt motor',
                           tacodevice = '//%s/sel/tilt/motor' % (nethost, ),
                           fmtstr = '%.2f',
                           abslimits = (-10, 10),
                           lowlevel = True,
                          ),
-    selector_tilt_enc = device('devices.taco.coder.Coder',
+    selector_tilt_enc = device('sans1.misc.Coder',
                           description = 'selector tilt encoder',
                           tacodevice = '//%s/sel/tilt/enc' % (nethost, ),
                           fmtstr = '%.2f',
                           lowlevel = True,
-                         ),
+                       ),
 
 )
