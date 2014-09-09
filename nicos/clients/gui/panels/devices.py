@@ -427,7 +427,7 @@ class DevicesPanel(Panel):
     @qtsig('')
     def on_actionReset_triggered(self):
         if self._menu_dev:
-            self.client.tell('queue', '', 'reset(%s)' % self._menu_dev)
+            self.exec_command('reset(%s)' % self._menu_dev, self._menu_dev)
 
     @qtsig('')
     def on_actionFix_triggered(self):
@@ -436,18 +436,19 @@ class DevicesPanel(Panel):
                 'Please enter the reason for fixing %s:' % self._menu_dev)
             if not ok:
                 return
-            self.client.tell('queue', '', 'fix(%s, %r)' %
-                             (self._menu_dev, reason))
+            self.exec_command('fix(%s, %r)' % (self._menu_dev, reason),
+                              self._menu_dev)
 
     @qtsig('')
     def on_actionRelease_triggered(self):
         if self._menu_dev:
-            self.client.tell('queue', '', 'release(%s)' % self._menu_dev)
+            self.exec_command('release(%s)' % self._menu_dev, self._menu_dev)
 
     @qtsig('')
     def on_actionStop_triggered(self):
         if self._menu_dev:
-            self.client.tell('exec', 'stop(%s)' % self._menu_dev)
+            self.exec_command('stop(%s)' % self._menu_dev, self._menu_dev,
+                              immediate=True)
 
     @qtsig('')
     def on_actionMove_triggered(self):
@@ -457,13 +458,13 @@ class DevicesPanel(Panel):
     @qtsig('')
     def on_actionHelp_triggered(self):
         if self._menu_dev:
-            self.client.tell('exec', 'help(%s)' % self._menu_dev)
+            self.exec_command('help(%s)' % self._menu_dev, self._menu_dev,
+                              immediate=True)
 
     @qtsig('')
     def on_actionPlotHistory_triggered(self):
-        if self._menu_dev and self.mainwindow.history_wintype:
-            win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
-            win.getPanel('History viewer').newView(self._menu_dev)
+        if self._menu_dev:
+            self.plot_history(self._menu_dev)
 
     def on_tree_itemActivated(self, item, column):
         if item.type() != 1001:
@@ -489,6 +490,21 @@ class DevicesPanel(Panel):
         dlg = self._control_dialogs.pop(ldevname)
         dlg.deleteLater()
 
+    # API shared with ControlDialog
+
+    def exec_command(self, command, needed_dev, immediate=False):
+        if needed_dev not in self.client.getDeviceList():
+            command = 'CreateDevice(%r)\n' % needed_dev + command
+        if immediate:
+            self.client.tell('exec', command)
+        else:
+            self.client.tell('queue', '', command)
+
+    def plot_history(self, dev):
+        if self.mainwindow.history_wintype:
+            win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
+            win.getPanel('History viewer').newView(dev)
+
 
 class ControlDialog(QDialog):
     """Dialog opened to control and view details for one device."""
@@ -498,8 +514,8 @@ class ControlDialog(QDialog):
         loadUi(self, 'devices_one.ui', 'panels')
         self.log = log
 
+        self.device_panel = parent
         self.client = parent.client
-        self.mainwindow = parent.mainwindow
         self.devname = devname
         self.devinfo = devinfo
         self.devitem = devitem
@@ -580,8 +596,8 @@ class ControlDialog(QDialog):
             self.target = DeviceValueEdit(self, dev=self.devname, useButtons=True)
             self.target.setClient(self.client)
             def btn_callback(target):
-                self.client.tell('queue', '', 'move(%s, %r)' %
-                                 (self.devname, target))
+                self.device_panel.exec_command(
+                    'move(%s, %r)' % (self.devname, target), self.devname)
             self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
             self.targetLayout.takeAt(1).widget().deleteLater()
             self.targetLayout.insertWidget(1, self.target)
@@ -615,16 +631,18 @@ class ControlDialog(QDialog):
 
             def callback(button):
                 if button.text() == 'Reset':
-                    self.client.tell('queue', '', 'reset(%s)' % self.devname)
+                    self.device_panel.exec_command('reset(%s)' % self.devname,
+                                                   self.devname)
                 elif button.text() == 'Stop':
-                    self.client.tell('exec', 'stop(%s)' % self.devname)
+                    self.device_panel.exec_command('stop(%s)' % self.devname,
+                                                   self.devname, immediate=True)
                 elif button.text() == 'Move':
                     try:
                         target = self.target.getValue()
                     except ValueError:
                         return
-                    self.client.tell('queue', '',
-                                     'move(%s, %r)' % (self.devname, target))
+                    self.device_panel.exec_command(
+                        'move(%s, %r)' % (self.devname, target), self.devname)
             self.moveBtns.clicked.connect(callback)
 
     @qtsig('')
@@ -645,7 +663,8 @@ class ControlDialog(QDialog):
         btn = dlg.buttonBox.addButton('Reset to maximum range',
                                       QDialogButtonBox.ResetRole)
         def callback():
-            self.client.tell('queue', '', 'resetlimits(%s)' % self.devname)
+            self.device_panel.exec_command(
+                'resetlimits(%s)' % self.devname, self.devname)
             dlg.reject()
         btn.clicked.connect(callback)
         dlg.targetLayout.addWidget(target)
@@ -659,8 +678,8 @@ class ControlDialog(QDialog):
             # retry
             self.on_actionSetLimits_triggered()
             return
-        self.client.tell('queue', '', '%s.userlimits = %s' %
-                         (self.devname, newlimits))
+        self.device_panel.exec_command('%s.userlimits = %s' %
+                                       (self.devname, newlimits), self.devname)
 
     @qtsig('')
     def on_actionAdjustOffset_triggered(self):
@@ -674,8 +693,8 @@ class ControlDialog(QDialog):
         res = dlg.exec_()
         if res != QDialog.Accepted:
             return
-        self.client.tell('queue', '', 'adjust(%s, %r)' %
-                         (self.devname, target.getValue()))
+        self.device_panel.exec_command(
+            'adjust(%s, %r)' % (self.devname, target.getValue()), self.devname)
 
     @qtsig('')
     def on_actionReference_triggered(self):
@@ -687,16 +706,19 @@ class ControlDialog(QDialog):
             'Please enter the reason for fixing %s:' % self.devname)
         if not ok:
             return
-        self.client.tell('queue', '', 'fix(%s, %r)' % (self.devname, reason))
+        self.device_panel.exec_command('fix(%s, %r)' % (self.devname, reason),
+                                       self.devname)
 
     @qtsig('')
     def on_actionRelease_triggered(self):
-        self.client.tell('queue', '', 'release(%s)' % self.devname)
+        self.device_panel.exec_command('release(%s)' % self.devname,
+                                       self.devname)
 
     @qtsig('')
     def on_setAliasBtn_clicked(self):
-        self.client.tell('queue', '', '%s.alias = %r' %
-                         (self.devname, self.aliasTarget.getValue()))
+        self.device_panel.exec_command(
+            '%s.alias = %r' % (self.devname, self.aliasTarget.getValue()),
+            self.devname)
 
     def closeEvent(self, event):
         event.accept()
@@ -738,10 +760,8 @@ class ControlDialog(QDialog):
             QMessageBox.warning(self, 'Error', 'The entered value is invalid '
                                 'for this parameter.')
             return
-        self.client.tell('queue', '', '%s.%s = %r' %
-                         (self.devname, pname, new_value))
+        self.device_panel.exec_command(
+            '%s.%s = %r' % (self.devname, pname, new_value), self.devname)
 
     def on_historyBtn_clicked(self):
-        if self.mainwindow.history_wintype:
-            win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
-            win.getPanel('History viewer').newView(self.devname)
+        self.device_panel.plot_history(self.devname)
