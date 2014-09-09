@@ -154,6 +154,7 @@ class TrendPlot(QwtPlot, NicosWidget):
     def __init__(self, parent, designMode=False):
         self.ncurves = 0
         self.ctimers = {}
+        self.keyindices = {}
         self.plotcurves = {}
         self.plotx = {}
         self.ploty = {}
@@ -206,11 +207,20 @@ class TrendPlot(QwtPlot, NicosWidget):
         self.connect(self, SIGNAL('updateplot'), self.updateplot)
 
     properties = {
-        'devices':      PropDef('QStringList', []),
-        'names':        PropDef('QStringList', []),
-        'plotinterval': PropDef(int, 3600),
-        'height':       PropDef(int, 10),
-        'width':        PropDef(int, 30),
+        'devices':      PropDef('QStringList', [], '''
+List of devices or cache keys that the plot should display.
+For devices, use device name.
+For keys, use cache key with "." or "/" separator, e.g. T.heaterpower
+To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
+'''),
+        'names':        PropDef('QStringList', [], 'Names for the plot curves, '
+                                'defaults to the device names/keys.'),
+        'plotinterval': PropDef(int, 3600, 'The range of time in seconds that '
+                                'should be represented by the plot.'),
+        'height':       PropDef(int, 10, 'Height of the plot widget in units '
+                                'of app font character width.'),
+        'width':        PropDef(int, 30, 'Width of the plot widget in units '
+                                'of app font character width.'),
     }
 
     def propertyUpdated(self, pname, value):
@@ -245,37 +255,36 @@ class TrendPlot(QwtPlot, NicosWidget):
             self.setAxisAutoScale(QwtPlot.yLeft)
             self.zoomer.setZoomBase()
 
-    def addcurve(self, keyid, title):
+    def addcurve(self, key, index, title):
         curve = QwtPlotCurve(title)
+        self.plotcurves[key, index] = curve
         curve.setPen(QPen(self.colors[self.ncurves % 6], 2))
         self.ncurves += 1
         curve.attach(self)
         curve.setRenderHint(QwtPlotCurve.RenderAntialiased)
         self.legend.find(curve).setIdentifierWidth(30)
         self.ctimers[curve] = QTimer(singleShot=True)
-
-        self.plotcurves[keyid] = curve
-        self.plotx[keyid] = []
-        self.ploty[keyid] = []
+        self.plotx[curve] = []
+        self.ploty[curve] = []
 
         # record the current value at least every 5 seconds, to avoid curves
         # not updating if the value doesn't change
         def update():
-            if self.plotx[keyid]:
-                self.plotx[keyid].append(currenttime())
-                self.ploty[keyid].append(self.ploty[keyid][-1])
-                self.emit(SIGNAL('updateplot'), keyid, curve)
+            if self.plotx[curve]:
+                self.plotx[curve].append(currenttime())
+                self.ploty[curve].append(self.ploty[curve][-1])
+                self.emit(SIGNAL('updateplot'), curve)
         self.connect(self.ctimers[curve], SIGNAL('timeout()'), update)
 
-    def updateplot(self, keyid, curve):
-        xx, yy = self.plotx[keyid], self.ploty[keyid]
+    def updateplot(self, curve):
+        xx, yy = self.plotx[curve], self.ploty[curve]
         ll = len(xx)
         i = 0
         limit = currenttime() - self.props['plotinterval']
         while i < ll and xx[i] < limit:
             i += 1
-        xx = self.plotx[keyid] = xx[i:]
-        yy = self.ploty[keyid] = yy[i:]
+        xx = self.plotx[curve] = xx[i:]
+        yy = self.ploty[curve] = yy[i:]
         curve.setData(xx, yy)
         if self.zoomer.zoomRect() == self.zoomer.zoomBase():
             self.zoomer.setZoomBase(True)
@@ -284,24 +293,40 @@ class TrendPlot(QwtPlot, NicosWidget):
         self.ctimers[curve].start(5000)
 
     def on_keyChange(self, key, value, time, expired):
-        if key not in self.plotx or value is None:
+        if key not in self.keyindices or value is None:
             return
-        if not self.plotx[key]:
-            # restrict time of first value to 1 minute past at
-            # maximum, so that it doesn't get culled in updateplot()
-            self.plotx[key].append(max(time, currenttime() - 60))
-        else:
-            self.plotx[key].append(time)
-        self.ploty[key].append(value)
-        curve = self.plotcurves[key]
-        self.updateplot(key, curve)
+        for index in self.keyindices[key]:
+            curve = self.plotcurves[key, index]
+            if not self.plotx[curve]:
+                # restrict time of first value to 1 minute past at
+                # maximum, so that it doesn't get culled in updateplot()
+                self.plotx[curve].append(max(time, currenttime() - 60))
+            else:
+                self.plotx[curve].append(time)
+            try:
+                if index >= 0:
+                    self.ploty[curve].append(value[index])
+                else:
+                    self.ploty[curve].append(value)
+            except (ValueError, IndexError):
+                pass
+            else:
+                self.updateplot(curve)
 
     def registerKeys(self):
         for key, name in map(None, self.props['devices'], self.props['names']):
             if name == None:
                 name = key
             key = str(key)
+            index = -1
+            if '[' in key and key.endswith(']'):
+                try:
+                    key, index = key.split('[', 1)
+                    index = int(index.strip().rstrip(']'))
+                except ValueError:
+                    index = -1
             if '.' not in key and '/' not in key:
                 key += '/value'
             keyid = self._source.register(self, key)
-            self.addcurve(keyid, name)
+            self.keyindices.setdefault(keyid, []).append(index)
+            self.addcurve(keyid, index, name)
