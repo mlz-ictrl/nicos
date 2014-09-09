@@ -24,7 +24,7 @@
 
 """NICOS GUI panel with a list of all devices."""
 
-from PyQt4.QtGui import QIcon, QBrush, QColor, QTreeWidgetItem, QMenu, \
+from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
     QDialog, QMessageBox, QPushButton
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
@@ -75,6 +75,18 @@ expiredBrush = {
     False:      QBrush(Qt.black),
     True:       QBrush(QColor('#aaaaaa')),
 }
+
+lowlevelBrush = {
+    False:      QBrush(Qt.black),
+    True:       QBrush(QColor('#666666')),
+}
+
+lowlevelFont = {
+    False:      QFont(),
+    True:       QFont(QFont().family(), -1, -1, True),
+}
+
+
 
 
 def setBackgroundBrush(widget, color):
@@ -198,7 +210,8 @@ class DevicesPanel(Panel):
         params = self.client.getDeviceParams(devname)
         if not params:
             return
-        if params.get('lowlevel') and not self._show_lowlevel:
+        lowlevel_device = params.get('lowlevel')
+        if lowlevel_device and not self._show_lowlevel:
             return
         if 'nicos.core.data.DataSink' in params.get('classes', []):
             return
@@ -231,6 +244,10 @@ class DevicesPanel(Panel):
 
         # create a tree node for the device
         devitem = QTreeWidgetItem(catitem, [devname, '', ''], 1001)
+
+        devitem.setForeground(0, lowlevelBrush[lowlevel_device])
+        devitem.setFont(0, lowlevelFont[lowlevel_device])
+
         if self.useicons:
             devitem.setIcon(0, statusIcon[OK])
         devitem.setToolTip(0, params.get('description', ''))
