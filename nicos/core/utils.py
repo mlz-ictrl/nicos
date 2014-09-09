@@ -31,7 +31,7 @@ from time import sleep, localtime, time as currenttime
 from nicos import session
 from nicos.core import status
 from nicos.core.errors import TimeoutError, MoveError, PositionError
-from nicos.pycompat import reraise
+from nicos.pycompat import reraise, to_ascii_escaped
 
 
 # user access levels
@@ -312,4 +312,6 @@ class DeviceValueDict(object):
         except Exception:
             session.log.warning("invalid key %r requested, returning ''" % key)
         finally:
+            if isinstance(res, str):
+                res = to_ascii_escaped(res)
             return res # pylint: disable=W0150
