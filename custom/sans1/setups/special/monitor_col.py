@@ -107,23 +107,29 @@ _collimationcolumn = Column(
                          ),
 
       BlockRow(
-        Field(dev='att_m', name='att_m', format='%.1f'),
-        Field(dev='ng_pol_m', name='ng_pol_m', format='%.1f'),
-        Field(dev='col_20a_m', name='20a_m', format='%.1f'),
-        Field(dev='col_20b_m', name='20b_m', format='%.1f'),
-        Field(dev='bg1_m', name='bg1_m', format='%.1f'),
-        Field(dev='col_16a_m', name='16a_m', format='%.1f'),
-        Field(dev='col_16b_m', name='16b_m', format='%.1f'),
-        Field(dev='col_12a_m', name='12a_m', format='%.1f'),
-        Field(dev='col_12b_m', name='12b_m', format='%.1f'),
-        Field(dev='col_8a_m', name='8a_m', format='%.1f'),
-        Field(dev='col_8b_m', name='8b_m', format='%.1f'),
-        Field(dev='bg2_m', name='bg2_m', format='%.1f'),
-        Field(dev='col_4a_m', name='4a_m', format='%.1f'),
-        Field(dev='col_4b_m', name='4b_m', format='%.1f'),
-        Field(dev='col_2a_m', name='2a_m', format='%.1f'),
-        Field(dev='col_2b_m', name='2b_m', format='%.1f'),
-        Field(dev='sa1_m', name='sa1_m', format='%.1f'),
+        Field(dev='bg1_m', name='bg1_m', format='%.1f', width=12),
+        Field(dev='bg2_m', name='bg2_m', format='%.1f', width=12),
+        Field(dev='sa1_m', name='sa1_m', format='%.1f', width=12),
+              ),
+
+      BlockRow(
+        Field(dev='att_m', name='att_m', format='%.1f', width=12),
+        Field(dev='col_20a_m', name='20a_m', format='%.1f', width=12),
+        Field(dev='col_16a_m', name='16a_m', format='%.1f', width=12),
+        Field(dev='col_12a_m', name='12a_m', format='%.1f', width=12),
+        Field(dev='col_8a_m', name='8a_m', format='%.1f', width=12),
+        Field(dev='col_4a_m', name='4a_m', format='%.1f', width=12),
+        Field(dev='col_2a_m', name='2a_m', format='%.1f', width=12),
+              ),
+
+      BlockRow(
+        Field(dev='ng_pol_m', name='ng_pol_m', format='%.1f', width=12),
+        Field(dev='col_20b_m', name='20b_m', format='%.1f', width=12),
+        Field(dev='col_16b_m', name='16b_m', format='%.1f', width=12),
+        Field(dev='col_12b_m', name='12b_m', format='%.1f', width=12),
+        Field(dev='col_8b_m', name='8b_m', format='%.1f', width=12),
+        Field(dev='col_4b_m', name='4b_m', format='%.1f', width=12),
+        Field(dev='col_2b_m', name='2b_m', format='%.1f', width=12),
               ),
 
       BlockRow(

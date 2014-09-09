@@ -76,8 +76,10 @@ devices = dict(
 
     att = device('sans1.collimotor.Sans1ColliSwitcher',
                     description = 'Attenuator',
-                    mapping = dict(OPEN=0, x1000=117, x100=234, x10=351),
+                    #mapping = dict(OPEN=0, x1000=117, x100=234, x10=351), old 4 position att
+                    mapping = dict(OPEN=0, x1000=95, x100=190, x10=285, dia10=380), #new 5 position att
                     moveable = 'att_m',
+                    blockingmove = False,
                     pollinterval = 15,
                     maxage = 60,
                     ),
@@ -90,10 +92,11 @@ devices = dict(
                     slope = 200*4, # FULL steps per turn * turns per mm
                     microsteps = 8,
                     unit = 'mm',
-                    refpos = -23.0,
+                    #refpos = -23.0, old 4 position att
+                    refpos = -4.0, #new 5 position att
                     abslimits = (-400, 600),
                     lowlevel = True,
-                    autozero = 100,
+                    autozero = 80,
                   ),
 
     ng_pol = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -233,7 +236,7 @@ devices = dict(
                       refpos = -28.85,
                       abslimits = (-40, 300),
                       lowlevel = True,
-                      autozero = 50,
+                      autozero = 400,
                     ),
 
     col_16b = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -382,7 +385,7 @@ devices = dict(
                       refpos = -1.5,
                       abslimits = (-40, 300),
                       lowlevel = True,
-                      autozero = 50,
+                      autozero = 400,
                     ),
 
     col_4a = device('sans1.collimotor.Sans1ColliSwitcher',
@@ -489,6 +492,7 @@ devices = dict(
                       mapping = {'P1':0, 'P2':70, 'P3':140, 'P4':210,
                                  '50x50':0, '10mm':70, '20mm':140, 'N.A.':210 },
                       moveable = 'sa1_m',
+                      blockingmove = False,
                       pollinterval = 15,
                       maxage = 60,
                       ),
@@ -504,7 +508,7 @@ devices = dict(
                       refpos = -34.7,
                       abslimits = (-40, 300),
                       lowlevel = True,
-                      autozero = 50,
+                      autozero = 400,
                     ),
 # pump devices of 172.17.17.10 are at modbus-tacodevice //sans1srv.sans.frm2/sans1/coll/pump
 )

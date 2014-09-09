@@ -114,6 +114,7 @@ devices = dict(
                      pollinterval = 15,
                     ),
 )
-startupcode = '''
+startupcode = """
 B.alias = B_ccmsans
-'''
+AddEnvironment(B)
+"""

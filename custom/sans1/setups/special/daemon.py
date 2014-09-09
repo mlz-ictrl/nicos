@@ -32,13 +32,19 @@ devices = dict(
     Auth   = device('services.daemon.auth.ListAuthenticator',  # or 'frm2.auth.Frm2Authenticator'
                     hashing = 'md5',
                     # first entry is the user name, second the hashed password, third the user level
-                    passwd = [('guest', '', 'guest'),
+                    passwd = [
+                              ('guest', '', 'guest'),
                               ('user', hashlib.md5(b'user').hexdigest(), 'user'),
-                              ('admin', hashlib.md5(b'admin').hexdigest(), 'admin')],
+                              ('admin', hashlib.md5(b'1!admin1!').hexdigest(), 'admin'),
+                              ('andreas', hashlib.md5(b'wilhelm').hexdigest(), 'admin'),
+                              ('ralph', hashlib.md5(b'gilles').hexdigest(), 'admin'),
+                              ('andre', hashlib.md5(b'heinemann').hexdigest(), 'admin'),
+                              ('sebastian', hashlib.md5(b'muehlbauer').hexdigest(), 'admin'),
+                              ],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'sans1ctrl.sans1.frm2',
-                    authenticators = ['Auth'], # or ['UserDB', 'Auth']
+                    authenticators = ['UserDB', 'Auth'],
                     loglevel = 'debug',
                    ),
 )

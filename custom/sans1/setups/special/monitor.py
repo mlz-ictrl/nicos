@@ -51,10 +51,10 @@ _selcolumn = Column(
                  Field(name='selector_lambda', dev='selector_lambda', width=8),
                  ),
          BlockRow(
-                 Field(name='selector_ng', dev='sel_ng_sw', width=8),
+                 Field(name='selector_ng', dev='selector_ng', width=8),
                  ),
          BlockRow(
-                 Field(name='selector_tilt', dev='sel_tilt', width=8),
+                 Field(name='selector_tilt', dev='selector_tilt', width=8),
                  ),
                ],
         ),

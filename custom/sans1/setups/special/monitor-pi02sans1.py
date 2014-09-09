@@ -87,14 +87,14 @@ _htf03_plot = Block('HTF03 plot', [
 ], 'htf03')
 
 _ccmsans = Block('SANS-1 5T Magnet', [
-    BlockRow(Field(name='Field', dev='B_ccmsans', width=12),
+    BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
              ),
     BlockRow(
              Field(name='Target', key='b_ccmsans/target', width=12),
             ),
     BlockRow(
-             Field(name='Power Supply 1', dev='A_ccmsans_left', width=12),
-             Field(name='Power Supply 2', dev='A_ccmsans_right', width=12),
+             Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
+             Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
             ),
 ], 'ccmsans')
 
@@ -120,12 +120,12 @@ _ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
 _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=35, plotinterval=1800,
+              width=65, height=45, plotinterval=1800,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=35, plotinterval=24*3600,
+              width=65, height=45, plotinterval=24*3600,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['24h', 'Target'],
               ),
@@ -144,12 +144,12 @@ _miramagnet = Block('MIRA 0.5T Magnet', [
 _miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotinterval=1800,
+              width=65, height=20, plotinterval=1800,
               devices=['B_mira', 'b_mira/target'],
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotinterval=24*3600,
+              width=65, height=20, plotinterval=24*3600,
               devices=['B_mira', 'b_mira/target'],
               names=['24h', 'Target'],
               ),
@@ -158,19 +158,19 @@ _miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
 
 _spinflipper = Block('Spin Flipper', [
     BlockRow(
-             Field(name='Power', dev='p_sf'),
-             Field(name='Frequency', dev='f_sf'),
+             Field(name='Power', dev='P_spinflipper_agilent'),
+             Field(name='Frequency', dev='F_spinflipper_agilent'),
             ),
     BlockRow(
-             Field(name='Forward', dev='forward_sf'),
-             Field(name='Reverse', dev='reverse_sf'),
+             Field(name='Forward', dev='P_spinflipper_forward'),
+             Field(name='Reverse', dev='P_spinflipper_reverse'),
             ),
-    BlockRow(Field(name='Temperature of AG1016', dev='t_sf'),),
+    BlockRow(Field(name='Temperature of AG1016', dev='T_spinflipper_agilent'),),
     BlockRow(
-             Field(name='Ampl HP33220a', dev='a_agilent1'),
-             Field(name='Freq HP33220a', dev='f_agilent1'),
+             Field(name='Ampl HP33220a', dev='A_spinflipper'),
+             Field(name='Freq HP33220a', dev='F_spinflipper'),
             ),
-], 'spin_flipper')
+], 'spinflipper')
 
 _amagnet = Block('Garfield Magnet', [
     BlockRow(Field(name='Lambda out', dev='l_out'),),
@@ -234,9 +234,9 @@ _birmag = Block('17 T Magnet', [
 _sans1reactor = Column(
     Block('Reactor', [
         BlockRow(
-                 Field(name='Reactor', dev='ReactorPower', format = '%.2f', unit='MW'),
-                 Field(name='6 Fold Shutter', dev='Sixfold'),
-                 Field(name='NL4a', dev='NL4a'),
+                 Field(name='Reactor', dev='ReactorPower', width=9.5, format = '%.2f', unit='MW'),
+                 Field(name='6 Fold Shutter', dev='Sixfold', width=9.5),
+                 Field(name='NL4a', dev='NL4a', width=9.5),
                       ),
                 ],
         ),
@@ -245,14 +245,14 @@ _sans1reactor = Column(
 _sans1general = Column(
     Block('General', [
         BlockRow(
-                 Field(name='T in', dev='t_in_memograph', unit='C', width=6.5),
-                 Field(name='T out', dev='t_out_memograph', unit='C', width=6.5),
-                 Field(name='Cooling', dev='cooling_memograph', unit='kW', width=6.5),
-                 Field(name='Flow in', dev='flow_in_memograph', unit='l/min', width=6.5),
-                 Field(name='Flow out', dev='flow_out_memograph', unit='l/min', width=6.5),
-                 Field(name='Leakage', dev='leak_memograph', unit='l/min', width=6.5),
-                 Field(name='P in', dev='p_in_memograph', unit='bar', width=6.5),
-                 Field(name='P out', dev='p_out_memograph', unit='bar', width=6.5),
+                 Field(name='T in', dev='t_in_memograph', width=9.5, unit='C'),
+                 Field(name='T out', dev='t_out_memograph', width=9.5, unit='C'),
+                 Field(name='Cooling', dev='cooling_memograph', width=9.5, unit='kW'),
+                 Field(name='Flow in', dev='flow_in_memograph', width=9.5, unit='l/min'),
+                 Field(name='Flow out', dev='flow_out_memograph', width=9.5, unit='l/min'),
+                 Field(name='Leakage', dev='leak_memograph', width=9.5, unit='l/min'),
+                 Field(name='P in', dev='p_in_memograph', width=9.5, unit='bar'),
+                 Field(name='P out', dev='p_out_memograph', width=9.5, unit='bar'),
                       ),
                 ],
         ),
@@ -261,7 +261,7 @@ _sans1general = Column(
 _sans1crane = Column(
     Block('Crane', [
         BlockRow(
-                 Field(name='Crane Pos', dev='Crane', unit='m'),
+                 Field(name='Crane Pos', dev='Crane', width=9.5, unit='m'),
                       ),
                 ],
         ),
@@ -273,7 +273,7 @@ devices = dict(
                      title='SANS-1 status monitor',
                      cache='sans1ctrl.sans1.frm2',
                      font='Luxi Sans',
-                     fontsize=12,#12
+                     fontsize=13,#12
                      loglevel='info',
                      padding=0,#3
                      prefix='nicos/',
@@ -287,10 +287,7 @@ devices = dict(
                                     Column(*ccrs) + Column(_birmag),
                                    ),
                                 Row(
-                                    Column(_ccmsans_plot),
-                                   ),
-                                Row(
-                                    Column(_htf03_plot, _miramagnet_plot),
+                                    Column(_htf03_plot, _ccmsans_plot, _miramagnet_plot),
                                    ),
                             ],
                     ),

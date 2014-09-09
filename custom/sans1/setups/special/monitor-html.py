@@ -10,8 +10,9 @@ _expcolumn = Column(
                  Field(name='Title',    key='exp/title',    width=20,
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=50,
-                       istext=True, maxlen=40),
-                 Field(name='Last file', key='det/lastfilenumber'),
+                       istext=True, maxlen=50),
+                 Field(name='Last file', key='exp/lastimage'),
+                 Field(name='Current Sample', key='sample/samplename', width=16),
                 ),
         ],
     ),
@@ -20,8 +21,10 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='Sel NG', dev='sel_ng_sw'),
-                 Field(name='Sel tilt', dev='sel_tilt'),
+                 Field(name='selector_rpm', dev='selector_rpm'),
+                 Field(name='selector_lambda', dev='selector_lambda'),
+                 Field(name='selector_ng', dev='selector_ng'),
+                 Field(name='selector_tilt', dev='selector_tilt'),
                 ),
         ],
     ),
@@ -111,20 +114,24 @@ _sans1general = Column(
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
-                 Field(name='t ist da', dev='det1_t_ist', width=13),
-                 Field(name='t set', dev='det_1_t_soll', width=13),
+                 Field(name='t', dev='det1_t_ist', width=13),
+                 Field(name='t preset', key='det1_timer.preselection', width=13),
                 ),
         BlockRow(
-                 Field(name='Voltage', dev='hv', width=13),
-                 Field(name='det1_z-1a', dev='det1_z1a', width=13),
+                 Field(name='det1_hv', dev='det1_hv_ax', width=13),
+                 Field(name='det1_z-1a', dev='det1_z', width=13),
                 ),
         BlockRow(
-                 Field(name='det1_omg-1a', dev='det1_omega1a', width=13),
-                 Field(name='det1_x-1a', dev='det1_x1a', width=13),
+                 Field(name='det1_omg', dev='det1_omg', width=13),
+                 Field(name='det1_x', dev='det1_x', width=13),
                 ),
         BlockRow(
-                 Field(name='bs1_x-1a', dev='bs1_x1a', width=13),
-                 Field(name='bs1_y-1a', dev='bs1_y1a', width=13),
+                 Field(name='bs1_x', dev='bs1_x', width=13),
+                 Field(name='bs1_y', dev='bs1_y', width=13),
+                ),
+        BlockRow(
+                 Field(name='mon 1', dev='det1_mon1', width=13),
+                 Field(name='mon 2', dev='det1_mon2', width=13),
                 ),
         ],
     ),
@@ -133,8 +140,8 @@ _sans1det = Column(
 _atpolcolumn = Column(
     Block('Attenuator / Polarizer',[
         BlockRow(
-                 Field(dev='at', name='Att', width=7),
-                 Field(dev='ng_pol', name='Pol', width=7),
+                 Field(dev='att', name='atte', width=7),
+                 Field(dev='ng_pol', name='ng_pol', width=7),
                 ),
         ],
     ),
@@ -201,12 +208,25 @@ _sansmagnet = Column(
     ),
 )
 
+_miramagnet = Column(
+    Block('MIRA Magnet', [
+        BlockRow(
+                 Field(name='Field', dev='b_mira'),
+                 Field(name='Target', key='b_mira/target', width=12),
+                ),
+        BlockRow(
+                 Field(name='Current', dev='i', width=12),
+                ),
+        ],'miramagnet'
+    ),
+)
+
 _sc1 = Column(
     Block('Sample Changer 1', [
       BlockRow(
        Field(name='Position', dev='sc1_y'),
-       Field(name='sc1', dev='sc1'),),
-], '!always!sc1'),)
+       Field(name='SampleChanger', dev='sc1'),),
+], 'sc1'),)
 
 _spinflipper = Column(
     Block('SpinFlipper', [
@@ -223,7 +243,7 @@ _spinflipper = Column(
              Field(name='Ampl HP33220a', dev='a_agilent1'),
              Field(name='Freq HP33220a', dev='f_agilent1'),
             ),
-        ], 'spin_flipper'
+        ], 'sc1'
     ),
 )
 
@@ -247,7 +267,21 @@ for i in range(10, 22 + 1):
     ], 'ccr%d' % i))
 _ccrs = Column(*tuple(ccrs))
 
-
+cryos = []
+for j in range(1, 5 + 1):
+    cryos.append(Block('Cryo%d' % j, [
+        BlockRow(
+            Field(name='Setpoint', key='t_cryo%d/setpoint' % j,
+                   unitkey='t/unit'),
+            Field(name='Manual Heater Power', key='t_cryo%d/heaterpower' % j,
+                   unitkey='t/unit'),
+        ),
+        BlockRow(
+             Field(name='A', dev='T_cryo%d_A' % j),
+             Field(name='B', dev='T_cryo%d_B' % j),
+        ),
+    ], 'cryo%d' % j))
+_cryos = Column(*tuple(cryos))
 
 devices = dict(
     Monitor = device('services.monitor.html.Monitor',
@@ -263,9 +297,9 @@ devices = dict(
                      layout = [
                                  Row(_expcolumn),
                                  Row(_sans1general, _table2, _table1, _sans1det),
-                                 Row(_ubahncolumn, _selcolumn, _pressurecolumn),
-                                 Row(_atpolcolumn, _sanscolumn),
-                                 Row(_sansmagnet, _spinflipper, _ccrs, _sc1),
+                                 Row(_ubahncolumn, _pressurecolumn),
+                                 Row(_selcolumn, _atpolcolumn, _sanscolumn),
+                                 Row(_sansmagnet, _spinflipper, _ccrs, _cryos, _sc1, _miramagnet),
                                ],
                     ),
 )

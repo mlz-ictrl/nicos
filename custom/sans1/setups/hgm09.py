@@ -18,17 +18,25 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
-#   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'sans1 setup'
+description = 'Gaussmeter for Sans1 Magnet'
 
-group = 'basic'
+group = 'optional'
 
-includes = ['collimation', 'detector', 'sample_table_1', 'det1',
-            'pressure', 'selector_tower', 'astrium', 'memograph']
+nethost = 'testbox.se.frm2'
 
 devices = dict(
+    hgm09 = device('antares.hgm09.HGM09',
+                     description = 'Gaussmeter for ccmsans',
+                     tacodevice = '//%s/test/rs232/ttyacm0' % (nethost, ),
+                     fmtstr = '%.3f',
+                     maxage = 120,
+                     pollinterval = 15,
+                     tacotimeout = 5,
+                    ),
 )
+startupcode = """
+"""

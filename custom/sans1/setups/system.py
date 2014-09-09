@@ -45,13 +45,15 @@ devices = dict(
                      ),
 
     Instrument = device('devices.instrument.Instrument',
-                        description = 'instrument',
+                        description = 'SANS1 instrument',
+                        instrument = 'SANS-1',
                         responsible = 'Dr. habil. Ralph Gilles',
                        ),
 
-    Exp      = device('devices.experiment.Experiment',
+    Exp      = device('frm2.experiment.Experiment',
                       description = 'experiment',
                       dataroot = '/data/nicos',
+                      propdb = '/sans1control/propdb',
                       sample = 'Sample'),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
