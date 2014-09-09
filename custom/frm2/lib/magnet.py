@@ -114,6 +114,7 @@ class MiraMagnet(BipolarSwitchingMagnet):
             sequence.append(subsequence)
         if polarity < 0:
             sequence.append(SeqDev(plus, 'off'))
+            sequence.append(SeqDev(minus, 'on'))   # due to bug in Phytron server.
             sequence.append(SeqSleep(0.3, 'switching to negative polarity'))
         elif polarity > 0:
             sequence.append(SeqDev(minus, 'off'))
