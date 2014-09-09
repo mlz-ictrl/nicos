@@ -129,7 +129,7 @@ class NicosListener(object):
                 if devinfo[2] != strvalue:
                     devinfo[2] = strvalue
                     self.on_devValueChange(self._devmap[key], fvalue, strvalue,
-                                           devinfo[3], expired)
+                                           devinfo[3], devinfo[11])
                 self.on_devMetaChange(self._devmap[key], devinfo[5],
                                       devinfo[6], devinfo[7], devinfo[9],
                                       devinfo[10])
