@@ -41,7 +41,7 @@ from nicos.core.errors import NicosError, ConfigurationError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
 from nicos.pycompat import reraise, add_metaclass, itervalues, iteritems, \
-    text_type, string_types
+    string_types
 
 
 def usermethod(func):
