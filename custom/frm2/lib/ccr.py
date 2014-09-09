@@ -54,7 +54,7 @@ class CCRControl(HasLimits, Moveable):
                                unit='', type=oneof('stick', 'tube', 'both'),
                                settable=True, chatty=True, category='general'),
         ramp  = Param('Temperature ramp in K/min', unit='K/min', chatty=True,
-                      type=floatrange(0.0001, 10), settable=True, volatile=True),
+                      type=floatrange(0, 100), settable=True, volatile=True, default=1.),
         setpoint = Param('Current temperature setpoint', unit='main',
                          category='general'),
     )
@@ -199,7 +199,14 @@ class CCRControl(HasLimits, Moveable):
         return self.doWriteRamp(clampramp)
 
     def doWriteRamp(self, value):
-        self.__set_param('ramp', value)
+        # this works only for the floatrange type of the ramp parameter!
+        rampmin = self.parameters['ramp'].type.fr
+        rampmax = self.parameters['ramp'].type.to
+        if value == 0.0:
+            value = rampmax
+            self.log.warning('Ramp rate of 0 is deprecated, using %d '
+                             'K/min instead' % value)
+        self.__set_param('ramp', clamp(value, rampmin, rampmax))
         return self.__get_param('ramp')
 
     def doWriteRegulationmode(self, value):
