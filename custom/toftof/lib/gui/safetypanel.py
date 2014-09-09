@@ -27,6 +27,8 @@
 from PyQt4.QtGui import QTableWidgetItem
 from PyQt4.QtCore import SIGNAL, QByteArray
 
+from nicos.utils import findResource
+
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 
@@ -39,7 +41,7 @@ class SafetyPanel(Panel):
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'safety.ui', 'panels')
+        loadUi(self, findResource('custom/toftof/lib/gui/safety.ui'))
 
         self.table.horizontalHeader().restoreState(self._headerstate)
         self.clear()
