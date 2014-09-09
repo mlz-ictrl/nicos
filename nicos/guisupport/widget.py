@@ -146,7 +146,7 @@ class NicosListener(object):
             try:
                 fvalue = value[devinfo[1]]
             except Exception:
-                fvalue = value
+                fvalue = 'N/A'
         else:
             fvalue = value
         devinfo[0] = fvalue
