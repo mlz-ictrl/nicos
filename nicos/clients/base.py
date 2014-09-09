@@ -392,7 +392,10 @@ class NicosClient(object):
         if only_explicit:
             query += ' and dn in session.explicit_devices'
         query += ')'
-        return sorted(self.eval(query, []))
+        res = self.eval(query, [])
+        if res:
+            return sorted(res)
+        return []
 
     def getDeviceValue(self, devname):
         """Return current device value."""
