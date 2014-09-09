@@ -219,7 +219,10 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
             limit value.
         '''
 
-        limits = list(self._params['userlimits'])
+        try:
+            limits = list(self._params['userlimits'])
+        except Exception:
+            limits = list(self.abslimits)
         for i, res in enumerate(['usermin', 'usermax']):
             try:
                 limits[i] = self._dev.deviceQueryResource(res)
