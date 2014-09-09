@@ -31,7 +31,7 @@ import threading
 from time import sleep, time as currenttime
 
 from nicos import session
-from nicos.core import Device, Param, CacheLockError, CacheError
+from nicos.core import Device, Param, CacheLockError, CacheError, NicosError
 from nicos.utils import closeSocket
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
@@ -528,21 +528,29 @@ class CacheClient(BaseCacheClient):
         another value that is returned if the value is missing or expired.  A
         singleton such as ``Ellipsis`` works well in these cases.
         """
-        self._startup_done.wait()
+        if not self._startup_done.wait(15):
+            self.log.warning('Cache _startup_done took more than 15s!')
+            raise CacheError(self,'Cache _startup_done took more than 15s!')
         dbkey = ('%s/%s' % (dev, key)).lower()
         with self._dblock:
             entry = self._db.get(dbkey)
         if entry is None:
-            if str(dev).lower() in self._inv_rewrites:
-                self.log.debug('%s not in cache, trying rewritten' % dbkey)
-                return self.get(self._inv_rewrites[str(dev).lower()],
-                                key, default, mintime)
-            self.log.debug('%s not in cache' % dbkey)
+            if self.is_connected():
+                if str(dev).lower() in self._inv_rewrites:
+                    self.log.debug('%s not in cache, trying rewritten' % dbkey)
+                    return self.get(self._inv_rewrites[str(dev).lower()],
+                                    key, default, mintime)
+                self.log.debug('%s not in cache' % dbkey)
+            else:
+                self.log.debug('%s not in cache and no cache connection' % dbkey)
             return default
         value, time = entry
         if mintime and time < mintime:
             try:
-                time, _ttl, value = self.get_explicit(dev, key, default)
+                if self.is_connected():
+                    time, _ttl, value = self.get_explicit(dev, key, default)
+                else:
+                    return default
             except CacheError:
                 return default
             if value is not default and time < mintime:
