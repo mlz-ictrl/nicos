@@ -101,8 +101,8 @@ devices = {
 
     '%s_gas_switch' % setupname : device('devices.vendor.frm2.CCRSwitch',
                                           description = 'Gas valve switch',
-                                          write = '%s_gas_set' % nethost,
-                                          feedback = '%s_gas_read' % nethost,
+                                          write = '%s_gas_set' % setupname,
+                                          feedback = '%s_gas_read' % setupname,
                                          ),
 
     '%s_vacuum_set' % setupname : device('devices.taco.DigitalOutput',
@@ -119,8 +119,8 @@ devices = {
 
     '%s_vacuum_switch' % setupname : device('devices.vendor.frm2.CCRSwitch',
                                              description = 'Vacuum valve switch',
-                                             write = '%s_vacuum_set' % nethost,
-                                             feedback = '%s_vacuum_read' % nethost,
+                                             write = '%s_vacuum_set' % setupname,
+                                             feedback = '%s_vacuum_read' % setupname,
                                             ),
 
     '%s_p1' % setupname : device('devices.taco.AnalogInput',
