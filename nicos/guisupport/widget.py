@@ -31,7 +31,7 @@ from copy import copy
 from PyQt4.QtGui import QFont, QFontMetrics
 from PyQt4.QtCore import SIGNAL, pyqtProperty, pyqtWrapperType
 
-from nicos.utils import lazy_property
+from nicos.utils import lazy_property, attrdict
 from nicos.core.status import OK
 from nicos.protocols.daemon import DAEMON_EVENTS
 from nicos.pycompat import add_metaclass, iteritems
@@ -49,13 +49,24 @@ class NicosListener(object):
         self.devinfo = {}
         self.registerKeys()
 
+    def _newDevinfo(self, valueindex, unit, fmtstr, isdevice):
+        return attrdict(
+            {'value': '-',
+             'valueindex': valueindex,
+             'strvalue': '-',
+             'fullvalue': '-',
+             'status': (OK, ''),
+             'fmtstr': fmtstr or '%s',
+             'unit': unit,
+             'fixed': '',
+             'changetime': 0,
+             'min': None,
+             'max': None,
+             'expired': True,
+             'isdevice': isdevice})
+
     def registerDevice(self, dev, valueindex=-1, unit='', fmtstr=''):
-        # value, valueindex, strvalue, strvalue with unit,
-        # status, strvalue, fmtstr, unit, fixed, changetime, min, max,
-        # expired?, device (not single key)?
-        self.devinfo[dev] = ['-', valueindex, '-', '-',
-                             (OK, ''), fmtstr or '%s', unit, '', 0,
-                             None, None, True, True]
+        self.devinfo[dev] = self._newDevinfo(valueindex, unit, fmtstr, True)
         self._devmap[self._source.register(self, dev+'/value')] = dev
         self._devmap[self._source.register(self, dev+'/status')] = dev
         self._devmap[self._source.register(self, dev+'/fixed')] = dev
@@ -67,12 +78,7 @@ class NicosListener(object):
 
     def registerKey(self, valuekey, statuskey='', valueindex=-1,
                     unit='', fmtstr=''):
-        # value, valueindex, strvalue, strvalue with unit,
-        # status, strvalue, fmtstr, unit, fixed, changetime, min, max,
-        # expired?, device (not single key)?
-        self.devinfo[valuekey] = ['-', valueindex, '-', '-',
-                                  (OK, ''), fmtstr or '%s', unit, '', 0,
-                                  None, None, True, False]
+        self.devinfo[valuekey] = self._newDevinfo(valueindex, unit, fmtstr, False)
         self._devmap[self._source.register(self, valuekey)] = valuekey
         if statuskey:
             self._devmap[self._source.register(self, statuskey)] = valuekey
@@ -90,82 +96,82 @@ class NicosListener(object):
         if key not in self._devmap:
             return
         devinfo = self.devinfo[self._devmap[key]]
-        if devinfo[12]:
+        if devinfo.isdevice:
             if key.endswith('/status'):
                 if value is None:
-                    value = devinfo[4]
+                    value = devinfo.status
                     expired = True
-                devinfo[4] = value
-                devinfo[8] = time
+                devinfo.status = value
+                devinfo.changetime = time
                 self.on_devStatusChange(self._devmap[key],
                                         value[0], value[1], expired)
                 return
             elif key.endswith('/fixed'):
-                devinfo[7] = value
-                self.on_devMetaChange(self._devmap[key], devinfo[5],
-                                      devinfo[6], devinfo[7], devinfo[9],
-                                      devinfo[10])
+                devinfo.fixed = value
+                self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
+                                      devinfo.unit, devinfo.fixed, devinfo.min,
+                                      devinfo.max)
                 return
             elif key.endswith('/warnlimits'):
                 if value is not None:
-                    devinfo[9], devinfo[10] = value
-                    self.on_devMetaChange(self._devmap[key], devinfo[5],
-                                          devinfo[6], devinfo[7], devinfo[9],
-                                          devinfo[10])
+                    devinfo.min, devinfo.max = value
+                    self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
+                                          devinfo.unit, devinfo.fixed, devinfo.min,
+                                          devinfo.max)
                 return
             elif key.endswith('/fmtstr'):
-                devinfo[5] = value
-                fvalue = devinfo[0]
+                devinfo.fmtstr = value
+                fvalue = devinfo.value
                 if fvalue is None:
                     strvalue = '----'
                 else:
                     if isinstance(fvalue, list):
                         fvalue = tuple(fvalue)
                     try:
-                        strvalue = devinfo[5] % fvalue
+                        strvalue = devinfo.fmtstr % fvalue
                     except Exception:
                         strvalue = str(fvalue)
-                devinfo[3] = (strvalue + ' ' + (devinfo[6] or '')).strip()
-                if devinfo[2] != strvalue:
-                    devinfo[2] = strvalue
+                devinfo.fullvalue = (strvalue + ' ' + (devinfo.unit or '')).strip()
+                if devinfo.strvalue != strvalue:
+                    devinfo.strvalue = strvalue
                     self.on_devValueChange(self._devmap[key], fvalue, strvalue,
-                                           devinfo[3], devinfo[11])
-                self.on_devMetaChange(self._devmap[key], devinfo[5],
-                                      devinfo[6], devinfo[7], devinfo[9],
-                                      devinfo[10])
+                                           devinfo.fullvalue, devinfo.expired)
+                self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
+                                      devinfo.unit, devinfo.fixed, devinfo.min,
+                                      devinfo.max)
                 return
             elif key.endswith('/unit'):
-                devinfo[6] = value
-                self.on_devMetaChange(self._devmap[key], devinfo[5],
-                                      devinfo[6], devinfo[7], devinfo[9],
-                                      devinfo[10])
+                devinfo.unit = value
+                self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
+                                      devinfo.unit, devinfo.fixed, devinfo.min,
+                                      devinfo.max)
                 return
         # it's either /value, or any key registered as value
         # first, apply item selection
-        if devinfo[1] >= 0 and value is not None:
+        if devinfo.valueindex >= 0 and value is not None:
             try:
-                fvalue = value[devinfo[1]]
+                fvalue = value[devinfo.valueindex]
             except Exception:
                 fvalue = 'N/A'
         else:
             fvalue = value
-        devinfo[0] = fvalue
+        devinfo.value = fvalue
         if fvalue is None:
             strvalue = '----'
         else:
             if isinstance(fvalue, list):
                 fvalue = tuple(fvalue)
             try:
-                strvalue = devinfo[5] % fvalue
+                strvalue = devinfo.fmtstr % fvalue
             except Exception:
                 strvalue = str(fvalue)
-        devinfo[8] = time
-        devinfo[3] = (strvalue + ' ' + (devinfo[6] or '')).strip()
-        if devinfo[2] != strvalue or devinfo[11] != expired:
-            devinfo[2] = strvalue
-            devinfo[11] = expired
+        devinfo.changetime = time
+        devinfo.fullvalue = (strvalue + ' ' + (devinfo.unit or '')).strip()
+        if devinfo.strvalue != strvalue or devinfo.expired != expired:
+            devinfo.strvalue = strvalue
+            devinfo.expired = expired
             self.on_devValueChange(self._devmap[key], fvalue, strvalue,
-                                   devinfo[3], expired)
+                                   devinfo.fullvalue, expired)
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         pass

@@ -53,6 +53,22 @@ from nicos import config, session
 from nicos.pycompat import iteritems, xrange as range  # pylint: disable=W0622
 
 
+class attrdict(dict):
+    """Dictionary whose items can be set with attribute access."""
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(key)
+    def __setattr__(self, key, value):
+        self[key] = value
+    def __delattr__(self, key):
+        try:
+            del self[key]
+        except KeyError:
+            raise AttributeError(key)
+
+
 class lazy_property(object):
     """A property that calculates its value only once."""
     def __init__(self, func):
