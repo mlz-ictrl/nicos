@@ -125,7 +125,7 @@ class DevicesPanel(Panel):
         self._dev2setup = {}
 
         self._control_dialogs = {}
-        self._show_lowlevel = False  # enabled by expert mode
+        self._show_lowlevel = self.mainwindow.expertmode
 
         if client.connected:
             self.on_client_connected()

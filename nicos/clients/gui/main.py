@@ -82,6 +82,9 @@ class MainWindow(QMainWindow, DlgUtils):
         # log messages sent by the server
         self.messages = []
 
+        # are we in expert mode?  (always false on startup)
+        self.expertmode = False
+
         # set-up the initial connection data
         self.connectionData = dict(
             host    = 'localhost',
@@ -510,6 +513,7 @@ class MainWindow(QMainWindow, DlgUtils):
             self.activateWindow()
 
     def on_actionExpert_toggled(self, on):
+        self.expertmode = on
         for panel in self.panels:
             panel.setExpertMode(on)
         for window in self.windows.values():
