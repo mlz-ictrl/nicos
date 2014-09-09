@@ -125,6 +125,7 @@ class DevicesPanel(Panel):
         self._dev2setup = {}
 
         self._control_dialogs = {}
+        self._show_lowlevel = False  # enabled by expert mode
 
         if client.connected:
             self.on_client_connected()
@@ -144,6 +145,10 @@ class DevicesPanel(Panel):
 
     def hideTitle(self):
         self.titleLbl.setVisible(False)
+
+    def setExpertMode(self, expert):
+        self._show_lowlevel = expert
+        self.on_client_connected()
 
     def clear(self):
         self._catitems = {}
@@ -193,7 +198,7 @@ class DevicesPanel(Panel):
         params = self.client.getDeviceParams(devname)
         if not params:
             return
-        if params.get('lowlevel'):
+        if params.get('lowlevel') and not self._show_lowlevel:
             return
         if 'nicos.core.data.DataSink' in params.get('classes', []):
             return
