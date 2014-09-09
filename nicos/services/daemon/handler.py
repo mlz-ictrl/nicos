@@ -97,8 +97,28 @@ def command(needcontrol=False, needscript=None, name=None):
         return func
     return deco
 
-stop_queue = object()
+# unique objects
+stop_queue = (object(), '')
 no_msg = object()
+
+
+class SizedQueue(queue.Queue):
+    """A Queue that limits the total size of event messages"""
+    def _init(self, maxsize):
+        self.nbytes = 0
+        queue.Queue._init(self, maxsize)
+
+    def _qsize(self):
+        return self.nbytes
+
+    def _put(self, item):
+        self.nbytes += len(item[1])
+        self.queue.append(item)
+
+    def _get(self):
+        item = self.queue.popleft()
+        self.nbytes -= len(item[1])
+        return item
 
 
 class ConnectionHandler(socketserver.BaseRequestHandler):
@@ -124,7 +144,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
     """
 
     def __init__(self, request, client_address, client_id, server):
-        self.event_queue = queue.Queue(1024)
+        # limit memory usage to 100 Megs
+        self.event_queue = SizedQueue(100*1024*1024)
         self.event_mask = set()
         # bind often used daemon attributes to self
         self.daemon = server.daemon
