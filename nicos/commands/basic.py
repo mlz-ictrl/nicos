@@ -41,9 +41,10 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.utils import formatDuration, printTable
 from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
-from nicos.commands.output import printinfo, printwarning, printexception
-from nicos.core import SIMULATION, MASTER, MAINTENANCE
+from nicos.commands.output import printinfo, printwarning, printexception, printerror
+from nicos.core import SIMULATION, MASTER, MAINTENANCE, ADMIN
 from nicos.pycompat import builtins, exec_, iteritems
+from nicos.core.utils import checkUserLevel
 
 
 CO_DIVISION = 0x2000
@@ -346,7 +347,8 @@ def DestroyDevice(*devnames):
 
 
 @usercommand
-def CreateAllDevices():
+@helparglist('lowlevel=False')
+def CreateAllDevices(**kwargs):
     """Try to create all possible devices in the current setup.
 
     This is useful when a setup failed to load many devices, and another attempt
@@ -354,12 +356,21 @@ def CreateAllDevices():
 
     >>> CreateAllDevices()
 
-    Note: Devices that are marked as lowlevel will not be automatically created.
+    Note: Devices that are marked as lowlevel will not be automatically created,
+    unless you set the lowlevel flag like:
+
+    >>> CreateAllDevices(lowlevel=True)
     """
+    lowlevel = kwargs.get('lowlevel', False)
+    if lowlevel and not checkUserLevel(ADMIN):
+        printerror('Creating all lowlevel devices is only allowed for admin users')
+        lowlevel = False
+
+
     session.startMultiCreate()
     try:
         for devname, (_, devconfig) in iteritems(session.configured_devices):
-            if devconfig.get('lowlevel', False):
+            if devconfig.get('lowlevel', False) and not lowlevel:
                 continue
             try:
                 session.createDevice(devname, explicit=True)
