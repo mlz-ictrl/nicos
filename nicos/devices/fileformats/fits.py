@@ -25,7 +25,7 @@
 import numpy
 
 from nicos.core import ImageSink, NicosError
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, to_ascii_escaped
 
 try:
     import pyfits
@@ -72,7 +72,7 @@ class FITSFileFormat(ImageSink):
                 key = 'HIERARCH %s/%s' % (dev.name, attr)
 
                 # use only ascii characters and escapes if necessary.
-                value = str(attrVal).decode('ascii', 'ignore').encode('unicode_escape')
+                value = to_ascii_escaped(str(attrVal))
 
                 # Determine maximum possible value length (key dependend).
                 maxValLen = 63 - len(key)
