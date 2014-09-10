@@ -40,7 +40,7 @@ from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QListWidgetItem, QDialog, QMessageBox
 from qtgr import InteractiveGRWidget
 from qtgr.events import GUIConnector, MouseEvent, LegendEvent
-from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar
+from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar, Text
 from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
@@ -48,9 +48,44 @@ from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.fitutils import has_odr, FitError
 from nicos.clients.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
      fit_pseudo_voigt, fit_pearson_vii, fit_arby, fit_linear
+from nicos.pycompat import string_types
 
 DATEFMT = "%Y-%m-%d"
 TIMEFMT = "%H:%M:%S"
+
+
+class NicosPlotCurve(PlotCurve):
+
+    def __init__(self, x, y, errBar1=None, errBar2=None,
+                 linetype=gr.LINETYPE_SOLID, markertype=gr.MARKERTYPE_DOT,
+                 linecolor=None, markercolor=1, legend=None):
+        PlotCurve.__init__(self, x, y, errBar1, errBar2,
+                           linetype, markertype, linecolor, markercolor,
+                           legend)
+        self._dependent = []
+
+    @property
+    def dependent(self):
+        """Return dependent objects which implement the GRMeta interface."""
+        return self._dependent
+
+    @dependent.setter
+    def dependent(self, value):
+        self._dependent = value
+
+
+    #  pylint: disable=W0221
+    @PlotCurve.visible.setter
+    def visible(self, flag):
+        self._visible = flag
+        for dep in self.dependent:
+            dep.visible = flag
+
+    def drawGR(self):
+        PlotCurve.drawGR(self)
+        for dep in self.dependent:
+            if dep.visible:
+                dep.drawGR()
 
 
 class NicosPlot(InteractiveGRWidget, DlgUtils):
@@ -333,18 +368,24 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
                         + self.fitvalues)
             else:
                 args = [curve.x, curve.y, None] + self.fitvalues
-            x, y, title, _labelx, _labely, _interesting, _lineinfo = (
+            x, y, title, labelx, labely, interesting, _lineinfo = (
                             self.fitcallbacks[0](args)) #pylint: disable=E1102
 
             color = self._color.getNextColorIndex()
-            resultcurve = PlotCurve(x, y, legend=title, linecolor=color,
-                                    markercolor=color)
+            resultcurve = NicosPlotCurve(x, y, legend=title, linecolor=color,
+                                         markercolor=color)
             self.addPlotCurve(resultcurve)
             self.statusMessage = None
             self.window.statusBar.showMessage("Fitting complete")
             self.fittype = None
             self.fits += 1
             self.fitcurve = None
+
+            text = '\n'.join((n + ': ' if n else '') +
+                             (v if isinstance(v, string_types) else '%g' % v)
+                             for (n, v) in interesting)
+            resultcurve.dependent.append(Text(labelx, labely, text, self._axes,
+                                              .012))
             self.update()
         except FitError, err:
             self.showInfo('Fitting failed: %s.' % err)
@@ -409,8 +450,9 @@ class ViewPlot(NicosPlot):
         x, y, n, _, _ = self.view.keydata[key]
         if n > 0:
             color = self._color.getNextColorIndex()
-            self.addPlotCurve(PlotCurve(x[:n], y[:n], legend=curvename,
-                                        linecolor=color, markercolor=color),
+            self.addPlotCurve(NicosPlotCurve(x[:n], y[:n], legend=curvename,
+                                             linecolor=color,
+                                             markercolor=color),
                               replot)
 
     def pointsAdded(self, whichkey):
@@ -595,8 +637,8 @@ class DataSetPlot(NicosPlot):
                 dpos = y + dy
                 errbar = ErrorBar(x[:n], y[:n], dneg, dpos)
 
-            plotcurve = PlotCurve(x[:n], y[:n], errbar,
-                                  legend=curve.full_description)
+            plotcurve = NicosPlotCurve(x[:n], y[:n], errbar,
+                                       legend=curve.full_description)
             if curve.disabled and not self.show_all:
                 plotcurve.visible = False
             self.addPlotCurve(plotcurve, replot)
