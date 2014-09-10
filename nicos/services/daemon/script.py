@@ -319,9 +319,7 @@ class ExecutionController(Controller):
         self.namespace.pop('NicosSetup', None)
 
     def _observer(self, status, lineno):
-        # subtract 1 from lineno since the compilation steps adds a comment
-        # line with coding info, which is not present in the original script
-        self.eventfunc('status', (status, lineno - 1))
+        self.eventfunc('status', (status, lineno))
 
     def _breakfunc(self, frame, flag):
         # check level of breakpoint reached
