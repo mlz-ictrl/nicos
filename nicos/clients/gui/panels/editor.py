@@ -549,6 +549,7 @@ class EditorPanel(Panel):
                 item = QTreeWidgetItem([devname, dmin, '-', dmax, '', aliascol])
                 self.simRanges.addTopLevelItem(item)
 
+        self.simRanges.sortByColumn(0, Qt.AscendingOrder)
         self.simPane.show()
 
     def on_fileTree_doubleClicked(self, idx):

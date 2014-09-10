@@ -870,6 +870,19 @@ class Readable(Device):
         self._sim_started = None
         self._sim_preset = {}
 
+    def _sim_getMinMax(self):
+        """Return info about the value range this device had in a simulation.
+
+        The return value is a list of tuples ``(value name, last value, minimum
+        value, maximum value)``.  By default this has one entry, where "value
+        name" is the device name.
+        """
+        if self._sim_min is not None:
+            return [(self.name, self.format(self._sim_value),
+                     self.format(self._sim_min), self.format(self._sim_max))]
+        else:
+            return []
+
     def _sim_setValue(self, pos):
         self._sim_old_value = self._sim_value
         self._sim_value = pos

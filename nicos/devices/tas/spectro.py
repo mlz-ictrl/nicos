@@ -137,6 +137,14 @@ class TAS(Instrument, Moveable):
                        (dev.format(value, unit=True), dev, why)
         return True, ''
 
+    def _sim_getMinMax(self):
+        ret = []
+        if self._sim_min is not None:
+            for i, name in enumerate(['h', 'k', 'l', 'E']):
+                ret.append((name, '%.4f' % self._sim_value[i],
+                            '%.4f' % self._sim_min[i], '%.4f' % self._sim_max[i]))
+        return ret
+
     def doStart(self, pos):
         qh, qk, ql, ny = pos
         ny = self._thz(ny)
@@ -165,6 +173,10 @@ class TAS(Instrument, Moveable):
         # spurion check
         if self.spurioncheck and self._mode == SIMULATION:
             self._spurionCheck(pos)
+        # store the min and max values of h,k,l, and E for simulation
+        self._sim_value = pos
+        self._sim_min = tuple(map(min, pos, self._sim_min or pos))
+        self._sim_max = tuple(map(max, pos, self._sim_max or pos))
 
     def doWait(self):
         multiWait(self._waiters)

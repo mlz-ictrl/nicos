@@ -149,6 +149,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         self._adevs['twotheta'].start(tt)
         self._adevs['theta'].start(th)
         self._movefoci(self.focmode, self.hfocuspars, self.vfocuspars)
+        self._sim_setValue(pos)
 
     def _movefoci(self, focmode, hfocuspars, vfocuspars):
         lam = self._tolambda(self.target)  # get goalposition in basic unit
