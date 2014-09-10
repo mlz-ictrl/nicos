@@ -71,7 +71,7 @@ class Sans1Sample(NicosSample):
         if idx:
             return self.samplenames.get(int(idx),
                 '<unknown sample> at sample position %d' % idx)
-        return self.samplenames.get(self.activesample, '<unknown sample>')
+        return self.samplenames.get(self.activesample or 0, '<unknown sample>')
 
     def doReadSamplename(self):
         """always derive samplename from the currently used one...."""

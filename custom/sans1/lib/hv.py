@@ -28,11 +28,48 @@
 from time import localtime, strftime, time as currenttime
 
 from nicos.core import Attach, Param, Override, Readable, Moveable, listof, \
-     tupleof, HasPrecision, status
+     tupleof, HasPrecision, status, InvalidValueError, PositionError
+from nicos.devices.generic.switcher import Switcher
 from nicos.devices.generic.sequence import BaseSequencer, \
      SeqCall, SeqDev, SeqMethod, SeqParam, SeqSleep
+from nicos.pycompat import iteritems
 
 from nicos.devices.taco.power import VoltageSupply as TacoVoltageSupply
+
+class VoltageSwitcher(Switcher):
+    """mapping is now state:(value, precision)"""
+    def _mapTargetValue(self, target):
+        if target not in self.mapping:
+            positions = ', '.join(repr(pos) for pos in self.mapping)
+            raise InvalidValueError(self, '%r is an invalid position for '
+                                    'this device; valid positions are %s'
+                                    % (target, positions))
+        return self.mapping.get(target)[0]
+
+    def _mapReadValue(self, pos):
+        """Override default inverse mapping to allow a deviation <= precision"""
+        for name, values in iteritems(self.mapping):
+            value, prec = values
+            if pos == value:
+                return name
+            elif prec:
+                if abs(pos - value) <= prec:
+                    return name
+        if self.fallback is not None:
+            return self.fallback
+        raise PositionError(self, 'unknown position of %s: %s' %
+                            (self._adevs['moveable'],
+                             self._adevs['moveable'].format(pos, True))
+                            )
+
+    def doStatus(self, maxage=0):
+        # if the underlying device is moving or in error state,
+        # reflect its status
+        move_status = self._adevs['moveable'].status(maxage)
+        if move_status[0] == status.BUSY:
+            if self.target == 'LOW' and self._adevs['moveable'].read(0) < 70:
+                return status.OK, 'below 70V'
+        return move_status
 
 class VoltageSupply(HasPrecision, TacoVoltageSupply):
     """work around a bug either in the taco server or in thehv supply itself

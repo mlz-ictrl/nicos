@@ -66,10 +66,12 @@ devices = dict(
                          onoffswitch = 'amagnet_onoff',
                          polswitch = 'amagnet_polarity',
                          unit = 'T',
+                         # B(I) = c[0]*I + c[1]*erf(c[2]*I) + c[3]*atan(c[4]*I)
                          # 2014/02/10: calibration from 9002_00009120.dat .. 9002_00009122.dat
-                         calibration = (0.0018467, -0.0346142, 0.021774, 0.0638581, 0.0541159),
-                         abslimits = (-0.275, 0.275),
-                         userlimits = (-0.25, 0.25),
+                         #~ calibration = (0.0018467, -0.0346142, 0.021774, 0.0638581, 0.0541159),
+                         # 2014/09/11: calibration_garfield.dat from Sebastion M. (sans1)
+                         calibration = (0.00186485, -0.0289753, -0.0587453, -0.0143078, -0.0399828),
+                         userlimits = (-0.35, 0.35),
                         ),
 )
 

@@ -34,7 +34,7 @@ _expcolumn = Column(
                  Field(name='Title',    key='exp/title',    width=20,
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=70,
-                       istext=True, maxlen=70),
+                       istext=True, maxlen=100),
                  Field(name='Data file', key='exp/lastimage'),
                  Field(name='Current Sample', key='sample/samplename', width=16),
             )

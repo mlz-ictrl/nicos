@@ -74,14 +74,16 @@ _htf03 = Block('HTF03', [
 _htf03_plot = Block('HTF03 plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=45, plotwindow=1800,
-              devices=['T_htf03', 'T_htf03/setpoint'],
-              names=['30min', 'Setpoint'],
+              width=70, height=40, plotinterval=1800,
+              devices=['T_htf03', 'T_htf03/setpoint', 'T_htf03/target'],
+              names=['30min', 'Setpoint', 'Target'],
               ),
+        ),
+    BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=45, plotwindow=24*3600,
-              devices=['T_htf03', 'T_htf03/setpoint'],
-              names=['24h', 'Setpoint'],
+              width=70, height=40, plotinterval=12*3600,
+              devices=['T_htf03', 'T_htf03/setpoint', 'T_htf03/target'],
+              names=['12h', 'Setpoint', 'Target'],
               ),
         ),
 ], 'htf03')
@@ -156,6 +158,38 @@ _miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
         ),
 ], 'miramagnet')
 
+_amagnet = Block('Antares Magnet', [
+    BlockRow(Field(name='Field', dev='B_amagnet', width=12),
+             Field(name='Target', key='B_amagnet/target', width=12),
+             ),
+    BlockRow(
+             Field(name='Current', dev='amagnet_current', width=12),
+             Field(name='ON/OFF', dev='amagnet_onoff', width=12),
+             ),
+    BlockRow(
+             Field(name='Polarity', dev='amagnet_polarity', width=12),
+             Field(name='Connection', dev='amagnet_connection', width=12),
+            ),
+    BlockRow(
+             Field(name='Lambda out', dev='l_out', width=12),
+            ),
+], 'amagnet')
+
+_amagnet_plot = Block('Antares Magnet plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=60, height=15, plotinterval=1800,
+              devices=['B_amagnet', 'b_amagnet/setpoint', 'b_amagnet/target'],
+              names=['30min', 'Setpoint', 'Target'],
+              ),
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=60, height=15, plotinterval=12*3600,
+              devices=['B_amagnet', 'b_amagnet/setpoint', 'b_amagnet/target'],
+              names=['12h', 'Setpoint', 'Target'],
+              ),
+        ),
+], 'amagnet')
+
 _spinflipper = Block('Spin Flipper', [
     BlockRow(
              Field(name='Power', dev='P_spinflipper_agilent'),
@@ -172,11 +206,6 @@ _spinflipper = Block('Spin Flipper', [
             ),
 ], 'spinflipper')
 
-_amagnet = Block('Garfield Magnet', [
-    BlockRow(Field(name='Lambda out', dev='l_out'),),
-    #BlockRow(Field(name='Lambda in', dev='l_in'),),
-], 'amagnet')
-
 _newport = Block('NewPort', [
     BlockRow(
              Field(name='NP 02 position', dev='sth_newport02'),
@@ -191,6 +220,10 @@ for i in range(10, 22 + 1):
         BlockRow(
             Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
                    unitkey='t/unit'),
+            Field(name='Target', key='t_ccr%d_tube/target' % i,
+                   unitkey='t/unit'),
+        ),
+        BlockRow(
             Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
                    unitkey='t/unit'),
         ),
@@ -204,12 +237,28 @@ for i in range(10, 22 + 1):
         ),
     ], 'ccr%d' % i))
 
+ccrs_plot = []
+for k in range(10, 22 + 1):
+    ccrs_plot.append(Block('30min CCR%d plot' %k, [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=50, height=15, plotinterval=30*60,
+              devices=['T', 'Ts', 'T/setpoint', 'T/target'],
+              names=['T', 'Ts', 'Setpoint', 'Target'],
+              ),
+        ),
+], 'ccr%d' %k))
+
 cryos = []
 for j in range(1, 5 + 1):
     cryos.append(Block('Cryo%d' % j, [
         BlockRow(
             Field(name='Setpoint', key='t_cryo%d/setpoint' % j,
                    unitkey='t/unit'),
+            Field(name='Target', key='t_cryo%d/target' % j,
+                   unitkey='t/unit'),
+        ),
+        BlockRow(
             Field(name='Manual Heater Power', key='t_cryo%d/heaterpower' % j,
                    unitkey='t/unit'),
         ),
@@ -281,13 +330,13 @@ devices = dict(
                      layout=[
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _st2, _st1, _amagnet, _newport),
-                                    Column(_htf03, _spinflipper, _ccmsans, _miramagnet),
-                                    Column(_ccmsans_temperature, *cryos),
+                                    Column(_sc1, _st2, _st1, _newport),
+                                    Column(_htf03, _spinflipper, _ccmsans, _miramagnet, _amagnet),
+                                    Column(_ccmsans_temperature, _htf03_plot, *cryos) + Column(*ccrs_plot),
                                     Column(*ccrs) + Column(_birmag),
                                    ),
                                 Row(
-                                    Column(_htf03_plot, _ccmsans_plot, _miramagnet_plot),
+                                    Column(_ccmsans_plot, _miramagnet_plot, _amagnet_plot),
                                    ),
                             ],
                     ),

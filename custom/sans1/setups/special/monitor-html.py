@@ -221,12 +221,35 @@ _miramagnet = Column(
     ),
 )
 
+_amagnet = Column(
+    Block('Antares Magnet', [
+        BlockRow(
+                 Field(name='Field', dev='B_amagnet'),
+                 Field(name='Target', key='B_amagnet/target', width=12),
+                ),
+        ],'amagnet'
+    ),
+)
+
 _sc1 = Column(
     Block('Sample Changer 1', [
       BlockRow(
        Field(name='Position', dev='sc1_y'),
-       Field(name='SampleChanger', dev='sc1'),),
+       Field(name='SampleChanger', dev='sc1'),
+       ),
 ], 'sc1'),)
+
+_htf03 = Column(
+    Block('HTF03', [
+      BlockRow(
+       Field(name='Temperature', dev='T_htf03', format = '%.2f'),
+       Field(name='Target', key='t_htf03/target', format = '%.2f'),
+       ),
+      BlockRow(
+       Field(name='Setpoint', key='t_htf03/setpoint', format = '%.1f'),
+       Field(name='Heater Power', key='t_htf03/heaterpower', format = '%.1f'),
+       ),
+], 'htf03'),)
 
 _spinflipper = Column(
     Block('SpinFlipper', [
@@ -299,7 +322,7 @@ devices = dict(
                                  Row(_sans1general, _table2, _table1, _sans1det),
                                  Row(_ubahncolumn, _pressurecolumn),
                                  Row(_selcolumn, _atpolcolumn, _sanscolumn),
-                                 Row(_sansmagnet, _spinflipper, _ccrs, _cryos, _sc1, _miramagnet),
+                                 Row(_sansmagnet, _spinflipper, _ccrs, _cryos, _sc1, _miramagnet, _amagnet, _htf03),
                                ],
                     ),
 )
