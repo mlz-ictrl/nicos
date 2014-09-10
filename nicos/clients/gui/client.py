@@ -24,6 +24,7 @@
 
 """NICOS daemon client object for the GUI."""
 
+from time import time as currenttime
 from weakref import ref
 
 from PyQt4.QtCore import QObject, SIGNAL
@@ -79,4 +80,4 @@ class NicosGuiClient(NicosClient, QObject):
             for key, value in values:
                 for widget in self._reg_keys[key]:
                     if widget():
-                        widget().on_keyChange(key, value, 0, False)
+                        widget().on_keyChange(key, value, currenttime(), False)
