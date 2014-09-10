@@ -210,7 +210,7 @@ class DevicesPanel(Panel):
         params = self.client.getDeviceParams(devname)
         if not params:
             return
-        lowlevel_device = params.get('lowlevel')
+        lowlevel_device = params.get('lowlevel') or False
         if lowlevel_device and not self._show_lowlevel:
             return
         if 'nicos.core.data.DataSink' in params.get('classes', []):
