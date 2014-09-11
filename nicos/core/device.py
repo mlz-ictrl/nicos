@@ -1391,7 +1391,7 @@ class Moveable(Readable):
         This blocks :meth:`start` or :meth:`stop` when called on the device.
         """
         eu = getExecutingUser()
-        if self.fixedby and not checkUserLevel(eu, self.fixedby[1]):
+        if self.fixedby and not checkUserLevel(self.fixedby[1], eu):
             # fixed and not enough rights
             self.log.error('device was fixed by %r already' % self.fixedby[0])
             return False
@@ -1408,7 +1408,7 @@ class Moveable(Readable):
     def release(self):
         """Release the device, i.e. undo the effect of fix()."""
         eu = getExecutingUser()
-        if self.fixedby and not checkUserLevel(eu, self.fixedby[1]):
+        if self.fixedby and not checkUserLevel(self.fixedby[1], eu):
             # fixed and not enough rights
             self.log.error('device was fixed by %r and you are not allowed '
                            'to release it' % self.fixedby[0])

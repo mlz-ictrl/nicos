@@ -218,7 +218,10 @@ def getExecutingUser():
     return user
 
 
-def checkUserLevel(user, level=0):
+def checkUserLevel(level=0, user=None):
+    if user is None:
+        user = getExecutingUser()
+
     return user.level >= level
 
 
