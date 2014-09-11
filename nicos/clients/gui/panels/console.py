@@ -235,11 +235,10 @@ class ConsolePanel(Panel):
             setForegroundColor(self.commandInput, QColor("#000000"))
 
     def on_commandInput_returnPressed(self):
-        script = self.commandInput.text()
+        script = self.commandInput.text().strip()
         if not script:
             return
         # XXX: this does not apply in SPM mode
-        # sscript = script.strip()
         # if not (sscript.startswith(('#', '?', '.', ':')) or sscript.endswith('?')):
         #     try:
         #         compile(script+'\n', 'script', 'single')
