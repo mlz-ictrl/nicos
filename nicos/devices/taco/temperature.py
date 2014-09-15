@@ -31,6 +31,7 @@ import Temperature
 
 from nicos.core import status, oneof, Param, Readable, Moveable, HasLimits, \
     TimeoutError, Override
+from nicos.core.utils import waitForStatus
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -90,6 +91,7 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
         if self.status()[0] == status.BUSY:
             self.log.debug('stopping running temperature change')
             self._taco_guard(self._dev.stop)
+            waitForStatus(self)
         self._taco_guard(self._dev.write, target)
         self._pollParam('setpoint', 100)
 
