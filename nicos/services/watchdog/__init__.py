@@ -126,7 +126,7 @@ class Watchdog(BaseCacheClient):
             for node in ast.walk(cond_parse):
                 if isinstance(node, ast.Name):
                     key = node.id[::-1].replace('_', '/', 1).lower()[::-1]
-                    self._keymap[self._prefix + key] = entry
+                    self._keymap.setdefault(self._prefix + key, set()).add(entry)
 
     def _put_message(self, msgtype, message, timestamp=True):
         if timestamp:
@@ -148,33 +148,33 @@ class Watchdog(BaseCacheClient):
         # put key in db
         self._keydict[key[len(self._prefix):].replace('/', '_').lower()] = \
             cache_load(value)
-        entry = self._keymap[key]
-        eid = entry.id
-        # is the necessary setup loaded?
-        if entry.setup and entry.setup not in self._setups:
-            return
-        # is it a new value or an expiration?
-        if op == OP_TELLOLD or value is None:
-            # add it to the watchlist, and if the value doesn't come back in 10
-            # minutes, we warn
-            self._watch_expired[eid] = [currenttime() + 600]
-            return
-        if op == OP_TELL:
-            # remove from expiration watchlist
-            self._watch_expired.pop(eid, None)
-            try:
-                value = eval(entry.condition, self._keydict)
-            except Exception:
-                self.log.warning('error evaluating %r warning condition' % key,
-                                 exc=1)
-                return
-            if entry.gracetime and value and eid not in self._watch_grace:
-                self.log.info('condition %r triggered, awaiting grace time'
-                              % entry.condition)
-                self._watch_grace[eid] = [currenttime() + entry.gracetime,
-                                          value]
-            else:
-                self._process_warning(entry, value)
+        for entry in self._keymap[key]:
+            eid = entry.id
+            # is the necessary setup loaded?
+            if entry.setup and entry.setup not in self._setups:
+                continue
+            # is it a new value or an expiration?
+            if op == OP_TELLOLD or value is None:
+                # add it to the watchlist, and if the value doesn't come back in 10
+                # minutes, we warn
+                self._watch_expired[eid] = [currenttime() + 600]
+                continue
+            if op == OP_TELL:
+                # remove from expiration watchlist
+                self._watch_expired.pop(eid, None)
+                try:
+                    value = eval(entry.condition, self._keydict)
+                except Exception:
+                    self.log.warning('error evaluating %r warning condition' % key,
+                                     exc=1)
+                    continue
+                if entry.gracetime and value and eid not in self._watch_grace:
+                    self.log.info('condition %r triggered, awaiting grace time'
+                                  % entry.condition)
+                    self._watch_grace[eid] = [currenttime() + entry.gracetime,
+                                              value]
+                else:
+                    self._process_warning(entry, value)
 
     def _update_mailreceivers(self, emails):
         self.log.info('updating any Mailer receivers to %s' % emails)
