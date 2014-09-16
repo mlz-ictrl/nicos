@@ -49,7 +49,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
     """
 
     attached_devices = {
-        'currentsource':(Moveable, 'unipolar Powersupply'),
+        'currentsource': (Moveable, 'unipolar Powersupply'),
     }
 
     parameters = {
