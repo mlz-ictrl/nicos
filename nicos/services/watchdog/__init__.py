@@ -31,20 +31,11 @@ from time import time as currenttime, strftime
 
 from nicos import session, config
 from nicos.core import Param, Override, listof, dictof, anytype
+from nicos.utils import lc_dict
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.devices.notifiers import Notifier, Mailer
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.pycompat import OrderedDict, iteritems, listitems
-
-
-class LCDict(dict):
-    """Dictionary with automatic lower-casing of keys."""
-    def __getitem__(self, key):
-        return dict.__getitem__(self, key.lower())
-    def __setitem__(self, key, value):
-        return dict.__setitem__(self, key.lower(), value)
-    def __delitem__(self, key, value):
-        return dict.__delitem__(self, key.lower())
 
 
 class Entry(object):
@@ -99,7 +90,7 @@ class Watchdog(BaseCacheClient):
         # current count loop pause reasons: mapping like self._warnings
         self._pausecount = OrderedDict()
         # dictionary of keys used to evaluate the conditions
-        self._keydict = LCDict()
+        self._keydict = lc_dict()
 
         # create all notifier devices
         self._all_notifiers = []

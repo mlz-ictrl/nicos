@@ -60,13 +60,27 @@ class attrdict(dict):
             return self[key]
         except KeyError:
             raise AttributeError(key)
+
     def __setattr__(self, key, value):
         self[key] = value
+
     def __delattr__(self, key):
         try:
             del self[key]
         except KeyError:
             raise AttributeError(key)
+
+
+class lc_dict(dict):
+    """Dictionary with automatic lower-casing of keys."""
+    def __getitem__(self, key):
+        return dict.__getitem__(self, key.lower())
+
+    def __setitem__(self, key, value):
+        return dict.__setitem__(self, key.lower(), value)
+
+    def __delitem__(self, key, value):
+        return dict.__delitem__(self, key.lower())
 
 
 class lazy_property(object):
