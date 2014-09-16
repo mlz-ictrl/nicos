@@ -343,20 +343,30 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
             raise CommunicationError(self, 'HW still busy, can not set '
                                             'position, please retry later....')
 
-        self._writeDestination(self._phys2steps(value))
-        self._writeUpperControlWord((1<< 8) | 1) # index=1: current position
+        loops = 10
+        for loop in range(loops):
+            self.log.debug('setPosition: loop %d of %d' % (loop, loops))
+            self._writeDestination(self._phys2steps(value))
+            self._writeUpperControlWord((1<< 8) | 1) # index=1: update current position
 
-        # Wait for ACK/NACK bits
-        for _ in range(1000):
-            if self._readStatusWord() & (3<<14) != 0:
+            # Wait for ACK/NACK bits
+            for _ in range(100):
+                last_sw = self._readStatusWord()
+                if last_sw & (3<<14) != 0:
+                    break
+            else:
+                self.log.warning('SetPosition command not recognized, retrying')
+
+            if last_sw & (2<<14) != 0:
+                self.log.debug('setPosition: got ACK')
                 break
+            elif last_sw & (1<<14):
+                self.log.debug('setPosition: got NACK')
+                raise CommunicationError(self, 'Setting position failed, got a '
+                                                'NACK!')
         else:
-            raise CommunicationError(self, 'Command not recognized by HW, '
+            raise CommunicationError(self, 'setPosition command not recognized by HW, '
                                             'please retry later....')
-
-        if self._readStatusWord() & (1<<14):
-            raise CommunicationError(self, 'Setting position failed, got a '
-                                            'NACK!')
 
         if was_on:
             self._HW_enable()
