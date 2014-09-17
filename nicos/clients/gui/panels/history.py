@@ -52,7 +52,7 @@ from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.plots import TimeSeries
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle, iteritems
+from nicos.pycompat import cPickle as pickle, iteritems, OrderedDict
 
 
 class View(QObject):
@@ -69,28 +69,41 @@ class View(QObject):
 
         self._key_indices = {}
         self.uniq_keys = set()
-        self.series = {}
+        self.series = OrderedDict()
+
+        hist_totime = self.totime or currenttime()
+        hist_cache = {}
 
         for key, index in keys_indices:
-            name = '%s[%d]' % (key, index) if index > -1 else key
-            self.series[key, index] = TimeSeries(name, interval, window, self)
+            real_indices = [index]
+            history = None
             self.uniq_keys.add(key)
-            self._key_indices.setdefault(key, []).append(index)
 
-        if fromtime is not None:
-            totime = self.totime or currenttime()
-            for key in self.uniq_keys:
-                history = query_func(key, self.fromtime, totime)
-                if history is None:
-                    from nicos.clients.gui.main import log
-                    log.error('Error getting history for %s.', key)
-                    history = []
-                for index in self._key_indices[key]:
-                    self.series[key, index].init_from_history(history, fromtime,
-                                                              index)
-        else:
-            for series in self.series.values():
-                series.init_empty()
+            if fromtime is not None:
+                if key not in hist_cache:
+                    history = query_func(key, self.fromtime, hist_totime)
+                    if not history:
+                        from nicos.clients.gui.main import log
+                        log.error('Error getting history for %s.', key)
+                        history = []
+                    hist_cache[key] = history
+                else:
+                    history = hist_cache[key]
+                # if the value is a list/tuple and we don't have an index
+                # specified, add a plot for each item
+                if history:
+                    first_value = history[0][1]
+                    if index == -1 and isinstance(first_value, (list, tuple)):
+                        real_indices = range(len(first_value))
+            for index in real_indices:
+                name = '%s[%d]' % (key, index) if index > -1 else key
+                series = TimeSeries(name, interval, window, self)
+                self.series[key, index] = series
+                if history:
+                    series.init_from_history(history, fromtime, index)
+                else:
+                    series.init_empty()
+            self._key_indices.setdefault(key, []).extend(real_indices)
 
         self.listitem = None
         self.plot = None
