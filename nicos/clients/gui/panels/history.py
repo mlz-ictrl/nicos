@@ -34,7 +34,7 @@ from collections import OrderedDict
 
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
     QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction, QMessageBox, \
-    QBrush, QColor
+    QBrush, QColor, QStyledItemDelegate
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL, \
     pyqtSignature as qtsig
 
@@ -46,9 +46,23 @@ from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, \
 from nicos.clients.gui.widgets.plotting import ViewPlot, LinearFitter
 from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
+from nicos.guisupport.trees import DeviceParamTree
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle, iteritems, integer_types
+from nicos.pycompat import cPickle as pickle, iteritems, integer_types, \
+    number_types
+
+
+class NoEditDelegate(QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        return None
+
+
+def float_with_default(s, d):
+    try:
+        return float(s)
+    except ValueError:
+        return d
 
 
 class View(QObject):
@@ -164,19 +178,17 @@ class View(QObject):
 
 class NewViewDialog(QDialog, DlgUtils):
 
-    def __init__(self, parent, info=None, devlist=None):
+    def __init__(self, parent, info=None, client=None):
         QDialog.__init__(self, parent)
         DlgUtils.__init__(self, 'History viewer')
         loadUi(self, 'history_new.ui', 'panels')
+        self.client = client
 
         self.fromdate.setDateTime(QDateTime.currentDateTime())
         self.todate.setDateTime(QDateTime.currentDateTime())
 
         self.customY.toggled.connect(self.toggleCustomY)
         self.toggleCustomY(False)
-
-        if devlist:
-            self.devices.addItems(devlist)
 
         self.simpleTime.toggled.connect(self.toggleSimpleExt)
         self.extTime.toggled.connect(self.toggleSimpleExt)
@@ -189,8 +201,15 @@ class NewViewDialog(QDialog, DlgUtils):
         self.helpButton.clicked.connect(self.showDeviceHelp)
         self.simpleHelpButton.clicked.connect(self.showSimpleHelp)
 
+        self.deviceTree = None
+        self.deviceTreeSel = OrderedDict()
+        if not client:
+            self.devicesFrame.hide()
+        else:
+            self._createDeviceTree()
+
         if info is not None:
-            self.devices.setEditText(info['devices'])
+            self.devices.setText(info['devices'])
             self.namebox.setText(info['name'])
             self.simpleTime.setChecked(info['simpleTime'])
             self.simpleTimeSpec.setText(info['simpleTimeSpec'])
@@ -204,6 +223,106 @@ class NewViewDialog(QDialog, DlgUtils):
             self.customY.setChecked(info['customY'])
             self.customYFrom.setText(info['customYFrom'])
             self.customYTo.setText(info['customYTo'])
+
+    blacklist = {'maxage', 'pollinterval', 'lowlevel', 'classes'}
+
+    def _createDeviceTree(self):
+        def param_predicate(name, value, info):
+            return name not in self.blacklist and \
+                (not info or info.get('userparam', True)) and \
+                (name == 'value' or
+                 isinstance(value, (number_types, list, tuple)))
+
+        def item_callback(item, parent=None):
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
+            if parent and item.text(0) == 'status':
+                item.setText(1, '0')
+            if parent and item.text(0) == 'value':
+                # skip child, but make parent selectable
+                parent.setCheckState(0, Qt.Unchecked)
+                return False
+            elif parent:
+                item.setCheckState(0, Qt.Unchecked)
+            return True
+
+        self.deviceTree = tree = DeviceParamTree(self)
+        tree.device_clause = '"." not in dn'
+        tree.param_predicate = param_predicate
+        tree.item_callback = item_callback
+        tree.setColumnCount(3)
+        tree.setHeaderLabels(['Device/Param', 'Index', 'Scale', 'Offset'])
+        tree.setClient(self.client)
+
+        tree.setColumnWidth(1, tree.columnWidth(1) // 2)
+        tree.setColumnWidth(2, tree.columnWidth(2) // 2)
+        tree.setColumnWidth(3, tree.columnWidth(3) // 2)
+        tree.resizeColumnToContents(0)
+        tree.setColumnWidth(0, tree.columnWidth(0) * 1.5)
+        # disallow editing for name column
+        tree.setItemDelegateForColumn(0, NoEditDelegate())
+
+        # restore selection from entries in textbox
+        if self.devices.text():
+            keys_indices = [extractKeyAndIndex(d.strip())
+                            for d in self.devices.text().split(',')]
+            for key, indices, scale, offset in keys_indices:
+                dev, _, param = key.partition('/')
+                for i in range(tree.topLevelItemCount()):
+                    if tree.topLevelItem(i).text(0) == dev:
+                        devitem = tree.topLevelItem(i)
+                        break
+                else:
+                    continue
+                if param == 'value':
+                    item = devitem
+                else:
+                    for i in range(devitem.childCount()):
+                        if devitem.child(i).text(0) == param:
+                            item = devitem.child(i)
+                            item.parent().setExpanded(True)
+                            break
+                    else:
+                        continue
+                suffix = ''.join('[%s]' % i for i in indices)
+                if scale != 1:
+                    suffix += '*%.4g' % scale
+                if offset != 0:
+                    suffix += '%+.4g' % offset
+                item.setCheckState(0, Qt.Checked)
+                item.setText(1, ','.join(map(str, indices)))
+                item.setText(2, '%.4g' % scale)
+                item.setText(3, '%.4g' % offset)
+                self.deviceTreeSel[key] = suffix
+
+        tree.itemChanged.connect(self.on_deviceTree_itemChanged)
+        self.devicesFrame.layout().addWidget(tree)
+        self.devicesFrame.show()
+        self.resize(self.sizeHint())
+
+    def on_deviceTree_itemChanged(self, item, col):
+        key = item.text(0)
+        if item.parent():  # a device parameter
+            key = item.parent().text(0) + '.' + key
+        if item.checkState(0) == Qt.Checked:
+            index = item.text(1)
+            if not item.text(2):
+                item.setText(2, '1')
+            if not item.text(3):
+                item.setText(3, '0')
+            suffix = ''.join('[%s]' % i for i in index.split(',')) \
+                if index else ''
+            scale = float_with_default(item.text(2), 1)
+            offset = float_with_default(item.text(3), 0)
+            if scale != 1:
+                suffix += '*' + item.text(2)
+            if offset != 0:
+                suffix += ('+' if offset > 0 else '-') + \
+                    item.text(3).strip('+-')
+            self.deviceTreeSel[key] = suffix
+        else:
+            self.deviceTreeSel.pop(key, None)
+        self.devices.setText(', '.join((k + v) for (k, v)
+                                       in iteritems(self.deviceTreeSel)))
 
     def showSimpleHelp(self):
         self.showInfo('Please enter a time interval with unit like this:\n\n'
@@ -269,7 +388,7 @@ class NewViewDialog(QDialog, DlgUtils):
 
     def infoDict(self):
         return dict(
-            devices = self.devices.currentText(),
+            devices = self.devices.text(),
             name = self.namebox.text(),
             simpleTime = self.simpleTime.isChecked(),
             simpleTimeSpec = self.simpleTimeSpec.text(),
@@ -286,6 +405,8 @@ class NewViewDialog(QDialog, DlgUtils):
 
 
 class BaseHistoryWindow(object):
+
+    client = None
 
     def __init__(self):
         loadUi(self, 'history.ui', 'panels')
@@ -489,11 +610,8 @@ class BaseHistoryWindow(object):
         self.showNewDialog()
 
     def showNewDialog(self, devices=''):
-        devlist = []
-        if hasattr(self, 'client'):
-            devlist = self.client.getDeviceList()
-        newdlg = NewViewDialog(self, devlist=devlist)
-        newdlg.devices.setEditText(devices)
+        newdlg = NewViewDialog(self, client=self.client)
+        newdlg.devices.setText(devices)
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
@@ -504,7 +622,7 @@ class BaseHistoryWindow(object):
 
     def newView(self, devices):
         newdlg = NewViewDialog(self)
-        newdlg.devices.setEditText(devices)
+        newdlg.devices.setText(devices)
         info = newdlg.infoDict()
         self._createViewFromDialog(info)
 
@@ -559,7 +677,7 @@ class BaseHistoryWindow(object):
     @qtsig('')
     def on_actionEditView_triggered(self):
         view = self.viewStack[-1]
-        newdlg = NewViewDialog(self, view.dlginfo)
+        newdlg = NewViewDialog(self, view.dlginfo, client=self.client)
         newdlg.setWindowTitle('Edit history view')
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
