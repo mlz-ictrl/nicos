@@ -3,21 +3,34 @@
 description = 'setup for the execution daemon'
 group = 'special'
 
-import hashlib
-
 devices = dict(
     # to authenticate against the UserOffice, needs the "propdb" parameter
     # set on the Experiment object
     UserDB = device('frm2.auth.Frm2Authenticator'),
 
     # fixed list of users:
-    # first entry is the user name, second the hashed password, third the user level
-    # (of course, for real passwords you don't calculate the hash here :)
+    # first entry is the user name, second the hashed password, third the user
+    # level
+    # The user level are 'guest, 'user', and 'admin', ascending ordered in
+    # respect to the rights
+    # The entries for the password hashes are generated from randomized
+    # passwords and not reproduceable, please don't forget to create new ones:
+    # start python
+    # >>> import hashlib
+    # >>> hashlib.md5('password').hexdigest()
+    # or
+    # >>> hashlib.sha1('password').hexdigest()
+    # depending on the hashing algorithm
     Auth   = device('services.daemon.auth.ListAuthenticator',
+                    # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
-                    passwd = [('guest', '', 'guest'),
-                              ('user', hashlib.md5(b'user').hexdigest(), 'user'),
-                              ('admin', hashlib.md5(b'admin').hexdigest(), 'admin')],
+                    passwd = [('guest', '9bc2f07a6940933e7c1fd2447c5c07ba',
+                               'guest'),
+                              ('user', 'd3bde5ce3e546626df42771c58986d4e',
+                               'user'),
+                              ('admin', 'f3309476bdb36550aa8fb90ae748c9cc',
+                               'admin'),
+                             ],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     # 'localhost' will normally bind the daemon to the loopback
