@@ -36,7 +36,6 @@ from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, \
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, QSettings, \
     SIGNAL, pyqtSignature as qtsig
 
-import numpy as np
 try:
     from nicos.clients.gui.widgets.grplotting import ViewPlot
     _gr_available = True
@@ -50,16 +49,10 @@ from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 from nicos.guisupport.utils import extractKeyAndIndex
+from nicos.guisupport.plots import TimeSeries
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle, iteritems, string_types, number_types
-
-
-class TimeSeries(object):
-    def __init__(self, name):
-        self.name = name
-        self.info = None
-        self.data = None
+from nicos.pycompat import cPickle as pickle, iteritems
 
 
 class View(QObject):
@@ -69,8 +62,6 @@ class View(QObject):
         self.name = name
         self.dlginfo = dlginfo
 
-        self.interval = interval
-        self.window = window
         self.fromtime = fromtime
         self.totime = totime
         self.yfrom = yfrom
@@ -82,11 +73,11 @@ class View(QObject):
 
         for key, index in keys_indices:
             name = '%s[%d]' % (key, index) if index > -1 else key
-            self.series[key, index] = TimeSeries(name)
+            self.series[key, index] = TimeSeries(name, interval, window, self)
             self.uniq_keys.add(key)
             self._key_indices.setdefault(key, []).append(index)
 
-        if self.fromtime is not None:
+        if fromtime is not None:
             totime = self.totime or currenttime()
             for key in self.uniq_keys:
                 history = query_func(key, self.fromtime, totime)
@@ -95,12 +86,11 @@ class View(QObject):
                     log.error('Error getting history for %s.', key)
                     history = []
                 for index in self._key_indices[key]:
-                    data, info = self._construct_history(key, index, history)
-                    self.series[key, index].data = data
-                    self.series[key, index].info = info
+                    self.series[key, index].init_from_history(history, fromtime,
+                                                              index)
         else:
             for series in self.series.values():
-                series.data = [np.zeros(500), np.zeros(500), 0, 0, None]
+                series.init_empty()
 
         self.listitem = None
         self.plot = None
@@ -111,68 +101,15 @@ class View(QObject):
             self.timer.timeout.connect(self.on_timer_timeout)
             self.timer.start()
 
-    def _construct_history(self, key, index, history):
-        string_mapping = {}
-        ltime = 0
-        lvalue = None
-        fromtime = self.fromtime
-        interval = self.interval
-        maxdelta = max(2 * interval, 11)
-        x, y = np.zeros(2 * len(history)), np.zeros(2 * len(history))
-        i = 0
-        vtime = value = None  # stops pylint from complaining
-        for vtime, value in history:
-            if index > -1:
-                try:
-                    value = value[index]
-                except (TypeError, IndexError):
-                    continue
-            if value is None:
-                continue
-            delta = vtime - ltime
-            if delta < interval:
-                # value comes too fast -> ignore
-                continue
-            if not isinstance(value, number_types):
-                # if it's a string, create a new unique integer value for the string
-                if isinstance(value, string_types):
-                    value = string_mapping.setdefault(value, len(string_mapping))
-                # other values we can't use
-                else:
-                    continue
-            if delta > maxdelta and lvalue is not None:
-                # synthesize a point inbetween
-                x[i] = vtime - interval
-                y[i] = lvalue
-                i += 1
-            x[i] = ltime = max(vtime, fromtime)
-            y[i] = lvalue = value
-            i += 1
-        # In case the final value was discarded because it came too fast,
-        # add it anyway, because it will potentially be the last one for
-        # longer, and synthesized.
-        if i and y[i-1] != value:
-            x[i] = vtime
-            y[i] = value
-            i += 1
-        x.resize((2 * i or 500,))
-        y.resize((2 * i or 500,))
-        # data is a list of five items: x value array, y value array,
-        # index of last value, index of last "real" value (not counting
-        # synthesized points from the timer, see below), last received
-        # value (even if thrown away)
-        data = [x, y, i, i, lvalue]
-        info = None
-        if string_mapping:
-            info = ', '.join('%s=%s' % (v, k) for (k, v) in
-                             iteritems(string_mapping))
-        return data, info
+        self.connect(self, SIGNAL('timeSeriesUpdate'), self.on_timeSeriesUpdate)
 
     def on_timer_timeout(self):
         for series in self.series.values():
-            kd = series.data
-            if kd[0][kd[2]-1] < currenttime() - self.interval:
-                self._new_value_for(currenttime(), series, kd[4], real=False)
+            series.synthesize_value()
+
+    def on_timeSeriesUpdate(self, series):
+        if self.plot:
+            self.plot.pointsAdded(series)
 
     def newValue(self, vtime, key, op, value):
         if op != '=':
@@ -181,61 +118,11 @@ class View(QObject):
             series = self.series[key, index]
             if index > -1:
                 try:
-                    self._new_value_for(vtime, series, value[index])
+                    series.add_value(vtime, value[index])
                 except (TypeError, IndexError):
                     continue
             else:
-                self._new_value_for(vtime, series, value)
-
-    def _new_value_for(self, vtime, series, value, real=True):
-        kd = series.data
-        n = kd[2]
-        real_n = kd[3]
-        kd[4] = value
-        # do not add value if it comes too fast
-        if real_n > 0 and kd[0][real_n-1] > vtime - self.interval:
-            return
-        # double array size if array is full
-        if n >= kd[0].shape[0]:
-            # we select a certain maximum # of points to avoid filling up memory
-            # and taking forever to update
-            if kd[0].shape[0] > 5000:
-                # don't add more points, make existing ones more sparse
-                kd[0][:n/2] = kd[0][1::2]
-                kd[1][:n/2] = kd[1][1::2]
-                n = kd[2] = kd[3] = n / 2
-            else:
-                kd[0].resize((2 * kd[0].shape[0],))
-                kd[1].resize((2 * kd[1].shape[0],))
-        # fill next entry
-        if not real and real_n < n - 1:
-            # do not generate endless amounts of synthesized points,
-            # two are enough (one at the beginning, one at the end of
-            # the interval without real points)
-            kd[0][n-1] = vtime
-            kd[1][n-1] = value
-        else:
-            kd[0][n] = vtime
-            kd[1][n] = value
-            kd[2] += 1
-            if real:
-                kd[3] = kd[2]
-        # check sliding window
-        if self.window:
-            i = -1
-            threshold = vtime - self.window
-            while kd[0][i+1] < threshold and i < n:
-                if kd[0][i+2] > threshold:
-                    kd[0][i+1] = threshold
-                    break
-                i += 1
-            if i >= 0:
-                kd[0][0:n - i] = kd[0][i+1:n+1].copy()
-                kd[1][0:n - i] = kd[1][i+1:n+1].copy()
-                kd[2] -= i+1
-                kd[3] -= i+1
-        if self.plot:
-            self.plot.pointsAdded(series)
+                series.add_value(vtime, value)
 
 
 class NewViewDialog(QDialog, DlgUtils):

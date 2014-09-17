@@ -85,14 +85,12 @@ class ViewPlot(NicosPlot):
         plotcurve.setPen(pen)
         plotcurve.setSymbol(self.nosymbol)
         plotcurve.setStyle(QwtPlotCurve.Lines)
-        x, y, n = series.data[:3]
-        plotcurve.setData(x[:n], y[:n])
+        plotcurve.setData(series.x[:series.n], series.y[:series.n])
         self.series2curve[series] = plotcurve
         self.addPlotCurve(plotcurve, replot)
 
     def pointsAdded(self, series):
-        x, y, n = series.data[:3]
-        self.series2curve[series].setData(x[:n], y[:n])
+        self.series2curve[series].setData(series.x[:series.n], series.y[:series.n])
         self.replot()
 
     def setLines(self, on):

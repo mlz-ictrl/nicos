@@ -447,19 +447,18 @@ class ViewPlot(NicosPlot):
         curvename = series.name
         if series.info:
             curvename += ' (' + series.info + ')'
-        x, y, n, _, _ = series.data
+        n = series.n
         if n > 0:
             color = self._color.getNextColorIndex()
-            plotcurve = NicosPlotCurve(x[:n], y[:n], legend=curvename,
+            plotcurve = NicosPlotCurve(series.x[:n], series.y[:n], legend=curvename,
                                        linecolor=color, markercolor=color)
             self.series2curve[series] = plotcurve
             self.addPlotCurve(plotcurve, replot)
 
     def pointsAdded(self, series):
         plotcurve = self.series2curve[series]
-        x, y, n, _, _ = series.data
-        plotcurve.x = x[:n].copy()
-        plotcurve.y = y[:n].copy()
+        plotcurve.x = series.x[:series.n].copy()
+        plotcurve.y = series.y[:series.n].copy()
         self._axes.addCurves(plotcurve)
         InteractiveGRWidget.update(self)
 
