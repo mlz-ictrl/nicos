@@ -416,7 +416,15 @@ class NicosClient(object):
         """
         query = 'dict((pn, pi.serialize()) for (pn, pi) in ' \
                 'session.getDevice(%r).parameters.items())' % devname
-        return self.eval(query, {})
+        result = self.eval(query, {})
+        if result and 'alias' in result:
+            query = 'dict((pn, pi.serialize()) for (pn, pi) in ' \
+                    'session.getDevice(session.getDevice(%r).alias).' \
+                    'parameters.items())' % devname
+            result2 = self.eval(query, {})
+            if result2:
+                result.update(result2)
+        return result or {}
 
     def getDeviceParams(self, devname):
         """Return values of all device parameters from cache, as a dictionary."""
