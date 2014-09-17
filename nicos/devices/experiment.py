@@ -20,6 +20,7 @@
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -1199,3 +1200,52 @@ class Experiment(Device):
 
     def doUpdateEnvlist(self, devices):
         self._envlist = None  # clear list of actual devices
+
+
+
+class ImagingExperiment(Experiment):
+    """General experiment device for all imaging instruments.
+
+    This specific experiment takes care about some common data
+    (dark images, open beam images) and behaviour for imaging instruments.
+    """
+
+    parameters = dict(
+        # for display purposes....
+        lastdarkimage = Param('Last dark image', type=str, settable=False,
+                               mandatory=False, default='', category='general'),
+        lastopenbeamimage = Param('Last Open Beam image', type=str, settable=False,
+                               mandatory=False, default='', category='general'),
+    )
+
+    @property
+    def darkimagedir(self):
+        return path.join(self.datapath, 'di')
+
+    @property
+    def openbeamdir(self):
+        return path.join(self.datapath, 'ob')
+
+    @property
+    def photodir(self):
+        return path.join(self.samplepath, 'photos')
+
+    @property
+    def extradirs(self):
+        extradirs = [self.darkimagedir, self.openbeamdir, self.photodir]
+        if self.sampledir:
+            extradirs.append(path.join(self.samplepath, 'eval', 'recon'))
+        return extradirs
+
+    @usermethod
+    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
+        Experiment.new(self, proposal, title=title, localcontact=localcontact,
+                           user=user, **kwds)
+
+        self._clearImgPaths()
+
+    def _clearImgPaths(self):
+        # clear state info
+        self._setROParam('lastdarkimage','')
+        self._setROParam('lastopenbeamimage','')
+

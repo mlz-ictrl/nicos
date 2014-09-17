@@ -10,12 +10,12 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.basic', 'nicos.commands.standard', 'antares.commands']
+modules = ['nicos.commands.basic', 'nicos.commands.standard', 'nicos.commands.imaging']
 
 devices = dict(
     Sample   = device('devices.sample.Sample'),
 
-    Exp      = device('antares.experiment.Experiment',
+    Exp      = device('frm2.experiment.ImagingExperiment',
                       dataroot = '/data',
                       sendmail = True,
                       serviceexp = '0',

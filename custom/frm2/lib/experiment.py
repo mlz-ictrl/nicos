@@ -29,7 +29,7 @@
 from nicos import session
 from nicos.core import Param, Override
 from nicos.frm2.proposaldb import queryCycle, queryProposal
-from nicos.devices.experiment import Experiment as BaseExperiment
+from nicos.devices.experiment import Experiment as BaseExperiment, ImagingExperiment as BaseImagingExperiment
 
 
 class Experiment(BaseExperiment):
@@ -148,3 +148,10 @@ class Experiment(BaseExperiment):
         kwds.setdefault('affiliation', 'MLZ Garching; Lichtenbergstr. 1; '
                         '85748 Garching; Germany')
         return kwds
+
+
+class ImagingExperiment(Experiment, BaseImagingExperiment):
+    """FRM2 specific imaging experiment which provides all imaging experiment
+    functionalities plus all the frm2 specific features.
+    """
+    pass

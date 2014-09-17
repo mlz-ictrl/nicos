@@ -108,7 +108,7 @@ class LiveDataPanel(Panel):
         self.widget.setInstrumentOption(self._instrument)
         if self._instrument == 'toftof':
             self.widget.setAxisLabels('time channels', 'detectors')
-        elif self._instrument == 'antares':
+        elif self._instrument == 'imaging':
             self.widget.setControls(ShowGrid | Logscale | Grayscale |
                                     Normalize | Darkfield | Despeckle |
                                     CreateProfile | Histogram | MinimumMaximum)
@@ -161,7 +161,7 @@ class LiveDataPanel(Panel):
         datapath = self.client.eval('session.experiment.datapath', '')
         if not path.isdir(datapath):
             return
-        if self._instrument == 'antares':
+        if self._instrument == 'imaging':
             for fn in sorted(os.listdir(datapath)):
                 if fn.endswith('.fits'):
                     self.add_to_flist(path.join(datapath, fn), '', 'fits', False)

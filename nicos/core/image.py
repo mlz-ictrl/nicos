@@ -220,7 +220,7 @@ class ImageProducer(DeviceMixinBase):
 
     parameters = {
         'subdir': Param('Detector specific subdirectory name for the image files',
-                        type=subdir, mandatory=True),
+                        type=subdir, mandatory=True, settable=True),
         'lastfilename': Param('Last written file by this detector',
                               type=str, default='', settable=True),
     }

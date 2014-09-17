@@ -171,6 +171,17 @@ one of your loaded setups.
 .. autofunction:: ho_spurions
 .. autofunction:: acc_bragg
 
+Imaging commands
+----------------
+To use these commands, add ``'nicos.commands.imaging'`` to the ``modules`` list of
+one of your loaded setups. Additionally, your experiment device has to be an :class:`~nicos.devices.experiment.ImagingExperiment`.
+
+.. module:: nicos.commands.imaging
+
+.. autofunction:: tomo
+.. autofunction:: openbeamimage
+.. autofunction:: darkimage
+
 Sample utility functions
 ------------------------
 .. module:: nicos.commands.sample
