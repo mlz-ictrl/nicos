@@ -31,7 +31,7 @@ import threading
 from time import sleep, time as currenttime
 
 from nicos import session
-from nicos.core import Device, Param, CacheLockError, CacheError, NicosError
+from nicos.core import Device, Param, CacheLockError, CacheError
 from nicos.utils import closeSocket
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
@@ -599,8 +599,8 @@ class CacheClient(BaseCacheClient):
         self._propagate((time, dbkey, OP_TELL, dvalue))
         # we have to check rewrites here, since the cache server won't send
         # us updates for a rewritten key if we sent the original key
-        if str(dev) in self._rewrites:
-            for newprefix in self._rewrites[str(dev)]:
+        if str(dev).lower() in self._rewrites:
+            for newprefix in self._rewrites[str(dev).lower()]:
                 rdbkey = ('%s/%s' % (newprefix, key)).lower()
                 with self._dblock:
                     self._db[rdbkey] = (value, time)
