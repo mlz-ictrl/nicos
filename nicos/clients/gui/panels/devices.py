@@ -127,6 +127,7 @@ class DevicesPanel(Panel):
         self.devmenu.addAction(self.actionHelp)
 
         self.devmenu_ro = QMenu(self)
+        self.devmenu_ro.addAction(self.actionMove)
         self.devmenu_ro.addAction(self.actionReset)
         self.devmenu_ro.addSeparator()
         self.devmenu_ro.addAction(self.actionPlotHistory)
