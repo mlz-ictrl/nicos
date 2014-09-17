@@ -50,3 +50,26 @@ def setBothColors(widget, colors):
     widget.setBackgroundRole(QPalette.Window)
     widget.setForegroundRole(QPalette.WindowText)
     widget.setPalette(palette)
+
+
+def extractKeyAndIndex(spec):
+    """Extract a key and possibly subindex from a cache key specification
+    given by the user.  This takes into account the following changes:
+
+    * '/' can be replaced by '.'
+    * If it is not in the form 'dev/key', '/value' is automatically
+      appended
+    * Subitems can be specified with '[i]'
+    """
+    key = spec.lower().replace('.', '/')
+    index = -1
+    if '[' in spec and spec.endswith(']'):
+        try:
+            key, index = key.split('[', 1)
+            key = key.strip()
+            index = int(index.rstrip(']'))
+        except ValueError:
+            index = -1
+    if '/' not in key:
+        key += '/value'
+    return key, index

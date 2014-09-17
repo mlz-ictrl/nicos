@@ -410,6 +410,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
 
 class ViewPlot(NicosPlot):
     def __init__(self, parent, window, view):
+        self.series2curve = {}
         self.view = view
         self.hasSymbols = False
         self.hasLines = True
@@ -425,8 +426,8 @@ class ViewPlot(NicosPlot):
         return 'value'
 
     def addAllCurves(self):
-        for i, key in enumerate(self.view.keys):
-            self.addCurve(i, key)
+        for i, series in enumerate(self.view.series.values()):
+            self.addCurve(i, series)
 
     def yaxisScale(self):
         if self.view.yfrom is not None:
@@ -442,28 +443,25 @@ class ViewPlot(NicosPlot):
             msg = "X = %s, Y = %g" % (ts, wc.y)
         self.window.statusBar.showMessage(msg)
 
-    def addCurve(self, i, key, replot=False):
-        curvename = key
-        keyinfo = self.view.keyinfo.get(key)
-        if keyinfo:
-            curvename += ' (' + keyinfo + ')'
-        x, y, n, _, _ = self.view.keydata[key]
+    def addCurve(self, i, series, replot=False):
+        curvename = series.name
+        if series.info:
+            curvename += ' (' + series.info + ')'
+        x, y, n, _, _ = series.data
         if n > 0:
             color = self._color.getNextColorIndex()
-            self.addPlotCurve(NicosPlotCurve(x[:n], y[:n], legend=curvename,
-                                             linecolor=color,
-                                             markercolor=color),
-                              replot)
+            plotcurve = NicosPlotCurve(x[:n], y[:n], legend=curvename,
+                                       linecolor=color, markercolor=color)
+            self.series2curve[series] = plotcurve
+            self.addPlotCurve(plotcurve, replot)
 
-    def pointsAdded(self, whichkey):
-        for key, plotcurve in zip(self.view.keys, self.plotcurves):
-            if key == whichkey:
-                x, y, n,_, _ = self.view.keydata[key]
-                plotcurve.x = x[:n].copy()
-                plotcurve.y = y[:n].copy()
-                self._axes.addCurves(plotcurve)
-                InteractiveGRWidget.update(self)
-                return
+    def pointsAdded(self, series):
+        plotcurve = self.series2curve[series]
+        x, y, n, _, _ = series.data
+        plotcurve.x = x[:n].copy()
+        plotcurve.y = y[:n].copy()
+        self._axes.addCurves(plotcurve)
+        InteractiveGRWidget.update(self)
 
     def setLines(self, on):
         linetype = None
@@ -484,12 +482,12 @@ class ViewPlot(NicosPlot):
         self.update()
 
     def selectCurve(self):
-        if len(self.view.keys) > 1:
+        if len(self.plotcurves) > 1:
             dlg = dialogFromUi(self, 'selector.ui', 'panels')
             dlg.setWindowTitle('Select curve to fit')
             dlg.label.setText('Select a curve:')
-            for key in self.view.keys:
-                QListWidgetItem(key, dlg.list)
+            for plotcurve in self.plotcurves:
+                QListWidgetItem(plotcurve.legend, dlg.list)
             dlg.list.setCurrentRow(0)
             if dlg.exec_() != QDialog.Accepted:
                 return
@@ -514,7 +512,9 @@ class ViewPlot(NicosPlot):
         return x, y, title, labelx, labely, interesting, None
 
     def saveData(self):
-        dlg = DataExportDialog(self, 'Select curve, file name and format',
+        curvenames = [plotcurve.legend for plotcurve in self.plotcurves]
+        dlg = DataExportDialog(self, curvenames,
+                               'Select curve, file name and format',
                                '', 'ASCII data files (*.dat)')
         res = dlg.exec_()
         if res != QDialog.Accepted:

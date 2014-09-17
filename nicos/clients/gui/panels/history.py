@@ -49,18 +49,26 @@ from nicos.core import Param, listof
 from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
+from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
 from nicos.pycompat import cPickle as pickle, iteritems, string_types, number_types
 
 
+class TimeSeries(object):
+    def __init__(self, name):
+        self.name = name
+        self.info = None
+        self.data = None
+
+
 class View(QObject):
-    def __init__(self, parent, name, keys, interval, fromtime, totime,
+    def __init__(self, parent, name, keys_indices, interval, fromtime, totime,
                  yfrom, yto, window, dlginfo, query_func):
         QObject.__init__(self, parent)
         self.name = name
         self.dlginfo = dlginfo
-        self.keys = keys
+
         self.interval = interval
         self.window = window
         self.fromtime = fromtime
@@ -68,67 +76,31 @@ class View(QObject):
         self.yfrom = yfrom
         self.yto = yto
 
-        self.keyinfo = {}
+        self._key_indices = {}
+        self.uniq_keys = set()
+        self.series = {}
+
+        for key, index in keys_indices:
+            name = '%s[%d]' % (key, index) if index > -1 else key
+            self.series[key, index] = TimeSeries(name)
+            self.uniq_keys.add(key)
+            self._key_indices.setdefault(key, []).append(index)
 
         if self.fromtime is not None:
-            self.keydata = {}
             totime = self.totime or currenttime()
-            for key in keys:
-                string_mapping = {}
+            for key in self.uniq_keys:
                 history = query_func(key, self.fromtime, totime)
                 if history is None:
                     from nicos.clients.gui.main import log
                     log.error('Error getting history for %s.', key)
                     history = []
-                ltime = 0
-                lvalue = None
-                interval = self.interval
-                maxdelta = max(2 * interval, 11)
-                x, y = np.zeros(2 * len(history)), np.zeros(2 * len(history))
-                i = 0
-                vtime = value = None  # stops pylint from complaining
-                for vtime, value in history:
-                    if value is None:
-                        continue
-                    delta = vtime - ltime
-                    if delta < interval:
-                        # value comes too fast -> ignore
-                        continue
-                    if not isinstance(value, number_types):
-                        # if it's a string, create a new unique integer value for the string
-                        if isinstance(value, string_types):
-                            value = string_mapping.setdefault(value, len(string_mapping))
-                        # other values we can't use
-                        else:
-                            continue
-                    if delta > maxdelta and lvalue is not None:
-                        # synthesize a point inbetween
-                        x[i] = vtime - interval
-                        y[i] = lvalue
-                        i += 1
-                    x[i] = ltime = max(vtime, fromtime)
-                    y[i] = lvalue = value
-                    i += 1
-                # In case the final value was discarded because it came too fast,
-                # add it anyway, because it will potentially be the last one for
-                # longer, and synthesized.
-                if i and y[i-1] != value:
-                    x[i] = vtime
-                    y[i] = value
-                    i += 1
-                x.resize((2 * i or 500,))
-                y.resize((2 * i or 500,))
-                # keydata is a list of five items: x value array, y value array,
-                # index of last value, index of last "real" value (not counting
-                # synthesized points from the timer, see below), last received
-                # value (even if thrown away)
-                self.keydata[key] = [x, y, i, i, lvalue]
-                if string_mapping:
-                    self.keyinfo[key] = ', '.join('%s=%s' % (v, k) for (k, v) in
-                                                  iteritems(string_mapping))
+                for index in self._key_indices[key]:
+                    data, info = self._construct_history(key, index, history)
+                    self.series[key, index].data = data
+                    self.series[key, index].info = info
         else:
-            self.keydata = dict((key, [np.zeros(500), np.zeros(500), 0, 0, None])
-                                for key in keys)
+            for series in self.series.values():
+                series.data = [np.zeros(500), np.zeros(500), 0, 0, None]
 
         self.listitem = None
         self.plot = None
@@ -139,15 +111,84 @@ class View(QObject):
             self.timer.timeout.connect(self.on_timer_timeout)
             self.timer.start()
 
-    def on_timer_timeout(self):
-        for key, kd in iteritems(self.keydata):
-            if kd[0][kd[2]-1] < currenttime() - self.interval:
-                self.newValue(currenttime(), key, '=', kd[4], real=False)
+    def _construct_history(self, key, index, history):
+        string_mapping = {}
+        ltime = 0
+        lvalue = None
+        fromtime = self.fromtime
+        interval = self.interval
+        maxdelta = max(2 * interval, 11)
+        x, y = np.zeros(2 * len(history)), np.zeros(2 * len(history))
+        i = 0
+        vtime = value = None  # stops pylint from complaining
+        for vtime, value in history:
+            if index > -1:
+                try:
+                    value = value[index]
+                except (TypeError, IndexError):
+                    continue
+            if value is None:
+                continue
+            delta = vtime - ltime
+            if delta < interval:
+                # value comes too fast -> ignore
+                continue
+            if not isinstance(value, number_types):
+                # if it's a string, create a new unique integer value for the string
+                if isinstance(value, string_types):
+                    value = string_mapping.setdefault(value, len(string_mapping))
+                # other values we can't use
+                else:
+                    continue
+            if delta > maxdelta and lvalue is not None:
+                # synthesize a point inbetween
+                x[i] = vtime - interval
+                y[i] = lvalue
+                i += 1
+            x[i] = ltime = max(vtime, fromtime)
+            y[i] = lvalue = value
+            i += 1
+        # In case the final value was discarded because it came too fast,
+        # add it anyway, because it will potentially be the last one for
+        # longer, and synthesized.
+        if i and y[i-1] != value:
+            x[i] = vtime
+            y[i] = value
+            i += 1
+        x.resize((2 * i or 500,))
+        y.resize((2 * i or 500,))
+        # data is a list of five items: x value array, y value array,
+        # index of last value, index of last "real" value (not counting
+        # synthesized points from the timer, see below), last received
+        # value (even if thrown away)
+        data = [x, y, i, i, lvalue]
+        info = None
+        if string_mapping:
+            info = ', '.join('%s=%s' % (v, k) for (k, v) in
+                             iteritems(string_mapping))
+        return data, info
 
-    def newValue(self, vtime, key, op, value, real=True):
+    def on_timer_timeout(self):
+        for series in self.series.values():
+            kd = series.data
+            if kd[0][kd[2]-1] < currenttime() - self.interval:
+                self._new_value_for(currenttime(), series, kd[4], real=False)
+
+    def newValue(self, vtime, key, op, value):
         if op != '=':
             return
-        kd = self.keydata[key]
+        for index in self._key_indices[key]:
+            series = self.series[key, index]
+            if index > -1:
+                try:
+                    self._new_value_for(vtime, series, value[index])
+                except (TypeError, IndexError):
+                    continue
+            else:
+                self._new_value_for(vtime, series, value)
+
+    def _new_value_for(self, vtime, series, value, real=True):
+        kd = series.data
         n = kd[2]
         real_n = kd[3]
         kd[4] = value
@@ -194,7 +235,7 @@ class View(QObject):
                 kd[2] -= i+1
                 kd[3] -= i+1
         if self.plot:
-            self.plot.pointsAdded(key)
+            self.plot.pointsAdded(series)
 
 
 class NewViewDialog(QDialog, DlgUtils):
@@ -244,15 +285,15 @@ class NewViewDialog(QDialog, DlgUtils):
 
     def showSimpleHelp(self):
         self.showInfo('Please enter a time interval with unit like this:\n\n'
-            '30m   (30 minutes)\n'
-            '12h   (12 hours)\n'
-            '3d    (3 days)\n')
+                      '30m   (30 minutes)\n'
+                      '12h   (12 hours)\n'
+                      '3d    (3 days)\n')
 
     def showDeviceHelp(self):
         self.showInfo('Enter a comma-separated list of device names or '
-            'parameters (as "device.parameter").  Example:\n\n'
-            'T, T.setpoint\n\nshows the value of device T, and the value '
-            'of the T.setpoint parameter.')
+                      'parameters (as "device.parameter").  Example:\n\n'
+                      'T, T.setpoint\n\nshows the value of device T, and the '
+                      'value of the T.setpoint parameter.')
 
     def toggleCustomY(self, on):
         self.customYFrom.setEnabled(on)
@@ -374,7 +415,7 @@ class BaseHistoryWindow(object):
             self.actionResetView,
             self.actionUnzoom, self.actionLogScale, self.actionLegend,
             self.actionSymbols, self.actionLines, self.actionLinearFit,
-            ]:
+        ]:
             action.setEnabled(on)
 
     def on_viewList_currentItemChanged(self, item, previous):
@@ -402,11 +443,10 @@ class BaseHistoryWindow(object):
             view.newValue(vtime, key, op, value)
 
     def _createViewFromDialog(self, info):
-        parts = [part.strip().lower().replace('.', '/')
-                 for part in info['devices'].split(',')]
-        if not parts:
+        if not info['devices'].strip():
             return
-        keys = [part if '/' in part else part + '/value' for part in parts]
+        keys_indices = [extractKeyAndIndex(d.strip())
+                        for d in info['devices'].split(',')]
         name = info['name']
         if not name:
             name = info['devices']
@@ -446,13 +486,13 @@ class BaseHistoryWindow(object):
                 return
         else:
             yfrom = yto = None
-        view = View(self, name, keys, interval, fromtime, totime, yfrom, yto,
-                    window, info, self.gethistory_callback)
+        view = View(self, name, keys_indices, interval, fromtime, totime,
+                    yfrom, yto, window, info, self.gethistory_callback)
         self.views.append(view)
         view.listitem = QListWidgetItem(view.name, self.viewList)
         self.openView(view)
         if view.totime is None:
-            for key in view.keys:
+            for key in view.uniq_keys:
                 self.keyviews.setdefault(key, []).append(view)
 
     @qtsig('')
@@ -494,8 +534,10 @@ class BaseHistoryWindow(object):
             self.enablePlotActions(False)
         else:
             self.currentPlot = view.plot
-            try: self.viewStack.remove(view)
-            except ValueError: pass
+            try:
+                self.viewStack.remove(view)
+            except ValueError:
+                pass
             self.viewStack.append(view)
 
             self.enablePlotActions(True)
@@ -563,7 +605,7 @@ class BaseHistoryWindow(object):
                 self.viewList.takeItem(i)
                 break
         if view.totime is None:
-            for key in view.keys:
+            for key in view.uniq_keys:
                 self.keyviews[key].remove(view)
 
     @qtsig('')

@@ -44,6 +44,7 @@ TIMEFMT = '%Y-%m-%d %H:%M:%S'
 
 class ViewPlot(NicosPlot):
     def __init__(self, parent, window, view):
+        self.series2curve = {}
         self.view = view
         self.hasSymbols = False
         self.hasLines = True
@@ -59,14 +60,14 @@ class ViewPlot(NicosPlot):
         return 'value'
 
     def addAllCurves(self):
-        for i, key in enumerate(self.view.keys):
-            self.addCurve(i, key)
+        for i, series in enumerate(self.view.series.values()):
+            self.addCurve(i, series)
 
     def yaxisScale(self):
         if self.view.yfrom is not None:
             return (self.view.yfrom, self.view.yto)
 
-    #pylint: disable=W0221
+    # pylint: disable=W0221
     def on_picker_moved(self, point, strf=strftime, local=localtime):
         # overridden to show the correct timestamp
         tstamp = local(int(self.invTransform(QwtPlot.xBottom, point.x())))
@@ -75,27 +76,24 @@ class ViewPlot(NicosPlot):
             self.invTransform(QwtPlot.yLeft, point.y()))
         self.window.statusBar.showMessage(info)
 
-    def addCurve(self, i, key, replot=False):
+    def addCurve(self, i, series, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
-        curvename = key
-        keyinfo = self.view.keyinfo.get(key)
-        if keyinfo:
-            curvename += ' (' + keyinfo + ')'
+        curvename = series.name
+        if series.info:
+            curvename += ' (' + series.info + ')'
         plotcurve = QwtPlotCurve(curvename)
         plotcurve.setPen(pen)
         plotcurve.setSymbol(self.nosymbol)
         plotcurve.setStyle(QwtPlotCurve.Lines)
-        x, y, n = self.view.keydata[key][:3]
+        x, y, n = series.data[:3]
         plotcurve.setData(x[:n], y[:n])
+        self.series2curve[series] = plotcurve
         self.addPlotCurve(plotcurve, replot)
 
-    def pointsAdded(self, whichkey):
-        for key, plotcurve in zip(self.view.keys, self.plotcurves):
-            if key == whichkey:
-                x, y, n = self.view.keydata[key][:3]
-                plotcurve.setData(x[:n], y[:n])
-                self.replot()
-                return
+    def pointsAdded(self, series):
+        x, y, n = series.data[:3]
+        self.series2curve[series].setData(x[:n], y[:n])
+        self.replot()
 
     def setLines(self, on):
         for plotcurve in self.plotcurves:
@@ -116,12 +114,12 @@ class ViewPlot(NicosPlot):
         self.replot()
 
     def selectCurve(self):
-        if len(self.view.keys) > 1:
+        if len(self.plotcurves) > 1:
             dlg = dialogFromUi(self, 'selector.ui', 'panels')
             dlg.setWindowTitle('Select curve to fit')
             dlg.label.setText('Select a curve:')
-            for key in self.view.keys:
-                QListWidgetItem(key, dlg.list)
+            for plotcurve in self.plotcurves:
+                QListWidgetItem(plotcurve.title().text(), dlg.list)
             dlg.list.setCurrentRow(0)
             if dlg.exec_() != QDialog.Accepted:
                 return
@@ -146,7 +144,9 @@ class ViewPlot(NicosPlot):
         return x, y, title, labelx, labely, interesting, None
 
     def saveData(self):
-        dlg = DataExportDialog(self, 'Select curve, file name and format',
+        curvenames = [plotcurve.title().text() for plotcurve in self.plotcurves]
+        dlg = DataExportDialog(self, curvenames,
+                               'Select curve, file name and format',
                                '', 'ASCII data files (*.dat)')
         res = dlg.exec_()
         if res != QDialog.Accepted:

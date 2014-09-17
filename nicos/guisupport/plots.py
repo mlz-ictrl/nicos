@@ -36,6 +36,7 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
     QwtText, QwtLinearScaleEngine, QwtScaleDiv, QwtDoubleInterval
 
 from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.guisupport.utils import extractKeyAndIndex
 
 
 class ActivePlotPicker(QwtPlotPicker):
@@ -317,18 +318,9 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
 
     def registerKeys(self):
         for key, name in map(None, self.props['devices'], self.props['names']):
-            if name == None:
+            if name is None:
                 name = key
-            key = str(key)
-            index = -1
-            if '[' in key and key.endswith(']'):
-                try:
-                    key, index = key.split('[', 1)
-                    index = int(index.strip().rstrip(']'))
-                except ValueError:
-                    index = -1
-            if '.' not in key and '/' not in key:
-                key += '/value'
+            key, index = extractKeyAndIndex(key)
             keyid = self._source.register(self, key)
             self.keyindices.setdefault(keyid, []).append(index)
             self.addcurve(keyid, index, name)

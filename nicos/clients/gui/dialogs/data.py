@@ -29,14 +29,14 @@ from PyQt4.QtGui import QFileDialog, QLabel, QComboBox
 
 class DataExportDialog(QFileDialog):
 
-    def __init__(self, viewplot, *args):
+    def __init__(self, viewplot, curvenames, *args):
         QFileDialog.__init__(self, viewplot, *args)
         self.setConfirmOverwrite(True)
         self.setAcceptMode(QFileDialog.AcceptSave)
         layout = self.layout()
         layout.addWidget(QLabel('Curve:', self), 4, 0)
         self.curveCombo = QComboBox(self)
-        self.curveCombo.addItems(viewplot.view.keys)
+        self.curveCombo.addItems(curvenames)
         layout.addWidget(self.curveCombo, 4, 1)
         layout.addWidget(QLabel('Time format:', self), 5, 0)
         self.formatCombo = QComboBox(self)
