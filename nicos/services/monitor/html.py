@@ -101,7 +101,7 @@ class Field(object):
 
     # for plots
     plot = None           # which plot to plot this value in
-    plotinterval = 3600   # time span of plot
+    plotwindow = 3600     # time span of plot
 
     def __init__(self, prefix, desc):
         if isinstance(desc, string_types):
@@ -161,8 +161,8 @@ class Label(object):
                 (self.cls, self.fore, self.width, self.back, self.text))
 
 class Plot(object):
-    def __init__(self, interval, width, height):
-        self.interval = interval
+    def __init__(self, window, width, height):
+        self.window = window
         self.width = width
         self.height = height
         self.data = []
@@ -172,9 +172,9 @@ class Plot(object):
         ax.grid()
         ax.xaxis.set_major_locator(mpldate.AutoDateLocator())
         fmt = '%m-%d %H:%M:%S'
-        if interval < 24*3600:
+        if window < 24*3600:
             fmt = fmt[6:]
-        if interval > 300:
+        if window > 300:
             fmt = fmt[:-3]
         ax.xaxis.set_major_formatter(mpldate.DateFormatter(fmt))
         self.curves = []
@@ -196,7 +196,7 @@ class Plot(object):
             yy.append(y)
             i = 0
             ll = len(ts)
-            limit = currenttime() - self.interval
+            limit = currenttime() - self.window
             while i < ll and ts[i] < limit:
                 i += 1
             self.data[curve][:] = [ts[i:], dt[i:], yy[i:]]
@@ -300,7 +300,7 @@ class Monitor(BaseMonitor):
             if field.plot and matplotlib:
                 p = self._plots.get(field.plot)
                 if not p:
-                    p = Plot(field.plotinterval, field.width, field.height)
+                    p = Plot(field.plotwindow, field.width, field.height)
                     self._plots[field.plot] = p
                     blk.add(p)
                 field._plotcurve = p.addcurve(field.name)

@@ -260,7 +260,8 @@ class Monitor(BaseMonitor):
                     return None
                 plotwidget = TrendPlot(groupframe)
                 _setup(plotwidget)
-                plotwidget.plotinterval = field.get('plotinterval', 3600)
+                plotwidget.plotwindow = field.get('plotwindow', 3600)
+                plotwidget.plotinterval = field.get('plotinterval', 2)
                 self._plots[field['plot']] = plotwidget
                 plotwidget.devices = [field.get('dev', field.get('key', ''))]
                 plotwidget.names = [field.get('name', field.get('dev', field.get('key', '')))]

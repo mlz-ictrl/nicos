@@ -6,10 +6,10 @@ Field = lambda *args, **kwds: args or kwds
 
 _column1 = Column(
     Block('Heater long-term', [
-        BlockRow(Field(plot='TPower', dev='t/heaterpower', width=40, height=30, plotinterval=24*3600)),
+        BlockRow(Field(plot='TPower', dev='t/heaterpower', width=40, height=30, plotwindow=24*3600)),
     ], 'htf01'),
     Block('Heater short-term', [
-        BlockRow(Field(plot='TPower2', dev='t/heaterpower', width=40, height=25, plotinterval=1800)),
+        BlockRow(Field(plot='TPower2', dev='t/heaterpower', width=40, height=25, plotwindow=1800)),
     ], 'htf01'),
     Block('MIEZE', [
         BlockRow(Field(name='Setting', dev='mieze', item=0, istext=True, width=5),
@@ -142,12 +142,12 @@ _column2 = Column(
 
 _column3 = Column(
 #    Block('Temperature long-term', [
-#        BlockRow(Field(plot='TT', dev='T', width=40, height=30, plotinterval=24*3600),
+#        BlockRow(Field(plot='TT', dev='T', width=40, height=30, plotwindow=24*3600),
 #                 Field(plot='TT', dev='Ts'),
 #                 Field(plot='TT', key='t/setpoint')),
 #    ]),
 #    Block('Temperature short-term', [
-#        BlockRow(Field(plot='TT2', dev='T', width=40, height=25, plotinterval=1800),
+#        BlockRow(Field(plot='TT2', dev='T', width=40, height=25, plotwindow=1800),
 #                 Field(plot='TT2', dev='Ts'),
 #                 Field(plot='TT2', key='t/setpoint')),
 #    ]),

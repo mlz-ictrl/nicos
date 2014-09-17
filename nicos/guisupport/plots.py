@@ -215,8 +215,10 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
 '''),
         'names':        PropDef('QStringList', [], 'Names for the plot curves, '
                                 'defaults to the device names/keys.'),
-        'plotinterval': PropDef(int, 3600, 'The range of time in seconds that '
+        'plotwindow':   PropDef(int, 3600, 'The range of time in seconds that '
                                 'should be represented by the plot.'),
+        'plotinterval': PropDef(float, 2, 'The minimum time in seconds between '
+                                'two points that should be plotted.'),
         'height':       PropDef(int, 10, 'Height of the plot widget in units '
                                 'of app font character width.'),
         'width':        PropDef(int, 30, 'Width of the plot widget in units '
@@ -224,7 +226,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
     }
 
     def propertyUpdated(self, pname, value):
-        if pname == 'plotinterval':
+        if pname == 'plotwindow':
             showdate = value > 24*3600
             showsecs = value < 300
             self.setAxisScaleDraw(QwtPlot.xBottom,

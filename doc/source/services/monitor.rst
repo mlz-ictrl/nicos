@@ -177,12 +177,12 @@ them is the "trend plot" widget, which is selected by giving a ``plot`` key:
 * ``height`` -- controls the minimum height of the plotting widget, as a number
   of characters.
 
-* ``plotinterval`` -- a number of seconds, which specifies how far back in time the
+* ``plotwindow`` -- a number of seconds, which specifies how far back in time the
   plot X axis will go (default is 1 hour).  For example, ::
 
     ...
-    Field('TA', plot='temps', plotinterval=7200),
-    Field('TB', plot='temps', plotinterval=7200),
+    Field('TA', plot='temps', plotwindow=7200),
+    Field('TB', plot='temps', plotwindow=7200),
     ...
 
   will plot the ``TA`` and ``TB`` device values for the last 2 hours.

@@ -47,8 +47,8 @@ _tasblock = Block(
 _tempblock = Block(
     'Temperature',
     [BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
-     BlockRow(Field(dev='T', plot='T', interval=300, width=50, height=40),
-              Field(key='t/setpoint', name='SetP', plot='T', interval=300))
+     BlockRow(Field(dev='T', plot='T', plotwindow=300, width=50, height=40),
+              Field(key='t/setpoint', name='SetP', plot='T', plotwindow=300))
     ],
     'cryo')
 

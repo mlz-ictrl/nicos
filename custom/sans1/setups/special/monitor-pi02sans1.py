@@ -74,12 +74,12 @@ _htf03 = Block('HTF03', [
 _htf03_plot = Block('HTF03 plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=45, plotinterval=1800,
+              width=65, height=45, plotwindow=1800,
               devices=['T_htf03', 'T_htf03/setpoint'],
               names=['30min', 'Setpoint'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=45, plotinterval=24*3600,
+              width=65, height=45, plotwindow=24*3600,
               devices=['T_htf03', 'T_htf03/setpoint'],
               names=['24h', 'Setpoint'],
               ),
@@ -120,12 +120,12 @@ _ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
 _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=45, plotinterval=1800,
+              width=65, height=45, plotwindow=1800,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=45, plotinterval=24*3600,
+              width=65, height=45, plotwindow=24*3600,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['24h', 'Target'],
               ),
@@ -144,12 +144,12 @@ _miramagnet = Block('MIRA 0.5T Magnet', [
 _miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=20, plotinterval=1800,
+              width=65, height=20, plotwindow=1800,
               devices=['B_mira', 'b_mira/target'],
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=20, plotinterval=24*3600,
+              width=65, height=20, plotwindow=24*3600,
               devices=['B_mira', 'b_mira/target'],
               names=['24h', 'Target'],
               ),

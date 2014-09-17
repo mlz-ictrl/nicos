@@ -27,7 +27,7 @@
        <string>ta_birmag</string>
       </stringlist>
      </property>
-     <property name="plotinterval" stdset="0">
+     <property name="plotwindow" stdset="0">
       <number>86400</number>
      </property>
     </widget>

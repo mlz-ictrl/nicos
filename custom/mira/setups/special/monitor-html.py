@@ -160,12 +160,12 @@ _column1 = Column(
 _column4 = Column(
     Block('Temperature plots', [
         BlockRow(Field(dev='T', plot='T',
-                       plotinterval=12*3600, width=100, height=40),
+                       plotwindow=12*3600, width=100, height=40),
                  Field(dev='Ts', plot='T'), Field(dev='TBe', name='Filter', plot='T')),
     ], 'ccr5'),
     Block('Magnet temp. plots', [
         BlockRow(Field(dev='m7T5_T1', name='T1', plot='Tm',
-                       plotinterval=24*3600, width=100, height=40),
+                       plotwindow=24*3600, width=100, height=40),
                  Field(dev='m7T5_T2', name='T2', plot='Tm'),
                  Field(dev='m7T5_T3', name='T3', plot='Tm'),
                  Field(dev='m7T5_T4', name='T4', plot='Tm'),
@@ -173,7 +173,7 @@ _column4 = Column(
     ], 'magnet75'),
     Block('Magnet temp. plots', [
         BlockRow(Field(dev='m5T_T2', name='T2', plot='Tm5',
-                       plotinterval=24*3600, width=100, height=40),
+                       plotwindow=24*3600, width=100, height=40),
                  Field(dev='m5T_T3', name='T3', plot='Tm5'),
                  Field(dev='m5T_T4', name='T4', plot='Tm5'),
                  Field(dev='m5T_T5', name='T5', plot='Tm5'),
