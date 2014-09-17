@@ -51,7 +51,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle, iteritems, string_types
+from nicos.pycompat import cPickle as pickle, iteritems, string_types, number_types
 
 
 class View(QObject):
@@ -86,6 +86,7 @@ class View(QObject):
                 maxdelta = max(2 * interval, 11)
                 x, y = np.zeros(2 * len(history)), np.zeros(2 * len(history))
                 i = 0
+                vtime = value = None  # stops pylint from complaining
                 for vtime, value in history:
                     if value is None:
                         continue
@@ -93,10 +94,13 @@ class View(QObject):
                     if delta < interval:
                         # value comes too fast -> ignore
                         continue
-                    if isinstance(value, string_types):
-                        # create a new unique integer value for the string
-                        value = string_mapping.setdefault(
-                            value, len(string_mapping))
+                    if not isinstance(value, number_types):
+                        # if it's a string, create a new unique integer value for the string
+                        if isinstance(value, string_types):
+                            value = string_mapping.setdefault(value, len(string_mapping))
+                        # other values we can't use
+                        else:
+                            continue
                     if delta > maxdelta and lvalue is not None:
                         # synthesize a point inbetween
                         x[i] = vtime - interval
@@ -105,8 +109,15 @@ class View(QObject):
                     x[i] = ltime = max(vtime, fromtime)
                     y[i] = lvalue = value
                     i += 1
-                x.resize((2 * i or 100,))
-                y.resize((2 * i or 100,))
+                # In case the final value was discarded because it came too fast,
+                # add it anyway, because it will potentially be the last one for
+                # longer, and synthesized.
+                if i and y[i-1] != value:
+                    x[i] = vtime
+                    y[i] = value
+                    i += 1
+                x.resize((2 * i or 500,))
+                y.resize((2 * i or 500,))
                 # keydata is a list of five items: x value array, y value array,
                 # index of last value, index of last "real" value (not counting
                 # synthesized points from the timer, see below), last received
@@ -140,10 +151,11 @@ class View(QObject):
         n = kd[2]
         real_n = kd[3]
         kd[4] = value
+        # do not add value if it comes too fast
         if real_n > 0 and kd[0][real_n-1] > vtime - self.interval:
             return
         # double array size if array is full
-        if n == kd[0].shape[0]:
+        if n >= kd[0].shape[0]:
             # we select a certain maximum # of points to avoid filling up memory
             # and taking forever to update
             if kd[0].shape[0] > 5000:
@@ -155,9 +167,10 @@ class View(QObject):
                 kd[0].resize((2 * kd[0].shape[0],))
                 kd[1].resize((2 * kd[1].shape[0],))
         # fill next entry
-        if not real and real_n < n:
-            # do not generate endless amounts of synthesized points, one
-            # is enough
+        if not real and real_n < n - 1:
+            # do not generate endless amounts of synthesized points,
+            # two are enough (one at the beginning, one at the end of
+            # the interval without real points)
             kd[0][n-1] = vtime
             kd[1][n-1] = value
         else:
