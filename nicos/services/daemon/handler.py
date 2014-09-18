@@ -47,7 +47,7 @@ from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
 from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
     ENQ, ACK, STX, NAK, LENGTH, PROTO_VERSION, BREAK_NOW, code2command, \
-    DAEMON_COMMANDS, event2code
+    DAEMON_COMMANDS, BREAK_AFTER_LINE, event2code
 from nicos.pycompat import queue, socketserver, string_types
 
 
@@ -402,15 +402,13 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ok or error (e.g. if the given script is not in the queue)
         """
         if reqno == '*':
-            blocked = range(self.controller.reqno_work + 1,
-                            self.controller.reqno_latest + 1)
+            self.controller.block_all_requests()
         else:
             reqno = int(reqno)
             if reqno <= self.controller.reqno_work:
                 self.write(NAK, 'script already executing')
                 return
-            blocked = [reqno]
-        self.controller.block_requests(blocked)
+            self.controller.block_requests([reqno])
         self.write(ACK)
 
     @command(needcontrol=True, needscript=True)
@@ -489,11 +487,17 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.write(ACK)
         elif self.controller.status == STATUS_RUNNING:
             self.log.info('script stop request while running')
-            session.log.info('Stop requested by %s' % self.user.name)
+            if level == BREAK_AFTER_LINE:
+                session.log.info('Stop after command requested by %s' %
+                                 self.user.name)
+            else:
+                session.log.info('Stop requested by %s' % self.user.name)
+            self.controller.block_all_requests()
             self.controller.set_break(('stop', level, self.user.name))
             self.write(ACK)
         else:
             self.log.info('script stop request while in break')
+            self.controller.block_all_requests()
             self.controller.set_continue(('stop', level, self.user.name))
             self.write(ACK)
 
@@ -518,6 +522,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             return
         self.log.warning('immediate stop request in %s' %
                          self.controller.current_location(True))
+        self.controller.block_all_requests()
         if self.controller.status == STATUS_RUNNING:
             self.controller.set_stop(('emergency stop', 5, self.user.name))
         else:

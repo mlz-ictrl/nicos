@@ -373,6 +373,10 @@ class ExecutionController(Controller):
         # put the script on the queue (will not block)
         self.queue.put(request)
 
+    def block_all_requests(self):
+        self.block_requests(range(self.reqno_work + 1,
+                                  self.reqno_latest + 1))
+
     def block_requests(self, requests):
         self.blocked_reqs.update(requests)
         self.eventfunc('blocked', requests)
@@ -578,12 +582,16 @@ class ExecutionController(Controller):
                 try:
                     self.current_script.execute(self)
                 except ControlStop as err:
-                    # block all pending scripts
-                    self.block_requests(range(self.reqno_work + 1,
-                                              self.reqno_latest + 1))
                     if err.args[0] == 'emergency stop':
+                        # block all pending requests (should have been done
+                        # already, but to be on the safe side do it here again)
+                        self.block_all_requests()
                         self.execute_estop(err.args[2])
                     else:
+                        # in this case, we have already blocked all scripts
+                        # queued before the "stop" command was given; scripts
+                        # that are queued after that should be executed, so
+                        # we don't block requests here
                         session.log.info('Script stopped by %s' % (err.args[2],))
                 except BdbQuit as err:  # pylint: disable=E0701
                     session.log.error('Script stopped through debugger')
