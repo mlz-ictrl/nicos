@@ -117,11 +117,30 @@ class TacoDevice(DeviceMixinBase):
         'unit':        Override(mandatory=False),
     }
 
-    _TACO_IDLE_STATES = (TACOStates.ON, TACOStates.DEVICE_NORMAL)
-    _TACO_BUSY_STATES = (TACOStates.RAMP, TACOStates.MOVING,
-                                         TACOStates.STOPPING)
-    _TACO_ERROR_STATES = (TACOStates.FAULT, TACOStates.OFF,
-                                         TACOStates.ON_NOT_REACHED)
+    _TACO_STATUS_MAPPING = {
+        # OK states
+        TACOStates.ON : status.OK,
+        TACOStates.DEVICE_NORMAL : (status.OK, 'idle'),
+        TACOStates.POSITIVE_ENDSTOP : (status.OK, 'limit switch +' ),
+        TACOStates.NEGATIVE_ENDSTOP : (status.OK, 'limit switch -' ),
+        TACOStates.STOPPED : (status.OK, 'idle or paused'),
+        TACOStates.TRIPPED : status.OK,
+        TACOStates.PRESELECTION_REACHED : status.OK,
+        # BUSY states
+        # explicit ramp string as there seem to be some inconsistencies
+        TACOStates.RAMP : (status.BUSY, 'ramping'),
+        TACOStates.MOVING : status.BUSY,
+        TACOStates.STOPPING : status.BUSY,
+        TACOStates.INIT : (status.BUSY, 'initializing taco device / hardware'),
+        TACOStates.RESETTING : status.BUSY,
+        TACOStates.STOP_REQUESTED : status.BUSY,
+        # NOTREACHED states
+        TACOStates.UNDEFINED : status.NOTREACHED,
+        # ERROR states
+        TACOStates.FAULT : status.ERROR,
+        TACOStates.OFF : status.ERROR,
+        TACOStates.ON_NOT_REACHED : status.ERROR,
+    }
 
     # the TACO client class to instantiate
     taco_class = None
@@ -166,13 +185,14 @@ class TacoDevice(DeviceMixinBase):
         return self._taco_guard(self._dev.read)
 
     def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state in self._TACO_IDLE_STATES:
-            return (status.OK, TACOStates.stateDescription(state))
-        elif state in self._TACO_BUSY_STATES:
-            return (status.BUSY, TACOStates.stateDescription(state))
-        # TODO: use _TACO_ERROR_STATES and treat all others as UNKNOWN
-        return (status.ERROR, TACOStates.stateDescription(state))
+        tacoState = self._taco_guard(self._dev.deviceState)
+        state = self._TACO_STATUS_MAPPING.get(tacoState, status.ERROR)
+
+        if isinstance(state, tuple):
+            return state
+
+        statusStr = self._taco_guard(self._dev.deviceStatus)
+        return (state, statusStr)
 
     def doReset(self):
         self._taco_reset(self._dev)

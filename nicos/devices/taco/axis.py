@@ -43,6 +43,11 @@ class Axis(TacoDevice, BaseAxis, CanReference):
 
     taco_class = TACOMotor
 
+    _TACO_STATUS_MAPPING = dict(TacoDevice._TACO_STATUS_MAPPING)
+    _TACO_STATUS_MAPPING[TACOStates.INIT] = (status.BUSY, 'referencing')
+    _TACO_STATUS_MAPPING[TACOStates.RESETTING] = (status.BUSY, 'referencing')
+    _TACO_STATUS_MAPPING[TACOStates.ALARM] = (status.NOTREACHED, 'position not reached')
+
     parameters = {
         'speed':     Param('Motor speed', unit='main/s', settable=True),
         'accel':     Param('Motor acceleration', unit='main/s^2',
@@ -89,19 +94,6 @@ class Axis(TacoDevice, BaseAxis, CanReference):
             self._sim_setValue(pos)
             return
         self._taco_guard(self._dev.setpos, pos)
-
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED):
-            return status.OK, 'idle'
-        elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
-            return status.BUSY, 'moving'
-        elif state in (TACOStates.INIT, TACOStates.RESETTING):
-            return status.BUSY, 'referencing'
-        elif state == TACOStates.ALARM:
-            return status.NOTREACHED, 'position not reached'
-        else:
-            return status.ERROR, TACOStates.stateDescription(state)
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
@@ -268,20 +260,6 @@ class HoveringAxis(Axis):
 
     def doTime(self, start, end):
         return Axis.doTime(self, start, end) + self.startdelay + self.stopdelay
-
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state in (TACOStates.DEVICE_NORMAL, TACOStates.STOPPED,
-                     TACOStates.TRIPPED):
-            # TRIPPED means: both limit switches or inhibit active
-            # which is normal when air is switched off
-            return status.OK, 'idle'
-        elif state in (TACOStates.MOVING, TACOStates.STOP_REQUESTED):
-            return status.BUSY, 'moving'
-        elif state == TACOStates.ALARM:
-            return status.NOTREACHED, 'position not reached'
-        else:
-            return status.ERROR, TACOStates.stateDescription(state)
 
     def doReset(self):
         Axis.doReset(self)

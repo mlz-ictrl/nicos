@@ -26,9 +26,8 @@
 """Taco motor class for NICOS."""
 
 from Motor import Motor as TACOMotor # pylint: disable=F0401
-import TACOStates
 
-from nicos.core import status, oneof, Param, Override
+from nicos.core import oneof, Param, Override
 from nicos.devices.abstract import CanReference, Motor as BaseMotor
 from nicos.devices.taco.core import TacoDevice
 
@@ -61,21 +60,6 @@ class Motor(CanReference, TacoDevice, BaseMotor):
 
     def doSetPosition(self, target):
         self._taco_guard(self._dev.setpos, target)
-
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state == TACOStates.DEVICE_NORMAL:
-            return status.OK, 'idle'
-        elif state == TACOStates.MOVING:
-            return status.BUSY, 'moving'
-        elif state in (TACOStates.INIT, TACOStates.RESETTING):
-            return status.BUSY, 'referencing'
-        elif state == TACOStates.POSITIVE_ENDSTOP:
-            return status.OK, 'positive endstop reached'
-        elif state == TACOStates.NEGATIVE_ENDSTOP:
-            return status.OK, 'negative endstop reached'
-        else:
-            return status.ERROR, TACOStates.stateDescription(state)
 
     def doStop(self):
         self._taco_guard(self._dev.stop)

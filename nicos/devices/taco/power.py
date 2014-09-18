@@ -27,10 +27,9 @@
 from time import sleep
 
 import DEVERRORS
-import TACOStates
 from PowerSupply import CurrentControl, VoltageControl # pylint: disable=F0401
 
-from nicos.core import status, Moveable, HasOffset, HasLimits, Param, \
+from nicos.core import Moveable, HasOffset, HasLimits, Param, \
      MoveError, NicosError
 from nicos.devices.taco.core import TacoDevice
 
@@ -81,17 +80,6 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
-
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state == TACOStates.DEVICE_NORMAL:
-            return status.OK, 'device normal'
-        elif state in (TACOStates.MOVING, TACOStates.RAMP):
-            return status.BUSY, 'ramping'
-        elif state == TACOStates.STOPPING:
-            return status.BUSY, 'stopping'
-        else:
-            return status.ERROR, TACOStates.stateDescription(state)
 
 
 class CurrentSupply(Supply):

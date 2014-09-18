@@ -44,6 +44,9 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
     """TACO temperature controller device."""
     taco_class = Temperature.Controller
 
+    _TACO_STATUS_MAPPING = dict(TacoDevice._TACO_STATUS_MAPPING)
+    _TACO_STATUS_MAPPING[TACOStates.UNDEFINED] = (status.NOTREACHED, 'temperature not reached')
+
     parameters = {
         'setpoint':  Param('Current temperature setpoint', unit='main',
                            category='general'),
@@ -100,18 +103,6 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
         # regardless of ramp
         if self.ramp and self.status(0)[0] == status.BUSY:
             self._taco_guard(self._dev.stop)
-
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state == TACOStates.MOVING:
-            return (status.BUSY, 'moving')
-        elif state in [TACOStates.PRESELECTION_REACHED,
-                       TACOStates.DEVICE_NORMAL]:
-            return (status.OK, TACOStates.stateDescription(state))
-        elif state == TACOStates.UNDEFINED:
-            return (status.NOTREACHED, 'temperature not reached')
-        else:
-            return (status.ERROR, TACOStates.stateDescription(state))
 
     def doWait(self):
         delay = self.loopdelay

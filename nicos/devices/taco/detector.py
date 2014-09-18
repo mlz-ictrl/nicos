@@ -29,7 +29,7 @@ import IOCommon
 import TACOStates
 from IO import Timer, Counter
 
-from nicos.core import Param, Override, Value, status, oneof, oneofdict
+from nicos.core import Param, Override, Value, oneof, oneofdict
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.generic.detector import Channel, MultiChannelDetector
 
@@ -61,17 +61,6 @@ class FRMChannel(TacoDevice, Channel):
 
     def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read)
-
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state == TACOStates.PRESELECTION_REACHED:
-            return status.OK, 'preselection reached'
-        elif state == TACOStates.STOPPED:
-            return status.OK, 'idle or paused'
-        elif state == TACOStates.DEVICE_NORMAL:
-            return status.OK, 'idle'
-        else:
-            return status.BUSY, TACOStates.stateDescription(state)
 
     def doIsCompleted(self):
         state = self._taco_guard(self._dev.deviceState)
