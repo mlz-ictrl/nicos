@@ -14,8 +14,8 @@ modules = ['nicos.commands.basic', 'nicos.commands.standard', 'antares.commands'
 
 devices = dict(
     email    = device('devices.notifiers.Mailer',
-                      sender = 'mschulz@frm2.tum.de',
-                      copies = ['mschulz@frm2.tum.de'],
+                      sender = 'michael.schulz@frm2.tum.de',
+                      copies = ['michael.schulz@frm2.tum.de'],
                       subject = 'ANTARES'),
 
     smser    = device('devices.notifiers.SMSer',

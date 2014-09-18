@@ -11,5 +11,4 @@ devices = dict(
 )
 
 startupcode = '''
-SetDetectors(M)
 '''
