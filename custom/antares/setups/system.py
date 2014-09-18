@@ -40,6 +40,7 @@ devices = dict(
                        sendmail = False,
                        zipdata = False,
                        scancounter = 'filecounter', #backwards compatibility
+                       managerights = {},
                       ),
 
     ANTARES  = device('devices.instrument.Instrument',
