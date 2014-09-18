@@ -4,7 +4,7 @@ description = 'Atenuator and PGFilter'
 
 group = 'lowlevel'
 
-includes = ['system', 'motorbus8']
+includes = ['system', 'motorbus6', 'motorbus8']
 
 devices = dict(
 
@@ -39,24 +39,54 @@ devices = dict(
                 unit = 'mm'),
 
    fpg_sw = device('devices.vendor.ipc.Input',
-                bus = 'motorbus8',
-                addr = 103,
-                first = 14,
-                last = 15,
+                bus = 'motorbus6',
+                addr = 111,
+                first = 12,
+                last = 13,
                 lowlevel = True,
                 unit = ''),
 
    fpg_set = device('devices.vendor.ipc.Output',
-                bus = 'motorbus8',
-                addr = 114,
-                first = 2,
-                last = 2,
+                bus = 'motorbus6',
+                addr = 103,
+                first = 0,
+                last = 0,
                 lowlevel = True,
                 unit = ''),
 
-   fpg = device('puma.pgfilter.PGFilter',
+   fpg1 = device('puma.pgfilter.PGFilter',
                 description = 'automated pg filter',
                 io_status = 'fpg_sw',
                 io_set = 'fpg_set',
                 unit = ''),
+
+   uni_sw = device('devices.vendor.ipc.IPCSwitches',
+                description = 'Switches of the lift axis card',
+                bus = 'motorbus6',
+                addr = 70,
+                fmtstr = '%d',
+#                lowlevel = True,
+                ),
+
+   uni_st = device('devices.vendor.ipc.Motor',
+                bus = 'motorbus6',
+                addr = 70,
+                slope = 1,
+                unit = 'mm',
+                abslimits = (0, 999999),
+                zerosteps = 0,
+#                lowlevel = True,
+                ),
+
+   fpg2 = device('puma.senseswitch.SenseSwitch',
+                description = 'Second PG filter',
+                moveable = 'uni_st',
+                readable = 'uni_sw',
+                mapping = { 'in'  : (500000, 1),
+                            'out' : (535900, 2),
+                          },
+                precision = [100, 0],
+                blockingmove = True,
+                timeout = 300,
+                ),
 )

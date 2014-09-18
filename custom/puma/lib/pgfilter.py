@@ -65,9 +65,9 @@ class PGFilter(Moveable):
 
     def doRead(self, maxage=0):
         result = self._adevs['io_status'].doRead(0)
-        if result == 1:
+        if result == 2:
             return 'in'
-        elif result == 2:
+        elif result == 1:
             return 'out'
         else:
             raise NicosError(self, 'PG filter is not readable, check device!')
