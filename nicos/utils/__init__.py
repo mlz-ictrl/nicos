@@ -52,7 +52,6 @@ except ImportError:
 from nicos import config, session
 from nicos.pycompat import iteritems, xrange as range  # pylint: disable=W0622
 
-
 class attrdict(dict):
     """Dictionary whose items can be set with attribute access."""
     def __getattr__(self, key):
@@ -606,6 +605,10 @@ def setuser(recover=True):
     """
     if hasattr(os, 'geteuid') and os.geteuid() != 0:
         return
+    # running as root is not good...
+    if config.user is None or config.group is None:
+        raise RuntimeError('please provide valid entries for user and '
+                           'group in nicos.conf if running as root')
     # switch user
     user, group = config.user, config.group
     if group and grp is not None:
