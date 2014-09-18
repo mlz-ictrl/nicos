@@ -31,7 +31,7 @@ import errno
 import socket
 import tempfile
 try:
-    import rsa #pylint: disable=F0401
+    import rsa  # pylint: disable=F0401
 except ImportError:
     rsa = None
 
@@ -59,6 +59,7 @@ class CloseConnection(Exception):
 
 command_wrappers = {}
 
+
 def command(needcontrol=False, needscript=None, name=None):
     """
     Decorates a nicosd protocol command.  The `needcontrol` and `needscript`
@@ -67,6 +68,7 @@ def command(needcontrol=False, needscript=None, name=None):
     def deco(func):
         nargsmax = func.__code__.co_argcount - 1
         nargsmin = nargsmax - len(func.__defaults__ or ())
+
         def wrapper(self, args):
             if not nargsmin <= len(args) <= nargsmax:
                 self.write(NAK, 'invalid number of arguments')

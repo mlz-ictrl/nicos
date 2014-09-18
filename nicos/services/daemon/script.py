@@ -52,6 +52,7 @@ CO_DIVISION = 0x2000
 class RequestError(Exception):
     """Exception raised if a request cannot be queued."""
 
+
 class Request(object):
     """
     Abstract Request class.
@@ -71,6 +72,7 @@ class Request(object):
             self.userlevel = user.level
         except AttributeError:
             raise RequestError('No valid user object supplied')
+
     def serialize(self):
         return {'reqno': self.reqno, 'user': self.user}
 
@@ -82,6 +84,7 @@ class EmergencyStopRequest(Request):
 class ScriptError(Exception):
     """Exception raised if a script operation cannot be executed."""
 
+
 class ScriptRequest(Request):
     """
     A request to execute a Python script.
@@ -90,7 +93,7 @@ class ScriptRequest(Request):
     can be done with the script: execute it, and update it.
     """
 
-    #pylint: disable=W0622
+    # pylint: disable=W0622
     def __init__(self, text, name=None, user=None, quiet=False,
                  settrace=None, handler=None, format=None):
         Request.__init__(self, user)
@@ -282,26 +285,26 @@ class ExecutionController(Controller):
     """
 
     def __init__(self, log, eventfunc, startupsetup, simmode):
-        self.log = log             # daemon logger object
-        self.eventfunc = eventfunc # event emitting callback
-        self.setup = startupsetup  # first setup on start
+        self.log = log              # daemon logger object
+        self.eventfunc = eventfunc  # event emitting callback
+        self.setup = startupsetup   # first setup on start
         self.simmode = simmode and SIMULATION or SLAVE
-                                   # start in simulation mode?
-        self.queue = queue.Queue() # user scripts get put here
-        self.current_script = None # currently executed script
+                                    # start in simulation mode?
+        self.queue = queue.Queue()  # user scripts get put here
+        self.current_script = None  # currently executed script
         self.namespace = session.namespace
-                                   # namespace in which scripts execute
+                                    # namespace in which scripts execute
         self.completer = NicosCompleter(self.namespace, session.local_namespace)
-                                   # completer for the namespace
-        self.watchexprs = set()    # watch expressions to evaluate
-        self.watchlock = Lock()    # lock for watch expression list modification
-        self.estop_functions = []  # functions to run on emergency stop
-        self.thread = None         # thread executing scripts
-        self.reqno_latest = 0      # number of the last queued request
-        self.reqno_work = 0        # number of the last executing request
-        self.blocked_reqs = set()  # set of blocked request numbers
-        self.debugger = None       # currently running debugger (Rpdb)
-        self.last_handler = None   # handler of current exec/eval
+                                    # completer for the namespace
+        self.watchexprs = set()     # watch expressions to evaluate
+        self.watchlock = Lock()     # lock for watch expression list modification
+        self.estop_functions = []   # functions to run on emergency stop
+        self.thread = None          # thread executing scripts
+        self.reqno_latest = 0       # number of the last queued request
+        self.reqno_work = 0         # number of the last executing request
+        self.blocked_reqs = set()   # set of blocked request numbers
+        self.debugger = None        # currently running debugger (Rpdb)
+        self.last_handler = None    # handler of current exec/eval
         # only one user or admin can issue non-read-only commands
         self.controlling_user = None
         Controller.__init__(self, break_only_in_filename='<script>')
@@ -311,7 +314,7 @@ class ExecutionController(Controller):
         # this code is executed as the first thing when the daemon starts
         try:
             session.handleInitialSetup(self.setup, self.simmode)
-        except: #pylint: disable=W0702
+        except:  # pylint: disable=W0702
             session.log.warning('Error loading previous setups, '
                                 'loading startup setup', exc=1)
             session.handleInitialSetup('startup', self.simmode)
@@ -356,7 +359,7 @@ class ExecutionController(Controller):
             return '\n' + ''.join(traceback.format_stack(frame))
         else:
             return traceback.format_stack(frame, 1)[0].strip()[5:]. \
-                   replace('\n    ', ': ')
+                replace('\n    ', ': ')
 
     def new_request(self, request, notify=True):
         assert isinstance(request, Request)
@@ -582,9 +585,9 @@ class ExecutionController(Controller):
                         self.execute_estop(err.args[2])
                     else:
                         session.log.info('Script stopped by %s' % (err.args[2],))
-                except BdbQuit as err:  #pylint: disable=E0701
+                except BdbQuit as err:  # pylint: disable=E0701
                     session.log.error('Script stopped through debugger')
-                except Exception as err:  #pylint: disable=E0701
+                except Exception as err:  # pylint: disable=E0701
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     session.logUnhandledException(cut_frames=2)
