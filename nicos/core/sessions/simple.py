@@ -32,7 +32,7 @@ import signal
 from nicos import session
 from nicos.utils import daemonize, setuser, writePidfile, removePidfile
 from nicos.core.sessions import Session
-from nicos.core import SIMULATION, SLAVE
+from nicos.core import SLAVE
 from nicos.pycompat import exec_
 
 
@@ -131,71 +131,3 @@ class ScriptSession(Session):
         # Execute the script code and shut down.
         exec_(code, session.namespace)
         session.shutdown()
-
-
-class SimulationSession(Session):
-    """
-    Subclass of Session for spawned simulation processes.
-    """
-
-    sessiontype = 'simulation'
-
-    @classmethod
-    def run(cls, port, prefix, setups, code):
-        from nicos.utils.messaging import SimLogSender
-
-        session.__class__ = cls
-
-        session.globalprefix = prefix
-        # send log messages back to daemon if requested
-        session.log_sender = SimLogSender(port, session)
-
-        try:
-            session.__init__(SIMULATION)
-        except Exception as err:
-            try:
-                session.log.exception('Fatal error while initializing')
-            finally:
-                print('Fatal error while initializing:', err, file=sys.stderr)
-            return 1
-
-        # Give a sign of life and then tell the log handler to only log
-        # errors during setup.
-        session.log.info('setting up simulation...')
-        session.log_sender.begin_setup()
-
-        try:
-            # Load the initial setup and handle becoming master.
-            session.handleInitialSetup('startup', SIMULATION)
-
-            # Load the setups from the original system, this should give the
-            # information about the cache address.
-            session.loadSetup(setups, allow_startupcode=False)
-
-            # Synchronize setups and cache values.
-            session.simulationSync()
-        except:  # really *all* exceptions -- pylint: disable=W0702
-            session.log.exception('Exception in simulation setup')
-            session.log_sender.finish()
-            session.shutdown()
-            return 1
-
-        # Set up log handlers to output everything.
-        session.log_sender.begin_exec()
-        # Execute the script code.
-        try:
-            exec_(code, session.namespace)
-        except:  # pylint: disable=W0702
-            session.log.exception('Exception in simulation')
-        else:
-            session.log.info('simulation finished')
-        finally:
-            session.log_sender.finish()
-
-        # Shut down.
-        session.shutdown()
-
-    def _initLogging(self, prefix=None, console=True):
-        Session._initLogging(self, prefix, console=False)
-        self.log.manager.globalprefix = self.globalprefix
-        self.log.addHandler(self.log_sender)

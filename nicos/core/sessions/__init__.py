@@ -1090,7 +1090,6 @@ class Session(object):
         If *wait* is true, wait until the process is finished.  *prefix* is the
         prefix given to all log messages.
         """
-        from nicos.utils.messaging import SimulationSupervisor
         if not self.cache:
             raise NicosError('cannot start simulation, no cache is configured')
 
@@ -1103,6 +1102,7 @@ class Session(object):
 
         # create a thread that that start the simulation and forwards its
         # messages to the client(s)
+        from nicos.core.sessions.simulation import SimulationSupervisor
         supervisor = SimulationSupervisor(self, code, prefix)
         supervisor.start()
         if wait:

@@ -25,7 +25,7 @@ code = args[3]
 signal.alarm(10)
 
 from nicos import config
-from nicos.core.sessions.simple import SimulationSession
+from nicos.core.sessions.simulation import SimulationSession
 config.nicos_root = rootdir
 
 SimulationSession.run(port, prefix, setups, code)

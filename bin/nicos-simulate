@@ -17,5 +17,5 @@ code = args[3]
 # kill forcibly after 10 minutes
 signal.alarm(600)
 
-from nicos.core.sessions.simple import SimulationSession
+from nicos.core.sessions.simulation import SimulationSession
 SimulationSession.run(port, prefix, setups, code)
