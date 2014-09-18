@@ -27,7 +27,7 @@ devices = dict(
                       ),
     lsa      = device('devices.generic.ManualMove',
                       description = 'distance sample - ana',
-                      default = 880,
+                      default = 910,
                       unit = 'mm',
                       fmtstr = '%.0f',
                       abslimits = (880, 1180),

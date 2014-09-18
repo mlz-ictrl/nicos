@@ -6,8 +6,8 @@ group = 'optional'
 
 includes = ['system', 'motorbus1', 'motorbus4', 'motorbus7', 'monochromator', 'puma']
 
-monostates  = ['Dummy',      'PG002',      'CU220',      'CU111',      'None']
-monodevices = ['mono_dummy', 'mono_pg002', 'mono_cu220', 'mono_cu111', 'mono_dummy']
+monostates  = ['GE311',      'PG002',      'CU220',      'CU111',      'None']
+monodevices = ['mono_ge311', 'mono_pg002', 'mono_cu220', 'mono_cu111', 'mono_dummy']
 magazinpos  = [(315.4, 8),   (45.46, 1),  (135.4, 2),   (225.7, 4),]
 
 
@@ -21,6 +21,7 @@ devices = dict(
                      abslimits = (-144, 360),
                      zerosteps = 500000,
                      lowlevel = True,
+                     confbyte = 52,
                     ),
 
     co_lift = device('devices.vendor.ipc.Coder',
@@ -60,7 +61,7 @@ devices = dict(
                     description = 'Monochromator lift',
                     moveable = 'mli',
                     readable = 'sw_lift',
-                    mapping = dict( top2   = (358.3, 1),
+                    mapping = dict( top2   = (358.1, 1),
                                     top1   = (356.1, 0),
                                     ref    = (0, 4),
                                     bottom = (-142.5, 2),
@@ -80,6 +81,7 @@ devices = dict(
                     abslimits = (20, 340),
                     zerosteps = 500000,
                     lowlevel = True,
+                    confbyte = 44,
                     ),
 
 #    co_mag = device('devices.vendor.ipc.Coder',
@@ -239,7 +241,7 @@ devices = dict(
     mono_stat = device('devices.generic.switcher.ReadonlySwitcher',
                       description = 'What is at the monotable',
                       # monostates has five elements ! (last one is for 'none'). Unfortunately, Dummy (like 'none') returns 0
-                      mapping = dict(zip(monostates[:4], [0, 1, 2, 3])),
+                      mapping = dict(zip(monostates, [4, 1, 2, 3, 0])),
                       readable = 'monostat_io',
                      ),
 # Mchanger

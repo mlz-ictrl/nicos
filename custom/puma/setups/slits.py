@@ -4,7 +4,7 @@ description = 'Sample Slits'
 
 group = 'optional'
 
-includes = ['system', 'motorbus9']
+includes = ['system','motorbus6','motorbus9']
 
 
 
@@ -88,7 +88,7 @@ devices = dict(
 
      ss2_l_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
-                       bus = 'motorbus9',
+                       bus = 'motorbus6',
                        addr = 47,
                        side = 2,
                        slope = -82.3045,
@@ -97,7 +97,7 @@ devices = dict(
                        abslimits = (-25, 20)),
     ss2_r_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
-                       bus = 'motorbus9',
+                       bus = 'motorbus6',
                        addr = 47,
                        side = 3,
                        slope = 82.3045,
@@ -106,7 +106,7 @@ devices = dict(
                        abslimits = (-20, 25)),
     ss2_b_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
-                       bus = 'motorbus9',
+                       bus = 'motorbus6',
                        addr = 47,
                        side = 0,
                        slope = -54.25,
@@ -115,7 +115,7 @@ devices = dict(
                        abslimits = (-50, 20)),
     ss2_t_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
-                       bus = 'motorbus9',
+                       bus = 'motorbus6',
                        addr = 47,
                        side = 1,
                        slope = 54.25,
