@@ -35,9 +35,5 @@ class ServoStarMotor(TacoMotor):
     server when the hardware is idle.
     """
 
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state == TACOStates.DISABLED:
-            return status.OK, 'idle'
-        else:
-            return TacoMotor.doStatus(self, maxage)
+    _TACO_STATUS_MAPPING = dict(TacoMotor._TACO_STATUS_MAPPING)
+    _TACO_STATUS_MAPPING[TACOStates.DISABLED] = status.OK
