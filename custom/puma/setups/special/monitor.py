@@ -17,10 +17,12 @@ _expcolumn = Column(
 _axisblock = Block(
     'Axes angles',
     [
+     BlockRow(Field(name='Monochromator'),'mono_stat'),
      BlockRow('mth', 'mtt'),
-     BlockRow(Field(name='Focus', key='mono/focmode'),'mfhpg'),
+     BlockRow(Field(name='Focus mono', key='mono/focmode'),'mfhpg'),
      BlockRow('psi', 'phi'),
      BlockRow('ath', 'att'),
+     BlockRow(Field(name='Focus ana', key='ana/focmode'),'afpg'),
     ],
     'puma')  # this is the name of a setup that must be loaded in the
             # NICOS master instance for this block to be displayed
@@ -28,23 +30,26 @@ _axisblock = Block(
 _sampletable = Block(
     'Sampletable',
     [
-     BlockRow('sgx','sgy','stz'),
-     BlockRow('atn','fpg'),
+     BlockRow('sgx','sgy'),
+     BlockRow('stx','sty','stz'),
+     BlockRow('atn','fpg1','fpg2'),
     ],
 )
 
 _slits = Block(
     'Slits',
-    [BlockRow(Field(name='left',dev='slit1.left'),
-		Field(name='right',dev='slit1.right'),
-		Field(name='bottom',dev='slit1.bottom'),
-		Field(name='top',dev='slit1.top'),
-	      ),
-     BlockRow(Field(name='left',dev='slit2.left'),
-		Field(name='right',dev='slit2.right'),
-		Field(name='bottom',dev='slit2.bottom'),
-		Field(name='top',dev='slit2.top'),
-	      ),
+#    [BlockRow('slit1.left','slit1.right','slit1.bottom','slit1.top'),
+#     BlockRow('slit2.left','slit2.right','slit2.bottom','slit2.top')
+    [BlockRow(Field(name='left',dev='ss1_l'),
+              Field(name='right',dev='ss1_r'),
+              Field(name='bottom',dev='ss1_b'),
+              Field(name='top',dev='ss1_t'),
+             ),
+     BlockRow(Field(name='left',dev='ss2_l'),
+              Field(name='right',dev='ss2_r'),
+              Field(name='bottom',dev='ss2_b'),
+              Field(name='top',dev='ss2_t'),
+             ),
     ],
 )
 
@@ -97,10 +102,24 @@ _tempblock = Block(
     ],
     'lakeshore')
 
+_shutterblock = Block(
+    'Shutter',
+    [BlockRow(Field(name='alpha1', dev='alpha1'),
+              Field(name='sapphire filter',  dev='sapphire'),
+              Field(name='erbium filter',  dev='erbium'),
+    ),
+    ],
+)
+
+_reactor = Block(
+    'Reactor power',
+    [BlockRow(Field(dev='ReactorPower')),
+    ],
+)
 
 _leftcolumn = Column(_axisblock, _sampletable)
-_middlecolumn = Column(_detectorblock, _tempblock)
-_rightcolumn = Column(_tasblock, _slits)
+_middlecolumn = Column(_shutterblock,_detectorblock, _tempblock)
+_rightcolumn = Column(_tasblock, _slits,_reactor)
 
 
 devices = dict(
