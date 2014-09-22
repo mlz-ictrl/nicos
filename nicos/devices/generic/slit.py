@@ -338,3 +338,82 @@ class HeightSlitAxis(SlitAxis):
     def _convertStart(self, target, current):
         centery = (current[2] + current[3]) / 2.
         return (current[0], current[1], centery-target/2., centery+target/2.)
+
+
+class TwoAxisSlit(CanReference, Moveable):
+    """A rectangular slit consisting of 2 orthogonal slits.
+
+    All instances have attributes controlling single dimensions that can be used
+    as devices, for example in scans.  These attributes are:
+
+    * `width`, `height` -- aliases for the horizontal and vertical slits
+
+    Example usage::
+
+        >>> scan(slit.width, 0, 1, 6)  # scan over slit width from 0 to 5 mm
+    """
+
+    attached_devices = {
+        'horizontal': (HasPrecision, 'Horizontal slit'),
+        'vertical':   (HasPrecision, 'Vertical slit'),
+    }
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%.2f %.2f'),
+        'unit': Override(mandatory=False),
+    }
+
+    valuetype = tupleof(float, float)
+
+    hardware_access = False
+
+    def doInit(self, mode):
+        self._slits = [self._adevs['horizontal'], self._adevs['vertical']]
+        self._slitnames = ['horizontal', 'vertical']
+
+        for name in self._slitnames:
+            self.__dict__[name] = self._adevs[name]
+        self.__dict__['width'] = self.horizontal
+        self.__dict__['height'] = self.vertical
+
+    def doIsAllowed(self, target):
+        if len(target) != 2:
+            raise InvalidValueError(self, 'arguments required for centered '
+                                    'mode: [width, height]')
+        for slit, slitname, pos in zip(self._slits, self._slitnames, target):
+            ok, why = slit.isAllowed(pos)
+            if not ok:
+                return ok, '[%s slit] %s' % (slitname, why)
+        return True, ''
+
+    def doStart(self, target):
+        th, tv = target
+        self._adevs['horizontal'].move(th)
+        self._adevs['vertical'].move(tv)
+
+    def doReset(self):
+        for ax in self._slits:
+            ax.reset()
+        for ax in self._slits:
+            ax.wait()
+
+    def doReference(self):
+        for ax in self._slits:
+            if isinstance(ax, CanReference):
+                self.log.info('referencing %s...' % ax)
+                ax.reference()
+            else:
+                self.log.warning('%s cannot be referenced' % ax)
+
+    def doRead(self, maxage=0):
+        return [d.read(maxage) for d in self._slits]
+
+    def valueInfo(self):
+        return Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'), \
+            Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
+
+    def doStatus(self, maxage=0):
+        return multiStatus(zip(self._slitnames, self._slits))
+
+    def doReadUnit(self):
+        return self._adevs['horizontal'].unit

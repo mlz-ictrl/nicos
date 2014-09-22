@@ -24,20 +24,20 @@
 
 """Generic device classes using hardware-specific attached devices."""
 
-#backwards compatibility for config files
+# backwards compatibility for config files
 from nicos.core.device import DeviceAlias, NoDevice
 
 from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.detector import MultiChannelDetector, \
-     DetectorForecast
+    DetectorForecast
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
 from nicos.devices.generic.paramdev import ParamDevice
-from nicos.devices.generic.slit import Slit
+from nicos.devices.generic.slit import Slit, TwoAxisSlit
 from nicos.devices.generic.switcher import Switcher, ReadonlySwitcher, \
-     MultiSwitcher
+    MultiSwitcher
 from nicos.devices.generic.cache import CacheReader, CacheWriter
 from nicos.devices.generic.system import FreeSpace
 from nicos.devices.generic.virtual import VirtualMotor, VirtualCoder, \
-     VirtualTimer, VirtualCounter, VirtualTemperature, VirtualCounterCard
+    VirtualTimer, VirtualCounter, VirtualTemperature, VirtualCounterCard
 from nicos.devices.generic.sequence import LockedDevice, BaseSequencer
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet
