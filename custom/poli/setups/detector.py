@@ -3,7 +3,7 @@ group = 'lowlevel'
 
 includes = []
 
-nethost = 'heidi22.heidi.frm2'
+nethost = 'heidi22.poli.frm2'
 
 devices = dict(
     timer = device('devices.taco.FRMTimerChannel',

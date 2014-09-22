@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = []
 
-nethost = 'heidi22.heidi.frm2'
+nethost = 'cryopad.poli.frm2'
 
 devices = dict(
     LHe = device('devices.taco.AnalogInput',
