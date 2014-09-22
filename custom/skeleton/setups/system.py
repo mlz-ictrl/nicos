@@ -62,7 +62,14 @@ modules = ['nicos.commands.standard']
 # The class name is fully qualified (i.e., includes the package/module name).
 # The parameters are given as keyword arguments.
 devices = dict(
-    Sample   = device('devices.sample.Sample'),
+    Skeleton = device('devices.instrument.Instrument',
+                      instrument = 'SKELETON',
+                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
+                     ),
+
+    Sample   = device('devices.sample.Sample',
+                      description = 'The current used sample',
+                     ),
 
     # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
