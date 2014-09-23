@@ -24,10 +24,14 @@
 
 # standard library
 import time
+import os.path
 # third party
 import numpy
 from PyTango import DevState, CommunicationFailed
 # local library
+from nicos import session
+from nicos.utils import updateFileCounter
+from nicos.core import SIMULATION
 import nicos.core.status as status
 from nicos.core.device import Moveable
 from nicos.devices.tango import PyTangoDevice, \
@@ -330,6 +334,22 @@ Retrying.""" % (action, exception))
 
     def doRead(self, maxage=0):
         return self.lastfilename
+
+    def doSave(self, exception=False):
+        if exception:
+            exp = session.experiment
+            if self._mode != SIMULATION:
+                lastimagepath = os.path.join(exp.proposalpath, exp.lastimagefile)
+                if (os.path.isfile(lastimagepath)
+                    and os.path.getsize(lastimagepath) == 0):
+                    self.log.debug("Remove empty file: %s" % exp.lastimagefile)
+                    os.unlink(lastimagepath)
+                updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
+            else:
+                # only in sim-mode, see nicos.devices.experiment.Experiment
+                exp._lastimage = (exp._lastimage or exp.lastimage) - 1
+        else:
+            ImageProducer.doSave(self, exception)
 
     def readFinalImage(self):
         narray = None
