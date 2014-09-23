@@ -40,18 +40,12 @@ from nicos.core.params import Param, Override, oneof, tupleof
 from nicos.core.errors import NicosError, CommunicationError
 from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep
 from nicos.core.image import ImageProducer, ImageType
+from nicos.biodiff.shutter import Shutter
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
 __date__ = "2014-08-14"
 __version__ = "0.2.1"
-
-
-class ShutterStates(object):
-    """Shutter constants for opening and closing shutters."""
-
-    OPEN = "open"
-    CLOSED = "close"
 
 
 class ImagePlateBase(PyTangoDevice):
@@ -274,9 +268,9 @@ class ImagePlateDetector(MeasureSequencer, ImagePlateBase, ImageProducer):
         if prepare:
             # close shutter
             if self.ctrl_photoshutter:
-                seq.append(SeqDev(self.photoshutter, ShutterStates.CLOSED))
+                seq.append(SeqDev(self.photoshutter, Shutter.CLOSED))
             if self.ctrl_gammashutter:
-                seq.append(SeqDev(self.gammashutter, ShutterStates.CLOSED))
+                seq.append(SeqDev(self.gammashutter, Shutter.CLOSED))
             # erase and expo position
             if self.erase:
                 seq.append(SeqDev(self.drum, ImagePlateDrum.POS_ERASE))
@@ -284,16 +278,16 @@ class ImagePlateDetector(MeasureSequencer, ImagePlateBase, ImageProducer):
         if expoTime > 0:
             # open shutter
             if self.ctrl_gammashutter:
-                seq.append(SeqDev(self.gammashutter, ShutterStates.OPEN))
+                seq.append(SeqDev(self.gammashutter, Shutter.OPEN))
             if self.ctrl_photoshutter:
-                seq.append(SeqDev(self.photoshutter, ShutterStates.OPEN))
+                seq.append(SeqDev(self.photoshutter, Shutter.OPEN))
             # count
             seq.append(SeqSleep(expoTime, "counting for %fs" % expoTime))
             # close shutter
             if self.ctrl_photoshutter:
-                seq.append(SeqDev(self.photoshutter, ShutterStates.CLOSED))
+                seq.append(SeqDev(self.photoshutter, Shutter.CLOSED))
             if self.ctrl_gammashutter:
-                seq.append(SeqDev(self.gammashutter, ShutterStates.CLOSED))
+                seq.append(SeqDev(self.gammashutter, Shutter.CLOSED))
             # start readout
             seq.append(SeqDev(self.drum, ImagePlateDrum.POS_READ))
         return seq

@@ -34,7 +34,8 @@ from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.biodiff.motor import MicrostepMotor
-from nicos.biodiff.detector import ImagePlateDetector, ShutterStates
+from nicos.biodiff.detector import ImagePlateDetector
+from nicos.biodiff.shutter import Shutter
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
@@ -65,9 +66,9 @@ class RScan(Scan):
             for det in self._detlist:
                 if type(det) == ImagePlateDetector:
                     if det.ctrl_gammashutter:
-                        where.append((det.gammashutter, ShutterStates.OPEN))
+                        where.append((det.gammashutter, Shutter.OPEN))
                     if det.ctrl_photoshutter:
-                        where.append((det.photoshutter, ShutterStates.OPEN))
+                        where.append((det.photoshutter, Shutter.OPEN))
             if where:
                 self.moveDevices(where)
         else:
