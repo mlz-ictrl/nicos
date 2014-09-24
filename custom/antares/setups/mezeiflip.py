@@ -10,7 +10,7 @@ devices = dict(
                   tacodevice = '//antaressrv/antares/lambda/out2',
                   abslimits=(0, 5)),
 
-    flip = device('mira.flipper.Flipper',
+    flip = device('devices.polarized.MezeiFlipper',
                   description = 'Mezei flipper before sample (in shielding table)',
                   flip = 'dct1',
                   corr = 'dct2'),
