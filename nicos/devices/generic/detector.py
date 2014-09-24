@@ -26,7 +26,7 @@
 """Generic 0-D channel detector classes for NICOS."""
 
 from nicos.core import Measurable, Readable, Param, Override, oneof, status, \
-    ProgrammingError
+    Attach, ProgrammingError
 
 
 class Channel(Measurable):
@@ -34,6 +34,8 @@ class Channel(Measurable):
 
     Concrete implementations for TACO counter cards can be found in
     `nicos.devices.taco.detector`.
+    Concrete implementations for QMesyDAQ counters can be found in
+    `nicos.devices.vendor.qmesydaq`.
     """
 
     parameters = {
@@ -67,59 +69,83 @@ class Channel(Measurable):
 
 
 class MultiChannelDetector(Measurable):
-    """Standard counter card-type detector using multiple channels."""
+    """Standard counter type detector using multiple synchronized channels."""
 
     attached_devices = {
-        'timer':    (Channel, 'Timer channel'),
-        'monitors': ([Channel], 'Monitor channels'),
-        'counters': ([Channel], 'Counter channels')
+        'timer':    Attach('Timer channel', Channel, optional=True),
+        'monitors': Attach('Monitor channels', Channel, multiple=True, optional=True),
+        'counters': Attach('Counter channels', Channel, multiple=True, optional=True)
     }
 
     hardware_access = False
+    multi_master = True
+
+    # allow overwriting in derived classes
+    def _presetiter(self):
+        """yields name, device tuples for all 'preset-able' devices"""
+        # a device may react to more than one presetkey....
+        dev = self._adevs['timer']
+        if dev:
+            yield ('t', dev)
+            yield ('time', dev)
+        for i, dev in enumerate(self._adevs['monitors']):
+            yield ('mon%d' % (i+1), dev)
+        for i, dev in enumerate(self._adevs['counters']):
+            if i == 0:
+                yield ('n', dev)
+            yield ('ctr%d' % (i+1), dev)
+            yield ('det%d' % (i+1), dev)
+        for dev in self._adevs['monitors'] + self._adevs['counters']:
+            yield (dev.name, dev)
 
     def doPreinit(self, mode):
-        self._counters = []
-        self._presetkeys = {}
-
-        if self._adevs['timer'] is not None:
-            self._counters.append(self._adevs['timer'])
-            self._presetkeys['t'] = self._presetkeys['time'] = \
-                self._adevs['timer']
-        for i, mdev in enumerate(self._adevs['monitors']):
-            self._counters.append(mdev)
-            self._presetkeys['mon%d' % (i+1)] = mdev
-        for i, cdev in enumerate(self._adevs['counters']):
-            if i == 0:
-                self._presetkeys['n'] = cdev
-            self._counters.append(cdev)
-            self._presetkeys['det%d' % (i+1)] = \
-                self._presetkeys['ctr%d' % (i+1)] = cdev
+        _counters = []
+        _presetkeys = {}
+        for name, dev in self._presetiter():
+            if dev not in _counters:
+                _counters.append(dev)
+            # later mentioned presetnames dont overwrite earlier ones
+            _presetkeys.setdefault(name, dev)
+        self._counters = _counters
+        self._presetkeys = _presetkeys
         self._getMasters()
 
     def doReadFmtstr(self):
         return ', '.join('%s %%s' % ctr.name for ctr in self._counters)
 
     def _getMasters(self):
-        """Internal method to collect all masters from the card."""
-        self._masters = []
-        self._slaves = []
+        """Internal method to collect all masters."""
+        _masters = []
+        _slaves = []
         for counter in self._counters:
             if counter.ismaster:
-                self._masters.append(counter)
+                _masters.append(counter)
             else:
-                self._slaves.append(counter)
+                _slaves.append(counter)
+        self._masters = _masters
+        self._slaves = _slaves
 
     def doSetPreset(self, **preset):
         self.doStop()
         for master in self._masters:
             master.ismaster = False
             master.mode = 'normal'
+        master = None
         for name in preset:
             if name in self._presetkeys:
+                if master:
+                    self.log.error('Only one Master is supported, ignoring '
+                                   'preset %s=%s'%(name, preset[name]))
+                    continue
                 dev = self._presetkeys[name]
                 dev.ismaster = True
                 dev.mode = 'preselection'
                 dev.preselection = preset[name]
+                if not self.multi_master:
+                    master = dev
+        if not(self.multi_master or master):
+            self.log.warning('No usable preset given, '
+                             'detector may not stop by itself!')
         self._getMasters()
 
     def doStart(self):

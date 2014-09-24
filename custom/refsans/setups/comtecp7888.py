@@ -92,7 +92,7 @@ devices = dict(
                        mode = 'normal',
                       ),
     # the following may not work as expected ! (or at all!)
-    #~ comtec    = device('nicos.devices.vendor.qmesydaq.QMesyDAQDet',
+    #~ comtec    = device('nicos.devices.vendor.qmesydaq.QMesyDAQImage',
                      #~ description = 'Comtep P7888 Fast Counter Main detector device',
                      #~ tacodevice = '%s/detector' % tacodev,
                      #~ events = None,

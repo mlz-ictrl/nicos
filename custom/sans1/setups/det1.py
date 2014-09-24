@@ -71,7 +71,7 @@ devices = dict(
                      description = 'QMesyDAQ Timer',
                      tacodevice = '//%s/sans1/qmesydaq/timer' % nethost,
                      ),
-    det1    = device('nicos.devices.vendor.qmesydaq.QMesyDAQDet',
+    det1    = device('nicos.devices.vendor.qmesydaq.QMesyDAQImage',
                      description = 'QMesyDAQ Image type Detector1',
                      tacodevice = '//%s/sans1/qmesydaq/det' % nethost,
                      events = None,

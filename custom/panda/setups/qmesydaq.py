@@ -22,64 +22,51 @@
 #
 # **************************************************************************
 
-description = 'qmesydaq devices for REFSANS'
+description = 'qmesydaq channel devices'
 
-# to be included by refsans ?
 group = 'optional'
 
-nethost = 'refsanssrv.refsans.frm2'
-tacodev = '//%s/test/qmesydaq' % nethost
+nethost = 'qmesydaq.panda.frm2'
+qm = '//%s/test/qmesydaq/' % nethost
 
 devices = dict(
-    BerSANSFileSaver  = device('sans1.bersans.BerSANSFileFormat',
-                               description = 'Saves image data in BerSANS format',
-                               filenametemplate = ['D%(counter)07d.001',
-                                                   '/data_user/D%(counter)07d.001'],
-                               lowlevel = True,
-                              ),
-    #~ LiveViewSink = device('nicos.devices.fileformats.LiveViewSink',
-                               #~ description = 'Sends image data to LiveViewWidget',
-                               #~ filenametemplate=[],
-                               #~ lowlevel = True,
-                              #~ ),
     mon1 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
                      description = 'QMesyDAQ Counter0',
-                     tacodevice = '%s/counter0' % tacodev,
+                     tacodevice = qm + 'counter0',
                      type = 'monitor',
                      ),
     mon2 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
                      description = 'QMesyDAQ Counter1',
-                     tacodevice = '%s/counter0' % tacodev,
+                     tacodevice = qm + 'counter1',
                      type = 'monitor',
                      ),
-    #~ qm_ctr2 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
+    #~ mon3 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
                      #~ description = 'QMesyDAQ Counter2',
-                     #~ tacodevice = '%s/counter2' % tacodev,
+                     #~ tacodevice = qm + 'counter2',
                      #~ type = 'monitor',
                      #~ ),
-    #~ qm_ctr3= device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
+    #~ mon4 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
                      #~ description = 'QMesyDAQ Counter3',
-                     #~ tacodevice = '%s/counter3' % tacodev,
+                     #~ tacodevice = qm + 'counter3',
                      #~ type = 'monitor',
                      #~ ),
-    #~ qm_ev  = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
+    #~ events = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
                      #~ description = 'QMesyDAQ Events channel',
-                     #~ tacodevice = '%s/events' % tacodev,
+                     #~ tacodevice = qm + 'events',
                      #~ type = 'counter',
                      #~ ),
     timer = device('nicos.devices.vendor.qmesydaq.QMesyDAQTimer',
                      description = 'QMesyDAQ Timer',
-                     tacodevice = '%s/timer' % tacodev,
+                     tacodevice = qm + 'timer',
                      ),
-    det    = device('nicos.devices.vendor.qmesydaq.QMesyDAQImage',
-                     description = 'QMesyDAQ Image type Detector1',
-                     tacodevice = '%s/det' % tacodev,
-                     events = None,
+    det    = device('nicos.devices.vendor.qmesydaq.QMesyDAQMultiChannel',
+                     description = 'QMesyDAQ MultiChannel Detector',
+                     tacodevice = qm + 'det',
+                     events = 'events',
                      timer = 'timer',
                      counters = [],
+                     #~ monitors = ['mon1', 'mon2', 'mon3', 'mon4'],
                      monitors = ['mon1', 'mon2'],
-                     fileformats = ['BerSANSFileSaver'],
-                     subdir = 'bersans',
                      ),
 )
 

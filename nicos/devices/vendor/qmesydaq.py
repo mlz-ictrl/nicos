@@ -27,8 +27,9 @@
 import numpy
 
 from nicos.core import Param, Override, Value, status, oneofdict, oneof, \
-    ImageProducer, ImageType, Measurable, Attach
+    ImageProducer, ImageType, Attach, ConfigurationError, listof
 from nicos.devices.fileformats import LiveViewSink
+from nicos.devices.generic.detector import Channel, MultiChannelDetector
 from nicos.devices.taco.detector import FRMChannel, FRMTimerChannel, \
     FRMCounterChannel
 from nicos.devices.taco.core import TacoDevice
@@ -68,35 +69,21 @@ class QMesyDAQCounter(QMesyDAQChannel, FRMCounterChannel):
     Monitor/counter channel for QMesyDAQ detector.
     """
 
-
-class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
+class QMesyDAQBase(TacoDevice, MultiChannelDetector):
     """
     Detector for QMesyDAQ that combines multiple channels to a single Measurable
     detector device.
-
-    It also contains the managing and start/stop logic and reads the histogram
-    data which is provided to the attached filesavers for storage.
     """
 
-    # only one of those is required, all others are optional!
+    # we also may have an total event counter
+    # timer, monitors and counters ae defined in MultiChannelDetector
     attached_devices = {
-        'events' :  Attach('Events channel', QMesyDAQCounter, optional=True),
-        'timer':    Attach('Timer channel', QMesyDAQTimer),
-        'monitors': Attach('Monitor channels', QMesyDAQCounter, multiple=True,
-                            optional=True),
-        'counters': Attach('Counter channels', QMesyDAQCounter, multiple=True,
-                            optional=True),
+        'events' :  Attach('Events channel', Channel, optional=True),
     }
-
-    taco_class = Detector
-    _filesavers = []
 
     parameters = {
         'lastcounts' : Param('Current total number of counts', settable=True,
                              type=int, userparam=False),
-        'readout'    : Param('Readout mode of the Detector', settable=True,
-                             type=oneof('raw','mapped','amplitude','none'),
-                             default='mapped', mandatory=False, chatty=True)
     }
 
     parameter_overrides = {
@@ -105,91 +92,48 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
                              IOCommon.MODE_NORMAL: 'normal'})),
     }
 
-    # initial imagetype, will be updated upon readImage
-    imagetype = ImageType((128, 128), '<u4')
+    taco_class = Detector
+
+    _TACO_STATUS_MAPPING = {
+        TACOStates.DEVICE_NORMAL : (status.OK, 'idle'),
+        TACOStates.PRESELECTION_REACHED : (status.OK, 'idle'),
+        TACOStates.STOPPED : (status.PAUSED, 'paused'),
+        TACOStates.COUNTING : (status.BUSY, 'counting'),
+    }
+
+    hardware_access = True
+    multi_master = False
+
+    def _presetiter(self):
+        dev = self._adevs['events']
+        if dev:
+            yield ('events', dev)
+        for name, dev in MultiChannelDetector._presetiter(self):
+            yield (name, dev)
 
     def doPreinit(self, mode):
-        self._counters = []
-        self._presetkeys = {}
-        self._master = None
         self._isPause = False
-        self._filesavers = []
-
+        self._data  = []
         TacoDevice.doPreinit(self, mode)
-        def myiter(self):
-            # return name, device for all devices we allow to be preset
-            dev = self._adevs['timer']
-            if dev:
-                yield ('t', dev)
-                yield ('time', dev)
-            dev = self._adevs['events']
-            if dev:
-                yield ('events', dev)
-            for i, dev in enumerate(self._adevs['monitors']):
-                yield ('mon%d' % (i+1), dev)
-            for i, dev in enumerate(self._adevs['counters']):
-                yield ('ctr%d' % (i+1), dev)
-            for dev in self._adevs['monitors'] + self._adevs['counters']:
-                yield (dev.name, dev)
-
-        for name, dev in myiter(self):
-            if dev not in self._counters:
-                self._counters.append(dev)
-            # later mentioned presetnames dont overwrite earlier ones
-            self._presetkeys.setdefault(name, dev)
-        self._getMaster()
-
-    def doInit(self, mode):
-        self._filesavers = [ff for ff in self._adevs['fileformats']
-                             if not isinstance(ff, LiveViewSink)]
-        self.readImage() # also set imagetype
-
-    def _getMaster(self):
-        """Internal method to get the current master."""
-        self._master = None
-        for counter in self._counters:
-            if counter.ismaster:
-                self._master = counter
-
-    def doSetPreset(self, **preset):
-        self.doStop()
-        self.log.debug('setting preset info %r' % preset)
-        if self._master:
-            self._master.ismaster = False
-            self._master.mode = 'normal'
-        master = None
-        for name in preset:
-            if name in self._presetkeys:
-                if master:
-                    self.log.error('Only one Master is supported, ignoring '
-                                   'preset %s=%s'%(name, preset[name]))
-                    continue
-                dev = self._presetkeys[name]
-                dev.ismaster = True
-                dev.mode = 'preselection'
-                dev.preselection = preset[name]
-                master = dev
-        if not master:
-            self.log.warning('No usable preset given, '
-                             'detector will not stop by itself!')
-        self._getMaster()
+        MultiChannelDetector.doPreinit(self, mode)
 
     #
     # Measurable/TacoDevice interface
     #
     def doStart(self):
         self.doStop()
-        self._getMaster()
+        self._getMasters()
+        self.log.debug('clearing old data')
+        self._taco_guard(self._dev.clear)
         self.log.debug('starting subdevices')
-        for dev in self._counters:
-            if dev != self._master:
-                dev.start()
-        if self._master:
-            self._master.start()
-        else:
+        for dev in self._slaves:
+            dev.start()
+        for master in self._masters:
+            master.start()
+        if not self._masters:
             self.log.warning('counting without master, use "stop(%s)" to '
                              'finish the counting...' % self.name)
-        # qmesydaq special: 2D device is started last
+        # qmesydaq special: Histogramming/2D device is started last
         self.lastcounts = 0
         self._taco_guard(self._dev.start)
         self.log.debug('Image acquisition started')
@@ -213,26 +157,95 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
             dev.reset()
         self._taco_guard(self._dev.reset)
         self._isPause = False
-        self._getMaster()
-
-    def presetInfo(self):
-        return set(self._presetkeys)
-
-    def doStatus(self, maxage=0):
-        state = self._taco_guard(self._dev.deviceState)
-        if state in (TACOStates.PRESELECTION_REACHED, TACOStates.DEVICE_NORMAL):
-            return status.OK, 'idle'
-        elif state == TACOStates.STOPPED:
-            return status.PAUSED, 'paused'
-        elif state == TACOStates.COUNTING:
-            return status.BUSY, 'counting'
-        return status.ERROR, TACOStates.stateDescription(state)
+        self._getMasters()
 
     def doIsCompleted(self):
         if self._isPause:
             return False
-        state = self._taco_guard(self._dev.deviceState)
-        return state in (TACOStates.PRESELECTION_REACHED, TACOStates.DEVICE_NORMAL)
+        state = self.doStatus(0)[0]
+        return state == status.OK
+
+    def doRead(self, maxage=None):
+        raise ConfigurationError(self, 'QMesyDAQBase should not be used for a Device!')
+
+
+class QMesyDAQMultiChannel(QMesyDAQBase):
+    """
+    Detector for QMesyDAQ that alles to access selected channels in a multi-channel setup.
+    """
+
+    parameters = {
+        'channels' : Param('tuple of active channels (1 based)', settable=True,
+                             type=listof(int)),
+    }
+
+    def _readData(self):
+        # read data via taco and transform it
+        res = self._taco_guard(self._dev.read)
+        expected = 3 + max(self.channels or [0])
+        # first 3 values are sizes of dimensions
+        if len(res) >= expected:
+            self._data = res[3:]
+            # ch is 1 based, _data is 0 based
+            self.lastcounts = sum([self._data[ch - 1] for ch in self.channels])
+        else:
+            self.log.warning(self, 'not enough data returned, check config! '
+                                   '(got %d elements, expected >=%d)' % (len(res), expected))
+            self._data = None
+            self.lastcounts = 0
+
+    def doRead(self, maxage=0):
+        resultlist = [i for ctr in self._counters for i in ctr.read()]
+        self._readData()
+        resultlist.append(self.lastcounts)
+        if self._data is not None:
+            for ch in self.channels:
+                # ch is 1 based, _data is 0 based
+                resultlist.append(self._data[ch - 1])
+        return resultlist
+
+    def valueInfo(self):
+        resultlist = [i for ctr in self._counters for i in ctr.valueInfo()] + \
+                     [Value('ch.sum', unit='cts', errors='sqrt',
+                            type='counter', fmtstr='%d')]
+        for ch in self.channels:
+            resultlist.append(Value('ch%d' % ch, unit='cts', errors='sqrt', type='counter', fmtstr='%d'))
+        return tuple(resultlist)
+
+    #
+    # Parameters
+    #
+    def doReadFmtstr(self):
+        resultlist = ['%s: %s' % (ctr.name, ctr.fmtstr) for ctr in self._counters] + \
+                     ['lastcounts: %d']
+        for ch in self.channels:
+            resultlist.append('ch%d: %%d' % ch)
+        return ', '.join(resultlist)
+
+
+
+class QMesyDAQImage(ImageProducer, QMesyDAQBase):
+    """
+    Extending QMesyDAQBase with an ImageProducer.
+
+    It also contains the managing and start/stop logic and reads the histogram
+    data which is provided to the attached filesavers for storage.
+    """
+
+    parameters = {
+        'readout'    : Param('Readout mode of the Detector', settable=True,
+                             type=oneof('raw','mapped','amplitude','none'),
+                             default='mapped', mandatory=False, chatty=True)
+    }
+
+    # initial imagetype, will be updated upon readImage
+    imagetype = ImageType((128, 128), '<u4')
+    _filesavers = []
+
+    def doInit(self, mode):
+        self._filesavers = [ff for ff in self._adevs['fileformats']
+                             if not isinstance(ff, LiveViewSink)]
+        self.readImage() # also set imagetype
 
     def duringMeasureHook(self, elapsed):
         self.log.debug('duringMeasureHook(%f)' % elapsed)
@@ -281,12 +294,15 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
 
     def doWriteReadout(self, value):
         if value != 'none':
-            self._taco_guard(self._dev.deviceOff)
-            self._taco_guard(self._dev.deviceUpdateResource, 'histogram', value)
-            self._taco_guard(self._dev.deviceOn)
+            try:
+                self._taco_guard(self._dev.deviceOff)
+                self._taco_guard(self._dev.deviceUpdateResource, 'histogram', value)
+            finally:
+                self._taco_guard(self._dev.deviceOn)
+            return self._taco_guard(self._dev.deviceQueryResource, 'histogram')
 
     #
-    # ImageProducer interface
+    # ImageProducer Interface
     #
     def clearImage(self):
         self._taco_guard(self._dev.clear)
@@ -295,9 +311,8 @@ class QMesyDAQDet(ImageProducer, TacoDevice, Measurable):
         # read data via taco and transform it
         res = self._taco_guard(self._dev.read)
         # first 3 values are sizes of dimensions
-        self.lastcounts = sum(res[3:]) # maybe also evaluate roi...?
         # evaluate shape return correctly reshaped numpy array
-        if res[1:3] in [(1, 1), (0, 1), (1, 0), (0, 0)]: #1D array
+        if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]: #1D array
             self.imagetype = ImageType(shape=(res[0], ), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
             return data
