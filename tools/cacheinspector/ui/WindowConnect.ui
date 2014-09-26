@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogConnect</class>
+ <widget class="QDialog" name="DialogConnect">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>309</width>
+    <height>137</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Connect to Server</string>
+  </property>
+  <layout class="QFormLayout" name="layoutForm">
+   <property name="verticalSpacing">
+    <number>3</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelServerAddress">
+     <property name="text">
+      <string>Server Address: </string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="valueServerAddress">
+     <property name="text">
+      <string>127.0.0.1</string>
+     </property>
+     <property name="placeholderText">
+      <string>127.0.0.1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="labelPort">
+     <property name="text">
+      <string>Port:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QRadioButton" name="radioTCP">
+     <property name="text">
+      <string>TCP</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QRadioButton" name="radioUDP">
+     <property name="text">
+      <string>UDP</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QPushButton" name="buttonConnect">
+     <property name="text">
+      <string>Connect</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="valuePort">
+     <property name="inputMask">
+      <string>00000; </string>
+     </property>
+     <property name="text">
+      <string>14869</string>
+     </property>
+     <property name="placeholderText">
+      <string>14869</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="buttonCancel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>valueServerAddress</tabstop>
+  <tabstop>valuePort</tabstop>
+  <tabstop>radioTCP</tabstop>
+  <tabstop>radioUDP</tabstop>
+  <tabstop>buttonCancel</tabstop>
+  <tabstop>buttonConnect</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

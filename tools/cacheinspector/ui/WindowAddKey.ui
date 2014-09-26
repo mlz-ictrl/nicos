@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WindowAddKey</class>
+ <widget class="QDialog" name="WindowAddKey">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>952</width>
+    <height>75</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Add New Key</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="horizontalSpacing">
+    <number>12</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>1</number>
+   </property>
+   <item row="0" column="3">
+    <widget class="QLabel" name="labelValue">
+     <property name="text">
+      <string>*Raw Value:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QPushButton" name="buttonCancel">
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="valueKey"/>
+   </item>
+   <item row="1" column="4">
+    <widget class="QPushButton" name="buttonAdd">
+     <property name="text">
+      <string>Add Key</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="labelTTL">
+     <property name="text">
+      <string>Time to Live:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="labelKey">
+     <property name="text">
+      <string>*Key:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelTimeStamp">
+     <property name="text">
+      <string>Time Stamp:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="valueTTL">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="inputMask">
+      <string>#ddddd9; </string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLineEdit" name="valueValue"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDateTimeEdit" name="dateTimeStamp">
+     <property name="maximumSize">
+      <size>
+       <width>196</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="maximumDate">
+      <date>
+       <year>2038</year>
+       <month>1</month>
+       <day>1</day>
+      </date>
+     </property>
+     <property name="minimumDate">
+      <date>
+       <year>1970</year>
+       <month>1</month>
+       <day>19</day>
+      </date>
+     </property>
+     <property name="maximumTime">
+      <time>
+       <hour>0</hour>
+       <minute>0</minute>
+       <second>0</second>
+      </time>
+     </property>
+     <property name="minimumTime">
+      <time>
+       <hour>23</hour>
+       <minute>59</minute>
+       <second>59</second>
+      </time>
+     </property>
+     <property name="displayFormat">
+      <string>dd-MM-yyyy HH:mm:ss</string>
+     </property>
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+     <property name="timeSpec">
+      <enum>Qt::UTC</enum>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>dateTimeStamp</tabstop>
+  <tabstop>valueTTL</tabstop>
+  <tabstop>valueKey</tabstop>
+  <tabstop>valueValue</tabstop>
+  <tabstop>buttonCancel</tabstop>
+  <tabstop>buttonAdd</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
