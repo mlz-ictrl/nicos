@@ -10,6 +10,7 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('services.poller.Poller',
+                    loglevel = 'info',
                     autosetup = True,
                     #~ poll = ['lakeshore', 'detector', 'befilter', 'cryo1',
                             #~ 'cryo3', 'cryo4', 'cryo5', 'magnet75', '7T5',
