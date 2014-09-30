@@ -62,10 +62,17 @@ windows = [
     window('Logbook', 'table', panel('elog.ELogPanel')),
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
-    #window('Live data', 'live', panel('live.LiveDataPanel')),
+    # window('Downtime', 'mail', panel('nicos.clients.gui.tools.downtime.DownTimeTool')),
+    # window('Live data', 'live', panel('live.LiveDataPanel')),
 ]
 
 tools = [
+    tool('Downtime report', 'downtime.DownTimeTool',
+#        receiver='f.carsughi@fz-juelich.de',
+         receiver='jens.krueger@frm2.tum.de, enrico.faulhaber@frm2.tum.de',
+         mailserver='smtp.frm2.tum.de',
+         sender='demo@frm2.tum.de',
+        ),
     tool('Calculator', 'calculator.CalculatorTool'),
     tool('Neutron cross-sections', 'website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),

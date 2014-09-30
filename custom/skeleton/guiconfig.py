@@ -54,6 +54,14 @@ windows = [
 ]
 
 tools = [
+    tool('Downtime report', 'downtime.DownTimeTool',
+# If not at the FRM-II facility you have to change this reporting address
+         receiver='f.carsughi@fz-juelich.de',
+# If you are not at the FRM-II facility you have to change your mail server
+         mailserver='smtp.frm2.tum.de',
+# Please change the sender address to a valid, instrument specific address
+         sender='demo@frm2.tum.de',
+        ),
     tool('Calculator', 'calculator.CalculatorTool'),
     tool('Neutron cross-sections', 'website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),

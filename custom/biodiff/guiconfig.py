@@ -68,6 +68,11 @@ main_window = tabbed(
 windows = []
 
 tools = [
+    tool('Downtime report', 'downtime.DownTimeTool',
+         receiver='f.carsughi@fz-juelich.de',
+         mailserver='smtp.frm2.tum.de',
+         sender='biodiff@frm2.tum.de',
+        ),
     tool('Calculator', 'calculator.CalculatorTool'),
     tool('Neutron cross-sections', 'website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),

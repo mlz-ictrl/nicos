@@ -54,6 +54,11 @@ MIEZE_settings = [
 ]
 
 tools = [
+    tool('Downtime report', 'downtime.DownTimeTool',
+         receiver='f.carsughi@fz-juelich.de',
+         mailserver='smtp.frm2.tum.de',
+         sender='mira@frm2.tum.de',
+        ),
     tool('TACO control panel',
          'ssh -XY maint@mira1 sudo tacocp'),
     tool('Calculator',

@@ -52,6 +52,7 @@
     <file alias="estop">icons/estop.png</file>
     <file alias="estopdown">icons/estopdown.png</file>
     <file alias="close">icons/emblem-unreadable.png</file>
+    <file alias="mail">icons/internet-mail.png</file>
   </qresource>
   <qresource prefix="leds">
     <file alias="status_white">leds/simplewhite.png</file>

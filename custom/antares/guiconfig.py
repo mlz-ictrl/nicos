@@ -59,6 +59,11 @@ config = ('Default', [
             panel('live.LiveDataPanel',
                   instrument = 'antares')),
     ], [
+        tool('Downtime report', 'downtime.DownTimeTool',
+             receiver='f.carsughi@fz-juelich.de',
+             mailserver='smtp.frm2.tum.de',
+             sender='antares@frm2.tum.de',
+            ),
         tool('Calculator',
              'nicos.clients.gui.tools.calculator.CalculatorTool'),
         tool('Neutron cross-sections',
