@@ -298,6 +298,7 @@ class Monitor(BaseMonitor):
                             rowlayout.addStretch()
                             blocklayout.addLayout(rowlayout)
                     if len(block) > 2 and block[2]:
+                        blockbox.setHidden(True) # start hidden
                         setupnames = [block[2]] if isinstance(block[2], string_types) \
                                      else block[2]
                         for setupname in setupnames:
