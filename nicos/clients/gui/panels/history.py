@@ -49,7 +49,7 @@ from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 from nicos.guisupport.utils import extractKeyAndIndex
-from nicos.guisupport.plots import TimeSeries
+from nicos.guisupport.timeseries import TimeSeries
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
 from nicos.pycompat import cPickle as pickle, iteritems, OrderedDict
