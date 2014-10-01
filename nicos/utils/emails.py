@@ -34,13 +34,12 @@ from email.mime.multipart import MIMEMultipart
 
 import smtplib
 
-from nicos import session
 from nicos.pycompat import string_types
 from nicos.core.params import mailaddress
 
 
 def sendMail(mailserver, receiverlist, mailsender, topic, body,
-             attach_files=(), debuglevel=0):
+             attach_files=(), debuglevel=0, logger=None):
     """Sends an email to a list of receivers with given topic and content via
     the given server.
 
@@ -93,7 +92,8 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     mailer = smtplib.SMTP(mailserver)
     if debuglevel == 'debug':
         mailer.set_debuglevel(debuglevel)
-    session.log.info('Sending data files via eMail to %s' % receivers)
+    if logger:
+        logger.info('Sending data files via eMail to %s' % receivers)
     try:
         mailer.sendmail(mailsender, receiverlist + [mailsender], msg.as_string())
     except Exception as e:

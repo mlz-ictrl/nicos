@@ -30,7 +30,6 @@ from os import path
 from ftplib import FTP
 from hashlib import md5
 
-from nicos import session
 from nicos.pycompat import to_utf8
 
 
@@ -47,7 +46,7 @@ FTP_USER = 'nicd'
 FTP_P = ''.join(map(chr,[78, 103, 115, 65, 57, 84, 98, 67]))
 
 
-def ftpUpload(filename):
+def ftpUpload(filename, logger=None):
     """Uploads the given file to an user-accessible location
 
     returns a http download link for download purposes.
@@ -74,7 +73,8 @@ def ftpUpload(filename):
             ftp.quit()
             ftp.close()
     except Exception:
-        session.log.error('Uploading ftp-file failed! Please check config and '
+        if logger:
+            logger.error('Uploading ftp-file failed! Please check config and '
                           'log files', exc=1)
         raise
 

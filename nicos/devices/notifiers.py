@@ -104,6 +104,7 @@ class Mailer(Notifier):
 
     def _sendmail(self, address, to, cc, subject, text):
         """Send e-mail with given recipients, subject and text."""
+        # TODO: use nicos/utils/emails for sending emails
         if not address:
             self.log.debug('no sender address given, not sending anything')
             return False

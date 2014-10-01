@@ -879,7 +879,7 @@ class Experiment(Device):
         self.log.info('zipping experiment data, please wait...')
         zipname = zipFiles(path.join(self.proposalpath, '..',
                                      self.proposal + '.zip'),
-                           self.proposalpath)
+                           self.proposalpath, logger=self.log)
         self.log.info('done: stored as ' + zipname)
         return zipname
 
@@ -920,7 +920,7 @@ class Experiment(Device):
         if os.stat(zipname).st_size < 10000000:
             # small enough -> send directly
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
-                     [zipname], 1 if self.loglevel == 'debug' else 0)
+                     [zipname], 1 if self.loglevel == 'debug' else 0, logger=self.log)
         else:
             # not small enough -> upload and send link
             self.log.info('Zipfile is too big to send via email and will be '
@@ -936,9 +936,9 @@ class Experiment(Device):
             within the next four weeks.
 
             We apologize for the inconvenience.
-            """) % ftpUpload(zipname)
+            """) % ftpUpload(zipname, logger=self.log)
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
-                     [], 1 if self.loglevel == 'debug' else 0)
+                     [], 1 if self.loglevel == 'debug' else 0, logger=self.log)
 
         # "hide" compressed file by moving it into the proposal directory
         self.log.info('moving compressed file to ' + self.proposalpath)

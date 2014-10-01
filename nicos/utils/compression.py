@@ -28,9 +28,7 @@ import os
 import zipfile
 from os import path
 
-from nicos import session
-
-def zipFiles(zipfilename, rootdir):
+def zipFiles(zipfilename, rootdir, logger=None):
     """Create a zipfile named <zipfile> containing all files from <rootdir> and therein
 
     returns the name of the created zipfile
@@ -52,7 +50,8 @@ def zipFiles(zipfilename, rootdir):
                 zf.write(path.join(root, fn), path.join(xroot, fn))
                 nfiles += 1
                 if nfiles % 500 == 0:
-                    session.log.info('%d files processed' % nfiles)
+                    if logger:
+                        logger.info('%d files processed' % nfiles)
     finally:
         zf.close()
     return zipfilename
