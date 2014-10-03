@@ -26,7 +26,6 @@
 
 from __future__ import print_function
 
-import os
 import sys
 import time
 import logging
@@ -614,7 +613,7 @@ def main(argv):
     # Import the compiled resource file to register resources
     import nicos.guisupport.gui_rc  #pylint: disable=W0612
 
-    userpath = path.join(os.getenv('HOME'), '.config', 'nicos')
+    userpath = path.join(path.expanduser('~'), '.config', 'nicos')
 
     # Set up logging for the GUI instance.
     initLoggers()

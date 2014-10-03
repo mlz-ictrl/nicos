@@ -24,7 +24,7 @@
 
 """FRM-II proposal DB utilities."""
 
-import os
+from os import path
 import datetime
 
 try:
@@ -45,8 +45,9 @@ class ProposalDB(object):
     def __init__(self):
         try:
             if not session.experiment or not session.experiment.propdb:
-                credentials = readFile(os.getenv('HOME') +
-                                       '/.nicos/credentials')
+                credpath = path.join(path.expanduser('~'), '.nicos',
+                                     'credentials')
+                credentials = readFile(credpath)
             else:
                 credentials = readFile(session.experiment.propdb)
         except IOError as e:
