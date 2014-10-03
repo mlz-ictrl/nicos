@@ -235,8 +235,8 @@ class MultiSwitcher(MappedMoveable):
         moveables = self._adevs['moveables']
         if not isinstance(target, (tuple, list)) or \
             len(target) < len(moveables):
-            raise InvalidValueError(self,'doStart needs a tuple of %d positions '
-                                    'for this device!' % len(moveables))
+            raise InvalidValueError(self, 'doStart needs a tuple of %d positions'
+                                    ' for this device!' % len(moveables))
         # only check and move the moveables, which are first in self.devices
         for d, t in zip(moveables, target):
             if not d.isAllowed(t):
