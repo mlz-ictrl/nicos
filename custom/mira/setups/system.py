@@ -24,6 +24,7 @@ devices = dict(
                       sample = 'Sample',
                       dataroot = '/data',
                       serviceexp = '0',
+                      propprefix = '',
                       sendmail = True,
                       mailsender = 'rgeorgii@frm2.tum.de',
                       propdb = '/etc/proposaldb'),

@@ -91,6 +91,13 @@ _column2 = Column(
         BlockRow(Field(name='P', key='t/p'), Field(name='I', key='t/i'),
                  Field(name='D', key='t/d'), Field(name='p', dev='ccr5_p1')),
     ], 'ccr5'),
+    Block('Sample environment CCR11', [
+        BlockRow(Field(name='Setpoint', key='t_ccr11/setpoint', unitkey='t_ccr11/unit'),
+                 Field(name='A', dev='T_ccr11_A'), Field(name='B', dev='T_ccr11_B'),
+                 Field(name='C', dev='T_ccr11_C'), Field(name='D', dev='T_ccr11_D')),
+        BlockRow(Field(name='P', key='t_ccr11/p'), Field(name='I', key='t_ccr11/i'),
+                 Field(name='D', key='t_ccr11/d'), Field(name='p', dev='ccr11_p1')),
+    ], 'ccr11'),
     Block('Furnace (IRF01)', [
         BlockRow(Field(name='Setpoint', key='t_irf01/setpoint', unitkey='t_irf01/unit', format='%.2f'),
                  Field(name='Temp', dev='T_irf01')),

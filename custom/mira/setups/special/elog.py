@@ -7,6 +7,7 @@ sysconfig = dict(
 
 devices = dict(
     Logbook = device('services.elog.Logbook',
+                     plotformat = 'png',
                      prefix = 'logbook/',
                      cache = 'mira1:14869'),
 )

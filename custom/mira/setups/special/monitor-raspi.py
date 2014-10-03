@@ -64,6 +64,9 @@ _column2 = Column(
         BlockRow('echi', 'ephi'),
     #    BlockRow(Field(dev='ec', name='Scattering plane', width=20, istext=True)),
     ], 'euler'),
+    Block('Sample rotation (newport03', [
+        BlockRow(Field(dev='sth_newport03')),
+    ], 'newport03'),
     Block('Cryostat (CCR5)', [
         BlockRow(Field(name='Setpoint', key='T_ccr5/setpoint', unitkey='T_ccr5/unit', format='%.2f'),
                  Field(name='A', dev='T_ccr5_A'), Field(name='B', dev='T_ccr5_B'),
@@ -102,6 +105,15 @@ _column2 = Column(
                  Field(name='D', key='t_irf01/d')),
         BlockRow(Field(name='Heater power', key='t_irf01/heaterpower', unit='%', format='%.2f')),
     ], 'irf01'),
+    Block('3He insert (cryo1)', [
+        BlockRow(Field(name='Setpoint', key='T_cryo1/setpoint', unitkey='T_cryo1/unit', format='%.2f'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cryo1_p1'),
+                 Field(name='cycle', dev='cryo1_p4'),
+                 ),
+    ], 'cryo1'),
     Block('3He-4He insert (cryo2)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
