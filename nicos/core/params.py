@@ -566,7 +566,8 @@ def tangodev(val=None):
 mailaddress_re = re.compile(
     r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
     r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
-    r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+([A-Z]{2,99}|XN[A-Z0-9-]+)\.?$', re.IGNORECASE)  # domain
+    r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+([A-Z]{2,99}|XN[A-Z0-9-]+)\.?$'  # domain
+    , re.IGNORECASE)
 
 def mailaddress(val=None):
     """a valid mail address"""
@@ -576,7 +577,9 @@ def mailaddress(val=None):
     parts = val.split('@')
     parts[-1] = parts[-1].encode('idna').decode('ascii')
     val = '@'.join(parts)
-    if not mailaddress_re.match(val):
+    if '>' in val and not val.strip().endswith('>'):
+        raise ValueError('%r is not a valid email address' % val)
+    if not mailaddress_re.match(val.strip().partition('<')[-1].rpartition('>')[0] or val):
         raise ValueError('%r is not a valid email address' % val)
     return val
 
