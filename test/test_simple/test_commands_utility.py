@@ -116,6 +116,11 @@ def test_floatrange():
     assert type(l4[0]) == numpy.float64
     assert type(l4[-1]) == numpy.float64
 
+    assert raises(UsageError, floatrange, 1, 2, step=-0.5)
+    assert raises(UsageError, floatrange, 1, 2, step=0.5, num=2)
+    assert raises(UsageError, floatrange, 1, 2)
+    assert raises(UsageError, floatrange, 1, 2, num=1)
+
 def test_rangelistlog():
     l3 = RangeListLog(1., 2., 3)
     print(l3)
@@ -139,10 +144,11 @@ def test_rangelistlog():
     assert raises(UsageError, RangeListLog, -1, 2, 10)
 
 def test_rangelistgeneral():
-    l1 = RangeListGeneral(1,2,5)
+    l1 = RangeListGeneral(1, 2, 5)
     assert len(l1) == 5
     l2 = RangeListGeneral(1, 2, 10, lambda x: 1/x)
     assert len(l2) == 10
     assert numpy.allclose(l2, [1.0, 1.05882352941, 1.125, 1.2,
                                1.28571428571, 1.38461538462, 1.5,
                                1.63636363636, 1.8, 2.0])
+    assert raises(RuntimeError, RangeListGeneral, 0, 2, 10, lambda x: 1/x)

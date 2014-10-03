@@ -161,3 +161,9 @@ def test_slit_subaxes():
     assert slit.read(0) == [0, -1, 6, 4]
     slit.top.maw(3)
     assert slit.read(0) == [0, 0, 6, 6]
+
+def test_slit_reference():
+    slit = session.getDevice('slit')
+
+    slit.reference()
+    assert slit.read(0) == [0, 0, 6, 6]

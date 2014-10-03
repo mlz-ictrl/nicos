@@ -128,8 +128,9 @@ def floatrange(start, end, step=None, **kw):
         step = math.copysign(float(step), (end - start))
         return RangeListByStep(start, end, step)
     else:
-        num = int(kw.get('num'))
-        if num is None:
+        try:
+            num = int(kw.get('num'))
+        except TypeError:
             raise UsageError('Please give either step or num.')
         if num < 2:
             raise UsageError('The number of steps should be greater than 1.')
