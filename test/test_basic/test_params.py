@@ -26,7 +26,8 @@
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
      tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
-     none_or, limits, mailaddress, Param, Value
+     none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
+     subdir, nicosdev, nonemptystring
 from nicos.core.errors import ProgrammingError
 
 from test.utils import raises
@@ -186,3 +187,19 @@ def test_mailaddress():
 def test_value_class():
     assert raises(ProgrammingError, Value, 'my value', type='mytype')
     assert raises(ProgrammingError, Value, 'my value', errors='double')
+
+def test_path():
+    assert absolute_path('/tmp') == '/tmp'
+    assert relative_path('tmp') == 'tmp'
+    assert subdir('tmp') == 'tmp'
+    assert raises(ValueError, absolute_path, 'tmp')
+    assert raises(ValueError, absolute_path, '../')
+    assert raises(ValueError, relative_path, '/tmp')
+    assert raises(ValueError, relative_path, '../')
+    assert raises(ValueError, subdir, 'tmp/')
+
+def test_nicosdev():
+    assert raises(ValueError, nicosdev, 'nicos.dev')
+
+def test_string_params():
+    assert raises(ValueError, nonemptystring, '')
