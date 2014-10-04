@@ -28,7 +28,7 @@ import os
 import datetime
 
 try:
-    import mysql.connector as DB  #pylint: disable=F0401
+    import mysql.connector as DB  # pylint: disable=F0401
 except ImportError:
     try:
         import MySQLdb as DB
@@ -63,10 +63,8 @@ class ProposalDB(object):
             raise ConfigurationError('MySQL adapter is not installed')
 
     def __enter__(self):
-        self.conn = DB.connect(host=self.host,
-                                    user=self.user,
-                                    db=self.db,
-                                    charset='utf8')
+        self.conn = DB.connect(host=self.host, user=self.user, db=self.db,
+                               charset='utf8')
         self.cursor = self.conn.cursor()
         return self.cursor
 
@@ -137,9 +135,9 @@ def queryProposal(pnumber, instrument=None):
         raise InvalidValueError('no permissions entry in database')
     if instrument is not None and instrname.lower() != instrument.lower():
         session.log.error('proposal %s is not a proposal for '
-            '%s, but for %s, cannot use proposal information' %
-            (pnumber, instrument, instrname))
-        return instrname, {} # avoid data leakage
+                          '%s, but for %s, cannot use proposal information' %
+                          (pnumber, instrument, instrname))
+        return instrname, {}  # avoid data leakage
     # structure of returned data: (title, user, prop_name, prop_value)
     info = {
         'instrument': instrname,
@@ -147,8 +145,8 @@ def queryProposal(pnumber, instrument=None):
         'user': userrow[0],
         'user_email': userrow[1],
         'affiliation': userrow[2],
-        'permission_security': ['no','yes'][permissions[0]],
-        'permission_radiation_protection': ['no','yes'][permissions[1]],
+        'permission_security': ['no', 'yes'][permissions[0]],
+        'permission_radiation_protection': ['no', 'yes'][permissions[1]],
     }
     for row in rows:
         # extract the property name in a form usable as dictionary key
@@ -160,6 +158,7 @@ def queryProposal(pnumber, instrument=None):
     for k in info:
         info[k] = text_type(info[k]).encode('utf-8')
     return info.pop('instrument', 'None'), info
+
 
 def queryUser(user):
     """Query the FRM-II proposal database for the user ID and password hash."""
