@@ -34,7 +34,7 @@ from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
 from nicos.devices.tas.plotting import plot_hklmap, plot_resatpoint, plot_resscan
 from nicos.devices.tas.spurions import check_acc_bragg, check_ho_spurions, \
-     check_powderrays, alu_hkl, copper_hkl
+    check_powderrays, alu_hkl, copper_hkl
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.scan import _infostr, ADDSCANHELP2, cscan
 from nicos.commands.device import maw, read
@@ -61,6 +61,7 @@ def _getQ(v, name):
     except TypeError:
         raise UsageError('%s must be a sequence of (h, k, l) or (h, k, l, E)'
                          % name)
+
 
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
     preset, detlist, envlist, move, multistep = {}, [], None, [], []
@@ -95,7 +96,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
         elif key == 'dE' or key == 'de':
             dQ[3] = value
         elif key in session.devices and \
-                 isinstance(session.devices[key], Moveable):
+                isinstance(session.devices[key], Moveable):
             if isinstance(value, list):
                 if multistep and len(value) != len(multistep[-1][1]):
                     raise UsageError('all multi-step arguments must have the '
@@ -135,11 +136,11 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
     scanstr = _infostr('qscan', (Q, dQ, numpoints) + args, kwargs)
     plotval = kwargs.pop('plot', None)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
-            _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numpoints > 1:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
-               for i in range(numpoints)]
+              for i in range(numpoints)]
     if plotval == 'res':
         resscan(*(p[0] for p in values), kf=kwargs.get('kf'), ki=kwargs.get('ki'))
     elif plotval == 'hkl':
@@ -175,11 +176,11 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     scanstr = _infostr('qcscan', (Q, dQ, numperside) + args, kwargs)
     plotval = kwargs.pop('plot', None)
     preset, scaninfo, detlist, envlist, move, multistep, Q, dQ = \
-            _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
+        _handleQScanArgs(args, kwargs, Q, dQ, scanstr)
     if all(v == 0 for v in dQ) and numperside > 0:
         raise UsageError('scanning with zero step width')
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
-               for i in range(-numperside, numperside+1)]
+              for i in range(-numperside, numperside+1)]
     if plotval == 'res':
         resscan(*(p[0] for p in values), kf=kwargs.get('kf'), ki=kwargs.get('ki'))
     elif plotval == 'hkl':
@@ -198,9 +199,10 @@ class Q(ndarray):
 
 _Q = Q
 
+
 @usercommand
 @helparglist('[h, k, l, E]')
-def Q(*args, **kwds):  #pylint: disable=E0102
+def Q(*args, **kwds):  # pylint: disable=E0102
     """A Q-E vector object that can be used for calculations.
 
     Use as follows:
@@ -675,8 +677,8 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
         printwarning('Gaussian fit resulted in center outside scanning area, '
                      'offset unchanged')
     else:
-        diff = center - params[0] # NOTE: this is the other way around compared
-                                  # to checkoffset
+        # NOTE: this is the other way around compared to checkoffset
+        diff = center - params[0]
         printinfo('center of Gaussian fit at %s' % psi.format(params[0], True))
         if accuracy is None:
             accuracy = params[2] * 0.1
