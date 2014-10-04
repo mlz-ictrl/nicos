@@ -1,6 +1,15 @@
 Changelog for NICOS 2
 =====================
 
+Release 2.7.0
+-------------
+
+* Commands
+
+  - For TAS, added "pos2hkl()".  Without arguments, works like "rp()".
+    When given angle and optionally mono/ana arguments, will calculate
+    the Q/E position that these arguments represent.
+
 Release 2.6.0
 -------------
 

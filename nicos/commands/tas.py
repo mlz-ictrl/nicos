@@ -329,6 +329,41 @@ def calpos(*args, **kwds):
 
 
 @usercommand
+@helparglist('[phi, psi[, ki, kf][, E]]')
+def pos2hkl(phi=None, psi=None, **kwds):
+    """Calculate (Q, E) for a given instrument position.
+
+    Without arguments, prints the current (Q, E).  ``rp()`` is an alias.
+
+    >>> pos2hkl()
+    >>> rp()
+
+    The first two arguments are the sample 2-theta and theta angles.  The mono
+    and ana values can be left out to use the current values:
+
+    >>> pos2hkl(41.5, 29.2)  # phi and psi at current mono/ana position
+
+    You can also give a certain energy, which uses the current scan mode and
+    constant to calculate ki and kf:
+
+    >>> pos2hkl(41.5, 29.2, E=2)
+
+    Finally, you can give explicit values for ki and kf:
+
+    >>> pos2hkl(41.5, 29.2, ki=1.83, kf=1.56)
+    """
+    instr = session.instrument
+    if not isinstance(instr, TAS):
+        raise NicosError('your instrument device is not a triple axis device')
+    if not phi:
+        read(instr)
+    else:
+        instr._reverse_calpos(phi, psi, **kwds)
+
+rp = pos2hkl
+
+
+@usercommand
 @helparglist('[h, k, l, E[, SC]]')
 def pos(*args, **kwds):
     """Move the instrument to a given (Q, E), or the last `calpos()` position.
@@ -360,20 +395,6 @@ def pos(*args, **kwds):
     if pos[4] and pos[4] != instr.scanconstant:
         instr.scanconstant = pos[4]
     maw(instr, pos[:4])
-
-
-@usercommand
-def rp():
-    """Read the current (Q, E) position.
-
-    Example:
-
-    >>> rp()
-    """
-    instr = session.instrument
-    if not isinstance(instr, TAS):
-        raise NicosError('your instrument device is not a triple axis device')
-    read(instr)
 
 
 @usercommand

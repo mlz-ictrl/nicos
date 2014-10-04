@@ -162,7 +162,7 @@ one of your loaded setups.
 .. autofunction:: qcscan
 .. autofunction:: calpos
 .. autofunction:: pos
-.. autofunction:: rp
+.. autofunction:: pos2hkl
 .. autofunction:: setalign
 .. autofunction:: checkalign
 

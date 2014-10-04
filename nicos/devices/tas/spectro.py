@@ -297,6 +297,35 @@ class TAS(Instrument, Moveable):
             else:
                 raise LimitError(self, 'position not allowed: ' + why[:-4])
 
+    def _reverse_calpos(self, phi, psi, **kwds):
+        if 'E' in kwds:
+            ny = self._thz(kwds['E'])
+            if self.scanmode == 'CKI':
+                ki = self.scanconstant
+                kf = self._adevs['cell'].cal_kf(ny, ki)
+            elif self.scanmode == 'CKF':
+                kf = self.scanconstant
+                ki = self._adevs['cell'].cal_ki1(ny, kf)
+            else:
+                self.log.error('cannot calculate position with scanmode %s' %
+                               self.scanmode)
+        elif 'ki' in kwds or 'kf' in kwds:
+            ki = kwds.get('ki')
+            kf = kwds.get('kf')
+            if not ki or not kf:
+                self.log.error('must give both ki and kf arguments')
+        else:
+            ki = self._adevs['mono'].read()
+            kf = self._adevs['ana'].read()
+        ny = self._adevs['cell'].cal_ny(ki, kf)
+        if self.energytransferunit == 'meV':
+            ny *= THZ2MEV
+        hkl = self._calhkl([ki, kf, phi, psi])
+        self.log.info('ki: %8.3f A-1' % ki)
+        self.log.info('kf: %8.3f A-1' % kf)
+        self.log.info('pos: [%.4f, %.4f, %.4f, %.4f] rlu rlu rlu %s' %
+                      (tuple(hkl) + (ny, self.energytransferunit)))
+
     def _calhkl(self, angles):
         return self._adevs['cell'].angle2hkl(angles, self.axiscoupling)
 
