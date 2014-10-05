@@ -37,9 +37,9 @@ import threading
 import traceback
 from os import path
 from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, \
-     S_IROTH, S_IXOTH
+    S_IROTH, S_IXOTH
 from time import time as currenttime, strftime, strptime, localtime, mktime, \
-     sleep
+    sleep
 from itertools import islice, chain
 from functools import wraps
 
@@ -51,6 +51,7 @@ except ImportError:
 
 from nicos import config, session
 from nicos.pycompat import iteritems, xrange as range  # pylint: disable=W0622
+
 
 class attrdict(dict):
     """Dictionary whose items can be set with attribute access."""
@@ -160,6 +161,7 @@ class HardwareStub(object):
 def _s(n):
     return int(n), (n != 1 and 's' or '')
 
+
 def formatDuration(secs):
     if 0 <= secs < 60:
         est = '%s second%s' % _s(secs)
@@ -172,6 +174,7 @@ def formatDuration(secs):
         est = '%s day%s, %s hour%s' % (_s(secs // 86400) +
                                        _s((secs % 86400) // 3600))
     return est
+
 
 def formatEndtime(secs):
     return strftime('%A, %H:%M', localtime(currenttime() + secs))
@@ -226,6 +229,7 @@ def getVersions(obj):
     """
     versions = []
     modules = set()
+
     def _add(cls):
         try:
             if cls.__module__ not in modules:
@@ -328,11 +332,13 @@ def parseDateString(s, enddate=False):
 
 def terminalSize():
     """Try to find the terminal size as (cols, rows)."""
-    import struct, fcntl, termios
+    import struct
+    import fcntl
+    import termios
     try:
-        h, w, _hp, _wp = struct.unpack('HHHH',
-            fcntl.ioctl(0, termios.TIOCGWINSZ,
-                        struct.pack('HHHH', 0, 0, 0, 0)))
+        h, w, _hp, _wp = struct.unpack(
+            'HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ,
+                                struct.pack('HHHH', 0, 0, 0, 0)))
     except IOError:
         return 80, 25
     return w, h
@@ -398,12 +404,14 @@ def safeFilename(fn):
 DEFAULT_DIR_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH
 DEFAULT_FILE_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 
+
 def readFile(filename):
     fp = open(filename, 'r')
     try:
         return [line.strip() for line in fp]
     finally:
         fp.close()
+
 
 def writeFile(filename, lines):
     fp = open(filename, 'w')
@@ -412,11 +420,14 @@ def writeFile(filename, lines):
     finally:
         fp.close()
 
+
 def getPidfileName(appname):
     return os.path.join(config.nicos_root, config.pid_path, appname + '.pid')
 
+
 def writePidfile(appname):
     writeFile(getPidfileName(appname), [str(os.getpid())])
+
 
 def removePidfile(appname):
     try:
@@ -426,29 +437,32 @@ def removePidfile(appname):
             return
         raise
 
+
 def ensureDirectory(dirname, enableDirMode=DEFAULT_DIR_MODE, **kwargs):
     """Make sure a directory exists."""
     if not path.isdir(dirname):
         os.makedirs(dirname)
         os.chmod(dirname, enableDirMode)
 
+
 def enableDisableFileItem(filepath, mode, owner=None, group=None):
     """set mode and maybe change uid/gid of a filesystem item"""
     if (owner or group) and (hasattr(os, 'chown') and hasattr(os, 'stat')):
-        stats = os.stat(filepath) # only change the requested parts
+        stats = os.stat(filepath)  # only change the requested parts
         owner = owner or stats.st_uid
         group = group or stats.st_gid
         try:
             os.chown(filepath, owner, group)
         except OSError as e:
             session.log.debug('chown(%r, %d, %d) failed: %s' %
-                               (filepath, owner, group, e))
+                              (filepath, owner, group, e))
     try:
         os.chmod(filepath, mode)
     except OSError as e:
         session.log.debug('chmod(%r, %o) failed: %s' % (filepath, mode, e))
         return True
     return False
+
 
 def enableDisableDirectory(startdir, dirMode, fileMode,
                            owner=None, group=None, enable=False):
@@ -468,7 +482,7 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
     for child in os.listdir(startdir):
         full = path.join(startdir, child)
         if path.isdir(full):
-            failflag |= enableDisableDirectory(full, dirMode, fileMode, \
+            failflag |= enableDisableDirectory(full, dirMode, fileMode,
                                                owner, group, enable)
         else:
             failflag |= enableDisableFileItem(full, fileMode, owner, group)
@@ -479,9 +493,10 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
 
     return failflag
 
+
 def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
-                        disableFileMode=S_IRUSR, owner=None, group=None,
-                        **kwargs): # kwargs eats unused args
+                     disableFileMode=S_IRUSR, owner=None, group=None,
+                     **kwargs):  # kwargs eats unused args
     """Traverse a directory tree and remove access rights.
     returns True if there were some errors and False if everything went OK.
     disableDirMode default to 0500 (dr-x------) and
@@ -493,13 +508,14 @@ def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
                                       owner, group, enable=False)
     if failflag:
         session.log.warning('Disabling failed for some files, please check '
-                          'access rights manually')
+                            'access rights manually')
     return failflag
     # maybe logging is better done in the caller of disableDirectory
 
+
 def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
-                      enableFileMode=DEFAULT_FILE_MODE, owner=None, group=None,
-                      **kwargs): # kwargs eats unused args
+                    enableFileMode=DEFAULT_FILE_MODE, owner=None, group=None,
+                    **kwargs):  # kwargs eats unused args
     """Traverse a directory tree and grant access rights.
 
     returns True if there were some errors and False if everything went OK.
@@ -512,12 +528,13 @@ def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
                                       owner, group, enable=True)
     if failflag:
         session.log.warning('Enabling failed for some files, please check access'
-                          ' rights manually')
+                            ' rights manually')
     return failflag
     # maybe logging is better done in the caller of enableDirectory
 
 field_re = re.compile('{{(?P<key>[^:#}]+)(?::(?P<default>[^#}]*))?'
                       '(?:#(?P<description>[^}]+))?}}')
+
 
 def expandTemplate(template, keywords, field_re=field_re):
     """Simple template field replacement engine.
@@ -599,6 +616,7 @@ def daemonize():
     sys.stdin = open('/dev/null', 'r')
     sys.stdout = sys.stderr = open('/dev/null', 'w')
 
+
 def setuser(recover=True):
     """Do not daemonize, but at least set the current user and group correctly
     to the configured values if started as root.
@@ -628,6 +646,7 @@ def setuser(recover=True):
     if config.umask is not None and hasattr(os, 'umask'):
         os.umask(int(config.umask, 8))
 
+
 # as copied from Python 3.3
 def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     """Given a command, mode, and a PATH string, return the path which
@@ -655,7 +674,7 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
 
     if sys.platform == "win32":
         # The current directory takes precedence on Windows.
-        if not os.curdir in path:
+        if os.curdir not in path:
             path.insert(0, os.curdir)
 
         # PATHEXT is necessary to check on Windows.
@@ -674,7 +693,7 @@ def which(cmd, mode=os.F_OK | os.X_OK, path=None):
     seen = set()
     for dir_ in path:
         dir_ = os.path.normcase(dir_)
-        if not dir_ in seen:
+        if dir_ not in seen:
             seen.add(dir_)
             for thefile in files:
                 name = os.path.join(dir_, thefile)
@@ -714,15 +733,19 @@ for _i, (_dark, _light) in enumerate(_colors):
     _codes[_dark] = '\x1b[%im' % (_i + 30)
     _codes[_light] = '\x1b[%i;01m' % (_i + 30)
 
+
 def colorize(name, text):
     return _codes.get(name, '') + text + _codes.get('reset', '')
+
 
 def colorcode(name):
     return _codes.get(name, '')
 
+
 def nocolor():
     for key in list(_codes):
         _codes[key] = ''
+
 
 if os.name == 'nt':
     try:
@@ -732,6 +755,7 @@ if os.name == 'nt':
         nocolor()
     else:
         colorama.init()
+
 
 # nice formatting for an exit status
 
@@ -761,6 +785,7 @@ def formatExtendedFrame(frame):
     ret.append('\n')
     return ret
 
+
 def formatExtendedTraceback(etype, value, tb):
     ret = ['Traceback (most recent call last):\n']
     while tb is not None:
@@ -778,6 +803,7 @@ def formatExtendedTraceback(etype, value, tb):
         tb = tb.tb_next
     ret += traceback.format_exception_only(etype, value)
     return ''.join(ret).rstrip('\n')
+
 
 def formatExtendedStack(level=1):
     f = sys._getframe(level)
@@ -816,6 +842,7 @@ def readFileCounter(counterpath):
         else:
             raise
     return currentcounter
+
 
 def updateFileCounter(counterpath, value):
     """Update a counter file."""
