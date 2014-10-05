@@ -47,6 +47,7 @@ def safe_format(fmtstr, value):
     except (TypeError, ValueError):
         return str(value)
 
+
 class ConsoleSink(DataSink):
     """A DataSink that prints scan data onto the console."""
 
@@ -151,7 +152,7 @@ class GraceSink(DataSink):
         if not self._plotter.addFitCurve(dataset, title, xvalues, yvalues):
             self.log.warning('could not add curve to Grace')
 
-    #pylint: disable=W0221
+    # pylint: disable=W0221
     @usermethod
     def history(self, dev, key='value', fromtime=None, totime=None):
         """Plot history of the given key and time interval in a Grace window.
@@ -293,9 +294,9 @@ class AsciiDatafileSink(DatafileSink):
                                 'values', type=bool, default=True),
         'lastpoint':      Param('The number of the last point in the data file',
                                 type=int),
-        'filenametemplate':   Param('Name template for the files written', type=listof(str),
-                                userparam=False, settable=False,
-                                default=['%(proposal)s_%(counter)08d.dat']),
+        'filenametemplate':   Param('Name template for the files written',
+                                    type=listof(str), userparam=False, settable=False,
+                                    default=['%(proposal)s_%(counter)08d.dat']),
     }
 
     parameter_overrides = {
@@ -310,7 +311,7 @@ class AsciiDatafileSink(DatafileSink):
 
     def prepareDataset(self, dataset):
         shortname, longname, fp = \
-                        session.experiment.createScanFile(self.filenametemplate)
+            session.experiment.createScanFile(self.filenametemplate)
         self._wrote_columninfo = False
         self._fname = shortname
         self._setROParam('lastpoint', 0)

@@ -62,8 +62,6 @@ from nicos.pycompat import BytesIO, string_types
 from nicos.devices.sample import Sample
 
 
-
-
 class Experiment(Device):
     """A special singleton device to represent the experiment.
 
@@ -121,8 +119,9 @@ class Experiment(Device):
                               'access rights of data dirs on proposal change.',
                               mandatory=False, settable=False, default={},
                               type=dictof(oneof('owner', 'group',
-                                  'enableDirMode', 'enableFileMode',
-                                  'disableDirMode', 'disableFileMode'), anytype),
+                                                'enableDirMode', 'enableFileMode',
+                                                'disableDirMode', 'disableFileMode'),
+                                          anytype),
                               userparam=False),
         'zipdata':      Param('Whether to zip up experiment data after '
                               'experiment finishes', type=bool, default=True),
@@ -136,7 +135,7 @@ class Experiment(Device):
                               type=str, default='mailtext.txt'),
         'reporttemplate': Param('File name of experimental report template '
                                 '(in templates)',
-                              type=str, default='experimental_report.rtf'),
+                                type=str, default='experimental_report.rtf'),
         'serviceexp':   Param('Name of proposal to switch to after user '
                               'experiment', type=nonemptystring, default='service'),
         'servicescript': Param('Script to run for service time', type=str,
@@ -164,7 +163,7 @@ class Experiment(Device):
         'lastimage':    Param('Last used value of the imagecounter', type=int,
                               settable=False, volatile=True, mandatory=False),
         'lastimagefile': Param('Last/Currently written imagefile in this experiment',
-                              type=str, settable=False, mandatory=False),
+                               type=str, settable=False, mandatory=False),
     }
 
     attached_devices = {
@@ -220,7 +219,7 @@ class Experiment(Device):
         needed to keep track of directory structure upon proposal change
         """
         return [self.proposalpath, self.datapath,
-                     self.scriptpath, self.elogpath] + list(self.extrapaths)
+                self.scriptpath, self.elogpath] + list(self.extrapaths)
 
     @property
     def templatepath(self):
@@ -303,8 +302,8 @@ class Experiment(Device):
 
     def doWriteProposalpath(self, newproposalpath):
         # handle current symlink
-        self._set_symlink(self.proposalsymlink, path.relpath(newproposalpath,
-                                    path.dirname(self.proposalsymlink)))
+        self._set_symlink(self.proposalsymlink, path.relpath(
+            newproposalpath, path.dirname(self.proposalsymlink)))
         # HACK: we need the getters to provide the right values....
         self._setROParam('proposalpath', newproposalpath)
         # create all needed subdirs...
@@ -327,7 +326,6 @@ class Experiment(Device):
         for _dir in self.allpaths:
             ensureDirectory(_dir, **self.managerights)
 
-
     def _set_symlink(self, location, target):
         if not target or not location:
             return
@@ -347,8 +345,8 @@ class Experiment(Device):
     # Note: handling of counters in simulation mode differs slightly from
     #       normal mode: counter values are kept (and updated) in private vars
     #       instead of the usual file and no file will be touched or created.
-    _lastimage = None # only used in sim-mode
-    _lastscan = None # only used in sim-mode
+    _lastimage = None  # only used in sim-mode
+    _lastscan = None   # only used in sim-mode
 
     @property
     def scanCounterPath(self):
@@ -513,9 +511,9 @@ class Experiment(Device):
             if self.managerights:
                 os.chmod(fullfilename,
                          self.managerights.get('enableFileMode',
-                                                DEFAULT_FILE_MODE))
+                                               DEFAULT_FILE_MODE))
             linkfunc = os.link if hasattr(os,  'link') else \
-                       os.symlink if hasattr(os, 'symlink') else None
+                os.symlink if hasattr(os, 'symlink') else None
             if linkfunc:
                 for otherfile in otherfiles:
                     self.log.debug('Linking %r to %r' % (self.getDataFilename(
@@ -556,11 +554,11 @@ class Experiment(Device):
             session.addLogHandler(self._eloghandler)
         if self.templates == '':
             self._setROParam('templates',
-                path.abspath(path.join(config.nicos_root, 'template')))
+                             path.abspath(path.join(config.nicos_root, 'template')))
 
     def doUpdateManagerights(self, mrinfo):
         """check and transform the managerights dict into values used later"""
-        if mrinfo in (None, False): # ease upgrade 2.4->2.5
+        if mrinfo in (None, False):  # ease upgrade 2.4->2.5
             self._setROParam('managerights', readonlydict())
         elif mrinfo:
             changed = dict()
@@ -571,21 +569,21 @@ class Experiment(Device):
                     try:
                         r = f(v)
                     except Exception as e:
-                        raise ConfigurationError(self,
-                            'managerights: illegal value for key %r: %r (%s)' %\
-                                              (k, v, e), exc=1)
+                        raise ConfigurationError(
+                            self, 'managerights: illegal value for key %r: %r (%s)' %
+                            (k, v, e), exc=1)
                     if r[2] is not None:
                         changed[k] = r[2]
             for k in ['enableDirMode', 'enableFileMode',
-                       'disableDirMode', 'disableFileMode']:
+                      'disableDirMode', 'disableFileMode']:
                 v = mrinfo.get(k, None)
                 if isinstance(v, string_types):
                     try:
-                        r = int(v,8)  # filemodes are given in octal!
+                        r = int(v, 8)  # filemodes are given in octal!
                     except Exception as e:
-                        raise ConfigurationError(self,
-                            'managerights: illegal value for key %r: %r (%s)' %\
-                                              (k, v, e), exc=1)
+                        raise ConfigurationError(
+                            self, 'managerights: illegal value for key %r: %r (%s)' %
+                            (k, v, e), exc=1)
                     if r is not None:
                         changed[k] = r
             if changed:
@@ -650,7 +648,7 @@ class Experiment(Device):
         if proptype != 'service':
             if self.templates:
                 try:
-                    self.checkTemplates(proposal, kwds) # may raise
+                    self.checkTemplates(proposal, kwds)  # may raise
                 except Exception:
                     # restore previous state completely, thus disabling
                     if self.managerights:
@@ -658,7 +656,7 @@ class Experiment(Device):
                                          **self.managerights)
                     raise
 
-        #all prepared, do the switch
+        # all prepared, do the switch
         # remove access rights to old proposal if wanted
         if self.managerights and self.proptype == 'user':
             try:
@@ -676,8 +674,8 @@ class Experiment(Device):
         for notifier in session.notifiers:
             notifier.reset()
         self._last_datasets = []
-        self._setROParam('lastscanfile','') # none written yet
-        self._setROParam('lastimagefile','')
+        self._setROParam('lastscanfile', '')  # none written yet
+        self._setROParam('lastimagefile', '')
 
         # set new experiment properties given by caller
         self._setROParam('proptype', proptype)
@@ -689,7 +687,7 @@ class Experiment(Device):
 
         # assignment to proposalpath/sampledir adjusts possible symlinks
         self.proposal = proposal
-        self.proposalpath = self.proposalpath_of(proposal) # change proposalpath to new value
+        self.proposalpath = self.proposalpath_of(proposal)  # change proposalpath to new value
         # newSample also (re-)creates all needed dirs
         self.newSample(kwds.get('sample', ''), {})
 
@@ -716,7 +714,7 @@ class Experiment(Device):
             self.log.info('Maintenance time started')
 
         # send 'experiment' change event before the last hook
-        session.experimentCallback(self.proposal) # maybe better after the last hook?
+        session.experimentCallback(self.proposal)  # maybe better after the last hook?
 
         self._afterNewHook()
 
@@ -775,7 +773,7 @@ class Experiment(Device):
                 return f.read()
         except OSError as e:
             self.log.error(self, 'Can\'t read template %r (%s), please check settings' %
-                            (tmplname, e))
+                           (tmplname, e))
             raise
 
     def iterTemplates(self, only_dot_template=True):
@@ -797,11 +795,11 @@ class Experiment(Device):
     def checkTemplates(self, proposal, kwargs):
         """try to fill in all templates to see if some keywords are missing"""
         if self._mode == SIMULATION:
-            return # dont touch fs if in simulation!
+            return  # dont touch fs if in simulation!
         allmissing = []
         alldefaulted = []
         for fn, content in self.iterTemplates(only_dot_template=True):
-            newfn = fn[:-9] # strip ".template" from the name
+            newfn = fn[:-9]  # strip ".template" from the name
             newfn, _, _ = expandTemplate(newfn, kwargs)
 
             finalname = path.join(self.proposalpath_of(proposal), self.sampledir,
@@ -826,7 +824,8 @@ class Experiment(Device):
         errkwds = [item['key'] for item in allmissing]
 
         items = [[item['key'], item['default'] or '', item['description'] or '']
-                    for item in allmissing + alldefaulted]
+                 for item in allmissing + alldefaulted]
+
         def myprintfunc(what):
             if what.strip().split(' ')[0] in errkwds:
                 self.log.error(what)
@@ -836,16 +835,16 @@ class Experiment(Device):
         printTable(headers, items, myprintfunc)
         if allmissing:
             raise NicosError('some keywords are missing, please provide them as '
-                              'keyword arguments to `NewExperiment`')
+                             'keyword arguments to `NewExperiment`')
 
     def handleTemplates(self, proposal, kwargs):
         if self._mode == SIMULATION:
-            return # dont touch fs if in simulation!
+            return  # dont touch fs if in simulation!
         for fn, content in self.iterTemplates(only_dot_template=False):
             istemplate = fn.endswith('.template')
             newfn = fn
             if istemplate:
-                newfn = fn[:-9] # remove '.template' at end
+                newfn = fn[:-9]  # remove '.template' at end
                 newfn, _, _ = expandTemplate(newfn, kwargs)
                 self.log.debug('%s -> %s' % (fn, newfn))
             else:
@@ -875,7 +874,7 @@ class Experiment(Device):
     def _zip(self):
         """Zip all files in the current experiment folder into a .zip file."""
         if self._mode == SIMULATION:
-            return # dont touch fs if in simulation!
+            return  # dont touch fs if in simulation!
         self.log.info('zipping experiment data, please wait...')
         zipname = zipFiles(path.join(self.proposalpath, '..',
                                      self.proposal + '.zip'),
@@ -887,7 +886,7 @@ class Experiment(Device):
         """Send a mail with the experiment data"""
 
         if self._mode == SIMULATION:
-            return # dont touch fs if in simulation!
+            return  # dont touch fs if in simulation!
         # check parameters
         if not self.mailserver:
             raise NicosError('%s.mailserver parameter is not set' % self)
@@ -915,7 +914,7 @@ class Experiment(Device):
 
         instname = session.instrument and session.instrument.instrument or '?'
         topic = 'Your recent experiment %s on %s from %s to %s' % \
-              (self.proposal, instname, stats.get('from_date'), stats.get('to_date'))
+                (self.proposal, instname, stats.get('from_date'), stats.get('to_date'))
 
         if os.stat(zipname).st_size < 10000000:
             # small enough -> send directly
@@ -1012,24 +1011,24 @@ class Experiment(Device):
                 numscans += 1
 
         d = {
-            'proposal':  self.proposal,
-            'from_date': from_date,
-            'to_date':   to_date,
-            'firstfile': '%08d' % firstscan,
-            'lastfile':  '%08d' % lastscan,
-            'numscans':  str(numscans),
-            'title':     self.title,
-            'users':     self.users,
-            'samplename':     self.sample.samplename,
+            'proposal':     self.proposal,
+            'from_date':    from_date,
+            'to_date':      to_date,
+            'firstfile':    '%08d' % firstscan,
+            'lastfile':     '%08d' % lastscan,
+            'numscans':     str(numscans),
+            'title':        self.title,
+            'users':        self.users,
+            'samplename':   self.sample.samplename,
             'localcontact': self.localcontact,
-            'instrument' : session.instrument.instrument,
+            'instrument':   session.instrument.instrument,
         }
         d.update(self.propinfo)
         return d
 
     def _generateExpReport(self, **kwds):
         if self._mode == SIMULATION:
-            return # dont touch fs if in simulation!
+            return  # dont touch fs if in simulation!
         if not self.reporttemplate:
             return
         # read and translate ExpReport template
@@ -1040,7 +1039,7 @@ class Experiment(Device):
             self.log.warning('reading experimental report template %s failed, '
                              'please fetch a copy from the User Office' %
                              self.reporttemplate)
-            return # nothing to do about it.
+            return  # nothing to do about it.
 
         # prepare template....
         # can not do this directly in rtf as {} have special meaning....
@@ -1050,12 +1049,12 @@ class Experiment(Device):
         #
         # first clean up template
         data = data.replace('\\par Please replace the place holder in the upper'
-            ' part (brackets <>) by the appropriate values.', '')
+                            ' part (brackets <>) by the appropriate values.', '')
         data = data.replace('\\par Description', '\\par\n\\par '
-            'Please check all pre-filled values carefully! They were partially '
-            'read from the proposal and might need correction.\n'
-            '\\par\n'
-            '\\par Description')
+                            'Please check all pre-filled values carefully! They were partially '
+                            'read from the proposal and might need correction.\n'
+                            '\\par\n'
+                            '\\par Description')
         # replace placeholders with templating markup
         data = data.replace('<your title as mentioned in the submission form>',
                             '"{{title:The title of your proposed experiment}}"')
@@ -1144,7 +1143,7 @@ class Experiment(Device):
             if det not in dlist:
                 dlist.append(det)
         self.detlist = dlist
-        dummy = self.detectors  # try to create them right now
+        self.detectors  # try to create them right now
         session.elog_event('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
@@ -1192,7 +1191,7 @@ class Experiment(Device):
             if dev not in dlist:
                 dlist.append(dev)
         self.envlist = dlist
-        dummy = self.sampleenv  # try to create them right now
+        self.sampleenv  # try to create them right now
         session.elog_event('environment', dlist)
 
     def doUpdateEnvlist(self, devices):

@@ -67,6 +67,7 @@ STX = b'\x03'   # executed ok, reply follows
 # also for events
 # frame format: STX + eventcode (3 bytes) + LENGTH + payload
 
+
 # to serialize/unserialize payload data:
 
 def serialize(data):
@@ -194,7 +195,7 @@ DAEMON_EVENTS = {
     # a device was created or destroyed
     'device':      (True, 0x1015),
     # the experiment has changed
-    'experiment' : (True, 0x1016),
+    'experiment':  (True, 0x1016),
 }
 
 event2code, code2event = {}, {}

@@ -242,6 +242,7 @@ line_pattern = re.compile(br'([^\r\n]*)\r?\n')
 
 repr_types = number_types + (text_type, binary_type)
 
+
 def cache_dump(obj):
     res = []
     if isinstance(obj, repr_types):
@@ -280,6 +281,7 @@ def cache_dump(obj):
 _safe_names = {'None': None, 'True': True, 'False': False,
                'inf': float('inf'), 'nan': float('nan')}
 
+
 def ast_eval(node):
     # copied from Python 2.7 ast.py, but added support for float inf/-inf/nan
     def _convert(node):
@@ -298,20 +300,20 @@ def ast_eval(node):
             if node.id in _safe_names:
                 return _safe_names[node.id]
         elif isinstance(node, UnaryOp) and \
-             isinstance(node.op, USub) and \
-             isinstance(node.operand, Name) and \
-             node.operand.id in _safe_names:
+                isinstance(node.op, USub) and \
+                isinstance(node.operand, Name) and \
+                node.operand.id in _safe_names:
             return -_safe_names[node.operand.id]
         elif isinstance(node, UnaryOp) and \
-             isinstance(node.op, USub) and \
-             isinstance(node.operand, Num):
+                isinstance(node.op, USub) and \
+                isinstance(node.operand, Num):
             return -node.operand.n
         elif isinstance(node, BinOp) and \
-             isinstance(node.op, (Add, Sub)) and \
-             isinstance(node.right, Num) and \
-             isinstance(node.right.n, complex) and \
-             isinstance(node.left, Num) and \
-             isinstance(node.left.n, number_types):
+                isinstance(node.op, (Add, Sub)) and \
+                isinstance(node.right, Num) and \
+                isinstance(node.right.n, complex) and \
+                isinstance(node.left, Num) and \
+                isinstance(node.left.n, number_types):
             left = node.left.n
             right = node.right.n
             if isinstance(node.op, Add):
@@ -320,6 +322,7 @@ def ast_eval(node):
                 return left - right
         raise ValueError('malformed literal string with %s' % node)
     return _convert(node)
+
 
 def cache_load(entry):
     try:

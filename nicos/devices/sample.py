@@ -23,11 +23,12 @@
 #
 # *****************************************************************************
 
-
 """NICOS Sample device."""
 
-from nicos.core import Device, Param
+from nicos.core.device import Device
+from nicos.core.params import Param
 from nicos import session
+
 
 class Sample(Device):
     """A special device to represent a sample.

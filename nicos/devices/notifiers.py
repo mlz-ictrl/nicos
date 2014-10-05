@@ -149,7 +149,7 @@ class Mailer(Notifier):
             sendmail_status = sendmailp.close()
             if sendmail_status:
                 self.log.error('sendmail failed with status: %s' %
-                                sendmail_status)
+                               sendmail_status)
                 return False
         except Exception:
             self.log.exception('sendmail failed with an exception')
@@ -168,8 +168,8 @@ GSM0338_MAP = {
     u'\xe7': '\t', u'h': 'h', u'l': 'l', u'p': 'p', u't': 't', u'x': 'x',
     u'|': '\x1b@', u'\u039e': '\x1a', u'\xa0': '\x1b', u'#': '#', u'\xa4': '$',
     u"'": "'", u'\u03a6': '\x12', u'+': '+', u'\u20ac': '\x1be', u'/': '/',
-    u'3': '3', u'7': '7', u';': ';', u'?': '?', u'C': 'C', u'\xc4': '['
-    , u'G': 'G', u'K': 'K', u'O': 'O', u'S': 'S', u'W': 'W', u'\xd8': '\x0b',
+    u'3': '3', u'7': '7', u';': ';', u'?': '?', u'C': 'C', u'\xc4': '[',
+    u'G': 'G', u'K': 'K', u'O': 'O', u'S': 'S', u'W': 'W', u'\xd8': '\x0b',
     u'[': '\x1b<', u'\xdc': '^', u'_': '\x11', u'\xe0': '\x7f', u'c': 'c',
     u'\xe4': '{', u'g': 'g', u'\xe8': '\x04', u'k': 'k', u'\xec': '\x07',
     u'o': 'o', u's': 's', u'w': 'w', u'\xf8': '\x0c', u'{': '\x1b(',
@@ -188,6 +188,7 @@ GSM0338_MAP = {
     u'm': 'm', u'q': 'q', u'\xf2': '\x08', u'u': 'u', u'\xf6': '|', u'y': 'y',
     u'}': '\x1b)'
 }
+
 
 class SMSer(Notifier):
     """SMS notifications via smslink client program (sendsms)."""

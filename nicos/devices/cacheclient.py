@@ -311,7 +311,7 @@ class BaseCacheClient(Device):
                     self._secsocket.connect(self._address)
                 except Exception as err:
                     self.log.warning('unable to connect secondary socket to %s:%s: %s' %
-                                      (self._address + (err,)))
+                                     (self._address + (err,)))
                     self._secsocket = None
                     self._disconnect('secondary socket: could not connect')
                     raise CacheError('secondary socket could not be created')
@@ -498,9 +498,9 @@ class CacheClient(BaseCacheClient):
 
         The callback is also called if the value is expired or deleted.
         """
-        with self._dblock: # {}.setdefault may not be threadsafe
+        with self._dblock:  # {}.setdefault may not be threadsafe
             cbs = self._callbacks.setdefault(('%s/%s' % (dev, key)).lower(), [])
-            cbs.append(function) # this is supposed to be safe, but why bother?
+            cbs.append(function)  # this is supposed to be safe, but why bother?
 
     def removeCallback(self, dev, key, function):
         """Remove the given callback for the given device/subkey, if present."""
@@ -530,7 +530,7 @@ class CacheClient(BaseCacheClient):
         """
         if not self._startup_done.wait(15):
             self.log.warning('Cache _startup_done took more than 15s!')
-            raise CacheError(self,'Cache _startup_done took more than 15s!')
+            raise CacheError(self, 'Cache _startup_done took more than 15s!')
         dbkey = ('%s/%s' % (dev, key)).lower()
         with self._dblock:
             entry = self._db.get(dbkey)
@@ -568,7 +568,7 @@ class CacheClient(BaseCacheClient):
             if msgmatch.group('tsop') is None:
                 raise CacheError('Cache did not send timestamp info')
             time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
-                               msgmatch.group('value')
+                msgmatch.group('value')
             # self.log.debug('get_explicit: %.2f %.2f %r', time, ttl, value)
             if value:
                 return (time and float(time), ttl and float(ttl),
@@ -627,7 +627,7 @@ class CacheClient(BaseCacheClient):
     def setRewrite(self, newprefix, oldprefix):
         oldprefix = oldprefix.lower()
         newprefix = newprefix.lower()
-        self._queue.put(self._prefix + newprefix + OP_REWRITE + \
+        self._queue.put(self._prefix + newprefix + OP_REWRITE +
                         self._prefix + oldprefix + '\n')
         self._inv_rewrites[newprefix] = oldprefix
         self._rewrites.setdefault(oldprefix, set()).add(newprefix)
