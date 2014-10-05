@@ -36,6 +36,7 @@ NEXTKEYSCORE = 0.6
 
 comparematrix = {}
 
+
 def _makekeyboardmap():
     # different characters score 0.0, equal characters score 1.0
     for i in range(33, 126 + 1):
@@ -65,6 +66,7 @@ def _makekeyboardmap():
         _keyboardneighbour(line2[i], line3[i + 1])
         _keyboardneighbour(line3[i], line4[i + 1])
 
+
 def _keyboardneighbour(c1, c2):
     i1 = ord(c1)
     i2 = ord(c2)
@@ -73,6 +75,7 @@ def _keyboardneighbour(c1, c2):
         comparematrix[i2, i1] = NEXTKEYSCORE
 
 _makekeyboardmap()
+
 
 def compare(s1, s2):
     lh = {}
@@ -141,6 +144,7 @@ def compare(s1, s2):
     # The highest alignment score is in the bottom right corner of the matrix,
     # behind the last character in both strings
     return lh[l1 + 1, l2 + 1]
+
 
 def test():
     assert compare("test", "test") == len("test") + 1.0

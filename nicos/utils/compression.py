@@ -28,6 +28,7 @@ import os
 import zipfile
 from os import path
 
+
 def zipFiles(zipfilename, rootdir, logger=None):
     """Create a zipfile named <zipfile> containing all files from <rootdir> and therein
 
@@ -55,5 +56,3 @@ def zipFiles(zipfilename, rootdir, logger=None):
     finally:
         zf.close()
     return zipfilename
-
-

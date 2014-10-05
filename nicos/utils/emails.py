@@ -83,7 +83,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
         with open(fn, 'rb') as fp:
             filedata = fp.read()
 
-        attachment = MIMEApplication(filedata, 'x-zip') # This may need adjustments!
+        attachment = MIMEApplication(filedata, 'x-zip')  # This may need adjustments!
         attachment['Content-Disposition'] = 'ATTACHMENT; filename="%s"' % \
             path.basename(fn)
         msg.attach(attachment)

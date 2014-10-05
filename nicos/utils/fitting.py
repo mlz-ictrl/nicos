@@ -37,8 +37,10 @@ from nicos.core import ProgrammingError
 def _general_function(params, xdata, ydata, function):
     return function(xdata, *params) - ydata
 
+
 def _weighted_general_function(params, xdata, ydata, function, weights):
     return weights * (function(xdata, *params) - ydata)
+
 
 def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
     """This is scipy.optimize.curve_fit, which is only available in very recent
@@ -68,7 +70,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
     res = leastsq(func, p0, args=args, full_output=1, **kw)
     (popt, pcov, infodict, errmsg, ier) = res
 
-    if ier not in [1,2,3,4]:
+    if ier not in [1, 2, 3, 4]:
         msg = "Optimal parameters not found: " + errmsg
         raise RuntimeError(msg)
 
@@ -146,7 +148,7 @@ class Fit(object):
             parerrors = sqrt(abs(diagonal(pcov)))
         except (RuntimeError, ValueError, TypeError):
             return self.result(name, None, xn, yn, dyn, None, None)
-        return self.result(name, 'ODR', xn, yn, dyn, popt, parerrors)
+        return self.result(name, 'lsq', xn, yn, dyn, popt, parerrors)
 
     def result(self, name, method, x, y, dy, parvalues, parerrors):
         if method is None:

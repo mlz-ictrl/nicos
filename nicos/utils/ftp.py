@@ -24,14 +24,12 @@
 
 """Utilities for uploading files to a ftp-server."""
 
-
 import time
 from os import path
 from ftplib import FTP
 from hashlib import md5
 
 from nicos.pycompat import to_utf8
-
 
 #
 # hard-coded constants
@@ -43,7 +41,7 @@ from nicos.pycompat import to_utf8
 FTP_SERVER = 'ftp.frm2.tum.de'
 FTP_PORT = 21210
 FTP_USER = 'nicd'
-FTP_P = ''.join(map(chr,[78, 103, 115, 65, 57, 84, 98, 67]))
+FTP_P = ''.join(map(chr, [78, 103, 115, 65, 57, 84, 98, 67]))
 
 
 def ftpUpload(filename, logger=None):
@@ -63,7 +61,7 @@ def ftpUpload(filename, logger=None):
             ftp.login(FTP_USER, FTP_P)
 
             try:
-                ftp.mkd(subdir) #may raise if dir already exists. Should be rare!
+                ftp.mkd(subdir)  # may raise if dir already exists. Should be rare!
             except Exception:
                 pass
             ftp.cwd(subdir)
@@ -75,7 +73,7 @@ def ftpUpload(filename, logger=None):
     except Exception:
         if logger:
             logger.error('Uploading ftp-file failed! Please check config and '
-                          'log files', exc=1)
+                         'log files', exc=1)
         raise
 
     return 'http://ftp.frm2.tum.de/outgoing/mdata/%s/%s' % (subdir, basename)

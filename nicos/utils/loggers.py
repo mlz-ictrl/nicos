@@ -168,7 +168,7 @@ class NicosConsoleFormatter(Formatter):
         s = fmtstr % record.__dict__
         # never output more exception info -- the exception message is already
         # part of the log message because of our special logger behavior
-        #if record.exc_info:
+        # if record.exc_info:
         #    # *not* caching exception text on the record, since it's
         #    # only a short version
         #    s += self.formatException(record.exc_info)
@@ -216,7 +216,7 @@ class StreamHandler(Handler):
         finally:
             self.release()
 
-    def emit(self, record, fs='%s\n'):  #pylint: disable=W0221
+    def emit(self, record, fs='%s\n'):  # pylint: disable=W0221
         try:
             msg = self.format(record)
             try:
@@ -276,7 +276,7 @@ class NicosLogfileHandler(StreamHandler):
     def filter(self, record):
         return not self.disabled
 
-    def emit(self, record): #pylint: disable=W0221
+    def emit(self, record):  # pylint: disable=W0221
         if record.levelno == ACTION:
             # do not write ACTIONs to logfiles, they're only informative
             return
@@ -333,7 +333,7 @@ class ColoredConsoleHandler(StreamHandler):
         self.setFormatter(NicosConsoleFormatter(
             datefmt=DATEFMT, colorize=colorize))
 
-    def emit(self, record): #pylint: disable=W0221
+    def emit(self, record):  # pylint: disable=W0221
         msg = self.format(record)
         try:
             self.stream.write(msg)
@@ -351,7 +351,7 @@ class ELogHandler(Handler):
     def filter(self, record):
         return not self.disabled
 
-    def emit(self, record, entries=TRANSMIT_ENTRIES):  #pylint: disable=W0221
+    def emit(self, record, entries=TRANSMIT_ENTRIES):  # pylint: disable=W0221
         if record.levelno == ACTION or record.filename:
             # do not write ACTIONs to logfiles, they're only informative
             # also do not write messages from simulation mode
