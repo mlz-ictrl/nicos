@@ -24,7 +24,8 @@ def echo(s):
 def spawn(script, *args, **kwds):
     wait = kwds.pop('wait', False)
     stdout = dev_null if not wait else None
-    p = subprocess.Popen((path.join(bin_path, script),) + args, stdout=stdout)
+    p = subprocess.Popen((sys.executable, path.join(bin_path, script)) + args,
+                         stdout=stdout)
     if wait:
         try:
             p.wait()

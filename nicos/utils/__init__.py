@@ -621,7 +621,7 @@ def setuser(recover=True):
     """Do not daemonize, but at least set the current user and group correctly
     to the configured values if started as root.
     """
-    if hasattr(os, 'geteuid') and os.geteuid() != 0:
+    if os.name != 'posix' or os.geteuid() != 0:
         return
     # running as root is not good...
     if config.user is None or config.group is None:
