@@ -22,7 +22,8 @@ setups = args[2].split(',')
 code = args[3]
 
 # kill forcibly after 10 seconds
-signal.alarm(10)
+if hasattr(signal, 'alarm'):
+    signal.alarm(10)
 
 from nicos import config
 from nicos.core.sessions.simulation import SimulationSession

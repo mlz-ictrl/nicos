@@ -31,9 +31,16 @@ import sys
 
 from test.utils import cleanup
 
+
 def setup_package():
     # make the test suite run the same independent of the hostname
     os.environ['INSTRUMENT'] = 'test'
     print('Setting up main test package, cleaning old test dir...',
           file=sys.stderr)
-    cleanup()
+    try:
+        cleanup()
+    except OSError:
+        print('Failed to clean up old test dir. Check if NICOS processes '
+              'are still running.')
+        print('=' * 80)
+        raise

@@ -46,7 +46,7 @@ def setup_package():
     session.__init__('testdaemon')
     cleanup()
     cache = startCache()
-    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..') + ':' + \
+    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..') + os.pathsep + \
         path.join(rootdir, '..', '..')
     daemon = subprocess.Popen([sys.executable,
                                path.join(rootdir, '..', 'daemon.py')])
@@ -75,7 +75,8 @@ def setup_package():
 def teardown_package():
     sys.stderr.write(' [daemon kill %s...' % daemon.pid)
     os.kill(daemon.pid, signal.SIGTERM)
-    os.waitpid(daemon.pid, 0)
+    if os.name == 'posix':
+        os.waitpid(daemon.pid, 0)
     sys.stderr.write(' done] ')
     session.shutdown()
     killCache(cache)

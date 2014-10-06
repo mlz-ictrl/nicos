@@ -24,7 +24,16 @@
 
 # Test the text client (at least the basic connect-execute-disconnect function).
 
+import os
+
+import nose
+
+if os.name != 'posix':
+    # text client needs the readline C library
+    raise nose.SkipTest('text client not available on this system')
+
 from nicos.clients.cli import main
+
 
 def test_textclient():
     assert main(['nicos-client', 'user:user@localhost:14874',
