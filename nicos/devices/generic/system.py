@@ -72,8 +72,10 @@ class FreeSpace(Readable):
         try:
             if os.name == 'nt':
                 free = ctypes.c_ulonglong(0)
-                ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                ret = ctypes.windll.kernel32.GetDiskFreeSpaceExW(
                     ctypes.c_wchar_p(path), None, None, ctypes.pointer(free))
+                if ret == 0:
+                    raise OSError('GetDiskFreeSpaceExW call failed')
                 return free.value / self._factor
             else:
                 st = os.statvfs(path)
