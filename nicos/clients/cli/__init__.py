@@ -36,7 +36,8 @@ import getpass
 import readline
 import tempfile
 import subprocess
-import ctypes, ctypes.util
+import ctypes
+import ctypes.util
 from os import path
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
@@ -76,6 +77,7 @@ tab: complete
 # yay, global state!
 readline_result = Ellipsis
 
+
 def readline_finish_callback(result):
     """A callback for readline() below that records the final line
     in a global variable.  (For some reason making this a method
@@ -87,6 +89,7 @@ def readline_finish_callback(result):
     readline_result = result
 
 c_readline_finish_callback = rl_vcpfunc_t(readline_finish_callback)
+
 
 class StateChange(Exception):
     """Raised by readline when changing to/from debugger state."""
@@ -200,7 +203,7 @@ class NicosCmdClient(NicosClient):
             # add to history, but only if requested and not the same as the
             # previous history entry
             if add_history and readline.get_history_item(
-                readline.get_current_history_length()) != readline_result:
+                    readline.get_current_history_length()) != readline_result:
                 librl.add_history(readline_result)
         elif readline_result is None:
             raise EOFError
@@ -328,7 +331,8 @@ class NicosCmdClient(NicosClient):
             pending = ''
         # \x01/\x02 are markers recognized by readline as "here come"
         # zero-width control characters; ESC[K means "clear whole line"
-        self.prompt = '\x01' + colorize(self.stcolmap[status],
+        self.prompt = '\x01' + colorize(
+            self.stcolmap[status],
             '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
             (self.modemap[self.current_mode], status, pending)) + '\x02'
         os.write(self.wakeup_pipe_w, b' ')
@@ -342,8 +346,8 @@ class NicosCmdClient(NicosClient):
                            funcname)
             self.clientexec_queue.put((func, what[1:]))
         except Exception as err:
-            self.put_error('During "clientexec": %s.\n%s' % (err,
-                            '\n'.join(traceback.format_tb(sys.exc_info()[2]))))
+            self.put_error('During "clientexec": %s.\n%s' %
+                           (err, '\n'.join(traceback.format_tb(sys.exc_info()[2]))))
 
     def showhelp(self, html):
         """Handles the "showhelp" signal.
@@ -404,7 +408,6 @@ class NicosCmdClient(NicosClient):
                 newtext = colorize('lightgray', timefmt) + namefmt + msg[3].rstrip()
             elif levelno == INPUT:
                 newtext = colorize('darkgreen', msg[3].rstrip())
-                #return
             elif levelno <= WARNING:
                 timefmt = strftime('[%Y-%m-%d %H:%M:%S] ', localtime(msg[1]))
                 newtext = colorize('purple', timefmt + namefmt +
@@ -415,7 +418,7 @@ class NicosCmdClient(NicosClient):
                                    levels[levelno] + ': ' + msg[3].rstrip())
         self.put(msg[5] + newtext)
 
-    #pylint: disable=W0221
+    # pylint: disable=W0221
     def signal(self, name, data=None, exc=None):
         """Handles any kind of signal/event sent by the daemon."""
         try:
@@ -494,8 +497,8 @@ class NicosCmdClient(NicosClient):
                 if self.simulating:
                     timing, devinfo = data  # pylint: disable=W0633
                     self.put_client('Simulated minimum runtime: %s '
-                        '(finishes approximately %s). Device ranges:' %
-                        (formatDuration(timing), formatEndtime(timing)))
+                                    '(finishes approximately %s). Device ranges:' %
+                                    (formatDuration(timing), formatEndtime(timing)))
                     if devinfo:
                         dnwidth = max(map(len, devinfo))
                         sorteditems = sorted(iteritems(devinfo),
@@ -763,7 +766,7 @@ class NicosCmdClient(NicosClient):
             # this is not usually entered as "/cmd foo", but only "foo"
             if self.status in ('running', 'paused'):
                 reply = self.ask_question('A script is already running, '
-                    'queue or execute anyway?', chars='qxn')
+                                          'queue or execute anyway?', chars='qxn')
                 if reply == 'x':
                     self.tell('exec', arg)
                 elif reply == 'q':
@@ -777,8 +780,8 @@ class NicosCmdClient(NicosClient):
                 # running it here
                 if self.last_filename:
                     reply = self.ask_question('Run last used file %r?' %
-                                path.basename(self.last_filename),
-                                chars='yn', default='y')
+                                              path.basename(self.last_filename),
+                                              chars='yn', default='y')
                     if reply == 'y':
                         self.command('run', self.last_filename)
                         return
@@ -792,7 +795,8 @@ class NicosCmdClient(NicosClient):
                 return
             if self.status in ('running', 'paused') and cmd != 'run!':
                 if self.ask_question('A script is already running, '
-                    'queue script?', chars='yn', default='y') == 'y':
+                                     'queue script?', chars='yn',
+                                     default='y') == 'y':
                     self.tell('queue', fpath, code)
             else:
                 self.tell('queue', fpath, code)
@@ -848,7 +852,7 @@ class NicosCmdClient(NicosClient):
                 # this catches an empty arg as well
                 try:
                     arg = int(arg)
-                    self.pending_requests[arg]  #pylint: disable=W0104
+                    self.pending_requests[arg]  # pylint: disable=W0104
                 except (ValueError, KeyError):
                     self.put_error('Need a pending request number '
                                    '(see "/pending") or "*" to clear all.')
@@ -980,7 +984,7 @@ class NicosCmdClient(NicosClient):
         """Handle a command line."""
         # dispatch either as a client command...
         if cmd.startswith('/'):
-            args = cmd[1:].split(None, 1) + ['','']
+            args = cmd[1:].split(None, 1) + ['', '']
             return self.command(args[0], args[1])
         elif cmd:
             # or as "normal" Python code to execute
@@ -1190,8 +1194,8 @@ def main(argv):
         # use a random (hopefully free) high numbered port on our side
         nport = random.randint(10000, 20000)
         os.execvp('sh', ['sh', '-c',
-            'ssh -f -L "%s:%s:%s" "%s" %s && %s "%s:%s@localhost:%s"' %
-            (nport, host, port, via, viacommand, argv[0], user, passwd, nport)])
+                         'ssh -f -L "%s:%s:%s" "%s" %s && %s "%s:%s@localhost:%s"' %
+                         (nport, host, port, via, viacommand, argv[0], user, passwd, nport)])
 
     # this is the connection data format used by nicos.clients.base
     conndata = {
