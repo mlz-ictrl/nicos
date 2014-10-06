@@ -759,10 +759,9 @@ class NicosCmdClient(NicosClient):
     def command(self, cmd, arg):
         """Called when a "/foo" command is entered at the prompt."""
         # try to order elif cases by frequency
-        if cmd == 'cmd':
-            if self.spy_mode:
-                self.put_error('Spy mode active: command ignored.')
-                return
+        if cmd in ('cmd', 'exec'):
+            if cmd == 'cmd' and self.spy_mode:
+                return self.command('eval', arg)
             # this is not usually entered as "/cmd foo", but only "foo"
             if self.status in ('running', 'paused'):
                 reply = self.ask_question('A script is already running, '
@@ -913,10 +912,12 @@ class NicosCmdClient(NicosClient):
         elif cmd == 'debug':
             self.tell('debug', arg)
         elif cmd == 'eval':
-            self.put('-> %s' % (self.eval(arg, stringify=True),))
+            timefmt = colorize('lightgray', strftime('[%H:%M:%S]'))
+            self.put('%s -> %s' % (timefmt, self.eval(arg, stringify=True),))
         elif cmd == 'spy':
             if not self.spy_mode:
-                self.put_client('Spy mode on: command execution disabled.')
+                self.put_client('Spy mode on: normal input is evaluated as '
+                                'an expression, use /exec to execute as script.')
             else:
                 self.put_client('Spy mode off.')
             self.spy_mode = not self.spy_mode
