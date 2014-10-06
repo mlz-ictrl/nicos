@@ -1369,7 +1369,7 @@ class Moveable(Readable):
         elif self._sim_active:
             return
         if self.fixed:
-            self.log.warning('device fixed, not stopping: %s' % self.fixed)
+            self.log.debug('device fixed, not stopping: %s' % self.fixed)
             return
         if self.requires:
             try:
@@ -1396,6 +1396,8 @@ class Moveable(Readable):
             self.log.error('device was fixed by %r already' % self.fixedby[0])
             return False
         else:
+            if self.status()[0] == status.BUSY:
+                self.log.warning('device appears to be busy')
             if reason:
                 reason += ' (fixed by %r)' % eu.name
             else:

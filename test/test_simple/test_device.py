@@ -222,10 +222,11 @@ def test_fix_and_release():
     # fixing and do not stop
     dev2.curvalue = 9
     dev2.curstatus = (status.BUSY, 'moving')
-    dev2.fix('do not stop in fixed mode')
+    # fixing while busy should emit a warning
+    assert session.testhandler.warns(dev2.fix, 'do not stop in fixed mode')
     assert dev2.status()[0] == status.BUSY
     try:
-        assert session.testhandler.warns(dev2.stop)
+        dev2.stop()
         assert dev2.status()[0] == status.BUSY
         assert dev2.wait() == 9
     finally:
