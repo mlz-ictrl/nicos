@@ -465,6 +465,8 @@ class FlatfileCacheDatabase(CacheDatabase):
         # old files could be compressed here, but it is probably not worth it
 
     def _set_lastday(self):
+        if not hasattr(os, 'symlink'):
+            return
         try:
             lname = path.join(self._basepath, 'lastday')
             if path.lexists(lname):
