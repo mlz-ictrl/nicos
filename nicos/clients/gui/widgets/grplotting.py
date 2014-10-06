@@ -121,7 +121,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self._saveName = None
         self._color = ColorIndexGenerator()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
-        self._axes = PlotAxes()
+        self._axes = PlotAxes(viewport=self._plot.viewport)
         self._axes.backgroundColor = 0
         self._plot.addAxes(self._axes)
         self._plot.title = self.titleString()
