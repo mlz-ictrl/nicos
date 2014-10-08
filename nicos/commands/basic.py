@@ -477,9 +477,19 @@ def SetMode(mode):
       the instrument status, but not move devices or set parameters.
 
     * 'simulation' mode is for complete simulation of the instrument.  When
-      switching to simulation mode, the current state of the instrument is taken
-      as the basis of the simulation.  No hardware communication is possible in
-      simulation mode.
+      switching to simulation mode, the current state of the instrument is
+      taken as the basis of the simulation.  No hardware communication is
+      possible in simulation mode.
+
+      'simulation' does a non-physical emulation by running all the instrument
+      specific code with virtualized devices.  Any problems which would appear
+      runnig the same commands in 'master' mode (with ideal hardware) can be
+      spotted by the user, such as devices moving out of limits, failing
+      calculations, or invalid parameters.
+
+      Furthermore, the ranges of all devices which are moved are recorded and
+      the required time to run a command or script is estimated from device
+      properties ('speed', 'ramp', 'accel').
 
       It is currently not implemented to switch back: use the `sim()` command
       for doing one-off simulations.
@@ -721,8 +731,17 @@ def sim(what, *devices, **kwargs):
 
     >>> sim('testscript', T)
 
-    will simulate the 'testscript.py' user script and print out minimum/maximum/
-    last value of T during the run.
+    will simulate the 'testscript.py' user script.
+
+    Simulation mode does a non-physical emulation by running all the instrument
+    specific code with virtualized devices.  Any problems which would appear
+    runnig the same commands in 'master' mode (with ideal hardware) can be
+    spotted by the user, such as devices moving out of limits, failing
+    calculations, or invalid parameters.
+
+    Furthermore, the ranges of all devices which are moved are recorded and
+    the required time to run a command or script is estimated from device
+    properties ('speed', 'ramp', 'accel').
 
     Example with running code directly:
 
