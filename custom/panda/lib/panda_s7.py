@@ -41,31 +41,31 @@ class S7Bus(TacoDevice, Device):
 
     def read(self, a_type, startbyte, offset=0):
         if a_type == 'float':
-            return self._dev.readFloat(startbyte)
+            return self._taco_guard(self._dev.readFloat, startbyte)
         elif a_type == 'byte':
-            return self._dev.readByte(startbyte)
+            return self._taco_guard(self._dev.readByte, startbyte)
         elif a_type == 'bit':
-            return self._dev.readBit([startbyte, offset])
+            return self._taco_guard(self._dev.readBit, [startbyte, offset])
         else:
             raise ProgrammingError(self, 'wrong data type for READ')
 
     def readback(self, a_type, startbyte, offset=0):
         if a_type == 'float':
-            return self._dev.dpReadbackFloat(startbyte)
+            return self._taco_guard(self._dev.dpReadbackFloat, startbyte)
         elif a_type == 'byte':
-            return self._dev.dpReadbackByte(startbyte)
+            return self._taco_guard(self._dev.dpReadbackByte, startbyte)
         elif a_type == 'bit':
-            return self._dev.dpReadbackBit([startbyte, offset])
+            return self._taco_guard(self._dev.dpReadbackBit, [startbyte, offset])
         else:
             raise ProgrammingError(self, 'wrong data type for READBACK')
 
     def write(self, value, a_type, startbyte, offset=0):
         if a_type == 'float':
-            self._dev.writeFloat([startbyte, value])
+            self._taco_guard(self._dev.writeFloat, [startbyte, value])
         elif a_type == 'byte':
-            self._dev.writeByte([value, startbyte])
+            self._taco_guard(self._dev.writeByte, [value, startbyte])
         elif a_type == 'bit':
-            self._dev.writeBit([startbyte, offset, value])
+            self._taco_guard(self._dev.writeBit, [startbyte, offset, value])
         else:
             raise ProgrammingError(self, 'wrong data type for WRITE')
 
