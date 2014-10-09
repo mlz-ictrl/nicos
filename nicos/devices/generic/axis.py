@@ -127,7 +127,8 @@ class Axis(BaseAxis, CanReference):
             #                 'command and try it again')
 
         if self._posthread:
-            self._posthread.join()
+            if self._posthread.isAlive():
+                self._posthread.join()
             self._posthread = None
 
         self._target = target
