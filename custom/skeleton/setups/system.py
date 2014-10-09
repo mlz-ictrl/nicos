@@ -14,9 +14,9 @@ description = 'system setup'
 #       Low-level setup, which will be included by others, but should
 #       not be presented to users.
 # - special
-#        The setup is not a setup of instrument devices, but configures
-#        e.g. a NICOS service. For each service, there is one special
-#        setup (e.g. "cache", "poller", "daemon").
+#       The setup is not a setup of instrument devices, but configures
+#       e.g. a NICOS service. For each service, there is one special
+#       setup (e.g. "cache", "poller", "daemon").
 group = 'lowlevel'
 
 # sysconfig: A dictionary with basic system configuration values.
