@@ -3,6 +3,7 @@
 description = 'Analyser'
 
 includes = ['system']
+excludes = ['bambus']
 
 group = 'lowlevel'
 

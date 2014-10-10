@@ -26,7 +26,7 @@ description = 'qmesydaq channel devices'
 
 group = 'optional'
 
-nethost = 'qmesydaq.panda.frm2'
+nethost = 'mesydaq.panda.frm2'
 qm = '//%s/test/qmesydaq/' % nethost
 
 devices = dict(
@@ -46,15 +46,15 @@ devices = dict(
                   #~ type = 'monitor',
                  #~ ),
     #~ mon4 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
-                  #~ description = 'QMesyDAQ Counter3',
-                  #~ tacodevice = qm + 'counter3',
-                  #~ type = 'monitor',
-                 #~ ),
-    #~ events = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
-                    #~ description = 'QMesyDAQ Events channel',
-                    #~ tacodevice = qm + 'events',
-                    #~ type = 'counter',
-                   #~ ),
+                     #~ description = 'QMesyDAQ Counter3',
+                     #~ tacodevice = qm + 'counter3',
+                     #~ type = 'monitor',
+                     #~ ),
+    events = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
+                    description = 'QMesyDAQ Events channel',
+                    tacodevice = qm + 'events',
+                    type = 'counter',
+                    ),
     timer = device('nicos.devices.vendor.qmesydaq.QMesyDAQTimer',
                    description = 'QMesyDAQ Timer',
                    tacodevice = qm + 'timer',
