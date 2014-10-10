@@ -3,20 +3,22 @@ group = 'optional'
 
 includes = ['alias_B']
 
+nethost = 'miramagnet'
+
 devices = dict(
     I_plus   = device('mira.magnet.PhytronWorkaround',
-                      tacodevice = '//magnet2/magnet/switch/on',
+                      tacodevice = '//%s/magnet/switch/on' % (nethost,),
                       mapping = {'off': 0, 'on': 1},
                       lowlevel = True,
                      ),
     I_minus  = device('devices.taco.NamedDigitalOutput',
-                      tacodevice = '//magnet2/magnet/switch/pol',
+                      tacodevice = '//%s/magnet/switch/pol' % (nethost,),
                       mapping = {'off': 0, 'on': 1},
                       lowlevel = True,
                      ),
     I        = device('devices.taco.CurrentSupply',
                       description = 'MIRA Helmholtz magnet current',
-                      tacodevice = '//magnet2/magnet/ess/current',
+                      tacodevice = '//%s/magnet/ess/current' % (nethost,),
                       abslimits = (-250, 250),
                       fmtstr = '%.1f',
                      ),
