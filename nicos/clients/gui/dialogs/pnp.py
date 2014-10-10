@@ -33,6 +33,7 @@ class PnPSetupQuestion(QMessageBox):
 
     def __init__(self, parent, client, data):
         self.client = client
+        self.connect(client, SIGNAL('setup'), self.on_client_setup)
         self.data = data
         add_mode = data[0] == 'added'
         if add_mode:
@@ -74,3 +75,12 @@ class PnPSetupQuestion(QMessageBox):
     def closeEvent(self, event):
         self.emit(SIGNAL('closed'), self)
         return QMessageBox.closeEvent(self, event)
+
+    def on_client_setup(self, data):
+        setupnames = data[0]
+        if self.data[0] == 'added' and self.data[1] in setupnames:
+            # somebody loaded the setup!
+            self.on_ignore_clicked()
+        elif self.data[0] == 'removed' and self.data[1] not in setupnames:
+            # somebody unloaded the setup!
+            self.on_ignore_clicked()
