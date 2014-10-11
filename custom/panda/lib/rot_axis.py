@@ -24,23 +24,22 @@
 
 """PANDA rotary axis for NICOS."""
 
-#~ from time import sleep, time as currenttime
-
 from nicos.core import Param, NicosError, none_or, ConfigurationError
 from nicos.core.utils import devIter
 from nicos.devices.generic.axis import Axis, CanReference
 from nicos.devices.generic.virtual import VirtualMotor
 from nicos.core import SIMULATION, MASTER, MAINTENANCE
 
+
 class RefAxis(Axis, CanReference):
     parameters = {
-        'refpos'   : Param('reference position',
-                            type = none_or(float), default = None),
-        'autoref'   : Param('Number of movements before autoreferencing, '
-                            'None/0=disable, >0:count all moves, <0:count only negative moves',
-                            type = none_or(int), default = None, settable = True),
-        'refspeed'   : Param('Motorspeed when referencing or None/0 to use normal speed setting',
-                            type = none_or(float), default = None),
+        'refpos':   Param('reference position',
+                          type=none_or(float), default=None),
+        'autoref':  Param('Number of movements before autoreferencing, '
+                          'None/0=disable, >0:count all moves, <0:count only negative moves',
+                          type=none_or(int), default=None, settable=True),
+        'refspeed': Param('Motorspeed when referencing or None/0 to use normal speed setting',
+                          type=none_or(float), default=None),
     }
 
     _moves = 0
@@ -56,18 +55,18 @@ class RefAxis(Axis, CanReference):
             self.log.info('self.autoref limit reached => referencing NOW')
             self.reference(target)    # WARNING: This takes a while !
 
-        return Axis.doStart(self, target) # handles offset as well
+        return Axis.doStart(self, target)  # handles offset as well
 
-    def doReference(self, gotopos=None):  #pylint: disable=W0221
-        ''' references this axis by finding the reference switch and then setting current position to refpos.
+    def doReference(self, gotopos=None):  # pylint: disable=W0221
+        """references this axis by finding the reference switch and then setting current position to refpos.
         1) Finding the refswitch by going backwards until the refswitch (=negative limit switch) fires,
         2) then go forward a little until the switch is not active,
         3) then crawl SLOWLY backwards to hit it again.
         4) current position is set to self.refpos (e.g. the reference is stored, the referencing done)
         If an axis can't go reliably backwards (e.g. blocking) in step 1) then this fails!!!
 
-        the refpos must be within motor.abslimits !
-        '''
+        the refpos must be within motor.abslimits!
+        """
 
         try:
             self._referencing = True
@@ -75,7 +74,7 @@ class RefAxis(Axis, CanReference):
             oldspeed = m.speed
 
             # Check initial conditions
-            if self.refpos == None:
+            if self.refpos is None:
                 self.log.error('Can\'t reference, no refpos specified!')
                 return
             if self._mode not in [MASTER, MAINTENANCE]:
@@ -117,8 +116,8 @@ class RefAxis(Axis, CanReference):
                 if not refsw():
                     break
             else:
-                self.log.error('Referencing: RefSwitch still active after 388.8 %s, exiting!'
-                                        %self.unit)
+                self.log.error('Referencing: RefSwitch still active after '
+                               '388.8 %s, exiting!' % self.unit)
                 self.doStart(oldpos)
                 return
 
@@ -130,7 +129,7 @@ class RefAxis(Axis, CanReference):
             while not(refsw()) and tries > 0:
                 self.log.debug('Another %d slots left to try' % tries)
                 try:
-                    m.doStart(m.doRead() - stepsize / 3.) # pylint: disable=W0631
+                    m.doStart(m.doRead() - stepsize / 3.)  # pylint: disable=W0631
                 except NicosError:
                     pass        # if refswitch is already active, doStart gives an exception
                 m.wait()
@@ -139,7 +138,7 @@ class RefAxis(Axis, CanReference):
             m.speed = oldspeed
             if tries == 0:
                 self.log.error('Referencing: RefSwitch still not active after %.1f %s, exiting!'
-                                        %(self.wraparound,self.unit))
+                               % (self.wraparound, self.unit))
                 self.doStart(oldpos)
                 self.wait()
                 self.poll()
@@ -147,10 +146,7 @@ class RefAxis(Axis, CanReference):
             # Step 4) We are _at_ refswitch, motor stopped
             # => we are at refpos, communicate this to the motor
             self.log.info('Found Refswitch at %.2f, should have been at %.2f, lost %.3f %s'
-                                %(m.doRead(),
-                                    self.refpos,
-                                    m.doRead() - self.refpos,
-                                    self.unit))
+                          % (m.doRead(), self.refpos, m.doRead() - self.refpos, self.unit))
             self.poll()
             for d in devIter(self._adevs, onlydevs=True):
                 if hasattr(d, 'setPosition'):
@@ -160,7 +156,7 @@ class RefAxis(Axis, CanReference):
                         self.log.error(e)
             self.poll()
 
-            self.log.info('Referenced, moving to position (%.2f)....'%oldpos)
+            self.log.info('Referenced, moving to position (%.2f)...' % oldpos)
             self.wait()
             self.doStart(oldpos)
             # if gotopos was given, do not wait...
@@ -173,49 +169,52 @@ class RefAxis(Axis, CanReference):
             self._referencing = False
 
 
-
 class RotAxis(RefAxis):
-    ''' special class for rotary axis which is on the same physical position every 360 deg,
-    but should only move/rotate in one direction. other direction is either forbidden or used for referencing.'''
+    """special class for rotary axis which is on the same physical position every 360 deg,
+    but should only move/rotate in one direction. other direction is either
+    forbidden or used for referencing.
+    """
 
     parameters = {
-        'wraparound'   : Param('axis wraps around above this value',
-                            type = float, default = 360.),
+        'wraparound': Param('axis wraps around above this value',
+                            type=float, default=360.),
     }
 
     def doStart(self, target):
         if self._checkTargetPosition(self.read(0), target, error=False):
-            return # already at target
+            return  # already at target
 
         # change current position if we want to go backwards
         if target < self.read():
-            # a negative move would be interpreted as positive by the RefAxis, as we mod current position
+            # a negative move would be interpreted as positive by the RefAxis,
+            # as we mod current position
             if self.autoref and self.autoref < 0:
-                self._moves += 1 # always count wraparound moves.
+                self._moves += 1  # always count wraparound moves.
             d = self._adevs['motor']
             d.setPosition(d.read() - self.wraparound)
             self.poll()
 
         return RefAxis.doStart(self, target)
 
-    def doReference(self, gotopos=None):  #pylint: disable=W0221
-        ''' references this axis by finding the reference switch and then setting current position to refpos.
+    def doReference(self, gotopos=None):  # pylint: disable=W0221
+        """references this axis by finding the reference switch and then setting current position to refpos.
         1) Finding the refswitch by going backwards until the refswitch (=negative limit switch) fires,
         2) then go forward a little until the switch is not active,
         3) then crawl SLOWLY backwards to hit it again.
         4) current position is set to self.refpos (e.g. the reference is stored, the referencing done)
-        If an axis can't go reliably backwards (e.g. blocking) in step 1) then this fails!!!'''
+        If an axis can't go reliably backwards (e.g. blocking) in step 1) then this fails!!!
+        """
 
-        if not(-self.wraparound <= self.refpos <= self.wraparound):
+        if not (-self.wraparound <= self.refpos <= self.wraparound):
             raise ConfigurationError(self, 'Refpos needs to be a float within [-%.1f .. %.1f]'
-                                        %(self.wraparound, self.wraparound))
+                                     % (self.wraparound, self.wraparound))
         try:
             self._referencing = True
             m = self._adevs['motor']
             oldspeed = m.speed
 
             # Check initial conditions
-            if self.refpos == None:
+            if self.refpos is None:
                 self.log.error('Can\'t reference, no refpos specified!')
                 return
             if self._mode not in [MASTER, MAINTENANCE]:
@@ -250,13 +249,13 @@ class RotAxis(RefAxis):
             tries = self.wraparound/10+1
             self.log.info('Referencing: FAST Mode: looking for inactive refswitch')
             while refsw() and tries > 0:
-                self.log.debug('Another %d 10 %s slots left to try'%(tries, self.unit))
-                m.doStart(m.doRead() + 10) #This should never fail unless something is broken
+                self.log.debug('Another %d 10 %s slots left to try' % (tries, self.unit))
+                m.doStart(m.doRead() + 10)  # This should never fail unless something is broken
                 m.wait()
                 tries -= 1
             if tries == 0:
                 self.log.error('Referencing: RefSwitch still active after %.1f %s, exiting!'
-                                        %(self.wraparound,self.unit))
+                               % (self.wraparound, self.unit))
                 self.doStart(oldpos)
                 self.wait()
                 self.poll()
@@ -269,7 +268,7 @@ class RotAxis(RefAxis):
             self.log.info('Referencing: SLOW Mode: find refswitch')
             while not(refsw()) and tries > 0:
                 self.log.debug('Another %d 3 %s slots left to try'
-                                        %(tries, self.unit))
+                               % (tries, self.unit))
                 try:
                     m.doStart(m.doRead() - 3)
                 except NicosError:
@@ -280,7 +279,7 @@ class RotAxis(RefAxis):
             m.speed = oldspeed
             if tries == 0:
                 self.log.error('Referencing: RefSwitch still not active after %.1f %s, exiting!'
-                                        %(self.wraparound,self.unit))
+                               % (self.wraparound, self.unit))
                 self.doStart(oldpos)
                 self.wait()
                 self.poll()
@@ -288,10 +287,8 @@ class RotAxis(RefAxis):
             # Step 4) We are _at_ refswitch, motor stopped
             # => we are at refpos, communicate this to the motor
             self.log.info('Found Refswitch at %.1f, should have been at %.1f, lost %.2f %s'
-                                %(m.doRead() % self.wraparound,
-                                    self.refpos,
-                                    abs(m.doRead() % self.wraparound - self.refpos),
-                                    self.unit))
+                          % (m.doRead() % self.wraparound, self.refpos,
+                             abs(m.doRead() % self.wraparound - self.refpos), self.unit))
             self.poll()
             for d in devIter(self._adevs, onlydevs=True):
                 if hasattr(d, 'setPosition'):
@@ -300,7 +297,7 @@ class RotAxis(RefAxis):
                     except NicosError as e:
                         self.log.error(e)
             self.poll()
-            self.log.info('Referenced, moving to position (%.2f)....'%oldpos)
+            self.log.info('Referenced, moving to position (%.2f)...' % oldpos)
             self.wait()
             self.doStart(oldpos)
             # if gotopos was given, do not wait...
@@ -314,26 +311,26 @@ class RotAxis(RefAxis):
 
 
 class VirtualRotAxisMotor(VirtualMotor):
-    ''' used for testing the above code in demo mode....
+    """used for testing the above code in demo mode....
     simulates a refswitch between 200 and 220
-    '''
+    """
     def _refswitch(self):
         return 200. <= self.doRead() <= 220.
 
-    def doStart( self, pos ):
-        if self.curvalue > pos: # going backwards
+    def doStart(self, pos):
+        if self.curvalue > pos:  # going backwards
             if self._refswitch():
                 raise NicosError(self, 'Can\'t go backwards, Limit-switch is active!')
-        return VirtualMotor.doStart( self, pos )
+        return VirtualMotor.doStart(self, pos)
 
     def doStatus(self, maxage=0):
         if self._refswitch():
-            return (self.curstatus[0],'limit switch - active, '+self.curstatus[1])
+            return (self.curstatus[0], 'limit switch - active, ' + self.curstatus[1])
         else:
             return self.curstatus
 
     def _step(self, start, end, elapsed, speed):
-        if end < start: # going backwards
+        if end < start:  # going backwards
             if self._refswitch():
                 self._stop = True       # force a stop
                 return self.curvalue
