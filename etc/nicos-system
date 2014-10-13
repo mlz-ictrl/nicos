@@ -175,9 +175,32 @@ def kill_daemon(name):
     pid = read_pidfile(name)
     if not pid:
         print 'not running?'
-    else:
-        print 'pid =', pid
-        os.kill(pid, signal.SIGTERM)
+        return
+    print 'pid =', pid,
+    sys.stdout.flush()
+    os.kill(pid, signal.SIGTERM)
+    time.sleep(0.1)
+    begin = time.time()
+    while 1:
+        pid = read_pidfile(name)
+        if not pid:
+            print
+            return
+        time.sleep(0.1)
+        current = time.time()
+        if current > begin + 10:
+            print 'FAILED to stop!'
+            return
+        elif current > begin + 6:
+            print 'KILL',
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except OSError:
+                pass
+        elif current > begin + 1:
+            time.sleep(0.2)
+        print '.',
+        sys.stdout.flush()
 
 if action == 'start':
     for name in daemons:

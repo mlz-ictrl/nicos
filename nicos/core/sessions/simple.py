@@ -62,7 +62,6 @@ class NoninteractiveSession(Session):
             setuser()
 
         def quit_handler(signum, frame):
-            removePidfile(appname)
             maindev.quit()
         def reload_handler(signum, frame):
             if hasattr(maindev, 'reload'):
@@ -98,6 +97,7 @@ class NoninteractiveSession(Session):
         maindev.wait()
 
         session.shutdown()
+        removePidfile(appname)
 
 
 class SingleDeviceSession(NoninteractiveSession):
