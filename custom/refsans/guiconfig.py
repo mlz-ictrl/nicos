@@ -24,8 +24,7 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
-    tabbed, setups
+from nicos.clients.gui.config import vsplit, window, panel, tool, docked
 
 main_window = docked(
     vsplit(
@@ -50,7 +49,7 @@ windows = [
     window('Logbook', 'table', panel('elog.ELogPanel')),
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
-    #window('Live data', 'live', panel('live.LiveDataPanel')),
+    # window('Live data', 'live', panel('live.LiveDataPanel')),
 ]
 
 tools = [
