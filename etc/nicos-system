@@ -34,9 +34,9 @@
 import os
 import sys
 import time
+import errno
 import socket
 import signal
-import ConfigParser
 from os import path
 
 _DEFAULT = path.join(os.sep, 'etc', 'default', 'nicos-system')
@@ -47,7 +47,7 @@ try:
 except ImportError:
     sys.path.insert(0, nicos_root)
 
-if path.isfile(_DEFAULT) and not "INSTRUMENT" in os.environ:
+if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
     try:
         with open(_DEFAULT, 'r') as fd:
             for line in fd:
@@ -62,6 +62,7 @@ if path.isfile(_DEFAULT) and not "INSTRUMENT" in os.environ:
 
 # We need to read the nicos.conf file, so let nicos do that.
 from nicos import config
+
 
 def get_config():
     hostname = ''
@@ -88,33 +89,14 @@ def get_config():
 
 SERVICES, LOG_PATH, PID_PATH = get_config()
 
-def usage():
+
+def usage(prog):
     print >>sys.stderr, \
-          'Usage: %s start|stop|restart|status [service ...]' % sys.argv[0]
+        'Usage: %s start|stop|restart|status [service ...]' % prog
     print >>sys.stderr, \
-          'Possible services are %s' % ', '.join(SERVICES)
-    sys.exit(1)
+        'Possible services are %s' % ', '.join(SERVICES)
+    return 1
 
-try:
-    action = sys.argv[1]
-except IndexError:
-    usage()
-
-all_option = False
-explicit_daemons = False
-
-daemon_args = sys.argv[2:]
-if '-a' in daemon_args:
-    all_option = True
-    daemon_args.remove('-a')
-if daemon_args:
-    explicit_daemons = True
-    daemons = daemon_args
-    for daemon in daemons:
-        if daemon not in SERVICES:
-            usage()
-else:
-    daemons = SERVICES
 
 def read_pidfile(name, wait=0):
     begin = time.time()
@@ -146,6 +128,7 @@ def read_pidfile(name, wait=0):
             pass
         return
 
+
 def start_daemon(name):
     print 'Starting %s...' % name,
     sys.stdout.flush()
@@ -164,10 +147,12 @@ def start_daemon(name):
     if not pid:
         print 'failed, please look in the logfile at %s' % \
             path.join(LOG_PATH, name, name + time.strftime('-%Y-%m-%d.log'))
-        sys.exit(1)
+        return False
     print 'pid =', pid
     if name == 'cache':
         time.sleep(3)
+    return True
+
 
 def kill_daemon(name):
     print 'Killing %s...' % name,
@@ -175,7 +160,7 @@ def kill_daemon(name):
     pid = read_pidfile(name)
     if not pid:
         print 'not running?'
-        return
+        return True
     print 'pid =', pid,
     sys.stdout.flush()
     os.kill(pid, signal.SIGTERM)
@@ -185,53 +170,91 @@ def kill_daemon(name):
         pid = read_pidfile(name)
         if not pid:
             print
-            return
+            return True
         time.sleep(0.1)
         current = time.time()
         if current > begin + 10:
             print 'FAILED to stop!'
-            return
+            return False
         elif current > begin + 6:
             print 'KILL',
             try:
                 os.kill(pid, signal.SIGKILL)
-            except OSError:
-                pass
+            except OSError as err:
+                # ESRCH means: already terminated
+                if err.errno != errno.ESRCH:
+                    print 'FAILED to kill:', err
+                    return False
         elif current > begin + 1:
             time.sleep(0.2)
         print '.',
         sys.stdout.flush()
 
-if action == 'start':
-    for name in daemons:
-        start_daemon(name)
 
-elif action == 'stop':
-    if not all_option and not explicit_daemons and 'cache' in daemons:
-        print 'Not stopping cache, use -a option to force'
-        daemons.remove('cache')
-    for name in reversed(daemons):
-        kill_daemon(name)
+def main(args):
+    try:
+        action = args[1]
+        if action not in ('start', 'stop', 'restart', 'status'):
+            raise IndexError
+    except IndexError:
+        return usage(args[0])
 
-elif action == 'restart':
-    if not all_option and not explicit_daemons and 'cache' in daemons:
-        print 'Not restarting cache, use -a option to force'
-        daemons.remove('cache')
-    dmns = ' '.join(daemons)
-    os.system('%s stop %s && sleep 1 && %s start %s' % (
-        sys.argv[0], dmns, sys.argv[0], dmns))
+    all_option = False
+    explicit_daemons = False
 
-elif action == 'status':
+    daemon_args = args[2:]
+    if '-a' in daemon_args:
+        all_option = True
+        daemon_args.remove('-a')
+    if daemon_args:
+        explicit_daemons = True
+        daemons = daemon_args
+        for daemon in daemons:
+            if daemon not in SERVICES:
+                return usage(args[0])
+    else:
+        daemons = SERVICES
+
     exitstatus = 0
-    for name in daemons:
-        pid = read_pidfile(name)
-        if pid:
-            print '%-12s: running (pid = %s)' % (name, pid)
-        else:
-            print '%-12s: dead' % name
-            exitstatus = 1
-    sys.exit(exitstatus)
 
+    if action == 'start':
+        for name in daemons:
+            if not start_daemon(name):
+                exitstatus = 1
+
+    elif action == 'stop':
+        if not all_option and not explicit_daemons and 'cache' in daemons:
+            print 'Not stopping cache, use -a option to force'
+            daemons.remove('cache')
+        for name in reversed(daemons):
+            if not kill_daemon(name):
+                exitstatus = 1
+
+    elif action == 'restart':
+        if not all_option and not explicit_daemons and 'cache' in daemons:
+            print 'Not restarting cache, use -a option to force'
+            daemons.remove('cache')
+        dmns = ' '.join(daemons)
+        os.system('%s stop %s && sleep 1 && %s start %s' % (
+            args[0], dmns, args[0], dmns))
+
+    elif action == 'status':
+        for name in daemons:
+            try:
+                pid = read_pidfile(name)
+            except Exception as e:
+                print '%-12s: could not read pidfile: %s' % (name, e)
+            if pid:
+                print '%-12s: running (pid = %s)' % (name, pid)
+            else:
+                print '%-12s: dead' % name
+                exitstatus = 1
+
+    return exitstatus
+
+try:
+    exitstatus = main(sys.argv)
+except BaseException as e:
+    print >>sys.stderr, 'ERROR:', e.__class__.__name__, '-', e
 else:
-    print >>sys.stderr, 'Usage: %s start|stop|restart|status' % sys.argv[0]
-    sys.exit(2)
+    sys.exit(exitstatus)
