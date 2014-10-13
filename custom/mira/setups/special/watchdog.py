@@ -13,10 +13,10 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
-#    dict(condition = 'cooltemp_value > 30',
-#         message = 'Cooling water temperature exceeds 30C, check FAK40 or MIRA Leckmon!',
-#         type = 'critical',
-#    ),
+    dict(condition = 'cooltemp_value > 25',
+         message = 'Cooling water temperature exceeds 25C, clean filter or check FAK40 or MIRA Leckmon!',
+         type = 'critical',
+    ),
     dict(condition = 'psdgas_value == "empty"',
          message = 'PSD gas is empty, change bottle very soon!',
          type = 'critical',
@@ -34,8 +34,8 @@ watchlist = [
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'rgeorgii@frm2.tum.de',
-                      receivers = ['rgeorgii@frm2.tum.de', 'gbrandl@frm2.tum.de'],
-                      copies = ['rgeorgii@frm2.tum.de', 'klaus.seemann@frm2.tum.de'],
+                      receivers = [],
+                      copies = ['robert.georgii@frm2.tum.de', 'klaus.seemann@frm2.tum.de'],
                       subject = 'MIRA Warning',
                      ),
 
