@@ -32,10 +32,12 @@ watchlist = [
 # one for priority 2.
 
 devices = dict(
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'wiebke.lohstroh@frm2.tum.de',
-                      receivers = ['wiebke.lohstroh@frm2.tum.de',
-                                   'giovanna.simeoni@frm2.tum.de'],
+    emailer  = device('devices.notifiers.Mailer',
+                      description = 'Notifier service to send emails',
+                      sender = 'nicos.toftof@frm2.tum.de',
+                      copies = ['wiebke.lohstroh@frm2.tum.de',
+                                'giovanna.simeoni@frm2.tum.de'],
+                      receivers = [],
                       subject = 'TOFTOF Warning',
                      ),
 
@@ -46,8 +48,8 @@ devices = dict(
 
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'tofhw.toftof.frm2:14869',
-                      notifiers = {'default': ['email']},
+                      notifiers = {'default': ['emailer']},
                       watch = watchlist,
-                      mailreceiverkey = 'email/receivers',
+                      mailreceiverkey = 'emailer/receivers',
                      ),
 )
