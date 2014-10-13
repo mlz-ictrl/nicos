@@ -25,10 +25,9 @@
 """Module for simple device-related user commands."""
 
 import time
-import threading
 
 from nicos import session, nicos_version, __version__ as nicos_revision
-from nicos.utils import printTable, parseDateString
+from nicos.utils import printTable, parseDateString, createThread
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
     HasLimits, UsageError, AccessError, formatStatus, INFO_CATEGORIES
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
@@ -252,10 +251,7 @@ def stop(*devlist):
         finally:
             finished.append(dev)
     for dev in devlist:
-        stopthread = threading.Thread(target=stopdev, args=(dev,),
-                                      name='device stopper')
-        stopthread.daemon = True
-        stopthread.start()
+        createThread('device stopper %s' % dev, stopdev, (dev,))
     while len(finished) != len(devlist):
         time.sleep(0.1)
     if stop_all:

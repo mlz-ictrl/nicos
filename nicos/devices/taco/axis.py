@@ -213,7 +213,7 @@ class HoveringAxis(Axis):
         self._wait_exception = None
 
     def doStart(self, target):
-        if self._poll_thread:
+        if self._poll_thread and self._poll_thread.isAlive():
             self.stop()
             self.log.info('waiting for axis to stop...')
             for _i in range(100):
@@ -253,7 +253,7 @@ class HoveringAxis(Axis):
                 self._poll_thread = None
 
     def doWait(self):
-        while self._poll_thread:
+        while self._poll_thread and self._poll_thread.isAlive():
             sleep(0.2)
         if self._wait_exception:
             exc = self._wait_exception

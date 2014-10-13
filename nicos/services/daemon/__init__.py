@@ -31,7 +31,7 @@ import threading
 
 from nicos import nicos_version
 from nicos.core import listof, Device, Param, ConfigurationError
-from nicos.utils import closeSocket
+from nicos.utils import closeSocket, createThread
 from nicos.pycompat import get_thread_id, queue, socketserver
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
@@ -67,11 +67,8 @@ class Server(socketserver.TCPServer):
         """Process a "request", that is, a client connection."""
         # mostly copied from ThreadingMixIn but without the import,
         # which causes threading issues because of the import lock
-        t = threading.Thread(target=self.process_request_thread,
-                             args=(request, client_address, client_id),
-                             name='request handler')
-        t.daemon = True
-        t.start()
+        createThread('request handler', self.process_request_thread,
+                     args=(request, client_address, client_id))
 
     def process_request_thread(self, request, client_address, client_id):
         """Thread to process the client connection, calls the Handler."""
@@ -101,12 +98,9 @@ class Server(socketserver.TCPServer):
             time.sleep(0.2)
         handler = self.pending_clients[host, clid]
         self.daemon.log.debug('event connection from %s for handler #%d' %
-                               (host, handler.ident))
-        event_thread = threading.Thread(target=handler.event_sender,
-                                        args=(request,),
-                                        name='event_sender %d' % handler.ident)
-        event_thread.daemon = True
-        event_thread.start()
+                              (host, handler.ident))
+        createThread('event_sender %d' % handler.ident, handler.event_sender,
+                     args=(request,))
         self.pending_clients.pop((host, clid), None)
         # don't call the usual handler
         return None
@@ -193,10 +187,7 @@ class NicosDaemon(Device):
         Server.allow_reuse_address = self.reuseaddress
         self._server = Server(self, (host, port), ConnectionHandler)
 
-        self._watch_worker = threading.Thread(target=self._watch_entry,
-                                              name='daemon watch monitor')
-        self._watch_worker.daemon = True
-        self._watch_worker.start()
+        self._watch_worker = createThread('daemon watch monitor', self._watch_entry)
 
     def _watch_entry(self):
         """
@@ -246,9 +237,7 @@ class NicosDaemon(Device):
                        (nicos_version, self.server))
         # startup the script thread
         self._controller.start_script_thread()
-        self._worker = threading.Thread(target=self._server.serve_forever,
-                                        name='daemon server')
-        self._worker.start()
+        self._worker = createThread('daemon server', self._server.serve_forever)
 
     def wait(self):
         while not self._stoprequest:

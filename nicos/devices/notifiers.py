@@ -25,7 +25,6 @@
 """NICOS notification classes."""
 
 import os
-import threading
 import subprocess
 from email.header import Header
 from email.message import Message
@@ -34,6 +33,7 @@ from email.utils import formatdate, make_msgid
 
 from nicos.core import listof, mailaddress, usermethod, Device, Param
 from nicos.pycompat import text_type
+from nicos.utils import createThread
 
 EMAIL_CHARSET = 'utf-8'
 
@@ -98,9 +98,7 @@ class Mailer(Notifier):
             if ok:
                 self.log.info('%smail sent to %s' % (
                     what and what + ' ' or '', ', '.join(receivers)))
-        mail_thread = threading.Thread(target=send, name='mail sender')
-        mail_thread.daemon = True
-        mail_thread.start()
+        createThread('mail sender', send)
 
     def _sendmail(self, address, to, subject, text):
         """Send e-mail with given recipients, subject and text."""

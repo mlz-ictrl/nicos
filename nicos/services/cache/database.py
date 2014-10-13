@@ -33,7 +33,7 @@ from collections import deque
 
 from nicos import config
 from nicos.core import Device, Param, ConfigurationError, intrange
-from nicos.utils import ensureDirectory, allDays
+from nicos.utils import ensureDirectory, allDays, createThread
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_LOCK, \
      OP_LOCK_LOCK, OP_LOCK_UNLOCK, FLAG_NO_STORE
 from nicos.pycompat import iteritems, listitems
@@ -340,9 +340,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._nextmidnight = self._midnight + 86400
 
         self._stoprequest = False
-        self._cleaner = threading.Thread(target=self._clean, name='cleaner')
-        self._cleaner.daemon = True
-        self._cleaner.start()
+        self._cleaner = createThread('cleaner', self._clean)
 
     def doShutdown(self):
         self._stoprequest = True

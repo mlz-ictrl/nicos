@@ -42,7 +42,7 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import Device, Param
-from nicos.utils import loggers, closeSocket
+from nicos.utils import loggers, closeSocket, createThread
 from nicos.pycompat import queue, listitems, listvalues, from_utf8, to_utf8
 
 # pylint: disable=W0611
@@ -80,17 +80,11 @@ class CacheWorker(object):
         self.start_sender(name)
 
         # start receiver thread
-        self.receiver = threading.Thread(None, self._receiver_thread,
-                                         'receiver %s' % name, args=())
-        self.receiver.daemon = True
-        self.receiver.start()
+        self.receiver = createThread('receiver %s' % name, self._receiver_thread)
 
     def start_sender(self, name):
         self.send_queue = queue.Queue()
-        self.sender = threading.Thread(None, self._sender_thread,
-                                       'sender %s' % name, args=())
-        self.sender.daemon = True
-        self.sender.start()
+        self.sender = createThread('sender %s' % name, self._sender_thread)
 
     def __str__(self):
         return 'worker(%s)' % self.name
@@ -335,9 +329,7 @@ class CacheServer(Device):
 
     def start(self):
         self._adevs['db'].initDatabase()
-        self._worker = threading.Thread(target=self._server_thread,
-                                        name='server')
-        self._worker.start()
+        self._worker = createThread('server', self._server_thread)
 
     def _bind_to(self, address, proto='tcp'):
         # bind to the address with the given protocol; return socket and address

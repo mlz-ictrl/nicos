@@ -28,12 +28,12 @@
 import time
 from time import time as currenttime
 from datetime import timedelta
-import threading
 
 from nicos import session
 from nicos.core import Param, Override, none_or, anytype, tupleof, status, \
     NicosError, MoveError, ProgrammingError, ConfigurationError, LimitError
 from nicos.core.device import Moveable, Measurable, DeviceMixinBase
+from nicos.utils import createThread
 
 
 class StopSequence(Exception):
@@ -274,10 +274,7 @@ class SequencerMixin(DeviceMixinBase):
         """Starts a thread to execute the sequence."""
         self._seq_stopflag = False
         self._seq_was_stopped = False
-        self._seq_thread = threading.Thread(target=self._run,
-                                          args=(sequence,))
-        self._seq_thread.daemon = True
-        self._seq_thread.start()
+        self._seq_thread = createThread('sequence', self._run, (sequence,))
 
     def _run(self, sequence):
         """The thread performing the sequence

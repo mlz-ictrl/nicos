@@ -40,6 +40,7 @@ from nicos.protocols.daemon import serialize, unserialize, ENQ, ACK, STX, NAK, \
     LENGTH, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS, \
     command2code, code2event
 from nicos.pycompat import to_utf8
+from nicos.utils import createThread
 
 BUFSIZE = 8192
 TIMEOUT = 30.0
@@ -171,10 +172,7 @@ class NicosClient(object):
         self.event_socket.sendall(self.client_id)
 
         # start event handler
-        self.event_thread = threading.Thread(target=self.event_handler,
-                                             name='event handler thread')
-        self.event_thread.daemon = True
-        self.event_thread.start()
+        self.event_thread = createThread('event handler', self.event_handler)
 
         self.connected = True
         self.host, self.port = conndata['host'], conndata['port']

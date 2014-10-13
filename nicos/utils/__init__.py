@@ -276,12 +276,18 @@ def bitDescription(bits, *descriptions):
     return ', '.join(ret)
 
 
+def createThread(name, target, args=(), daemon=True):
+    """Create, start and return a Python thread."""
+    thread = threading.Thread(target=target, name=name, args=args)
+    thread.setDaemon(daemon)
+    thread.start()
+    return thread
+
+
 def runAsync(func):
+    """Decorator that runs the function in a thread when called."""
     def inner(*args, **kwargs):
-        thr = threading.Thread(target=func, args=args, kwargs=kwargs,
-                               name='runAsync %s' % func)
-        thr.daemon = True
-        thr.start()
+        createThread('runAsync %s' % func, func, args=args)
     return inner
 
 

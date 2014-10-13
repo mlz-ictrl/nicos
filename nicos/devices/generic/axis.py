@@ -25,13 +25,13 @@
 
 """NICOS axis classes."""
 
-import threading
 from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
-     NicosError, PositionError, MoveError, waitForStatus, floatrange, \
-     Param, Attach
+    NicosError, PositionError, MoveError, waitForStatus, floatrange, \
+    Param, Attach
 from nicos.devices.abstract import Axis as BaseAxis, Motor, Coder, CanReference
+from nicos.utils import createThread
 
 
 class Axis(BaseAxis, CanReference):
@@ -135,9 +135,8 @@ class Axis(BaseAxis, CanReference):
         self._stoprequest = 0
         self._errorstate = None
         if not self._posthread:
-            self._posthread = threading.Thread(None, self.__positioningThread,
-                                               'Positioning thread')
-            self._posthread.start()
+            self._posthread = createThread('positioning thread %s' % self,
+                                           self.__positioningThread)
 
     def doStatus(self, maxage=0):
         """Returns the status of the motor controller."""

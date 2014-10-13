@@ -33,7 +33,7 @@ from math import exp, atan
 import numpy as np
 
 from nicos import session
-from nicos.utils import clamp
+from nicos.utils import clamp, createThread
 from nicos.services.poller.psession import PollerSession
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
     none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
@@ -65,10 +65,8 @@ class VirtualMotor(Motor, HasOffset):
                 self.stop()
                 self._thread.join()
             self.curstatus = (status.BUSY, 'virtual moving')
-            self._thread = threading.Thread(target=self.__moving, args=(pos,),
-                                            name='virtual motor %s' % self)
-            self._thread.daemon = True
-            self._thread.start()
+            self._thread = createThread('virtual motor %s' % self,
+                                        self.__moving, (pos,))
         else:
             self.curstatus = (status.BUSY, 'virtual moving')
             self.log.debug('moving to %s' % pos)
@@ -157,10 +155,7 @@ class VirtualTimer(Channel):
     def doStart(self):
         if self.ismaster:
             self.__finish = False
-            thr = threading.Thread(target=self.__thread,
-                                   name='virtual timer %s' % self)
-            thr.daemon = True
-            thr.start()
+            createThread('virtual timer %s' % self, self.__thread)
 
     def doIsCompleted(self):
         return self.__finish
@@ -326,10 +321,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
         if not isinstance(session, PollerSession): # dont run in the poller!
             self._window = []
             self._statusLock = threading.Lock()
-            self._thread = threading.Thread(target=self.__run,
-                                        name='Cryo simulator %s' % self)
-            self._thread.daemon = True
-            self._thread.start()
+            self._thread = createThread('cryo simulator %s' % self, self.__run)
 
     def doStart(self, pos):
         # do nothing more, its handled in the thread...
@@ -582,8 +574,8 @@ class Virtual2DDetector(ImageProducer, Measurable):
         if self._mythread:
             self._stopflag = True
             self._mythread.join()
-        self._mythread = threading.Thread(target=self._run,  args=(t, ))
-        self._mythread.start()
+        self._mythread = createThread('virtual detector %s' % self,
+                                      self._run, args=(t,))
 
     def _run(self,  maxtime):
         try:
