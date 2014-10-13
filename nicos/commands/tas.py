@@ -644,7 +644,8 @@ def setalign(hkl, psival=None):
 @usercommand
 @helparglist('(h, k, l), step, numpoints, ...')
 def checkalign(hkl, step, numpoints, *args, **kwargs):
-    """Readjust Sample psi0 to the fitted center of a sample rocking scan.
+    """Readjust Sample psi0 to the fitted center of a sample rocking scan around
+    the (h, k, l) position.  After the scan, moves back to (h, k, l).
 
     An additional a keyword "ycol" gives the Y column of the dataset to use for
     the Gaussian fit (see the help for `gauss()` for the meaning of this
@@ -690,3 +691,4 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
         printwarning('adjusting %s.psi0 by %s' % (sample,
                                                   psi.format(diff, True)))
         sample.psi0 += diff
+    tas.maw(target)
