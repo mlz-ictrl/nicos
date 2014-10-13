@@ -524,3 +524,12 @@ class Poller(Device):
                     # process was already terminated
                     continue
                 raise
+        def kill_all():
+            for pid in self._childpids:
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except OSError:
+                    pass
+        killer = threading.Timer(4, kill_all)
+        killer.setDaemon(True)
+        killer.start()
