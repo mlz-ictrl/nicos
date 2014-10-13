@@ -1143,7 +1143,8 @@ class Experiment(Device):
             if det not in dlist:
                 dlist.append(det)
         self.detlist = dlist
-        self.detectors  # try to create them right now
+        #try to create them right now
+        self.detectors  # pylint: disable=W0104
         session.elog_event('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
@@ -1191,7 +1192,8 @@ class Experiment(Device):
             if dev not in dlist:
                 dlist.append(dev)
         self.envlist = dlist
-        self.sampleenv  # try to create them right now
+        # try to create them right now
+        self.sampleenv  # pylint: disable=W0104
         session.elog_event('environment', dlist)
 
     def doUpdateEnvlist(self, devices):
