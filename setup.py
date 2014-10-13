@@ -2,7 +2,7 @@ import os
 from os import path
 from setuptools import setup
 from setuptools.command.install import install as stinstall
-from distutils.dir_util import mkpath
+from distutils.dir_util import mkpath  # pylint: disable=E0611,F0401
 
 
 class nicosinstall(stinstall):
@@ -120,4 +120,20 @@ setup(
     packages = find_packages(),
     package_data = package_data,
     scripts = scripts,
+    classifiers=[
+            'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Developers',
+            'Intended Audience :: Science/Research',
+            'Natural Language :: English',
+            'License :: OSI Approved :: GPL License',
+            'Operating System :: OS Independent',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 2',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
+            'Topic :: Scientific/Engineering',
+            'Topic :: Scientific/Engineering :: Human Machine Interfaces',
+            'Topic :: Scientific/Engineering :: Physics',
+            'Topic :: Scientific/Engineering :: Visualization',
+            ],
 )
