@@ -84,7 +84,7 @@ class View(QObject):
                     history = query_func(key, self.fromtime, hist_totime)
                     if not history:
                         from nicos.clients.gui.main import log
-                        log.error('Error getting history for %s.', key)
+                        log.error('Error getting history for %s.' % key)
                         history = []
                     hist_cache[key] = history
                 else:
