@@ -52,7 +52,7 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink'),
 
     emailer  = device('devices.notifiers.Mailer',
-                      description = 'Notfiyer service to send emails',
+                      description = 'Notifier service to send emails',
                       sender = 'nicos.toftof@frm2.tum.de',
                       copies = ['wiebke.lohstroh@frm2.tum.de',
                                 'giovanna.simeoni@frm2.tum.de'],
@@ -60,7 +60,7 @@ devices = dict(
                      ),
 
     smser    = device('devices.notifiers.SMSer',
-                      description = 'Notfiyer service to send SMS',
+                      description = 'Notifier service to send SMS',
                       server = 'triton.admin.frm2',
                      ),
 
