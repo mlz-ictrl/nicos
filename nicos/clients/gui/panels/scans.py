@@ -115,6 +115,8 @@ class ScansPanel(Panel):
         self.currentPlot = None
         # stack of set uids
         self.setUidStack = []
+        # uids of automatically combined datasets -> uid of combined one
+        self.contSetUids = {}
 
         self.splitter.restoreState(self.splitterstate)
 
@@ -309,10 +311,18 @@ class ScansPanel(Panel):
             if not self.data.bulk_adding:
                 self.openDataset(dataset.uid)
             self.no_openset = False
+        # If the dataset is a continuation of another dataset, automatically
+        # create a combined dataset.
         contuids = dataset.sinkinfo.get('continuation')
         if contuids:
-            alluids = contuids.split(',') + [dataset.uid]
-            self._combine(COMBINE, list(map(self.data.uid2set.get, alluids)))
+            alluids = tuple(contuids.split(',')) + (dataset.uid,)
+            # Did we already create this set?  Then don't create it again.
+            if self.contSetUids.get(alluids) in self.setitems:
+                return
+            allsets = list(map(self.data.uid2set.get, alluids))
+            newuid = self._combine(COMBINE, allsets)
+            if newuid:
+                self.contSetUids[alluids] = newuid
 
     def on_data_pointsAdded(self, dataset):
         if dataset.uid in self.setplots:
@@ -515,7 +525,7 @@ class ScansPanel(Panel):
                         newcurve.source = dataset.name
                     newset.curves.append(newcurve)
             self.data.add_existing_dataset(newset, [dataset.uid for dataset in sets])
-            return
+            return newset.uid
         # else, need same axes, and same number and types of curves
 
         firstset = sets[0]
@@ -524,10 +534,12 @@ class ScansPanel(Panel):
                       for curve in firstset.curves]
         for dataset in sets[1:]:
             if [dataset.xnames, dataset.xunits] != nameprops:
-                return self.showError('Sets have different axes.')
+                self.showError('Sets have different axes.')
+                return
             if [(curve.description, curve.yindex)
                 for curve in dataset.curves] != curveprops:
-                return self.showError('Sets have different curves.')
+                self.showError('Sets have different curves.')
+                return
         if op == COMBINE:
             newset = Dataset()
             newset.name = combineattr(sets, 'name', sep=', ')
@@ -546,7 +558,7 @@ class ScansPanel(Panel):
                                                       for curve in curves))
                 newset.curves.append(newcurve)
             self.data.add_existing_dataset(newset, [dataset.uid for dataset in sets])
-            return
+            return newset.uid
 
         if op == ADD:
             sep = ' + '
@@ -581,3 +593,4 @@ class ScansPanel(Panel):
             # XXX treat errors correctly
             newset.curves.append(newcurve)
         self.data.add_existing_dataset(newset)
+        return newset.uid
