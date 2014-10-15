@@ -868,6 +868,8 @@ class NicosCmdClient(NicosClient):
             else:
                 self.ask_connect()
         elif cmd in ('re', 'reconnect'):
+            if self.connected:
+                self.disconnect()
             self.ask_connect(ask_all=False)
         elif cmd in ('q', 'quit'):
             if self.connected:
