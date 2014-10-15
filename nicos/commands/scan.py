@@ -421,19 +421,33 @@ def appendscan(numpoints=5, stepsize=None):
     The scan data will be plotted into the same live plot, if possible, but will
     be saved into a separate data file.
     """
+    if numpoints == 0:
+        raise UsageError('number of points must be either positive or negative')
+    direction = numpoints / abs(numpoints)
     dslist = session.experiment._last_datasets
     if not dslist:
         raise NicosError('no last scan saved')
     contuids = []
+
+    # Find the last scan that wasn't an appendscan.
     i = len(dslist) - 1
     while i >= 0:
         contuids.append(dslist[i].uid)
         if not dslist[i].sinkinfo.get('continuation'):
             break
         i -= 1
-    # XXX could use dslist[-1] to append to last appendscan, but then the
-    # numpoints < 0 case is broken
-    scan = dslist[i]
+
+    # If the last scan was an appendscan in the same direction, append to it,
+    # else append to the original scan.  This DWUMs for
+    #   scan(...)
+    #   appendscan(5)
+    #   appendscan(2)
+    #   appendscan(-3)
+    if dslist[-1].sinkinfo.get('cont_direction') == direction:
+        scan = dslist[-1]
+    else:
+        scan = dslist[i]
+
     if len(scan.devices) != 1:
         raise NicosError('cannot append to scan with more than one device')
     npos = len(scan.xresults)
@@ -466,6 +480,7 @@ def appendscan(numpoints=5, stepsize=None):
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
              scan.envlist, scan.preset, '%d more steps of last scan' % numpoints)
     s.dataset.sinkinfo['continuation'] = ','.join(contuids)
+    s.dataset.sinkinfo['cont_direction'] = direction
     s.dataset.xindex = scan.xindex
     s.dataset.envlist[:] = scan.envlist  # must be reset since Scan.__init__
                                          # messes with the ordering
