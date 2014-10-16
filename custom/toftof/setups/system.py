@@ -28,7 +28,8 @@ devices = dict(
                       description = 'The current running experiment',
                       dataroot = '/users/data',
                       sample = 'Sample',
-                      localcontact = 'W. Lohstroh, G. Simeoni',
+                      localcontact = 'W. Lohstroh, G. Simeoni'
+                               '<wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>',
                       serviceexp = '0',
                       sendmail = True,
                       mailsender = 'nicos.toftof@frm2.tum.de',

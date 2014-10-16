@@ -23,6 +23,7 @@ devices = dict(
     Exp = device('resi.experiment.ResiExperiment',
                       sample = 'Sample',
                       dataroot = '/tmp/data/testdata',
+                      localcontact = 'bjoern.pedersen@frm2.tum.de',
                       ),
 
     resiInstrument = device('devices.instrument.Instrument',

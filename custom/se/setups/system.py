@@ -17,8 +17,9 @@ devices = dict(
     Sample   = device('devices.sample.Sample'),
 
     Exp      = device('devices.experiment.Experiment',
-                      localcontact = 'Harald Schneider <ha.schneider@fz-juelich.de>,' \
-                                     ' Juergen Peters <juergen.peters@frm2.tum.de>',
+                      localcontact = 'Harald Schneider ' \
+                                    '<ha.schneider@fz-juelich.de>',
+                    # localcontact = 'Juergen Peters <juergen.peters@frm2.tum.de>',
                       dataroot = '/data',
                       sample = 'Sample',
                       elog = False),

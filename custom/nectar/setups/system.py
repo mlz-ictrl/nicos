@@ -20,11 +20,12 @@ devices = dict(
                       propdb = '/etc/propdb',
                       serviceexp = '0',
                       sample = 'Sample',
-                      localcontact = 'Stefan Soellradl',
                       mailsender = 'nectar@frm2.tum.de',
                       sendmail = True,
                       zipdata = False,
                       managerights = {},
+                      localcontact = 'Dr. Stefan Soellradl '\
+                                    '<stefan.soellradl@frm2.tum.de>',
                      ),
 
     Instrument = device('devices.instrument.Instrument',

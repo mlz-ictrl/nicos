@@ -82,7 +82,7 @@ def test_experiment():
     # first, go in service mode
     exp.servicescript = 'servicestart.py'
     try:
-        exp.new('service')
+        exp.new('service', localcontact=exp.localcontact)
     finally:
         exp.servicescript = ''
     assert exp.proposal == 'service'
@@ -100,12 +100,12 @@ def test_experiment():
     exp._setROParam('managerights', dict(disableFileMode=0, disableDirMode=0))
 
     # then, go in proposal mode
-    exp.new(999, 'etitle', 'me', 'you')
+    exp.new(999, 'etitle', 'me <m.e@me.net>', 'you')
     # check that all properties have been set accordingly
     assert exp.proposal == 'p999'
     assert exp.proptype == 'user'
     assert exp.title == 'etitle'
-    assert exp.localcontact == 'me'
+    assert exp.localcontact == 'me <m.e@me.net>'
     assert exp.users == 'you'
     assert exp.remark == ''
 
@@ -140,7 +140,7 @@ def test_experiment():
     assert exp.proposal == 'service'
 
     # switch back to proposal (should re-enable directory)
-    exp.new('p999')
+    exp.new('p999', localcontact=exp.localcontact)
     assert os.access(datapath('p999'), os.X_OK)
     assert exp.users == ''
 
@@ -163,7 +163,7 @@ def test_experiment():
     assert exp.scripts == ['Test ümlauts']
 
     # and back to service
-    exp.new('service')
+    exp.new('service', localcontact=exp.localcontact)
 
 
 def test_expanduser_dataroot():
@@ -180,5 +180,5 @@ def test_expandenv_dataroot():
     dataroot2 = "$TESTVAR" if sys.platform != "win32" else "%TESTVAR%"
     exp._setROParam('dataroot', dataroot2)
     assert_equal(exp.dataroot, path.expandvars(dataroot2))
-    exp.new('p888', 'etitle2', 'me2', 'you2')
+    exp.new('p888', 'etitle2', 'me2 <m.e2@me.net>', 'you2')
     assert os.access(datapath('p888', extra='xxx'), os.X_OK)

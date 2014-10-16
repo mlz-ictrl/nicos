@@ -55,6 +55,7 @@ devices = dict(
                       description = 'Container storing Experiment properties',
                       dataroot = '/data',
                       sample = 'Sample',
+                      localcontact = 'J.F. Moulin <Jean-Francois.Moulin@hzg.de>',
                       #~ elog = False,
                      ),
 

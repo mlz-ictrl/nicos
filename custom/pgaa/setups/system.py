@@ -43,6 +43,7 @@ devices = dict(
 
     Exp      = device('devices.experiment.Experiment',
                       dataroot = '/mnt/tequila/data/',
+                      localcontact = 'pgaa@frm2.tum.de',
                       sample = 'Sample'),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',

@@ -24,7 +24,7 @@
 
 """NICOS GUI experiment setup window."""
 
-from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem
+from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem, QMessageBox
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
 
 from nicos.utils import decodeAny
@@ -32,6 +32,8 @@ from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.pycompat import iteritems
+from nicos.core.params import mailaddress
+from nicos.core import ConfigurationError
 
 
 def iterChecked(listwidget):
@@ -97,18 +99,30 @@ class ExpPanel(Panel, DlgUtils):
         # just reinitialize
         self.on_client_connected()
 
+    def _getProposalInput(self):
+        prop = self.proposalNum.text()
+        title = self.expTitle.text().encode('utf-8')
+        users = self.users.text().encode('utf-8')
+        try:
+            local = mailaddress(self.localContact.text().encode('utf-8'))
+        except ValueError:
+            QMessageBox.critical(self, 'Error', 'The local contact entry is not'
+                                ' a valid email address')
+            raise ConfigurationError('')
+        emails = self.notifEmails.toPlainText().encode('utf-8').split(b'\n')
+        return prop, title, users, local, emails
+
     @qtsig('')
     def on_finishButton_clicked(self):
         self.client.tell('start', '', 'FinishExperiment()')
 
     @qtsig('')
     def on_queryDBButton_clicked(self):
-        prop = self.proposalNum.text()
-        title = self.expTitle.text().encode('utf-8')
-        users = self.users.text().encode('utf-8')
-        local = self.localContact.text().encode('utf-8')
+        try:
+            prop, title, users, local, emails = self._getProposalInput()
+        except ConfigurationError:
+            return
         sample = self.sampleName.text().encode('utf-8')
-        emails = self.notifEmails.toPlainText().encode('utf-8')
 
         # read all values from propdb
         try:
@@ -142,7 +156,6 @@ class ExpPanel(Panel, DlgUtils):
             self.showInfo('Reading proposaldb failed for an unknown reason. '
                           'Please check logfiles....\n' + repr(e))
 
-
     def on_buttonBox_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
             self.applyChanges()
@@ -157,11 +170,10 @@ class ExpPanel(Panel, DlgUtils):
         done = []
 
         # proposal settings
-        prop = self.proposalNum.text()
-        title = self.expTitle.text().encode('utf-8')
-        users = self.users.text().encode('utf-8')
-        local = self.localContact.text().encode('utf-8')
-        email = self.notifEmails.toPlainText().encode('utf-8').split(b'\n')
+        try:
+            prop, title, users, local, email = self._getProposalInput()
+        except ConfigurationError:
+            return
         email = [_f for _f in email if _f]  # remove empty lines
 
         # check conditions

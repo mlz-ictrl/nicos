@@ -48,6 +48,7 @@ devices = dict(
                       scriptdir = '.',
                       elog = False,
                       lowlevel = False,
+                      localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
                      ),
 
     t_phi    = device('devices.generic.VirtualMotor',

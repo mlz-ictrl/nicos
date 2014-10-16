@@ -52,7 +52,8 @@ devices = dict(
                       templates = '../../script_templates',
                       zipdata = True,
                       serviceexp = 'service',
-                      lowlevel = False
+                      lowlevel = False,
+                      localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
                      ),
 
     t_phi    = device('devices.generic.VirtualMotor',

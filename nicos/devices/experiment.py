@@ -98,7 +98,8 @@ class Experiment(Device):
         'users':        Param('User names and emails for the proposal',
                               type=str, settable=True, category='experiment'),
         'localcontact': Param('Local contact for current experiment',
-                              type=str, settable=True, category='experiment'),
+                              type=mailaddress, settable=True,
+                              category='experiment'),
         'remark':       Param('Current remark about experiment configuration',
                               type=str, settable=True, category='experiment'),
         # XXX: unfortunately tests need this to be non-absolute atm.
@@ -619,6 +620,11 @@ class Experiment(Device):
             raise UsageError('Simulating switching experiments is not supported!')
 
         try:
+            mailaddress(localcontact)
+        except ValueError:
+            raise ConfigurationError('localcontact is not a valid email address')
+
+        try:
             # if proposal can be converted to a number, use the canonical form
             # and prepend prefix
             proposal = '%s%d' % (self.propprefix, int(proposal))
@@ -771,7 +777,7 @@ class Experiment(Device):
         self._afterFinishHook()
 
         # switch to service experiment (will hide old data if configured)
-        self.new(self.serviceexp)
+        self.new(self.serviceexp, localcontact=self.localcontact)
 
     #
     # template stuff

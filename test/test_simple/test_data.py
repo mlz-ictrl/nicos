@@ -59,7 +59,7 @@ class CHandler(Handler):
 def test_sinks():
     exp = session.experiment
     exp._setROParam('dataroot', path.join(config.nicos_root, 'testdata'))
-    exp.new(1234, user='testuser')
+    exp.new(1234, user='testuser', localcontact=exp.localcontact)
 
     assert path.abspath(exp.datapath) == \
         path.abspath(path.join(config.nicos_root, 'testdata',

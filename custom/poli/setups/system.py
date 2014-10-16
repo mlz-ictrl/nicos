@@ -77,6 +77,7 @@ devices = dict(
                       dataroot = '/data',
                       sendmail = True,
                       serviceexp = '0',
+                      localcontact = 'V. Hutanu <vladimir.hutanu@frm2.tum.de>',
                       sample = 'Sample',
                      ),
 

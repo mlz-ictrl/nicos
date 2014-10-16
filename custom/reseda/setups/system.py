@@ -18,7 +18,9 @@ devices = dict(
                       sendmail = True,
                       serviceexp = '0',
                       sample = 'Sample',
-                      mailsender = 'wolfgang.haeussler@frm2.tum.de',
+                      localcontact = 'christian.franz+thorsten.schroeder' \
+                                     '@frm2.tum.de',
+                      mailsender = 'reseda@frm2.tum.de',
                       # propdb = '/etc/proposaldb',
                      ),
 

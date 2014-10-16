@@ -198,6 +198,9 @@ def test_mailaddress():
         'myaddress@xn----rmckbbajlc6dj7bxne2c.xn--wgbh1c'
     assert mailaddress(u'M. Address <my.address@domain.my>') == 'M. Address <my.address@domain.my>'
     assert mailaddress(u'M. Address <my.address@domain.my> ') == 'M. Address <my.address@domain.my> '
+    assert mailaddress(u'W. Lohstroh, G. Simeoni '
+                       '<wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>') ==  \
+                       'W. Lohstroh, G. Simeoni <wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>'
     assert raises(ValueError, mailaddress, 'M. Address my.address@domain.my>')
     assert raises(ValueError, mailaddress, 'M. Address <my.address@domain.my')
     assert raises(ValueError, mailaddress, 'my.name.domain.my')

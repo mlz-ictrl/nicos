@@ -107,7 +107,8 @@ def test_basic_commands():
 
     exp = session.getDevice('Exp')
 
-    NewExperiment(1234, 'Test experiment', 'L. Contact', '1. User')
+    NewExperiment(1234, 'Test experiment', 'L. Contact <l.contact@frm2.tum.de>',
+                  '1. User')
     assert exp.proposal == 'p1234'
     assert exp.title == 'Test experiment'
     AddUser('F. X. User', 'user@example.com')

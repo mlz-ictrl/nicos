@@ -31,7 +31,8 @@ devices = dict(
                        dataroot = '/data/FRM-II',
                        sample = 'Sample',
                        propdb = '/etc/propdb',
-                       localcontact = 'Michael Schulz',
+                       localcontact = 'Michael Schulz ' \
+                                    '<michael.schulz@frm2.tum.de>',
                        mailsender = 'antares@frm2.tum.de',
                        propprefix = 'p',
                        serviceexp = 'service',
