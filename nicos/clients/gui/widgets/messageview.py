@@ -217,11 +217,14 @@ class MessageView(QTextBrowser):
         return not newcurs.isNull()
 
     def occur(self, what, regex=False):
+        content = self.toPlainText().split('\n')
         if regex:
-            fltargs = QRegExp(what, Qt.CaseInsensitive),
+            regexp = QRegExp(what, Qt.CaseInsensitive)
+            content = [line for line in content if regexp.indexIn(line) >= 0]
         else:
-            fltargs = what, Qt.CaseInsensitive
-        content = self.toPlainText().split('\n').filter(*fltargs).join('\n')
+            what = what.lower()
+            content = [line for line in content if what in line.lower()]
+        content = '\n'.join(content)
         window = QMainWindow(self)
         window.resize(600, 800)
         window.setWindowTitle('Lines matching %r' % what)
