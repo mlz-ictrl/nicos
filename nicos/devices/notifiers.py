@@ -77,8 +77,8 @@ class Mailer(Notifier):
         'sender':    Param('Mail sender address', type=mailaddress, mandatory=True),
         'receivers': Param('Mail receiver addresses', type=listof(mailaddress),
                            settable=True),
-        'copies':    Param('Mail copy addresses', type=listof(mailaddress),
-                           settable=True),
+        'copies':    Param('Adresses that get a copy of important messages',
+                           type=listof(mailaddress), settable=True),
         'subject':   Param('Subject prefix', type=str, default='NICOS'),
     }
 
@@ -88,12 +88,12 @@ class Mailer(Notifier):
 
     def send(self, subject, body, what=None, short=None, important=True):
         def send():
-            if not self.receivers:
+            receivers = list(self.receivers)
+            if important:
+                receivers.extend(self.copies)
+            if not receivers:
                 return
-            receivers = self.receivers + self.copies
-            ok = self._sendmail(self.sender,
-                                self.receivers,
-                                important and self.copies or [],
+            ok = self._sendmail(self.sender, receivers,
                                 self.subject + ' -- ' + subject, body)
             if ok:
                 self.log.info('%smail sent to %s' % (
@@ -102,7 +102,7 @@ class Mailer(Notifier):
         mail_thread.daemon = True
         mail_thread.start()
 
-    def _sendmail(self, address, to, cc, subject, text):
+    def _sendmail(self, address, to, subject, text):
         """Send e-mail with given recipients, subject and text."""
         # TODO: use nicos/utils/emails for sending emails
         if not address:
@@ -134,16 +134,15 @@ class Mailer(Notifier):
         # Create message headers
         msg['From'] = address
         msg['To'] = ','.join(to)
-        msg['CC'] = ','.join(cc)
         msg['Date'] = formatdate()
         msg['Message-ID'] = make_msgid()
         msg['Subject'] = Header(subject, charset)
         # Set Return-Path so that it isn't set (generally incorrectly) for us.
         msg['Return-Path'] = address
 
-        self.log.debug('trying to send mail to %s' % ', '.join(to + cc))
+        self.log.debug('trying to send mail to %s' % ', '.join(to))
         try:
-            sendmailp = os.popen('/usr/sbin/sendmail ' + ' '.join(to + cc), 'w')
+            sendmailp = os.popen('/usr/sbin/sendmail ' + ' '.join(to), 'w')
             # msg contains everything we need, so this is a simple write
             sendmailp.write(msg.as_string())
             sendmail_status = sendmailp.close()
