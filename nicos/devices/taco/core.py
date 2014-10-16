@@ -134,11 +134,14 @@ class TacoDevice(DeviceMixinBase):
         TACOStates.INIT : (status.BUSY, 'initializing taco device / hardware'),
         TACOStates.RESETTING : status.BUSY,
         TACOStates.STOP_REQUESTED : status.BUSY,
+        TACOStates.COUNTING : status.BUSY,
         # NOTREACHED states
         TACOStates.UNDEFINED : status.NOTREACHED,
         # ERROR states
         TACOStates.FAULT : status.ERROR,
+        TACOStates.OVERFLOW : status.ERROR,
         TACOStates.OFF : status.ERROR,
+        TACOStates.DEVICE_OFF : status.ERROR,
         TACOStates.ON_NOT_REACHED : status.ERROR,
     }
 
