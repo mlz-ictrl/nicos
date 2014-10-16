@@ -598,6 +598,8 @@ class ContinuousScan(Scan):
             starttime = currenttime()
             preset = max(abs(self._endpos - self._startpos) /
                          (self._speed or 0.1) * 5, 3600)
+            if session.mode == SIMULATION:
+                preset = 1  # prevent all contscans taking 1 hour
             session.experiment.advanceImageCounter(detlist)
             for det in detlist:
                 det.start(t=preset)
@@ -619,6 +621,7 @@ class ContinuousScan(Scan):
                 for det in detlist:
                     if isinstance(det, ImageProducer):
                         det.updateImage()
+            device.wait()  # important for simulation
         finally:
             for det in detlist:
                 try:
@@ -628,7 +631,10 @@ class ContinuousScan(Scan):
                 if isinstance(det, ImageProducer):
                     det.saveImage()
             session.endActionScope()
-            device.stop()
+            try:
+                device.stop()
+            except Exception:
+                device.log.warning('could not stop %s' % device, exc=1)
             device.speed = original_speed
             self.endScan()
 
