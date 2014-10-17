@@ -35,6 +35,7 @@ import signal
 import getpass
 import readline
 import tempfile
+import threading
 import subprocess
 import ctypes
 import ctypes.util
@@ -107,6 +108,7 @@ class NicosCmdClient(NicosClient):
         self.in_question = False
         self.in_editing = False
         self.tip_shown = False
+        self.reconnecting = False
         # current script, line within it and filename of script
         self.current_script = ['']
         self.current_line = -1
@@ -481,6 +483,7 @@ class NicosCmdClient(NicosClient):
                 if self.last_dataset and self.grace_on:
                     self.grace.addFitCurve(self.last_dataset, *data)
             elif name == 'connected':
+                self.reconnecting = False
                 self.initial_update()
             elif name == 'disconnected':
                 self.put_client('Disconnected from server, use /reconnect to '
@@ -524,11 +527,29 @@ class NicosCmdClient(NicosClient):
                 elif data[0] == 'removed':
                     self.put_client('sample environment removed: unload '
                                     'setup %r to clear devices' % data[1])
-            elif name in ('error', 'failed', 'broken'):
+            elif name == 'broken':
+                self.put_error(data)
+                self.schedule_reconnect()
+            elif name == 'failed':
+                if self.reconnecting:
+                    self.schedule_reconnect()
+                else:
+                    self.put_error(data)
+            elif name == 'error':
                 self.put_error(data)
             # and we ignore all other signals
         except Exception as e:
             self.put_error('In event handler: %s.' % e)
+
+    # -- reconnect handling
+
+    def schedule_reconnect(self):
+        def reconnect():
+            if self.reconnecting:
+                self.connect(self.conndata,
+                             eventmask=('liveparams', 'livedata', 'watch'))
+        self.reconnecting = True
+        threading.Timer(0.5, reconnect).start()
 
     # -- clientexec (plotting) thread
 
@@ -863,11 +884,13 @@ class NicosCmdClient(NicosClient):
             if self.connected:
                 self.disconnect()
         elif cmd == 'connect':
+            self.reconnecting = False
             if self.connected:
                 self.put_error('Already connected. Use /disconnect first.')
             else:
                 self.ask_connect()
         elif cmd in ('re', 'reconnect'):
+            self.reconnecting = False   # not automatically, at least
             if self.connected:
                 self.disconnect()
             self.ask_connect(ask_all=False)
