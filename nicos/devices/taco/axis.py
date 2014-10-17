@@ -105,8 +105,10 @@ class Axis(TacoDevice, BaseAxis, CanReference):
         while self._taco_guard(self._dev.deviceState) \
                                   in (TACOStates.INIT, TACOStates.RESETTING):
             sleep(0.3)
-        self._taco_guard(self._dev.deviceOn)
-        self.setPosition(self.refpos)
+        if self._taco_guard(self._dev.isDeviceOff):
+            self._taco_guard(self._dev.deviceOn)
+        if self.read() != self.refpos:
+            self._taco_guard(self._dev.setpos, self.refpos)
 
     def doReadSpeed(self):
         return self._taco_guard(self._dev.speed)
