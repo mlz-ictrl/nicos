@@ -575,7 +575,7 @@ class NicosCmdClient(NicosClient):
             user = self.ask_question('User name?',
                                      default=self.conndata['login'])
             self.conndata['login'] = user
-        if not self.conndata['passwd'] or ask_all:
+        if self.conndata['passwd'] is None or ask_all:
             passwd = self.ask_passwd('Password?')
             self.conndata['passwd'] = passwd
         self.instrument = self.conndata['host'].split('.')[0]
@@ -1122,7 +1122,8 @@ At any time:
 
 
 def main(argv):
-    server = user = passwd = via = command = ''
+    server = user = via = command = ''
+    passwd = None
     plot = False
 
     # to automatically close an SSH tunnel, we execute something on the remote
@@ -1163,7 +1164,7 @@ def main(argv):
             cd = parseConnectionString(argv[1], DEFAULT_PORT)
             server = '%s:%s' % cd[2:4]
             user = cd[0]
-            passwd = cd[1]
+            passwd = cd[1] or None
         if argv[3:] and argv[2] == 'via':
             via = argv[3]
 
