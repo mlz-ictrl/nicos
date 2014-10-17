@@ -149,6 +149,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         # limit memory usage to 100 Megs
         self.event_queue = SizedQueue(100*1024*1024)
         self.event_mask = set()
+        self.event_sock = None  # set later by server
         # bind often used daemon attributes to self
         self.daemon = server.daemon
         self.controller = server.daemon._controller
@@ -176,6 +177,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             # already closed; so we can ignore this
             pass
         server.unregister_handler(self.ident)
+        self.log.debug('handler unregistered')
 
     def write(self, prefix, msg=no_msg):
         """Write a message to the client."""

@@ -99,6 +99,7 @@ class Server(socketserver.TCPServer):
         handler = self.pending_clients[host, clid]
         self.daemon.log.debug('event connection from %s for handler #%d' %
                               (host, handler.ident))
+        handler.event_sock = request
         createThread('event_sender %d' % handler.ident, handler.event_sender,
                      args=(request,))
         self.pending_clients.pop((host, clid), None)
@@ -109,6 +110,7 @@ class Server(socketserver.TCPServer):
         """Close the server socket and all client sockets."""
         for handler in list(self.handlers.values()):
             closeSocket(handler.sock)
+            closeSocket(handler.event_sock)
         closeSocket(self.socket)
 
     def register_handler(self, handler, host, client_id):
