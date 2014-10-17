@@ -30,7 +30,7 @@ import socket
 import hashlib
 import threading
 try:
-    import rsa #pylint: disable=F0401
+    import rsa  # pylint: disable=F0401
 except ImportError:
     rsa = None
 
@@ -48,6 +48,7 @@ TIMEOUT = 30.0
 
 class ProtocolError(Exception):
     pass
+
 
 class ErrorResponse(Exception):
     pass
@@ -125,7 +126,7 @@ class NicosClient(object):
                                         % (daemon_proto, PROTO_VERSION))
         except Exception as err:
             self.signal('failed', 'Server (%s:%d) handshake failed: %s.'
-                         % (conndata['host'], conndata['port'], err))
+                        % (conndata['host'], conndata['port'], err))
             return
 
         # log-in sequence
@@ -369,7 +370,7 @@ class NicosClient(object):
         if isinstance(result, Exception):
             if default is not Ellipsis:
                 return default
-            raise result  #pylint: disable=E0702
+            raise result  # pylint: disable=E0702
         return result
 
     # high-level functionality
