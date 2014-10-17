@@ -947,7 +947,8 @@ class NicosCmdClient(NicosClient):
 
     commands = ['run', 'simulate', 'edit', 'update', 'break', 'continue',
                 'stop', 'where', 'disconnect', 'connect', 'reconnect',
-                'quit', 'help', 'log', 'pending', 'cancel', 'plot']
+                'quit', 'help', 'log', 'pending', 'cancel', 'plot', 'eval',
+                'spy']
 
     def completer(self, text, state):
         """Try to complete the command line.  Called by readline."""
@@ -1042,6 +1043,7 @@ This client supports "meta-commands" beginning with a slash:
   /break              -- pause script after next scan step or script command
   /cont(inue)         -- continue paused script
   /s(top)             -- stop script (you will be prompted how abruptly)
+  /wait               -- wait until script is finished (for scripting)
 
   /pending            -- show the currently pending commands
   /cancel n           -- cancel a pending command by number
@@ -1111,6 +1113,8 @@ At any time:
 
   /eval expr          -- evaluate expression in script namespace and
                          print the result
+  /spy                -- switch into/out of spy mode (regular input
+                         is interpreted as /eval)
   /debugclient        -- drop into a pdb shell to debug the client:
                          exit using the "c" command
 '''
