@@ -876,28 +876,33 @@ class NicosCmdClient(NicosClient):
         if state == 0:
             # we got a a new bit of text to complete...
             line = readline.get_line_buffer()
-            if line.startswith('/'):
-                # client command: complete either command or filename
-                parts = line[1:].split()
-                if len(parts) < 2 and not line.endswith(' '):
-                    self.completions = [cmd for cmd in self.commands
-                                        if cmd.startswith(text)]
-                else:
-                    if parts[0] in ('r', 'run', 'e', 'edit',
-                                    'update', 'sim', 'simulate'):
-                        try:
-                            fn = parts[1]
-                        except IndexError:
-                            fn = ''
-                        self.completions = self.complete_filename(fn, text)
-                    else:
-                        self.completions = []
-            else:
-                # server command: ask daemon to complete for us
+            # handle line without command
+            if not line.startswith('/'):
+                line = '/exec ' + line
+            # split into command and arguments
+            parts = line[1:].split(None, 1)
+            if len(parts) < 2 and not line.endswith(' '):
+                # complete client command names
+                self.completions = [cmd for cmd in self.commands
+                                    if cmd.startswith(text)]
+            elif parts[0] in ('r', 'run', 'e', 'edit',
+                              'update', 'sim', 'simulate'):
+                # complete filenames
                 try:
-                    self.completions = self.ask('complete', text, line) or []
+                    fn = parts[1]
+                except IndexError:
+                    fn = ''
+                self.completions = self.complete_filename(fn, text)
+            elif parts[0] in ('eval', 'exec'):
+                # complete code -- ask the server to complete for us
+                try:
+                    self.completions = self.ask('complete', text,
+                                                parts[1]) or []
                 except Exception:
                     self.completions = []
+            else:
+                # no completions for other commands
+                self.completions = []
         try:
             return self.completions[state]
         except IndexError:
