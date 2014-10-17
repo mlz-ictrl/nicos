@@ -42,23 +42,23 @@ import ctypes.util
 from os import path
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
-from threading import Thread
-import traceback
-
 
 from nicos.clients.base import NicosClient
 from nicos.utils import colorize, which, formatDuration, formatEndtime, \
     terminalSize, parseConnectionString
 from nicos.utils.loggers import ACTION, INPUT
-from nicos.utils.graceplot import grace_available, GracePlotter
 from nicos.protocols.daemon import DEFAULT_PORT, STATUS_INBREAK, \
     STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE, MASTER
-from nicos.pycompat import queue, configparser, iteritems, to_encoding
+from nicos.pycompat import configparser, iteritems, to_encoding
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}
+
+# disable sending events with potentially large data we don't handle
+EVENTMASK = ('livedata', 'liveparams', 'watch', 'dataset', 'datacurve',
+             'datapoint', 'clientexec')
 
 # introduce the readline C library to our program (we will use Python's
 # binding module where possible, but otherwise call the readline functions
@@ -98,7 +98,7 @@ class StateChange(Exception):
 
 class NicosCmdClient(NicosClient):
 
-    def __init__(self, conndata, plot_on=False):
+    def __init__(self, conndata):
         NicosClient.__init__(self, self.put_error)
         # connection data as a dictionary
         self.conndata = conndata
@@ -125,10 +125,6 @@ class NicosCmdClient(NicosClient):
         self.current_mode = MASTER
         # messages queueing up while the editor is running
         self.message_queue = []
-        # plotting support
-        self.grace = GracePlotter(None) if grace_available else None
-        self.grace_on = plot_on
-        self.last_dataset = None
         # whether we have initiated a simulation lately
         self.simulating = False
         # whether a stop is pending
@@ -154,14 +150,8 @@ class NicosCmdClient(NicosClient):
             readline.read_history_file(self.histfile)
         self.completions = []
 
-        # set up "wakeup" pipe to notify readline of ourput and changed prompt
+        # set up "wakeup" pipe to notify readline of output and changed prompt
         self.wakeup_pipe_r, self.wakeup_pipe_w = os.pipe()
-
-        # set up clientexec (plotting) thread
-        self.clientexec_queue = queue.Queue()
-        self.clientexec_thread = Thread(target=self.clientexec_thread_entry)
-        self.clientexec_thread.daemon = True
-        self.clientexec_thread.start()
 
         # pre-set prompt to sane default
         self.set_status('disconnected')
@@ -339,18 +329,6 @@ class NicosCmdClient(NicosClient):
             (self.modemap[self.current_mode], status, pending)) + '\x02'
         os.write(self.wakeup_pipe_w, b' ')
 
-    def clientexec(self, what):
-        """Handles the "clientexec" signal."""
-        plot_func_path = what[0]
-        try:
-            modname, funcname = plot_func_path.rsplit('.', 1)
-            func = getattr(__import__(modname, None, None, [funcname]),
-                           funcname)
-            self.clientexec_queue.put((func, what[1:]))
-        except Exception as err:
-            self.put_error('During "clientexec": %s.\n%s' %
-                           (err, '\n'.join(traceback.format_tb(sys.exc_info()[2]))))
-
     def showhelp(self, html):
         """Handles the "showhelp" signal.
 
@@ -469,19 +447,6 @@ class NicosCmdClient(NicosClient):
                                     'queue.' % len(removed))
                     self.show_pending()
                 self.set_status(self.status)
-            elif name == 'dataset':
-                self.last_dataset = data
-                if self.grace_on:
-                    self.grace.beginDataset(data)
-            elif name == 'datapoint':
-                if self.last_dataset:
-                    self.last_dataset.xresults.append(data[0])
-                    self.last_dataset.yresults.append(data[1])
-                    if self.grace_on:
-                        self.grace.addPoint(self.last_dataset, *data)
-            elif name == 'datacurve':
-                if self.last_dataset and self.grace_on:
-                    self.grace.addFitCurve(self.last_dataset, *data)
             elif name == 'connected':
                 self.reconnecting = False
                 self.initial_update()
@@ -492,8 +457,6 @@ class NicosCmdClient(NicosClient):
                 self.debug_mode = False
                 self.pending_requests.clear()
                 self.set_status('disconnected')
-            elif name == 'clientexec':
-                self.clientexec(data)
             elif name == 'showhelp':
                 self.showhelp(data[1])
             elif name == 'simresult':
@@ -546,33 +509,9 @@ class NicosCmdClient(NicosClient):
     def schedule_reconnect(self):
         def reconnect():
             if self.reconnecting:
-                self.connect(self.conndata,
-                             eventmask=('liveparams', 'livedata', 'watch'))
+                self.connect(self.conndata, eventmask=EVENTMASK)
         self.reconnecting = True
         threading.Timer(0.5, reconnect).start()
-
-    # -- clientexec (plotting) thread
-
-    def clientexec_thread_entry(self, empty=queue.Empty):
-        """This thread executes "clientexec" (i.e. plotting) requests and runs
-        the matplotlib event loop in the meantime.
-        """
-        # do a blocking get for the first item -- if we don't do any plotting,
-        # we don't need to import pylab and run the event loop at all
-        item = self.clientexec_queue.get()
-        # run the plotting function
-        item[0](*item[1])
-        # now it's safe to import pylab here
-        import pylab
-        # from now on, we do non-blocking gets, so that the mpl event loop can
-        # run while waiting for a new item to appear on the queue
-        while 1:
-            try:
-                item = self.clientexec_queue.get(False)
-            except empty:
-                pylab.pause(0.1)  # runs the GUI event loop for 0.1 sec
-            else:
-                item[0](*item[1])
 
     # -- command handlers
 
@@ -600,10 +539,8 @@ class NicosCmdClient(NicosClient):
             passwd = self.ask_passwd('Password?')
             self.conndata['passwd'] = passwd
         self.instrument = self.conndata['host'].split('.')[0]
-        # disable sending events with potentially large data we don't handle
         try:
-            self.connect(self.conndata,
-                         eventmask=('liveparams', 'livedata', 'watch'))
+            self.connect(self.conndata, eventmask=EVENTMASK)
         except RuntimeError as err:
             self.put_error('Cannot connect: %s.' % err)
 
@@ -699,42 +636,6 @@ class NicosCmdClient(NicosClient):
                     short = lines[0] + ' ...'
             self.put('# %s  %s' % (colorize('blue', '%4d' % reqno), short))
         self.put_client('End of pending list.')
-
-    def switch_plot(self, arg):
-        if not arg:
-            if self.grace_on:
-                if self.grace.activecounter:
-                    self.put_client('Plotting is switched on (only '
-                                    'counter %s).' %
-                                    self.grace.activecounter)
-                else:
-                    self.put_client('Plotting is switched on.')
-            elif self.grace:
-                self.put_client('Plotting is switched off.')
-            else:
-                self.put_client('Plotting is unavailable.')
-        elif arg == 'on':
-            if not self.grace:
-                self.put_error('Plotting is unavailable.')
-                return
-            self.grace_on = True
-            self.grace.activecounter = None
-            if self.last_dataset:
-                self.grace.openPlot(self.last_dataset)
-            self.put_client('Plotting now switched on.')
-        elif arg == 'off':
-            self.grace_on = False
-            self.put_client('Plotting now switched off.')
-        else:
-            if not self.grace:
-                self.put_error('Plotting is unavailable.')
-                return
-            self.grace_on = True
-            self.grace.activecounter = arg
-            if self.last_dataset:
-                self.grace.openPlot(self.last_dataset)
-            self.put_client('Plotting now switched on (for counter %s).'
-                            % arg)
 
     def debug_repl(self):
         """Called to handle remote debugging via Rpdb."""
@@ -878,8 +779,6 @@ class NicosCmdClient(NicosClient):
                                    '(see "/pending") or "*" to clear all.')
                     return
             self.tell('unqueue', str(arg))
-        elif cmd == 'plot':
-            self.switch_plot(arg)
         elif cmd == 'disconnect':
             if self.connected:
                 self.disconnect()
@@ -970,8 +869,7 @@ class NicosCmdClient(NicosClient):
 
     commands = ['run', 'simulate', 'edit', 'update', 'break', 'continue',
                 'stop', 'where', 'disconnect', 'connect', 'reconnect',
-                'quit', 'help', 'log', 'pending', 'cancel', 'plot', 'eval',
-                'spy']
+                'quit', 'help', 'log', 'pending', 'cancel', 'eval', 'spy']
 
     def completer(self, text, state):
         """Try to complete the command line.  Called by readline."""
@@ -1071,9 +969,6 @@ This client supports "meta-commands" beginning with a slash:
   /pending            -- show the currently pending commands
   /cancel n           -- cancel a pending command by number
 
-  /plot on/off/ctr    -- switch live plotting on, off, or only plot the
-                         given counter name
-
   /e(dit) <file>      -- edit a script file
   /r(un) <file>       -- run a script file
   /sim(ulate) <file>  -- simulate a script file
@@ -1094,10 +989,9 @@ To learn about debugging commands, enter "/help debug".
     'connect': '''\
 Connection defaults can be given on the command-line, e.g.
 
-  nicos-client [-p] user@server:port
+  nicos-client user@server:port
 
-The -p flag switches on plotting.  A SSH tunnel can be automatically set up
-for you with the following syntax:
+A SSH tunnel can be automatically set up for you with the following syntax:
 
   nicos-client user@server:port via sshuser@host
 
@@ -1108,7 +1002,6 @@ or in a ~/.nicos-client file, like this:
   user = admin
   passwd = secret
   via = root@instrumenthost
-  plot = on
 
 "Profiles" can be created in the config file with sections named other
 than "connect". For example, if a section "tas" exists with entries
@@ -1147,7 +1040,6 @@ At any time:
 def main(argv):
     server = user = via = command = ''
     passwd = None
-    plot = False
 
     # to automatically close an SSH tunnel, we execute something on the remote
     # server that takes long enough for the client to connect to the daemon;
@@ -1165,11 +1057,6 @@ def main(argv):
 
     config = configparser.RawConfigParser()
     config.read([path.expanduser('~/.nicos-client')])
-
-    # check for plotting switch
-    if '-p' in argv:
-        plot = True
-        argv.remove('-p')
 
     # check for "command to run" switch
     if '-c' in argv:
@@ -1208,8 +1095,6 @@ def main(argv):
         via = config.get(configsection, 'via')
     if config.has_option(configsection, 'viacommand'):
         viacommand = config.get(configsection, 'viacommand')
-    if config.has_option(configsection, 'plot'):
-        plot = config.getboolean(configsection, 'plot')
 
     # split server in host:port components
     try:
@@ -1240,7 +1125,7 @@ def main(argv):
     # don't interrupt event thread's system calls
     signal.siginterrupt(signal.SIGINT, False)
 
-    client = NicosCmdClient(conndata, plot)
+    client = NicosCmdClient(conndata)
     if command:
         return client.main_with_command(command)
     else:
