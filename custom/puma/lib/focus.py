@@ -24,11 +24,10 @@
 
 """Focus class for PUMA. """
 
-import threading
 from time import sleep
 
 from nicos.core import status, MoveError, waitForStatus, Param
-
+from nicos.utils import createThread
 from nicos.devices.generic.axis import Axis
 
 
@@ -63,9 +62,8 @@ class focus_Axis(Axis):
         self._stoprequest = 0
         self._errorstate = None
         if not self._posthread:
-            self._posthread = threading.Thread(None, self._positioningThread,
-                                               'Positioning thread')
-            self._posthread.start()
+            self._posthread = createThread('positioning thread %s' % self,
+                                           self._positioningThread)
 
     def _positioningThread(self):
         try:

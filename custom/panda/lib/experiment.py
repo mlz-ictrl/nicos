@@ -27,11 +27,11 @@
 
 import os
 import time
-import threading
 import subprocess
 from os import path
 
 from nicos.core import Override, Param
+from nicos.utils import createThread
 from nicos.frm2.experiment import Experiment
 
 
@@ -87,7 +87,4 @@ class PandaExperiment(Experiment):
                 time.sleep(1)
                 s.poll()
         # something needs to check the return value, if the process ends
-        thread = threading.Thread(target=checker, name='Checking Editor')
-        # don't block on closing python if the editor is still running...
-        thread.daemon = True
-        thread.start()
+        createThread('Checking Editor', checker)

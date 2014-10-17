@@ -25,17 +25,16 @@
 
 """NICOS axis classes."""
 
-import threading
 from time import sleep
 
 import TACOStates
 from Motor import Motor as TACOMotor
 
 from nicos.core import status, tupleof, oneof, anytype, usermethod, Moveable, \
-    Param, NicosError, ModeError, waitForStatus, requires
+    Param, NicosError, ModeError, waitForStatus, requires, SLAVE
 from nicos.devices.abstract import Axis as BaseAxis, CanReference
 from nicos.devices.taco.core import TacoDevice
-from nicos.core import SLAVE
+from nicos.utils import createThread
 
 
 class Axis(TacoDevice, BaseAxis, CanReference):
@@ -225,9 +224,8 @@ class HoveringAxis(Axis):
                                  'appear to stop')
         if abs(target - self.read()) < self.precision:
             return
-        self._poll_thread = threading.Thread(target=self._pollthread,
-                                             name='%s polling thread' % self)
-        self._poll_thread.daemon = True
+        self._poll_thread = createThread('%s polling thread' % self,
+                                         self._pollthread, start=False)
         self._wait_exception = None
         self._adevs['switch'].move(self.switchvalues[1])
         try:

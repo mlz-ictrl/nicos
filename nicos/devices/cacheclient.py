@@ -32,7 +32,7 @@ from time import sleep, time as currenttime
 
 from nicos import session
 from nicos.core import Device, Param, CacheLockError, CacheError
-from nicos.utils import closeSocket
+from nicos.utils import closeSocket, createThread
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
     OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, \
@@ -89,9 +89,8 @@ class BaseCacheClient(Device):
         self._synced = True
 
         # create worker thread, but do not start yet, leave that to subclasses
-        self._worker = threading.Thread(target=self._worker_thread,
-                                        name='CacheClient worker')
-        self._worker.daemon = True
+        self._worker = createThread('CacheClient worker', self._worker_thread,
+                                    start=False)
 
     def _getCache(self):
         return None

@@ -25,9 +25,10 @@
 """PANDA Monochromator changer hardware classes. FOR TESTING ONLY !"""
 
 from struct import pack, unpack
-from threading import Thread
 from time import sleep, time as currenttime
 from datetime import datetime
+
+from Modbus import Modbus as TacoModBus
 
 from nicos import session
 from nicos.core import Readable, Moveable, status, SIMULATION, usermethod, \
@@ -39,7 +40,7 @@ from nicos.core.errors import ConfigurationError, MoveError, NicosError, \
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
      SequenceItem, SeqCall
 from nicos.devices.taco.core import TacoDevice
-from Modbus import Modbus as TacoModBus
+from nicos.utils import createThread
 
 
 class Beckhoff(TacoDevice, Device):
@@ -75,9 +76,7 @@ class Beckhoff(TacoDevice, Device):
         if mode != SIMULATION:
             self._sync()
             if self.__thread is None:
-                self.__thread = Thread(target=self._thread)
-                self.__thread.setDaemon(True)
-                self.__thread.start()
+                self.__thread = createThread('%s thread' % self, self._thread)
             for conv in (('<f','<HH'),('<f','>HH'),('>f','<HH'),('>f','>HH')):
                 self.__float_conv = conv
                 if 2014.07 <= self.ReadFloat(0) <= datetime.now().year+1:

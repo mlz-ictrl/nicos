@@ -24,13 +24,12 @@
 
 """Agilent wave generator classes."""
 
-import threading
 from time import sleep
 
 from nicos.core import status, oneof, HasLimits, Moveable, Readable, Param, \
-     Override
+    Override, MASTER
 from nicos.devices.taco import TacoDevice, AnalogOutput
-from nicos.core import MASTER
+from nicos.utils import createThread
 
 
 class GeneratorDevice(AnalogOutput):
@@ -92,9 +91,7 @@ class RFCurrent(HasLimits, Moveable):
     def _setMode(self, mode):
         Moveable._setMode(self, mode)
         if mode == MASTER:
-            self._rfthread = threading.Thread(target=self._rfcontrol)
-            self._rfthread.daemon = True
-            self._rfthread.start()
+            self._rfthread = createThread('RF thread', self._rfcontrol)
 
     def doReadUnit(self):
         return self._adevs['readout'].unit

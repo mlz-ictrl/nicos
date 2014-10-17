@@ -28,13 +28,12 @@
 import os
 import re
 import sys
-import threading
 from os import path
 from time import sleep, strftime, time as currenttime
 
 from nicos import session
 from nicos.core import listof, oneof, Param, Override
-from nicos.utils import watchFileContent
+from nicos.utils import watchFileContent, createThread
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, \
     OP_WILDCARD, cache_load
 from nicos.devices.cacheclient import BaseCacheClient
@@ -132,9 +131,7 @@ class Monitor(BaseCacheClient):
         self._currwarnings = ''
 
         # start a thread checking for modification of the setup file
-        checker = threading.Thread(target=self._checker, name='refresh checker')
-        checker.daemon = True
-        checker.start()
+        createThread('refresh checker', self._checker)
 
         self.initGui()
 

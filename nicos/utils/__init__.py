@@ -276,11 +276,12 @@ def bitDescription(bits, *descriptions):
     return ', '.join(ret)
 
 
-def createThread(name, target, args=(), daemon=True):
+def createThread(name, target, args=(), kwargs=None, daemon=True, start=True):
     """Create, start and return a Python thread."""
-    thread = threading.Thread(target=target, name=name, args=args)
-    thread.setDaemon(daemon)
-    thread.start()
+    thread = threading.Thread(target=target, name=name, args=args, kwargs=kwargs)
+    thread.daemon = daemon
+    if start:
+        thread.start()
     return thread
 
 

@@ -34,7 +34,8 @@ import threading
 
 from nicos import session
 from nicos.core import Param, Override, intrange, floatrange, status, \
-     HasOffset, Device, Attach, SIMULATION
+    HasOffset, Device, Attach, SIMULATION
+from nicos.utils import createThread
 from nicos.devices.abstract import Motor
 
 import serial
@@ -107,9 +108,7 @@ class SerComIO(Device):
         else:
             self._polls = [device]
             if (self._thread is None) or not(self._thread.isAlive()):
-                self._thread = threading.Thread(target=self._poller)
-                self._thread.daemon = True
-                self._thread.start()
+                self._thread = createThread('servo poller', self._poller)
 
     def delPollDev(self, device):
         """removes a device from our mini-poller

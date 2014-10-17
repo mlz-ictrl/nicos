@@ -31,9 +31,10 @@ import weakref
 import traceback
 from os import path
 from bdb import BdbQuit
-from threading import Lock, Event, Thread
+from threading import Lock, Event
 
 from nicos import session, config
+from nicos.utils import createThread
 from nicos.utils.loggers import INPUT
 from nicos.services.daemon.auth import system_user
 from nicos.services.daemon.utils import format_exception_cut_frames, \
@@ -529,10 +530,8 @@ class ExecutionController(Controller):
     def start_script_thread(self, *args):
         if self.thread:
             raise RuntimeError('script thread already started')
-        self.thread = Thread(target=self.script_thread_entry, args=args,
-                             name='daemon script_thread')
-        self.thread.daemon = True
-        self.thread.start()
+        self.thread = createThread('daemon script_thread',
+                                   self.script_thread_entry, args=args)
 
     def script_thread_entry(self):
         """

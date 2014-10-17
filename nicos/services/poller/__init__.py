@@ -37,7 +37,7 @@ from time import time as currenttime, sleep
 from nicos import session, config
 from nicos.core import status, listof, Device, Readable, Param, \
     ConfigurationError, DeviceAlias
-from nicos.utils import whyExited, watchFileContent, loggers
+from nicos.utils import whyExited, watchFileContent, loggers, createThread
 from nicos.devices.generic.cache import CacheReader
 from nicos.pycompat import listitems, queue as Queue
 
@@ -294,12 +294,10 @@ class Poller(Device):
                     continue
                 self.log.debug('starting thread for %s' % devname)
                 queue = Queue.Queue()
-                worker = threading.Thread(name='%s poller' % devname,
-                                          target=self._worker_thread,
-                                          args=(devname, queue))
+                worker = createThread('%s poller' % devname,
+                                      self._worker_thread,
+                                      args=(devname, queue))
                 worker.queue = queue
-                worker.daemon = True
-                worker.start()
                 self._workers.append(worker)
                 # start staggered to not poll all devs at once....
                 # use just a small delay, exact value does not matter
@@ -311,10 +309,7 @@ class Poller(Device):
             self.log.warning('Not polling any devices!')
 
         # start a thread checking for modification of the setup file
-        checker = threading.Thread(target=self._checker, name='refresh checker',
-                                   args=(setup,))
-        checker.daemon = True
-        checker.start()
+        createThread('refresh checker', self._checker, args=(setup,))
         self.log.info('%s poller startup complete' % setup)
 
     def _checker(self, setupname):
