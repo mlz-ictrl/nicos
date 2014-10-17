@@ -20,7 +20,7 @@
 
 """Devices for the SANS-1 oxford magnet (ccmsans)."""
 
-from nicos.core import Param, oneof, status
+from nicos.core import Param, oneof, none_or, status
 from nicos.devices.taco.power import CurrentSupply
 from nicos.core.utils import waitForStatus
 
@@ -37,8 +37,8 @@ class AsymmetricMagnet(CurrentSupply):
                                  volatile=True,
                            ),
         'waittimeout' : Param('Wait timeout',
-                                 type=float,
-                                 default=30,
+                                 type=none_or(float),
+                                 default=5400 + 300, # max range * max ramp + 5'
                                  settable=True,
                            ),
     }
