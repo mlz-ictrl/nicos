@@ -86,8 +86,8 @@ def _getData(columns):
             raise NicosError('no such Y column name: %r' % ycol)
     elif ycol < 0:
         try:
-            ycol = [i for i in range(len(dataset.ynames))
-                    if dataset.yvalueinfo[i].type == 'counter'][0] + 1
+            ycol = [j for j in range(len(dataset.ynames))
+                    if dataset.yvalueinfo[j].type == 'counter'][0] + 1
         except IndexError:
             raise NicosError('no Y column of type "counter"')
 
@@ -131,6 +131,7 @@ COLHELP = """
 
     >>> func('om', 'ctr1')
 """
+
 
 @usercommand
 @helparglist('[[xcol, ]ycol]')
@@ -231,6 +232,7 @@ def poly(n, *columns):
     where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
     """
     xs, ys, dys, ds = _getData(columns)
+
     def model(x, *v):
         return sum(v[i]*x**i for i in range(n+1))
     fit = Fit(model, ['a%d' % i for i in range(n+1)], [1] * (n+1))
@@ -270,6 +272,7 @@ def gauss(*columns):
     """
     xs, ys, dys, ds = _getData(columns)
     c = 2 * np.sqrt(2 * np.log(2))
+
     def model(x, x0, A, sigma, back):
         return A * np.exp(-0.5 * (x - x0)**2 / (sigma / c)**2) + back
     fit = Fit(model, ['x0', 'A', 'sigma', 'B'],

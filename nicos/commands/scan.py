@@ -40,6 +40,7 @@ __all__ = [
     'manualscan', 'appendscan',
 ]
 
+
 def _fixType(dev, args, mkpos):
     if not args:
         raise UsageError('at least two arguments are required')
@@ -78,6 +79,7 @@ def _fixType(dev, args, mkpos):
     devs = [session.getDevice(d, Moveable) for d in devs]
     return devs, values, restargs
 
+
 def _handleScanArgs(args, kwargs, scaninfo):
     preset, detlist, envlist, move, multistep = {}, [], None, [], []
     for arg in args:
@@ -107,11 +109,12 @@ def _handleScanArgs(args, kwargs, scaninfo):
             preset[key] = value
     return preset, scaninfo, detlist, envlist, move, multistep
 
+
 def _infostr(fn, args, kwargs):
     def devrepr(x):
         if isinstance(x, Device):
             return x.name
-        elif isinstance(x, list): # and x and isinstance(x[0], Device):
+        elif isinstance(x, list):  # and x and isinstance(x[0], Device):
             return '[' + ', '.join(map(devrepr, x)) + ']'
         elif isinstance(x, float):
             return str(x)
@@ -341,7 +344,7 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
         raise UsageError('continuous scan device must have a speed parameter')
     scanstr = _infostr('contscan', (dev, start, end, speed) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
-            _handleScanArgs(args, kwargs, scanstr)
+        _handleScanArgs(args, kwargs, scanstr)
     if preset:
         raise UsageError('preset not supported in continuous scan')
     if multistep:
@@ -375,6 +378,7 @@ class _ManualScan(object):
             session._manualscan = None
         if exc and exc[0] is StopScan:
             return True
+
 
 @usercommand
 @helparglist('...')
@@ -482,6 +486,6 @@ def appendscan(numpoints=5, stepsize=None):
     s.dataset.sinkinfo['continuation'] = ','.join(contuids)
     s.dataset.sinkinfo['cont_direction'] = direction
     s.dataset.xindex = scan.xindex
-    s.dataset.envlist[:] = scan.envlist  # must be reset since Scan.__init__
-                                         # messes with the ordering
+    # envlist must be reset since Scan.__init__ messes with the ordering
+    s.dataset.envlist[:] = scan.envlist
     s.run()

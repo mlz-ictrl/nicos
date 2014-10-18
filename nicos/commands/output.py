@@ -39,6 +39,7 @@ def printdebug(*msgs, **kwds):
     """Print a debug message."""
     session.log.debug(*msgs, **kwds)
 
+
 @usercommand
 @helparglist('message, ...')
 def printinfo(*msgs, **kwds):
@@ -47,6 +48,7 @@ def printinfo(*msgs, **kwds):
     This function is equivalent to the standard Python "print" statement.
     """
     session.log.info(*msgs, **kwds)
+
 
 @usercommand
 @helparglist('message, ...')
@@ -62,6 +64,7 @@ def printwarning(*msgs, **kwds):
     """
     session.log.warning(*msgs, **kwds)
 
+
 @usercommand
 @helparglist('message, ...')
 def printerror(*msgs):
@@ -75,6 +78,7 @@ def printerror(*msgs):
     >>> printerror('scan failed, repeating this run')
     """
     session.log.error(*msgs)
+
 
 @hiddenusercommand
 @helparglist('message, ...')

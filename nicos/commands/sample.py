@@ -36,10 +36,11 @@ from nicos.pycompat import urllib
 
 ACTIVATIONURL = 'https://www.frm2.tum.de/intranet/activation/'
 
+
 @usercommand
 def activation(formula=None, instrument=None,
-                flux=None, cdratio=0, fastratio=0,
-                mass=None, exposure=24, getdata=False):
+               flux=None, cdratio=0, fastratio=0,
+               mass=None, exposure=24, getdata=False):
     """Calculate sample activation using the FRM II activation web services.
 
         ``formula``:
@@ -107,7 +108,8 @@ def activation(formula=None, instrument=None,
         try:
             #  preparation for a future enhanced sample class
             formula = session.experiment.sample.formula
-        except (ConfigurationError, AttributeError): # ConfigurationError is raised if no experiment is in session
+        except (ConfigurationError, AttributeError):
+            # ConfigurationError is raised if no experiment is in session
             pass
     if formula is None:
         raise UsageError('Please give a formula')

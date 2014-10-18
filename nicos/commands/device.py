@@ -60,6 +60,7 @@ def _devposlist(dev_pos_list, cls):
             poslist.append(dev_pos_list[i+1])
     return zip(devlist, poslist)
 
+
 @usercommand
 @helparglist('dev, pos, ...')
 @spmsyntax(Multi(Dev(Moveable), Bare))
@@ -77,12 +78,14 @@ def move(*dev_pos_list):
         dev.log.info('moving to', dev.format(pos, unit=True))
         dev.move(pos)
 
+
 @hiddenusercommand
 @helparglist('dev, pos, ...')
 @spmsyntax(Multi(Dev(Moveable), Bare))
 def drive(*dev_pos_list):
     """Move one or more devices to a new position.  Same as `move()`."""
     return move(*dev_pos_list)
+
 
 @usercommand
 @helparglist('dev, pos, ...')
@@ -106,6 +109,7 @@ def maw(*dev_pos_list):
         if value is not None:
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
 
+
 @hiddenusercommand
 @helparglist('dev, pos, ...')
 @spmsyntax(Multi(Dev(Moveable), Bare))
@@ -113,6 +117,7 @@ def switch(*dev_pos_list):
     """Move one or more devices to a new position and wait until motion
     of all devices is completed.  Same as `maw()`."""
     maw(*dev_pos_list)
+
 
 @usercommand
 @helparglist('dev, ...')
@@ -146,6 +151,7 @@ def wait(*devlist):
             continue
         if value is not None:
             dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
+
 
 @usercommand
 @helparglist('[dev, ...]')
@@ -182,11 +188,12 @@ def read(*devlist):
             target = dev.target
             if target is not None and dev.format(target) != dev.format(value):
                 dev.log.info('at %20s %-5s  (target: %20s %s)' %
-                    (dev.format(value), unit, dev.format(target), unit))
+                             (dev.format(value), unit, dev.format(target), unit))
             else:
                 dev.log.info('at %20s %-5s' % (dev.format(value), unit))
         else:
             dev.log.info('at %20s %-5s' % (dev.format(value), unit))
+
 
 @usercommand
 @helparglist('[dev, ...]')
@@ -216,6 +223,7 @@ def status(*devlist):
         else:
             dev.log.info('status is %s' % formatStatus(status))
 
+
 @usercommand
 @helparglist('[dev, ...]')
 @spmsyntax(Multi(Dev((Moveable, Measurable))))
@@ -238,14 +246,16 @@ def stop(*devlist):
                    if isinstance(session.devices[devname],
                                  (Moveable, Measurable))]
     finished = []
+
     def stopdev(dev):
         try:
             dev.stop()
             if not stop_all:
                 dev.log.info('stopped')
         except AccessError:
-            pass  # do not warn about devices we cannot access if
-                  # they were not explicitly selected
+            # do not warn about devices we cannot access if they were not
+            # explicitly selected
+            pass
         except Exception:
             dev.log.warning('error while stopping', exc=1)
         finally:
@@ -257,6 +267,7 @@ def stop(*devlist):
     if stop_all:
         printinfo('all devices stopped')
     return
+
 
 @usercommand
 @helparglist('dev, ...')
@@ -278,9 +289,10 @@ def reset(*devlist):
         status = dev.reset()
         dev.log.info('reset done, status is now %s' % formatStatus(status))
 
+
 @usercommand
 @spmsyntax(AnyDev, DevParam, Bare)
-def set(dev, parameter, value):  #pylint: disable=W0622
+def set(dev, parameter, value):  # pylint: disable=W0622
     """Set a the parameter of the device to a new value.
 
     The following commands are equivalent:
@@ -295,6 +307,7 @@ def set(dev, parameter, value):  #pylint: disable=W0622
     if not dev.parameters[parameter].chatty:  # if yes, we already got a message
         dev.log.info('%s set to %r (was %r)' %
                      (parameter, getattr(dev, parameter), prevalue))
+
 
 @usercommand
 @spmsyntax(AnyDev, DevParam)
@@ -311,6 +324,7 @@ def get(dev, parameter):
     """
     value = getattr(session.getDevice(dev), parameter)
     dev.log.info('parameter %s is %s' % (parameter, value))
+
 
 @usercommand
 @helparglist('parameter, ...')
@@ -337,6 +351,7 @@ def getall(*names):
             items.append([name] + list(map(str, pvalues)))
     printTable(('device',) + names, items, printinfo)
 
+
 @usercommand
 @spmsyntax(String, Bare)
 def setall(param, value):
@@ -354,6 +369,7 @@ def setall(param, value):
         prevalue = getattr(dev, param)
         setattr(dev, param, value)
         dev.log.info('%s set to %r (was %r)' % (param, value, prevalue))
+
 
 @usercommand
 @helparglist('[dev, ...]')
@@ -385,6 +401,7 @@ def info(*devlist):
         printTable(None, sorted(bycategory[catname]), printinfo, minlen=8)
         printinfo()
 
+
 @usercommand
 @helparglist('dev[, reason]')
 @spmsyntax(Dev(Moveable), reason=String)
@@ -399,6 +416,7 @@ def fix(dev, reason=''):
     dev = session.getDevice(dev, Moveable)
     if dev.fix(reason):
         dev.log.info(reason and 'now fixed: ' + reason or 'now fixed')
+
 
 @usercommand
 @helparglist('dev, ...')
@@ -417,12 +435,14 @@ def release(*devlist):
         if dev.release():
             dev.log.info('released')
 
+
 @hiddenusercommand
 @helparglist('dev, ...')
 @spmsyntax(Multi(Dev(Moveable)))
 def unfix(*devlist):
     """Same as `release()`."""
     return release(*devlist)
+
 
 @usercommand
 @helparglist('dev, value[, newvalue]')
@@ -454,6 +474,7 @@ def adjust(dev, value, newvalue=None):
     dev.log.info('adjusted to %s, new offset is %.3f' %
                  (dev.format(value, unit=True), dev.offset))
 
+
 @usercommand
 @helparglist('dev, ...')
 @spmsyntax(Multi(AnyDev))
@@ -469,6 +490,7 @@ def version(*devlist):
     else:
         printinfo('NICOS version: %s (rev %s)' %
                   (nicos_version, nicos_revision))
+
 
 @usercommand
 @helparglist('dev[, key][, fromtime]')
@@ -525,6 +547,7 @@ def history(dev, key='value', fromtime=None, totime=None):
         entries.append((ftime('%Y-%m-%d %H:%M:%S', ltime(t)), repr(v)))
     printTable(('timestamp', 'value'), entries, printinfo)
 
+
 @usercommand
 @helparglist('[dev, ...]')
 @spmsyntax(Multi(Dev(HasLimits)))
@@ -579,6 +602,7 @@ def limits(*devlist):
                       (dev.format(dev.usermin), dev.format(dev.usermax),
                        dev.unit))
 
+
 @usercommand
 @helparglist('dev, ...')
 @spmsyntax(Multi(Dev(HasLimits)))
@@ -616,6 +640,7 @@ def resetlimits(*devlist):
                          % (dev.format(dev.userlimits[0]),
                             dev.format(dev.userlimits[1]), dev.unit))
 
+
 @usercommand
 @spmsyntax(Dev(CanReference))
 def reference(dev, *args):
@@ -634,6 +659,7 @@ def reference(dev, *args):
     newpos = dev.reference(*args)
     dev.log.info('reference drive complete, position is now ' +
                  dev.format(newpos, unit=True))
+
 
 @usercommand
 @spmsyntax(AnyDev)
@@ -676,6 +702,7 @@ def ListParams(dev):
     printTable(('name', 'value', 'unit', 'r/w?', 'value type', 'description'),
                items, printinfo)
 
+
 @usercommand
 @spmsyntax(AnyDev)
 def ListMethods(dev):
@@ -688,8 +715,10 @@ def ListMethods(dev):
     dev = session.getDevice(dev, Device)
     items = []
     listed = builtins.set()
+
     def _list(cls):
-        if cls in listed: return
+        if cls in listed:
+            return
         listed.add(cls)
         for name, (args, doc) in sorted(iteritems(cls.commands)):
             items.append((dev.name + '.' + name + args, cls.__name__, doc))
@@ -699,6 +728,7 @@ def ListMethods(dev):
     _list(dev.__class__)
     dev.log.info('Device methods:')
     printTable(('method', 'from class', 'description'), items, printinfo)
+
 
 @usercommand
 @spmsyntax()

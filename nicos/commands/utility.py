@@ -92,7 +92,7 @@ def RangeListByCount(start, end=None, num=2):
      l1 will be:  [1., 1.5, 2.]
      """
     if end is None:
-        end , start = start, 0.0
+        end, start = start, 0.0
     return numpy.linspace(start, end, num)
 
 
@@ -156,6 +156,7 @@ def identity(x):
     """Identity function."""
     return x
 
+
 @usercommand
 def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
     """Generate a list spaced evenly in arbitrary functions.
@@ -185,7 +186,7 @@ def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
         res = numpy.linspace(s1, s2, num)
         if funcinv is None:
             funcinv = func
-        ufuncinv = numpy.frompyfunc(funcinv,1,1)
+        ufuncinv = numpy.frompyfunc(funcinv, 1, 1)
         return ufuncinv(res).astype(numpy.float64)
     except Exception as e:
         raise RuntimeError(str(e))

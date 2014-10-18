@@ -34,9 +34,9 @@ from os import path
 
 from nicos import session
 from nicos.core import requires, Device, Readable, ModeError, NicosError, \
-     UsageError
+    UsageError
 from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
-     String, SetupName, DeviceName
+    String, SetupName, DeviceName
 from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.utils import formatDuration, printTable
 from nicos.devices.notifiers import Mailer
@@ -67,7 +67,7 @@ __all__ = [
 
 @usercommand
 @helparglist('[object]')
-def help(obj=None):  #pylint: disable=W0622
+def help(obj=None):  # pylint: disable=W0622
     """Show help for a command, for a device or for any other object.
 
     For commands, the command help and usage will be shown.  For devices, the
@@ -86,14 +86,16 @@ def help(obj=None):  #pylint: disable=W0622
 
 builtins.__orig_dir = builtins.dir
 
+
 @hiddenusercommand
 @helparglist('[object]')
-def dir(obj=None):  #pylint: disable=W0622
+def dir(obj=None):  # pylint: disable=W0622
     """Show all public attributes for the given object."""
     if obj is None:
         return sorted(sys._getframe(1).f_locals)
     return [name for name in builtins.__orig_dir(obj)
             if not name.startswith(('_', 'do'))]
+
 
 @usercommand
 def ListCommands():
@@ -126,6 +128,7 @@ def ListCommands():
     items.sort()
     printTable(('name', 'description'), items, printinfo)
 
+
 @usercommand
 @spmsyntax(Num)
 def sleep(secs):
@@ -153,7 +156,7 @@ def sleep(secs):
     session.beginActionScope('Sleeping')
     try:
         for interval in intervals:
-            session.breakpoint(2) # allow break and continue here
+            session.breakpoint(2)  # allow break and continue here
             time.sleep(interval)
     finally:
         session.endActionScope()
@@ -200,6 +203,7 @@ def NewSetup(*setupnames):
         # need to refresh master status
         session.setMode(MASTER)
 
+
 @usercommand
 @helparglist('setup, ...')
 @spmsyntax(Multi(SetupName('unloaded')))
@@ -223,6 +227,7 @@ def AddSetup(*setupnames):
         session.loadSetup(setupnames)
     finally:
         session.endMultiCreate()
+
 
 @usercommand
 @helparglist('setup, ...')
@@ -250,6 +255,7 @@ def RemoveSetup(*setupnames):
     if current == original:
         return
     NewSetup(*current)
+
 
 @usercommand
 @spmsyntax(listall=Bool)
@@ -280,14 +286,18 @@ def ListSetups(listall=False):
     items.sort()
     printTable(('name', 'loaded', 'description', 'devices'), items, printinfo)
 
+
 @usercommand
 def _Restart():
     """Restart the NICOS process.  Use with caution."""
-    import atexit, signal
+    import atexit
+    import signal
+
     @atexit.register
-    def restart_nicos():  #pylint: disable=W0612
+    def restart_nicos():  # pylint: disable=W0612
         os.execv(sys.executable, [sys.executable] + sys.argv)
     os.kill(os.getpid(), signal.SIGTERM)
+
 
 @hiddenusercommand
 def Keep(name, obj):
@@ -297,6 +307,7 @@ def Keep(name, obj):
     overwritten by accident.
     """
     session.export(name, obj)
+
 
 @usercommand
 @helparglist('devname, ...')
@@ -314,6 +325,7 @@ def CreateDevice(*devnames):
     """
     for devname in devnames:
         session.createDevice(devname, explicit=True)
+
 
 @usercommand
 @helparglist('devname, ...')
@@ -366,7 +378,6 @@ def CreateAllDevices(**kwargs):
         printerror('Creating all lowlevel devices is only allowed for admin users')
         lowlevel = False
 
-
     session.startMultiCreate()
     try:
         for devname, (_, devconfig) in iteritems(session.configured_devices):
@@ -378,6 +389,7 @@ def CreateAllDevices(**kwargs):
                 printexception('error creating %s' % devname)
     finally:
         session.endMultiCreate()
+
 
 @usercommand
 @helparglist('proposal, title, localcontact, ...')
@@ -396,6 +408,7 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
         return
     session.experiment.new(proposal, title, localcontact, user, **parameters)
 
+
 @usercommand
 @helparglist('...')
 def FinishExperiment(*args, **kwargs):
@@ -406,6 +419,7 @@ def FinishExperiment(*args, **kwargs):
     if session.mode == SIMULATION:
         return
     session.experiment.finish(*args, **kwargs)
+
 
 @usercommand
 @helparglist('name, email[, affiliation]')
@@ -419,6 +433,7 @@ def AddUser(name, email=None, affiliation=None):
     if session.mode == SIMULATION:
         return
     session.experiment.addUser(name, email, affiliation)
+
 
 @usercommand
 @helparglist('name, ...')
@@ -436,6 +451,7 @@ def NewSample(name, **parameters):
     >>> NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
     """
     session.experiment.newSample(name, parameters)
+
 
 @usercommand
 @spmsyntax(String)
@@ -455,6 +471,7 @@ def Remark(remark):
     >>> Remark('')                        # remove current remark
     """
     session.experiment.remark = remark
+
 
 @usercommand
 @spmsyntax(Oneof(*EXECUTIONMODES))
@@ -563,10 +580,13 @@ def ClearCache(*devnames):
 class _Scope(object):
     def __init__(self, name):
         self.name = name
+
     def __enter__(self):
         session.beginActionScope(self.name)
+
     def __exit__(self, *args):
         session.endActionScope()
+
 
 @usercommand
 def UserInfo(info):
@@ -605,11 +625,13 @@ class _ScriptScope(object):
     def __init__(self, filename, code):
         self.filename = filename
         self.code = code
+
     def __enter__(self):
         session.beginActionScope(self.filename)
         if session.experiment and session.mode in (MASTER, SIMULATION):
             session.experiment.scripts += [self.code]
         session.elog_event('scriptbegin', self.filename)
+
     def __exit__(self, *args):
         session.endActionScope()
         if session.experiment and session.mode in (MASTER, SIMULATION):
@@ -729,7 +751,7 @@ def sim(what, *devices, **kwargs):
     if session.mode == SIMULATION:
         return _RunScript(what, devices)
     session.runSimulation('_RunScript(%r, [%s], %s)' %
-        (what, ', '.join(dev.name for dev in devices), debug))
+                          (what, ', '.join(dev.name for dev in devices), debug))
 
 Simulate = sim
 
@@ -792,8 +814,10 @@ def _trace():
 
 class timer(object):
     is_userobject = True
+
     def __enter__(self):
         self.starttime = time.time()
+
     def __exit__(self, *args):
         duration = time.time() - self.starttime
         printinfo('Elapsed time: %.3f s' % duration)
