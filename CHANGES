@@ -10,6 +10,12 @@ Release 2.7.0
     When given angle and optionally mono/ana arguments, will calculate
     the Q/E position that these arguments represent.
 
+* Device classes
+
+  - The "GraceSink" for liveplotting with the external Grace program has been
+    removed.
+
+
 Release 2.6.0
 -------------
 

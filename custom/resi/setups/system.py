@@ -37,6 +37,4 @@ devices = dict(
     conssink = device('devices.datasinks.ConsoleSink'),
 
     dmnsink = device('devices.datasinks.DaemonSink'),
-
-   # gracesink= device('devices.datasinks.GraceSink'),
 )

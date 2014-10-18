@@ -6,7 +6,7 @@ sysconfig = dict(
     instrument = 'mira',
     experiment = 'Exp',
     notifiers = ['email', 'smser'],
-    datasinks = ['conssink', 'filesink', 'dmnsink', 'gracesink'],
+    datasinks = ['conssink', 'filesink', 'dmnsink'],
 )
 
 modules = ['nicos.commands.standard', 'nicos.commands.taco']
@@ -42,8 +42,6 @@ devices = dict(
     conssink = device('devices.datasinks.ConsoleSink'),
 
     dmnsink  = device('devices.datasinks.DaemonSink'),
-
-    gracesink= device('devices.datasinks.GraceSink'),
 
     Space    = device('devices.generic.FreeSpace',
                       path = '/data',

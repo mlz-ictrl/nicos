@@ -46,7 +46,6 @@ devices = dict(
                                            '%(proposal)s_%(counter)08d.dat'],
                      ),
     conssink = device('devices.datasinks.ConsoleSink'),
-#    liveplot = device('nicos.data.GraceSink'),
     daemonsink = device('devices.datasinks.DaemonSink'),
 )
 

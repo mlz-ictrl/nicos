@@ -4,7 +4,7 @@ sysconfig = dict(
     cache = 'resedahw',
     instrument = None,
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'liveplot'],
+    datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
 )
 
@@ -29,8 +29,6 @@ devices = dict(
     conssink = device('devices.datasinks.ConsoleSink'),
 
     daemonsink = device('devices.datasinks.DaemonSink'),
-
-    liveplot = device('devices.datasinks.GraceSink'),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',

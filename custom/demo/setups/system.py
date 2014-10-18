@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'tas',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'serialsink', 'liveplot'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'serialsink'],
     notifiers = [],
 )
 
@@ -36,8 +36,6 @@ devices = dict(
     conssink = device('devices.datasinks.ConsoleSink'),
 
     daemonsink = device('devices.datasinks.DaemonSink'),
-
-    liveplot = device('devices.datasinks.GraceSink'),
 
     serialsink = device('devices.datasinks.SerializedSink'),
 

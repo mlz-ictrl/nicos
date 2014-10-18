@@ -101,7 +101,7 @@ xBuntu 12.04
 
 * Basic system:
 
-  apt-get install python python-dev python-numpy python-scipy gnuplot grace python-psutil
+  apt-get install python python-dev python-numpy python-scipy gnuplot python-psutil
 
 * Optional components:
 

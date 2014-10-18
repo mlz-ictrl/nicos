@@ -6,7 +6,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'pandasrv',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'liveplot'],
+    datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
     instrument = 'panda',
     experiment = 'Exp',
@@ -59,7 +59,4 @@ devices = dict(
     daemonsink  = device('devices.datasinks.DaemonSink',
                           description = 'device used for output from the daemon',
                         ),
-    liveplot = device('devices.datasinks.GraceSink',
-                        description = 'device handling the live-plot',
-                     ),
 )

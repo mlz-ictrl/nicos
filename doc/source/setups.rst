@@ -159,7 +159,7 @@ Example::
         instrument = 'mira',
         experiment = 'Exp',
         notifiers = ['email', 'smser'],
-        datasinks = ['conssink', 'filesink', 'dmnsink', 'gracesink'],
+        datasinks = ['conssink', 'filesink', 'dmnsink'],
     )
 
 The possible entries for the ``sysconfig`` dictionary are:

@@ -50,7 +50,6 @@ Requirements
   - matplotlib (for resolution plots)
   - pyserial (for TACO-less serial line communication)
   - gnuplot (for plots in the electronig logbook)
-  - Grace (for scanplot)
   - lxml (for U-Bahn service)
 
 * For the client-server GUI and status monitor:

@@ -31,7 +31,7 @@ sysconfig = dict(
     cache = 'refsans10.refsans.frm2',
     instrument = 'REFSANS',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'], # , 'liveplot'],
+    datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
 )
 
@@ -70,8 +70,6 @@ devices = dict(
     daemonsink = device('devices.datasinks.DaemonSink',
                         description = 'The daemon Device, coordinating all the heavy lifting',
                        ),
-
-#   liveplot = device('devices.datasinks.GraceSink'),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
