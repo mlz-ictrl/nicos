@@ -187,8 +187,6 @@ class ScriptRequest(Request):
         self.curblock, self.code or self.blocks.
         """
         if not self.blocks:
-            if ast is None:
-                raise ScriptError('not using Python 2.6, cannot update script')
             raise ScriptError('cannot update single-line script')
         text = fixup_script(text)
         newcode, newblocks = self._splitblocks(text)
