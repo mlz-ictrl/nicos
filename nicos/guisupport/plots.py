@@ -77,7 +77,7 @@ class TimeScaleEngine(QwtLinearScaleEngine):
         except Exception:
             # print('!!! could not build ticking for', x1, 'and', x2)
             ticks = [], [], [x1, x2]
-        #print ticks
+        # print ticks
         scalediv = QwtScaleDiv(interval, *ticks)
         if x1 > x2:
             scalediv.invert()
@@ -152,7 +152,7 @@ class TrendPlot(QwtPlot, NicosWidget):
 
     colors = [Qt.red, Qt.darkGreen, Qt.blue, Qt.black, Qt.magenta, Qt.cyan, Qt.darkGray]
 
-    #pylint: disable=W0231
+    # pylint: disable=W0231
     def __init__(self, parent, designMode=False):
         self.ncurves = 0
         self.ctimers = {}
@@ -231,7 +231,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             showdate = value > 24*3600
             showsecs = value < 300
             self.setAxisScaleDraw(QwtPlot.xBottom,
-                TimeScaleDraw(showdate=showdate, showsecs=showsecs))
+                                  TimeScaleDraw(showdate=showdate, showsecs=showsecs))
         elif pname in ('width', 'height'):
             self.setMinimumSize(
                 QSize(self._scale * (self.props['width'] + .5),

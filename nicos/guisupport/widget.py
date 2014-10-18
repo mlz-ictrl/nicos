@@ -37,7 +37,7 @@ from nicos.protocols.daemon import DAEMON_EVENTS
 from nicos.pycompat import add_metaclass, iteritems
 
 # Import resources file
-import nicos.guisupport.gui_rc  #pylint: disable=W0611
+import nicos.guisupport.gui_rc  # pylint: disable=W0611
 
 
 class NicosListener(object):
@@ -224,10 +224,12 @@ class AutoPropMeta(pyqtWrapperType):
         for prop, pdef in sorted(iteritems(newprops)):
             def getter(self, prop=prop):
                 return self.props[prop]
+
             def setter(self, value, prop=prop):
                 value = PropDef.convert(value)
                 self.props[prop] = value
                 self.propertyUpdated(prop, value)
+
             def resetter(self, prop=prop):
                 if callable(pdef.default):
                     setattr(self, prop, pdef.default(self))

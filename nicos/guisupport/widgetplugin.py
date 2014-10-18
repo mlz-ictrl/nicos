@@ -112,13 +112,14 @@ for addmod in os.environ.get('NICOSDESIGNER_MODULES', '').split(':'):
     if addmod:
         __import__(addmod)
 
+
 def _register(cls):
     if cls.designer_description:
         class Plugin(NicosPluginBase):
             widget_class = cls
         Plugin.__name__ = cls.__name__ + 'Plugin'
         globals()[Plugin.__name__] = Plugin
-        #print 'Registered', Plugin.__name__
+        # print 'Registered', Plugin.__name__
     for subcls in cls.__subclasses__():
         _register(subcls)
 

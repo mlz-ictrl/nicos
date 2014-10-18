@@ -93,8 +93,10 @@ class SensitiveSMLabel(QLabel):
         QLabel.__init__(self, text, parent)
         self._enter = enter
         self._leave = leave
+
     def enterEvent(self, event):
         self._enter(self, event)
+
     def leaveEvent(self, event):
         self._leave(self, event)
 
@@ -171,7 +173,7 @@ class ValueDisplay(NicosWidget, QWidget):
         QWidget.__init__(self, parent, **kwds)
         NicosWidget.__init__(self)
         self._statuscolors = self._colorscheme['fore'][UNKNOWN], \
-                             self._colorscheme['back'][UNKNOWN]
+            self._colorscheme['back'][UNKNOWN]
 
     properties = {
         'dev':        PropDef(str, '', 'NICOS device name, if set, display '
@@ -328,7 +330,7 @@ class ValueDisplay(NicosWidget, QWidget):
     def _applywarncolor(self, value):
         # check min/max values
         if (self._minvalue is not None and value < self._minvalue) or \
-            (self._maxvalue is not None and value > self._maxvalue):
+                (self._maxvalue is not None and value > self._maxvalue):
             self.namelabel.setAutoFillBackground(True)
             setBackgroundColor(self.namelabel, self._colorscheme['warn'])
         else:
@@ -337,7 +339,7 @@ class ValueDisplay(NicosWidget, QWidget):
     def on_devStatusChange(self, dev, code, status, expired):
         if self.props['showStatus']:
             self._statuscolors = self._colorscheme['fore'][code], \
-                                 self._colorscheme['back'][code]
+                self._colorscheme['back'][code]
             self._laststatus = code, status
             self._applystatuscolor()
 
@@ -350,7 +352,8 @@ class ValueDisplay(NicosWidget, QWidget):
 
     def update_namelabel(self):
         name = self.props['name'] or self.props['dev'] or self.props['key']
-        self.namelabel.setText(escape(text_type(name)) +
+        self.namelabel.setText(
+            escape(text_type(name)) +
             ' <font color="#888888">%s</font><font color="#0000ff">%s</font> ' %
             (escape(self.props['unit'].strip()), self._isfixed))
 
@@ -369,8 +372,8 @@ class ValueDisplay(NicosWidget, QWidget):
             nicedelta(currenttime() - self._lastchange))
         self.emit(SIGNAL('widgetInfo'), infotext)
         if from_mouse:
-            self._mousetimer = QTimer(self, timeout=
-                lambda: self._label_entered(widget, event, False))
+            self._mousetimer = QTimer(self, timeout=lambda:
+                                      self._label_entered(widget, event, False))
             self._mousetimer.start(1000)
 
     def _label_left(self, widget, event):

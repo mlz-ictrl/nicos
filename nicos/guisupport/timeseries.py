@@ -169,5 +169,3 @@ class TimeSeries(object):
                 self.n -= i+1
                 self.real_n -= i+1
         self.signal_obj.emit(SIGNAL('timeSeriesUpdate'), self)
-
-
