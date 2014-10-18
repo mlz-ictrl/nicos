@@ -80,7 +80,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     msg['Date'] = formatdate()
     # Set Return-Path so that it isn't set (generally incorrectly) for us.
     msg['Return-Path'] = mailsender
-    msg.attach(MIMEText(body))
+    msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
     # now attach the files
     for fn in attach_files:
