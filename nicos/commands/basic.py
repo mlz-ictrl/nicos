@@ -410,7 +410,7 @@ def FinishExperiment(*args, **kwargs):
     session.experiment.finish(*args, **kwargs)
 
 
-@usercommand
+@hiddenusercommand
 @helparglist('name, email[, affiliation]')
 def AddUser(name, email=None, affiliation=None):
     """Add a new user to the experiment.
@@ -577,7 +577,7 @@ class _Scope(object):
         session.endActionScope()
 
 
-@usercommand
+@hiddenusercommand
 def UserInfo(info):
     """Return an object for use in "with" that adds status information.
 
@@ -707,8 +707,6 @@ def run(filename):
     """
     _RunScript(filename, ())
 
-Run = run
-
 
 @usercommand
 @helparglist('filename_or_code, ...')
@@ -744,8 +742,6 @@ def sim(what, *devices, **kwargs):
     session.runSimulation('_RunScript(%r, [%s], %s)' %
                           (what, ', '.join(dev.name for dev in devices), debug))
 
-Simulate = sim
-
 
 @usercommand
 @helparglist('[subject, ]bodytext')
@@ -768,8 +764,6 @@ def notify(*args):
         session.notify(subject, text, important=False)
     else:
         raise UsageError("Usage: Notify('text') or Notify('subject', 'text')")
-
-Notify = notify
 
 
 @usercommand
