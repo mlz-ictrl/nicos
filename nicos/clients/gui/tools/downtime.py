@@ -35,6 +35,7 @@ from nicos.utils.loggers import NicosLogger
 
 from nicos.clients.gui.panels import DlgUtils, SettingGroup
 
+
 class DownTimeTool(QDialog, DlgUtils):
     toolName = 'DownTimeTool'
 
@@ -52,10 +53,9 @@ class DownTimeTool(QDialog, DlgUtils):
 
         self._receiver = configs.get('receiver', 'f.carsughi@fz-juelich.de')
         self._mailserver = configs.get('mailserver', self._getDeviceComponent(
-                                'experiment', 'mailserver', 'smtp.frm2.tum.de'))
+            'experiment', 'mailserver', 'smtp.frm2.tum.de'))
         self._sender = configs.get('sender', '')
-        self._instrument = self._getDeviceComponent('instrument', 'instrument',
-                                                   'DEMO')
+        self._instrument = self._getDeviceComponent('instrument', 'instrument', 'DEMO')
         t = self.mailheaderText.text().replace('{{instrument}}', self._instrument)
         self.mailheaderText.setText(t)
 
@@ -71,7 +71,7 @@ class DownTimeTool(QDialog, DlgUtils):
         self.connect(self.buttonBox, SIGNAL('accepted()'), self.on_accept)
         self.connect(self.buttonBox, SIGNAL('rejected()'), self.on_close)
         self.connect(self.reasons, SIGNAL('editTextChanged(const QString &)'),
-                                          self.on_text_changed)
+                     self.on_text_changed)
         self.connect(self.startDown, SIGNAL('dateTimeChanged (const '
                                             'QDateTime&)'),
                      self.on_date_changed)
@@ -114,7 +114,6 @@ class DownTimeTool(QDialog, DlgUtils):
                                  not self.reasons.currentText().strip())
         self.errorText.setVisible(not timeCorrect)
 
-
     def _getDeviceComponent(self, devname, param, default=''):
         try:
             val = self.client.eval('session.%s.%s' % (devname, param)) or default
@@ -138,13 +137,13 @@ class DownTimeTool(QDialog, DlgUtils):
 
     def _sendMail(self):
         receivers = self._getMailAdresses(
-                        self._getDeviceComponent('instrument', 'responsible'))
+            self._getDeviceComponent('instrument', 'responsible'))
         sender = self._sender or self._getDeviceComponent('experiment', 'mailsender',
-                                          receivers[0])
+                                                          receivers[0])
         receivers = self._getMailAdresses(self._receiver) + receivers
         topic = self.mailheaderText.text()
         body = 'The instrument %s had a downtime from %s to %s due to:\n\n%s' % \
-                (self._instrument, self.startDown.text(), self.endDown.text(),
+               (self._instrument, self.startDown.text(), self.endDown.text(),
                 self.reasons.currentText())
         err = sendMail(self._mailserver, receivers, sender, topic, body)
         if err:
