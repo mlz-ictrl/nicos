@@ -24,18 +24,12 @@
 
 """NICOS notification classes."""
 
-import os
 import subprocess
-from email.header import Header
-from email.message import Message
-from email.charset import Charset, QP
-from email.utils import formatdate, make_msgid
 
 from nicos.core import listof, mailaddress, usermethod, Device, Param
 from nicos.pycompat import text_type
 from nicos.utils import createThread
-
-EMAIL_CHARSET = 'utf-8'
+from nicos.utils.emails import sendMail
 
 
 class Notifier(Device):
@@ -74,12 +68,15 @@ class Mailer(Notifier):
     """
 
     parameters = {
-        'sender':    Param('Mail sender address', type=mailaddress, mandatory=True),
-        'receivers': Param('Mail receiver addresses', type=listof(mailaddress),
-                           settable=True),
-        'copies':    Param('Adresses that get a copy of important messages',
-                           type=listof(mailaddress), settable=True),
-        'subject':   Param('Subject prefix', type=str, default='NICOS'),
+        'mailserver': Param('Mail server', type=str, default='localhost',
+                            settable=True),
+        'sender':     Param('Mail sender address', type=mailaddress,
+                            mandatory=True),
+        'receivers':  Param('Mail receiver addresses', type=listof(mailaddress),
+                            settable=True),
+        'copies':     Param('Adresses that get a copy of important messages',
+                            type=listof(mailaddress), settable=True),
+        'subject':    Param('Subject prefix', type=str, default='NICOS'),
     }
 
     def reset(self):
@@ -93,65 +90,12 @@ class Mailer(Notifier):
                 receivers.extend(self.copies)
             if not receivers:
                 return
-            ok = self._sendmail(self.sender, receivers,
-                                self.subject + ' -- ' + subject, body)
-            if ok:
+            ret = sendMail(self.mailserver, receivers, self.sender,
+                           self.subject + ' -- ' + subject, body)
+            if not ret:  # on error, ret is a list of errors
                 self.log.info('%smail sent to %s' % (
                     what and what + ' ' or '', ', '.join(receivers)))
         createThread('mail sender', send)
-
-    def _sendmail(self, address, to, subject, text):
-        """Send e-mail with given recipients, subject and text."""
-        # TODO: use nicos/utils/emails for sending emails
-        if not address:
-            self.log.debug('no sender address given, not sending anything')
-            return False
-        if isinstance(subject, text_type):
-            subject = subject.encode(EMAIL_CHARSET)
-
-        # Create a text/plain body using CRLF (see RFC2822)
-        text = text.replace(u'\n', u'\r\n')
-        if isinstance(text, text_type):
-            text = text.encode(EMAIL_CHARSET)
-
-        # Create a message using EMAIL_CHARSET and quoted printable
-        # encoding, which should be supported better by mail clients.
-        msg = Message()
-        charset = Charset(EMAIL_CHARSET)
-        charset.header_encoding = QP
-        charset.body_encoding = QP
-        msg.set_charset(charset)
-
-        # work around a bug in python 2.4.3 and above:
-        msg.set_payload('=')
-        if msg.as_string().endswith('='):
-            text = charset.body_encode(text)
-
-        msg.set_payload(text)
-
-        # Create message headers
-        msg['From'] = address
-        msg['To'] = ','.join(to)
-        msg['Date'] = formatdate()
-        msg['Message-ID'] = make_msgid()
-        msg['Subject'] = Header(subject, charset)
-        # Set Return-Path so that it isn't set (generally incorrectly) for us.
-        msg['Return-Path'] = address
-
-        self.log.debug('trying to send mail to %s' % ', '.join(to))
-        try:
-            sendmailp = os.popen('/usr/sbin/sendmail ' + ' '.join(to), 'w')
-            # msg contains everything we need, so this is a simple write
-            sendmailp.write(msg.as_string())
-            sendmail_status = sendmailp.close()
-            if sendmail_status:
-                self.log.error('sendmail failed with status: %s' %
-                               sendmail_status)
-                return False
-        except Exception:
-            self.log.exception('sendmail failed with an exception')
-            return False
-        return True
 
 
 # Implements the GSM03.38 encoding for SMS messages, including escape-encoded

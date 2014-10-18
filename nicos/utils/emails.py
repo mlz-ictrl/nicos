@@ -31,6 +31,7 @@ from os import path
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formatdate
 
 import smtplib
 
@@ -39,7 +40,7 @@ from nicos.core.params import mailaddress
 
 
 def sendMail(mailserver, receiverlist, mailsender, topic, body,
-             attach_files=(), debuglevel=0, logger=None):
+             attach_files=(), debuglevel=0):
     """Sends an email to a list of receivers with given topic and content via
     the given server.
 
@@ -64,7 +65,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     for fn in attach_files:
         if not path.exists(fn):
             errors.append('Attachment %r does not exist, please check config!' % fn)
-        if not path.isfile(fn):
+        elif not path.isfile(fn):
             errors.append('Attachment %r is not a file, please check config!' % fn)
     if errors:
         return ['No mail sent because of invalid parameters'] + errors
@@ -76,6 +77,9 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     msg['Subject'] = topic
     msg['From'] = mailsender
     msg['To'] = receivers
+    msg['Date'] = formatdate()
+    # Set Return-Path so that it isn't set (generally incorrectly) for us.
+    msg['Return-Path'] = mailsender
     msg.attach(MIMEText(body))
 
     # now attach the files
@@ -89,14 +93,14 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
         msg.attach(attachment)
 
     # now comes the final part: send the mail
-    mailer = smtplib.SMTP(mailserver)
-    if debuglevel == 'debug':
-        mailer.set_debuglevel(debuglevel)
-    if logger:
-        logger.info('Sending data files via eMail to %s' % receivers)
+    mailer = None
     try:
+        mailer = smtplib.SMTP(mailserver)
+        if debuglevel == 'debug':
+            mailer.set_debuglevel(debuglevel)
         mailer.sendmail(mailsender, receiverlist + [mailsender], msg.as_string())
     except Exception as e:
         return [str(e)]
     finally:
-        mailer.quit()
+        if mailer:
+            mailer.quit()

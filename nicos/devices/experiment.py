@@ -916,10 +916,11 @@ class Experiment(Device):
         topic = 'Your recent experiment %s on %s from %s to %s' % \
                 (self.proposal, instname, stats.get('from_date'), stats.get('to_date'))
 
+        self.log.info('Sending data files via eMail to %s' % receivers)
         if os.stat(zipname).st_size < 10000000:
             # small enough -> send directly
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
-                     [zipname], 1 if self.loglevel == 'debug' else 0, logger=self.log)
+                     [zipname], 1 if self.loglevel == 'debug' else 0)
         else:
             # not small enough -> upload and send link
             self.log.info('Zipfile is too big to send via email and will be '
@@ -937,7 +938,7 @@ class Experiment(Device):
             We apologize for the inconvenience.
             """) % ftpUpload(zipname, logger=self.log)
             sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
-                     [], 1 if self.loglevel == 'debug' else 0, logger=self.log)
+                     [], 1 if self.loglevel == 'debug' else 0)
 
         # "hide" compressed file by moving it into the proposal directory
         self.log.info('moving compressed file to ' + self.proposalpath)
