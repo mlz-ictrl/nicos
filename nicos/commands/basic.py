@@ -54,7 +54,7 @@ __all__ = [
     'help', 'dir', 'ListCommands', 'sleep',
     'NewSetup', 'AddSetup', 'RemoveSetup', 'ListSetups',
     '_Restart', 'Keep',
-    'CreateDevice', 'RemoveDevice', 'DestroyDevice', 'CreateAllDevices',
+    'CreateDevice', 'RemoveDevice', 'CreateAllDevices',
     'NewExperiment', 'FinishExperiment', 'AddUser', 'NewSample',
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
@@ -345,17 +345,6 @@ def RemoveDevice(*devnames):
         if isinstance(devname, Device):
             devname = devname.name
         session.destroyDevice(devname)
-
-
-# XXX: remove this in version 2.6
-
-@hiddenusercommand
-@helparglist('devname, ...')
-@spmsyntax(Multi(AnyDev))
-def DestroyDevice(*devnames):
-    session.log.warning("The 'DestroyDevice' command is deprecated, please use"\
-                        " 'RemoveDevice'")
-    RemoveDevice(*devnames)
 
 
 @usercommand
