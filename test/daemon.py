@@ -55,7 +55,7 @@ class TestDaemonSession(DaemonSession):
         self.log.parent = None
         # show errors on the console
         handler = logging.StreamHandler()
-        handler.setLevel(logging.DEBUG)
+        handler.setLevel(logging.WARNING)
         handler.setFormatter(
             logging.Formatter('[DAEMON] %(name)s: %(message)s'))
         self.log.addHandler(handler)

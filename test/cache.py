@@ -55,7 +55,7 @@ class TestCacheSession(NoninteractiveSession):
         self.log.parent = None
         # show errors on the console
         handler = logging.StreamHandler()
-        handler.setLevel(logging.DEBUG)
+        handler.setLevel(logging.WARNING)
         handler.setFormatter(
             logging.Formatter('[CACHE] %(name)s: %(message)s'))
         self.log.addHandler(handler)
