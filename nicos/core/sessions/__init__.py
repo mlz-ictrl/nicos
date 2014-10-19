@@ -59,7 +59,6 @@ from nicos.pycompat import builtins, exec_, string_types, \
     itervalues, iteritems, listvalues
 
 
-
 class Session(object):
     """The Session class provides all low-level routines needed for NICOS
     operations and keeps the global state: devices, configuration, loggers.
@@ -164,8 +163,8 @@ class Session(object):
     def initNamespace(self):
         # add some useful mathematical functions
         for name in [
-            'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan',
-            'exp', 'log', 'radians', 'degrees', 'ceil', 'floor']:
+                'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan',
+                'exp', 'log', 'radians', 'degrees', 'ceil', 'floor']:
             self.namespace[name] = getattr(numpy, name)
         # remove interactive Python interpreter stuff
         for name in ['credits', 'copyright', 'license', 'exit', 'quit']:
@@ -197,7 +196,7 @@ class Session(object):
             # switching from slave to master
             if not cache:
                 self.log.info('no cache present, switching to master anyway')
-                #raise ModeError('no cache present, cannot get master lock')
+                # raise ModeError('no cache present, cannot get master lock')
             else:
                 self.log.info('checking master status...')
                 try:
@@ -440,7 +439,7 @@ class Session(object):
             for exclude in info['excludes']:
                 if exclude in self.loaded_setups:
                     raise ConfigurationError('Cannot load setup %r when setup '
-                        '%r is already loaded' % (name, exclude))
+                                             '%r is already loaded' % (name, exclude))
 
             self.loaded_setups.add(name)
             self.excluded_setups.update(info['excludes'])
@@ -474,7 +473,7 @@ class Session(object):
             load_setupnames.insert(0, 'system')
         for setupname in load_setupnames:
             self.log.info('loading setup %r (%s)' %
-                (setupname, self._setup_info[setupname]['description']))
+                          (setupname, self._setup_info[setupname]['description']))
             ret = inner_load(setupname)
             if ret:
                 sysconfig.update(ret[0])
@@ -570,7 +569,7 @@ class Session(object):
                           "later to retry")
 
         for setupname in setupnames:
-            if self._setup_info[setupname]['extended'].get('dynamic_loaded',False):
+            if self._setup_info[setupname]['extended'].get('dynamic_loaded'):
                 continue
             self.explicit_setups.append(setupname)
 
@@ -615,8 +614,8 @@ class Session(object):
             if deadlock:
                 for dev in devs:
                     dev.log.error('can not unload, dependency still active!')
-                raise NicosError(self, 'Deadlock detected! Session.unloadSetup'
-                                        ' failed on these devices: %r' % devs)
+                raise NicosError('Deadlock detected! Session.unloadSetup '
+                                 'failed on these devices: %r' % devs)
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
         self.devices.clear()
@@ -823,7 +822,7 @@ class Session(object):
                 dev = self.createDevice(dev, replace_classes=replace_classes)
             else:
                 raise ConfigurationError(source,
-                    'device %r not found in configuration' % dev)
+                                         'device %r not found in configuration' % dev)
         if not isinstance(dev, cls or Device):
             def clsrep(cls):
                 if isinstance(cls, tuple):
@@ -853,7 +852,8 @@ class Session(object):
                 if devname in info['devices']:
                     found_in.append(sname)
             if found_in:
-                raise ConfigurationError('device %r not found in configuration,'
+                raise ConfigurationError(
+                    'device %r not found in configuration,'
                     ' but you can load one of these setups with AddSetup to '
                     'create it: %s' % (devname, ', '.join(map(repr, found_in))))
             raise ConfigurationError('device %r not found in configuration'
@@ -944,8 +944,8 @@ class Session(object):
         elif key.endswith('/nicos/setupname'):
             setupname = value
             if (setupname in self._setup_info and
-                self._setup_info[setupname] is not None and
-                self._setup_info[setupname]['group'] == 'optional'):
+                    self._setup_info[setupname] is not None and
+                    self._setup_info[setupname]['group'] == 'optional'):
                 description = self._pnp_cache['descriptions'].get(parts[1])
                 # an event is either generated if
                 # - the setup is unloaded and the key was added

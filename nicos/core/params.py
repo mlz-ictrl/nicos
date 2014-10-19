@@ -335,10 +335,12 @@ class Value(object):
 
 _notset = object()
 
+
 def convdoc(conv):
     if isinstance(conv, type):
         return conv.__name__
     return conv.__doc__ or ''
+
 
 def fixup_conv(conv):
     """Fix-up a single converter type.
@@ -368,7 +370,8 @@ class listof(object):
 
     def __init__(self, conv):
         self.__doc__ = 'a list of %s' % convdoc(conv)
-        if conv is str: conv = string
+        if conv is str:
+            conv = string
         self.conv = fixup_conv(conv)
 
     def __call__(self, val=None):
@@ -376,6 +379,7 @@ class listof(object):
         if not isinstance(val, (list, tuple)):
             raise ValueError('value needs to be a list')
         return readonlylist(map(self.conv, val))
+
 
 class nonemptylistof(object):
 
@@ -389,6 +393,7 @@ class nonemptylistof(object):
         if not isinstance(val, (list, tuple)) or len(val) < 1:
             raise ValueError('value needs to be a nonempty list')
         return readonlylist(map(self.conv, val))
+
 
 def nonemptystring(s):
     """a non-empty string"""
@@ -412,6 +417,7 @@ class tupleof(object):
             raise ValueError('value needs to be a %d-tuple' % len(self.types))
         return tuple(t(v) for (t, v) in zip(self.types, val))
 
+
 def limits(val=None):
     """a tuple of lower and upper limit"""
     val = val if val is not None else (0, 0)
@@ -423,11 +429,12 @@ def limits(val=None):
         raise ValueError('upper limit must be greater than lower limit')
     return (ll, ul)
 
+
 class dictof(object):
 
     def __init__(self, keyconv, valconv):
         self.__doc__ = 'a dict of %s keys and %s values' % \
-                        (convdoc(keyconv), convdoc(valconv))
+                       (convdoc(keyconv), convdoc(valconv))
         self.keyconv = fixup_conv(keyconv)
         self.valconv = fixup_conv(valconv)
 
@@ -439,6 +446,7 @@ class dictof(object):
         for k, v in iteritems(val):
             ret[self.keyconv(k)] = self.valconv(v)
         return readonlydict(ret)
+
 
 class intrange(object):
 
@@ -461,6 +469,7 @@ class intrange(object):
                              (self.fr, self.to))
         return val
 
+
 class floatrange(object):
 
     def __init__(self, fr, to):
@@ -482,6 +491,7 @@ class floatrange(object):
                              (self.fr, self.to))
         return val
 
+
 class oneof(object):
 
     def __init__(self, *vals):
@@ -495,6 +505,7 @@ class oneof(object):
             raise ValueError('invalid value: %s, must be one of %s' %
                              (val, ', '.join(map(repr, self.vals))))
         return val
+
 
 class oneofdict(object):
 
@@ -510,6 +521,7 @@ class oneofdict(object):
                              (val, ', '.join(map(repr, self.vals.values()))))
         return val
 
+
 class none_or(object):
 
     def __init__(self, conv):
@@ -521,7 +533,9 @@ class none_or(object):
             return None
         return self.conv(val)
 
+
 nicosdev_re = re.compile(r'^[a-z_][a-z_0-9]*$', re.I)  # valid Python identifier
+
 
 def nicosdev(val=None):
     """a valid NICOS device name"""
@@ -532,7 +546,9 @@ def nicosdev(val=None):
         raise ValueError('%r is not a valid NICOS device name' % val)
     return val
 
+
 tacodev_re = re.compile(r'^(//[\w.-]+/)?[\w-]+/[\w-]+/[\w-]+$', re.I)
+
 
 def tacodev(val=None):
     """a valid taco device"""
@@ -551,6 +567,7 @@ tangodev_re = re.compile(
     r'^(tango://)([\w.-]+(:[\d]+)?/)?([\w-]+/){2}[\w-]+(#dbase=(no|yes))?$', re.I)
 #   r'^(tango://)([\w.-]+(:[\d]+)?/)?([\w-]+/){2}[\w-]+(/[\w-]+)?(->[\w-]+)?(#dbase=(no|yes))?$', re.I)
 
+
 def tangodev(val=None):
     """a valid tango device"""
     if val is None:
@@ -564,10 +581,11 @@ def tangodev(val=None):
 # for source
 
 mailaddress_re = re.compile(
-    r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
-    r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
-    r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+([A-Z]{2,99}|XN[A-Z0-9-]+)\.?$'  # domain
-    , re.IGNORECASE)
+    r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"                # dot-atom
+    r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"'  # quoted-string
+    r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+([A-Z]{2,99}|XN[A-Z0-9-]+)\.?$',   # domain
+    re.IGNORECASE)
+
 
 def mailaddress(val=None):
     """a valid mail address"""
@@ -583,6 +601,7 @@ def mailaddress(val=None):
         raise ValueError('%r is not a valid email address' % val)
     return val
 
+
 def absolute_path(val=''):
     """an absolute file path"""
     val = str(val)
@@ -590,6 +609,7 @@ def absolute_path(val=''):
         return val
     raise ValueError('%r is not a valid absolute path (should start with %r)' %
                      (val, path.sep))
+
 
 def relative_path(val=''):
     """a relative path, may not use ../../.. tricks"""
@@ -601,8 +621,10 @@ def relative_path(val=''):
         return val
     raise ValueError('%r is not a valid relative path (traverses outside)' % val)
 
+
 def expanded_path(val=''):
     return path.expanduser(path.expandvars(val))
+
 
 def subdir(val=''):
     """a relative subdir (a string NOT containing any path.sep)"""
@@ -613,9 +635,11 @@ def subdir(val=''):
                              (val, sep))
     return val
 
+
 def anytype(val=None):
     """any value"""
     return val
+
 
 def vec3(val=None):
     """a 3-vector"""

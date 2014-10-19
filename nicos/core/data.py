@@ -81,9 +81,11 @@ class Dataset(object):
     @lazy_property
     def xnames(self):
         return [v.name for v in self.xvalueinfo]
+
     @lazy_property
     def xunits(self):
         return [v.unit for v in self.xvalueinfo]
+
     @lazy_property
     def ynames(self):
         if self.multistep:
@@ -97,6 +99,7 @@ class Dataset(object):
                            for val in self.yvalueinfo[:nyvalues])
             return ret
         return [v.name for v in self.yvalueinfo]
+
     @lazy_property
     def yunits(self):
         return [v.unit for v in self.yvalueinfo]

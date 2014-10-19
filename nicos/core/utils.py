@@ -62,10 +62,10 @@ def devIter(devices, baseclass=None, onlydevs=False):
         # we iterate twice: make sure to convert generators
         # to a list first
         devices = list(devices)
-        try: # to convert list of devices into desired format
+        try:  # to convert list of devices into desired format
             devices = [(dev.name, dev) for dev in devices]
         except AttributeError:
-            pass # not convertible, must be right format already...
+            pass  # not convertible, must be right format already...
     for devname, dev in devices:
         # handle _adev style entries correctly
         if isinstance(dev, (tuple, list)):
@@ -185,6 +185,7 @@ def multiWait(devices):
     from nicos.core import Moveable
     _multiMethod(Moveable, 'wait', devices)
 
+
 def multiStop(devices):
     """Stop every 'stoppable' device in the *devices* list.
 
@@ -193,6 +194,7 @@ def multiStop(devices):
     """
     from nicos.core import Moveable
     _multiMethod(Moveable, 'stop', devices)
+
 
 def multiReset(devices):
     """Resets every 'resetable' device in the *devices* list.
@@ -299,7 +301,7 @@ class DeviceValueDict(object):
                         sub = sub[:-2]
                         if hasattr(dev, sub):
                             self.log.debug('calling %r' % getattr(dev, sub))
-                            dev = getattr(dev, sub)() # call is intended here
+                            dev = getattr(dev, sub)()  # call is intended here
                             continue
                     elif hasattr(dev, sub):
                         dev = getattr(dev, sub)
@@ -317,4 +319,4 @@ class DeviceValueDict(object):
         finally:
             if isinstance(res, str):
                 res = to_ascii_escaped(res)
-            return res # pylint: disable=W0150
+            return res  # pylint: disable=W0150

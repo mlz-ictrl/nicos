@@ -89,11 +89,11 @@ class ImageType(object):
         Also stores the 'names' of the used dimensions as a list called dimnames.
         Defaults to 'X', 'Y' for 2D data and 'X', 'Y', 'Z' for 3D data.
         """
-        if dtype is None: # try to derive from a given numpy.array
+        if dtype is None:  # try to derive from a given numpy.array
             dtype = shape.dtype
             shape = shape.shape
         if dimnames is None:
-            dimnames = ['X','Y','Z','T','E','U','V','W'][:len(shape)]
+            dimnames = ['X', 'Y', 'Z', 'T', 'E', 'U', 'V', 'W'][:len(shape)]
         self.shape = shape
         self.dtype = dtype
         self.dimnames = dimnames
@@ -214,8 +214,8 @@ class ImageProducer(DeviceMixinBase):
     """
 
     attached_devices = {
-        'fileformats' : Attach('Filesavers for all wanted fileformats',
-                               ImageSink, multiple=True),
+        'fileformats': Attach('Filesavers for all wanted fileformats',
+                              ImageSink, multiple=True),
     }
 
     parameters = {
@@ -225,7 +225,7 @@ class ImageProducer(DeviceMixinBase):
                               type=str, default='', settable=True),
     }
 
-    _imageinfos = [] # stores all active imageinfos
+    _imageinfos = []  # stores all active imageinfos
     _header = None
     _saved = False
 
@@ -276,7 +276,7 @@ class ImageProducer(DeviceMixinBase):
         if self._header:
             self._header[category] = valuelist
         else:
-            self._header = {category : valuelist}
+            self._header = {category: valuelist}
         for imageinfo in self._imageinfos:
             imageinfo.header[category] = valuelist
 
@@ -340,7 +340,7 @@ class ImageProducer(DeviceMixinBase):
             for imageinfo in self._imageinfos:
                 imageinfo.filesaver.finalizeImage(imageinfo)
                 imageinfo.data = None
-            #~ self._imageinfos = []
+            # self._imageinfos = []
             self._saved = True
         self._header = None
 

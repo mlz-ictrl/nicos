@@ -66,6 +66,7 @@ def spmsyntax(*arguments, **options):
         return func
     return deco
 
+
 class bare(str):
     """String that repr()s as itself without quotes."""
     def __repr__(self):
@@ -106,7 +107,7 @@ class Bare(Token):
     def handle(self, arg, session):
         if id_re.match(arg):
             if arg not in session.namespace and \
-                arg not in session.local_namespace:
+               arg not in session.local_namespace:
                 return arg
         return bare('(' + arg + ')')
 

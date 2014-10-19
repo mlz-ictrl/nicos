@@ -50,7 +50,7 @@ def readSetups(paths, logger):
                         code = modfile.read()
                 except IOError as err:
                     logger.exception('Could not read setup '
-                                       'module %r: %s' % (modname, err))
+                                     'module %r: %s' % (modname, err))
                     infodict[modname] = None
                     continue
                 # device() is a helper function to make configuration prettier
@@ -62,7 +62,7 @@ def readSetups(paths, logger):
                     exec_(code, ns)
                 except Exception as err:
                     logger.exception('An error occurred while processing '
-                                       'setup %s: %s' % (modname, err))
+                                     'setup %s: %s' % (modname, err))
                     continue
                 info = {
                     'description': ns.get('description', modname),
@@ -78,7 +78,7 @@ def readSetups(paths, logger):
                 }
                 if info['group'] not in SETUP_GROUPS:
                     logger.warning('Setup %s has an invalid group (valid groups '
-                        'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
+                                   'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
                     info['group'] = 'optional'
                 if modname in infodict:
                     # setup already exists; override/extend with new values
@@ -99,7 +99,7 @@ def readSetups(paths, logger):
                     oldinfo['extended'].update(info['extended'])
                     oldinfo['filename'] = path.join(root, filename)
                     logger.debug('%r setup partially merged with version '
-                                   'from parent directory' % modname)
+                                 'from parent directory' % modname)
                 else:
                     infodict[modname] = info
     # check if all includes exist
@@ -109,7 +109,7 @@ def readSetups(paths, logger):
         for include in info['includes']:
             if not infodict.get(include):
                 logger.error('Setup %s includes setup %s which does not '
-                               'exist or has errors' % (name, include))
+                             'exist or has errors' % (name, include))
                 infodict[name] = None
 
     return infodict

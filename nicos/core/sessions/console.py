@@ -57,6 +57,7 @@ tab: complete
 "\\e[1;3C": forward-word
 '''
 
+
 class NicosInteractiveStop(BaseException):
     """
     This exception is raised when the user requests a stop.
@@ -107,8 +108,8 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         logging call before runcode().
         """
         try:
-            code = self.session.commandHandler(source,
-                       lambda src: self.compile(src, filename, symbol))
+            code = self.session.commandHandler(
+                source, lambda src: self.compile(src, filename, symbol))
         except Exception:
             self.log.exception('Cannot compile')
             return False
@@ -158,7 +159,8 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             self.session.logUnhandledException(exc_info)
             # also send a notification if configured
             exception = ''.join(traceback.format_exception(*exc_info))
-            self.session.notifyConditionally(time.time() - start_time,
+            self.session.notifyConditionally(
+                time.time() - start_time,
                 'Exception in script',
                 'An exception occurred in the executed script:\n\n' +
                 exception, 'error notification',
@@ -171,7 +173,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             return
         if hasattr(code, 'softspace') and code.softspace(sys.stdout, 0):
             print()
-        #self.locals.clear()
+        # self.locals.clear()
 
 
 class ConsoleSession(Session):
@@ -231,7 +233,7 @@ class ConsoleSession(Session):
                   'list of commands, or help(command) for help on a command.'
                   % nicos_version)
         self._console = NicosInteractiveConsole(self, self.namespace,
-                                               self.local_namespace)
+                                                self.local_namespace)
         self._console.interact(banner)
         sys.stdout.write(colorcode('reset'))
 

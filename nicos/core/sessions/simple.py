@@ -63,9 +63,11 @@ class NoninteractiveSession(Session):
 
         def quit_handler(signum, frame):
             maindev.quit()
+
         def reload_handler(signum, frame):
             if hasattr(maindev, 'reload'):
                 maindev.reload()
+
         def status_handler(signum, frame):
             if hasattr(maindev, 'statusinfo'):
                 maindev.statusinfo()

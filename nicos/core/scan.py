@@ -52,6 +52,7 @@ SKIP_EXCEPTIONS = (InvalidValueError, LimitError, CommunicationError,
 class SkipPoint(Exception):
     """Custom exception class to skip a scan point."""
 
+
 class StopScan(Exception):
     """Custom exception class to stop the rest of the scan."""
 
@@ -107,7 +108,7 @@ class Scan(object):
         self.dataset.sinkinfo = {}
         try:
             npoints = len(positions)  # can be zero if not known
-            if not self._waitbeforecount and npoints > 1: # intervals
+            if not self._waitbeforecount and npoints > 1:  # intervals
                 npoints -= 1
         except TypeError:
             npoints = 0
@@ -321,9 +322,9 @@ class Scan(object):
                 can_measure = True
         self.beginScan()
         try:
-            if self._waitbeforecount: # points
+            if self._waitbeforecount:  # points
                 num = lambda i: i + 1
-            else: # intervals
+            else:  # intervals
                 num = lambda i: i
             for i, position in enumerate(self._positions):
                 self.preparePoint(num(i), position)
@@ -361,8 +362,10 @@ class Scan(object):
 
 class ElapsedTime(Readable):
     temporary = True
+
     def doRead(self, maxage=0):
         return 0
+
     def doStatus(self, maxage=0):
         return status.OK, ''
 

@@ -189,6 +189,7 @@ class DeviceMeta(DeviceMixinMeta):
                                            'as "volatile=True", but has no '
                                            'doRead%s method' %
                                            (name, param, param.title()))
+
                 def getter(self, param=param, rmethod=rmethod):
                     if self._mode == SIMULATION:
                         return self._initParam(param)
@@ -209,6 +210,7 @@ class DeviceMeta(DeviceMixinMeta):
             else:
                 wmethod = getattr(newtype, 'doWrite' + param.title(), None)
                 umethod = getattr(newtype, 'doUpdate' + param.title(), None)
+
                 def setter(self, value, param=param, wmethod=wmethod,
                            umethod=umethod, chatty=info.chatty):
                     value = self._validateType(value, param)
@@ -301,7 +303,7 @@ class Device(object):
                              settable=True),
         'lowlevel':    Param('Whether the device is not interesting to users',
                              type=bool, default=False, userparam=False),
-         # Pseudo levels 'input', 'output', and 'action' not included
+        # Pseudo levels 'input', 'output', and 'action' not included
         'loglevel':    Param('The logging level of the device',
                              type=oneof('debug', 'info', 'warning', 'error'),
                              default='info', settable=True, preinit=True),
@@ -357,7 +359,7 @@ class Device(object):
     def __setattr__(self, name, value):
         # disallow modification of public attributes that are not parameters
         if name not in dir(self.__class__) and name[0] != '_' and \
-               not name.startswith('print'):
+           not name.startswith('print'):
             raise UsageError(self, 'device has no parameter %s, use '
                              'ListParams(%s) to show all' % (name, self))
         else:
@@ -411,11 +413,9 @@ class Device(object):
         """Validate and create attached devices."""
         for aname, entry in sorted(iteritems(self.attached_devices)):
             if not isinstance(entry, Attach):
-                raise ProgrammingError(self,
-                    'attached device entry for %r is '
-                    'invalid; the value should be a '
-                    'nicos.core.Attach object' %
-                    aname)
+                raise ProgrammingError(self, 'attached device entry for %r is '
+                                       'invalid; the value should be a '
+                                       'nicos.core.Attach object' % aname)
             value = self._config.pop(aname, None)
             devlist = []
             class_needed = entry.devclass
@@ -429,8 +429,8 @@ class Device(object):
                     try:
                         dev = session.getDevice(devname, class_needed, source=self)
                     except UsageError:
-                        raise ConfigurationError(self,
-                            'device %r item %d has wrong type (should be %s)' %
+                        raise ConfigurationError(
+                            self, 'device %r item %d has wrong type (should be %s)' %
                             (aname, i + 1, entry.devclass.__name__))
                     dev._sdevs.add(self._name)
                 devlist.append(dev)
@@ -585,7 +585,6 @@ class Device(object):
         """Indirection needed by the Cache client itself."""
         return session.cache
 
-
     def _validateType(self, value, param, paraminfo=None):
         """Validate and coerce the value of a parameter to the correct type.
 
@@ -595,9 +594,8 @@ class Device(object):
         try:
             value = paraminfo.type(value)
         except (ValueError, TypeError) as err:
-            raise ConfigurationError(self,
-                '%r is an invalid value for parameter %s: %s' %
-                (value, param, err))
+            raise ConfigurationError(self, '%r is an invalid value for '
+                                     'parameter %s: %s' % (value, param, err))
         return value
 
     def _initParam(self, param, paraminfo=None):
@@ -710,7 +708,7 @@ class Device(object):
                 parvalue = getattr(self, name)
             except Exception as err:
                 self.log.warning('error getting %s parameter for info()' %
-                                  name, exc=err)
+                                 name, exc=err)
                 continue
             parunit = (unit or '').replace('main', selfunit)
             yield (category, name, '%s %s' % (parvalue, parunit))
@@ -900,7 +898,7 @@ class Readable(Device):
             try:
                 self._sim_value = self.read()  # cached value is ok here
                 self.log.debug('last value before simulation mode is %r' %
-                                (self._sim_value,))
+                               (self._sim_value,))
             except Exception as err:
                 self.log.warning('error reading last value', exc=err)
         self._sim_active = sim_active
@@ -924,7 +922,8 @@ class Readable(Device):
         val = None
         if 1:  # self.hardware_access:  XXX decide if this should be enabled
             if maxage != 0:
-                val = self._cache.get(self, name,
+                val = self._cache.get(
+                    self, name,
                     mintime=currenttime() - maxage if maxage is not None else 0)
         if val is None:
             val = func(self.maxage if maxage is None else maxage)
@@ -1002,7 +1001,6 @@ class Readable(Device):
         if self._adevs:
             return multiStatus(self._adevs, maxage)
         return (status.UNKNOWN, 'doStatus not implemented')
-
 
     def poll(self, n=0, maxage=0):
         """Get status and value directly from the device and put both values
@@ -1157,6 +1155,7 @@ class Moveable(Readable):
         instance need to be passed.
         """
         return value
+
     valuetype = anytype
 
     def __call__(self, *pos):
@@ -1275,11 +1274,11 @@ class Moveable(Readable):
             time = 0
             if not hasattr(self, 'doTime'):
                 if 'speed' in self.parameters and self.speed != 0 and \
-                    self._sim_old_value is not None:
+                        self._sim_old_value is not None:
                     time = abs(self._sim_value - self._sim_old_value) / \
                         self.speed
                 elif 'ramp' in self.parameters and self.ramp != 0 and \
-                    self._sim_old_value is not None:
+                        self._sim_old_value is not None:
                     time = abs(self._sim_value - self._sim_old_value) / \
                         (self.ramp / 60.)
             elif self._sim_old_value is not None:
@@ -1501,20 +1500,25 @@ class HasLimits(DeviceMixinBase):
     @property
     def absmin(self):
         return self.abslimits[0]
+
     @property
     def absmax(self):
         return self.abslimits[1]
 
     def __getusermin(self):
         return self.userlimits[0]
+
     def __setusermin(self, value):
         self.userlimits = (value, self.userlimits[1])
+
     usermin = property(__getusermin, __setusermin)
 
     def __getusermax(self):
         return self.userlimits[1]
+
     def __setusermax(self, value):
         self.userlimits = (self.userlimits[0], value)
+
     usermax = property(__getusermax, __setusermax)
 
     del __getusermin, __setusermin, __getusermax, __setusermax
@@ -1552,7 +1556,7 @@ class HasLimits(DeviceMixinBase):
     def doReadUserlimits(self):
         if 'userlimits' not in self._config:
             self.log.info('setting userlimits from abslimits, which are %s'
-                            % (self.abslimits,))
+                          % (self.abslimits,))
             return self.abslimits
         cfglimits = self._config['userlimits']
         self._checkLimits(cfglimits)
@@ -1567,13 +1571,13 @@ class HasLimits(DeviceMixinBase):
         curval = self.read(0)
         if isinstance(self, HasPrecision):
             outoflimits = curval + self.precision < value[0] or \
-                          curval - self.precision > value[1]
+                curval - self.precision > value[1]
         else:
             outoflimits = not (value[0] <= curval <= value[1])
         if outoflimits:
             self.log.warning('current device value (%s) not within new '
-                              'userlimits (%s, %s)' %
-                              ((self.format(curval, unit=True),) + value))
+                             'userlimits (%s, %s)' %
+                             ((self.format(curval, unit=True),) + value))
 
     def _adjustLimitsToOffset(self, value, diff):
         """Adjust the user limits to the given offset.
@@ -1648,12 +1652,12 @@ class HasMapping(DeviceMixinBase):
     `nicos.devices.abstract.MappedReadable` and `.MappedMoveable`.
     """
     parameters = {
-        'mapping' :  Param('Mapping of device values to raw (internal) values',
-                            unit='', settable=False, mandatory=True,
-                            type=dictof(str, anytype)),
-        'fallback' : Param('Readback value if the raw device value is not in the '
-                           'mapping or None to disable', default=None,
-                            unit='', type=anytype, settable=False),
+        'mapping':  Param('Mapping of device values to raw (internal) values',
+                          unit='', settable=False, mandatory=True,
+                          type=dictof(str, anytype)),
+        'fallback': Param('Readback value if the raw device value is not in the '
+                          'mapping or None to disable', default=None,
+                          unit='', type=anytype, settable=False),
     }
 
     # mapped values usually are string constants and have no unit
@@ -2160,6 +2164,6 @@ for name in [
         '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__',
         '__rtruediv__', '__rxor__', '__setitem__', '__setslice__', '__sub__',
         '__truediv__', '__xor__', 'next',
-    ]:
+]:
     if hasattr(Device, name):
         setattr(DeviceAlias, name, make_method(name))

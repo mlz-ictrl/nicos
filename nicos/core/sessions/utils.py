@@ -38,8 +38,8 @@ except ImportError:
 
 from nicos import session
 from nicos.core import Device, UsageError, \
-     MASTER, SLAVE, SIMULATION, MAINTENANCE, \
-     DeviceAlias
+    MASTER, SLAVE, SIMULATION, MAINTENANCE, \
+    DeviceAlias
 from nicos.pycompat import builtins, iteritems
 
 
@@ -109,21 +109,21 @@ class NicosCompleter(object):
 
     attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
                        'temporary', 'log', 'valuetype', 'mro'])
-    global_hidden = BUILTIN_EXCEPTIONS | set(['basestring', 'buffer',
-                        'bytearray', 'bytes', 'callable', 'classmethod',
-                        'coerce', 'cmp', 'compile', 'delattr', 'eval',
-                        'execfile', 'filter', 'frozenset', 'getattr',
-                        'globals', 'hasattr', 'hash', 'id', 'input', 'intern',
-                        'isinstance', 'issubclass', 'iter', 'locals', 'long',
-                        'map', 'memoryview', 'property', 'raw_input', 'reduce',
-                        'reload', 'setattr', 'slice', 'staticmethod', 'super',
-                        'unichr', 'unicode', 'type', 'vars', 'xrange'])
+    global_hidden = set(['basestring', 'buffer',
+                         'bytearray', 'bytes', 'callable', 'classmethod',
+                         'coerce', 'cmp', 'compile', 'delattr', 'eval',
+                         'execfile', 'filter', 'frozenset', 'getattr',
+                         'globals', 'hasattr', 'hash', 'id', 'input', 'intern',
+                         'isinstance', 'issubclass', 'iter', 'locals', 'long',
+                         'map', 'memoryview', 'property', 'raw_input', 'reduce',
+                         'reload', 'setattr', 'slice', 'staticmethod', 'super',
+                         'unichr', 'unicode', 'type', 'vars', 'xrange']) | BUILTIN_EXCEPTIONS
     hidden_keyword = set(['assert', 'class', 'del', 'exec', 'yield'])
     special_device = set(['move', 'drive', 'maw', 'switch', 'wait', 'read',
-                         'status', 'stop', 'reset', 'set', 'get', 'fix',
-                         'release', 'adjust', 'version', 'history', 'limits',
-                         'resetlimits', 'ListParams', 'ListMethods',
-                         'scan', 'cscan', 'contscan'])
+                          'status', 'stop', 'reset', 'set', 'get', 'fix',
+                          'release', 'adjust', 'version', 'history', 'limits',
+                          'resetlimits', 'ListParams', 'ListMethods',
+                          'scan', 'cscan', 'contscan'])
     special_readable = set(['read', 'status', 'reset', 'history'])
     special_moveable = set(['move', 'drive', 'maw', 'switch', 'wait', 'stop',
                             'fix', 'release', 'adjust', 'limits', 'resetlimits',
@@ -289,6 +289,7 @@ def makeSessionId():
     pid = os.getpid()
     timestamp = int(time.time())
     return '%s@%s-%s' % (pid, hostname, timestamp)
+
 
 def sessionInfo(sid):
     """Return a string with information gathered from the session id."""
