@@ -139,12 +139,12 @@ def test_retryOnExcept():
             raise NicosError
         return x
 
-    @timedRetryOnExcept()
+    @timedRetryOnExcept(timeout=0.2)
     def wr(x):
         x = raising_func(x)
         return x
 
-    @timedRetryOnExcept(max_retries=3)
+    @timedRetryOnExcept(max_retries=3, timeout=0.2)
     def wr2(x):
         x = raising_func(x)
         return x
@@ -154,7 +154,7 @@ def test_retryOnExcept():
             raise Exception('test exception')
         return x
 
-    @timedRetryOnExcept(ex=NicosError)
+    @timedRetryOnExcept(ex=NicosError, timeout=0.2)
     def wr3(x):
         x = raising_func2(x)
         return x
