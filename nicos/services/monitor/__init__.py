@@ -96,7 +96,7 @@ class Monitor(BaseCacheClient):
     def updateTitle(self, text):
         raise NotImplementedError('Implement updateTitle() in subclasses')
 
-    def start(self, options):  #pylint: disable=W0221
+    def start(self, options):  # pylint: disable=W0221
         self.log.info('monitor starting up, creating main window')
 
         self._fontsize = options.fontsize or self.fontsize

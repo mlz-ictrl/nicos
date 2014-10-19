@@ -309,7 +309,7 @@ class Value(object):
     * The *active* parameter is reserved.
     """
 
-    #pylint: disable=W0622
+    # pylint: disable=W0622
     def __init__(self, name, type='other', errors='none', unit='',
                  fmtstr='%.3f', active=True):
         if type not in ('counter', 'monitor', 'time', 'other', 'error', 'info'):

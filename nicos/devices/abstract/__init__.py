@@ -59,7 +59,7 @@ class Coder(HasPrecision, Readable):
         raise NotImplementedError('implement doSetPosition for concrete coders')
 
 
-class Motor(Coder, HasLimits, Moveable):  #pylint: disable=W0223
+class Motor(Coder, HasLimits, Moveable):  # pylint: disable=W0223
     """Base class for all motors.
 
     This class inherits from Coder since a Motor can be used instead of a true

@@ -601,17 +601,19 @@ class MainWindow(QMainWindow, DlgUtils):
 
 log = None
 
+
 def usage():
     print('usage: %s [options] [host[:port] [user_name [password]]]' % sys.argv[0])
     print('   -h|--help : print this page')
     print("   -c|--config-file file_name : use the configuration file"
           " 'file_name'")
 
+
 def main(argv):
     global log
 
     # Import the compiled resource file to register resources
-    import nicos.guisupport.gui_rc  #pylint: disable=W0612
+    import nicos.guisupport.gui_rc  # pylint: disable=W0612
 
     userpath = path.join(path.expanduser('~'), '.config', 'nicos')
 

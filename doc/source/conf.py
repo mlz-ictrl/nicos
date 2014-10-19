@@ -14,7 +14,7 @@ master_doc = 'index'
 default_role = 'obj'
 
 project = u'NICOS'
-copyright = u'2009-2014, FRM II / NICOS contributors' #pylint: disable=W0622
+copyright = u'2009-2014, FRM II / NICOS contributors'  # pylint: disable=W0622
 version = nicos.nicos_version
 release = nicos.nicos_version
 

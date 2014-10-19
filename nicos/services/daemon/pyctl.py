@@ -123,7 +123,7 @@ class Controller(_Controller):
     - lineno: current line number (in which frame, see lineno_behavior)
     """
 
-    #pylint: disable=W0231
+    # pylint: disable=W0231
     def __init__(self, break_only_in_toplevel=False,
                  break_only_in_filename=None, lineno_behavior=None):
         if lineno_behavior is None:

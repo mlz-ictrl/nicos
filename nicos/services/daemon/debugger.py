@@ -52,7 +52,7 @@ class Rpdb(Pdb):
         # get input lines from our fake input stream
         self.stdin = FakeStdin()
 
-    def set_trace(self, frame, limitframe):  #pylint: disable=W0221
+    def set_trace(self, frame, limitframe):  # pylint: disable=W0221
         # Overridden to not set the trace function in frames below "limitframe"
         if frame is None:
             frame = sys._getframe().f_back

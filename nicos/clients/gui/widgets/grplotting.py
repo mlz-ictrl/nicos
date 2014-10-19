@@ -359,7 +359,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
     def _finishFit(self):
         try:
             if self.fitcallbacks[1]:
-                if not self.fitcallbacks[1]():  #pylint: disable=E1102
+                if not self.fitcallbacks[1]():  # pylint: disable=E1102
                     raise FitError('Aborted.')
             curve = self.fitcurve
             errBar1 = curve.errorBar1
@@ -369,7 +369,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             else:
                 args = [curve.x, curve.y, None] + self.fitvalues
             x, y, title, labelx, labely, interesting, _lineinfo = (
-                            self.fitcallbacks[0](args)) #pylint: disable=E1102
+                self.fitcallbacks[0](args))  # pylint: disable=E1102
 
             color = self._color.getNextColorIndex()
             resultcurve = NicosPlotCurve(x, y, legend=title, linecolor=color,

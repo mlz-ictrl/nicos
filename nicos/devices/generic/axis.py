@@ -217,7 +217,7 @@ class Axis(BaseAxis, CanReference):
         if self._errorstate:
             errorstate = self._errorstate
             self._errorstate = None
-            raise errorstate  #pylint: disable=E0702
+            raise errorstate  # pylint: disable=E0702
 
     def doWriteSpeed(self, value):
         self._adevs['motor'].speed = value
@@ -231,7 +231,7 @@ class Axis(BaseAxis, CanReference):
             raise NicosError(self, 'axis is moving now, please issue a stop '
                              'command and try it again')
         if self._errorstate:
-            raise self._errorstate  #pylint: disable=E0702
+            raise self._errorstate  # pylint: disable=E0702
         HasOffset.doWriteOffset(self, value)
 
     def _preMoveAction(self):

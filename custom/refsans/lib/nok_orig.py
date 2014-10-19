@@ -28,7 +28,7 @@
 #   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # *****************************************************************************
-#pylint: skip-file
+# pylint: skip-file
 # This is still a nicos1 module!
 """ Module for moving the NOK's and Apertures on REFSANS """
 

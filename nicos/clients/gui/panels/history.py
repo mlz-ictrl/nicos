@@ -812,7 +812,7 @@ class StandaloneHistoryApp(CacheClient):
     }
 
     def doInit(self, mode):
-        import nicos.guisupport.gui_rc  #pylint: disable=W0612
+        import nicos.guisupport.gui_rc  # pylint: disable=W0612
 
         self._qtapp = QApplication(sys.argv)
         self._qtapp.setOrganizationName('nicos')

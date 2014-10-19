@@ -124,7 +124,7 @@ class DaemonLogHandler(logging.Handler):
         logging.Handler.__init__(self)
         self.daemon = daemon
 
-    def emit(self, record, entries=TRANSMIT_ENTRIES):  #pylint: disable=W0221
+    def emit(self, record, entries=TRANSMIT_ENTRIES):  # pylint: disable=W0221
         msg = [getattr(record, e) for e in entries]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'

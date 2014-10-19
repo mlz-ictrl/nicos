@@ -258,7 +258,7 @@ class HoveringAxis(Axis):
         if self._wait_exception:
             exc = self._wait_exception
             self._wait_exception = None
-            raise exc  #pylint: disable=E0702
+            raise exc  # pylint: disable=E0702
 
     def doTime(self, start, end):
         return Axis.doTime(self, start, end) + self.startdelay + self.stopdelay

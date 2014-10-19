@@ -306,7 +306,7 @@ class resmat(object):
         self.calc_popovici()
         self.calc_STrafo()
 
-    def calc_popovici(self):  #pylint: disable=R0914,R0915
+    def calc_popovici(self):  # pylint: disable=R0914,R0915
         """Performs the actual calculation."""
         # reset errors before new calculation
         self.ERROR = None

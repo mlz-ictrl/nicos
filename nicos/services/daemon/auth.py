@@ -32,8 +32,8 @@ from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, ADMIN,
 from nicos.pycompat import string_types
 
 try:
-    import ldap #pylint: disable=F0401
-    import ldap.ldapobject as ldapobject #pylint: disable=F0401
+    import ldap  # pylint: disable=F0401
+    import ldap.ldapobject as ldapobject  # pylint: disable=F0401
 except ImportError:
     ldap = None
     ldapobject = None

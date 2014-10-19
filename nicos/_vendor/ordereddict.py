@@ -24,9 +24,10 @@
 
 from UserDict import DictMixin
 
+
 class OrderedDict(dict, DictMixin):
 
-    def __init__(self, *args, **kwds): #pylint: disable=W0231
+    def __init__(self, *args, **kwds):  # pylint: disable=W0231
         if len(args) > 1:
             raise TypeError('expected at most 1 arguments, got %d' % len(args))
         try:
@@ -50,7 +51,7 @@ class OrderedDict(dict, DictMixin):
 
     def __delitem__(self, key):
         dict.__delitem__(self, key)
-        key, prev, next = self.__map.pop(key) #pylint: disable=W0622
+        key, prev, next = self.__map.pop(key)  # pylint: disable=W0622
         prev[2] = next
         next[1] = prev
 
