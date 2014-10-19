@@ -42,43 +42,43 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
     For hardware specific additions, have a look at the particular class.
     """
     parameters = {
-        'hwdevice': Param('Hardware specific tango device', type=tangodev,
-                          default='', preinit=True),
-        'imagewidth'      : Param('Image width',
-                                type=int, volatile=True, category='general'),
-        'imageheight'     : Param('Image height',
-                                type=int, volatile=True, category='general'),
-        'roi'             : Param('Region of interest',
-                                type=tupleof(int, int, int, int), settable=True,
-                                default=(0, 0, 0, 0), volatile=True,
-                                category='general'),
-        'bin'             : Param('Binning (x,y)',
-                                type=tupleof(int, int), settable=True,
-                                default=(1, 1), volatile=True, category='general'),
-        'flip'            : Param('Flipping (x,y)',
-                                type=tupleof(bool, bool), settable=True,
-                                default=(False, False), volatile=True,
-                                category='general'),
-        'rotation'        : Param('Rotation',
-                                type=oneof(0, 90, 180, 270), settable=True,
-                                default=0, volatile=True, category='general'),
-        'shutteropentime' : Param('Shutter open time',
-                                type=float, settable=True, default=0,
-                                volatile=False, category='general'),
-        'shutterclosetime' : Param('Shutter open time',
-                                type=float, settable=True, default=0,
-                                volatile=False, category='general'),
-        'shuttermode'     : Param('Shutter mode',
-                                type=oneof('always_open', 'always_closed', 'auto'),
-                                settable=True, default='auto', volatile=True,
-                                category='general'),
-        'expotime'        : Param('Exposure time',
-                                type=float, settable=False, volatile=False,
-                                category='general'),
-        'cameramodel'     : Param('Camera type/model',
-                                type=str, settable=False,
-                                volatile=True, # Necessary?
-                                category='general'),
+        'hwdevice':         Param('Hardware specific tango device', type=tangodev,
+                                  default='', preinit=True),
+        'imagewidth':       Param('Image width',
+                                  type=int, volatile=True, category='general'),
+        'imageheight':      Param('Image height',
+                                  type=int, volatile=True, category='general'),
+        'roi':              Param('Region of interest',
+                                  type=tupleof(int, int, int, int), settable=True,
+                                  default=(0, 0, 0, 0), volatile=True,
+                                  category='general'),
+        'bin':              Param('Binning (x,y)',
+                                  type=tupleof(int, int), settable=True,
+                                  default=(1, 1), volatile=True, category='general'),
+        'flip':             Param('Flipping (x,y)',
+                                  type=tupleof(bool, bool), settable=True,
+                                  default=(False, False), volatile=True,
+                                  category='general'),
+        'rotation':         Param('Rotation',
+                                  type=oneof(0, 90, 180, 270), settable=True,
+                                  default=0, volatile=True, category='general'),
+        'shutteropentime':  Param('Shutter open time',
+                                  type=float, settable=True, default=0,
+                                  volatile=False, category='general'),
+        'shutterclosetime': Param('Shutter open time',
+                                  type=float, settable=True, default=0,
+                                  volatile=False, category='general'),
+        'shuttermode':      Param('Shutter mode',
+                                  type=oneof('always_open', 'always_closed', 'auto'),
+                                  settable=True, default='auto', volatile=True,
+                                  category='general'),
+        'expotime':         Param('Exposure time',
+                                  type=float, settable=False, volatile=False,
+                                  category='general'),
+        'cameramodel':      Param('Camera type/model',
+                                  type=str, settable=False,
+                                  volatile=True,  # Necessary?
+                                  category='general'),
     }
 
     parameter_overrides = {
@@ -92,7 +92,7 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         self._hwDev = None
         if self.hwdevice:
             self._hwDev = HwDevice(self.name + '._hwDev',
-                                      tangodevice=self.hwdevice, lowlevel=True)
+                                   tangodevice=self.hwdevice, lowlevel=True)
 
     def doInit(self, mode):
         # Determine image type
@@ -118,12 +118,12 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
     def doStop(self):
         self._dev.stopAcq()
 
-    def doStatus(self, maxage=0):  #pylint: disable=W0221
+    def doStatus(self, maxage=0):  # pylint: disable=W0221
         statusMap = {
-             'Ready' : status.OK,
-             'Running' : status.BUSY,
-             'Fault' : status.ERROR,
-             }
+            'Ready': status.OK,
+            'Running': status.BUSY,
+            'Fault': status.ERROR,
+        }
 
         limaStatus = self._dev.acq_status
         nicosStatus = statusMap.get(limaStatus, status.UNKNOWN)
@@ -142,7 +142,6 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
                 limaStatus += ' (Closing shutter)'
             else:
                 limaStatus += ' (Readout)'
-
 
         self.log.debug('## (%r, %r)' % (nicosStatus, limaStatus))
 
@@ -265,13 +264,13 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         imageType = self._dev.image_type
 
         mapping = {
-                   'Bpp8' : numpy.uint8,
-                   'Bpp8S' : numpy.int8,
-                   'Bpp16' : numpy.uint16,
-                   'Bpp16S' : numpy.int16,
-                   'Bpp32' : numpy.uint32,
-                   'Bpp32S' : numpy.int32,
-                   }
+            'Bpp8': numpy.uint8,
+            'Bpp8S': numpy.int8,
+            'Bpp16': numpy.uint16,
+            'Bpp16S': numpy.int16,
+            'Bpp32': numpy.uint32,
+            'Bpp32S': numpy.int32,
+        }
 
         return mapping.get(imageType, numpy.uint32)
 
@@ -287,15 +286,15 @@ class Andor2LimaCCD(GenericLimaCCD):
     PGAINS = [1, 2, 4]  # Values from sdk manual
 
     parameters = {
-        'hsspeed'         : Param('Horizontal shift speed',
-                                type=oneof(*HSSPEEDS), settable=True, default=5,
-                                unit='MHz', volatile=True, category='general'),
-        'vsspeed'         : Param('Vertical shift speed',
-                                type=oneof(*VSSPEEDS), settable=True, default=76.95,
-                                unit='ms/shift', volatile=True, category='general'),
-        'pgain'           : Param('Preamplifier gain',
-                                type=oneof(*PGAINS), settable=True, default=4,
-                                volatile=True, category='general'),
+        'hsspeed': Param('Horizontal shift speed',
+                         type=oneof(*HSSPEEDS), settable=True, default=5,
+                         unit='MHz', volatile=True, category='general'),
+        'vsspeed': Param('Vertical shift speed',
+                         type=oneof(*VSSPEEDS), settable=True, default=76.95,
+                         unit='ms/shift', volatile=True, category='general'),
+        'pgain':   Param('Preamplifier gain',
+                         type=oneof(*PGAINS), settable=True, default=4,
+                         volatile=True, category='general'),
     }
 
     parameter_overrides = {
@@ -351,7 +350,7 @@ class Andor2TemperatureController(PyTangoDevice,
     def doRead(self, maxage=0):
         return self._dev.temperature
 
-    def doStatus(self, maxage=0):  #pylint: disable=W0221
+    def doStatus(self, maxage=0):  # pylint: disable=W0221
         coolerState = self._dev.cooler
         temperature = self.doRead()
         sp = self._dev.temperature_sp

@@ -32,8 +32,8 @@ FRM-II/JCNS TANGO interface for the respective device classes.
 import PyTango
 
 from nicos.core import Param, Override, NicosError, status, \
-     Readable, Moveable, HasLimits, Device, tangodev, DeviceMixinBase, oneof, \
-     dictof, intrange
+    Readable, Moveable, HasLimits, Device, tangodev, DeviceMixinBase, oneof, \
+    dictof, intrange
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -75,7 +75,7 @@ class PyTangoDevice(DeviceMixinBase):
         if mode != SIMULATION:
             self._dev = self._createPyTangoDevice(self.tangodevice)
 
-    def doStatus(self, maxage=0, mapping=DEFAULT_STATUS_MAPPING):  #pylint: disable=W0102
+    def doStatus(self, maxage=0, mapping=DEFAULT_STATUS_MAPPING):  # pylint: disable=W0102
         # Query status code and string
         tangoState = self._dev.State()
         tangoStatus = self._dev.Status()
@@ -107,7 +107,7 @@ class PyTangoDevice(DeviceMixinBase):
             dev = self._dev
         return dev.GetProperties((name, 'device'))[2]
 
-    def _createPyTangoDevice(self, address):  #pylint: disable=E0202
+    def _createPyTangoDevice(self, address):  # pylint: disable=E0202
         """
         Creates the PyTango DeviceProxy and wraps command execution and
         attribute operations with logging and exception mapping.
@@ -122,11 +122,11 @@ class PyTangoDevice(DeviceMixinBase):
         """
         dev.command_inout = self._applyGuardToFunc(dev.command_inout)
         dev.write_attribute = self._applyGuardToFunc(dev.write_attribute,
-                                                    'attr_write')
+                                                     'attr_write')
         dev.read_attribute = self._applyGuardToFunc(dev.read_attribute,
                                                     'attr_read')
         dev.attribute_query = self._applyGuardToFunc(dev.attribute_query,
-                                                    'attr_query')
+                                                     'attr_query')
         return dev
 
     def _applyGuardToFunc(self, func, category='cmd'):
@@ -141,7 +141,7 @@ class PyTangoDevice(DeviceMixinBase):
                 self.log.debug('[PyTango] read attribute: %s' % args[0])
             elif category == 'attr_write':
                 self.log.debug('[PyTango] write attribute: %s => %r'
-                                   % (args[0], args[1:]))
+                               % (args[0], args[1:]))
             elif category == 'attr_query':
                 self.log.debug('[PyTango] query attribute properties: %s' % args[0])
             elif category == 'constructor':
@@ -389,7 +389,7 @@ class DigitalOutput(PyTangoDevice, Moveable):
 
     valuetype = int
     parameter_overrides = {
-       'unit': Override(mandatory=False),
+        'unit': Override(mandatory=False),
     }
 
     def doRead(self, maxage=0):
@@ -453,6 +453,7 @@ class PartialDigitalOutput(NamedDigitalOutput):
         if value < 0 or value > self._mask:
             return False, '%d outside range [0,%d]' % (value, self._mask)
         return True, ''
+
 
 class StringIO(PyTangoDevice, Device):
     """
