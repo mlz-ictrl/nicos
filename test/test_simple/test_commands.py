@@ -32,25 +32,27 @@ from nicos.utils import ensureDirectory
 
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw, drive, switch, wait, read, \
-     status, stop, reset, get, getall, setall, fix, release, adjust, \
-     version, history, info, limits, resetlimits, ListParams, ListMethods, \
-     ListDevices
-from nicos.commands.device import set #pylint: disable=W0622
-from nicos.commands.basic import help, dir  #pylint: disable=W0622
+    status, stop, reset, get, getall, setall, fix, release, adjust, \
+    version, history, info, limits, resetlimits, ListParams, ListMethods, \
+    ListDevices
+from nicos.commands.device import set  # pylint: disable=W0622
+from nicos.commands.basic import help, dir  # pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
-     NewSetup, AddSetup, RemoveSetup, ListSetups, \
-     CreateDevice, RemoveDevice, CreateAllDevices, \
-     NewExperiment, FinishExperiment, AddUser, NewSample, \
-     Remark, SetMode, ClearCache, UserInfo, run
+    NewSetup, AddSetup, RemoveSetup, ListSetups, \
+    CreateDevice, RemoveDevice, CreateAllDevices, \
+    NewExperiment, FinishExperiment, AddUser, NewSample, \
+    Remark, SetMode, ClearCache, UserInfo, run
 from nicos.commands.output import printdebug, printinfo, printwarning, \
-     printerror, printexception
+    printerror, printexception
 from nicos.core.sessions.utils import MASTER, SLAVE
 
 from test.utils import ErrorLogged, raises
 
+
 def setup_module():
     session.loadSetup('axis')
     session.setMode(MASTER)
+
 
 def teardown_module():
     session.unloadSetup()
@@ -65,6 +67,7 @@ def test_output_commands():
         assert session.testhandler.warns(printwarning, 'warn!', exc=1)
     assert raises(ErrorLogged, printerror, 'error!')
     assert raises(ZeroDivisionError, printexception, 'exception!')
+
 
 def test_basic_commands():
     dev = session.getDevice('motor')
@@ -125,12 +128,14 @@ def test_basic_commands():
     with UserInfo('userinfo'):
         assert 'userinfo' == session._actionStack[-1]
 
+
 def test_run_command():
     # create a test script in the current scriptpath
     ensureDirectory(session.experiment.scriptpath)
     with open(os.path.join(session.experiment.scriptpath, 'test.py'), 'w') as f:
         f.write('read()')
     run('test')
+
 
 def test_device_commands():
     motor = session.getDevice('motor')

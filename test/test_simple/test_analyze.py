@@ -33,13 +33,14 @@ from nicos import session
 from nicos.core import Value
 
 from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
-     poly, gauss
+    poly, gauss
 from nicos.core.sessions.utils import MASTER
 
 
 def setup_module():
     session.loadSetup('scanning')
     session.setMode(MASTER)
+
 
 def teardown_module():
     session.unloadSetup()
@@ -58,10 +59,12 @@ def generate_dataset():
     dataset.yresults = [[y, y*2] for y in data]
     session.experiment._last_datasets.append(dataset)
 
+
 def test_fwhm():
     generate_dataset()
-    result = fwhm(1,1)
+    result = fwhm(1, 1)
     assert result == (2.75, -1, 30, 1)
+
 
 def test_center_of_mass():
     generate_dataset()
@@ -70,10 +73,12 @@ def test_center_of_mass():
     result2 = center_of_mass(2)  # center of mass from values*2 should be same
     assert result1 == result2
 
+
 def test_root_mean_square():
     generate_dataset()
     result = root_mean_square()
     assert 10.176 < result < 10.177
+
 
 def test_poly():
     if not odrmod:
@@ -88,6 +93,7 @@ def test_poly():
     assert -0.405 < result3[0][2] < -0.404
     result4 = poly(2, 1, 2)
     assert result4 == result3
+
 
 def test_gauss():
     if not odrmod:

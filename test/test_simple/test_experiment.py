@@ -46,6 +46,7 @@ def setup_module():
     session.loadSetup('asciisink')  # we want data files written
     session.setMode(MASTER)
 
+
 def teardown_module():
     # clean up "disabled" directory so that the next test run can remove it
     if path.isdir(datapath('p999')):
@@ -164,12 +165,14 @@ def test_experiment():
     # and back to service
     exp.new('service')
 
+
 def test_expanduser_dataroot():
     exp = session.experiment
     dataroot = "~/data"
     exp._setROParam("dataroot", dataroot)
     assert_equal(exp.dataroot, path.expanduser(dataroot))
-#    assert exp.dataroot == path.expanduser(dataroot)
+    # assert exp.dataroot == path.expanduser(dataroot)
+
 
 def test_expandenv_dataroot():
     exp = session.experiment
@@ -177,5 +180,5 @@ def test_expandenv_dataroot():
     dataroot2 = "$TESTVAR" if sys.platform != "win32" else "%TESTVAR%"
     exp._setROParam('dataroot', dataroot2)
     assert_equal(exp.dataroot, path.expandvars(dataroot2))
-    exp.new('p888','etitle2', 'me2', 'you2')
+    exp.new('p888', 'etitle2', 'me2', 'you2')
     assert os.access(datapath('p888', extra='xxx'), os.X_OK)

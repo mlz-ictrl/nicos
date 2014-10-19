@@ -61,6 +61,7 @@ class TestClient(NicosClient):
 
 client = None
 
+
 def setup_module():
     global client
     client = TestClient()
@@ -71,10 +72,12 @@ def setup_module():
                     'display': ''})
     assert ('connected', None, None) in client._signals
 
+
 def teardown_module():
     if client.connected:
         client._disconnecting = True
         client.disconnect()
+
 
 def test_simple():
     # getversion
@@ -122,6 +125,7 @@ def test_simple():
         if client._estatus == STATUS_IDLEEXC:
             raise AssertionError('test failed with exception')
 
+
 def test_encoding():
     client.tell('queue', 'Meßzeit.py', '''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
@@ -137,6 +141,7 @@ scan(t_psi, t_psi(), 0.1, 1, "Meßzeit 1000s, d = 5 Å")
         if client._estatus == STATUS_IDLEEXC:
             raise AssertionError('test script failed with exception')
 
+
 def test_htmlhelp():
     # NOTE: everything run with 'queue' will not show up in the coverage report,
     # since the _pyctl trace function replaces the trace function from coverage,
@@ -151,6 +156,7 @@ def test_htmlhelp():
             break
     else:
         assert False, 'help request not arrived'
+
 
 def test_simulation():
     idx = len(client._signals)

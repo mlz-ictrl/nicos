@@ -28,12 +28,13 @@ from __future__ import print_function
 
 from nicos import session
 from nicos.core import PositionError, NicosError, LimitError, \
-     ConfigurationError, InvalidValueError, status
+    ConfigurationError, InvalidValueError, status
 from test.utils import raises
 
 
 def setup_module():
     session.loadSetup('generic')
+
 
 def teardown_module():
     session.unloadSetup()
@@ -47,12 +48,14 @@ def test_virtual_motor():
     v.stop()
     assert 0 <= v.read() <= 1
 
+
 def test_virtual_switch():
     v = session.getDevice('v2')
     v.maw('up')
     assert v.read() == 'up'
     assert raises(NicosError, v.move, 'sideways')
     assert v.read() == 'up'
+
 
 def test_manual_switch():
     m = session.getDevice('m1')
@@ -63,8 +66,10 @@ def test_manual_switch():
     assert m.read() == 'down'
     assert m.status()[0] == status.OK
 
+
 def test_manual_switch_2():
     assert raises(ConfigurationError, session.getDevice, 'm2')
+
 
 def test_manual_switch_illegal_position():
     m3 = session.getDevice('m3')
@@ -72,6 +77,7 @@ def test_manual_switch_illegal_position():
     # Enforce an illegal Position
     m3._setROParam('target', 'inbetween')
     assert raises(PositionError, m3.read, 0)
+
 
 def test_switcher():
     sw = session.getDevice('sw')
@@ -111,6 +117,7 @@ def test_switcher():
 
     assert rsw.status()[0] == v3.status()[0]
 
+
 def test_switcher_noblockingmove():
     sw2 = session.getDevice('sw2')
     v3 = session.getDevice('v3')
@@ -123,7 +130,7 @@ def test_switcher_noblockingmove():
     v3.curstatus = (status.BUSY, 'busy')
     assert sw2.status(0)[0] != status.OK
 
-    #case 2: motor idle, but wrong position
+    # case 2: motor idle, but wrong position
     v3.curstatus = (status.OK, 'on target')
     v3.curvalue = 2.0
     assert sw2.status(0)[0] != status.OK
@@ -132,6 +139,7 @@ def test_switcher_noblockingmove():
     v3.curvalue = 3.0
     assert sw2.status(0)[0] == status.OK
     assert sw2.read(0) == 'right'
+
 
 def test_paramdev():
     v1 = session.getDevice('v1')
@@ -145,6 +153,7 @@ def test_paramdev():
     print(v1.unit)
     assert pd.unit == v1.unit + '/s'
     assert pd.status()[0] == status.OK
+
 
 def test_freespace():
     freespace = session.getDevice('freespace')

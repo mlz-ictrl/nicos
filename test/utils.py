@@ -35,7 +35,7 @@ from os import path
 from logging import ERROR, WARNING, DEBUG
 from functools import wraps
 
-from nose.tools import assert_raises #pylint: disable=E0611
+from nose.tools import assert_raises  # pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
 from nicos import config
@@ -53,6 +53,7 @@ def raises(exc, *args, **kwds):
     assert_raises(exc, *args, **kwds)
     return True
 
+
 def requires(condition, message=''):
     """Decorator to mark test functions as skips depending on a condition."""
     def deco(func):
@@ -63,6 +64,7 @@ def requires(condition, message=''):
             return func(*args, **kwds)
         return new_func
     return deco
+
 
 def assert_response(resp, contains=None, matches=None):
     """Check for specific strings in a response array.
@@ -82,7 +84,8 @@ def assert_response(resp, contains=None, matches=None):
                 return True
         assert False, "Response does not match %r" % matches
 
-# from unittest.Testcase
+
+# from unittest.TestCase
 def assertAlmostEqual(first, second, places=7, msg=None):
     """Fail if the two objects are unequal as determined by their
        difference rounded to the given number of decimal places
@@ -93,7 +96,8 @@ def assertAlmostEqual(first, second, places=7, msg=None):
     """
     if round(abs(second - first), places) != 0:
         assert False, \
-              (msg or '%r != %r within %r places' % (first, second, places))
+            (msg or '%r != %r within %r places' % (first, second, places))
+
 
 def assertNotAlmostEqual(first, second, places=7, msg=None):
     """Fail if the two objects are equal as determined by their
@@ -105,8 +109,7 @@ def assertNotAlmostEqual(first, second, places=7, msg=None):
     """
     if round(abs(second - first), places) == 0:
         assert False, \
-              (msg or '%r == %r within %r places' % (first, second, places))
-
+            (msg or '%r == %r within %r places' % (first, second, places))
 
 
 class ErrorLogged(Exception):
@@ -165,7 +168,7 @@ class TestLogHandler(ColoredConsoleHandler):
             else:
                 sys.stderr.write('More then one warning added')
             for msg in self._warnings:
-                sys.stderr.write( msg.getMessage())
+                sys.stderr.write(msg.getMessage())
             return False
         else:
             for msg in self._warnings:
@@ -211,7 +214,7 @@ class TestSession(Session):
         logging call before runcode().
         """
         code = self.commandHandler(source,
-            lambda src: compile(src, filename, symbol))
+                                   lambda src: compile(src, filename, symbol))
         if code is None:
             return
         exec_(code, self.namespace, self.local_namespace)
@@ -288,6 +291,7 @@ def cleanup():
     os.mkdir(rootdir + '/bin')
     shutil.copy(path.join(rootdir, '..', 'simulate.py'),
                 rootdir + '/bin/nicos-simulate')
+
 
 def startCache(setup='cache', wait=5):
     global cache  # pylint: disable=W0603,W0601

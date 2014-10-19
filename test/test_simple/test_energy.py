@@ -28,10 +28,6 @@ from nicos.devices.tas import energy
 
 from test.utils import assertAlmostEqual
 
-def setup_module():
-    pass
-def teardown_module():
-    pass
 
 def test_meV():
     e_mev = energy.Energy(value=81.804165, unit='meV')

@@ -31,17 +31,14 @@ from nicos.commands.sample import activation
 
 from test.utils import raises
 
-def setup_module():
-    pass
-def teardown_module():
-    pass
 
 def test_01wronginput():
     assert raises(UsageError, activation)  # session has no formula up to now
     assert raises(UsageError, activation, formula='H2O')
     assert raises(UsageError, activation, formula='H2O', flux=1e7)
     assert session.testhandler.warns(activation, warns_clear=True,
-                formula='H2', instrument='XXX', mass=1)
+                                     formula='H2', instrument='XXX', mass=1)
+
 
 def test_02function():
     data = activation(formula='H2', flux=20, mass=1, getdata=True)

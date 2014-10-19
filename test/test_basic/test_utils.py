@@ -29,9 +29,9 @@ from __future__ import print_function
 import sys
 
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
-     bitDescription, parseConnectionString, formatExtendedFrame, \
-     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
-     comparestrings, timedRetryOnExcept
+    bitDescription, parseConnectionString, formatExtendedFrame, \
+    formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
+    comparestrings, timedRetryOnExcept
 from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
 
@@ -40,6 +40,7 @@ from test.utils import raises
 
 def test_lazy_property():
     asked = []
+
     class P(object):
         @lazy_property
         def prop(self):
@@ -49,6 +50,7 @@ def test_lazy_property():
     assert p.prop == 'ok'
     assert p.prop == 'ok'   # ask twice!
     assert len(asked) == 1  # but getter only called once
+
 
 def test_readonly_objects():
     d = readonlydict({'a': 1, 'b': 2})
@@ -75,12 +77,14 @@ def test_readonly_objects():
     assert type(unpickled) is readonlylist
     assert len(unpickled) == 3
 
+
 def test_readonlylist_hashable():
     l = readonlylist([1, 2, 3])
     assert l == [1, 2, 3]
-    dt = {l:'testval'}
+    dt = {l: 'testval'}
     print(dt.keys())
     assert dt[readonlylist([1, 2, 3])] == 'testval'
+
 
 def test_repeater():
     r = Repeater(1)
@@ -88,6 +92,7 @@ def test_repeater():
     assert next(it) == 1
     assert next(it) == 1
     assert r[23] == 1
+
 
 def test_functions():
     assert formatDuration(154) == '3 minutes'
@@ -103,6 +108,7 @@ def test_functions():
 
     assert list(map(tuple, chunks(range(10), 3))) == \
         [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
+
 
 def test_traceback():
     a = 1  # pylint: disable=W0612
@@ -121,12 +127,12 @@ def test_traceback():
     st = formatExtendedStack()
     assert ', in test_traceback' in st
 
+
 def test_comparestrings():
     comparestrings.test()
 
 
 def test_retryOnExcept():
-
     def raising_func(x):
         x += 1
         if x < 2:

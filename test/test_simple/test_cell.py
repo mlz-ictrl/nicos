@@ -39,6 +39,7 @@ def setup_module():
     session.loadSetup('scanning')
     session.setMode(MASTER)
 
+
 def teardown_module():
     session.unloadSetup()
 
@@ -61,6 +62,7 @@ def tscan(Qh, Qk, Ql, ny, dQh, dQk, dQl, dny, numsteps, SM, SC, sense, sample):
         for i in range(3):
             assertAlmostEqual(Qhkl[i], hklr[i])
         assertAlmostEqual(ny, nyr)
+
 
 def test_cell():
     sample = session.getDevice('Sample')

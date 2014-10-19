@@ -35,6 +35,7 @@ def setup_module():
     session.loadSetup('empty')
     session.setMode(MASTER)
 
+
 def teardown_module():
     session.unloadSetup()
 

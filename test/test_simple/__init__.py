@@ -31,6 +31,7 @@ from test.utils import TestSession, startCache, killCache, cleanup
 
 cache = None
 
+
 def setup_package():
     global cache  #pylint: disable=W0603
     print('\nSetting up simple test, cleaning old test dir...', file=sys.stderr)

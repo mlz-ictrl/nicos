@@ -23,15 +23,12 @@
 # *****************************************************************************
 
 from nicos.services.daemon.auth import auth_entry, ListAuthenticator, User, \
-     AuthenticationError
+    AuthenticationError
 from nicos.core import GUEST, USER
 from nicos.commands.basic import RemoveDevice
 
 from test.utils import raises
 
-
-def setup_module():
-    pass
 
 def test_auth_entry():
     assert auth_entry(['user', 'passwd', 'user']) == ('user', 'passwd', USER)
@@ -41,7 +38,7 @@ def test_auth_entry():
     assert raises(ValueError, auth_entry, ['user', 'passwd', 'xxx'])
     assert raises(ValueError, auth_entry, ['user', 'passwd', -1])
     assert raises(ValueError, auth_entry, ['user', 'passwd', ()])
-    assert raises(ValueError, auth_entry, [['user',], 'passwd', 'user'])
+    assert raises(ValueError, auth_entry, [['user'], 'passwd', 'user'])
     assert raises(ValueError, auth_entry, ['user', ['passwd'], 'user'])
 
 
@@ -49,9 +46,7 @@ def test_passwd_user():
     Auth = ListAuthenticator('authenicator',
                              passwd = [('guest', '', 'guest'),
                                        ('user', 'user', 'user'),
-                                       ('admin', 'admin', 'admin'),
-                                      ],
-                            )
+                                       ('admin', 'admin', 'admin')])
     assert Auth.authenticate('user', 'user') == User('user', USER)
     assert Auth.authenticate('guest', '') == User('guest', GUEST)
     assert Auth.authenticate('guest', 'somepw') == User('guest', GUEST)
@@ -59,14 +54,13 @@ def test_passwd_user():
     assert raises(AuthenticationError, Auth.authenticate, 'joedoe', '')
     RemoveDevice(Auth)
 
+
 def test_any_user():
     Auth = ListAuthenticator('authenicator',
                              passwd = [('guest', '', 'guest'),
                                        ('', '', 'admin'),
                                        ('user', 'user', 'user'),
-                                       ('admin', 'admin', 'admin'),
-                                      ],
-                            )
+                                       ('admin', 'admin', 'admin')])
     assert Auth.authenticate('user', 'user') == User('user', USER)
     assert Auth.authenticate('guest', '') == User('guest', GUEST)
     assert Auth.authenticate('joedoe', '') == User('joedoe', GUEST)
@@ -74,14 +68,10 @@ def test_any_user():
     assert raises(AuthenticationError, Auth.authenticate, 'user', 'user_')
     RemoveDevice(Auth)
 
+
 def test_empty_user():
     Auth = ListAuthenticator('authenicator',
                              passwd = [('admin', 'admin', 'admin'),
-                                       ('', 'passwd', 'admin'),
-                                      ],
-                            )
+                                       ('', 'passwd', 'admin')])
     assert Auth.authenticate('joedoe', 'passwd') == User('joedoe', USER)
     RemoveDevice(Auth)
-
-def teardown_module():
-    pass

@@ -34,6 +34,7 @@ def setup_module():
     session.loadSetup('scanning')
     session.setMode(SIMULATION)
 
+
 def teardown_module():
     session.__dict__.clear()
     session.__init__('nicos')
@@ -45,6 +46,7 @@ def test_simmode():
     assert m._sim_min == 0
     assert m._sim_max == 4
     assert m._sim_value == 4
+
 
 def test_special_behavior():
     oldtime = session.clock.time

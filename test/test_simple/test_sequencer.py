@@ -35,9 +35,11 @@ from test.utils import raises
 
 methods_called = set()
 
+
 def setup_module():
     session.loadSetup('sequencer')
     methods_called.clear()
+
 
 def teardown_module():
     session.unloadSetup()
@@ -49,6 +51,7 @@ def test_lockeddevice():
     ld.move(3)
     ld.wait()
     assert sm1.read(0) == 3
+
 
 def test_sequence_items():
     # Check SeqenceItems by instantiating and checking
@@ -78,7 +81,7 @@ def test_sequence_items():
 
     # Param setting
     sp = SeqParam(sm2, 'speed', 1)
-    assert  'sm2.speed' in repr(sp)
+    assert 'sm2.speed' in repr(sp)
     assert '=' in repr(sp)
     assert repr(sp).endswith('1')
 
@@ -122,7 +125,7 @@ def test_sequence_items():
     a = time.time()
     sc.check()
     sc.run()
-    assert sc.wait() == True
+    assert sc.wait() is True
     b = time.time()
     assert 0.09 <= b - a <= 0.13
 
@@ -136,6 +139,6 @@ def test_sequence_items():
 
 
 def test_locked_multiswitcher():
-    '''Guard against regression of #1315'''
+    # Guard against regression of #1315
     lms = session.getDevice('ld2')
     assert raises(LimitError, lms.move, 0)

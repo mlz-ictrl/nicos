@@ -26,12 +26,12 @@
 
 from nicos import session
 from nicos.core import UsageError, PositionError, CommunicationError, \
-     NicosError, ModeError
+    NicosError, ModeError
 from nicos.core.scan import ContinuousScan
 
 from nicos.commands.measure import count, avg, minmax
 from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
-     manualscan, sweep, appendscan
+    manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
 from nicos.commands.tas import checkalign
 from nicos.core.sessions.utils import MASTER, SLAVE
@@ -44,8 +44,10 @@ def setup_module():
     session.loadSetup('scanning')
     session.setMode(MASTER)
 
+
 def teardown_module():
     session.unloadSetup()
+
 
 def clean_testHandler():
     session.testhandler.clear_warnings()
@@ -70,7 +72,7 @@ def test_scan():
     try:
         # avoid strange timing bug, yielding 0 for manual:min on my system! EF
         import time
-        time.sleep(0.1) # now we spill CacheLock Errors on certain tests... ?!?!?
+        time.sleep(0.1)  # now we spill CacheLock Errors on certain tests... ?!?!?
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0., 'test scan', manual=1)
         dataset = session.experiment._last_datasets[-1]
@@ -123,6 +125,7 @@ def test_scan():
         session.experiment.envlist = []
         session.experiment.detlist = []
 
+
 @with_setup(clean_testHandler, clean_testHandler)
 def test_scan_usageerrors():
     m = session.getDevice('motor')
@@ -141,9 +144,10 @@ def test_scan_usageerrors():
     # as must individual value lists
     assert raises(UsageError, scan, [m, m2], [[0, 1], [0.1, 0.2, 0.3]])
     # as must multistep lists
-    assert raises(UsageError, scan, m, 0, 1, 1, motor=[1,2], motor2=[3,4,5])
+    assert raises(UsageError, scan, m, 0, 1, 1, motor=[1, 2], motor2=[3, 4, 5])
     # unsupported scan argument
     assert raises(UsageError, scan, m, 0, 1, 1, {})
+
 
 @with_setup(clean_testHandler, clean_testHandler)
 def test_scan_invalidpreset():
@@ -154,6 +158,7 @@ def test_scan_invalidpreset():
                                      warns_clear=True,
                                      warns_text='these preset keys were'
                                      ' not recognized by any of the detectors: .*')
+
 
 @with_setup(clean_testHandler, clean_testHandler)
 def test_scan_errorhandling():
@@ -207,11 +212,13 @@ def test_scan_errorhandling():
     t._start_exception = RuntimeError()
     assert raises(RuntimeError, scan, t, [0, 1, 2, 3])
 
+
 def test_cscan():
     m = session.getDevice('motor')
     cscan(m, 0, 1, 2)
     dataset = session.experiment._last_datasets[-1]
     assert dataset.xresults == [[-2.], [-1.], [0.], [1.], [2.]]
+
 
 def test_sweeps():
     m = session.getDevice('motor')
@@ -225,6 +232,7 @@ def test_sweeps():
     sweep(m, 1, 5)
     dataset = session.experiment._last_datasets[-1]
     assert dataset.xresults[-1][0] == 5
+
 
 def test_contscan():
     m = session.getDevice('motor')
@@ -245,6 +253,7 @@ def test_contscan():
     # preset and multistep not allowed
     assert raises(UsageError, contscan, m, 0, 2, 2, t=1)
     assert raises(UsageError, contscan, m, 0, 2, 2, manual=[0, 1])
+
 
 def test_manualscan():
     m = session.getDevice('motor')
@@ -268,6 +277,7 @@ def test_manualscan():
     assert dataset.xresults == [[0., 0.], [1., 1.], [2., 2.]]
     assert dataset.ynames == ['ctr1_manual_0', 'ctr1_manual_1']
 
+
 def test_specialscans():
     m = session.getDevice('motor')
     ctr = session.getDevice('ctr1')
@@ -288,6 +298,7 @@ def test_specialscans():
     appendscan(-5)
     dataset = session.experiment._last_datasets[-1]
     assert dataset.sinkinfo['continuation'] == '%s,%s' % (uid2, uid)
+
 
 def test_twodscan():
     m = session.getDevice('motor')

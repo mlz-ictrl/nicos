@@ -26,19 +26,14 @@
 
 from __future__ import print_function
 
-from nicos.core import UsageError
+import numpy
 
-from nicos.commands.utility import RangeListByStep, RangeListByCount, RangeListLog, \
-     floatrange, RangeListGeneral
+from nicos.core import UsageError
+from nicos.commands.utility import RangeListByStep, RangeListByCount, \
+    RangeListLog, floatrange, RangeListGeneral
 
 from test.utils import raises, assertAlmostEqual
 
-import numpy
-
-def setup_module():
-    pass
-def teardown_module():
-    pass
 
 def test_rangelistbystep():
     # start/stop/step
@@ -73,14 +68,15 @@ def test_rangelistbystep():
     assert l2[0] == 3.
     assert l2[-1] == 1.
 
-    #stop
+    # stop
     l2 = RangeListByStep(3)
     assert len(l2) == 4
     assert l2[0] == 0.
     assert l2[-1] == 3.
 
-    assert raises(UsageError, RangeListByStep, 1 , 2, -0.5)
-    assert raises(UsageError, RangeListByStep, 1 , 2, 0)
+    assert raises(UsageError, RangeListByStep, 1, 2, -0.5)
+    assert raises(UsageError, RangeListByStep, 1, 2, 0)
+
 
 def test_rangelistbycounts():
     # start/stop/num
@@ -100,6 +96,7 @@ def test_rangelistbycounts():
     assert len(l2a) == 2
     assert l2a[0] == 0.
     assert l2a[-1] == 3.
+
 
 def test_floatrange():
     l4 = floatrange(1, 2, step=0.5)
@@ -121,27 +118,28 @@ def test_floatrange():
     assert raises(UsageError, floatrange, 1, 2)
     assert raises(UsageError, floatrange, 1, 2, num=1)
 
+
 def test_rangelistlog():
     l3 = RangeListLog(1., 2., 3)
     print(l3)
-    assert len (l3) == 3
+    assert len(l3) == 3
     assert l3[0] == 1.
     assert l3[-1] == 2.
     assert numpy.allclose(l3, [1.0, 1.4142135623730949, 2.0])
 
-
     l3a = RangeListLog(0.1, 200., 3)
-    assert len (l3a) == 3
+    assert len(l3a) == 3
     assertAlmostEqual(l3a[0], 0.1, 5)
     assertAlmostEqual(l3a[-1], 200., 5)
     assert numpy.allclose(l3a, [0.10000000000000001, 4.4721359549995787, 200.0])
 
     l3b = RangeListLog(200, 2., 5)
-    assert len (l3b) == 5
+    assert len(l3b) == 5
     assertAlmostEqual(l3b[0], 200., 5)
     assertAlmostEqual(l3b[-1], 2., 5)
 
     assert raises(UsageError, RangeListLog, -1, 2, 10)
+
 
 def test_rangelistgeneral():
     l1 = RangeListGeneral(1, 2, 5)

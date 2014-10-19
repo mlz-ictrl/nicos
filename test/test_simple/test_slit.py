@@ -30,9 +30,11 @@ from nicos.core import status, LimitError, InvalidValueError
 from nicos.core.sessions.utils import MASTER
 from test.utils import raises
 
+
 def setup_module():
     session.loadSetup('slit')
     session.setMode(MASTER)
+
 
 def teardown_module():
     session.unloadSetup()
@@ -161,6 +163,7 @@ def test_slit_subaxes():
     assert slit.read(0) == [0, -1, 6, 4]
     slit.top.maw(3)
     assert slit.read(0) == [0, 0, 6, 6]
+
 
 def test_slit_reference():
     slit = session.getDevice('slit')

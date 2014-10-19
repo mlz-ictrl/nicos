@@ -24,14 +24,14 @@
 
 from nicos import session
 from nicos.core import UsageError, LimitError, ConfigurationError, \
-     ComputationError, NicosError, status
+    ComputationError, NicosError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
-     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
+    acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
 from nicos.devices.tas import spacegroups
 from nicos.core.sessions.utils import MASTER
 
-
 from test.utils import raises, assertAlmostEqual, ErrorLogged
+
 
 def setup_module():
     session.loadSetup('scanning')
@@ -42,6 +42,7 @@ def setup_module():
     sample.orient1 = [1, 0, 0]
     sample.orient2 = [0, 1, 1]
 
+
 def teardown_module():
     session.unloadSetup()
 
@@ -49,6 +50,7 @@ def teardown_module():
 def assertPos(pos1, pos2):
     for v1, v2 in zip(pos1, pos2):
         assertAlmostEqual(v1, v2, 3)
+
 
 def test_mono_device():
     mono = session.getDevice('t_mono')
@@ -67,6 +69,7 @@ def test_mono_device():
     # mth/mtt mismatch
     mth.maw(mth()+5)
     assert mono.status(0)[0] == status.NOTREACHED
+
 
 def test_tas_device():
     tas = session.getDevice('Tas')
@@ -133,7 +136,6 @@ def test_tas_device():
     # assert raises(tas, [1, 0, 0, 1])
     assert raises(ConfigurationError, setattr, tas, 'scanmode', 'BLAH')
 
-
     # test sub-devices and wavevector devices
     kf(2.662)
     tas([1, 0, 0, 1])
@@ -145,6 +147,7 @@ def test_tas_device():
     assertAlmostEqual(tas.E(), 1, 3)
     tas.h.maw(1.5)
     assertAlmostEqual(tas.h(), 1.5, 3)
+
 
 def test_Q_object():
     assert all(Q() == Q(0, 0, 0, 0))
@@ -162,6 +165,7 @@ def test_Q_object():
     assert raises(UsageError, Q, 1, 2, 3, 4, 5)
     assert repr(Q()) == '[ 0.  0.  0.  0.]'
 
+
 def test_qscan():
     mot = session.getDevice('motor2')
     qscan((1, 0, 0), Q(0, 0, 0, 0.1), 10, mot, 'scaninfo', t=1)
@@ -174,6 +178,7 @@ def test_qscan():
     assert raises(UsageError, qscan, (1, 0, 0, 0, 0), (0, 0, 0), 10)
     assert raises(UsageError, qscan, (1, 0, 0), (0, 0, 0), 10)
     assert raises(UsageError, qcscan, (1, 0, 0), (0, 0, 0), 10)
+
 
 def test_tas_commands():
     tas = session.getDevice('Tas')
@@ -208,6 +213,7 @@ def test_tas_commands():
     assert raises(UsageError, calpos, 1, 0, 0, 0, 0, 0)
     assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
 
+
 def test_helper_commands():
     # just check that they are working
     acc_bragg(1, 0, 0, 0)
@@ -215,11 +221,12 @@ def test_helper_commands():
     alu(phi=50)
     copper(phi=50)
 
+
 def test_resolution():
     tas = session.getDevice('Tas')
     tas.collimation = '20 30 40 50'
     cell = tas._adevs['cell']
-    cfg, par = _resmat_args((1,1,0,0), {})
+    cfg, par = _resmat_args((1, 1, 0, 0), {})
     assert len(cfg) == 30
     assert par['qx'] == 1
     assert par['en'] == 0
@@ -232,22 +239,23 @@ def test_resolution():
     rescal(1, 1, 0)
     rescal(1, 1, 0, 1)
 
-def test_getspacegroup():
 
-    # Good cases:
+def test_getspacegroup():
+    # Good cases
     assert spacegroups.get_spacegroup(1) == \
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     assert spacegroups.get_spacegroup('Pbca') == \
         [3, 2, 2, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
     # Error cases
     assert raises(NicosError, spacegroups.get_spacegroup, 'Pbbb')
-    assert raises (NicosError, spacegroups.get_spacegroup, 300)
+    assert raises(NicosError, spacegroups.get_spacegroup, 300)
+
 
 def test_canreflect():
     # P1 all reflection types are allowed
     sg = spacegroups.get_spacegroup('P1')
-    assert spacegroups.can_reflect(sg, 0, 0 , 0) == True
-    assert spacegroups.can_reflect(sg, 1, 0 , 0) == True
-    assert spacegroups.can_reflect(sg, 0, 1 , 0) == True
-    assert spacegroups.can_reflect(sg, 0, 0 , 1) == True
-    assert spacegroups.can_reflect(sg, 1, 1 , 1) == True
+    assert spacegroups.can_reflect(sg, 0, 0, 0)
+    assert spacegroups.can_reflect(sg, 1, 0, 0)
+    assert spacegroups.can_reflect(sg, 0, 1, 0)
+    assert spacegroups.can_reflect(sg, 0, 0, 1)
+    assert spacegroups.can_reflect(sg, 1, 1, 1)

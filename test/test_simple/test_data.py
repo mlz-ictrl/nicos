@@ -42,6 +42,7 @@ def setup_module():
     session.loadSetup('data')
     session.setMode(MASTER)
 
+
 def teardown_module():
     session.unloadSetup()
 
@@ -62,7 +63,7 @@ def test_sinks():
 
     assert path.abspath(exp.datapath) == \
         path.abspath(path.join(config.nicos_root, 'testdata',
-                                     year, 'p1234', 'data'))
+                               year, 'p1234', 'data'))
     m = session.getDevice('motor2')
     det = session.getDevice('det')
 
@@ -76,13 +77,12 @@ def test_sinks():
 
     assert '=' * 100 in handler.messages
     assert_response(handler.messages,
-        matches=r'Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.1.*\)')
+                    matches=r'Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.1.*\)')
 
     fname = path.join(session.experiment.dataroot, 'scancounter')
     assert path.isfile(fname)
     contents = readFile(fname)
     assert contents == ['1']
-
 
     fname = path.join(config.nicos_root, 'testdata',
                       year, 'p1234', 'data', 'p1234_00000001.dat')

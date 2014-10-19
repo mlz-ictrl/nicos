@@ -27,15 +27,17 @@
 
 from nicos import session
 from nicos.core import LimitError, ConfigurationError, InvalidValueError, \
-     PositionError, NicosError, status
+    PositionError, NicosError, status
 from test.utils import raises
 
 
 def setup_module():
     session.loadSetup('multiswitch')
 
+
 def teardown_module():
     session.unloadSetup()
+
 
 def test_multi_switcher():
     sc1 = session.getDevice('sc1')
@@ -66,7 +68,7 @@ def test_multi_switcher():
     # case 1: motor in position, but still busy
     y.curstatus = (status.BUSY, 'busy')
     assert sc2.status(0)[0] != status.OK
-    #case 2: motor idle, but wronmg position
+    # case 2: motor idle, but wronmg position
     y.curstatus = (status.OK, 'on target')
     y.curvalue = 22.0
     assert sc2.status(0)[0] == status.NOTREACHED
@@ -75,6 +77,7 @@ def test_multi_switcher():
 
     assert raises(InvalidValueError, sc2.maw, '23')
     assert raises(LimitError, sc2.start, 'outside')
+
 
 def test_multi_switcher_fails():
     assert raises(ConfigurationError, session.getDevice, 'msw3')

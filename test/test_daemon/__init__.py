@@ -39,8 +39,9 @@ from nicos.protocols.daemon import ENQ, LENGTH, serialize, command2code
 cache = None
 daemon = None
 
+
 def setup_package():
-    global cache, daemon  #pylint: disable=W0603
+    global cache, daemon  # pylint: disable=W0603
     print('\nSetting up daemon test, cleaning old test dir...', file=sys.stderr)
     session.__class__ = TestSession
     session.__init__('testdaemon')
@@ -60,7 +61,7 @@ def setup_package():
             time.sleep(0.2)
         else:
             auth = serialize(({'login': 'guest', 'passwd': '', 'display': ''},))
-            s.send((b'\x42' * 16) + # ident
+            s.send((b'\x42' * 16) +  # ident
                    ENQ + command2code['authenticate'] +
                    LENGTH.pack(len(auth)) + auth)
             empty = serialize(())
@@ -71,6 +72,7 @@ def setup_package():
     else:
         raise Exception('daemon failed to start within %s sec' % wait)
     sys.stderr.write(' [daemon start... %s] ' % daemon.pid)
+
 
 def teardown_package():
     sys.stderr.write(' [daemon kill %s...' % daemon.pid)

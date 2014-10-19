@@ -32,24 +32,26 @@ from nicos.clients.gui.utils import checkSetupSpec
 
 # setupspec : loaded_setups : result
 CASES = [
-    (None,      None,                   True),
-    (None,        ['a','b','c'], True),
-    ('a',         ['a','b','c'], True),
-    (['a'],       ['a','b','c'], True),
-    ('!a',        ['a','b','c'], False),
-    (['!a'],      ['a','b','c'], False),
-    (['a','d'],   ['a','b','c'], True),
-    (['d'],       ['a','b','c'], False),
-    (['!d'],      ['a','b','c'], True),
-    (['a','!d'],  ['a','b','c'], True),
-    (['!a','d'],  ['a','b','c'], False),
-    (['!a','!d'], ['a','b','c'], True),
-    ]
+    (None,         None,            True),
+    (None,         ['a', 'b', 'c'], True),
+    ('a',          ['a', 'b', 'c'], True),
+    (['a'],        ['a', 'b', 'c'], True),
+    ('!a',         ['a', 'b', 'c'], False),
+    (['!a'],       ['a', 'b', 'c'], False),
+    (['a', 'd'],   ['a', 'b', 'c'], True),
+    (['d'],        ['a', 'b', 'c'], False),
+    (['!d'],       ['a', 'b', 'c'], True),
+    (['a', '!d'],  ['a', 'b', 'c'], True),
+    (['!a', 'd'],  ['a', 'b', 'c'], False),
+    (['!a', '!d'], ['a', 'b', 'c'], True),
+]
+
 
 def test_checkSetupSpec():
     for spec, setups, result in CASES:
         # print is here to aid in finding the offending input parameters
         # as the stacktrace doesn't output locals
         res = checkSetupSpec(spec, setups)
-        print('testing checkSetupSpec(%r, %r) == %r: %r' % (spec, setups, result, res), end=' ')
+        print('testing checkSetupSpec(%r, %r) == %r: %r' %
+              (spec, setups, result, res), end=' ')
         assert res == result

@@ -35,6 +35,7 @@ from test.utils import raises
 def setup_module():
     session.loadSetup('alias')
 
+
 def teardown_module():
     session.unloadSetup()
 
@@ -52,6 +53,7 @@ def test_alias_nodev():
     # but stringification is still the name of the alias object
     assert str(alias) == 'aliasDev'
     assert 'aliasDev' in repr(alias)
+
 
 def test_alias_dev():
     alias = session.getDevice('aliasDev', object)
@@ -74,6 +76,7 @@ def test_alias_dev():
     slit = session.getDevice('slit')
     assert raises(UsageError, setattr, alias, 'alias', slit)
 
+
 def test_adjust_alias():
     alias = session.getDevice('aliasDev3', object)
     # now set the alias to some object
@@ -83,12 +86,13 @@ def test_adjust_alias():
 
     alias.alias = axis
     alias.offset = 0.0
-    ## # old behaviour
-    ## assert raises(UsageError, adjust, alias, 0)
-    ## # after fix of bug#870
+    # # old behaviour
+    # assert raises(UsageError, adjust, alias, 0)
+    # # after fix of bug#870
     adjust(alias, 1)
     adjust(alias, 0)
     alias.alias = ''
+
 
 def test_alias_valueinfo():
     # check the value info replacement
@@ -98,6 +102,7 @@ def test_alias_valueinfo():
     vistr = str(alias.valueInfo())
     assert 'aliasDev' in vistr
     assert 'aliasDev' == alias.valueInfo()[0].name
+
 
 def test_alias_valueinfo2():
     # check with multiple values, check setting from config

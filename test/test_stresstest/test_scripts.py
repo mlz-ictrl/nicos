@@ -32,18 +32,17 @@ from nicos.core.sessions.simple import ScriptSession
 from nicos.pycompat import exec_
 
 # import all public symbols from nicos.core to get all nicos exceptions
-from nicos.core import * #pylint: disable=W0611,W0401
+from nicos.core import *  # pylint: disable=W0611,W0401
 
 
-from test.utils import raises
+from test.utils import raises, assert_raises
 
 
 class ScriptSessionTest(ScriptSession):
     def __init__(self, appname, daemonized=False):
         ScriptSession.__init__(self, appname, daemonized)
-        self.setSetupPath(path.normpath(
-                            path.join(
-                               path.dirname(__file__), '../setups')))
+        self.setSetupPath(
+            path.normpath(path.join(path.dirname(__file__), '../setups')))
 
     def createRootLogger(self, prefix='nicos', console=True):
         self.log = loggers.NicosLogger('nicos')
@@ -54,7 +53,7 @@ class ScriptSessionTest(ScriptSession):
         handler.setFormatter(
             logging.Formatter('[SCRIPT] %(name)s: %(message)s'))
         self.log.addHandler(handler)
-        log_path = path.join(path.dirname(__file__),'../root','log')
+        log_path = path.join(path.dirname(__file__), '../root', 'log')
         try:
             if prefix == 'nicos':
                 self.log.addHandler(loggers.NicosLogfileHandler(
@@ -80,21 +79,21 @@ def run_script_session(setup, code):
     finally:
         session.shutdown()
 
+
 def test_simple():
     run_script_session('startup', 'print "Test"')
+
 
 def test_raise_simple():
     code = 'raise Exception("testing")'
     setup = 'startup'
     assert raises(Exception, run_script_session, setup, code)
 
-def assertRaises(exception, func, *args):
-    assert raises(exception, func, *args)
 
 def test_scripts():
     # test generator executing scripts
     testscriptspath = path.normpath(
-                        path.join(path.dirname(__file__), '..', 'scripts'))
+        path.join(path.dirname(__file__), '..', 'scripts'))
     allscripts = []
     matcher = re.compile(r'.*Raises(.*)\..*')
     for root, _dirs, files in os.walk(testscriptspath):
@@ -106,6 +105,6 @@ def test_scripts():
         m = matcher.match(fn)
         if m:
             etype = eval(m.group(1))
-            yield assertRaises, etype, run_script_session, setup, code
+            yield assert_raises, etype, run_script_session, setup, code
         else:
             yield run_script_session, setup, code

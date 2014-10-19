@@ -26,17 +26,19 @@
 
 from nicos import session
 from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
-     ConfigurationError, ProgrammingError, LimitError, UsageError, \
-     AccessError, requires, usermethod, ADMIN
+    ConfigurationError, ProgrammingError, LimitError, UsageError, \
+    AccessError, requires, usermethod, ADMIN
 from nicos.core.sessions.utils import MAINTENANCE
 
 from test.utils import raises
 
 methods_called = set()
 
+
 def setup_module():
     session.loadSetup('device')
     methods_called.clear()
+
 
 def teardown_module():
     session.unloadSetup()
@@ -44,6 +46,7 @@ def teardown_module():
 
 class Dev1(Device):
     pass
+
 
 class Dev2(HasLimits, HasOffset, Moveable):
     attached_devices = {'attached': (Dev1, 'Test attached device')}
@@ -54,12 +57,12 @@ class Dev2(HasLimits, HasOffset, Moveable):
         'failinit': Param('If true, fail the doInit() call', type=bool,
                           default=False),
         'failshutdown': Param('If true, fail the doShutdown() call', type=bool,
-                          default=False),
+                              default=False),
     }
 
     def doInit(self, mode):
         if self.failinit:
-            1/0  #pylint: disable=W0104
+            1/0  # pylint: disable=W0104
         self._val = 0
         methods_called.add('doInit')
 
@@ -135,6 +138,7 @@ def test_initialization():
     # assert device is cleaned up anyway
     assert 'dev2_5' not in session.devices
 
+
 def test_special_methods():
     dev = session.getDevice('dev2_1')
     # pickling a device should yield its name as a string
@@ -142,6 +146,7 @@ def test_special_methods():
     assert pickle.loads(pickle.dumps(dev)) == 'dev2_1'
     # test that the repr() works
     assert dev.name in repr(dev)
+
 
 def test_params():
     dev2 = session.getDevice('dev2_1')
@@ -167,6 +172,7 @@ def test_params():
     assert dev2.getPar('param2') == 8
     assert raises(UsageError, dev2.setPar, 'param3', 1)
     assert raises(UsageError, dev2.getPar, 'param3')
+
 
 def test_methods():
     dev2 = session.getDevice('dev2_3')
@@ -207,6 +213,7 @@ def test_methods():
     # test access control (test session always returns False for access check)
     assert raises(AccessError, dev2.calibrate)
 
+
 def test_fix_and_release():
     # fixing and releasing
     dev2 = session.getDevice('t_mtt')
@@ -233,6 +240,7 @@ def test_fix_and_release():
         dev2.release()
     dev2.stop()
     assert dev2.status()[0] == status.OK
+
 
 def test_limits():
     dev2 = session.getDevice('dev2_3')

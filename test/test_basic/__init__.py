@@ -30,6 +30,7 @@ import sys
 
 from test.utils import cleanup
 
+
 def setup_package():
     print('\nSetting up basic test, cleaning old test dir...', file=sys.stderr)
     cleanup()

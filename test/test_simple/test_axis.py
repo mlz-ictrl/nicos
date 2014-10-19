@@ -36,6 +36,7 @@ def setup_module():
     session.loadSetup('axis')
     session.setMode(MASTER)
 
+
 def teardown_module():
     session.unloadSetup()
 
@@ -58,6 +59,7 @@ def test_params():
     assertAlmostEqual(axis.read(), 0)
     axis.offset = 0
 
+
 def test_movement():
     axis = session.getDevice('axis')
     # moving once
@@ -66,14 +68,14 @@ def test_movement():
     assert axis.status()[0] == status.OK
     # moving again
     axis.maw(2)
-    assertAlmostEqual(axis.read(),2)
+    assertAlmostEqual(axis.read(), 2)
     assert axis.status()[0] == status.OK
     # moving out of limits?
     assert raises(LimitError, axis.move, 150)
     # simulate a busy motor
     axis._adevs['motor'].curstatus = (status.BUSY, 'busy')
     # moving while busy?
-    ##assert raises(NicosError, axis.move, 10)
+    # assert raises(NicosError, axis.move, 10)
     # forwarding of motor status by doStatus()
     assert axis.status(0)[0] == status.BUSY
     axis._adevs['motor'].curstatus = (status.OK, '')
@@ -96,9 +98,11 @@ def test_movement():
         motor.speed = 0
         motor.stop()
 
+
 def test_reset():
     axis = session.getDevice('axis')
     axis.reset()
+
 
 def test_backlash():
     axis = session.getDevice('backlash_axis')
@@ -113,6 +117,7 @@ def test_backlash():
         assert 0 <= axis.read() <= 1
     finally:
         motor.speed = 0
+
 
 def test_obs():
     axis = session.getDevice('obs_axis')

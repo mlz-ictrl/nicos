@@ -26,6 +26,7 @@
 
 from nicos.core.errors import NicosError, CacheLockError
 
+
 def test_exceptions():
     try:
         raise NicosError(None, wikicode=1)

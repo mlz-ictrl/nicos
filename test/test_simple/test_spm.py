@@ -30,10 +30,12 @@ from nicos.core.sessions.utils import MASTER
 
 from test.utils import raises
 
+
 def setup_module():
     session.loadSetup('axis')
     session.setMode(MASTER)
     session.setSPMode(True)
+
 
 def teardown_module():
     session.setSPMode(False)
@@ -42,6 +44,7 @@ def teardown_module():
 
 def spmexec(source):
     session.runsource(source)
+
 
 def test_spm():
     # note the use of createDevice here; devices used via SPM must be in the

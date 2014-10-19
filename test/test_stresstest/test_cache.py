@@ -34,9 +34,11 @@ from nicos.core.sessions.utils import MASTER
 
 from test.utils import raises, killCache, startCache
 
+
 def setup_module():
     session.loadSetup('cachetests')
     session.setMode(MASTER)
+
 
 def teardown_module():
     session.unloadSetup()

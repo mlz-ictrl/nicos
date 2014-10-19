@@ -25,12 +25,13 @@
 """NICOS parameter utilities tests."""
 
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
-     tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
-     none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
-     subdir, nicosdev, nonemptystring
+    tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
+    none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
+    subdir, nicosdev, nonemptystring
 from nicos.core.errors import ProgrammingError
 
 from test.utils import raises
+
 
 def test_param_class():
     assert str(Param('my parameter')) == '<Param info>'
@@ -38,6 +39,7 @@ def test_param_class():
     assert text == 'Parameter: my parameter\n\n    * Type: float\n    * ' \
                    'Default value: ``0.0``\n    * Not settable at runtime\n' \
                    '    * Prefer value from cache: True'
+
 
 def test_listof():
     assert listof(int)([0., 1, '2']) == [0, 1, 2]
@@ -47,6 +49,7 @@ def test_listof():
     assert raises(ValueError, listof(int), 10)
     # assert that the list is read-only
     assert raises(TypeError, listof(int)([0, 1, 2]).__setitem__, 0, 1)
+
 
 def test_nonemptylistof():
     assert nonemptylistof(int)(['1']) == [1]
@@ -58,6 +61,7 @@ def test_nonemptylistof():
     # assert that the list is read-only
     assert raises(TypeError, nonemptylistof(int)([0, 1, 2]).__setitem__, 0, 1)
 
+
 def test_tupleof():
     assert tupleof(int, str, float)((1.0, 1.0, 1.0)) == (1, '1.0', 1.0)
     assert tupleof(int, str, float)() == (0, '', 0.0)
@@ -67,6 +71,7 @@ def test_tupleof():
     assert raises(ValueError, tupleof(int, str), 'x')
     assert raises(ProgrammingError, tupleof,)
 
+
 def test_dictof():
     assert dictof(int, str)({1: 0, 2: 1}) == {1: '0', 2: '1'}
     assert dictof(int, str)() == {}
@@ -74,6 +79,7 @@ def test_dictof():
     assert raises(ValueError, dictof(int, str), {'x': 'y'})
     # test that the dict is read-only
     assert raises(TypeError, dictof(int, str)({1: 'x'}).pop, 1)
+
 
 def test_tacodev():
     assert tacodev('test/custom/device') == 'test/custom/device'
@@ -84,25 +90,30 @@ def test_tacodev():
     assert raises(ValueError, tacodev, '/taco23/test/custom/device')
     assert raises(ValueError, tacodev, 'test/device')
 
+
 def test_tangodev():
     def td_assert(testname, name):
         assert tangodev(name) == name
+
     def td_raises(testname, name):
         assert raises(ValueError, tangodev, name)
-    valid_names = ['tango://host:123/test/custom/device',
-                   'tango://test/custom/dev',
-                   'tango://host:123/test/custom/device#dbase=no',
-                   'tango://host:123/test/custom/device#dbase=yes',
-                  ]
-    invalid_names = {'Invalid dbase setting': 'tango://host:123/test/custom/dev#dbase=y',
-                     'Typo in dbase setting': 'tango://host:123/test/custom/dev#dbas=no',
-                     'Wrong separator to dbase setting': 'tango://host:123/test/custom/dev~dbase=no',
-                     'Missing dbase flag': 'tango://host:123/test/custom/dev#dbase',
-                     'Tango attribute': 'tango://host:123/test/custom/dev/attr',
-                     'Device property': 'tango://host:123/test/custom/dev->prop',
-                     'Attribute property': 'tango://host:123/test/custom/dev/attr->prop',
-                     'Missing tango scheme': 'test/custom/device',
-                     }
+
+    valid_names = [
+        'tango://host:123/test/custom/device',
+        'tango://test/custom/dev',
+        'tango://host:123/test/custom/device#dbase=no',
+        'tango://host:123/test/custom/device#dbase=yes',
+    ]
+    invalid_names = {
+        'Invalid dbase setting': 'tango://host:123/test/custom/dev#dbase=y',
+        'Typo in dbase setting': 'tango://host:123/test/custom/dev#dbas=no',
+        'Wrong separator to dbase setting': 'tango://host:123/test/custom/dev~dbase=no',
+        'Missing dbase flag': 'tango://host:123/test/custom/dev#dbase',
+        'Tango attribute': 'tango://host:123/test/custom/dev/attr',
+        'Device property': 'tango://host:123/test/custom/dev->prop',
+        'Attribute property': 'tango://host:123/test/custom/dev/attr->prop',
+        'Missing tango scheme': 'test/custom/device',
+    }
     assert tangodev() == ''
     for validname in valid_names:
         # assert tangodev(validname) == validname
@@ -113,8 +124,10 @@ def test_tangodev():
         # yield td_raises(invalidname)
         yield td_raises, key, invalidname
 
+
 def test_anytype():
     assert anytype('foo') == 'foo'
+
 
 def test_vec3():
     assert vec3([1, 0, 0]) == [1., 0., 0.]
@@ -124,12 +137,14 @@ def test_vec3():
     # assert that the list is read-only
     assert raises(TypeError, vec3([0, 1, 2]).__setitem__, 0, 1)
 
+
 def test_intrange():
     assert intrange(0, 10)(10) == 10
     assert intrange(1, 3)() == 1
     assert raises(ValueError, intrange(0, 10), 15)
     assert raises(ValueError, intrange(0, 10), 'x')
     assert raises(ValueError, intrange, 2, 1)
+
 
 def test_floatrange():
     assert floatrange(0, 10)(5) == 5.0
@@ -138,6 +153,7 @@ def test_floatrange():
     assert raises(ValueError, floatrange(0, 10), 'x')
     assert raises(ValueError, floatrange, 2, 1)
 
+
 def test_oneof():
     assert oneof(0, 1)(1) == 1
     assert oneof(2, 3)() == 2
@@ -145,15 +161,17 @@ def test_oneof():
     assert raises(ValueError, oneof(0, 1), 2)
     assert raises(ValueError, oneof(0, 1), 'x')
 
+
 def test_oneofdict():
     assert oneofdict({'A': 1, 'B': 2})('A') == 1
     assert oneofdict({'A': 1, 'B': 2})(1) == 1
     assert raises(ValueError, oneofdict({}))
     assert raises(ValueError, oneofdict({'A': 1}), 2)
 
-    assert none_or(int)(None) == None
+    assert none_or(int)(None) is None
     assert none_or(int)(5.0) == 5
     assert raises(ValueError, none_or(int), 'x')
+
 
 def test_limits():
     assert limits((-10, 10)) == (-10, 10)
@@ -166,6 +184,7 @@ def test_limits():
     assert raises(TypeError, limits, 1, 1)
     assert raises(ValueError, limits, (10, -10))
     assert raises(ValueError, limits, ('a', 'b'))
+
 
 def test_mailaddress():
     assert mailaddress() == ''
@@ -189,9 +208,11 @@ def test_mailaddress():
     assert raises(ValueError, mailaddress, 'my@nonsens@dömain.my')
     assert raises(ValueError, mailaddress, u'M. Address <my.address@domain.my>,')
 
+
 def test_value_class():
     assert raises(ProgrammingError, Value, 'my value', type='mytype')
     assert raises(ProgrammingError, Value, 'my value', errors='double')
+
 
 def test_path():
     assert absolute_path('/tmp') == '/tmp'
@@ -203,8 +224,10 @@ def test_path():
     assert raises(ValueError, relative_path, '../')
     assert raises(ValueError, subdir, 'tmp/')
 
+
 def test_nicosdev():
     assert raises(ValueError, nicosdev, 'nicos.dev')
+
 
 def test_string_params():
     assert raises(ValueError, nonemptystring, '')

@@ -26,6 +26,6 @@ from nicos.services.daemon.script import RequestError, Request
 
 from test.utils import raises
 
+
 def test_request_object():
     assert raises(RequestError, Request, None)
-

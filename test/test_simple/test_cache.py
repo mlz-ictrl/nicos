@@ -37,9 +37,11 @@ from nicos.core.sessions.utils import MASTER
 
 from test.utils import raises
 
+
 def setup_module():
     session.loadSetup('cachetests')
     session.setMode(MASTER)
+
 
 def teardown_module():
     session.unloadSetup()
@@ -51,8 +53,9 @@ def test_00float_literals():
         cc.put('testcache', 'fval', fv)
         cc.flush()
         fvc = cc.get_explicit('testcache', 'fval')[2]
-        assert repr(fvc) == repr(fv)   # cannot compare fvc == fv, since
-                                       # nan is not equal to itself
+        # cannot compare fvc == fv, since nan is not equal to itself
+        assert repr(fvc) == repr(fv)
+
 
 def test_01write():
     cc = session.cache
@@ -133,7 +136,7 @@ def test_05cachereadonlyobjects():
     cc.flush()
     rol1 = cc.get('testcache', 'rolist')
     rol = cc.get_explicit('testcache', 'rolist', None)
-    assert rol[2] != None
+    assert rol[2] is not None
     print(type(rol1), type(testval1))
     assert type(rol1) == type(testval1)
     assert type(rol[2]) == type(testval1)
@@ -142,7 +145,7 @@ def test_05cachereadonlyobjects():
     cc.put('testcache', 'rodict', testval2)
     cc.flush()
     rod = cc.get_explicit('testcache', 'rodict', None)
-    assert rod[2] != None
+    assert rod[2] is not None
     print(type(rod[2]), type(testval2))
     assert type(rod[2]) == type(testval2)
 
@@ -150,7 +153,7 @@ def test_05cachereadonlyobjects():
     cc.put('testcache', 'rolist2', testval3)
     cc.flush()
     rol = cc.get_explicit('testcache', 'rolist2', None)
-    assert rol[2] != None
+    assert rol[2] is not None
     print(type(rol[2]), type(testval3))
     assert type(rol[2]) == type(testval3)
     assert type(rol[2][0]) == type(testval1)
@@ -160,7 +163,7 @@ def test_05cachereadonlyobjects():
     cc.put('testcache', 'rodict2', testval4)
     cc.flush()
     rod = cc.get_explicit('testcache', 'rodict2', None)
-    assert rod[2] != None
+    assert rod[2] is not None
     print(type(rod[2]), type(testval4))
     assert type(rod[2]) == type(testval4)
     assert type(rod[2]['A']) == type(testval1)
@@ -205,9 +208,10 @@ def test_06acacheReader():
     # just make sure we put the value into the cache
     assert rd1.read() == testval
     sleep(0.71)  # sleep longer than ttl (0.1) + self.maxage (0.1) + 0.5
-    assert session.testhandler.warns(rd1.read, warns_clear=True,
-                warns_text='value timed out in cache, this should be '
-                                 'considered as an error!')
+    assert session.testhandler.warns(
+        rd1.read, warns_clear=True,
+        warns_text='value timed out in cache, this should be '
+        'considered as an error!')
 
 
 def test_07cacheWriter():
@@ -230,9 +234,10 @@ def test_07cacheWriter():
     cc2.put(wrt1, key, testval2, ttl=0.1)
     cc2.flush()
     sleep(0.71)  # ttl+ wrt1.maxage
-    assert session.testhandler.warns(wrt1.read, warns_clear=True,
-                warns_text='value timed out in cache, this should be '
-                                 'considered as an error!')
+    assert session.testhandler.warns(
+        wrt1.read, warns_clear=True,
+        warns_text='value timed out in cache, this should be '
+        'considered as an error!')
     wrt1.move(10)
     assert cc.get('writer1', 'setpoint') == 10.0
     cc.flush()
