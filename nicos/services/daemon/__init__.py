@@ -196,7 +196,7 @@ class NicosDaemon(Device):
         """
         # pre-fetch attributes for speed
         ctlr, intv, emit, sleep = self._controller, self.updateinterval, \
-                                  self.emit_event, time.sleep
+            self.emit_event, time.sleep
         lastwatch = {}
         while not self._stoprequest:
             sleep(intv)
@@ -234,7 +234,7 @@ class NicosDaemon(Device):
     def start(self):
         """Start the daemon's server."""
         self.log.info('NICOS daemon v%s started, starting server on %s' %
-                       (nicos_version, self.server))
+                      (nicos_version, self.server))
         # startup the script thread
         self._controller.start_script_thread()
         self._worker = createThread('daemon server', self._server.serve_forever)

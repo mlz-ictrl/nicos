@@ -53,7 +53,7 @@ class DaemonSession(NoninteractiveSession):
     # these objects are such a piece of code (the number designates the level)
     _bpcode = [None, compile("pass", "<break>1", "exec"),
                compile("pass", "<break>2", "exec"),
-               compile("pass", "<break>3", "exec"),]
+               compile("pass", "<break>3", "exec")]
 
     def _initLogging(self, prefix=None, console=True):
         NoninteractiveSession._initLogging(self, prefix, console)
@@ -127,9 +127,9 @@ class DaemonSession(NoninteractiveSession):
                     raise AccessError('invalid access level name: %r' % rlevel)
             if script and rlevel > script.userlevel:
                 raise AccessError('%s access is not sufficient, %s access '
-                    'is required' % (
-                    ACCESS_LEVELS.get(script.userlevel, str(script.userlevel)),
-                    ACCESS_LEVELS.get(rlevel, str(rlevel))))
+                                  'is required' % (
+                                      ACCESS_LEVELS.get(script.userlevel, str(script.userlevel)),
+                                      ACCESS_LEVELS.get(rlevel, str(rlevel))))
         return NoninteractiveSession.checkAccess(self, required)
 
     def showHelp(self, obj=None):
@@ -147,8 +147,8 @@ class DaemonSession(NoninteractiveSession):
 
     def clientExec(self, func, args):
         """Execute a function client-side."""
-        self.emitfunc_private('clientexec', ('%s.%s' %
-            (func.__module__, func.__name__),) + args)
+        self.emitfunc_private('clientexec',
+                              ('%s.%s' % (func.__module__, func.__name__),) + args)
 
     def setupCallback(self, setupnames, explicit):
         self.emitfunc('setup', (setupnames, explicit))

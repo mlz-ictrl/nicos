@@ -37,10 +37,12 @@ else:
     # black magic to make `cmd` into links
     from docutils import nodes, utils
     from docutils.parsers.rst import roles
+
     def std_role(typ, raw, text, lineno, inliner, options=None, content=None):
         text = utils.unescape(text)
         reftext = text
-        if reftext.endswith('()'): reftext = reftext[:-2]
+        if reftext.endswith('()'):
+            reftext = reftext[:-2]
         return [nodes.reference(text, text, refuri='cmd:%s' % reftext)], []
     roles._roles[''] = std_role
 
@@ -70,6 +72,7 @@ pre.literal-block, pre.doctest-block
 .usage tt
         { font-size: 13pt; }
 '''
+
 
 def lower(s):
     return s.lower()
@@ -163,11 +166,13 @@ class HelpGenerator(object):
                    '<a href="cmd:AddSetup">AddSetup()</a> to load an '
                    'additional setup or <a href="cmd:NewSetup">NewSetup()</a>'
                    ' to load one or more completely new ones.</p>')
+
         def devlink(devname):
             if devname in session.devices:
                 return '<a href="dev:%s">%s</a>' % (escape_html(devname),
                                                     escape_html(devname))
             return escape_html(devname)
+
         def listsetups(group):
             setups = []
             for setupname, info in sorted(iteritems(session.getSetupInfo())):
@@ -248,8 +253,10 @@ class HelpGenerator(object):
         ret.append('<table width="100%"><tr><th>Method</th><th>From class</th>'
                    '<th>Description</th></tr>')
         listed = set()
+
         def _list(cls):
-            if cls in listed: return
+            if cls in listed:
+                return
             listed.add(cls)
             for name, (args, doc) in sorted(iteritems(cls.commands)):
                 ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %

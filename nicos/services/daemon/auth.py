@@ -108,35 +108,27 @@ class LDAPAuthenticator(Authenticator):
     '''
     parameters = {
         'server': Param('Ldap server',
-                         type=str,
-                         mandatory=True
-                         ),
-        'port': Param('Ldap port',
-                         type=int,
-                         default=389
-                         ),
-        'userbasedn': Param('Base dn to query users.',
-                         type=str,
-                         mandatory=True
-                         ),
-        'userfilter': Param('Filter for querying users. Must contain "%(username)s"',
-                         type=str,
-                         default='(&(uid=%(username)s)(objectClass=posixAccount))'
-                         ),
+                        type=str,
+                        mandatory=True),
+        'port':   Param('Ldap port',
+                        type=int,
+                        default=389),
+        'userbasedn':  Param('Base dn to query users.',
+                             type=str,
+                             mandatory=True),
+        'userfilter':  Param('Filter for querying users. Must contain "%(username)s"',
+                             type=str,
+                             default='(&(uid=%(username)s)(objectClass=posixAccount))'),
         'groupbasedn': Param('Base dn to query groups.',
-                         type=str,
-                         mandatory=True,
-                         ),
+                             type=str,
+                             mandatory=True),
         'groupfilter': Param('Filter for querying groups. Must contain "%(gidnumber)s"',
-                         type=str,
-                         default='(&(gidNumber=%(gidnumber)s)(objectClass=posixGroup))'
-                         ),
-        'userroles':  Param('Dictionary of allowed users with their associated role',
-                         type=dictof(str, oneof(*ACCESS_LEVELS.values())),
-                         ),
+                             type=str,
+                             default='(&(gidNumber=%(gidnumber)s)(objectClass=posixGroup))'),
+        'userroles':   Param('Dictionary of allowed users with their associated role',
+                             type=dictof(str, oneof(*ACCESS_LEVELS.values()))),
         'grouproles':  Param('Dictionary of allowed groups with their associated role',
-                         type=dictof(str, oneof(*ACCESS_LEVELS.values())),
-                         ),
+                             type=dictof(str, oneof(*ACCESS_LEVELS.values()))),
     }
 
     def doInit(self, mode):
@@ -151,7 +143,6 @@ class LDAPAuthenticator(Authenticator):
     def pw_hashing(self):
         # A plain password is necessary for ldap bind.
         return 'plain'
-
 
     def authenticate(self, username, password):
         userdn = self._buildUserDn(username)
@@ -196,15 +187,14 @@ class LDAPAuthenticator(Authenticator):
         return ('uid=%s,%s' % (username, self.userbasedn))
 
     def _getGroupnameForGidnumber(self, gidnumber):
-        filterStr = self.groupfilter % {'gidnumber' : gidnumber}
+        filterStr = self.groupfilter % {'gidnumber': gidnumber}
         result = self._connection.search_s(self.groupbasedn, ldap.SCOPE_ONELEVEL, filterStr)
 
         if result:
             return result[0][1]['cn'][0]
 
-
     def _getUserGroups(self, username):
-        filterStr = self.userfilter % {'username' : username}
+        filterStr = self.userfilter % {'username': username}
         userData = self._connection.search_s(self.userbasedn, ldap.SCOPE_ONELEVEL, filterStr)
 
         gidnumbers = []
@@ -245,7 +235,7 @@ class ListAuthenticator(Authenticator):
             if user == username:
                 if not pw or pw == password:
                     if not password and level > USER:
-                        level = USER # limit passwordless entries to USER
+                        level = USER  # limit passwordless entries to USER
                     return User(username, level)
                 else:
                     raise AuthenticationError('Invalid username or password!')
@@ -254,9 +244,9 @@ class ListAuthenticator(Authenticator):
             if user == '':
                 if pw and pw == password:
                     if level > USER:
-                        level = USER # limit passworded anonymous to USER
+                        level = USER  # limit passworded anonymous to USER
                     return User(username, level)
-                elif not pw: # fix passwordless anonymous to GUEST
+                elif not pw:  # fix passwordless anonymous to GUEST
                     return User(username, GUEST)
         # do not give a hint whether username or password is wrong...
         raise AuthenticationError('Invalid username or password!')

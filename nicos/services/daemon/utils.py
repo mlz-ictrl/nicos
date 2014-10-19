@@ -38,6 +38,7 @@ TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
 
 # -- General utilities ---------------------------------------------------------
 
+
 def format_exception_cut_frames(cut=0):
     """
     Format an exception with traceback, but leave out the first `cut`
@@ -78,6 +79,7 @@ def format_timestamp(prompt='<<<'):
 
 
 _bare_except = re.compile(r'^([ \t]*)except[ \t]*:', re.MULTILINE)
+
 
 def fixup_script(script):
     """Perform some fixup operations on the script."""
