@@ -38,6 +38,6 @@ from nicos.devices.generic.switcher import Switcher, ReadonlySwitcher, \
 from nicos.devices.generic.cache import CacheReader, CacheWriter
 from nicos.devices.generic.system import FreeSpace
 from nicos.devices.generic.virtual import VirtualMotor, VirtualCoder, \
-     VirtualTimer, VirtualCounter, VirtualTemperature
+     VirtualTimer, VirtualCounter, VirtualTemperature, VirtualCounterCard
 from nicos.devices.generic.sequence import LockedDevice, BaseSequencer
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet

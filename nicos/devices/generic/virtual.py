@@ -37,7 +37,7 @@ from nicos.utils import clamp, createThread
 from nicos.services.poller.psession import PollerSession
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
     none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
-    ImageProducer, ImageType, SIMULATION, Attach
+    ImageProducer, ImageType, SIMULATION, Attach, Device
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import Channel
 
@@ -144,41 +144,104 @@ class VirtualCoder(Coder, HasOffset):
         pass
 
 
-class VirtualTimer(Channel):
+class VirtualCounterCard(Device):
+    """A virtual counter card device that coordinates multiple channels."""
+
+    def doInit(self, mode):
+        self._channels = []
+        self._masters = {}
+
+    def addChannel(self, ch):
+        self._channels.append(ch)
+        self._masters[ch] = False
+
+    def started(self, ch):
+        self._masters[ch] = ch.ismaster
+
+    def finished(self, ch):
+        if self._masters[ch]:
+            for ch in self._channels:
+                ch.stop()
+
+
+class VirtualChannel(Channel):
+    """A channel of a virtual detector card a la FRM-II detector card, which has
+    a number of counter channels and one timer channel.
+    """
+    parameters = {
+        'curvalue':  Param('Current value', settable=True, unit='main'),
+        'curstatus': Param('Current status', type=tupleof(int, str),
+                           settable=True, default=(status.OK, 'idle')),
+    }
+
+    parameter_overrides = {
+        'preselection': Override(default=0,),
+    }
+
+    attached_devices = {
+        'card': (VirtualCounterCard, 'virtual card'),
+    }
+
+    _thread = None
+
+    def doInit(self, mode):
+        self._finish = True
+        self.curvalue = 0
+        self._adevs['card'].addChannel(self)
+
+    def doSetPreset(self, **preset):
+        self._lastpreset = preset
+
+    def doStop(self):
+        if self._thread is not None and self._thread.isAlive():
+            self._finish = True
+        else:
+            self.curstatus = (status.OK, 'idle')
+
+    def doIsCompleted(self):
+        return self.curstatus[0] == status.OK
+
+    def doStatus(self, maxage=0):
+        return self.curstatus
+
+    def doRead(self, maxage=0):
+        return self.curvalue
+
+
+class VirtualTimer(VirtualChannel):
     """A virtual timer channel for use together with
     `nicos.devices.generic.detector.MultiChannelDetector`.
     """
 
-    def doInit(self, mode):
-        self.__finish = False
-
     def doStart(self):
-        if self.ismaster:
-            self.__finish = False
-            createThread('virtual timer %s' % self, self.__thread)
+        if hasattr(self, '_lastpreset') and 't' in self._lastpreset:
+            self.preselection = self._lastpreset['t']
 
-    def doIsCompleted(self):
-        return self.__finish
+        if self._finish:
+            self.curvalue = 0
+            self._adevs['card'].started(self)
+            self._finish = False
+            self.curstatus = (status.BUSY, 'counting')
+            self._thread = createThread('virtual timer %s' % self,
+                                        self.__counting)
 
-    def __thread(self):
+    def __counting(self):
         finish_at = time.time() + self.preselection
-        while time.time() < finish_at and not self.__finish:
+        self.log.debug('timing to %.3f' % (self.preselection,))
+        while not self._finish:
             time.sleep(0.1)
-        self.__finish = True
-
-    def doStop(self):
-        self.__finish = True
-
-    def doStatus(self, maxage=0):
-        return status.OK, ''
-
-    def doRead(self, maxage=0):
-        if self.ismaster:
-            return self.preselection
-        return random.randint(0, 1000)
+            self.curvalue += 0.1
+            if  time.time() >= finish_at:
+                if self.ismaster:
+                    self._adevs['card'].finished(self)
+                self.curvalue = self.preselection
+                self._finish = True
+        self.curstatus = (status.OK, 'idle')
 
     def doSimulate(self, preset):
-        return [self.doRead()]
+        if self.ismaster:
+            return [self.preselection]
+        return [random.randint(0, 1000)]
 
     def doReadUnit(self):
         return 's'
@@ -187,13 +250,10 @@ class VirtualTimer(Channel):
         return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
 
     def doTime(self, preset):
-        if self.ismaster:
-            return self.preselection
-        else:
-            return 0
+        return self.preselection if self.ismaster else 0
 
 
-class VirtualCounter(Channel):
+class VirtualCounter(VirtualChannel):
     """A virtual counter channel for use together with
     `nicos.devices.generic.detector.MultiChannelDetector`.
     """
@@ -204,19 +264,37 @@ class VirtualCounter(Channel):
                             type=oneof('monitor', 'counter'), mandatory=True),
     }
 
-    def doStatus(self, maxage=0):
-        return status.OK, ''
+    parameter_overrides = {
+        'fmtstr':      Override(default='%d'),
+    }
 
-    def doRead(self, maxage=0):
-        if self.ismaster:
-            return self.preselection
-        return random.randint(0, self.countrate)
+    def doStart(self):
+        if self._finish:
+            self.curvalue = 0
+            self._adevs['card'].started(self)
+            self._finish = False
+            self.curstatus = (status.BUSY, 'virtual counting')
+            self._thread = createThread('virtual counter %s' % self,
+                                        self.__counting)
+
+    def __counting(self):
+        self.log.debug('counting to %d cts with %d cts/s' %
+                       (self.preselection, self.countrate))
+        rate = abs(self.countrate)
+        while not self._finish:
+            time.sleep(0.1)
+            self.curvalue += int(random.randint(int(rate * 0.9), rate) / 10)
+            if self.curvalue >= self.preselection:
+                if self.ismaster:
+                    self._adevs['card'].finished(self)
+                self.curvalue = self.preselection
+                self._finish = True
+        self.curstatus = (status.OK, 'idle')
 
     def doSimulate(self, preset):
-        return [self.doRead()]
-
-    def doIsCompleted(self):
-        return True
+        if self.ismaster:
+            return [self.preselection]
+        return [random.randint(0, self.countrate)]
 
     def doReadUnit(self):
         return 'cts'
