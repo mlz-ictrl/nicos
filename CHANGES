@@ -1,6 +1,59 @@
 Changelog for NICOS 2
 =====================
 
+Release 2.6.0
+-------------
+
+* Commands
+
+  - "appendscan()" can now be used multiple times to append to the original scan
+    further and further.
+
+  - The deprecated "DestroyDevice()" has been removed (use "RemoveDevice").
+
+  - The deprecated "Run", "Simulate" and "Notify" commands have been removed
+    (use "run", "sim" and "notify").
+
+  - "CreateAllDevices()" now has a flag that allows all lowlevel devices to be
+    exported into the NICOS namespace.
+
+* Device classes
+
+  - Devices can now add custom range information to the "device ranges" reported
+    after simulation by defining a "_sim_getMinMax" method.
+
+  - MesyDAQ MSTD-16 acquisition hardware is now supported.
+
+  - TACO devices now have more control over mapping the TACO status value to
+    NICOS status values without overriding "doStatus()".
+
+  - Added "NamedDigitalInput/Output" and "PartialDigitalInput/Output" to the
+    TANGO classes.
+
+  - The "DeviceAlias" has been moved to the "nicos.core" namespace.
+
+* GUI
+
+  - Lowlevel devices are shown in the "Devices" panel when expert mode is
+    active.
+
+  - Added a "downtime report" tool to send reports directly to the User Office.
+
+  - History and trend plots can now show subitems of values that are sequences,
+    such as "det[0]" for the first channel value of a multi-channel detector.
+
+  - Monitor display widgets can now use a "light background" color scheme.
+
+* Services
+
+  - When requesting to stop a running script, scripts put into the queue *after*
+    the stop command will now be executed after the original script stops.
+
+  - Added a daemon authenticator for LDAP.
+
+  - The init script "nicos-system" is now more careful about really stopping
+    services and complaining if they can't be stopped.
+
 Release 2.5.0
 -------------
 
