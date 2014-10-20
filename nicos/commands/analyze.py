@@ -34,6 +34,7 @@ from nicos import session
 from nicos.core import NicosError, UsageError
 from nicos.utils import printTable
 from nicos.utils.fitting import Fit
+from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import string_types
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import cscan
@@ -159,47 +160,7 @@ def fwhm(*columns):
     * ymin - minimum y-value
     """
     xs, ys, _, _ = _getData(columns)
-
-    ymin = ys.min()
-    ymax = ys.max()
-
-    # Locate left and right point where the
-    # y-value is larger than the half maximum value
-    # (offset by ymin)
-    y_halfmax = ymin + .5 * (ymax - ymin)
-
-    numpoints = len(xs)
-    i1 = 0
-    for index, yval in np.ndenumerate(ys):
-        if yval >= y_halfmax:
-            i1 = index[0]
-            break
-
-    i2 = numpoints - 1
-    for index, yval in np.ndenumerate(ys[i1+1:]):
-        if yval <= y_halfmax:
-            i2 = index[0]+i1+1
-            break
-
-    # if not an exact match, use average
-    if ys[i1] == y_halfmax:
-        x_hpeak_l = xs[i1]
-    else:
-        x_hpeak_l = (y_halfmax - ys[i1 - 1]) / (ys[i1] - ys[i1 - 1]) * \
-            (xs[i1] - xs[i1 - 1]) + xs[i1 - 1]
-    if ys[i2] == y_halfmax:
-        x_hpeak_r = xs[i2]
-    else:
-        x_hpeak_r = (y_halfmax - ys[i2 - 1]) / (ys[i2] - ys[i2 - 1]) * \
-            (xs[i2] - xs[i2 - 1]) + xs[i2 - 1]
-    x_hpeak = [x_hpeak_l, x_hpeak_r]
-
-    fwhm = abs(x_hpeak[1] - x_hpeak[0])
-
-    # locate maximum location
-    jmax = ys.argmax()
-    xpeak = xs[jmax]
-    return (fwhm, xpeak, ymax, ymin)
+    return estimateFWHM(xs, ys)
 
 fwhm.__doc__ += COLHELP.replace('func(', 'fwhm(')
 
