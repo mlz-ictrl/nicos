@@ -67,18 +67,14 @@ class WidgetKeyEntry(QWidget):
         else:
             self.widgetValue = QLineEdit()
             self.widgetValue.setText(value)
-        self.widgetValue.setToolTip('Value')
+        self.widgetValue.setToolTip(key)
         self.widgetValue.setDisabled(True)
         self.layoutWidget.insertWidget(1, self.widgetValue)
         if showTTL:
-            #self.labelTTL.setMaximumWidth(40)
-            #self.labelTTL.setFont(QFont('Cantarell', 8))
             self.labelTTL.setText(self.cacheAccess.getTTL(self.fullKey))
             self.labelTTL.setToolTip('Time to Live')
             self.layoutWidget.insertWidget(0, self.labelTTL)
         if showTimeStamp:
-            #self.labelTimeStamp.setMaximumWidth(120)
-            #self.labelTimeStamp.setFont(QFont('Cantarell', 8))
             self.labelTimeStamp.setText(self.convertToUTC(self.cacheAccess.getTimeStamp(self.fullKey)))
             self.labelTimeStamp.setToolTip('Time Stamp')
             self.layoutWidget.insertWidget(0, self.labelTimeStamp)
@@ -125,4 +121,4 @@ class WidgetKeyEntry(QWidget):
             timeStamp = float(unixTimeStamp)
             return datetime.datetime.fromtimestamp(timeStamp).strftime('%d-%m-%Y %H:%M:%S')
         except ValueError:
-            return '0'
+            return '01-01-1970 00:00:00'

@@ -30,7 +30,8 @@ class CacheAccess(object):
         self._connected = False
         self._sock = None
         self._timeout = 1.0
-        self._entries = list()
+        self.entries = list()
+        self._data = ''
 
     def setTimeout(self, time):
         """ Sets the timeout """
@@ -38,58 +39,42 @@ class CacheAccess(object):
 
     def connectToServer(self, ip, port, useTCP, attempts):
         """ Attempts to connect to a cache server """
+        self._connected = False
         if useTCP:
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         else:
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._sock.setblocking(False)
-        for _ in range(attempts):
-            try:
-                self._sock.connect((ip, port))
-                break
-            except socket.error:
-                pass
-
-        else:
-            self._connected = False
+        try:
+            address = socket.gethostbyname(str(ip))
+            self._sock.connect((address, port))
+        except socket.error:
             return
-
+        except socket.gaierror:
+            return
+        self._sock.setblocking(False)
         self._connected = True
 
-    def requestAll(self, withTimeStamp=False):
-        """ Requests all data from the respective cache server and saves it local. """
-        data = ''
+    def requestFiltered(self, filterKey='', withTimeStamp = False):
+        """
+        Requests certain data from the respective cache server and saves it
+        local.
+        """
         self.entries = list()
+        request = ''
         if withTimeStamp:
-            self._sock.send('@*?\n')
-        else:
-            self._sock.send('*?\n')
+            request = '@'
+        request += '*%s' % filterKey
+        if filterKey:
+            request += '*'
+        request += '?\n'
+        self._sock.send(request)
+        self._data = ''
         while select.select([self._sock], [], [], self._timeout)[0]:
-            character = self._sock.recv(1)
-            data += character
-            if character == '\n':
-                self.entries.append(data)
-                data = ''
-        return self.entries
-
-    def requestFiltered(self, filterKey, withTimeStamp = False):
-        """ Requests certain data from the respective cache server and saves it local. """
-        self.entries = list()
-        data = ''
-        if withTimeStamp:
-            self._sock.send('@*' + filterKey + '*?\n')
-        else:
-            self._sock.send('*' + filterKey + '*?\n')
-        while select.select([self._sock], [], [], self._timeout)[0]:
-            character = self._sock.recv(1)
-            data += character
-            if character == '\n':
-                for i in range(len(self.entries)):
-                    if filterKey in self.entries[i]:
-                        self.entries[i] = data
-                    else:
-                        self.entries.append(data)
-                data = ''
+            self._data += self._sock.recv(select.PIPE_BUF)
+        lines = self._data.splitlines(True)
+        self._data = lines[-1:]
+        for lineNum in range(len(lines[:-1])):
+            self.entries.append(lines[lineNum])
         return self.entries
 
     def setKeyValue(self, key, value, ttl='', timeStamp=''):
@@ -119,8 +104,7 @@ class CacheAccess(object):
         else:
             self._sock.send(key + '?\n')
         while select.select([self._sock], [], [], self._timeout)[0]:
-            data += self._sock.recv(1)
-
+            data += self._sock.recv(select.PIPE_BUF)
         return data
 
     def subscribeKey(self, key):
@@ -129,6 +113,7 @@ class CacheAccess(object):
 
     def closeConnection(self):
         """ Close the connection. """
+        self._sock.setblocking(True)
         self._sock.close()
         self._connected = False
 
@@ -160,7 +145,7 @@ def main(argv = None):
     cacheAccess = CacheAccess()
     cacheAccess.setTimeout(1.0)
     cacheAccess.connectToServer('127.0.0.1', 14869, True, 5)
-    res = cacheAccess.requestAll()[0]
+    res = cacheAccess.requestFiltered()[0]
     root = res[:res.find('=')][:res[:res.find('=')].find('/')]
     print root
     cacheAccess.closeConnection()
