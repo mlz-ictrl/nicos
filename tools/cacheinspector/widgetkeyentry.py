@@ -28,7 +28,7 @@ import datetime
 from PyQt4 import uic
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QWidget, QLineEdit, QLabel, QCheckBox, QSpacerItem,\
-    QSizePolicy # QFont, QSpinBox
+    QSizePolicy, QPalette, QColor #, QSpinBox
 
 class WidgetKeyEntry(QWidget):
     def __init__(self, cacheaccess, fullKey, key, value, showTimeStamp, showTTL, parent = None):
@@ -48,16 +48,20 @@ class WidgetKeyEntry(QWidget):
         """
         self.labelTTL = QLabel()
         self.labelTimeStamp = QLabel()
+        widgetValuePal = QPalette()
+        widgetPal = QPalette()
         self.buttonSet.setVisible(False)
         self.labelKey.setText(key[str(key).rfind('/') + 1:])
         if self.fullKey.find('!') == -1 or self.fullKey.find('=') >= 0 and self.fullKey.find('=') < self.fullKey.find('!'):
             self.labelKey.setToolTip(self.fullKey[self.fullKey.find('@') + 1:self.fullKey.find('=')])
         else:
             self.labelKey.setToolTip(self.fullKey[self.fullKey.find('@') + 1:self.fullKey.find('!')] + '!')
-            self.labelKey.setStyleSheet('QLabel { color : red; }')
-            self.labelTTL.setStyleSheet('QLabel { color : red; }')
-            self.labelTimeStamp.setStyleSheet('QLabel { color : red; }')
-        if value == 'True' or value == 'False':
+            color = QColor(0xce, 0x9b, 0x9b)
+            widgetValuePal.setColor(QPalette.Base, color)
+            widgetPal.setColor(QPalette.Background, color)
+            self.setAutoFillBackground(True)
+            self.setPalette(widgetPal)
+        if value in ('True', 'False'):
             self.widgetValue = QCheckBox()
             if value == 'True':
                 self.widgetValue.setCheckState(Qt.Checked)
@@ -70,6 +74,7 @@ class WidgetKeyEntry(QWidget):
             self.widgetValue.setReadOnly(True)
         self.widgetValue.setToolTip(key)
         self.layoutWidget.insertWidget(1, self.widgetValue)
+        self.widgetValue.setPalette(widgetValuePal)
         if showTTL:
             self.labelTTL.setText(self.cacheAccess.getTTL(self.fullKey))
             self.labelTTL.setToolTip('Time to Live')
