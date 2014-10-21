@@ -67,8 +67,8 @@ class WidgetKeyEntry(QWidget):
         else:
             self.widgetValue = QLineEdit()
             self.widgetValue.setText(value)
+            self.widgetValue.setReadOnly(True)
         self.widgetValue.setToolTip(key)
-        self.widgetValue.setDisabled(True)
         self.layoutWidget.insertWidget(1, self.widgetValue)
         if showTTL:
             self.labelTTL.setText(self.cacheAccess.getTTL(self.fullKey))
