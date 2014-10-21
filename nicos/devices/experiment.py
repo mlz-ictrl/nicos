@@ -923,7 +923,7 @@ class Experiment(Device):
         else:
             # not small enough -> upload and send link
             self.log.info('Zipfile is too big to send via email and will be '
-                          'uploaded to a temporary storge for download.')
+                          'uploaded to a temporary storage for download.')
             mailbody += dedent("""
             =====
 
