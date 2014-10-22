@@ -32,7 +32,7 @@ from Modbus import Modbus
 from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
     floatrange, intrange, status, waitForStatus, InvalidValueError, Moveable, \
     UsageError, CommunicationError, PositionError, MoveError, SIMULATION, \
-    Attach, HasOffset
+    Attach
 from nicos.core.device import usermethod, requires
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import CanReference, Motor, Coder
@@ -120,7 +120,7 @@ class Sans1ColliSwitcher(Switcher):
                             self._adevs['moveable'])
 
 
-class Sans1ColliCoder(TacoDevice, HasOffset, Coder):
+class Sans1ColliCoder(TacoDevice, Coder):
     """
     Reads out the Coder for a collimation axis
     """
@@ -137,7 +137,9 @@ class Sans1ColliCoder(TacoDevice, HasOffset, Coder):
                              userparam=False),
         'slope'      : Param('Slope of the Coder in _FULL_ steps per _physical '
                              'unit_', type=float, default=1000000., unit='steps/main',
-                             userparam=False, settable=True),
+                             userparam=False, settable=False),
+        'zeropos'    : Param('Value of the Coder when at physical zero',
+                             type=float, userparam=False, settable=False, unit='main'),
     }
 
     def doInit(self, mode):
@@ -157,7 +159,7 @@ class Sans1ColliCoder(TacoDevice, HasOffset, Coder):
         value = steps / self.slope
         self.log.debug('doRead: %d steps -> %s' %
                        (steps, self.format(value, unit=True)))
-        return value - self.offset
+        return value - self.zeropos
 
     def doStatus(self, maxage=0):
         return status.OK, '' # not impl.
@@ -231,6 +233,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
         tmpval |= (int(value) << int(bit))
         self._taco_guard(self._dev.writeSingleRegister,
                          (0, self.address, tmpval))
+        time.sleep(0.1) # work around race conditions....
 
     def _writeDestination(self, value):
         self.log.debug('_writeDestination %r' % value)
@@ -385,7 +388,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
             # if motor moving==0 and target reached==1 -> break
             if (statval & (1<<7) == 0) and (statval & (1<<6)):
                 break
-            if statval & (1<<10): # limit switch triggered
+            if statval & (3<<10): # limit switch triggered or stop issued
                 time.sleep(0.1)
                 break
 
