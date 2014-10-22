@@ -31,7 +31,7 @@ from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QMenu, QAction, QDialog, \
 # The pylint errors must be fixed, but later
 from .dialogconnect import DialogConnect    # pylint: disable=F0401
 from .windowwatcher import WindowWatcher    # pylint: disable=F0401
-from .cacheaccess import CacheAccess
+from .cacheaccess import CacheAccess        # pylint: disable=F0401
 from .widgetkeyentry import WidgetKeyEntry  # pylint: disable=F0401
 from .windowaddkey import WindowAddKey      # pylint: disable=F0401
 
@@ -84,17 +84,33 @@ class MainWindow(QMainWindow):
 
     def openConnectDialog(self):
         """ Opens the connect dialog. """
-        self.dialogConnect.show()
-        self.dialogConnect.exec_()
+        if self.dialogConnect.exec_() == QDialog.Accepted:
+            self.connectToServer()
+
+    def connectToServer(self):
+        """ Connects to the cache server with the given information. """
+        self.actionConnect.setDisabled(True)
+        self.ipAddress = self.dialogConnect.valueServerAddress.text()
+        self.port = self.dialogConnect.valuePort.text().toInt()[0]
+        self.TCPConnection = self.dialogConnect.radioTCP.isChecked()
+        self.cacheAccess.connectToServer(self.ipAddress, self.port,
+                                         self.TCPconnection, 5)
+        self.actionConnect.setDisabled(self.cacheAccess.isConnected())
+        self.actionDisconnect.setEnabled(self.cacheAccess.isConnected())
+        self.actionRefresh.setEnabled(self.cacheAccess.isConnected())
+        if self.cacheAccess.isConnected():
+            self.getData()
+            self.updateTree()
 
     def closeConnection(self):
         """ Closes the connection of the cache inspector. """
-        self.actionConnect.setEnabled(True)
-        self.actionDisconnect.setDisabled(True)
-        self.actionRefresh.setDisabled(True)
-        self.clearCacheTree()
-        self.clearWidgetView()
         self.cacheAccess.closeConnection()
+        self.actionConnect.setEnabled(not self.cacheAccess.isConnected())
+        self.actionDisconnect.setDisabled(not self.cacheAccess.isConnected())
+        self.actionRefresh.setDisabled(not self.cacheAccess.isConnected())
+        if not self.cacheAccess.isConnected():
+            self.clearCacheTree()
+            self.clearWidgetView()
 
     def refreshAll(self):
         """ Refreshes local data and the view. """
@@ -251,41 +267,13 @@ class MainWindow(QMainWindow):
                 item = item.parent()
             self.cacheAccess.subscribeKey(strKey)
 
-    def connectToServer(self, event):
-        """ Connects to the cache server with the given information. """
-        self.dialogConnect.valueServerAddress.setDisabled(True)
-        self.dialogConnect.valuePort.setDisabled(True)
-        self.dialogConnect.radioTCP.setDisabled(True)
-        self.dialogConnect.radioUDP.setDisabled(True)
-        self.actionConnect.setDisabled(True)
-        self.ipAddress = self.dialogConnect.valueServerAddress.text()
-        self.port = self.dialogConnect.valuePort.text().toInt()[0]
-        self.TCPConnection = self.dialogConnect.radioTCP.isChecked()
-        self.cacheAccess.connectToServer(self.ipAddress, self.port,
-                                         self.TCPconnection, 5)
-        if self.cacheAccess.isConnected():
-            self.actionDisconnect.setEnabled(True)
-            self.actionRefresh.setEnabled(True)
-            self.dialogConnect.close()
-            self.dialogConnect.valueServerAddress.setEnabled(True)
-            self.dialogConnect.valuePort.setEnabled(True)
-            self.dialogConnect.radioTCP.setEnabled(True)
-            self.dialogConnect.radioUDP.setEnabled(True)
-            self.getData()
-            self.updateTree()
-        else:
-            self.actionConnect.setEnabled(True)
-            self.dialogConnect.valueServerAddress.setEnabled(True)
-            self.dialogConnect.valuePort.setEnabled(True)
-            self.dialogConnect.radioTCP.setEnabled(True)
-            self.dialogConnect.radioUDP.setEnabled(True)
-
     def getData(self):
         self.strippedEntries = list()
         self.uniqueStrippedEntries = list()
         self.cacheAccess.requestFiltered(withTimeStamp=True)
         for i in range(len(self.cacheAccess.entries)):
-            self.strippedEntries.append(self.cacheAccess.entries[i][self.cacheAccess.entries[i].find('@') + 1:])
+            self.strippedEntries.append(self.cacheAccess.entries[i][
+                                self.cacheAccess.entries[i].find('@') + 1:])
         self.strippedEntries = sorted(self.strippedEntries)
         for entry in self.strippedEntries:
             if entry not in self.uniqueStrippedEntries:

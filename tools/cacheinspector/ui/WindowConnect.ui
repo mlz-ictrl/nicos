@@ -89,6 +89,9 @@
      <property name="text">
       <string>Cancel</string>
      </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
   </layout>
@@ -102,5 +105,38 @@
   <tabstop>buttonConnect</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>DialogConnect</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>110</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonConnect</sender>
+   <signal>clicked()</signal>
+   <receiver>DialogConnect</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>144</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>279</x>
+     <y>65</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -33,9 +33,3 @@ class DialogConnect(QDialog):
         QDialog.__init__(self, parent)
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
                         'WindowConnect.ui'), self)
-        self.setupEvents()
-
-    def setupEvents(self):
-        """ Sets up all events. """
-        self.buttonConnect.clicked.connect(self.parent().connectToServer)
-        self.buttonCancel.clicked.connect(self.close)
