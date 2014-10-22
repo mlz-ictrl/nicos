@@ -54,7 +54,8 @@ class CCRControl(HasLimits, Moveable):
                                unit='', type=oneof('stick', 'tube', 'both'),
                                settable=True, chatty=True, category='general'),
         ramp  = Param('Temperature ramp in K/min', unit='K/min', chatty=True,
-                      type=floatrange(0, 100), settable=True, volatile=True, default=1.),
+                      type=floatrange(0, 100), settable=True, volatile=True,
+                      default=1.),
         setpoint = Param('Current temperature setpoint', unit='main',
                          category='general'),
     )
@@ -210,8 +211,8 @@ class CCRControl(HasLimits, Moveable):
         return self.__get_param('ramp')
 
     def doWriteRegulationmode(self, value):
-        self.log.info('To use the new regulationmode %r, please start/move %s...' %
-                       (value, self.name))
+        self.log.info('To use the new regulationmode %r, please start/move '
+                      '%s...' % (value, self.name))
 
     def doReadSetpoint(self):
         if self.stick.target is not None:
