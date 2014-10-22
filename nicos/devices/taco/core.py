@@ -188,7 +188,12 @@ class TacoDevice(DeviceMixinBase):
         return self._taco_guard(self._dev.read)
 
     def doStatus(self, maxage=0):
-        tacoState = self._taco_guard(self._dev.deviceState)
+        for i in range(self.tacotries or 1):
+            if i:
+                sleep(self.tacodelay)
+            tacoState = self._taco_guard(self._dev.deviceState)
+            if tacoState != TACOStates.FAULT:
+                break
         state = self._TACO_STATUS_MAPPING.get(tacoState, status.ERROR)
 
         if isinstance(state, tuple):
