@@ -23,22 +23,40 @@
 #
 # *****************************************************************************
 
-from PyQt4.QtCore import QSize
-from PyQt4.QtGui import QApplication
-import sys
+import sys, optparse
+from os import path
 
-from cacheinspector.mainwindow import MainWindow
+from PyQt4.QtGui import QApplication
+try:
+    from nicos.core.sessions.simple import SingleDeviceSession
+except ImportError:
+    thisfile = path.abspath(__file__)
+    sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
+    from nicos.core.sessions.simple import SingleDeviceSession
+
+from cacheinspector.cacheinspector import CacheInspector
 
 def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    app = QApplication(argv)
-    mainWindow = MainWindow()
-    mainWindow.resize(QSize(1000, 800))
-    mainWindow.show()
+    usage =''' Usage: %prog [options] [key ...]
+    '''
 
-    return app.exec_()
+    parser = optparse.OptionParser(usage=usage)
+    parser.add_option('-c', '--cache', dest='cache', action='store',
+                      help='CACHE server:port, defaults to localhost:14869',
+                      default='localhost')
+    parser.add_option('-p', '--prefix', dest='prefix', action='store',
+                      help='PREFIX is the key prefix; it will be added in front '
+                      'of the key, defaults to \'nicos/\'', default='nicos')
+    opts, args = parser.parse_args()
+
+    SingleDeviceSession.run('cacheInspector', CacheInspector,
+                            {
+                                'cache': opts.cache, 'prefix': opts.prefix,
+                            },
+                            pidfile=False)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

@@ -28,23 +28,23 @@ from PyQt4 import uic
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QMenu, QAction, QDialog, \
     QSpacerItem
+
 # The pylint errors must be fixed, but later
 from .dialogconnect import DialogConnect    # pylint: disable=F0401
 from .windowwatcher import WindowWatcher    # pylint: disable=F0401
-from .cacheaccess import CacheAccess        # pylint: disable=F0401
 from .widgetkeyentry import WidgetKeyEntry  # pylint: disable=F0401
 from .windowaddkey import WindowAddKey      # pylint: disable=F0401
 
 class MainWindow(QMainWindow):
 
-    def __init__(self, parent = None):
+    def __init__(self, cacheclient, parent=None):
         QMainWindow.__init__(self)
+        self._cacheClient = cacheclient
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
                         'MainWindow.ui'), self)
         self.dialogConnect = DialogConnect(self)
         self.watcherWindow = WindowWatcher(self)
         self.addKeyWindow = WindowAddKey(self)
-        self.cacheAccess = CacheAccess()
         self.contextMenuTreeCache = QMenu(self.treeCache)
         self.contextMenuTreeCache.actionAddToWatcher = QAction('Add to Watcher',
                                                     self.contextMenuTreeCache)
@@ -61,6 +61,8 @@ class MainWindow(QMainWindow):
         self.uniqueStrippedEntries = list()
         self.showTimeStamp = False
         self.showTTL = False
+        if self._cacheClient.is_connected():
+            self.updateTree()
 
     def setupEvents(self):
         """ Sets up all events. """
@@ -77,6 +79,7 @@ class MainWindow(QMainWindow):
         self.buttonSearch.clicked.connect(self.updateTree)
         self.treeCache.itemClicked.connect(self.updateView)
         self.treeCache.customContextMenuRequested.connect(self.showContextMenu)
+        self.treeCache.sortByColumn(0, Qt.AscendingOrder)
         self.contextMenuTreeCache.actionAddToWatcher.triggered.connect(
             self.addKeyToWatcher)
         self.contextMenuTreeCache.actionSubscribe.triggered.connect(
@@ -93,32 +96,26 @@ class MainWindow(QMainWindow):
         self.ipAddress = self.dialogConnect.valueServerAddress.text()
         self.port = self.dialogConnect.valuePort.text().toInt()[0]
         self.TCPConnection = self.dialogConnect.radioTCP.isChecked()
-        self.cacheAccess.connectToServer(self.ipAddress, self.port,
-                                         self.TCPconnection, 5)
         self.actionConnect.setDisabled(self.cacheAccess.isConnected())
         self.actionDisconnect.setEnabled(self.cacheAccess.isConnected())
         self.actionRefresh.setEnabled(self.cacheAccess.isConnected())
         if self.cacheAccess.isConnected():
-            self.getData()
             self.updateTree()
 
     def closeConnection(self):
         """ Closes the connection of the cache inspector. """
-        self.cacheAccess.closeConnection()
-        self.actionConnect.setEnabled(not self.cacheAccess.isConnected())
-        self.actionDisconnect.setDisabled(not self.cacheAccess.isConnected())
-        self.actionRefresh.setDisabled(not self.cacheAccess.isConnected())
-        if not self.cacheAccess.isConnected():
+        self._cacheClient.shutdown()
+        self.actionConnect.setDisabled(self._cacheClient.is_connected())
+        self.actionDisconnect.setEnabled(self._cacheClient.is_connected())
+        self.actionRefresh.setEnabled(self._cacheClient.is_connected())
+        if not self._cacheClient.is_connected():
             self.clearCacheTree()
             self.clearWidgetView()
 
     def refreshAll(self):
         """ Refreshes local data and the view. """
-        self.getData()
         self.updateTree()
         self.updateView(self.treeCache.invisibleRootItem(), 0)
-        #for item in self.treeCache.selectedItems():
-        #    self.updateView(item, 0)
 
     def addNewKey(self):
         """ Adds a key using the data given via the add key window. """
@@ -130,7 +127,7 @@ class MainWindow(QMainWindow):
             ttl = self.addKeyWindow.valueTTL.text()
             key = self.addKeyWindow.valueKey.text()
             value = self.addKeyWindow.valueValue.text()
-            self.cacheAccess.setKeyValue(key, value, ttl, timeStamp)
+            self._cacheClient.put_raw(key, value, timeStamp, ttl)
             self.addKeyWindow.valueTTL.setText('')
             self.addKeyWindow.valueKey.setText('')
             self.addKeyWindow.valueValue.setText('')
@@ -171,35 +168,38 @@ class MainWindow(QMainWindow):
         cursorShape = self.cursor().shape()
         self.setCursor(Qt.BusyCursor)
         self.clearCacheTree()
-        for entry in self.uniqueStrippedEntries:
-            if entry.find('!') == -1 or entry.find('=') >= 0 and \
-               entry.find('=') < entry.find('!'):
-                splitEntry = entry[:entry.find('=')]
-                keys = entry[:entry.find('=')].split('/')
-            else:
-                splitEntry = entry[:entry.find('!')]
-                keys = entry[:entry.find('!')].split('/')
+        root = None
+        child = None
+        nextChild = None
+        for key in self._cacheClient._db:
             if len(self.comboFilter.currentText()) == 0 or \
-               str(self.comboFilter.currentText()) in splitEntry:
-                root = QTreeWidgetItem()
-                for i in range(self.treeCache.topLevelItemCount()):
-                    if self.treeCache.topLevelItem(i).text(0) == keys[0]:
-                        root = self.treeCache.topLevelItem(i)
-                        break
-                else:
-                    root.setText(0, keys[0])
+                key.find(self.comboFilter.currentText()) != -1:
+                # print key
+                if not self.treeCache.findItems(key.split('/')[0], Qt.MatchExactly):
+                    root = QTreeWidgetItem()
+                    root.setText(0, key.split('/')[0])
                     self.treeCache.addTopLevelItem(root)
-                child = root
-                for i in range(1, len(keys) - 1):
-                    for j in range(child.childCount()):
-                        if child.child(j).text(0) == keys[i]:
-                            child = child.child(j)
-                            break
+                if len(key.split('/')) > 2:
+                    for i in range(root.childCount()):
+                        if root.child(i):
+                            if root.child(i).text(0) == key.split('/')[1]:
+                                break
                     else:
-                        childNext = QTreeWidgetItem()
-                        childNext.setText(0, keys[i])
-                        child.addChild(childNext)
-                        child = childNext
+                        child = QTreeWidgetItem()
+                        child.setText(0, key.split('/')[1])
+                        root.addChild(child)
+                for level in range(2, len(key.split('/')) - 1):
+                    temp = root.child(root.childCount() - 1)
+                    for i in range(level - 2):
+                        temp = temp.child(temp.childCount() - 1)
+                    for index in range(temp.childCount()):
+                        if temp.child(index):
+                            if temp.child(index).text(0) == key.split('/')[level]:
+                                break
+                    else:
+                        nextChild = QTreeWidgetItem()
+                        nextChild.setText(0, key.split('/')[level])
+                        temp.addChild(nextChild)
         self.setCursor(cursorShape)
 
     def updateView(self, keyCategory, column):
@@ -212,29 +212,32 @@ class MainWindow(QMainWindow):
                 if item != self.treeCache.topLevelItem(i):
                     break
             else:
-                strKey = item.text(0) + '/' + strKey
+                strKey = str(item.text(0)) + '/' + strKey
                 break
-            strKey = item.text(0) + '/' + strKey
+            strKey = str(item.text(0)) + '/' + strKey
             item = item.parent()
-
-        for entry in self.cacheAccess.entries:
-            if entry.find('!') == -1 or entry.find('=') >= 0 and \
-                entry.find('=') < entry.find('!'):
-                key = entry[entry.find(strKey):entry.find('=')]
-                value = entry[entry.find('=') + 1:-1]
+        for entry in self._cacheClient._db:
+            if entry.find(strKey) >= 0:
+                if entry.find('!') == -1 or entry.find('=') >= 0 and \
+                   entry.find('=') < entry.find('!'):
+                    value = self._cacheClient.get(entry.split('/')[0],
+                                    '/'.join(entry.split('/')[1:]), 'ERROR')
+                widget = WidgetKeyEntry(self._cacheClient, entry, entry,
+                                   str(value), self.showTimeStamp, self.showTTL)
+                self.layoutContent.insertWidget(0, widget)
             else:
                 key = entry[entry.find(strKey):entry.find('!')]
                 value = entry[entry.find('!') + 1:-1]
-            if key.find(strKey) >= 0:
-                for i in range(keyCategory.childCount()):
-                    temp = key.replace(strKey, '')
-                    if temp.find('/') >= 0:
-                        break
-                else:
-                    widget = WidgetKeyEntry(self.cacheAccess, entry, key,
-                                            value, self.showTimeStamp,
-                                            self.showTTL)
-                    self.layoutContent.insertWidget(0, widget)
+                if key.find(strKey) >= 0:
+                    for i in range(keyCategory.childCount()):
+                        temp = key.replace(strKey, '')
+                        if temp.find('/') >= 0:
+                            break
+                    else:
+                        widget = WidgetKeyEntry(self.cacheAccess, entry, key,
+                                                value, self.showTimeStamp,
+                                                self.showTTL)
+                        self.layoutContent.insertWidget(0, widget)
 
     def showContextMenu(self, position):
         """ Shows the context menu. """
@@ -244,10 +247,10 @@ class MainWindow(QMainWindow):
         """ Adds a key to the watcher window. """
         for item in self.treeCache.selectedItems():
             widgetsEntry = ''
-            for entry in self.cacheAccess.entries:
+            for entry in self._cacheClient._db:
                 if entry.find(item.text(0)[:-1]):
                     widgetsEntry = entry
-            widget = WidgetKeyEntry(self.cacheAccess, widgetsEntry,
+            widget = WidgetKeyEntry(self._cacheClient, widgetsEntry,
                                     item.text(0), '', self.showTimeStamp,
                                     self.showTTL)
             self.watcherWindow.addWidgetKey(widget)
@@ -265,19 +268,7 @@ class MainWindow(QMainWindow):
                     break
                 strKey = item.text(0) + '/' + strKey
                 item = item.parent()
-            self.cacheAccess.subscribeKey(strKey)
-
-    def getData(self):
-        self.strippedEntries = list()
-        self.uniqueStrippedEntries = list()
-        self.cacheAccess.requestFiltered(withTimeStamp=True)
-        for i in range(len(self.cacheAccess.entries)):
-            self.strippedEntries.append(self.cacheAccess.entries[i][
-                                self.cacheAccess.entries[i].find('@') + 1:])
-        self.strippedEntries = sorted(self.strippedEntries)
-        for entry in self.strippedEntries:
-            if entry not in self.uniqueStrippedEntries:
-                self.uniqueStrippedEntries.append(entry)
+            #self._cacheClient.addCallback()
 
     def clearCacheTree(self):
         """ Removes all elements in the tree. """
