@@ -153,6 +153,6 @@ startupcode = """
 T.alias = T_%s
 Ts.alias = T_%s_B
 AddEnvironment(T, Ts)
-printinfo("Please set T_%s.regulationmode to either 'stick' or 'tube' "
+printinfo("Please set T_%s.regulationmode to either 'stick', 'tube', or 'both' "
           "according to your needs.")
 """ % (setupname, setupname, setupname, )
