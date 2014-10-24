@@ -327,7 +327,6 @@ class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
 
     def _transmit(self, request, last_try=False):
         response = ''
-        self.log.debug('sending %r' % request)
         self._dev.write(request)
         for _i in range(self.commtries):
             sleep(self.roundtime)
@@ -335,7 +334,6 @@ class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
                 data = self._dev.read()
             except Exception:
                 data = ''
-            self.log.debug('received %r' % data)
             if not data:
                 continue
             response += data
