@@ -165,8 +165,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>489</width>
-          <height>493</height>
+          <width>663</width>
+          <height>497</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -223,12 +223,12 @@
      <x>0</x>
      <y>0</y>
      <width>947</width>
-     <height>26</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuClient">
     <property name="title">
-     <string>Client</string>
+     <string>&amp;Client</string>
     </property>
     <addaction name="actionConnect"/>
     <addaction name="actionDisconnect"/>
@@ -238,20 +238,20 @@
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <addaction name="actionToggleTimeStamp"/>
     <addaction name="actionToggleTTL"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>Tools</string>
+     <string>&amp;Tools</string>
     </property>
     <addaction name="actionWatcher"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="actionAddNewKey"/>
     <addaction name="actionSearch"/>
@@ -273,7 +273,7 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionQuit"/>
    <addaction name="actionConnect"/>
