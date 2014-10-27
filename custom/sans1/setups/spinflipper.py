@@ -28,19 +28,23 @@ includes = []
 
 group = 'optional'
 
+modules = ['sans1.spinflipper_commands']
+
 nethost = 'spinflip02.sans1.frm2'
 
 devices = dict(
 # AG1016 amplifier
-    P_spinflipper_agilent = device('devices.taco.AnalogOutput',
+    P_spinflipper = device('sans1.spinflipper.SpinflipperPower',
                            description = 'overall power of ag1016',
                            tacodevice = '//%s/spinflip/ag1016/power' % (nethost,),
+                           forwardtacodevice = '//%s/spinflip/ag1016/forward' % (nethost,),
+                           reversetacodevice = '//%s/spinflip/ag1016/reverse' % (nethost,),
                            fmtstr = '%.1f',
                            abslimits = (0.0, 100.0),
                            userlimits = (0.0, 100.0),
                           ),
 
-    F_spinflipper_agilent = device('devices.taco.AnalogOutput',
+    F_spinflipper = device('devices.taco.AnalogOutput',
                            description = 'frequency of ag1016',
                            tacodevice = '//%s/spinflip/ag1016/frequency' % (nethost,),
                            fmtstr = '%.1f',
@@ -48,40 +52,27 @@ devices = dict(
                            userlimits = (0.0, 4000000.0),
                           ),
 
-    P_spinflipper_forward = device('devices.taco.AnalogInput',
-                                   description = 'forward power of ag1016',
-                                   tacodevice = '//%s/spinflip/ag1016/forward' % (nethost,),
-                                   fmtstr = '%.1f',
-                                  ),
-
-    P_spinflipper_reverse = device('devices.taco.AnalogInput',
-                                   description = 'reverse power of ag1016',
-                                   tacodevice = '//%s/spinflip/ag1016/reverse' % (nethost,),
-                                   fmtstr = '%.1f',
-                                  ),
-
-    T_spinflipper_agilent = device('devices.taco.AnalogInput',
-                                  description = 'temperature of ag1016',
-                                  tacodevice = '//%s/spinflip/ag1016/temperature' % (nethost,),
-                                  fmtstr = '%.3f',
-                                 ),
+    T_spinflipper = device('devices.taco.AnalogInput',
+                           description = 'temperature of ag1016',
+                           tacodevice = '//%s/spinflip/ag1016/temperature' % (nethost,),
+                           fmtstr = '%.3f',
+                          ),
 
 # HP3322A
-    A_spinflipper = device('devices.taco.AnalogOutput',
-                                   description = 'amplitude of the frequency generator',
-                                   tacodevice = '//%s/spinflip/agilent/amp' % (nethost,),
-                                   fmtstr = '%.3f',
-                                   abslimits = (-2.0, 2.0),
-                                   userlimits = (-2.0, 2.0),
-                                  ),
+    A_spinflipper_hp = device('devices.taco.AnalogOutput',
+                              description = 'amplitude of the frequency generator',
+                              tacodevice = '//%s/spinflip/agilent/amp' % (nethost,),
+                              fmtstr = '%.3f',
+                              abslimits = (-2.0, 2.0),
+                              userlimits = (-2.0, 2.0),
+                             ),
 
-    F_spinflipper = device('devices.taco.AnalogOutput',
-                                   description = 'frequency of the frequency generator',
-                                   tacodevice = '//%s/spinflip/agilent/freq' % (nethost,),
-                                   fmtstr = '%.0f',
-                                   abslimits = (0.0, 4000000.0),
-                                   userlimits = (0.0, 4000000.0),
-                                  ),
-
+    F_spinflipper_hp = device('devices.taco.AnalogOutput',
+                              description = 'frequency of the frequency generator',
+                              tacodevice = '//%s/spinflip/agilent/freq' % (nethost,),
+                              fmtstr = '%.0f',
+                              abslimits = (0.0, 4000000.0),
+                              userlimits = (0.0, 4000000.0),
+                             ),
 )
 
