@@ -179,7 +179,7 @@ _sanscolumn = Column(
     #~ ),
 #~ )
 
-_sansmagnet = Column(
+_ccmsans = Column(
     Block('Sans1 Magnet', [
         BlockRow(
                  Field(name='Field', dev='b_overall'),
@@ -270,6 +270,16 @@ _spinflipper = Column(
     ),
 )
 
+newports = []
+for k in range(1, 3 + 1):
+    newports.append(Block('NewPort0%d' % k, [
+        BlockRow(
+            Field(name='Position', dev='sth_newport0%d' % k,
+                   unitkey='t/unit'),
+        ),
+    ], 'newport0%d' % k))
+_newports = Column(*tuple(newports))
+
 ccrs = []
 for i in range(10, 22 + 1):
     ccrs.append(Block('CCR%d' % i, [
@@ -322,7 +332,7 @@ devices = dict(
                                  Row(_sans1general, _table2, _table1, _sans1det),
                                  Row(_ubahncolumn, _pressurecolumn),
                                  Row(_selcolumn, _atpolcolumn, _sanscolumn),
-                                 Row(_sansmagnet, _spinflipper, _ccrs, _cryos, _sc1, _miramagnet, _amagnet, _htf03),
+                                 Row(_ccmsans, _spinflipper, _ccrs, _cryos, _sc1, _miramagnet, _amagnet, _htf03, _newports),
                                ],
                     ),
 )

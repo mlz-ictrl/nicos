@@ -206,13 +206,14 @@ _spinflipper = Block('Spin Flipper', [
             ),
 ], 'spinflipper')
 
-_newport = Block('NewPort', [
-    BlockRow(
-             Field(name='NP 02 position', dev='sth_newport02'),
-             Field(name='NP 03 position', dev='sth_newport03'),
-            ),
-], 'newport0*')
-
+newports = []
+for k in range(1, 3 + 1):
+    newports.append(Block('NewPort0%d' % k, [
+        BlockRow(
+            Field(name='Position', dev='sth_newport0%d' % k,
+                   unitkey='t/unit'),
+        ),
+    ], 'newport0%d' % k))
 
 ccrs = []
 for i in range(10, 22 + 1):
@@ -330,9 +331,9 @@ devices = dict(
                      layout=[
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _st2, _st1, _newport),
-                                    Column(_htf03, _spinflipper, _ccmsans, _miramagnet, _amagnet),
-                                    Column(_ccmsans_temperature, _htf03_plot, *cryos) + Column(*ccrs_plot),
+                                    Column(_sc1, _st2, _st1, *newports),
+                                    Column(_htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet),
+                                    Column(_htf03_plot, _spinflipper, *cryos) + Column(*ccrs_plot),
                                     Column(*ccrs) + Column(_birmag),
                                    ),
                                 Row(
