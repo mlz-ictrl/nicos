@@ -93,6 +93,7 @@ _ccmsans = Block('SANS-1 5T Magnet', [
              ),
     BlockRow(
              Field(name='Target', key='b_ccmsans/target', width=12),
+             Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=12),
             ),
     BlockRow(
              Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
@@ -311,7 +312,7 @@ _sans1general = Column(
 _sans1crane = Column(
     Block('Crane', [
         BlockRow(
-                 Field(name='Crane Pos', dev='Crane', width=9.5, unit='m'),
+                 Field(name='Crane Pos.', dev='Crane', width=9.5, unit='m'),
                       ),
                 ],
         ),
