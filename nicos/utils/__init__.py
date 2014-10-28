@@ -485,7 +485,7 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
     if enable:
         failflag |= enableDisableFileItem(startdir, dirMode, owner, group)
 
-    # handle the conten ouf 'our' directory, traversing if needed
+    # handle the content ouf 'our' directory, traversing if needed
     for child in os.listdir(startdir):
         full = path.join(startdir, child)
         if path.isdir(full):
@@ -507,7 +507,7 @@ def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
     """Traverse a directory tree and remove access rights.
     returns True if there were some errors and False if everything went OK.
     disableDirMode default to 0500 (dr-x------) and
-    disabFileMode default to 0400 (-r--------).
+    disableFileMode default to 0400 (-r--------).
     owner or group will only be changed if specified.
     """
     failflag = enableDisableDirectory(startdir,
