@@ -57,8 +57,6 @@ class MainWindow(QMainWindow):
         self.port = 14869
         self.TCPconnection = True
         self.progressLoading.hide()
-        self.strippedEntries = list()
-        self.uniqueStrippedEntries = list()
         self.showTimeStamp = False
         self.showTTL = False
         if self._cacheClient.is_connected():
@@ -218,12 +216,10 @@ class MainWindow(QMainWindow):
             item = item.parent()
         for entry in self._cacheClient._db:
             if entry.find(strKey) >= 0:
-                if entry.find('!') == -1 or entry.find('=') >= 0 and \
-                   entry.find('=') < entry.find('!'):
-                    value = self._cacheClient.get(entry.split('/')[0],
+                value = self._cacheClient.get_explicit(entry.split('/')[0],
                                     '/'.join(entry.split('/')[1:]), 'ERROR')
                 widget = WidgetKeyEntry(self._cacheClient, entry, entry,
-                                   str(value), self.showTimeStamp, self.showTTL)
+                                   value, self.showTimeStamp, self.showTTL)
                 self.layoutContent.insertWidget(0, widget)
             else:
                 key = entry[entry.find(strKey):entry.find('!')]

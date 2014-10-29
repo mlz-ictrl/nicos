@@ -31,7 +31,8 @@ from PyQt4.QtGui import QWidget, QLineEdit, QLabel, QCheckBox, QSpacerItem,\
     QSizePolicy, QPalette, QColor #, QSpinBox
 
 class WidgetKeyEntry(QWidget):
-    def __init__(self, cacheaccess, fullKey, key, value, showTimeStamp, showTTL, parent = None):
+    def __init__(self, cacheaccess, fullKey, key, value, showTimeStamp, showTTL,
+                 parent = None):
         QWidget.__init__(self)
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
                         'WidgetKeyEntry.ui'), self)
@@ -52,25 +53,27 @@ class WidgetKeyEntry(QWidget):
         widgetPal = QPalette()
         self.buttonSet.setVisible(False)
         self.labelKey.setText(key[str(key).rfind('/') + 1:])
-        if self.fullKey.find('!') == -1 or self.fullKey.find('=') >= 0 and self.fullKey.find('=') < self.fullKey.find('!'):
-            self.labelKey.setToolTip(self.fullKey[self.fullKey.find('@') + 1:self.fullKey.find('=')])
-        else:
-            self.labelKey.setToolTip(self.fullKey[self.fullKey.find('@') + 1:self.fullKey.find('!')] + '!')
+        t, ttl, value = value
+        self.labelKey.setToolTip(self.fullKey)
+        if ttl:
             color = QColor(0xce, 0x9b, 0x9b)
             widgetValuePal.setColor(QPalette.Base, color)
             widgetPal.setColor(QPalette.Background, color)
             self.setAutoFillBackground(True)
             self.setPalette(widgetPal)
-        if value in ('True', 'False'):
+
+        if isinstance(value, bool) or value in ('True', 'False'):
             self.widgetValue = QCheckBox()
-            if value == 'True':
+            if value in (True, 'True'):
                 self.widgetValue.setCheckState(Qt.Checked)
             else:
                 self.widgetValue.setCheckState(Qt.Unchecked)
-            self.layoutWidget.insertSpacerItem(1, QSpacerItem(56, 20, QSizePolicy.Expanding))
+            self.layoutWidget.insertSpacerItem(1, QSpacerItem(56, 20,
+                                                        QSizePolicy.Expanding))
+            self.widgetValue.setDisabled(True)
         else:
             self.widgetValue = QLineEdit()
-            self.widgetValue.setText(value)
+            self.widgetValue.setText(str(value))
             self.widgetValue.setReadOnly(True)
         self.widgetValue.setToolTip(key)
         self.layoutWidget.insertWidget(1, self.widgetValue)
@@ -80,7 +83,8 @@ class WidgetKeyEntry(QWidget):
             self.labelTTL.setToolTip('Time to Live')
             self.layoutWidget.insertWidget(0, self.labelTTL)
         if showTimeStamp:
-            self.labelTimeStamp.setText(self.convertToUTC(self.cacheAccess.getTimeStamp(self.fullKey)))
+            self.labelTimeStamp.setText(self.convertToUTC(
+                self.cacheAccess.getTimeStamp(self.fullKey)))
             self.labelTimeStamp.setToolTip('Time Stamp')
             self.layoutWidget.insertWidget(0, self.labelTimeStamp)
 
@@ -91,32 +95,51 @@ class WidgetKeyEntry(QWidget):
     def setKey(self):
         """ Sets the key locally and on the server. """
         if isinstance(self.widgetValue, QCheckBox):
-            if self.fullKey.find('!') == -1 or self.fullKey.find('=') >= 0 and self.fullKey.find('=') < self.fullKey.find('!'):
-                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')], self.widgetValue.isChecked())
+            if self.fullKey.find('!') == -1 \
+                or self.fullKey.find('=') >= 0 \
+                and self.fullKey.find('=') < self.fullKey.find('!'):
+                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')],
+                                             self.widgetValue.isChecked())
             else:
-                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')], self.widgetValue.isChecked())
+                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')],
+                                             self.widgetValue.isChecked())
             for i in range(len(self.cacheAccess.entries)):
                 if self.cacheAccess.entries[i] == (self.fullKey):
-                    self.cacheAccess.entries[i] = self.fullKey[:self.fullKey.find('=')] + '='
-                    self.cacheAccess.entries[i] += str(self.widgetValue.isChecked()) + '\n'
+                    self.cacheAccess.entries[i] = \
+                            self.fullKey[:self.fullKey.find('=')] + '='
+                    self.cacheAccess.entries[i] += \
+                            str(self.widgetValue.isChecked()) + '\n'
         else:
-            if self.fullKey.find('!') == -1 or self.fullKey.find('=') >= 0 and self.fullKey.find('=') < self.fullKey.find('!'):
-                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')], self.widgetValue.text())
+            if self.fullKey.find('!') == -1 \
+                or self.fullKey.find('=') >= 0 \
+                and self.fullKey.find('=') < self.fullKey.find('!'):
+                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')],
+                                             self.widgetValue.text())
             else:
-                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')], self.widgetValue.text())
+                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')],
+                                             self.widgetValue.text())
             for i in range(len(self.cacheAccess.entries)):
                 if self.cacheAccess.entries[i] == (self.fullKey):
-                    self.cacheAccess.entries[i] = self.fullKey[:self.fullKey.find('=')] + '='
-                    self.cacheAccess.entries[i] += str(self.widgetValue.text() + '\n')
+                    self.cacheAccess.entries[i] = \
+                            self.fullKey[:self.fullKey.find('=')] + '='
+                    self.cacheAccess.entries[i] += \
+                            str(self.widgetValue.text() + '\n')
         self.updateValues()
 
     def updateValues(self, local=True):
-        """ Updates all information shown by the widget to the information in the local data. """
+        """
+        Updates all information shown by the widget to the information in the
+        local data.
+        """
         #if not local:
-        #    if self.fullKey.find('!') == -1 or self.fullKey.find('=') >= 0 and self.fullKey.find('=') < self.fullKey.find('!'):
-        #        self.fullKey = self.cacheAccess.getKeyValue(self.fullKey[self.fullKey.find('@') + 1:self.fullKey.find('=')], True)
+        #    if self.fullKey.find('!') == -1
+        #       or self.fullKey.find('=') >= 0
+        #       and self.fullKey.find('=') < self.fullKey.find('!'):
+        #        self.fullKey = self.cacheAccess.getKeyValue(self.fullKey[
+        #               self.fullKey.find('@') + 1:self.fullKey.find('=')], True)
         #    else:
-        #        self.fullKey = self.cacheAccess.getKeyValue(self.fullKey[self.fullKey.find('@') + 1:self.fullKey.find('!')], True)
+        #        self.fullKey = self.cacheAccess.getKeyValue(self.fullKey[
+        #               self.fullKey.find('@') + 1:self.fullKey.find('!')], True)
         #    self.cacheAccess.entries
 
 
@@ -124,6 +147,7 @@ class WidgetKeyEntry(QWidget):
         """ Converts the unix time stamp to a readable time stamp. """
         try:
             timeStamp = float(unixTimeStamp)
-            return datetime.datetime.fromtimestamp(timeStamp).strftime('%d-%m-%Y %H:%M:%S')
+            return datetime.datetime.fromtimestamp(timeStamp).strftime(
+                    '%d-%m-%Y %H:%M:%S')
         except ValueError:
             return '01-01-1970 00:00:00'
