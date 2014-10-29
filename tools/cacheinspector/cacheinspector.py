@@ -21,17 +21,18 @@
 #   Pascal Neubert <pascal.neubert@frm2.tum.de>
 #
 # *****************************************************************************
+
 import sys
 from PyQt4.QtGui import QApplication
 
-from nicos.devices.cacheclient import CacheClient
+from .cacheclient import CICacheClient
 
 from .mainwindow import MainWindow  # pylint: disable=F0401
 
-class CacheInspector(CacheClient):
+class CacheInspector(CICacheClient):
 
     def doInit(self, mode):
-        CacheClient.doInit(self, self._mode)
+        CICacheClient.doInit(self, self._mode)
         self._qtapp = QApplication(sys.argv)
         self._qtapp.setOrganizationName('nicos')
         self._qtapp.setApplicationName('cacheinspector')
