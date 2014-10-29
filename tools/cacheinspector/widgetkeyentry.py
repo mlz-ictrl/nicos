@@ -26,9 +26,38 @@ from os import path
 from os.path import join
 import datetime
 from PyQt4 import uic
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, pyqtSlot, pyqtProperty
 from PyQt4.QtGui import QWidget, QLineEdit, QLabel, QCheckBox, QSpacerItem,\
     QSizePolicy, QPalette, QColor #, QSpinBox
+
+
+class ReadOnlyCheckBox(QCheckBox):
+
+    def __init__(self, *args):
+        QCheckBox.__init__(self, *args)
+        self._readOnly = True
+
+    def isReadOnly(self):
+        return self._readOnly
+
+    def mousePressEvent(self, event):
+        if self.isReadOnly():
+            event.accept()
+        else:
+            QCheckBox.mousePressEvent(self, event)
+
+    def mouseReleaseEvent(self, event):
+        if self.isReadOnly():
+            event.accept()
+        else:
+            QCheckBox.mouseReleaseEvent(self, event)
+
+    @pyqtSlot(bool)
+    def setReadOnly(self, state):
+        self._readOnly = state
+
+    readOnly = pyqtProperty(bool, isReadOnly, setReadOnly)
+
 
 class WidgetKeyEntry(QWidget):
     def __init__(self, cacheaccess, fullKey, key, value, showTimeStamp, showTTL,
@@ -53,28 +82,27 @@ class WidgetKeyEntry(QWidget):
         widgetPal = QPalette()
         self.buttonSet.setVisible(False)
         self.labelKey.setText(key[str(key).rfind('/') + 1:])
-        t, ttl, value = value
+        _t, _ttl, _value = value
         self.labelKey.setToolTip(self.fullKey)
-        if ttl:
+        if _ttl:
             color = QColor(0xce, 0x9b, 0x9b)
             widgetValuePal.setColor(QPalette.Base, color)
             widgetPal.setColor(QPalette.Background, color)
             self.setAutoFillBackground(True)
             self.setPalette(widgetPal)
 
-        if isinstance(value, bool) or value in ('True', 'False'):
-            self.widgetValue = QCheckBox()
-            if value in (True, 'True'):
+        if isinstance(_value, bool) or _value in ('True', 'False'):
+            self.widgetValue = ReadOnlyCheckBox()
+            if _value in (True, 'True'):
                 self.widgetValue.setCheckState(Qt.Checked)
             else:
                 self.widgetValue.setCheckState(Qt.Unchecked)
             self.layoutWidget.insertSpacerItem(1, QSpacerItem(56, 20,
                                                         QSizePolicy.Expanding))
-            self.widgetValue.setDisabled(True)
         else:
             self.widgetValue = QLineEdit()
-            self.widgetValue.setText(str(value))
-            self.widgetValue.setReadOnly(True)
+            self.widgetValue.setText(str(_value))
+        self.widgetValue.setReadOnly(True)
         self.widgetValue.setToolTip(key)
         self.layoutWidget.insertWidget(1, self.widgetValue)
         self.widgetValue.setPalette(widgetValuePal)
