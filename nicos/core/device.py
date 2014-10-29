@@ -499,8 +499,15 @@ class Device(object):
                 if param == 'name':  # clean up legacy, wrong values
                     self._cache.put(self, 'name', self._name)
                     value = self._name
+                if value is not Ellipsis:
+                    try:
+                        value = self._validateType(value, param, paraminfo)
+                    except ConfigurationError as e:
+                        self.log.warning('value of %s from cache (%r) is invalid: %r'
+                                         ' using default handling instead.' %
+                                         (param, value, e))
+                        value = Ellipsis
             if value is not Ellipsis:
-                value = self._validateType(value, param, paraminfo)
                 if param in self._ownparams:
                     self._params[param] = value
                     return
