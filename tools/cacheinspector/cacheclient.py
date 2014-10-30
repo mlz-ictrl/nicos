@@ -31,7 +31,7 @@ from PyQt4.QtCore import QObject, pyqtSignal
 
 from nicos.core import Override
 from nicos.devices.cacheclient import BaseCacheClient
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, END_MARKER
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_ASK, END_MARKER
 
 
 class CacheSignals(QObject):
@@ -132,15 +132,11 @@ class CICacheClient(BaseCacheClient):
         with self._dblock:
             return self._db.get(key)
 
-    # def get_raw(self, key):
-    #     """Get a value directly from cache with updated timestamp info."""
-    #     tosend = '@%s%s%s\n' % (self._prefix, key, OP_ASK)
-    #     for msgmatch in self._single_request(tosend):
-    #         time, ttl, value = msgmatch.group('time'), msgmatch.group('ttl'), \
-    #             msgmatch.group('value')
-    #         # self.log.debug('get_explicit: %.2f %.2f %r', time, ttl, value)
-    #         return (time and float(time), ttl and float(ttl), value or '')
-    #     return (None, None, '')  # shouldn't happen
+    def update(self, key):
+        """Refresh a value from cache with updated timestamp info."""
+        tosend = '@%s%s%s\n' % (self._prefix, key, OP_ASK)
+        for msgmatch in self._single_request(tosend):
+            self._handle_msg(**msgmatch.groupdict())
 
     def put(self, key, entry):
         time = entry.time or currenttime()

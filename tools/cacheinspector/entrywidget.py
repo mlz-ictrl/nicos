@@ -22,10 +22,11 @@
 #
 # *****************************************************************************
 
+import time
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtCore import pyqtSlot, pyqtProperty
+from PyQt4.QtCore import pyqtSlot, pyqtProperty, QTimer
 from PyQt4.QtGui import QLineEdit, QCheckBox, QSpacerItem, QDialog, \
     QSizePolicy, QColor, QMessageBox
 
@@ -71,19 +72,22 @@ class EntryWidget(base_class, ui_class):
                  shortKey, showTimeStamp, showTTL, parent=None):
         base_class.__init__(self, parent)
         self.setupUi(self)
+        self.updateTimer = QTimer(self)
+        self.updateTimer.setSingleShot(True)
         self.watcher = watcher
         self.cacheAccess = cacheaccess
         self.entry = entry
         self.widgetValue = None
-        self.setupWidgetUi(shortKey, showTimeStamp, showTTL)
         self.setupEvents()
-        cacheaccess.signals.keyUpdated.connect(self.keyUpdated)
+        self.setupWidgetUi(shortKey, showTimeStamp, showTTL)
 
     def setupEvents(self):
         """Sets up all events."""
         self.buttonSet.clicked.connect(self.setKey)
         self.buttonDel.clicked.connect(self.delKey)
         self.buttonWatch.clicked.connect(self.watchKey)
+        self.cacheAccess.signals.keyUpdated.connect(self.keyUpdated)
+        self.updateTimer.timeout.connect(self.updateTimerEvent)
 
     def setupWidgetUi(self, shortKey, showTimeStamp, showTTL):
         """
@@ -137,6 +141,12 @@ class EntryWidget(base_class, ui_class):
         self.labelTTL.setText(str(entry.ttl or ''))
         self.labelTime.setText(entry.convertTime())
 
+        if entry.ttl:
+            # automatically refresh the value if the entry has a ttl (we don't
+            # get timestamp updates from the server unless the value changes)
+            time_to_update = max((entry.time + entry.ttl) - time.time(), 0)
+            self.updateTimer.start(time_to_update * 1000)
+
     def setKey(self):
         """Sets the key locally and on the server."""
         dlg = EntryEditDialog(self)
@@ -169,3 +179,6 @@ class EntryWidget(base_class, ui_class):
             return
         self.entry = entry
         self.updateValues()
+
+    def updateTimerEvent(self):
+        self.cacheAccess.update(self.entry.key)
