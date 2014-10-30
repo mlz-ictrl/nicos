@@ -29,10 +29,12 @@ from PyQt4 import uic
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QDialog, QWidgetItem
 
+from nicos.guisupport.utils import setBackgroundColor
+
 # The pylint errors must be fixed, but later
 from .connectdlg import ConnectDialog  # pylint: disable=F0401
 from .watcher import WatcherWindow  # pylint: disable=F0401
-from .entrywidget import EntryWidget  # pylint: disable=F0401
+from .entrywidget import EntryWidget, ttlColor, expiredColor  # pylint: disable=F0401
 from .editdlg import EntryEditDialog  # pylint: disable=F0401
 
 
@@ -50,6 +52,9 @@ class MainWindow(QMainWindow):
         self.port = 14869
         self.showTimeStamp = True
         self.showTTL = True
+
+        setBackgroundColor(self.labelDemoTTL, ttlColor)
+        setBackgroundColor(self.labelDemoExpired, expiredColor)
 
     def setupEvents(self):
         """Sets up all events."""

@@ -35,6 +35,10 @@ from nicos.guisupport.utils import setBackgroundColor
 from .editdlg import EntryEditDialog  # pylint: disable=F0401
 
 
+ttlColor = QColor(0xff, 0xfa, 0x66)
+expiredColor = QColor(0xce, 0x9b, 0x9b)
+
+
 class ReadOnlyCheckBox(QCheckBox):
 
     def __init__(self, *args):
@@ -127,11 +131,9 @@ class EntryWidget(base_class, ui_class):
         entry = self.entry
 
         if entry.expired:
-            color = QColor(0xce, 0x9b, 0x9b)
-            setBackgroundColor(self, color)
+            setBackgroundColor(self, expiredColor)
         elif entry.ttl:
-            color = QColor(0xff, 0xfa, 0x66)
-            setBackgroundColor(self, color)
+            setBackgroundColor(self, ttlColor)
 
         if isinstance(self.widgetValue, ReadOnlyCheckBox):
             self.widgetValue.setChecked(entry.value == 'True')
