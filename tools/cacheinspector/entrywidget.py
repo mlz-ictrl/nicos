@@ -31,7 +31,7 @@ from PyQt4.QtGui import QWidget, QLineEdit, QCheckBox, QSpacerItem, QDialog, \
 
 from nicos.guisupport.utils import setBackgroundColor
 
-from .windowaddkey import WindowAddKey  # pylint: disable=F0401
+from .editdlg import EntryEditDialog  # pylint: disable=F0401
 
 
 class ReadOnlyCheckBox(QCheckBox):
@@ -62,12 +62,12 @@ class ReadOnlyCheckBox(QCheckBox):
     readOnly = pyqtProperty(bool, isReadOnly, setReadOnly)
 
 
-class WidgetKeyEntry(QWidget):
+class EntryWidget(QWidget):
     def __init__(self, cacheaccess, watcher, entry,
                  shortKey, showTimeStamp, showTTL, parent=None):
         QWidget.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
-                             'WidgetKeyEntry.ui'), self)
+                             'entry.ui'), self)
         self.watcher = watcher
         self.cacheAccess = cacheaccess
         self.entry = entry
@@ -136,7 +136,7 @@ class WidgetKeyEntry(QWidget):
 
     def setKey(self):
         """ Sets the key locally and on the server. """
-        dlg = WindowAddKey(self)
+        dlg = EntryEditDialog(self)
         dlg.fillEntry(self.entry)
         dlg.valueTime.setText('')  # we want current timestamp by default
         dlg.valueKey.setReadOnly(True)
@@ -156,8 +156,8 @@ class WidgetKeyEntry(QWidget):
         """Adds our key to the watcher window."""
         if not self.watcher:
             return
-        widget = WidgetKeyEntry(self.cacheAccess, None, self.entry,
-                                False, True, True, self.watcher)
+        widget = EntryWidget(self.cacheAccess, None, self.entry,
+                             False, True, True, self.watcher)
         self.watcher.addWidgetKey(widget)
         self.watcher.show()
 

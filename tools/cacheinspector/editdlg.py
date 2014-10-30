@@ -28,15 +28,15 @@ from os.path import join
 from PyQt4 import uic
 from PyQt4.QtGui import QDialog
 
-from .cacheclient import Entry
+from .cacheclient import Entry  # pylint: disable=F0401
 
 
-class WindowAddKey(QDialog):
+class EntryEditDialog(QDialog):
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
-                        'WindowAddKey.ui'), self)
+                        'entryedit.ui'), self)
         self.setupEvents()
 
     def setupEvents(self):

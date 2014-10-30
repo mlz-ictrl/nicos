@@ -29,10 +29,10 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QDialog, QWidgetItem
 
 # The pylint errors must be fixed, but later
-from .dialogconnect import DialogConnect    # pylint: disable=F0401
-from .windowwatcher import WindowWatcher    # pylint: disable=F0401
-from .widgetkeyentry import WidgetKeyEntry  # pylint: disable=F0401
-from .windowaddkey import WindowAddKey      # pylint: disable=F0401
+from .connectdlg import ConnectDialog  # pylint: disable=F0401
+from .watcher import WatcherWindow  # pylint: disable=F0401
+from .entrywidget import EntryWidget  # pylint: disable=F0401
+from .editdlg import EntryEditDialog  # pylint: disable=F0401
 
 
 class MainWindow(QMainWindow):
@@ -42,8 +42,8 @@ class MainWindow(QMainWindow):
         self._cacheClient = cacheclient
         self._treeitems = {}
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
-                        'MainWindow.ui'), self)
-        self.watcherWindow = WindowWatcher()
+                        'mainwindow.ui'), self)
+        self.watcherWindow = WatcherWindow()
         self.setupEvents()
         self.ipAddress = '127.0.0.1'
         self.port = 14869
@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
 
     def openConnectDialog(self):
         """ Opens the connect dialog. """
-        dlg = DialogConnect(self)
+        dlg = ConnectDialog(self)
         dlg.valueServerAddress.setText(self.ipAddress)
         dlg.valuePort.setText(str(self.port))
         if dlg.exec_() != QDialog.Accepted:
@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
 
     def addNewKey(self):
         """ Adds a key using the data given via the add key window. """
-        dlg = WindowAddKey(self)
+        dlg = EntryEditDialog(self)
         if dlg.exec_() != QDialog.Accepted:
             return
         entry = dlg.getEntry()
@@ -174,8 +174,8 @@ class MainWindow(QMainWindow):
                 if key.rpartition('/')[0] == prefix]
         for key in sorted(keys):
             entry = self._cacheClient.get(key)
-            widget = WidgetKeyEntry(self._cacheClient, self.watcherWindow, entry,
-                                    True, self.showTimeStamp, self.showTTL, self)
+            widget = EntryWidget(self._cacheClient, self.watcherWindow, entry,
+                                 True, self.showTimeStamp, self.showTTL, self)
             self.layoutContent.addWidget(widget)
         self.layoutContent.addStretch()
 

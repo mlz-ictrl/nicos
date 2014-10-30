@@ -25,9 +25,8 @@
 import sys
 from PyQt4.QtGui import QApplication
 
-from .cacheclient import CICacheClient
-
 from .mainwindow import MainWindow  # pylint: disable=F0401
+from .cacheclient import CICacheClient  # pylint: disable=F0401
 
 
 class CacheInspector(CICacheClient):
