@@ -41,13 +41,10 @@ class CacheInspector(CICacheClient):
 
     def start(self):
         self._window.show()
+        if self.cache:
+            self.connect(*self._address)
         try:
             self._qtapp.exec_()
         except KeyboardInterrupt:
             pass
         self._stoprequest = True
-
-    def connect(self):
-        self._connect()
-        self._worker.start()
-

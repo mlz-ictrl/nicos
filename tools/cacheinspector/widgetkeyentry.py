@@ -22,13 +22,15 @@
 #
 # *****************************************************************************
 
+import time
 from os import path
-from os.path import join
-import datetime
+
 from PyQt4 import uic
-from PyQt4.QtCore import Qt, pyqtSlot, pyqtProperty
-from PyQt4.QtGui import QWidget, QLineEdit, QLabel, QCheckBox, QSpacerItem,\
-    QSizePolicy, QPalette, QColor #, QSpinBox
+from PyQt4.QtCore import pyqtSlot, pyqtProperty
+from PyQt4.QtGui import QWidget, QLineEdit, QCheckBox, QSpacerItem, \
+    QSizePolicy, QColor
+
+from nicos.guisupport.utils import setBackgroundColor
 
 
 class ReadOnlyCheckBox(QCheckBox):
@@ -60,122 +62,112 @@ class ReadOnlyCheckBox(QCheckBox):
 
 
 class WidgetKeyEntry(QWidget):
-    def __init__(self, cacheaccess, fullKey, key, value, showTimeStamp, showTTL,
-                 parent = None):
-        QWidget.__init__(self)
-        uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
-                        'WidgetKeyEntry.ui'), self)
+    def __init__(self, cacheaccess, entry, showTimeStamp, showTTL, parent=None):
+        QWidget.__init__(self, parent)
+        uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
+                             'WidgetKeyEntry.ui'), self)
         self.cacheAccess = cacheaccess
-        self.fullKey = fullKey
+        self.entry = entry
         self.widgetValue = None
-        self.setupWidgetUi(key, value, showTimeStamp, showTTL)
+        self.setupWidgetUi(showTimeStamp, showTTL)
         self.setupEvents()
-
-    def setupWidgetUi(self, key, value, showTimeStamp, showTTL):
-        """
-            Sets up and generate a UI according to the data type of the value
-            and whether or not time to live or time stamp should be shown.
-        """
-        self.labelTTL = QLabel()
-        self.labelTimeStamp = QLabel()
-        widgetValuePal = QPalette()
-        widgetPal = QPalette()
-        self.buttonSet.setVisible(False)
-        self.labelKey.setText(key[str(key).rfind('/') + 1:])
-        _t, _ttl, _value = value
-        self.labelKey.setToolTip(self.fullKey)
-        if _ttl:
-            color = QColor(0xce, 0x9b, 0x9b)
-            widgetValuePal.setColor(QPalette.Base, color)
-            widgetPal.setColor(QPalette.Background, color)
-            self.setAutoFillBackground(True)
-            self.setPalette(widgetPal)
-
-        if isinstance(_value, bool) or _value in ('True', 'False'):
-            self.widgetValue = ReadOnlyCheckBox()
-            if _value in (True, 'True'):
-                self.widgetValue.setCheckState(Qt.Checked)
-            else:
-                self.widgetValue.setCheckState(Qt.Unchecked)
-            self.layoutWidget.insertSpacerItem(1, QSpacerItem(56, 20,
-                                                        QSizePolicy.Expanding))
-        else:
-            self.widgetValue = QLineEdit()
-            self.widgetValue.setText(str(_value))
-        self.widgetValue.setReadOnly(True)
-        self.widgetValue.setToolTip(key)
-        self.layoutWidget.insertWidget(1, self.widgetValue)
-        self.widgetValue.setPalette(widgetValuePal)
-        if showTTL:
-            self.labelTTL.setText(self.cacheAccess.getTTL(self.fullKey))
-            self.labelTTL.setToolTip('Time to Live')
-            self.layoutWidget.insertWidget(0, self.labelTTL)
-        if showTimeStamp:
-            self.labelTimeStamp.setText(self.convertToUTC(
-                self.cacheAccess.getTimeStamp(self.fullKey)))
-            self.labelTimeStamp.setToolTip('Time Stamp')
-            self.layoutWidget.insertWidget(0, self.labelTimeStamp)
+        cacheaccess.signals.keyUpdated.connect(self.keyUpdated)
 
     def setupEvents(self):
         """ Sets up all events. """
         self.buttonSet.clicked.connect(self.setKey)
 
-    def setKey(self):
-        """ Sets the key locally and on the server. """
-        if isinstance(self.widgetValue, QCheckBox):
-            if self.fullKey.find('!') == -1 \
-                or self.fullKey.find('=') >= 0 \
-                and self.fullKey.find('=') < self.fullKey.find('!'):
-                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')],
-                                             self.widgetValue.isChecked())
-            else:
-                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')],
-                                             self.widgetValue.isChecked())
-            for i in range(len(self.cacheAccess.entries)):
-                if self.cacheAccess.entries[i] == (self.fullKey):
-                    self.cacheAccess.entries[i] = \
-                            self.fullKey[:self.fullKey.find('=')] + '='
-                    self.cacheAccess.entries[i] += \
-                            str(self.widgetValue.isChecked()) + '\n'
+    def setupWidgetUi(self, showTimeStamp, showTTL):
+        """
+        Sets up and generate a UI according to the data type of the value
+        and whether or not time to live or time stamp should be shown.
+        """
+        entry = self.entry
+
+        self.buttonSet.setVisible(False)
+        self.labelKey.setText(entry.key.rpartition('/')[2])
+        self.labelKey.setToolTip(entry.key)
+
+        if entry.value in ('True', 'False'):
+            self.widgetValue = ReadOnlyCheckBox()
+            self.layoutWidget.insertWidget(4, self.widgetValue)
+            self.layoutWidget.insertSpacerItem(
+                5, QSpacerItem(56, 20, QSizePolicy.Expanding))
         else:
-            if self.fullKey.find('!') == -1 \
-                or self.fullKey.find('=') >= 0 \
-                and self.fullKey.find('=') < self.fullKey.find('!'):
-                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')],
-                                             self.widgetValue.text())
-            else:
-                self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')],
-                                             self.widgetValue.text())
-            for i in range(len(self.cacheAccess.entries)):
-                if self.cacheAccess.entries[i] == (self.fullKey):
-                    self.cacheAccess.entries[i] = \
-                            self.fullKey[:self.fullKey.find('=')] + '='
-                    self.cacheAccess.entries[i] += \
-                            str(self.widgetValue.text() + '\n')
+            self.widgetValue = QLineEdit()
+            self.layoutWidget.insertWidget(4, self.widgetValue)
+        self.widgetValue.setReadOnly(True)
+        self.widgetValue.setToolTip(entry.key)
+
+        if not showTTL:
+            self.labelTTL.hide()
+        if not showTimeStamp:
+            self.labelTime.hide()
+
         self.updateValues()
 
-    def updateValues(self, local=True):
-        """
-        Updates all information shown by the widget to the information in the
-        local data.
-        """
-        #if not local:
-        #    if self.fullKey.find('!') == -1
-        #       or self.fullKey.find('=') >= 0
-        #       and self.fullKey.find('=') < self.fullKey.find('!'):
-        #        self.fullKey = self.cacheAccess.getKeyValue(self.fullKey[
-        #               self.fullKey.find('@') + 1:self.fullKey.find('=')], True)
-        #    else:
-        #        self.fullKey = self.cacheAccess.getKeyValue(self.fullKey[
-        #               self.fullKey.find('@') + 1:self.fullKey.find('!')], True)
-        #    self.cacheAccess.entries
+    def updateValues(self):
+        entry = self.entry
 
+        if entry.expired:
+            color = QColor(0xce, 0x9b, 0x9b)
+            setBackgroundColor(self, color)
+        elif entry.ttl:
+            color = QColor(0xff, 0xfa, 0x66)
+            setBackgroundColor(self, color)
 
-    def convertToUTC(self, unixTimeStamp):
+        if isinstance(self.widgetValue, ReadOnlyCheckBox):
+            self.widgetValue.setChecked(entry.value == 'True')
+        else:
+            self.widgetValue.setText(entry.value)
+
+        self.labelTTL.setText(entry.ttl or '')
+        self.labelTime.setText(self.convertTime(entry.time))
+
+    def setKey(self):
+        """ Sets the key locally and on the server. """
+        # if isinstance(self.widgetValue, QCheckBox):
+        #     if self.fullKey.find('!') == -1 \
+        #         or self.fullKey.find('=') >= 0 \
+        #         and self.fullKey.find('=') < self.fullKey.find('!'):
+        #         self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')],
+        #                                      self.widgetValue.isChecked())
+        #     else:
+        #         self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')],
+        #                                      self.widgetValue.isChecked())
+        #     for i in range(len(self.cacheAccess.entries)):
+        #         if self.cacheAccess.entries[i] == (self.fullKey):
+        #             self.cacheAccess.entries[i] = \
+        #                     self.fullKey[:self.fullKey.find('=')] + '='
+        #             self.cacheAccess.entries[i] += \
+        #                     str(self.widgetValue.isChecked()) + '\n'
+        # else:
+        #     if self.fullKey.find('!') == -1 \
+        #         or self.fullKey.find('=') >= 0 \
+        #         and self.fullKey.find('=') < self.fullKey.find('!'):
+        #         self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')],
+        #                                      self.widgetValue.text())
+        #     else:
+        #         self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')],
+        #                                      self.widgetValue.text())
+        #     for i in range(len(self.cacheAccess.entries)):
+        #         if self.cacheAccess.entries[i] == (self.fullKey):
+        #             self.cacheAccess.entries[i] = \
+        #                     self.fullKey[:self.fullKey.find('=')] + '='
+        #             self.cacheAccess.entries[i] += \
+        #                     str(self.widgetValue.text() + '\n')
+        # self.updateValues()
+
+    def keyUpdated(self, key, entry):
+        if key != self.entry.key:
+            return
+        self.entry = entry
+        self.updateValues()
+
+    def convertTime(self, unixTimeStamp):
         """ Converts the unix time stamp to a readable time stamp. """
-        try:
-            timeStamp = float(unixTimeStamp)
-            return datetime.datetime.fromtimestamp(timeStamp).strftime(
-                    '%d-%m-%Y %H:%M:%S')
-        except ValueError:
-            return '01-01-1970 00:00:00'
+        ttup = time.localtime(unixTimeStamp)
+        if ttup[:3] == time.localtime()[:3]:
+            return time.strftime('%H:%M:%S', ttup)
+        else:
+            return time.strftime('%Y-%m-%d %H:%M:%S', ttup)

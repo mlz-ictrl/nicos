@@ -53,8 +53,8 @@ def main(argv=None):
                       help='CACHE server:port, defaults to localhost:14869',
                       default='localhost')
     parser.add_option('-p', '--prefix', dest='prefix', action='store',
-                      help='PREFIX is the key prefix; it will be added in front '
-                      'of the key, defaults to \'nicos/\'', default='nicos')
+                      help='PREFIX is the key prefix; shows only keys with '
+                      'this prefix, defaults to no prefix', default='')
     opts, args = parser.parse_args()
 
     SingleDeviceSession.run('Inspector', CacheInspector,

@@ -27,7 +27,7 @@ from os.path import join
 from PyQt4 import uic
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QMenu, QAction, QDialog, \
-    QSpacerItem
+    QWidgetItem
 
 # The pylint errors must be fixed, but later
 from .dialogconnect import DialogConnect    # pylint: disable=F0401
@@ -35,32 +35,29 @@ from .windowwatcher import WindowWatcher    # pylint: disable=F0401
 from .widgetkeyentry import WidgetKeyEntry  # pylint: disable=F0401
 from .windowaddkey import WindowAddKey      # pylint: disable=F0401
 
+
 class MainWindow(QMainWindow):
 
     def __init__(self, cacheclient, parent=None):
         QMainWindow.__init__(self)
         self._cacheClient = cacheclient
+        self._treeitems = {}
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
                         'MainWindow.ui'), self)
-        self.dialogConnect = DialogConnect(self)
         self.watcherWindow = WindowWatcher(self)
-        self.addKeyWindow = WindowAddKey(self)
         self.contextMenuTreeCache = QMenu(self.treeCache)
-        self.contextMenuTreeCache.actionAddToWatcher = QAction('Add to Watcher',
-                                                    self.contextMenuTreeCache)
-        self.contextMenuTreeCache.actionSubscribe = QAction('Subscribe',
-                                                    self.contextMenuTreeCache)
+        self.contextMenuTreeCache.actionAddToWatcher = QAction(
+            'Add to Watcher', self.contextMenuTreeCache)
+        self.contextMenuTreeCache.actionSubscribe = QAction(
+            'Subscribe', self.contextMenuTreeCache)
         self.treeCache.addAction(self.contextMenuTreeCache.actionAddToWatcher)
         self.treeCache.addAction(self.contextMenuTreeCache.actionSubscribe)
         self.setupEvents()
         self.ipAddress = '127.0.0.1'
         self.port = 14869
-        self.TCPconnection = True
         self.progressLoading.hide()
         self.showTimeStamp = False
         self.showTTL = False
-        if self._cacheClient.is_connected():
-            self.updateTree()
 
     def setupEvents(self):
         """ Sets up all events. """
@@ -82,66 +79,53 @@ class MainWindow(QMainWindow):
             self.addKeyToWatcher)
         self.contextMenuTreeCache.actionSubscribe.triggered.connect(
             self.subscribeKey)
+        self._cacheClient.signals.connected.connect(self.refreshAll)
+        self._cacheClient.signals.disconnected.connect(self.refreshAll)
 
     def openConnectDialog(self):
         """ Opens the connect dialog. """
-        if self.dialogConnect.exec_() == QDialog.Accepted:
-            self.connectToServer()
-
-    def connectToServer(self):
-        """ Connects to the cache server with the given information. """
-        self.actionConnect.setDisabled(True)
-        self.ipAddress = self.dialogConnect.valueServerAddress.text()
-        self.port = self.dialogConnect.valuePort.text().toInt()[0]
-        self.TCPConnection = self.dialogConnect.radioTCP.isChecked()
-        self.actionConnect.setDisabled(self.cacheAccess.isConnected())
-        self.actionDisconnect.setEnabled(self.cacheAccess.isConnected())
-        self.actionRefresh.setEnabled(self.cacheAccess.isConnected())
-        if self.cacheAccess.isConnected():
-            self.updateTree()
+        dlg = DialogConnect(self)
+        if dlg.exec_() != QDialog.Accepted:
+            return
+        self.ipAddress = dlg.valueServerAddress.text()
+        self.port = int(dlg.valuePort.text())
+        self._cacheClient.connect(self.ipAddress, self.port)
 
     def closeConnection(self):
         """ Closes the connection of the cache inspector. """
-        self._cacheClient.shutdown()
-        self.actionConnect.setDisabled(self._cacheClient.is_connected())
-        self.actionDisconnect.setEnabled(self._cacheClient.is_connected())
-        self.actionRefresh.setEnabled(self._cacheClient.is_connected())
-        if not self._cacheClient.is_connected():
-            self.clearCacheTree()
-            self.clearWidgetView()
+        self._cacheClient.disconnect()
 
     def refreshAll(self):
         """ Refreshes local data and the view. """
+        self.actionConnect.setDisabled(self._cacheClient.is_connected())
+        self.actionDisconnect.setEnabled(self._cacheClient.is_connected())
+        self.actionRefresh.setEnabled(self._cacheClient.is_connected())
         self.updateTree()
-        self.updateView(self.treeCache.invisibleRootItem(), 0)
+        for item in self.treeCache.selectedItems():
+            self.updateView(item, 0)
 
     def addNewKey(self):
         """ Adds a key using the data given via the add key window. """
-        self.addKeyWindow.exec_()
-        if self.addKeyWindow.result() == QDialog.Accepted:
-            #timeStamp = self.addKeyWindow.dateTimeStamp.text()
-            #print timeStamp
-            timeStamp = ''
-            ttl = self.addKeyWindow.valueTTL.text()
-            key = self.addKeyWindow.valueKey.text()
-            value = self.addKeyWindow.valueValue.text()
-            self._cacheClient.put_raw(key, value, timeStamp, ttl)
-            self.addKeyWindow.valueTTL.setText('')
-            self.addKeyWindow.valueKey.setText('')
-            self.addKeyWindow.valueValue.setText('')
+        dlg = WindowAddKey(self)
+        if dlg.exec_() != QDialog.Accepted:
+            return
+        #timeStamp = self.addKeyWindow.dateTimeStamp.text()
+        #print timeStamp
+        timeStamp = ''
+        ttl = dlg.valueTTL.text()
+        key = dlg.valueKey.text()
+        value = dlg.valueValue.text()
+        self._cacheClient.put_raw(key, value, timeStamp, ttl)
 
     def search(self):
-        self.treeCache.setCurrentItem(self.treeCache.findItems('nicos')[0])
+        pass
 
     def toggleTimeStamp(self):
         """
         Toggles whether or not the time stamp is shown and updates the view
         respectively.
         """
-        if self.showTimeStamp:
-            self.showTimeStamp = False
-        else:
-            self.showTimeStamp = True
+        self.showTimeStamp = not self.showTimeStamp
         for item in self.treeCache.selectedItems():
             self.updateView(item, 0)
 
@@ -150,10 +134,7 @@ class MainWindow(QMainWindow):
         Toggles whether or not the time to live is shown and updates the view
         respectively.
         """
-        if self.showTTL:
-            self.showTTL = False
-        else:
-            self.showTTL = True
+        self.showTTL = not self.showTTL
         for item in self.treeCache.selectedItems():
             self.updateView(item, 0)
 
@@ -163,77 +144,50 @@ class MainWindow(QMainWindow):
 
     def updateTree(self):
         """ Updates the elements shown in the tree. """
-        cursorShape = self.cursor().shape()
-        self.setCursor(Qt.BusyCursor)
         self.clearCacheTree()
-        root = None
-        child = None
-        nextChild = None
-        for key in self._cacheClient._db:
-            if len(self.comboFilter.currentText()) == 0 or \
-                key.find(self.comboFilter.currentText()) != -1:
-                # print key
-                if not self.treeCache.findItems(key.split('/')[0], Qt.MatchExactly):
-                    root = QTreeWidgetItem()
-                    root.setText(0, key.split('/')[0])
-                    self.treeCache.addTopLevelItem(root)
-                if len(key.split('/')) > 2:
-                    for i in range(root.childCount()):
-                        if root.child(i):
-                            if root.child(i).text(0) == key.split('/')[1]:
-                                break
+        filterStr = self.comboFilter.currentText() or ''
+        for key in self._cacheClient.keys():
+            if filterStr not in key:
+                continue
+            # split the key into parts
+            parts = key.split('/')
+            # keys without category need a node too
+            if len(parts) == 1:
+                parts = ['<no category>'] + parts
+            # add a node to the tree for each part of the key except the last
+            prefix = ''
+            parent = None
+            for part in parts[:-1]:
+                prefix = part if not prefix else prefix + '/' + part
+                node = self._treeitems.get(prefix)
+                if not node:
+                    node = QTreeWidgetItem()
+                    node.setText(0, part)
+                    node.setData(0, 32, prefix)
+                    if parent:
+                        parent.addChild(node)
                     else:
-                        child = QTreeWidgetItem()
-                        child.setText(0, key.split('/')[1])
-                        root.addChild(child)
-                for level in range(2, len(key.split('/')) - 1):
-                    temp = root.child(root.childCount() - 1)
-                    for i in range(level - 2):
-                        temp = temp.child(temp.childCount() - 1)
-                    for index in range(temp.childCount()):
-                        if temp.child(index):
-                            if temp.child(index).text(0) == key.split('/')[level]:
-                                break
-                    else:
-                        nextChild = QTreeWidgetItem()
-                        nextChild.setText(0, key.split('/')[level])
-                        temp.addChild(nextChild)
-        self.setCursor(cursorShape)
+                        self.treeCache.addTopLevelItem(node)
+                        node.setExpanded(True)
+                    self._treeitems[prefix] = node
+                parent = node
 
-    def updateView(self, keyCategory, column):
+    def updateView(self, item, column):
         """ Updates the values shown in the right pane. """
+        if not item.text(0):  # it's the hidden root item
+            return
         self.clearWidgetView()
-        strKey = ''
-        item = keyCategory
-        while item != None:
-            for i in range(self.treeCache.topLevelItemCount()):
-                if item != self.treeCache.topLevelItem(i):
-                    break
-            else:
-                strKey = str(item.text(0)) + '/' + strKey
-                break
-            strKey = str(item.text(0)) + '/' + strKey
-            item = item.parent()
-        for entry in self._cacheClient._db:
-            if entry.find(strKey) >= 0:
-                value = self._cacheClient.get_explicit(entry.split('/')[0],
-                                    '/'.join(entry.split('/')[1:]), 'ERROR')
-                widget = WidgetKeyEntry(self._cacheClient, entry, entry,
-                                   value, self.showTimeStamp, self.showTTL)
-                self.layoutContent.insertWidget(0, widget)
-            else:
-                key = entry[entry.find(strKey):entry.find('!')]
-                value = entry[entry.find('!') + 1:-1]
-                if key.find(strKey) >= 0:
-                    for i in range(keyCategory.childCount()):
-                        temp = key.replace(strKey, '')
-                        if temp.find('/') >= 0:
-                            break
-                    else:
-                        widget = WidgetKeyEntry(self.cacheAccess, entry, key,
-                                                value, self.showTimeStamp,
-                                                self.showTTL)
-                        self.layoutContent.insertWidget(0, widget)
+        prefix = item.data(0, 32)
+        if prefix == '<no category>':
+            prefix = ''
+        keys = [key for key in self._cacheClient.keys()
+                if key.rpartition('/')[0] == prefix]
+        for key in sorted(keys):
+            entry = self._cacheClient.get(key)
+            widget = WidgetKeyEntry(self._cacheClient, entry,
+                                    self.showTimeStamp, self.showTTL, self)
+            self.layoutContent.addWidget(widget)
+        self.layoutContent.addStretch()
 
     def showContextMenu(self, position):
         """ Shows the context menu. """
@@ -269,9 +223,11 @@ class MainWindow(QMainWindow):
     def clearCacheTree(self):
         """ Removes all elements in the tree. """
         self.treeCache.clear()
+        self._treeitems.clear()
 
     def clearWidgetView(self):
         """ Removes all widgets in the right pane. """
-        for i in reversed(range(self.layoutContent.count())):
-            if not isinstance(self.layoutContent.itemAt(i), QSpacerItem):
-                self.layoutContent.itemAt(i).widget().setParent(None)
+        for i in range(self.layoutContent.count()-1, -1, -1):
+            item = self.layoutContent.takeAt(i)
+            if isinstance(item, QWidgetItem):
+                item.widget().deleteLater()
