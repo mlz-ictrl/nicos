@@ -112,6 +112,7 @@ class CICacheClient(BaseCacheClient):
             return
         key = key[len(self._prefix):]
         time = time and float(time)
+        ttl = ttl and float(ttl) or None
         # self.log.debug('got %s=%s' % (key, value))
         if key == END_MARKER:
             return

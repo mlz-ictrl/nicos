@@ -134,7 +134,7 @@ class EntryWidget(base_class, ui_class):
         else:
             self.widgetValue.setText(entry.value)
 
-        self.labelTTL.setText(entry.ttl or '')
+        self.labelTTL.setText(str(entry.ttl or ''))
         self.labelTime.setText(entry.convertTime())
 
     def setKey(self):

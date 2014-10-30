@@ -45,11 +45,11 @@ class EntryEditDialog(QDialog):
     def fillEntry(self, entry):
         self.valueKey.setText(entry.key)
         self.valueValue.setText(entry.value)
-        self.valueTTL.setText(entry.ttl or '')
+        self.valueTTL.setText(str(entry.ttl or ''))
         self.valueTime.setText(entry.convertTime())
 
     def getEntry(self):
         entry = Entry(self.valueKey.text(), self.valueValue.text(),
                       Entry.parseTime(self.valueTime.text()),
-                      self.valueTTL.text() or None, False)
+                      float(self.valueTTL.text() or '0') or None, False)
         return entry
