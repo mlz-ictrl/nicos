@@ -114,13 +114,9 @@ class MainWindow(QMainWindow):
         dlg = WindowAddKey(self)
         if dlg.exec_() != QDialog.Accepted:
             return
-        #timeStamp = self.addKeyWindow.dateTimeStamp.text()
-        #print timeStamp
-        timeStamp = ''
-        ttl = dlg.valueTTL.text()
-        key = dlg.valueKey.text()
-        value = dlg.valueValue.text()
-        self._cacheClient.put_raw(key, value, timeStamp, ttl)
+        entry = dlg.getEntry()
+        self._cacheClient.put(entry.key, entry)
+        self.refreshAll()
 
     def search(self):
         pass

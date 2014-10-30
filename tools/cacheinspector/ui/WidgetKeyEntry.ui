@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>437</width>
+    <width>464</width>
     <height>37</height>
    </rect>
   </property>
@@ -103,15 +103,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="buttonSet">
-     <property name="maximumSize">
-      <size>
-       <width>60</width>
-       <height>16777215</height>
-      </size>
-     </property>
+    <widget class="QToolButton" name="buttonSet">
      <property name="text">
-      <string>Set</string>
+      <string>Edit</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="buttonDel">
+     <property name="text">
+      <string>Del</string>
      </property>
     </widget>
    </item>

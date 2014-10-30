@@ -24,8 +24,11 @@
 
 from os import path
 from os.path import join
+
 from PyQt4 import uic
 from PyQt4.QtGui import QDialog
+
+from .cacheclient import Entry
 
 
 class WindowAddKey(QDialog):
@@ -38,5 +41,15 @@ class WindowAddKey(QDialog):
 
     def setupEvents(self):
         """ Set up the events. """
-        self.buttonCancel.clicked.connect(self.reject)
-        self.buttonAdd.clicked.connect(self.accept)
+
+    def fillEntry(self, entry):
+        self.valueKey.setText(entry.key)
+        self.valueValue.setText(entry.value)
+        self.valueTTL.setText(entry.ttl or '')
+        self.valueTime.setText(entry.convertTime())
+
+    def getEntry(self):
+        entry = Entry(self.valueKey.text(), self.valueValue.text(),
+                      Entry.parseTime(self.valueTime.text()),
+                      self.valueTTL.text() or None, False)
+        return entry

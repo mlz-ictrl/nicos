@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+import time
 import threading
 from time import time as currenttime
 from collections import namedtuple
@@ -43,7 +44,25 @@ class CacheSignals(QObject):
     keyUpdated = pyqtSignal(str, object)
 
 
-Entry = namedtuple('Entry', 'key value time ttl expired')
+class Entry(namedtuple('Entry', 'key value time ttl expired')):
+
+    def convertTime(self):
+        """ Converts the unix time stamp to a readable time stamp. """
+        ttup = time.localtime(self.time)
+        if ttup[:3] == time.localtime()[:3]:
+            return time.strftime('%H:%M:%S', ttup)
+        else:
+            return time.strftime('%Y-%m-%d %H:%M:%S', ttup)
+
+    @staticmethod
+    def parseTime(string):
+        if not string:
+            return time.time()
+        try:
+            tval = time.mktime(time.strptime(string, '%H:%M:%S'))
+        except ValueError:
+            tval = time.mktime(time.strptime(string, '%Y-%m-%d %H:%M:%S'))
+        return tval
 
 
 class CICacheClient(BaseCacheClient):
@@ -122,10 +141,20 @@ class CICacheClient(BaseCacheClient):
     #         return (time and float(time), ttl and float(ttl), value or '')
     #     return (None, None, '')  # shouldn't happen
 
-    def put_raw(self, key, value, time=None, ttl=None):
-        if time is None:
-            time = currenttime()
-        ttlstr = ttl and '+%s' % ttl or ''
-        msg = '%s%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, value)
+    def put(self, key, entry):
+        time = entry.time or currenttime()
+        ttlstr = entry.ttl and '+%s' % entry.ttl or ''
+        msg = '%s%s@%s%s%s\n' % (time, ttlstr, key, OP_TELL, entry.value)
         # self.log.debug('putting %s=%s' % (key, value))
         self._queue.put(msg)
+        # the cache doesn't send this update back to us
+        with self._dblock:
+            self._db[key] = entry
+        self.signals.keyUpdated.emit(key, entry)
+
+    def delete(self, key):
+        self._queue.put('%s%s\n' % (key, OP_TELL))
+        entry = Entry(key, '', time.time(), '', True)
+        with self._dblock:
+            self._db[key] = entry
+        self.signals.keyUpdated.emit(key, entry)

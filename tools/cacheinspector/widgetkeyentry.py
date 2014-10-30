@@ -22,15 +22,16 @@
 #
 # *****************************************************************************
 
-import time
 from os import path
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSlot, pyqtProperty
-from PyQt4.QtGui import QWidget, QLineEdit, QCheckBox, QSpacerItem, \
-    QSizePolicy, QColor
+from PyQt4.QtGui import QWidget, QLineEdit, QCheckBox, QSpacerItem, QDialog, \
+    QSizePolicy, QColor, QMessageBox
 
 from nicos.guisupport.utils import setBackgroundColor
+
+from .windowaddkey import WindowAddKey # pylint: disable=F0401
 
 
 class ReadOnlyCheckBox(QCheckBox):
@@ -76,6 +77,7 @@ class WidgetKeyEntry(QWidget):
     def setupEvents(self):
         """ Sets up all events. """
         self.buttonSet.clicked.connect(self.setKey)
+        self.buttonDel.clicked.connect(self.delKey)
 
     def setupWidgetUi(self, showTimeStamp, showTTL):
         """
@@ -84,7 +86,6 @@ class WidgetKeyEntry(QWidget):
         """
         entry = self.entry
 
-        self.buttonSet.setVisible(False)
         self.labelKey.setText(entry.key.rpartition('/')[2])
         self.labelKey.setToolTip(entry.key)
 
@@ -122,52 +123,28 @@ class WidgetKeyEntry(QWidget):
             self.widgetValue.setText(entry.value)
 
         self.labelTTL.setText(entry.ttl or '')
-        self.labelTime.setText(self.convertTime(entry.time))
+        self.labelTime.setText(entry.convertTime())
 
     def setKey(self):
         """ Sets the key locally and on the server. """
-        # if isinstance(self.widgetValue, QCheckBox):
-        #     if self.fullKey.find('!') == -1 \
-        #         or self.fullKey.find('=') >= 0 \
-        #         and self.fullKey.find('=') < self.fullKey.find('!'):
-        #         self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')],
-        #                                      self.widgetValue.isChecked())
-        #     else:
-        #         self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')],
-        #                                      self.widgetValue.isChecked())
-        #     for i in range(len(self.cacheAccess.entries)):
-        #         if self.cacheAccess.entries[i] == (self.fullKey):
-        #             self.cacheAccess.entries[i] = \
-        #                     self.fullKey[:self.fullKey.find('=')] + '='
-        #             self.cacheAccess.entries[i] += \
-        #                     str(self.widgetValue.isChecked()) + '\n'
-        # else:
-        #     if self.fullKey.find('!') == -1 \
-        #         or self.fullKey.find('=') >= 0 \
-        #         and self.fullKey.find('=') < self.fullKey.find('!'):
-        #         self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('=')],
-        #                                      self.widgetValue.text())
-        #     else:
-        #         self.cacheAccess.setKeyValue(self.fullKey[:self.fullKey.find('!')],
-        #                                      self.widgetValue.text())
-        #     for i in range(len(self.cacheAccess.entries)):
-        #         if self.cacheAccess.entries[i] == (self.fullKey):
-        #             self.cacheAccess.entries[i] = \
-        #                     self.fullKey[:self.fullKey.find('=')] + '='
-        #             self.cacheAccess.entries[i] += \
-        #                     str(self.widgetValue.text() + '\n')
-        # self.updateValues()
+        dlg = WindowAddKey(self)
+        dlg.fillEntry(self.entry)
+        dlg.valueTime.setText('')  # we want current timestamp by default
+        dlg.valueKey.setReadOnly(True)
+        if dlg.exec_() != QDialog.Accepted:
+            return
+        entry = dlg.getEntry()
+        self.cacheAccess.put(entry.key, entry)
+
+    def delKey(self):
+        if QMessageBox.question(
+                self, 'Delete', 'Really delete?',
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+            return
+        self.cacheAccess.delete(self.entry.key)
 
     def keyUpdated(self, key, entry):
         if key != self.entry.key:
             return
         self.entry = entry
         self.updateValues()
-
-    def convertTime(self, unixTimeStamp):
-        """ Converts the unix time stamp to a readable time stamp. """
-        ttup = time.localtime(unixTimeStamp)
-        if ttup[:3] == time.localtime()[:3]:
-            return time.strftime('%H:%M:%S', ttup)
-        else:
-            return time.strftime('%Y-%m-%d %H:%M:%S', ttup)

@@ -6,138 +6,136 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>952</width>
-    <height>75</height>
+    <width>383</width>
+    <height>240</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add New Key</string>
+   <string>Add/change key</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="horizontalSpacing">
-    <number>12</number>
-   </property>
-   <property name="verticalSpacing">
-    <number>1</number>
-   </property>
-   <item row="0" column="3">
+   <item row="7" column="0" colspan="4">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
     <widget class="QLabel" name="labelValue">
      <property name="text">
-      <string>*Raw Value:</string>
+      <string>Raw Value:</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="4">
-    <widget class="QPushButton" name="buttonCancel">
-     <property name="text">
-      <string>Cancel</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QLineEdit" name="valueKey"/>
-   </item>
-   <item row="1" column="4">
-    <widget class="QPushButton" name="buttonAdd">
-     <property name="text">
-      <string>Add Key</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="labelTTL">
-     <property name="text">
-      <string>Time to Live:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QLabel" name="labelKey">
-     <property name="text">
-      <string>*Key:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="labelTimeStamp">
      <property name="text">
       <string>Time Stamp:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="valueTTL">
-     <property name="maximumSize">
+   <item row="3" column="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
       <size>
-       <width>80</width>
-       <height>16777215</height>
+       <width>30</width>
+       <height>20</height>
       </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QLineEdit" name="valueTime"/>
+   </item>
+   <item row="6" column="0" colspan="4">
+    <widget class="QLineEdit" name="valueValue"/>
+   </item>
+   <item row="1" column="0" colspan="4">
+    <widget class="QLineEdit" name="valueKey"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelKey">
+     <property name="text">
+      <string>Key:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QLineEdit" name="valueTTL">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
      <property name="inputMask">
       <string>#ddddd9; </string>
      </property>
     </widget>
    </item>
-   <item row="1" column="3">
-    <widget class="QLineEdit" name="valueValue"/>
+   <item row="2" column="3">
+    <widget class="QLabel" name="labelTTL">
+     <property name="text">
+      <string>Time to Live:</string>
+     </property>
+    </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QDateTimeEdit" name="dateTimeStamp">
-     <property name="maximumSize">
-      <size>
-       <width>196</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="maximumDate">
-      <date>
-       <year>2038</year>
-       <month>1</month>
-       <day>1</day>
-      </date>
-     </property>
-     <property name="minimumDate">
-      <date>
-       <year>1970</year>
-       <month>1</month>
-       <day>19</day>
-      </date>
-     </property>
-     <property name="maximumTime">
-      <time>
-       <hour>0</hour>
-       <minute>0</minute>
-       <second>0</second>
-      </time>
-     </property>
-     <property name="minimumTime">
-      <time>
-       <hour>23</hour>
-       <minute>59</minute>
-       <second>59</second>
-      </time>
-     </property>
-     <property name="displayFormat">
-      <string>dd-MM-yyyy HH:mm:ss</string>
-     </property>
-     <property name="calendarPopup">
-      <bool>true</bool>
-     </property>
-     <property name="timeSpec">
-      <enum>Qt::UTC</enum>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Format: YYYY-MM-DD HH:MM:SS&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;or HH:MM:SS&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;or nothing</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>dateTimeStamp</tabstop>
-  <tabstop>valueTTL</tabstop>
   <tabstop>valueKey</tabstop>
   <tabstop>valueValue</tabstop>
-  <tabstop>buttonCancel</tabstop>
-  <tabstop>buttonAdd</tabstop>
+  <tabstop>valueTime</tabstop>
+  <tabstop>valueTTL</tabstop>
+  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>WindowAddKey</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>244</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>185</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>WindowAddKey</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>265</x>
+     <y>167</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>343</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
