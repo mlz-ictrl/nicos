@@ -103,6 +103,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QToolButton" name="buttonWatch">
+     <property name="text">
+      <string>Watch</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QToolButton" name="buttonSet">
      <property name="text">
       <string>Edit</string>

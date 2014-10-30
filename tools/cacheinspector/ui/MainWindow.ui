@@ -351,9 +351,6 @@
    <property name="checkable">
     <bool>false</bool>
    </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Watcher</string>
    </property>

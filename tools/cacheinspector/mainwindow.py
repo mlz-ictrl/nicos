@@ -26,8 +26,7 @@ from os import path
 from os.path import join
 from PyQt4 import uic
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QMenu, QAction, QDialog, \
-    QWidgetItem
+from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QDialog, QWidgetItem
 
 # The pylint errors must be fixed, but later
 from .dialogconnect import DialogConnect    # pylint: disable=F0401
@@ -44,14 +43,7 @@ class MainWindow(QMainWindow):
         self._treeitems = {}
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
                         'MainWindow.ui'), self)
-        self.watcherWindow = WindowWatcher(self)
-        self.contextMenuTreeCache = QMenu(self.treeCache)
-        self.contextMenuTreeCache.actionAddToWatcher = QAction(
-            'Add to Watcher', self.contextMenuTreeCache)
-        self.contextMenuTreeCache.actionSubscribe = QAction(
-            'Subscribe', self.contextMenuTreeCache)
-        self.treeCache.addAction(self.contextMenuTreeCache.actionAddToWatcher)
-        self.treeCache.addAction(self.contextMenuTreeCache.actionSubscribe)
+        self.watcherWindow = WindowWatcher()
         self.setupEvents()
         self.ipAddress = '127.0.0.1'
         self.port = 14869
@@ -73,12 +65,7 @@ class MainWindow(QMainWindow):
         # self.comboFilter.editTextChanged.connect(self.updateTree)
         self.buttonSearch.clicked.connect(self.updateTree)
         self.treeCache.itemClicked.connect(self.updateView)
-        self.treeCache.customContextMenuRequested.connect(self.showContextMenu)
         self.treeCache.sortByColumn(0, Qt.AscendingOrder)
-        self.contextMenuTreeCache.actionAddToWatcher.triggered.connect(
-            self.addKeyToWatcher)
-        self.contextMenuTreeCache.actionSubscribe.triggered.connect(
-            self.subscribeKey)
         self._cacheClient.signals.connected.connect(self.refreshAll)
         self._cacheClient.signals.disconnected.connect(self.refreshAll)
 
@@ -90,6 +77,8 @@ class MainWindow(QMainWindow):
     def openConnectDialog(self):
         """ Opens the connect dialog. """
         dlg = DialogConnect(self)
+        dlg.valueServerAddress.setText(self.ipAddress)
+        dlg.valuePort.setText(str(self.port))
         if dlg.exec_() != QDialog.Accepted:
             return
         self.ipAddress = dlg.valueServerAddress.text()
@@ -185,41 +174,10 @@ class MainWindow(QMainWindow):
                 if key.rpartition('/')[0] == prefix]
         for key in sorted(keys):
             entry = self._cacheClient.get(key)
-            widget = WidgetKeyEntry(self._cacheClient, entry,
-                                    self.showTimeStamp, self.showTTL, self)
+            widget = WidgetKeyEntry(self._cacheClient, self.watcherWindow, entry,
+                                    True, self.showTimeStamp, self.showTTL, self)
             self.layoutContent.addWidget(widget)
         self.layoutContent.addStretch()
-
-    def showContextMenu(self, position):
-        """ Shows the context menu. """
-        self.contextMenuTreeCache.exec_(self.treeCache.mapToGlobal(position))
-
-    def addKeyToWatcher(self):
-        """ Adds a key to the watcher window. """
-        for item in self.treeCache.selectedItems():
-            widgetsEntry = ''
-            for entry in self._cacheClient._db:
-                if entry.find(item.text(0)[:-1]):
-                    widgetsEntry = entry
-            widget = WidgetKeyEntry(self._cacheClient, widgetsEntry,
-                                    item.text(0), '', self.showTimeStamp,
-                                    self.showTTL)
-            self.watcherWindow.addWidgetKey(widget)
-
-    def subscribeKey(self):
-        """ Subscribes a key. """
-        strKey = ''
-        for item in self.treeCache.selectedItems():
-            while item is not None:
-                for i in range(self.treeCache.topLevelItemCount()):
-                    if item != self.treeCache.topLevelItem(i):
-                        break
-                else:
-                    strKey = item.text(0) + '/' + strKey
-                    break
-                strKey = item.text(0) + '/' + strKey
-                item = item.parent()
-            #self._cacheClient.addCallback()
 
     def clearCacheTree(self):
         """ Removes all elements in the tree. """

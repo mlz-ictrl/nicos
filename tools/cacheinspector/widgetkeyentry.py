@@ -31,7 +31,7 @@ from PyQt4.QtGui import QWidget, QLineEdit, QCheckBox, QSpacerItem, QDialog, \
 
 from nicos.guisupport.utils import setBackgroundColor
 
-from .windowaddkey import WindowAddKey # pylint: disable=F0401
+from .windowaddkey import WindowAddKey  # pylint: disable=F0401
 
 
 class ReadOnlyCheckBox(QCheckBox):
@@ -63,14 +63,16 @@ class ReadOnlyCheckBox(QCheckBox):
 
 
 class WidgetKeyEntry(QWidget):
-    def __init__(self, cacheaccess, entry, showTimeStamp, showTTL, parent=None):
+    def __init__(self, cacheaccess, watcher, entry,
+                 shortKey, showTimeStamp, showTTL, parent=None):
         QWidget.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
                              'WidgetKeyEntry.ui'), self)
+        self.watcher = watcher
         self.cacheAccess = cacheaccess
         self.entry = entry
         self.widgetValue = None
-        self.setupWidgetUi(showTimeStamp, showTTL)
+        self.setupWidgetUi(shortKey, showTimeStamp, showTTL)
         self.setupEvents()
         cacheaccess.signals.keyUpdated.connect(self.keyUpdated)
 
@@ -78,16 +80,23 @@ class WidgetKeyEntry(QWidget):
         """ Sets up all events. """
         self.buttonSet.clicked.connect(self.setKey)
         self.buttonDel.clicked.connect(self.delKey)
+        self.buttonWatch.clicked.connect(self.watchKey)
 
-    def setupWidgetUi(self, showTimeStamp, showTTL):
+    def setupWidgetUi(self, shortKey, showTimeStamp, showTTL):
         """
         Sets up and generate a UI according to the data type of the value
         and whether or not time to live or time stamp should be shown.
         """
         entry = self.entry
 
-        self.labelKey.setText(entry.key.rpartition('/')[2])
-        self.labelKey.setToolTip(entry.key)
+        if self.watcher is None:  # widget is already in watcher
+            self.buttonWatch.hide()
+
+        if shortKey:
+            self.labelKey.setText(entry.key.rpartition('/')[2])
+            self.labelKey.setToolTip(entry.key)
+        else:
+            self.labelKey.setText(entry.key)
 
         if entry.value in ('True', 'False'):
             self.widgetValue = ReadOnlyCheckBox()
@@ -142,6 +151,15 @@ class WidgetKeyEntry(QWidget):
                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
         self.cacheAccess.delete(self.entry.key)
+
+    def watchKey(self):
+        """Adds our key to the watcher window."""
+        if not self.watcher:
+            return
+        widget = WidgetKeyEntry(self.cacheAccess, None, self.entry,
+                                False, True, True, self.watcher)
+        self.watcher.addWidgetKey(widget)
+        self.watcher.show()
 
     def keyUpdated(self, key, entry):
         if key != self.entry.key:

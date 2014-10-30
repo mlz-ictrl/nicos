@@ -23,19 +23,18 @@
 # *****************************************************************************
 
 from os import path
-from os.path import join
+
 from PyQt4 import uic
 from PyQt4.QtGui import QScrollArea
-from PyQt4.QtCore import Qt
+
 
 class WindowWatcher(QScrollArea):
     def __init__(self, parent=None):
         QScrollArea.__init__(self, parent)
-        uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
-                        'WidgetWatcher.ui'))
-        self.setWindowTitle('Watcher')
-        self.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
+        uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
+                             'WidgetWatcher.ui'), self)
 
     def addWidgetKey(self, widget):
         """ Insert the given widget into the watcher window. """
-        self.layoutWatcher.insertWidget(self.layoutWatcher.count() - 1, widget)
+        layout = self.scrollContents.layout()
+        layout.insertWidget(layout.count() - 1, widget)
