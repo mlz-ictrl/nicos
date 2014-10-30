@@ -107,29 +107,13 @@
  <connections>
   <connection>
    <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>WindowAddKey</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>244</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>185</x>
-     <y>152</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>WindowAddKey</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>265</x>
-     <y>167</y>
+     <x>271</x>
+     <y>233</y>
     </hint>
     <hint type="destinationlabel">
      <x>343</x>

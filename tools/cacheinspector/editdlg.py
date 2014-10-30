@@ -26,7 +26,9 @@ from os import path
 from os.path import join
 
 from PyQt4 import uic
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QMessageBox
+
+from nicos.protocols.cache import cache_load
 
 from .cacheclient import Entry  # pylint: disable=F0401
 
@@ -40,7 +42,21 @@ class EntryEditDialog(QDialog):
         self.setupEvents()
 
     def setupEvents(self):
-        """ Set up the events. """
+        """Set up the events."""
+        self.buttonBox.accepted.connect(self.okPressed)
+
+    def okPressed(self):
+        try:
+            cache_load(self.valueValue.text())
+        except ValueError:
+            if QMessageBox.question(
+                    self, 'Really?', 'The value you entered for key %s '
+                    'does not conform to the serialization format used by NICOS'
+                    ' and therefore cannot be used by NICOS cache clients.\n\n'
+                    'Really set this value?' % self.valueKey.text(),
+                    QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+                return
+        self.accept()
 
     def fillEntry(self, entry):
         self.valueKey.setText(entry.key)
