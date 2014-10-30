@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         self.actionConnect.triggered.connect(self.openConnectDialog)
         self.actionDisconnect.triggered.connect(self.closeConnection)
         self.actionRefresh.triggered.connect(self.refreshAll)
-        self.actionQuit.triggered.connect(self.close)
+        self.actionQuit.triggered.connect(self.quit)
         self.actionAddNewKey.triggered.connect(self.addNewKey)
         self.actionSearch.triggered.connect(self.search)
         self.actionToggleTimeStamp.triggered.connect(self.toggleTimeStamp)
@@ -81,6 +81,11 @@ class MainWindow(QMainWindow):
             self.subscribeKey)
         self._cacheClient.signals.connected.connect(self.refreshAll)
         self._cacheClient.signals.disconnected.connect(self.refreshAll)
+
+    def quit(self):
+        """Quit the inspector."""
+        self.watcherWindow.close()
+        self.close()
 
     def openConnectDialog(self):
         """ Opens the connect dialog. """
