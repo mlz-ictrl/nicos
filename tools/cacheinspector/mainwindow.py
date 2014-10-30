@@ -62,8 +62,7 @@ class MainWindow(QMainWindow):
         self.actionToggleTimeStamp.toggled.connect(self.toggleTimeStamp)
         self.actionToggleTTL.toggled.connect(self.toggleTTL)
         self.actionWatcher.triggered.connect(self.showWatcher)
-        # self.comboFilter.editTextChanged.connect(self.updateTree)
-        self.buttonSearch.clicked.connect(self.updateTree)
+        self.valueFilter.textChanged.connect(self.updateTree)
         self.treeCache.itemClicked.connect(self.updateView)
         self.treeCache.sortByColumn(0, Qt.AscendingOrder)
         self._cacheClient.signals.connected.connect(self.refreshAll)
@@ -135,7 +134,7 @@ class MainWindow(QMainWindow):
     def updateTree(self):
         """Updates the elements shown in the tree."""
         self.clearCacheTree()
-        filterStr = self.comboFilter.currentText() or ''
+        filterStr = self.valueFilter.text() or ''
         for key in self._cacheClient.keys():
             if filterStr not in key:
                 continue
@@ -168,6 +167,7 @@ class MainWindow(QMainWindow):
             return
         self.clearWidgetView()
         prefix = item.data(0, 32)
+        self.labelPrefix.setText(prefix)
         if prefix == '<no category>':
             prefix = ''
         keys = [key for key in self._cacheClient.keys()
