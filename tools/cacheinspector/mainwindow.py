@@ -48,9 +48,8 @@ class MainWindow(QMainWindow):
         self.setupEvents()
         self.ipAddress = '127.0.0.1'
         self.port = 14869
-        self.progressLoading.hide()
-        self.showTimeStamp = False
-        self.showTTL = False
+        self.showTimeStamp = True
+        self.showTTL = True
 
     def setupEvents(self):
         """Sets up all events."""
@@ -60,8 +59,8 @@ class MainWindow(QMainWindow):
         self.actionQuit.triggered.connect(self.quit)
         self.actionAddNewKey.triggered.connect(self.addNewKey)
         self.actionSearch.triggered.connect(self.search)
-        self.actionToggleTimeStamp.triggered.connect(self.toggleTimeStamp)
-        self.actionToggleTTL.triggered.connect(self.toggleTTL)
+        self.actionToggleTimeStamp.toggled.connect(self.toggleTimeStamp)
+        self.actionToggleTTL.toggled.connect(self.toggleTTL)
         self.actionWatcher.triggered.connect(self.showWatcher)
         # self.comboFilter.editTextChanged.connect(self.updateTree)
         self.buttonSearch.clicked.connect(self.updateTree)
@@ -111,21 +110,21 @@ class MainWindow(QMainWindow):
     def search(self):
         pass
 
-    def toggleTimeStamp(self):
+    def toggleTimeStamp(self, on):
         """
         Toggles whether or not the time stamp is shown and updates the view
         respectively.
         """
-        self.showTimeStamp = not self.showTimeStamp
+        self.showTimeStamp = on
         for item in self.treeCache.selectedItems():
             self.updateView(item, 0)
 
-    def toggleTTL(self):
+    def toggleTTL(self, on):
         """
         Toggles whether or not the time to live is shown and updates the view
         respectively.
         """
-        self.showTTL = not self.showTTL
+        self.showTTL = on
         for item in self.treeCache.selectedItems():
             self.updateView(item, 0)
 
