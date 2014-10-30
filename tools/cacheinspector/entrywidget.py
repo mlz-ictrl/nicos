@@ -72,14 +72,14 @@ ui_class, base_class = uic.loadUiType(
 
 
 class EntryWidget(base_class, ui_class):
-    def __init__(self, cacheaccess, watcher, entry,
+    def __init__(self, client, watcher, entry,
                  shortKey, showTimeStamp, showTTL, parent=None):
         base_class.__init__(self, parent)
         self.setupUi(self)
         self.updateTimer = QTimer(self)
         self.updateTimer.setSingleShot(True)
         self.watcher = watcher
-        self.cacheAccess = cacheaccess
+        self.client = client
         self.entry = entry
         self.widgetValue = None
         self.setupEvents()
@@ -90,7 +90,7 @@ class EntryWidget(base_class, ui_class):
         self.buttonSet.clicked.connect(self.setKey)
         self.buttonDel.clicked.connect(self.delKey)
         self.buttonWatch.clicked.connect(self.watchKey)
-        self.cacheAccess.signals.keyUpdated.connect(self.keyUpdated)
+        self.client.signals.keyUpdated.connect(self.keyUpdated)
         self.updateTimer.timeout.connect(self.updateTimerEvent)
 
     def setupWidgetUi(self, shortKey, showTimeStamp, showTTL):
@@ -158,20 +158,20 @@ class EntryWidget(base_class, ui_class):
         if dlg.exec_() != QDialog.Accepted:
             return
         entry = dlg.getEntry()
-        self.cacheAccess.put(entry.key, entry)
+        self.client.put(entry.key, entry)
 
     def delKey(self):
         if QMessageBox.question(
                 self, 'Delete', 'Really delete?',
                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             return
-        self.cacheAccess.delete(self.entry.key)
+        self.client.delete(self.entry.key)
 
     def watchKey(self):
         """Adds our key to the watcher window."""
         if not self.watcher:
             return
-        widget = EntryWidget(self.cacheAccess, None, self.entry,
+        widget = EntryWidget(self.client, None, self.entry,
                              False, True, True, self.watcher)
         self.watcher.addWidgetKey(widget)
         self.watcher.show()
@@ -183,4 +183,4 @@ class EntryWidget(base_class, ui_class):
         self.updateValues()
 
     def updateTimerEvent(self):
-        self.cacheAccess.update(self.entry.key)
+        self.client.update(self.entry.key)

@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, cacheclient, parent=None):
         QMainWindow.__init__(self)
-        self._cacheClient = cacheclient
+        self.client = cacheclient
         self._treeitems = {}
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
                         'mainwindow.ui'), self)
@@ -70,8 +70,8 @@ class MainWindow(QMainWindow):
         self.valueFilter.textChanged.connect(self.updateTree)
         self.treeCache.itemClicked.connect(self.updateView)
         self.treeCache.sortByColumn(0, Qt.AscendingOrder)
-        self._cacheClient.signals.connected.connect(self.refreshAll)
-        self._cacheClient.signals.disconnected.connect(self.refreshAll)
+        self.client.signals.connected.connect(self.refreshAll)
+        self.client.signals.disconnected.connect(self.refreshAll)
 
     def quit(self):
         """Quit the inspector."""
@@ -87,17 +87,17 @@ class MainWindow(QMainWindow):
             return
         self.ipAddress = dlg.valueServerAddress.text()
         self.port = int(dlg.valuePort.text())
-        self._cacheClient.connect(self.ipAddress, self.port)
+        self.client.connect(self.ipAddress, self.port)
 
     def closeConnection(self):
         """Closes the connection of the cache inspector."""
-        self._cacheClient.disconnect()
+        self.client.disconnect()
 
     def refreshAll(self):
         """Refreshes local data and the view."""
-        self.actionConnect.setDisabled(self._cacheClient.is_connected())
-        self.actionDisconnect.setEnabled(self._cacheClient.is_connected())
-        self.actionRefresh.setEnabled(self._cacheClient.is_connected())
+        self.actionConnect.setDisabled(self.client.is_connected())
+        self.actionDisconnect.setEnabled(self.client.is_connected())
+        self.actionRefresh.setEnabled(self.client.is_connected())
         self.updateTree()
         for item in self.treeCache.selectedItems():
             self.updateView(item, 0)
@@ -108,7 +108,7 @@ class MainWindow(QMainWindow):
         if dlg.exec_() != QDialog.Accepted:
             return
         entry = dlg.getEntry()
-        self._cacheClient.put(entry.key, entry)
+        self.client.put(entry.key, entry)
         self.refreshAll()
 
     def search(self):
@@ -140,7 +140,7 @@ class MainWindow(QMainWindow):
         """Updates the elements shown in the tree."""
         self.clearCacheTree()
         filterStr = self.valueFilter.text() or ''
-        for key in self._cacheClient.keys():
+        for key in self.client.keys():
             if filterStr not in key:
                 continue
             # split the key into parts
@@ -175,11 +175,11 @@ class MainWindow(QMainWindow):
         self.labelPrefix.setText(prefix)
         if prefix == '<no category>':
             prefix = ''
-        keys = [key for key in self._cacheClient.keys()
+        keys = [key for key in self.client.keys()
                 if key.rpartition('/')[0] == prefix]
         for key in sorted(keys):
-            entry = self._cacheClient.get(key)
-            widget = EntryWidget(self._cacheClient, self.watcherWindow, entry,
+            entry = self.client.get(key)
+            widget = EntryWidget(self.client, self.watcherWindow, entry,
                                  True, self.showTimeStamp, self.showTTL, self)
             self.layoutContent.addWidget(widget)
         self.layoutContent.addStretch()
