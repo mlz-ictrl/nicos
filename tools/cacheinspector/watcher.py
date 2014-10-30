@@ -25,16 +25,26 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QScrollArea
+from PyQt4.QtGui import QMainWindow, QWidgetItem
 
 
-class WatcherWindow(QScrollArea):
+class WatcherWindow(QMainWindow):
     def __init__(self, parent=None):
-        QScrollArea.__init__(self, parent)
+        QMainWindow.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
                              'watcher.ui'), self)
+        self.buttonClear.clicked.connect(self.clear)
 
     def addWidgetKey(self, widget):
         """ Insert the given widget into the watcher window. """
         layout = self.scrollContents.layout()
         layout.insertWidget(layout.count() - 1, widget)
+
+    def clear(self):
+        """Remove all watched items."""
+        layout = self.scrollContents.layout()
+        for i in range(layout.count()-1, -1, -1):
+            item = layout.takeAt(i)
+            if isinstance(item, QWidgetItem):
+                item.widget().deleteLater()
+        layout.addStretch()

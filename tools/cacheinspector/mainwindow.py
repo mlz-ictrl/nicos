@@ -24,6 +24,7 @@
 
 from os import path
 from os.path import join
+
 from PyQt4 import uic
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QMainWindow, QTreeWidgetItem, QDialog, QWidgetItem
@@ -43,7 +44,7 @@ class MainWindow(QMainWindow):
         self._treeitems = {}
         uic.loadUi(join(path.dirname(path.abspath(__file__)), 'ui',
                         'mainwindow.ui'), self)
-        self.watcherWindow = WatcherWindow()
+        self.watcherWindow = WatcherWindow(self)
         self.setupEvents()
         self.ipAddress = '127.0.0.1'
         self.port = 14869
