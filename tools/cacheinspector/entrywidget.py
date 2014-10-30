@@ -77,7 +77,7 @@ class EntryWidget(QWidget):
         cacheaccess.signals.keyUpdated.connect(self.keyUpdated)
 
     def setupEvents(self):
-        """ Sets up all events. """
+        """Sets up all events."""
         self.buttonSet.clicked.connect(self.setKey)
         self.buttonDel.clicked.connect(self.delKey)
         self.buttonWatch.clicked.connect(self.watchKey)
@@ -135,7 +135,7 @@ class EntryWidget(QWidget):
         self.labelTime.setText(entry.convertTime())
 
     def setKey(self):
-        """ Sets the key locally and on the server. """
+        """Sets the key locally and on the server."""
         dlg = EntryEditDialog(self)
         dlg.fillEntry(self.entry)
         dlg.valueTime.setText('')  # we want current timestamp by default

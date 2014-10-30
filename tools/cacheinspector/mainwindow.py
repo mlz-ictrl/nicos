@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
         self.showTTL = False
 
     def setupEvents(self):
-        """ Sets up all events. """
+        """Sets up all events."""
         self.actionConnect.triggered.connect(self.openConnectDialog)
         self.actionDisconnect.triggered.connect(self.closeConnection)
         self.actionRefresh.triggered.connect(self.refreshAll)
@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
         self.close()
 
     def openConnectDialog(self):
-        """ Opens the connect dialog. """
+        """Opens the connect dialog."""
         dlg = ConnectDialog(self)
         dlg.valueServerAddress.setText(self.ipAddress)
         dlg.valuePort.setText(str(self.port))
@@ -87,11 +87,11 @@ class MainWindow(QMainWindow):
         self._cacheClient.connect(self.ipAddress, self.port)
 
     def closeConnection(self):
-        """ Closes the connection of the cache inspector. """
+        """Closes the connection of the cache inspector."""
         self._cacheClient.disconnect()
 
     def refreshAll(self):
-        """ Refreshes local data and the view. """
+        """Refreshes local data and the view."""
         self.actionConnect.setDisabled(self._cacheClient.is_connected())
         self.actionDisconnect.setEnabled(self._cacheClient.is_connected())
         self.actionRefresh.setEnabled(self._cacheClient.is_connected())
@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
             self.updateView(item, 0)
 
     def addNewKey(self):
-        """ Adds a key using the data given via the add key window. """
+        """Adds a key using the data given via the add key window."""
         dlg = EntryEditDialog(self)
         if dlg.exec_() != QDialog.Accepted:
             return
@@ -130,11 +130,11 @@ class MainWindow(QMainWindow):
             self.updateView(item, 0)
 
     def showWatcher(self):
-        """ Shows the window of the watcher. """
+        """Shows the window of the watcher."""
         self.watcherWindow.show()
 
     def updateTree(self):
-        """ Updates the elements shown in the tree. """
+        """Updates the elements shown in the tree."""
         self.clearCacheTree()
         filterStr = self.comboFilter.currentText() or ''
         for key in self._cacheClient.keys():
@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
                 parent = node
 
     def updateView(self, item, column):
-        """ Updates the values shown in the right pane. """
+        """Updates the values shown in the right pane."""
         if not item.text(0):  # it's the hidden root item
             return
         self.clearWidgetView()
@@ -181,12 +181,12 @@ class MainWindow(QMainWindow):
         self.layoutContent.addStretch()
 
     def clearCacheTree(self):
-        """ Removes all elements in the tree. """
+        """Removes all elements in the tree."""
         self.treeCache.clear()
         self._treeitems.clear()
 
     def clearWidgetView(self):
-        """ Removes all widgets in the right pane. """
+        """Removes all widgets in the right pane."""
         for i in range(self.layoutContent.count()-1, -1, -1):
             item = self.layoutContent.takeAt(i)
             if isinstance(item, QWidgetItem):

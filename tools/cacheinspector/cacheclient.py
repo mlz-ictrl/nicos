@@ -47,7 +47,7 @@ class CacheSignals(QObject):
 class Entry(namedtuple('Entry', 'key value time ttl expired')):
 
     def convertTime(self):
-        """ Converts the unix time stamp to a readable time stamp. """
+        """Converts the unix time stamp to a readable time stamp."""
         ttup = time.localtime(self.time)
         if ttup[:3] == time.localtime()[:3]:
             return time.strftime('%H:%M:%S', ttup)

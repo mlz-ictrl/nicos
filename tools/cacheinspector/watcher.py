@@ -36,7 +36,7 @@ class WatcherWindow(QMainWindow):
         self.buttonClear.clicked.connect(self.clear)
 
     def addWidgetKey(self, widget):
-        """ Insert the given widget into the watcher window. """
+        """Insert the given widget into the watcher window."""
         layout = self.scrollContents.layout()
         layout.insertWidget(layout.count() - 1, widget)
 
