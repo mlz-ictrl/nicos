@@ -26,7 +26,7 @@ from os import path
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSlot, pyqtProperty
-from PyQt4.QtGui import QWidget, QLineEdit, QCheckBox, QSpacerItem, QDialog, \
+from PyQt4.QtGui import QLineEdit, QCheckBox, QSpacerItem, QDialog, \
     QSizePolicy, QColor, QMessageBox
 
 from nicos.guisupport.utils import setBackgroundColor
@@ -62,12 +62,15 @@ class ReadOnlyCheckBox(QCheckBox):
     readOnly = pyqtProperty(bool, isReadOnly, setReadOnly)
 
 
-class EntryWidget(QWidget):
+ui_class, base_class = uic.loadUiType(
+    path.join(path.dirname(path.abspath(__file__)), 'ui', 'entry.ui'))
+
+
+class EntryWidget(base_class, ui_class):
     def __init__(self, cacheaccess, watcher, entry,
                  shortKey, showTimeStamp, showTTL, parent=None):
-        QWidget.__init__(self, parent)
-        uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
-                             'entry.ui'), self)
+        base_class.__init__(self, parent)
+        self.setupUi(self)
         self.watcher = watcher
         self.cacheAccess = cacheaccess
         self.entry = entry
