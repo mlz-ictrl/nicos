@@ -59,6 +59,8 @@ class BaseCacheClient(Device):
             port = int(port)
         except ValueError:
             host, port = self.cache, DEFAULT_CACHE_PORT
+        # Should the worker connect or disconnect?
+        self._should_connect = True
         # this event is set as soon as:
         # * the connection is established and the connect_action is done, or
         # * the initial connection failed
@@ -107,7 +109,6 @@ class BaseCacheClient(Device):
         try:
             self.log.debug('connecting to %s:%s' % self._address)
             self._socket.connect(self._address)
-            self._connect_action()
         except Exception as err:
             self._disconnect('unable to connect to %s:%s: %s' %
                              (self._address + (err,)))
@@ -115,6 +116,11 @@ class BaseCacheClient(Device):
             self.log.info('now connected to %s:%s' % self._address)
             self._connected = True
             self._disconnect_warnings = 0
+            try:
+                self._connect_action()
+            except Exception as err:
+                self._disconnect('unable to init connection to %s:%s: %s' %
+                                 (self._address + (err,)))
         self._startup_done.set()
         self._do_callbacks = self.remote_callbacks
 
@@ -134,6 +140,7 @@ class BaseCacheClient(Device):
             if self._secsocket:
                 closeSocket(self._secsocket)
                 self._secsocket = None
+        self._disconnect_action()
 
     def _wait_retry(self):
         sleep(1)
@@ -163,6 +170,9 @@ class BaseCacheClient(Device):
             self._socket.sendall(to_utf8(msg))
 
         self._process_data(data)
+
+    def _disconnect_action(self):
+        pass
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         raise NotImplementedError('implement _handle_msg in subclasses')
@@ -199,17 +209,23 @@ class BaseCacheClient(Device):
         process = self._process_data
 
         while not self._stoprequest:
-            if not self._socket:
-                self._connect()
+            if self._should_connect:
                 if not self._socket:
-                    self._wait_retry()
-                    continue
+                    self._connect()
+                    if not self._socket:
+                        self._wait_retry()
+                        continue
+            else:
+                if self._socket:
+                    self._disconnect()
+                self._wait_retry()
+                continue
 
             # process data so far
             data = process(data)
 
             # wait for a whole line of data to arrive
-            while b'\n' not in data and not self._stoprequest:
+            while b'\n' not in data and self._should_connect and not self._stoprequest:
 
                 # optionally do some action while waiting
                 self._wait_data()
