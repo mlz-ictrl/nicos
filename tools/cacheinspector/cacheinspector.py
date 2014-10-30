@@ -29,6 +29,7 @@ from .cacheclient import CICacheClient
 
 from .mainwindow import MainWindow  # pylint: disable=F0401
 
+
 class CacheInspector(CICacheClient):
 
     def doInit(self, mode):

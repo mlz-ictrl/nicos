@@ -27,6 +27,7 @@ from os.path import join
 from PyQt4 import uic
 from PyQt4.QtGui import QDialog
 
+
 class DialogConnect(QDialog):
 
     def __init__(self, parent=None):

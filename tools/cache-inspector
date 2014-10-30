@@ -40,11 +40,12 @@ except ImportError:
 
 from cacheinspector.cacheinspector import CacheInspector
 
+
 def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    usage =''' Usage: %prog [options] [key ...]
+    usage = ''' Usage: %prog [options] [key ...]
     '''
 
     parser = optparse.OptionParser(usage=usage)
@@ -56,10 +57,8 @@ def main(argv=None):
                       'of the key, defaults to \'nicos/\'', default='nicos')
     opts, args = parser.parse_args()
 
-    SingleDeviceSession.run('cacheInspector', CacheInspector,
-                            {
-                                'cache': opts.cache, 'prefix': opts.prefix,
-                            },
+    SingleDeviceSession.run('Inspector', CacheInspector,
+                            {'cache': opts.cache, 'prefix': opts.prefix},
                             pidfile=False)
 
 if __name__ == '__main__':

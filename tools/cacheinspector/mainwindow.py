@@ -255,7 +255,7 @@ class MainWindow(QMainWindow):
         """ Subscribes a key. """
         strKey = ''
         for item in self.treeCache.selectedItems():
-            while item != None:
+            while item is not None:
                 for i in range(self.treeCache.topLevelItemCount()):
                     if item != self.treeCache.topLevelItem(i):
                         break
