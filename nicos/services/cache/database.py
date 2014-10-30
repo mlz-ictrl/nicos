@@ -35,7 +35,7 @@ from nicos import config
 from nicos.core import Device, Param, ConfigurationError, intrange
 from nicos.utils import ensureDirectory, allDays, createThread
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_LOCK, \
-     OP_LOCK_LOCK, OP_LOCK_UNLOCK, FLAG_NO_STORE
+    OP_LOCK_LOCK, OP_LOCK_UNLOCK, FLAG_NO_STORE
 from nicos.pycompat import iteritems, listitems
 
 try:  # Windows compatibility: it does not provide os.link
@@ -101,7 +101,7 @@ class CacheDatabase(Device):
             req, client_id = value[0], value[1:]
             if req == OP_LOCK_LOCK:
                 if entry and entry.value != client_id and \
-                     (not entry.ttl or entry.time + entry.ttl >= currenttime()):
+                   (not entry.ttl or entry.time + entry.ttl >= currenttime()):
                     # still locked by different client, deny (tell the client
                     # the current client_id though)
                     self.log.debug('lock request %s=%s, but still locked by %s'
@@ -374,7 +374,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                     db[subkey].expired = True
             except Exception:
                 self.log.warning('could not interpret line from '
-                    'cache file %s: %r' % (filename, line), exc=1)
+                                 'cache file %s: %r' % (filename, line), exc=1)
         return fd, db
 
     def _convert_storefile(self, filename, fd):
@@ -393,7 +393,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                     db[subkey].expired = True
             except Exception:
                 self.log.warning('could not interpret line from '
-                    'cache file %s: %r' % (filename, line), exc=1)
+                                 'cache file %s: %r' % (filename, line), exc=1)
             else:
                 # mark all entries as not expiring, mirroring old behavior
                 if value == '-':

@@ -47,10 +47,11 @@ from nicos.pycompat import queue, listitems, listvalues, from_utf8, to_utf8
 
 # pylint: disable=W0611
 from nicos.services.cache.database import CacheDatabase, FlatfileCacheDatabase, \
-     MemoryCacheDatabase, MemoryCacheDatabaseWithHistory
+    MemoryCacheDatabase, MemoryCacheDatabaseWithHistory
 from nicos.protocols.cache import msg_pattern, line_pattern, \
-     DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
-     OP_TELLOLD, OP_LOCK, OP_REWRITE, CYCLETIME, BUFSIZE
+    DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
+    OP_TELLOLD, OP_LOCK, OP_REWRITE, CYCLETIME, BUFSIZE
+
 
 class CacheWorker(object):
     """Worker thread class for the cache server.
@@ -168,7 +169,7 @@ class CacheWorker(object):
             except Exception as err:
                 self.log.warning('error handling line %r' % line, exc=err)
             else:
-                #self.log.debug('return is %r' % ret)
+                # self.log.debug('return is %r' % ret)
                 if ret:
                     reply_callback(''.join(ret))
             # continue loop with next match
@@ -176,7 +177,7 @@ class CacheWorker(object):
         return data
 
     def _handle_line(self, line):
-        #self.log.debug('handling line: %s' % line)
+        # self.log.debug('handling line: %s' % line)
         match = msg_pattern.match(line)
         if not match:
             # disconnect on trash lines (for now)
@@ -237,7 +238,7 @@ class CacheWorker(object):
             if mykey in key:
                 if not time:
                     time = currenttime()
-                #self.log.debug('sending update of %s to %s' % (key, value))
+                # self.log.debug('sending update of %s to %s' % (key, value))
                 if ttl is not None:
                     msg = '%s+%s@%s%s%s\n' % (time, ttl, key, op, value)
                 else:
@@ -247,7 +248,7 @@ class CacheWorker(object):
         # same for requested updates without timestamp
         for mykey in self.updates_on:
             if mykey in key:
-                #self.log.debug('sending update of %s to %s' % (key, value))
+                # self.log.debug('sending update of %s to %s' % (key, value))
                 self.send_queue.put(key + op + value + '\n')
                 return  # send at most one update
 
@@ -297,7 +298,7 @@ class CacheUDPWorker(CacheWorker):
                 p = maxsize - 1
             self.sock.sendto(data[:p + 1], self.remoteaddr)
             self.log.debug('UDP: sent %d bytes' % (p + 1))
-            data = data[p + 1:] # look at remaining data
+            data = data[p + 1:]  # look at remaining data
         return datalen
 
 
@@ -339,8 +340,8 @@ class CacheServer(Device):
         else:
             host, port = address.split(':')
             port = int(port)
-        serversocket = socket.socket(socket.AF_INET,
-            proto == 'tcp' and socket.SOCK_STREAM or socket.SOCK_DGRAM)
+        serversocket = socket.socket(
+            socket.AF_INET, proto == 'tcp' and socket.SOCK_STREAM or socket.SOCK_DGRAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if proto == 'udp':
             # we want to be able to receive UDP broadcasts
@@ -348,7 +349,7 @@ class CacheServer(Device):
         try:
             serversocket.bind((socket.gethostbyname(host), port))
             if proto == 'tcp':
-                serversocket.listen(50) # max waiting connections....
+                serversocket.listen(50)  # max waiting connections....
             return serversocket, (host, port)
         except Exception:
             serversocket.close()
@@ -384,7 +385,7 @@ class CacheServer(Device):
             # secondly to try to reconnect
             for addr, client in listitems(self._connected):
                 if client:
-                    if not client.is_active(): # dead or stopped
+                    if not client.is_active():  # dead or stopped
                         self.log.info('client connection %s closed' % addr)
                         client.closedown()
                         client.join()  # wait for threads to end
@@ -442,7 +443,7 @@ class CacheServer(Device):
         with self._connectionLock:
             for client in listvalues(self._connected):
                 self.log.info('waiting for %s' % client)
-                client.closedown() # make sure, the connection closes down
+                client.closedown()  # make sure, the connection closes down
                 client.join()
         self.log.info('waiting for server')
         self._worker.join()
