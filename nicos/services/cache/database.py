@@ -676,4 +676,4 @@ class FlatfileCacheDatabase(CacheDatabase):
                 key = newcat + '/' + subkey
                 for client in self._server._connected.values():
                     if client is not from_client:
-                        client.update(key, OP_TELL, value or '', time, None)
+                        client.update(key, OP_TELL, value or '', time, ttl)
