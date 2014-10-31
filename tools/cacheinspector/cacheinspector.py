@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 import sys
-from PyQt4.QtGui import QApplication
+from PyQt4.QtGui import QApplication, QIcon
 
 from .mainwindow import MainWindow  # pylint: disable=F0401
 from .cacheclient import CICacheClient  # pylint: disable=F0401
@@ -31,12 +31,16 @@ from .cacheclient import CICacheClient  # pylint: disable=F0401
 
 class CacheInspector(CICacheClient):
 
+    # Import the compiled resource file to register resources
+    import nicos.guisupport.gui_rc  # pylint: disable=W0612
+
     def doInit(self, mode):
         CICacheClient.doInit(self, self._mode)
         self._qtapp = QApplication(sys.argv)
         self._qtapp.setOrganizationName('nicos')
         self._qtapp.setApplicationName('cacheinspector')
         self._window = MainWindow(self)
+        self._window.setWindowIcon(QIcon(':/inspector'))
 
     def start(self):
         self._window.show()
