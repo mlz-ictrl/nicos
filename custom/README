@@ -1,1 +1,5 @@
 This directory contains NICOS customizations for specific instruments.
+
+For a new instrument see:
+
+https://forge.frm2.tum.de/nicos/doc/nicos-master/newsetup/
