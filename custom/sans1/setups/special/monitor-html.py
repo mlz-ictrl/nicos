@@ -179,37 +179,6 @@ _sanscolumn = Column(
     #~ ),
 #~ )
 
-_ccmsans = Column(
-    Block('Sans1 Magnet', [
-        BlockRow(
-                 Field(name='Field', dev='b_overall'),
-                ),
-        BlockRow(
-                 Field(name='Power Supply 1', dev='b_left'),
-                 Field(name='Power Supply 2', dev='b_right'),
-                 Field(name='Target', key='B_ccmsans/target', width=15),
-                 Field(name='Asymmetry', key='B_ccmsans/asymmetry', width=15),
-                ),
-        BlockRow(
-                 Field(name='CH Stage 1', dev='t_1'),
-                 Field(name='CH Stage 2', dev='t_2'),
-                ),
-        BlockRow(
-                 Field(name='Shield Top', dev='t_3'),
-                 Field(name='Shield Bottom', dev='t_4'),
-                ),
-        BlockRow(
-                 Field(name='Magnet TL', dev='t_5'),
-                 Field(name='Magnet TR', dev='t_6'),
-                ),
-        BlockRow(
-                 Field(name='Magnet BL', dev='t_8'),
-                 Field(name='Magnet BR', dev='t_7'),
-                ),
-        ],'sansmagnet'
-    ),
-)
-
 _miramagnet = Column(
     Block('MIRA Magnet', [
         BlockRow(
@@ -253,7 +222,7 @@ _htf03 = Column(
        ),
 ], 'htf03'),)
 
-_ccmsans = Block('SANS-1 5T Magnet', [
+_ccmsans = Column(Block('SANS-1 5T Magnet', [
     BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
              ),
     BlockRow(
@@ -264,9 +233,9 @@ _ccmsans = Block('SANS-1 5T Magnet', [
              Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
              Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
             ),
-], 'ccmsans')
+], 'ccmsans'))
 
-_ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
+_ccmsans_temperature = Column(Block('SANS-1 5T Magnet Temperatures', [
     BlockRow(
              Field(name='CH Stage 1', dev='ccmsans_T1', width=12),
              Field(name='CH Stage 2', dev='ccmsans_T2', width=12),
@@ -283,9 +252,9 @@ _ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
              Field(name='Magnet BL', dev='ccmsans_T8', width=12),
              Field(name='Magnet BR', dev='ccmsans_T7', width=12),
             ),
-], 'ccmsans')
+], 'ccmsans'))
 
-_ccmsans_plot = Block('SANS-1 5T Magnet plot', [
+_ccmsans_plot = Column(Block('SANS-1 5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=65, height=45, plotwindow=1800,
@@ -298,7 +267,7 @@ _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
               names=['24h', 'Target'],
               ),
         ),
-], 'ccmsans')
+], 'ccmsans'))
 
 _spinflipper = Column(
     Block('SpinFlipper', [
