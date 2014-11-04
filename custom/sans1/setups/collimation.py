@@ -103,6 +103,7 @@ devices = dict(
                     description = 'Neutronguide polariser',
                     mapping = dict(NG=0, POL1=117, POL2=234, LAS=354),
                     moveable = 'ng_pol_m',
+                    blockingmove = False,
                     pollinterval = 15,
                     maxage = 60,
                     ),
