@@ -82,7 +82,7 @@ class SpinflipperPower(AnalogOutput):
         self._setROParam('_starttime', time.time())
 
     def doStatus(self, maxage=0):
-        if time.time() < self._startttime + self.busytime:
+        if time.time() < self._starttime + self.busytime:
             return status.BUSY, 'waiting %.1gs for stabilisation' % self.busytime
         return AnalogOutput.doStatus(self, maxage)
 
