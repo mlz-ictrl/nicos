@@ -127,6 +127,8 @@ class Sans1ColliCoder(TacoDevice, HasOffset, Coder):
 
     taco_class = Modbus
 
+    hardware_access = True
+
     parameters = {
         # provided by parent class: speed, unit, fmtstr, warnlimits, abslimits,
         #                           userlimits, precision and others
@@ -172,6 +174,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
     taco_class = Modbus
 
     relax_mapping = True
+    hardware_access = True
 
     parameters = {
         # provided by parent class: speed, unit, fmtstr, warnlimits, abslimits,
@@ -525,7 +528,10 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
 
     def doStatus(self, maxage=0):
         """returns highest statusvalue"""
-        stati = [self._HW_status(), self._seq_status]
+        if self.mode == SIMULATION:
+            stati = [(100, 'simulation'), self._seq_status]
+        else:
+            stati = [self._HW_status(), self._seq_status]
         # sort by first element, i.e. status code
         stati.sort(reverse=True)
         # return highest (worst) status

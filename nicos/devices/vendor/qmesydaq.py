@@ -27,7 +27,7 @@
 import numpy
 
 from nicos.core import Param, Override, Value, status, oneofdict, oneof, \
-    ImageProducer, ImageType, Attach, ConfigurationError, listof
+    ImageProducer, ImageType, Attach, ConfigurationError, listof, SIMULATION
 from nicos.devices.fileformats import LiveViewSink
 from nicos.devices.generic.detector import Channel, MultiChannelDetector
 from nicos.devices.taco.detector import FRMChannel, FRMTimerChannel, \
@@ -195,8 +195,11 @@ class QMesyDAQMultiChannel(QMesyDAQBase):
     }
 
     def _readData(self):
-        # read data via taco and transform it
-        res = self._taco_guard(self._dev.read)
+        if self._mode == SIMULATION:
+            res = [0] * (max(self.channels) + 3)
+        else:
+            # read data via taco and transform it
+            res = self._taco_guard(self._dev.read)
         expected = 3 + max(self.channels or [0])
         # first 3 values are sizes of dimensions
         if len(res) >= expected:
@@ -279,8 +282,8 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
             else: # no match, 'invent' some value as placeholder
                 resultlist.append('-')
         if self.readout == 'none': # no readout, transfer qmesydaqs version of filenames...
-            resultlist.append(self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile'))
-            resultlist.append(self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile'))
+            resultlist.append(self.lastlistfile)
+            resultlist.append(self.lasthistfile)
         return resultlist
 
     def valueInfo(self):
@@ -320,11 +323,16 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
     # ImageProducer Interface
     #
     def clearImage(self):
-        self._taco_guard(self._dev.clear)
+        if self._mode != SIMULATION:
+            self._taco_guard(self._dev.clear)
 
     def readImage(self):
-        # read data via taco and transform it
-        res = self._taco_guard(self._dev.read)
+        if self._mode == SIMULATION:
+            # simulated readout of an 128*128 image
+            res = [128, 128, 1] + [0] * (128 * 128)
+        else:
+            # read data via taco and transform it
+            res = self._taco_guard(self._dev.read)
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]: #1D array
