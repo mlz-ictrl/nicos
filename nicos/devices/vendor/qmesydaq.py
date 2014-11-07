@@ -82,8 +82,14 @@ class QMesyDAQBase(TacoDevice, MultiChannelDetector):
     }
 
     parameters = {
-        'lastcounts' : Param('Current total number of counts', settable=True,
-                             type=int, userparam=False),
+        'lastcounts'   : Param('Current total number of counts', settable=True,
+                               type=int, userparam=False),
+        'lastlistfile' : Param('last eventmode list file on QMesyDAQ Server',
+                               settable=False, mandatory=False, volatile=True,
+                               type=str, category='general'),
+        'lasthistfile' : Param('last histogrammed file on QMesyDAQ Server',
+                               settable=False, mandatory=False, volatile=True,
+                               type=str, category='general'),
     }
 
     parameter_overrides = {
@@ -167,6 +173,15 @@ class QMesyDAQBase(TacoDevice, MultiChannelDetector):
 
     def doRead(self, maxage=None):
         raise ConfigurationError(self, 'QMesyDAQBase should not be used for a Device!')
+
+    #
+    # Parameter
+    #
+    def doReadLastlistfile(self):
+        return self._taco_guard(self._dev.deviceQueryResource, 'lastlistfile')
+
+    def doReadLasthistfile(self):
+        return self._taco_guard(self._dev.deviceQueryResource, 'lasthistfile')
 
 
 class QMesyDAQMultiChannel(QMesyDAQBase):
