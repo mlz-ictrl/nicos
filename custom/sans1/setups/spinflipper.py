@@ -42,29 +42,37 @@ devices = dict(
                            fmtstr = '%.1f',
                            abslimits = (0.0, 100.0),
                            userlimits = (0.0, 100.0),
+                           maxage = 120,
+                           pollinterval = 15,
                           ),
 
     F_spinflipper = device('devices.taco.AnalogOutput',
                            description = 'frequency of ag1016',
                            tacodevice = '//%s/spinflip/ag1016/frequency' % (nethost,),
-                           fmtstr = '%.1f',
+                           fmtstr = '%.0f',
                            abslimits = (0.0, 4000000.0),
                            userlimits = (0.0, 4000000.0),
+                           maxage = 120,
+                           pollinterval = 15,
                           ),
 
     T_spinflipper = device('devices.taco.AnalogInput',
                            description = 'temperature of ag1016',
                            tacodevice = '//%s/spinflip/ag1016/temperature' % (nethost,),
                            fmtstr = '%.3f',
+                           maxage = 120,
+                           pollinterval = 15,
                           ),
 
-# HP3322A
+# HP33220A
     A_spinflipper_hp = device('devices.taco.AnalogOutput',
                               description = 'amplitude of the frequency generator',
                               tacodevice = '//%s/spinflip/agilent/amp' % (nethost,),
                               fmtstr = '%.3f',
                               abslimits = (-2.0, 2.0),
                               userlimits = (-2.0, 2.0),
+                              maxage = 120,
+                              pollinterval = 15,
                              ),
 
     F_spinflipper_hp = device('devices.taco.AnalogOutput',
@@ -73,6 +81,8 @@ devices = dict(
                               fmtstr = '%.0f',
                               abslimits = (0.0, 4000000.0),
                               userlimits = (0.0, 4000000.0),
+                              maxage = 120,
+                              pollinterval = 15,
                              ),
 )
 

@@ -270,23 +270,21 @@ _ccmsans_plot = Column(Block('SANS-1 5T Magnet plot', [
 ], 'ccmsans'))
 
 _spinflipper = Column(
-    Block('SpinFlipper', [
+    Block('Spin Flipper', [
     BlockRow(
-             Field(name='Power', dev='p_sf'),
-             Field(name='Frequency', dev='f_sf'),
+             Field(name='P_spinflipper', dev='P_spinflipper'),
+             Field(name='F_spinflipper', dev='F_spinflipper'),
             ),
     BlockRow(
-             Field(name='Forward', dev='forward_sf'),
-             Field(name='Reverse', dev='reverse_sf'),
+             Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
+             Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
             ),
-    BlockRow(Field(name='Temperature of AG1016', dev='t_sf'),),
+    BlockRow(Field(name='Temperature of AG1016', dev='T_spinflipper'),),
     BlockRow(
-             Field(name='Ampl HP33220a', dev='a_agilent1'),
-             Field(name='Freq HP33220a', dev='f_agilent1'),
+             Field(name='A_spinflipper_hp', dev='A_spinflipper_hp'),
+             Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
             ),
-        ], 'sc1'
-    ),
-)
+], 'spinflipper'))
 
 newports = []
 for k in range(1, 3 + 1):
