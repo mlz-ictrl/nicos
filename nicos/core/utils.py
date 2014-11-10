@@ -315,7 +315,7 @@ class DeviceValueDict(object):
                     # stringify result
                     res = str(dev)
         except Exception:
-            session.log.warning("invalid key %r requested, returning ''" % key)
+            session.log.warning("invalid key %r requested, returning ''" % key, exc=1)
         finally:
             if isinstance(res, str):
                 res = to_ascii_escaped(res)
