@@ -100,4 +100,7 @@ class SpinflipperPower(AnalogOutput):
         self.wait()
         return self._reverseDev.read(0)
 
+    def doPoll(self, nr):
+        _ = self.forward
+        _ = self.reverse
 
