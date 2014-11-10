@@ -167,6 +167,7 @@ class ValueDisplay(NicosWidget, QWidget):
         self._lastchange = 0
         self._mouseover = False
         self._mousetimer = None
+        self._expired = True
 
         self._colorscheme = colorScheme or defaultColorScheme
 
@@ -310,7 +311,8 @@ class ValueDisplay(NicosWidget, QWidget):
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         # check expired values
-        if expired and self.props['showExpiration']:
+        self._expired = expired
+        if self._expired and self.props['showExpiration']:
             setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
         else:
             setBackgroundColor(self.valuelabel, self._colorscheme['back'][BUSY])
@@ -325,7 +327,10 @@ class ValueDisplay(NicosWidget, QWidget):
         QTimer.singleShot(1000, self._applystatuscolor)
 
     def _applystatuscolor(self):
-        setBothColors(self.valuelabel, self._statuscolors)
+        if self._expired and self.props['showExpiration']:
+            setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
+        else:
+            setBothColors(self.valuelabel, self._statuscolors)
 
     def _applywarncolor(self, value):
         # check min/max values
