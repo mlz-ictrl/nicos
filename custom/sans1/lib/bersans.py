@@ -185,6 +185,7 @@ Merged=
 Operation=
 
 %%Comment
+MesyDAQFile=%(det1.lasthistfile)s
 
 """
 
