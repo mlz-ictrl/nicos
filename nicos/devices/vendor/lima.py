@@ -26,7 +26,7 @@ import numpy
 
 from nicos.core import ImageProducer, ImageType, Param, Device, \
     Measurable, AutoDevice, status, tupleof, oneof, tangodev, \
-    Override, ConfigurationError, HasLimits, HasPrecision, Moveable
+    Override, ConfigurationError, HasLimits, HasPrecision, Moveable, SIMULATION
 from nicos.devices.tango import PyTangoDevice
 
 
@@ -261,6 +261,9 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         return imgData
 
     def _getImageType(self):
+        if self._mode == SIMULATION:
+            return numpy.uint32
+
         imageType = self._dev.image_type
 
         mapping = {
