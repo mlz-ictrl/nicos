@@ -45,6 +45,8 @@ class QMesyDAQChannel(FRMChannel):
     Use one of the concrete classes below.
     """
 
+    hardware_access = True
+
     parameter_overrides = {
         'fmtstr': Override(default='%d'),
         'mode': Override(type=oneofdict({
