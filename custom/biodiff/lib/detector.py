@@ -392,6 +392,10 @@ class Andor2LimaCCDFPGA(Andor2LimaCCD):
                                        "photoshutter control", Measurable),
                        }
 
+    # needed for SeqDev in MeasureSequencer -> Andor2LimaCCDDetector
+    def isAllowed(self):
+        return (True, '')
+
     def doSetPreset(self, **preset):
         if "t" in preset:
             self._adevs["fpga"].preselection = preset["t"]
@@ -400,3 +404,79 @@ class Andor2LimaCCDFPGA(Andor2LimaCCD):
     def doStart(self):
         self._adevs["fpga"].start()
         Andor2LimaCCD.doStart(self)
+
+
+class Andor2LimaCCDDetector(MeasureSequencer, ImageProducer):
+    """Andor2LimaCCD shutter control extension. Controls instrument shutters
+    gammashutter, photoshutter and the camera shutter itself using a
+    FPGATimerChannel device."""
+
+    attached_devices = {
+                        "ccd": Attach("Andor CCD camera", Measurable),
+                        "gammashutter": Attach("Gamma shutter", Moveable),
+                        "photoshutter": Attach("Photo shutter", Moveable),
+                        }
+
+    parameters = {
+                  "ctrl_gammashutter": Param("Control gamma shutter?",
+                                             type=bool, settable=True,
+                                             mandatory=False, default=True),
+                  "ctrl_photoshutter": Param("Control photo shutter?",
+                                             type=bool, settable=True,
+                                             mandatory=False, default=True),
+                  }
+
+    parameter_overrides = {
+                           "subdir": Override(mandatory=False, settable=False),
+                          }
+
+    @property
+    def ccd(self):
+        return self._adevs["ccd"]
+
+    @property
+    def gammashutter(self):
+        return self._adevs["gammashutter"]
+
+    @property
+    def photoshutter(self):
+        return self._adevs["photoshutter"]
+
+    def doInit(self, mode):
+        self.imagetype = self.ccd.imagetype
+
+    def _generateSequence(self, *args, **kwargs):
+        seq = []
+        # open shutter
+        if self.ctrl_gammashutter:
+            seq.append(SeqDev(self.gammashutter, Shutter.OPEN))
+        if self.ctrl_photoshutter:
+            seq.append(SeqDev(self.photoshutter, Shutter.OPEN))
+        # count
+        seq.append(SeqDev(self.ccd))
+        # close shutter
+        if self.ctrl_photoshutter:
+            seq.append(SeqDev(self.photoshutter, Shutter.CLOSED))
+        if self.ctrl_gammashutter:
+            seq.append(SeqDev(self.gammashutter, Shutter.CLOSED))
+        return seq
+
+    # -- act as a proxy class for ImageProducer calls ----------------------
+    def doReadLastfilename(self):
+        return self.ccd.lastfilename
+
+    def doWriteLastfilename(self, value):
+        self.ccd.lastfilename = value
+
+    def doReadSubdir(self):
+        return self.cdd.subdir
+
+    def readFinalImage(self):
+        return self.ccd.readFinalImage()
+
+    # -- act as a proxy class for a Measurable, e.g. Andor2LimaCCDFPGA -----
+    def doRead(self, maxage=0):
+        return self.ccd.lastfilename
+
+    def doSetPreset(self, **preset):
+        self.ccd.doSetPreset(**preset)

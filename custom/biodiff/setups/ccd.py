@@ -8,7 +8,7 @@ __version__ = "0.1.0"
 description = "Andor DV936 CCD camera setup"
 group = "optional"
 
-includes = ["counter"]
+includes = ["counter", "shutter"]
 
 _TANGO_SRV = "phys.biodiff.frm2:10000"
 _TANGO_BASE_URL = "tango://%s/biodiff/detector" % _TANGO_SRV
@@ -34,6 +34,14 @@ devices = dict(
                             subdir = '.',
                             fileformats = ["FITSFileSaver"],
                            ),
-               )
+               ccddet = device("biodiff.detector.Andor2LimaCCDDetector",
+                               description = "Andor DV936 CCD detector",
+                               ccd = "ccd",
+                               gammashutter = "gammashutter",
+                               photoshutter = "photoshutter",
+                               maxage = 10,
+                               fileformats = ["FITSFileSaver"],
+                              ),
+              )
 
-startupcode = "SetDetectors(ccd)"
+startupcode = "SetDetectors(ccddet)"

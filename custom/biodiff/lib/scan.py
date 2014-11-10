@@ -34,7 +34,7 @@ from nicos.core.spm import spmsyntax, Dev, Bare
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.biodiff.motor import MicrostepMotor
-from nicos.biodiff.detector import ImagePlateDetector
+from nicos.biodiff.detector import ImagePlateDetector, Andor2LimaCCDDetector
 from nicos.biodiff.shutter import Shutter
 
 
@@ -64,7 +64,7 @@ class RScan(Scan):
             # simultaneous.
             where = []
             for det in self._detlist:
-                if type(det) == ImagePlateDetector:
+                if type(det) in (ImagePlateDetector, Andor2LimaCCDDetector):
                     if det.ctrl_gammashutter:
                         where.append((det.gammashutter, Shutter.OPEN))
                     if det.ctrl_photoshutter:
