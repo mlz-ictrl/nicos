@@ -499,6 +499,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
     def _gen_ref_sequence(self):
         seq = []
         # try to mimic anatel: go to 5mm before refpos and then to the negative limit switch
+        seq.append(SeqCall(self._HW_enable))
         seq.append(SeqCall(self._HW_start, self.refpos + 5.))
         seq.append(SeqCall(self._HW_wait_while_BUSY))
         seq.append(SeqCall(self._HW_start,
@@ -531,7 +532,7 @@ class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
 
     def doStatus(self, maxage=0):
         """returns highest statusvalue"""
-        if self.mode == SIMULATION:
+        if self._mode == SIMULATION:
             stati = [(100, 'simulation'), self._seq_status]
         else:
             stati = [self._HW_status(), self._seq_status]
