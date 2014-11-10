@@ -60,7 +60,7 @@ _selcolumn = Column(
                  Field(name='water flow', dev='selector_wflow', width=8, format = '%.1f'),
                  ),
          BlockRow(
-                 Field(name='inlet temp.', dev='selector_winlt', width=8, format = '%.1f'),
+                 Field(name='rotor temp.', dev='selector_rtemp', width=8, format = '%.1f'),
                  ),
                ],
         ),
@@ -154,7 +154,7 @@ _collimationcolumn = Column(
               width=7,height=9),
                          ),
       BlockRow(
-        Field(dev='col', name='col', unit='m'),
+        Field(dev='col', name='col', unit='m', format = '%.1f'),
               ),
                 ],
         ),
