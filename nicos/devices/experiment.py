@@ -235,6 +235,14 @@ class Experiment(Device):
         return path.join(self.dataroot, 'current')
 
     @property
+    def customproposalsymlink(self):
+        """path of a custom proposal symlink or empty string.
+        If a path was specified, the symlink will be created automatically.
+        """
+        return ''
+
+
+    @property
     def samplesymlink(self):
         """dataroot based location of 'current' sample symlink to maintain,
         or empty string
@@ -717,6 +725,7 @@ class Experiment(Device):
         # send 'experiment' change event before the last hook
         session.experimentCallback(self.proposal)  # maybe better after the last hook?
 
+        self._createCustomProposalSymlink()
         self._afterNewHook()
 
     @usermethod
@@ -956,6 +965,21 @@ class Experiment(Device):
         if self.elog:
             self._eloghandler.disabled = mode != MASTER
         Device._setMode(self, mode)
+
+    def _createCustomProposalSymlink(self):
+        if not self.customproposalsymlink:
+            return
+
+        # create symlink
+        ensureDirectory(path.dirname(self.customproposalsymlink))
+        try:
+            self.log.debug('create custom proposal symlink %r -> %r' %
+                           (self.customproposalsymlink, self.proposalpath))
+            os.symlink(os.path.basename(self.proposalpath),
+                       self.customproposalsymlink)
+        except OSError:
+            self.log.warning('creation of custom proposal symlink failed, '
+                             'already existing?')
 
     @usermethod
     def addUser(self, name, email=None, affiliation=None):
@@ -1228,24 +1252,23 @@ class ImagingExperiment(Experiment):
 
     @property
     def photodir(self):
-        return path.join(self.samplepath, 'photos')
+        return path.join(self.proposalpath, 'photos')
 
     @property
-    def extradirs(self):
-        extradirs = [self.darkimagedir, self.openbeamdir, self.photodir]
-        if self.sampledir:
-            extradirs.append(path.join(self.samplepath, 'eval', 'recon'))
-        return extradirs
+    def extrapaths(self):
+        paths = set(Experiment.extrapaths.fget(self))
 
-    @usermethod
-    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
-        Experiment.new(self, proposal, title=title, localcontact=localcontact,
-                           user=user, **kwds)
+        paths.add(self.darkimagedir)
+        paths.add(self.openbeamdir)
+        paths.add(self.photodir)
 
+        return tuple(paths)
+
+    def _afterNewHook(self):
+        Experiment._afterNewHook(self)
         self._clearImgPaths()
 
     def _clearImgPaths(self):
         # clear state info
         self._setROParam('lastdarkimage','')
         self._setROParam('lastopenbeamimage','')
-

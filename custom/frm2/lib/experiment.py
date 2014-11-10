@@ -21,13 +21,17 @@
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
 """NICOS FRM II Experiment."""
 
+import re
+import time
+from os import path
 from nicos import session
-from nicos.core import Param, Override
+from nicos.core import Param, Override, usermethod
 from nicos.frm2.proposaldb import queryCycle, queryProposal
 from nicos.devices.experiment import Experiment as BaseExperiment, ImagingExperiment as BaseImagingExperiment
 
@@ -154,4 +158,48 @@ class ImagingExperiment(Experiment, BaseImagingExperiment):
     """FRM2 specific imaging experiment which provides all imaging experiment
     functionalities plus all the frm2 specific features.
     """
-    pass
+    parameter_overrides = {
+        'dataroot':      Override(default='/data/FRM-II'),
+    }
+
+    @property
+    def elogpath(self):
+        """path to the eLogbook of the curent experiment/sample"""
+        return path.join(self.proposalpath, 'logbook')
+
+    @property
+    def extrapaths(self):
+        paths = set(Experiment.extrapaths.fget(self))
+        paths.update(BaseImagingExperiment.extrapaths.fget(self))
+        if self.sampledir:
+            paths.add(path.join(self.samplepath, 'eval', 'recon'))
+
+        return tuple(paths)
+
+    @property
+    def customproposalsymlink(self):
+        # construct user name
+        user = re.split('[,(<@]', self.users)[0].strip()
+        user = user if user else 'default'
+        user = user.replace(' ', '_')
+
+        date = time.strftime('%F').replace('-', '_')
+        return path.join(self.proposalpath, '..', '%s_%s_%s_%s' %
+                            (date, user, self.proposal, self.title)
+                        )
+
+    @usermethod
+    def newSample(self, name, parameters):
+        """Called by `.NewSample`. and `.NewExperiment`."""
+
+        sampledir = name.decode('ascii', 'ignore').encode('unicode_escape')
+        self.sampledir = sampledir.replace(' ', '_')
+
+        Experiment.newSample(self, name, parameters)
+
+        self.log.debug('new sample path: %s' % self.samplepath)
+        self.log.debug('new data path: %s' % self.datapath)
+        self.log.debug('new dark image path: %s' % self.darkimagedir)
+        self.log.debug('new open beam image path: %s' % self.openbeamdir)
+        self.log.debug('new measurement image path: %s' % self.photodir)
+
