@@ -133,12 +133,18 @@ class Dataset(object):
         self._npoints = value
 
     def updateHeaderInfo(self, updatedict=None):
+        # if updatedict is not empty, only update those devices & positions, else all
+        if updatedict:
+            headerinfo = self.headerinfo
+            devices = zip(*sorted(iteritems(updatedict),
+                          key=lambda dev_and_val: dev_and_val[0].name.lower()))[0]
+        else:
+            headerinfo = {}
+            devices = zip(*sorted(iteritems(session.devices),
+                          key=lambda name_and_dev: name_and_dev[0].lower()))[1]
+
         bycategory = {}
-        headerinfo = self.headerinfo = {}
-        # XXX: if updatedict is given, only update those devices positions
-        # instead of reading all
-        for _, device in sorted(iteritems(session.devices),
-                                key=lambda name_dev: name_dev[0].lower()):
+        for device in devices:
             if device.lowlevel:
                 continue
             for category, key, value in device.info():
@@ -146,7 +152,11 @@ class Dataset(object):
         for catname, catinfo in INFO_CATEGORIES:
             if catname not in bycategory:
                 continue
-            headerinfo[catinfo] = bycategory[catname]
+            headerinfo[catinfo] = bycategory.pop(catname)
+        for category, devlist in bycategory.items():
+            for device, key, _ in devlist:
+                device.log.error('parameter %s uses illegal category %s!' % (key, category))
+        self.headerinfo = headerinfo
 
     #
     # avoid bug #1487 by special pickling support

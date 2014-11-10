@@ -162,6 +162,7 @@ class Scan(object):
         session.beginActionScope(self.shortDesc())
 
     def preparePoint(self, num, xvalues):
+        # called before moving to current scanpoint
         if self.dataset.npoints == 0:
             session.beginActionScope('Point %d' % num)
         else:
@@ -169,7 +170,7 @@ class Scan(object):
                                                       self.dataset.npoints))
         # update dataset values
         self.dataset.curpoint = num
-        self.dataset.updateHeaderInfo(dict(zip(self._devices, xvalues)))
+        self.dataset.updateHeaderInfo()
         # propagate to the relevant objects
         for det in self._detlist:
             if isinstance(det, ImageProducer):
@@ -181,6 +182,14 @@ class Scan(object):
         # wait for preparation has been finished.
         for det in self._detlist:
             waitForStatus(det)
+
+    def updatePoint(self, xvalues):
+        # called after moving to current, just before counting
+        self.dataset.updateHeaderInfo(dict(zip(self._devices, xvalues)))
+        for det in self._detlist:
+            if isinstance(det, ImageProducer):
+                for catinfo, bycategory in iteritems(self.dataset.headerinfo):
+                    det.addHeader(catinfo, bycategory)
 
     def addPoint(self, xvalues, yvalues):
         self.dataset.xresults.append(xvalues)
@@ -334,8 +343,11 @@ class Scan(object):
                             self.moveTo(position, wait=self._waitbeforecount)
                         elif not can_measure:
                             continue
-                    started = currenttime()
+                    # update changed positions
                     actualpos = self.readPosition()
+                    self.updatePoint(actualpos)
+                    # measure...
+                    started = currenttime()
                     try:
                         result = []
                         if self._multistep:
