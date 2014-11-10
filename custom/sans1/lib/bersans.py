@@ -286,11 +286,17 @@ class BerSANSFileFormat(ImageSink):
                             )
         nicosheader = []
         self.log.debug('imageInfo.header is %r' % imageinfo.header)
-        # no way to map nicos-categories to BerSANS sections
-        for _, valuelist in imageinfo.header.items():
+
+        if imageinfo.dataset:
+            headersrc = imageinfo.dataset.headerinfo
+        else:
+            headersrc = imageinfo.header
+        # no way to map nicos-categories to BerSANS sections :(
+        for _, valuelist in headersrc.items():
             for dev, key, value in valuelist:
                 imageinfo.data['%s_%s' % (dev.name, key)] = value
                 nicosheader.append('%s_%s=%r' % (dev.name, key, value))
+
         nicosheader = '\n'.join(sorted(l.decode('ascii', 'ignore').encode('unicode_escape') for l in nicosheader))
         self.log.debug('nicosheader starts with: %40s' % nicosheader)
 
