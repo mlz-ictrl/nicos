@@ -31,7 +31,7 @@ sysconfig = dict(
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    notifiers = ['email',],
 )
 
 modules = ['nicos.commands.standard', 'sans1.commands']
@@ -39,7 +39,18 @@ modules = ['nicos.commands.standard', 'sans1.commands']
 # SYSTEM NEVER INCLUDES OTHER SETUPS !!!
 
 devices = dict(
-    #~ Sample   = device('devices.experiment.Sample'),
+    email    = device('devices.notifiers.Mailer',
+                      description = 'Notifications via email',
+                      sender = 'andreas.wilhelm@frm2.tum.de',
+                      copies = ['andreas.wilhelm@frm2.tum.de',
+                                'Andre.Heinemann@hzg.de',
+                                'ralph.gilles@frm2.tum.de',
+                                'sebastian.muehlbauer@frm2.tum.de',
+                               ],
+                      mailserver='mailhost.frm2.tum.de',
+                      subject = 'SANS-1',
+                     ),
+
     Sample   = device('sans1.sans1_sample.Sans1Sample',
                       description = 'sample',
                      ),
@@ -54,7 +65,8 @@ devices = dict(
                       description = 'experiment',
                       dataroot = '/data/nicos',
                       propdb = '/sans1control/propdb',
-                      sample = 'Sample'),
+                      sample = 'Sample',
+                     ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
                       description = 'filesink',
