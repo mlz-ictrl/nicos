@@ -42,6 +42,16 @@ devices = dict(
                                maxage = 10,
                                fileformats = ["FITSFileSaver"],
                               ),
-              )
+               ccdTemp = device("devices.vendor.lima.Andor2TemperatureController",
+                                description = "Andor DV936 CCD temperature control",
+                                tangodevice = _TANGO_BASE_URL + "/ikonl",
+                                maxage = 5,
+                                abslimits = (-100, 0),
+                                userlimits = (-100, 0),
+                                unit = 'degC',
+                                precision = 3,
+                                fmtstr = '%.0f',
+                               ),
+               )
 
 startupcode = "SetDetectors(ccddet)"
