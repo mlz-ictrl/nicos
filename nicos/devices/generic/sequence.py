@@ -31,7 +31,8 @@ from datetime import timedelta
 
 from nicos import session
 from nicos.core import Param, Override, none_or, anytype, tupleof, status, \
-    NicosError, MoveError, ProgrammingError, ConfigurationError, LimitError
+    NicosError, MoveError, ProgrammingError, ConfigurationError, LimitError, \
+    SIMULATION
 from nicos.core.device import Moveable, Measurable, DeviceMixinBase
 from nicos.utils import createThread
 
@@ -282,13 +283,11 @@ class SequencerMixin(DeviceMixinBase):
         May be overwritten in derived classes needed the status sync between
         poller and daemon but don't want to use the actual sequencing routine.
         """
-        self._sequence_running = True
         try:
             self._sequence(sequence)
         finally:
-            self._seq_thread = None
             self._seq_stopflag = False
-            self._sequence_running = False
+            self._seq_thread = None
 
     def _sequence(self, sequence):
         """The Sequence 'interpreter', stepping through the sequence."""
@@ -498,7 +497,11 @@ class BaseSequencer(SequencerMixin, Moveable):
         Just calls ``self._startSequence(self._generateSequence(target))``
         """
         if self._seq_thread is not None:
-            raise MoveError(self, 'Cannot start device, it is still moving!')
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise MoveError(self, 'Cannot start device, it is still moving!')
         self._startSequence(self._generateSequence(target))
 
 
@@ -600,7 +603,11 @@ class MeasureSequencer(SequencerMixin, Measurable):
 
         """
         if self._seq_thread is not None:
-            raise NicosError(self, "Cannot start device, because it it busy.")
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise NicosError(self, "Cannot start device, it is still busy.")
         self._startSequence(self._generateSequence())
 
     def doIsCompleted(self):
