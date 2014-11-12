@@ -152,6 +152,7 @@ class Watchdog(BaseCacheClient):
             eid = entry.id
             # is the necessary setup loaded?
             if entry.setup and entry.setup not in self._setups:
+                self._clear_warning(entry)
                 continue
             # is it a new value or an expiration?
             if op == OP_TELLOLD or value is None:
@@ -182,6 +183,13 @@ class Watchdog(BaseCacheClient):
             if isinstance(notifier, Mailer):
                 # we're in slave mode, so _setROParam is necessary to set params
                 notifier._setROParam('receivers', emails)
+
+    def _clear_warning(self, entry):
+        eid = entry.id
+        if eid in self._watch_grace:
+            del self._watch_grace[eid]
+        if eid in self._warnings:
+            del self._warnings[eid]
 
     def _process_warning(self, entry, value):
         eid = entry.id
