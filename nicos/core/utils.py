@@ -281,7 +281,7 @@ class DeviceValueDict(object):
             if key in self._constvals:
                 res = self._constvals[key]
             # just a device?
-            elif key in session.devices:
+            elif key in session.configured_devices:
                 dev = session.getDevice(key)
                 res = dev.format(dev.read())
             # attrib path? (must start with a device!)
@@ -309,13 +309,13 @@ class DeviceValueDict(object):
                     elif hasattr(dev, '__contains__') and sub in dev:
                         dev = dev[sub]
                         continue
-                    session.log.warning("invalid key %r requested, returning ''" % key)
+                    session.log.warning("invalid key %r requested, returning %r" % (key, res), exc=1)
                     break
                 else:
                     # stringify result
                     res = str(dev)
         except Exception:
-            session.log.warning("invalid key %r requested, returning ''" % key, exc=1)
+            session.log.warning("invalid key %r requested, returning %r" % (key, res), exc=1)
         finally:
             if isinstance(res, str):
                 res = to_ascii_escaped(res)
