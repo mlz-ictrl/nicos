@@ -19,6 +19,8 @@ description = 'system setup'
 #        setup (e.g. "cache", "poller", "daemon").
 group = 'lowlevel'
 
+includes = ['shutter', 'microstep']
+
 # sysconfig: A dictionary with basic system configuration values.
 # Possible values:
 #   - cache
