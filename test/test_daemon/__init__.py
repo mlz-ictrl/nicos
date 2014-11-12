@@ -32,9 +32,10 @@ import socket
 import subprocess
 from os import path
 
-from test.utils import TestSession, cleanup, rootdir, startCache, killCache
-from nicos import session
+from test.utils import TestSession, cleanup, rootdir, startCache, killCache, \
+     adjustPYTHONPATH
 from nicos.protocols.daemon import ENQ, LENGTH, serialize, command2code
+from nicos import session
 
 cache = None
 daemon = None
@@ -47,8 +48,8 @@ def setup_package():
     session.__init__('testdaemon')
     cleanup()
     cache = startCache()
-    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..') + os.pathsep + \
-        path.join(rootdir, '..', '..')
+    adjustPYTHONPATH()
+
     daemon = subprocess.Popen([sys.executable,
                                path.join(rootdir, '..', 'daemon.py')])
     start = time.time()

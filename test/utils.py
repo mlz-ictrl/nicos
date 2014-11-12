@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 """NICOS test suite utilities."""
+from __future__ import print_function
 
 import os
 import re
@@ -47,6 +48,7 @@ from nicos.pycompat import reraise, exec_
 
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
+pythonpath = None
 
 
 def raises(exc, *args, **kwds):
@@ -293,12 +295,21 @@ def cleanup():
                 rootdir + '/bin/nicos-simulate')
 
 
+def adjustPYTHONPATH():
+    global pythonpath
+    if pythonpath is None:
+        topdir = path.abspath(path.join(rootdir, '..', '..'))
+        pythonpath = os.environ.get('PYTHONPATH', '').split(':')
+        pythonpath.insert(0, topdir)
+        os.environ['PYTHONPATH'] = ':'.join(pythonpath)
+
+
 def startCache(setup='cache', wait=5):
     global cache  # pylint: disable=W0603,W0601
     sys.stderr.write(' [cache start... ')
 
     # start the cache server
-    os.environ['PYTHONPATH'] = path.join(rootdir, '..', '..')
+    adjustPYTHONPATH()
     cache = subprocess.Popen([sys.executable,
                               path.join(rootdir, '..', 'cache.py'), setup])
     if wait:
