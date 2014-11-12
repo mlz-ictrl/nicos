@@ -292,10 +292,15 @@ class BerSANSFileFormat(ImageSink):
         else:
             headersrc = imageinfo.header
         # no way to map nicos-categories to BerSANS sections :(
+        # also ignore some keys :(
+        ignore = ('det1_lastlistfile', 'det1_lasthistfile')
         for _, valuelist in headersrc.items():
             for dev, key, value in valuelist:
-                imageinfo.data['%s_%s' % (dev.name, key)] = value
-                nicosheader.append('%s_%s=%r' % (dev.name, key, value))
+                devname_key = '%s_%s' % (dev.name, key)
+                if devname_key in ignore:
+                    continue
+                imageinfo.data[devname_key] = value
+                nicosheader.append('%s=%r' % (devname_key, value))
 
         nicosheader = '\n'.join(sorted(l.decode('ascii', 'ignore').encode('unicode_escape') for l in nicosheader))
         self.log.debug('nicosheader starts with: %40s' % nicosheader)
