@@ -179,6 +179,17 @@ _selectorblock = Block('Velocity Selector', [
     'selector',
 )
 
+_monochromatorblock = Block('Double Crystal PG Monochromator', [
+    BlockRow(
+        Field(dev='mono'), Field(dev='mono_inout')
+        ),
+    BlockRow(
+        Field(dev='mr1'), Field(dev='mr2'), Field(dev='mtz'),
+        ),
+    ],
+    'monochromator',
+)
+
 _leftcolumn = Column(
     _shutterblock,
     _basicblock,
@@ -201,6 +212,7 @@ _middlecolumn = Column(
 _rightcolumn = Column(
     _detectorblock,
     _selectorblock,
+    _monochromatorblock,
 )
 
 devices = dict(
