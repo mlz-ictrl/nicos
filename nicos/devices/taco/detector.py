@@ -99,6 +99,9 @@ class FRMChannel(TacoDevice, Channel):
                  'preselection': IOCommon.MODE_PRESELECTION}
         self._taco_guard(self._dev.setMode, modes[value])
 
+    def doPrepare(self):
+        self._taco_guard(self._dev.clear)
+
 
 class FRMTimerChannel(FRMChannel):
     taco_class = Timer

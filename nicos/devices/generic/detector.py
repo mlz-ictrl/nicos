@@ -172,11 +172,14 @@ class MultiChannelDetector(Measurable):
         return sum((ctr.read() for ctr in self._counters), [])
 
     def doStatus(self, maxage=0):
+        self._getMasters()
+        if not self._masters:
+            return status.OK, 'idle'
         for master in self._masters:
             masterstatus = master.status(maxage)
-            if masterstatus[0] == status.BUSY:
+            if masterstatus[0] == status.OK:
                 return masterstatus
-        return status.OK, 'idle'
+        return status.BUSY, 'counting'
 
     def doIsCompleted(self):
         for master in self._masters:
