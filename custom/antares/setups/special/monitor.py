@@ -18,7 +18,7 @@ _expcolumn = Column(
                  istext=True, maxlen=30),
             ),
         BlockRow(
-            Field(name='Path', key='ccd.datapath', width=100),
+            Field(name='Path', key='ccd/lastfilename', width=100),
         ),
         ],
     ),
@@ -33,14 +33,6 @@ _huberblock = Block('HUBER Small Sample Manipulator', [
         ),
     ],
     'huber',
-)
-
-_batteryblock = Block('ZEBRA Battery Temperature', [
-    BlockRow(
-        Field(dev='T1'), Field(dev='T2'),
-        ),
-    ],
-    'battery',
 )
 
 
@@ -78,6 +70,7 @@ _shutterblock = Block('Shutters & Collimators', [
     BlockRow(
         Field(name='Reactor', dev='ReactorPower', format='%.1f', width=7),
         Field(dev='collimator', width=10),
+        Field(dev='pinhole', width=10),
         ),
     BlockRow(
         Field(dev='shutter1', width=10, istext = True),
@@ -203,7 +196,6 @@ _middlecolumn = Column(
     _huberblock,
     _servostarblock,
     _detector_translationblock,
-    _batteryblock,
 )
 
 _rightcolumn = Column(
