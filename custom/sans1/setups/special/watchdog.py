@@ -55,12 +55,9 @@ watchlist = [
 
 devices = dict(
     email    = device('devices.notifiers.Mailer',
-                      sender = 'sebastian.muehlbauer@frm2.tum.de',
-                      receivers = ['ralph.gilles@frm2.tum.de',
-                                   'sebastian.muehlbauer@frm2.tum.de',
-                                   'andre.heinemann@hzg.de',
-                                  ],
-                      copies = ['andreas.wilhelm@frm2.tum.de'],
+                      sender = 'andreas.wilhelm@frm2.tum.de',
+                      receivers = ['andreas.wilhelm@frm2.tum.de'],
+                      #~ copies = ['andreas.wilhelm@frm2.tum.de'],
                       subject = 'SANS-1 Warning',
                       mailserver='mailhost.frm2.tum.de',
                      ),
@@ -68,7 +65,7 @@ devices = dict(
     info    = device('devices.notifiers.Mailer',
                      sender = 'andreas.wilhelm@frm2.tum.de',
                      receivers = ['andreas.wilhelm@frm2.tum.de'],
-                     copies = ['Svatopluk.Semecky@frm2.tum.de'],
+                     #~ copies = ['andreas.wilhelm@frm2.tum.de'],
                      subject = 'SANS-1 Info',
                     ),
 
@@ -79,8 +76,9 @@ devices = dict(
 
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'sans1ctrl.sans1.frm2:14869',
-                      notifiers = {'default': ['info'], 'critical': ['email']},
+                      #notifiers = {'default': ['info'], 'critical': ['email']},
+                      notifiers = {},
                       watch = watchlist,
-                      mailreceiverkey = 'email/receivers',
+                      #mailreceiverkey = 'email/receivers',
                      ),
 )
