@@ -34,17 +34,17 @@ from nicos.core.utils import multiStatus
 class Monochromator(HasLimits, Moveable):
     """Monochromator device of antares.
 
-    Used to tune the double monochromator to a wavelength between 2.7 and 6.5
+    Used to tune the double monochromator to a wavelength between 1.4 and 6.0
     Angstroms.  Can be moved to None to get a white beam.
 
     Experimental version.
     CHECK THE FORMULAS!
     """
     attached_devices = {
-        'phi1'        : (Moveable, 'monochromator rotation 1'),
-        'phi2'        : (Moveable, 'monochromator rotation 2'),
-        'translation' : (Moveable, 'monochromator translation'),
-        'inout'       : (Moveable, 'monochromator inout device'),
+        'phi1'         : (Moveable, 'monochromator rotation 1'),
+        'phi2'         : (Moveable, 'monochromator rotation 2'),
+        'translation'  : (Moveable, 'monochromator translation'),
+        'inout'        : (Moveable, 'monochromator inout device'),
     }
 
     parameters = {
@@ -64,7 +64,7 @@ class Monochromator(HasLimits, Moveable):
         'unit' : Override(mandatory=False, default='Angstrom'),
     }
 
-    valuetype = none_or(floatrange(2.7, 6.5))
+    valuetype = none_or(floatrange(1.4, 6.0))
 
     hardware_access = False
 
@@ -74,9 +74,9 @@ class Monochromator(HasLimits, Moveable):
 
     def _from_lambda(self, lam):
         ''' returns 3 values used for phi1, phi2 and translation '''
-        phi1  = 180. - 2 * degrees(asin(lam / float(2 * self.dvalue1)))
-        phi2  =        2 * degrees(asin(lam / float(2 * self.dvalue2)))
-        trans = self.distance / tan(radians(phi1))
+        phi1  =        degrees(asin(lam / float(2 * self.dvalue1)))
+        phi2  =        degrees(asin(lam / float(2 * self.dvalue2)))
+        trans = self.distance / tan(2*radians(phi1))
         return phi1, phi2, trans
 
     def _to_lambda(self, phi1, phi2, trans):
@@ -85,7 +85,7 @@ class Monochromator(HasLimits, Moveable):
 
         next iteration could evaluate all 3 args and return an average value...'''
         try:
-            return abs(2 * self.distance * sin(radians(phi1 * 0.5)))
+            return abs(2 * self.dvalue1 * sin(radians(phi1)))
         except Exception:
             raise PositionError('can not determine lambda!')
 
