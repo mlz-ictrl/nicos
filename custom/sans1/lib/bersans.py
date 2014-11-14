@@ -179,7 +179,7 @@ DetHAngle=0.000000
 Beamstop=85x85
 BeamstopX=%(bs1_x)s
 BeamstopY=%(bs1_y)s
-DetVoltage=%(hv)s
+DetVoltage=%(det1_hv_ax)s
 Moni1Z=0.000000
 
 %%Counter
