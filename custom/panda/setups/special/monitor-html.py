@@ -125,7 +125,7 @@ lakeshore = Block('LakeShore', [
 lakeshoreplot = Block('LakeShore', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=25, height=25, plotinterval=300,
+              width=25, height=25, plotwindow=300,
               devices=['t_ls340/setpoint', 't_ls340_a', 't_ls340_b'],
               names=['Setpoint', 'A', 'B'],
         ),
@@ -174,7 +174,7 @@ for i in range(1, 5 + 1):
         Block('cryo%d' % i, [
             BlockRow(
                 Field(widget='nicos.guisupport.plots.TrendPlot',
-                      plotinterval=300, width=25, height=25,
+                      plotwindow=300, width=25, height=25,
                       devices=['t_cryo%d/setpoint' % i, 't_cryo%d' % i],
                       names=['Setpoint', 'Regulation'],
                 ),
@@ -229,7 +229,7 @@ for i in range(10, 22 + 1):
         Block('CCR%d' % i, [
             BlockRow(
                 Field(widget='nicos.guisupport.plots.TrendPlot',
-                      plotinterval=300, width=25, height=25,
+                      plotwindow=300, width=25, height=25,
                       devices=['t_ccr%d/setpoint' % i, 't_ccr%d_c' % i,
                                't_ccr%d_d' % i, 't_ccr%d_b' % i],
                       names=['Setpoint', 'Coldhead', 'Regulation', 'Sample'],

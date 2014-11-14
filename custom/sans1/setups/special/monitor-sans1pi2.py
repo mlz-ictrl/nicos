@@ -74,14 +74,14 @@ _htf03 = Block('HTF03', [
 _htf03_plot = Block('HTF03 plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=70, height=35, plotinterval=1800,
+              width=70, height=35, plotwindow=1800,
               devices=['T_htf03', 'T_htf03/setpoint', 'T_htf03/target'],
               names=['30min', 'Setpoint', 'Target'],
               ),
         ),
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=70, height=35, plotinterval=12*3600,
+              width=70, height=35, plotwindow=12*3600,
               devices=['T_htf03', 'T_htf03/setpoint', 'T_htf03/target'],
               names=['12h', 'Setpoint', 'Target'],
               ),
@@ -108,14 +108,14 @@ _htf01 = Block('HTF01', [
 _htf01_plot = Block('HTF01 plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=70, height=35, plotinterval=1800,
+              width=70, height=35, plotwindow=1800,
               devices=['T_htf01', 'T_htf01/setpoint', 'T_htf01/target'],
               names=['30min', 'Setpoint', 'Target'],
               ),
         ),
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=70, height=35, plotinterval=12*3600,
+              width=70, height=35, plotwindow=12*3600,
               devices=['T_htf01', 'T_htf01/setpoint', 'T_htf01/target'],
               names=['12h', 'Setpoint', 'Target'],
               ),
@@ -162,7 +162,7 @@ _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=22, plotinterval=12*3600,
+              width=60, height=22, plotwindow=12*3600,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['12h', 'Target'],
               ),
@@ -213,12 +213,12 @@ _amagnet = Block('Antares Magnet', [
 _amagnet_plot = Block('Antares Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotinterval=1800,
+              width=60, height=15, plotwindow=1800,
               devices=['B_amagnet', 'b_amagnet/target'],
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=15, plotinterval=12*3600,
+              width=60, height=15, plotwindow=12*3600,
               devices=['B_amagnet', 'b_amagnet/target'],
               names=['12h', 'Target'],
               ),
@@ -278,7 +278,7 @@ for k in range(10, 22 + 1):
     ccrs_plot.append(Block('30min CCR%d plot' %k, [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=50, height=15, plotinterval=30*60,
+              width=50, height=15, plotwindow=30*60,
               devices=['T', 'Ts', 'T/setpoint', 'T/target'],
               names=['T', 'Ts', 'Setpoint', 'Target'],
               ),
