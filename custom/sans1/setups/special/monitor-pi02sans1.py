@@ -88,6 +88,40 @@ _htf03_plot = Block('HTF03 plot', [
         ),
 ], 'htf03')
 
+_htf01 = Block('HTF01', [
+    BlockRow(
+             Field(name='Temperature', dev='T_htf01', format='%.2f', unit='C', width=12),
+             Field(name='Target', key='t_htf01/target', format='%.2f', unit='C', width=12),
+             ),
+    BlockRow(
+             Field(name='Setpoint', key='t_htf01/setpoint', format='%.1f', unit='C', width=12),
+             Field(name='Heater Power', key='t_htf01/heaterpower', format='%.1f', unit='%', width=12),
+             #Field(name='Vacuum', key='htf01_p'),
+            ),
+    BlockRow(
+             Field(name='P', key='t_htf01/p', format='%i'),
+             Field(name='I', key='t_htf01/i', format='%i'),
+             Field(name='D', key='t_htf01/d', format='%i'),
+            ),
+], 'htf01')
+
+_htf01_plot = Block('HTF01 plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotinterval=1800,
+              devices=['T_htf01', 'T_htf01/setpoint', 'T_htf01/target'],
+              names=['30min', 'Setpoint', 'Target'],
+              ),
+        ),
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotinterval=12*3600,
+              devices=['T_htf01', 'T_htf01/setpoint', 'T_htf01/target'],
+              names=['12h', 'Setpoint', 'Target'],
+              ),
+        ),
+], 'htf01')
+
 _ccmsans = Block('SANS-1 5T Magnet', [
     BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
              ),
@@ -333,8 +367,8 @@ devices = dict(
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
                                     Column(_sc1, _st2, _st1, *newports),
-                                    Column(_htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet),
-                                    Column(_htf03_plot, _spinflipper, *cryos) + Column(*ccrs_plot),
+                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet),
+                                    Column(_htf01_plot, _htf03_plot, _spinflipper, *cryos) + Column(*ccrs_plot),
                                     Column(*ccrs) + Column(_birmag),
                                    ),
                                 Row(

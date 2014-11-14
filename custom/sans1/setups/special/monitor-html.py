@@ -222,6 +222,18 @@ _htf03 = Column(
        ),
 ], 'htf03'),)
 
+_htf01 = Column(
+    Block('HTF01', [
+      BlockRow(
+       Field(name='Temperature', dev='T_htf01', format = '%.2f'),
+       Field(name='Target', key='t_htf01/target', format = '%.2f'),
+       ),
+      BlockRow(
+       Field(name='Setpoint', key='t_htf01/setpoint', format = '%.1f'),
+       Field(name='Heater Power', key='t_htf01/heaterpower', format = '%.1f'),
+       ),
+], 'htf01'),)
+
 _ccmsans = Column(Block('SANS-1 5T Magnet', [
     BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
              ),
@@ -351,7 +363,7 @@ devices = dict(
                                  Row(_selcolumn, _atpolcolumn, _sanscolumn),
                                  Row(_ccmsans, _ccmsans_temperature,
                                      _spinflipper, _ccrs, _cryos, _sc1,
-                                     _miramagnet, _amagnet, _htf03,
+                                     _miramagnet, _amagnet, _htf03, _htf01,
                                      _newports),
                                ],
                     ),
