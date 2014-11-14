@@ -20,7 +20,7 @@ devices = dict(
                               ('jcns','51b8e46e7a54e8033f0d7a3393305cdb', 'admin')],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
-                    server = 'localhost',
+                    server = '',
                     authenticators = ['Auth'], # or ['Auth', 'UserDB']
                     loglevel = 'debug',
                    ),
