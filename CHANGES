@@ -17,6 +17,8 @@ Release 2.6.0
   - "CreateAllDevices()" now has a flag that allows all lowlevel devices to be
     exported into the NICOS namespace.
 
+  - Common tomography commands for imaging instruments
+
 * Device classes
 
   - Devices can now add custom range information to the "device ranges" reported
@@ -32,6 +34,9 @@ Release 2.6.0
 
   - The "DeviceAlias" has been moved to the "nicos.core" namespace.
 
+  - Devices now support a doPrepare step in scans that is executed before starting
+    all devices for a scan point.
+
 * GUI
 
   - Lowlevel devices are shown in the "Devices" panel when expert mode is
@@ -44,6 +49,12 @@ Release 2.6.0
 
   - Monitor display widgets can now use a "light background" color scheme.
 
+  - rename TrendPlot "plotinterval" to "plotwindow" to be consistent between
+    history plot and trend plot
+
+  - daemon: be paranoid about running as root
+
+
 * Services
 
   - When requesting to stop a running script, scripts put into the queue *after*
@@ -53,6 +64,8 @@ Release 2.6.0
 
   - The init script "nicos-system" is now more careful about really stopping
     services and complaining if they can't be stopped.
+
+  - Watchdog: allow multiple values/devices in conditions
 
 Release 2.5.0
 -------------
