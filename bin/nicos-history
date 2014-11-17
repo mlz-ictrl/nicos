@@ -2,12 +2,16 @@
 
 import sys
 from os import path
+import logging
+
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
 import optparse
 
 from nicos.core.sessions.simple import SingleDeviceSession
 from nicos.clients.gui.panels.history import StandaloneHistoryApp
+from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
+    NicosLogger, initLoggers
 
 usage = '''Usage: %prog [options] [key ...]
 
@@ -30,6 +34,21 @@ parser.add_option('-p', '--prefix', dest='prefix', action='store',
                   help='PREFIX is the key prefix; it will be added in front '
                   'of the key, defaults to \'nicos/\'', default='nicos/')
 opts, args = parser.parse_args()
+
+# Set up logging for the GUI instance.
+initLoggers()
+log = NicosLogger('gui')
+log.parent = None
+log.setLevel(logging.INFO)
+log.addHandler(ColoredConsoleHandler())
+
+# set up logging for unhandled exceptions in Qt callbacks
+def log_unhandled(*exc_info):
+    import traceback
+    traceback.print_exception(*exc_info)
+    log.exception('unhandled exception in QT callback', exc_info=exc_info)
+sys.excepthook = log_unhandled
+
 
 SingleDeviceSession.run('history', StandaloneHistoryApp,
                         {'prefix': opts.prefix, 'cache': opts.cache,
