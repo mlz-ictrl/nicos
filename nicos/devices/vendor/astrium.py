@@ -169,11 +169,14 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
             return
         # the SPEED command is sometimes not accepted immediately; we try a few
         # times with lots of time in between
-        for _i in range(self.maxtries):
+        for i in range(self.maxtries):
             try:
                 accepted, state = self._adevs['statedev'].communicate(
                     'SPEED %05d' % target)
             except CommunicationError:
+                self.log.warning('Communcation failed, sleeping %f secs before '
+                                    'retrying (retry %d of %d)' %
+                                    (self.commdelay, i, self.maxtries))
                 sleep(self.commdelay)
             else:
                 if not accepted:
@@ -185,8 +188,9 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
                     # we got a "requested speed" target back and it matches the
                     # one we tried to set -- done
                     return
-                self.log.debug('requested speed return not correct: %r' %
-                               rspeed)
+                self.log.warning('requested speed return not correct: %r '
+                                 'sleeping %f secs before retrying (retry %d of %d)' %
+                               (rspeed, self.commdelay, i, self.maxtries))
                 sleep(self.commdelay)
         raise CommunicationError(self, 'selector did not execute speed request')
 
