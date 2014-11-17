@@ -13,7 +13,7 @@ devices = dict(
     Poller = device('services.poller.Poller',
                     autosetup = True,
                     alwayspoll = ['ubahn', 'memograph', 'radmon'],
-                    neverpoll = ['mslit2', 'gaussmeter'],
+                    neverpoll = ['mslit2', 'gaussmeter', 'mslit1', 'gslits'],
                     loglevel = 'info',
                     blacklist = ['psd']),
 )

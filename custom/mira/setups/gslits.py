@@ -87,7 +87,7 @@ devices = dict(
 
 
     gs2bus    = device('devices.vendor.ipc.IPCModBusTacoSerial',
-                       tacodevice = '//mirasrv/mira/network/rsneu_1',
+                       tacodevice = '//mirasrv/mira/network/rs13_1',
                        lowlevel = True),
 
     gs2_l_mot = device('devices.vendor.ipc.SlitMotor',
