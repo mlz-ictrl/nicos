@@ -161,6 +161,6 @@ def test_htmlhelp():
 def test_simulation():
     idx = len(client._signals)
     client.tell('simulate', '', 'read', 'sim')
-    for name, _data, _exc in client.iter_signals(idx, timeout=2.0):
+    for name, _data, _exc in client.iter_signals(idx, timeout=5.0):
         if name == 'simresult':
             return
