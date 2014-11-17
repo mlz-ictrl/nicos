@@ -17,9 +17,14 @@ devices = dict(
 
     Exp      = device('frm2.experiment.ImagingExperiment',
                       dataroot = '/data',
-                      sendmail = True,
+                      propdb = '/etc/propdb',
                       serviceexp = '0',
                       sample = 'Sample',
+                      localcontact = 'Stefan Soellradl',
+                      mailsender = 'nectar@frm2.tum.de',
+                      sendmail = True,
+                      zipdata = False,
+                      managerights = {},
                      ),
 
     Instrument = device('devices.instrument.Instrument',
