@@ -113,7 +113,7 @@ class Watchdog(BaseCacheClient):
                 continue
             entry = Entry(entryd)
             entry.id = i
-            if entry.type not in self._notifiers:
+            if entry.type and entry.type not in self._notifiers:
                 self.log.error('condition %r type is not valid, must be '
                                'one of %r' %
                                (entry.condition,
