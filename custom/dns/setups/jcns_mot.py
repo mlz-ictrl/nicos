@@ -41,7 +41,7 @@ devices = dict(
                         tangodevice = '%s/dns/fzjs7/ap_sam_y_lower' % tango_host,
                         lowlevel = True,
                       ),
-    sample_slit       = device('devices.generic.Slit',
+    sample_slit       = device('dns.slit.PosOpeningSlit',
                        description = 'Aperture sample slit',
                        left = 'ap_sam_x_left',
                        right = 'ap_sam_x_right',
