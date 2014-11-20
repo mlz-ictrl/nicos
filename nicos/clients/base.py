@@ -40,7 +40,7 @@ from nicos.protocols.daemon import serialize, unserialize, ENQ, ACK, STX, NAK, \
     LENGTH, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS, \
     command2code, code2event
 from nicos.pycompat import to_utf8
-from nicos.utils import createThread
+from nicos.utils import createThread, tcpSocket
 
 BUFSIZE = 8192
 TIMEOUT = 30.0
@@ -83,8 +83,8 @@ class NicosClient(object):
     def connect(self, conndata, password=None, eventmask=None):
         """Connect to a NICOS daemon.
 
-        *conndata* is a dictionary with keys 'host', 'port', 'login' (user name)
-        and 'display' (X display to use; deprecated).
+        *conndata* is a dictionary with keys 'host', 'port', 'login'
+        (user name) and 'display' (X display to use; deprecated).
 
         *password* is the password for logging in.
 
@@ -94,10 +94,9 @@ class NicosClient(object):
         if self.connected:
             raise RuntimeError('client already connected')
         self.disconnecting = False
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(TIMEOUT)
         try:
-            self.socket.connect((conndata['host'], conndata['port']))
+            self.socket = tcpSocket(conndata['host'], conndata['port'],
+                                    timeout=TIMEOUT)
         except socket.error as err:
             msg = err.args[1] if len(err.args) >= 2 else str(err)
             self.signal('failed', 'Server connection failed: %s.' % msg, err)
@@ -161,9 +160,8 @@ class NicosClient(object):
             self.tell('eventmask', eventmask)
 
         # connect to event port
-        self.event_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.event_socket.connect((conndata['host'], conndata['port']))
+            self.event_socket = tcpSocket(conndata['host'], conndata['port'])
         except socket.error as err:
             msg = err.args[1]
             self.signal('failed', 'Event connection failed: %s.' % msg, err)

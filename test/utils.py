@@ -40,6 +40,7 @@ from nose.tools import assert_raises  # pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
 from nicos import config
+from nicos.utils import tcpSocket
 from nicos.core import Moveable, HasLimits, DataSink, status
 from nicos.core.sessions import Session
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
@@ -315,9 +316,8 @@ def startCache(setup='cache', wait=5):
     if wait:
         start = time.time()
         while time.time() < start + wait:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                s.connect(('localhost', 14877))
+                s = tcpSocket('localhost', 14877)
             except socket.error:
                 time.sleep(0.2)
             else:

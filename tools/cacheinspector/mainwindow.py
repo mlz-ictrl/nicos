@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
             return
         self.ipAddress = dlg.valueServerAddress.text()
         self.port = int(dlg.valuePort.text())
-        self.client.connect(self.ipAddress, self.port)
+        self.client.connect('%s:%d' % (self.ipAddress, self.port))
 
     def closeConnection(self):
         """Closes the connection of the cache inspector."""

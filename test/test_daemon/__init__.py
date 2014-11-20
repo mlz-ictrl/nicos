@@ -36,6 +36,7 @@ from test.utils import TestSession, cleanup, rootdir, startCache, killCache, \
      adjustPYTHONPATH
 from nicos.protocols.daemon import ENQ, LENGTH, serialize, command2code
 from nicos import session
+from nicos.utils import tcpSocket
 
 cache = None
 daemon = None
@@ -55,9 +56,8 @@ def setup_package():
     start = time.time()
     wait = 5
     while time.time() < start + wait:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            s.connect(('localhost', 14874))
+            s = tcpSocket('localhost', 14874)
         except socket.error:
             time.sleep(0.2)
         else:

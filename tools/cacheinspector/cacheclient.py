@@ -82,8 +82,9 @@ class CICacheClient(BaseCacheClient):
         self._should_connect = False
         self._worker.start()
 
-    def connect(self, host, port):
-        self._address = (host, port)
+    def connect(self, cache):
+        # override otherwise read-only server location parameter
+        self._setROParam('cache', cache)
         self._should_connect = True
         self._connect()
 

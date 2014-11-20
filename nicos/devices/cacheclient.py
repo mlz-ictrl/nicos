@@ -32,7 +32,7 @@ from time import sleep, time as currenttime
 
 from nicos import session
 from nicos.core import Device, Param, CacheLockError, CacheError
-from nicos.utils import closeSocket, createThread
+from nicos.utils import tcpSocket, closeSocket, createThread
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
     OP_WILDCARD, OP_SUBSCRIBE, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, \
@@ -54,11 +54,6 @@ class BaseCacheClient(Device):
     remote_callbacks = True
 
     def doInit(self, mode):
-        try:
-            host, port = self.cache.split(':')
-            port = int(port)
-        except ValueError:
-            host, port = self.cache, DEFAULT_CACHE_PORT
         # Should the worker connect or disconnect?
         self._should_connect = True
         # this event is set as soon as:
@@ -67,7 +62,6 @@ class BaseCacheClient(Device):
         # this prevents devices from polling parameter values before all values
         # from the cache have been received
         self._startup_done = threading.Event()
-        self._address = (host, port)
         self._connected = False
         self._socket = None
         self._secsocket = None
@@ -104,23 +98,22 @@ class BaseCacheClient(Device):
     def _connect(self, socket=socket):
         self._do_callbacks = False
         self._startup_done.clear()
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(5)
+        self.log.debug('connecting to %s' % self.cache)
         try:
-            self.log.debug('connecting to %s:%s' % self._address)
-            self._socket.connect(self._address)
+            self._socket = tcpSocket(self.cache, DEFAULT_CACHE_PORT,
+                                     timeout=5)
         except Exception as err:
-            self._disconnect('unable to connect to %s:%s: %s' %
-                             (self._address + (err,)))
+            self._disconnect('unable to connect to %s: %s' %
+                             (self.cache, err))
         else:
-            self.log.info('now connected to %s:%s' % self._address)
+            self.log.info('now connected to %s' % self.cache)
             self._connected = True
             self._disconnect_warnings = 0
             try:
                 self._connect_action()
             except Exception as err:
-                self._disconnect('unable to init connection to %s:%s: %s' %
-                                 (self._address + (err,)))
+                self._disconnect('unable to init connection to %s: %s' %
+                                 (self.cache, err))
         self._startup_done.set()
         self._do_callbacks = self.remote_callbacks
 
@@ -321,12 +314,10 @@ class BaseCacheClient(Device):
         with self._sec_lock:
             if not self._secsocket:
                 try:
-                    self._secsocket = socket.socket(socket.AF_INET,
-                                                    socket.SOCK_STREAM)
-                    self._secsocket.connect(self._address)
+                    self._secsocket = tcpSocket(self.cache, DEFAULT_CACHE_PORT)
                 except Exception as err:
-                    self.log.warning('unable to connect secondary socket to %s:%s: %s' %
-                                     (self._address + (err,)))
+                    self.log.warning('unable to connect secondary socket '
+                                     'to %s: %s' % (self.cache, err))
                     self._secsocket = None
                     self._disconnect('secondary socket: could not connect')
                     raise CacheError('secondary socket could not be created')
