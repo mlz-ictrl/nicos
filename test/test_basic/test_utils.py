@@ -27,15 +27,16 @@
 from __future__ import print_function
 
 import sys
+import socket
 
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
     bitDescription, parseConnectionString, formatExtendedFrame, \
     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
-    comparestrings, timedRetryOnExcept
+    comparestrings, timedRetryOnExcept, tcpSocket, closeSocket
 from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
 
-from test.utils import raises
+from test.utils import raises, SkipTest
 
 
 def test_lazy_property():
@@ -172,3 +173,24 @@ def test_retryOnExcept():
     x = 0
     assert raises(Exception, wr3, x)
     assert x == 0
+
+
+def test_tcpsocket():
+    # create a server socket
+    serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        serv.bind(('localhost', 65432))
+        serv.listen(10)
+    except Exception:
+        raise SkipTest
+
+    # now connect to it using several ways
+    try:
+        sock = tcpSocket('localhost:65432', 1)
+        closeSocket(sock)
+        sock = tcpSocket('localhost', 65432)
+        closeSocket(sock)
+        sock = tcpSocket(('localhost', 65432), 1, timeout=5)
+        closeSocket(sock)
+    finally:
+        closeSocket(serv)
