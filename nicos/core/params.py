@@ -648,3 +648,18 @@ def vec3(val=None):
     if len(ret) != 3:
         raise ValueError('value needs to be a 3-element vector')
     return readonlylist(ret)
+
+def host(val):
+    """a host[:port] value"""
+    val = nonemptystring(val)
+    if val.count(':') > 1:
+        raise ValueError('%r is not in the form host_name[:port]')
+    if ':' in val:
+        _, p = val.split(':')
+        try:
+            p = int(p)
+            if not 0 < p < 65536:
+                raise ValueError()
+        except ValueError:
+            raise ValueError('%r does not contain a valid port number')
+    return val

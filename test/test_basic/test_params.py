@@ -27,7 +27,7 @@
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
     tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
     none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
-    subdir, nicosdev, nonemptystring
+    subdir, nicosdev, nonemptystring, host
 from nicos.core.errors import ProgrammingError
 
 from test.utils import raises
@@ -234,3 +234,15 @@ def test_nicosdev():
 
 def test_string_params():
     assert raises(ValueError, nonemptystring, '')
+
+def test_host():
+    assert host('localhost') == 'localhost'
+    assert host('localhost:14869') == 'localhost:14869'
+    assert raises(ValueError, host, '')
+    assert raises(ValueError, host, None)
+    assert raises(ValueError, host, 123)
+    assert raises(ValueError, host, 'localhost:')
+    assert raises(ValueError, host, 'localhost:14869:')
+    assert raises(ValueError, host, 'localhost:0')
+    assert raises(ValueError, host, 'localhost:65536')
+    assert raises(ValueError, host, 'localhost:port')
