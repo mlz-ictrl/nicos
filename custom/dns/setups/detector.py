@@ -9,13 +9,13 @@ includes = ['shutter', 'counter', 'coils']
 tango_host = 'tango://phys.dns.frm2:10000'
 
 devices = dict(
-               RawFileSaver = device('devices.fileformats.raw.RAWFileFormat',
+               DNSFileSaver = device('dns.DNSFileFormat.DNSFileFormat',
                                      lowlevel = True),
                det = device("dns.detector.TofDetector",
                             description = "Tof detector",
                             tangodevice = '%s/dns/detector/1' % tango_host,
                             subdir = '.',
-                            fileformats = ["RawFileSaver"],
+                            fileformats = ["DNSFileSaver"],
                             expshutter = 'expshutter',
                             fpga = 'fpga',
                             flipper = 'flipper',
