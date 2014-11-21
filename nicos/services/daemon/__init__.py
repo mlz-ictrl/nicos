@@ -30,7 +30,7 @@ import weakref
 import threading
 
 from nicos import nicos_version
-from nicos.core import listof, Device, Param, ConfigurationError
+from nicos.core import listof, Device, Param, ConfigurationError, host
 from nicos.utils import closeSocket, createThread
 from nicos.pycompat import get_thread_id, queue, socketserver
 from nicos.services.daemon.auth import Authenticator
@@ -142,8 +142,8 @@ class NicosDaemon(Device):
     }
 
     parameters = {
-        'server':         Param('Address to bind to (host or host:port)',
-                                type=str, mandatory=True),
+        'server':         Param('Address to bind to (host or host[:port])',
+                                type=host, mandatory=True),
         'maxlogins':      Param('Maximum number of logins', type=int,
                                 default=10),
         'reuseaddress':   Param('Whether to set SO_REUSEADDR', type=bool,

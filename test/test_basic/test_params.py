@@ -232,7 +232,7 @@ def test_string_params():
 def test_host():
     assert host('localhost') == 'localhost'
     assert host('localhost:14869') == 'localhost:14869'
-    assert raises(ValueError, host, '')
+    assert host('') == ''
     assert raises(ValueError, host, None)
     assert raises(ValueError, host, 123)
     assert raises(ValueError, host, 'localhost:')

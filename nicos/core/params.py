@@ -656,9 +656,11 @@ def vec3(val=None):
         raise ValueError('value needs to be a 3-element vector')
     return readonlylist(ret)
 
-def host(val):
+
+def host(val=''):
     """a host[:port] value"""
-    val = nonemptystring(val)
+    if not isinstance(val, string_types):
+        raise ValueError('must be a string!')
     if val.count(':') > 1:
         raise ValueError('%r is not in the form host_name[:port]')
     if ':' in val:
@@ -668,5 +670,5 @@ def host(val):
             if not 0 < p < 65536:
                 raise ValueError()
         except ValueError:
-            raise ValueError('%r does not contain a valid port number')
+            raise ValueError('%r does not contain a valid port number' % val)
     return val
