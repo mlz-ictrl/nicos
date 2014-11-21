@@ -28,7 +28,7 @@ from math import asin, sin, tan, radians, degrees
 
 from nicos.utils import lazy_property
 from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
-     Override, status, none_or
+     Override, status, none_or, dictof, anytype, oneof
 from nicos.core.utils import multiStatus
 
 class Monochromator(HasLimits, Moveable):
@@ -58,6 +58,9 @@ class Monochromator(HasLimits, Moveable):
                           type=float, settable=True, default=0.01),
         'toltrans': Param('Max deviation of translation from calculated value',
                           type=float, settable=True, default=0.01),
+        'parkingpos' : Param('Monochromator parking position',
+                          type=dictof(oneof(*attached_devices.keys()), anytype),
+                          mandatory=True),
     }
 
     parameter_overrides = {
@@ -89,7 +92,17 @@ class Monochromator(HasLimits, Moveable):
         except Exception:
             raise PositionError('can not determine lambda!')
 
+    def _moveToParkingpos(self):
+        for dev, target in self.parkingpos.iteritems():
+            self._adevs[dev].start(target)
+
+
     def doStart(self, target):
+        if target is None:
+            self.log.debug('None given; Moving to parking position')
+            self._moveToParkingpos()
+            return
+
         if self.devices[0].read() == 'out':
             self.log.debug('moving monochromator into beam')
 

@@ -59,6 +59,12 @@ devices = dict(
                   toltrans = 0.01,
                   unit = 'A',
                   abslimits = (2.7, 6.5),
+                  parkingpos = {
+                          'phi1' : 12,
+                          'phi2' : 12,
+                          'translation' : -50,
+                          'inout' : 'out',
+                      },
                  ),
 
     periscope_linear = device('devices.tango.Motor',
