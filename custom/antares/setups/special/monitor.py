@@ -165,7 +165,10 @@ _filterwheelblock = Block('Filterwheel', [
 
 _selectorblock = Block('Velocity Selector', [
     BlockRow(
-        Field(name='Speed', dev='selector'), Field(name='Lambda',dev='selector_lambda'), Field(dev='selector_linear'),
+        Field(name='Speed', dev='selector'),
+        Field(name='Lambda',dev='selector_lambda'),
+        Field(name='Tilt', dev='selector_tilt'),
+        Field(name='Position', dev='selector_inout'),
         ),
     BlockRow(
         Field(dev='selector_vacuum', name='Vacuum'), Field(dev='selector_rtemp', name='Rotor Temp'),
@@ -181,7 +184,7 @@ _selectorblock = Block('Velocity Selector', [
 
 _monochromatorblock = Block('Double Crystal PG Monochromator', [
     BlockRow(
-        Field(dev='mono'), Field(dev='mono_inout')
+        Field(name='Lambda', dev='mono'), Field(name='Position', dev='mono_inout')
         ),
     BlockRow(
         Field(dev='mr1'), Field(dev='mr2'), Field(dev='mtz'),
