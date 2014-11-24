@@ -185,6 +185,7 @@ class Watchdog(BaseCacheClient):
                 notifier._setROParam('receivers', emails)
 
     def _clear_warning(self, entry):
+        self.log.info('Clear warning for %r' % entry.condition)
         eid = entry.id
         if eid in self._watch_grace:
             del self._watch_grace[eid]
