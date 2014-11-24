@@ -228,12 +228,12 @@ class Watchdog(BaseCacheClient):
                                   timestamp=False)
                 warning_desc += ' -- counting paused'
             if entry.type:
-                self._put_message('warning', entry.message)
                 for notifier in self._notifiers[entry.type]:
                     notifier.send('New warning from NICOS', warning_desc)
-                self._warnings[eid] = warning_desc
-                self._put_message('warnings', '\n'.join(self._warnings.values()),
-                                  timestamp=False)
+            self._put_message('warning', entry.message)
+            self._warnings[eid] = warning_desc
+            self._put_message('warnings', '\n'.join(self._warnings.values()),
+                              timestamp=False)
             if entry.action:
                 self._put_message('action', entry.action)
                 self._spawn_action(entry.action)
