@@ -41,7 +41,11 @@ devices = dict(
                        sendmail = False,
                        zipdata = False,
                        scancounter = 'filecounter', #backwards compatibility
-                       managerights = {},
+                       managerights = dict(enableDirMode=0o775,
+                                          enableFileMode=0o664,
+                                          disableDirMode=0o775,
+                                          disableFileMode=0o664,),
+
                       ),
 
     ANTARES  = device('devices.instrument.Instrument',
