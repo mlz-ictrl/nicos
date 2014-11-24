@@ -42,7 +42,7 @@ from nicos.core.errors import NicosError, ConfigurationError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
 from nicos.pycompat import reraise, add_metaclass, itervalues, iteritems, \
-    string_types
+    string_types, number_types
 
 
 def usermethod(func):
@@ -1532,8 +1532,9 @@ class HasLimits(DeviceMixinBase):
 
     def isAllowed(self, target):
         limits = self.userlimits
-        if not limits[0] <= target <= limits[1]:
-            return False, 'limits are [%s, %s]' % limits
+        if isinstance(target, number_types):
+            if not limits[0] <= target <= limits[1]:
+                return False, 'limits are [%s, %s]' % limits
         if hasattr(self, 'doIsAllowed'):
             return self.doIsAllowed(target)
         return True, ''
