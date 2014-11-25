@@ -191,6 +191,12 @@ class Watchdog(BaseCacheClient):
             del self._watch_grace[eid]
         if eid in self._warnings:
             del self._warnings[eid]
+            self._update_warnings_str()
+
+    def _update_warnings_str(self, timestamp=False):
+        self._put_message('warnings', '\n'.join(self._warnings.values()),
+                                  timestamp=False)
+
 
     def _process_warning(self, entry, value):
         eid = entry.id
@@ -203,8 +209,7 @@ class Watchdog(BaseCacheClient):
                 return
             if entry.type:
                 del self._warnings[eid]
-                self._put_message('warnings', '\n'.join(self._warnings.values()),
-                                  timestamp=False)
+                self._update_warnings_str()
             if entry.pausecount:
                 del self._pausecount[eid]
                 self._put_message('pausecount',
@@ -232,8 +237,7 @@ class Watchdog(BaseCacheClient):
                     notifier.send('New warning from NICOS', warning_desc)
             self._put_message('warning', entry.message)
             self._warnings[eid] = warning_desc
-            self._put_message('warnings', '\n'.join(self._warnings.values()),
-                              timestamp=False)
+            self._update_warnings_str()
             if entry.action:
                 self._put_message('action', entry.action)
                 self._spawn_action(entry.action)
