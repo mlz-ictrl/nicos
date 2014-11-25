@@ -425,13 +425,17 @@ class Experiment(Device):
         file which has the right FS attributes.
 
         the nametemplate may contain references like %(counter)s,
-        %(scanpoint)s or %(proposal)s which replaced with appropriate values.
+        %(scanpoint)s, %(proposal)s, %(imagecounter)08d or %(scancounter)d
+        which replaced with appropriate values.
 
         Note: in Simulation mode, the returned 'filehandle' is actually a
         memory only file-like object.
         """
         fullfilename, fp = self.createDataFile(nametemplate, self.lastimage,
-                                               *subdirs, **kwargs)
+                                               *subdirs,
+                                               imagecounter=self.lastimage,
+                                               scancounter=self.lastscan,
+                                               **kwargs)
         # setting lastimagefile here might have unwanted side effects if
         # multiple 2D-datasinks are used.
         self._setROParam('lastimagefile', path.relpath(fullfilename,
