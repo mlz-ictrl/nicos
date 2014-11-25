@@ -57,7 +57,7 @@ config = ('Default', [
             panel('errors.ErrorPanel')),
         window('Live data', 'live', True,
             panel('live.LiveDataPanel',
-                  instrument = 'antares')),
+                  instrument = 'imaging')),
     ], [
         tool('Downtime report', 'downtime.DownTimeTool',
              receiver='f.carsughi@fz-juelich.de',
