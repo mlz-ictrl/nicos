@@ -24,31 +24,42 @@
 
 """PANDA's Attenuator controling device for NICOS."""
 
-from nicos.core import InvalidValueError, Moveable, Param, floatrange, listof
-
 from Modbus import Modbus
 
+from time import sleep
+
 from nicos.devices.taco import TacoDevice
-from nicos.core import SIMULATION
+
+from nicos.core import InvalidValueError, Moveable, Param, floatrange, listof,\
+    oneof, SIMULATION, status, HasTimeout, Override
 
 
-class SatBox(TacoDevice, Moveable):
+class SatBox(HasTimeout, TacoDevice, Moveable):
     """
-    Device Object for PANDA's Attenuator, controlled by a WUT-device via a ModBusTCP interface.
+    Device Object for PANDA's Attenuator
+
+    controlled by a WUT-device via a ModBusTCP interface via a ModBus TACO Server.
     """
     taco_class = Modbus
 
     valuetype = int
 
     parameters = {
-        'blades': Param('Thickness of the blades, starting with lowest bit',
-                         type=listof(floatrange(0, 1000)), mandatory=True),
-        'slave_addr': Param('Modbus-slave-addr (Beckhoff=0,WUT=1)',
-                       type=int,mandatory=True),
-        'addr_out': Param('Base Address for activating Coils',
-                           type=int, mandatory=True),
-        #~ 'addr_in': Param('Base Address for reading switches giving real blade state',
-                           #~ type=int, mandatory=True),
+        'blades'    : Param('Thickness of the blades, starting with lowest bit',
+                            type=listof(floatrange(0, 1000)), mandatory=True),
+        'slave_addr': Param('Modbus-slave-addr (Beckhoff=0, WUT=1)',
+                            type=int,mandatory=True),
+        'addr_out'  : Param('Base Address for activating Coils',
+                            type=int, mandatory=True),
+        'addr_in'   : Param('Base Address for reading switches giving real blade state',
+                            type=int, mandatory=True),
+        'readout'   : Param('Determine blade state from output or from switches',
+                            type=oneof('switches','outputs'), mandatory=True,
+                            default='output', chatty=True),
+    }
+
+    parameter_overrides = {
+        'timeout' : Override(default=5),
     }
 
     def doInit(self, mode):
@@ -57,17 +68,44 @@ class SatBox(TacoDevice, Moveable):
             if self.slave_addr == 0: # only disable Watchdog for Beckhoff!
                 self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
 
+    def _readOutputs(self, maxage=0):
+        # just read back the OUTPUT values
+        return self._taco_guard(self._dev.readCoils,
+                                (self.slave_addr, self.addr_out,
+                                 len(self.blades)))
+
+    def _readSwitches(self):
+        # deduce blade state from switches
+        state = self._taco_guard(self._dev.readCoils,
+                                 (self.slave_addr, self.addr_in,
+                                  2 * len(self.blades)))
+        realstate = []
+        for i in range(0, len(self.blades)*2, 2):
+            bladestate = state[i:i+2]
+            if bladestate == (0, 1):
+                realstate.append(1)
+            elif bladestate == (1, 0):
+                realstate.append(0)
+            else:
+                realstate.append(None)
+        return tuple(realstate)
+
     def doRead(self, maxage=0):
-        # just read back the OUTPUT values, scale with bladethickness and sum up
-        return sum(b*r for b, r in zip(self.blades,
-                    self._taco_guard(
-                        self._dev.readCoils, (self.slave_addr, self.addr_out, len(self.blades))))
-                    )
+        bladestate = self._readSwitches() if self.readout == 'switches' else self._readOutputs()
+        # only sum up blades which are used for sure (0/None->ignore)
+        return sum(b * r for b, r in zip(self.blades, bladestate) if r)
+
+    def doStatus(self, maxage=0):
+        if self.readout == 'outputs':
+            return status.OK, ''
+        if self._readSwitches() == self._readOutputs():
+            return status.OK, ''
+        return status.BUSY, 'moving'
 
     def doStart(self, rpos):
         if rpos > sum(self.blades):
             raise InvalidValueError(self, 'Value %d too big!, maximum is %d'
-                                            % (rpos, sum(self.blades)))
+                                    % (rpos, sum(self.blades)))
         which = [0] * len(self.blades)
         pos = rpos
         # start with biggest blade and work downwards, ignoring disabled blades
@@ -82,12 +120,13 @@ class SatBox(TacoDevice, Moveable):
         self.log.debug('setting blades: %s' %
                        [s * b for s, b in zip(which, self.blades)]
                       )
-        self._taco_guard(self._dev.writeMultipleCoils, (self.slave_addr,
-                         self.addr_out) + tuple(which))
+        self._taco_guard(self._dev.writeMultipleCoils,
+                         (self.slave_addr, self.addr_out) + tuple(which))
+        if self.readout == 'output':
+            # if we have no readback, give blades time to react
+            sleep(1)
 
     def doIsAllowed(self, target):
         if not (0 <= target <= sum(self.blades)):
             return False, 'Value outside range 0..%d' % sum(self.blades)
-        if int(target) != target:
-            return False, 'Value must be an integer !'
         return True, ''
