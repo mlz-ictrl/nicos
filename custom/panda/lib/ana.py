@@ -118,7 +118,7 @@ class AnaBlocks(Moveable):
 
     @usermethod
     def doTest19(self, what):
-        self.doStart(None, force={36:what})
+        self.doStart(None, force=[(36, what)])
 
     def powersaver(self):
         for i in range(0, 38, 2):
