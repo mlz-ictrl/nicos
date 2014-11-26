@@ -109,8 +109,11 @@ class Switcher(MappedMoveable):
         try:
             r = self.read(maxage)
             if r not in self.mapping:
-                return status.NOTREACHED, 'unconfigured position of %s or '\
-                                       'still moving' % self._adevs['moveable']
+                if self.fallback:
+                    return (status.UNKNOWN, 'unconfigured position of %s, using '
+                                            'fallback' % self._adevs['moveable'])
+                return (status.NOTREACHED, 'unconfigured position of %s or still'
+                                           ' moving' % self._adevs['moveable'])
         except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
