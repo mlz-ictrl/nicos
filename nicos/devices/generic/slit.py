@@ -134,6 +134,14 @@ class Slit(CanReference, Moveable):
     def doIsAllowed(self, target):
         return self._doIsAllowedPositions(self._getPositions(target))
 
+    def _isAllowedSlitOpening(self, positions):
+        ok, why = True, ''
+        if positions[1] < positions[0]:
+            ok, why = False, 'horizontal slit opening is negative'
+        elif positions[3] < positions[2]:
+            ok, why = False, 'vertical slit opening is negative'
+        return ok, why
+
     def _doIsAllowedPositions(self, positions):
         f = self.coordinates == 'opposite' and -1 or +1
         for ax, axname, pos in zip(self._axes, self._axnames, positions):
@@ -142,11 +150,7 @@ class Slit(CanReference, Moveable):
             ok, why = ax.isAllowed(pos)
             if not ok:
                 return ok, '[%s blade] %s' % (axname, why)
-        if positions[1] < positions[0]:
-            return False, 'horizontal slit opening is negative'
-        if positions[3] < positions[2]:
-            return False, 'vertical slit opening is negative'
-        return True, ''
+        return self._isAllowedSlitOpening(positions)
 
     def doStart(self, target):
         self._doStartPositions(self._getPositions(target))
