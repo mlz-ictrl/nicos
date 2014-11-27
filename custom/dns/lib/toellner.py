@@ -54,7 +54,7 @@ class Toellner(AnalogOutput, HasPrecision):
         try:
             self._dev.write('syst:rem')
             current = self._dev.Query('mc%d?' % self.channel)
-            self._setval = float(current.split()[0])
+            self._setval = float(current.strip())
         except CommunicationFailed:
             raise CommunicationError(self, 'Device %s is not reachable'
                                       % self._name)
@@ -125,7 +125,7 @@ class CurrentToellner(Toellner):
         self.log.debug('In doRead() Current %d', self._name)
         try:
             cur = self._dev.Query('mc%d?' % self.channel)
-            curfl = float(cur.split()[0])
+            curfl = float(cur.strip())
             return curfl * self._getsign()
         except CommunicationFailed:
             raise CommunicationError(self, 'Device %s cannot read current'
