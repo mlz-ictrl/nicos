@@ -170,7 +170,7 @@ class Dataset(object):
             for item in i.__dict__.values():
                 if isinstance(item, file):
                     session.log.warning('%r: %r contains %r which can not be '
-                                        'pickled!' %(self, i, item), exc=True)
+                                        'pickled!' %(self, i, item))
                     dirty = True
         if dirty:
             safedict['imageinfos'] = []
