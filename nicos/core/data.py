@@ -162,19 +162,10 @@ class Dataset(object):
     # avoid bug #1487 by special pickling support
     #
     def __getstate__(self):
-        # make a copy of our __dict__ and omit the imageinfos which may contain file references...
+        # make a copy of our __dict__ and omit the imageinfos,
+        # which may contain file objects...
         safedict = dict(self.__dict__)
-        # check for file objects
-        dirty = False
-        for i in safedict['imageinfos']:
-            for item in i.__dict__.values():
-                if isinstance(item, file):
-                    session.log.warning('%r: %r contains %r which can not be '
-                                        'pickled!' %(self, i, item))
-                    dirty = True
-                    break
-        if dirty:
-            safedict['imageinfos'] = []
+        del safedict['imageinfos']
         return safedict
 
     def __setstate__(self, state):
