@@ -31,9 +31,9 @@ FRM-II/JCNS TANGO interface for the respective device classes.
 
 import PyTango
 
-from nicos.core import Param, Override, NicosError, status, \
-    Readable, Moveable, HasLimits, Device, tangodev, DeviceMixinBase, oneof, \
-    dictof, intrange
+from nicos.core import Param, Override, status, Readable, Moveable, HasLimits, \
+    Device, tangodev, DeviceMixinBase, oneof, dictof, intrange, \
+    NicosError, CommunicationError, ConfigurationError
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -47,6 +47,12 @@ DEFAULT_STATUS_MAPPING = {
     PyTango.DevState.OFF:    status.PAUSED,
     PyTango.DevState.FAULT:  status.ERROR,
     PyTango.DevState.MOVING: status.BUSY,
+}
+
+EXC_MAPPING = {
+    PyTango.CommunicationFailed : CommunicationError,
+    PyTango.WrongNameSyntax : ConfigurationError,
+    PyTango.DevFailed : NicosError,
 }
 
 
@@ -166,15 +172,16 @@ class PyTangoDevice(DeviceMixinBase):
                     self.log.debug('\t=> %r' % (str(result)[:300],))
 
                 return result
-            except PyTango.DevFailed as e:
-                exc = e.args[0]
-                errorStr = '%s: [%s] %s' % (exc.origin, exc.reason, exc.desc)
-                self.log.debug('PyTango error: %s' % errorStr)
+            except tuple(EXC_MAPPING.keys()) as e:
+                exc = str(e)
+                if e.args:
+                    exc = e.args[0] # Can be str or DevError
 
-                # TODO: Map TANGO DevFailed exceptions?
-                # It's not that easy as the tango exception
-                # system is a bit intransparent and inconsistent.
-                raise NicosError(self, errorStr)
+                    if isinstance(exc, PyTango.DevError):
+                        exc = '%s: [%s] %s' % (exc.origin, exc.reason, exc.desc)
+
+                self.log.debug('PyTango error: %s' % exc)
+                raise EXC_MAPPING.get(type(e), NicosError)(self, exc)
 
         # hide the wrapping
         wrap.__name__ = func.__name__
