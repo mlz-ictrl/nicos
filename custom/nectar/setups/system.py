@@ -3,8 +3,8 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'nectarctrl.nectar.frm2',
-    instrument = None,
+    cache = 'nectarhw.nectar.frm2',
+    instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = ['email', 'smser'],

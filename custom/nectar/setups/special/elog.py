@@ -5,6 +5,6 @@ group = 'special'
 devices = dict(
     Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
-                     cache = 'nectarctrl.nectar.frm2',
+                     cache = 'nectarhw.nectar.frm2',
                     ),
 )

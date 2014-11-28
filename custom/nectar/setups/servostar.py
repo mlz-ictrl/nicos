@@ -3,10 +3,12 @@ group = 'optional'
 
 includes = []
 
+nethost = 'nectarsrv.nectar.frm2'
+
 devices = dict(
     stx = device('antares.servostar.ServoStarMotor',
                             description = 'Sample Translation X',
-                            tacodevice = 'nectar/mani/x',
+                            tacodevice = '//%s/nectar/mani/x' % nethost,
                             pollinterval = 5,
                             maxage = 12,
                             userlimits = (0, 1010),
@@ -15,7 +17,7 @@ devices = dict(
                           ),
     sty = device('antares.servostar.ServoStarMotor',
                             description = 'Sample Translation Y',
-                            tacodevice = 'nectar/mani/y',
+                            tacodevice = '//%s/nectar/mani/y' % nethost,
                             pollinterval = 5,
                             maxage = 12,
                             userlimits = (0, 580),
@@ -24,7 +26,7 @@ devices = dict(
                           ),
     sry = device('antares.servostar.ServoStarMotor',
                             description = 'Sample Rotation around Y',
-                            tacodevice = 'nectar/mani/phi',
+                            tacodevice = '//%s/nectar/mani/phi' % nethost,
                             pollinterval = 5,
                             maxage = 12,
                             userlimits = (0, 360),

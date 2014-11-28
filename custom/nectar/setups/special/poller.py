@@ -2,7 +2,7 @@ description = 'setup for the poller'
 group = 'special'
 
 sysconfig = dict(
-    cache = 'nectarctrl.nectar.frm2'
+    cache = 'nectarhw.nectar.frm2'
 )
 
 devices = dict(
