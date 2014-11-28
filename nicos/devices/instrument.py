@@ -39,6 +39,8 @@ class Instrument(Device):
 
     parameters = {
         'instrument': Param('Instrument name', type=str, category='experiment'),
+        'doi': Param('Instrument DOI', type=str, category='experiment',
+                     userparam=False),
         'responsible': Param('Instrument responsible name and email',
                              type=str, category='experiment'),
         'countloopdelay': Param('Loop delay in checking for counting finished',
