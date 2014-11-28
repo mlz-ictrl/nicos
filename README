@@ -49,6 +49,7 @@ Requirements
   - rsa
   - pyasn1
   - python-ldap (for ldap authentication)
+  - sendsms tool to use the SMS notifier
 
 * For the GUI and status monitor:
   - PyQt4
@@ -114,3 +115,6 @@ xBuntu 12.04
 
   apt-get install libqwt5-qt4-dev
 
+* For the SMS notifier
+
+  apt-get install gnokii-cli
