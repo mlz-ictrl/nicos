@@ -276,7 +276,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
     (3.355 A).
     """
     maxhkl = 10    # max H/K/L to consider when looking for d-values
-    maxdd = 0.02   # max distance in d-value when looking for peak indices
+    maxdd = 0.2    # max distance in d-value when looking for peak indices
     ksteps = 50    # steps with different ki
     dki = 0.002    # relative ki stepsize
 
@@ -343,7 +343,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
     bestrms = 0.1
     bestlines = []
     orig_data = data
-    for j in range(-ksteps, ksteps + 1):
+    for j in [0] + [i * s for i in range(1, ksteps) for s in (-1, 1)]:
         out = []
         p = out.append
         data = deepcopy(orig_data)
