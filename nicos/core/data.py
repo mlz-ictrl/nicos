@@ -172,6 +172,7 @@ class Dataset(object):
                     session.log.warning('%r: %r contains %r which can not be '
                                         'pickled!' %(self, i, item))
                     dirty = True
+                    break
         if dirty:
             safedict['imageinfos'] = []
         return safedict
