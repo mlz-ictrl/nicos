@@ -229,7 +229,7 @@ class Mchanger(Moveable):
 
     def _change_alias(self, pos):
         '''
-        changes the alis of the monochomator DeviceAlias
+        changes the alias of the monochomator DeviceAlias
         '''
         aliastarget = self.mapping.get( pos, None )
         aliasdevice = self._adevs['monochromator']
