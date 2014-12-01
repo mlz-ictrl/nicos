@@ -51,6 +51,7 @@ devices = dict(
                       sender = 'nectar@frm2.tum.de',
                       copies = ['stefan.soellradl@frm2.tum.de'],
                       subject = '[NICOS]',
+                      mailserver = 'smtp.frm2.tum.de',
                      ),
 
     # Configure SMS receivers if wanted and registered with IT.
