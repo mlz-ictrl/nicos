@@ -112,6 +112,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self.fitcallbacks = [None, None]
         self.mouselocation = None
         self._cursor = self.cursor()
+        self._mouseSelEnabled = self.getMouseSelectionEnabled()
 
         dictPrintType = dict(gr.PRINT_TYPE)
         map(dictPrintType.pop, [gr.PRINT_JPEG, gr.PRINT_TIF])
@@ -372,6 +373,8 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             self.window.statusBar.showMessage(self.statusMessage)
             self._cursor = self.cursor()
             self.setCursor(QtGui.QCursor(Qt.CrossCursor))
+            self._mouseSelEnabled = self.getMouseSelectionEnabled()
+            self.setMouseSelectionEnabled(False)
         else:
             self._finishFit()
 
@@ -412,6 +415,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             self.fitcurve = None
         finally:
             self.setCursor(self._cursor)
+            self.setMouseSelectionEnabled(self._mouseSelEnabled)
 
     def on_fitPicker_selected(self, point):
         if (self.fittype is not None
