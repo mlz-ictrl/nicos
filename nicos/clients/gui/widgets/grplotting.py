@@ -233,6 +233,15 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self._plot.setLogY(on, rescale=True)
         self.update()
 
+    def setSymbols(self, on):
+        markertype = gr.MARKERTYPE_DOT
+        if on:
+            markertype = gr.MARKERTYPE_OMARK
+        for axis in self._plot.getAxes():
+            for curve in axis.getCurves():
+                curve.markertype = markertype
+        self.update()
+
     def on_logXinDomain(self, flag):
         if not flag:
             self._plot.setLogX(flag)
@@ -281,6 +290,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             color = self._color.getNextColorIndex()
             plotcurve.linecolor = color
             plotcurve.markercolor = color
+            plotcurve.markertype = gr.MARKERTYPE_OMARK
             if plotcurve.errorBar1:
                 plotcurve.errorBar1.markercolor = color
             if plotcurve.errorBar2:
@@ -415,6 +425,7 @@ class ViewPlot(NicosPlot):
         self.hasSymbols = False
         self.hasLines = True
         NicosPlot.__init__(self, parent, window, timeaxis=True)
+        self.setSymbols(False)
 
     def titleString(self):
         return self.view.name
@@ -469,15 +480,6 @@ class ViewPlot(NicosPlot):
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.linetype = linetype
-        self.update()
-
-    def setSymbols(self, on):
-        markertype = gr.MARKERTYPE_DOT
-        if on:
-            markertype = gr.MARKERTYPE_OMARK
-        for axis in self._plot.getAxes():
-            for curve in axis.getCurves():
-                curve.markertype = markertype
         self.update()
 
     def selectCurve(self):
