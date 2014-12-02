@@ -11,7 +11,7 @@ devices = dict(
                           description = 'TOFTOF chopper control device',
                           tacodevice = '//%s/toftof/rs232/ifchoppercontrol' % \
                                         (nethost, ),
-                          speed_accuracy = 2,
+                          speed_accuracy = 10,
                           phase_accuracy = 10,
                           ch5_90deg_offset = 0,
                           timeout = 600,
