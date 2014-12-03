@@ -76,6 +76,13 @@ def _count(detlist, preset, result, dataset=None):
     detset = set(detlist)
     delay = (session.instrument and session.instrument.countloopdelay or 0.025
              if session.mode != SIMULATION else 0.0)
+
+    # set detector presets befor the dataset is created
+    # (to get the new preset into the new dataset)
+    # TODO: move preset handling to a sane place
+    for det in detlist:
+        det.setPreset(**preset)
+
     # advance imagecounter
     if not dataset:
         dataset = session.experiment.createDataset()
