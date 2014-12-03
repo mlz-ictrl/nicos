@@ -300,7 +300,7 @@ class DeviceValueDict(object):
                     elif sub.endswith('()'):
                         sub = sub[:-2]
                         if hasattr(dev, sub):
-                            self.log.debug('calling %r' % getattr(dev, sub))
+                            session.log.debug('calling %r' % getattr(dev, sub))
                             dev = getattr(dev, sub)()  # call is intended here
                             continue
                     elif hasattr(dev, sub):
