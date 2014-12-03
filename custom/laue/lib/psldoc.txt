@@ -1,0 +1,82 @@
+
+============== from the docu ============
+To run the server, set the IP address of your computer and select a Port value. By
+default, keep the port 50000. If connexion failed try an other port or check the IP of
+your computer.
+
+To get the IP number on windows, open the Command Prompt (“All Programs” =>
+“Accessories” => “Command Prompt” ) then type “ipconfig”.
+To control the camera from the network you just have to connect your client to
+same IP and PORT as the server, then send the string commands.
+
+Below, the list of commands that the server can handle:
+ 'Open' => turn the camera on
+ 'Close' => turn the camera off
+ 'Reset' => turn off then turn on the camera
+ 'Snap' => Capture an image
+ 'AbortSnap' => Abort an image acquisition
+ 'Save' => save the captured image at:
+    'FileDirectory'\ 'FilePreffix'+'FileRefNumber'+'.'+'FileFormat'
+ 'CLIENT_CONNECTED' => return: "!!!Welcome on PSL server!!!" (str)
+ 'GetImage' => return: ((width,height), data) ((int,int),str)
+ 'GetMode' => return: image data type. Could be {'L', 'I;16', 'I', 'F'}.
+ 'GetExposure' => return: Exposure (float) in milliseconds
+ 'GetBinning' => return: (xbin,ybin) (int,int)
+ 'GetSubArea' => return: (left,top,right,bottom) (int,int,int,int)
+ 'GetTriggerModes' => return: TriggerMode (str)
+ 'GetFileDirectory' => return: FileDirectory (str)
+ 'GetFilePreffix' => return: FilePreffix (str)
+ 'GetFileSuffix' => return: FileSuffix (str)
+ 'GetFileRefNumber' => return: FileRefNumber (str)
+ 'GetFileFormat' => return: FileFormat (str)
+ 'SetExposure;1.33'
+ 'SetBinning;2;2'
+ 'SetSubArea;100;100;800;800'
+ 'SetTriggerModes;Software'
+ trigger_modes = ['Software','FreeRunning','Hardware_Falling',
+    'Hardware_Rising','Pipeline_Falling','Pipeline_Rising','Pipeline_Software']
+ 'SetFileDirectory;.'
+ 'SetFilePreffix;pref'
+ 'SetFileSuffix;suf'
+ 'SetFileRefNumber;1234'
+ 'SetFileRWFlag;True'
+ 'SetFileFormat;tiff'
+
+Note: for all “Set*” commands use “;” as separator.
+
+Client example in Python:
+ import socket
+ import zlib
+ IP = “162.183.1.24”
+ PORT = 50000
+ def SendAndRecv(cmd):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((IP, PORT))
+    sock.send(cmd+'\n')
+    if cmd == "GetImage":
+        nx,ny,data_len = sock.recv(1024).split(';')
+        nx,ny,data_len = int(nx),int(ny),int(data_len)
+        data = ""
+        while 1:
+            rep = sock.recv(data_len)
+            data = "".join([data,rep])
+            if len(data)>=data_len:
+                break
+        data = ((nx,ny),zlib.decompress(data))
+    else:
+        data = sock.recv(1024)
+    sock.close()
+    return data
+
+================================================
+
+Additional commands from the binary:
+SnapAndSave
+SnapAndSave2
+GetSize  -> image sizes
+GetCamName  -> name of camera
+GetCamState -> 'ON' during exposure, 'OFF' else
+GetFrames  -> get number of frames
+SetFrames   -> set number of frames
+GetFileRWFlag
+SetCompress

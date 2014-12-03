@@ -107,3 +107,5 @@ devices = dict(
                       receivers = [],
                      ),
 )
+
+includes = ['detector']

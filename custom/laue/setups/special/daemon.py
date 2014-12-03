@@ -24,7 +24,7 @@ devices = dict(
     Auth   = device('services.daemon.auth.ListAuthenticator',
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
-                    passwd = [('guest', '2ec099f2d602cc4968c5267970be1326',
+                    passwd = [('guest', '084e0343a0486ff05530df6c705c8bb4',
                                'guest'),
                               ('user', 'a81be4e9b20632860d20a64c054c4150',
                                'user'),
