@@ -25,7 +25,7 @@ import time
 import numpy
 
 from nicos.core import ImageProducer, ImageType, Param, Device, Measurable, \
-    AutoDevice, status, tupleof, oneof, tangodev, Override, SIMULATION, \
+    AutoDevice, status, tupleof, oneof, none_or, tangodev, Override, SIMULATION, \
     HardwareError, NicosError
 from nicos.devices.tango import PyTangoDevice
 from .optional import LimaShutter
@@ -70,13 +70,15 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
                                 volatile=True, # Necessary?
                                 category='general'),
         'shutteropentime' : Param('Shutter open time',
-                                type=float, settable=True, default=0,
+                                type=none_or(float), settable=True, default=0,
                                 volatile=False, category='general'),
         'shutterclosetime' : Param('Shutter open time',
-                                type=float, settable=True, default=0,
+                                type=none_or(float), settable=True, default=0,
                                 volatile=False, category='general'),
         'shuttermode'     : Param('Shutter mode',
-                                type=oneof('always_open', 'always_closed', 'auto'),
+                                type=none_or(oneof('always_open',
+                                                   'always_closed',
+                                                   'auto')),
                                 settable=True, default='auto', volatile=True,
                                 category='general'),
         '_starttime':       Param("Cached counting start time",
