@@ -58,7 +58,7 @@ if not Exp.proposal and Exp._mode != SIMULATION:
     except Exception:
         pass
     else:
-        NewExperiment(0, 'NICOS demo experiment', localcontact='N. N.')
+        NewExperiment(0, 'NICOS demo experiment', localcontact='N. N. <noreply@frm2.tum.de>')
         AddUser('H. Maier-Leibnitz')
         NewSample('Gd3CdB7')
 '''
