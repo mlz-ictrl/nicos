@@ -144,3 +144,13 @@ devices = dict(
                                     0, 0],
                       ),
                )
+
+startupcode = '''
+Fi.voltage = 24
+Co.voltage = 24
+A.voltage = 24
+B.voltage = 24
+ZB.voltage = 32
+ZT.voltage = 32
+C.voltage = 24
+'''
