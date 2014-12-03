@@ -293,24 +293,54 @@ class DeviceValueDict(object):
                 else:
                     dev = session.getDevice(keys[0])
                 # we got a starting point, follow the chain of attribs...
-                for sub in keys[1:]:
-                    if hasattr(dev, '_adevs') and sub in dev._adevs:
-                        dev = dev._adevs[sub]
-                        continue
-                    elif sub.endswith('()'):
-                        sub = sub[:-2]
-                        if hasattr(dev, sub):
-                            session.log.debug('calling %r' % getattr(dev, sub))
-                            dev = getattr(dev, sub)()  # call is intended here
-                            continue
+                def _keyiter(keys):
+                    for key in keys:
+                        extra = []
+                        while key:
+                            if key.endswith(']') and '[' in key:
+                                splitpos = key.rfind('[')
+                                extra.insert(0, key[splitpos:])
+                                key = key[:splitpos]
+                            elif key.endswith(')') and '(' in key:
+                                splitpos = key.rfind('(')
+                                extra.insert(0, key[splitpos:])
+                                key = key[:splitpos]
+                            else:
+                                break
+                        yield key
+                        for key in extra:
+                            yield key
+                for sub in _keyiter(keys[1:]):
+                    if sub.endswith(']'):
+                        val = sub[1:-1]
+                        try:
+                            val = float(val)
+                            val = int(val)
+                        except Exception:
+                            pass
+                        dev = dev[val]
+                    elif sub.endswith(')'):
+                        args = sub[1:-1].split(',')
+                        args = [a for a in args if a] # strip empty args
+                        for i, a in enumerate(args):
+                            try:
+                                args[i] = float(a)
+                                args[i] = int(a)
+                            except Exception:
+                                pass
+                        # TODO: handle kwargs
+                        args = tuple(args)
+                        session.log.debug('calling %s%r' % (dev, args))
+                        dev = dev(*args)
                     elif hasattr(dev, sub):
                         dev = getattr(dev, sub)
-                        continue
+                    elif hasattr(dev, '_adevs') and sub in dev._adevs:
+                        dev = dev._adevs[sub]
                     elif hasattr(dev, '__contains__') and sub in dev:
                         dev = dev[sub]
-                        continue
-                    session.log.warning("invalid key %r requested, returning %r" % (key, res), exc=1)
-                    break
+                    else:
+                        session.log.warning("invalid key %r requested, returning %r" % (key, res), exc=1)
+                        break
                 else:
                     # stringify result
                     res = str(dev)
