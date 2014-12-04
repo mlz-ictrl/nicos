@@ -4,7 +4,7 @@ description = "Tof detector setup"
 
 group = "optional"
 
-includes = ['shutter', 'counter']
+includes = ['shutter', 'counter', 'coils']
 
 tango_host = 'tango://phys.dns.frm2:10000'
 
@@ -18,6 +18,7 @@ devices = dict(
                             fileformats = ["RawFileSaver"],
                             expshutter = 'expshutter',
                             fpga = 'fpga',
+                            flipper = 'flipper',
                             readchannels = (0, 23),
                            ),
 )

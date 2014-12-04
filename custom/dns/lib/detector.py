@@ -30,20 +30,54 @@ from nicos.core import Value
 from nicos.core.errors import CommunicationError
 from nicos.core.device import Measurable
 from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
-from nicos.core.params import Param, oneof, dictof, tupleof
+from nicos.core.params import Param, Attach, oneof, dictof, tupleof
 from nicos.devices.generic.sequence import MeasureSequencer, SeqCall
 from nicos.core.image import ImageProducer, ImageType
+from nicos.devices.polarized.flipper import BaseFlipper, ON
 
 
-class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer):
+T_TIME = 't'
+T_SPIN_FLIP = 'tsf'
+T_NO_SPIN_FLIP = 'tnsf'
+
+
+class FlipperPresets(Measurable):
+
+    attached_devices = {
+        'flipper': Attach('Spin flipper device which will be read out '
+                          'with respect to setting presets.', BaseFlipper),
+    }
+
+    @property
+    def flipper(self):
+        return self._adevs['flipper']
+
+    def presetInfo(self):
+        return (T_TIME, T_SPIN_FLIP, T_NO_SPIN_FLIP)
+
+    def doStart(self):
+        raise NotImplementedError('Please provide an implementation for '
+                                  'doStart.')
+
+    def doStop(self):
+        raise NotImplementedError('Please provide an implementation for '
+                                  'doStop.')
+
+    def doIsCompleted(self):
+        raise NotImplementedError('Please provide an implementation for '
+                                  'doIsCompleted.')
+
+
+class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer,
+                  FlipperPresets):
     """Basic Tango Device for TofDetector."""
 
     STRSHAPE = ['x', 'y', 'z', 't']
     TOFMODE  = ['notof', 'tof']
 
     attached_devices = {
-        'expshutter':   (NamedDigitalOutput, 'Experiment shutter device'),
-        'fpga':         (Measurable, 'ZEA-2 counter card'),
+        'expshutter': Attach('Experiment shutter device', NamedDigitalOutput),
+        'fpga':       Attach('ZEA-2 counter card', Measurable),
     }
 
     parameters = {
@@ -80,8 +114,20 @@ class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer):
         return seq
 
     def doSetPreset(self, **preset):
-        if 't' in preset:
-            self._adevs['fpga'].preselection = preset['t']
+        if T_SPIN_FLIP in preset and T_NO_SPIN_FLIP in preset:
+            if self.flipper.read() == ON:
+                t = preset[T_SPIN_FLIP]
+            else:
+                t = preset[T_NO_SPIN_FLIP]
+        elif T_TIME in preset:
+            t = preset[T_TIME]
+        else:
+            t = t or 1
+            self.log.warning("Incorrect preset setting. Specify either " +
+                             T_SPIN_FLIP + " and " + T_NO_SPIN_FLIP +
+                             " or just " + T_TIME + ". Falling back to "
+                             "previous value '%g'." % t)
+        self._adevs['fpga'].preselection = t
 
     def doReadTofmode(self):
         return self.TOFMODE[self._dev.mode]
