@@ -130,7 +130,7 @@ class VirtualCoder(Coder, HasOffset):
     """A virtual coder that just returns the value of a motor, with offset."""
 
     attached_devices = {
-        'motor': (Readable, 'Motor to read out to get coder value')
+        'motor': Attach('Motor to read out to get coder value', Readable)
     }
 
     def doRead(self, maxage=0):
@@ -340,8 +340,6 @@ class VirtualTemperature(VirtualMotor):
         if abs(cval - end) < self.jitter:
             return end
         return cval
-
-
 
 
 class VirtualRealTemperature(HasLimits, Moveable):
