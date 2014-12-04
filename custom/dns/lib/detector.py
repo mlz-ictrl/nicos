@@ -67,7 +67,7 @@ class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer):
                                    numpy.uint32)
         self._dev.set_timeout_millis(10000)
 
-    def _generateSequence(self, prepare=False, *args, **kwargs):
+    def _generateSequence(self, *args, **kwargs):
         seq = []
         seq.append(SeqCall(self._dev.Clear))
         self.log.debug("Detector cleared")
@@ -81,7 +81,6 @@ class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer):
 
     def doSetPreset(self, **preset):
         if 't' in preset:
-            self._t = preset['t']
             self._adevs['fpga'].preselection = preset['t']
 
     def doReadTofmode(self):
