@@ -28,11 +28,14 @@
 from nicos.core import Moveable, Param, Override, oneof, tupleof, multiStop, \
      nonemptylistof
 
+ON = 'on'
+OFF = 'off'
 
 class BaseFlipper(Moveable):
     """
     Base class for a flipper device, which can be moved "on" and "off".
     """
+
     hardware_access = False
 
     attached_devices = {
@@ -44,12 +47,12 @@ class BaseFlipper(Moveable):
         'unit': Override(mandatory=False, default=''),
     }
 
-    valuetype = oneof('on', 'off')
+    valuetype = oneof(ON, OFF)
 
     def doRead(self, maxage=0):
         if abs(self._adevs['corr'].read(maxage)) > 0.05:
-            return 'on'
-        return 'off'
+            return ON
+        return OFF
 
 
 class MezeiFlipper(BaseFlipper):
@@ -67,7 +70,7 @@ class MezeiFlipper(BaseFlipper):
 
 
     def doStart(self, value):
-        if value == 'on':
+        if value == ON:
             self._adevs['flip'].start(self.currents[0])
             self._adevs['corr'].start(self.currents[1])
         else:
@@ -104,7 +107,7 @@ class KFlipper(BaseFlipper):
     }
 
     def doStart(self, value):
-        if value == 'on':
+        if value == ON:
             # query current momentum and calculate polinomial
             k = self._adevs['kvalue'].read(0)
             flip_current = sum(v * (k ** i) for i, v in enumerate(self.flipcurrent))
