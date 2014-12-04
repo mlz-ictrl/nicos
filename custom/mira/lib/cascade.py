@@ -146,6 +146,11 @@ class CascadeDetector(ImageProducer, Measurable):
                               type=listof(float), settable=True),
         'fitfoil':      Param('Foil for contrast fitting', type=int, default=0,
                               settable=True),
+        'comtries':     Param('Tries for communication with cascade server',
+                              type=int, default=3, settable=True),
+        'comdelay':     Param('Delay between tries for communication with '
+                              'cascade server',
+                              type=float, default=3.0, settable=True),
     }
 
     parameter_overrides = {
@@ -155,6 +160,26 @@ class CascadeDetector(ImageProducer, Measurable):
     #
     # helper methods
     #
+
+    # TODO: _checked_communicate currently only used for start
+    # (minimum impact, should be used in other places as necessary)
+    def _checked_communicate(self, msg, expectedReply=None, errMsg=''):
+        for i in range(max(1, self.comtries) - 1, -1, -1):
+            try:
+                reply = str(self._client.communicate(msg))
+                self.log.debug('cascade reply: %r; expected was: %r' %
+                               (reply, expectedReply))
+                if expectedReply and reply != expectedReply:
+                    self._raise_reply(errMsg, reply)
+                return reply
+            except CommunicationError as e:
+                self.log.warning('Communication failed: %s; reset and retry' %
+                                 str(e))
+                if i:
+                    self.reset()
+                    sleep(self.comdelay)
+                else:
+                    raise
 
     def _raise_reply(self, message, reply):
         """Raise an exception for an invalid reply."""
@@ -284,9 +309,10 @@ class CascadeDetector(ImageProducer, Measurable):
         config.SetPseudoCompression(False)
 
         sleep(0.005)
-        reply = str(self._client.communicate('CMD_start'))
-        if reply != 'OKAY':
-            self._raise_reply('could not start measurement', reply)
+        self._checked_communicate('CMD_start',
+                                  'OKAY',
+                                  'could not start measurement')
+
         if self.slave:
             self._adevs['master'].start()
         self._started = currenttime()
