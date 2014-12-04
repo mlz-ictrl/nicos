@@ -940,13 +940,14 @@ def clamp(value, minval, maxval):
     return min(max(value, minval), maxval)
 
 
-def timedRetryOnExcept(max_retries=1, timeout=1, ex=None):
+def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
     """ Wrapper: Try a call and retry it on an exception
 
     max_retries: how often to retry
     timeout: how long to sleep between tries
     ex: Only catch specified exceptions, if None: Only catch
        `Exception`
+    actionOnFail: will be called when a exception occured
 
     all other args are passed to func
     if max_retries is exhaused, the exception is rethrown
@@ -965,6 +966,10 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None):
                     return func(*args, **kwargs)
                 except ex:
                     x -= 1
+
+                    if actionOnFail:
+                        actionOnFail()
+
                     sleep(timeout)
             raise
         return wrapper
