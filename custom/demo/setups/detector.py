@@ -45,6 +45,17 @@ devices = dict(
                       maxage = 3,
                       pollinterval = 0.5,
                      ),
+
+    card2    = device('devices.generic.VirtualCounterCard',
+                      lowlevel = True
+                     ),
+
+    ctr4     = device('devices.generic.VirtualCounter',
+                      type = 'counter',
+                      countrate = 3000,
+                      card = 'card2',
+                      fmtstr = '%d',
+                     ),
 )
 
 startupcode='''

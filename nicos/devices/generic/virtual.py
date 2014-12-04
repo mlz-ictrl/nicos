@@ -160,8 +160,9 @@ class VirtualCounterCard(Device):
 
     def finished(self, ch):
         if self._masters[ch]:
-            for ch in self._channels:
-                ch.stop()
+            for _ch in self._channels:
+                if _ch != ch:
+                    ch.stop()
 
 
 class VirtualChannel(Channel):
@@ -179,7 +180,7 @@ class VirtualChannel(Channel):
     }
 
     attached_devices = {
-        'card': (VirtualCounterCard, 'virtual card'),
+        'card': Attach('virtual card', VirtualCounterCard,),
     }
 
     _thread = None
@@ -189,13 +190,16 @@ class VirtualChannel(Channel):
         self.curvalue = 0
         self._adevs['card'].addChannel(self)
 
-    def doSetPreset(self, **preset):
-        self._lastpreset = preset
-
     def doStop(self):
         if self._thread is not None and self._thread.isAlive():
-            self._finish = True
+            self._do_stop()
         else:
+            self.curstatus = (status.OK, 'idle')
+
+    def _do_stop(self):
+        if not self._finish:
+            self._finish = True
+            self._adevs['card'].finished(self)
             self.curstatus = (status.OK, 'idle')
 
     def doIsCompleted(self):
@@ -214,9 +218,6 @@ class VirtualTimer(VirtualChannel):
     """
 
     def doStart(self):
-        if hasattr(self, '_lastpreset') and 't' in self._lastpreset:
-            self.preselection = self._lastpreset['t']
-
         if self._finish:
             self.curvalue = 0
             self._adevs['card'].started(self)
@@ -225,18 +226,21 @@ class VirtualTimer(VirtualChannel):
             self._thread = createThread('virtual timer %s' % self,
                                         self.__counting)
 
+    def doSetPreset(self, **preset):
+        if 't' in preset:
+            self.preselection = preset['t']
+            # self.ismaster = True
+
     def __counting(self):
-        finish_at = time.time() + self.preselection
         self.log.debug('timing to %.3f' % (self.preselection,))
+        finish_at = time.time() + self.preselection
         while not self._finish:
+            if self.ismaster and time.time() >= finish_at:
+                self.curvalue = self.preselection
+                self._do_stop()
+                break
             time.sleep(0.1)
             self.curvalue += 0.1
-            if  time.time() >= finish_at:
-                if self.ismaster:
-                    self._adevs['card'].finished(self)
-                self.curvalue = self.preselection
-                self._finish = True
-        self.curstatus = (status.OK, 'idle')
 
     def doSimulate(self, preset):
         if self.ismaster:
@@ -259,7 +263,7 @@ class VirtualCounter(VirtualChannel):
     """
 
     parameters = {
-        'countrate':  Param('The maximum countrate', default=1000),
+        'countrate':  Param('The maximum countrate', type=int, default=1000, settable=False,),
         'type':       Param('Type of channel: monitor or counter',
                             type=oneof('monitor', 'counter'), mandatory=True),
     }
@@ -277,19 +281,22 @@ class VirtualCounter(VirtualChannel):
             self._thread = createThread('virtual counter %s' % self,
                                         self.__counting)
 
+    def doSetPreset(self, **preset):
+        if 'm' in preset:
+            self.preselection = preset['m']
+            # self.ismaster = True
+
     def __counting(self):
         self.log.debug('counting to %d cts with %d cts/s' %
                        (self.preselection, self.countrate))
         rate = abs(self.countrate)
         while not self._finish:
+            if self.ismaster and self.curvalue >= self.preselection:
+                self.curvalue = self.preselection
+                self._do_stop()
+                break
             time.sleep(0.1)
             self.curvalue += int(random.randint(int(rate * 0.9), rate) / 10)
-            if self.curvalue >= self.preselection:
-                if self.ismaster:
-                    self._adevs['card'].finished(self)
-                self.curvalue = self.preselection
-                self._finish = True
-        self.curstatus = (status.OK, 'idle')
 
     def doSimulate(self, preset):
         if self.ismaster:
@@ -303,6 +310,8 @@ class VirtualCounter(VirtualChannel):
         return Value(self.name, unit='cts', errors='sqrt', type=self.type,
                      fmtstr='%d'),
 
+    def presetInfo(self):
+        return ('m',)
 
 class VirtualTemperature(VirtualMotor):
     """A virtual temperature regulation device."""

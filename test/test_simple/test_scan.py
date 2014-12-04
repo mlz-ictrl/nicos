@@ -38,6 +38,7 @@ from nicos.core.sessions.utils import MASTER, SLAVE
 
 from test.utils import raises
 from nose import with_setup
+from threading import Timer
 
 
 def setup_module():
@@ -57,7 +58,6 @@ def test_scan():
     m = session.getDevice('motor')
     m2 = session.getDevice('motor2')
     c = session.getDevice('coder')
-    ctr = session.getDevice('ctr1')
     mm = session.getDevice('manual')
     mm.move(0)
 
@@ -102,13 +102,6 @@ def test_scan():
         dataset = session.experiment._last_datasets[-1]
         assert dataset.xresults == [[0., 4.], [0., 2.], [1., 1.]]
 
-        # scan with different detectors
-        scan(m, [0, 1], ctr)
-        dataset = session.experiment._last_datasets[-1]
-        assert dataset.xresults == [[0.], [1.]]
-        assert len(dataset.yresults) == 2 and len(dataset.yresults[0]) == 1
-        assert dataset.ynames == ['ctr1']
-
         # scan with different environment
         scan(m, [0, 1], c)
         dataset = session.experiment._last_datasets[-1]
@@ -116,11 +109,44 @@ def test_scan():
         assert dataset.xnames == ['motor', 'coder']
         assert dataset.xunits == ['mm', 'mm']
 
+    finally:
+        session.experiment.envlist = []
+        session.experiment.detlist = []
+
+
+def test_scan2():
+    m = session.getDevice('motor')
+    ctr = session.getDevice('ctr4')
+    mm = session.getDevice('manual')
+    mm.move(0)
+
+    def _stopctr():
+        ctr.stop()
+
+    session.experiment.setDetectors([session.getDevice('det')])
+
+    try:
+        session.experiment.setEnvironment([])
+
+        # scan with different detectors
+        Timer(0.1, _stopctr).start()
+        Timer(0.2, _stopctr).start()
+        scan(m, [0, 1], ctr)
+        dataset = session.experiment._last_datasets[-1]
+        assert dataset.xresults == [[0.], [1.]]
+        assert len(dataset.yresults) == 2 and len(dataset.yresults[0]) == 1
+        assert dataset.ynames == ['ctr4']
+
         # scan with multistep
+        Timer(0.1, _stopctr).start()
+        Timer(0.2, _stopctr).start()
+        Timer(0.3, _stopctr).start()
+        Timer(0.4, _stopctr).start()
         scan(m, [0, 1], ctr, manual=[3, 4])
         dataset = session.experiment._last_datasets[-1]
         assert dataset.xresults == [[0.], [1.]]
-        assert dataset.ynames == ['ctr1_manual_3', 'ctr1_manual_4']
+        assert dataset.ynames == ['ctr4_manual_3', 'ctr4_manual_4']
+
     finally:
         session.experiment.envlist = []
         session.experiment.detlist = []
@@ -256,31 +282,42 @@ def test_contscan():
 
 
 def test_manualscan():
-    m = session.getDevice('motor')
+    mot = session.getDevice('motor')
     c = session.getDevice('coder')
-    ctr = session.getDevice('ctr1')
+    ctr = session.getDevice('ctr4')
+    mm = session.getDevice('manual')
+    mm.move(0)
+
+    def _stopctr():
+        ctr.stop()
+
     # normal
-    with manualscan(m):
+    with manualscan(mot):
         for i in range(3):
-            m.move(i)
-            m.wait()
+            mot.move(i)
+            mot.wait()
             count()
         assert raises(NicosError, manualscan)
+
     # with multistep
-    with manualscan(m, c, ctr, 'manscan', manual=[0, 1]):
+    for i in range(1, 7):
+        Timer(0.5 * i, _stopctr).start()
+    with manualscan(mot, c, ctr, 'manscan', manual=[0, 1]):
         for i in range(3):
-            m.move(i)
-            m.wait()
+            mot.move(i)
+            mot.wait()
             count()
     dataset = session.experiment._last_datasets[-1]
     assert dataset.scaninfo.startswith('manscan')
     assert dataset.xresults == [[0., 0.], [1., 1.], [2., 2.]]
-    assert dataset.ynames == ['ctr1_manual_0', 'ctr1_manual_1']
+    assert dataset.ynames == ['ctr4_manual_0', 'ctr4_manual_1']
 
 
 def test_specialscans():
     m = session.getDevice('motor')
-    ctr = session.getDevice('ctr1')
+    ctr = session.getDevice('ctr4')
+    # force master to enable quick count
+    ctr.ismaster = True
     checkoffset(m, 10, 0.05, 2, ctr)
 
     tas = session.getDevice('Tas')
