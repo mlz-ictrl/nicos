@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 __author__  = "Christian Felder <c.felder@fz-juelich.de>"
-__date__    = "2014-04-28"
-__version__ = "0.1.0"
 
 
 description = "ZEA-2 counter card test setup"

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 __author__  = "Christian Felder <c.felder@fz-juelich.de>"
-__date__    = "2014-06-16"
-__version__ = "0.1.1"
 
 
 description = "Shutter setup"

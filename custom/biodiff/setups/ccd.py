@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 __author__  = "Christian Felder <c.felder@fz-juelich.de>"
-__date__    = "2014-05-19"
-__version__ = "0.1.0"
 
 
 description = "Andor DV936 CCD camera setup"

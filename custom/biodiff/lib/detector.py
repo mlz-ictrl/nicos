@@ -45,8 +45,6 @@ from nicos.biodiff.shutter import Shutter
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-08-14"
-__version__ = "0.2.1"
 
 
 class ImagePlateBase(PyTangoDevice):

@@ -34,8 +34,6 @@ from nicos.core.errors import LimitError
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-05-07"
-__version__ = "0.1.0"
 
 
 class MicrostepMotor(BaseSequencer, NicosMotor):

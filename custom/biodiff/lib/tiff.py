@@ -38,8 +38,6 @@ from nicos.core.params import Param
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-03-11"
-__version__ = "0.1.0"
 
 
 class TIFFFileFormat(ImageSink):

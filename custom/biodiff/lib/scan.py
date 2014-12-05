@@ -39,8 +39,6 @@ from nicos.biodiff.shutter import Shutter
 
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-07-30"
-__version__ = "0.2.0"
 
 
 class RScan(Scan):
