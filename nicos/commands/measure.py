@@ -116,12 +116,14 @@ def _count(detlist, preset, result, dataset=None):
                     det.resume()
             sleep(delay)
     except:  # really ALL exceptions
+        session.log.warning('Exception during count, trying to save data',
+                            exc=True)
         for det in detset:
-            det.stop()
             try:
+                det.stop()
                 det.save(exception=True)
             except Exception:
-                det.log.exception('error saving measurement data')
+                det.log.exception('error saving measurement data', exc=True)
         result.extend(sum((det.read() for det in detlist), []))
         raise
     finally:
