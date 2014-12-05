@@ -267,7 +267,7 @@ class ImageProducer(DeviceMixinBase):
 
                 for catName, cat in dataset.headerinfo.iteritems():
                     if catName not in imageinfo.header:
-                        imageinfo[catName] = cat
+                        imageinfo.header[catName] = cat
                         continue
 
                     # Just update and don't remove anything
