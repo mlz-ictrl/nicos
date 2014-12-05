@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Alexander Lenz <alexander.lenz@frm2.tum.de>
 #
 # *****************************************************************************
 
@@ -33,6 +34,14 @@ from nicos import session
 from nicos.core.device import Device, DeviceMixinBase
 from nicos.core.errors import NicosError, ProgrammingError
 from nicos.core.params import Param, Attach, subdir, listof
+from nicos.pycompat import iteritems
+
+# TODO: Move to utils?
+def _devParamValTupleListToDict(lst):
+    return {(dev, param) : val for dev, param, val in lst}
+
+def _devParamValDictToTupleList(dct):
+    return [(key[0], key[1], val)for key, val in iteritems(dct)]
 
 
 class ImageInfo(object):
@@ -255,7 +264,18 @@ class ImageProducer(DeviceMixinBase):
         if dataset:
             for imageinfo in imageinfos:
                 imageinfo.dataset = dataset
-                imageinfo.header.update(dataset.headerinfo)
+
+                for catName, cat in dataset.headerinfo.iteritems():
+                    if catName not in imageinfo.header:
+                        imageinfo[catName] = cat
+                        continue
+
+                    # Just update and don't remove anything
+                    oldCat = _devParamValTupleListToDict(imageinfo.header.get(catName, []))
+                    update = _devParamValTupleListToDict(cat)
+                    oldCat.update(update)
+                    imageinfo.header[catName] = _devParamValDictToTupleList(oldCat)
+
             dataset.imageinfos = imageinfos
         self._imageinfos = imageinfos
         for ii in imageinfos:
@@ -267,18 +287,28 @@ class ImageProducer(DeviceMixinBase):
             self.lastfilename = '<none>'
 
     def addInfo(self, dataset, category, valuelist):
+        # Just update and don't remove anything
+        update = _devParamValTupleListToDict(valuelist)
+
         for imageinfo in self._imageinfos:
-            self.log.debug('addInfo(%r, %r)' % (category, valuelist))
-            imageinfo.header[category] = valuelist
+            cat = _devParamValTupleListToDict(imageinfo.header.get(category, []))
+            cat.update(update)
+            imageinfo.header[category] = _devParamValDictToTupleList(cat)
 
     def addHeader(self, category, valuelist):
-        self.log.debug('addHeader(%r, %r)' % (category, valuelist))
+        # Just update and don't remove anything
+        update = _devParamValTupleListToDict(valuelist)
+
         if self._header:
-            self._header[category] = valuelist
+            cat = _devParamValTupleListToDict(self._header.get(category, []))
+            cat.update(update)
+            self._header[category] = _devParamValDictToTupleList(cat)
         else:
             self._header = {category: valuelist}
         for imageinfo in self._imageinfos:
-            imageinfo.header[category] = valuelist
+            cat = _devParamValTupleListToDict(imageinfo.header.get(category, []))
+            cat.update(update)
+            imageinfo.header[category] = _devParamValDictToTupleList(cat)
 
     def updateImage(self, image=Ellipsis):
         """Update the given image.
