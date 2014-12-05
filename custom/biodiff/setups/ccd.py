@@ -4,9 +4,9 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 description = "Andor DV936 CCD camera setup"
-group = "optional"
+group = "basic"
 
-includes = ["counter", "shutter"]
+includes = ["counter", "shutter", "microstep"]
 
 _TANGO_SRV = "phys.biodiff.frm2:10000"
 _TANGO_BASE_URL = "tango://%s/biodiff/detector" % _TANGO_SRV
