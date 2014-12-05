@@ -31,8 +31,6 @@ from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic.detector import Channel
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2014-04-28"
-__version__ = "0.1.0"
 
 
 class FPGAChannelBase(PyTangoDevice, Channel):
