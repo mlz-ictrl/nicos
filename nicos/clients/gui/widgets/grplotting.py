@@ -456,7 +456,7 @@ class ViewPlot(NicosPlot):
     def on_mouseMove(self, event):
         wc = event.getWC(self.plot.viewport)
         # overridden to show the correct timestamp
-        ts = time.strftime(TIMEFMT, time.localtime(wc.x))
+        ts = time.strftime(DATEFMT + ' ' + TIMEFMT, time.localtime(wc.x))
         if self.statusMessage:
             msg = "%s (X = %s, Y = %g)" % (self.statusMessage, ts, wc.y)
         else:
