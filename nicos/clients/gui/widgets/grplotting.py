@@ -309,8 +309,17 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             qpath = dialog.selectedFiles()[0]
             if qpath:
                 path = unicode(qpath)
-                (_p, suffix) = os.path.splitext(path)
-                suffix = suffix.lower()
+                _p, suffix = os.path.splitext(path)
+                if suffix:
+                    suffix = suffix.lower()
+                else:
+                    # append selected name filter suffix (filename extension)
+                    nameFilter = dialog.selectedNameFilter()
+                    for k, v in gr.PRINT_TYPE.iteritems():
+                        if v == nameFilter:
+                            suffix = '.' + k
+                            path += suffix
+                            break
                 if suffix and (suffix[1:] in gr.PRINT_TYPE.keys() or
                                suffix[1:] in gr.GRAPHIC_TYPE):
                     self.save(path)
