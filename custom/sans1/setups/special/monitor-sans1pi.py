@@ -191,10 +191,10 @@ devices = dict(
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
-                     fontsize = 12,#12
+                     fontsize = 11,#12
                      padding = 0,#3
                      layout = [
-                                 Row(_selcolumn,_collimationcolumn),
+                                 Row(_selcolumn, _collimationcolumn),
                                  Row(_sans1det),
                                  Row(_pressurecolumn),
                                  Row(_expcolumn),

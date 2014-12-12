@@ -157,12 +157,12 @@ _ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
 _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=35, plotwindow=1800,
+              width=60, height=25, plotwindow=1800,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=60, height=22, plotwindow=12*3600,
+              width=60, height=25, plotwindow=12*3600,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['12h', 'Target'],
               ),
@@ -228,7 +228,7 @@ _amagnet_plot = Block('Antares Magnet plot', [
 _spinflipper = Block('Spin Flipper', [
     BlockRow(
              Field(name='P_spinflipper', dev='P_spinflipper'),
-             Field(name='F_spinflipper', dev='F_spinflipper'),
+             #Field(name='F_spinflipper', dev='F_spinflipper'),
             ),
     BlockRow(
              Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
@@ -273,12 +273,12 @@ for i in range(10, 22 + 1):
         ),
     ], 'ccr%d' % i))
 
-ccrs_plot = []
+T_Ts_plot = []
 for k in range(10, 22 + 1):
-    ccrs_plot.append(Block('30min CCR%d plot' %k, [
+    T_Ts_plot.append(Block('30min T and Ts plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=50, height=15, plotwindow=30*60,
+              width=50, height=5, plotwindow=30*60,
               devices=['T', 'Ts', 'T/setpoint', 'T/target'],
               names=['T', 'Ts', 'Setpoint', 'Target'],
               ),
@@ -358,7 +358,7 @@ devices = dict(
                      title='SANS-1 status monitor',
                      cache='sans1ctrl.sans1.frm2',
                      font='Luxi Sans',
-                     fontsize=12,#12
+                     fontsize=11,#12
                      loglevel='info',
                      padding=0,#3
                      prefix='nicos/',
@@ -366,9 +366,9 @@ devices = dict(
                      layout=[
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _st2, _st1, *newports),
-                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet),
-                                    Column(_htf01_plot, _htf03_plot, _spinflipper, *cryos) + Column(*ccrs_plot),
+                                    Column(_sc1, _st2, _st1),
+                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet, *newports),
+                                    Column(_htf01_plot, _htf03_plot, _spinflipper, *cryos) + Column(*T_Ts_plot),
                                     Column(*ccrs) + Column(_birmag),
                                    ),
                                 Row(
