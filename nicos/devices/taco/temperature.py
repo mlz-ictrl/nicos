@@ -247,6 +247,8 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
         self.log.warning('Stopping device to set %r, you may need to '
                          'start/move it again.' % resource)
         self._taco_guard(self._dev.stop)
+        # do wait for real stop
+        waitForStatus(self)
         self._taco_update_resource(resource, str(value))
 
     def doWriteTolerance(self, value):
