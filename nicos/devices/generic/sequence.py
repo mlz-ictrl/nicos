@@ -501,7 +501,8 @@ class BaseSequencer(SequencerMixin, Moveable):
                 self._seq_thread.join()
                 self._seq_thread = None
             else:
-                raise MoveError(self, 'Cannot start device, it is still moving!')
+                raise MoveError(self, 'Cannot start device, sequence is still '
+                                      'running (at %s)!' % self._seq_status[1])
         self._startSequence(self._generateSequence(target))
 
 

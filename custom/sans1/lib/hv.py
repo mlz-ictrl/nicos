@@ -74,25 +74,36 @@ class VoltageSwitcher(Switcher):
 class VoltageSupply(HasPrecision, TacoVoltageSupply):
     """work around a bug either in the taco server or in thehv supply itself
 
-    basically the idel status is returned at the end of the ramp,
+    basically the idle status is returned at the end of the ramp,
     even if the output voltage is nowhere near the target value
     """
-    _was_stopped=False
+    parameters = {
+        '_stopflag' : Param('Supply was stopped',
+                          type=bool,
+                          settable=True,
+                          mandatory=False,
+                          userparam=False,
+                          default=False),
+    }
 
     def doStart(self, target): # pylint: disable=W0221
-        self._was_stopped = False
+        self._stopflag = False
         TacoVoltageSupply.doStart(self, target)
 
     def doStop(self):
-        self._was_stopped = True
+        self._stopflag = True
         TacoVoltageSupply.doStop(self)
         self.wait()
         TacoVoltageSupply.doStart(self, self.read(0))
         self.wait()
 
+    def doReset(self):
+        self._stopflag = False
+        self._taco_reset(self._dev)
+
     def doStatus(self, maxage=0):
         tacostatus = TacoVoltageSupply.doStatus(self, maxage)
-        if self._was_stopped:
+        if self._stopflag:
             return tacostatus
         if tacostatus[0] == status.OK:
             if abs(self.target - self.doRead(maxage)) > self.precision:
