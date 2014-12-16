@@ -46,6 +46,9 @@ def sgn(x):
 
 # *** TOFTOF specific constants ***
 
+# time resolution of the TOF electronics is 50 ns
+ttr = 5.0e-8
+
 # a[0]:   distance chopper1 - sample in m
 # a[1-7]: distance chopper1 - chopperX in m
 a = (11.4, 0.0, 0.1, 3.397, 7.953, 8.028, 9.925, 10.0)
@@ -69,6 +72,53 @@ st0 = (0.0, 0.0, 0.0, -90.0, -90.0, 90.0, 0.0, 0.0)
 # for slit type 2 small(g)/small(k)
 st1 = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 90.0, -90.0)
 
+
+def speedRatio(ratio=1):
+    if ratio in [2, 3, 4, 5, 6, 7, 8]:
+        return (ratio - 1.0) / float(ratio)
+    elif ratio in [9, 10]:
+        return 7.0 / float(ratio)
+    return 1.0
+
+def calculateChopperDelay(wl, speed, ratio, st, ch5_90deg_offset):
+    chdelay = 0
+    ratio2 = speedRatio(ratio)
+    # calculate the speed in Hz instead of given speed in rpms
+    speed /= 60.0
+    if ch5_90deg_offset: # chopper 5 90 deg rotated
+        chdelay = -1.e6 / (ratio2 * (4 * speed))
+    if st == 1:
+        chdelay = 1.e6 / (4 * speed)
+    # a[5] is the distance between chopper disc 1 and 5
+    # alpha see description
+    chdelay += (alpha * wl * a[5] - 1.e6 * (1.0 / ratio2 - 1.0) / (4 * speed))
+    chdelay %= 1.e6 / (2 * speed)
+    chdelay -= 100.0
+    if chdelay < 0:
+        chdelay += 1.e6 / (2 * speed)
+    return int(round(chdelay))
+
+def calculateCounterDelay(wl, speed, ratio, delay, ch5_90deg_offset):
+    # calculate the speed in Hz instead of given speed in rpms
+    speed /= 60.0
+    ratio2 = speedRatio(ratio)
+    # 4 * speed, since we have 4 slits in chopper disc 1
+    TOFoffset = 1.0 / (ratio2 * (4 * speed)) # normal mode
+    if ch5_90deg_offset: # chopper 5 90 deg rotated
+        TOFoffset *= 2.0
+    tel = 1e-6 * alpha * wl * (a[0] - a[5]) + TOFoffset + delay
+    n = int(tel / (ratio / (2 * speed)))
+    tel -= n * (ratio / (2 * speed))
+    return int(round(tel / ttr))  # 50 ns of the TOF electronics
+
+def calculateTimeInterval(speed, ratio):
+    # select time interval from chopper parameters
+    # calculate the speed in Hz instead of given speed in rpms
+    speed /= 60.0
+    if speed == 0:
+        return 0.052
+    # 2 * speed since we have 2 identical slits in chopper 5
+    return ratio / (2 * speed)
 
 # calculation of flight times
 
@@ -104,10 +154,7 @@ def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1, ch5_90deg_offset=0):
     """
     itv = 1.0
     if x == 5:
-        if ratio in [2, 3, 4, 5, 6, 7, 8]:
-            itv = (ratio - 1.0) / float(ratio)
-        elif ratio in [9, 10]:
-            itv = 7.0 / float(ratio)
+        itv = speedRatio(ratio)
     if crc:
         phi_1 = itv * (sigmaxcrc[x] * phi1(x, w, ilambda) + chopperOffset[x])
     else:

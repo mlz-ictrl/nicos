@@ -139,54 +139,28 @@ class TofTofMeasurement(ImageProducer, Measurable):
 
         self.log.debug('reading chopper parameters')
         chwl, chspeed, chratio, _, chst = self._adevs['chopper']._getparams()
-        if chratio == 1:
-            chratio2 = 1.0
-        else:
-            chratio2 = (chratio-1.0)/chratio
 
         # select time interval from chopper parameters
         if self.timeinterval == 0:
-            if chspeed == 0:
-                interval = 0.052
-            else:
-                interval = 30.0 / chspeed * chratio
+            interval = calc.calculateTimeInterval(chspeed, chratio)
         else:
             interval = self.timeinterval
         ctr.timeinterval = interval
 
-        # select chopper delay from chopper parameters
-        self.log.debug('setting chopper delay')
-        chdelay = 0.0
         if chspeed > 150:
-            if self._adevs['chopper'].ch5_90deg_offset:
-                # chopper 5 90 deg rotated
-                chdelay = -15.0e6/chspeed/chratio2
-            if chst == 1:
-                chdelay = 15.0e6/chspeed
-            chdelay += (252.7784 * chwl * 8.028 -
-                        15.0e6*(1.0/chspeed/chratio2-1.0/chspeed))
-            chdelay = chdelay % (30.0e6/chspeed)
-            chdelay -= 100.0
-            if chdelay < 0:
-                chdelay += 30.0e6/chspeed
-            chdelay = int(round(chdelay))
-        self._adevs['chdelay'].start(chdelay)
+            # select chopper delay from chopper parameters
+            self.log.debug('calculating chopper delay')
+            chdelay = calc.calculateChopperDelay(chwl, chspeed, chratio, chst,
+                                        self._adevs['chopper'].ch5_90deg_offset)
+            self.log.debug('setting chopper delay to : %d' % chdelay)
+            self._adevs['chdelay'].start(chdelay)
 
-        # select counter delay from chopper parameters
-        self.log.debug('setting counter delay')
-        if chspeed > 150:
-            if self._adevs['chopper'].ch5_90deg_offset:
-                TOFoffset = 30.0/chspeed/chratio2   # chopper 5 90 deg rotated
-            else:
-                TOFoffset = 15.0/chspeed/chratio2   # normal mode
-            tel = (calc.a[0]-calc.a[5]) * calc.mn * chwl * 1.0e-10 / calc.h + \
-                TOFoffset
-            tel += self.delay
-            chratio = float(chratio)
-            n = int(tel / (chratio / chspeed * 30.0))
-            tel = tel - n * (chratio / chspeed * 30.0)
-            tel = int(round(tel/5.0e-8))
-            ctr.delay = tel
+            # select counter delay from chopper parameters
+            self.log.debug('setting counter delay')
+            ctr.delay = calc.calculateCounterDelay(chwl, chspeed, chratio,
+                        self.delay, self._adevs['chopper'].ch5_90deg_offset)
+        else:
+            chdelay = 0
 
         # make sure to set the correct monitor input and number of time channels
         # in the TACO server
@@ -199,7 +173,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self.log.debug('collecting status information')
         self._startheader = self._startHeader(interval, chdelay)
         # update interval: about every 30 seconds for 1024 time channels
-        self._updateevery = min(int(30.*ctr.timechannels/1024), 80)
+        self._updateevery = min(int(30. * ctr.timechannels / 1024), 80)
 
         self._newFile()
         self._startheader.append('FileName: %s\n' % self.lastfilename)
@@ -255,7 +229,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         head.append('TOF_MonitorInput: %d\n' % ctr.monitorchannel)
         head.append('TOF_Ch5_90deg_Offset: %d\n' %
                     self._adevs['chopper'].ch5_90deg_offset)
-        guess = round(4.0*chwl*2.527784152e-4/5.0e-8/ctr.channelwidth)
+        guess = round(4.0 * chwl * 1e-6 * calc.alpha / calc.ttr / ctr.channelwidth)
         head.append('TOF_ChannelOfElasticLine_Guess: %d\n' % guess)
         hvvals = []
         for i in range(3):
