@@ -21,9 +21,56 @@
 #
 # *****************************************************************************
 
-from nicos.core import status, HasLimits, HasPrecision, Moveable
+from nicos.core import Param, status, HasLimits, HasPrecision, Moveable, \
+    oneof
 from nicos.devices.tango import PyTangoDevice
+from .generic import GenericLimaCCD
 from .optional import LimaCooler
+
+
+class Andor3LimaCCD(GenericLimaCCD):
+    """
+    This device class is an extension to the GenericLimaCCD that adds the
+    hardware specific functionality for all Andor SDK3 based cameras.
+    """
+
+    READOUTRATES = [280, 200, 100]  # Values from sdk manual
+    ELSHUTTERMODES = ['rolling', 'global'] # Values from sdk manual
+
+    parameters = {
+        'readoutrate'         : Param('Rate of pixel readout from sensor',
+                                type=oneof(*READOUTRATES),
+                                unit='MHz',
+                                settable=True,
+                                volatile=True,
+                                category='general'),
+        'elshuttermode'         : Param('On-sensor electronic shuttering mode',
+                                type=oneof(*ELSHUTTERMODES),
+                                settable=True,
+                                volatile=True,
+                                category='general'),
+        'framerate'         : Param('Frame rate',
+                                type=float,
+                                unit='Hz',
+                                settable=False,
+                                volatile=True,
+                                category='general'),
+    }
+
+    def doReadReadoutrate(self):
+        return int(self._hwDev._dev.adc_rate[3:])
+
+    def doWriteReadoutrate(self, value):
+        self._hwDev._dev.adc_rate = 'MHZ%i' % value
+
+    def doReadElshuttermode(self):
+        return self._hwDev._dev.electronic_shutter_mode.lower()
+
+    def doWriteElshuttermode(self, value):
+        self._hwDev._dev.electronic_shutter_mode = value.upper()
+
+    def doReadFramerate(self):
+        return self._hwDev._dev.frame_rate
 
 
 class Andor3TemperatureController(PyTangoDevice,
