@@ -24,27 +24,40 @@
 
 """TOFTOF chopper calculation tests."""
 
-from nicos.toftof.calculations import phi1, phi
+from nicos.toftof.calculations import phi1, phi, alpha, t1, t2, Eres1
 
 
-def test_calculations():
+def test_basic_calculations():
 
-    res1 = ['0.00', '12.74', '432.78', '1013.22', '1022.77', '1264.45', '1274.00']
+    assert '%.4f' % alpha == '252.7784'
 
+    res1 = ['0.00', '12.74', '432.78', '1013.21', '1022.77', '1264.45', '1274.00']
     for x in range(1, 8):
         assert '%.2f' % phi1(x, 14000, ilambda=6) == res1[x - 1]
 
-    assert '%.2f' % phi1(5, 7000, ilambda=6) == '511.39'
+    assert '%.2f' % phi1(5, 7000, ilambda=6) == '511.38'
 
-    res2 = ['0.00', '-12.74', '-72.78', '66.78', '-57.23', '176.25', '166.70']
-
+    res2 = ['0.00', '-12.74', '-72.78', '66.79', '-57.23', '176.25', '166.70']
     for x in range(1, 8):
         assert '%.2f' % phi(x, 14000, ilambda=6) == res2[x - 1]
 
-    res3 = ['0.00', '-12.74', '-162.78', '-23.22', '32.77', '176.25', '166.70']
-
+    res3 = ['0.00', '-12.74', '-162.78', '-23.21', '32.77', '176.25', '166.70']
     for x in range(1, 8):
         assert '%.2f' % phi(x, 14000, ilambda=6, slittype=1) == res3[x - 1]
 
     assert '%.2f' % phi(5, 14000, ratio=5, ilambda=6) == '98.22'
     assert '%.2f' % phi(5, 14000, ratio=5, slittype=1, ilambda=6) == '170.22'
+
+    res4 = ['0.000152', '0.005152', '0.012062', '0.012176', '0.015053',
+            '0.015167']
+    for x in range(2, 8):
+        assert '%.6f' % t1(1, x, ilambda=6) == res4[x - 2]
+
+    res5 = ['0.017138', '0.012138', '0.005228', '0.005114', '0.002237',
+            '0.002123']
+    for x in range(2, 8):
+        assert '%.6f' % t2(x, ilambda=6) == res5[x - 2]
+
+    assert '%f, %f' % Eres1(6, 14000, crc=0) == '0.000096, 0.000128'
+    assert '%f, %f' % Eres1(6, 14000, crc=1) == '0.000048, 0.000064'
+

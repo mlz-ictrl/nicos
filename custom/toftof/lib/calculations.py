@@ -27,11 +27,18 @@
 
 from math import sqrt
 
-# *** general constants ***
+try:
+    from scipy import constants
+    h = constants.value('Planck constant')
+    mn = constants.value('neutron mass')
+    e = constants.value('elementary charge')
+except ImportError:
+    h = 6.62606896e-34                      # Planck constant [Js]
+    mn = 1.674927211e-27                    # Neutron mass [kg]
+    e = 1.602176487e-19                     # Elementary charge [C]
 
-h = 6.62606876e-34                      # Planck constant [Js]
-mn = 1.67492842e-27                     # Neutron mass [kg]
-e = 1.60217733e-19                      # Elementary charge [C]
+# in us (1e6) / AA (1e-10) / m
+alpha = 1e6 * (mn / h) / 1e10           # Should be 252.7784
 
 def sgn(x):
     return -1 if x < 0 else 1
@@ -39,24 +46,27 @@ def sgn(x):
 
 # *** TOFTOF specific constants ***
 
-# a[0]:   distance chopper1 - sample
-# a[1-7]: distance chopper1 - chopperX
+# a[0]:   distance chopper1 - sample in m
+# a[1-7]: distance chopper1 - chopperX in m
 a = (11.4, 0.0, 0.1, 3.397, 7.953, 8.028, 9.925, 10.0)
 
-# offsets of chopper zero position
-#chopperOffset = (0.00, 0.00, -0.25, 0.45, 0.39, -0.25, 0.13, 0.36)
-#chopperOffset = (0.00, 0.00, -0.06, 0.45, 0.39, -0.25, -0.81, 0.36) # 2.12.2009
+# offsets of chopper zero position in deg (definition of the sign is unknown
+# chopperOffset = (0.00, 0.00, -0.25, 0.45, 0.39, -0.25, 0.13, 0.36)
+# chopperOffset = (0.00, 0.00, -0.06, 0.45, 0.39, -0.25, -0.81, 0.36) # 2.12.2009
 chopperOffset = (0.00, 0.00, 0.00, 0.0, 0.0, 0.0, 0.70, 0.70)
 
 # signs for counter-rotating ch1/2 and ch6/7 (all others run like chopper1)
-#sigmaxcrc = (0.0, 1.0, -1.0, -1.0, -1.0, 1.0, -1.0, -1.0)
+# sigmaxcrc = (0.0, 1.0, -1.0, -1.0, -1.0, 1.0, -1.0, -1.0)
 sigmaxcrc = (0.0, 1.0, -1.0, -1.0, -1.0, 1.0, -1.0, -1.0)
 
 # signs for normally rotating ch1/2 and ch6/7 (all others run like chopper1)
-sigmax = (0.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0)
+sigmax = (0.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0)    # pronounce: sigma x
 
 # phases for different slit types
+# for the large(g)/large(g) there are no offsets and slit type is 0
+# for slit type 1 small(k)/small(k)
 st0 = (0.0, 0.0, 0.0, -90.0, -90.0, 90.0, 0.0, 0.0)
+# for slit type 2 small(g)/small(k)
 st1 = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 90.0, -90.0)
 
 
@@ -66,13 +76,13 @@ def t1(x, y, ilambda=4.5, offset=0.0):
     """Return the flight time [s] of a neutron of wavelength *ilambda* [A] from
     chopper *x* to chopper *y*, plus the distance *offset*.
     """
-    return mn * ilambda * 1.0e-10 * (abs(a[x] - a[y]) + offset) / h
+    return 1e-6 * alpha * ilambda * (abs(a[x] - a[y]) + offset)
 
 def t2(x, ilambda=4.5, offset=0.0):
     """Return the flight time [s] of a neutron of wavelength *ilambda* [A] from
     chopper *x* to the sample, plus the distance *offset*.
     """
-    return mn * ilambda * 1.0e-10 * (abs(a[0] - a[x]) + offset) / h
+    return t1(0, x, ilambda, offset)
 
 
 # calculation of chopper phases
@@ -81,42 +91,31 @@ def phi1(x, w, ilambda=4.5):
     """Return the angle [deg] that chopper *x* turns until neutrons of
     wavelength *ilambda* [A] arrive at it from chopper 1.
     """
-    return 360.0 * w/60.0 * t1(1, x, ilambda, 0.0)
+    return 360.0 * w / 60.0 * t1(1, x, ilambda, 0.0)
 
 def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1, ch5_90deg_offset=0):
     """Return the phase angle that has to be set for wavelength *ilambda* [A]
     at chopper *x*.
+
+    **Remark**:
+    If the disk slits are switch to non standard values the phase is calculated
+    to the trigger signal __not__ to the neutron package at the first chopper
+    disc.
     """
     itv = 1.0
     if x == 5:
-        if ratio == 2:
-            itv = 1.0 / 2.0
-        elif ratio == 3:
-            itv = 2.0 / 3.0
-        elif ratio == 4:
-            itv = 3.0 / 4.0
-        elif ratio == 5:
-            itv = 4.0 / 5.0
-        elif ratio == 6:
-            itv = 5.0 / 6.0
-        elif ratio == 7:
-            itv = 6.0 / 7.0
-        elif ratio == 8:
-            itv = 7.0 / 8.0
-        elif ratio == 9:
-            itv = 7.0 / 9.0
-        elif ratio == 10:
-            itv = 7.0 / 10.0
-        else:
-            itv = 1.0
+        if ratio in [2, 3, 4, 5, 6, 7, 8]:
+            itv = (ratio - 1.0) / float(ratio)
+        elif ratio in [9, 10]:
+            itv = 7.0 / float(ratio)
     if crc:
         phi_1 = itv * (sigmaxcrc[x] * phi1(x, w, ilambda) + chopperOffset[x])
     else:
         phi_1 = itv * (sigmax[x] * phi1(x, w, ilambda) + chopperOffset[x])
     if slittype == 1:
-        phi_1 += itv * st0[x]
+        phi_1 += st0[x] * itv
     elif slittype == 2:
-        phi_1 += itv * st1[x]
+        phi_1 += st1[x] * itv
     if ch5_90deg_offset and x == 5:
         phi_1 += 90.0
     phi_2 = phi_1 - sgn(phi_1) * int(abs(phi_1) / 360.0) * 360.0
