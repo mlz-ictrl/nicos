@@ -30,7 +30,7 @@ from time import sleep, time
 from IO import StringIO
 
 from nicos.core import status, intrange, listof, oneofdict, requires, ADMIN, \
-     Device, Readable, Moveable, Param, Override, NicosError, oneof, \
+     Device, Readable, Moveable, Param, Attach, Override, NicosError, oneof, \
      CommunicationError, ConfigurationError
 from nicos.devices.taco.core import TacoDevice
 from nicos.core import MASTER
@@ -92,7 +92,7 @@ class Valve(Moveable):
     """Control element for 8 valves."""
 
     attached_devices = {
-        'bus':  (ModBus, 'Toni communication bus'),
+        'bus':  Attach('Toni communication bus', ModBus),
     }
 
     parameters = {
@@ -149,7 +149,7 @@ class Leckmon(Readable):
     """Water supply leak monitor."""
 
     attached_devices = {
-        'bus': (ModBus, 'Toni communication bus'),
+        'bus': Attach('Toni communication bus', ModBus),
     }
 
     parameters = {
@@ -164,7 +164,7 @@ class Ratemeter(Readable):
     """Toni ratemeter inside a "crate"."""
 
     attached_devices = {
-        'bus': (ModBus, 'Toni communication bus'),
+        'bus': Attach('Toni communication bus', ModBus),
     }
 
     parameters = {
@@ -199,7 +199,7 @@ class Vacuum(Readable):
     """Toni vacuum gauge ITR90 read out system."""
 
     attached_devices = {
-        'bus': (ModBus, 'Toni communication bus'),
+        'bus': Attach('Toni communication bus', ModBus),
     }
 
     parameters = {
@@ -281,7 +281,7 @@ class LVPower(Moveable):
     """Toni TOFTOF-type low-voltage power supplies."""
 
     attached_devices = {
-        'bus':  (ModBus, 'Toni communication bus'),
+        'bus':  Attach('Toni communication bus', ModBus),
     }
 
     parameters = {
@@ -314,7 +314,7 @@ class DelayBox(Moveable):
     """Toni TOFTOF-type programmable delay box."""
 
     attached_devices = {
-        'bus':  (ModBus, 'Toni communication bus'),
+        'bus':  Attach('Toni communication bus', ModBus),
     }
 
     parameters = {
@@ -334,6 +334,13 @@ class DelayBox(Moveable):
     def doStart(self, target):
         self._adevs['bus'].communicate('D=%04X' % target, self.addr,
                                        expect_ok=True)
+
+    def doIsAllowed(self, target):
+        if 0 <= target <= 65535:
+            return True, ''
+        else:
+            return False, '%r is not in the allowed range [0, 65535], please '\
+                          'check your delay calculation' % (target,)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
