@@ -14,6 +14,26 @@ _POLCHANGE = {
                 "-": 1,
               }
 
+##
+# magnetic field definitions
+off = (0, 0, 0, 0, 0, (0, 0), "off")
+zero = (0, .11, -.50, -2.21, -2.21, (.97, .56), "on")
+# fields with spin flipper
+x7_sf = (0, -2, -.77, -2.21, -2.21, (0.90, 0.40), "on")
+mx7_sf = (0, 2.22, -.23, -2.21, -2.21, (1.05, 0.38), "on")
+y7_sf = (0, 1.6, -2.77, -2.21, -2.21, (0.85, 0.48), "on")
+my7_sf = (0, -1.38, 1.77, -2.21, -2.21, (0.98, 0.38), "on")
+z7_sf = (0, .11, -.50, 0.0, 0.0, (0.90, 0.45), "on"),
+mz7_sf = (0, .11, -.5, -4.42, -4.42, (1.20, 0.20), "on")
+# fields without spin flipper
+x7_nsf = x7_sf[:6] + ("off", )
+mx7_nsf = mx7_sf[:6] + ("off", )
+y7_nsf = y7_sf[:6] + ("off", )
+my7_nsf = my7_sf[:6] + ("off", )
+z7_nsf = z7_sf[:6] + ("off", )
+mz7_nsf = mz7_sf[:6] + ("off", )
+
+
 devices = dict(
         flipper = device('devices.polarized.flipper.MezeiFlipper',
                          description = 'Neutron spin flipper',
@@ -123,22 +143,20 @@ devices = dict(
                        moveables = ["A", "B", "C", "ZB", "ZT",
                                     "flip_currents", "flipper"],
                        mapping = {
-                          "off": (0, 0, 0, 0, 0,
-                                  (0, 0), "off"),
-                          "zero field": (0, .11, -.50, -2.21, -2.21,
-                                         (.97, .56), "on"),
-                          "x7": (0, -2, -.77, -2.21, -2.21,
-                                 (0.90, 0.40), "on"),
-                          "-x7": (0, 2.22, -.23, -2.21, -2.21,
-                                  (1.05, 0.38), "on"),
-                          "y7": (0, 1.6, -2.77, -2.21, -2.21,
-                                 (0.85, 0.48), "on"),
-                          "-y7": (0, -1.38, 1.77, -2.21, -2.21,
-                                  (0.98, 0.38), "on"),
-                          "z7": (0, .11, -.50, 0.0, 0.0,
-                                      (0.90, 0.45), "on"),
-                          "-z7": (0, .11, -.5, -4.42, -4.42,
-                                  (1.20, 0.20), "on"),
+                          "off": off,
+                          "zero field": zero,
+                          "x7_sf": x7_sf,
+                          "-x7_sf": mx7_sf,
+                          "y7_sf": y7_sf,
+                          "-y7_sf": my7_sf,
+                          "z7_sf": z7_sf,
+                          "-z7_sf": mz7_sf,
+                          "x7_nsf": x7_nsf,
+                          "-x7_nsf": mx7_nsf,
+                          "y7_nsf": y7_nsf,
+                          "-y7_nsf": my7_nsf,
+                          "z7_nsf": z7_nsf,
+                          "-z7_nsf": mz7_nsf,
                        },
                        precision = [.1, .1, .1, .1, .1,
                                     0, 0],
