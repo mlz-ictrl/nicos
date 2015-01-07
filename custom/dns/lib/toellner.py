@@ -51,6 +51,7 @@ class Toellner(AnalogOutput, HasPrecision):
 
     def doInit(self, mode):
         self.log.debug('Initialize Current')
+        self._starttime = currenttime()
         try:
             self._dev.write('syst:rem')
             current = self._dev.Query('mc%d?' % self.channel)
