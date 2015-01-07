@@ -45,6 +45,11 @@ except ImportError:
     DevErr_IOError         = 4024
     DevErr_SystemError     = 4025
 
+try:
+    from DEVERRORS import DevErr_RPCTimedOut
+except ImportError:
+    DevErr_RPCTimedOut     = 2
+
 from nicos import config
 from nicos.core import status, tacodev, intrange, floatrange, Param, \
     Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
@@ -306,8 +311,9 @@ class TacoDevice(DeviceMixinBase):
         except TACOError as err:
             # for performance reasons, starting the loop and querying
             # self.tacotries only triggers in the error case
-            if self.tacotries > 1:
-                tries = self.tacotries - 1
+            if self.tacotries > 1 or err == DevErr_RPCTimedOut:
+                tries = 2 if err == DevErr_RPCTimedOut and self.tacotries == 1 \
+                        else self.tacotries - 1
                 self.log.warning('TACO %s failed, retrying up to %d times' %
                                  (function.__name__, tries), exc=1)
                 while True:
@@ -348,8 +354,9 @@ class TacoDevice(DeviceMixinBase):
         except TACOError as err:
             # for performance reasons, starting the loop and querying
             # self.tacotries only triggers in the error case
-            if self.tacotries > 1:
-                tries = self.tacotries - 1
+            if self.tacotries > 1 or err == DevErr_RPCTimedOut:
+                tries = 2 if err == DevErr_RPCTimedOut and self.tacotries == 1 \
+                        else self.tacotries - 1
                 self.log.warning('TACO %s failed, retrying up to %d times' %
                                  (function.__name__, tries))
                 while True:
