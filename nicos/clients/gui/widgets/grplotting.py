@@ -397,6 +397,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             resultcurve = NicosPlotCurve(x, y, legend=title, linecolor=color,
                                          markercolor=color)
             self.addPlotCurve(resultcurve)
+            resultcurve.markertype = gr.MARKERTYPE_DOT
             self.statusMessage = None
             self.window.statusBar.showMessage("Fitting complete")
             self.fittype = None
