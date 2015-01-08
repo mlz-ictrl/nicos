@@ -79,3 +79,4 @@ class DaemonEvent(PyModulelevel):
 def setup(app):
     app.add_directive('daemoncmd', DaemonCommand)
     app.add_directive('daemonevt', DaemonEvent)
+    return {'parallel_read_safe': True}

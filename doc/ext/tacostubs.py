@@ -76,3 +76,4 @@ def generate_stubs():
 
 def setup(app):
     generate_stubs()
+    return {'parallel_read_safe': True}
