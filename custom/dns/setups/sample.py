@@ -37,7 +37,7 @@ devices = dict(
                             lowlevel = False,
                             precision = 1.0,
                            ),
-    sample_slit       = device('dns.slit.PosOpeningSlit',
+    sample_slit       = device('devices.generic.Slit',
                                description = 'Aperture sample slit',
                                left = 'ap_sam_x_left',
                                right = 'ap_sam_x_right',
@@ -45,6 +45,8 @@ devices = dict(
                                top = 'ap_sam_y_upper',
                                pollinterval = 5,
                                maxage = 10,
+                               coordinates = 'opposite',
+                               opmode = '4blades_opposite',
                               ),
 
     sample_rot     = device('devices.tango.Motor',
