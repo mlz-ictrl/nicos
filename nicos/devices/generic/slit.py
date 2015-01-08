@@ -40,17 +40,20 @@ class Slit(CanReference, Moveable):
     * '4blades' -- all four blades are controlled separately.  Values read from
       the slit are lists in the order ``[left, right, bottom, top]``; for
       ``move()`` the same list of coordinates has to be supplied.
+    * '4blades_opposite' -- like '4blades', but left/right and bottom/top have
+      opposite coordinate systems, i.e. [5, 5, 5, 5] is an opening of 10x10.
     * 'centered' -- only width and height are controlled; the slit is centered
       at the zero value of the left-right and bottom-top coordinates.  Values
       read and written are in the form ``[width, height]``.
     * 'offcentered' -- the center and width/height are controlled.  Values read
       and written are in the form ``[centerx, centery, width, height]``.
 
-    Normally, the ``right`` and ``left`` as well as the ``bottom`` and ``top``
-    devices need to share a common coordinate system, i.e. when ``right.read()
-    == left.read()`` the slit is closed.  A different convention can be selected
-    when setting `coordinates` to ``"opposite"``: in this case, the blades meet
-    at coordinate 0, and both move in positive direction when they open.
+    Normally, the lower level ``right`` and ``left`` as well as the ``bottom``
+    and ``top`` devices need to share a common coordinate system, i.e. when
+    ``right.read() == left.read()`` the slit is closed.  A different convention
+    can be selected when setting `coordinates` to ``"opposite"``: in this case,
+    the blades meet at coordinate 0, and both move in positive direction when
+    they open.
 
     All instances have attributes controlling single dimensions that can be used
     as devices, for example in scans.  These attributes are:
@@ -75,7 +78,8 @@ class Slit(CanReference, Moveable):
 
     parameters = {
         'opmode': Param('Mode of operation for the slit',
-                        type=oneof('4blades', 'centered', 'offcentered'),
+                        type=oneof('4blades', '4blades_opposite',
+                                   'centered', 'offcentered'),
                         settable=True),
         'coordinates': Param('Coordinate convention for left/right and '
                              'top/bottom blades', default='equal',
@@ -117,6 +121,11 @@ class Slit(CanReference, Moveable):
                 raise InvalidValueError(self, 'arguments required for 4-blades '
                                         'mode: [left, right, bottom, top]')
             positions = list(target)
+        elif self.opmode == '4blades_opposite':
+            if len(target) != 4:
+                raise InvalidValueError(self, 'arguments required for 4-blades '
+                                        'mode: [left, right, bottom, top]')
+            positions = [-target[0], target[1], -target[2], target[3]]
         elif self.opmode == 'centered':
             if len(target) != 2:
                 raise InvalidValueError(self, 'arguments required for centered '
@@ -223,6 +232,8 @@ class Slit(CanReference, Moveable):
             return [r-l, t-b]
         elif self.opmode == 'offcentered':
             return [(l+r)/2, (t+b)/2, r-l, t-b]
+        elif self.opmode == '4blades_opposite':
+            return [-l, r, -b, t]
         else:
             return positions
 
@@ -248,7 +259,7 @@ class Slit(CanReference, Moveable):
         return self._adevs['left'].unit
 
     def doWriteOpmode(self, value):
-        if value == '4blades':
+        if value in ('4blades', '4blades_opposite'):
             self.fmtstr = '%.2f %.2f %.2f %.2f'
         elif value == 'offcentered':
             self.fmtstr = '(%.2f, %.2f) %.2f x %.2f'

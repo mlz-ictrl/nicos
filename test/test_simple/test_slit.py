@@ -74,12 +74,26 @@ def test_slit_opposite():
     motor_bottom = session.getDevice('m_bottom')
     motor_top = session.getDevice('m_top')
 
-    s2.opmode = '4blades'
+    s2.opmode = '4blades_opposite'
     s2.maw([1, 2, 3, 4])
-    assert motor_left.doRead() == -1
+    assert motor_left.doRead() == 1
     assert motor_right.doRead() == 2
-    assert motor_bottom.doRead() == -3
+    assert s2.width.doRead() == 3
+    assert motor_bottom.doRead() == 3
     assert motor_top.doRead() == 4
+    assert s2.height.doRead() == 7
+    assert s2.doRead() == [1, 2, 3, 4]
+
+    s2.maw([-2.5, 2.5, -2.5, 2.5])
+    assert s2.width.doRead() == 0
+    assert s2.height.doRead() == 0
+
+    s2.opmode = 'centered'
+    s2.maw([5, 5])
+    assert motor_left.doRead() == 2.5
+    assert motor_right.doRead() == 2.5
+    assert motor_bottom.doRead() == 2.5
+    assert motor_top.doRead() == 2.5
 
     s2.opmode = 'offcentered'
     s2.maw([1, 2, 4, 6])
