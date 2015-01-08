@@ -467,7 +467,7 @@ class Andor2LimaCCDDetector(MeasureSequencer, ImageProducer):
         self.ccd.lastfilename = value
 
     def doReadSubdir(self):
-        return self.cdd.subdir
+        return self.ccd.subdir
 
     def readFinalImage(self):
         return self.ccd.readFinalImage()
