@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2014 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -30,7 +30,7 @@ from PyQt4.QtGui import QDialog, QMessageBox
 
 from nicos.protocols.cache import cache_load
 
-from .cacheclient import Entry  # pylint: disable=F0401
+from .cacheclient import Entry  # pylint: disable=E0611
 
 
 class EntryEditDialog(QDialog):

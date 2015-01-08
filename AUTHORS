@@ -8,12 +8,14 @@ NICOS version 2 is written and maintained by:
 * Jens Krüger <jens.krueger@frm2.tum.de>
 * Alexander Lenz <alexander.lenz@frm2.tum.de>
 * Peter Link <peter.link@frm2.tum.de>
+* Pascal Neubert <pascal.neubert@frm2.tum.de>
 * Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 * Tobias Unruh <tobias.unruh@krist.uni-erlangen.de>
 
 Instrument-specific code was contributed by:
 
 * Holger Gibhardt <hgibhar@gwdg.de>
+* Michael Schulz <michael.schulz@frm2.tum.de>
 * Oleg Sobolev <oleg.sobolev@frm2.tum.de>
 * Tobias Weber <tobias.weber@frm2.tum.de>
 * Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
