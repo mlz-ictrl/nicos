@@ -67,6 +67,7 @@ Requirements
 * To run the test suite:
 
   - nose
+  - mock
   - coverage (optional)
 
 If not supplied by the distribution (see below), most dependencies

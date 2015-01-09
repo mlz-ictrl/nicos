@@ -16,6 +16,7 @@ rsa>=3.1.2
 gr>=0.8.2
 coverage>=3.4
 nose>=1.1.2
+mock>=1.0
 Sphinx>=1.2.1
 rst2pdf>=0.16
 python-ldap>=2.4.13

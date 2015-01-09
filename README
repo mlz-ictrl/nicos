@@ -62,6 +62,7 @@ Requirements
 
 * For development (running tests, generating documentation):
   - nose
+  - mock
   - coverage (optional)
   - sphinx (for generating doc)
 
