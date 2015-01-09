@@ -1,4 +1,4 @@
---extra-index-url https://forge.frm2.tum.de:/simple
+--extra-index-url https://forge.frm2.tum.de/simple
 --allow-external nicoslivewidget
 nicoslivewidget>=1.0
 --allow-external nicos-pyctl
