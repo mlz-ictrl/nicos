@@ -26,6 +26,8 @@
 
 from __future__ import print_function
 
+import mock
+
 from nicos import session
 from nicos.core import PositionError, NicosError, LimitError, \
     ConfigurationError, InvalidValueError, status
@@ -116,6 +118,11 @@ def test_switcher():
     assert rsw2.read(0) == 'right'
 
     assert rsw.status()[0] == v3.status()[0]
+
+    with mock.patch('nicos.devices.generic.virtual.VirtualMotor.doReset',
+                    create=True) as m:
+        sw.reset()
+        assert m.called
 
 
 def test_switcher_noblockingmove():

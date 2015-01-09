@@ -28,7 +28,7 @@
 from nicos.utils import lazy_property
 from nicos.core import anytype, dictof, none_or, floatrange, listof, \
     PositionError, ConfigurationError, Moveable, Readable, Param, \
-    Override, status, InvalidValueError, multiStatus
+    Override, status, InvalidValueError, multiStatus, multiStop, multiReset
 from nicos.core.params import Attach
 from nicos.devices.abstract import MappedReadable, MappedMoveable
 from nicos.pycompat import iteritems
@@ -119,6 +119,12 @@ class Switcher(MappedMoveable):
             return status.NOTREACHED, str(e)
         return status.OK, ''
 
+    def doReset(self):
+        self._adevs['moveable'].reset()
+
+    def doStop(self):
+        self._adevs['moveable'].stop()
+
 
 class ReadonlySwitcher(MappedReadable):
     """Same as the `Switcher`, but for read-only underlying devices."""
@@ -169,6 +175,9 @@ class ReadonlySwitcher(MappedReadable):
         except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
+
+    def doReset(self):
+        self._adevs['readable'].reset()
 
 
 class MultiSwitcher(MappedMoveable):
@@ -292,3 +301,9 @@ class MultiSwitcher(MappedMoveable):
         if move_status[0] != status.OK:
             return move_status
         return MappedReadable.doStatus(self, maxage)
+
+    def doReset(self):
+        multiReset(self._adevs)
+
+    def doStop(self):
+        multiStop(self._adevs)

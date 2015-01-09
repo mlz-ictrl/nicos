@@ -24,6 +24,7 @@
 
 """NICOS generic devices test suite."""
 
+import mock
 
 from nicos import session
 from nicos.core import LimitError, ConfigurationError, InvalidValueError, \
@@ -77,6 +78,11 @@ def test_multi_switcher():
 
     assert raises(InvalidValueError, sc2.maw, '23')
     assert raises(LimitError, sc2.start, 'outside')
+
+    with mock.patch('nicos.devices.generic.virtual.VirtualMotor.doReset',
+                    create=True) as m:
+        sc2.reset()
+        assert m.call_count == 2  # once for x, once for y
 
 
 def test_multi_switcher_fails():
