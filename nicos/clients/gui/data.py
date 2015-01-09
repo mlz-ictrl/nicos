@@ -206,10 +206,16 @@ class DataHandler(QObject):
             except IndexError:
                 curve.datax.append(len(curve.datax))
             curve.datay.append(yvalues[curve.yindex])
-            if curve.dyindex != -1:
+            if curve.dyindex >= 0:
                 curve.datady.append(yvalues[curve.dyindex])
+            elif curve.dyindex == -2:
+                curve.datady.append(np.sqrt(yvalues[curve.yindex]))
+            else:
+                curve.datady.append(0)
             if curve.timeindex != -1:
                 curve.datatime.append(yvalues[curve.timeindex])
+            else:
+                curve.datatime.append(0)
             for i in curve.monindices:
                 if yvalues[i] != 0:
                     curve.datamon.append(yvalues[i])

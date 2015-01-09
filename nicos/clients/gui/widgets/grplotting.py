@@ -438,9 +438,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         x, y = np.array(curve.datax), np.array(curve.datay, float)
         n = len(curve.datax)
         if n > 0:
-            if curve.dyindex == -2:
-                dy = np.sqrt(abs(y))
-            elif curve.dyindex > -1:
+            if curve.dyindex != -1:
                 dy = np.array(curve.datady)
             if self.normalized:
                 norm = None
@@ -470,9 +468,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         y = np.array(curve.datay, float)
         n = len(curve.datax)
         dy = None
-        if curve.dyindex == -2:
-            dy = np.sqrt(abs(y))
-        elif curve.dyindex > -1:
+        if curve.dyindex != -1:
             dy = np.array(curve.datady)
         if self.normalized:
             norm = None

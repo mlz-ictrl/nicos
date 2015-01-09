@@ -641,9 +641,7 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
         x = np.array(curve.datax)
         y = np.array(curve.datay, float)
         dy = None
-        if curve.dyindex == -2:
-            dy = np.sqrt(abs(y))
-        elif curve.dyindex > -1:
+        if curve.dyindex != -1:
             dy = np.array(curve.datady)
         if self.normalized:
             norm = None

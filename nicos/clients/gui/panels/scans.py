@@ -28,6 +28,7 @@
 import sys
 import os
 import time
+from math import sqrt
 
 sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
 
@@ -553,24 +554,46 @@ class ScansPanel(Panel):
         newset.curves = []
         newset.started = time.localtime()
         newset.xvalueinfo = firstset.xvalueinfo
-        #newset.xnames = firstset.xnames
+        # newset.xnames = firstset.xnames
         newset.xindex = firstset.xindex
-        #newset.xunits = firstset.xunits
+        # newset.xunits = firstset.xunits
         for curves in zip(*(dataset.curves for dataset in sets)):
             newcurve = curves[0].deepcopy()
             # CRUDE HACK: don't care about the x values, operate by index
+            removepoints = set()
             for curve in curves[1:]:
                 for i in range(len(newcurve.datay)):
-                    try:
-                        if op == ADD:
-                            newcurve.datay[i] += curve.datay[i]
-                        elif op == SUBTRACT:
-                            newcurve.datay[i] -= curve.datay[i]
-                        elif op == DIVIDE:
-                            newcurve.datay[i] /= float(curve.datay[i])
-                    except Exception:
-                        pass
-            # XXX treat errors correctly
+                    y1, y2 = float(newcurve.datay[i]), float(curve.datay[i])
+                    if newcurve.dyindex != -1:
+                        dy1 = newcurve.datady[i]
+                        dy2 = curve.datady[i]
+                    else:
+                        dy1 = dy2 = 1.
+                    if op == ADD:
+                        newcurve.datay[i] = y1 + y2
+                        newcurve.datady[i] = sqrt(dy1**2 + dy2**2)
+                        newcurve.datatime[i] += curve.datatime[i]
+                        newcurve.datamon[i] += curve.datamon[i]
+                    elif op == SUBTRACT:
+                        newcurve.datay[i] = y1 - y2
+                        newcurve.datady[i] = sqrt(dy1**2 + dy2**2)
+                    elif op == DIVIDE:
+                        if y2 == 0:
+                            y2 = 1.  # generate a value for now, but...
+                            removepoints.add(i)  # remove point in the end
+                        newcurve.datay[i] = y1 / y2
+                        newcurve.datady[i] = sqrt((dy1/y2)**2 +
+                                                  (dy2*y1 / y2**2)**2)
+            # remove information about normalization -- doesn't make sense
+            if op in (SUBTRACT, DIVIDE):
+                newcurve.timeindex = -1
+                newcurve.monindices = []
+            # remove points where we would have divided by zero
+            if removepoints:
+                for arr in ('datax', 'datay', 'datady', 'datatime', 'datamon'):
+                    new = [v for (i, v) in enumerate(getattr(newcurve, arr))
+                           if i not in removepoints]
+                    setattr(newcurve, arr, new)
             newset.curves.append(newcurve)
         self.data.add_existing_dataset(newset)
         return newset.uid
