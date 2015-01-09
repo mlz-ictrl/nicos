@@ -215,15 +215,15 @@ class SequencerMixin(DeviceMixinBase):
     Usually, it is fine to derive from :class:`BaseSequencer`.
     """
     parameters = {
-        '_seq_status' : Param('Status of the currently executed sequence, '
-                              'or (status.OK, idle)', settable=True,
-                              mandatory=False, userparam=False,
-                              default=(status.OK, 'idle'),
-                              type=tupleof(int, str)),
+        '_seq_status': Param('Status of the currently executed sequence, '
+                             'or (status.OK, idle)', settable=True,
+                             mandatory=False, userparam=False,
+                             default=(status.OK, 'idle'),
+                             type=tupleof(int, str)),
     }
 
     parameter_overrides = {
-        'unit' : Override(mandatory=False, default=''),
+        'unit': Override(mandatory=False, default=''),
     }
 
     _seq_thread = None
@@ -255,7 +255,7 @@ class SequencerMixin(DeviceMixinBase):
                 except Exception as e:
                     self.log.error('action.check for %r failed with %r' % (action, e))
                     self.log.debug('_checkFailed returned %r' %
-                                    self._checkFailed(i, action, e))
+                                   self._checkFailed(i, action, e))
                     # if the above does not raise, consider this as OK
 
         if self._seq_thread:
@@ -295,7 +295,7 @@ class SequencerMixin(DeviceMixinBase):
             self.log.debug('Performing Sequence of %d steps' % len(sequence))
             for i, step in enumerate(sequence):
                 self._set_seq_status(status.BUSY, '%d) starting actions: ' %
-                                           (i + 1) + ';'.join(map(repr, step)))
+                                     (i + 1) + ';'.join(map(repr, step)))
                 # start all actions by calling run and if that fails, retry
                 for action in step:
                     self.log.debug(' - Action: %s' % repr(action))
@@ -310,18 +310,17 @@ class SequencerMixin(DeviceMixinBase):
                             try:
                                 action.retry(code)
                             except Exception as e:
-                                self.log.debug('action.retry failed with %r' %
-                                                e)
+                                self.log.debug('action.retry failed with %r' % e)
                                 self.log.debug('_retryFailed returned %r' %
-                                                self._retryFailed(i, action,
-                                                                  code, e))
+                                               self._retryFailed(i, action,
+                                                                 code, e))
 
                 # wait until all actions are finished
                 waiters = set(step)
                 while waiters:
                     t = currenttime()
                     self._set_seq_status(status.BUSY, '   waiting for: ' +
-                                                  ';'.join(map(repr, waiters)))
+                                         ';'.join(map(repr, waiters)))
                     for action in list(waiters):
                         try:
                             if action.wait():
@@ -350,7 +349,7 @@ class SequencerMixin(DeviceMixinBase):
                     self.log.debug('stopping actions: ' +
                                    ';'.join(map(repr, step)))
                     self._set_seq_status(status.BUSY, 'stopping at step %d: ' %
-                                         (i + 1) + ';'.join(map(repr,step)))
+                                         (i + 1) + ';'.join(map(repr, step)))
                     try:
                         for action in step:
                             failed = []
@@ -363,12 +362,12 @@ class SequencerMixin(DeviceMixinBase):
                             # signal those errors, captured earlier
                             for ac, e in failed:
                                 self.log.debug('_stopFailed returned %r' %
-                                                self._stopFailed(i, ac, e))
+                                               self._stopFailed(i, ac, e))
                     finally:
                         self._stopAction(i)
                         self._set_seq_status(status.NOTREACHED,
-                                 'operation interrupted at step %d: ' %
-                                 (i + 1) + ';'.join(map(repr,step)))
+                                             'operation interrupted at step %d: ' %
+                                             (i + 1) + ';'.join(map(repr, step)))
                         self.log.debug('stopping finished')
                     break
 
@@ -422,9 +421,9 @@ class SequencerMixin(DeviceMixinBase):
     def _stopAction(self, nr):
         """Called whenever a running sequence is 'stopped'.
 
-        Stopping of the currently performing actions is automatically done before.
-        If additional actions are required to get the Device into a stable state,
-        place them here.
+        Stopping of the currently performing actions is automatically done
+        before.  If additional actions are required to get the Device into a
+        stable state, place them here.
 
         Default to a NOP.
         """
@@ -522,18 +521,18 @@ class LockedDevice(BaseSequencer):
     """
 
     attached_devices = {
-        'device' : (Moveable, 'Moveable device which is protected by the lock'),
-        'lock'   : (Moveable, 'The lock, protecting the device'),
+        'device': (Moveable, 'Moveable device which is protected by the lock'),
+        'lock': (Moveable, 'The lock, protecting the device'),
     }
 
     parameters = {
-        'unlockvalue' : Param('The value for the lock to unlock the moveable',
-                              mandatory=True, type=anytype),
-        'keepfixed'   : Param('Whether to fix lock device if not moving',
-                              default=False, type=bool),
-        'lockvalue'   : Param('Value for the lock after movement, default None'
-                              ' goes to previous value',
-                              default=None, type=none_or(anytype)),
+        'unlockvalue': Param('The value for the lock to unlock the moveable',
+                             mandatory=True, type=anytype),
+        'keepfixed': Param('Whether to fix lock device if not moving',
+                           default=False, type=bool),
+        'lockvalue': Param('Value for the lock after movement, default None'
+                           ' goes to previous value',
+                           default=None, type=none_or(anytype)),
     }
 
     def _generateSequence(self, target, *args, **kwargs):
@@ -572,7 +571,8 @@ class LockedDevice(BaseSequencer):
 
     def doStatus(self, maxage=0):
         """returns highest statusvalue"""
-        stati = [dev.status(maxage) for dev in self._adevs.values()] + [self._seq_status]
+        stati = [dev.status(maxage) for dev in self._adevs.values()] + \
+                [self._seq_status]
         # sort by first element, i.e. status code
         stati.sort(reverse=True)
         # select highest (worst) status
