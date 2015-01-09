@@ -28,8 +28,8 @@ from PyTango import CommunicationFailed
 
 from nicos.core import Moveable, HasPrecision, Override, oneof, status, \
     SIMULATION
-from nicos.core.errors import CommunicationError, MoveError
-from nicos.core.params import Param, Attach
+from nicos.core.errors import CommunicationError
+from nicos.core.params import Param, Attach, floatrange
 from nicos.devices.tango import AnalogOutput
 
 
@@ -44,6 +44,9 @@ class Toellner(AnalogOutput, HasPrecision):
                           mandatory=True),
         'voltage' : Param('Maximal voltage ', type=float,
                           unit='V', volatile=True, settable=True),
+        'timeout' : Param('Maximum time to wait for the output to settle',
+                          unit='s', type=floatrange(0, 60), settable=True,
+                          default=4),
     }
 
     parameter_overrides = {
@@ -93,10 +96,16 @@ class Toellner(AnalogOutput, HasPrecision):
 
     def doStatus(self, maxage=0, mapping=None):
         val = self.read()
-        if abs(self._setval - val) > self.precision and \
-                  currenttime() - self._starttime < 4:  #wait max 4 sec
-            return status.BUSY, ''
-        return status.OK, ''
+        target = self.target if self.target is not None else val
+        reached = (abs(target - val) <= self.precision)
+        if reached:
+            return status.OK, ''
+        else:
+            # check for timeout
+            if currenttime() - self._starttime <= self.timeout:
+                return status.BUSY, 'waiting for target value'
+            else:
+                return status.NOTREACHED, 'cannot reach desired value'
 
     def _getsign(self):
         polval = self._adevs['polchange'].read()
@@ -109,14 +118,21 @@ class Toellner(AnalogOutput, HasPrecision):
     def doStart(self, value):
         try:
             polval = self._adevs['polchange'].read()
+            target = self.target
             if self._set_field_polarity(value):
                 polval = 1 if value < 0 else 0
+                self._setROParam("target", 0)
                 self._write_value(0, fromvarcheck=False)
                 self._adevs['polchange'].start(polval)
+            self._setROParam("target", target)
             self._write_value(value, fromvarcheck=False)
         except CommunicationFailed:
             raise CommunicationError(self, 'Device %s cannot set current'
                                       % self._name)
+
+    def _write_value(self, value, fromvarcheck):
+        raise NotImplementedError
+
 
 class CurrentToellner(Toellner):
 
@@ -125,7 +141,7 @@ class CurrentToellner(Toellner):
     }
 
     def doRead(self, maxage=0):
-        self.log.debug('In doRead() Current %d', self._name)
+        self.log.debug('In doRead() Current %s', self._name)
         try:
             cur = self._dev.Query('mc%d?' % self.channel)
             curfl = float(cur.strip())
@@ -134,17 +150,8 @@ class CurrentToellner(Toellner):
             raise CommunicationError(self, 'Device %s cannot read current'
                                       % self._name)
 
-    def _write_value(self,value,fromvarcheck):
-        self._setval = value
+    def _write_value(self, value, fromvarcheck):
         self._starttime = currenttime()
         self._dev.write('c%d %f' % (self.channel, abs(value)))
-        newvalue = self.wait()
-        if abs(newvalue - value) > self.precision:
-            if not fromvarcheck:
-                self.log.warning('value %s instead of %s exceeds precision'
-                                     % (newvalue, value))
-                self._write_value(value, fromvarcheck=True)
-            else:
-                raise MoveError(self,
-                                'power supply failed to set correct value')
+        self.wait()
 
