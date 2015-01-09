@@ -491,7 +491,10 @@ class NicosPlot(QwtPlot, DlgUtils):
             return self.showError('scipy.odr is not available.')
         if not self.plotcurves:
             return self.showError('Plot must have a curve to be fitted.')
-        self.fitcurve = self.selectCurve()
+        fitcurve = self.selectCurve()
+        if not fitcurve:
+            return
+        self.fitcurve = fitcurve
         self.fitvalues = []
         self.fitparams = fitparams
         self.fittype = fittype
@@ -681,6 +684,8 @@ class ViewPlot(NicosPlot):
         self.replot()
 
     def selectCurve(self):
+        if not self.plotcurves:
+            return
         if len(self.plotcurves) > 1:
             dlg = dialogFromUi(self, 'selector.ui', 'panels')
             dlg.setWindowTitle('Select curve to fit')
@@ -696,8 +701,8 @@ class ViewPlot(NicosPlot):
         return self.plotcurves[fitcurve]
 
     def fitLinear(self):
-        self._beginFit('Linear', ['First point', 'Second point'],
-                       self.linear_fit_callback)
+        return self._beginFit('Linear', ['First point', 'Second point'],
+                              self.linear_fit_callback)
 
     def linear_fit_callback(self, args):
         title = 'linear fit'
@@ -922,8 +927,8 @@ class DataSetPlot(NicosPlot):
         return self.plotcurves[fitcurve]
 
     def fitGaussPeak(self):
-        self._beginFit('Gauss', ['Background', 'Peak', 'Half Maximum'],
-                       self.gauss_callback)
+        return self._beginFit('Gauss', ['Background', 'Peak', 'Half Maximum'],
+                              self.gauss_callback)
 
     def gauss_callback(self, args):
         title = 'peak fit'
@@ -941,8 +946,8 @@ class DataSetPlot(NicosPlot):
             (linefrom, lineto, liney)
 
     def fitPseudoVoigtPeak(self):
-        self._beginFit('Pseudo-Voigt', ['Background', 'Peak', 'Half Maximum'],
-                       self.pv_callback)
+        return self._beginFit('Pseudo-Voigt', ['Background', 'Peak', 'Half Maximum'],
+                              self.pv_callback)
 
     def pv_callback(self, args):
         title = 'peak fit (PV)'
@@ -961,8 +966,8 @@ class DataSetPlot(NicosPlot):
             (linefrom, lineto, liney)
 
     def fitPearsonVIIPeak(self):
-        self._beginFit('PearsonVII', ['Background', 'Peak', 'Half Maximum'],
-                       self.pvii_callback)
+        return self._beginFit('PearsonVII', ['Background', 'Peak', 'Half Maximum'],
+                              self.pvii_callback)
 
     def pvii_callback(self, args):
         title = 'peak fit (PVII)'
@@ -978,7 +983,7 @@ class DataSetPlot(NicosPlot):
             (linefrom, lineto, liney)
 
     def fitTc(self):
-        self._beginFit('Tc', ['Background', 'Tc'], self.tc_callback)
+        return self._beginFit('Tc', ['Background', 'Tc'], self.tc_callback)
 
     def tc_callback(self, args):
         title = 'Tc fit'
@@ -989,8 +994,8 @@ class DataSetPlot(NicosPlot):
         return x, y, title, labelx, labely, interesting, None
 
     def fitArby(self):
-        self._beginFit('Arbitrary', [], self.arby_callback,
-                       self.arby_pick_callback)
+        return self._beginFit('Arbitrary', [], self.arby_callback,
+                              self.arby_pick_callback)
 
     def arby_callback(self, args):
         title = 'fit'
