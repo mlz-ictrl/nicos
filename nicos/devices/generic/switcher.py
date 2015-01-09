@@ -27,8 +27,8 @@
 
 from nicos.utils import lazy_property
 from nicos.core import anytype, dictof, none_or, floatrange, listof, \
-     PositionError, ConfigurationError, Moveable, Readable, Param, \
-     Override, status, InvalidValueError, multiStatus
+    PositionError, ConfigurationError, Moveable, Readable, Param, \
+    Override, status, InvalidValueError, multiStatus
 from nicos.core.params import Attach
 from nicos.devices.abstract import MappedReadable, MappedMoveable
 from nicos.pycompat import iteritems
@@ -65,7 +65,8 @@ class Switcher(MappedMoveable):
     }
 
     parameter_overrides = {
-        'fallback':  Override(userparam=False, type=none_or(str), mandatory=False),
+        'fallback':  Override(userparam=False, type=none_or(str),
+                              mandatory=False),
     }
 
     hardware_access = False
@@ -131,7 +132,8 @@ class ReadonlySwitcher(MappedReadable):
     }
 
     parameter_overrides = {
-        'fallback':  Override(userparam=False, type=none_or(str), mandatory=False),
+        'fallback':  Override(userparam=False, type=none_or(str),
+                              mandatory=False),
     }
 
     hardware_access = False
@@ -163,7 +165,7 @@ class ReadonlySwitcher(MappedReadable):
         try:
             if self.read(maxage) == self.fallback:
                 return status.NOTREACHED, 'unconfigured position of %s or '\
-                                       'still moving' % self._adevs['moveable']
+                    'still moving' % self._adevs['moveable']
         except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
@@ -191,10 +193,10 @@ class MultiSwitcher(MappedMoveable):
     """
     attached_devices = {
         'moveables': Attach('The N (continuous) devices which are'
-                                  ' controlled', Moveable, multiple=True),
+                            ' controlled', Moveable, multiple=True),
         'readables': Attach('0 to N (continuous) devices which are'
-                                  ' used for read back only', Readable,
-                                  optional=True, multiple=True),
+                            ' used for read back only', Readable,
+                            optional=True, multiple=True),
     }
 
     parameters = {
@@ -225,7 +227,7 @@ class MultiSwitcher(MappedMoveable):
         for t in self.mapping.values():
             if len(t) != len(self.devices):
                 raise ConfigurationError(self, 'Switcher state entries and '
-                                       'moveables list must be of equal length')
+                                         'moveables list must be of equal length')
         if self.precision:
             if len(self.precision) not in [1, len(self.devices)]:
                 raise ConfigurationError(self, 'The precision list must either'
@@ -237,7 +239,7 @@ class MultiSwitcher(MappedMoveable):
         """target is the raw value, i.e. a list of positions"""
         moveables = self._adevs['moveables']
         if not isinstance(target, (tuple, list)) or \
-            len(target) < len(moveables):
+                len(target) < len(moveables):
             raise InvalidValueError(self, 'doStart needs a tuple of %d positions'
                                     ' for this device!' % len(moveables))
         # only check and move the moveables, which are first in self.devices
@@ -250,7 +252,7 @@ class MultiSwitcher(MappedMoveable):
             d.start(t)
         if self.blockingmove:
             for d in self.devices:
-                self.log.debug('waiting for %r'%d)
+                self.log.debug('waiting for %r' % d)
                 d.wait()
 
     def _readRaw(self, maxage=0):
@@ -271,7 +273,7 @@ class MultiSwitcher(MappedMoveable):
                             break
                     elif p != v:
                         break
-                else: # if there was no break we end here...
+                else:  # if there was no break we end here...
                     return name
             else:
                 if tuple(pos) == tuple(values):
