@@ -51,7 +51,6 @@ class NeutronGuideSwitcher(Switcher):
         if isinstance(self._adevs['moveable'], CanReference):
             self.log.info('referencing %s...' % self._adevs['moveable'])
             self._adevs['moveable'].reference()
-            self._adevs['moveable'].wait()
         else:
             self.log.warning('%s cannot be referenced!' %
                              self._adevs['moveable'])
