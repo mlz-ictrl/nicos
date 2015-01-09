@@ -541,9 +541,17 @@ class ControlDialog(QDialog):
         # put parameter values in the list widget
         self.paramList.clear()
         for key, value in sorted(iteritems(params)):
-            if self.paraminfo.get(key) and self.paraminfo[key]['userparam']:
-                self.paramItems[key] = \
-                    QTreeWidgetItem(self.paramList, [key, str(value)])
+            if self.paraminfo.get(key):
+                # normally, show only userparams, except in expert mode
+                is_userparam = self.paraminfo[key]['userparam']
+                if is_userparam or self.device_panel._show_lowlevel:
+                    self.paramItems[key] = item = \
+                        QTreeWidgetItem(self.paramList, [key, str(value)])
+                    # display non-userparams in grey italics, like lowlevel
+                    # devices in the device list
+                    if not is_userparam:
+                        item.setFont(0, lowlevelFont[True])
+                        item.setForeground(0, lowlevelBrush[True])
 
         # set description label
         if params.get('description'):
