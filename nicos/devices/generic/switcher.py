@@ -224,10 +224,11 @@ class MultiSwitcher(MappedMoveable):
 
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)
-        for t in self.mapping.values():
+        for k, t in self.mapping.items():
             if len(t) != len(self.devices):
-                raise ConfigurationError(self, 'Switcher state entries and '
-                                         'moveables list must be of equal length')
+                raise ConfigurationError(self, 'Switcher state entry for key '
+                                         '%r has different length than '
+                                         'moveables list' % k)
         if self.precision:
             if len(self.precision) not in [1, len(self.devices)]:
                 raise ConfigurationError(self, 'The precision list must either'
