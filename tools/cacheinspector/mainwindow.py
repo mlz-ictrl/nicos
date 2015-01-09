@@ -83,6 +83,7 @@ class MainWindow(QMainWindow):
         dlg = ConnectDialog(self)
         dlg.valueServerAddress.setText(self.ipAddress)
         dlg.valuePort.setText(str(self.port))
+        dlg.valueServerAddress.setFocus()
         if dlg.exec_() != QDialog.Accepted:
             return
         self.ipAddress = dlg.valueServerAddress.text()
