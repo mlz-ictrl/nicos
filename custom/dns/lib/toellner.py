@@ -26,7 +26,8 @@ from time import time as currenttime
 
 from PyTango import CommunicationFailed
 
-from nicos.core import Moveable, HasPrecision, Override, oneof, status
+from nicos.core import Moveable, HasPrecision, Override, oneof, status, \
+    SIMULATION
 from nicos.core.errors import CommunicationError, MoveError
 from nicos.core.params import Param, Attach
 from nicos.devices.tango import AnalogOutput
@@ -52,13 +53,14 @@ class Toellner(AnalogOutput, HasPrecision):
     def doInit(self, mode):
         self.log.debug('Initialize Current')
         self._starttime = currenttime()
-        try:
-            self._dev.write('syst:rem')
-            current = self._dev.Query('mc%d?' % self.channel)
-            self._setval = float(current.strip())
-        except CommunicationFailed:
-            raise CommunicationError(self, 'Device %s is not reachable'
-                                      % self._name)
+        if mode != SIMULATION:
+            try:
+                self._dev.write('syst:rem')
+                current = self._dev.Query('mc%d?' % self.channel)
+                self._setval = float(current.strip())
+            except CommunicationFailed:
+                raise CommunicationError(self, 'Device %s is not reachable'
+                                          % self._name)
 
     def doReadAbslimits(self):
         #there are no properties absmin,absmax in server
