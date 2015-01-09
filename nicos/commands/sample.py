@@ -153,7 +153,8 @@ def activation(formula=None, instrument=None,
         session.log.warning('Instrument %(instrument)s unknown to calculator, '
                             'specify flux manually' % locals())
         session.log.info('Known instruments')
-        printTable(['instrument'], [(d, ) for d in data['instruments']], session.log.info)
+        printTable(['instrument'], [(d, ) for d in data['instruments']],
+                   session.log.info)
 
     if data['result']['activation']:
         h = data['result']['activation']['headers']
@@ -283,6 +284,8 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
     if powder == 'YIG':
         a = 12.377932
         spacegroup = 230
+        printinfo('YIG: using cubic lattice constant of %.6f A' % a)
+        printinfo()
     else:
         if not isinstance(powder, float):
             raise UsageError('first argument must be either "YIG" or a '
