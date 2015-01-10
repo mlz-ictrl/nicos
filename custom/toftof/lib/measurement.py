@@ -42,6 +42,11 @@ from nicos.toftof import calculations as calc
 
 
 class TofTofMeasurement(Measurable, ImageProducer):
+    """The TOFTOF measurement device.
+
+    This is a temporarely used device which should be substituted by a detector
+    and filesaver device according to the NICOS philosophy.
+    """
 
     attached_devices = {
         'counter': (TofCounter, 'The TOF counter'),

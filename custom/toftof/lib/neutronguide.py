@@ -61,7 +61,7 @@ class NeutronGuideSwitcher(Switcher):
 
 class NeutronGuideBladeMotor(Motor):
     """
-    This devices moves the neutron guide blades of the focussing neutron guide
+    These devices move the neutron guide blades of the focussing neutron guide
     via the connected piezo motor. Since there is no encoder mounted and the
     positioning is very strongly depending on the bending force of the glass
     blade each positioning must be start with a referencing task. The reference

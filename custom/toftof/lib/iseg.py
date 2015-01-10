@@ -32,9 +32,7 @@ from nicos.devices.vendor.toni import ModBus
 
 
 class IsegHV(HasLimits, Moveable):
-    """
-    iseg in Toni crate.
-    """
+    """Iseg high voltage power supply in Toni crate."""
 
     attached_devices = {
         'bus':   (ModBus, 'Toni communication bus'),

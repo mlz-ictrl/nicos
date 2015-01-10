@@ -29,7 +29,7 @@ from time import sleep, time as currenttime
 
 import IO
 
-from nicos.core import Readable, Moveable, HasLimits, Param, Override, \
+from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach, \
      NicosError, intrange, oneof, status, requires, ADMIN, listof, tupleof
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
@@ -38,6 +38,7 @@ from nicos.toftof import calculations as calc
 
 
 class Controller(TacoDevice, Readable):
+    """The main controller device of the chopper."""
     taco_class = IO.StringIO
 
     parameters = {
@@ -313,8 +314,9 @@ class Controller(TacoDevice, Readable):
 
 
 class SpeedReadout(Readable):
+    """The current speed readout device of the chopper."""
     attached_devices = {
-        'chopper': (Controller, 'Chopper controller'),
+        'chopper': Attach('Chopper controller', Controller),
     }
 
     parameter_overrides = {
@@ -336,7 +338,7 @@ class PropertyChanger(Moveable):
     (NICOS-style interface).
     """
     attached_devices = {
-        'chopper': (Controller, 'Chopper controller'),
+        'chopper': Attach('Chopper controller', Controller),
     }
 
     def doStatus(self, maxage=0):
@@ -353,6 +355,7 @@ class PropertyChanger(Moveable):
 
 
 class Wavelength(HasLimits, PropertyChanger):
+    """The wave length parameter device of the chopper."""
     _prop = 'wavelength'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='A'),
@@ -361,6 +364,7 @@ class Wavelength(HasLimits, PropertyChanger):
 
 
 class Speed(HasLimits, PropertyChanger):
+    """The speed parameter device of the chopper."""
     _prop = 'speed'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='rpm'),
@@ -369,6 +373,7 @@ class Speed(HasLimits, PropertyChanger):
 
 
 class Ratio(PropertyChanger):
+    """The ratio parameter device of the chopper."""
     _prop = 'ratio'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default=''),
@@ -378,6 +383,9 @@ class Ratio(PropertyChanger):
 
 
 class CRC(PropertyChanger):
+    """The crc (rotation direction of disc 5) parameter device of the
+    chopper.
+    """
     _prop = 'crc'
     parameter_overrides = {
         'unit':   Override(mandatory=False, default=''),
@@ -387,6 +395,7 @@ class CRC(PropertyChanger):
 
 
 class SlitType(PropertyChanger):
+    """The slit type parameter device of the chopper."""
     _prop = 'slittype'
     parameter_overrides = {
         'unit':  Override(mandatory=False, default=''),

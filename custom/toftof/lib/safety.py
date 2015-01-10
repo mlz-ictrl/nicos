@@ -27,17 +27,22 @@
 
 from time import sleep
 
-from nicos.core import Readable, Moveable, Override, status, oneofdict
+from nicos.core import Readable, Moveable, Override, Attach, status, oneofdict
 from nicos.devices.taco import DigitalInput, DigitalOutput
 
 from nicos.toftof.safety_desc import bit_description
 
 
 class SafetyInputs(Readable):
+    """The input devices for the safety system.
+
+    The safety system has a lot of status lines which are connected to a
+    separate input which is integrated into the NICOS system.
+    """
     attached_devices = {
-        'i7053_1': (DigitalInput, 'first 7053 module'),
-        'i7053_2': (DigitalInput, 'second 7053 module'),
-        'i7053_3': (DigitalInput, 'third 7053 module'),
+        'i7053_1': Attach('first 7053 module', DigitalInput),
+        'i7053_2': Attach('second 7053 module', DigitalInput),
+        'i7053_3': Attach('third 7053 module', DigitalInput),
     }
 
     parameter_overrides = {
@@ -67,9 +72,9 @@ class Shutter(Moveable):
     """TOFTOF Shutter Control."""
 
     attached_devices = {
-        'open':   (DigitalOutput, 'Shutter open button device'),
-        'close':  (DigitalOutput, 'Shutter close button device'),
-        'status': (DigitalOutput, 'Shutter status device'),
+        'open':   Attach('Shutter open button device', DigitalOutput),
+        'close':  Attach('Shutter close button device', DigitalOutput),
+        'status': Attach('Shutter status device', DigitalOutput),
     }
 
     parameter_overrides = {

@@ -36,6 +36,7 @@ from nicos.devices.taco.core import TacoDevice
 from nicos.core import SIMULATION
 
 class TofCounter(TacoDevice, Measurable):
+    """The TOFTOF histogram counter card accessed via TACO."""
 
     taco_class = HistogramCounter
 

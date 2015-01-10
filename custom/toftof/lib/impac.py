@@ -32,6 +32,7 @@ from nicos.devices.taco.core import TacoDevice
 
 
 class ImpacPyrometer(TacoDevice, Readable):
+    """The temperature readout device of the IMPAC pyrometer."""
 
     taco_class = StringIO
 
