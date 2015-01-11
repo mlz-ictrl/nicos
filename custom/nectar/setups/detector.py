@@ -8,9 +8,9 @@ tango_host = 'nectarccd01.nectar.frm2:10000'
 
 devices = dict(
     FITSFileSaver = device('devices.fileformats.fits.FITSFileFormat',
-                 description = 'Saves image data in FITS format',
-                 filenametemplate = ['%08d.fits'],
-                 ),
+                           description = 'Saves image data in FITS format',
+                           filenametemplate = ['%08d.fits'],
+                          ),
 
     ccd = device('devices.vendor.lima.Andor2LimaCCD',
                  tangodevice = 'tango://%s/nectar/detector/limaccd' % tango_host,
@@ -29,15 +29,15 @@ devices = dict(
                  fileformats = ['FITSFileSaver'],
                 ),
     ccdTemp = device('devices.vendor.lima.Andor2TemperatureController',
-                 tangodevice = 'tango://%s/nectar/detector/dv434' % tango_host,
-                 pollinterval = 5,
-                 maxage = 12,
-                 abslimits = (-100, 0),
-                 userlimits = (-100, 0),
-                 unit = 'degC',
-                 precision = 3,
-                 fmtstr = '%.0f',
-                ),
+                     tangodevice = 'tango://%s/nectar/detector/dv434' % tango_host,
+                     pollinterval = 5,
+                     maxage = 12,
+                     abslimits = (-100, 0),
+                     userlimits = (-100, 0),
+                     unit = 'degC',
+                     precision = 3,
+                     fmtstr = '%.0f',
+                    ),
 )
 
 startupcode = '''
