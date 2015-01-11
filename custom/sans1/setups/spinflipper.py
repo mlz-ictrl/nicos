@@ -53,7 +53,7 @@ devices = dict(
                                    parameter = 'forward',
                                    maxage = 120,
                                    pollinterval = 15,
-                               ),
+                                  ),
 
     P_spinflipper_reverse = device('devices.generic.ParamDevice',
                                    description = 'Paramdevice used to select the reverse power',
@@ -62,7 +62,7 @@ devices = dict(
                                    parameter = 'reverse',
                                    maxage = 120,
                                    pollinterval = 15,
-                               ),
+                                  ),
 
     F_spinflipper = device('devices.taco.AnalogOutput',
                            description = 'frequency of ag1016',

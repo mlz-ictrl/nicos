@@ -32,10 +32,10 @@ nethost = 'spinflip.sans1.frm2'
 
 devices = dict(
     B_birmag = device('devices.taco.AnalogInput',
-                          description = 'magnetic field of birmingham magnet',
-                          tacodevice = '//%s/spinflip/birmag/field' % (nethost,),
-                          fmtstr = '%.3f',
-                         ),
+                      description = 'magnetic field of birmingham magnet',
+                      tacodevice = '//%s/spinflip/birmag/field' % (nethost,),
+                      fmtstr = '%.3f',
+                     ),
 
     T_birmag_a = device('devices.taco.AnalogInput',
                         description = 'temperature a of birmingham magnet',
@@ -44,10 +44,10 @@ devices = dict(
                        ),
 
     T_birmag_b = device('devices.taco.AnalogInput',
-                       description = 'temperature b of birmingham magnet',
-                       tacodevice = '//%s/spinflip/birmag/sensb' % (nethost,),
-                       fmtstr = '%.3f',
-                      ),
+                        description = 'temperature b of birmingham magnet',
+                        tacodevice = '//%s/spinflip/birmag/sensb' % (nethost,),
+                        fmtstr = '%.3f',
+                       ),
 
     birmag_sp1 = device('devices.taco.AnalogInput',
                         description = 'setpoint 1 of birmingham magnet',
