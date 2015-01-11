@@ -15,7 +15,7 @@ devices = dict(
                     abslimits = (-355, 355),
                     zerosteps = 500000,
                     lowlevel = True,
-                    ),
+                   ),
 
     co_echi= device('devices.vendor.ipc.Coder',
                     bus = 'motorbus1',
@@ -24,7 +24,7 @@ devices = dict(
                     zerosteps = 5334445,
                     unit = 'deg',
                     lowlevel = True,
-                    ),
+                   ),
 
     echi   = device('devices.generic.Axis',
                     motor = 'st_echi',
@@ -34,7 +34,7 @@ devices = dict(
                     offset = -189.99926762282576,
                     fmtstr = '%.3f',
                     maxtries = 5,
-                    ),
+                   ),
 
 
     st_ephi= device('devices.vendor.ipc.Motor',
@@ -45,7 +45,7 @@ devices = dict(
                     abslimits = (-180, 180),
                     zerosteps = 500000,
                     lowlevel = True,
-                    ),
+                   ),
 
     co_ephi= device('devices.vendor.ipc.Coder',
                     bus = 'motorbus1',
@@ -55,7 +55,7 @@ devices = dict(
                     unit = 'deg',
                     circular = -360, # map values to -180..0..180 degree
                     lowlevel = True,
-                    ),
+                   ),
 
     ephi   = device('devices.generic.Axis',
                     motor = 'st_ephi',
@@ -65,5 +65,5 @@ devices = dict(
                     offset = 0,
                     fmtstr = '%.3f',
                     maxtries = 5,
-                    ),
+                   ),
 )

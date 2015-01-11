@@ -8,7 +8,7 @@ group = 'lowlevel'
 
 devices = dict(
 # Att and ATH
-     st_att = device('devices.vendor.ipc.Motor',
+    st_att = device('devices.vendor.ipc.Motor',
                     bus = 'motorbus6',
                     addr = 60,
                     slope = -267.8,
@@ -17,7 +17,7 @@ devices = dict(
                     zerosteps = 500000,
                     lowlevel = True,
                     confbyte = 104,
-                    ),
+                   ),
 
     st_ath = device('devices.vendor.ipc.Motor',
                     bus = 'motorbus6',
@@ -28,7 +28,7 @@ devices = dict(
                     zerosteps = 500000,
                     lowlevel = True,
                     confbyte = 108,
-                    ),
+                   ),
 
     co_att = device('puma.ipc_puma.Coder',
                     bus = 'motorbus6',
@@ -38,7 +38,7 @@ devices = dict(
                     unit = 'deg',
                     circular = -360,
                     lowlevel = True,
-                    ),
+                   ),
 
     co_ath = device('puma.ipc_puma.Coder',
                     bus = 'motorbus6',
@@ -47,21 +47,23 @@ devices = dict(
                     zerosteps = 476397,
                     unit = 'deg',
                     lowlevel = True,
-                    ),
+                   ),
 
-#    ath_st      = device('devices.generic.VirtualMotor',
+#    ath_st = device('devices.generic.VirtualMotor',
 #                    unit = 'deg',
 #                    speed = 1,
 #                    abslimits = (-180, 180),
-##                      precision = 0.05,
-#                    curvalue = 35),
+##                   precision = 0.05,
+#                    curvalue = 35,
+#                   ),
 
-#    att_st      = device('devices.generic.VirtualMotor',
+#    att_st = device('devices.generic.VirtualMotor',
 #                    unit = 'deg',
 #                    speed = 1,
 #                    abslimits = (-180, 180),
-##                      precision = 0.05,
-#                    curvalue = 70),
+##                   precision = 0.05,
+#                    curvalue = 70,
+#                   ),
 
 
     att    = device('devices.generic.Axis',
@@ -71,9 +73,9 @@ devices = dict(
                     obs = [],
                     precision = 0.01,
                     offset = 0.379, # focused
- #                   offset = 0.307, # with collimator
+#                   offset = 0.307, # with collimator
                     maxtries = 10,
-                    ),
+                   ),
 
     ath    = device('devices.generic.Axis',
                     description = 'Rocking angle theta of analyser',
@@ -84,7 +86,7 @@ devices = dict(
 #                   offset = -0.678, #with collimator
                     offset = -0.719, #focussed
                     maxtries = 8,
-                    ),
+                   ),
 
 # Focusing
 
@@ -96,7 +98,7 @@ devices = dict(
                     abslimits = (-55, 55),
                     zerosteps = 482230,
                     lowlevel = True,
-                    ),
+                   ),
 
    co_afpg = device('puma.ipc_puma.Coder',
                     bus = 'motorbus6',
@@ -105,7 +107,7 @@ devices = dict(
                     zerosteps = 482.63,
                     unit = 'deg',
                     lowlevel = True,
-                    ),
+                   ),
    afpg   = device('puma.focus.focus_Axis',
                    description = 'Horizontal focus of PG-analyser',
                    motor = 'st_afpg',
@@ -118,7 +120,7 @@ devices = dict(
                    startpos = 4,
                    precision = 0.25,
                    maxtries = 15,
-                   ),
+                  ),
 
 # Tilt and Translation
 
@@ -130,8 +132,7 @@ devices = dict(
                    abslimits = (-10.1, 7.6),
                    zerosteps = 500000,
                    lowlevel = True,
-                   ),
-
+                  ),
 
    co_atx = device('puma.ipc_puma.Coder',
                     bus = 'motorbus6',
@@ -140,7 +141,7 @@ devices = dict(
                     zerosteps = 5073,
                     unit = 'mm',
                     lowlevel = True,
-                    ),
+                   ),
 
     atx    = device('devices.generic.Axis',
                     description = 'Translation of analyser',
@@ -151,7 +152,7 @@ devices = dict(
                     offset = 0,
                     maxtries = 10,
                     loopdelay = 1,
-                    ),
+                   ),
 
    st_aty = device('puma.ipc_puma.Motor',
                    bus = 'motorbus6',
@@ -161,7 +162,7 @@ devices = dict(
                    abslimits = (-6.1, 5.1),
                    zerosteps = 500000,
                    lowlevel = True,
-                   ),
+                  ),
 
 
    co_aty = device('puma.ipc_puma.Coder',
@@ -171,7 +172,7 @@ devices = dict(
                     zerosteps = 5026,
                     unit = 'mm',
                     lowlevel = True,
-                    ),
+                   ),
 
     aty    = device('devices.generic.Axis',
                     description = 'Translation of analyser (corrects depth of pg-crystals)',
@@ -182,7 +183,7 @@ devices = dict(
                     offset = 0,
                     maxtries = 10,
                     loopdelay = 1,
-                    ),
+                   ),
 
    st_agx = device('puma.ipc_puma.Motor',
                    bus = 'motorbus6',
@@ -192,7 +193,7 @@ devices = dict(
                    abslimits = (-5.5, 5.5),
                    zerosteps = 500000,
                    lowlevel = True,
-                   ),
+                  ),
 
     agx   = device('devices.generic.Axis',
                     description = 'Tilt of analyser (up/down scattering)',
@@ -203,55 +204,55 @@ devices = dict(
                     offset = 0,
                     maxtries = 10,
                     backlash = 0.2,
-                    ),
+                   ),
 
     st_agy = device('puma.ipc_puma.Motor',
-                   bus = 'motorbus6',
-                   addr = 61,
-                   slope = 5000,
-                   unit = 'mm',
-                   abslimits = (-5.5, 4.5),
-                   zerosteps = 500000,
-                   lowlevel = True,
+                    bus = 'motorbus6',
+                    addr = 61,
+                    slope = 5000,
+                    unit = 'mm',
+                    abslimits = (-5.5, 4.5),
+                    zerosteps = 500000,
+                    lowlevel = True,
                    ),
 
     agy   = device('devices.generic.Axis',
-                    description = 'Tilt of analyser',
-                    motor = 'st_agy',
-                    coder = 'st_agy',
-                    obs = [],
-                    precision = 0.05,
-                    offset = 0,
-                    maxtries = 10,
-                    backlash = 0.2,
-                    ),
+                   description = 'Tilt of analyser',
+                   motor = 'st_agy',
+                   coder = 'st_agy',
+                   obs = [],
+                   precision = 0.05,
+                   offset = 0,
+                   maxtries = 10,
+                   backlash = 0.2,
+                  ),
     st_dslit = device('puma.ipc_puma.Motor',
-                   bus = 'motorbus6',
-                   addr = 67,
-                   slope = 4500,
-                   unit = 'mm',
-                   abslimits = (-5.5, 4.5),
-                   zerosteps = 500000,
-                   lowlevel = True,
-                   ),
+                      bus = 'motorbus6',
+                      addr = 67,
+                      slope = 4500,
+                      unit = 'mm',
+                      abslimits = (-5.5, 4.5),
+                      zerosteps = 500000,
+                      lowlevel = True,
+                     ),
 
     co_dslit = device('puma.ipc_puma.Coder',
-                    bus = 'motorbus6',
-                    addr = 97,
-                    slope = 80,
-                    zerosteps = 159,
-                    unit = 'mm',
-                    lowlevel = True,
-                    ),
+                      bus = 'motorbus6',
+                      addr = 97,
+                      slope = 80,
+                      zerosteps = 159,
+                      unit = 'mm',
+                      lowlevel = True,
+                     ),
 
     dslit   = device('devices.generic.Axis',
-                    description = 'Slit before detector',
-                    motor = 'st_dslit',
-                    coder = 'co_dslit',
-                    obs = [],
-                    precision = 0.05,
-                    offset = 0,
-                    maxtries = 10,
+                     description = 'Slit before detector',
+                     motor = 'st_dslit',
+                     coder = 'co_dslit',
+                     obs = [],
+                     precision = 0.05,
+                     offset = 0,
+                     maxtries = 10,
                     ),
 
 )

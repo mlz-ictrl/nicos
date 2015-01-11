@@ -6,5 +6,5 @@ devices = dict(
                        tacodevice = 'puma/rs485/mc',
                        bustimeout = 1.0,
                        lowlevel = True,
-                       ),
+                      ),
 )
