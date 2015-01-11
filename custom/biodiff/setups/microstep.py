@@ -9,14 +9,14 @@ group = "optional"
 includes = ["motor"]
 
 devices = dict(
-        omega_samplestepper_m = device("biodiff.motor.MicrostepMotor",
-                                       description = "Sample stepper " +
-                                       "omega variant (micro)",
-                                       motor = "omega_samplestepper",
-                                       ),
-        omega_sampletable_m = device("biodiff.motor.MicrostepMotor",
-                                     description = "Sample table " +
-                                     "omega variant (micro)",
-                                     motor = "omega_sampletable",
-                                     ),
-               )
+    omega_samplestepper_m = device("biodiff.motor.MicrostepMotor",
+                                   description = "Sample stepper omega variant"
+                                                 " (micro)",
+                                   motor = "omega_samplestepper",
+                                  ),
+    omega_sampletable_m = device("biodiff.motor.MicrostepMotor",
+                                 description = "Sample table omega variant "
+                                               "(micro)",
+                                 motor = "omega_sampletable",
+                                ),
+)
