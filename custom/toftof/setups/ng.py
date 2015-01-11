@@ -7,7 +7,7 @@ includes = []
 nethost = 'ng-focus.toftof.frm2'
 
 devices = dict(
-    ng_left     = device('toftof.neutronguide.NeutronGuideBladeMotor',
+    ng_left     = device('toftof.neutronguide.Motor',
                          description = 'Left mirror bender of the flexible'
                                        ' neutron guide',
                          tacodevice = '//%s/ngfocus/left/motor' % (nethost,),
@@ -22,7 +22,7 @@ devices = dict(
                          fmtstr = '%d',
                          lowlevel = True,
                         ),
-    ng_right   = device('toftof.neutronguide.NeutronGuideBladeMotor',
+    ng_right   = device('toftof.neutronguide.Motor',
                          description = 'Right mirror bender of the flexible'
                                        ' neutron guide',
                          tacodevice = '//%s/ngfocus/right/motor' % (nethost,),
@@ -37,7 +37,7 @@ devices = dict(
                          fmtstr = '%d',
                          lowlevel = True,
                         ),
-    ng_bottom  = device('toftof.neutronguide.NeutronGuideBladeMotor',
+    ng_bottom  = device('toftof.neutronguide.Motor',
                          description = 'Bottom mirror bender of the flexible'
                                        ' neutron guide',
                          tacodevice = '//%s/ngfocus/bottom/motor' % (nethost,),
@@ -52,7 +52,7 @@ devices = dict(
                           fmtstr = '%d',
                           lowlevel = True,
                         ),
-    ng_top      = device('toftof.neutronguide.NeutronGuideBladeMotor',
+    ng_top      = device('toftof.neutronguide.Motor',
                          description = 'Top mirror bender of the flexible'
                                        ' neutron guide',
                          tacodevice = '//%s/ngfocus/top/motor' % (nethost,),

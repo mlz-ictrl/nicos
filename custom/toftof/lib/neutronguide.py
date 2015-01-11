@@ -26,11 +26,11 @@
 
 from nicos.core import Param, Override, NicosError, intrange
 from nicos.devices.abstract import CanReference
-from nicos.devices.generic import Switcher
+from nicos.devices.generic import Switcher as BaseSwitcher
 from nicos.core.params import Attach
-from nicos.devices.taco import Motor, DigitalInput
+from nicos.devices.taco import Motor as BaseMotor, DigitalInput
 
-class NeutronGuideSwitcher(Switcher):
+class Switcher(BaseSwitcher):
     """
     Switcher, specially adopted to TOFTOF needs
 
@@ -59,7 +59,7 @@ class NeutronGuideSwitcher(Switcher):
             self._adevs['moveable'].wait()
 
 
-class NeutronGuideBladeMotor(Motor):
+class Motor(BaseMotor):
     """
     These devices move the neutron guide blades of the focussing neutron guide
     via the connected piezo motor. Since there is no encoder mounted and the
