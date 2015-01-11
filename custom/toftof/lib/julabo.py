@@ -34,7 +34,8 @@ from nicos.core import status, intrange, oneof, Moveable, \
 from nicos.devices.taco.core import TacoDevice
 
 
-class Julabo(TacoDevice, HasLimits, Moveable):
+class Controller(TacoDevice, HasLimits, Moveable):
+    """The Julabo temperature controller."""
     taco_class = StringIO
 
     parameters = {

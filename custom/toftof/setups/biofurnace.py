@@ -7,7 +7,7 @@ includes = ['alias_T']
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
-    bio = device('toftof.julabo.Julabo',
+    bio = device('toftof.julabo.Controller',
                  description = 'Julabo temperature controller',
                  tacodevice = '//%s/toftof/rs232/ifbiofurnace' % (nethost,),
                  intern_extern = 0,
