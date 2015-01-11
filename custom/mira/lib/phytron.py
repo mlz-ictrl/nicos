@@ -33,7 +33,7 @@ from nicos.core import CommunicationError
 from nicos.devices.taco.axis import Axis as TacoAxis
 
 
-class PhytronAxis(TacoAxis):
+class Axis(TacoAxis):
     """
     A Phytron specific axis -- on doReset() it tries to reset the Phytron
     controller as well as the TACO server.

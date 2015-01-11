@@ -2,7 +2,7 @@ description = 'analyzer table'
 group = 'lowlevel'
 
 devices = dict(
-#    ath      = device('mira.axis.PhytronAxis',
+#    ath      = device('mira.phytron.Axis',
 #                      description = 'analyzer theta',
 #                      tacodevice = '//mirasrv/mira/axis/ath',
 #                      abslimits = (90 - 90, 90 + 90),
