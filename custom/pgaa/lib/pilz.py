@@ -32,12 +32,12 @@ from nicos.devices.taco.io import NamedDigitalOutput
 from nicos.core import SIMULATION
 
 class Switch(NamedDigitalOutput):
-    """ The Pilz box is connected via the Modbus TCP protocol with the rest of
+    """The Pilz box is connected via the Modbus TCP protocol with the rest of
     the world. Unfortunately the bit for controlling the attenuators and
     shutter are distributed in a wide range over the input and output region
     of the Modbus interface. The Beckhoff TACO server deals with the bits
-    and so we have some different devices """
-
+    and so we have some different devices.
+    """
     parameters = {
         'remote':   Param('Device to enable the remote control',
                          type=tacodev, mandatory=True, preinit=True),
