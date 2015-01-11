@@ -82,21 +82,21 @@ devices = dict(
                       ),
 
     dns  = device('devices.instrument.Instrument',
-                     description = 'DNS Diffuse scattering neutron ' +
+                  description = 'DNS Diffuse scattering neutron ' +
                                    'time of flight spectrometer',
-                     instrument='DNS',
-                     responsible= 'Yixi Su <y.su@fz-juelich.de>'
-                    ),
+                  instrument='DNS',
+                  responsible= 'Yixi Su <y.su@fz-juelich.de>'
+                 ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
                       description = 'Device storing scanfiles in Ascii output format.',
-                    ),
+                     ),
     conssink = device('devices.datasinks.ConsoleSink',
                       description = 'Device storing console output.',
-                    ),
+                     ),
     daemonsink = device('devices.datasinks.DaemonSink',
                       description = 'Device storing deamon output.',
-                    ),
+                     ),
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       path = None,

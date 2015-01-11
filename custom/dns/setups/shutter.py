@@ -4,7 +4,7 @@ description = 'DNS shutter digital in- and outputs'
 
 group = 'optional'
 
-includes = ['reactor','nl6']
+includes = ['reactor', 'nl6']
 
 tango_host = 'tango://phys.dns.frm2:10000'
 

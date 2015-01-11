@@ -28,7 +28,7 @@ group = 'optional'
 
 #tango_host = 'tango://phys.dns.frm2:10000'
 tango_host = 'tango://localhost:10000'
-tango_url = '%s/dns/Selector'%(tango_host)
+tango_url = '%s/dns/Selector' % (tango_host,)
 
 
 devices = dict(
@@ -87,5 +87,5 @@ devices = dict(
     selector_lift   = device('devices.tango.Motor',
                              description = 'Selector lift',
                              tangodevice = '%s/dns/fzjs7/sel_lift' % tango_host,
-                      ),
+                            ),
 )
