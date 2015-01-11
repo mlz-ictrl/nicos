@@ -12,7 +12,7 @@ devices = dict(
                  tacodevice = '//%s/toftof/pressure/value' % (nethost,),
                  unit = 'bar',
                  pollinterval = 120,
-    ),
+                ),
 )
 
 startupcode = """
