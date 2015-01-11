@@ -3,16 +3,23 @@ group = 'optional'
 
 devices = dict(
     dct1 = device('devices.taco.CurrentSupply',
+                  description = 'Current 1',
                   tacodevice = '//antaressrv/antares/lambda/out1',
-                  abslimits=(0, 5)),
+                  abslimits=(0, 5),
+                  lowlevel = True,
+                 ),
 
     dct2 = device('devices.taco.CurrentSupply',
+                  description = 'Current 2',
                   tacodevice = '//antaressrv/antares/lambda/out2',
-                  abslimits=(0, 5)),
+                  abslimits=(0, 5),
+                  lowlevel = True,
+                 ),
 
     flip = device('devices.polarized.MezeiFlipper',
                   description = 'Mezei flipper before sample (in shielding table)',
                   flip = 'dct1',
-                  corr = 'dct2'),
+                  corr = 'dct2',
+                 ),
 
 )

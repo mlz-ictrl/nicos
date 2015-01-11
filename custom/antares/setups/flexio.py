@@ -12,13 +12,13 @@ devices = dict(
 
     # power sockets / Steckdosen
     FlexOutput = device('devices.tango.DigitalOutput',
-                         description = '16bit Flex Output',
-                         tangodevice = '%s/antares/fzjdp/FlexOutput' % tango_host,
-                        ),
+                        description = '16bit Flex Output',
+                        tangodevice = '%s/antares/fzjdp/FlexOutput' % tango_host,
+                       ),
     FlexInput = device('devices.tango.DigitalInput',
-                         description = '16bit Flex Input',
-                         tangodevice = '%s/antares/fzjdp/FlexInput' % tango_host,
-                        ),
+                       description = '16bit Flex Input',
+                       tangodevice = '%s/antares/fzjdp/FlexInput' % tango_host,
+                      ),
 )
 
 

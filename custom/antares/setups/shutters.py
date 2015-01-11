@@ -36,17 +36,17 @@ devices = dict(
                      ),
 
     fastshutter_io = device('devices.tango.DigitalOutput',
-                         description = 'Tango device for Fast shutter',
-                         tangodevice = '%s/antares/fzjdp_digital/FastShutter' % tango_host,
-                         lowlevel = True,
-                        ),
+                            description = 'Tango device for Fast shutter',
+                            tangodevice = '%s/antares/fzjdp_digital/FastShutter' % tango_host,
+                            lowlevel = True,
+                           ),
     fastshutter = device('devices.generic.Switcher',
-                      description = 'Fast shutter',
-                      moveable = 'fastshutter_io',
-                      mapping = dict( open=1, closed=2 ),
-                      fallback = '<undefined>',
-                      precision = 0,
-                     ),
+                         description = 'Fast shutter',
+                         moveable = 'fastshutter_io',
+                         mapping = dict( open=1, closed=2 ),
+                         fallback = '<undefined>',
+                         precision = 0,
+                        ),
 )
 
 

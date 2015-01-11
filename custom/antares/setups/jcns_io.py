@@ -9,7 +9,6 @@ includes = []
 tango_host = 'tango://cpci01.antares.frm2:10000'
 
 devices = dict(
-
     # MonoSwitch
     monoswitch_io = device('devices.tango.DigitalOutput',
                            description = 'Tango device for Monoswitch in/out',
@@ -23,8 +22,6 @@ devices = dict(
                         fallback = '<undefined>',
                         precision = 0,
                        ),
-
-
 )
 
 

@@ -24,13 +24,13 @@ devices = dict(
                         precision = 0,
                        ),
     pinhole = device('devices.generic.Switcher',
-                        description = 'Pinhole diameter',
-                        moveable = 'collimator_io',
-                        mapping = { 2:4, 4.5:1, 9:6, 18:3, 36:5, 71:2, 'park':7, },
-                        fallback = '<undefined>',
-                        unit = 'mm',
-                        precision = 0,
-                       ),
+                     description = 'Pinhole diameter',
+                     moveable = 'collimator_io',
+                     mapping = { 2:4, 4.5:1, 9:6, 18:3, 36:5, 71:2, 'park':7, },
+                     fallback = '<undefined>',
+                     unit = 'mm',
+                     precision = 0,
+                    ),
 )
 
 
