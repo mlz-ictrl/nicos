@@ -40,7 +40,8 @@ devices = dict(
                       counters = ['det1', 'det2'],
                       #~ counters = ['det2'],
                       maxage = 1,
-                      pollinterval = 1),
+                      pollinterval = 1,
+                     ),
 )
 
 startupcode = 'SetDetectors(det)'

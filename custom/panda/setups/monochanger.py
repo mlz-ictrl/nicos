@@ -9,10 +9,10 @@ group = 'lowlevel' # hide it for people not knowing what they are doing....
 # below devices and setting need to keep in sync with the PLC-code!
 devices = dict(
     # single point of failure
-    #~ modbus         = device('panda.monochanger.ModBus',
-                            #~ description = 'Single connecting point to the new mono changer',
-                            #~ host = 'wechsler.panda.frm2',
-                           #~ ),
+#~   modbus         = device('panda.monochanger.ModBus',
+                          #~ description = 'Single connecting point to the new mono changer',
+                          #~ host = 'wechsler.panda.frm2',
+                         #~ ),
     modbus         = device('panda.monochanger.Beckhoff',
                             description = 'Single connecting point to the new mono changer',
                             tacodevice = '//pandasrv.panda.frm2/panda/modbus/wechsler',
