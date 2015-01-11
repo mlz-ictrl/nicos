@@ -24,9 +24,9 @@
 
 """Support code for the Newport Motors"""
 
-from nicos.devices.taco.motor import Motor
+from nicos.devices.taco.motor import Motor as TacoMotor
 
-class NewportMotor(Motor):
+class Motor(TacoMotor):
     """TACOMotor with doSetPosition disabled
 
     as the tacoserver for the newport motors does not provide setposition correctly,
