@@ -5,7 +5,7 @@ group = 'special'
 ## hashlib.md5('plantextpassword').hexdigest() # gives the hashvalue to use
 
 devices = dict(
-    UserDBAuth = device('frm2.auth.Frm2Authenticator'),
+    UserDBAuth = device('frm2.proposaldb.Authenticator'),
     Auth       = device('services.daemon.auth.ListAuthenticator',
                          description = 'Authentication device',
                          hashing = 'md5',

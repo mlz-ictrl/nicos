@@ -8,7 +8,7 @@ import hashlib
 
 
 devices = dict(
-    UserDBAuth = device('frm2.auth.Frm2Authenticator',
+    UserDBAuth = device('frm2.proposaldb.Authenticator',
                         description = 'FRM-II user office authentication',
                        ),
     Auth       = device('services.daemon.auth.ListAuthenticator',

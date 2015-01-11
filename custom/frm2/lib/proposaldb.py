@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-"""FRM-II proposal DB utilities."""
+"""NICOS FRM II specific authentication and proposal DB utilities."""
+
 
 from os import path
 import datetime
@@ -36,9 +37,11 @@ except ImportError:
         DB = None
 
 from nicos import session
-from nicos.core import ConfigurationError, InvalidValueError
+from nicos.core import ConfigurationError, InvalidValueError, USER
 from nicos.utils import readFile
 from nicos.pycompat import integer_types, text_type
+from nicos.services.daemon.auth import User, AuthenticationError, \
+    Authenticator as BaseAuthenticator
 
 
 class ProposalDB(object):
@@ -174,3 +177,24 @@ def queryUser(user):
     uid = int(row[0])
     passwd = row[1]
     return uid, passwd
+
+
+class Authenticator(BaseAuthenticator):
+    """
+    Authenticates against the FRM-II user office database.
+    """
+
+    def pw_hashing(self):
+        return 'md5'
+
+    def authenticate(self, username, password):
+        try:
+            _uid, passwd = queryUser(username)
+            if passwd != password:
+                raise AuthenticationError('wrong password')
+            return User(username, USER)
+        except AuthenticationError:
+            raise
+        except Exception as err:
+            raise AuthenticationError('exception during authenticate(): %s'
+                                      % err)

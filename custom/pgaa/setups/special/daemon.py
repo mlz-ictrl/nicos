@@ -28,7 +28,7 @@ group = 'special'
 import hashlib
 
 devices = dict(
-    UserDB = device('frm2.auth.Frm2Authenticator'),
+    UserDB = device('frm2.proposaldb.Authenticator'),
     Auth   = device('services.daemon.auth.ListAuthenticator',
                     hashing = 'md5',
                     # first entry is the user name, second the hashed password, third the user level

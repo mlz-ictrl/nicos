@@ -8,7 +8,7 @@ import hashlib
 devices = dict(
     # to authenticate against the UserOffice, needs the "propdb" parameter
     # set on the Experiment object
-    UserDB = device('frm2.auth.Frm2Authenticator'),
+    # UserDB = device('frm2.proposaldb.Authenticator'),
 
     # fixed list of users:
     # first entry is the user name, second the hashed password, third the user level

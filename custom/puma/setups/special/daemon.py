@@ -3,7 +3,8 @@ group = 'special'
 import hashlib
 
 devices = dict(
-    Auth   = device('services.daemon.auth.ListAuthenticator',  # or 'frm2.auth.Frm2Authenticator'
+    UserDB = device('frm2.proposaldb.Authenticator'),
+    Auth   = device('services.daemon.auth.ListAuthenticator',
                     # first entry is the user name, second the hashed password, third the user level
                     passwd = [('guest', '', 'guest'),
                               ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
@@ -11,7 +12,7 @@ devices = dict(
                    ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
                     server = 'pumahw.puma.frm2',
-                    authenticators = ['Auth'],
+                    authenticators = ['Auth'], # and/or 'UserDB'
                     loglevel = 'debug',
                    ),
 )

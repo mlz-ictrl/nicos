@@ -2,7 +2,7 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    UserDB = device('frm2.auth.Frm2Authenticator'),
+    UserDB = device('frm2.proposaldb.Authenticator'),
 
     Auth   = device('services.daemon.auth.ListAuthenticator',
                     hashing = 'md5',
