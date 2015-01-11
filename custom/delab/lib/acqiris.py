@@ -35,7 +35,7 @@ import omniORB
 omniORB.updateModule('CARESS')
 
 from nicos.core import Param, Override, Value, status, oneof, SIMULATION
-from nicos.devices.generic.detector import Channel
+from nicos.devices.generic.detector import Channel as BaseChannel
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError, UsageError, ProgrammingError
 from nicos.utils import readFileCounter, updateFileCounter
@@ -59,7 +59,7 @@ OFF_LINE    = 0
 ON_LINE     = 1
 
 
-class Acqiris(Channel):
+class Channel(BaseChannel):
     """The Acqiris detector device.
 
     The Acqiris detector server is a CORBA based CARESS device server.
@@ -272,13 +272,13 @@ class Acqiris(Channel):
         updateFileCounter(self.counterfile, value)
 
 
-class Timer(Acqiris):
+class Timer(Channel):
 
     def doInit(self, mode):
         if mode == SIMULATION:
             return
 
-        Acqiris.doInit(self, mode)
+        Channel.doInit(self, mode)
         self._initObject(TIMER_ID)
         self._init('timer')
 
@@ -298,7 +298,7 @@ class Timer(Acqiris):
         return ('t')
 
 
-class Counter(Acqiris):
+class Counter(Channel):
 
     parameters = {
         'config' : Param('Channel and trigger configuration',
@@ -310,7 +310,7 @@ class Counter(Acqiris):
         if mode == SIMULATION:
             return
 
-        Acqiris.doInit(self, mode)
+        Channel.doInit(self, mode)
         self._initObject(COUNTER_ID)
         self._init('event')
 
