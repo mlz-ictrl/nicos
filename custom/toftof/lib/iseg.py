@@ -31,7 +31,7 @@ from nicos.core import SIMULATION
 from nicos.devices.vendor.toni import ModBus
 
 
-class IsegHV(HasLimits, Moveable):
+class Voltage(HasLimits, Moveable):
     """Iseg high voltage power supply in Toni crate."""
 
     attached_devices = {
