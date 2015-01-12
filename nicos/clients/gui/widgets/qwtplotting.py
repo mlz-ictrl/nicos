@@ -219,6 +219,7 @@ class ErrorBarPlotCurve(QwtPlotCurve):
 
 
 class NicosQwtPlot(QwtPlot, NicosPlot):
+
     def __init__(self, parent, window, timeaxis=False):
         QwtPlot.__init__(self, parent)
         NicosPlot.__init__(self, window, timeaxis=timeaxis)
@@ -394,6 +395,9 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
                 plotcurve.setStyle(QwtPlotCurve.NoCurve)
         self.hasLines = on
         self.replot()
+
+    def unzoom(self):
+        self.zoomer.zoom(0)
 
     def addPlotCurve(self, plotcurve, replot=False):
         plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)

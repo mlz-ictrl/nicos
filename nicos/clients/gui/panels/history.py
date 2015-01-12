@@ -36,19 +36,11 @@ from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, \
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, QSettings, \
     SIGNAL, pyqtSignature as qtsig
 
-try:
-    from nicos.clients.gui.widgets.grplotting import ViewPlot
-    _gr_available = True
-except ImportError as e:
-    from nicos.clients.gui.widgets.qwtplotting import ViewPlot
-    _gr_available = False
-    _import_error = e
-
 from nicos.core import Param, listof
 from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
-from nicos.clients.gui.widgets.plotting import LinearFitter
+from nicos.clients.gui.widgets.plotting import ViewPlot, LinearFitter
 from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.protocols.cache import cache_load
@@ -450,12 +442,11 @@ class BaseHistoryWindow(object):
             self.actionSymbols.setChecked(view.plot.hasSymbols)
             self.actionLines.setChecked(view.plot.hasLines)
             self.plotLayout.addWidget(view.plot)
-            if _gr_available:
+            self.actionAutoScale.setEnabled(view.plot.HAS_AUTOSCALE)
+            if view.plot.HAS_AUTOSCALE:
                 view.plot.setAutoScale(True)
                 view.plot.logYinDomain.connect(self.on_logYinDomain)
                 self.actionAutoScale.setChecked(True)
-            else:
-                self.actionAutoScale.setEnabled(False)
             view.plot.show()
 
     @qtsig('')
@@ -525,11 +516,7 @@ class BaseHistoryWindow(object):
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):
-        if _gr_available:
-            self.currentPlot._plot.reset()
-            self.currentPlot.update()
-        else:
-            self.currentPlot.zoomer.zoom(0)
+        self.currentPlot.unzoom()
 
     @qtsig('bool')
     def on_actionLogScale_toggled(self, on):
@@ -704,9 +691,9 @@ class HistoryPanel(Panel, BaseHistoryWindow):
     @qtsig('')
     def on_actionAttachElog_triggered(self):
         newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
-        suffix = ".svg" if _gr_available else ".png"
+        suffix = self.currentPlot.SAVE_EXT
         newdlg.filename.setText(
-            safeFilename("history_%s" % self.currentPlot.view.name + suffix))
+            safeFilename('history_%s' % self.currentPlot.view.name + suffix))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return

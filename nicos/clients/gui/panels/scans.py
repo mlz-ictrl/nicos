@@ -36,20 +36,12 @@ from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
 from PyQt4.QtCore import QByteArray, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-try:
-    from nicos.clients.gui.widgets.grplotting import DataSetPlot
-    _gr_available = True
-except ImportError as e:
-    from nicos.clients.gui.widgets.qwtplotting import DataSetPlot
-    _gr_available = False
-    _import_error = e
-
 from nicos.core import Dataset
 from nicos.utils import safeFilename
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
-from nicos.clients.gui.widgets.plotting import GaussFitter, \
+from nicos.clients.gui.widgets.plotting import DataSetPlot, GaussFitter, \
     PseudoVoigtFitter, PearsonVIIFitter, TcFitter, ArbitraryFitter
 from nicos.pycompat import itervalues
 
@@ -170,10 +162,9 @@ class ScansPanel(Panel):
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
             self.actionFitArby,
-            ]:
+        ]:
             action.setEnabled(on)
-        if not _gr_available:
-            self.actionAutoScale.setEnabled(False)
+        self.actionAutoScale.setEnabled(self.currentPlot.HAS_AUTOSCALE)
 
     def getMenus(self):
         if not self.menus:
@@ -266,11 +257,10 @@ class ScansPanel(Panel):
             self.setplots[dataset.uid] = newplot
         self.datasetList.setCurrentItem(self.setitems[uid])
         plot = self.setplots[dataset.uid]
-        if _gr_available:
+        self.actionAutoScale.setEnabled(plot.HAS_AUTOSCALE)
+        if plot.HAS_AUTOSCALE:
             plot.setAutoScale(True)
             self.actionAutoScale.setChecked(True)
-        else:
-            self.actionAutoScale.setEnabled(False)
         self.setCurrentDataset(plot)
 
     def setCurrentDataset(self, plot):
@@ -291,7 +281,7 @@ class ScansPanel(Panel):
             self.actionLogScale.setChecked(plot.isLogScaling())
             self.actionNormalized.setChecked(plot.normalized)
             self.actionLegend.setChecked(plot.isLegendEnabled())
-            if _gr_available:
+            if plot.HAS_AUTOSCALE:
                 self.actionAutoScale.setChecked(plot.plot.autoscale)
                 plot.logYinDomain.connect(self.on_logYinDomain)
             self.plotLayout.addWidget(plot)
@@ -395,9 +385,9 @@ class ScansPanel(Panel):
     @qtsig('')
     def on_actionAttachElog_triggered(self):
         newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
-        suffix = ".svg" if _gr_available else ".png"
+        suffix = self.currentPlot.SAVE_EXT
         newdlg.filename.setText(
-            safeFilename("data_%s" % self.currentPlot.dataset.name + suffix))
+            safeFilename('data_%s' % self.currentPlot.dataset.name + suffix))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
@@ -411,11 +401,7 @@ class ScansPanel(Panel):
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):
-        if _gr_available:
-            self.currentPlot._plot.reset()
-            self.currentPlot.update()
-        else:
-            self.currentPlot.zoomer.zoom(0)
+        self.currentPlot.unzoom()
 
     @qtsig('bool')
     def on_actionLogScale_toggled(self, on):

@@ -124,38 +124,41 @@ class Fit(object):
 
     def run(self, name, x, y, dy):
         if leastsq is None:
-            # fitting not available
-            return self.result(name, None, x, y, dy, None, None)
+            return self.result(name, None, x, y, dy, None, None,
+                               msg='scipy leastsq function not available')
         if len(x) < 2:
-            # need at least two points to fit
-            return self.result(name, None, x, y, dy, None, None)
+            return self.result(name, None, x, y, dy, None, None,
+                               msg='need at least two data points to fit')
         xn, yn, dyn = [], [], []
         for i, v in enumerate(x):
             if self.xmin is not None and v < self.xmin:
                 continue
             if self.xmax is not None and v > self.xmax:
                 continue
-            if dy[i] > 0:
+            dyval = dy[i] if dy is not None else 1
+            if dyval > 0:
                 xn.append(v)
                 yn.append(y[i])
-                dyn.append(dy[i])
+                dyn.append(dyval)
         if len(xn) < len(self.parnames):
-            # need at least as many valid data points as there are parameters
-            return self.result(name, None, x, y, dy, None, None)
+            return self.result(name, None, x, y, dy, None, None,
+                               msg='need at least as many valid data points '
+                               'as there are parameters')
         xn, yn, dyn = array(xn), array(yn), array(dyn)
         try:
             popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn)
             parerrors = sqrt(abs(diagonal(pcov)))
-        except (RuntimeError, ValueError, TypeError):
-            return self.result(name, None, xn, yn, dyn, None, None)
+        except (RuntimeError, ValueError, TypeError) as e:
+            return self.result(name, None, xn, yn, dyn, None, None, msg=str(e))
         return self.result(name, 'lsq', xn, yn, dyn, popt, parerrors)
 
-    def result(self, name, method, x, y, dy, parvalues, parerrors):
+    def result(self, name, method, x, y, dy, parvalues, parerrors, msg=''):
         if method is None:
-            dct = {'_name': name, '_failed': True}
+            dct = {'_name': name, '_failed': True, '_message': msg}
         else:
             dct = {'_name': name, '_method': method, '_failed': False,
-                   '_pars': (self.parnames, parvalues, parerrors)}
+                   '_pars': (self.parnames, parvalues, parerrors),
+                   '_message': msg}
             for name, val, err in zip(self.parnames, parvalues, parerrors):
                 dct[name] = val
                 dct['d' + name] = err

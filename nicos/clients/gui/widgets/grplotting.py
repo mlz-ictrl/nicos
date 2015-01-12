@@ -86,6 +86,8 @@ class NicosPlotCurve(PlotCurve):
 class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
     GR_MARKER_SIZE = 1.
+    HAS_AUTOSCALE = True
+    SAVE_EXT = '.svg'
 
     def __init__(self, parent, window, timeaxis=False):
         InteractiveGRWidget.__init__(self, parent)
@@ -196,6 +198,10 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             for curve in axis.getCurves():
                 curve.linetype = linetype
         self.hasLines = on
+        self.update()
+
+    def unzoom(self):
+        self._plot.reset()
         self.update()
 
     def on_logXinDomain(self, flag):
@@ -312,7 +318,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         if errBar1:
             # XXX how to get this faster
             return [curve.x, curve.y,
-                    np.array([e-y for (y, e) in zip(curve.y, errBar1._dpos)])]
+                    [e-y for (y, e) in zip(curve.y, errBar1._dpos)]]
         else:
             return [curve.x, curve.y, None]
 

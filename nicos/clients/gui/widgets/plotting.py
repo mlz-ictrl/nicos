@@ -31,14 +31,18 @@ from PyQt4.QtCore import SIGNAL, Qt
 
 import numpy as np
 
+from nicos.utils.fitting import Fit
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
-from nicos.clients.gui.fitutils import has_odr, FitError, fit_gauss, \
-    fwhm_to_sigma, fit_tc, fit_pseudo_voigt, fit_pearson_vii, fit_arby, \
-    fit_linear
+from nicos.pycompat import exec_
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
+FWHM_TO_SIGMA = 2 * np.sqrt(2 * np.log(2))
+
+
+class FitError(Exception):
+    pass
 
 
 class Fitter(object):
@@ -100,31 +104,53 @@ class LinearFitter(Fitter):
     title = 'linear fit'
     picks = ['First point', 'Second point']
 
+    def model(self, x, a, b):
+        return a*x + b
+
     def do_fit(self):
-        beta, self.xfit, self.yfit = fit_linear(*(self.data + self.values))
-        _x1, x2 = min(self.xfit), max(self.xfit)
+        (x1, y1), (x2, y2) = self.values
+        m0 = (y2-y1) / (x2-x1)
+        f = Fit(self.model, ['a', 'b'], [m0, y1 - m0*x1], xmin=x1, xmax=x2)
+        res = f.run('', *self.data)
+        if res._failed:
+            raise FitError(res._message)
+        self.xfit = res.curve_x
+        self.yfit = res.curve_y
+        x2 = max(self.xfit)
         self.labelx = x2
-        self.labely = beta[0] * x2 + beta[1]
-        self.interesting = [('Slope', '%.3f /s' % beta[0]),
-                            ('', '%.3f /min' % (beta[0] * 60)),
-                            ('', '%.3f /h' % (beta[0] * 3600))]
+        self.labely = res.a * x2 + res.b
+        self.interesting = [('Slope', '%.3f /s' % res.a),
+                            ('', '%.3f /min' % (res.a * 60)),
+                            ('', '%.3f /h' % (res.a * 3600))]
 
 
 class GaussFitter(Fitter):
     title = 'peak fit'
     picks = ['Background', 'Peak', 'Half Maximum']
 
+    def model(self, x, B, A, x0, sigma):
+        return abs(B) + A*np.exp(-(x - x0)**2 / (2 * sigma**2))
+
     def do_fit(self):
-        beta, self.xfit, self.yfit = fit_gauss(*(self.data + self.values))
-        self.labelx = beta[2] + beta[3] / 2
-        self.labely = beta[0] + beta[1]
-        self.interesting = [('Center', beta[2]),
-                            ('FWHM', beta[3] * fwhm_to_sigma),
-                            ('Ampl', beta[1]),
-                            ('Integr', beta[1] * beta[3] * np.sqrt(2 * np.pi))]
-        linefrom = beta[2] - beta[3] * fwhm_to_sigma / 2
-        lineto = beta[2] + beta[3] * fwhm_to_sigma / 2
-        liney = beta[0] + beta[1] / 2
+        (xb, yb), (x0, y0), (xw, _) = self.values
+        parstart = [yb, abs(y0-yb), x0, abs(x0-xw)/FWHM_TO_SIGMA]
+        totalwidth = abs(x0 - xb)
+        f = Fit(self.model, ['B', 'A', 'x0', 'sigma'], parstart,
+                xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        res = f.run('', *self.data)
+        if res._failed:
+            raise FitError(res._message)
+        self.xfit = res.curve_x
+        self.yfit = res.curve_y
+        self.labelx = res.x0 + res.sigma / 2
+        self.labely = res.B + res.A
+        self.interesting = [('Center', res.x0),
+                            ('FWHM', res.sigma * FWHM_TO_SIGMA),
+                            ('Ampl', res.A),
+                            ('Integr', res.A * res.sigma * np.sqrt(2 * np.pi))]
+        linefrom = res.x0 - res.sigma * FWHM_TO_SIGMA / 2
+        lineto = res.x0 + res.sigma * FWHM_TO_SIGMA / 2
+        liney = res.B + res.A / 2
         self.lineinfo = (linefrom, lineto, liney)
 
 
@@ -132,19 +158,35 @@ class PseudoVoigtFitter(Fitter):
     title = 'peak fit (PV)'
     picks = ['Background', 'Peak', 'Half Maximum']
 
+    def model(self, x, B, A, x0, hwhm, eta):
+        eta = eta % 1.0
+        return abs(B) + A * (
+            # Lorentzian
+            eta / (1 + ((x-x0) / hwhm)**2) +
+            # Gaussian
+            (1 - eta) * np.exp(-np.log(2) * ((x-x0) / hwhm)**2))
+
     def do_fit(self):
-        beta, self.xfit, self.yfit = \
-            fit_pseudo_voigt(*(self.data + self.values))
-        self.labelx = beta[2] + beta[3] / 2
-        self.labely = beta[0] + beta[1]
-        eta = beta[4] % 1.0
-        integr = beta[1] * beta[3] * (
+        (xb, yb), (x0, y0), (xw, _) = self.values
+        parstart = [yb, abs(y0-yb), x0, abs(x0-xw), 0.5]
+        totalwidth = abs(x0 - xb)
+        f = Fit(self.model, ['B', 'A', 'x0', 'hwhm', 'eta'], parstart,
+                xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        res = f.run('', *self.data)
+        if res._failed:
+            raise FitError(res._message)
+        self.xfit = res.curve_x
+        self.yfit = res.curve_y
+        self.labelx = res.x0 + res.hwhm / 2
+        self.labely = res.B + res.A
+        eta = res.eta % 1.0
+        integr = res.A * res.hwhm * (
             eta * np.pi + (1 - eta) * np.sqrt(np.pi / np.log(2)))
-        self.interesting = [('Center', beta[2]), ('FWHM', beta[3] * 2),
+        self.interesting = [('Center', res.x0), ('FWHM', res.hwhm * 2),
                             ('Eta', eta), ('Integr', integr)]
-        linefrom = beta[2] - beta[3]
-        lineto = beta[2] + beta[3]
-        liney = beta[0] + beta[1] / 2
+        linefrom = res.x0 - res.hwhm
+        lineto = res.x0 + res.hwhm
+        liney = res.B + res.A / 2
         self.lineinfo = (linefrom, lineto, liney)
 
 
@@ -152,16 +194,28 @@ class PearsonVIIFitter(Fitter):
     title = 'peak fit (PVII)'
     picks = ['Background', 'Peak', 'Half Maximum']
 
+    def model(self, x, B, A, x0, hwhm, m):
+        return abs(B) + A / (1 + (2**(1/m) - 1)*((x-x0) / hwhm)**2) ** m
+
     def do_fit(self):
-        beta, self.xfit, self.yfit = \
-            fit_pearson_vii(*(self.data + self.values))
-        self.labelx = beta[2] + beta[3] / 2
-        self.labely = beta[0] + beta[1]
-        self.interesting = [('Center', beta[2]), ('FWHM', beta[3] * 2),
-                            ('m', beta[4])]
-        linefrom = beta[2] - beta[3]
-        lineto = beta[2] + beta[3]
-        liney = beta[0] + beta[1] / 2
+        (xb, yb), (x0, y0), (xw, _) = self.values
+        parstart = [yb, abs(y0-yb), x0, abs(x0-xw), 5.0]
+        totalwidth = abs(x0 - xb)
+        f = Fit(self.model, ['B', 'A', 'x0', 'hwhm', 'm'], parstart,
+                xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        res = f.run('', *self.data)
+        if res._failed:
+            raise FitError(res._message)
+        self.xfit = res.curve_x
+        self.yfit = res.curve_y
+        self.labelx = res.x0 + res.hwhm / 2
+        self.labely = res.B + res.A
+        self.interesting = [('Center', res.x0),
+                            ('FWHM', res.hwhm * 2),
+                            ('m', res.m)]
+        linefrom = res.x0 - res.hwhm
+        lineto = res.x0 + res.hwhm
+        liney = res.B + res.A / 2
         self.lineinfo = (linefrom, lineto, liney)
 
 
@@ -169,11 +223,35 @@ class TcFitter(Fitter):
     title = 'Tc fit'
     picks = ['Background', 'Tc']
 
+    def model(self, T, B, A, Tc, alpha):
+        # Model:
+        #   I(T) = B + A * (1 - T/Tc)**alpha   for T < Tc
+        #   I(T) = B                           for T > Tc
+
+        def tc_curve_1(T):
+            return A*(1 - T/Tc)**(alpha % 1.0) + abs(B)
+
+        def tc_curve_2(T):
+            return abs(B)
+
+        return np.piecewise(T, [T < Tc], [tc_curve_1, tc_curve_2])
+
     def do_fit(self):
-        beta, self.xfit, self.yfit = fit_tc(*(self.data + self.values))
-        self.labelx = beta[2]  # at Tc
-        self.labely = beta[0] + beta[1]  # at I_max
-        self.interesting = [('Tc', beta[2]), ('alpha', beta[3])]
+        (_, Ib), (Tc, _) = self.values
+        alpha0 = 0.5
+        # guess A from maximum data point
+        Tmin = min(self.data[0])
+        A0 = max(self.data[1]) / ((Tc-Tmin)/Tc)**alpha0
+        parstart = [Ib, A0, Tc, alpha0]
+        f = Fit(self.model, ['B', 'A', 'Tc', 'alpha'], parstart)
+        res = f.run('', *self.data)
+        if res._failed:
+            raise FitError(res._message)
+        self.xfit = res.curve_x
+        self.yfit = res.curve_y
+        self.labelx = res.Tc
+        self.labely = res.B + res.A  # at I_max
+        self.interesting = [('Tc', res.Tc), ('alpha', res.alpha)]
 
 
 class ArbitraryFitter(Fitter):
@@ -208,7 +286,7 @@ class ArbitraryFitter(Fitter):
         if ret != QDialog.Accepted:
             return
         pr.save()
-        fcn = dlg.function.text()
+        fcnstr = dlg.function.text()
         try:
             xmin = float(dlg.xfrom.text())
         except ValueError:
@@ -230,21 +308,33 @@ class ArbitraryFitter(Fitter):
             except ValueError:
                 values.append(0)
 
+        ns = {}
+        exec_('from numpy import *', ns)
         try:
-            beta, self.xfit, self.yfit = fit_arby(
-                self.data[0], self.data[1], self.data[2],
-                fcn, params, values, (xmin, xmax))
-        except FitError as e:
-            self.plot.showInfo('Fitting failed: %s.' % e)
+            model = eval('lambda x, %s: %s' % (', '.join(params), fcnstr), ns)
+        except SyntaxError as e:
+            self.plot.showInfo('Syntax error in function: %s' % e)
             return
+
+        f = Fit(model, params, values, xmin, xmax)
+        res = f.run('', *self.data)
+        if res._failed:
+            self.plot.showInfo('Fitting failed: %s.' % res._message)
+            return
+        self.xfit = res.curve_x
+        self.yfit = res.curve_y
         self.labelx = self.xfit[0]
         self.labely = self.yfit.max()
-        self.interesting = list(zip(params, beta))
+        self.interesting = [(n, v) for (n, v, _) in zip(*res._pars)]
 
         self.plot._plotFit(self)
 
 
 class NicosPlot(DlgUtils):
+
+    HAS_AUTOSCALE = False
+    SAVE_EXT = '.png'
+
     def __init__(self, window, timeaxis=False):
         DlgUtils.__init__(self, 'Plot')
         self.window = window
@@ -320,6 +410,10 @@ class NicosPlot(DlgUtils):
         """Enable or disable lines."""
         raise NotImplementedError
 
+    def unzoom(self):
+        """Unzoom the plot."""
+        raise NotImplementedError
+
     def addPlotCurve(self, plotcurve, replot=False):
         """Add a plot curve."""
         raise NotImplementedError
@@ -374,8 +468,6 @@ class NicosPlot(DlgUtils):
         # other fitter: cancel first
         if self.fitter is not None:
             self.fitter.cancel()
-        if not has_odr:
-            return self.showError('scipy.odr is not available.')
         fitcurve = self.selectCurve()
         if not fitcurve:
             return self.showError('Plot must have a visible curve '
@@ -566,3 +658,10 @@ class ViewPlotMixin(object):
                     fp.write('%s\t%.10f\n' % (
                         strftime('%Y-%m-%d.%H:%M:%S', localtime(x[i])),
                         y[i]))
+
+
+# pylint: disable=W0611
+try:
+    from nicos.clients.gui.widgets.grplotting import DataSetPlot, ViewPlot
+except ImportError:
+    from nicos.clients.gui.widgets.qwtplotting import DataSetPlot, ViewPlot
