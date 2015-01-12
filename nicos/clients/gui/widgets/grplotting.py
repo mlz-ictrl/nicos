@@ -524,7 +524,8 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
             direction = 1
             backx, backy = rightx, righty
         i = whichindex
-        while i > 0:
+        n = len(curve.y)
+        while 0 < i < n:
             if curve.y[i] < (peaky - backy) / 2.:
                 break
             i += direction
