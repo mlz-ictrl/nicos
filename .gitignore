@@ -4,6 +4,8 @@ dist/
 *.pyc
 *.egg-info
 *.log
+*.log.gz
+*.log.bz2
 *.pid
 pylint_*.txt
 .noseids
