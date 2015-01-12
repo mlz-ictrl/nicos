@@ -7,5 +7,6 @@ devices = dict(
                        hostname = 'memograph03.care.frm2',
                        group = 2,
                        valuename = 'T_in SANS1',
-                       unit = 'degC'),
+                       unit = 'degC',
+                      ),
 )

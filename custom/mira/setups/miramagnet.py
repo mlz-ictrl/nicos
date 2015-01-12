@@ -7,16 +7,19 @@ devices = dict(
     I_plus   = device('mira.magnet.PhytronWorkaround',
                       tacodevice = '//magnet2/magnet/switch/on',
                       mapping = {'off': 0, 'on': 1},
-                      lowlevel = True),
+                      lowlevel = True,
+                     ),
     I_minus  = device('devices.taco.NamedDigitalOutput',
                       tacodevice = '//magnet2/magnet/switch/pol',
                       mapping = {'off': 0, 'on': 1},
-                      lowlevel=True),
+                      lowlevel = True,
+                     ),
     I        = device('devices.taco.CurrentSupply',
                       description = 'MIRA Helmholtz magnet current',
                       tacodevice = '//magnet2/magnet/ess/current',
                       abslimits = (0, 250),
-                      fmtstr = '%.1f'),
+                      fmtstr = '%.1f',
+                     ),
     B_mira   = device('frm2.magnet.MiraMagnet',
                       currentsource = 'I',
                       plusswitch = 'I_plus',
@@ -24,7 +27,8 @@ devices = dict(
                       description = 'MIRA magnetic field',
                       # no abslimits: they are automatically determined from I
                       unit = 'T',
-                      fmtstr = "%.4f"),
+                      fmtstr = "%.4f",
+                     ),
 )
 
 startupcode = '''
