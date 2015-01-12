@@ -662,6 +662,8 @@ class DataSetPlot(NicosPlot):
             if curve.disabled and not self.show_all:
                 plotcurve.visible = False
             self.addPlotCurve(plotcurve, replot)
+            if curve.function:
+                plotcurve.markertype = gr.MARKERTYPE_DOT
 
     def setCurveData(self, curve, plotcurve):
         x = np.array(curve.datax)
