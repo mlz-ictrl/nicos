@@ -8,6 +8,6 @@ devices = dict(
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DB',
-                    server = 'mira1',
+                    server = '',
                     loglevel = 'info'),
 )
