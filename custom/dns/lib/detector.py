@@ -83,21 +83,20 @@ class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer,
     parameters = {
         'detshape':    Param('Shape of tof detector', type=dictof(str, int)),
         'tofmode':     Param('Data acquisition mode', type=oneof('notof', 'tof')),
-        'nrtimechan':  Param('Number of time channel',type=long),
-        'divisor':     Param('Divisor between hardware and software time slice',\
-                           type=long,settable=False),
-        'offsetdelay': Param('Offset delay in measure begin', type=long,\
-                           unit='microsec',settable=False),
+        'nrtimechan':  Param('Number of time channel', type=long),
+        'divisor':     Param('Divisor between hardware and software time slice',
+                             type=long, settable=False),
+        'offsetdelay': Param('Offset delay in measure begin', type=long,
+                             unit='microsec', settable=False),
         'readchannels': Param('Tuple of (start, end) channel numbers will be '
                               'returned by a read.', type=tupleof(int, int),
                               default=(0, 0), settable=True, mandatory=True)
     }
 
-
     def doInit(self, mode):
         self.log.debug("doInit")
-        self.imagetype = ImageType((int(self.detshape["x"]),\
-                                   int(self.detshape["t"])),\
+        self.imagetype = ImageType((int(self.detshape["x"]),
+                                    int(self.detshape["t"])),
                                    numpy.uint32)
         self._dev.set_timeout_millis(10000)
 
@@ -132,30 +131,30 @@ class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer,
     def doReadTofmode(self):
         return self.TOFMODE[self._dev.mode]
 
-    def doWriteTofmode(self,value):
+    def doWriteTofmode(self, value):
         self._dev.mode = 0 if value == self.TOFMODE[0] else 1
 
     def doReadNrtimechan(self):
         return self._dev.numchan
 
-    def doWriteNrtimechan(self,value):
+    def doWriteNrtimechan(self, value):
         self._dev.numchan = value
 
     def doReadDivisor(self):
         return self._dev.divisor
 
-    def doWriteDivisor(self,value):
+    def doWriteDivisor(self, value):
         self._dev.divisor = value
 
     def doReadOffsetdelay(self):
         return self._dev.delay
 
-    def doWriteOffsetdelay(self,value):
-        self._dev.delay= value
+    def doWriteOffsetdelay(self, value):
+        self._dev.delay = value
 
     def doReadDetshape(self):
-        #shvalue = self._getProperty('shape')
-        #Method currently not implemented in server
+        # shvalue = self._getProperty('shape')
+        # Method currently not implemented in server
         shvalue = self._dev.get_property('shape').values()[0]
         dshape = dict()
         for i in range(4):
