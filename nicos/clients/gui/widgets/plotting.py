@@ -119,9 +119,9 @@ class LinearFitter(Fitter):
         x2 = max(self.xfit)
         self.labelx = x2
         self.labely = res.a * x2 + res.b
-        self.interesting = [('Slope', '%.3f /s' % res.a),
-                            ('', '%.3f /min' % (res.a * 60)),
-                            ('', '%.3f /h' % (res.a * 3600))]
+        self.interesting = [('Slope', '%.3f /s' % res.a, ''),
+                            ('', '%.3f /min' % (res.a * 60), ''),
+                            ('', '%.3f /h' % (res.a * 3600), '')]
 
 
 class GaussFitter(Fitter):
@@ -144,10 +144,12 @@ class GaussFitter(Fitter):
         self.yfit = res.curve_y
         self.labelx = res.x0 + res.sigma / 2
         self.labely = res.B + res.A
-        self.interesting = [('Center', res.x0),
-                            ('FWHM', res.sigma * FWHM_TO_SIGMA),
-                            ('Ampl', res.A),
-                            ('Integr', res.A * res.sigma * np.sqrt(2 * np.pi))]
+        self.interesting = [
+            ('Center', res.x0, res.dx0),
+            ('FWHM', res.sigma * FWHM_TO_SIGMA, res.dsigma * FWHM_TO_SIGMA),
+            ('Ampl', res.A, res.dA),
+            ('Integr', res.A * res.sigma * np.sqrt(2 * np.pi), '')
+        ]
         linefrom = res.x0 - res.sigma * FWHM_TO_SIGMA / 2
         lineto = res.x0 + res.sigma * FWHM_TO_SIGMA / 2
         liney = res.B + res.A / 2
@@ -182,8 +184,12 @@ class PseudoVoigtFitter(Fitter):
         eta = res.eta % 1.0
         integr = res.A * res.hwhm * (
             eta * np.pi + (1 - eta) * np.sqrt(np.pi / np.log(2)))
-        self.interesting = [('Center', res.x0), ('FWHM', res.hwhm * 2),
-                            ('Eta', eta), ('Integr', integr)]
+        self.interesting = [
+            ('Center', res.x0, res.dx0),
+            ('FWHM', res.hwhm * 2, res.dhwhm * 2),
+            ('Eta', eta, res.deta),
+            ('Integr', integr, '')
+        ]
         linefrom = res.x0 - res.hwhm
         lineto = res.x0 + res.hwhm
         liney = res.B + res.A / 2
@@ -210,9 +216,11 @@ class PearsonVIIFitter(Fitter):
         self.yfit = res.curve_y
         self.labelx = res.x0 + res.hwhm / 2
         self.labely = res.B + res.A
-        self.interesting = [('Center', res.x0),
-                            ('FWHM', res.hwhm * 2),
-                            ('m', res.m)]
+        self.interesting = [
+            ('Center', res.x0, res.dx0),
+            ('FWHM', res.hwhm * 2, res.dhwhm * 2),
+            ('m', res.m, res.dm)
+        ]
         linefrom = res.x0 - res.hwhm
         lineto = res.x0 + res.hwhm
         liney = res.B + res.A / 2
@@ -251,7 +259,10 @@ class TcFitter(Fitter):
         self.yfit = res.curve_y
         self.labelx = res.Tc
         self.labely = res.B + res.A  # at I_max
-        self.interesting = [('Tc', res.Tc), ('alpha', res.alpha)]
+        self.interesting = [
+            ('Tc', res.Tc, res.dTc),
+            ('alpha', res.alpha, res.dalpha)
+        ]
 
 
 class ArbitraryFitter(Fitter):
@@ -325,7 +336,7 @@ class ArbitraryFitter(Fitter):
         self.yfit = res.curve_y
         self.labelx = self.xfit[0]
         self.labely = self.yfit.max()
-        self.interesting = [(n, v) for (n, v, _) in zip(*res._pars)]
+        self.interesting = list(zip(*res._pars))
 
         self.plot._plotFit(self)
 

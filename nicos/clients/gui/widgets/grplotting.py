@@ -357,9 +357,11 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         resultcurve.markertype = gr.MARKERTYPE_DOT
         self.window.statusBar.showMessage("Fitting complete")
 
-        text = '\n'.join((n + ': ' if n else '') +
-                         (v if isinstance(v, string_types) else '%g' % v)
-                         for (n, v) in fitter.interesting)
+        text = '\n'.join(
+            (n + ': ' if n else '') +
+            (v if isinstance(v, string_types) else '%g' % v) +
+            (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
+            for (n, v, dv) in fitter.interesting)
         resultcurve.dependent.append(
             Text(fitter.labelx, fitter.labely, text, self._axes, .012))
         self.update()

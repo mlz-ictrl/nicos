@@ -522,10 +522,11 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
 
         textmarker = QwtPlotMarker()
         textmarker.setYAxis(fitter.curve.yAxis())
-        textmarker.setLabel(QwtText(
-            '\n'.join((n + ': ' if n else '') +
-                      (v if isinstance(v, string_types) else '%g' % v)
-                      for (n, v) in fitter.interesting)))
+        textmarker.setLabel(QwtText('\n'.join(
+            (n + ': ' if n else '') +
+            (v if isinstance(v, string_types) else '%g' % v) +
+            (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
+            for (n, v, dv) in fitter.interesting)))
 
         # check that the given position is inside the viewport
         halign = Qt.AlignRight
