@@ -24,10 +24,8 @@
 # *****************************************************************************
 
 import numpy
-from PyTango import CommunicationFailed
 
 from nicos.core import Value
-from nicos.core.errors import CommunicationError
 from nicos.core.device import Measurable
 from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
 from nicos.core.params import Param, Attach, oneof, dictof, tupleof
@@ -179,12 +177,9 @@ class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer,
 
     def doRead(self, maxage=0):
         res = None
-        try:
-            array = self._dev.value.tolist()
-            start, end = self.readchannels
-            res = array[start:end+1]
-        except CommunicationFailed: # PyTango
-            raise CommunicationError(self, "Readout command timed out")
+        array = self._dev.value.tolist()
+        start, end = self.readchannels
+        res = array[start:end+1]
         return res
 
     def valueInfo(self):

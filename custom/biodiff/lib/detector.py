@@ -27,7 +27,7 @@ import time
 import os.path
 # third party
 import numpy
-from PyTango import DevState, CommunicationFailed
+from PyTango import DevState
 # local library
 from nicos import session
 from nicos.utils import updateFileCounter
@@ -38,7 +38,7 @@ from nicos.devices.tango import PyTangoDevice, \
     DEFAULT_STATUS_MAPPING as DEFAULT_MAP_TANGO_STATUS
 from nicos.devices.vendor.lima import Andor2LimaCCD
 from nicos.core.params import Attach, Param, Override, oneof, tupleof
-from nicos.core.errors import NicosError, CommunicationError
+from nicos.core.errors import NicosError
 from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep
 from nicos.core.image import ImageProducer, ImageType
 from nicos.biodiff.shutter import Shutter
@@ -351,8 +351,6 @@ Retrying.""" % (action, exception))
         self._dev.set_timeout_millis(self.readout_millis)
         try:
             narray = self._dev.Bitmap16Bit
-        except CommunicationFailed: # PyTango
-            raise CommunicationError(self, "Readout command timed out")
         finally:
             self._dev.set_timeout_millis(timeout)
         return narray

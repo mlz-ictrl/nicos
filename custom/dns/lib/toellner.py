@@ -24,11 +24,8 @@
 
 from time import time as currenttime
 
-from PyTango import CommunicationFailed
-
 from nicos.core import Moveable, HasPrecision, Override, oneof, status, \
     SIMULATION
-from nicos.core.errors import CommunicationError
 from nicos.core.params import Param, Attach, floatrange
 from nicos.devices.tango import AnalogOutput
 
@@ -57,13 +54,9 @@ class Toellner(AnalogOutput, HasPrecision):
         self.log.debug('Initialize Current')
         self._starttime = currenttime()
         if mode != SIMULATION:
-            try:
-                self._dev.write('syst:rem')
-                current = self._dev.Query('mc%d?' % self.channel)
-                self._setval = float(current.strip())
-            except CommunicationFailed:
-                raise CommunicationError(self, 'Device %s is not reachable'
-                                          % self._name)
+            self._dev.write('syst:rem')
+            current = self._dev.Query('mc%d?' % self.channel)
+            self._setval = float(current.strip())
 
     def doReadAbslimits(self):
         #there are no properties absmin,absmax in server
@@ -71,24 +64,16 @@ class Toellner(AnalogOutput, HasPrecision):
 
     def doReadVoltage(self):
         self.log.debug('Read Voltage')
-        try:
-            vol = self._dev.Query('mv%d?' % self.channel)
-            self.log.debug('vol: %s' % vol)
-            volfl = float(vol.strip())
-            return volfl
-        except CommunicationFailed:
-            raise CommunicationError(self, 'Device %s is not reachable'
-                                      % self._name)
+        vol = self._dev.Query('mv%d?' % self.channel)
+        self.log.debug('vol: %s' % vol)
+        volfl = float(vol.strip())
+        return volfl
 
-    def doWriteVoltage(self,value):
+    def doWriteVoltage(self, value):
         self.log.debug('Write Voltage')
-        try:
-            self._dev.write('syst:rem')
-            self._dev.write('v%d %f' % (self.channel, value))
-            self._dev.write('ex 1')
-        except CommunicationFailed:
-            raise CommunicationError(self, 'Device %s is not reachable'
-                                      % self._name)
+        self._dev.write('syst:rem')
+        self._dev.write('v%d %f' % (self.channel, value))
+        self._dev.write('ex 1')
         return value
 
     def doStop(self):
@@ -116,19 +101,15 @@ class Toellner(AnalogOutput, HasPrecision):
         return (value < 0 and polval == '+') or (value >= 0 and polval == '-')
 
     def doStart(self, value):
-        try:
-            polval = self._adevs['polchange'].read()
-            target = self.target
-            if self._set_field_polarity(value):
-                polval = 1 if value < 0 else 0
-                self._setROParam("target", 0)
-                self._write_value(0, fromvarcheck=False)
-                self._adevs['polchange'].start(polval)
-            self._setROParam("target", target)
-            self._write_value(value, fromvarcheck=False)
-        except CommunicationFailed:
-            raise CommunicationError(self, 'Device %s cannot set current'
-                                      % self._name)
+        polval = self._adevs['polchange'].read()
+        target = self.target
+        if self._set_field_polarity(value):
+            polval = 1 if value < 0 else 0
+            self._setROParam("target", 0)
+            self._write_value(0, fromvarcheck=False)
+            self._adevs['polchange'].start(polval)
+        self._setROParam("target", target)
+        self._write_value(value, fromvarcheck=False)
 
     def _write_value(self, value, fromvarcheck):
         raise NotImplementedError
@@ -142,13 +123,9 @@ class CurrentToellner(Toellner):
 
     def doRead(self, maxage=0):
         self.log.debug('In doRead() Current %s', self._name)
-        try:
-            cur = self._dev.Query('mc%d?' % self.channel)
-            curfl = float(cur.strip())
-            return curfl * self._getsign()
-        except CommunicationFailed:
-            raise CommunicationError(self, 'Device %s cannot read current'
-                                      % self._name)
+        cur = self._dev.Query('mc%d?' % self.channel)
+        curfl = float(cur.strip())
+        return curfl * self._getsign()
 
     def _write_value(self, value, fromvarcheck):
         self._starttime = currenttime()
