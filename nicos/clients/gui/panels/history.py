@@ -711,10 +711,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
             return
         descr = newdlg.description.text()
         fname = newdlg.filename.text()
-        if _gr_available:
-            pathname = self.currentPlot.saveSvg()
-        else:
-            pathname = self.currentPlot.savePng()
+        pathname = self.currentPlot.saveQuietly()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())
         self.client.eval('_LogAttach(%r, [%r], [%r])' % (descr, remotefn, fname))

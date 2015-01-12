@@ -43,11 +43,12 @@ from qtgr.events import GUIConnector, MouseEvent, LegendEvent
 from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar, Text
 from gr.pygr.helper import ColorIndexGenerator
 
-from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
+from nicos.clients.gui.utils import DlgPresets, dialogFromUi
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.fitutils import has_odr, FitError
 from nicos.clients.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
      fit_pseudo_voigt, fit_pearson_vii, fit_arby, fit_linear
+from nicos.clients.gui.widgets.plotting import NicosPlot
 from nicos.pycompat import string_types
 
 DATEFMT = "%Y-%m-%d"
@@ -88,28 +89,15 @@ class NicosPlotCurve(PlotCurve):
                 dep.drawGR()
 
 
-class NicosPlot(InteractiveGRWidget, DlgUtils):
+class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
     GR_MARKER_SIZE = 1.
 
     def __init__(self, parent, window, timeaxis=False):
         InteractiveGRWidget.__init__(self, parent)
-        DlgUtils.__init__(self, 'Plot')
-        self.window = window
-        self.plotcurves = []
-        self.normalized = False
-        self.has_secondary = False
-        self.show_all = False
-        self.timeaxis = timeaxis
-        self._statusMessage = None
+        NicosPlot.__init__(self, window, timeaxis=timeaxis)
 
-        self.fits = 0
-        self.fittype = None
-        self.fitparams = None
-        self.fitcurve = None
-        self.fitstage = 0
-        self.fitPicker = None
-        self.fitcallbacks = [None, None]
+        self.statusMessage = None
         self.mouselocation = None
         self._cursor = self.cursor()
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
@@ -118,7 +106,7 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         map(dictPrintType.pop, [gr.PRINT_JPEG, gr.PRINT_TIF])
         self._saveTypes = (";;".join(dictPrintType.values()) + ";;" +
                            ";;".join(gr.GRAPHIC_TYPE.values()))
-        gr.setmarkersize(NicosPlot.GR_MARKER_SIZE)
+        gr.setmarkersize(NicosGrPlot.GR_MARKER_SIZE)
         self._saveName = None
         self._color = ColorIndexGenerator()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
@@ -139,15 +127,6 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self.setLegend(True)
         self.updateDisplay()
 
-    @property
-    def statusMessage(self):
-        """Get current status Message."""
-        return self._statusMessage
-
-    @statusMessage.setter
-    def statusMessage(self, svalue):
-        self._statusMessage = svalue
-
     def xtickCallBack(self, x, y, svalue):
         gr.setcharup(1., 1.)
         gr.settextalign(gr.TEXT_HALIGN_LEFT, gr.TEXT_VALIGN_TOP)
@@ -161,28 +140,8 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             gr.text(x, y, svalue)
         gr.setcharup(0., 1.)
 
-    def on_zoomer_zoomed(self, rect):
-        pass
-
     def setFonts(self, font, bold, larger):
-        raise NotImplementedError
-
-    def titleString(self):
-        raise NotImplementedError
-    def subTitleString(self):
-        return None
-    def xaxisName(self):
-        raise NotImplementedError
-    def yaxisName(self):
-        raise NotImplementedError
-    def y2axisName(self):
-        return ''
-    def xaxisScale(self):
-        return None
-    def yaxisScale(self):
-        return None
-    def y2axisScale(self):
-        return None
+        pass  # not implemented
 
     def updateDisplay(self):
         self._plot.title = self.titleString()
@@ -210,12 +169,6 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
             self._plot.offsetXLabel = -.08
         InteractiveGRWidget.update(self)
 
-    def showCurves(self, legend, on=True):
-        curves = [c for c in self._axes.getCurves() if c.legend in legend]
-        for c in curves:
-            c.visible = on
-        self.update()
-
     def isLegendEnabled(self):
         return self._plot.isLegendEnabled()
 
@@ -241,6 +194,15 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.markertype = markertype
+        self.update()
+
+    def setLines(self, on):
+        linetype = None
+        if on:
+            linetype = gr.LINETYPE_SOLID
+        for axis in self._plot.getAxes():
+            for curve in axis.getCurves():
+                curve.linetype = linetype
         self.update()
 
     def on_logXinDomain(self, flag):
@@ -330,11 +292,6 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
                     raise Exception("Unsupported file format")
         return saveName
 
-    @property
-    def plot(self):
-        """Get current gr.pygr.Plot object."""
-        return self._plot
-
     def printPlot(self):
         if self._saveName:
             title = "GR_Demo-" + self._saveName
@@ -343,16 +300,18 @@ class NicosPlot(InteractiveGRWidget, DlgUtils):
         self.printDialog(title)
         return True
 
+    @property
+    def plot(self):
+        """Get current gr.pygr.Plot object."""
+        return self._plot
+
     def _save(self, extension=".pdf"):
         fd, pathname = tempfile.mkstemp(extension)
         self.save(pathname)
         os.close(fd)
         return pathname
 
-    def savePdf(self):
-        return self._save(".pdf")
-
-    def saveSvg(self):
+    def saveQuietly(self):
         return self._save(".svg")
 
     def _beginFit(self, fittype, fitparams, fitcallback, pickcallback=None):
@@ -492,15 +451,6 @@ class ViewPlot(NicosPlot):
         self._axes.addCurves(plotcurve)
         InteractiveGRWidget.update(self)
 
-    def setLines(self, on):
-        linetype = None
-        if on:
-            linetype = gr.LINETYPE_SOLID
-        for axis in self._plot.getAxes():
-            for curve in axis.getCurves():
-                curve.linetype = linetype
-        self.update()
-
     def selectCurve(self):
         if len(self.plotcurves) > 1:
             dlg = dialogFromUi(self, 'selector.ui', 'panels')
@@ -572,11 +522,11 @@ arby_functions = {
     'Parabola': ('a*x**2 + b*x + c', 'a b c'),
 }
 
-class DataSetPlot(NicosPlot):
+class DataSetPlot(NicosGrPlot):
 
     def __init__(self, parent, window, dataset):
         self.dataset = dataset
-        NicosPlot.__init__(self, parent, window)
+        NicosGrPlot.__init__(self, parent, window)
 
     def titleString(self):
         return "Scan %s %s" % (self.dataset.name,
@@ -659,7 +609,7 @@ class DataSetPlot(NicosPlot):
 
             plotcurve = NicosPlotCurve(x[:n], y[:n], errbar,
                                        legend=curve.full_description)
-            if curve.disabled and not self.show_all:
+            if curve.disabled:
                 plotcurve.visible = False
             self.addPlotCurve(plotcurve, replot)
             if curve.function:

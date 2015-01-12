@@ -32,16 +32,17 @@ from time import localtime, strftime
 from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
     QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
     QwtText, QwtLegend, QwtPlotMarker, QwtPlotPanner, QwtLinearScaleEngine
-from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFont, QFileDialog, \
+from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFileDialog, \
     QPrinter, QPrintDialog, QDialog, QImage, QListWidgetItem, QMessageBox
 from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
 
 import numpy as np
 
-from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
+from nicos.clients.gui.utils import DlgPresets, dialogFromUi
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.fitutils import has_odr, FitError, fit_gauss, \
     fwhm_to_sigma, fit_tc, fit_pseudo_voigt, fit_pearson_vii, fit_arby, fit_linear
+from nicos.clients.gui.widgets.plotting import NicosPlot
 from nicos.pycompat import string_types
 from nicos.guisupport.plots import ActivePlotPicker, TimeScaleEngine, \
     TimeScaleDraw
@@ -223,30 +224,10 @@ class ErrorBarPlotCurve(QwtPlotCurve):
             QwtPlotCurve.drawFromTo(self, painter, xMap, yMap, first, last)
 
 
-class NicosPlot(QwtPlot, DlgUtils):
+class NicosQwtPlot(QwtPlot, NicosPlot):
     def __init__(self, parent, window, timeaxis=False):
         QwtPlot.__init__(self, parent)
-        DlgUtils.__init__(self, 'Plot')
-        self.window = window
-        self.plotcurves = []
-        self.normalized = False
-        self.has_secondary = False
-        self.show_all = False
-        self.timeaxis = timeaxis
-
-        self.fits = 0
-        self.fittype = None
-        self.fitparams = None
-        self.fitstage = 0
-        self.fitPicker = None
-        self.fitcallbacks = [None, None]
-
-        font = self.window.user_font
-        bold = QFont(font)
-        bold.setBold(True)
-        larger = QFont(font)
-        larger.setPointSize(font.pointSize() * 1.6)
-        self.setFonts(font, bold, larger)
+        NicosPlot.__init__(self, window, timeaxis=timeaxis)
 
         self.stdpen = QPen()
         self.symbol = QwtSymbol(QwtSymbol.Ellipse, QBrush(),
@@ -300,21 +281,6 @@ class NicosPlot(QwtPlot, DlgUtils):
         self.axisTitle(QwtPlot.yLeft).setFont(bold)
         self.axisTitle(QwtPlot.yRight).setFont(bold)
         self.labelfont = bold
-
-    def titleString(self):
-        raise NotImplementedError
-    def xaxisName(self):
-        raise NotImplementedError
-    def yaxisName(self):
-        raise NotImplementedError
-    def y2axisName(self):
-        return ''
-    def xaxisScale(self):
-        return None
-    def yaxisScale(self):
-        return None
-    def y2axisScale(self):
-        return None
 
     def updateDisplay(self):
         self.clear()
@@ -431,6 +397,24 @@ class NicosPlot(QwtPlot, DlgUtils):
             self.invTransform(Qwt.QwtPlot.yLeft, point.y()))
         self.window.statusBar.showMessage(info)
 
+    def setSymbols(self, on):
+        for plotcurve in self.plotcurves:
+            if on:
+                plotcurve.setSymbol(self.symbol)
+            else:
+                plotcurve.setSymbol(self.nosymbol)
+        self.hasSymbols = on
+        self.replot()
+
+    def setLines(self, on):
+        for plotcurve in self.plotcurves:
+            if on:
+                plotcurve.setStyle(QwtPlotCurve.Lines)
+            else:
+                plotcurve.setStyle(QwtPlotCurve.NoCurve)
+        self.hasLines = on
+        self.replot()
+
     def addPlotCurve(self, plotcurve, replot=False):
         plotcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
         plotcurve.attach(self)
@@ -475,7 +459,7 @@ class NicosPlot(QwtPlot, DlgUtils):
             return True
         return False
 
-    def savePng(self):
+    def saveQuietly(self):
         img = QImage(800, 600, QImage.Format_RGB32)
         img.fill(0xffffff)
         self.print_(img)
@@ -665,24 +649,6 @@ class ViewPlot(NicosPlot):
         self.series2curve[series].setData(series.x[:series.n], series.y[:series.n])
         self.replot()
 
-    def setLines(self, on):
-        for plotcurve in self.plotcurves:
-            if on:
-                plotcurve.setStyle(QwtPlotCurve.Lines)
-            else:
-                plotcurve.setStyle(QwtPlotCurve.NoCurve)
-        self.hasLines = on
-        self.replot()
-
-    def setSymbols(self, on):
-        for plotcurve in self.plotcurves:
-            if on:
-                plotcurve.setSymbol(self.symbol)
-            else:
-                plotcurve.setSymbol(self.nosymbol)
-        self.hasSymbols = on
-        self.replot()
-
     def selectCurve(self):
         if not self.plotcurves:
             return
@@ -755,10 +721,10 @@ arby_functions = {
     'Parabola': ('a*x**2 + b*x + c', 'a b c'),
 }
 
-class DataSetPlot(NicosPlot):
+class DataSetPlot(NicosQwtPlot):
     def __init__(self, parent, window, dataset):
         self.dataset = dataset
-        NicosPlot.__init__(self, parent, window)
+        NicosQwtPlot.__init__(self, parent, window)
 
     def titleString(self):
         return '<h3>Scan %s</h3><font size="-2">%s, started %s</font>' % \
@@ -827,9 +793,8 @@ class DataSetPlot(NicosPlot):
             self.has_secondary = True
             self.enableAxis(QwtPlot.yRight)
         if curve.disabled:
-            if not self.show_all:
-                plotcurve.setVisible(False)
-                plotcurve.setItemAttribute(QwtPlotItem.Legend, False)
+            plotcurve.setVisible(False)
+            plotcurve.setItemAttribute(QwtPlotItem.Legend, False)
         self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
 

@@ -164,7 +164,7 @@ class ScansPanel(Panel):
             self.actionSavePlot, self.actionPrint,
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionAutoScale,
-            self.actionNormalized, self.actionShowAllCurves,
+            self.actionNormalized,
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
             self.actionFitArby,
@@ -189,7 +189,6 @@ class ScansPanel(Panel):
             menu1.addAction(self.actionLogScale)
             menu1.addAction(self.actionAutoScale)
             menu1.addAction(self.actionNormalized)
-            menu1.addAction(self.actionShowAllCurves)
             menu1.addAction(self.actionLegend)
             menu1.addSeparator()
             menu2 = QMenu('Data &manipulation', self)
@@ -402,10 +401,7 @@ class ScansPanel(Panel):
             return
         descr = newdlg.description.text()
         fname = newdlg.filename.text()
-        if _gr_available:
-            pathname = self.currentPlot.saveSvg()
-        else:
-            pathname = self.currentPlot.savePng()
+        pathname = self.currentPlot.saveQuietly()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())
         self.client.eval('_LogAttach(%r, [%r], [%r])' % (descr, remotefn, fname))
@@ -434,11 +430,6 @@ class ScansPanel(Panel):
         self.currentPlot.normalized = on
         self.currentPlot.updateDisplay()
         self.on_actionUnzoom_triggered()
-
-    @qtsig('bool')
-    def on_actionShowAllCurves_toggled(self, on):
-        self.currentPlot.show_all = on
-        self.currentPlot.showCurves(["mon", "t(s)"], on)
 
     @qtsig('bool')
     def on_actionLegend_toggled(self, on):
