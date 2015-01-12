@@ -101,7 +101,8 @@ class Slit(CanReference, Moveable):
 
         for name, cls in [
             ('centerx', CenterXSlitAxis), ('centery', CenterYSlitAxis),
-            ('width', WidthSlitAxis), ('height', HeightSlitAxis)]:
+            ('width', WidthSlitAxis), ('height', HeightSlitAxis)
+        ]:
             self.__dict__[name] = cls(self.name+'.'+name, slit=self,
                                       unit=self.unit, lowlevel=True)
 
@@ -216,9 +217,9 @@ class Slit(CanReference, Moveable):
         l, r, b, t = positions
         if self.opmode == 'centered':
             if abs((l+r)/2.) > self._adevs['left'].precision or \
-                   abs((t+b)/2.) > self._adevs['top'].precision:
+               abs((t+b)/2.) > self._adevs['top'].precision:
                 self.log.warning('slit seems to be offcentered, but is '
-                                  'set to "centered" mode')
+                                 'set to "centered" mode')
             return [r-l, t-b]
         elif self.opmode == 'offcentered':
             return [(l+r)/2, (t+b)/2, r-l, t-b]
@@ -228,17 +229,17 @@ class Slit(CanReference, Moveable):
     def valueInfo(self):
         if self.opmode == 'centered':
             return Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
+                Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
         elif self.opmode == 'offcentered':
             return Value('%s.centerx' % self, unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.centery' % self, unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
+                Value('%s.centery' % self, unit=self.unit, fmtstr='%.2f'), \
+                Value('%s.width' % self, unit=self.unit, fmtstr='%.2f'), \
+                Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
         else:
             return Value('%s.left' % self, unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.right' % self, unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.bottom' % self, unit=self.unit, fmtstr='%.2f'), \
-                   Value('%s.top' % self, unit=self.unit, fmtstr='%.2f')
+                Value('%s.right' % self, unit=self.unit, fmtstr='%.2f'), \
+                Value('%s.bottom' % self, unit=self.unit, fmtstr='%.2f'), \
+                Value('%s.top' % self, unit=self.unit, fmtstr='%.2f')
 
     def doStatus(self, maxage=0):
         return multiStatus(zip(self._axnames, self._axes))
@@ -295,27 +296,34 @@ class SlitAxis(Moveable, AutoDevice):
 class CenterXSlitAxis(SlitAxis):
     def _convertRead(self, positions):
         return (positions[0] + positions[1]) / 2.
+
     def _convertStart(self, target, current):
         width = current[1] - current[0]
         return (target-width/2., target+width/2., current[2], current[3])
 
+
 class CenterYSlitAxis(SlitAxis):
     def _convertRead(self, positions):
         return (positions[2] + positions[3]) / 2.
+
     def _convertStart(self, target, current):
         height = current[3] - current[2]
         return (current[0], current[1], target-height/2., target+height/2.)
 
+
 class WidthSlitAxis(SlitAxis):
     def _convertRead(self, positions):
         return positions[1] - positions[0]
+
     def _convertStart(self, target, current):
         centerx = (current[0] + current[1]) / 2.
         return (centerx-target/2., centerx+target/2., current[2], current[3])
 
+
 class HeightSlitAxis(SlitAxis):
     def _convertRead(self, positions):
         return positions[3] - positions[2]
+
     def _convertStart(self, target, current):
         centery = (current[2] + current[3]) / 2.
         return (current[0], current[1], centery-target/2., centery+target/2.)
