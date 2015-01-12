@@ -24,6 +24,7 @@ watchlist = [
          message = 'He pressure in flight tubes too low',
          type = 'critical',
          setup = 'center3',
+         gracetime = 300,
         ),
 ]
 
