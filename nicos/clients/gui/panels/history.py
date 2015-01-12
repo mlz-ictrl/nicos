@@ -48,6 +48,7 @@ from nicos.core import Param, listof
 from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
+from nicos.clients.gui.widgets.plotting import LinearFitter
 from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.protocols.cache import cache_load
@@ -548,7 +549,7 @@ class BaseHistoryWindow(object):
 
     @qtsig('')
     def on_actionLinearFit_triggered(self):
-        self.currentPlot.fitLinear()
+        self.currentPlot.beginFit(LinearFitter, self.actionLinearFit)
 
     @qtsig('')
     def on_actionSaveData_triggered(self):

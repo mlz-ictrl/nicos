@@ -33,22 +33,16 @@ from PyQt4.Qwt5 import Qwt, QwtPlot, QwtPlotItem, QwtPlotCurve, QwtPlotPicker, \
     QwtLog10ScaleEngine, QwtSymbol, QwtPlotZoomer, QwtPicker, QwtPlotGrid, \
     QwtText, QwtLegend, QwtPlotMarker, QwtPlotPanner, QwtLinearScaleEngine
 from PyQt4.QtGui import QPen, QPainter, QBrush, QPalette, QFileDialog, \
-    QPrinter, QPrintDialog, QDialog, QImage, QListWidgetItem, QMessageBox
+    QPrinter, QPrintDialog, QDialog, QImage
 from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
 
 import numpy as np
 
-from nicos.clients.gui.utils import DlgPresets, dialogFromUi
-from nicos.clients.gui.dialogs.data import DataExportDialog
-from nicos.clients.gui.fitutils import has_odr, FitError, fit_gauss, \
-    fwhm_to_sigma, fit_tc, fit_pseudo_voigt, fit_pearson_vii, fit_arby, fit_linear
-from nicos.clients.gui.widgets.plotting import NicosPlot
+from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
+    DataSetPlotMixin, GaussFitter
 from nicos.pycompat import string_types
 from nicos.guisupport.plots import ActivePlotPicker, TimeScaleEngine, \
     TimeScaleDraw
-
-
-TIMEFMT = '%Y-%m-%d %H:%M:%S'
 
 
 class ErrorBarPlotCurve(QwtPlotCurve):
@@ -131,7 +125,7 @@ class ErrorBarPlotCurve(QwtPlotCurve):
 
         if logplot and ymin <= 0:
             ymin = QwtPlotCurve.boundingRect(self).y() or 0.1
-        return QRectF(xmin, ymin, xmax-xmin, ymax-ymin)
+        return QRectF(xmin, ymin, xmax - xmin, ymax - ymin)
 
     def drawFromTo(self, painter, xMap, yMap, first, last=-1):
         if last < 0:
@@ -169,7 +163,7 @@ class ErrorBarPlotCurve(QwtPlotCurve):
             painter.drawLines(lines)
             if self.errorCap > 0:
                 # draw the caps
-                cap = self.errorCap/2
+                cap = self.errorCap / 2
                 n, i, = len(y), 0
                 lines = []
                 while i < n:
@@ -206,7 +200,7 @@ class ErrorBarPlotCurve(QwtPlotCurve):
             painter.drawLines(lines)
             # draw the caps
             if self.errorCap > 0:
-                cap = self.errorCap/2
+                cap = self.errorCap / 2
                 n, i = len(x), 0
                 lines = []
                 while i < n:
@@ -252,6 +246,8 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
                                        QwtPlotPicker.NoRubberBand,
                                        QwtPicker.AlwaysOff,
                                        self.canvas())
+        self.fitPicker = None
+        self.nfits = 0
 
         self.setCanvasBackground(self.window.user_color)
         self.canvas().setMouseTracking(True)
@@ -358,22 +354,6 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         else:
             self.insertLegend(None)
 
-    def setVisibility(self, item, on):
-        item.setVisible(on)
-        item.setItemAttribute(QwtPlotItem.AutoScale, on)
-        if isinstance(item, ErrorBarPlotCurve):
-            for dep in item.dependent:
-                dep.setVisible(on)
-        if self.legend():
-            legenditem = self.legend().find(item)
-            if legenditem:
-                newtext = QwtText(legenditem.text())
-                if on:
-                    newtext.setColor(Qt.black)
-                else:
-                    newtext.setColor(Qt.darkGray)
-                legenditem.setText(newtext)
-
     def isLogScaling(self, idx=0):
         return isinstance(self.axisScaleEngine(QwtPlot.yLeft),
                           QwtLog10ScaleEngine)
@@ -468,80 +448,80 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         img.save(pathname, 'png')
         return pathname
 
-    def _beginFit(self, fittype, fitparams, fitcallback, pickcallback=None):
-        if self.fittype is not None:
-            return
-        if not has_odr:
-            return self.showError('scipy.odr is not available.')
-        if not self.plotcurves:
-            return self.showError('Plot must have a curve to be fitted.')
-        fitcurve = self.selectCurve()
-        if not fitcurve:
-            return
-        self.fitcurve = fitcurve
-        self.fitvalues = []
-        self.fitparams = fitparams
-        self.fittype = fittype
-        self.fitstage = 0
-        self.fitcallbacks = [fitcallback, pickcallback]
-        if self.fitparams:
-            self.picker.active = False
-            self.zoomer.setEnabled(False)
-
-            self.window.statusBar.showMessage('Fitting: Click on %s' %
-                                              fitparams[0])
-            self.fitPicker = QwtPlotPicker(
-                QwtPlot.xBottom, self.fitcurve.yAxis(),
-                QwtPicker.PointSelection | QwtPicker.ClickSelection,
-                QwtPlotPicker.CrossRubberBand,
-                QwtPicker.AlwaysOn, self.canvas())
-            self.connect(self.fitPicker,
-                         SIGNAL('selected(const QwtDoublePoint &)'),
-                         self.on_fitPicker_selected)
+    def _getCurveData(self, curve):
+        if isinstance(curve, ErrorBarPlotCurve):
+            return [curve._x, curve._y, curve._dy]
         else:
-            self._finishFit()
+            d = curve.data()
+            return [np.asarray(d.xData()), np.asarray(d.yData()), None]
 
-    def _finishFit(self):
-        try:
-            if self.fitcallbacks[1]:
-                if not self.fitcallbacks[1]():  # pylint: disable=E1102
-                    raise FitError('Aborted.')
-            curve = self.fitcurve
-            if isinstance(curve, ErrorBarPlotCurve):
-                args = [curve._x, curve._y, curve._dy] + self.fitvalues
-            else:
-                d = curve.data()
-                args = [np.asarray(d.xData()), np.asarray(d.yData()), None] + \
-                    self.fitvalues
-            x, y, title, labelx, labely, interesting, lineinfo = \
-                self.fitcallbacks[0](args)  # pylint: disable=E1102
-        except FitError as err:
-            self.showInfo('Fitting failed: %s.' % err)
-            if self.fitPicker:
-                self.fitPicker.setEnabled(False)
-                self.fitPicker = None
-            self.picker.active = True
-            self.zoomer.setEnabled(True)
-            self.fittype = None
-            return
+    def _getCurveLegend(self, curve):
+        return curve.title().text()
 
+    def _isCurveVisible(self, curve):
+        return curve.isVisible()
+
+    def setVisibility(self, item, on):
+        item.setVisible(on)
+        item.setItemAttribute(QwtPlotItem.AutoScale, on)
+        if isinstance(item, ErrorBarPlotCurve):
+            for dep in item.dependent:
+                dep.setVisible(on)
+        if self.legend():
+            legenditem = self.legend().find(item)
+            if legenditem:
+                newtext = QwtText(legenditem.text())
+                if on:
+                    newtext.setColor(Qt.black)
+                else:
+                    newtext.setColor(Qt.darkGray)
+                legenditem.setText(newtext)
+
+    def _enterFitMode(self):
+        self.picker.active = False
+        fitcurve = self.selectCurve()
+        self.zoomer.setEnabled(False)
+        self.fitPicker = QwtPlotPicker(
+            QwtPlot.xBottom, fitcurve.yAxis(),
+            QwtPicker.PointSelection | QwtPicker.ClickSelection,
+            QwtPlotPicker.CrossRubberBand,
+            QwtPicker.AlwaysOn, self.canvas())
+        self.connect(self.fitPicker,
+                     SIGNAL('selected(const QwtDoublePoint &)'),
+                     self.on_fitPicker_selected)
+
+    def on_fitPicker_selected(self, point):
+        self.fitter.addPick((point.x(), point.y()))
+
+    def _fitRequestPick(self, paramname):
+        self.window.statusBar.showMessage('Fitting: Click on %s' % paramname)
+
+    def _leaveFitMode(self):
+        self.fitter = None
+        if self.fitPicker:
+            self.fitPicker.setEnabled(False)
+            self.fitPicker = None
+        self.picker.active = True
+        self.zoomer.setEnabled(True)
+
+    def _plotFit(self, fitter):
         color = [Qt.darkRed, Qt.darkMagenta, Qt.darkGreen,
-                 Qt.darkGray][self.fits % 4]
+                 Qt.darkGray][self.nfits % 4]
 
-        resultcurve = ErrorBarPlotCurve(title=title)
-        resultcurve.setYAxis(curve.yAxis())
+        resultcurve = ErrorBarPlotCurve(title=fitter.title)
+        resultcurve.setYAxis(fitter.curve.yAxis())
         resultcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
         resultcurve.setStyle(QwtPlotCurve.Lines)
         resultcurve.setPen(QPen(color, 2))
-        resultcurve.setData(x, y)
+        resultcurve.setData(fitter.xfit, fitter.yfit)
         resultcurve.attach(self)
 
         textmarker = QwtPlotMarker()
-        textmarker.setYAxis(curve.yAxis())
+        textmarker.setYAxis(fitter.curve.yAxis())
         textmarker.setLabel(QwtText(
             '\n'.join((n + ': ' if n else '') +
                       (v if isinstance(v, string_types) else '%g' % v)
-                      for (n, v) in interesting)))
+                      for (n, v) in fitter.interesting)))
 
         # check that the given position is inside the viewport
         halign = Qt.AlignRight
@@ -549,6 +529,7 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         xmin, xmax = xi.minValue(), xi.maxValue()
         extentx = self.canvasMap(QwtPlot.xBottom).invTransform(
             textmarker.label().textSize().width())
+        labelx, labely = fitter.labelx, fitter.labely
         if xmin < xmax:
             if labelx < xmin:
                 labelx = xmin
@@ -567,61 +548,38 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         textmarker.attach(self)
         resultcurve.dependent.append(textmarker)
 
-        if lineinfo:
-            linefrom, lineto, liney = lineinfo
-            linemarker = QwtPlotCurve()
-            linemarker.setStyle(QwtPlotCurve.Lines)
-            linemarker.setPen(QPen(color, 1))
-            linemarker.setItemAttribute(QwtPlotItem.Legend, False)
-            linemarker.setData([linefrom, lineto], [liney, liney])
-            #linemarker.attach(self)
-            #resultcurve.dependent.append(linemarker)
+        # if fitter.lineinfo:
+        #     linefrom, lineto, liney = fitter.lineinfo
+        #     linemarker = QwtPlotCurve()
+        #     linemarker.setStyle(QwtPlotCurve.Lines)
+        #     linemarker.setPen(QPen(color, 1))
+        #     linemarker.setItemAttribute(QwtPlotItem.Legend, False)
+        #     linemarker.setData([linefrom, lineto], [liney, liney])
+        #     #linemarker.attach(self)
+        #     #resultcurve.dependent.append(linemarker)
 
+        self.nfits += 1
         self.replot()
 
-        if self.fitPicker:
-            self.fitPicker.setEnabled(False)
-            self.fitPicker = None
-        self.picker.active = True
-        self.zoomer.setEnabled(True)
-        self.fittype = None
-        self.fits += 1
-
-    def on_fitPicker_selected(self, point):
-        self.fitvalues.append((point.x(), point.y()))
-        self.fitstage += 1
-        if self.fitstage < len(self.fitparams):
-            paramname = self.fitparams[self.fitstage]
-            self.window.statusBar.showMessage('Fitting: Click on %s' %
-                                              paramname)
+    def _modifyCurve(self, curve, op):
+        if isinstance(curve, ErrorBarPlotCurve):
+            new_y = [eval(op, {'x': v1, 'y': v2})
+                     for (v1, v2) in zip(curve._x, curve._y)]
+            curve.setData(curve._x, new_y, curve._dx, curve._dy)
         else:
-            self._finishFit()
+            curve.setData(
+                curve.xData(),
+                [eval(op, {'x': v1, 'y': v2})
+                 for (v1, v2) in zip(curve.xData(), curve.yData())])
+
+    def update(self):
+        self.replot()
 
 
-class ViewPlot(NicosPlot):
+class ViewPlot(ViewPlotMixin, NicosQwtPlot):
     def __init__(self, parent, window, view):
-        self.series2curve = {}
-        self.view = view
-        self.hasSymbols = False
-        self.hasLines = True
-        NicosPlot.__init__(self, parent, window, timeaxis=True)
-
-    def titleString(self):
-        return '<h3>%s</h3>' % self.view.name
-
-    def xaxisName(self):
-        return 'time'
-
-    def yaxisName(self):
-        return 'value'
-
-    def addAllCurves(self):
-        for i, series in enumerate(self.view.series.values()):
-            self.addCurve(i, series)
-
-    def yaxisScale(self):
-        if self.view.yfrom is not None:
-            return (self.view.yfrom, self.view.yto)
+        ViewPlotMixin.__init__(self, view)
+        NicosQwtPlot.__init__(self, parent, window, timeaxis=True)
 
     # pylint: disable=W0221
     def on_picker_moved(self, point, strf=strftime, local=localtime):
@@ -646,139 +604,15 @@ class ViewPlot(NicosPlot):
         self.addPlotCurve(plotcurve, replot)
 
     def pointsAdded(self, series):
-        self.series2curve[series].setData(series.x[:series.n], series.y[:series.n])
+        self.series2curve[series].setData(series.x[:series.n],
+                                          series.y[:series.n])
         self.replot()
 
-    def selectCurve(self):
-        if not self.plotcurves:
-            return
-        if len(self.plotcurves) > 1:
-            dlg = dialogFromUi(self, 'selector.ui', 'panels')
-            dlg.setWindowTitle('Select curve to fit')
-            dlg.label.setText('Select a curve:')
-            for plotcurve in self.plotcurves:
-                QListWidgetItem(plotcurve.title().text(), dlg.list)
-            dlg.list.setCurrentRow(0)
-            if dlg.exec_() != QDialog.Accepted:
-                return
-            fitcurve = dlg.list.currentRow()
-        else:
-            fitcurve = 0
-        return self.plotcurves[fitcurve]
 
-    def fitLinear(self):
-        return self._beginFit('Linear', ['First point', 'Second point'],
-                              self.linear_fit_callback)
-
-    def linear_fit_callback(self, args):
-        title = 'linear fit'
-        beta, x, y = fit_linear(*args)
-        _x1, x2 = min(x), max(x)
-        labelx = x2
-        labely = beta[0] * x2 + beta[1]
-        interesting = [('Slope', '%.3f /s' % beta[0]),
-                       ('', '%.3f /min' % (beta[0] * 60)),
-                       ('', '%.3f /h' % (beta[0] * 3600))]
-        return x, y, title, labelx, labely, interesting, None
-
-    def saveData(self):
-        curvenames = [plotcurve.title().text() for plotcurve in self.plotcurves]
-        dlg = DataExportDialog(self, curvenames,
-                               'Select curve, file name and format',
-                               '', 'ASCII data files (*.dat)')
-        res = dlg.exec_()
-        if res != QDialog.Accepted:
-            return
-        if not dlg.selectedFiles():
-            return
-        curve = self.plotcurves[dlg.curveCombo.currentIndex()]
-        fmtno = dlg.formatCombo.currentIndex()
-        filename = dlg.selectedFiles()[0]
-
-        if curve.dataSize() < 1:
-            QMessageBox.information(self, 'Error', 'No data in selected curve!')
-            return
-
-        with open(filename, 'wb') as fp:
-            for i in range(curve.dataSize()):
-                if fmtno == 0:
-                    fp.write('%s\t%.10f\n' % (curve.x(i) - curve.x(0),
-                                              curve.y(i)))
-                elif fmtno == 1:
-                    fp.write('%s\t%.10f\n' % (curve.x(i), curve.y(i)))
-                else:
-                    fp.write('%s\t%.10f\n' % (strftime(
-                        '%Y-%m-%d.%H:%M:%S', localtime(curve.x(i))),
-                        curve.y(i)))
-
-
-arby_functions = {
-    'Gaussian x2': ('a + b*exp(-(x-x1)**2/s1**2) + c*exp(-(x-x2)**2/s2**2)',
-                    'a b c x1 x2 s1 s2'),
-    'Gaussian x3 symm.':
-        ('a + b*exp(-(x-x0-x1)**2/s1**2) + b*exp(-(x-x0+x1)**2/s1**2) + '
-         'c*exp(-(x-x0)**2/s0**2)', 'a b c x0 x1 s0 s1'),
-    'Parabola': ('a*x**2 + b*x + c', 'a b c'),
-}
-
-class DataSetPlot(NicosQwtPlot):
+class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
     def __init__(self, parent, window, dataset):
-        self.dataset = dataset
+        DataSetPlotMixin.__init__(self, dataset)
         NicosQwtPlot.__init__(self, parent, window)
-
-    def titleString(self):
-        return '<h3>Scan %s</h3><font size="-2">%s, started %s</font>' % \
-            (self.dataset.name, self.dataset.scaninfo,
-             strftime(TIMEFMT, self.dataset.started))
-
-    def xaxisName(self):
-        try:
-            return '%s (%s)' % (self.dataset.xnames[self.dataset.xindex],
-                                self.dataset.xunits[self.dataset.xindex])
-        except IndexError:
-            return ''
-
-    def yaxisName(self):
-        return ''
-
-    def xaxisScale(self):
-        if self.dataset.xrange:
-            return self.dataset.xrange
-        try:
-            return (float(self.dataset.positions[0][self.dataset.xindex]),
-                    float(self.dataset.positions[-1][self.dataset.xindex]))
-        except (IndexError, TypeError, ValueError):
-            return None
-
-    def yaxisScale(self):
-        if self.dataset.yrange:
-            return self.dataset.yrange
-
-    def addAllCurves(self):
-        for i, curve in enumerate(self.dataset.curves):
-            self.addCurve(i, curve)
-
-    def enableCurvesFrom(self, otherplot):
-        visible = {}
-        for plotcurve in otherplot.plotcurves:
-            visible[str(plotcurve.title().text())] = plotcurve.isVisible()
-        changed = False
-        remaining = len(self.plotcurves)
-        for plotcurve in self.plotcurves:
-            namestr = str(plotcurve.title().text())
-            if namestr in visible:
-                self.setVisibility(plotcurve, visible[namestr])
-                changed = True
-                if not visible[namestr]:
-                    remaining -= 1
-        # no visible curve left?  enable all of them again
-        if not remaining:
-            for plotcurve in self.plotcurves:
-                # only if it has a legend item (excludes monitor/time columns)
-                if plotcurve.testItemAttribute(QwtPlotItem.Legend):
-                    self.setVisibility(plotcurve, True)
-        if changed:
-            self.replot()
 
     def addCurve(self, i, curve, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
@@ -814,7 +648,8 @@ class DataSetPlot(NicosQwtPlot):
                 norm = np.array(curve.datatime)
             if norm is not None:
                 y /= norm
-                if dy is not None: dy /= norm
+                if dy is not None:
+                    dy /= norm
         plotcurve.setData(x, y, None, dy)
         # setData creates a new legend item that must be styled
         if not plotcurve.isVisible() and self.legend():
@@ -833,186 +668,6 @@ class DataSetPlot(NicosQwtPlot):
         else:
             self.replot()
 
-    def modifyData(self):
-        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
-                          if self.plotcurves[i].isVisible()]
-        # get input from the user: which curves should be modified how
-        dlg = dialogFromUi(self, 'modify.ui', 'panels')
-        def checkAll():
-            for i in range(dlg.list.count()):
-                dlg.list.item(i).setCheckState(Qt.Checked)
-        dlg.connect(dlg.selectall, SIGNAL('clicked()'), checkAll)
-        for i in visible_curves:
-            li = QListWidgetItem(self.dataset.curves[i].full_description,
-                                 dlg.list)
-            if len(visible_curves) == 1:
-                li.setCheckState(Qt.Checked)
-                dlg.operation.setFocus()
-            else:
-                li.setCheckState(Qt.Unchecked)
-        if dlg.exec_() != QDialog.Accepted:
-            return
-        # evaluate selection
-        op = dlg.operation.text()
-        curves = []
-        for i in range(dlg.list.count()):
-            li = dlg.list.item(i)
-            if li.checkState() == Qt.Checked:
-                curves.append(i)
-        # make changes to Qwt curve objects only (so that "reset" will discard
-        # them again)
-        for i in curves:
-            curve = self.plotcurves[visible_curves[i]]
-            if isinstance(curve, ErrorBarPlotCurve):
-                new_y = [eval(op, {'x': v1, 'y': v2})
-                         for (v1, v2) in zip(curve._x, curve._y)]
-                curve.setData(curve._x, new_y, curve._dx, curve._dy)
-            else:
-                curve.setData(curve.xData(),
-                    [eval(op, {'x': v1, 'y': v2})
-                     for (v1, v2) in zip(curve.xData(), curve.yData())])
-        self.replot()
-
-    def selectCurve(self):
-        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
-                          if self.plotcurves[i].isVisible()]
-        if len(visible_curves) > 1:
-            dlg = dialogFromUi(self, 'selector.ui', 'panels')
-            dlg.setWindowTitle('Select curve to fit')
-            dlg.label.setText('Select a curve:')
-            for i in visible_curves:
-                QListWidgetItem(self.dataset.curves[i].full_description,
-                                dlg.list)
-            dlg.list.setCurrentRow(0)
-            if dlg.exec_() != QDialog.Accepted:
-                return
-            fitcurve = visible_curves[dlg.list.currentRow()]
-        else:
-            fitcurve = visible_curves[0]
-        return self.plotcurves[fitcurve]
-
-    def fitGaussPeak(self):
-        return self._beginFit('Gauss', ['Background', 'Peak', 'Half Maximum'],
-                              self.gauss_callback)
-
-    def gauss_callback(self, args):
-        title = 'peak fit'
-        beta, x, y = fit_gauss(*args)
-        labelx = beta[2] + beta[3] / 2
-        labely = beta[0] + beta[1]
-        interesting = [('Center', beta[2]),
-                       ('FWHM', beta[3] * fwhm_to_sigma),
-                       ('Ampl', beta[1]),
-                       ('Integr', beta[1] * beta[3] * np.sqrt(2 * np.pi))]
-        linefrom = beta[2] - beta[3] * fwhm_to_sigma / 2
-        lineto = beta[2] + beta[3] * fwhm_to_sigma / 2
-        liney = beta[0] + beta[1] / 2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitPseudoVoigtPeak(self):
-        return self._beginFit('Pseudo-Voigt', ['Background', 'Peak', 'Half Maximum'],
-                              self.pv_callback)
-
-    def pv_callback(self, args):
-        title = 'peak fit (PV)'
-        beta, x, y = fit_pseudo_voigt(*args)
-        labelx = beta[2] + beta[3] / 2
-        labely = beta[0] + beta[1]
-        eta = beta[4] % 1.0
-        integr = beta[1] * beta[3] * (
-            eta * np.pi + (1 - eta) * np.sqrt(np.pi / np.log(2)))
-        interesting = [('Center', beta[2]), ('FWHM', beta[3] * 2),
-                       ('Eta', eta), ('Integr', integr)]
-        linefrom = beta[2] - beta[3]
-        lineto = beta[2] + beta[3]
-        liney = beta[0] + beta[1] / 2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitPearsonVIIPeak(self):
-        return self._beginFit('PearsonVII', ['Background', 'Peak', 'Half Maximum'],
-                              self.pvii_callback)
-
-    def pvii_callback(self, args):
-        title = 'peak fit (PVII)'
-        beta, x, y = fit_pearson_vii(*args)
-        labelx = beta[2] + beta[3] / 2
-        labely = beta[0] + beta[1]
-        interesting = [('Center', beta[2]), ('FWHM', beta[3] * 2),
-                       ('m', beta[4])]
-        linefrom = beta[2] - beta[3]
-        lineto = beta[2] + beta[3]
-        liney = beta[0] + beta[1] / 2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitTc(self):
-        return self._beginFit('Tc', ['Background', 'Tc'], self.tc_callback)
-
-    def tc_callback(self, args):
-        title = 'Tc fit'
-        beta, x, y = fit_tc(*args)
-        labelx = beta[2]  # at Tc
-        labely = beta[0] + beta[1]  # at I_max
-        interesting = [('Tc', beta[2]), (u'α', beta[3])]
-        return x, y, title, labelx, labely, interesting, None
-
-    def fitArby(self):
-        return self._beginFit('Arbitrary', [], self.arby_callback,
-                              self.arby_pick_callback)
-
-    def arby_callback(self, args):
-        title = 'fit'
-        beta, x, y = fit_arby(*args)
-        labelx = x[0]
-        labely = y.max()
-        interesting = list(zip(self.fitvalues[1], beta))
-        return x, y, title, labelx, labely, interesting, None
-
-    def arby_pick_callback(self):
-        dlg = dialogFromUi(self, 'fit_arby.ui', 'panels')
-        pr = DlgPresets('fit_arby',
-            [(dlg.function, ''), (dlg.fitparams, ''),
-             (dlg.xfrom, ''), (dlg.xto, '')])
-        pr.load()
-        for name in sorted(arby_functions):
-            QListWidgetItem(name, dlg.oftenUsed)
-        def click_cb(item):
-            func, params = arby_functions[item.text()]
-            dlg.function.setText(func)
-            dlg.fitparams.setPlainText('\n'.join(
-                p + ' = ' for p in params.split()))
-        dlg.connect(dlg.oftenUsed,
-                    SIGNAL('itemClicked(QListWidgetItem *)'), click_cb)
-        ret = dlg.exec_()
-        if ret != QDialog.Accepted:
-            return False
-        pr.save()
-        fcn = dlg.function.text()
-        try:
-            xmin = float(dlg.xfrom.text())
-        except ValueError:
-            xmin = None
-        try:
-            xmax = float(dlg.xto.text())
-        except ValueError:
-            xmax = None
-        if xmin is not None and xmax is not None and xmin > xmax:
-            xmax, xmin = xmin, xmax
-        params, values = [], []
-        for line in dlg.fitparams.toPlainText().splitlines():
-            name_value = line.strip().split('=', 2)
-            if len(name_value) < 2:
-                continue
-            params.append(name_value[0])
-            try:
-                values.append(float(name_value[1]))
-            except ValueError:
-                values.append(0)
-        self.fitvalues = [fcn, params, values, (xmin, xmax)]
-        return True
-
     def fitQuick(self):
         visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
                           if self.plotcurves[i].isVisible()]
@@ -1026,8 +681,8 @@ class DataSetPlot(NicosQwtPlot):
                 whichcurve = i
                 whichindex = index
                 mindist = dist
-        self.fitcurve = self.plotcurves[whichcurve]
-        data = self.fitcurve.data()
+        fitcurve = self.plotcurves[whichcurve]
+        data = fitcurve.data()
         # try to find good starting parameters
         peakx, peaky = data.x(whichindex), data.y(whichindex)
         # use either left or right end of curve as background
@@ -1048,8 +703,8 @@ class DataSetPlot(NicosQwtPlot):
             fwhmx = data.x(i)
         else:
             fwhmx = (peakx + backx) / 2.
-        self.fitvalues = [(backx, backy), (peakx, peaky), (fwhmx, peaky / 2.)]
-        self.fitparams = ['Background', 'Peak', 'Half Maximum']
-        self.fittype = 'Gauss'
-        self.fitcallbacks = [self.gauss_callback, None]
-        self._finishFit()
+        self.fitter = GaussFitter(self, self.window, None, fitcurve)
+        self.fitter.values = [(backx, backy), (peakx, peaky),
+                              (fwhmx, peaky / 2.)]
+        self.fitter.begin()
+        self.fitter.finish()

@@ -172,6 +172,9 @@
    </property>
   </action>
   <action name="actionFitPeak">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Fit &amp;Gauß peak</string>
    </property>
@@ -201,6 +204,9 @@
    </property>
   </action>
   <action name="actionFitTc">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Fit &amp;Tc</string>
    </property>
@@ -209,6 +215,9 @@
    </property>
   </action>
   <action name="actionFitPeakPV">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Fit Pseudo-Voigt Peak</string>
    </property>
@@ -225,6 +234,9 @@
    </property>
   </action>
   <action name="actionFitPeakPVII">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Fit Pearson VII Peak</string>
    </property>

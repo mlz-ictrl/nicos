@@ -49,6 +49,8 @@ from nicos.utils import safeFilename
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
+from nicos.clients.gui.widgets.plotting import GaussFitter, \
+    PseudoVoigtFitter, PearsonVIIFitter, TcFitter, ArbitraryFitter
 from nicos.pycompat import itervalues
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -143,7 +145,7 @@ class ScansPanel(Panel):
 
         for plot in itervalues(self.setplots):
             plot.setCanvasBackground(back)
-            plot.replot()
+            plot.update()
 
         bold = QFont(font)
         bold.setBold(True)
@@ -331,7 +333,7 @@ class ScansPanel(Panel):
         if dataset.uid in self.setplots:
             self.setplots[dataset.uid].addCurve(len(dataset.curves) - 1,
                                                 dataset.curves[-1])
-            self.setplots[dataset.uid].replot()
+            self.setplots[dataset.uid].update()
 
     def on_client_experiment(self, proposal):
         self.datasetList.clear()
@@ -441,23 +443,24 @@ class ScansPanel(Panel):
 
     @qtsig('')
     def on_actionFitPeak_triggered(self):
-        self.currentPlot.fitGaussPeak()
+        self.currentPlot.beginFit(GaussFitter, self.actionFitPeak)
 
     @qtsig('')
     def on_actionFitPeakPV_triggered(self):
-        self.currentPlot.fitPseudoVoigtPeak()
+        self.currentPlot.beginFit(PseudoVoigtFitter, self.actionFitPeakPV)
 
     @qtsig('')
     def on_actionFitPeakPVII_triggered(self):
-        self.currentPlot.fitPearsonVIIPeak()
+        self.currentPlot.beginFit(PearsonVIIFitter, self.actionFitPeakPVII)
 
     @qtsig('')
     def on_actionFitTc_triggered(self):
-        self.currentPlot.fitTc()
+        self.currentPlot.beginFit(TcFitter, self.actionFitTc)
 
     @qtsig('')
     def on_actionFitArby_triggered(self):
-        self.currentPlot.fitArby()
+        # no second argument: the "arbitrary" action is not checkable
+        self.currentPlot.beginFit(ArbitraryFitter, None)
 
     def on_quickfit(self):
         if not self.currentPlot or not self.currentPlot.underMouse():

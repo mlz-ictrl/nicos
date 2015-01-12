@@ -236,6 +236,9 @@
    </property>
   </action>
   <action name="actionLinearFit">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Linear fit</string>
    </property>

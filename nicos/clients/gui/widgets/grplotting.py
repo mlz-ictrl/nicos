@@ -36,19 +36,14 @@ sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
 import gr
 import numpy as np
 from PyQt4 import QtGui
-from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QListWidgetItem, QDialog, QMessageBox
+from PyQt4.QtCore import Qt
 from qtgr import InteractiveGRWidget
 from qtgr.events import GUIConnector, MouseEvent, LegendEvent
 from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar, Text
 from gr.pygr.helper import ColorIndexGenerator
 
-from nicos.clients.gui.utils import DlgPresets, dialogFromUi
-from nicos.clients.gui.dialogs.data import DataExportDialog
-from nicos.clients.gui.fitutils import has_odr, FitError
-from nicos.clients.gui.fitutils import fit_gauss, fwhm_to_sigma, fit_tc, \
-     fit_pseudo_voigt, fit_pearson_vii, fit_arby, fit_linear
-from nicos.clients.gui.widgets.plotting import NicosPlot
+from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
+    DataSetPlotMixin, GaussFitter
 from nicos.pycompat import string_types
 
 DATEFMT = "%Y-%m-%d"
@@ -74,8 +69,7 @@ class NicosPlotCurve(PlotCurve):
     def dependent(self, value):
         self._dependent = value
 
-
-    #  pylint: disable=W0221
+    # pylint: disable=W0221
     @PlotCurve.visible.setter
     def visible(self, flag):
         self._visible = flag
@@ -176,9 +170,6 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self._plot.setLegend(on)
         self.update()
 
-    def setVisibility(self, item, on):
-        item.visible = on
-
     def isLogScaling(self, idx=0):
         axes = self._plot.getAxes(idx)
         return (axes.scale & gr.OPTION_Y_LOG if axes is not None else False)
@@ -194,6 +185,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.markertype = markertype
+        self.hasSymbols = on
         self.update()
 
     def setLines(self, on):
@@ -203,6 +195,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
                 curve.linetype = linetype
+        self.hasLines = on
         self.update()
 
     def on_logXinDomain(self, flag):
@@ -314,113 +307,79 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
     def saveQuietly(self):
         return self._save(".svg")
 
-    def _beginFit(self, fittype, fitparams, fitcallback, pickcallback=None):
-        if self.fittype is not None:
-            return
-        if not has_odr:
-            return self.showError('scipy.odr is not available.')
-        if not self.plotcurves:
-            return self.showError('Plot must have a curve to be fitted.')
-        fitcurve = self.selectCurve()
-        if not fitcurve:
-            return
-        self.fitcurve = fitcurve
-        self.fitvalues = []
-        self.fitparams = fitparams
-        self.fittype = fittype
-        self.fitstage = 0
-        self.fitcallbacks = [fitcallback, pickcallback]
-        if self.fitparams:
-            self.statusMessage = "Fitting: Click on %s" % fitparams[0]
-            self.window.statusBar.showMessage(self.statusMessage)
-            self._cursor = self.cursor()
-            self.setCursor(QtGui.QCursor(Qt.CrossCursor))
-            self._mouseSelEnabled = self.getMouseSelectionEnabled()
-            self.setMouseSelectionEnabled(False)
+    def _getCurveData(self, curve):
+        errBar1 = curve.errorBar1
+        if errBar1:
+            # XXX how to get this faster
+            return [curve.x, curve.y,
+                    np.array([e-y for (y, e) in zip(curve.y, errBar1._dpos)])]
         else:
-            self._finishFit()
+            return [curve.x, curve.y, None]
 
-    def _finishFit(self):
-        try:
-            if self.fitcallbacks[1]:
-                if not self.fitcallbacks[1]():  # pylint: disable=E1102
-                    raise FitError('Aborted.')
-            curve = self.fitcurve
-            if not curve:
-                return
-            errBar1 = curve.errorBar1
-            if errBar1:
-                args = ([curve.x, curve.y, errBar1._dpos]
-                        + self.fitvalues)
-            else:
-                args = [curve.x, curve.y, None] + self.fitvalues
-            x, y, title, labelx, labely, interesting, _lineinfo = (
-                self.fitcallbacks[0](args))  # pylint: disable=E1102
+    def _getCurveLegend(self, curve):
+        return curve.legend
 
-            color = self._color.getNextColorIndex()
-            resultcurve = NicosPlotCurve(x, y, legend=title, linecolor=color,
-                                         markercolor=color)
-            self.addPlotCurve(resultcurve)
-            resultcurve.markertype = gr.MARKERTYPE_DOT
-            self.statusMessage = None
-            self.window.statusBar.showMessage("Fitting complete")
-            self.fittype = None
-            self.fits += 1
-            self.fitcurve = None
+    def _isCurveVisible(self, curve):
+        return curve.visible
 
-            text = '\n'.join((n + ': ' if n else '') +
-                             (v if isinstance(v, string_types) else '%g' % v)
-                             for (n, v) in interesting)
-            resultcurve.dependent.append(Text(labelx, labely, text, self._axes,
-                                              .012))
-            self.update()
-        except FitError, err:
-            self.showInfo('Fitting failed: %s.' % err)
-            self.fittype = None
-            self.fitcurve = None
-        finally:
-            self.setCursor(self._cursor)
-            self.setMouseSelectionEnabled(self._mouseSelEnabled)
+    def setVisibility(self, item, on):
+        item.visible = on
+
+    def _enterFitMode(self):
+        self.window.statusBar.showMessage(self.statusMessage)
+        self._cursor = self.cursor()
+        self.setCursor(QtGui.QCursor(Qt.CrossCursor))
+        self._mouseSelEnabled = self.getMouseSelectionEnabled()
+        self.setMouseSelectionEnabled(False)
+
+    def _fitRequestPick(self, paramname):
+        self.statusMessage = 'Fitting: Click on %s' % paramname
+
+    def _leaveFitMode(self):
+        self.fitter = None
+        self.statusMessage = None
+        self.setCursor(self._cursor)
+        self.setMouseSelectionEnabled(self._mouseSelEnabled)
+
+    def _plotFit(self, fitter):
+        color = self._color.getNextColorIndex()
+        resultcurve = NicosPlotCurve(fitter.xfit, fitter.yfit,
+                                     legend=fitter.title,
+                                     linecolor=color, markercolor=color)
+        self.addPlotCurve(resultcurve)
+        resultcurve.markertype = gr.MARKERTYPE_DOT
+        self.window.statusBar.showMessage("Fitting complete")
+
+        text = '\n'.join((n + ': ' if n else '') +
+                         (v if isinstance(v, string_types) else '%g' % v)
+                         for (n, v) in fitter.interesting)
+        resultcurve.dependent.append(
+            Text(fitter.labelx, fitter.labely, text, self._axes, .012))
+        self.update()
 
     def on_fitPicker_selected(self, point):
-        if (self.fittype is not None
-            and point.getButtons() & MouseEvent.LEFT_BUTTON):
+        if self.fitter and point.getButtons() & MouseEvent.LEFT_BUTTON:
             p = point.getWC(self._plot.viewport)
-            self.fitvalues.append((p.x , p.y))
-            self.fitstage += 1
-            if self.fitstage < len(self.fitparams):
-                paramname = self.fitparams[self.fitstage]
-                self.statusMessage = "Fitting: Click on %s" % paramname
-                self.window.statusBar.showMessage(self.statusMessage)
-            else:
-                self._finishFit()
+            self.fitter.addPick((p.x, p.y))
+
+    def _modifyCurve(self, curve, op):
+        new_y = [eval(op, {'x': v1, 'y': v2})
+                 for (v1, v2) in zip(curve.x, curve.y)]
+        if curve.errorBar1:
+            curve.errorBar1.y = new_y
+        if curve.errorBar2:
+            curve.errorBar2.y = new_y
+        curve.y = new_y
 
 
-class ViewPlot(NicosPlot):
+class ViewPlot(ViewPlotMixin, NicosGrPlot):
     def __init__(self, parent, window, view):
-        self.series2curve = {}
-        self.view = view
-        self.hasSymbols = False
-        self.hasLines = True
-        NicosPlot.__init__(self, parent, window, timeaxis=True)
+        ViewPlotMixin.__init__(self, view)
+        NicosGrPlot.__init__(self, parent, window, timeaxis=True)
         self.setSymbols(False)
 
     def titleString(self):
         return self.view.name
-
-    def xaxisName(self):
-        return 'time'
-
-    def yaxisName(self):
-        return 'value'
-
-    def addAllCurves(self):
-        for i, series in enumerate(self.view.series.values()):
-            self.addCurve(i, series)
-
-    def yaxisScale(self):
-        if self.view.yfrom is not None:
-            return (self.view.yfrom, self.view.yto)
 
     def on_mouseMove(self, event):
         wc = event.getWC(self.plot.viewport)
@@ -439,7 +398,8 @@ class ViewPlot(NicosPlot):
         n = series.n
         if n > 0:
             color = self._color.getNextColorIndex()
-            plotcurve = NicosPlotCurve(series.x[:n], series.y[:n], legend=curvename,
+            plotcurve = NicosPlotCurve(series.x[:n], series.y[:n],
+                                       legend=curvename,
                                        linecolor=color, markercolor=color)
             self.series2curve[series] = plotcurve
             self.addPlotCurve(plotcurve, replot)
@@ -451,138 +411,18 @@ class ViewPlot(NicosPlot):
         self._axes.addCurves(plotcurve)
         InteractiveGRWidget.update(self)
 
-    def selectCurve(self):
-        if len(self.plotcurves) > 1:
-            dlg = dialogFromUi(self, 'selector.ui', 'panels')
-            dlg.setWindowTitle('Select curve to fit')
-            dlg.label.setText('Select a curve:')
-            for plotcurve in self.plotcurves:
-                QListWidgetItem(plotcurve.legend, dlg.list)
-            dlg.list.setCurrentRow(0)
-            if dlg.exec_() != QDialog.Accepted:
-                return
-            fitcurve = dlg.list.currentRow()
-        else:
-            fitcurve = 0
-        return self.plotcurves[fitcurve]
 
-    def fitLinear(self):
-        return self._beginFit('Linear', ['First point', 'Second point'],
-                              self.linear_fit_callback)
-
-    def linear_fit_callback(self, args):
-        title = 'linear fit'
-        beta, x, y = fit_linear(*args)
-        _x1, x2 = min(x), max(x)
-        labelx = x2
-        labely = beta[0] * x2 + beta[1]
-        interesting = [('Slope', '%.3f /s' % beta[0]),
-                       ('', '%.3f /min' % (beta[0] * 60)),
-                       ('', '%.3f /h' % (beta[0] * 3600))]
-        return x, y, title, labelx, labely, interesting, None
-
-    def saveData(self):
-        curvenames = [plotcurve.legend for plotcurve in self.plotcurves]
-        dlg = DataExportDialog(self, curvenames,
-                               'Select curve, file name and format',
-                               '', 'ASCII data files (*.dat)')
-        res = dlg.exec_()
-        if res != QDialog.Accepted:
-            return
-        if not dlg.selectedFiles():
-            return
-        curve = self.plotcurves[dlg.curveCombo.currentIndex()]
-        fmtno = dlg.formatCombo.currentIndex()
-        filename = dlg.selectedFiles()[0]
-        n = len(curve.x)
-
-        if n < 1:
-            QMessageBox.information(self, 'Error', 'No data in selected curve!')
-            return
-
-        with open(filename, 'wb') as fp:
-            for i in range(n):
-                if fmtno == 0:
-                    fp.write('%s\t%.10f\n' % (curve.x[i] - curve.x[0],
-                                              curve.y[i]))
-                elif fmtno == 1:
-                    fp.write('%s\t%.10f\n' % (curve.x[i], curve.y[i]))
-                else:
-                    fp.write('%s\t%.10f\n' % (time.strftime(
-                        '%Y-%m-%d.%H:%M:%S', time.localtime(curve.x[i])),
-                        curve.y[i]))
-
-
-arby_functions = {
-    'Gaussian x2': ('a + b*exp(-(x-x1)**2/s1**2) + c*exp(-(x-x2)**2/s2**2)',
-                    'a b c x1 x2 s1 s2'),
-    'Gaussian x3 symm.':
-        ('a + b*exp(-(x-x0-x1)**2/s1**2) + b*exp(-(x-x0+x1)**2/s1**2) + '
-         'c*exp(-(x-x0)**2/s0**2)', 'a b c x0 x1 s0 s1'),
-    'Parabola': ('a*x**2 + b*x + c', 'a b c'),
-}
-
-class DataSetPlot(NicosGrPlot):
+class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
 
     def __init__(self, parent, window, dataset):
-        self.dataset = dataset
+        DataSetPlotMixin.__init__(self, dataset)
         NicosGrPlot.__init__(self, parent, window)
 
     def titleString(self):
-        return "Scan %s %s" % (self.dataset.name,
-                                            self.dataset.scaninfo)
+        return "Scan %s %s" % (self.dataset.name, self.dataset.scaninfo)
 
     def subTitleString(self):
         return "started %s" % time.strftime(TIMEFMT, self.dataset.started)
-
-    def xaxisName(self):
-        try:
-            return '%s (%s)' % (self.dataset.xnames[self.dataset.xindex],
-                                self.dataset.xunits[self.dataset.xindex])
-        except IndexError:
-            return ''
-
-    def yaxisName(self):
-        return ''
-
-    def xaxisScale(self):
-        if self.dataset.xrange:
-            return self.dataset.xrange
-        try:
-            return (float(self.dataset.positions[0][self.dataset.xindex]),
-                    float(self.dataset.positions[-1][self.dataset.xindex]))
-        except (IndexError, TypeError, ValueError):
-            return None
-
-    def yaxisScale(self):
-        if self.dataset.yrange:
-            return self.dataset.yrange
-
-    def addAllCurves(self):
-        for i, curve in enumerate(self.dataset.curves):
-            self.addCurve(i, curve)
-
-    def enableCurvesFrom(self, otherplot):
-        visible = {}
-        for plotcurve in otherplot.plotcurves:
-            visible[plotcurve.legend] = plotcurve.visible
-        changed = False
-        remaining = len(self.plotcurves)
-        for plotcurve in self.plotcurves:
-            namestr = plotcurve.legend
-            if namestr in visible:
-                self.setVisibility(plotcurve, visible[namestr])
-                changed = True
-                if not visible[namestr]:
-                    remaining -= 1
-        # no visible curve left?  enable all of them again
-        if not remaining:
-            for plotcurve in self.plotcurves:
-                # only if it has a legend item (excludes monitor/time columns)
-                if plotcurve.legend:
-                    plotcurve.visible = True
-        if changed:
-            self.update()
 
     def addCurve(self, i, curve, replot=False):
         dy, errbar = None, None
@@ -601,7 +441,8 @@ class DataSetPlot(NicosGrPlot):
                     norm = np.array(curve.datatime)
                 if norm is not None:
                     y /= norm
-                    if dy is not None: dy /= norm
+                    if dy is not None:
+                        dy /= norm
             if dy is not None:
                 dneg = y - dy
                 dpos = y + dy
@@ -632,7 +473,8 @@ class DataSetPlot(NicosGrPlot):
                 norm = np.array(curve.datatime)
             if norm is not None:
                 y /= norm
-                if dy is not None: dy /= norm
+                if dy is not None:
+                    dy /= norm
 
         if dy is not None:
             dneg = y - dy
@@ -650,222 +492,41 @@ class DataSetPlot(NicosGrPlot):
             self.setCurveData(curve, plotcurve)
         self.updateDisplay()
 
-    def modifyData(self):
-        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
-                          if self.plotcurves[i].visible]
-        # get input from the user: which curves should be modified how
-        dlg = dialogFromUi(self, 'modify.ui', 'panels')
-        def checkAll():
-            for i in range(dlg.list.count()):
-                dlg.list.item(i).setCheckState(Qt.Checked)
-        dlg.connect(dlg.selectall, SIGNAL('clicked()'), checkAll)
-        for i in visible_curves:
-            li = QListWidgetItem(self.dataset.curves[i].full_description,
-                                 dlg.list)
-            if len(visible_curves) == 1:
-                li.setCheckState(Qt.Checked)
-                dlg.operation.setFocus()
-            else:
-                li.setCheckState(Qt.Unchecked)
-        if dlg.exec_() != QDialog.Accepted:
-            return
-        # evaluate selection
-        op = dlg.operation.text()
-        curves = []
-        for i in range(dlg.list.count()):
-            li = dlg.list.item(i)
-            if li.checkState() == Qt.Checked:
-                curves.append(i)
-
-        # modify curve data
-        for i in curves:
-            curve = self.plotcurves[visible_curves[i]]
-            new_y = [eval(op, {'x': v1, 'y': v2})
-                     for (v1, v2) in zip(curve.x, curve.y)]
-            if curve.errorBar1:
-                curve.errorBar1.y = new_y
-            if curve.errorBar2:
-                curve.errorBar2.y = new_y
-            curve.y = new_y
-        self.update()
-
-    def selectCurve(self):
-        visible_curves = [i for (i, _) in enumerate(self.dataset.curves)
-                          if self.plotcurves[i].visible]
-        if not visible_curves:
-            return
-        if len(visible_curves) > 1:
-            dlg = dialogFromUi(self, 'selector.ui', 'panels')
-            dlg.setWindowTitle('Select curve to fit')
-            dlg.label.setText('Select a curve:')
-            for i in visible_curves:
-                QListWidgetItem(self.dataset.curves[i].full_description,
-                                dlg.list)
-            dlg.list.setCurrentRow(0)
-            if dlg.exec_() != QDialog.Accepted:
-                return
-            fitcurve = visible_curves[dlg.list.currentRow()]
-        else:
-            fitcurve = visible_curves[0]
-        return self.plotcurves[fitcurve]
-
-    def fitGaussPeak(self):
-        return self._beginFit('Gauss', ['Background', 'Peak', 'Half Maximum'],
-                              self.gauss_callback)
-
-    def gauss_callback(self, args):
-        title = 'peak fit'
-        beta, x, y = fit_gauss(*args)
-        labelx = beta[2] + beta[3] / 2
-        labely = beta[0] + beta[1]
-        interesting = [('Center', beta[2]),
-                       ('FWHM', beta[3] * fwhm_to_sigma),
-                       ('Ampl', beta[1]),
-                       ('Integr', beta[1] * beta[3] * np.sqrt(2 * np.pi))]
-        linefrom = beta[2] - beta[3] * fwhm_to_sigma / 2
-        lineto = beta[2] + beta[3] * fwhm_to_sigma / 2
-        liney = beta[0] + beta[1] / 2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitPseudoVoigtPeak(self):
-        return self._beginFit('Pseudo-Voigt', ['Background', 'Peak', 'Half Maximum'],
-                              self.pv_callback)
-
-    def pv_callback(self, args):
-        title = 'peak fit (PV)'
-        beta, x, y = fit_pseudo_voigt(*args)
-        labelx = beta[2] + beta[3] / 2
-        labely = beta[0] + beta[1]
-        eta = beta[4] % 1.0
-        integr = beta[1] * beta[3] * (
-            eta * np.pi + (1 - eta) * np.sqrt(np.pi / np.log(2)))
-        interesting = [('Center', beta[2]), ('FWHM', beta[3] * 2),
-                       ('Eta', eta), ('Integr', integr)]
-        linefrom = beta[2] - beta[3]
-        lineto = beta[2] + beta[3]
-        liney = beta[0] + beta[1] / 2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitPearsonVIIPeak(self):
-        return self._beginFit('PearsonVII', ['Background', 'Peak', 'Half Maximum'],
-                              self.pvii_callback)
-
-    def pvii_callback(self, args):
-        title = 'peak fit (PVII)'
-        beta, x, y = fit_pearson_vii(*args)
-        labelx = beta[2] + beta[3] / 2
-        labely = beta[0] + beta[1]
-        interesting = [('Center', beta[2]), ('FWHM', beta[3] * 2),
-                       ('m', beta[4])]
-        linefrom = beta[2] - beta[3]
-        lineto = beta[2] + beta[3]
-        liney = beta[0] + beta[1] / 2
-        return x, y, title, labelx, labely, interesting, \
-            (linefrom, lineto, liney)
-
-    def fitTc(self):
-        return self._beginFit('Tc', ['Background', 'Tc'], self.tc_callback)
-
-    def tc_callback(self, args):
-        title = 'Tc fit'
-        beta, x, y = fit_tc(*args)
-        labelx = beta[2]  # at Tc
-        labely = beta[0] + beta[1]  # at I_max
-        interesting = [('Tc', beta[2]), (u'α', beta[3])]
-        return x, y, title, labelx, labely, interesting, None
-
-    def fitArby(self):
-        return self._beginFit('Arbitrary', [], self.arby_callback,
-                              self.arby_pick_callback)
-
-    def arby_callback(self, args):
-        title = 'fit'
-        beta, x, y = fit_arby(*args)
-        labelx = x[0]
-        labely = y.max()
-        interesting = list(zip(self.fitvalues[1], beta))
-        return x, y, title, labelx, labely, interesting, None
-
-    def arby_pick_callback(self):
-        dlg = dialogFromUi(self, 'fit_arby.ui', 'panels')
-        pr = DlgPresets('fit_arby',
-            [(dlg.function, ''), (dlg.fitparams, ''),
-             (dlg.xfrom, ''), (dlg.xto, '')])
-        pr.load()
-        for name in sorted(arby_functions):
-            QListWidgetItem(name, dlg.oftenUsed)
-        def click_cb(item):
-            func, params = arby_functions[item.text()]
-            dlg.function.setText(func)
-            dlg.fitparams.setPlainText('\n'.join(
-                p + ' = ' for p in params.split()))
-        dlg.connect(dlg.oftenUsed,
-                    SIGNAL('itemClicked(QListWidgetItem *)'), click_cb)
-        ret = dlg.exec_()
-        if ret != QDialog.Accepted:
-            return False
-        pr.save()
-        fcn = dlg.function.text()
-        try:
-            xmin = float(dlg.xfrom.text())
-        except ValueError:
-            xmin = None
-        try:
-            xmax = float(dlg.xto.text())
-        except ValueError:
-            xmax = None
-        if xmin is not None and xmax is not None and xmin > xmax:
-            xmax, xmin = xmin, xmax
-        params, values = [], []
-        for line in dlg.fitparams.toPlainText().splitlines():
-            name_value = line.strip().split('=', 2)
-            if len(name_value) < 2:
-                continue
-            params.append(name_value[0])
-            try:
-                values.append(float(name_value[1]))
-            except ValueError:
-                values.append(0)
-        self.fitvalues = [fcn, params, values, (xmin, xmax)]
-        return True
-
     def fitQuick(self):
-        if self.mouselocation:
-            (coord, _axes, curve) = self._plot.pick(self.mouselocation.getNDC(),
-                                                    self.dwidth, self.dheight)
-            if curve:
-                self.fitcurve = curve
-                wc = coord.getWC(self._plot.viewport)
-                whichindex = None
-                for idx, y in enumerate(curve.y):
-                    if wc.y == y:
-                        whichindex = idx
-                        break
-                # try to find good starting parameters
-                peakx, peaky = wc.x, wc.y
-                # use either left or right end of curve as background
-                leftx, lefty = curve.x[0], curve.y[0]
-                rightx, righty = curve.x[-1], curve.y[-1]
-                if abs(peakx - leftx) > abs(peakx - rightx):
-                    direction = -1
-                    backx, backy = leftx, lefty
-                else:
-                    direction = 1
-                    backx, backy = rightx, righty
-                i = whichindex
-                while i > 0:
-                    if curve.y[i] < (peaky - backy) / 2.:
-                        break
-                    i += direction
-                if i != whichindex:
-                    fwhmx = curve.x[i]
-                else:
-                    fwhmx = (peakx + backx) / 2.
-                self.fitvalues = [(backx, backy), (peakx, peaky),
-                                  (fwhmx, peaky / 2.)]
-                self.fitparams = ['Background', 'Peak', 'Half Maximum']
-                self.fittype = 'Gauss'
-                self.fitcallbacks = [self.gauss_callback, None]
-                self._finishFit()
+        if not self.mouselocation:
+            return
+        (coord, _axes, curve) = self._plot.pick(self.mouselocation.getNDC(),
+                                                self.dwidth, self.dheight)
+        if not curve:
+            return
+        wc = coord.getWC(self._plot.viewport)
+        whichindex = None
+        for idx, y in enumerate(curve.y):
+            if wc.y == y:
+                whichindex = idx
+                break
+        # try to find good starting parameters
+        peakx, peaky = wc.x, wc.y
+        # use either left or right end of curve as background
+        leftx, lefty = curve.x[0], curve.y[0]
+        rightx, righty = curve.x[-1], curve.y[-1]
+        if abs(peakx - leftx) > abs(peakx - rightx):
+            direction = -1
+            backx, backy = leftx, lefty
+        else:
+            direction = 1
+            backx, backy = rightx, righty
+        i = whichindex
+        while i > 0:
+            if curve.y[i] < (peaky - backy) / 2.:
+                break
+            i += direction
+        if i != whichindex:
+            fwhmx = curve.x[i]
+        else:
+            fwhmx = (peakx + backx) / 2.
+        self.fitter = GaussFitter(self, self.window, None, curve)
+        self.fitter.values = [(backx, backy), (peakx, peaky),
+                              (fwhmx, peaky / 2.)]
+        self.fitter.begin()
+        self.fitter.finish()
