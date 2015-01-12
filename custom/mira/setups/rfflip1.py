@@ -17,7 +17,7 @@ devices = dict(
                       tacodevice = '//mirasrv/mira/ag1016/rp1',
                       warnlimits = (0, 20)),
 
-    Cbox1    = device('mira.beckhoff.BeckhoffDigitalOutput',
+    Cbox1    = device('mira.beckhoff.DigitalOutput',
                       tacodevice = '//mirasrv/mira/modbus/beckhoff',
                       startoffset = 8,
                       bitwidth = 32),

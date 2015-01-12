@@ -27,11 +27,12 @@
 from Modbus import Modbus
 
 from nicos.core import Param, listof
-from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput
+from nicos.devices.taco.io import DigitalOutput as BaseDigitalOutput, \
+    NamedDigitalOutput as BaseNamedDigitalOutput
 from nicos.core import SIMULATION
 
 
-class BeckhoffDigitalOutput(DigitalOutput):
+class DigitalOutput(BaseDigitalOutput):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     """
@@ -71,7 +72,7 @@ class BeckhoffDigitalOutput(DigitalOutput):
         return '[' + ', '.join(['%s'] * self.bitwidth) + ']'
 
 
-class BeckhoffNamedDigitalOutput(NamedDigitalOutput):
+class NamedDigitalOutput(BaseNamedDigitalOutput):
     taco_class = Modbus
 
     parameters = {
