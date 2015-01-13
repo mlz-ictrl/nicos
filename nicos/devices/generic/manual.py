@@ -81,6 +81,7 @@ class ManualSwitch(Moveable):
         self.valuetype = oneof(*self.states)
 
     def doReadTarget(self):
+        #bootstrapping helper
         return self.states[0]
 
     def doStart(self, target):

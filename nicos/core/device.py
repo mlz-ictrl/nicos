@@ -42,7 +42,7 @@ from nicos.core.errors import NicosError, ConfigurationError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
 from nicos.pycompat import reraise, add_metaclass, itervalues, iteritems, \
-    string_types, number_types
+    string_types, integer_types, number_types
 
 
 def usermethod(func):
@@ -1149,6 +1149,7 @@ class Moveable(Readable):
     * doWait()
     * doIsAllowed()
     * doTime()
+    * doIsAtTarget()
     """
 
     parameters = {
@@ -1211,7 +1212,7 @@ class Moveable(Readable):
     def start(self, pos):
         """Start movement of the device to a new position.
 
-        This method does not generally wait for completion of the movement,
+        This method should not generally wait for completion of the movement,
         although individual devices can implement it that way if it is
         convenient.  In that case, no :meth:`doWait` should be implemented.
 
@@ -1255,14 +1256,18 @@ class Moveable(Readable):
         if not ok:
             raise LimitError(self, 'moving to %s is not allowed: %s' %
                              (self.format(pos, unit=True), why))
-        self._setROParam('target', pos)
+        if isinstance(self, HasTimeout):
+            self._setROParam('_started', currenttime())
         if self._sim_active:
+            self._setROParam('target', pos)
             self._sim_setValue(pos)
             self._sim_started = session.clock.time
             return
         if self._cache:
             self._cache.invalidate(self, 'value')
             self._cache.invalidate(self, 'status')
+            self._cache.invalidate(self, 'target')
+        self._setROParam('target', pos)
         self.doStart(pos)
 
     move = start
@@ -1339,6 +1344,12 @@ class Moveable(Readable):
                 val = self.doRead(0)  # not read(0), we already cache value below
             if self._cache and self._mode != SLAVE:
                 self._cache.put(self, 'value', val, currenttime(), self.maxage)
+        # check reached value to be equal to target
+        if not self.isAtTarget(val):
+            self.log.warning('did not reach target %s, last value is %s. This '
+                             'may raise an error in the future!' %
+                             (self.format(self.target, unit=True),
+                              self.format(val, unit=True)))
         return val
 
     def doWait(self):
@@ -1356,6 +1367,23 @@ class Moveable(Readable):
         if self._adevs:
             multiWait(self._adevs)
         waitForStatus(self)
+
+    def isAtTarget(self, pos):
+        """Check if the device has arrived at its target.
+
+        The method calls :meth:`doIsAtTarget` if present.  Otherwise, it checks
+        for equality if the value is of string or integer type, and returns
+        true otherwise.
+
+        For devices with float values, inherit from :class:`HasPrecision`,
+        which already comes with an implementation of `doIsAtTarget`.
+        """
+        if hasattr(self, 'doIsAtTarget'):
+            return self.doIsAtTarget(pos)
+        elif isinstance(self.target, (string_types, integer_types)) and \
+                self.target != pos:
+            return False
+        return True
 
     @usermethod
     def maw(self, target):
@@ -1650,13 +1678,18 @@ class HasPrecision(DeviceMixinBase):
     Mixin class for Readable and Moveable devices that want to provide a
     'precision' parameter.
 
-    This is mainly useful for user info, and for high-level devices that have to
-    work with limited-precision subordinate devices.
+    This is mainly useful for user info, and for high-level devices that have
+    to work with limited-precision subordinate devices.
     """
     parameters = {
         'precision': Param('Precision of the device value', unit='main',
                            settable=True, category='precisions'),
     }
+
+    def doIsAtTarget(self, pos):
+        if self.target is None:
+            return True # avoid bootstrapping problems.
+        return abs(self.target - pos) <= self.precision
 
 
 class HasMapping(DeviceMixinBase):
@@ -1689,6 +1722,18 @@ class HasMapping(DeviceMixinBase):
             return False, 'unknown value: %r, must be one of %s' % \
                 (target, ', '.join(map(repr, sorted(self.mapping))))
         return True, ''
+
+
+class HasTimeout(DeviceMixinBase):
+    """
+    Mixin class for devices whose wait() should have a simple timeout.
+    """
+    parameters = {
+        'timeout': Param('Timeout of after start(), or None', unit='s',
+                         type=none_or(float), settable=True, mandatory=True),
+        '_started' : Param('Timestamp of last doStart() call',
+                           userparam=False, settable=True, unit='s'),
+    }
 
 
 class Measurable(Readable):

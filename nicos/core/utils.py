@@ -117,12 +117,15 @@ def waitForStatus(device, delay=0.3, timeout=None,
     state values that are considered as "busy" states; by default only
     `status.BUSY`.
     """
-    started = currenttime()
-    if timeout is None and 'timeout' in device.parameters:
-        try:
-            timeout = float(device.timeout)
-        except (TypeError, ValueError):
-            pass
+    if hasattr(device, '_started'):
+        started = device.getattr(device, '_started')
+        if timeout is None and 'timeout' in device.parameters:
+            try:
+                timeout = float(device.timeout)
+            except (TypeError, ValueError):
+                pass
+    else:
+        started =  currenttime()
     while True:
         st = device.status(0)
         if device.loglevel == 'debug':

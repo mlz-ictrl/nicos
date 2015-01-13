@@ -439,6 +439,10 @@ class VirtualRealTemperature(HasLimits, Moveable):
     def doWriteMaxpower(self, newpower):
         self.heater = clamp(self.heater * self.maxpower / float(newpower), 0, 100)
 
+    def doReadTarget(self):
+        """Bootstrapping helper, called at most once"""
+        return sum(self.abslimits) * 0.5
+
     #
     # calculation helpers
     #
