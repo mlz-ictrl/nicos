@@ -31,15 +31,15 @@ Temperature Controller
 
 .. automodule:: nicos.toftof.julabo
 
-.. autoclass:: Julabo
+.. autoclass:: Controller
 
 Neutron Guide/Collimation
 -------------------------
 
 .. automodule:: nicos.toftof.neutronguide
 
-.. autoclass:: NeutronGuideSwitcher
-.. autoclass:: NeutronGuideBladeMotor
+.. autoclass:: Switcher
+.. autoclass:: Motor
 
 Radial Collimator
 -----------------
