@@ -39,8 +39,10 @@ from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
-__all__ = ['AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
-           'TemperatureController', 'DigitalInput', 'DigitalOutput', 'StringIO']
+__all__ = [
+    'AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
+    'TemperatureController', 'DigitalInput', 'DigitalOutput', 'StringIO'
+]
 
 DEFAULT_STATUS_MAPPING = {
     PyTango.DevState.ON:     status.OK,
@@ -50,9 +52,9 @@ DEFAULT_STATUS_MAPPING = {
 }
 
 EXC_MAPPING = {
-    PyTango.CommunicationFailed : CommunicationError,
-    PyTango.WrongNameSyntax : ConfigurationError,
-    PyTango.DevFailed : NicosError,
+    PyTango.CommunicationFailed: CommunicationError,
+    PyTango.WrongNameSyntax: ConfigurationError,
+    PyTango.DevFailed: NicosError,
 }
 
 
@@ -149,7 +151,8 @@ class PyTangoDevice(DeviceMixinBase):
                 self.log.debug('[PyTango] write attribute: %s => %r'
                                % (args[0], args[1:]))
             elif category == 'attr_query':
-                self.log.debug('[PyTango] query attribute properties: %s' % args[0])
+                self.log.debug('[PyTango] query attribute properties: %s' %
+                               args[0])
             elif category == 'constructor':
                 self.log.debug('[PyTango] device creation: %s' % args[0])
             elif category == 'internal':
@@ -175,10 +178,11 @@ class PyTangoDevice(DeviceMixinBase):
             except tuple(EXC_MAPPING.keys()) as e:
                 exc = str(e)
                 if e.args:
-                    exc = e.args[0] # Can be str or DevError
+                    exc = e.args[0]  # Can be str or DevError
 
                     if isinstance(exc, PyTango.DevError):
-                        exc = '%s: [%s] %s' % (exc.origin, exc.reason, exc.desc)
+                        exc = '%s: [%s] %s' % (exc.origin, exc.reason,
+                                               exc.desc)
 
                 self.log.debug('PyTango error: %s' % exc)
                 raise EXC_MAPPING.get(type(e), NicosError)(self, exc)
