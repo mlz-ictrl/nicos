@@ -167,12 +167,12 @@ class PyTangoDevice(DeviceMixinBase):
                 result = func(*args, **kwargs)
 
                 if isinstance(result, PyTango.DeviceAttribute):
-                    self.log.debug('\t=> %r' % result.value)
+                    self.log.debug('\t=> %s' % repr(result.value)[:300])
                 else:
                     # This line explicitly logs '=> None' for commands which
                     # does not return a value. This indicates that the command
                     # execution ended.
-                    self.log.debug('\t=> %r' % (str(result)[:300],))
+                    self.log.debug('\t=> %s' % repr(result)[:300])
 
                 return result
             except tuple(EXC_MAPPING.keys()) as e:
