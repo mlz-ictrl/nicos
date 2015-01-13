@@ -34,8 +34,8 @@ import TACOStates
 from TACOClient import TACOError
 try:
     from TACOErrors import DevErr_ExecutionDenied, DevErr_RangeError, \
-         DevErr_InvalidValue, DevErr_RuntimeError, DevErr_InternalError, \
-         DevErr_IOError, DevErr_SystemError
+        DevErr_InvalidValue, DevErr_RuntimeError, DevErr_InternalError, \
+        DevErr_IOError, DevErr_SystemError
 except ImportError:
     DevErr_ExecutionDenied = 4010
     DevErr_RangeError      = 4017
@@ -124,30 +124,30 @@ class TacoDevice(DeviceMixinBase):
 
     _TACO_STATUS_MAPPING = {
         # OK states
-        TACOStates.ON : status.OK,
-        TACOStates.DEVICE_NORMAL : (status.OK, 'idle'),
-        TACOStates.POSITIVE_ENDSTOP : (status.OK, 'limit switch +' ),
-        TACOStates.NEGATIVE_ENDSTOP : (status.OK, 'limit switch -' ),
-        TACOStates.STOPPED : (status.OK, 'idle or paused'),
-        TACOStates.TRIPPED : status.OK,
-        TACOStates.PRESELECTION_REACHED : status.OK,
+        TACOStates.ON: status.OK,
+        TACOStates.DEVICE_NORMAL: (status.OK, 'idle'),
+        TACOStates.POSITIVE_ENDSTOP: (status.OK, 'limit switch +'),
+        TACOStates.NEGATIVE_ENDSTOP: (status.OK, 'limit switch -'),
+        TACOStates.STOPPED: (status.OK, 'idle or paused'),
+        TACOStates.TRIPPED: status.OK,
+        TACOStates.PRESELECTION_REACHED: status.OK,
         # BUSY states
         # explicit ramp string as there seem to be some inconsistencies
-        TACOStates.RAMP : (status.BUSY, 'ramping'),
-        TACOStates.MOVING : status.BUSY,
-        TACOStates.STOPPING : status.BUSY,
-        TACOStates.INIT : (status.BUSY, 'initializing taco device / hardware'),
-        TACOStates.RESETTING : status.BUSY,
-        TACOStates.STOP_REQUESTED : status.BUSY,
-        TACOStates.COUNTING : status.BUSY,
+        TACOStates.RAMP: (status.BUSY, 'ramping'),
+        TACOStates.MOVING: status.BUSY,
+        TACOStates.STOPPING: status.BUSY,
+        TACOStates.INIT: (status.BUSY, 'initializing taco device / hardware'),
+        TACOStates.RESETTING: status.BUSY,
+        TACOStates.STOP_REQUESTED: status.BUSY,
+        TACOStates.COUNTING: status.BUSY,
         # NOTREACHED states
-        TACOStates.UNDEFINED : status.NOTREACHED,
+        TACOStates.UNDEFINED: status.NOTREACHED,
         # ERROR states
-        TACOStates.FAULT : status.ERROR,
-        TACOStates.OVERFLOW : status.ERROR,
-        TACOStates.OFF : status.ERROR,
-        TACOStates.DEVICE_OFF : status.ERROR,
-        TACOStates.ON_NOT_REACHED : status.ERROR,
+        TACOStates.FAULT: status.ERROR,
+        TACOStates.OVERFLOW: status.ERROR,
+        TACOStates.OFF: status.ERROR,
+        TACOStates.DEVICE_OFF: status.ERROR,
+        TACOStates.ON_NOT_REACHED: status.ERROR,
     }
 
     # the TACO client class to instantiate
@@ -224,19 +224,20 @@ class TacoDevice(DeviceMixinBase):
         if 'unit' in self._config:
             if self._config['unit'] != value:
                 self.log.warning('configured unit %r in configuration differs '
-                        'from current unit %r' % (self._config['unit'], value))
+                                 'from current unit %r' %
+                                 (self._config['unit'], value))
 
     def doUpdateTacotimeout(self, value):
         if self._dev:
             if value != 3.0:
-                self.log.warning('%r : client network timeout changed to: '
+                self.log.warning('%r: client network timeout changed to: '
                                  '%.2f s' % (self.tacodevice, value))
             self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
     def doUpdateLoglevel(self, value):
         super(TacoDevice, self).doUpdateLoglevel(value)
         self._taco_guard = value == 'debug' and self._taco_guard_log or \
-                           self._taco_guard_nolog
+            self._taco_guard_nolog
 
     # internal utilities
 
@@ -281,14 +282,14 @@ class TacoDevice(DeviceMixinBase):
                 dev.setClientNetworkTimeout(timeout)
         except TACOError as err:
             self.log.warning('Setting TACO network timeout failed: '
-                              '[TACO %d] %s' % (err.errcode, err))
+                             '[TACO %d] %s' % (err.errcode, err))
 
         try:
             if dev.isDeviceOff():
                 dev.deviceOn()
         except TACOError as err:
             self.log.warning('Switching TACO device %r on failed: '
-                              '[TACO %d] %s' % (devname, err.errcode, err))
+                             '[TACO %d] %s' % (devname, err.errcode, err))
             try:
                 if dev.deviceState() == TACOStates.FAULT:
                     if resetok:
@@ -313,7 +314,7 @@ class TacoDevice(DeviceMixinBase):
             # self.tacotries only triggers in the error case
             if self.tacotries > 1 or err == DevErr_RPCTimedOut:
                 tries = 2 if err == DevErr_RPCTimedOut and self.tacotries == 1 \
-                        else self.tacotries - 1
+                    else self.tacotries - 1
                 self.log.warning('TACO %s failed, retrying up to %d times' %
                                  (function.__name__, tries), exc=1)
                 while True:
@@ -340,7 +341,8 @@ class TacoDevice(DeviceMixinBase):
         """Try running the TACO function, and raise a NicosError on exception.
 
         A more specific NicosError subclass is chosen if appropriate.  For
-        example, database-related errors are converted to `.CommunicationError`.
+        example, database-related errors are converted to
+        `.CommunicationError`.
         A TacoDevice subclass can add custom error code to exception class
         mappings by using the `.taco_errorcodes` class attribute.
 
@@ -356,7 +358,7 @@ class TacoDevice(DeviceMixinBase):
             # self.tacotries only triggers in the error case
             if self.tacotries > 1 or err == DevErr_RPCTimedOut:
                 tries = 2 if err == DevErr_RPCTimedOut and self.tacotries == 1 \
-                        else self.tacotries - 1
+                    else self.tacotries - 1
                 self.log.warning('TACO %s failed, retrying up to %d times' %
                                  (function.__name__, tries))
                 while True:
@@ -442,8 +444,8 @@ class TacoDevice(DeviceMixinBase):
     def _taco_multitry(self, what, tries, func, *args):
         """Try the TACO method *func* with given *args* for the number of times
         given by *tries*.  On each failure, a warning log message is emitted.
-        If the device is in error state after a try, it is reset.  If the number
-        of tries is exceeded, the error from the call is re-raised.
+        If the device is in error state after a try, it is reset.  If the
+        number of tries is exceeded, the error from the call is re-raised.
 
         *what* is a string that explains the call; it is used in the warning
         messages.
@@ -479,8 +481,8 @@ class TacoStub(object):
         def method(*args):
             n = 0
             while n < 5:
-                p = Popen([sys.executable, self.script,
-                           self.mod, self.cls, self.dev, cmd, cache_dump(args)],
+                p = Popen([sys.executable, self.script, self.mod,
+                           self.cls, self.dev, cmd, cache_dump(args)],
                           stdout=PIPE, stderr=PIPE)
                 out, err = p.communicate()
                 if err:
