@@ -11,5 +11,7 @@ Communication works via the TACO interface of QMesyDAQ.
 
 .. autoclass:: QMesyDAQCounter()
 
-.. autoclass:: QMesyDAQDet()
+.. autoclass:: QMesyDAQMultiChannel()
+
+.. autoclass:: QMesyDAQImage()
 
