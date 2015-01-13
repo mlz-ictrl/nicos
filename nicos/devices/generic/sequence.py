@@ -53,14 +53,17 @@ class SequenceItem(object):
     """
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+
     def check(self):
         """Check if the action can be performed.
 
         This may check arguments/types/... and normally raises an Error if
         something is wrong.
         """
+
     def run(self):
         """Initates an action, define in derived classes."""
+
     def retry(self, amount):
         """Retry the start of an already failed action."""
         for _ in range(amount):
@@ -69,6 +72,7 @@ class SequenceItem(object):
                 return
             except Exception:
                 pass
+
     def wait(self):
         """Wait for completion of the initiated action.
 
@@ -76,8 +80,10 @@ class SequenceItem(object):
         allowing a polling mode.
         """
         return True
+
     def stop(self):
         """Interrupts the action started by run()."""
+
     def _format_args_kwargs(self, args, kwargs):
         """Internal method.
 
@@ -94,24 +100,28 @@ class SeqDev(SequenceItem):
     """
     def __init__(self, dev, *args, **kwargs):
         SequenceItem.__init__(self, dev=dev, args=args, kwargs=kwargs)
+
     def check(self):
         res = self.dev.isAllowed(*self.args, **self.kwargs)
         if not res[0]:
             raise LimitError(self.dev, res[1])
+
     def run(self):
         self.dev.start(*self.args, **self.kwargs)
+
     def wait(self):
         # dont wait on fixed devices
         if hasattr(self.dev, 'fixed') and self.dev.fixed:
             return True
         self.dev.wait()
         return True
+
     def __repr__(self):
         if self.kwargs:
             return '%s.start(%s); %s.wait()' % (
-                    self.dev.name,
-                    self._format_args_kwargs(self.args, self.kwargs),
-                    self.dev.name)
+                self.dev.name,
+                self._format_args_kwargs(self.args, self.kwargs),
+                self.dev.name)
         return 'maw(%s, %s)' % (self.dev.name, ', '.join(map(repr, self.args)))
 
 
@@ -119,11 +129,13 @@ class SeqParam(SequenceItem):
     """Sets a Parameter of a Device and checks its value once"""
     def __init__(self, dev, paramname, value):
         SequenceItem.__init__(self, dev=dev, paramname=paramname, value=value)
+
     def run(self):
         setattr(self.dev, self.paramname, self.value)
         if not getattr(self.dev, self.paramname) == self.value:
             raise NicosError('Setting Parameter %s of dev %s to %r failed!' % (
-                              self.paramname, self.dev, self.value))
+                self.paramname, self.dev, self.value))
+
     def __repr__(self):
         return '%s.%s=%r' % (self.dev.name, self.paramname, self.value)
 
@@ -135,12 +147,16 @@ class SeqMethod(SequenceItem):
     """
     def __init__(self, dev, method, *args, **kwargs):
         SequenceItem.__init__(self, dev=dev, method=method, args=args,
-                                    kwargs=kwargs)
+                              kwargs=kwargs)
+
     def check(self):
         if not hasattr(self.dev, self.method):
-            raise ConfigurationError(self.dev, 'method %s does not exist!' % self.method)
+            raise ConfigurationError(self.dev,
+                                     'method %s does not exist!' % self.method)
+
     def run(self):
         getattr(self.dev, self.method)(*self.args)
+
     def __repr__(self):
         return '%s.%s(%s)' % (self.dev.name, self.method,
                               self._format_args_kwargs(self.args, self.kwargs))
@@ -150,11 +166,13 @@ class SeqCall(SequenceItem):
     """Calls a given function with given arguments"""
     def __init__(self, func, *args, **kwargs):
         SequenceItem.__init__(self, func=func, args=args, kwargs=kwargs)
+
     def run(self):
         self.func(*self.args, **self.kwargs)
+
     def __repr__(self):
         return '%s(%s)' % (self.func.__name__,
-                            self._format_args_kwargs(self.args, self.kwargs))
+                           self._format_args_kwargs(self.args, self.kwargs))
 
 
 class SeqSleep(SequenceItem):
@@ -163,21 +181,25 @@ class SeqSleep(SequenceItem):
         SequenceItem.__init__(self, duration=duration, reason=reason)
         self.stopflag = False
         self.endtime = 0
+
     def run(self):
         if self.duration > 3:
             session.beginActionScope(self.reason or 'Sleeping %s (H:M:S)' %
                                      timedelta(seconds = self.duration))
         self.endtime = currenttime() + self.duration
+
     def wait(self):
-        if self.stopflag == False and self.endtime > currenttime():
+        if not self.stopflag and self.endtime > currenttime():
             # arbitrary choice of max 5s
             time.sleep(min(5, self.endtime - currenttime()))
             return False
         if self.duration > 3:
             session.endActionScope()
         return True
+
     def stop(self):
         self.stopflag = True
+
     def __repr__(self):
         if self.endtime:
             # already started, __repr__ is used for updating status strings.
@@ -195,8 +217,9 @@ class SeqNOP(SequenceItem):
     """
     def __init__(self):
         SequenceItem.__init__(self)
+
     def __repr__(self):
-        return 'NOP' # any other NICOS-NOP ?
+        return 'NOP'  # any other NICOS-NOP ?
 
 
 class SequencerMixin(DeviceMixinBase):
@@ -204,8 +227,8 @@ class SequencerMixin(DeviceMixinBase):
 
     The Sequence is a list of :class:`SequenceItems` or tuples of those.
     A SequenceItem provides check, run and wait methods which are
-    executed in this order. A tuple of :class:`SequenceItems` gets each of those
-    methods called on each member first, then the next method, allowing
+    executed in this order. A tuple of :class:`SequenceItems` gets each of
+    those methods called on each member first, then the next method, allowing
     to perform 'parallel' executed actions.
 
     If some action fail, a ``_<action>Failed`` hook is called.
@@ -253,7 +276,8 @@ class SequencerMixin(DeviceMixinBase):
                 try:
                     action.check()
                 except Exception as e:
-                    self.log.error('action.check for %r failed with %r' % (action, e))
+                    self.log.error('action.check for %r failed with %r' %
+                                   (action, e))
                     self.log.debug('_checkFailed returned %r' %
                                    self._checkFailed(i, action, e))
                     # if the above does not raise, consider this as OK
@@ -310,7 +334,8 @@ class SequencerMixin(DeviceMixinBase):
                             try:
                                 action.retry(code)
                             except Exception as e:
-                                self.log.debug('action.retry failed with %r' % e)
+                                self.log.debug('action.retry failed with '
+                                               '%r' % e)
                                 self.log.debug('_retryFailed returned %r' %
                                                self._retryFailed(i, action,
                                                                  code, e))
@@ -357,7 +382,8 @@ class SequencerMixin(DeviceMixinBase):
                             try:
                                 action.stop()
                             except Exception as e:
-                                self.log.debug('action.stop failed with %r' % e)
+                                self.log.debug('action.stop failed with '
+                                               '%r' % e)
                                 failed.append((action, e))
                             # signal those errors, captured earlier
                             for ac, e in failed:
@@ -366,8 +392,9 @@ class SequencerMixin(DeviceMixinBase):
                     finally:
                         self._stopAction(i)
                         self._set_seq_status(status.NOTREACHED,
-                                             'operation interrupted at step %d: ' %
-                                             (i + 1) + ';'.join(map(repr, step)))
+                                             'operation interrupted at step '
+                                             '%d: ' % (i + 1) +
+                                             ';'.join(map(repr, step)))
                         self.log.debug('stopping finished')
                     break
 
@@ -516,8 +543,8 @@ class LockedDevice(BaseSequencer):
     `lockvalue`.
 
     If an error occurs while moving the main device, the lock is not moved back
-    to "locked" position.  The error must be resolved first to restore integrity
-    of the device arrangement.
+    to "locked" position.  The error must be resolved first to restore
+    integrity of the device arrangement.
     """
 
     attached_devices = {
@@ -558,7 +585,8 @@ class LockedDevice(BaseSequencer):
             seq.append(SeqMethod(lock, 'release'))
 
         # now move lock to lockvalue
-        seq.append(SeqDev(lock, self.lockvalue or lock.target or lock.doRead(0)))
+        seq.append(SeqDev(lock,
+                          self.lockvalue or lock.target or lock.doRead(0)))
 
         if self.keepfixed:
             # fix lock again
@@ -608,7 +636,7 @@ class MeasureSequencer(SequencerMixin, Measurable):
                 self._seq_thread.join()
                 self._seq_thread = None
             else:
-                raise NicosError(self, "Cannot start device, it is still busy.")
+                raise NicosError(self, "Cannot start device, it is still busy")
         self._startSequence(self._generateSequence())
 
     def doIsCompleted(self):
