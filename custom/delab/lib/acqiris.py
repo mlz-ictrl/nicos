@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""CARESS Detector class for NICOS."""
+"""Acqiris Detector class for NICOS via the CARESS device service."""
 
 import sys
 from omniORB import CORBA
