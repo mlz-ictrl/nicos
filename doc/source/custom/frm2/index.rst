@@ -8,4 +8,11 @@ FRM II
 
     setups/*
 
+Custom classes
+==============
+
+.. toctree::
+    :maxdepth: 1
+
+    classes
 

@@ -25,7 +25,7 @@
 #
 # *****************************************************************************
 
-"""NICOS FRM II Experiment."""
+"""NICOS FRM II experiment classes."""
 
 import re
 import time
@@ -37,6 +37,12 @@ from nicos.devices.experiment import Experiment as BaseExperiment, ImagingExperi
 
 
 class Experiment(BaseExperiment):
+    """Typical experiment at the FRM-II facility.
+
+    With access to the user office proposal database information the experiment
+    related information could be take over without any human interaction except
+    the knowledge of the proposal number.
+    """
 
     parameters = {
         'cycle':   Param('Current reactor cycle', type=str, settable=True),
@@ -155,8 +161,8 @@ class Experiment(BaseExperiment):
 
 
 class ImagingExperiment(Experiment, BaseImagingExperiment):
-    """FRM2 specific imaging experiment which provides all imaging experiment
-    functionalities plus all the frm2 specific features.
+    """FRM-II specific imaging experiment which provides all imaging experiment
+    functionalities plus all the FRM-II specific features.
     """
     parameter_overrides = {
         'dataroot':      Override(default='/data/FRM-II'),

@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Support code for the CCR-Taco-Boxes"""
+"""Support classes for the CCR TACO boxes"""
 
 import IO
 import time
@@ -35,9 +35,11 @@ from nicos.devices.taco.io import NamedDigitalOutput
 
 
 class CCRControl(HasLimits, Moveable):
-    """Class implementing requirements from SE-group
+    """Combination of the temperature controller for the tube and sample stick
+    of the CCR (closed cycle refrigerator) of the SE (sample environment) group.
 
-    requirements are:
+    It gives a single point of controlling the temperature under certain
+    conditions:
 
     * no setpoint change without ramp
     * ramp is limited to 10K/min
@@ -232,8 +234,11 @@ class CCRControl(HasLimits, Moveable):
 
 class CompressorSwitch(NamedDigitalOutput):
     """ The CCR box has two separate switches to switch the compressor 'on' and
-    'off'. The access is realized via two TACO devices, the current state is
+    'off'.
+
+    The access is realized via two TACO devices, the current state is
     given by a third device.
+
     The 'on' device is the inherited TACO device.
     """
     parameters = {

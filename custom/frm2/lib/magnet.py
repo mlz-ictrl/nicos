@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 """
-Supporting classes for FRM2-magnets (Garfield, MiraMagnet, ...)
+Supporting classes for FRM2 magnets (Garfield, MiraMagnet, ...)
 """
 
 from nicos.core import Moveable
@@ -32,14 +32,14 @@ from nicos.devices.generic.magnet import BipolarSwitchingMagnet
 
 
 class GarfieldMagnet(BipolarSwitchingMagnet):
-    """Class for Garfield Magnet.
+    """Garfield Magnet
 
     uses a polarity switch ('+' or '-') to flip polarity and an onoff switch
     to cut power (to be able to switch polarity) in addition to an
     unipolar current source.
 
     Please try to avoid to build anything like this or get headaches!
-    better version would be the MiraMagnet.
+    Better version would be the MiraMagnet.
     """
 
     attached_devices = {
@@ -73,7 +73,7 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
 
 
 class MiraMagnet(BipolarSwitchingMagnet):
-    """Class for MiraMagnet
+    """MiraMagnet
 
     second best way(*) to control a bipolar magnet, using two relays
     to put current directly (plusswitch) or reversed (minusswitch)
