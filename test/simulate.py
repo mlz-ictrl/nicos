@@ -28,5 +28,6 @@ if hasattr(signal, 'alarm'):
 from nicos import config
 from nicos.core.sessions.simulation import SimulationSession
 config.nicos_root = rootdir
+config.setup_subdirs = '../test'
 
 SimulationSession.run(port, prefix, setups, code)
