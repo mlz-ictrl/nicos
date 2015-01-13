@@ -63,7 +63,7 @@ def devIter(devices, baseclass=None, onlydevs=False):
         # to a list first
         devices = list(devices)
         try:  # to convert list of devices into desired format
-            devices = [(dev.name, dev) for dev in devices]
+            devices = [(dev.name, dev) for dev in devices if dev]
         except AttributeError:
             pass  # not convertible, must be right format already...
     for devname, dev in devices:
