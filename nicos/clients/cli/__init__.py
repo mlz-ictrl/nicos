@@ -520,6 +520,7 @@ class NicosCmdClient(NicosClient):
                               self.conndata['port'])
         if hostport in (':', ':1301') or ask_all:
             default = '' if hostport in (':', ':1301') else hostport
+            default = default or 'localhost'
             server = self.ask_question('Server host:port?', default=default)
             if not server:
                 return
@@ -533,7 +534,7 @@ class NicosCmdClient(NicosClient):
             self.conndata['port'] = port
         if not self.conndata['login'] or ask_all:
             user = self.ask_question('User name?',
-                                     default=self.conndata['login'])
+                                     default=self.conndata['login'] or 'guest')
             self.conndata['login'] = user
         if self.conndata['passwd'] is None or ask_all:
             passwd = self.ask_passwd('Password?')
