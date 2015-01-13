@@ -56,7 +56,7 @@ windows = [
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
     window('Live data', 'live', True,
-            panel('live.LiveDataPanel', instrument = 'antares'))
+            panel('live.LiveDataPanel', instrument = 'imaging'))
 ]
 
 tools = [
