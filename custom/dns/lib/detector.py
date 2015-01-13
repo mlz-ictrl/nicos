@@ -102,14 +102,14 @@ class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer,
 
     def _generateSequence(self, *args, **kwargs):
         seq = []
-        seq.append(SeqCall(self._dev.Clear))
+        seq.append(SeqCall(self._dev.Clear, _name='Clear'))
         self.log.debug("Detector cleared")
-        seq.append(SeqCall(self._dev.Start))
+        seq.append(SeqCall(self._dev.Start, _name='Start'))
         self.log.debug("Detector started")
-        seq.append(SeqCall(self._adevs['fpga'].start))
+        seq.append(SeqCall(self._adevs['fpga'].start, _name='fpga.start'))
         self.log.debug("Counter started")
-        seq.append(SeqCall(self._adevs['fpga'].wait))
-        seq.append(SeqCall(self._dev.Stop))
+        seq.append(SeqCall(self._adevs['fpga'].wait, _name='fpga.wait'))
+        seq.append(SeqCall(self._dev.Stop, _name='Stop'))
         return seq
 
     def doSetPreset(self, **preset):
