@@ -28,10 +28,11 @@ import IO
 import time
 
 from nicos.core import Moveable, HasLimits, Override, Param, SIMULATION, \
-     ConfigurationError, InvalidValueError, ProgrammingError, oneof, \
-     floatrange, tacodev, status
+    ConfigurationError, InvalidValueError, ProgrammingError, oneof, \
+    floatrange, tacodev, status
 from nicos.utils import lazy_property, clamp
 from nicos.devices.taco.io import NamedDigitalOutput
+
 
 class CCRControl(HasLimits, Moveable):
     """Class implementing requirements from SE-group
@@ -78,7 +79,7 @@ class CCRControl(HasLimits, Moveable):
         if mode != SIMULATION:
             if self.stick is None or self.tube is None:
                 raise ConfigurationError(self, 'Both stick and tube needs to '
-                                          'be set for this device!')
+                                         'be set for this device!')
             absmin = min(self.tube.absmin, self.stick.absmin)
             absmax = self.stick.absmax
             self._setROParam('abslimits', (absmin, absmax))
@@ -121,10 +122,10 @@ class CCRControl(HasLimits, Moveable):
                                         max(self.stick.absmin, target))
             else:
                 raise ProgrammingError(self, 'unknown mode %r, don\'t know how'
-                                        ' to handle it!' % self.regulationmode)
+                                       ' to handle it!' % self.regulationmode)
         else:
             self.log.debug('ignoring mode, as target %r is above %s.absmax' %
-                            (target, self.tube.name))
+                           (target, self.tube.name))
             self.__start_tube_stick(self.tube.absmax, target)
 
     def doRead(self, maxage=0):
@@ -137,7 +138,7 @@ class CCRControl(HasLimits, Moveable):
             return self.tube.read(maxage)
         else:
             raise ProgrammingError(self, 'unknown mode %r, don\'t know how to '
-                                    'handle it!' % self.regulationmode)
+                                   'handle it!' % self.regulationmode)
 
     def doPoll(self, n):
         if n % 50 == 0:
@@ -175,17 +176,18 @@ class CCRControl(HasLimits, Moveable):
                     res = tubeval
                 else:
                     raise ConfigurationError(self, 'Parameters %s.%s and %s.%s'
-                                              ' differ! please set them using '
-                                              '%s.%s only.' % (
-                                              self.tube.name, attrname,
-                                              self.stick.name, attrname,
-                                              self.name, attrname))
+                                             ' differ! please set them using '
+                                             '%s.%s only.' % (
+                                                 self.tube.name, attrname,
+                                                 self.stick.name, attrname,
+                                                 self.name, attrname))
 
         self.log.debug('param %s is %r' % (attrname, res))
         return res
 
     def doReadRamp(self):
-        # do not return a value the validator would reject, or device creation fails
+        # do not return a value the validator would reject, or
+        # device creation fails
         ramp = self.__get_param('ramp')
         # this works only for the floatrange type of the ramp parameter!
         rampmin = self.parameters['ramp'].type.fr
@@ -195,7 +197,7 @@ class CCRControl(HasLimits, Moveable):
         clampramp = clamp(ramp, rampmin, rampmax)
         self.log.warning('Ramp parameter %.3g is outside of the allowed range '
                          '%.3g..%.3g, setting it to %.3g' % (
-                         ramp, rampmin, rampmax, clampramp ))
+                             ramp, rampmin, rampmax, clampramp))
         # clamp read value to allowed range and re-set it
         return self.doWriteRamp(clampramp)
 
@@ -236,24 +238,24 @@ class CompressorSwitch(NamedDigitalOutput):
     """
     parameters = {
         'offdev':  Param('Device to switch the compressor off',
-                        type=tacodev, mandatory=True, preinit=True),
+                         type=tacodev, mandatory=True, preinit=True),
         'readback': Param('Device to read back the compressor state indicator',
                           type=tacodev, mandatory=True, preinit=True),
-        'statusdev' : Param('Device to read out the compressor state',
-                            type=tacodev, mandatory=True, preinit=True),
-        'sleeptime' : Param('Time to wait after switching',
-                            type=float, default=0.1),
+        'statusdev': Param('Device to read out the compressor state',
+                           type=tacodev, mandatory=True, preinit=True),
+        'sleeptime': Param('Time to wait after switching',
+                           type=float, default=0.1),
     }
 
     def doInit(self, mode):
         NamedDigitalOutput.doInit(self, mode)
         if mode != SIMULATION:
-            self._off = self._create_client(devname=self.offdev,
-                           class_=IO.DigitalOutput, resetok=True, timeout=None)
-            self._readback = self._create_client(devname=self.readback,
-                             class_=IO.DigitalInput, resetok=True, timeout=None)
-            self._status = self._create_client(devname=self.statusdev,
-                             class_=IO.DigitalInput, resetok=True, timeout=None)
+            self._off = self._create_client(
+                self.offdev, IO.DigitalOutput, resetok=True, timeout=None)
+            self._readback = self._create_client(
+                self.readback, IO.DigitalInput, resetok=True, timeout=None)
+            self._status = self._create_client(
+                self.statusdev, IO.DigitalInput, resetok=True, timeout=None)
 
     def doStart(self, target):
         value = self.mapping.get(target, target)
@@ -283,7 +285,7 @@ class CompressorSwitch(NamedDigitalOutput):
         elif (val & 1) == 1:
             return status.ERROR, 'Oil missing'
         elif (val & 4) == 4:
-            return status.ERROR ,'Motor temperature too high'
+            return status.ERROR, 'Motor temperature too high'
         elif val == 8:
             return status.OK, 'idle, bypass open'
         elif (val & 0x10) == 0x10:
@@ -292,13 +294,13 @@ class CompressorSwitch(NamedDigitalOutput):
             return status.ERROR, 'Gas temperature too high'
         elif (val & 0x100) == 0x100:
             return status.ERROR, 'Gas return pressure too high'
-        elif (val & 2) == 2 :
+        elif (val & 2) == 2:
             if (val & 0x20) == 0x20:
                 return status.ERROR, 'Water inlet temperature is too high'
             elif (val & 0x40) == 0x40:
                 return status.ERROR, 'Water outlet temperature is too low' \
-                                    ' (flow is too low)'
+                    ' (flow is too low)'
             return status.OK, 'idle, off'
-        else :
+        else:
             return status.UNKNOWN, 'UNKNOWN'
         return status.ERROR, 'target not reached'
