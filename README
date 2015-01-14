@@ -36,6 +36,9 @@ Requirements
 
 * pyzmq version >= 2
 
+* For the provided SysV compatible init script:
+  - psutil
+
 * Optional for the basic system:
   - the TACO Python libraries
   - scipy (for fitting)
@@ -98,7 +101,7 @@ xBuntu 12.04
 
 * Basic system:
 
-  apt-get install python python-dev python-numpy python-scipy gnuplot grace
+  apt-get install python python-dev python-numpy python-scipy gnuplot grace python-psutil
 
 * Optional components:
 

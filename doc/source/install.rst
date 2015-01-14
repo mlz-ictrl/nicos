@@ -38,6 +38,10 @@ Requirements
 * pyzmq version >= 2
 * nicos-pyctl
 
+* For the provided SysV compatible init script:
+
+  - psutil
+
 * Optional for the basic system:
 
   - the TACO Python libraries

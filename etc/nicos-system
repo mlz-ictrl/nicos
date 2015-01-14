@@ -35,6 +35,7 @@ import os
 import sys
 import time
 import errno
+import psutil
 import socket
 import signal
 from os import path
@@ -129,7 +130,44 @@ def read_pidfile(name, wait=0):
         return
 
 
+def check_stray_procs(name):
+    known_process = read_pidfile(name)
+    known_subprocs = set()
+    if known_process:
+        known_subprocs.add(known_process)
+        for p in psutil.Process(known_process).get_children(recursive=True):
+            known_subprocs.add(p.pid)
+
+    still_running = set()
+    for p in psutil.process_iter():
+        if not p.is_running():
+            continue
+        if p.pid in known_subprocs:
+            continue
+        if ('python' in p.name) and ('nicos-%s' % name) in ' '.join(p.cmdline):
+            still_running.add(p)
+
+    if still_running:
+        print 'WARNING: some other %s processes seem to run!' % name
+        print ' PID    Commandline'
+        for p in still_running:
+            print '%-6d  %s' % (p.pid, ' '.join(p.cmdline))
+        print "You could kill all of them with this command:"
+        print "# kill %s" % ' '.join(str(p.pid) for p in still_running)
+        print
+        print "if this does not work, you may be tempted to use this instead:"
+        print "# kill -9 %s" % ' '.join(str(p.pid) for p in still_running)
+        return True
+    return False
+
+
 def start_daemon(name):
+    # check for processes we would not see
+    if check_stray_procs(name):
+        print
+        print "NOT starting any additional daemons until this is resolved."
+        print
+        return
     print 'Starting %s...' % name,
     sys.stdout.flush()
     previous_pid = read_pidfile(name)
@@ -155,40 +193,44 @@ def start_daemon(name):
 
 
 def kill_daemon(name):
-    print 'Killing %s...' % name,
-    sys.stdout.flush()
-    pid = read_pidfile(name)
-    if not pid:
-        print 'not running?'
-        return True
-    print 'pid =', pid,
-    sys.stdout.flush()
-    os.kill(pid, signal.SIGTERM)
-    time.sleep(0.1)
-    begin = time.time()
-    while 1:
+    try:
+        print 'Killing %s...' % name,
+        sys.stdout.flush()
         pid = read_pidfile(name)
         if not pid:
-            print
+            print 'not running?'
             return True
-        time.sleep(0.1)
-        current = time.time()
-        if current > begin + 10:
-            print 'FAILED to stop!'
-            return False
-        elif current > begin + 6:
-            print 'KILL',
-            try:
-                os.kill(pid, signal.SIGKILL)
-            except OSError as err:
-                # ESRCH means: already terminated
-                if err.errno != errno.ESRCH:
-                    print 'FAILED to kill:', err
-                    return False
-        elif current > begin + 1:
-            time.sleep(0.2)
-        print '.',
+        print 'pid =', pid,
         sys.stdout.flush()
+        os.kill(pid, signal.SIGTERM)
+        time.sleep(0.1)
+        begin = time.time()
+        while 1:
+            pid = read_pidfile(name)
+            if not pid:
+                print
+                return True
+            time.sleep(0.1)
+            current = time.time()
+            if current > begin + 10:
+                print 'FAILED to stop!'
+                return False
+            elif current > begin + 6:
+                print 'KILL',
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except OSError as err:
+                    # ESRCH means: already terminated
+                    if err.errno != errno.ESRCH:
+                        print 'FAILED to kill:', err
+                        return False
+            elif current > begin + 1:
+                time.sleep(0.2)
+            print '.',
+            sys.stdout.flush()
+    finally:
+        # no matching process should have survived. If they do, warn!
+        check_stray_procs(name)
 
 
 def main(args):
@@ -249,6 +291,8 @@ def main(args):
             else:
                 print '%-12s: dead' % name
                 exitstatus = 1
+            # ignoring return value here.
+            check_stray_procs(name)
 
     return exitstatus
 
