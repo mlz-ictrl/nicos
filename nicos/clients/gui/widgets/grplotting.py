@@ -292,11 +292,8 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         return saveName
 
     def printPlot(self):
-        if self._saveName:
-            title = "GR_Demo-" + self._saveName
-        else:
-            title = "GR_Demo-untitled"
-        self.printDialog(title)
+        self.printDialog("Nicos-" + self._saveName if self._saveName
+                         else "untitled")
         return True
 
     @property
