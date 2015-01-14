@@ -518,12 +518,15 @@ class Poller(Device):
                 if err.errno == errno.ESRCH:
                     # process was already terminated
                     continue
-                raise
+                session.log.info('OSError during shutdown', exc=True)
+            except Exception:
+                session.log.info('Exception during shutdown', exc=True)
+
         def kill_all():
             for pid in self._childpids:
                 try:
                     os.kill(pid, signal.SIGKILL)
-                except OSError:
+                except Exception:
                     pass
         killer = threading.Timer(4, kill_all)
         killer.setDaemon(True)
