@@ -54,6 +54,7 @@ class ELogPanel(Panel, DlgUtils):
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
+        self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
 
         self.preview.page().setForwardUnsupportedContent(True)
         self.connect(self.preview.page(),
@@ -129,6 +130,12 @@ class ELogPanel(Panel, DlgUtils):
         self.preview.reload()
 
     def on_client_connected(self):
+        self._update_content()
+
+    def on_client_experiment(self, data):
+        self._update_content()
+
+    def _update_content(self):
         proposaldir = self.client.eval('session.experiment.proposalpath', '')
         if not proposaldir:
             return

@@ -121,5 +121,4 @@ include the management of
 
    .. automethod:: breakpoint
    .. automethod:: updateLiveData
-   .. automethod:: clearExperiment
    .. automethod:: checkAccess

@@ -64,6 +64,7 @@ class ConsolePanel(Panel):
         self.connect(client, SIGNAL('message'), self.on_client_message)
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
+        self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
 
         self.outView.setContextMenuPolicy(Qt.CustomContextMenu)
 
@@ -148,6 +149,14 @@ class ConsolePanel(Panel):
         if message[-1] == '(editorsim) ':
             return
         self.outView.addMessage(message)
+
+    def on_client_experiment(self, data):
+        (_, proptype) = data
+        if proptype == 'user':
+            # only clear history and output when switching TO a user experiment
+            self.commandInput.history = []
+            # clear everything except the last command with output
+            self.outView.clearAlmostEverything()
 
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""

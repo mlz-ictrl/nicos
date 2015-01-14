@@ -47,6 +47,7 @@ class ErrorPanel(Panel):
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('message'), self.on_client_message)
+        self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
 
     def setCustomStyle(self, font, back):
         self.outView.setFont(font)
@@ -61,6 +62,12 @@ class ErrorPanel(Panel):
     def on_client_message(self, message):
         if message[2] >= WARNING:  # show if level is warning or higher
             self.outView.addMessage(message)
+
+    def on_client_experiment(self, data):
+        (_, proptype) = data
+        if proptype == 'user':
+            # only clear output when switching TO a user experiment
+            self.outView.clear()
 
     def on_outView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""

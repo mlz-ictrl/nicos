@@ -110,10 +110,6 @@ class DaemonSession(NoninteractiveSession):
     def breakpoint(self, level):
         exec_(self._bpcode[level])
 
-    def clearExperiment(self):
-        # reset cached messages
-        del self.daemon_device._messages[:]
-
     def checkAccess(self, required):
         if 'level' in required:
             script = self.daemon_device.current_script()
@@ -158,6 +154,9 @@ class DaemonSession(NoninteractiveSession):
 
     def experimentCallback(self, proposal, proptype):
         """Callback when the experiment has been changed."""
+        # reset cached messages when switching TO user experiment
+        if proptype == 'user':
+            del self.daemon_device._messages[:]
         self.emitfunc('experiment', (proposal, proptype))
 
     def pnpEvent(self, event, *data):

@@ -246,6 +246,7 @@ class EditorPanel(Panel):
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('cache'), self.on_client_cache)
+        self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
 
         if self.openfiles:
             for fn in self.openfiles:
@@ -512,6 +513,9 @@ class EditorPanel(Panel):
         return editor, lexer
 
     def on_client_connected(self):
+        self._set_scriptdir()
+
+    def _set_scriptdir(self):
         initialdir = self.client.eval('session.experiment.scriptpath', '')
         if initialdir:
             idx = self.treeModel.setRootPath(initialdir)
@@ -551,6 +555,14 @@ class EditorPanel(Panel):
 
         self.simRanges.sortByColumn(0, Qt.AscendingOrder)
         self.simPane.show()
+
+    def on_client_experiment(self, data):
+        (_, proptype) = data
+        self._set_scriptdir()
+        if proptype == 'user':
+            # close existing tabs when switching TO a user experiment
+            for index in range(len(self.editors)-1, -1, -1):
+                self.on_tabber_tabCloseRequested(index)
 
     def on_fileTree_doubleClicked(self, idx):
         fpath = self.treeModel.filePath(idx)

@@ -89,6 +89,18 @@ class MessageView(QTextBrowser):
         QTextBrowser.clear(self)
         self._messages = []
 
+    def clearAlmostEverything(self):
+        # Clears all messages, except the last input command with its output.
+        # This is used for clearing output on NewExperiment, because the event
+        # that clears the messages arrives *after* the command has run.
+        msgs = self._messages[:]
+        self.clear()
+        i = 0
+        for i in range(len(msgs)-1, -1, -1):
+            if msgs[i][2] == INPUT:
+                break
+        self.addMessages(msgs[i:])
+
     def scrollToBottom(self):
         bar = self.verticalScrollBar()
         bar.setValue(bar.maximum())

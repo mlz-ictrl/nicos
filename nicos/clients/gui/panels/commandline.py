@@ -50,6 +50,7 @@ class CommandLinePanel(Panel):
 
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
+        self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
 
     def setOptions(self, options):
         pass
@@ -98,6 +99,12 @@ class CommandLinePanel(Panel):
 
     def on_client_initstatus(self, state):
         self.on_client_mode(state['mode'])
+
+    def on_client_experiment(self, data):
+        (_, proptype) = data
+        if proptype == 'user':
+            # only clear when switching TO a user experiment
+            self.commandInput.history = []
 
     def on_commandInput_textChanged(self, text):
         try:

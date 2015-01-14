@@ -1134,9 +1134,6 @@ class Session(object):
         indicate a breakpoint "after current scan point".
         """
 
-    def clearExperiment(self):
-        """Reset experiment-specific data."""
-
     def checkAccess(self, required):
         """Check if the current user fulfills the requirements given in the
         *required* dictionary.  Raise `.AccessError` if check failed.
