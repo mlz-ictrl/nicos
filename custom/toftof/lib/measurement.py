@@ -278,6 +278,11 @@ class TofTofMeasurement(Measurable, ImageProducer):
         head.append('SampleSlit_hg: %s\n' % slit_pos[2])
         head.append('SampleSlit_vo: %s\n' % slit_pos[1])
         head.append('SampleSlit_vg: %s\n' % slit_pos[3])
+        try:
+            guide = session.getDevice('ngc').read()
+        except NicosError:
+            guide = 'unknown'
+        head.append('Guide_config: %s\n' % guide)
         head.append('Chopper_Speed: %.1f rpm\n' % chspeed)
         head.append('Chopper_Wavelength: %.2f A\n' % chwl)
         head.append('Chopper_Ratio: %s\n' % chratio)
