@@ -340,6 +340,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
     def _fitRequestPick(self, paramname):
         self.statusMessage = 'Fitting: Click on %s' % paramname
+        self.window.statusBar.showMessage(self.statusMessage)
 
     def _leaveFitMode(self):
         self.fitter = None
