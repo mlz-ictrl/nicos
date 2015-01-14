@@ -21,3 +21,4 @@ Sphinx>=1.2.1
 rst2pdf>=0.16
 python-ldap>=2.4.13
 psutil>=1.2.1
+python-redmine>=1.0.2

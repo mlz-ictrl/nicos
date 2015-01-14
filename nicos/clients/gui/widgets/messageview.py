@@ -105,6 +105,20 @@ class MessageView(QTextBrowser):
         bar = self.verticalScrollBar()
         bar.setValue(bar.maximum())
 
+    def getLatest(self, n=5):
+        # Return latest n commands together with warning/error output.
+        inputcount = 0
+        retmsgs = []
+        for i in range(len(self._messages)-1, -1, -1):
+            if self._messages[i][2] == INPUT:
+                retmsgs.append(self._messages[i])
+                inputcount += 1
+                if inputcount == n:
+                    break
+            elif self._messages[i][2] >= WARNING:
+                retmsgs.append(self._messages[i])
+        return retmsgs[::-1]
+
     def formatMessage(self, message, actions=True):
         # message is a sequence:
         # (logger, time, levelno, message, exc_text, prefix)

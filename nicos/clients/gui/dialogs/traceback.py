@@ -25,8 +25,8 @@
 """NICOS GUI traceback display window."""
 
 from PyQt4.QtGui import QDialog, QPushButton, QFont, QTreeWidgetItem, \
-     QDialogButtonBox, QApplication, QClipboard
-from PyQt4.QtCore import SIGNAL
+    QDialogButtonBox, QApplication, QClipboard
+from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi
 from nicos.pycompat import iteritems
@@ -34,9 +34,12 @@ from nicos.pycompat import iteritems
 
 class TracebackDialog(QDialog):
 
-    def __init__(self, parent, fontwidget, tb):
+    def __init__(self, parent, view, tb):
         QDialog.__init__(self, parent)
         loadUi(self, 'traceback.ui', 'dialogs')
+        self.tb = tb
+        self.view = view
+        self.client = parent.client
 
         assert tb.startswith('Traceback')
         # split into frames and message
@@ -61,13 +64,15 @@ class TracebackDialog(QDialog):
 
         button = QPushButton('To clipboard', self)
         self.buttonBox.addButton(button, QDialogButtonBox.ActionRole)
+
         def copy():
             QApplication.clipboard().setText(tb+'\n', QClipboard.Selection)
             QApplication.clipboard().setText(tb+'\n', QClipboard.Clipboard)
         parent.connect(button, SIGNAL('clicked()'), copy)
+
         self.message.setText(message[:200])
-        self.tree.setFont(fontwidget.font())
-        boldfont = QFont(fontwidget.font())
+        self.tree.setFont(view.font())
+        boldfont = QFont(view.font())
         boldfont.setBold(True)
         for filename, line, bindings in frames:
             item = QTreeWidgetItem(self.tree, [filename])
@@ -77,3 +82,13 @@ class TracebackDialog(QDialog):
             item.setFont(0, boldfont)
             for var, value in iteritems(bindings):
                 QTreeWidgetItem(item, ['', var, value])
+
+    @qtsig('')
+    def on_ticketButton_clicked(self):
+        from nicos.clients.gui.tools.bugreport import BugreportTool
+        formatted_log = ''.join(self.view.formatMessage(msg)[0]
+                                for msg in self.view.getLatest())
+        dlg = BugreportTool(self, self.client, traceback=self.tb,
+                            log_excerpt=formatted_log)
+        dlg.exec_()
+        self.reject()

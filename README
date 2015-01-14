@@ -62,6 +62,7 @@ Requirements
   - scipy (optional, for fitting)
   - nicos-livewidget (optional, for detector live view)
   - cfitsio (optional, required by nicos-livewidget)
+  - python-redmine (optional, for the bug reporting dialog)
 
 * For development (running tests, generating documentation):
   - nose

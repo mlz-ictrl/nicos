@@ -79,7 +79,8 @@ tools = [
     tool('Phone database',
          'nicos.clients.gui.tools.website.WebsiteTool',
          url='http://www.frm2.tum.de/intern/funktionen/phonedb/index.html'),
-    tool('Report NICOS bug',
-         'nicos.clients.gui.tools.website.WebsiteTool',
-         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+    tool('Create NICOS ticket', 'bugreport.BugreportTool'),
+#    tool('Report NICOS bug',
+#         'nicos.clients.gui.tools.website.WebsiteTool',
+#         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
 ]
