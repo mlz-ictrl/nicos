@@ -22,17 +22,21 @@
 #
 # *****************************************************************************
 
-"""Acqiris Detector class for NICOS via the CARESS device service."""
+"""Acqiris Detector via the CARESS device service."""
 
 import sys
-from omniORB import CORBA
-import CosNaming
 
-from nicos.delab import CARESS # pylint: disable=F0401,E0611
+try:
+    from omniORB import CORBA
+    import CosNaming
 
-sys.modules['CARESS'] = sys.modules['nicos.delab.CARESS']
-import omniORB
-omniORB.updateModule('CARESS')
+    import CARESS # pylint: disable=F0401,E0611
+
+    sys.modules['CARESS'] = sys.modules['nicos.delab.CARESS']
+    import omniORB
+    omniORB.updateModule('CARESS')
+except ImportError:
+    omniORB = None
 
 from nicos.core import Param, Override, Value, status, oneof, SIMULATION
 from nicos.devices.generic.detector import Channel as BaseChannel
@@ -162,6 +166,8 @@ class Channel(BaseChannel):
         if mode == SIMULATION:
             self._caressObject = None
             return
+        if not omniORB:
+            raise ConfigurationError(self, 'There is no CORBA module found')
         self._initORB(['-ORBInitRef', 'NameService=corbaname::%s' %
                        (self.nameserver, ),])
 

@@ -20,14 +20,14 @@ acqiris_config = (
 )
 
 devices = dict(
-    tim = device('delab.acqiris.Timer',
+    tim = device('nicos.delab.acqiris.Timer',
                  description = 'The timer device',
                  nameserver = 'deldaq50.del.frm2',
                  counterfile = '/home/caress/acqiris/data/runid.txt',
                  objname = 'acqirishzb',
                  ismaster = False,
                 ),
-    det1 = device('delab.acqiris.Counter',
+    det1 = device('nicos.delab.acqiris.Counter',
                   description = 'The counter device',
                   nameserver = 'deldaq50.del.frm2',
                   counterfile = '/home/caress/acqiris/data/runid.txt',
@@ -36,7 +36,7 @@ devices = dict(
                   ismaster = True,
                   config = '\n'.join(acqiris_config),
                  ),
-    acqiris = device('devices.generic.MultiChannelDetector',
+    acqiris = device('nicos.devices.generic.MultiChannelDetector',
                      description = 'Acqiris card',
                      timer  = 'tim',
                      monitors = [],
