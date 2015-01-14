@@ -367,15 +367,12 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
                     el[0] = dvals[mindist[1]]
                     p('%speak at %7.3f could be %s at d = %-7.4f' %
                       (el[3], el[1], dhkls[el[0]], el[0]))
-
         p('')
-        p('ki      peakpositions')
-        for ki in sorted(data):
-            p('%5.3f   ' % ki + '  '.join('%3.3f' % el[1] for el in data[ki]))
 
-        p('')
-        p('ki_exp  #peaks | ki_fit   dki_fit  mtt_0    lambda   | '
-          'stt_0    dstt_0   | chisqr')
+        restxt = []
+        restxt.append('___final_results___')
+        restxt.append('ki_exp  #peaks | ki_fit   dki_fit  mtt_0    lambda   | '
+                      'stt_0    dstt_0   | chisqr')
         stt0s = []
         mtt0s = []
         rms = 0
@@ -386,19 +383,28 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
             res = fit.run('', [el[0] for el in peaks], [el[1] for el in peaks],
                           [el[2] for el in peaks])
             if res._failed:
-                p('%4.3f   %-6d | No fit!' % (ki, len(peaks)))
+                restxt.append('%4.3f   %-6d | No fit!' % (ki, len(peaks)))
                 rms += 1e6
                 continue
             mtt0 = dk2tt(dmono, res.ki) - dk2tt(dmono, ki)
-            p('%5.3f   %-6d | %-7.4f  %-7.4f  %-7.4f  %-7.4f  | '
-              '%-7.4f  %-7.4f  | %.2f' %
-              (ki, len(peaks), res.ki, res.dki, mtt0, 2*pi/res.ki,
-               res.stt0, res.dstt0, res.chi2))
+            restxt.append('%5.3f   %-6d | %-7.4f  %-7.4f  %-7.4f  %-7.4f  | '
+                          '%-7.4f  %-7.4f  | %.2f' %
+                         (ki, len(peaks), res.ki, res.dki, mtt0, 2*pi/res.ki,
+                          res.stt0, res.dstt0, res.chi2))
             stt0s.append(res.stt0)
             mtt0s.append(mtt0)
             peaks_fit = [model(el[0], res.ki, res.stt0) for el in peaks]
+            p('___fitted_peaks_for_ki=%.3f___' % ki)
+            p('peak       dval     measured fitpos   delta')
+            for i, el in enumerate(peaks):
+                p('%-10s %-7.3f  %-7.3f  %-7.3f  %-7.3f%s' % (
+                     dhkls[el[0]], el[0], el[1], peaks_fit[i], peaks_fit[i] - el[1],
+                             '' if abs(peaks_fit[i] - el[1]) < 0.10 else " **"))
+            p('')
             rms += sum((pobs - pfit)**2 for (pobs, pfit) in
                        zip([el[1] for el in peaks], peaks_fit)) / len(peaks)
+
+        out.extend(restxt)
 
         if rms < bestrms:
             beststt0s = stt0s
