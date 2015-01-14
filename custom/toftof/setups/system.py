@@ -30,6 +30,7 @@ devices = dict(
                       sample = 'Sample',
                       localcontact = 'W. Lohstroh, G. Simeoni',
                       serviceexp = '0',
+                      propprefix = '',
                       sendmail = True,
                       mailsender = 'nicos.toftof@frm2.tum.de',
                       propdb = '/opt/nicos/propdb',
