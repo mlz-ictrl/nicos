@@ -159,12 +159,11 @@ class DataHandler(QObject):
         self.currentset.curves.append(newc)
         self.emit(SIGNAL('curveAdded'), self.currentset)
 
-    def on_client_experiment(self, proposal):
+    def on_client_experiment(self, data):
         # clear data
         self.sets = []
         self.uid2set = {}
         self.dependent = []
-
 
     def _init_curves(self, dataset):
         curves = []

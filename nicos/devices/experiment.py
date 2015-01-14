@@ -733,7 +733,8 @@ class Experiment(Device):
             self.log.info('Maintenance time started')
 
         # send 'experiment' change event before the last hook
-        session.experimentCallback(self.proposal)  # maybe better after the last hook?
+        # maybe better after the last hook?
+        session.experimentCallback(self.proposal, proptype)
 
         self._createCustomProposalSymlink()
         self._afterNewHook()

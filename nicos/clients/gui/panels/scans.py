@@ -326,7 +326,7 @@ class ScansPanel(Panel):
                                                 dataset.curves[-1])
             self.setplots[dataset.uid].update()
 
-    def on_client_experiment(self, proposal):
+    def on_client_experiment(self, data):
         self.datasetList.clear()
 
         # hide plot

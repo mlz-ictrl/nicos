@@ -95,7 +95,7 @@ class ExpPanel(Panel, DlgUtils):
         else:
             self.queryDBButton.setVisible(False)
 
-    def on_client_experiment(self, proposal):
+    def on_client_experiment(self, data):
         # just reinitialize
         self.on_client_connected()
 

@@ -1158,7 +1158,7 @@ class Session(object):
     def setupCallback(self, setupnames, explicit):
         """Callback when setups were loaded or unloaded."""
 
-    def experimentCallback(self, proposal):
+    def experimentCallback(self, proposal, proptype):
         """Callback when the experiment has been changed."""
 
 
