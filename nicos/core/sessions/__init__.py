@@ -200,7 +200,7 @@ class Session(object):
             else:
                 self.log.info('checking master status...')
                 try:
-                    cache.lock(MASTER)
+                    cache.lock('master', cache._mastertimeout)
                 except CacheLockError as err:
                     raise ModeError('another master is already active: %s' %
                                     sessionInfo(err.locked_by))
