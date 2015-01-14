@@ -109,7 +109,7 @@ class CacheDatabase(Device):
                     return key + OP_LOCK + entry.value + '\n'
                 else:
                     # not locked, expired or locked by same client, overwrite
-                    ttl = ttl or 1800  # set a maximum time to live
+                    ttl = ttl or 600  # set a maximum time to live
                     self.log.debug('lock request %s=%s ttl %s, accepted' %
                                    (key, client_id, ttl))
                     self._locks[key] = Entry(time, ttl, client_id)
