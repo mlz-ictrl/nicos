@@ -76,6 +76,7 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
     attached_devices = {
         'expshutter': Attach('Experiment shutter device', NamedDigitalOutput),
         'timer':      Attach('ZEA-2 counter card timer channel', Measurable),
+        'monitor':    Attach('ZEA-2 counter card monitor channel', Measurable),
     }
 
     parameters = {
@@ -180,13 +181,17 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
         array = self._dev.value.tolist()
         start, end = self.readchannels
         res = array[start:end+1]
-        return res
+        tval = self._adevs['timer'].read()
+        mval = self._adevs['monitor'].read()
+        return [tval, mval] + res
 
     def valueInfo(self):
         start, end = self.readchannels
-        return tuple((Value("chan-%d" % i, unit="cts", errors="sqrt",
-                            type="counter", fmtstr="%d")
-                      for i in range(start, end + 1)))
+        return self._adevs['timer'].valueInfo() + \
+            self._adevs['monitor'].valueInfo() + \
+            tuple(Value("chan-%d" % i, unit="cts", errors="sqrt",
+                        type="counter", fmtstr="%d")
+                  for i in range(start, end + 1))
 
     def readImage(self):
         # get current data array from detector

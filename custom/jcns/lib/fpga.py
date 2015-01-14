@@ -26,7 +26,7 @@
 
 # local library
 import nicos.core.status as status
-from nicos.core.params import Param, Override, oneof, intrange
+from nicos.core.params import Param, Override, Value, oneof, intrange
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic.detector import Channel
 
@@ -99,6 +99,10 @@ class FPGATimerChannel(FPGAChannelBase):
             return False
         return True
 
+    def valueInfo(self):
+        return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
+
+
 class FPGACounterChannel(FPGATimerChannel):
     """FPGACounterChannel implements one monitor channel for ZEA-2 counter card."""
 
@@ -113,3 +117,7 @@ class FPGACounterChannel(FPGATimerChannel):
 
     def doRead(self, maxage=0):
         return self._dev.DevFPGACountReadCount(self.channel)
+
+    def valueInfo(self):
+        return Value(self.name, unit='cts', errors='sqrt',
+                     type='monitor', fmtstr='%d'),
