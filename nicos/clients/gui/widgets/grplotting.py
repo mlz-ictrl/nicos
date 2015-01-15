@@ -312,12 +312,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
     def _getCurveData(self, curve):
         errBar1 = curve.errorBar1
-        if errBar1:
-            # XXX how to get this faster
-            return [curve.x, curve.y,
-                    [e-y for (y, e) in zip(curve.y, errBar1._dpos)]]
-        else:
-            return [curve.x, curve.y, None]
+        return [curve.x, curve.y, errBar1.dpos if errBar1 else None]
 
     def _getCurveLegend(self, curve):
         return curve.legend
@@ -448,9 +443,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
                     if dy is not None:
                         dy /= norm
             if dy is not None:
-                dneg = y - dy
-                dpos = y + dy
-                errbar = ErrorBar(x[:n], y[:n], dneg, dpos)
+                errbar = ErrorBar(x[:n], y[:n], dy)
 
             plotcurve = NicosPlotCurve(x[:n], y[:n], errbar,
                                        legend=curve.full_description)
@@ -479,9 +472,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
                     dy /= norm
 
         if dy is not None:
-            dneg = y - dy
-            dpos = y + dy
-            errbar = ErrorBar(x[:n], y[:n], dneg, dpos,
+            errbar = ErrorBar(x[:n], y[:n], dy,
                               markercolor=plotcurve.markercolor)
             plotcurve.errorBar1 = errbar
         plotcurve.x = x[:n]
