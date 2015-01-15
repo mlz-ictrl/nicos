@@ -25,10 +25,10 @@
 """The NICOS electronic logbook."""
 
 import io
-from os import path
+from os import path, unlink
 from cgi import escape
 from time import strftime, localtime
-from shutil import move
+from shutil import copyfile
 from logging import ERROR
 
 from nicos.services.elog.utils import formatMessage, pretty1, pretty2
@@ -394,7 +394,10 @@ class Handler(object):
                 i += 1
                 name = oname + str(i)
                 fullname = path.join(self.logdir, name)
-            move(fpath, fullname)
+            # using copyfile-unlink instead of shutil.move since we do not
+            # want to keep a restrictive file mode set by the daemon
+            copyfile(fpath, fullname)
+            unlink(fpath)
             links.append('<a href="%s">%s</a>' % (name, escape(oname)))
         text = '<b>%s:</b> %s' % (escape(description) or 'Attachment',
                                   ' '.join(links))
