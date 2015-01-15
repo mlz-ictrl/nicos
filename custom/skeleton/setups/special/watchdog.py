@@ -11,6 +11,11 @@ group = 'special'
 #    can be used: t_value stands for t/value etc.
 # 'gracetime' -- time in sec allowed for the condition to be true without
 #    emitting a warning (default 5 sec)
+# 'precondition'
+#   If present, this condition must be fullfiled for at least ``precondtime``,
+#   before condition will trigger. Default is no precondition.
+# 'precondtime'
+#   The time a precondition must be fulfilled. Default is 5 seconds
 # 'message' -- warning message to display
 # 'type' -- for defining different types of warnings; this corresponds to the
 #     configured notifiers (default 'default')

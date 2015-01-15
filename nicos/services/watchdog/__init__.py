@@ -48,6 +48,8 @@ class Entry(object):
     pausecount = False
     action = ''
     type = 'default'
+    precondition = ''
+    precondtime = 5
 
     def __init__(self, values):
         self.__dict__.update(values)
@@ -77,14 +79,21 @@ class Watchdog(BaseCacheClient):
         self._setups = set()
         # mapping entry ids to entrys
         self._entries = {}
+        # all keys that we need to act on
+        self._interestingkeys = set()
         # mapping cache keys to entry dicts that check this key
         self._keymap = {}
+        # mapping cache keys to entry dicts whose preconditions check this key
+        self._prekeymap = {}
         # mapping entry ids to entrys for which one or more keys have expired
         self._watch_expired = {}
         # mapping entry ids to entrys that are in grace time period
         self._watch_grace = {}
         # current conditions: all entry ids where the condition is true
         self._conditions = set()
+        # current preconditions: mapping entry id to precondition value,
+        # and since what timestamp
+        self._preconditions = {}
         # current warnings: mapping entry ids to the string description
         self._warnings = OrderedDict()
         # current count loop pause reasons: mapping like self._warnings
@@ -127,6 +136,14 @@ class Watchdog(BaseCacheClient):
                 if isinstance(node, ast.Name):
                     key = node.id[::-1].replace('_', '/', 1).lower()[::-1]
                     self._keymap.setdefault(self._prefix + key, set()).add(entry)
+                    self._interestingkeys.add(self._prefix + key)
+            # same for precondition
+            cond_parse = ast.parse(entry.precondition)
+            for node in ast.walk(cond_parse):
+                if isinstance(node, ast.Name):
+                    key = node.id[::-1].replace('_', '/', 1).lower()[::-1]
+                    self._prekeymap.setdefault(self._prefix + key, set()).add(entry)
+                    self._interestingkeys.add(self._prefix + key)
 
     def _put_message(self, msgtype, message, timestamp=True):
         if timestamp:
@@ -143,12 +160,20 @@ class Watchdog(BaseCacheClient):
             self._update_mailreceivers(cache_load(value))
             return
         # do we care for this key?
-        if key not in self._keymap:
+        if key not in self._interestingkeys:
             return
         # put key in db
         self._keydict[key[len(self._prefix):].replace('/', '_').lower()] = \
             cache_load(value)
-        for entry in self._keymap[key]:
+        # handle warning conditions
+        if key in self._keymap:
+            self._update_conditions(self._keymap[key], time, key, op, value)
+        # handle preconditions
+        if key in self._prekeymap:
+            self._update_preconditions(self._prekeymap[key], time, key, op, value)
+
+    def _update_conditions(self, entries, time, key, op, value):
+        for entry in entries:
             eid = entry.id
             # is the necessary setup loaded?
             if entry.setup and entry.setup not in self._setups:
@@ -156,8 +181,8 @@ class Watchdog(BaseCacheClient):
                 continue
             # is it a new value or an expiration?
             if op == OP_TELLOLD or value is None:
-                # add it to the watchlist, and if the value doesn't come back in 10
-                # minutes, we warn
+                # add it to the watchlist, and if the value doesn't come back
+                # in 10 minutes, we warn
                 self._watch_expired[eid] = [currenttime() + 600]
                 continue
             if op == OP_TELL:
@@ -177,6 +202,24 @@ class Watchdog(BaseCacheClient):
                 else:
                     self._process_warning(entry, value)
 
+    def _update_preconditions(self, entries, time, key, op, value):
+        for entry in entries:
+            eid = entry.id
+            if entry.setup and entry.setup not in self._setups:
+                continue
+            try:
+                value = eval(entry.precondition, self._keydict)
+            except Exception:
+                self.log.warning('error evaluating %r warning precondition'
+                                 % key, exc=1)
+                continue
+            value = bool(value)
+            self.log.debug('precondition %r is now %s' %
+                           (entry.precondition, value))
+            if value == self._preconditions.get(eid, None):
+                continue
+            self._preconditions[eid] = value, float(time)
+
     def _update_mailreceivers(self, emails):
         self.log.info('updating any Mailer receivers to %s' % emails)
         for notifier in self._all_notifiers:
@@ -195,15 +238,14 @@ class Watchdog(BaseCacheClient):
 
     def _update_warnings_str(self, timestamp=False):
         self._put_message('warnings', '\n'.join(self._warnings.values()),
-                                  timestamp=False)
-
+                          timestamp=False)
 
     def _process_warning(self, entry, value):
         eid = entry.id
         if not value:
             if eid in self._watch_grace:
-                self.log.info('condition %r went normal during gracetime' %
-                              entry.condition)
+                self.log.info('condition %r went normal during gracetime/'
+                              'waiting for precondition' % entry.condition)
                 del self._watch_grace[eid]
             if eid not in self._conditions:
                 return
@@ -221,6 +263,17 @@ class Watchdog(BaseCacheClient):
             if eid in self._conditions:
                 # warning has already been given
                 return
+            if entry.precondition:
+                fulfilled, tstamp = self._preconditions.get(eid, (False, None))
+                mintime = entry.precondtime
+                if not fulfilled or currenttime() - tstamp < mintime:
+                    # we should not emit a warning, but we need to re-check the
+                    # precondition in a while
+                    self.log.info('condition %r triggered, but precondition %r '
+                                  'was not fulfilled for %d seconds' %
+                                  (entry.condition, entry.precondition, mintime))
+                    self._watch_grace[eid] = [currenttime() + mintime, value]
+                    return
             self._conditions.add(eid)
             self.log.info('got a new warning for %r' % entry.condition)
             warning_desc = strftime('%Y-%m-%d %H:%M') + ' -- ' + entry.message

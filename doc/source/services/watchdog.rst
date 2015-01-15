@@ -56,6 +56,12 @@ A simple setup file for the watchdog could look like this::
            pausecount = True,
            message = 'Instrument shutter is closed',
            gracetime = 0),
+      dict(condition = 'reactorpower_value < 15',
+           precondtion = 'reactorpower_value > 19',
+           precondtime = 600,
+           gracetime = 120,
+           message = 'reactor power loss',
+           pausecount = True),
   ]
 
   devices = dict(
@@ -102,6 +108,13 @@ specification can have these keys:
    The time, in seconds, which the watchdog waits after a condition becomes true
    until a warning is emitted.  If the condition becomes false again during the
    gracetime, no warning is emitted.  The default gracetime is 5 seconds.
+
+**precondition**
+   If present, this condition must be fullfiled for at least ``precondtime``,
+   before condition will trigger. Default is no precondition.
+
+**precondtime**
+   The time a precondition must be fulfilled. Default is 5 seconds.
 
 **message**
    The message that should be emitted when a warning is generated from the
