@@ -298,15 +298,20 @@ possible with the device:
 
       The unit of the device value.
 
-   .. parameter:: maxage : float, optional
+   .. parameter:: maxage : float or None, optional
 
       The maximum age of cached values from this device, in seconds.  Default is
       5 seconds.
 
-   .. parameter:: pollinterval : float, optional
+      If set to ``0``, cached values are never used.  If set to ``None``, values
+      are cached indefinitely.
+
+   .. parameter:: pollinterval : float or None, optional
 
       The interval for polling this device from the :dfn:`NICOS poller`.
       Default is 6 seconds.
+
+      Can be ``None`` to disable polling.
 
    .. parameter:: warnlimits : None, or a 2-tuple of any type
 
