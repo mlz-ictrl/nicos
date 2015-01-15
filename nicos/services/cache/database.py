@@ -252,7 +252,7 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
             self.log.exception('error reading store for history query')
         if not inrange:
             return []
-        return ret
+        return [''.join(ret)]
 
     def tell(self, key, value, time, ttl, from_client):
         if value is None:
@@ -549,7 +549,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                                                  op, entry.value))
                     else:
                         ret.add(prefix+subkey + op + entry.value + '\n')
-        return ret
+        return [''.join(ret)]
 
     def _read_one_histfile(self, year, monthday, category, subkey):
         fn = path.join(self._basepath, year, monthday, category)
@@ -579,28 +579,33 @@ class FlatfileCacheDatabase(CacheDatabase):
             category = 'nocat'
             subkey = key
         if fromtime > totime:
-            return []
+            return
         elif fromtime >= self._midnight:
             days = [(self._year, self._currday)]
         else:
             days = allDays(fromtime, totime)
-        ret = []
         # return the first value before the range too
+        temp = []
+        lastvalue = None
         inrange = False
         for year, monthday in days:
             try:
                 for time, value in self._read_one_histfile(year, monthday,
                                                            category, subkey):
                     if fromtime <= time <= totime:
-                        ret.append('%s@%s=%s\n' % (time, key, value))
+                        if not inrange and lastvalue:
+                            temp.append(lastvalue)
+                        temp.append('%s@%s=%s\n' % (time, key, value))
                         inrange = True
+                        if len(temp) > 100:
+                            # bunch up 100 entries at a time
+                            yield ''.join(temp)
+                            temp = []
                     elif not inrange and value:
-                        ret = ['%s@%s=%s\n' % (time, key, value)]
+                        lastvalue = '%s@%s=%s\n' % (time, key, value)
             except Exception:
                 self.log.exception('error reading store file for history query')
-        if not inrange:
-            return []
-        return ret
+        yield ''.join(temp)
 
     def _clean(self):
         def cleanonce():

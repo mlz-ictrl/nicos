@@ -170,8 +170,8 @@ class CacheWorker(object):
                 self.log.warning('error handling line %r' % line, exc=err)
             else:
                 # self.log.debug('return is %r' % ret)
-                if ret:
-                    reply_callback(''.join(ret))
+                for item in ret:
+                    reply_callback(item)
             # continue loop with next match
             match = line_pattern.match(data)
         return data
@@ -184,7 +184,7 @@ class CacheWorker(object):
             if line:
                 self.log.warning('garbled line: %r' % line)
             self.closedown()
-            return
+            return []
         # extract and clean up individual values
         time, ttlop, ttl, tsop, key, op, value = match.groups()
         key = key.lower()
@@ -229,6 +229,7 @@ class CacheWorker(object):
             return self.db.lock(key, value, time, ttl)
         elif op == OP_REWRITE:
             self.db.rewrite(key, value)
+        return []
 
     def update(self, key, op, value, time, ttl):
         """Check if we need to send the update given."""

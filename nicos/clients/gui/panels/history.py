@@ -64,7 +64,8 @@ class View(QObject):
         self.uniq_keys = set()
         self.series = OrderedDict()
 
-        hist_totime = self.totime or currenttime()
+        # + 60 seconds: get all values, also those added while querying
+        hist_totime = self.totime or currenttime() + 60
         hist_cache = {}
 
         for key, index in keys_indices:
