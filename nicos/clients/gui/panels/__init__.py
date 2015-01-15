@@ -27,7 +27,8 @@
 import time
 
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
-    QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette, QToolBar
+    QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette, \
+    QTabWidget
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
@@ -296,3 +297,28 @@ def createWindowItem(item, window, menuwindow, topwindow):
                 dockPos = 'left'
             menuwindow.addDockWidget(dockPosMap[dockPos], dw)
         return main
+
+
+def showPanel(panel):
+    """Ensure that the given panel is visible in its window."""
+    widget = panel
+    parents = []
+    while 1:
+        parent = widget.parent()
+        if parent is None:
+            # reached toplevel!
+            break
+        elif isinstance(parent, QTabWidget):
+            # tab widget: select tab (it is wrapped in a QStackedWidget)
+            index = parent.indexOf(parents[-2])
+            parent.setCurrentIndex(index)
+        elif isinstance(parent, QSplitter):
+            # splitter: make sure the widget is not collapsed
+            index = parent.indexOf(widget)
+            sizes = parent.sizes()
+            if sizes[index] == 0:
+                sizes[index] = sum(sizes)
+                parent.setSizes(sizes)
+        parents.append(parent)
+        widget = parent
+    panel.activateWindow()

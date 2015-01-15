@@ -29,14 +29,14 @@ import sys
 import time
 
 from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QColor, \
-     QPrinter, QPrintDialog, QAbstractPrintDialog
+    QPrinter, QPrintDialog, QAbstractPrintDialog
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt
 
 from nicos.utils import chunks
-from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import loadUi, setBackgroundColor, setForegroundColor, \
-     enumerateWithProgress, ScriptExecQuestion
+    enumerateWithProgress, ScriptExecQuestion
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE
 
@@ -161,7 +161,9 @@ class ConsolePanel(Panel):
             if not self.mainwindow.editor_wintype:
                 return
             win = self.mainwindow.createWindow(self.mainwindow.editor_wintype)
-            win.getPanel('User editor').openFile(url[5:])
+            panel = win.getPanel('User editor')
+            panel.openFile(url[5:])
+            showPanel(panel)
         elif url.startswith('trace:'):
             TracebackDialog(self, self.outView, url[6:]).show()
         else:

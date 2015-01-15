@@ -33,7 +33,7 @@ from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
 from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
     DeviceComboWidget
-from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
 from nicos.pycompat import iteritems
@@ -504,7 +504,9 @@ class DevicesPanel(Panel):
     def plot_history(self, dev):
         if self.mainwindow.history_wintype:
             win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
-            win.getPanel('History viewer').newView(dev)
+            panel = win.getPanel('History viewer')
+            panel.newView(dev)
+            showPanel(panel)
 
 
 class ControlDialog(QDialog):
