@@ -164,9 +164,9 @@ class SMSer(Notifier):
                                         stderr=subprocess.STDOUT)
                 out = proc.communicate()[0]
                 if 'message queued' not in out and 'message successfully sent' not in out:
-                    raise RuntimeError(out.strip())
+                    raise RuntimeError('unexpected output %r' % out.strip())
         except Exception:
-            self.log.exception('sendsms failed with exception')
+            self.log.exception('sendsms failed')
             return False
         self.log.info('%sSMS message sent to %s' % (
             what and what + ' ' or '', ', '.join(receivers)))
