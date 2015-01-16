@@ -34,6 +34,13 @@ def spawn(script, *args, **kwds):
     else:
         background_processes[script] = p
 
+def wait():
+    echo('Services started, press Enter to stop them.\n')
+    try:
+        raw_input()
+    except (KeyboardInterrupt, EOFError):
+        pass
+
 @atexit.register
 def cleanup():
     # clean up processes, even if nicos-demo is terminated early
@@ -118,10 +125,9 @@ elif not opts.nodaemon:
             guiargs.extend([opts.guiuser, ''] + rest_args)
             spawn('nicos-gui', *guiargs, wait=True)
     else:
-        echo('Services started, press Enter to stop them.\n')
-        try:
-            raw_input()
-        except (KeyboardInterrupt, EOFError):
-            pass
+        wait()
+else:
+    echo('.\n')
+    wait()
 
 echo('NICOS demo finished.\n')
