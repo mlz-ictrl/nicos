@@ -30,7 +30,7 @@ from os import path
 from time import time as currenttime, strftime
 
 from nicos import session, config
-from nicos.core import Param, Override, listof, dictof, anytype
+from nicos.core import Param, Override, listof, dictof, anytype, status
 from nicos.utils import lc_dict
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.devices.notifiers import Notifier, Mailer
@@ -100,6 +100,9 @@ class Watchdog(BaseCacheClient):
         self._pausecount = OrderedDict()
         # dictionary of keys used to evaluate the conditions
         self._keydict = lc_dict()
+        # put status constants in key dict to simplify status conditions
+        for stval, stname in status.statuses.items():
+            self._keydict[stname.upper()] = stval
 
         # create all notifier devices
         self._all_notifiers = []
@@ -191,8 +194,8 @@ class Watchdog(BaseCacheClient):
                 try:
                     value = eval(entry.condition, self._keydict)
                 except Exception:
-                    self.log.warning('error evaluating %r warning condition' % key,
-                                     exc=1)
+                    self.log.warning('error evaluating %r warning condition '
+                                     '(ok during startup)' % key, exc=1)
                     continue
                 if entry.gracetime and value and eid not in self._watch_grace:
                     self.log.info('condition %r triggered, awaiting grace time'
@@ -210,8 +213,8 @@ class Watchdog(BaseCacheClient):
             try:
                 value = eval(entry.precondition, self._keydict)
             except Exception:
-                self.log.warning('error evaluating %r warning precondition'
-                                 % key, exc=1)
+                self.log.warning('error evaluating %r warning precondition '
+                                 '(ok during startup)' % key, exc=1)
                 continue
             value = bool(value)
             self.log.debug('precondition %r is now %s' %

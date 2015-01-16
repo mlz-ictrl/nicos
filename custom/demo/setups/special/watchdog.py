@@ -42,7 +42,7 @@ watchlist = [
          gracetime = 0),
     dict(condition = 'b_mira_value < 0.01',
          type = 'critical',
-         precondition = 'b_mira_value > 0.01 and b_mira_status[0] == 100',
+         precondition = 'b_mira_value > 0.01 and b_mira_status[0] == OK',
          precondtime = 10,
          setup = 'magnet',
          message = 'Magnet quenched',
