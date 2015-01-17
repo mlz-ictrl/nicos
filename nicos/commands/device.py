@@ -720,8 +720,9 @@ def ListMethods(dev):
         if cls in listed:
             return
         listed.add(cls)
-        for name, (args, doc) in sorted(iteritems(cls.commands)):
-            items.append((dev.name + '.' + name + args, cls.__name__, doc))
+        for name, (args, doc, mcls, is_user) in sorted(iteritems(cls.methods)):
+            if cls is mcls and is_user:
+                items.append((dev.name + '.' + name + args, cls.__name__, doc))
         for base in cls.__bases__:
             if issubclass(base, Device):
                 _list(base)
