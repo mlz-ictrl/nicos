@@ -716,9 +716,9 @@ class Device(object):
            This method can add more device information by returning it as a
            sequence of tuples.
         """
+        ret = []
         if hasattr(self, 'doInfo'):
-            for item in self.doInfo():
-                yield item
+            ret.extend(self.doInfo())
         selfunit = getattr(self, 'unit', '')
         for category, name, unit in self._infoparams:
             try:
@@ -728,7 +728,8 @@ class Device(object):
                                  name, exc=err)
                 continue
             parunit = (unit or '').replace('main', selfunit)
-            yield (category, name, '%s %s' % (parvalue, parunit))
+            ret.append((category, name, '%s %s' % (parvalue, parunit)))
+        return ret
 
     def shutdown(self):
         """Shut down the device.  This method is called by the NICOS system when
@@ -1109,9 +1110,10 @@ class Readable(Device):
 
     def info(self):
         """Automatically add device main value and status (if not OK)."""
+        ret = []
         try:
             val = self.read()
-            yield ('general', 'value', self.format(val, unit=True))
+            ret.append(('general', 'value', self.format(val, unit=True)))
         except Exception as err:
             self._info_errcount += 1
             # only display the message for the first 5 times and then
@@ -1120,18 +1122,17 @@ class Readable(Device):
                 self.log.warning('error reading', exc=err)
             else:
                 self.log.debug('error reading', exc=err)
-            yield ('general', 'value', 'Error: %s' % err)
+            ret.append(('general', 'value', 'Error: %s' % err))
         else:
             self._info_errcount = 0
         try:
             st = self.status()
         except Exception as err:
-            yield ('status', 'status', 'Error: %s' % err)
+            ret.append(('status', 'status', 'Error: %s' % err))
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
-                yield ('status', 'status', formatStatus(st))
-        for item in Device.info(self):
-            yield item
+                ret.append(('status', 'status', formatStatus(st)))
+        return ret + Device.info(self)
 
 
 class Moveable(Readable):
@@ -1922,16 +1923,16 @@ class Measurable(Readable):
         """Automatically add device status (if not OK).  Does not add the
         device value since that is typically not useful for Measurables.
         """
+        ret = []
         try:
             st = self.status()
         except Exception as err:
             self.log.warning('error getting status', exc=err)
-            yield ('status', 'status', 'Error: %s' % err)
+            ret.append(('status', 'status', 'Error: %s' % err))
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
-                yield ('status', 'status', '%s: %s' % st)
-        for item in Device.info(self):
-            yield item
+                ret.append(('status', 'status', '%s: %s' % st))
+        return ret + Device.info(self)
 
     def valueInfo(self):
         """Describe the values measured by this device.
@@ -2104,10 +2105,10 @@ class DeviceAlias(Device):
     @usermethod
     def info(self):
         # override to use the object's "info" but add a note about the alias
+        ret = []
         if isinstance(self._obj, Device):
-            for v in self._obj.info():
-                yield v
-        yield ('instrument', 'alias', str(self._obj))
+            ret = self._obj.info()
+        return ret + [('instrument', 'alias', str(self._obj))]
 
     @usermethod
     def version(self):
