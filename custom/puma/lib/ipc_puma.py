@@ -25,9 +25,7 @@
 
 """PUMA specific modifications to NICOS's module for IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
-from time import sleep
-
-from nicos.core import Override, waitForStatus
+from nicos.core import Override
 from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor, SlitMotor as IPCSlitMotor
 
 
@@ -45,11 +43,7 @@ class Coder(IPCCoder):
 
 
 class Motor(IPCMotor):
-    """Same as vendor.ipc.Motor but don't write the config byte
-
-    also supply a custom doWait which sleeps before doing the same
-    as the normal wait would do.
-    """
+    """Same as vendor.ipc.Motor but don't write the config byte."""
     parameter_overrides = {
         'confbyte' : Override(settable = False),
     }
@@ -64,17 +58,6 @@ class Motor(IPCMotor):
  #       self.log.info('parameter change not permanent, use _store() '
  #                     'method to write to EEPROM')
 
-    def doWait(self):
-        sleep(0.1)
-        waitForStatus(self, 0.2, errorstates=())
-
 
 class SlitMotor(IPCSlitMotor):
-    """Same as vendor.ipc.SlitMotor with custom doWait,
-
-    This doWait uses a different delay between status polls.
-    The reason is unknown.
-    """
-
-    def doWait(self):
-        waitForStatus(self, max(0.3, self.timeout / 10.5), errorstates=())
+    """XXX: Same as vendor.ipc.SlitMotor."""

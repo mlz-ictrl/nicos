@@ -53,7 +53,7 @@ class Motor(CanReference, TacoDevice, BaseMotor):
 
     def doReference(self):
         self._taco_guard(self._dev.deviceReset)
-        self.doWait()
+        self.wait()
 
     def doStart(self, target):
         self._taco_guard(self._dev.start, target)

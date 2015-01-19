@@ -155,9 +155,11 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
         self._lastStatus = st
         return st, msg
 
-    def doWait(self):
-        Moveable.doWait(self)
-        self._moveTo = None
+    def doIsCompleted(self):
+        done = Moveable.doIsCompleted(self)
+        if done:
+            self._moveTo = None
+        return done
 
     def doReadDrumpos(self):
         return self._dev.DrumPosition

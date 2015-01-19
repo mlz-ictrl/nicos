@@ -412,11 +412,12 @@ class SequencerMixin(DeviceMixinBase):
         except Exception as e:
             self.log.error(e, exc=1)
 
-    def doWait(self):
-        if self._seq_thread:
-            self._seq_thread.join()
-            if self._seq_was_stopped:
-                raise StopSequence(self, self._seq_status[1])
+    def doIsCompleted(self):
+        if self._seq_thread and self._seq_thread.isAlive():
+            return False
+        if self._seq_was_stopped:
+            raise StopSequence(self, self._seq_status[1])
+        return True
 
     def doStatus(self, maxage=0):
         return self._seq_status

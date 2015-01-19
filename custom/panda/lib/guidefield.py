@@ -56,7 +56,7 @@
 import numpy as np
 
 from nicos.utils import lazy_property
-from nicos.core import Param, Override, LimitError
+from nicos.core import Param, Override, LimitError, multiWait
 from nicos.core.params import floatrange, tupleof
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.abstract import MappedMoveable
@@ -262,8 +262,7 @@ class GuideField(MappedMoveable):
             return
 
         # wait to get there
-        for d in self.coils:
-            d.wait()
+        multiWait(self.coils)
 
         # read back value
         for i, d in enumerate(self.coils):
@@ -272,5 +271,3 @@ class GuideField(MappedMoveable):
         # now revers the process, calculate the field from the currents and
         # return it
         return self._I2B(F) + np.array(self.background)
-
-

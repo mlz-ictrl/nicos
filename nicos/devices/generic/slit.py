@@ -27,7 +27,7 @@
 from time import sleep
 
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
-    AutoDevice, InvalidValueError, tupleof, multiStatus
+    AutoDevice, InvalidValueError, tupleof, multiStatus, multiReset, multiWait
 from nicos.devices.abstract import CanReference
 
 
@@ -203,10 +203,8 @@ class Slit(CanReference, Moveable):
             ab.move(tb * f)
 
     def doReset(self):
-        for ax in self._axes:
-            ax.reset()
-        for ax in self._axes:
-            ax.wait()
+        multiReset(self._axes)
+        multiWait(self._axes)
 
     def doReference(self):
         for ax in self._axes:

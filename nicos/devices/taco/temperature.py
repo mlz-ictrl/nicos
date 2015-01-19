@@ -68,8 +68,6 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
         'window':    Param('Time window for checking stable temperature',
                            unit='s', settable=True, category='general',
                            chatty=True),
-        'loopdelay': Param('Sleep time when waiting', unit='s', default=1,
-                           settable=True),
         'timeout':   Param('Maximum time to wait for stable temperature',
                            unit='s', settable=True, category='general',
                            chatty=True),

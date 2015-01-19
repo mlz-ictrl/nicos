@@ -20,9 +20,9 @@
 
 """Devices for the SANS-1 oxford magnet (ccmsans)."""
 
-from nicos.core import Param, Override, HasTimeout, oneof, status
+from nicos.core import Param, oneof, status, HasTimeout, Override, \
+    defaultIsCompleted
 from nicos.devices.taco.power import CurrentSupply
-from nicos.core.utils import waitForStatus
 
 
 class AsymmetricMagnet(HasTimeout, CurrentSupply):
@@ -43,6 +43,10 @@ class AsymmetricMagnet(HasTimeout, CurrentSupply):
         'timeout': Override(mandatory=False, default=300),
     }
 
+    parameter_overrides = {
+        'timeout': Override(mandatory=False, default=5400 + 300) # max range * max ramp + 5'
+    }
+
     valuetype = float
 
     def doReadAsymmetry(self):
@@ -51,5 +55,5 @@ class AsymmetricMagnet(HasTimeout, CurrentSupply):
     def doWriteAsymmetry(self, value):
         self._taco_update_resource('asymmetry', str(value))
 
-    def doWait(self):
-        waitForStatus(self, busystates=(status.BUSY, status.ERROR))
+    def doIsCompleted(self):
+        return defaultIsCompleted(self, busystates=(status.BUSY, status.ERROR))

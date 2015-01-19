@@ -203,13 +203,6 @@ def test_scan_errorhandling():
     dataset = session.experiment._last_datasets[-1]
     assert dataset.xresults == [[0]]  # tdev.move only raises when target != 0
 
-    # communication error during readout: ignored
-    t._start_exception = None
-    t._read_exception = CommunicationError()
-    scan(t, [0, 1, 2, 3])
-    dataset = session.experiment._last_datasets[-1]
-    assert dataset.xresults == [[None], [None], [None], [None]]
-
     # position error during move: ignored
     t._value = 0
     t._read_exception = None

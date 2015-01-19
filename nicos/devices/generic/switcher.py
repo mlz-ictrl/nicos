@@ -28,7 +28,8 @@
 from nicos.utils import lazy_property
 from nicos.core import anytype, dictof, none_or, listof, \
     PositionError, ConfigurationError, Moveable, Readable, Param, \
-    Override, status, InvalidValueError, multiStatus, multiStop, multiReset
+    Override, status, InvalidValueError, multiStatus, multiStop, multiReset, \
+    multiWait
 from nicos.core.params import Attach
 from nicos.devices.abstract import MappedReadable, MappedMoveable
 from nicos.pycompat import iteritems
@@ -261,9 +262,7 @@ class MultiSwitcher(MappedMoveable):
             self.log.debug('moving %r to %r' % (d, t))
             d.start(t)
         if self.blockingmove:
-            for d in self.devices:
-                self.log.debug('waiting for %r' % d)
-                d.wait()
+            multiWait(self.devices)
 
     def _readRaw(self, maxage=0):
         return tuple(d.read(maxage) for d in self.devices)

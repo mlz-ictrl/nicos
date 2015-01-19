@@ -29,7 +29,7 @@ from itertools import chain
 
 from nicos import session
 from nicos.core import dictof, listof, anytype, usermethod, multiStatus, \
-    Moveable, Param, Override, Value, NicosError, UsageError, multiWait
+    Moveable, Param, Override, Value, NicosError, UsageError, multiIsCompleted
 from nicos.core.scan import Scan, ManualScan
 from nicos.utils import printTable
 from nicos.commands import usercommand
@@ -109,8 +109,8 @@ class MiezeMaster(Moveable):
             self._started_devs.append(dev)
         self.setting = index
 
-    def doWait(self):
-        multiWait(self._started_devs)
+    def doIsCompleted(self):
+        return multiIsCompleted(self._started_devs)
 
     def doStatus(self, maxage=0):
         return multiStatus(((dev.name, dev) for dev in self._started_devs),

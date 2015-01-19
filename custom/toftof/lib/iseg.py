@@ -131,14 +131,6 @@ class Voltage(HasLimits, Moveable):
             raise NicosError('invalid status readout %r' % resp)
         return self.states[resp[3:]], resp[3:]
 
-    def doWait(self):
-        while 1:
-            resp = self._comm('S%d' % self.channel)
-            if resp[3:] == 'ON ':
-                return
-            elif resp[3:] not in ('L2H', 'H2L'):
-                raise NicosError('device in error status: %s' % resp[3:])
-
     def _current(self):
         # return the current in Amperes
         resp = self._comm('I%d' % self.channel)

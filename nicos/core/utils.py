@@ -114,33 +114,90 @@ def multiStatus(devices, maxage=None):
         return status.UNKNOWN, 'no status could be determined (no doStatus implemented?)'
 
 
+def multiWait(devices):
+    """Wait for the *devices*.
+
+    Returns a dictionary mapping devices to current values after waiting.
+    # XXX should it be a tuple instead?
+
+    This is the main waiting loop to be used when waiting for multiple devices.
+    It calls `isCompleted()` until all devices return true.
+
+    Errors raised are handled like in _multiMethod: the first one is reraised at
+    the end, the others are only printed as errors.
+    """
+    delay = 0.3
+    first_exc = None
+    devset = set(devIter(devices, onlydevs=True))
+    values = {}
+    session.beginActionScope('Waiting: %s' % ', '.join(map(str, devices)))
+    try:
+        while devset:
+            for dev in list(devset):
+                try:
+                    done = dev.isCompleted()
+                except Exception:
+                    if not first_exc:
+                        first_exc = sys.exc_info()
+                    else:
+                        dev.log.exception('while waiting')
+                    devset.discard(dev)
+                else:
+                    if done:
+                        devset.discard(dev)
+                        values[dev] = dev.read()
+            if devset:
+                sleep(delay)
+        if first_exc:
+            reraise(*first_exc)
+    finally:
+        session.endActionScope()
+    return values
+
+
+def defaultIsCompleted(device, busystates=(status.BUSY,),
+                       errorstates=(status.ERROR, status.NOTREACHED)):
+    """Check for completion of movement using the device status.
+
+    If *timeout* is given or the device has a timeout parameter, movement
+    is regarded as timed out after that number of seconds.  `TimeoutError`
+    is raised in this case.
+
+    *busystates* gives the state values that are considered as "busy" states;
+    by default only `status.BUSY`.
+
+    *errorstates* gives the state values that are considered as "error" states
+    and should raise a `PositionError` (for NOTREACHED) or `MoveError` if they
+    occur.
+
+    This is the default implementation of `~Device.doIsCompleted`.
+    """
+    st = device.status(0)
+    if device.loglevel == 'debug':
+        # only read and log the device position if debugging
+        # as this could be expensive and is not needed otherwise
+        position = device.read(0)
+        device.log.debug('defaultIsCompleted: status %r at %s' % (
+            formatStatus(st),
+            device.format(position, unit=True)))
+    if st[0] in busystates:
+        return False
+    elif st[0] in errorstates:
+        if st[0] == status.NOTREACHED:
+            raise PositionError(device, st[1])
+        else:
+            raise MoveError(device, st[1])
+    return True
+
+
 def waitForStatus(device, delay=0.3, busystates=(status.BUSY,),
                   errorstates=(status.ERROR, status.NOTREACHED)):
-    """Wait for the *device* status to return exit the busy state.
+    """Wait for *device* to exit the busy state.
 
-    *delay* is the delay between status inquiries, and *busystates* gives the
-    state values that are considered as "busy" states; by default only
-    `status.BUSY`.
+    Calls `defaultIsCompleted` until it returns true or raises.
     """
-    while True:
-        st = device.status(0)
-        if device.loglevel == 'debug':
-            # only read and log the device position if debugging
-            # as this could be expensive and is not needed otherwise
-            position = device.read(0)
-            device.log.debug('waitForStatus: status %r at %s' % (
-                             formatStatus(st),
-                             device.format(position, unit=True)))
-        if st[0] in busystates:
-            sleep(delay)
-        elif st[0] in errorstates:
-            if st[0] == status.NOTREACHED:
-                raise PositionError(device, st[1])
-            else:
-                raise MoveError(device, st[1])
-        else:
-            break
-    return st
+    while not defaultIsCompleted(device, busystates, errorstates):
+        sleep(delay)
 
 
 def formatStatus(st):
@@ -158,11 +215,12 @@ def _multiMethod(baseclass, method, devices, *args, **kwargs):
     Additional arguments are used when calling the method.
     The same arguments are used for *ALL* calls.
     """
+    retvals = []
     first_exc = None
     for dev in devIter(devices, baseclass, onlydevs=True):
         try:
             # method has to be provided by baseclass!
-            getattr(dev, method)(*args, **kwargs)
+            retvals.append(getattr(dev, method)(*args, **kwargs))
         except Exception:
             if not first_exc:
                 first_exc = sys.exc_info()
@@ -170,16 +228,16 @@ def _multiMethod(baseclass, method, devices, *args, **kwargs):
                 dev.log.exception('during %s()' % method)
     if first_exc:
         reraise(*first_exc)
+    return retvals
 
 
-def multiWait(devices):
-    """Wait for every 'waitable' device in the *devices* list.
+def multiIsCompleted(devices):
+    """Check for completion of every "waitable" device in the *devices* list.
 
-    The first given exception is re-raised after all wait() calls have been
-    finished, all other exceptions are logged and not re-raised.
+    Returns true if all device movement is completed.
     """
     from nicos.core import Moveable
-    _multiMethod(Moveable, 'wait', devices)
+    return all(_multiMethod(Moveable, 'isCompleted', devices))
 
 
 def multiStop(devices):

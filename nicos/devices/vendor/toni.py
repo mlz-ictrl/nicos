@@ -115,34 +115,28 @@ class Valve(Moveable):
             raise ConfigurationError(self, 'Valve states must be a list of '
                                      'two strings for closed/open state')
         self.valuetype = oneof(*self.states)
-        self._timer = 0
 
     def doStart(self, value):
         value = self.states.index(value)
-        self.doWait()
-        self._timer = time()
+        self.wait()
         msg = '%s=%02x' % (value and 'O' or 'C', 1 << self.channel)
         self._adevs['bus'].communicate(msg, self.addr, expect_ok=True)
 
     def doRead(self, maxage=0):
-        self.doWait()
+        self.wait()
         ret = self._adevs['bus'].communicate('R?', self.addr, expect_hex=2)
         return self.states[bool(ret & (1 << self.channel))]
 
     def doStatus(self, maxage=0):
-        self.doWait()
+        self.wait()
         ret = self._adevs['bus'].communicate('I?', self.addr, expect_hex=2)
         if ret == 0:
             return status.OK, 'idle'
         else:
             return status.BUSY, 'busy'
 
-    def doWait(self):
-        if self._timer:
-            # wait given time after last write action
-            while time() - self._timer < self.waittime:
-                sleep(0.1)
-            self._timer = 0
+    def doIsCompleted(self):
+        return self.started + self.waittime > time()
 
 
 class Leckmon(Readable):

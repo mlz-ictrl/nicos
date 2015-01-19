@@ -87,8 +87,9 @@ class Dev2(HasLimits, HasOffset, Moveable):
     def doStop(self):
         methods_called.add('doStop')
 
-    def doWait(self):
-        methods_called.add('doWait')
+    def doIsCompleted(self):
+        methods_called.add('doIsCompleted')
+        return True
 
     def doStatus(self, maxage=0):
         return status.BUSY, 'busy'
@@ -197,7 +198,7 @@ def test_methods():
     dev2.stop()
     assert 'doStop' in methods_called
     dev2.wait()
-    assert 'doWait' in methods_called
+    assert 'doIsCompleted' in methods_called
     # test info() method
     keys = set(value[1] for value in dev2.info())
     assert 'testkey' in keys
@@ -235,7 +236,6 @@ def test_fix_and_release():
     try:
         dev2.stop()
         assert dev2.status()[0] == status.BUSY
-        assert dev2.wait() == 9
     finally:
         dev2.release()
     dev2.stop()

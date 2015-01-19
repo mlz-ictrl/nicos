@@ -27,7 +27,7 @@
 from time import sleep
 
 from nicos.core import status, oneof, Device, Param, Override, NicosError, \
-     ProgrammingError, MoveError, HasTimeout
+    ProgrammingError, MoveError, HasTimeout
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.generic.axis import Axis
@@ -100,6 +100,7 @@ class S7Coder(NicosCoder):
 
 class S7Motor(HasTimeout, NicosMotor):
     """Class for the control of the S7-Motor moving mtt."""
+
     parameters = {
         'sign'      : Param('Sign of moving direction value',
                             type=oneof(-1.0, 1.0), default=-1.0),
@@ -141,6 +142,9 @@ class S7Motor(HasTimeout, NicosMotor):
         sleep(0.5)
         bus.write(0, 'bit', 0, 2)            # Startbit Sollwertfahrt aufheben
         sleep(0.5)
+
+    def doIsCompleted(self):
+        return self._posreached()
 
     def _gettarget(self):
         """Returns current target."""
@@ -211,6 +215,9 @@ class S7Motor(HasTimeout, NicosMotor):
         if sps_err != 0:
             self.log.info(m('SPS-Error:')+' '+hex(sps_err))
 
+    def doStatus(self, maxage=0):
+        return self._doStatus()
+
     def _ack( self ):
         ''' acks a sps/Nc error '''
         self.log.info('Acknowledging SPS-ERROR')
@@ -226,7 +233,7 @@ class S7Motor(HasTimeout, NicosMotor):
             sleep(1)
         self.log.info('Status is now:' + self.doStatus()[1])
 
-    def doStatus(self, maxage=0):
+    def _doStatus(self, maxage=0):
         """Asks hardware and figures out status."""
         bus = self._adevs['bus']
         # first get all needed statusbytes
@@ -339,8 +346,6 @@ class S7Motor(HasTimeout, NicosMotor):
         return (abs( pos1 - pos2 ) *7   # 7 seconds per degree
             + 12*(int(abs(pos1 - pos2) / 11) + 1))
             # 12 seconds per mobilblock which come every 11 degree plus one extra
-
-
 
 
 class Panda_mtt(Axis):

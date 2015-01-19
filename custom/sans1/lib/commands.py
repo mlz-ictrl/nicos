@@ -95,8 +95,7 @@ def SelectSample(pos):
         raise ConfigurationError("Instrument needs to be configured with a "
                                  "Sans1Sample for this command to work")
     c = session.getDevice('SampleChanger')
-    c.start(pos)
-    c.wait()
+    c.maw(pos)
     if sd.activesample != pos: #was not updated by the samplechanger, so lets do it
         sd.activesample = pos
 

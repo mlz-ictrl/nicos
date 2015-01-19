@@ -34,9 +34,9 @@ from IO import StringIO
 from RS485Client import RS485Client # pylint: disable=F0401
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
-     none_or, usermethod, Device, Readable, Moveable, Param, Override, \
-     NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
-     HasTimeout, waitForStatus
+    none_or, usermethod, Device, Readable, Moveable, Param, Override, \
+    NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
+    defaultIsCompleted, HasTimeout
 from nicos.utils import closeSocket, lazy_property, HardwareStub
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
@@ -858,7 +858,7 @@ class Motor(HasTimeout, NicosMotor):
         target = self._tosteps(target)
         self.log.debug('target is %d steps' % target)
         bus = self._adevs['bus']
-        self.doWait()
+        self.wait()
         pos = self._tosteps(self.read(0))
         self.log.debug('pos is %d steps' % pos)
         diff = target - pos
@@ -869,13 +869,14 @@ class Motor(HasTimeout, NicosMotor):
         else:
             bus.send(self.addr, 34)
         bus.send(self.addr, 46, abs(diff), 6)
+        sleep(0.1)  # moved here from doWait.
 
     def doReset(self):
         bus = self._adevs['bus']
         if self.status(0)[0] != status.OK:  # busy or error
             bus.send(self.addr, 33)  # stop
             try:
-                self.doWait()        # this might take a while, ignore errors
+                self.wait()        # this might take a while, ignore errors
             except Exception:
                 pass
         # remember current state
@@ -896,9 +897,8 @@ class Motor(HasTimeout, NicosMotor):
         bus.send(self.addr, 44, maxstep, 6)
         bus.send(self.addr, 43, actpos, 6)
 
-    def doWait(self):
-        sleep(0.1)
-        waitForStatus(self, 0.2, errorstates=())
+    def doIsCompleted(self):
+        return defaultIsCompleted(self, errorstates=())
 
     def doStop(self):
         if self._hwtype == 'single':
@@ -1244,7 +1244,7 @@ class SlitMotor(HasTimeout, NicosMotor):
         steps = self._tosteps(self.resetpos)
         self._adevs['bus'].send(self.addr, self.side+160, steps, 4)
         sleep(0.3)
-        self.doWait()
+        self.wait()
 
     def doStop(self):
         pass

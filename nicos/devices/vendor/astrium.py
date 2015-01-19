@@ -115,7 +115,7 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, HasTimeout, Moveable):
 
     parameter_overrides = {
         'unit':  Override(mandatory=False, default='rpm'),
-        'precision' : Override(mandatory=False, type=float, default=0),
+        'precision': Override(mandatory=False, type=float, default=0),
     }
 
     attached_devices = {
@@ -192,13 +192,13 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, HasTimeout, Moveable):
                 sleep(self.commdelay)
         raise CommunicationError(self, 'selector did not execute speed request')
 
-    def doWait(self):
+    def doIsCompleted(self):
         # the selector does not return a "busy" state while speeding up/down, so
         # we have to check for the speed reaching the target speed.
-        inittime = currenttime()
-        while currenttime() < inittime + self.timeout:
-            if abs(self.read() - self.target) < self.precision: # XXX: inconsistent with doStatus!
-                return
+        if abs(self.read() - self.target) < self.precision: # XXX: inconsistent with doStatus!
+            return True
+        if currenttime() < self.started + self.timeout:
+            return False
         raise MoveError(self, 'selector did not reach %d rpm in %s seconds' %
                         (self.target, self.timeout))
 

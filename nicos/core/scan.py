@@ -263,6 +263,7 @@ class Scan(object):
         if not wait:
             return
         for dev, val in waitdevs:
+            # XXX this should be a multiWait loop
             try:
                 dev.wait()
             except NicosError as err:

@@ -28,7 +28,7 @@
 # from PowerSupply import CurrentControl
 from IO import StringIO
 
-from nicos.core import Moveable, HasLimits, Param, Override, waitForStatus, \
+from nicos.core import Moveable, HasLimits, Param, Override, \
      floatrange, status, oneof, CommunicationError, InvalidValueError, \
      ConfigurationError
 from nicos.devices.taco.core import TacoDevice
@@ -99,9 +99,6 @@ class OxfordMercury(HasLimits, TacoDevice, Moveable):
         else:
             t = self._read('DEV:GRPZ:PSU:SIG:FLD')
         return float(t[:-1])
-
-    def doWait(self):
-        waitForStatus(self, 0.5)
 
     def doStop(self):
         self._write('DEV:GRPZ:PSU:ACTN:HOLD')

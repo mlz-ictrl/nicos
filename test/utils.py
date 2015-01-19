@@ -245,8 +245,8 @@ class TestDevice(HasLimits, Moveable):
             raise self._start_exception  # pylint: disable=E0702
         self._value = target
 
-    def doWait(self):
-        return self._value
+    def doIsCompleted(self):
+        return True
 
     def doStatus(self, maxage=0):
         if self._status_exception is not None:

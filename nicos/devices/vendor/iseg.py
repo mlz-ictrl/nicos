@@ -118,14 +118,6 @@ class IsegHV(TacoDevice, HasLimits, Moveable):
             raise NicosError(self, 'invalid status readout %r' % resp)
         return self.states[resp[3:]]
 
-    def doWait(self):
-        while 1:
-            resp = self._taco_guard(self._dev.communicate, 'S%d' % self.channel)
-            if resp[3:] == 'ON ':
-                return
-            elif resp[3:] not in ('L2H', 'H2L'):
-                raise NicosError(self, 'device in error status: %s' % resp[3:])
-
     def _current(self):
         # return the current in Amperes
         resp = self._taco_guard(self._dev.communicate, 'I%d' % self.channel)

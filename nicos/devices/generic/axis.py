@@ -28,8 +28,8 @@
 from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
-    NicosError, PositionError, MoveError, waitForStatus, floatrange, \
-    Param, Attach
+    NicosError, PositionError, MoveError, defaultIsCompleted, floatrange, \
+    Param, Attach, waitForStatus
 from nicos.devices.abstract import Axis as BaseAxis, Motor, Coder, CanReference
 from nicos.utils import createThread
 
@@ -207,16 +207,13 @@ class Axis(CanReference, BaseAxis):
         # the lowlevel device or externally.
         self._adevs['motor'].stop()
 
-    def doWait(self):
-        """Waits until the movement of the motor has stopped and
-        the target position has been reached.
-        """
-        # XXX add a timeout?
-        waitForStatus(self, 2 * self.loopdelay, errorstates=())
-        if self._errorstate:
+    def doIsCompleted(self):
+        done = defaultIsCompleted(self, errorstates=())
+        if done and self._errorstate:
             errorstate = self._errorstate
             self._errorstate = None
             raise errorstate  # pylint: disable=E0702
+        return done
 
     def doWriteSpeed(self, value):
         self._adevs['motor'].speed = value

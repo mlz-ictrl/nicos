@@ -26,7 +26,8 @@
 import time
 from nicos import session
 from nicos.core import PositionError, Moveable, Readable, Param, \
-                        oneof, dictof, anytype
+    oneof, dictof, anytype, multiWait
+
 
 class Mchanger(Moveable):
 
@@ -122,8 +123,7 @@ class Mchanger(Moveable):
         for dev, pos in self._changing_values.items():
             dev.start(pos)
 
-        for dev in self._changing_values:
-            dev.wait()
+        multiWait(self._changing_values)
 
         for dev, pos in self._changing_values.items():
             if abs(dev.read(0) - pos) > dev.precision:
@@ -186,8 +186,7 @@ class Mchanger(Moveable):
         for dev, pos in self._init_values.items():
             dev.start(pos)
 
-        for dev in self._init_values:
-            dev.wait()
+        multiWait(self._init_values)
 
         for dev, pos in self._init_values.items():
             if abs(dev.read(0) - pos) > dev.precision:

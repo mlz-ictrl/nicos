@@ -33,8 +33,8 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import status
 from nicos.core.constants import MASTER, SIMULATION, SLAVE, MAINTENANCE
-from nicos.core.utils import formatStatus, waitForStatus, multiWait, \
-    multiStop, multiStatus
+from nicos.core.utils import formatStatus, \
+    defaultIsCompleted, multiIsCompleted, multiStop, multiStatus, multiWait
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
     HasTimeout
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
@@ -1139,7 +1139,7 @@ class Moveable(Readable):
     Subclasses *can* implement:
 
     * doStop()
-    * doWait()
+    * doIsCompleted()
     * doIsAllowed()
     * doTime()
     * doIsAtTarget()
@@ -1232,7 +1232,8 @@ class Moveable(Readable):
 
         This method should not generally wait for completion of the movement,
         although individual devices can implement it that way if it is
-        convenient.  In that case, no :meth:`doWait` should be implemented.
+        convenient.  In that case, :meth:`doIsCompleted` should be implemented
+        and always return True.
 
         The validity of the given *pos* is checked by calling :meth:`isAllowed`
         before :meth:`doStart` is called.
@@ -1312,25 +1313,20 @@ class Moveable(Readable):
         return 0.
 
     @usermethod
-    def wait(self):
-        """Wait until movement of device is completed.
+    def isCompleted(self):
+        """Return true if movement is complete.
 
-        Return current device value after waiting.  This is a no-op for hardware
-        devices in simulation mode.
+        .. method:: doIsCompleted()
 
-        .. method:: doWait()
-
-           This method is called to actually do the waiting.
+           This method is called to check if a device is finished moving.
            It should be implemented in derived classes requiring special
            treatment.
-           The default implementation polls the device status until it is no
-           longer BUSY, i.e. 'waits' for the device.
-           If no :meth:`doStatus` is implemented, :meth:`doWait` may be NOT called
-           as those devices are assumed to always move instantaneously!
+           The default implementation checks if the device status is no longer
+           BUSY.
 
            Implementation hint: If you correctly implement :meth:`doStatus` and
            your device is not very special, there is no need to implement
-           :meth:`doWait()`.
+           :meth:`doIsMoving()`.
         """
         if self._sim_active:
             time = 0
@@ -1342,67 +1338,56 @@ class Moveable(Readable):
                 session.clock.wait(self._sim_started + time)
                 self._sim_started = None
             self._sim_old_value = self._sim_value
-            return self._sim_value
-        lastval = None
-        try:
-            if self.fixed:
-                self.log.debug('device fixed, not waiting: %s' % self.fixed)
-            elif hasattr(self, 'doStatus'):  # might really wait
-                session.beginActionScope('Waiting: %s -> %s' %
-                                         (self, self.format(self.target)))
-                try:
-                    lastval = self.doWait()
-                finally:
-                    session.endActionScope()
-            else:
-                if self.__class__.doWait != Moveable.doWait:
-                    # legacy case, custom doWait, but no doStatus!!!
-                    self.log.warning('Legacywarning: %r has a doWait, but no '
-                                     'doStatus, please fix it!' % self.__class__)
-                lastval = self.doWait()  # prefer functionality for the moment....
-                # no else needed as this is basically a NOP
-                # (status returns UNKNOWN, default doWait() returns immediately....)
-        finally:
-            # update device value in cache and return it
-            if lastval is not None:
-                # if doWait() returns something, assume it's the latest value
-                val = lastval
-            else:
-                # else, assume the device did move and the cache needs to be
-                # updated in most cases
-                val = self.doRead(0)  # not read(0), we already cache value below
-            if self._cache and self._mode != SLAVE:
-                self._cache.put(self, 'value', val, currenttime(), self.maxage)
-        # check reached value to be equal to target
-        if not self.isAtTarget(val):
-            self.log.warning('did not reach target %s, last value is %s. This '
-                             'may raise an error in the future!' %
-                             (self.format(self.target, unit=True),
-                              self.format(val, unit=True)))
-        return val
+            return True
+        done = self.doIsCompleted()
+        if done:
+            val = self.read(0)
+            # check reached value to be equal to target
+            if not self.isAtTarget(val):
+                self.log.warning('did not reach target %s, last value is %s. This '
+                                 'may raise an error in the future!' %
+                                 (self.format(self.target, unit=True),
+                                  self.format(val, unit=True)))
+        return done
 
-    def doWait(self):
+    def doIsCompleted(self):
         """Wait until movement of device is completed.
 
-        This default implementation is supposed to be overriden in derived
-        classes and just waits for all attached devices and then polls the status
-        of the device itself until it is not BUSY anymore.  For details how
-        this is done, have a look into `nicos.core.utils.multiWait` and
-        `nicos.core.utils.waitForStatus`.
+        This default implementation is supposed to be overridden in derived
+        classes and just checks for completion of all attached devices and
+        then the device itself.
+
+        If the device enters an error state during movement or movement times
+        out, this function should raise an exception.
 
         Implementation hint: normally you would only need to override this in
         very special cases as it already handles most cases correctly.
         """
         if self._adevs:
-            multiWait(self._adevs)
-        waitForStatus(self)
+            if not multiIsCompleted(self._adevs):
+                return False
+        return defaultIsCompleted(self)
 
     def isAtTarget(self, pos):
         """Check if the device has arrived at its target.
 
+        This is the final step of waiting for a device.  :meth:`isCompleted`
+        checks this when the device indicates that its movement is complete.
+
         The method calls :meth:`doIsAtTarget` if present.  Otherwise, it checks
         for equality if the value is of string or integer type, and returns
         true otherwise.
+
+        Currently, returning False here only means a warning, but may be
+        upgraded to an exception later.
+
+        .. method:: doIsAtTarget()
+
+           Called to determine if the device value is at its target within
+           an accuracy that is reasonable for the individual device.
+
+           If the device wants to warn about its value, but not trigger an
+           exception, this method should emit a warning and still return True.
 
         For devices with float values, inherit from :class:`HasPrecision`,
         which already comes with an implementation of `doIsAtTarget`.
@@ -1415,13 +1400,22 @@ class Moveable(Readable):
         return True
 
     @usermethod
+    def wait(self):
+        """Wait until movement of device is completed.
+
+        Return current device value after waiting.  This is a no-op for hardware
+        devices in simulation mode.
+        """
+        return multiWait([self])[self]
+
+    @usermethod
     def maw(self, target):
         """Move to target and wait for completion.
 
         Equivalent to ``dev.start(target); return dev.wait()``.
         """
         self.start(target)
-        return self.wait()
+        return multiWait([self])[self]
 
     @usermethod
     def stop(self):

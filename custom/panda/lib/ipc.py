@@ -112,7 +112,7 @@ class MotorUntested(_Motor):
             if self.status(0)[0] != status.OK:  # busy or error
                 bus.send(self.addr, 33)  # stop
                 try:
-                    self.doWait()      # this might take a while, ignore errors
+                    self.wait()      # this might take a while, ignore errors
                 except Exception:
                     pass
             self._store()
@@ -124,7 +124,7 @@ class MotorUntested(_Motor):
                 bus.send(self.addr, 34) # go in positive direction
             # do ONE step (basically toggling the least-significant bit)
             bus.send(self.addr, 46, 1, 6)
-            self.doWait()
+            self.wait()
         else:
             _Motor.reset(self)
 

@@ -250,13 +250,13 @@ class HoveringAxis(Axis):
             finally:
                 self._poll_thread = None
 
-    def doWait(self):
-        while self._poll_thread and self._poll_thread.isAlive():
-            sleep(0.2)
-        if self._wait_exception:
+    def doIsCompleted(self):
+        done = not (self._poll_thread and self._poll_thread.isAlive())
+        if done and self._wait_exception:
             exc = self._wait_exception
             self._wait_exception = None
             raise exc  # pylint: disable=E0702
+        return done
 
     def doTime(self, start, end):
         return Axis.doTime(self, start, end) + self.startdelay + self.stopdelay

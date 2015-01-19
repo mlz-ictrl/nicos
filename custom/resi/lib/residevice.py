@@ -147,9 +147,9 @@ class ResiVAxis(Moveable):
         self._adevs['basedevice'].doStart({self.mapped_axis:value})
     def doRead(self, maxage=0):
         return math.degrees(getattr(self._adevs['basedevice'].read(maxage), self.mapped_axis))
-    def doWait(self):
+    def doIsCompleted(self):
         # the moves are currently blocking due to restrictions in the underlying hardware access layer.
-        pass
+        return True
 
 class ResiSample(Sample):
     """Cell object representing sample geometry."""

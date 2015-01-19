@@ -227,11 +227,15 @@ The :mod:`nicos.core.device` module defines some decorators for device methods:
 The :mod:`nicos.core.utils` module also defines some utility functions.  They
 are re-exported in :mod:`nicos.core`.
 
+.. autofunction:: defaultIsCompleted
+
 .. autofunction:: multiStatus
 
-.. autofunction:: waitForStatus
+.. autofunction:: multiIsCompleted
 
 .. autofunction:: multiWait
+
+.. autofunction:: waitForStatus
 
 .. autofunction:: multiStop
 

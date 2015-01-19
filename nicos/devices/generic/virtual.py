@@ -352,13 +352,11 @@ class VirtualTemperature(VirtualMotor):
         self.setpoint = pos
         VirtualMotor.doStart(self, pos)
 
-    def doWait(self):
-        while self.curstatus[0] == status.BUSY:
-            if abs(self.read(0) - self.setpoint) < self.tolerance:
-                break
-            time.sleep(self._base_loop_delay)
-        # wait returns earlier than status is idle. This violates NICOS philosophy!
-        self.curstatus = (status.OK, 'idle')
+    def doIsCompleted(self):
+        if abs(self.read(0) - self.setpoint) < self.tolerance:
+            self.curstatus = (status.OK, 'idle')
+            return True
+        return False
 
     def _step(self, start, end, elapsed, speed):
         # calculate an exponential approximation to the setpoint with a time

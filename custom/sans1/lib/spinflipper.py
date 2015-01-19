@@ -58,9 +58,6 @@ class SpinflipperPower(AnalogOutput):
         'busytime':           Param('Time to stabilize output readings',
                                     type=float, unit='s', default=5,
                                     settable=True),
-        '_starttime':         Param("Cached time of 'movement initialisation'",
-                                    type=float, default=0, settable=False,
-                                    userparam=False),
     }
 
     valuetype = float
@@ -77,20 +74,10 @@ class SpinflipperPower(AnalogOutput):
                                            tacodevice=self.reversetacodevice,
                                            lowlevel=True)
 
-    def doStart(self, target):
-        AnalogOutput.doStart(self, target)
-        self._setROParam('_starttime', time.time())
-
     def doStatus(self, maxage=0):
-        if time.time() < self._starttime + self.busytime:
+        if time.time() < self.started + self.busytime:
             return status.BUSY, 'waiting %.1gs for stabilisation' % self.busytime
         return AnalogOutput.doStatus(self, maxage)
-
-    def doWait(self):
-        sleeptime = self._starttime + self.busytime - time.time()
-        while sleeptime > 0:
-            time.sleep(min(1, sleeptime))
-            sleeptime -= 1
 
     def doReadForward(self):
         self.wait()
@@ -103,4 +90,3 @@ class SpinflipperPower(AnalogOutput):
     def doPoll(self, nr):
         _ = self.forward
         _ = self.reverse
-

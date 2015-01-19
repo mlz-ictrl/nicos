@@ -29,7 +29,7 @@ import time
 from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString, createThread
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
-    HasLimits, UsageError, AccessError, formatStatus, INFO_CATEGORIES
+    HasLimits, UsageError, AccessError, formatStatus, INFO_CATEGORIES, multiWait
 from nicos.core.status import OK, BUSY
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
 from nicos.devices.abstract import CanReference
@@ -105,10 +105,9 @@ def maw(*dev_pos_list):
         dev.log.info('moving to', dev.format(pos, unit=True))
         dev.move(pos)
         devs.append(dev)
+    values = multiWait(devs)
     for dev in devs:
-        value = dev.wait()
-        if value is not None:
-            dev.log.info('at %20s %s' % (dev.format(value), dev.unit))
+        dev.log.info('at %20s %s' % (dev.format(values[dev]), dev.unit))
 
 
 @hiddenusercommand

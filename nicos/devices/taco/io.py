@@ -27,7 +27,7 @@
 import IO
 
 from nicos.core import dictof, Readable, Moveable, HasLimits, Param, Override, \
-     NicosError, waitForStatus, oneof, tupleof
+    NicosError, oneof, tupleof
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -48,18 +48,10 @@ class AnalogOutput(TacoDevice, HasLimits, Moveable):
     classes can be derived from it.
     """
 
-    parameters = {
-        'loopdelay': Param('Wait loop delay', unit='s', default=0.3),
-    }
-
     taco_class = IO.AnalogOutput
 
     def doStart(self, value):
         self._taco_guard(self._dev.write, value)
-
-    def doWait(self):
-        # XXX add a timeout?
-        waitForStatus(self, self.loopdelay)
 
 
 class DigitalInput(TacoDevice, Readable):

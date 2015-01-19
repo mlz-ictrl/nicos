@@ -29,7 +29,7 @@ from math import pi
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
     ConfigurationError, ComputationError, LimitError, oneof, multiStatus, \
-    multiWait, waitForStatus, Attach
+    Attach, defaultIsCompleted, multiIsCompleted
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV, from_k, to_k
 from nicos.devices.tas import spurions
@@ -180,15 +180,16 @@ class TAS(Instrument, Moveable):
         self._sim_min = tuple(map(min, pos, self._sim_min or pos))
         self._sim_max = tuple(map(max, pos, self._sim_max or pos))
 
-    def doWait(self):
-        multiWait(self._waiters)
-        # in case an attached device was started,
-        # but the wait is called on the tas device.
-        waitForStatus(self)
+    def doIsCompleted(self):
+        if not multiIsCompleted(self._waiters):
+            return False
+        done = defaultIsCompleted(self)
         # make sure index members read the latest value
-        for index in (self.h, self.k, self.l, self.E):
-            if index._cache:
-                index._cache.invalidate(index, 'value')
+        if done:
+            for index in (self.h, self.k, self.l, self.E):
+                if index._cache:
+                    index._cache.invalidate(index, 'value')
+        return done
 
     def doStatus(self, maxage=0):
         if self.scanmode == 'DIFF':
@@ -482,8 +483,8 @@ class Wavevector(Moveable):
             tas.log.info('scan mode is now %s at %s' %
                          (self.scanmode, self.format(pos, unit=True)))
 
-    def doWait(self):
-        self._adevs['base'].wait()
+    def doIsCompleted(self):
+        return self._adevs['base'].isCompleted()
 
     def doStop(self):
         self._adevs['base'].stop()
@@ -541,8 +542,8 @@ class Energy(Moveable):
     def doReadUnit(self):
         return self._adevs['tas'].energytransferunit
 
-    def doWait(self):
-        self._adevs['base'].wait()
+    def doIsCompleted(self):
+        return self._adevs['base'].isCompleted()
 
     def doStop(self):
         self._adevs['base'].stop()
@@ -599,8 +600,8 @@ class Wavelength(Moveable):
     def doReadUnit(self):
         return 'AA'
 
-    def doWait(self):
-        self._adevs['base'].wait()
+    def doIsCompleted(self):
+        return self._adevs['base'].isCompleted()
 
     def doStop(self):
         self._adevs['base'].stop()
