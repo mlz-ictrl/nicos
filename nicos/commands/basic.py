@@ -247,6 +247,10 @@ def RemoveSetup(*setupnames):
         if setupname not in session.loaded_setups:
             printwarning('%r is not a loaded setup, ignoring' % setupname)
             continue
+        if session._setup_info[setupname]['group'] == 'basic':
+            printerror('basic setups cannot be removed -- use NewSetup() '
+                       'to change setups instead')
+            return
         try:
             current.remove(setupname)
         except ValueError:

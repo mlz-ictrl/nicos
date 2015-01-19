@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'demo',
+    instrument = 'tas',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'serialsink', 'liveplot'],
     notifiers = [],
@@ -13,7 +13,7 @@ sysconfig = dict(
 modules = ['nicos.commands.standard'] # , 'jcns.commands']
 
 devices = dict(
-    demo     = device('devices.instrument.Instrument',
+    tas     = device('devices.instrument.Instrument',
                       instrument = 'DEMO',
                       responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>,'
                                     'A. Demo <a.demo@frm2.tum.de>',
