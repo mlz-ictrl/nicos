@@ -714,7 +714,7 @@ class Device(object):
             try:
                 parvalue = getattr(self, name)
             except Exception as err:
-                self.log.warning('error getting %s parameter for info()' %
+                self.log.warning('error getting %s parameter' %
                                  name, exc=err)
                 continue
             parunit = (unit or '').replace('main', selfunit)
@@ -1107,9 +1107,9 @@ class Readable(Device):
             # only display the message for the first 5 times and then
             # every 20 measurements. always display if in debugmode
             if self._info_errcount <= 5 or self._info_errcount % 20 == 0:
-                self.log.warning('error reading device for info()', exc=err)
+                self.log.warning('error reading', exc=err)
             else:
-                self.log.debug('error reading device for info()', exc=err)
+                self.log.debug('error reading', exc=err)
             yield ('general', 'value', 'Error: %s' % err)
         else:
             self._info_errcount = 0
@@ -1915,7 +1915,7 @@ class Measurable(Readable):
         try:
             st = self.status()
         except Exception as err:
-            self.log.warning('error getting status for info()', exc=err)
+            self.log.warning('error getting status', exc=err)
             yield ('status', 'status', 'Error: %s' % err)
         else:
             if st[0] not in (status.OK, status.UNKNOWN):
