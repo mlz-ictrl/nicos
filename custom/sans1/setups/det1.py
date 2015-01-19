@@ -83,6 +83,15 @@ devices = dict(
                      subdir = 'bersans',
                     ),
 )
+# Alias devices for recording selectable devices values into the IEEExx keys
+# of The BerSANS File
+for i in range(1, 11):
+    dev = device('core.device.DeviceAlias',
+                 description = 'Alias for selecting a device to record as '
+                               'IEEE%d in BerSANS' % i,
+                 alias = None,
+                )
+    devices['ieee_%d' % i] = dev
 
 startupcode = """
 SetDetectors(det1)

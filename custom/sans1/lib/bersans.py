@@ -93,16 +93,16 @@ Fl1Amplitude=%(A_spinflipper_hp)s
 Fl1Pickup=%(P_spinflipper_reverse)s
 Fl1Temp=%(T_spinflipper)s
 Fl1Power=%(P_spinflipper)s
-IEEE1=
-IEEE2=
-IEEE3=
-IEEE4=
-IEEE5=
-IEEE6=
-IEEE7=
-IEEE8=
-IEEE9=
-IEEE10=
+IEEE1=%(ieee_1)s
+IEEE2=%(ieee_2)s
+IEEE3=%(ieee_3)s
+IEEE4=%(ieee_4)s
+IEEE5=%(ieee_5)s
+IEEE6=%(ieee_6)s
+IEEE7=%(ieee_7)s
+IEEE8=%(ieee_8)s
+IEEE9=%(ieee_9)s
+IEEE10=%(ieee_10)s
 
 %%Setup
 SelSelection=%(selector_ng)s
