@@ -165,7 +165,7 @@ class Dataset(object):
         # make a copy of our __dict__ and omit the imageinfos,
         # which may contain file objects...
         safedict = dict(self.__dict__)
-        del safedict['imageinfos']
+        safedict.pop('imageinfos', None)
         return safedict
 
     def __setstate__(self, state):
