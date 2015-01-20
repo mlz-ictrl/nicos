@@ -9,9 +9,9 @@ devices = dict(
     Poller = device('services.poller.Poller',
                     autosetup = True,
                     alwayspoll = ['motors', 'powersupply', 'temperature',
-                                  'capacitance', 'atts_slits',
+                                  'atts_slits',
                                   'frequencies',
                                  ],
-                    neverpoll = [],
-                    blacklist = []),
+                    neverpoll = ['capacitance'],
+                    blacklist = ['Sel', 'Lambda']),
 )

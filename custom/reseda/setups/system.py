@@ -13,15 +13,14 @@ modules = ['nicos.commands.standard', 'nicos.commands.taco']
 devices = dict(
     Sample   = device('devices.tas.TASSample'),
 
-    Exp      = device('devices.experiment.Experiment',
-                      dataroot = 'data',
+    Exp      = device('frm2.experiment.Experiment',
+                      dataroot = '/data',
                       sendmail = True,
                       serviceexp = '0',
                       sample = 'Sample',
-                      localcontact = 'christian.franz+thorsten.schroeder' \
-                                     '@frm2.tum.de',
+                      localcontact = 'Christian Franz <christian.franz@frm2.tum.de>',
                       mailsender = 'reseda@frm2.tum.de',
-                      # propdb = '/etc/proposaldb',
+                      propdb = '/etc/proposaldb',
                      ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
