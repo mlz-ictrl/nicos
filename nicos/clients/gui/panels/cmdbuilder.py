@@ -134,7 +134,7 @@ class CommandPanel(Panel):
         if self.current_cmdlet:
             self.current_cmdlet.removeSelf()
         inst = cmdlet(self.frame, self.client)
-        inst.delBtn.setVisible(False)
+        inst.buttons.setVisible(False)
         self.frame.layout().insertWidget(0, inst)
         self.current_cmdlet = inst
         self.connect(inst, SIGNAL('dataChanged'), self.updateCommand)
