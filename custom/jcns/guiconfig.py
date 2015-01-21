@@ -34,7 +34,6 @@ main_window = tabbed(
     ('Instrument', docked(
         vsplit(
             hsplit(
-                panel('expinfo.ExpInfoPanel'),
                 vsplit(
                     panel('cmdbuilder.CommandPanel'),
                     panel('status.ScriptStatusPanel'),
@@ -48,6 +47,7 @@ main_window = tabbed(
                     panel('errors.ErrorPanel')),
             ),
         ),
+        ('Experiment Info', panel('expinfo.ExpInfoPanel', dockpos='left')),
         ('NICOS devices',
             panel('devices.DevicesPanel', icons=True, dockpos='right')),
     )),
