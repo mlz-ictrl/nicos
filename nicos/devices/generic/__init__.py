@@ -31,7 +31,7 @@ from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.detector import MultiChannelDetector, \
     DetectorForecast
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
-from nicos.devices.generic.paramdev import ParamDevice
+from nicos.devices.generic.paramdev import ParamDevice, ReadonlyParamDevice
 from nicos.devices.generic.slit import Slit, TwoAxisSlit
 from nicos.devices.generic.switcher import Switcher, ReadonlySwitcher, \
     MultiSwitcher

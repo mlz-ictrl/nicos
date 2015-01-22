@@ -24,23 +24,22 @@
 
 """Generic device class for "moving" a parameter of another device."""
 
-from nicos.core import Device, Moveable, Param, Override, status
+from nicos.core import Device, Moveable, Readable, Param, Override, status
 
 
-class ParamDevice(Moveable):
+class ReadonlyParamDevice(Readable):
     """
-    A pseudo-device that sets the value of a selected parameter of another
-    device on start(), and returns the value of the parameter on read().
+    A pseudo-device that returns the value of the parameter on read().
     """
 
     hardware_access = False
 
     attached_devices = {
-        'device':  (Device, 'The device to set/get the selected parameter'),
+        'device':  (Device, 'The device to control the selected parameter'),
     }
 
     parameters = {
-        'parameter': Param('The name of the parameter to set/get', type=str,
+        'parameter': Param('The name of the parameter to use', type=str,
                            mandatory=True),
     }
 
@@ -48,14 +47,8 @@ class ParamDevice(Moveable):
         'unit':      Override(mandatory=False),
     }
 
-    def doInit(self, mode):
-        self.valuetype = self._adevs['device'].parameters[self.parameter].type
-
     def doRead(self, maxage=0):
         return getattr(self._adevs['device'], self.parameter)
-
-    def doStart(self, value):
-        setattr(self._adevs['device'], self.parameter, value)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
@@ -66,3 +59,16 @@ class ParamDevice(Moveable):
         if devunit:
             parunit = parunit.replace('main', devunit)
         return parunit
+
+
+class ParamDevice(ReadonlyParamDevice, Moveable):
+    """
+    A pseudo-device that sets the value of a selected parameter of another
+    device on start(), and returns the value of the parameter on read().
+    """
+
+    def doInit(self, mode):
+        self.valuetype = self._adevs['device'].parameters[self.parameter].type
+
+    def doStart(self, value):
+        setattr(self._adevs['device'], self.parameter, value)

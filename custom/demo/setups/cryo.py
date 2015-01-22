@@ -15,7 +15,7 @@ devices = dict(
                       unit = 'K',
                       jitter = 0,
                      ),
-    T_sample = device('devices.generic.ParamDevice',
+    T_sample = device('devices.generic.ReadonlyParamDevice',
                       parameter = 'sample',
                       device = 'T_demo',
                       description = 'Temperature of virtual sample',

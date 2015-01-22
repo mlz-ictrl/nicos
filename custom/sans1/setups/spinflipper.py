@@ -46,7 +46,7 @@ devices = dict(
                            pollinterval = 15,
                           ),
 
-    P_spinflipper_forward = device('devices.generic.ParamDevice',
+    P_spinflipper_forward = device('devices.generic.ReadonlyParamDevice',
                                    description = 'Paramdevice used to select the forward power',
                                    lowlevel = True,
                                    device = 'P_spinflipper',
@@ -55,7 +55,7 @@ devices = dict(
                                    pollinterval = 15,
                                   ),
 
-    P_spinflipper_reverse = device('devices.generic.ParamDevice',
+    P_spinflipper_reverse = device('devices.generic.ReadonlyParamDevice',
                                    description = 'Paramdevice used to select the reverse power',
                                    lowlevel = True,
                                    device = 'P_spinflipper',
@@ -103,4 +103,3 @@ devices = dict(
                               pollinterval = 15,
                              ),
 )
-
