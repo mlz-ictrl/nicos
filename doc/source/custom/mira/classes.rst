@@ -4,11 +4,11 @@ MIRA instrument
 Custom device classes
 ---------------------
 
-.. module:: nicos.mira.axis
+.. module:: nicos.mira.phytron
 
-.. autoclass:: PhytronAxis()
+.. autoclass:: Axis()
 
 .. module:: nicos.mira.beckhoff
 
-.. autoclass:: BeckhoffDigitalOutput
-.. autoclass:: BeckhoffNamedDigitalOutput
+.. autoclass:: DigitalOutput()
+.. autoclass:: NamedDigitalOutput()
