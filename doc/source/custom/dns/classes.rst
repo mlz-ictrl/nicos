@@ -2,26 +2,23 @@ Instrument specific devices
 ---------------------------
 
 .. automodule:: nicos.dns.detector
-.. autoclass:: FlipperPresets
-.. autoclass:: TofDetector
+.. autoclass:: FlipperPresets()
+.. autoclass:: TofDetector()
 
 .. automodule:: nicos.dns.DNSFileFormat
-.. autoclass:: DNSFileFormat
+.. autoclass:: DNSFileFormat()
 
 .. automodule:: nicos.dns.fpga
-.. autoclass:: FPGAChannelBase
-.. autoclass:: FPGATimerChannel
-.. autoclass:: FPGACounterChannel
+.. autoclass:: FPGAChannelBase()
+.. autoclass:: FPGATimerChannel()
+.. autoclass:: FPGACounterChannel()
 
 .. automodule:: nicos.dns.shutter
-.. autoclass:: Shutter
+.. autoclass:: Shutter()
 
 .. automodule:: nicos.dns.slit
-.. autoclass:: PosOpeningSlit
-
-.. automodule:: nicos.dns.switcher
-.. autoclass:: Shutter
+.. autoclass:: PosOpeningSlit()
 
 .. automodule:: nicos.dns.toellner
-.. autoclass:: Toellner
-.. autoclass:: CurrentToellner
+.. autoclass:: Toellner()
+.. autoclass:: CurrentToellner()

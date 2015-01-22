@@ -1,38 +1,35 @@
 FRMII specific classes
 ----------------------
 
-.. automodule:: nicos.frm2.auth
-
-.. autoclass:: Frm2Authenticator
-
 .. automodule:: nicos.frm2.proposaldb
 
-.. autoclass:: ProposalDB
+.. autoclass:: ProposalDB()
+.. autoclass:: Authenticator()
 
 .. automodule:: nicos.frm2.experiment
 
-.. autoclass:: Experiment
-.. autoclass:: ImagingExperiment
+.. autoclass:: Experiment()
+.. autoclass:: ImagingExperiment()
 
 .. automodule:: nicos.frm2.ccr
 
-.. autoclass:: CCRControl
-.. autoclass:: CompressorSwitch
+.. autoclass:: CCRControl()
+.. autoclass:: CompressorSwitch()
 
 .. automodule:: nicos.frm2.magnet
 
-.. autoclass:: GarfieldMagnet
-.. autoclass:: MiraMagnet
+.. autoclass:: GarfieldMagnet()
+.. autoclass:: MiraMagnet()
 
 .. automodule:: nicos.frm2.newport
 
-.. autoclass:: Motor
+.. autoclass:: Motor()
 
 .. automodule:: nicos.frm2.memograph
 
-.. autoclass:: MemographValue
+.. autoclass:: MemographValue()
 
 .. automodule:: nicos.frm2.ubahn
 
-.. autoclass:: UBahn
+.. autoclass:: UBahn()
 
