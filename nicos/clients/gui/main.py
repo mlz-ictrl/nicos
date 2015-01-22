@@ -62,12 +62,20 @@ from nicos.pycompat import exec_, iteritems, listvalues, text_type
 
 from nicos.clients.gui.config import tabbed
 
+
 class MainWindow(QMainWindow, DlgUtils):
     def __init__(self, log, gui_conf):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
         loadUi(self, 'main.ui')
         self.menuTools.extraActions = []
+
+        # set app icon in multiple sizes
+        icon = QIcon()
+        icon.addFile(':/appicon')
+        icon.addFile(':/appicon-16')
+        icon.addFile(':/appicon-48')
+        self.setWindowIcon(icon)
 
         # our logger instance
         self.log = log

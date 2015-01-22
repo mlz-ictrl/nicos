@@ -12,7 +12,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../resources/nicos-gui.qrc">
-    <normaloff>:/sunny</normaloff>:/sunny</iconset>
+    <normaloff>:/appicon</normaloff>:/appicon</iconset>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
