@@ -32,8 +32,7 @@ except ImportError as e:
     _thirdparty_available = False
     _import_error = e
 # local library
-from nicos.core.device import Readable, HasOffset
-from nicos.core.params import Param, oneof, Override
+from nicos.core import Readable, HasOffset, Param, oneof, Override
 import nicos.core.status as status
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"

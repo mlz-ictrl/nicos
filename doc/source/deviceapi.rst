@@ -431,6 +431,11 @@ Special device classes
 Mixin classes
 -------------
 
+Mixin classes are contained in :mod:`nicos.core.mixins` and re-exported in
+:mod:`nicos.core`.
+
+.. module:: nicos.core.mixins
+
 ``DeviceMixinBase``
 ===================
 
@@ -459,3 +464,9 @@ Mixin classes
 ==============
 
 .. autoclass:: HasMapping()
+
+
+``HasTimeout``
+==============
+
+.. autoclass:: HasTimeout()

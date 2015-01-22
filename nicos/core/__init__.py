@@ -31,10 +31,10 @@ from nicos.core.errors import NicosError, ProgrammingError, \
     PositionError, MoveError, LimitError, CommunicationError, \
     HardwareError, TimeoutError, ComputationError, \
     CacheLockError, AccessError, CacheError, SPMError
-from nicos.core.device import Device, DeviceMixinBase, AutoDevice, \
-    Readable, Moveable, Measurable, DeviceAlias, NoDevice, \
-    HasLimits, HasOffset, HasPrecision, HasMapping, \
-    usermethod, requires
+from nicos.core.mixins import DeviceMixinBase, AutoDevice, \
+    HasLimits, HasOffset, HasPrecision, HasMapping
+from nicos.core.device import DeviceMeta, Device, Readable, Moveable, \
+    Measurable, DeviceAlias, NoDevice, usermethod, requires
 from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
     listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
     vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \

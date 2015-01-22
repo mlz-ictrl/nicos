@@ -32,8 +32,7 @@ from datetime import timedelta
 from nicos import session
 from nicos.core import Param, Override, none_or, anytype, tupleof, status, \
     NicosError, MoveError, ProgrammingError, ConfigurationError, LimitError, \
-    SIMULATION
-from nicos.core.device import Moveable, Measurable, DeviceMixinBase
+    SIMULATION, Moveable, Measurable, DeviceMixinBase
 from nicos.utils import createThread
 
 

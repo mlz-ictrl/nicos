@@ -31,7 +31,8 @@ from time import time as currenttime
 import numpy
 
 from nicos import session
-from nicos.core.device import Device, DeviceMixinBase
+from nicos.core.device import Device
+from nicos.core.mixins import DeviceMixinBase
 from nicos.core.errors import NicosError, ProgrammingError
 from nicos.core.params import Param, Attach, subdir, listof
 from nicos.pycompat import iteritems

@@ -597,7 +597,7 @@ class ControlDialog(QDialog):
         if 'nicos.core.device.Moveable' not in classes:
             self.controlGroup.setVisible(False)
         else:
-            if 'nicos.core.device.HasLimits' not in classes:
+            if 'nicos.core.mixins.HasLimits' not in classes:
                 self.limitFrame.setVisible(False)
             else:
                 self.limitMin.setText(str(params['userlimits'][0]))
@@ -615,9 +615,9 @@ class ControlDialog(QDialog):
 
             # add a menu for the "More" button
             menu = QMenu(self)
-            if 'nicos.core.device.HasLimits' in classes:
+            if 'nicos.core.mixins.HasLimits' in classes:
                 menu.addAction(self.actionSetLimits)
-            if 'nicos.core.device.HasOffset' in classes:
+            if 'nicos.core.mixins.HasOffset' in classes:
                 menu.addAction(self.actionAdjustOffset)
             if 'nicos.devices.abstract.CanReference' in classes:
                 menu.addAction(self.actionReference)
