@@ -3,62 +3,62 @@ Instrument specific devices
 
 .. automodule:: nicos.puma.attenuator
 
-.. autoclass:: Attenuator
+.. autoclass:: Attenuator()
 
 .. automodule:: nicos.puma.comb_ax_old
 
-.. autoclass:: CombAxis
+.. autoclass:: CombAxis()
 
 .. automodule:: nicos.puma.comb_ax
 
-.. autoclass:: CombAxis
+.. autoclass:: CombAxis()
 
 .. automodule:: nicos.puma.filter
 
-.. autoclass:: PumaFilter
+.. autoclass:: PumaFilter()
 
 .. automodule:: nicos.puma.focus
 
-.. autoclass:: focus_Axis
+.. autoclass:: focus_Axis()
 
 .. automodule:: nicos.puma.ipc_puma
 
-.. autoclass:: Coder
-.. autoclass:: Motor
-.. autoclass:: SlitMotor
+.. autoclass:: Coder()
+.. autoclass:: Motor()
+.. autoclass:: SlitMotor()
 
 .. automodule:: nicos.puma.maglock
 
-.. autoclass:: MagLock
+.. autoclass:: MagLock()
 
 .. automodule:: nicos.puma.mchanger
 
-.. autoclass:: Mchanger
+.. autoclass:: Mchanger()
 
 .. automodule:: nicos.puma.mtt_coder
 
-.. autoclass:: SpecialCoder
+.. autoclass:: SpecialCoder()
 
 .. automodule:: nicos.puma.mtt
 
-.. autoclass:: MTT_Axis
+.. autoclass:: MTT_Axis()
 
 .. automodule:: nicos.puma.pgfilter
 
-.. autoclass:: PGFilter
+.. autoclass:: PGFilter()
 
 .. automodule:: nicos.puma.senseswitch
 
-.. autoclass:: SenseSwitch
+.. autoclass:: SenseSwitch()
 
 .. automodule:: nicos.puma.sh_cylinder
 
-.. autoclass:: SH_Cylinder
+.. autoclass:: SH_Cylinder()
 
 .. automodule:: nicos.puma.spectro
 
-.. autoclass:: PUMA(TAS):
+.. autoclass:: PUMA()
 
 .. automodule:: nicos.puma.sr7
 
-.. autoclass:: SR7Shutter
+.. autoclass:: SR7Shutter()

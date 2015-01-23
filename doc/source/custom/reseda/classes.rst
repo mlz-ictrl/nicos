@@ -3,34 +3,34 @@ Instrument specific devices
 
 .. automodule:: nicos.reseda.current
 
-.. autoclass:: CurrentA
-.. autoclass:: CurrentU
+.. autoclass:: CurrentA()
+.. autoclass:: CurrentU()
 
 .. automodule:: nicos.reseda.frequencies
 
-.. autoclass:: Frequencies
+.. autoclass:: Frequencies()
 
 .. automodule:: nicos.reseda.powerSupply
 
-.. autoclass:: PowerSupplyU
-.. autoclass:: PowerSupplyA
+.. autoclass:: PowerSupplyU()
+.. autoclass:: PowerSupplyA()
 
 .. automodule:: nicos.reseda.scatteringVector
 
-.. autoclass:: ScatteringVector
+.. autoclass:: ScatteringVector()
 
 .. automodule:: nicos.reseda.selector
 
-.. autoclass:: Selector
-.. autoclass:: Wavelength
+.. autoclass:: Selector()
+.. autoclass:: Wavelength()
 
 .. automodule:: nicos.reseda.tau
 
-.. autoclass:: tauTwoarms
-.. autoclass:: tauMieze
+.. autoclass:: tauTwoarms()
+.. autoclass:: tauMieze()
 
 .. automodule:: nicos.reseda.temperature
-.. autoclass:: TemperatureA
-.. autoclass:: TemperatureB
-.. autoclass:: TemperatureC
-.. autoclass:: TemperatureD
+.. autoclass:: TemperatureA()
+.. autoclass:: TemperatureB()
+.. autoclass:: TemperatureC()
+.. autoclass:: TemperatureD()
