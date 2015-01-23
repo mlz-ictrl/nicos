@@ -12,8 +12,37 @@ Release 2.7.0
 
 * Device classes
 
+  - The Slit class has a new opmode "4blades_opposite", for when the user wants
+    to control each blade individually, with mirrored coordinate systems for
+    opposing blades.
+
   - The "GraceSink" for liveplotting with the external Grace program has been
     removed.
+
+  - Some device classes have been renamed to remove redundancies in the module
+    and class names.
+
+* GUI
+
+  - On switching to a new user experiment, the GUI windows now clear information
+    still stored/displayed from the old experiment.
+
+  - Advanced dataset manipulation (adding, subtracting and dividing datasets)
+    now has more sane behavior with respect to normalization and errorbars.
+
+  - Fit results are now shown with errors for the fit parameters.
+
+  - Non-user parameters are shown in the "Devices" panel when expert mode is
+    active.
+
+* Services
+
+  - The watchdog now can be given preconditions for each warning condition.  To
+    emit such a warning, the precondition must be fulfilled for a specified
+    time.
+
+  - The init script now checks extensively for existing NICOS processes that
+    should not be running, and notifies the user about potential problems.
 
 
 Release 2.6.0
@@ -32,7 +61,7 @@ Release 2.6.0
   - "CreateAllDevices()" now has a flag that allows all lowlevel devices to be
     exported into the NICOS namespace.
 
-  - Common tomography commands for imaging instruments
+  - Common tomography commands for imaging instruments.
 
 * Device classes
 
@@ -64,10 +93,10 @@ Release 2.6.0
 
   - Monitor display widgets can now use a "light background" color scheme.
 
-  - rename TrendPlot "plotinterval" to "plotwindow" to be consistent between
+  - Rename TrendPlot "plotinterval" to "plotwindow" to be consistent between
     history plot and trend plot
 
-  - daemon: be paranoid about running as root
+  - Daemon: be paranoid about running as root.
 
 
 * Services
@@ -80,7 +109,8 @@ Release 2.6.0
   - The init script "nicos-system" is now more careful about really stopping
     services and complaining if they can't be stopped.
 
-  - Watchdog: allow multiple values/devices in conditions
+  - Watchdog: allow multiple values/devices in conditions.
+
 
 Release 2.5.0
 -------------
