@@ -120,8 +120,9 @@ def test_scan2():
     mm = session.getDevice('manual')
     mm.move(0)
 
-    def _stopctr():
-        ctr.stop()
+    # when counting only on the counter device, it has to be set as
+    # the master channel once
+    ctr.ismaster = True
 
     session.experiment.setDetectors([session.getDevice('det')])
 
@@ -129,19 +130,13 @@ def test_scan2():
         session.experiment.setEnvironment([])
 
         # scan with different detectors
-        Timer(0.1, _stopctr).start()
-        Timer(0.2, _stopctr).start()
-        scan(m, [0, 1], ctr)
+        scan(m, [0, 1], ctr, m=1)
         dataset = session.experiment._last_datasets[-1]
         assert dataset.xresults == [[0.], [1.]]
         assert len(dataset.yresults) == 2 and len(dataset.yresults[0]) == 1
         assert dataset.ynames == ['ctr4']
 
         # scan with multistep
-        Timer(0.1, _stopctr).start()
-        Timer(0.2, _stopctr).start()
-        Timer(0.3, _stopctr).start()
-        Timer(0.4, _stopctr).start()
         scan(m, [0, 1], ctr, manual=[3, 4])
         dataset = session.experiment._last_datasets[-1]
         assert dataset.xresults == [[0.], [1.]]
@@ -288,9 +283,6 @@ def test_manualscan():
     mm = session.getDevice('manual')
     mm.move(0)
 
-    def _stopctr():
-        ctr.stop()
-
     # normal
     with manualscan(mot):
         for i in range(3):
@@ -299,9 +291,9 @@ def test_manualscan():
             count()
         assert raises(NicosError, manualscan)
 
-    # with multistep
+    # with multistep; also test random stopping of the detector
     for i in range(1, 7):
-        Timer(0.5 * i, _stopctr).start()
+        Timer(0.5 * i, ctr.stop).start()
     with manualscan(mot, c, ctr, 'manscan', manual=[0, 1]):
         for i in range(3):
             mot.move(i)
