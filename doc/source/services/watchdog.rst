@@ -88,10 +88,10 @@ It is a list of dictionaries, each of which specifies one condition.  The
 specification can have these keys:
 
 **condition**
-   The condition to check.  It typically includes a device
-   value, specified as a lowercased cache key with '/' replaced by '_' (so
-   ``t_value`` is the value of device ``T``, ``t_setpoint`` is the value of
-   the parameter ``T.setpoint`` and so on).  Multiple
+   The condition to check.  It typically includes a device value, specified as a
+   lowercased cache key with '/' replaced by '_' (so ``t_value`` is the value of
+   device ``T``, ``t_setpoint`` is the value of the parameter ``T.setpoint`` and
+   so on).
 
    The condition uses Python syntax, so you can use comparison operators (``>``,
    ``>=``, ``==``, ``!=``, ``<=``, ``<``), mathematical operators like ``+``,
@@ -99,6 +99,12 @@ specification can have these keys:
    complex condition might look like this::
 
      condition = '(ana_value > 1.58 and befilter == "ana") or (mono_value > 1.58 and befilter == "mono")'
+
+   To check for device status, remember that the status parameter is a tuple of
+   a status code and a string.  The status codes can be used with their symbolic
+   names::
+
+     condition = '(ana_status[0] == OK) and ("limit switch" not in ana_status[1])'
 
 **setup**
    If present, the name of a setup that must be loaded in the NICOS master for
@@ -111,7 +117,8 @@ specification can have these keys:
 
 **precondition**
    If present, this condition must be fullfiled for at least ``precondtime``,
-   before condition will trigger. Default is no precondition.
+   before condition will trigger.  The default is no precondition.  The syntax
+   is the same as for ``condition``.
 
 **precondtime**
    The time a precondition must be fulfilled. Default is 5 seconds.
