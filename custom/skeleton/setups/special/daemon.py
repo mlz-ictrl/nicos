@@ -24,12 +24,9 @@ devices = dict(
     Auth   = device('services.daemon.auth.ListAuthenticator',
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
-                    passwd = [('guest', '9bc2f07a6940933e7c1fd2447c5c07ba',
-                               'guest'),
-                              ('user', 'd3bde5ce3e546626df42771c58986d4e',
-                               'user'),
-                              ('admin', 'f3309476bdb36550aa8fb90ae748c9cc',
-                               'admin'),
+                    passwd = [('guest', '9bc2f07a6940933e7c1fd2447c5c07ba', 'guest'),
+                              ('user', 'd3bde5ce3e546626df42771c58986d4e', 'user'),
+                              ('admin', 'f3309476bdb36550aa8fb90ae748c9cc', 'admin'),
                              ],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
@@ -42,7 +39,7 @@ devices = dict(
                     # address the daemon service will be bound the the
                     # corresponding network interface.
                     server = 'localhost',
-                    authenticators = ['Auth'], # or ['Auth', 'UserDB']
+                    authenticators = ['Auth',], # and/or 'UserDB'
                     loglevel = 'info',
                    ),
 )

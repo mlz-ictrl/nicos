@@ -25,8 +25,6 @@
 description = 'setup for the execution daemon'
 group = 'special'
 
-import hashlib
-
 devices = dict(
     UserDB = device('frm2.proposaldb.Authenticator'),
     Auth   = device('services.daemon.auth.ListAuthenticator',
@@ -34,13 +32,13 @@ devices = dict(
                     # first entry is the user name, second the hashed password, third the user level
                     passwd = [
                               ('guest', '', 'guest'),
-                              ('user', hashlib.md5(b'user').hexdigest(), 'user'),
-                              ('admin', hashlib.md5(b'1!admin1!').hexdigest(), 'admin'),
-                              ('andreas', hashlib.md5(b'wilhelm').hexdigest(), 'admin'),
-                              ('ralph', hashlib.md5(b'gilles').hexdigest(), 'admin'),
-                              ('andre', hashlib.md5(b'heinemann').hexdigest(), 'admin'),
-                              ('sebastian', hashlib.md5(b'muehlbauer').hexdigest(), 'admin'),
-                              ],
+                              ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
+                              ('admin', 'ec326b6858b88a51ff1605197d664add', 'admin'),
+                              ('andreas', 'da5121879fff54b08b69ec54d9ac2bf6', 'admin'),
+                              ('ralph', 'e543fdb4737f66b96e764d7303a15ae8', 'admin'),
+                              ('andre', '1b2bc04a135d959e8da04733e24195da', 'admin'),
+                              ('sebastian', '6c79a7389f572813edfe5fc873e099ce', 'admin'),
+                             ],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     server = 'sans1ctrl.sans1.frm2',

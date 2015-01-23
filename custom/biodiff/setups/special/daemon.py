@@ -3,8 +3,6 @@
 description = 'setup for the execution daemon'
 group = 'special'
 
-import hashlib
-
 devices = dict(
     # to authenticate against the UserOffice, needs the "propdb" parameter
     # set on the Experiment object
@@ -16,8 +14,9 @@ devices = dict(
     Auth   = device('services.daemon.auth.ListAuthenticator',
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),
-                              ('user', hashlib.md5(b'user').hexdigest(), 'user'),
-                              ('admin', hashlib.md5(b'admin').hexdigest(), 'admin')],
+                              ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
+                              ('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin'),
+                             ],
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     server = '',
