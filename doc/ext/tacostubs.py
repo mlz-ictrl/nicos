@@ -67,6 +67,7 @@ STUBS = dict(
     Modbus = ['class Modbus'],
     ProfibusDP = ['class IO'],
     Detector = ['class Detector'],
+    SIS3400 = ['class Timer', 'class MonitorCounter', 'class HistogramCounter'],
 )
 
 

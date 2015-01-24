@@ -14,3 +14,4 @@ use.
    elog
    watchdog
    monitor
+   history
