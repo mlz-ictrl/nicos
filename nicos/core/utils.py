@@ -118,7 +118,7 @@ def waitForStatus(device, delay=0.3, timeout=None,
     `status.BUSY`.
     """
     if hasattr(device, '_started'):
-        started = device.getattr(device, '_started')
+        started = device._started
         if timeout is None and 'timeout' in device.parameters:
             try:
                 timeout = float(device.timeout)
