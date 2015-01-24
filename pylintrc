@@ -23,6 +23,9 @@ persistent=yes
 # usually to register additional checkers.
 load-plugins=
 
+# For some reason, Pylint cannot check members of these modules.
+extension-pkg-whitelist = numpy,scipy,PyQt4.QtCore,PyQt4.QtGui,PyQt4.QtWebKit,PyQt4.QtDesigner,PyQt4.Qsci,PyQt4.Qwt5,nicospyctl.pyctl
+
 
 [MESSAGES CONTROL]
 

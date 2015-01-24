@@ -72,7 +72,7 @@ test-coverage:
 	exit $$RESULT
 
 lint:
-	-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ $(shell find custom/ -name \*.py)
+	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ $(shell find custom/ -name \*.py)
 
 jenkinslintall: CUSTOMPYFILES = $(shell find custom/ -name \*.py)
 jenkinslintall:
