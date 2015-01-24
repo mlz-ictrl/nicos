@@ -306,7 +306,7 @@ def test_specialscans():
     ctr = session.getDevice('ctr4')
     # force master to enable quick count
     ctr.ismaster = True
-    checkoffset(m, 10, 0.05, 2, ctr)
+    checkoffset(m, 10, 0.05, 3, ctr)
 
     tas = session.getDevice('Tas')
     tas.scanmode = 'CKI'

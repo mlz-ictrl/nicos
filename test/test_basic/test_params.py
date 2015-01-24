@@ -92,12 +92,6 @@ def test_tacodev():
 
 
 def test_tangodev():
-    def td_assert(testname, name):
-        assert tangodev(name) == name
-
-    def td_raises(testname, name):
-        assert raises(ValueError, tangodev, name)
-
     valid_names = [
         'tango://host:123/test/custom/device',
         'tango://test/custom/dev',
@@ -116,13 +110,10 @@ def test_tangodev():
     }
     assert tangodev() == ''
     for validname in valid_names:
-        # assert tangodev(validname) == validname
-        yield td_assert, 'valid tango name', validname
+        assert tangodev(validname) == validname
 
     for key, invalidname in invalid_names.iteritems():
-        # assert raises(ValueError, tangodev, invalidname)
-        # yield td_raises(invalidname)
-        yield td_raises, key, invalidname
+        assert raises(ValueError, tangodev, invalidname), key
 
 
 def test_anytype():

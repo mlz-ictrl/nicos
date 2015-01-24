@@ -56,6 +56,7 @@ devices = dict(
                       initval = 0,
                       speed = 0,
                       jitter = 0.01,
+                      precision = 0.02,
                       unit = 'deg',
                      ),
 
@@ -64,6 +65,7 @@ devices = dict(
                       initval = 0,
                       speed = 0,
                       jitter = 0.01,
+                      precision = 0.02,
                       unit = 'deg',
                      ),
 
@@ -147,4 +149,11 @@ devices = dict(
                       alpha = 't_alpha',
                       instrument = 'Tas',
                      ),
+
+    card    = device('devices.generic.VirtualCounterCard'),
+
+    det     = device('devices.generic.VirtualCounter',
+                     card = 'card',
+                     type = 'counter',
+                     ismaster = True),
 )

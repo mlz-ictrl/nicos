@@ -307,7 +307,7 @@ def adjustPYTHONPATH():
 
 def startCache(setup='cache', wait=5):
     global cache  # pylint: disable=W0603,W0601
-    sys.stderr.write(' [cache start... ')
+    sys.stderr.write('\n [cache start... ')
 
     # start the cache server
     adjustPYTHONPATH()
@@ -325,7 +325,7 @@ def startCache(setup='cache', wait=5):
                 break
         else:
             raise Exception('cache failed to start within %s sec' % wait)
-    sys.stderr.write('%s ok] \n' % cache.pid)
+    sys.stderr.write('%s ok]' % cache.pid)
     return cache
 
 
@@ -334,7 +334,7 @@ def killCache(cache):
     if cache.poll() is None:
         cache.terminate()
         cache.wait()
-    sys.stderr.write('ok] \n')
+    sys.stderr.write('ok]\n')
 
 
 def hasGnuplot():

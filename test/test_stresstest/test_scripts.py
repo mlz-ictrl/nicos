@@ -91,6 +91,8 @@ def test_raise_simple():
 
 
 def test_scripts():
+    def raises(*args):
+        assert_raises(*args)
     # test generator executing scripts
     testscriptspath = path.normpath(
         path.join(path.dirname(__file__), '..', 'scripts'))
@@ -105,6 +107,10 @@ def test_scripts():
         m = matcher.match(fn)
         if m:
             etype = eval(m.group(1))
-            yield assert_raises, etype, run_script_session, setup, code
+            raises.description = '%s.test_scripts:%s' % \
+                (test_scripts.__module__, path.basename(fn))
+            yield raises, etype, run_script_session, setup, code
         else:
+            run_script_session.description = '%s.test_scripts:%s' % \
+                (test_scripts.__module__, path.basename(fn))
             yield run_script_session, setup, code

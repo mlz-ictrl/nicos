@@ -91,4 +91,6 @@ def restartServerCacheTest(name, setup):
 def test_different_dbs():
     for setup in ['cache', 'cache_mem', 'cache_mem_hist']:
         for func in [basicCacheTest, restartServerCacheTest]:
+            func.description = '%s.%s:%s' % \
+                (func.__module__, func.__name__, setup)
             yield func, func.__name__, setup

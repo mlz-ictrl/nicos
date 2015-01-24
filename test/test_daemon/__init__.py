@@ -33,7 +33,7 @@ import subprocess
 from os import path
 
 from test.utils import TestSession, cleanup, rootdir, startCache, killCache, \
-     adjustPYTHONPATH
+    adjustPYTHONPATH
 from nicos.protocols.daemon import ENQ, LENGTH, serialize, command2code
 from nicos import session
 from nicos.utils import tcpSocket
@@ -44,11 +44,12 @@ daemon = None
 
 def setup_package():
     global cache, daemon  # pylint: disable=W0603
-    print('\nSetting up daemon test, cleaning old test dir...', file=sys.stderr)
+    sys.stderr.write('\nSetting up daemon test, cleaning old test dir...')
     session.__class__ = TestSession
     session.__init__('testdaemon')
     cleanup()
     cache = startCache()
+    sys.stderr.write('\n')
     adjustPYTHONPATH()
 
     daemon = subprocess.Popen([sys.executable,
@@ -72,14 +73,14 @@ def setup_package():
             break
     else:
         raise Exception('daemon failed to start within %s sec' % wait)
-    sys.stderr.write(' [daemon start... %s] ' % daemon.pid)
+    sys.stderr.write(' [daemon start... %s ok]\n' % daemon.pid)
 
 
 def teardown_package():
-    sys.stderr.write(' [daemon kill %s...' % daemon.pid)
+    sys.stderr.write('\n [daemon kill %s...' % daemon.pid)
     os.kill(daemon.pid, signal.SIGTERM)
     if os.name == 'posix':
         os.waitpid(daemon.pid, 0)
-    sys.stderr.write(' done] ')
+    sys.stderr.write(' ok]\n')
     session.shutdown()
     killCache(cache)

@@ -130,7 +130,7 @@ def test_encoding():
     client.tell('queue', 'Meßzeit.py', '''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
-scan(t_psi, t_psi(), 0.1, 1, "Meßzeit 1000s, d = 5 Å")
+scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å")
 ''')
 
     # wait until command is done

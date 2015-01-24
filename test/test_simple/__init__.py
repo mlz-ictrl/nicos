@@ -34,13 +34,15 @@ cache = None
 
 def setup_package():
     global cache  # pylint: disable=W0603
-    print('\nSetting up simple test, cleaning old test dir...', file=sys.stderr)
+    sys.stderr.write('\nSetting up simple test, cleaning old test dir...')
     session.__class__ = TestSession
     session.__init__('test_simple')
     cleanup()
     cache = startCache()
+    sys.stderr.write('\n')
 
 
 def teardown_package():
     session.shutdown()
+    sys.stderr.write('\n')
     killCache(cache)
