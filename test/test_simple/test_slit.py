@@ -28,12 +28,14 @@ from __future__ import print_function
 from nicos import session
 from nicos.core import status, LimitError, InvalidValueError
 from nicos.core.sessions.utils import MASTER
+from nicos.devices.generic.slit import Slit
 from test.utils import raises
 
 
 def setup_module():
     session.loadSetup('slit')
     session.setMode(MASTER)
+    Slit._delay = 0.01
 
 
 def teardown_module():

@@ -82,7 +82,7 @@ def test_basic_commands():
     d = dir()
     assert 'd' in d
 
-    sleep(0.1)
+    sleep(0.02)
 
     ListSetups()
     NewSetup('axis')

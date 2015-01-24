@@ -54,10 +54,6 @@ def test_lockeddevice():
 
 
 def test_sequence_items():
-    # Check SeqenceItems by instantiating and checking
-    sm1 = session.getDevice('sm1')
-    sm2 = session.getDevice('sm2')
-
     # parameter checking
     assert raises(TypeError, SeqDev)
     assert raises(TypeError, SeqParam)
@@ -66,7 +62,10 @@ def test_sequence_items():
     assert raises(TypeError, SeqSleep)
     SeqNOP()
 
+
+def test_seqdev():
     # Device move
+    sm1 = session.getDevice('sm1')
     sd = SeqDev(sm1, 3)
     assert repr(sd) == 'maw(sm1, 3)'
     sm1.start(0)
@@ -79,7 +78,10 @@ def test_sequence_items():
         pass
     assert sm1.read(0) == 3
 
+
+def test_seqparam():
     # Param setting
+    sm2 = session.getDevice('sm2')
     sp = SeqParam(sm2, 'speed', 1)
     assert 'sm2.speed' in repr(sp)
     assert '=' in repr(sp)
@@ -93,7 +95,10 @@ def test_sequence_items():
         pass
     assert sm2.speed == 1
 
+
+def test_seqmethod():
     # method calling, use fix/relase here
+    sm1 = session.getDevice('sm1')
     sm = SeqMethod(sm1, 'fix', 'blubb')
     assert repr(sm) == "sm1.fix('blubb')"
 
@@ -107,8 +112,10 @@ def test_sequence_items():
 
     sm1.release()
 
+
+def test_seqsleep():
     # Sleeping??
-    sw = SeqSleep(1)
+    sw = SeqSleep(0.1)
     assert repr(sw).startswith('wait')
     a = time.time()
     sw.check()
@@ -117,8 +124,10 @@ def test_sequence_items():
         pass
     b = time.time()
 
-    assert 0.9 <= b - a <= 1.1
+    assert 0.05 <= b - a <= 0.15
 
+
+def test_seqcall():
     # Calling
     sc = SeqCall(time.sleep, 0.1)
     assert repr(sc).startswith('sleep(0.1')
@@ -129,6 +138,8 @@ def test_sequence_items():
     b = time.time()
     assert 0.09 <= b - a <= 0.13
 
+
+def test_seqnop():
     # NOP
     sn = SeqNOP()
     sn.check()

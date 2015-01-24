@@ -70,14 +70,14 @@ def test_sinks():
     handler = CHandler()
     session.addLogHandler(handler)
     try:
-        scan(m, 0, 1, 5, det, t=0.1)
+        scan(m, 0, 1, 5, det, t=0.005)
     finally:
         session.log.removeHandler(handler)
         session._log_handlers.remove(handler)
 
     assert '=' * 100 in handler.messages
     assert_response(handler.messages,
-                    matches=r'Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.1.*\)')
+                    matches=r'Starting scan:      scan\(motor2, 0, 1, 5, det, t=0\.00[45].*\)')
 
     fname = path.join(session.experiment.dataroot, 'scancounter')
     assert path.isfile(fname)

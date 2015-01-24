@@ -135,7 +135,7 @@ class BaseCacheClient(Device):
         self._disconnect_action()
 
     def _wait_retry(self):
-        sleep(1)
+        sleep(self._long_loop_delay)
 
     def _wait_data(self):
         pass
@@ -365,7 +365,7 @@ class BaseCacheClient(Device):
 
     def wait(self):
         while not self._stoprequest:
-            sleep(1)
+            sleep(self._long_loop_delay)
         self._worker.join()
 
     def flush(self):

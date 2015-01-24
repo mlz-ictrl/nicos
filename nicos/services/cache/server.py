@@ -429,7 +429,7 @@ class CacheServer(Device):
 
     def wait(self):
         while not self._stoprequest:
-            sleep(1)
+            sleep(self._long_loop_delay)
         self._worker.join()
 
     def quit(self):

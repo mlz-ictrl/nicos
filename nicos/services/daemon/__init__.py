@@ -239,11 +239,12 @@ class NicosDaemon(Device):
                       (nicos_version, self.server))
         # startup the script thread
         self._controller.start_script_thread()
-        self._worker = createThread('daemon server', self._server.serve_forever)
+        self._worker = createThread('daemon server', self._server.serve_forever,
+                                    kwargs={'poll_interval': self._long_loop_delay})
 
     def wait(self):
         while not self._stoprequest:
-            time.sleep(0.5)
+            time.sleep(self._long_loop_delay)
         self._worker.join()
 
     def quit(self):

@@ -29,6 +29,10 @@ from __future__ import print_function
 import os
 import sys
 
+from nicos.core.device import Device
+Device._base_loop_delay = 0.002
+Device._long_loop_delay = 0.02
+
 from test.utils import cleanup
 
 

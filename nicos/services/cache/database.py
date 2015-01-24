@@ -625,7 +625,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                                 fd.write('%s\t%s\t-\t-\n' % (subkey, time))
                                 fd.flush()
         while not self._stoprequest:
-            sleep(0.5)
+            sleep(self._long_loop_delay)
             cleanonce()
 
     def tell(self, key, value, time, ttl, from_client, fdupdate=True):

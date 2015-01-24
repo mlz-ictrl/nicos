@@ -83,7 +83,7 @@ def test_movement():
     # now move for a while
     axis.maw(0)
     motor = session.getDevice('motor')
-    motor.speed = 0.5
+    motor.speed = 5
     try:
         axis.move(0.5)
         axis.wait()

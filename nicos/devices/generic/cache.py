@@ -156,12 +156,12 @@ class CacheWriter(HasLimits, CacheReader, Moveable):
                                    '[target-tolerance/2, target+tolerance/2]')
 
             self.log.debug('Still busy, %ds of %ds left, status is %r' % (
-                    timesout-currenttime(), self.timeout, mystat[1]))
+                timesout-currenttime(), self.timeout, mystat[1]))
 
             if currenttime() > timesout:
                 raise TimeoutError(self, 'timeout waiting for Status!')
 
-            sleep( self.loopdelay )
+            sleep(self.loopdelay)
             mystat = self.status(0)
 
         return self.read(0)

@@ -59,7 +59,7 @@ def setup_package():
         try:
             s = tcpSocket('localhost', 14874)
         except socket.error:
-            time.sleep(0.2)
+            time.sleep(0.02)
         else:
             auth = serialize(({'login': 'guest', 'passwd': '', 'display': ''},))
             s.send((b'\x42' * 16) +  # ident
@@ -67,7 +67,7 @@ def setup_package():
                    LENGTH.pack(len(auth)) + auth)
             empty = serialize(())
             s.send(ENQ + command2code['quit'] + LENGTH.pack(len(empty)) + empty)
-            time.sleep(0.1)
+            time.sleep(0.02)
             s.close()
             break
     else:

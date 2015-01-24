@@ -109,7 +109,7 @@ class VirtualMotor(Motor, HasOffset):
                 if self._stop:
                     self.log.debug('thread stopped')
                     return
-                time.sleep(0.2)
+                time.sleep(self._base_loop_delay)
                 self.log.debug('thread moving to %s' % value)
                 self.curvalue = value
                 if value == pos:
@@ -183,6 +183,7 @@ class VirtualChannel(Channel):
         'card': Attach('virtual card', VirtualCounterCard,),
     }
 
+    _delay = 0.1
     _thread = None
 
     def doInit(self, mode):
@@ -239,8 +240,8 @@ class VirtualTimer(VirtualChannel):
                 self.curvalue = self.preselection
                 self._do_stop()
                 break
-            time.sleep(0.1)
-            self.curvalue += 0.1
+            time.sleep(self._base_loop_delay)
+            self.curvalue += self._base_loop_delay
 
     def doSimulate(self, preset):
         if self.ismaster:
@@ -295,8 +296,9 @@ class VirtualCounter(VirtualChannel):
                 self.curvalue = self.preselection
                 self._do_stop()
                 break
-            time.sleep(0.1)
-            self.curvalue += int(random.randint(int(rate * 0.9), rate) / 10)
+            time.sleep(self._base_loop_delay)
+            self.curvalue += int(random.randint(int(rate * 0.9), rate) *
+                                 self._base_loop_delay)
 
     def doSimulate(self, preset):
         if self.ismaster:
@@ -312,6 +314,7 @@ class VirtualCounter(VirtualChannel):
 
     def presetInfo(self):
         return ('m',)
+
 
 class VirtualTemperature(VirtualMotor):
     """A virtual temperature regulation device."""
@@ -337,7 +340,7 @@ class VirtualTemperature(VirtualMotor):
         while self.curstatus[0] == status.BUSY:
             if abs(self.read(0) - self.setpoint) < self.tolerance:
                 break
-            time.sleep(0.1)
+            time.sleep(self._base_loop_delay)
         # wait returns earlier than status is idle. This violates NICOS philosophy!
         self.curstatus = (status.OK, 'idle')
 

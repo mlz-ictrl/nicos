@@ -138,9 +138,9 @@ def test_tas_device():
 
     # test sub-devices and wavevector devices
     kf(2.662)
-    tas([1, 0, 0, 1])
-    assertAlmostEqual(ki(), 3.014, 3)
-    assertAlmostEqual(kf(), 2.662, 3)
+    tas.maw([1, 0, 0, 1])
+    assertAlmostEqual(ki.read(0), 3.014, 3)
+    assertAlmostEqual(kf.read(0), 2.662, 3)
     assertAlmostEqual(tas.h(), 1, 3)
     assertAlmostEqual(tas.k(), 0, 3)
     assertAlmostEqual(tas.l(), 0, 3)
@@ -168,10 +168,10 @@ def test_Q_object():
 
 def test_qscan():
     mot = session.getDevice('motor2')
-    qscan((1, 0, 0), Q(0, 0, 0, 0.1), 10, mot, 'scaninfo', t=1)
-    qscan((0, 0, 0), (0, 0, 0), 10, 2.5, t_kf=2.662, manual=1,
+    qscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, mot, 'scaninfo', t=1)
+    qscan((0, 0, 0), (0, 0, 0), 5, 2.5, t_kf=2.662, manual=1,
           h=1, k=1, l=1, e=0, dH=0, dk=0, dl=0, dE=.1)
-    qcscan((1, 0, 0), Q(0, 0, 0, 0.1), 5, manual=[1, 2])
+    qcscan((1, 0, 0), Q(0, 0, 0, 0.1), 3, manual=[1, 2])
     qscan((1, 0, 0), Q(0, 0, 0, 0), 1)
 
     assert raises(UsageError, qscan, 1, 1, 1)

@@ -319,7 +319,7 @@ def startCache(setup='cache', wait=5):
             try:
                 s = tcpSocket('localhost', 14877)
             except socket.error:
-                time.sleep(0.2)
+                time.sleep(0.02)
             else:
                 s.close()
                 break

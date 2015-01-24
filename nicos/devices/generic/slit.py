@@ -95,6 +95,8 @@ class Slit(CanReference, Moveable):
 
     hardware_access = False
 
+    _delay = 0.25  # delay between starting to move opposite blades
+
     def doInit(self, mode):
         self._axes = [self._adevs['left'], self._adevs['right'],
                       self._adevs['bottom'], self._adevs['top']]
@@ -177,12 +179,12 @@ class Slit(CanReference, Moveable):
         if tr < cr and tl < cl:
             # both move to smaller values, need to start right blade first
             al.move(tl * f)
-            sleep(0.25)
+            sleep(self._delay)
             ar.move(tr)
         elif tr > cr and tl > cl:
             # both move to larger values, need to start left blade first
             ar.move(tr)
-            sleep(0.25)
+            sleep(self._delay)
             al.move(tl * f)
         else:
             # don't care
@@ -190,11 +192,11 @@ class Slit(CanReference, Moveable):
             al.move(tl * f)
         if tb < cb and tt < ct:
             ab.move(tb * f)
-            sleep(0.25)
+            sleep(self._delay)
             at.move(tt)
         elif tb > cb and tt > ct:
             at.move(tt)
-            sleep(0.25)
+            sleep(self._delay)
             ab.move(tb * f)
         else:
             at.move(tt)

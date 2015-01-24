@@ -45,6 +45,7 @@ devices = dict(
                       abslimits=(0, 311),
                       maxage=0.1,
                       unit='',
-                      loglevel='debug'
+                      loglevel='debug',
+                      loopdelay=0.05,
                      ),
 )

@@ -306,6 +306,10 @@ class Device(object):
     methods = {}
     class_attributes = {}
 
+    # Loop delay defaults.  To be set to low values in the test suite.
+    _base_loop_delay = 0.1
+    _long_loop_delay = 0.5
+
     def __init__(self, name, **config):
         # register self in device registry
         if not self.temporary:
@@ -783,7 +787,7 @@ class Device(object):
             except CacheLockError:
                 if currenttime() > start + timeout:
                     raise CommunicationError(self, 'device locked in cache')
-                sleep(0.3)
+                sleep(self._base_loop_delay * 3)
             else:
                 break
 
@@ -1638,7 +1642,7 @@ class Measurable(Readable):
         This is implemented by calling :meth:`isCompleted` in a loop.
         """
         while not self.isCompleted():
-            sleep(0.1)
+            sleep(self._base_loop_delay)
 
     @usermethod
     def read(self, maxage=None):

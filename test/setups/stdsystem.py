@@ -61,6 +61,7 @@ devices = dict(
                       initval = 0,
                       speed = 0,
                       jitter = 0.01,
+                      precision = 0.02,
                       unit = 'deg',
                      ),
 
@@ -69,6 +70,7 @@ devices = dict(
                       initval = 0,
                       speed = 0,
                       jitter = 0.01,
+                      precision = 0.02,
                       unit = 'deg',
                      ),
 
@@ -151,5 +153,6 @@ devices = dict(
                       ana = 't_ana',
                       alpha = 't_alpha',
                       instrument = 'Tas',
+                      countloopdelay = 0.002,
                      ),
 )

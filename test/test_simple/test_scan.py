@@ -70,11 +70,8 @@ def test_scan():
     session.experiment.setEnvironment([avg(mm), minmax(mm)])
 
     try:
-        # avoid strange timing bug, yielding 0 for manual:min on my system! EF
-        import time
-        time.sleep(0.1)  # now we spill CacheLock Errors on certain tests... ?!?!?
         # plain scan, with some extras: infostring, firstmove
-        scan(m, 0, 1, 5, 0., 'test scan', manual=1)
+        scan(m, 0, 1, 5, 0.005, 'test scan', manual=1)
         dataset = session.experiment._last_datasets[-1]
         assert dataset.xnames == ['motor', 'manual:avg', 'manual:min', 'manual:max']
         assert dataset.xunits == ['mm'] * 4
@@ -262,10 +259,11 @@ def test_contscan():
     ContinuousScan.DELTA = 0.1
     session.experiment.detlist = [session.getDevice('det')]
     try:
-        contscan(m, 0, 2, 2)
+        contscan(m, 0, 2, 10)
     finally:
         ContinuousScan.DELTA = 1.0
         session.experiment.detlist = []
+    assert m.speed == 0  # reset to old value
     dataset = session.experiment._last_datasets[-1]
     assert dataset.xresults
     assert all(0 <= res[0] <= 2 for res in dataset.xresults)
@@ -286,18 +284,16 @@ def test_manualscan():
     # normal
     with manualscan(mot):
         for i in range(3):
-            mot.move(i)
-            mot.wait()
+            mot.maw(i)
             count()
         assert raises(NicosError, manualscan)
 
     # with multistep; also test random stopping of the detector
     for i in range(1, 7):
-        Timer(0.5 * i, ctr.stop).start()
+        Timer(0.05 * i, ctr.stop).start()
     with manualscan(mot, c, ctr, 'manscan', manual=[0, 1]):
         for i in range(3):
-            mot.move(i)
-            mot.wait()
+            mot.maw(i)
             count()
     dataset = session.experiment._last_datasets[-1]
     assert dataset.scaninfo.startswith('manscan')

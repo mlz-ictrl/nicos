@@ -45,7 +45,7 @@ devices = dict(
                   obs = [],
                   precision = 0,
                   userlimits = (-50, 50),
-                  loopdelay = 0.05,
+                  loopdelay = 0.02,
                   loglevel = 'debug',
                  ),
 
@@ -64,7 +64,7 @@ devices = dict(
                            backlash = 0.5,
                            precision = 0,
                            userlimits = (-50, 50),
-                           loopdelay = 0.05,
+                           loopdelay = 0.02,
                           ),
 
     coder2 = device('nicos.devices.generic.VirtualCoder',
@@ -79,6 +79,6 @@ devices = dict(
                       backlash = 0.5,
                       precision = 0,
                       userlimits = (-50, 50),
-                      loopdelay = 0.05,
+                      loopdelay = 0.02,
                      ),
 )
