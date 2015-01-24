@@ -30,7 +30,7 @@ from time import time
 from IO import StringIO
 
 from nicos.core import intrange, Measurable, Param, Value, CommunicationError, \
-     ConfigurationError, NicosError
+    ConfigurationError, NicosError
 from nicos.devices.taco.core import TacoDevice
 from nicos.core import SIMULATION
 
@@ -38,7 +38,7 @@ from nicos.core import SIMULATION
 TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])
 
 
-class Amplifier(Measurable, TacoDevice):
+class Amplifier(TacoDevice, Measurable):
     """
     Stanford Research SR850 lock-in amplifier.
     """

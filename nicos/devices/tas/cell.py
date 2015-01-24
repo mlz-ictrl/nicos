@@ -596,7 +596,7 @@ class CellBase(object):
     hkl2angle = cal_angles
 
 
-class Cell(Device, CellBase):
+class Cell(CellBase, Device):
     """Cell object representing sample geometry."""
 
     parameters = {

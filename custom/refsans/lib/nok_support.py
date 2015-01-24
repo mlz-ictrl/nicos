@@ -29,7 +29,7 @@ import time
 
 
 from nicos.core import status, Readable, Moveable, ConfigurationError, \
-     HasPrecision, MoveError, Device, status
+     HasPrecision, MoveError, DeviceMixinBase, status
 from nicos.core.errors import ConfigurationError, HardwareError
 from nicos.core.params import Param, Attach, Override, tupleof, \
      nonemptylistof, floatrange, intrange, limits, none_or
@@ -53,7 +53,7 @@ from nicos.devices.taco import AnalogInput
 #
 #
 
-class PseudoNOK(Device):
+class PseudoNOK(DeviceMixinBase):
     """Placeholder device, doing nothing, but storing some locational data"""
     parameters = {
         'nok_start'  : Param('Start of the  NOK (ab NLE2b)', type=float, default=0,
@@ -176,7 +176,7 @@ class NOKPosition(Coder):
 
 
 # heavily based upon old nicm_nok.py, backlash is handled by an axis nowadays
-class NOKMotorIPC(IPCMotor, CanReference):
+class NOKMotorIPC(CanReference, IPCMotor):
     """Basically a IPCMotor with referencing."""
     parameters = {
         'refpos' : Param('reference position in phys. units', unit='main',
@@ -239,7 +239,7 @@ class SeqDevMin(SeqDev):
 
 
 # below code is based upon old nicm_nok.py
-class SingleMotorNOK(Axis, HasPrecision, CanReference, PseudoNOK):
+class SingleMotorNOK(PseudoNOK, Axis):
     """NOK using a single Axis
 
     Basically a generic NICOS axis with precision
@@ -257,7 +257,7 @@ class SingleMotorNOK(Axis, HasPrecision, CanReference, PseudoNOK):
         self._adevs['nok_motor'].doReference()
 
 
-class DoubleMotorNOK(SequencerMixin, CanReference, Moveable, HasPrecision, PseudoNOK):
+class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Moveable):
     """NOK using a two Axes
 
     If backlash is negative, approach form the negative side (default),

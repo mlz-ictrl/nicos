@@ -41,7 +41,7 @@ from nicos.toftof.tofcounter import TofCounter
 from nicos.toftof import calculations as calc
 
 
-class TofTofMeasurement(Measurable, ImageProducer):
+class TofTofMeasurement(ImageProducer, Measurable):
     """The TOFTOF measurement device.
 
     This is a temporarely used device which should be substituted by a detector

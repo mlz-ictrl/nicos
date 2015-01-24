@@ -37,7 +37,7 @@ from nicos.devices.taco.core import TacoDevice
 from nicos.utils import createThread
 
 
-class Axis(TacoDevice, BaseAxis, CanReference):
+class Axis(CanReference, TacoDevice, BaseAxis):
     """Interface for TACO Axis server devices."""
 
     taco_class = TACOMotor

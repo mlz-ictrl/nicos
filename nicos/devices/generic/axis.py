@@ -34,7 +34,7 @@ from nicos.devices.abstract import Axis as BaseAxis, Motor, Coder, CanReference
 from nicos.utils import createThread
 
 
-class Axis(BaseAxis, CanReference):
+class Axis(CanReference, BaseAxis):
     """Axis implemented in Python, with NICOS devices for motor and coders."""
 
     attached_devices = {

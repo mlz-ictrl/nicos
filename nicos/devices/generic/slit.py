@@ -277,7 +277,7 @@ class Slit(CanReference, Moveable):
             self.valuetype = tupleof(float, float, float, float)
 
 
-class SlitAxis(Moveable, AutoDevice):
+class SlitAxis(AutoDevice, Moveable):
     """
     "Partial" devices for slit axes, useful for e.g. scanning
     over the device slit.centerx.

@@ -410,7 +410,7 @@ class TAS(Instrument, Moveable):
             self.log.info(line)
 
 
-class TASIndex(Moveable, AutoDevice):
+class TASIndex(AutoDevice, Moveable):
     """
     "Partial" devices for the H, K, L, E indices of the TAS instrument.
     """

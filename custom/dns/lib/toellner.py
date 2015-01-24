@@ -30,7 +30,7 @@ from nicos.core.params import Param, Attach, floatrange
 from nicos.devices.tango import AnalogOutput
 
 
-class Toellner(AnalogOutput, HasPrecision):
+class Toellner(HasPrecision, AnalogOutput):
 
     attached_devices = {
         'polchange': Attach('TANGO digital input device ', Moveable),

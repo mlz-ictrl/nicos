@@ -66,7 +66,7 @@ class FlipperPresets(Measurable):
                                   'doIsCompleted.')
 
 
-class TofDetector(PyTangoDevice, MeasureSequencer, ImageProducer,
+class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
                   FlipperPresets):
     """Basic Tango Device for TofDetector."""
 

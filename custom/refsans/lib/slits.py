@@ -317,7 +317,7 @@ class Slit(CanReference, Moveable):
         return positions
 
 
-class SlitAxis(Moveable, AutoDevice):
+class SlitAxis(AutoDevice, Moveable):
     """
     "Partial" devices for slit axes, useful for e.g. scanning
     over the device slit.center.

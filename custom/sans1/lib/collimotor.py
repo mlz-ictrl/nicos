@@ -32,8 +32,7 @@ from Modbus import Modbus
 from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
     floatrange, intrange, status, waitForStatus, InvalidValueError, Moveable, \
     UsageError, CommunicationError, PositionError, MoveError, SIMULATION, \
-    Attach
-from nicos.core.device import usermethod, requires
+    Attach, usermethod, requires
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import CanReference, Motor, Coder
 from nicos.devices.generic.sequence import SequencerMixin, SeqCall
@@ -165,7 +164,7 @@ class Sans1ColliCoder(TacoDevice, Coder):
         return status.OK, '' # not impl.
 
 
-class Sans1ColliMotor(TacoDevice, Motor, CanReference, SequencerMixin):
+class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, Motor):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.

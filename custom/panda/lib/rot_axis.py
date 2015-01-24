@@ -26,12 +26,12 @@
 
 from nicos.core import Param, NicosError, none_or, ConfigurationError
 from nicos.core.utils import devIter
-from nicos.devices.generic.axis import Axis, CanReference
+from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.virtual import VirtualMotor
 from nicos.core import SIMULATION, MASTER, MAINTENANCE
 
 
-class RefAxis(Axis, CanReference):
+class RefAxis(Axis):
     parameters = {
         'refpos':   Param('reference position',
                           type=none_or(float), default=None),

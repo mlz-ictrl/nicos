@@ -202,7 +202,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
         self._dev.ErasureDuration = value
 
 
-class ImagePlateDetector(MeasureSequencer, ImagePlateBase, ImageProducer):
+class ImagePlateDetector(ImageProducer, MeasureSequencer):
     """Represents the client to a MAATEL Image Plate Detector."""
 
     MAP_SHAPE = {
@@ -402,7 +402,7 @@ class Andor2LimaCCDFPGA(Andor2LimaCCD):
         Andor2LimaCCD.doStart(self)
 
 
-class Andor2LimaCCDDetector(MeasureSequencer, ImageProducer):
+class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
     """Andor2LimaCCD shutter control extension. Controls instrument shutters
     gammashutter, photoshutter and the camera shutter itself using a
     FPGATimerChannel device."""

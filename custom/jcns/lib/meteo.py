@@ -41,7 +41,8 @@ __version__ = "0.1.1"
 
 _REST_URL = "http://jcnswww.jcns.frm2/meteo"
 
-class MeteoStation(Readable, HasOffset):
+
+class MeteoStation(HasOffset, Readable):
 
     TEMP_AIR = "temperature/air"
     TEMP_WET_BULB = "temperature/wet_bulb"

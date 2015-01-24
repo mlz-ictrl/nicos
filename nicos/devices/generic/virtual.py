@@ -42,7 +42,7 @@ from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import Channel
 
 
-class VirtualMotor(Motor, HasOffset):
+class VirtualMotor(HasOffset, Motor):
     """A virtual motor that can be set to move in finite time using a thread."""
 
     parameters = {
@@ -126,7 +126,7 @@ class VirtualMotor(Motor, HasOffset):
         self.speed = value / 60.
 
 
-class VirtualCoder(Coder, HasOffset):
+class VirtualCoder(HasOffset, Coder):
     """A virtual coder that just returns the value of a motor, with offset."""
 
     attached_devices = {
