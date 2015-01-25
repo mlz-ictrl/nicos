@@ -30,26 +30,27 @@ import os
 import re
 import time
 from os import path
-from uuid import uuid1
 from textwrap import dedent
+from uuid import uuid1
+
 
 from nicos import session, config
 from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
     Param, Dataset, NicosError, ConfigurationError, UsageError, \
-    ProgrammingError, SIMULATION, MASTER, Attach
+    SIMULATION, MASTER, Attach
 from nicos.core.params import subdir, nonemptystring, expanded_path
 from nicos.core.scan import DevStatistics
+from nicos.core.newdata import dataman
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
-    enableDirectory, lazy_property, printTable, pwd, grp, \
-    DEFAULT_FILE_MODE, readFileCounter, updateFileCounter, createThread
-from nicos.core.utils import DeviceValueDict
+    enableDirectory, lazy_property, printTable, pwd, grp, DEFAULT_FILE_MODE, \
+    createThread
 from nicos.utils.ftp import ftpUpload
 from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
-from nicos.pycompat import BytesIO, string_types, from_maybe_utf8
+from nicos.pycompat import string_types, from_maybe_utf8
 from nicos.devices.sample import Sample
 from nicos._vendor import rtfunicode  # for side effects - pylint: disable=W0611
 
@@ -146,20 +147,24 @@ class Experiment(Device):
         'sampledir':    Param('Sample specific subdir', type=subdir, default='',
                               userparam=False, mandatory=False, settable=True),
         # counter
-        'scancounter':  Param('Name of the global scan counter in dataroot',
-                              default='scancounter', userparam=False,
-                              type=subdir, mandatory=False, settable=False),
-        'lastscan':     Param('Last used value of the scancounter', type=int,
-                              settable=False, volatile=True, mandatory=False),
-        'lastscanfile': Param('Last/Currently written scanfile in this experiment',
-                              type=str, settable=False, mandatory=False),
-        'imagecounter': Param('Name of the global image counter in dataroot',
-                              default='imagecounter', userparam=False,
-                              type=subdir, mandatory=False, settable=False),
-        'lastimage':    Param('Last used value of the imagecounter', type=int,
-                              settable=False, volatile=True, mandatory=False),
-        'lastimagefile': Param('Last/Currently written imagefile in this experiment',
-                               type=str, settable=False, mandatory=False),
+        'counterfile':  Param('Name of the file with data counters in dataroot',
+                              default='counters', userparam=False, type=subdir,
+                              mandatory=False),
+        # XXX replace every use
+        # 'scancounter':  Param('Name of the global scan counter in dataroot',
+        #                       default='scancounter', userparam=False,
+        #                       type=subdir, mandatory=False, settable=False),
+        # 'lastscan':     Param('Last used value of the scancounter', type=int,
+        #                       settable=False, volatile=True, mandatory=False),
+        # 'lastscanfile': Param('Last/Currently written scanfile in this experiment',
+        #                       type=str, settable=False, mandatory=False),
+        # 'imagecounter': Param('Name of the global image counter in dataroot',
+        #                       default='imagecounter', userparam=False,
+        #                       type=subdir, mandatory=False, settable=False),
+        # 'lastimage':    Param('Last used value of the imagecounter', type=int,
+        #                       settable=False, volatile=True, mandatory=False),
+        # 'lastimagefile': Param('Last/Currently written imagefile in this experiment',
+        #                        type=str, settable=False, mandatory=False),
         'errorbehavior': Param('Behavior on unhandled errors in commands',
                                type=oneof('abort', 'report'), settable=True,
                                default='report'),
@@ -332,93 +337,6 @@ class Experiment(Device):
             os.symlink(target, location)
 
     #
-    # counter stuff
-    #
-    # Note: handling of counters in simulation mode differs slightly from
-    #       normal mode: counter values are kept (and updated) in private vars
-    #       instead of the usual file and no file will be touched or created.
-    _lastimage = None  # only used in sim-mode
-    _lastscan = None   # only used in sim-mode
-
-    @property
-    def scanCounterPath(self):
-        return path.join(self.dataroot, self.scancounter)
-
-    def advanceScanCounter(self):
-        """increments the value of the scancounter and returns it"""
-        if self._mode != SIMULATION:
-            updateFileCounter(self.scanCounterPath, self.lastscan + 1)
-        else:
-            self._lastscan = 1 + (self._lastscan or self.lastscan)
-        return self.lastscan
-
-    def doReadLastscan(self):
-        return self._lastscan or readFileCounter(self.scanCounterPath)
-
-    def createScanFile(self, nametemplate, *subdirs, **kwargs):
-        """creates an scanfile acccording to the given nametemplate in the given
-        subdir structure
-
-        returns a tuple containing the basic filename, the path to the file,
-        relative to proposalpath, i.e. the 'file path within the current
-        experiment' and the filehandle to the already opened (for writing)
-        file which has the right FS attributes.
-
-        Note: in Simulation mode, the returned 'filehandle' is actually a
-        memory only file-like object.
-        """
-        fullfilename, fp = self.createDataFile(nametemplate, self.lastscan,
-                                               *subdirs, **kwargs)
-        # setting lastscanfile here might have unwanted side effects if
-        # multiple datasinks are used.
-        self._setROParam('lastscanfile', path.relpath(fullfilename,
-                                                      self.proposalpath))
-        return path.basename(fullfilename), fullfilename, fp
-
-    @property
-    def imageCounterPath(self):
-        return path.join(self.dataroot, self.imagecounter)
-
-    def advanceImageCounter(self):
-        """increments the value of the imagecounter if needed and returns it"""
-        if self._mode != SIMULATION:
-            updateFileCounter(self.imageCounterPath, self.lastimage + 1)
-        else:
-            # simulate counting up...
-            self._lastimage = 1 + (self._lastimage or self.lastimage)
-        return self.lastimage
-
-    def doReadLastimage(self):
-        return self._lastimage or readFileCounter(self.imageCounterPath)
-
-    def createImageFile(self, nametemplate, *subdirs, **kwargs):
-        """creates an imagefile acccording to the given nametemplate in the
-        given subdir structure
-
-        returns a tuple containing the basic filename, the path to the file,
-        relative to proposalpath, i.e. the 'file path within the current
-        experiment' and the filehandle to the already opened (for writing)
-        file which has the right FS attributes.
-
-        the nametemplate may contain references like %(counter)s,
-        %(scanpoint)s, %(proposal)s, %(imagecounter)08d or %(scancounter)d
-        which replaced with appropriate values.
-
-        Note: in Simulation mode, the returned 'filehandle' is actually a
-        memory only file-like object.
-        """
-        fullfilename, fp = self.createDataFile(nametemplate, self.lastimage,
-                                               *subdirs,
-                                               imagecounter=self.lastimage,
-                                               scancounter=self.lastscan,
-                                               **kwargs)
-        # setting lastimagefile here might have unwanted side effects if
-        # multiple 2D-datasinks are used.
-        self._setROParam('lastimagefile', path.relpath(fullfilename,
-                                                       self.proposalpath))
-        return path.basename(fullfilename), fullfilename, fp
-
-    #
     # datafile stuff
     #
 
@@ -449,75 +367,6 @@ class Experiment(Device):
         else:
             fullname = path.join(self.getDataDir(*subdirs), filename)
         return fullname
-
-    def createDataFile(self, nametemplate, counter, *subdirs, **kwargs):
-        """Creates and returns a file named according to the given nametemplate
-        in the given subdir of the datapath.
-
-        If the optional keyworded argument nofile is True, the file is not
-        created. This is needed for some data-saving libraries creating the
-        file by themselfs. In this case, the filemode is (obviously) not
-        managed by us.
-
-        The nametemplate can be either a string or a list of strings.  In the
-        second case, the first listentry is used to create the file and the
-        remaining ones will be hardlinked to this file if the os supports this.
-
-        In SIMULATION mode this returns a file-like object to avoid accessing
-        or changing the filesystem.
-        """
-        if isinstance(nametemplate, string_types):
-            nametemplate = [nametemplate]
-        # translate entries
-        filenames = []
-        for nametmpl in nametemplate:
-            if '%(' in nametmpl:
-                kwds = dict(self.propinfo)
-                kwds.update(kwargs)
-                kwds.update(counter=counter, proposal=self.proposal)
-                try:
-                    filename = nametmpl % DeviceValueDict(kwds)
-                except KeyError:
-                    self.log.error('Can\'t create datafile, illegal key in '
-                                   'nametemplate!')
-                    raise
-            else:
-                filename = nametmpl % counter
-            filenames.append(filename)
-        filename = filenames[0]
-        otherfiles = filenames[1:]
-        fullfilename = self.getDataFilename(filename, *subdirs)
-        if self._mode == SIMULATION or kwargs.get('nofile'):
-            self.log.debug('Not creating any file, returning a BytesIO '
-                           'buffer instead.')
-            fp = BytesIO()
-        else:
-            if path.isfile(fullfilename):
-                raise ProgrammingError('Data file named %r already exists! '
-                                       'Check filenametemplates!' %
-                                       fullfilename)
-            self.log.debug('Creating file %r' % fullfilename)
-            fp = open(fullfilename, 'wb')
-            if self.managerights:
-                os.chmod(fullfilename,
-                         self.managerights.get('enableFileMode',
-                                               DEFAULT_FILE_MODE))
-            linkfunc = os.link if hasattr(os,  'link') else \
-                os.symlink if hasattr(os, 'symlink') else None
-            if linkfunc:
-                for otherfile in otherfiles:
-                    self.log.debug('Linking %r to %r' % (self.getDataFilename(
-                        otherfile, *subdirs), fullfilename))
-                    try:
-                        linkfunc(fullfilename,
-                                 self.getDataFilename(otherfile, *subdirs))
-                    except OSError:
-                        self.log.warning('linking %r to %r failed, ignoring' %
-                                         (self.getDataFilename(otherfile, *subdirs),
-                                          fullfilename))
-            else:
-                self.log.warning('can\'t link datafiles, no os support!')
-        return (fullfilename, fp)
 
     #
     # NICOS interface
@@ -651,8 +500,7 @@ class Experiment(Device):
         for notifier in session.notifiers:
             notifier.reset()
         self._last_datasets = []
-        self._setROParam('lastscanfile', '')  # none written yet
-        self._setROParam('lastimagefile', '')
+        dataman.reset()
 
         # set new experiment properties given by caller
         self._setROParam('proptype', proptype)
@@ -1131,7 +979,9 @@ class Experiment(Device):
     # dataset stuff
     #
     def createDataset(self, scantype=None):
-        dataset = Dataset()
+        raise RuntimeError('old createDataset API called')
+        # XXX
+        dataset = Dataset()  # pylint: disable=unreachable
         dataset.uid = str(uuid1())
         dataset.sinks = [sink for sink in session.datasinks
                          if sink.isActive(scantype)]

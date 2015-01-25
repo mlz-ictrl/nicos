@@ -27,8 +27,9 @@
 """Generic detector and channel classes for NICOS."""
 
 from nicos.core import Attach, ConfigurationError, DeviceMixinBase, \
-    ImageProducer, ImageType, Measurable, Override, Param, Readable, \
-    UsageError, Value, listof, multiStatus, status, oneof
+    Measurable, Override, Param, Readable, UsageError, Value, Array, listof, \
+    multiStatus, status, oneof
+from nicos.core.newdata import LIVE
 from nicos.utils import uniq
 
 
@@ -189,7 +190,7 @@ class ImageChannelMixin(DeviceMixinBase):
         raise NotImplementedError('implement readFinalImage')
 
 
-class Detector(ImageProducer, Measurable):
+class Detector(Measurable):
     """Detector using multiple (synchronized) channels."""
 
     attached_devices = {
@@ -240,9 +241,6 @@ class Detector(ImageProducer, Measurable):
         for name, dev in self._presetiter():
             # later mentioned presetnames dont overwrite earlier ones
             presetkeys.setdefault(name, dev)
-        if len(self._attached_images) > 1:
-            raise ConfigurationError(self, 'only one image supported '
-                                     'at the moment')
         self._channels = uniq(self._attached_timers + self._attached_monitors +
                               self._attached_counters + self._attached_images +
                               self._attached_others)
@@ -331,9 +329,17 @@ class Detector(ImageProducer, Measurable):
         ret = []
         for ch in self._channels:
             ret.extend(ch.read())
-            if isinstance(ch, ImageChannelMixin):
-                ret.append(self.lastfilename)
         return ret
+
+    def doReadArrays(self, maxage=0):
+        ret = []
+        for ch in self._channels:
+            if isinstance(ch, ImageChannelMixin):
+                ret.append(ch.readFinalImage())
+        return ret
+
+    def duringMeasureHook(self, elapsed):
+        return LIVE
 
     def doSimulate(self, preset):
         self.doSetPreset(**preset)  # okay in simmode
@@ -363,9 +369,17 @@ class Detector(ImageProducer, Measurable):
         ret = []
         for ch in self._channels:
             ret.extend(ch.valueInfo())
+        return tuple(ret)
+
+    def arrayInfo(self):
+        ret = []
+        for ch in self._channels:
             if isinstance(ch, ImageChannelMixin):
-                ret.append(Value('%s.filename' % ch, type='filename',
-                                 fmtstr='%s'))
+                # XXX switch Channel API away from imagetype
+                if ch.imagetype:
+                    ret.append(ch.imagetype)
+                else:
+                    ret.append(Array(ch.name, (128, 128), '<u4'))
         return tuple(ret)
 
     def doReadFmtstr(self):
@@ -382,30 +396,6 @@ class Detector(ImageProducer, Measurable):
             # first master stops, so take min
             return min(eta)
         return None
-
-    # ImageProducer API
-
-    @property
-    def imagetype(self):
-        if self._attached_images:
-            return self._attached_images[0].imagetype
-        return ImageType((), '<u4')
-
-    def duringMeasureHook(self, elapsed):
-        if self._attached_images:
-            self.updateImage()  # calls readImage
-
-    def doSave(self):
-        if self._attached_images:
-            self.saveImage()  # calls readFinalImage
-
-    def readImage(self):
-        # only called from updateImage (i.e. duringMeasureHook)
-        return self._attached_images[0].readLiveImage()
-
-    def readFinalImage(self):
-        # only called from saveImage (i.e. doSave)
-        return self._attached_images[0].readFinalImage()
 
 
 class DetectorForecast(Readable):

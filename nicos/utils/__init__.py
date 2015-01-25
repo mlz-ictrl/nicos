@@ -507,19 +507,13 @@ DEFAULT_FILE_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 
 
 def readFile(filename):
-    fp = open(filename, 'r')
-    try:
+    with open(filename, 'r') as fp:
         return [line.strip() for line in fp]
-    finally:
-        fp.close()
 
 
 def writeFile(filename, lines):
-    fp = open(filename, 'w')
-    try:
+    with open(filename, 'w') as fp:
         fp.writelines(lines)
-    finally:
-        fp.close()
 
 
 def getPidfileName(appname):
@@ -959,28 +953,40 @@ def formatException(cut=0, exc_info=None):
 
 # file counter utilities
 
-def readFileCounter(counterpath):
-    """Read a "counter" file, a file with just an integer in it.
+def readFileCounter(counterpath, key):
+    """Read a counter from a "counter" file.
 
-    If the file does not exist, return 0; other exceptions are not handled.
+    The counter file consists of lines with ``key value`` pairs.  If the key
+    does not exist in the file, return 0; other exceptions are not handled.
+
+    # XXX: we want to create the counter file automatically in demo mode!
     """
     try:
-        currentcounter = int(readFile(counterpath)[0])
-    except IOError as err:
-        # if the file doesn't exist yet, this is ok, but reraise all other
-        # exceptions
-        if err.errno == errno.ENOENT:
-            currentcounter = 0
-        else:
-            raise
-    return currentcounter
+        lines = readFile(counterpath)
+    except IOError as e:
+        raise IOError('File counter %r cannot be read: %s (the counter must '
+                      'be recreated manually with the correct values after '
+                      'NICOS update to this version)' % (counterpath, e))
+    for line in lines:
+        linekey, value = line.split()
+        if key == linekey:
+            return int(value)
+    # the counter is not yet in the file
+    return 0
 
 
-def updateFileCounter(counterpath, value):
+def updateFileCounter(counterpath, key, value):
     """Update a counter file."""
     if not path.isdir(path.dirname(counterpath)):
         os.makedirs(path.dirname(counterpath))
-    writeFile(counterpath, [str(value)])
+    lines = readFile(counterpath)
+    new_lines = []
+    for line in lines:
+        linekey, _ = line.split()
+        if linekey != key:
+            new_lines.append(line + '\n')
+    new_lines.append('%s %d\n' % (key, value))
+    writeFile(counterpath, new_lines)
 
 
 def allDays(fromtime, totime):

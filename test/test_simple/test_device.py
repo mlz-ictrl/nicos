@@ -114,7 +114,7 @@ class Dev2(HasLimits, HasOffset, Moveable):
         methods_called.add('doUpdateParam2')
 
     def doInfo(self):
-        return [('instrument', 'testkey', 'testval')]
+        return [('testkey', 'testval', 'testval', '', 'instrument')]
 
     def doVersion(self):
         return [('testversion', 1.0)]

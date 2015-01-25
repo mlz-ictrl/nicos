@@ -43,7 +43,7 @@ from nicos.devices.generic.detector import ActiveChannel, TimerChannelMixin, \
     CounterChannelMixin
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError, ProgrammingError
-from nicos.utils import readFileCounter, updateFileCounter
+from nicos.utils import readFile, writeFile
 from nicos.pycompat import integer_types
 
 
@@ -252,11 +252,16 @@ class Channel(ActiveChannel):
         elif state == ACTIVE:
             return status.BUSY, ''
 
+    # XXX: this should be unnecessary to handle ourselves
+
     def doReadRunnumber(self):
-        return readFileCounter(self.counterfile)
+        try:
+            return int(readFile(self.counterfile)[0])
+        except IOError:
+            return 0
 
     def doWriteRunnumber(self, value):
-        updateFileCounter(self.counterfile, value)
+        writeFile(self.counterfile, [str(value)])
 
 
 class Timer(TimerChannelMixin, Channel):

@@ -28,6 +28,8 @@ import re
 import copy
 from os import path
 
+import numpy
+
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.errors import ProgrammingError, ConfigurationError
 from nicos.pycompat import iteritems, text_type, string_types
@@ -40,7 +42,7 @@ INFO_CATEGORIES = [
     ('offsets', 'Offsets'),
     ('limits', 'Limits'),
     ('precisions', 'Precisions/tolerances'),
-    ('status', 'Devices in busy or error status'),
+    ('status', 'Device status'),
     ('general', 'Device positions and sample environment state'),
 ]
 
@@ -390,13 +392,11 @@ class Value(object):
 
     * The *fmtstr* parameter selects how to format the value for display.  This
       will generally be ``device.fmtstr`` for Readables.
-
-    * The *active* parameter is reserved.
     """
 
     # pylint: disable=W0622
     def __init__(self, name, type='other', errors='none', unit='',
-                 fmtstr='%.3f', active=True):
+                 fmtstr='%.3f'):
         if type not in ('counter', 'monitor', 'time', 'other', 'error',
                         'filename', 'info'):
             raise ProgrammingError('invalid Value type parameter')
@@ -407,14 +407,66 @@ class Value(object):
         self.errors = errors
         self.unit = unit
         self.fmtstr = fmtstr
-        self.active = active
 
     def __repr__(self):
         return 'value %r' % self.name
 
     def copy(self):
-        return Value(self.name, self.type, self.errors, self.unit,
-                     self.fmtstr, self.active)
+        return Value(self.name, self.type, self.errors, self.unit, self.fmtstr)
+
+
+class Array(object):
+    """Defines the properties of an array detector result.
+
+    An array type consists of these attributes:
+
+    * name, a name for the array
+    * shape, a tuple of lengths in 1 to N dimensions
+    * dtype, the data type of a single value, in numpy format
+    * dimnames, a list of names for each dimension
+
+    The class can try to determine if a given image-type can be converted
+    to another.
+    """
+
+    def __init__(self, name, shape, dtype=None, dimnames=None):
+        """Creates a datatype with given (numpy) shape and (numpy) data format.
+
+        Also stores the 'names' of the used dimensions as a list called
+        dimnames.  Defaults to 'X', 'Y' for 2D data and 'X', 'Y', 'Z' for 3D
+        data.
+        """
+        self.name = name
+        if dtype is None:  # try to derive from a given numpy.array
+            dtype = shape.dtype
+            shape = shape.shape
+        if dimnames is None:
+            dimnames = ['X', 'Y', 'Z', 'T', 'E', 'U', 'V', 'W'][:len(shape)]
+        self.shape = shape
+        self.dtype = dtype
+        self.dimnames = dimnames
+
+    def canConvertTo(self, arrtype):
+        """Checks if we can be converted to the given array type."""
+        # XXX
+        if self.shape != arrtype.shape:
+            return False
+        if self.dimnames != arrtype.dimnames:
+            return False
+        return True
+
+    def convertTo(self, data, arrtype):
+        """converts given data to given arrtype and returns converted data"""
+        if not self.canConvertTo(arrtype):
+            raise ProgrammingError('Can not convert to requested datatype')
+        return numpy.array(data, dtype=arrtype.dtype)
+
+    def __repr__(self):
+        return 'Array(%r, %r, %r, %r)' % (self.name, self.shape, self.dtype,
+                                          self.dimnames)
+
+    def copy(self):
+        return Array(self.name, self.shape, self.dtype, self.dimnames)
 
 
 # parameter conversion functions

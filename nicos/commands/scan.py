@@ -28,8 +28,9 @@ from nicos import session
 from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
     NicosError
 from nicos.core.spm import spmsyntax, Dev, Bare
-from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
+from nicos.core.scan import SweepScan, ContinuousScan, ManualScan, \
     StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
+from nicos.core.newscan import Scan
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printwarning
 from nicos.pycompat import iteritems, number_types, string_types
@@ -156,7 +157,7 @@ def scan(dev, *args, **kwargs):
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
-    Scan(devs, values, move, multistep, detlist, envlist, preset,
+    Scan(devs, values, None, move, multistep, detlist, envlist, preset,
          scaninfo).run()
 
 

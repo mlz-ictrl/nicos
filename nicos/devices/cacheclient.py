@@ -32,6 +32,7 @@ from time import sleep, time as currenttime
 
 from nicos import session
 from nicos.core import Device, Param, CacheLockError, CacheError, host
+from nicos.core.newdata import dataman
 from nicos.utils import tcpSocket, closeSocket, createThread, getSysInfo
 from nicos.protocols.cache import msg_pattern, line_pattern, \
     cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
@@ -523,8 +524,11 @@ class CacheClient(BaseCacheClient):
             value = cache_load(value)
             with self._dblock:
                 self._db[key] = (value, time)
-            if key in self._callbacks and self._do_callbacks:
-                self._call_callbacks(key, value, time)
+            if self._do_callbacks:
+                if key in self._callbacks:
+                    self._call_callbacks(key, value, time)
+                if key.endswith('/value'):
+                    dataman.cacheCallback(key, value, time)
 
     def _call_callbacks(self, key, value, time):
         with self._dblock:

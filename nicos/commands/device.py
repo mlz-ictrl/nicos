@@ -435,9 +435,9 @@ def info(*devlist):
                    if not dev.lowlevel]
     bycategory = {}
     for dev in devlist:
-        for category, key, value in dev.info():
+        for key, _value, strvalue, unit, category in dev.info():
             bycategory.setdefault(category, []).append(
-                (str(dev), key + ':', value))
+                (str(dev), key + ':', strvalue + ' ' + unit))
     for catname, catinfo in INFO_CATEGORIES:
         if catname not in bycategory:
             continue

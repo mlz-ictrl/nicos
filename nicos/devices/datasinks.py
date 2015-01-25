@@ -54,12 +54,12 @@ class ConsoleSink(DataSink):
     def beginDataset(self, dataset):
         printinfo('=' * 100)
         printinfo('Starting scan:      ' + (dataset.scaninfo or ''))
+        printinfo('Started at:         ' +
+                  time.strftime(TIMEFMT, dataset.started))
         for name, value in iteritems(dataset.sinkinfo):
             if name == 'continuation':
                 continue
             printinfo('%-20s%s' % (name+':', value))
-        printinfo('Started at:         ' +
-                  time.strftime(TIMEFMT, dataset.started))
         printinfo('-' * 100)
         printinfo('\t'.join(map(str, ['#'] + dataset.xnames + dataset.ynames)).
                   expandtabs())

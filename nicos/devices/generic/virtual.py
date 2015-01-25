@@ -33,12 +33,13 @@ from math import exp, atan
 import numpy as np
 
 from nicos import session
-from nicos.core import status, Readable, HasOffset, HasLimits, Param, \
-    Override, none_or, oneof, tupleof, floatrange, intrange, Moveable, \
-    Value, ImageType, SIMULATION, POLLER, Attach, HasWindowTimeout
-from nicos.core.constants import MASTER
 from nicos.utils import clamp, createThread
 from nicos.utils.timer import Timer
+from nicos.core import status, Readable, HasOffset, HasLimits, Param, \
+    Override, none_or, oneof, tupleof, floatrange, intrange, Measurable, \
+    Moveable, Value, MASTER, SIMULATION, POLLER, Attach, HasWindowTimeout, \
+    listof, SubscanMeasurable, Array
+from nicos.core.newscan import Scan
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import ActiveChannel, PassiveChannel, \
     ImageChannelMixin
@@ -178,6 +179,7 @@ class VirtualChannel(ActiveChannel):
     def doFinish(self):
         if self._thread and self._thread.isAlive():
             self._stopflag = True
+            self._thread.join()
         else:
             self.curstatus = (status.OK, 'idle')
 
@@ -613,7 +615,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     _timer = None
 
     def doInit(self, mode):
-        self.imagetype = ImageType(self.sizes, '<u4')
+        self.imagetype = Array(self.name, self.sizes, '<u4')
 
     def doPrepare(self):
         self.readresult = [0]
@@ -649,7 +651,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         self.doFinish()
 
     def doStatus(self,  maxage=0):
-        if self._stopflag or self._mythread:
+        if self._mythread and self._mythread.isAlive():
             return status.BUSY,  'busy'
         return status.OK,  'idle'
 
@@ -658,7 +660,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
             self._last_update = self._timer.elapsed_time()
             return self._buf
 
-    def readFinalImage(self):
+    def readFinalImage(self):  # , maxage=0):
         return self._buf
 
     def valueInfo(self):
@@ -685,3 +687,38 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
 
     def doEstimateTime(self, elapsed):
         return self._timer.remaining_time()
+
+
+class VirtualScanningDetector(SubscanMeasurable):
+
+    attached_devices = {
+        'scandev':  Attach('Current device to scan', Moveable),
+        'detector': Attach('Detector to scan', Measurable),
+    }
+
+    parameters = {
+        'positions': Param('Positions to scan over', type=listof(float))
+    }
+
+    def doInit(self, mode):
+        self._last = [0, '']
+        self._preset = None
+
+    def doSetPreset(self, **preset):
+        self._preset = preset
+
+    def doStart(self):
+        positions = [[p] for p in self.positions]
+        dataset = Scan([self._adevs['scandev']], positions, positions,
+                       detlist=[self._adevs['detector']], preset=self._preset,
+                       subscan=True).run()
+        # process the values...
+        yvalues = [subset.detvaluelist[0] for subset in dataset.subsets]
+        self._last = [sum(yvalues) / float(len(yvalues)), dataset.filenames[0]]
+
+    def valueInfo(self):
+        return (Value(self.name + '.mean', unit='cts', fmtstr='%.1f'),
+                Value(self.name + '.file', unit='', type='info'))
+
+    def doRead(self, maxage=0):
+        return self._last

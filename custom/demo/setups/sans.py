@@ -178,11 +178,8 @@ devices = dict(
                      ),
     det      = device('devices.generic.detector.Detector',
                       description = 'demo 2D detector',
-                      fileformats = ['BerSANSFileSaver', 'RAWFileSaver',
-                                     'LiveViewFileSink', 'LivePNGSink', 'LivePNGSinkLog'],
                       timers = ['det_time'],
                       images = ['det_img'],
-                      subdir = '2ddata',
     ),
 
     det_HV   = device('devices.generic.VirtualMotor',
@@ -194,6 +191,12 @@ devices = dict(
                       curvalue = 1000,
                       speed = 10,
                      ),
+
+    scandet = device('devices.generic.virtual.VirtualScanningDetector',
+                     description = 'Virtual SANS detector (HV depending moves)',
+                     scandev = 'det_HV',
+                     positions = [100, 200, 300],
+                     detector = 'det'),
 )
 
 startupcode = '''

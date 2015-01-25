@@ -6,11 +6,11 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'demo',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'serialsink'],
+    datasinks = ['nconssink', 'nfilesink', 'imgsink', 'livesink'],
     notifiers = [],
 )
 
-modules = ['commands.standard'] # , 'jcns.commands']
+modules = ['commands.standard', 'commands.newacq'] # , 'jcns.commands']
 
 devices = dict(
     demo        = device('devices.instrument.Instrument',
@@ -35,31 +35,40 @@ devices = dict(
                         reporttemplate = '',
                        ),
 
-    filesink   = device('devices.datasinks.AsciiDatafileSink',
+    nfilesink  = device('devices.newsinks.AsciiScanfileSink',
                         lowlevel = True,
                        ),
 
-    conssink   = device('devices.datasinks.ConsoleSink',
+    nconssink  = device('devices.newsinks.ConsoleScanSink',
                         lowlevel = True,
                        ),
 
-    daemonsink = device('devices.datasinks.DaemonSink',
+    # daemonsink = device('devices.datasinks.DaemonSink',
+    #                     lowlevel = True,
+    #                    ),
+
+    # serialsink = device('devices.datasinks.SerializedSink',
+    #                     lowlevel = True,
+    #                    ),
+
+    imgsink    = device('devices.newsinks.image.RawImageSink',
+                        filenametemplate = ['%(proposal)s_%(pointcounter)08d.raw'],
                         lowlevel = True,
                        ),
 
-    serialsink = device('devices.datasinks.SerializedSink',
+    livesink   = device('devices.newsinks.image.LiveViewSink',
                         lowlevel = True,
                        ),
 
-    Space     = device('devices.generic.FreeSpace',
-                       description = 'The amount of free space for storing data',
-                       path = None,
-                       minfree = 5,
-                      ),
+    Space      = device('devices.generic.FreeSpace',
+                        description = 'The amount of free space for storing data',
+                        path = None,
+                        minfree = 5,
+                       ),
 
-    UBahn     = device('frm2.ubahn.UBahn',
-                       description = 'Next subway departures',
-                      ),
+    UBahn      = device('frm2.ubahn.UBahn',
+                        description = 'Next subway departures',
+                       ),
 )
 
 startupcode = '''

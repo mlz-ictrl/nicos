@@ -28,13 +28,12 @@
 from os import path
 from time import time as currenttime
 
-import numpy
-
 from nicos import session
 from nicos.core.device import Device
-from nicos.core.mixins import DeviceMixinBase
 from nicos.core.errors import NicosError, ProgrammingError
-from nicos.core.params import Param, Attach, subdir, listof
+from nicos.core.mixins import DeviceMixinBase
+# pylint: disable=unused-import
+from nicos.core.params import Param, Attach, subdir, listof, Array as ImageType
 from nicos.core.constants import SIMULATION
 from nicos.pycompat import iteritems
 
@@ -90,55 +89,6 @@ class ImageInfo(object):
 
     def __repr__(self):
         return repr(self.__dict__)
-
-
-class ImageType(object):
-    """Helper class to represent an image type.
-
-    An image type consists of these attributes:
-
-    * shape, a tuple of lengths in 1 to N dimensions
-    * dtype, the data type of a single value, in numpy format
-    * dimnames, a list of names for each dimension
-
-    The class can try to determine if a given image-type can be converted
-    to another.
-    """
-
-    def __init__(self, shape, dtype=None, dimnames=None):
-        """creates a datatype with given (numpy) shape and (numpy) data format
-
-        Also stores the 'names' of the used dimensions as a list called
-        dimnames.
-        Defaults to 'X', 'Y' for 2D data and 'X', 'Y', 'Z' for 3D data.
-        """
-        if dtype is None:  # try to derive from a given numpy.array
-            dtype = shape.dtype
-            shape = shape.shape
-        if dimnames is None:
-            dimnames = ['X', 'Y', 'Z', 'T', 'E', 'U', 'V', 'W'][:len(shape)]
-        self.shape = shape
-        self.dtype = dtype
-        self.dimnames = dimnames
-
-    def canConvertTo(self, imagetype):
-        """checks if we can be converted to the given imagetype"""
-        # XXX
-        if self.shape != imagetype.shape:
-            return False
-        if self.dimnames != imagetype.dimnames:
-            return False
-        return True
-
-    def convertTo(self, data, imagetype):
-        """converts given data to given imagetype and returns converted data"""
-        if not self.canConvertTo(imagetype):
-            raise ProgrammingError('Can not convert to requested datatype')
-        return numpy.array(data, dtype=imagetype.dtype)
-
-    def __repr__(self):
-        return 'ImageType(%r, %r, %r)' % (self.shape, self.dtype,
-                                          self.dimnames)
 
 
 class ImageSink(Device):
@@ -366,7 +316,7 @@ class ImageProducer(DeviceMixinBase):
                             image.shape[0],
                             image.shape[1] if len(image.shape) > 1 else 1,
                             image.shape[2] if len(image.shape) > 2 else 1,
-                            imageinfo.endtime-imageinfo.begintime,
+                            imageinfo.endtime - imageinfo.begintime,
                             '')
             else:
                 self.log.error("Can't save Image, got no data!")
