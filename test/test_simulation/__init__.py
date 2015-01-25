@@ -24,25 +24,44 @@
 
 """Tests for simulation mode."""
 
+from __future__ import print_function
+
+import sys
+
 from nicos import session
 from nicos.commands.scan import scan
 from nicos.commands.basic import sleep
 from nicos.core.sessions.utils import SIMULATION
 
+from test.utils import cleanup, TestSession, startCache, killCache
 
-def setup_module():
-    session.loadSetup('scanning')
+cache = None
+
+
+def setup_package():
+    global cache  # pylint: disable=W0603
+    sys.stderr.write('\nSetting up simulation test, cleaning old test dir...')
+    cleanup()
+    # While the simulation doesn't use a cache, we start it to verify that
+    # it isn't used.
+    cache = startCache()
+    sys.stderr.write('\n')
+    session.__class__ = TestSession
+    session.__init__('test_simulation')
+    session.loadSetup('simscan')
     session.setMode(SIMULATION)
 
 
-def teardown_module():
-    session.__dict__.clear()
-    session.__init__('nicos')
+def teardown_package():
+    session.shutdown()
+    sys.stderr.write('\n')
+    killCache(cache)
 
 
 def test_simmode():
     m = session.getDevice('motor')
-    scan(m, 0, 1, 5, 0., 'test scan')
+    det = session.getDevice('det')
+    scan(m, 0, 1, 5, 0., det, 'test scan')
     assert m._sim_min == 0
     assert m._sim_max == 4
     assert m._sim_value == 4
