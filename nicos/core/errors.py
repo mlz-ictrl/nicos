@@ -82,11 +82,13 @@ class ProgrammingError(NicosError):
     """
     category = 'Programming error'
 
+
 class ConfigurationError(NicosError):
     """Exception to be raised when an error in the :term:`setup` is detected,
     or a device is supplied with invalid configuration data.
     """
     category = 'Configuration error'
+
 
 class UsageError(NicosError):
     """Exception to be raised when user commands are used wrongly.
@@ -96,17 +98,20 @@ class UsageError(NicosError):
     """
     category = 'Usage error'
 
+
 class InvalidValueError(NicosError):
     """Exception to be raised when the user gives an invalid value to a device
     (as a move target or parameter value).
     """
     category = 'Invalid value'
 
+
 class ModeError(NicosError):
     """Exception to be raised when an action is not allowed in the current
     :term:`execution mode`.
     """
     category = 'Mode error'
+
 
 class AccessError(NicosError):
     """Exception to be raised when an action is forbidden to the current user.
@@ -115,6 +120,7 @@ class AccessError(NicosError):
     """
     category = 'Access denied'
 
+
 class PositionError(NicosError):
     """Exception to be raised when a device detects an undefined position.
 
@@ -122,21 +128,26 @@ class PositionError(NicosError):
     """
     category = 'Undefined position'
 
+
 class MoveError(NicosError):
     """Exception to be raised when errors occur while moving a device."""
     category = 'Positioning error'
+
 
 class LimitError(NicosError):
     """Exception to be raised when a requested move target is out of limits."""
     category = 'Out of bounds'
 
+
 class CommunicationError(NicosError):
     """Exception to be raised when some hardware communication fails."""
     category = 'Communication error'
 
+
 class HardwareError(NicosError):
     """Exception to be raised on fatal hardware errors."""
     category = 'Hardware failure'
+
 
 class TimeoutError(NicosError):
     """Exception to be raised when a timeout waiting for hardware occurs.
@@ -146,12 +157,14 @@ class TimeoutError(NicosError):
     """
     category = 'Timeout'
 
+
 class ComputationError(NicosError):
     """Exception to be raised when a computation fails.
 
     Examples are the conversion of physical values to logical values.
     """
     category = 'Computation error'
+
 
 class CacheLockError(NicosError):
     """Exception to be raised when a :term:`cache lock` cannot be acquired."""
@@ -160,9 +173,11 @@ class CacheLockError(NicosError):
         self.locked_by = locked_by
         NicosError.__init__(self, 'locked by ' + locked_by)
 
+
 class CacheError(NicosError):
     """Exception raised on cache connection errors."""
     category = 'Cannot connect to cache server'
+
 
 class SPMError(NicosError):
     """Exception raised when invalid SPM syntax is entered."""
