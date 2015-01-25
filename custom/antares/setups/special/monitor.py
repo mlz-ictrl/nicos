@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'setup for the status monitor'
+description = 'setup for the status monitor'
 group = 'special'
 
 Row = Column = Block = BlockRow = lambda *args: args

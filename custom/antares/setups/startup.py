@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'minimal NICOS startup setup'
+description = 'minimal NICOS startup setup'
 group = 'lowlevel'
 
 includes = []

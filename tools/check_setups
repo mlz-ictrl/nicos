@@ -115,6 +115,9 @@ def check_setupfile(filename):
         log.error('invalid setup group %r', group)
         good = False
     # check for a description
+    name = namespace.get('name', None)
+    if name:
+        log.warning("found 'name' as setup description, please use 'description' instead.")
     description = namespace.get('description', None)
     if description in (None, '') and group in ('basic', 'optional'):
         log.error('missing user-friendly setup description')

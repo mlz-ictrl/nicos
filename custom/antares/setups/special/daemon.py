@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-name = 'setup for the execution daemon'
+description = 'setup for the execution daemon'
 
 group = 'special'
 
