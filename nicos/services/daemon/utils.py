@@ -52,6 +52,9 @@ def format_exception_cut_frames(cut=0):
     return ''.join(res)
 
 
+_excessive_ws_re = re.compile(r'\n\s*\n')
+
+
 def format_script(script, prompt='>>>'):
     """Format a script with timestamp."""
     if script.quiet:
@@ -70,7 +73,8 @@ def format_script(script, prompt='>>>'):
         else:
             start = prompt + '-'*20 + ' ' + script.name
         end = '-' * (16 + len(prompt)) + ' <<<'
-        return '%s\n%s%s' % (start, script.text, end)
+        text = _excessive_ws_re.sub('\n', script.text)
+        return '%s\n%s%s' % (start, text, end)
 
 
 def format_timestamp(prompt='<<<'):
