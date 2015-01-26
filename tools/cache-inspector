@@ -45,8 +45,7 @@ def main(argv=None):
     if not argv:
         argv = sys.argv
 
-    usage = ''' Usage: %prog [options] [key ...]
-    '''
+    usage = '%prog [options]'
 
     parser = optparse.OptionParser(usage=usage)
     parser.add_option('-c', '--cache', dest='cache', action='store',

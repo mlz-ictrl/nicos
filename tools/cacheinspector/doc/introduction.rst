@@ -16,7 +16,7 @@ The following command can be used to start the |CI|
 
 ::
 
-	Usage: cache-inspector [options] [key ...]
+	Usage: cache-inspector [options]
 
 Options
 -------
