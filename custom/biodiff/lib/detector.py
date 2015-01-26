@@ -387,7 +387,7 @@ class Andor2LimaCCDFPGA(Andor2LimaCCD):
     device."""
 
     attached_devices = {
-                        "fpga": Attach("ZEA-2 counter card, "
+                        "timer": Attach("ZEA-2 counter card timer channel, "
                                        "photoshutter control", Measurable),
                        }
 
@@ -397,11 +397,11 @@ class Andor2LimaCCDFPGA(Andor2LimaCCD):
 
     def doSetPreset(self, **preset):
         if "t" in preset:
-            self._adevs["fpga"].preselection = preset["t"]
+            self._adevs["timer"].preselection = preset["t"]
         Andor2LimaCCD.doSetPreset(self, **preset)
 
     def doStart(self):
-        self._adevs["fpga"].start()
+        self._adevs["timer"].start()
         Andor2LimaCCD.doStart(self)
 
 

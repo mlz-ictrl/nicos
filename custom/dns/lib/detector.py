@@ -75,7 +75,7 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
 
     attached_devices = {
         'expshutter': Attach('Experiment shutter device', NamedDigitalOutput),
-        'fpga':       Attach('ZEA-2 counter card', Measurable),
+        'timer':      Attach('ZEA-2 counter card timer channel', Measurable),
     }
 
     parameters = {
@@ -104,9 +104,9 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
         self.log.debug("Detector cleared")
         seq.append(SeqCall(self._dev.Start, _name='Start'))
         self.log.debug("Detector started")
-        seq.append(SeqCall(self._adevs['fpga'].start, _name='fpga.start'))
+        seq.append(SeqCall(self._adevs['timer'].start, _name='timer.start'))
         self.log.debug("Counter started")
-        seq.append(SeqCall(self._adevs['fpga'].wait, _name='fpga.wait'))
+        seq.append(SeqCall(self._adevs['timer'].wait, _name='timer.wait'))
         seq.append(SeqCall(self._dev.Stop, _name='Stop'))
         return seq
 
@@ -124,7 +124,7 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
                              T_SPIN_FLIP + " and " + T_NO_SPIN_FLIP +
                              " or just " + T_TIME + ". Falling back to "
                              "previous value '%g'." % t)
-        self._adevs['fpga'].preselection = t
+        self._adevs['timer'].preselection = t
 
     def doReadTofmode(self):
         return self.TOFMODE[self._dev.mode]
@@ -164,11 +164,11 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
         self._startSequence(self._generateSequence())
 
     def doPause(self):
-        self._adevs['fpga'].pause()
+        self._adevs['timer'].pause()
         self.log.debug("Tof Detector pause")
 
     def doResume(self):
-        self._adevs['fpga'].resume()
+        self._adevs['timer'].resume()
         self.log.debug("Tof Detector resume")
 
     def doStop(self):

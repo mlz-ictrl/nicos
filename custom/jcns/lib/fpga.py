@@ -26,9 +26,10 @@
 
 # local library
 import nicos.core.status as status
-from nicos.core.params import Param, Override, oneof
+from nicos.core.params import Param, Override, oneof, intrange
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic.detector import Channel
+
 
 __author__ = "Christian Felder <c.felder@fz-juelich.de>"
 
@@ -77,23 +78,21 @@ class FPGATimerChannel(FPGAChannelBase):
     def doStart(self):
         self._dev.DevFPGACountReset()
         if self.mode == FPGAChannelBase.MODE_PRESELECTION:
-            # preselection has to be set here and  not in doWritePreset
+            # preselection has to be set here and not in doWritePreset
             # because `DevFPGACountReset()` resets also the values below.
             millis = int(self.preselection * 1000)
             self._dev.DevFPGACountSetTimeLimit(millis)
             self._dev.DevFPGACountSetMinTime(millis)
         self._dev.DevFPGACountStart()
 
-    def doRead(self, maxage=0):
-        return self._dev.DevFPGACountReadTime() / 1000.
-
     def doPause(self):
         self.stop()
-        self.log.debug("FPGA pause")
 
     def doResume(self):
         self._dev.DevFPGACountStart()
-        self.log.debug("FPGA resume")
+
+    def doRead(self, maxage=0):
+        return self._dev.DevFPGACountReadTime() / 1000.
 
     def doIsCompleted(self):
         if self.status(0)[0] == status.BUSY:
@@ -104,7 +103,7 @@ class FPGACounterChannel(FPGATimerChannel):
     """FPGACounterChannel implements one monitor channel for ZEA-2 counter card."""
 
     parameters = {
-                  "channel": Param("Channel number", type=oneof(0, 1, 2, 3),
+                  "channel": Param("Channel number", type=intrange(0, 3),
                                    settable=False, mandatory=True)
                  }
 

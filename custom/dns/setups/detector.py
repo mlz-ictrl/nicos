@@ -17,7 +17,7 @@ devices = dict(
                             subdir = '.',
                             fileformats = ["DNSFileSaver"],
                             expshutter = 'expshutter',
-                            fpga = 'fpga',
+                            timer = 'timer',
                             flipper = 'flipper',
                             readchannels = (0, 23),
                            ),

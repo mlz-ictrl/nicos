@@ -183,7 +183,7 @@ class DNSFileFormat(ImageSink):
 
         imageinfo.file.write("# Active_Stop_Unit           TIMER\n")
         imageinfo.file.write("#  Timer                    %6.1f sec\n" %
-                             float(session.getDevice('fpga').read()[0]))
+                             float(session.getDevice('timer').read()[0]))
         imageinfo.file.write("#  Monitor           %16d\n" %
                              int(session.getDevice('mon0').read()[0]))
         imageinfo.file.write("#\n")
