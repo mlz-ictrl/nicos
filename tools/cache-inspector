@@ -32,13 +32,13 @@ sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
 try:
-    from nicos.core.sessions.simple import SingleDeviceSession
+    from nicos.core import sessions
 except ImportError:
     thisfile = path.abspath(__file__)
     sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
-    from nicos.core.sessions.simple import SingleDeviceSession
+    from nicos.core import sessions
 
-from cacheinspector.cacheinspector import CacheInspector
+from cacheinspector.cacheinspector import CacheInspector, CISession
 
 
 def main(argv=None):
@@ -56,9 +56,9 @@ def main(argv=None):
                       'this prefix, defaults to no prefix', default='')
     opts, args = parser.parse_args()
 
-    SingleDeviceSession.run('Inspector', CacheInspector,
-                            {'cache': opts.cache, 'prefix': opts.prefix},
-                            pidfile=False)
+    CISession.run('Inspector', CacheInspector,
+                  {'cache': opts.cache, 'prefix': opts.prefix},
+                  pidfile=False)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

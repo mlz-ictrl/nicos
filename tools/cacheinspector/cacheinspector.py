@@ -23,10 +23,58 @@
 # *****************************************************************************
 
 import sys
-from PyQt4.QtGui import QApplication, QIcon
+from logging import Handler, INFO, WARNING, ERROR
+
+from PyQt4.QtGui import QApplication, QIcon, QPalette
+from PyQt4.QtCore import Qt
+
+from nicos import session
+from nicos.utils.loggers import NicosLogger, ColoredConsoleHandler
+from nicos.core.sessions.simple import SingleDeviceSession
 
 from .mainwindow import MainWindow  # pylint: disable=F0401
 from .cacheclient import CICacheClient  # pylint: disable=E0611
+
+
+class StatusBarHandler(Handler):
+
+    def __init__(self):
+        Handler.__init__(self)
+        self._statusbar = None
+
+    def setStatusbar(self, statusbar):
+        self._statusbar = statusbar
+
+    def emit(self, record):
+        if self._statusbar:
+            msg = record.message
+            palette = self._statusbar.palette()
+            color = Qt.black
+            if record.levelno == WARNING:
+                color = Qt.darkMagenta
+                msg = 'Warning: ' + msg
+            elif record.levelno == ERROR:
+                color = Qt.red
+                msg = 'Error: ' + msg
+            palette.setColor(QPalette.WindowText, color)
+            self._statusbar.setPalette(palette)
+            self._statusbar.showMessage(msg)
+
+
+class CISession(SingleDeviceSession):
+    """Session for the cache inspector: makes log messages appear in the
+    status bar of the main window.
+    """
+
+    _qthandler = None
+
+    def createRootLogger(self, prefix='nicos', console=True):
+        self.log = NicosLogger('nicos')
+        self.log.setLevel(INFO)
+        self.log.parent = None
+        self.log.addHandler(ColoredConsoleHandler())
+        self._qthandler = StatusBarHandler()
+        self.log.addHandler(self._qthandler)
 
 
 class CacheInspector(CICacheClient):
@@ -41,6 +89,7 @@ class CacheInspector(CICacheClient):
         self._qtapp.setApplicationName('cacheinspector')
         self._window = MainWindow(self)
         self._window.setWindowIcon(QIcon(':/inspector'))
+        session._qthandler.setStatusbar(self._window.statusBar())
 
     def start(self):
         self._window.show()
