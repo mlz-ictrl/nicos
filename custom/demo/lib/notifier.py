@@ -90,12 +90,13 @@ class Jabberer(Notifier):
             except Exception:
                 self.log.exception('sending to %s failed' % receiver)
         self.log.info('%sjabber message sent to %s' %
-                       what and what + ' ' or '', ', '.join(receivers))
+                      (what and what + ' ' or '', ', '.join(receivers)))
 
     def _message(self, receiver, subject, body):
         """Create a message with the content as nicely formatted HTML in it."""
         plaintext = subject + '\n\n' + body
         msg = xmpp.protocol.Message(receiver, plaintext)
+        msg.setSubject(subject)
         html = msg.addChild('html', namespace=xmpp.protocol.NS_XHTML_IM)
         htmlbody = html.addChild('body', namespace=NS_XHTML)
         p = htmlbody.addChild('p')
