@@ -40,7 +40,7 @@ except ImportError:
     matplotlib = None
 
 from nicos.core import Param
-from nicos.core.status import OK, BUSY, ERROR, PAUSED, NOTREACHED
+from nicos.core.status import OK, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
 
@@ -395,7 +395,7 @@ class Monitor(BaseMonitor):
                 status = value[0]
                 if status == OK:
                     field._valuelabel.fore = self._green
-                elif status in (BUSY, PAUSED):
+                elif status == BUSY:
                     field._valuelabel.fore = self._yellow
                 elif status in (ERROR, NOTREACHED):
                     field._valuelabel.fore = self._red

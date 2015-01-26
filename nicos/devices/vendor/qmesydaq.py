@@ -105,7 +105,7 @@ class QMesyDAQBase(TacoDevice, MultiChannelDetector):
     _TACO_STATUS_MAPPING = {
         TACOStates.DEVICE_NORMAL : (status.OK, 'idle'),
         TACOStates.PRESELECTION_REACHED : (status.OK, 'idle'),
-        TACOStates.STOPPED : (status.PAUSED, 'paused'),
+        TACOStates.STOPPED : (status.OK, 'paused'),
         TACOStates.COUNTING : (status.BUSY, 'counting'),
     }
 

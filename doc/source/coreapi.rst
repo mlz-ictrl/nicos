@@ -193,13 +193,9 @@ as the first item of the tuple that `.Device.status` returns.  The whole
 
    The device is in a busy state (moving or waiting for completion).
 
-.. data:: PAUSED
-
-   The device is a measurable in paused state.
-
 .. data:: NOTREACHED
 
-   The device has not reached its setpoint.
+   The device has not reached its target/setpoint.
 
 .. data:: ERROR
 

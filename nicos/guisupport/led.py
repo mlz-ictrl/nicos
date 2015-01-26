@@ -29,7 +29,7 @@ NICOS GUI LED class.
 from PyQt4.QtGui import QLabel, QWidget, QPixmap
 from PyQt4.QtCore import Qt, QSize
 
-from nicos.core.status import OK, BUSY, PAUSED
+from nicos.core.status import OK, BUSY
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 
@@ -135,7 +135,7 @@ class StatusLed(BaseLed):
             self.ledStatus = True
         if value[0] == OK:
             self.ledColor = 'green'
-        elif value[0] in (BUSY, PAUSED):
+        elif value[0] == BUSY:
             self.ledColor = 'yellow'
         else:
             self.ledColor = 'red'

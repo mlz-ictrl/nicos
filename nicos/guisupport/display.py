@@ -35,7 +35,7 @@ from PyQt4.QtCore import Qt, QSize, QTimer, SIGNAL
 from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
     QHBoxLayout, QFontMetrics
 
-from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN, \
+from nicos.core.status import OK, BUSY, ERROR, NOTREACHED, UNKNOWN, \
     statuses
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor, \
     setBothColors
@@ -48,7 +48,6 @@ defaultColorScheme = {
     'fore': {
         OK:         QColor('#00ff00'),
         BUSY:       QColor('yellow'),
-        PAUSED:     QColor('yellow'),
         ERROR:      QColor('red'),
         NOTREACHED: QColor('red'),
         UNKNOWN:    QColor('white'),
@@ -56,7 +55,6 @@ defaultColorScheme = {
     'back': {
         OK:         QColor('black'),
         BUSY:       QColor('black'),
-        PAUSED:     QColor('black'),
         ERROR:      QColor('black'),
         NOTREACHED: QColor('black'),
         UNKNOWN:    QColor('black'),
@@ -69,7 +67,6 @@ lightColorScheme = {
     'fore': {
         OK:         QColor('#00cc00'),
         BUSY:       QColor('black'),
-        PAUSED:     QColor('black'),
         ERROR:      QColor('black'),
         NOTREACHED: QColor('black'),
         UNKNOWN:    QColor('black'),
@@ -77,7 +74,6 @@ lightColorScheme = {
     'back': {
         OK:         QColor('white'),
         BUSY:       QColor('yellow'),
-        PAUSED:     QColor('yellow'),
         ERROR:      QColor('#ff4444'),
         NOTREACHED: QColor('#ff4444'),
         UNKNOWN:    QColor('white'),

@@ -29,7 +29,7 @@
 # subordinate device values.
 OK = 100
 BUSY = 101
-PAUSED = 102
+# PAUSED = 102
 NOTREACHED = 103
 ERROR = 104
 UNKNOWN = 999

@@ -30,7 +30,7 @@ from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
     QByteArray
 
-from nicos.core.status import OK, BUSY, PAUSED, ERROR, NOTREACHED, UNKNOWN
+from nicos.core.status import OK, BUSY, ERROR, NOTREACHED, UNKNOWN
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
     DeviceComboWidget
 from nicos.clients.gui.panels import Panel, showPanel
@@ -42,7 +42,6 @@ from nicos.pycompat import iteritems
 foregroundBrush = {
     OK:         QBrush(QColor('#00aa00')),
     BUSY:       QBrush(Qt.black),
-    PAUSED:     QBrush(Qt.black),
     UNKNOWN:    QBrush(QColor('#cccccc')),
     ERROR:      QBrush(Qt.black),
     NOTREACHED: QBrush(Qt.black),
@@ -51,7 +50,6 @@ foregroundBrush = {
 backgroundBrush = {
     OK:         QBrush(),
     BUSY:       QBrush(Qt.yellow),
-    PAUSED:     QBrush(Qt.yellow),
     UNKNOWN:    QBrush(),
     ERROR:      QBrush(QColor('#ff6655')),
     NOTREACHED: QBrush(QColor('#ff6655')),
@@ -60,7 +58,6 @@ backgroundBrush = {
 statusIcon = {
     OK:         QIcon(':/leds/status_green'),
     BUSY:       QIcon(':/leds/status_yellow'),
-    PAUSED:     QIcon(':/leds/status_yellow'),
     UNKNOWN:    QIcon(':/leds/status_white'),
     ERROR:      QIcon(':/leds/status_red'),
     NOTREACHED: QIcon(':/leds/status_red'),
