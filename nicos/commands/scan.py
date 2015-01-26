@@ -44,11 +44,11 @@ __all__ = [
 def _fixType(dev, args, mkpos):
     if not args:
         raise UsageError('at least two arguments are required')
-    if isinstance(dev, list):
-        if not isinstance(args[0], list):
+    if isinstance(dev, (list, tuple)):
+        if not isinstance(args[0], (list, tuple)):
             raise UsageError('positions must be a list if devices are a list')
         devs = dev
-        if isinstance(args[0][0], list):
+        if isinstance(args[0][0], (list, tuple)):
             for l in args[0]:
                 if len(l) != len(args[0][0]):
                     raise UsageError('all position lists must have the same '
@@ -59,7 +59,8 @@ def _fixType(dev, args, mkpos):
             if len(args) < 3:
                 raise UsageError('at least four arguments are required in '
                                  'start-step-numpoints scan command')
-            if not (isinstance(args[0], list) and isinstance(args[1], list)):
+            if not (isinstance(args[0], (list, tuple)) and
+                    isinstance(args[1], (list, tuple))):
                 raise UsageError('start and step must be lists')
             if not len(dev) == len(args[0]) == len(args[1]):
                 raise UsageError('start and step lists must be of equal length')
@@ -67,7 +68,7 @@ def _fixType(dev, args, mkpos):
             restargs = args[3:]
     else:
         devs = [dev]
-        if isinstance(args[0], list):
+        if isinstance(args[0], (list, tuple)):
             values = list(zip(args[0]))
             restargs = args[1:]
         else:
@@ -98,6 +99,8 @@ def _handleScanArgs(args, kwargs, scaninfo):
     for key, value in iteritems(kwargs):
         if key in session.devices and isinstance(session.devices[key],
                                                  Moveable):
+            # Here, don't replace 'list' by '(list, tuple)'
+            # (tuples are reserved for valid device values)
             if isinstance(value, list):
                 if multistep and len(value) != len(multistep[-1][1]):
                     raise UsageError('all multi-step arguments must have the '
@@ -114,7 +117,7 @@ def _infostr(fn, args, kwargs):
     def devrepr(x):
         if isinstance(x, Device):
             return x.name
-        elif isinstance(x, list):  # and x and isinstance(x[0], Device):
+        elif isinstance(x, (list, tuple)):  # and x and isinstance(x[0], Device):
             return '[' + ', '.join(map(devrepr, x)) + ']'
         elif isinstance(x, float):
             return str(x)

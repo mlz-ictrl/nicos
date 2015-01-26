@@ -94,6 +94,9 @@ def test_scan():
         dataset = session.experiment._last_datasets[-1]
         assert dataset.xresults == [[float(i), float(i*2)] for i in [0, 1, 2]]
 
+        # same with tuple arguments
+        scan((m, m2), (0, 0), (1, 2), 2, t=0.)
+
         # scan with multiple devices and second basic syntax
         scan([m, m2], [[0, 0, 1], [4, 2, 1]], t=0.)
         dataset = session.experiment._last_datasets[-1]

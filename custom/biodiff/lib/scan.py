@@ -80,11 +80,11 @@ class RScan(Scan):
 def _fixType(dev, args, mkpos):
     if not args:
         raise UsageError('at least two arguments are required')
-    if isinstance(dev, list):
-        if not isinstance(args[0], list):
+    if isinstance(dev, (list, tuple)):
+        if not isinstance(args[0], (list, tuple)):
             raise UsageError('positions must be a list if devices are a list')
         devs = dev
-        if isinstance(args[0][0], list):
+        if isinstance(args[0][0], (list, tuple)):
             for l in args[0]:
                 if len(l) != len(args[0][0]):
                     raise UsageError('all position lists must have the same '
@@ -95,8 +95,9 @@ def _fixType(dev, args, mkpos):
             if len(args) < 3:
                 raise UsageError('at least four arguments are required in '
                                  'start-step-end scan command')
-            if not (isinstance(args[0], list) and isinstance(args[1], list)
-                    and isinstance(args[2], list)):
+            if not (isinstance(args[0], (list, tuple)) and
+                    isinstance(args[1], (list, tuple)) and
+                    isinstance(args[2], (list, tuple))):
                 raise UsageError('start, step and end must be lists')
             if not len(dev) == len(args[0]) == len(args[1]) == len(args[2]):
                 raise UsageError('start, step and end lists must be of ' +
@@ -105,7 +106,7 @@ def _fixType(dev, args, mkpos):
             restargs = args[3:]
     else:
         devs = [dev]
-        if isinstance(args[0], list):
+        if isinstance(args[0], (list, tuple)):
             values = list(zip(args[0]))
             restargs = args[1:]
         else:
