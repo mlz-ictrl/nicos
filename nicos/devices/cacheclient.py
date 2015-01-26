@@ -120,14 +120,13 @@ class BaseCacheClient(Device):
     def _disconnect(self, why=''):
         self._connected = False
         self._startup_done.clear()
-        if not self._socket:
-            return
         if why:
             if self._disconnect_warnings % 10 == 0:
                 self.log.warning(why)
             self._disconnect_warnings += 1
-        closeSocket(self._socket)
-        self._socket = None
+        if self._socket:
+            closeSocket(self._socket)
+            self._socket = None
         # close secondary socket
         with self._sec_lock:
             if self._secsocket:
