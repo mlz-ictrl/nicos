@@ -213,7 +213,8 @@ def createWindowItem(item, window, menuwindow, topwindow):
         p = cls(menuwindow, window.client)
         p.setOptions(item.options)
         window.panels.append(p)
-        topwindow.panels.append(p)
+        if p not in topwindow.panels:
+            topwindow.panels.append(p)
 
         for toolbar in p.getToolbars():
             # this helps for serializing window state
