@@ -159,6 +159,11 @@ class Watchdog(BaseCacheClient):
             return
         if key == self._prefix + 'session/mastersetup':
             self._setups = set(cache_load(value))
+            for eid in list(self._warnings) + list(self._watch_grace):
+                entry = self._entries[eid]
+                if entry.setup and entry.setup not in self._setups:
+                    del self._warnings[eid]
+            self._update_warnings_str()
         if key == self._prefix + self.mailreceiverkey:
             self._update_mailreceivers(cache_load(value))
             return
@@ -237,7 +242,7 @@ class Watchdog(BaseCacheClient):
             del self._watch_grace[eid]
         if eid in self._warnings:
             del self._warnings[eid]
-            self._update_warnings_str()
+        self._update_warnings_str()
 
     def _update_warnings_str(self, timestamp=False):
         self._put_message('warnings', '\n'.join(self._warnings.values()),
