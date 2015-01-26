@@ -678,13 +678,8 @@ class Experiment(Device):
         # all prepared, do the switch
         # remove access rights to old proposal if wanted
         if self.managerights and self.proptype == 'user':
-            try:
-                disableDirectory(self.proposalpath, **self.managerights)
-            except Exception:
-                self.log.warning('could not remove permissions for old '
-                                 'experiment directory', exc=1)
-            else:
-                self.log.debug('disabled directory %s' % self.proposalpath)
+            disableDirectory(self.proposalpath, **self.managerights)
+            self.log.debug('disabled directory %s' % self.proposalpath)
 
         # reset all experiment dependent parameters and values to defaults
         self.remark = ''
