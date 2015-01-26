@@ -1662,9 +1662,6 @@ class Measurable(Readable):
             return [result]
         return result
 
-    def doPrepare(self):
-        pass
-
     @usermethod
     def prepare(self):
         """Prepare measurement before counting.
@@ -1677,7 +1674,8 @@ class Measurable(Readable):
 
         """
         if not self._sim_active:
-            return self.doPrepare()
+            if hasattr(self, 'doPrepare'):
+                return self.doPrepare()
 
     def save(self, exception=False):
         """Save the current measurement, if necessary.
