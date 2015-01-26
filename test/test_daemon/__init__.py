@@ -66,9 +66,10 @@ def setup_package():
             s.send((b'\x42' * 16) +  # ident
                    ENQ + command2code['authenticate'] +
                    LENGTH.pack(len(auth)) + auth)
+            s.recv(1024)
             empty = serialize(())
             s.send(ENQ + command2code['quit'] + LENGTH.pack(len(empty)) + empty)
-            time.sleep(0.02)
+            s.recv(1024)
             s.close()
             break
     else:
