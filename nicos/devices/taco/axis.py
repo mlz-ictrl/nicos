@@ -30,11 +30,11 @@ from time import sleep
 import TACOStates
 from Motor import Motor as TACOMotor
 
-from nicos.core import status, tupleof, oneof, anytype, usermethod, Moveable, \
-    Param, NicosError, ModeError, waitForStatus, requires, SLAVE
+from nicos.core import ModeError, Moveable, Param, SLAVE, anytype, \
+    oneof, requires, status, tupleof, usermethod
 from nicos.devices.abstract import Axis as BaseAxis, CanReference
+from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqSleep, SeqCall
 from nicos.devices.taco.core import TacoDevice
-from nicos.utils import createThread
 
 
 class Axis(CanReference, TacoDevice, BaseAxis):
@@ -191,8 +191,8 @@ class Axis(CanReference, TacoDevice, BaseAxis):
         self._writeMotorParam('refpos', value)
 
 
-class HoveringAxis(Axis):
-    """A TACO axis that also controls air for airpads."""
+class HoveringAxis(SequencerMixin, Axis):
+    """An axis that also controls air for airpads."""
 
     attached_devices = {
         'switch': (Moveable, 'The device used for switching air on and off'),
@@ -207,61 +207,24 @@ class HoveringAxis(Axis):
                               type=tupleof(anytype, anytype), default=(0, 1)),
     }
 
-    def doInit(self, mode):
-        self._poll_thread = None
-        self._wait_exception = None
+    def _generateSequence(self, target):  # pylint: disable=W0221
+        return [
+            SeqDev(self._adevs['switch'], self.switchvalues[1]),
+            SeqSleep(self.startdelay),
+            SeqCall(Axis.doStart, self, target),
+            SeqCall(Axis.doWait, self),
+            SeqSleep(self.stopdelay),
+            SeqDev(self._adevs['switch'], self.switchvalues[0]),
+        ]
 
     def doStart(self, target):
-        if self._poll_thread and self._poll_thread.isAlive():
+        if self._seq_thread and self._seq_thread.isAlive():
             self.stop()
             self.log.info('waiting for axis to stop...')
-            for _i in range(100):
-                if self._poll_thread is None:
-                    break
-                sleep(0.1)
-            else:
-                raise NicosError(self, 'axis is already moving and does not '
-                                 'appear to stop')
+            self.wait()
         if abs(target - self.read()) < self.precision:
             return
-        self._poll_thread = createThread('%s polling thread' % self,
-                                         self._pollthread, start=False)
-        self._wait_exception = None
-        self._adevs['switch'].move(self.switchvalues[1])
-        try:
-            sleep(self.startdelay)
-            Axis.doStart(self, target)
-        finally:
-            # if an interrupt arrives while starting, we still want to switch
-            # off the air when the motor is idle
-            self._poll_thread.start()
-
-    def _pollthread(self):
-        sleep(0.1)
-        try:
-            waitForStatus(self, 0.2)
-        except Exception as err:
-            self._wait_exception = err
-            raise
-        finally:
-            sleep(self.stopdelay)
-            try:
-                self._adevs['switch'].move(self.switchvalues[0])
-            finally:
-                self._poll_thread = None
-
-    def doIsCompleted(self):
-        done = not (self._poll_thread and self._poll_thread.isAlive())
-        if done and self._wait_exception:
-            exc = self._wait_exception
-            self._wait_exception = None
-            raise exc  # pylint: disable=E0702
-        return done
+        self._startSequence(self._generateSequence(target))
 
     def doTime(self, start, end):
         return Axis.doTime(self, start, end) + self.startdelay + self.stopdelay
-
-    def doReset(self):
-        Axis.doReset(self)
-        self._poll_thread = None
-        self._wait_exception = None
