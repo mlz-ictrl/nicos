@@ -45,7 +45,7 @@ from nicos.core import Moveable, HasLimits, DataSink, status
 from nicos.core.sessions import Session
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 from nicos.core.sessions.utils import MASTER
-from nicos.pycompat import reraise, exec_
+from nicos.pycompat import exec_
 
 
 rootdir = path.join(os.path.dirname(__file__), 'root')
@@ -128,11 +128,7 @@ class TestLogHandler(ColoredConsoleHandler):
 
     def emit(self, record):
         if record.levelno >= ERROR and self._raising:
-            if record.exc_info:
-                # raise the original exception
-                reraise(*record.exc_info)
-            else:
-                raise ErrorLogged(record.message)
+            raise ErrorLogged(record.message)
         elif record.levelno >= WARNING:
             self._warnings.append(record)
         else:

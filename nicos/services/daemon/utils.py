@@ -25,11 +25,9 @@
 """Utilities for the NICOS daemon."""
 
 import re
-import sys
 import time
 import logging
 import linecache
-import traceback
 
 from nicos.utils.loggers import ACTION, TRANSMIT_ENTRIES
 
@@ -37,20 +35,6 @@ from nicos.utils.loggers import ACTION, TRANSMIT_ENTRIES
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
 
 # -- General utilities ---------------------------------------------------------
-
-
-def format_exception_cut_frames(cut=0):
-    """
-    Format an exception with traceback, but leave out the first `cut`
-    number of frames.
-    """
-    typ, val, tb = sys.exc_info()
-    res = ['Traceback (most recent call last):\n']
-    tbres = traceback.format_tb(tb, sys.maxsize)
-    res += tbres[cut:]
-    res += traceback.format_exception_only(typ, val)
-    return ''.join(res)
-
 
 _excessive_ws_re = re.compile(r'\n\s*\n')
 

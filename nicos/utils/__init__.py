@@ -864,6 +864,22 @@ def formatExtendedStack(level=1):
     return ''.join(ret).rstrip('\n')
 
 
+def formatException(cut=0, exc_info=None):
+    """
+    Format an exception with traceback, but leave out the first `cut`
+    number of frames.
+    """
+    if exc_info is None:
+        typ, val, tb = sys.exc_info()
+    else:
+        typ, val, tb = exc_info  # pylint: disable=W0633
+    res = ['Traceback (most recent call last):\n']
+    tbres = traceback.format_tb(tb, sys.maxsize)
+    res += tbres[cut:]
+    res += traceback.format_exception_only(typ, val)
+    return ''.join(res)
+
+
 # file counter utilities
 
 def readFileCounter(counterpath):

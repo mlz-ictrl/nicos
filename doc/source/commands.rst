@@ -73,6 +73,7 @@ Miscellaneous commands
 .. .. autofunction:: Keep
 .. autofunction:: ClearCache
 .. .. autofunction:: UserInfo
+.. autofunction:: SetErrorAbort
 .. autofunction:: SetSimpleMode
 
    .. XXX See :ref:`spm`.

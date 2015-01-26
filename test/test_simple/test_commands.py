@@ -30,6 +30,7 @@ from nicos import session
 from nicos.core import UsageError, LimitError
 from nicos.utils import ensureDirectory
 
+from nicos.commands import usercommandWrapper
 from nicos.commands.measure import count
 from nicos.commands.device import move, maw, drive, switch, wait, read, \
     status, stop, reset, get, getall, setall, fix, release, adjust, \
@@ -66,7 +67,7 @@ def test_output_commands():
     except ZeroDivisionError:
         assert session.testhandler.warns(printwarning, 'warn!', exc=1)
     assert raises(ErrorLogged, printerror, 'error!')
-    assert raises(ZeroDivisionError, printexception, 'exception!')
+    assert raises(ErrorLogged, printexception, 'exception!')
 
 
 def test_basic_commands():
@@ -242,3 +243,22 @@ def test_device_commands():
     # check count()
     assert raises(UsageError, count, motor)
     count()
+
+
+def test_command_exceptionhandling():
+    # basic commands should catch exceptions when wrapped as usercommands
+    # (but log an error) depending on setting on the experiment
+    wrapped_maw = usercommandWrapper(maw)
+    dev = session.getDevice('motor')
+    assert dev.usermin == -100
+
+    session.experiment.errorbehavior = 'report'
+    try:
+        wrapped_maw(dev, -150)
+    except ErrorLogged:
+        pass
+    else:
+        assert False, 'no error raised and no error logged'
+
+    session.experiment.errorbehavior = 'abort'
+    assert raises(LimitError, wrapped_maw, dev, -150)

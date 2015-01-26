@@ -30,9 +30,7 @@ import os
 import pdb
 import sys
 import code
-import time
 import signal
-import traceback
 
 try:
     import readline
@@ -44,7 +42,7 @@ from nicos.core import AccessError
 from nicos.utils import colorcode, formatExtendedStack
 from nicos.utils.loggers import INPUT, INFO
 from nicos.core.sessions import Session
-from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
+from nicos.core.sessions.utils import NicosCompleter
 from nicos.core import SIMULATION, SLAVE, MASTER
 from nicos.pycompat import input as input_func, exec_
 
@@ -145,8 +143,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """Mostly copied from code.InteractiveInterpreter, but added better
         exception handling.
         """
-        # record starting time to decide whether to send notification
-        start_time = time.time()
+        session.scriptEvent('start', source)
         try:
             exec_(codeobj, self.globals, self.locals)
         except NicosInteractiveStop:
@@ -155,24 +152,10 @@ class NicosInteractiveConsole(code.InteractiveConsole):
             # "immediate stop" chosen
             session.immediateStop()
         except Exception:
-            exc_info = sys.exc_info()
-            self.session.logUnhandledException(exc_info)
-            # also send a notification if configured
-            exception = ''.join(traceback.format_exception(*exc_info))
-            self.session.notifyConditionally(
-                time.time() - start_time,
-                'Exception in script',
-                'An exception occurred in the executed script:\n\n' +
-                exception, 'error notification',
-                short='Exception: ' + exception.splitlines()[-1])
-            if exc_info[0] == NameError:
-                guessCorrectCommand(source)
-            if exc_info[0] == AttributeError:
-                guessCorrectCommand(source, attribute=True)
-
-            return
+            session.scriptEvent('exception', sys.exc_info())
         if hasattr(code, 'softspace') and code.softspace(sys.stdout, 0):
             print()
+        session.scriptEvent('finish', None)
         # self.locals.clear()
 
 

@@ -31,6 +31,7 @@ Only for internal usage by functions and methods.
 
 import os
 import sys
+import time
 import inspect
 import logging
 from os import path
@@ -45,7 +46,7 @@ from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
 from nicos.core.utils import system_user
 from nicos.devices.notifiers import Notifier
-from nicos.utils import formatDocstring
+from nicos.utils import formatDocstring, formatException
 from nicos.utils.loggers import initLoggers, NicosLogger, \
     ColoredConsoleHandler, NicosLogfileHandler
 from nicos.devices.instrument import Instrument
@@ -54,7 +55,7 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
 from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
     NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
-    SIMULATION, MAINTENANCE
+    SIMULATION, MAINTENANCE, guessCorrectCommand
 from nicos.core.sessions.setups import readSetups
 from nicos.pycompat import builtins, exec_, string_types, \
     itervalues, iteritems, listvalues
@@ -133,6 +134,9 @@ class Session(object):
         self._pnp_cache = {'descriptions': {}}
         # intrinsic count pause request
         self.should_pause_count = None
+        # when was the last script started?
+        self._script_start = None
+        self._script_text = ''
 
         # sysconfig devices
         self._def_sysconfig = {
@@ -1078,6 +1082,33 @@ class Session(object):
         # events will be sent in simulation mode
         if self.cache:
             self.cache.put_raw('logbook/' + eventtype + FLAG_NO_STORE, data)
+
+    def scriptEvent(self, eventtype, data):
+        """Call this when an command/script event happens.
+
+        eventtype can be "start", "finish" or "exception".  "exception" does not
+        need to mean that the script has been aborted.
+
+        data is script text (for start), or an exc_info tuple (for exception).
+        """
+        if eventtype == 'start':
+            # record starting time to decide whether to send notification
+            self._script_start = time.time()
+            self._script_text = data
+        elif eventtype == 'exception':
+            self.logUnhandledException(data)
+            exception = formatException(exc_info=data)
+            self.notifyConditionally(
+                time.time() - self._script_start,
+                'Error in script',
+                'An error occurred in the executed script:\n\n' +
+                exception + '\n\nThe script was:\n\n' +
+                self._script_text, 'error notification',
+                short='Exception: ' + exception.splitlines()[-1])
+            if isinstance(data[1], NameError):
+                guessCorrectCommand(self.current_script.text)
+            elif isinstance(data[1], AttributeError):
+                guessCorrectCommand(self.current_script.text, True)
 
     # -- Action logging --------------------------------------------------------
 

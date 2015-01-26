@@ -170,6 +170,9 @@ class Experiment(Device):
                               settable=False, volatile=True, mandatory=False),
         'lastimagefile': Param('Last/Currently written imagefile in this experiment',
                                type=str, settable=False, mandatory=False),
+        'errorbehavior': Param('Behavior on unhandled errors in commands',
+                               type=oneof('abort', 'report'), settable=True,
+                               default='report'),
     }
 
     attached_devices = {

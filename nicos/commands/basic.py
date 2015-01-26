@@ -860,3 +860,15 @@ def _LogAttach(description, paths, names):
     This is intended to be used from the NICOS GUI, from the respective dialogs.
     """
     session.elogEvent('attachment', (description, paths, names))
+
+
+@usercommand
+@spmsyntax(Bool)
+def SetErrorAbort(abort):
+    """Set behavior on unhandled errors in commands.
+
+    If *abort* is True, abort script and notify.
+
+    If it is False, report the error, notify and continue with the next command.
+    """
+    session.experiment.errorbehavior = abort and 'abort' or 'report'

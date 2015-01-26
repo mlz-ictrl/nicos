@@ -29,7 +29,8 @@ from time import sleep
 from nicos import session
 from nicos.core import UsageError, ConfigurationError, NoDevice
 from nicos.commands.device import read, adjust
-from test.utils import raises
+
+from test.utils import raises, ErrorLogged
 
 
 def setup_module():
@@ -49,7 +50,7 @@ def test_alias_nodev():
     # accesses raise ConfigurationError
     assert raises(ConfigurationError, getattr, alias, 'read')
     assert raises(ConfigurationError, setattr, alias, 'speed', 0)
-    assert raises(ConfigurationError, read, alias)
+    assert raises(ErrorLogged, read, alias)
     # but stringification is still the name of the alias object
     assert str(alias) == 'aliasDev'
     assert 'aliasDev' in repr(alias)

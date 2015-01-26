@@ -54,8 +54,16 @@ def helparglist(args):
 import sys
 from functools import wraps
 
+from nicos import session
 from nicos.core.errors import UsageError
 from nicos.commands.output import printerror, printexception
+
+
+RERAISE_EXCEPTIONS = (
+    EnvironmentError,
+    MemoryError,
+    SystemError,
+)
 
 
 def usercommandWrapper(func):
@@ -67,28 +75,36 @@ def usercommandWrapper(func):
     @wraps(func)
     def wrapped(*args, **kwds):
         try:
-            # try executing the original function with the given arguments
-            return func(*args, **kwds)
-        except TypeError:
-            # find out if the call itself caused this error, which means that
-            # wrong arguments were given to the command
-            traceback = sys.exc_info()[2]
-            # find last call frame
-            while traceback.tb_next:
-                traceback = traceback.tb_next
-            if traceback.tb_frame.f_code is wrapped.__code__:
-                printerror('Usage error: invalid arguments for %s()'
-                           % func.__name__)
+            try:
+                # try executing the original function with the given arguments
+                return func(*args, **kwds)
+            except TypeError:
+                # find out if the call itself caused this error, which means that
+                # wrong arguments were given to the command
+                traceback = sys.exc_info()[2]
+                # find last call frame
+                while traceback.tb_next:
+                    traceback = traceback.tb_next
+                if traceback.tb_frame.f_code is wrapped.__code__:
+                    printerror('Usage error: invalid arguments for %s()'
+                               % func.__name__)
+                    help(func)
+                else:
+                    raise
+            except UsageError:
+                # for usage errors, print the error and the help for the command
+                printexception()
                 help(func)
+        except RERAISE_EXCEPTIONS:
+            # don't handle these, they should lead to an unconditional abort
+            raise
+        except Exception:
+            # all others we'll handle and continue, if wanted
+            if hasattr(session.experiment, 'errorbehavior') and \
+               session.experiment.errorbehavior == 'report':
+                session.scriptEvent('exception', sys.exc_info())
             else:
                 raise
-        except UsageError:
-            # for usage errors, print the error and the help for the command
-            printexception()
-            help(func)
-        # except Exception:
-        #     # for other errors, print them a friendly fashion
-        #     printexception()
     wrapped.is_usercommand = True
     # store a reference to the original function, so that help() can find
     # out the argument specification by looking at it

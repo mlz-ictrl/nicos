@@ -26,7 +26,6 @@
 
 import ast
 import sys
-import time
 import weakref
 import traceback
 from os import path
@@ -36,13 +35,14 @@ from threading import Lock, Event
 from nicos import session, config
 from nicos.utils import createThread
 from nicos.utils.loggers import INPUT
-from nicos.services.daemon.utils import format_exception_cut_frames, \
+from nicos.core.utils import system_user
+from nicos.services.daemon.utils import \
     format_script, fixup_script, update_linecache
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE
-from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
-from nicos.core import SIMULATION, SLAVE, MASTER, system_user
+from nicos.core.sessions.utils import NicosCompleter
+from nicos.core import SIMULATION, SLAVE, MASTER
 from nicos.pycompat import queue, exec_, text_type
 
 # compile flag to activate new division
@@ -157,6 +157,7 @@ class ScriptRequest(Request):
         to execute individual blocks."""
         # this is to allow the traceback module to report the script's
         # source code correctly
+        session.scriptEvent('start', self.text)
         update_linecache('<script>', self.text)
         if session.experiment and session.mode == MASTER:
             session.experiment.scripts += [self.text]
@@ -574,8 +575,6 @@ class ExecutionController(Controller):
                 except Exception:
                     session.logUnhandledException(cut_frames=1)
                     continue
-                # record starting time to decide whether to send notification
-                start_time = time.time()
                 try:
                     self.current_script.execute(self)
                 except ControlStop as err:
@@ -595,22 +594,11 @@ class ExecutionController(Controller):
                 except Exception as err:  # pylint: disable=E0701
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
-                    session.logUnhandledException(cut_frames=2)
                     # perhaps also send an error notification
-                    exception = format_exception_cut_frames(2)
-                    session.notifyConditionally(
-                        time.time() - start_time,
-                        'Exception in script',
-                        'An exception occurred in the executed script:\n\n' +
-                        exception + '\n\nThe script was:\n\n' +
-                        repr(self.current_script), 'error notification',
-                        short='Exception: ' + exception.splitlines()[-1])
-                    if isinstance(err, NameError):
-                        guessCorrectCommand(self.current_script.text)
-                    elif isinstance(err, AttributeError):
-                        guessCorrectCommand(self.current_script.text, True)
+                    session.scriptEvent('exception', sys.exc_info())
                 if self.debugger:
                     self.debug_end(tracing=False)
+                session.scriptEvent('finish', None)
         except Exception:
             self.log.exception('unhandled exception in script thread')
         finally:
