@@ -225,8 +225,10 @@ class Experiment(Device):
 
     @property
     def templatepath(self):
-        """Path where all template files are stored"""
-        return path.abspath(path.join(self.dataroot, self.templates))
+        """Paths where all template files are stored"""
+        return [path.abspath(path.join(self.dataroot, self.templates))] + \
+            [path.join(config.custom_path, p.strip(), 'template')
+             for p in config.setup_subdirs.split(',')]
 
     @property
     def proposalsymlink(self):
@@ -785,28 +787,32 @@ class Experiment(Device):
     def getTemplate(self, tmplname):
         """returns the content of the requested template"""
         try:
-            with open(path.join(self.templatepath, tmplname), 'r') as f:
-                return f.read()
-        except OSError as e:
-            self.log.error(self, 'Can\'t read template %r (%s), please check settings' %
-                           (tmplname, e))
+            for tmpldir in self.templatepath:
+                if path.isfile(path.join(tmpldir, tmplname)):
+                    with open(path.join(tmpldir, tmplname), 'r') as f:
+                        return f.read()
+            raise RuntimeError('no such template found')
+        except Exception as e:
+            self.log.error(self, 'Can\'t read template %r (%s), please '
+                           'check settings' % (tmplname, e))
             raise
 
     def iterTemplates(self, only_dot_template=True):
         """iterator of all templates (and their content)..."""
-        if not path.isdir(self.templatepath):
-            return
-        filelist = os.listdir(self.templatepath)
-        for fn in filelist:
-            if self.mailtemplate and fn.startswith(self.mailtemplate):
+        for tmpldir in self.templatepath[::-1]:  # reversed to keep priority
+            if not path.isdir(tmpldir):
                 continue
-            if self.reporttemplate and fn.startswith(self.reporttemplate):
-                continue
-            if fn in self.skiptemplates:
-                continue
-            if only_dot_template and not fn.endswith('.template'):
-                continue
-            yield (fn, self.getTemplate(fn))
+            filelist = os.listdir(tmpldir)
+            for fn in filelist:
+                if self.mailtemplate and fn.startswith(self.mailtemplate):
+                    continue
+                if self.reporttemplate and fn.startswith(self.reporttemplate):
+                    continue
+                if fn in self.skiptemplates:
+                    continue
+                if only_dot_template and not fn.endswith('.template'):
+                    continue
+                yield (fn, self.getTemplate(fn))
 
     def checkTemplates(self, proposal, kwargs):
         """try to fill in all templates to see if some keywords are missing"""
