@@ -22,10 +22,12 @@
 #
 # *****************************************************************************
 
+import time
 import numpy
 
+
 from nicos.core import ImageSink, NicosError
-from nicos.pycompat import iteritems, to_ascii_escaped
+from nicos.pycompat import iteritems, to_ascii_escaped, OrderedDict
 
 try:
     import pyfits
@@ -58,29 +60,41 @@ class FITSFileFormat(ImageSink):
         hdu = pyfits.PrimaryHDU(npData)
 
         # create fits header from nicos header and add entries to hdu
-        self._buildHeader(info.header, hdu)
+        self._buildHeader(info, hdu)
 
         hdu.writeto(info.file)
 
-    def _buildHeader(self, header, hdu):
-        for _cat, dataSets in iteritems(header):
+    def _buildHeader(self, imageinfo, hdu):
+
+        header = OrderedDict({
+            'begintime' : time.strftime('%Y-%m-%d %H:%M:%S',
+                                        time.localtime(imageinfo.begintime)),
+            'endtime' : time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime(imageinfo.endtime))
+        })
+
+        for _cat, dataSets in iteritems(imageinfo.header):
             for dev, attr, attrVal in dataSets:
-                # The FITS standard defines max 8 characters for a header key.
-                # To make longer keys possible, we use the HIERARCH keyword
-                # here (67 chars max).
-                # To get a consistent looking header, add it to every key.
-                key = 'HIERARCH %s/%s' % (dev.name, attr)
+                header['%s/%s' % (dev.name, attr)] = attrVal
 
-                # use only ascii characters and escapes if necessary.
-                value = to_ascii_escaped(str(attrVal))
+        for key, value in header.iteritems():
+            # The FITS standard defines max 8 characters for a header key.
+            # To make longer keys possible, we use the HIERARCH keyword
+            # here (67 chars max).
+            # To get a consistent looking header, add it to every key
+            key = 'HIERARCH %s' % key
 
-                # Determine maximum possible value length (key dependend).
-                maxValLen = 63 - len(key)
+            # use only ascii characters and escapes if necessary.
+            value = to_ascii_escaped(str(value))
 
-                # Split the dataset into several header entries if necessary
-                # (due to the limited length)
-                splittedHeaderItems = [value[i:i + maxValLen]
-                           for i in range(0, len(value), maxValLen)]
+            # Determine maximum possible value length (key dependend).
+            maxValLen = 63 - len(key)
 
-                for item in splittedHeaderItems:
-                    hdu.header.append((key, item))
+            # Split the dataset into several header entries if necessary
+            # (due to the limited length)
+            splittedHeaderItems = [value[i:i + maxValLen]
+                       for i in range(0, len(value), maxValLen)]
+
+            for item in splittedHeaderItems:
+                hdu.header.append((key, item))
+
