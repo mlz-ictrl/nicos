@@ -21,7 +21,13 @@
 #   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
+"""FPGA Counter Card module
 
+This module provides classes for controlling the ZEA-2 FPGA Counter Card using
+their own interface. The current implementation does _not_ support multiple
+masters, e.g. counting on time and count rate.
+
+"""
 # standard library
 
 # local library
@@ -41,15 +47,30 @@ class FPGAChannelBase(PyTangoDevice, Channel):
     MODE_PRESELECTION = "preselection"
 
     parameter_overrides = {
-                           "mode": Override(type=oneof(MODE_NORMAL,
-                                                       MODE_PRESELECTION)),
-                           }
+       "mode": Override(type=oneof(MODE_NORMAL, MODE_PRESELECTION)),
+    }
+
+    def _setPreselection(self):
+        """This method must be present and should set the the preselection
+        value for the card before start."""
+        raise NotImplementedError
 
     def doStart(self):
-        raise NotImplementedError
+        self._dev.DevFPGACountReset()
+        if self.mode == FPGAChannelBase.MODE_PRESELECTION:
+            # preselection has to be set here and not in doWritePreset
+            # because `DevFPGACountReset()` resets all values.
+            self._setPreselection()
+        self._dev.DevFPGACountStart()
 
     def doStop(self):
         self._dev.DevFPGACountStop()
+
+    def doPause(self):
+        self.stop()
+
+    def doResume(self):
+        self._dev.DevFPGACountStart()
 
     def doRead(self, maxage=0):
         raise NotImplementedError
@@ -61,6 +82,9 @@ class FPGAChannelBase(PyTangoDevice, Channel):
         else:
             res = (status.OK, '')
         return res
+
+    def doIsCompleted(self):
+        return (self.status(0)[0] != status.BUSY)
 
     def doReset(self):
         if self.status(0)[0] == status.BUSY:
@@ -75,45 +99,33 @@ class FPGATimerChannel(FPGAChannelBase):
                            "unit": Override(default='s', mandatory=False),
                            }
 
-    def doStart(self):
-        self._dev.DevFPGACountReset()
-        if self.mode == FPGAChannelBase.MODE_PRESELECTION:
-            # preselection has to be set here and not in doWritePreset
-            # because `DevFPGACountReset()` resets also the values below.
-            millis = int(self.preselection * 1000)
-            self._dev.DevFPGACountSetTimeLimit(millis)
-            self._dev.DevFPGACountSetMinTime(millis)
-        self._dev.DevFPGACountStart()
-
-    def doPause(self):
-        self.stop()
-
-    def doResume(self):
-        self._dev.DevFPGACountStart()
+    def _setPreselection(self):
+        millis = int(self.preselection * 1000)
+        self._dev.DevFPGACountSetTimeLimit(millis)
+        self._dev.DevFPGACountSetMinTime(millis)
 
     def doRead(self, maxage=0):
         return self._dev.DevFPGACountReadTime() / 1000.
-
-    def doIsCompleted(self):
-        if self.status(0)[0] == status.BUSY:
-            return False
-        return True
 
     def valueInfo(self):
         return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
 
 
-class FPGACounterChannel(FPGATimerChannel):
+class FPGACounterChannel(FPGAChannelBase):
     """FPGACounterChannel implements one monitor channel for ZEA-2 counter card."""
 
     parameters = {
-                  "channel": Param("Channel number", type=intrange(0, 3),
+                  "channel": Param("Channel number", type=intrange(0, 4),
                                    settable=False, mandatory=True)
                  }
 
     parameter_overrides = {
                            "unit": Override(default="cts", mandatory=False),
                           }
+
+    def _setPreselection(self):
+        self._dev.DevFPGACountSetCountLimit([self.channel,
+                                             int(self.preselection)])
 
     def doRead(self, maxage=0):
         return self._dev.DevFPGACountReadCount(self.channel)
