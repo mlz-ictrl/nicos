@@ -37,7 +37,7 @@ from nicos.core.device import Moveable, Measurable
 from nicos.devices.tango import PyTangoDevice, \
     DEFAULT_STATUS_MAPPING as DEFAULT_MAP_TANGO_STATUS
 from nicos.devices.vendor.lima import Andor2LimaCCD
-from nicos.core.params import Attach, Param, Override, oneof, tupleof
+from nicos.core.params import Attach, Param, Override, Value, oneof, tupleof
 from nicos.core.errors import NicosError
 from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep
 from nicos.core.image import ImageProducer, ImageType
@@ -328,6 +328,9 @@ Retrying.""" % (action, exception))
 
     def doRead(self, maxage=0):
         return self.lastfilename
+
+    def valueInfo(self):
+        return Value(self.name + ".file", type="info", fmtstr="%s"),
 
     def doSave(self, exception=False):
         if exception:
