@@ -482,12 +482,19 @@ class Session(object):
 
         # initialize the cache connection
         if sysconfig.get('cache') and self._mode != SIMULATION:
-            self.cache = self.cache_class('Cache', cache=sysconfig['cache'],
-                                          prefix='nicos/', lowlevel=True)
-            # be notified about plug-and-play sample environment devices
-            self.cache.addPrefixCallback('se/', self._pnpHandler)
-            # be notified about watchdog events
-            self.cache.addPrefixCallback('watchdog/', self._watchdogHandler)
+            reuse_cache = False
+            if self.cache:
+                if self.cache.cache == sysconfig['cache']:
+                    reuse_cache = True
+                else:
+                    self.cache.shutdown()
+            if not reuse_cache:
+                self.cache = self.cache_class('Cache', cache=sysconfig['cache'],
+                                              prefix='nicos/', lowlevel=True)
+                # be notified about plug-and-play sample environment devices
+                self.cache.addPrefixCallback('se/', self._pnpHandler)
+                # be notified about watchdog events
+                self.cache.addPrefixCallback('watchdog/', self._watchdogHandler)
 
         # validate and attach sysconfig devices
         sysconfig_items = [
