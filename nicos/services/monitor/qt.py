@@ -30,7 +30,8 @@ sip.setapi('QVariant', 2)
 
 from PyQt4 import uic
 from PyQt4.QtGui import QFrame, QLabel, QPalette, QMainWindow, QVBoxLayout, \
-    QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, QCursor
+    QColor, QFont, QFontMetrics, QSizePolicy, QHBoxLayout, QApplication, \
+    QCursor, QIcon
 from PyQt4.QtCore import Qt, SIGNAL
 
 from nicos.utils import findResource
@@ -53,6 +54,13 @@ class MonitorWindow(QMainWindow):
     def __init__(self):
         self._reconfiguring = False
         QMainWindow.__init__(self)
+        # set app icon in multiple sizes
+        icon = QIcon()
+        icon.addFile(':/appicon')
+        icon.addFile(':/appicon-16')
+        icon.addFile(':/appicon-48')
+        self.setWindowIcon(icon)
+
         self.sgroup = SettingGroup('Monitor')
         with self.sgroup as settings:
             # geometry and window appearance
