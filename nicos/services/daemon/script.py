@@ -36,8 +36,8 @@ from nicos import session, config
 from nicos.utils import createThread
 from nicos.utils.loggers import INPUT
 from nicos.core.utils import system_user
-from nicos.services.daemon.utils import \
-    format_script, fixup_script, update_linecache
+from nicos.services.daemon.utils import formatScript, fixupScript, \
+    updateLinecache
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE
@@ -143,7 +143,7 @@ class ScriptRequest(Request):
                                            self.name or '', lambda c: c)
         # replace bare except clauses in the code with "except Exception"
         # so that ControlStop is not caught
-        pycode = fixup_script(pycode)
+        pycode = fixupScript(pycode)
         if not splitblocks:
             # no splitting desired
             self.code = [compiler(pycode)]
@@ -158,7 +158,7 @@ class ScriptRequest(Request):
         # this is to allow the traceback module to report the script's
         # source code correctly
         session.scriptEvent('start', self.text)
-        update_linecache('<script>', self.text)
+        updateLinecache('<script>', self.text)
         if session.experiment and session.mode == MASTER:
             session.experiment.scripts += [self.text]
             self._exp_script_index = len(session.experiment.scripts) - 1
@@ -189,7 +189,7 @@ class ScriptRequest(Request):
         """
         if not self.blocks:
             raise ScriptError('cannot update single-line script')
-        text = fixup_script(text)
+        text = fixupScript(text)
         newcode, newblocks = self._splitblocks(text)
         # stop execution after the current block
         self._run.clear()
@@ -213,12 +213,12 @@ class ScriptRequest(Request):
                 scr = list(session.experiment.scripts)  # convert readonly list
                 scr[self._exp_script_index] = self.text
                 session.experiment.scripts = scr
-            update_linecache('<script>', text)
+            updateLinecache('<script>', text)
             self.code, self.blocks = newcode, newblocks
             # let the client know of the update
             controller.eventfunc('processing', self.serialize())
             updatemsg = 'UPDATE (%s)' % reason if reason else 'UPDATE'
-            session.log.log(INPUT, format_script(self, updatemsg))
+            session.log.log(INPUT, formatScript(self, updatemsg))
         finally:
             # let the script continue execution in any case
             self._run.set()
@@ -399,7 +399,7 @@ class ExecutionController(Controller):
         # the script thread, but from a handle thread)
         temp_request = ScriptRequest(code, None, user)
         temp_request.parse(splitblocks=False)
-        session.log.log(INPUT, format_script(temp_request, '---'))
+        session.log.log(INPUT, formatScript(temp_request, '---'))
         self.last_handler = weakref.ref(handler)
         try:
             exec_(temp_request.code[0], self.namespace)
@@ -567,7 +567,7 @@ class ExecutionController(Controller):
                 # notify clients that we're processing this request now
                 self.eventfunc('processing', request.serialize())
                 # notify clients of "input"
-                session.log.log(INPUT, format_script(request))
+                session.log.log(INPUT, formatScript(request))
                 # parse the script and split it into blocks
                 try:
                     self.current_script = request

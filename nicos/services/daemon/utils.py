@@ -39,7 +39,7 @@ TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
 _excessive_ws_re = re.compile(r'\n\s*\n')
 
 
-def format_script(script, prompt='>>>'):
+def formatScript(script, prompt='>>>'):
     """Format a script with timestamp."""
     if script.quiet:
         return '%s [%s %s] %s' % (prompt, script.user,
@@ -61,22 +61,17 @@ def format_script(script, prompt='>>>'):
         return '%s\n%s%s' % (start, text, end)
 
 
-def format_timestamp(prompt='<<<'):
-    """Print a timestamp to stdout."""
-    return '%s [%s]' % (prompt, time.strftime(TIMESTAMP_FMT))
-
-
 _bare_except = re.compile(r'^([ \t]*)except[ \t]*:', re.MULTILINE)
 
 
-def fixup_script(script):
+def fixupScript(script):
     """Perform some fixup operations on the script."""
     # Replace bare except clauses by "except Exception" to prevent
     # catching the ControlStop exception used by pyctl
     return _bare_except.sub(r'\1except Exception:', script)
 
 
-def update_linecache(name, script):
+def updateLinecache(name, script):
     """
     Set the linecache for a pseudo-module so that the traceback module
     can extract the source code when creating tracebacks.
