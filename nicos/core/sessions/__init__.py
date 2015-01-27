@@ -210,7 +210,7 @@ class Session(object):
                     cache.put(self, 'mastersetup', list(self.loaded_setups))
                     cache.put(self, 'mastersetupexplicit',
                               list(self.explicit_setups))
-                    self.elog_event('setup', list(self.explicit_setups))
+                    self.elogEvent('setup', list(self.explicit_setups))
         else:
             # switching from master (or slave) to slave or to maintenance
             if cache and cache._ismaster:
@@ -585,7 +585,7 @@ class Session(object):
             self.cache.put(self, 'mastersetup', list(self.loaded_setups))
             self.cache.put(self, 'mastersetupexplicit',
                            list(self.explicit_setups))
-            self.elog_event('setup', list(self.explicit_setups))
+            self.elogEvent('setup', list(self.explicit_setups))
 
         self.setupCallback(list(self.loaded_setups),
                            list(self.explicit_setups))
@@ -1061,7 +1061,7 @@ class Session(object):
         else:
             self.log.error(exc_info=exc_info)
 
-    def elog_event(self, eventtype, data):
+    def elogEvent(self, eventtype, data):
         # NOTE: simulation mode is disconnected from cache, therefore no elog
         # events will be sent in simulation mode
         if self.cache:

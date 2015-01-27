@@ -325,7 +325,7 @@ class Experiment(Device):
         # tell elog
         if self.elog:
             instname = session.instrument and session.instrument.instrument or ''
-            session.elog_event('directory', (newproposalpath, instname,
+            session.elogEvent('directory', (newproposalpath, instname,
                                              path.basename(newproposalpath)))
 
     def doWriteSampledir(self, newsampledir):
@@ -562,7 +562,7 @@ class Experiment(Device):
                 self._setROParam('proposalpath', self.proposalpath_of(self.serviceexp))
                 self._setROParam('proptype', 'service')
             ensureDirectory(path.join(self.proposalpath, 'logbook'))
-            session.elog_event('directory', (self.proposalpath,
+            session.elogEvent('directory', (self.proposalpath,
                                              instname, self.proposal))
             self._eloghandler = ELogHandler()
             # only enable in master mode, see below
@@ -713,8 +713,8 @@ class Experiment(Device):
         self.log.info('data directory is now %s' % self.datapath)
 
         # notify logbook
-        session.elog_event('newexperiment', (proposal, title))
-        session.elog_event('setup', list(session.explicit_setups))
+        session.elogEvent('newexperiment', (proposal, title))
+        session.elogEvent('setup', list(session.explicit_setups))
 
         # expand templates
         if proptype != 'service':
@@ -1128,7 +1128,7 @@ class Experiment(Device):
 
     def doWriteRemark(self, remark):
         if remark:
-            session.elog_event('remark', remark)
+            session.elogEvent('remark', remark)
 
     #
     # dataset stuff
@@ -1183,7 +1183,7 @@ class Experiment(Device):
         self.detlist = dlist
         #try to create them right now
         self.detectors  # pylint: disable=W0104
-        session.elog_event('detectors', dlist)
+        session.elogEvent('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
         self._detlist = None  # clear list of actual devices
@@ -1232,7 +1232,7 @@ class Experiment(Device):
         self.envlist = dlist
         # try to create them right now
         self.sampleenv  # pylint: disable=W0104
-        session.elog_event('environment', dlist)
+        session.elogEvent('environment', dlist)
 
     def doUpdateEnvlist(self, devices):
         self._envlist = None  # clear list of actual devices

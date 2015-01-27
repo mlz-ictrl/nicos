@@ -163,7 +163,7 @@ class ScriptRequest(Request):
             session.experiment.scripts += [self.text]
             self._exp_script_index = len(session.experiment.scripts) - 1
         if self.name:
-            session.elog_event('scriptbegin', self.name)
+            session.elogEvent('scriptbegin', self.name)
             session.beginActionScope(path.basename(self.name))
         try:
             while self.curblock < len(self.code) - 1:
@@ -178,7 +178,7 @@ class ScriptRequest(Request):
             if session.experiment and session.mode == MASTER:
                 session.experiment.scripts = session.experiment.scripts[:-1]
             if self.name:
-                session.elog_event('scriptend', self.name)
+                session.elogEvent('scriptend', self.name)
 
     def update(self, text, reason, controller, user):
         """Update the code with a new script.

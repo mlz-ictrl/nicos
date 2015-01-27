@@ -635,13 +635,13 @@ class _ScriptScope(object):
         session.beginActionScope(self.filename)
         if session.experiment and session.mode in (MASTER, SIMULATION):
             session.experiment.scripts += [self.code]
-        session.elog_event('scriptbegin', self.filename)
+        session.elogEvent('scriptbegin', self.filename)
 
     def __exit__(self, *args):
         session.endActionScope()
         if session.experiment and session.mode in (MASTER, SIMULATION):
             session.experiment.scripts = session.experiment.scripts[:-1]
-        session.elog_event('scriptend', self.filename)
+        session.elogEvent('scriptend', self.filename)
 
 
 @usercommand
@@ -847,7 +847,7 @@ def LogEntry(entry):
 
     >>> # improved sample holder
     """
-    session.elog_event('entry', entry)
+    session.elogEvent('entry', entry)
 
 
 @hiddenusercommand
@@ -860,4 +860,4 @@ def _LogAttach(description, paths, names):
 
     This is intended to be used from the NICOS GUI, from the respective dialogs.
     """
-    session.elog_event('attachment', (description, paths, names))
+    session.elogEvent('attachment', (description, paths, names))

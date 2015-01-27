@@ -254,7 +254,7 @@ class HasOffset(DeviceMixinBase):
         if self._cache:
             self._cache.put(self, 'value', self.read(0) - diff,
                             currenttime(), self.maxage)
-        session.elog_event('offset', (str(self), old_offset, value))
+        session.elogEvent('offset', (str(self), old_offset, value))
 
 
 class HasPrecision(DeviceMixinBase):

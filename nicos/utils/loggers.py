@@ -359,7 +359,7 @@ class ELogHandler(Handler):
         msg = [getattr(record, e) for e in entries]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
-        session.elog_event('message', msg)
+        session.elogEvent('message', msg)
 
 
 def initLoggers():

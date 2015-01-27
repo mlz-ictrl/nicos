@@ -50,4 +50,4 @@ class Sample(Device):
 
     def doWriteSamplename(self, name):
         if name:
-            session.elog_event('sample', name)
+            session.elogEvent('sample', name)

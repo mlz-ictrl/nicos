@@ -158,7 +158,7 @@ class Scan(object):
                 sink.addInfo(dataset, catinfo, bycategory[catname])
             for imageinfo in dataset.imageinfos:
                 imageinfo.header[catinfo] = bycategory[catname]
-        session.elog_event('scanbegin', dataset)
+        session.elogEvent('scanbegin', dataset)
         session.beginActionScope(self.shortDesc())
 
     def preparePoint(self, num, xvalues):
@@ -206,7 +206,7 @@ class Scan(object):
         for sink in self._sinks:
             sink.endDataset(self.dataset)
         try:
-            session.elog_event('scanend', self.dataset)
+            session.elogEvent('scanend', self.dataset)
         except Exception:
             session.log.debug('could not add scan to electronic logbook', exc=1)
         session.breakpoint(1)
