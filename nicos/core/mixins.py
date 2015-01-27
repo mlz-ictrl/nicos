@@ -27,9 +27,10 @@
 from time import time as currenttime
 
 from nicos import session
-from nicos.core.params import Param, Override, anytype, none_or, limits, dictof
+from nicos.core.params import Param, Override, anytype, none_or, \
+    limits, dictof
 from nicos.core.errors import ConfigurationError
-from nicos.pycompat import add_metaclass
+from nicos.pycompat import add_metaclass, itervalues
 
 
 class DeviceMixinMeta(type):
@@ -37,6 +38,29 @@ class DeviceMixinMeta(type):
     This class provides the __instancecheck__ method for non-Device derived
     mixins.
     """
+
+    def __new__(mcs, name, bases, attrs):
+        # set source class for parameters
+        if 'parameters' in attrs:
+            for pinfo in itervalues(attrs['parameters']):
+                pinfo.classname = attrs['__module__'] + '.' + name
+        for base in bases:
+            if hasattr(base, 'parameters'):
+                for pinfo in itervalues(base.parameters):
+                    if pinfo.classname is None:
+                        pinfo.classname = base.__module__ + '.' + base.__name__
+        newtype = type.__new__(mcs, name, bases, attrs)
+        if '__constructed__' in attrs:
+            return newtype
+        for entry in newtype.__mergedattrs__:
+            newentry = {}
+            for base in reversed(bases):
+                if hasattr(base, entry):
+                    newentry.update(getattr(base, entry))
+            newentry.update(attrs.get(entry, {}))
+            setattr(newtype, entry, newentry)
+        return newtype
+
     def __instancecheck__(cls, inst):  # pylint: disable=C0203
         if inst.__class__ == DeviceAlias and inst._initialized:
             if isinstance(inst._obj, NoDevice):
@@ -55,6 +79,9 @@ class DeviceMixinBase(object):
     This class sets the correct metaclass and is easier to use than setting the
     metaclass on each mixin class.  Mixins **must** derive from this class.
     """
+
+    __mergedattrs__ = ['parameters', 'parameter_overrides', 'attached_devices',
+                       'methods', 'class_attributes']
 
 
 class AutoDevice(DeviceMixinBase):

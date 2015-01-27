@@ -43,7 +43,7 @@ from nicos.core.errors import NicosError, ConfigurationError, \
     ProgrammingError, UsageError, LimitError, ModeError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
-from nicos.pycompat import reraise, add_metaclass, itervalues, iteritems, \
+from nicos.pycompat import reraise, add_metaclass, iteritems, \
     string_types, integer_types, number_types
 
 
@@ -121,25 +121,11 @@ class DeviceMeta(DeviceMixinMeta):
                                                        name, base.__name__))
             if isinstance(base, DeviceMeta):
                 seen_nonmixin = True
-        # set source class for parameters
-        if 'parameters' in attrs:
-            for pinfo in itervalues(attrs['parameters']):
-                pinfo.classname = attrs['__module__'] + '.' + name
-        for base in bases:
-            if hasattr(base, 'parameters'):
-                for pinfo in itervalues(base.parameters):
-                    if pinfo.classname is None:
-                        pinfo.classname = base.__module__ + '.' + base.__name__
-        newtype = type.__new__(mcs, name, bases, attrs)
+        newtype = DeviceMixinMeta.__new__(mcs, name, bases, attrs)
+        # hack around a class creation bug in Python 2
+        attrs['__constructed__'] = True
         # to debug MRO problems you could use this line
         # print 'MRO:', newtype, newtype.mro()
-        for entry in newtype.__mergedattrs__:
-            newentry = {}
-            for base in reversed(bases):
-                if hasattr(base, entry):
-                    newentry.update(getattr(base, entry))
-            newentry.update(attrs.get(entry, {}))
-            setattr(newtype, entry, newentry)
         for adevname, entry in newtype.attached_devices.items():
             # adev names are always lowercased
             if adevname != adevname.lower():
@@ -1744,6 +1730,8 @@ class Measurable(Readable):
 @add_metaclass(DeviceMixinMeta)
 class NoDevice(object):
     """A class that represents "no device" attached to a :class:`DeviceAlias`."""
+
+    __mergedattrs__ = []  # needed by the metaclass
 
     def __init__(self, name):
         self.name = name
