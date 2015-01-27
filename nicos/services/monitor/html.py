@@ -43,12 +43,14 @@ from nicos.core import Param
 from nicos.core.status import OK, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
+from nicos.services.monitor.icon import nicos_icon
 
 
 HEAD = '''\
 <html>
 <head>
 <meta http-equiv="refresh" content="%(intv)s">
+<link rel="shortcut icon" type="image/png" href="data:image/png;base64,%(icon)s">
 <style type="text/css">
 body { background-color: #e0e0e0;
        font-family: '%(ff)s', sans-serif; font-size: %(fs)spx; }
@@ -276,6 +278,7 @@ class Monitor(BaseMonitor):
             ffm = self.valuefont or self.font,
             intv = self.interval,
             title = escape(self.title),
+            icon = nicos_icon,
         )
         add(HEAD % headprops)
 
