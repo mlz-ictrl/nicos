@@ -1107,7 +1107,7 @@ class Session(object):
         prefix given to all log messages.
         """
         if not self.cache:
-            raise NicosError('cannot start simulation, no cache is configured')
+            raise NicosError('cannot start dry run, no cache is configured')
 
         # read out last values of all devices
         for dev in self.devices.values():

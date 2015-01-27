@@ -592,19 +592,19 @@ class NicosCmdClient(NicosClient):
                     return self.command('update', fpath)
             else:
                 # another script edited: updating will likely fail
-                reply = self.ask_question('Queue or simulate file?',
-                                          chars='qsn')
+                reply = self.ask_question('Queue or dry-run file?',
+                                          chars='qdn')
                 if reply == 'q':
                     # this will automatically queue
                     return self.command('run!', fpath)
-                elif reply == 's':
+                elif reply == 'd':
                     return self.command('sim', fpath)
         else:
             # no script is running at the moment: offer to run it
-            reply = self.ask_question('Run or simulate file?', chars='rsn')
+            reply = self.ask_question('Run or dry-run file?', chars='rdn')
             if reply == 'r':
                 return self.command('run', fpath)
-            elif reply == 's':
+            elif reply == 'd':
                 return self.command('sim', fpath)
 
     def print_where(self):
@@ -977,7 +977,7 @@ This client supports "meta-commands" beginning with a slash:
 
   /e(dit) <file>      -- edit a script file
   /r(un) <file>       -- run a script file
-  /sim(ulate) <file>  -- simulate a script file
+  /sim(ulate) <file>  -- dry-run a script file
   /update <file>      -- update running script
 
   /disconnect         -- disconnect from NICOS daemon

@@ -152,7 +152,7 @@ class NicosDaemon(Device):
                                 type=float, unit='s', default=0.2),
         'trustedhosts':   Param('Trusted hosts allowed to log in',
                                 type=listof(str)),
-        'simmode':        Param('Whether to always start in simulation mode',
+        'simmode':        Param('Whether to always start in dry run mode',
                                 type=bool),
     }
 

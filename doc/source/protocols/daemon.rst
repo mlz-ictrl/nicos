@@ -195,7 +195,7 @@ for this event should be serialized.
       - message text
       - exception traceback if present
       - message prefix (normally empty, but can be selected different for
-        simulation output, see `simulate`)
+        dry-run output, see `simulate`)
 
 .. daemonevt:: request
 
@@ -308,9 +308,9 @@ for this event should be serialized.
 
 .. daemonevt:: simresult
 
-   A simulation is finished.
+   A dry run/simulation is finished.
 
-   :arg: The result of the simulation as a tuple of (estimated minimum time in
+   :arg: The result of the dry run as a tuple of (estimated minimum time in
        seconds, dictionary of devices and their moving range).
 
 .. daemonevt:: showhelp

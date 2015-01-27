@@ -134,7 +134,7 @@ def sleep(secs):
     """Sleep for a given number of seconds.
 
     This is different from Python's `time.sleep()` in that it allows breaking
-    and stopping the sleep, and supports simulation mode.  Fractional values are
+    and stopping the sleep, and supports dry run mode.  Fractional values are
     supported.
 
     Examples:
@@ -480,9 +480,9 @@ def SetMode(mode):
       the instrument status, but not move devices or set parameters.
 
     * 'simulation' mode is for complete simulation of the instrument.  When
-      switching to simulation mode, the current state of the instrument is
-      taken as the basis of the simulation.  No hardware communication is
-      possible in simulation mode.
+      switching to dry-run/simulation mode, the current state of the instrument
+      is taken as the basis of the run.  No hardware communication is possible
+      in this mode.
 
       'simulation' does a non-physical emulation by running all the instrument
       specific code with virtualized devices.  Any problems which would appear
@@ -495,7 +495,7 @@ def SetMode(mode):
       properties ('speed', 'ramp', 'accel').
 
       It is currently not implemented to switch back: use the `sim()` command
-      for doing one-off simulations.
+      for doing one-off dry runs.
 
     * 'maintenance' mode is for instrument scientists only.
 
@@ -504,7 +504,7 @@ def SetMode(mode):
     >>> SetMode('slave')    # e.g. to let another master take over
     ...
     >>> SetMode('master')   # switch back to master in this copy
-    """
+"""
     if mode == 'sim':
         mode = SIMULATION
     elif mode == 'maint':
@@ -536,7 +536,7 @@ def SetSimpleMode(enable):
 
 @usercommand
 def sync():
-    """Synchronize simulation copy with master copy.
+    """Synchronize dry-run/simulation copy with master copy.
 
     This will fetch the current setups and state of the actual instrument and
     apply it to the simulated devices in the current NICOS instance.  New setups
@@ -661,7 +661,7 @@ def _RunScript(filename, statdevices, debug=False):
         fp = io.open(fn, 'r', encoding='utf-8')
     except Exception as e:
         if session.mode == SIMULATION:
-            session.log.exception('Simulation: error opening script')
+            session.log.exception('Dry run: error opening script')
             return
         raise NicosError('cannot open script %r: %s' % (filename, e))
     with fp:
@@ -724,7 +724,7 @@ def run(filename):
 @usercommand
 @helparglist('filename_or_code, ...')
 def sim(what, *devices, **kwargs):
-    """Run code or a script file in simulation mode.
+    """Run code or a script file in dry run mode.
 
     If the file name is not absolute, it is relative to the experiment script
     directory.
@@ -736,7 +736,7 @@ def sim(what, *devices, **kwargs):
 
     will simulate the 'testscript.py' user script.
 
-    Simulation mode does a non-physical emulation by running all the instrument
+    Dry run mode does a non-physical emulation by running all the instrument
     specific code with virtualized devices.  Any problems which would appear
     runnig the same commands in 'master' mode (with ideal hardware) can be
     spotted by the user, such as devices moving out of limits, failing

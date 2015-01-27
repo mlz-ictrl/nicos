@@ -126,7 +126,7 @@ class SimulationSession(Session):
 
         # Give a sign of life and then tell the log handler to only log
         # errors during setup.
-        session.log.info('setting up simulation...')
+        session.log.info('setting up dry run...')
         session.log_sender.begin_setup()
 
         try:
@@ -140,7 +140,7 @@ class SimulationSession(Session):
             # Synchronize setups and cache values.
             session.simulationSync()
         except:  # really *all* exceptions -- pylint: disable=W0702
-            session.log.exception('Exception in simulation setup')
+            session.log.exception('Exception in dry run setup')
             session.log_sender.finish()
             session.shutdown()
             return 1
@@ -151,9 +151,9 @@ class SimulationSession(Session):
         try:
             exec_(code, session.namespace)
         except:  # pylint: disable=W0702
-            session.log.exception('Exception in simulation')
+            session.log.exception('Exception in dry run')
         else:
-            session.log.info('simulation finished')
+            session.log.info('Dry run finished')
         finally:
             session.log_sender.finish()
 
@@ -193,7 +193,7 @@ class SimulationSupervisor(Thread):
             res = poller.poll(500)
             if not res:
                 if proc.poll() is not None:
-                    session.log.warning('Simulation has terminated prematurely')
+                    session.log.warning('Dry run has terminated prematurely')
                     return
                 continue
             msg = unserialize(socket.recv())
@@ -224,4 +224,4 @@ class SimulationSupervisor(Thread):
                     return
             raise Exception('did not terminate within 5 seconds')
         except Exception:
-            session.log.exception('Error waiting for simulation process')
+            session.log.exception('Error waiting for dry run process')

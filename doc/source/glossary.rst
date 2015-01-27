@@ -36,8 +36,8 @@ Glossary
         activated even if there is another session in master mode.  This is
         strictly meant for maintenance purposes.
       * **simulation** -- all commands are allowed, but the session does not
-        talk to the actual hardware.  All commands are simulated as far as
-        possible.
+        talk to the actual hardware ("dry-run mode").  All commands run actual
+        code as far as possible, but skip over hardware accessing code.
 
       The :term:`cache` tracks the current master session and only allows one
       such session at each time.

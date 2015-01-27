@@ -87,7 +87,7 @@ class Controller(TacoDevice, Readable):
         phases = [0, 0]
         try:
             if mode == SIMULATION:
-                raise NicosError('not possible in simulation mode')
+                raise NicosError('not possible in dry-run/simulation mode')
             wavelength = self._read(4181) / 1000.0
             if wavelength == 0.0:
                 wavelength = 4.5

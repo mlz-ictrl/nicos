@@ -24,7 +24,7 @@
        <set>QDockWidget::DockWidgetClosable</set>
       </property>
       <property name="windowTitle">
-       <string>Simulation results</string>
+       <string>Results of the dry run</string>
       </property>
       <widget class="QWidget" name="dockWidgetContents_2">
        <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -710,7 +710,10 @@
      <normaloff>:/simulate</normaloff>:/simulate</iconset>
    </property>
    <property name="text">
-    <string>Simulate</string>
+    <string>Dry run</string>
+   </property>
+   <property name="toolTip">
+    <string>Run this script in a simulation mode</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Return</string>

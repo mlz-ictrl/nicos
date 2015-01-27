@@ -54,7 +54,7 @@
         <enum>Qt::TabFocus</enum>
        </property>
        <property name="text">
-        <string>Simulate</string>
+        <string>Dry run</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/nicos-gui.qrc">
