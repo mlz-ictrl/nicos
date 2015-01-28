@@ -1,5 +1,5 @@
-NICOS services
-==============
+NICOS services/processes
+========================
 
 This chapter describes all of the NICOS services, their configuration and their
 use.
