@@ -2,8 +2,15 @@
 
 from __future__ import print_function
 
-from nicos.resi import residevice
 from nicos.pycompat import cPickle as pickle
+
+from test.utils import SkipTest
+
+try:
+    from nicos.resi import residevice
+except ImportError:
+    # running without resi specific Nonius libs
+    raise SkipTest
 
 
 def test_pickable():

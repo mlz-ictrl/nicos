@@ -56,15 +56,15 @@ T = test
 
 test:
 	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
-	@$(PYTHON) `which nosetests` $(T) -v --with-id -e test_stresstest -d $(O)
+	@$(PYTHON) `which nosetests` $(T) -v --with-id -e test_stresstest -d --traverse-namespace $(O)
 
 testall:
 	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 1; fi
-	@$(PYTHON) `which nosetests` $(T) -v --with-id -d $(O)
+	@$(PYTHON) `which nosetests` $(T) -v --with-id -d --traverse-namespace $(O)
 
 test-coverage:
 	@NOSE=`which nosetests`; if [ -z "$$NOSE" ]; then echo "nose is required to run the test suite"; exit 0; fi
-	@COVERAGE_PROCESS_START=.coveragerc $(PYTHON) `which nosetests` $(T) -d -v --with-id --with-coverage --cover-package=nicos $(O); \
+	@COVERAGE_PROCESS_START=.coveragerc $(PYTHON) `which nosetests` $(T) -d -v --with-id --with-coverage --cover-package=nicos --traverse-namespace $(O); \
 	RESULT=$$?; \
 	`which coverage || which python-coverage` combine; \
 	`which coverage || which python-coverage` html -d cover; \
