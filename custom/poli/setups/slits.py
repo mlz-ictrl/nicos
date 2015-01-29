@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = ['mono', ]
 
-excludes = ['mono_cu', ]
+excludes = []
 
 nethost = 'slow.poli.frm2'
 
@@ -15,8 +15,9 @@ devices = dict(
                  pollinterval = 15,
                  maxage = 61,
                  fmtstr = '%.2f',
-                 abslimits = (0, 10),
-                 lowlevel = True,
+                 abslimits = (114, 190),
+                 precision = 0.2,
+                 lowlevel = False,
                 ),
     bmh = device('devices.taco.Motor',
                  description = 'Monochromator horizontal opening slit',
@@ -24,8 +25,9 @@ devices = dict(
                  pollinterval = 15,
                  maxage = 61,
                  fmtstr = '%.2f',
-                 abslimits = (0, 10),
-                 lowlevel = True,
+                 abslimits = (6.5, 80),
+                 precision = 0.2,
+                 lowlevel = False,
                 ),
     bm  = device('devices.generic.TwoAxisSlit',
                  description = 'Monochromator slit',

@@ -73,12 +73,13 @@ devices = dict(
                      ),
 
     # Configure dataroot here (usually /data).
-    Exp      = device('devices.experiment.Experiment',
-                      dataroot = '/data',
+    Exp      = device('frm2.experiment.Experiment',
+                      dataroot = '/home/jcns/data',
                       sendmail = True,
-                      serviceexp = '0',
+                      serviceexp = 'p0',
                       localcontact = 'V. Hutanu <vladimir.hutanu@frm2.tum.de>',
                       sample = 'Sample',
+                      propdb = '/home/jcns/.propdb',
                      ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
@@ -89,7 +90,7 @@ devices = dict(
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
-                      path = '/data',
+                      path = '/home/jcns/data',
                       minfree = 5,
                      ),
 
@@ -98,6 +99,7 @@ devices = dict(
                       sender = 'vladimir.hutanu@frm2.tum.de',
                       copies = ['vladimir.hutanu@frm2.tum.de'],
                       subject = 'NICOS',
+                      mailserver = 'mailhost.frm2.tum.de',
                      ),
 
     # Configure SMS receivers if wanted and registered with IT.

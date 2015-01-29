@@ -37,7 +37,15 @@ devices = dict(
                       pollinterval = 15,
                       maxage = 61,
                       fmtstr = '%.2f',
-                      abslimits = (-10, 120),
+                      abslimits = (-20, 130),
+                     ),
+    liftingctr = device('devices.taco.Axis',
+                      description = 'lifting counter axis',
+                      tacodevice = '//%s/heidi2/table/lftctr' % (nethost, ),
+                      pollinterval = 15,
+                      maxage = 61,
+                      fmtstr = '%.2f',
+                      abslimits = (-5, 30),
                      ),
 )
 

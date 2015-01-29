@@ -16,6 +16,13 @@ _expcolumn = Column(
                  Field(name='Last file', key='exp/lastscan'))]),
 )
 
+_tablecolumn = Column(
+    Block('Sample table', [
+        BlockRow(Field(dev=u'omega'), Field(dev='twotheta'),
+                 Field(dev='chi1'), Field(dev='chi2')),
+        ]),
+)
+
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
                      title = 'NICOS status monitor',
@@ -24,6 +31,6 @@ devices = dict(
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
-                     layout = [Row(_expcolumn),],
+                     layout = [Row(_expcolumn), Row(_tablecolumn)],
                     ),
 )

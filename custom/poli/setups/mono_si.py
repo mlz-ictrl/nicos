@@ -1,6 +1,6 @@
 description = 'POLI silicon monochromator'
 
-group = 'lowlevel'
+group = 'optional'
 
 includes = ['mono', ]
 
