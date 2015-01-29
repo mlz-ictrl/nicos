@@ -144,8 +144,9 @@ def check_stray_procs(name):
             continue
         if p.pid in known_subprocs:
             continue
-        if ('python' in p.name) and ('nicos-%s' % name) in ' '.join(p.cmdline):
-            still_running.add(p)
+        if ('python' in p.name()
+            and ('nicos-%s' % name) in ' '.join(p.cmdline())):
+                still_running.add(p)
 
     if still_running:
         print 'WARNING: some other %s processes seem to run!' % name
