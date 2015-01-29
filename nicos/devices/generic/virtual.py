@@ -235,13 +235,17 @@ class VirtualTimer(VirtualChannel):
     def __counting(self):
         self.log.debug('timing to %.3f' % (self.preselection,))
         finish_at = time.time() + self.preselection
-        while not self._finish:
-            if self.ismaster and time.time() >= finish_at:
-                self.curvalue = self.preselection
-                self._do_stop()
-                break
-            time.sleep(self._base_loop_delay)
-            self.curvalue += self._base_loop_delay
+        try:
+            while not self._finish:
+                if self.ismaster and time.time() >= finish_at:
+                    self.curvalue = self.preselection
+                    self._do_stop()
+                    break
+                time.sleep(self._base_loop_delay)
+                self.curvalue += self._base_loop_delay
+        finally:
+            self.curstatus = (status.OK, 'idle')
+            self._thread = None
 
     def doSimulate(self, preset):
         if self.ismaster:
@@ -257,6 +261,9 @@ class VirtualTimer(VirtualChannel):
     def doTime(self, preset):
         return self.preselection if self.ismaster else 0
 
+    def doShutdown(self):
+        if self._thread:
+            self.doStop()
 
 class VirtualCounter(VirtualChannel):
     """A virtual counter channel for use together with
@@ -290,15 +297,19 @@ class VirtualCounter(VirtualChannel):
     def __counting(self):
         self.log.debug('counting to %d cts with %d cts/s' %
                        (self.preselection, self.countrate))
-        rate = abs(self.countrate)
-        while not self._finish:
-            if self.ismaster and self.curvalue >= self.preselection:
-                self.curvalue = self.preselection
-                self._do_stop()
-                break
-            time.sleep(self._base_loop_delay)
-            self.curvalue += int(random.randint(int(rate * 0.9), rate) *
-                                 self._base_loop_delay)
+        try:
+            rate = abs(self.countrate)
+            while not self._finish:
+                if self.ismaster and self.curvalue >= self.preselection:
+                    self.curvalue = self.preselection
+                    self._do_stop()
+                    break
+                time.sleep(self._base_loop_delay)
+                self.curvalue += int(random.randint(int(rate * 0.9), rate) *
+                                     self._base_loop_delay)
+        finally:
+            self.curstatus = (status.OK, 'idle')
+            self._thread = None
 
     def doSimulate(self, preset):
         if self.ismaster:
@@ -314,6 +325,10 @@ class VirtualCounter(VirtualChannel):
 
     def presetInfo(self):
         return ('m',)
+
+    def doShutdown(self):
+        if self._thread:
+            self.doStop()
 
 
 class VirtualTemperature(VirtualMotor):
