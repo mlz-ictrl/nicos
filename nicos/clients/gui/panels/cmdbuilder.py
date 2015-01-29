@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -64,11 +65,9 @@ class CommandPanel(Panel):
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
-    def post_init(self):
-        if self.console is None:
-            self.console = self.window.getPanel('Console')
-            if self.console:
-                self.console.outView.anchorClicked.connect(
+    def postInit(self):
+        self.console = self.window.getPanel('Console')
+        self.console.outView.anchorClicked.connect(
                                            self.on_consoleView_anchorClicked)
 
     def loadSettings(self, settings):
@@ -111,7 +110,6 @@ class CommandPanel(Panel):
 
     def on_client_initstatus(self, state):
         self.on_client_mode(state['mode'])
-        self.post_init()
 
     def on_client_mode(self, mode):
         if mode == SLAVE:

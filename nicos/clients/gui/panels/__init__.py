@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -164,6 +165,14 @@ class Panel(QWidget, DlgUtils):
         self.sgroup = SettingGroup(self.panelName)
         with self.sgroup as settings:
             self.loadSettings(settings)
+
+    def postInit(self):
+        """This method can be implemented to perform actions after all panels
+        has been instantiated. It will be automatically called after all panels
+        has been created. This can be useful e.g. for accessing other panels
+        using their unique ``panelName``.
+
+        """
 
     def setOptions(self, options):
         pass

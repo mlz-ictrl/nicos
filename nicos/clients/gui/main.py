@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
@@ -152,6 +153,9 @@ class MainWindow(QMainWindow, DlgUtils):
         widget = createWindowItem(self.gui_conf.main_window, self, self, self)
         self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
+        # call postInit after creation of all panels
+        for panel in self.panels:
+            panel.postInit()
 
         # load saved settings and stored layout for panel config
         with self.sgroup as settings:
