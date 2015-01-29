@@ -647,6 +647,7 @@ class ContinuousScan(Scan):
             session.endActionScope()
             try:
                 device.stop()
+                device.wait()
             except Exception:
                 device.log.warning('could not stop %s' % device, exc=1)
             device.speed = original_speed
