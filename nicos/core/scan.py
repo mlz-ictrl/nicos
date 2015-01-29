@@ -621,7 +621,6 @@ class ContinuousScan(Scan):
             last = sum((det.read() for det in detlist), [])
             while device.status(0)[0] == status.BUSY:
                 sleep(self.DELTA)
-                session.breakpoint(2)
                 devpos = device.read(0)
                 read = sum((det.read() for det in detlist), [])
                 actualpos = [devpos] + self.readEnvironment(starttime,
