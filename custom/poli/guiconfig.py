@@ -18,57 +18,71 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Jens Krueger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
-    tabbed, setups
+__version__ = "$Revision$"
 
-main_window = docked(
-    vsplit(
-        panel('status.ScriptStatusPanel'),
-        # panel('watch.WatchPanel'),
-        panel('console.ConsolePanel'),
-    ),
-    ('NICOS devices',
-     panel('nicos.clients.gui.panels.devices.DevicesPanel',
-           icons=True, dockpos='right',
-          )
-    ),
-    ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-       )),
+# we import all possible config items here, so... pylint: disable=W0611
+from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, \
+     tabbed, docked
+
+main_window = tabbed(
+    ('Instrument', docked(
+        vsplit(
+            hsplit(
+                panel('expinfo.ExpInfoPanel'),
+                vsplit(
+                    panel('cmdbuilder.CommandPanel'),
+                    panel('status.ScriptStatusPanel'),
+                ),
+            ),
+            tabbed(
+                ('All output',
+                    panel('console.ConsolePanel',
+                          hasinput=False, hasmenu=False)),
+                ('Errors/Warnings',
+                    panel('errors.ErrorPanel')),
+            ),
+        ),
+        ('NICOS devices',
+            panel('devices.DevicesPanel', icons=True, dockpos='right')),
+    )),
+    ('Script Editor',
+        vsplit(
+            panel('scriptbuilder.CommandsPanel'),
+            panel('editor.EditorPanel',
+                tools = [
+                    tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
+            ]),
+        )),
+    ('Scan Plotting', panel('scans.ScansPanel')),
+    ('Device Plotting', panel('history.HistoryPanel')),
+    ('Logbook', panel('elog.ELogPanel')),
+#    ('Live display', panel('live.LiveDataPanel')),
 )
 
-windows = [
-    window('Editor', 'editor', panel('editor.EditorPanel')),
-    window('Scans', 'plotter', panel('scans.ScansPanel')),
-    window('History', 'find', panel('history.HistoryPanel')),
-    window('Logbook', 'table', panel('elog.ELogPanel')),
-    window('Log files', 'table', panel('logviewer.LogViewerPanel')),
-    window('Errors', 'errors', panel('errors.ErrorPanel')),
-    #window('Live data', 'live', panel('live.LiveDataPanel')),
-]
+windows = []
 
 tools = [
     tool('Downtime report', 'downtime.DownTimeTool',
          receiver='f.carsughi@fz-juelich.de',
          mailserver='smtp.frm2.tum.de',
-         sender='poli@frm2.tum.de',
+         sender='jcns@frm2.tum.de',
         ),
     tool('Calculator', 'calculator.CalculatorTool'),
     tool('Neutron cross-sections', 'website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
     tool('Neutron activation', 'website.WebsiteTool',
          url='http://www.frm2.tum.de/intranet/activation/'),
-    tool('Neutron calculations',
-         'nicos.clients.gui.tools.website.WebsiteTool',
+    tool('Neutron calculations', 'website.WebsiteTool',
          url='http://www.frm2.tum.de/intranet/neutroncalc/'),
+    tool('Create NICOS ticket', 'bugreport.BugreportTool'),
     tool('Report NICOS bug', 'website.WebsiteTool',
          url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
-         runatstartup=False),
+         runatstartup=True),
 ]
