@@ -107,7 +107,7 @@ class ExpPanel(Panel, DlgUtils):
             local = mailaddress(self.localContact.text().encode('utf-8'))
         except ValueError:
             QMessageBox.critical(self, 'Error', 'The local contact entry is not'
-                                ' a valid email address')
+                                 ' a valid email address')
             raise ConfigurationError('')
         emails = self.notifEmails.toPlainText().encode('utf-8').split(b'\n')
         return prop, title, users, local, emails
@@ -119,7 +119,7 @@ class ExpPanel(Panel, DlgUtils):
     @qtsig('')
     def on_queryDBButton_clicked(self):
         try:
-            prop, title, users, local, emails = self._getProposalInput()
+            prop, title, users, _, emails = self._getProposalInput()
         except ConfigurationError:
             return
         sample = self.sampleName.text().encode('utf-8')
@@ -137,8 +137,10 @@ class ExpPanel(Panel, DlgUtils):
                 # XXX check: is the result bytes or str on Python 3?
                 self.expTitle.setText(decodeAny(result.get('title', title)))
                 self.users.setText(decodeAny(result.get('user', users)))
-                self.localContact.setText(decodeAny(result.get('localcontact',
-                                                               local)))
+                # XXX: local contact must be email, but proposal db returns
+                # only a name
+                # self.localContact.setText(decodeAny(result.get('localcontact',
+                #                                                local)))
                 self.sampleName.setText(decodeAny(result.get('sample', sample)))
                 self.notifEmails.setPlainText(
                     decodeAny(result.get('user_email', emails)))

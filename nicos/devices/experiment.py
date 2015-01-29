@@ -625,10 +625,11 @@ class Experiment(Device):
         if self._mode == SIMULATION:
             raise UsageError('Simulating switching experiments is not supported!')
 
-        try:
-            mailaddress(localcontact)
-        except ValueError:
-            raise ConfigurationError('localcontact is not a valid email address')
+        if localcontact:
+            try:
+                mailaddress(localcontact)
+            except ValueError:
+                raise ConfigurationError('localcontact is not a valid email address')
 
         try:
             # if proposal can be converted to a number, use the canonical form
@@ -699,7 +700,7 @@ class Experiment(Device):
         self._setROParam('propinfo', kwds)
         self.title = kwds.get('title', '')
         self.users = kwds.get('user', '')
-        self.localcontact = kwds.get('localcontact', '')
+        self.localcontact = kwds.get('localcontact', session.instrument.responsible)
 
         # assignment to proposalpath/sampledir adjusts possible symlinks
         self.proposal = proposal
