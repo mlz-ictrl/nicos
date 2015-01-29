@@ -569,16 +569,15 @@ class ContinuousScan(Scan):
     peak search).
     """
 
-    DELTA = 1.0
-
-    def __init__(self, device, start, end, speed, firstmoves=None, detlist=None,
-                 envlist=None, scaninfo=None):
+    def __init__(self, device, start, end, speed, timedelta=None,
+                 firstmoves=None, detlist=None, envlist=None, scaninfo=None):
         self._startpos = start
         self._endpos = end
         if speed is None:
             self._speed = device.speed / 5.
         else:
             self._speed = speed
+        self._timedelta = timedelta or 1.0
 
         Scan.__init__(self, [device], [], firstmoves, None, detlist, envlist,
                       None, scaninfo)
@@ -620,7 +619,7 @@ class ContinuousScan(Scan):
                 det.start(t=preset)
             last = sum((det.read() for det in detlist), [])
             while device.status(0)[0] == status.BUSY:
-                sleep(self.DELTA)
+                sleep(self._timedelta)
                 devpos = device.read(0)
                 read = sum((det.read() for det in detlist), [])
                 actualpos = [devpos] + self.readEnvironment(starttime,

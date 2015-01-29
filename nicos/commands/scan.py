@@ -321,9 +321,9 @@ twodscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'twodscan(dev1, ')
 
 
 @usercommand
-@helparglist('dev, start, end[, speed], ...')
+@helparglist('dev, start, end[, speed, timedelta], ...')
 @spmsyntax(Dev(Moveable), Bare, Bare, speed=Bare)
-def contscan(dev, start, end, speed=None, *args, **kwargs):
+def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     """Scan a device continuously with low speed.
 
     If the "speed" is not explicitly given, it is set to 1/5 of the normal speed
@@ -334,8 +334,9 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
     >>> contscan(phi, 0, 10)
 
     The phi device will move continuously from 0 to 10, with reduced speed.  In
-    contrast to a `sweep`, the detectors are read out every second, and each
-    delta between count values is one scan point, so that no counts are lost.
+    contrast to a `sweep`, the detectors are read out every *timedelta* seconds
+    (the default is one second), and each delta between count values is one scan
+    point, so that no counts are lost.
 
     By default, the detectors are those selected by SetDetectors().  They can be
     replaced by a custom set of detectors by giving them as arguments:
@@ -345,15 +346,23 @@ def contscan(dev, start, end, speed=None, *args, **kwargs):
     dev = session.getDevice(dev, Moveable)
     if not hasattr(dev, 'speed'):
         raise UsageError('continuous scan device must have a speed parameter')
-    scanstr = _infostr('contscan', (dev, start, end, speed) + args, kwargs)
+    # allow skipping speed/timedelta arguments
+    if timedelta is not None and not isinstance(timedelta, number_types):
+        args = (timedelta,) + args
+        timedelta = None
+    if speed is not None and not isinstance(speed, number_types):
+        args = (speed,) + args
+        speed = None
+    scanstr = _infostr('contscan',
+                       (dev, start, end, speed, timedelta) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(args, kwargs, scanstr)
     if preset:
         raise UsageError('preset not supported in continuous scan')
     if multistep:
         raise UsageError('multi-step not supported in continuous scan')
-    scan = ContinuousScan(dev, start, end, speed, move, detlist, envlist,
-                          scaninfo)
+    scan = ContinuousScan(dev, start, end, speed, timedelta, move,
+                          detlist, envlist, scaninfo)
     scan.run()
 
 
