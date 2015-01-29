@@ -234,6 +234,8 @@ class SetupsPanel(Panel, DlgUtils):
         self._loaded = set()
         self._loaded_basic = None
 
+        self.buttonBox.addButton('Reload current setup',
+                                 QDialogButtonBox.ResetRole)
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
@@ -300,14 +302,17 @@ class SetupsPanel(Panel, DlgUtils):
             'Devices: %s<br/>' % (setup, info['description'], devs))
 
     def on_buttonBox_clicked(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
+            self.client.tell('queue', '', 'NewSetup()')
+            self.showInfo('Current setups reloaded.')
+            # fall through to the close case
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
             self.applyChanges()
-        else:
-            # Only the next interesting widget title isn't empty
-            parent = self.parentWidget()
-            while not parent.windowTitle():
-                parent = parent.parentWidget()
-            parent.close()
+        # Only the next interesting widget title isn't empty
+        parent = self.parentWidget()
+        while not parent.windowTitle():
+            parent = parent.parentWidget()
+        parent.close()
 
     def applyChanges(self):
         setups = []
