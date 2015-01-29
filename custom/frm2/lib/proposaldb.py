@@ -137,6 +137,8 @@ def queryProposal(pnumber, instrument=None):
         raise InvalidValueError('user does not exist in database')
     if not permissions:
         raise InvalidValueError('no permissions entry in database')
+    if instrname == 'POLI-HEIDI':
+        instrname = 'POLI'
     if instrument is not None and instrname.lower() != instrument.lower():
         session.log.error('proposal %s is not a proposal for '
                           '%s, but for %s, cannot use proposal information' %
