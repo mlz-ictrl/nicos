@@ -37,6 +37,7 @@ import zmq
 
 from nicos import session, config
 from nicos.core import SIMULATION
+from nicos.core.utils import User
 from nicos.core.sessions import Session
 from nicos.protocols.daemon import serialize, unserialize
 from nicos.utils.loggers import TRANSMIT_ENTRIES
@@ -108,12 +109,15 @@ class SimulationSession(Session):
     sessiontype = 'simulation'
 
     @classmethod
-    def run(cls, port, prefix, setups, code):
+    def run(cls, port, prefix, setups, user, code):
         session.__class__ = cls
 
         session.globalprefix = prefix
         # send log messages back to daemon if requested
         session.log_sender = SimLogSender(port, session)
+
+        username, level = user.rsplit(',', 1)
+        session._user = User(username, int(level))
 
         try:
             session.__init__(SIMULATION)
@@ -165,6 +169,9 @@ class SimulationSession(Session):
         self.log.manager.globalprefix = self.globalprefix
         self.log.addHandler(self.log_sender)
 
+    def getExecutingUser(self):
+        return self._user
+
 
 class SimulationSupervisor(Thread):
     """
@@ -176,19 +183,22 @@ class SimulationSupervisor(Thread):
         scriptname = path.join(config.nicos_root, 'bin', 'nicos-simulate')
         daemon = getattr(session, 'daemon_device', None)
         setups = session.explicit_setups
+        user = session.getExecutingUser()
         Thread.__init__(self, target=self._target,
-                        args=(daemon, scriptname, prefix, setups, code),
+                        args=(daemon, scriptname, prefix, setups, code, user),
                         name='SimulationSupervisor')
         self.daemon = True
 
-    def _target(self, daemon, scriptname, prefix, setups, code):
+    def _target(self, daemon, scriptname, prefix, setups, code, user):
         socket = nicos_zmq_ctx.socket(zmq.PULL)
         poller = zmq.Poller()
         poller.register(socket, zmq.POLLIN)
         port = socket.bind_to_random_port('tcp://127.0.0.1')
+        userstr = '%s,%d' % (user.name, user.level)
         # start nicos-simulate process
         proc = subprocess.Popen([sys.executable, scriptname,
-                                 str(port), prefix, ','.join(setups), code])
+                                 str(port), prefix, ','.join(setups),
+                                 userstr, code])
         while True:
             res = poller.poll(500)
             if not res:

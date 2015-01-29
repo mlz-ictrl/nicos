@@ -14,12 +14,13 @@ sys.path.insert(0, path.join(path.dirname(__file__), '..', '..', '..'))
 from test.utils import rootdir
 
 args = sys.argv[1:]
-if len(args) != 4:
-    raise SystemExit('Usage: nicos-simulate port prefix setups code')
+if len(args) != 5:
+    raise SystemExit('Usage: nicos-simulate port prefix setups user code')
 port = int(args[0])
 prefix = args[1]
 setups = args[2].split(',')
-code = args[3]
+user = args[3]
+code = args[4]
 
 # kill forcibly after 10 seconds
 if hasattr(signal, 'alarm'):
@@ -30,4 +31,4 @@ from nicos.core.sessions.simulation import SimulationSession
 config.nicos_root = rootdir
 config.setup_subdirs = '../test'
 
-SimulationSession.run(port, prefix, setups, code)
+SimulationSession.run(port, prefix, setups, user, code)
