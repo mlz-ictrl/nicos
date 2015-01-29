@@ -374,7 +374,7 @@ class NicosClient(object):
     # high-level functionality
 
     def getDeviceList(self, needs_class='nicos.core.device.Device',
-                      only_explicit=True):
+                      only_explicit=True, exclude_class=None):
         """Return a list of NICOS devices.
 
         The *needs_class* argument can be given if the devices should be
@@ -386,6 +386,8 @@ class NicosClient(object):
         """
         query = 'list(dn for (dn, d) in session.devices.items() ' \
                 'if %r in d.classes' % needs_class
+        if exclude_class is not None:
+            query += ' and %r not in d.classes' % exclude_class
         if only_explicit:
             query += ' and dn in session.explicit_devices'
         query += ')'

@@ -365,7 +365,9 @@ class DetEnvPanel(Panel, DlgUtils):
                                else Qt.Unchecked)
 
         # fill environment
-        envdevs = self.client.getDeviceList('nicos.core.device.Readable')
+        envdevs = self.client.getDeviceList(
+            'nicos.core.device.Readable',
+            exclude_class='nicos.core.device.Measurable')
         self._orig_envlist = self.client.eval('session.experiment.envlist', [])
         for devname in envdevs:
             item = QListWidgetItem(devname, self.sampleenv)
