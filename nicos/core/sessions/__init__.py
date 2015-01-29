@@ -43,6 +43,7 @@ from nicos.core.data import DataSink
 from nicos.core.device import Device, DeviceAlias
 from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
+from nicos.core.utils import system_user
 from nicos.devices.notifiers import Notifier
 from nicos.utils import formatDocstring
 from nicos.utils.loggers import initLoggers, NicosLogger, \
@@ -57,7 +58,6 @@ from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
 from nicos.core.sessions.setups import readSetups
 from nicos.pycompat import builtins, exec_, string_types, \
     itervalues, iteritems, listvalues
-from nicos.services.daemon.auth import system_user
 
 
 class Session(object):

@@ -36,14 +36,13 @@ from threading import Lock, Event
 from nicos import session, config
 from nicos.utils import createThread
 from nicos.utils.loggers import INPUT
-from nicos.services.daemon.auth import system_user
 from nicos.services.daemon.utils import format_exception_cut_frames, \
     format_script, fixup_script, update_linecache
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
 from nicos.protocols.daemon import BREAK_AFTER_LINE
 from nicos.core.sessions.utils import NicosCompleter, guessCorrectCommand
-from nicos.core import SIMULATION, SLAVE, MASTER
+from nicos.core import SIMULATION, SLAVE, MASTER, system_user
 from nicos.pycompat import queue, exec_, text_type
 
 # compile flag to activate new division

@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from nicos.services.daemon.auth import auth_entry, ListAuthenticator, User, \
+from nicos.services.daemon.auth import auth_entry, ListAuthenticator, \
     AuthenticationError
-from nicos.core import GUEST, USER
+from nicos.core import GUEST, USER, User
 from nicos.commands.basic import RemoveDevice
 
 from test.utils import raises

@@ -25,10 +25,8 @@
 
 """NICOS daemon authentication and user abstraction."""
 
-from collections import namedtuple
-
 from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, ADMIN, \
-    ACCESS_LEVELS, NicosError
+    ACCESS_LEVELS, NicosError, User
 from nicos.pycompat import string_types
 
 try:
@@ -37,11 +35,6 @@ try:
 except ImportError:
     ldap = None
     ldapobject = None
-
-
-User = namedtuple('User', 'name level')
-
-system_user = User('system', ADMIN)
 
 
 class AuthenticationError(Exception):

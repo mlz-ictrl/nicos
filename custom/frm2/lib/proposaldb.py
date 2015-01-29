@@ -37,10 +37,10 @@ except ImportError:
         DB = None
 
 from nicos import session
-from nicos.core import ConfigurationError, InvalidValueError, USER
+from nicos.core import ConfigurationError, InvalidValueError, USER, User
 from nicos.utils import readFile
 from nicos.pycompat import integer_types, text_type
-from nicos.services.daemon.auth import User, AuthenticationError, \
+from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 
 

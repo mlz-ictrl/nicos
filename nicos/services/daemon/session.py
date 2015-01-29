@@ -26,12 +26,11 @@
 
 import sys
 
-from nicos.core import AccessError, ACCESS_LEVELS
+from nicos.core import AccessError, ACCESS_LEVELS, User
 from nicos.utils.loggers import INFO
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.cacheclient import DaemonCacheClient
-from nicos.services.daemon.auth import User
 from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.pycompat import builtins, exec_, string_types
 

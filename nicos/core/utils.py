@@ -27,6 +27,7 @@
 
 import sys
 from time import sleep, localtime, time as currenttime
+from collections import namedtuple
 
 from nicos import session
 from nicos.core import status
@@ -39,6 +40,11 @@ GUEST = 0
 USER  = 10
 ADMIN = 20
 ACCESS_LEVELS = {0: 'guest', 10: 'user', 20: 'admin'}
+
+
+User = namedtuple('User', 'name, level')
+
+system_user = User('system', ADMIN)
 
 
 def devIter(devices, baseclass=None, onlydevs=False):

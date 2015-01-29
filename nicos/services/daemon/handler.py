@@ -38,9 +38,9 @@ except ImportError:
 import hashlib
 
 from nicos import session, nicos_version
-from nicos.core import ADMIN, ConfigurationError, SPMError
+from nicos.core import ADMIN, ConfigurationError, SPMError, User
 from nicos.utils import closeSocket
-from nicos.services.daemon.auth import AuthenticationError, User
+from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.utils import LoggerWrapper
 from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
     ScriptError, RequestError
