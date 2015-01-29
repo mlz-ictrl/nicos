@@ -33,8 +33,8 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import status
 from nicos.core.constants import MASTER, SIMULATION, SLAVE, MAINTENANCE
-from nicos.core.utils import formatStatus, getExecutingUser, checkUserLevel, \
-    waitForStatus, multiWait, multiStop, multiStatus
+from nicos.core.utils import formatStatus, waitForStatus, multiWait, \
+    multiStop, multiStatus
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
     HasTimeout
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
@@ -1432,8 +1432,8 @@ class Moveable(Readable):
 
         This blocks :meth:`start` or :meth:`stop` when called on the device.
         """
-        eu = getExecutingUser()
-        if self.fixedby and not checkUserLevel(self.fixedby[1], eu):
+        eu = session.getExecutingUser()
+        if self.fixedby and not session.checkUserLevel(self.fixedby[1], eu):
             # fixed and not enough rights
             self.log.error('device was fixed by %r already' % self.fixedby[0])
             return False
@@ -1451,8 +1451,8 @@ class Moveable(Readable):
     @usermethod
     def release(self):
         """Release the device, i.e. undo the effect of fix()."""
-        eu = getExecutingUser()
-        if self.fixedby and not checkUserLevel(self.fixedby[1], eu):
+        eu = session.getExecutingUser()
+        if self.fixedby and not session.checkUserLevel(self.fixedby[1], eu):
             # fixed and not enough rights
             self.log.error('device was fixed by %r and you are not allowed '
                            'to release it' % self.fixedby[0])

@@ -44,7 +44,6 @@ from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printexception, printerror
 from nicos.core import SIMULATION, MASTER, MAINTENANCE, ADMIN
 from nicos.pycompat import builtins, exec_, iteritems
-from nicos.core.utils import checkUserLevel
 
 
 CO_DIVISION = 0x2000
@@ -367,7 +366,7 @@ def CreateAllDevices(**kwargs):
     >>> CreateAllDevices(lowlevel=True)
     """
     lowlevel = kwargs.get('lowlevel', False)
-    if lowlevel and not checkUserLevel(ADMIN):
+    if lowlevel and not session.checkUserLevel(ADMIN):
         printerror('Creating all lowlevel devices is only allowed for admin users')
         lowlevel = False
 

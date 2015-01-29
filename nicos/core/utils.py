@@ -209,27 +209,6 @@ def multiReset(devices):
     _multiMethod(Readable, 'reset', devices)
 
 
-def getExecutingUser():
-    """Returns a valid authenticated User object or a default User, if running
-    in the console.
-    """
-    # ugly, but avoids an import loop
-    from nicos.services.daemon.auth import system_user, User
-    try:
-        s = session.daemon_device.current_script()
-        user = User(s.user, s.userlevel)
-    except AttributeError:  # no daemon_device
-        user = system_user
-    return user
-
-
-def checkUserLevel(level=0, user=None):
-    if user is None:
-        user = getExecutingUser()
-
-    return user.level >= level
-
-
 class DeviceValueDict(object):
     """Convenience class to be used for templating device values/params.
 

@@ -57,6 +57,7 @@ from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
 from nicos.core.sessions.setups import readSetups
 from nicos.pycompat import builtins, exec_, string_types, \
     itervalues, iteritems, listvalues
+from nicos.services.daemon.auth import system_user
 
 
 class Session(object):
@@ -794,6 +795,14 @@ class Session(object):
             self.log.info('Usage: ' + real_func.__name__ + argspec)
             for line in formatDocstring(real_func.__doc__ or '', '   '):
                 self.log.info(line)
+
+    def getExecutingUser(self):
+        return system_user
+
+    def checkUserLevel(self, level=0, user=None):
+        if user is None:
+            user = self.getExecutingUser()
+        return user.level >= level
 
     # -- Device control --------------------------------------------------------
 

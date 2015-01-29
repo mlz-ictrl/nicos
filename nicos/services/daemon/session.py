@@ -31,6 +31,7 @@ from nicos.utils.loggers import INFO
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.cacheclient import DaemonCacheClient
+from nicos.services.daemon.auth import User
 from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.pycompat import builtins, exec_, string_types
 
@@ -140,6 +141,10 @@ class DaemonSession(NoninteractiveSession):
         if not isinstance(obj, string_types):
             self.log.info('Showing help in the calling client...')
         self.emitfunc_private('showhelp', data)
+
+    def getExecutingUser(self):
+        s = self.daemon_device.current_script()
+        return User(s.user, s.userlevel)
 
     def clientExec(self, func, args):
         """Execute a function client-side."""
