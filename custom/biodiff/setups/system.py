@@ -112,7 +112,9 @@ devices = dict(
                        sender = 'biodiff@frm2.tum.de',
                        copies = [('t.schrader@fz-juelich.de', 'all'),
                                  ('andreas.ostermann@frm2.tum.de', 'all'),
-                                 ('c.felder@fz-juelich.de', 'important')],
+                                 ('c.felder@fz-juelich.de', 'important'),
+                                 ('alerts.sw.zea2@fz-juelich.de', 'important'),
+                                ],
                        subject = '[NICOS] BIODIFF',
                       ),
 
