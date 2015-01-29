@@ -83,8 +83,10 @@ class Experiment(BaseExperiment):
             self.log.warning('unable to query proposal info', exc=1)
             return
 
+        kwds['wrong_instrument'] = info.get('wrong_instrument')
+
         # check permissions
-        if info:
+        if 'wrong_instrument' not in info:
             if info.get('permission_security', 'no') != 'yes':
                 self.log.error('No permission for this experiment from security! '
                                'Please call 12699 (929-142).')

@@ -130,6 +130,9 @@ class ExpPanel(Panel, DlgUtils):
                                       % prop, None)
 
             if result:
+                if result['wrong_instrument']:
+                    self.showError('Proposal is not for this instrument, '
+                                   'please check the proposal number!')
                 # now transfer it into gui
                 # XXX check: is the result bytes or str on Python 3?
                 self.expTitle.setText(decodeAny(result.get('title', title)))
@@ -145,12 +148,12 @@ class ExpPanel(Panel, DlgUtils):
                     failed.append('* Security (Tel. 12699)')
                 if result.get('permission_radiation_protection', 'no') != 'yes':
                     failed.append('* Radiation protection (Tel. 14955)')
-                if failed:
+                if failed and not result['wrong_instrument']:
                     self.showError('Proposal lacks sufficient permissions '
                                    'to be performed!\n\n' + '\n'.join(failed))
             else:
                 self.showInfo('Reading proposaldb failed for an unknown reason.'
-                              ' Please check logfiles for hints....')
+                              ' Please check logfiles for hints.')
         except Exception as e:
             self.log.warning(e, exc=1)
             self.showInfo('Reading proposaldb failed for an unknown reason. '

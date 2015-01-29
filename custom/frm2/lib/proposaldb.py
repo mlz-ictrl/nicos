@@ -143,7 +143,7 @@ def queryProposal(pnumber, instrument=None):
         session.log.error('proposal %s is not a proposal for '
                           '%s, but for %s, cannot use proposal information' %
                           (pnumber, instrument, instrname))
-        return instrname, {}  # avoid data leakage
+        return instrname, {'wrong_instrument': instrname}  # avoid data leakage
     # structure of returned data: (title, user, prop_name, prop_value)
     info = {
         'instrument': instrname,
