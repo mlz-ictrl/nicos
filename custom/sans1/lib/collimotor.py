@@ -35,7 +35,7 @@ from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
     Attach, usermethod, requires
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import CanReference, Motor, Coder
-from nicos.devices.generic.sequence import SequencerMixin, SeqCall
+from nicos.devices.generic.sequence import SequencerMixin, SeqMethod
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput, \
     DigitalInput, NamedDigitalInput
@@ -475,7 +475,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, Motor):
         seq = []
 
         # always enable before doing anything
-        seq.append(SeqCall(self._HW_enable))
+        seq.append(SeqMethod(self, '_HW_enable'))
 
         # check autoreferencing feature
         if self.autozero is not None:
@@ -486,27 +486,27 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, Motor):
                 seq.extend(self._gen_ref_sequence())
 
         # now just go where commanded....
-        seq.append(SeqCall(self._HW_start, target))
-        seq.append(SeqCall(self._HW_wait_while_BUSY))
+        seq.append(SeqMethod(self, '_HW_start', target))
+        seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
 
         if self.autopower == 'on':
             # disable if requested.
-            seq.append(SeqCall(self._HW_disable))
+            seq.append(SeqMethod(self, '_HW_disable'))
 
         return seq
 
     def _gen_ref_sequence(self):
         seq = []
         # try to mimic anatel: go to 5mm before refpos and then to the negative limit switch
-        seq.append(SeqCall(self._HW_enable))
-        seq.append(SeqCall(self._HW_start, self.refpos + 5.))
-        seq.append(SeqCall(self._HW_wait_while_BUSY))
-        seq.append(SeqCall(self._HW_start,
+        seq.append(SeqMethod(self, '_HW_enable'))
+        seq.append(SeqMethod(self, '_HW_start', self.refpos + 5.))
+        seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
+        seq.append(SeqMethod(self, '_HW_start',
             self.absmin if self.absmin < self.refpos else self.refpos - 100))
-        seq.append(SeqCall(self._HW_wait_while_BUSY))
-        seq.append(SeqCall(self._HW_reference))
-        seq.append(SeqCall(self.doSetPosition, self.refpos))
-        seq.append(SeqCall(self._HW_wait_while_BUSY))
+        seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
+        seq.append(SeqMethod(self, '_HW_reference'))
+        seq.append(SeqMethod(self, 'doSetPosition', self.refpos))
+        seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
         return seq
 
     #
@@ -552,7 +552,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, Motor):
         seq = self._gen_ref_sequence()
         if self.autopower == 'on':
             # disable if requested.
-            seq.append(SeqCall(self._HW_disable))
+            seq.append(SeqMethod(self, '_HW_disable'))
         self._startSequence(seq)
 
 

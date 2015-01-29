@@ -29,7 +29,7 @@ from nicos.core import Value
 from nicos.core.device import Measurable
 from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
 from nicos.core.params import Param, Attach, oneof, dictof, tupleof
-from nicos.devices.generic.sequence import MeasureSequencer, SeqCall
+from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod
 from nicos.core.image import ImageProducer, ImageType
 from nicos.devices.polarized.flipper import BaseFlipper, ON
 
@@ -101,14 +101,14 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
 
     def _generateSequence(self, *args, **kwargs):
         seq = []
-        seq.append(SeqCall(self._dev.Clear, _name='Clear'))
+        seq.append(SeqMethod(self._dev, 'Clear'))
         self.log.debug("Detector cleared")
-        seq.append(SeqCall(self._dev.Start, _name='Start'))
+        seq.append(SeqMethod(self._dev, 'Start'))
         self.log.debug("Detector started")
-        seq.append(SeqCall(self._adevs['timer'].start, _name='timer.start'))
+        seq.append(SeqMethod(self._adevs['timer'], 'start'))
         self.log.debug("Counter started")
-        seq.append(SeqCall(self._adevs['timer'].wait, _name='timer.wait'))
-        seq.append(SeqCall(self._dev.Stop, _name='Stop'))
+        seq.append(SeqMethod(self._adevs['timer'], 'wait'))
+        seq.append(SeqMethod(self._dev, 'Stop'))
         return seq
 
     def doSetPreset(self, **preset):

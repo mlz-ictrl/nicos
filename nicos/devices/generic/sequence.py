@@ -26,13 +26,13 @@
 """Devices performing an unlocking/locking sequence upon moving"""
 
 import time
-from time import time as currenttime
 from datetime import timedelta
+from time import time as currenttime
 
 from nicos import session
-from nicos.core import Param, Override, none_or, anytype, tupleof, status, \
-    NicosError, MoveError, ProgrammingError, ConfigurationError, LimitError, \
-    SIMULATION, Moveable, Measurable, DeviceMixinBase
+from nicos.core import ConfigurationError, Device, DeviceMixinBase, LimitError, \
+    Measurable, MoveError, Moveable, NicosError, Override, Param, \
+    ProgrammingError, SIMULATION, anytype, none_or, status, tupleof
 from nicos.utils import createThread
 
 
@@ -157,27 +157,24 @@ class SeqMethod(SequenceItem):
         getattr(self.dev, self.method)(*self.args)
 
     def __repr__(self):
-        return '%s.%s(%s)' % (self.dev.name, self.method,
+        if isinstance(self.dev, Device):
+            name = self.dev.name
+        else:
+            name = repr(self.dev)
+        return '%s.%s(%s)' % (name, self.method,
                               self._format_args_kwargs(self.args, self.kwargs))
 
 
 class SeqCall(SequenceItem):
-    """Calls a given function with given arguments.
-
-    The representation of the item (for debugging) uses the function's __name__.
-    If this is not a useful string, you can pass the special keyword argument
-    ``_name`` to override.  (This means that the function cannot be passed
-    such a keyword argument.)
-    """
+    """Calls a given function with given arguments."""
     def __init__(self, func, *args, **kwargs):
-        self.func_name = kwargs.pop('_name', func.__name__)
         SequenceItem.__init__(self, func=func, args=args, kwargs=kwargs)
 
     def run(self):
         self.func(*self.args, **self.kwargs)
 
     def __repr__(self):
-        return '%s(%s)' % (self.func_name,
+        return '%s(%s)' % (self.func.__name__,
                            self._format_args_kwargs(self.args, self.kwargs))
 
 

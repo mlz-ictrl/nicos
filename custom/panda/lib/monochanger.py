@@ -662,7 +662,7 @@ class Changer(BaseSequencer):
                               self.shields[self.monos.index(whereto)]))
 
         seq.append(SeqDev(self._adevs['enable'], 0))
-        seq.append(SeqCall(self.FinishChange))
+        seq.append(SeqMethod(self, 'FinishChange'))
         self._start(seq)
         self.wait()
 

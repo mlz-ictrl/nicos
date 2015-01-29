@@ -28,13 +28,14 @@
 from time import localtime, strftime, time as currenttime
 
 from nicos.core import Attach, Param, Override, Readable, Moveable, listof, \
-     tupleof, HasPrecision, status, InvalidValueError, PositionError
+    tupleof, HasPrecision, status, InvalidValueError, PositionError
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.generic.sequence import BaseSequencer, \
-     SeqCall, SeqDev, SeqMethod, SeqParam, SeqSleep
+    SeqDev, SeqMethod, SeqParam, SeqSleep
 from nicos.pycompat import iteritems
 
 from nicos.devices.taco.power import VoltageSupply as TacoVoltageSupply
+
 
 class VoltageSwitcher(Switcher):
     """mapping is now state:(value, precision)"""
@@ -70,6 +71,7 @@ class VoltageSwitcher(Switcher):
             if self.target == 'LOW' and self._adevs['moveable'].read(0) < 70:
                 return status.OK, 'below 70V'
         return move_status
+
 
 class VoltageSupply(HasPrecision, TacoVoltageSupply):
     """work around a bug either in the taco server or in thehv supply itself
@@ -161,7 +163,7 @@ class Sans1HV(BaseSequencer):
             seq.append(SeqDev(disdev, 1 if self.read() > target else 0))
             if self.read() > self.rampsteps[0][0]:
                 seq.append(SeqDev(hvdev, self.rampsteps[0][0]))
-            seq.append(SeqCall(hvdev.start, target))
+            seq.append(SeqMethod(hvdev, 'start', target))
             return seq
 
         # check off time

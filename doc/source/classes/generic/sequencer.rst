@@ -95,6 +95,7 @@ The result is used to create the status string.
 .. autoclass:: SeqDev
 .. autoclass:: SeqParam
 .. autoclass:: SeqCall
+.. autoclass:: SeqMethod
 .. autoclass:: SeqSleep
 
 .. autoclass:: SequencerMixin()

@@ -27,7 +27,7 @@ Supporting classes for FRM2 magnets (Garfield, MiraMagnet, ...)
 """
 
 from nicos.core import Moveable
-from nicos.devices.generic.sequence import SeqDev, SeqCall, SeqSleep
+from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqSleep
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet
 
 
@@ -66,7 +66,7 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
         sequence.append(SeqDev(onoff, 'on'))
         sequence.append(SeqSleep(0.3, 'enabling power'))
         try:
-            sequence.append(SeqCall(self._adevs['currentsource']._dev.deviceOn))
+            sequence.append(SeqMethod(self._adevs['currentsource']._dev, 'deviceOn'))
             sequence.append(SeqSleep(0.3, 're-enabling power source'))
         except Exception:
             pass # would fail on non taco devices and is only needed on those
