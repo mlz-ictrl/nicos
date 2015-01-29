@@ -27,10 +27,23 @@
 from PyQt4.QtGui import QWidget, QColor
 from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL
 
+from nicos.utils import formatDuration
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.utils import loadUi, setBackgroundColor
 
 invalid = QColor('#ffcccc')
+
+
+def isFloat(ctl, minval=None, maxval=None):
+    try:
+        v = float(ctl.text())
+    except ValueError:
+        return False
+    if minval is not None and v < minval:
+        return False
+    if maxval is not None and v > maxval:
+        return False
+    return True
 
 
 class Cmdlet(QWidget):
@@ -252,6 +265,70 @@ class CScan(Cmdlet):
         return 'cscan(%s, %s, %s, %s, %s)\n' % args
 
 
+class ContScan(Cmdlet):
+
+    name = 'Continuous Scan'
+    category = 'Scan'
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client, 'contscan.ui')
+        self.device.addItems(
+            self.client.getDeviceList('nicos.core.device.Moveable',
+                                      special_clause='hasattr(d, "speed")'))
+        self.on_device_change(self.device.currentText())
+        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
+                     self.on_device_change)
+        self.start.textChanged.connect(self.on_range_change)
+        self.stop.textChanged.connect(self.on_range_change)
+        self.speed.textChanged.connect(self.on_range_change)
+        self.delta.textChanged.connect(self.on_range_change)
+
+    def on_range_change(self):
+        try:
+            rng = abs(float(self.start.text()) - float(self.stop.text()))
+            secs = rng / float(self.speed.text())
+            pnts = int(secs / float(self.delta.text()))
+            self.totalLabel.setText('Total: %d points, %s' %
+                                    (pnts, formatDuration(secs)))
+        except (ValueError, ArithmeticError):
+            self.totalLabel.setText('Total:')
+        self.changed()
+
+    def on_device_change(self, text):
+        unit = self.client.getDeviceParam(text, 'unit')
+        value = self.client.getDeviceParam(text, 'value')
+        fmtstr = self.client.getDeviceParam(text, 'fmtstr')
+        try:
+            self.start.setText(fmtstr % value)
+        except Exception:
+            pass
+        self.unit1.setText(unit or '')
+        self.unit2.setText(unit or '')
+        self.unit3.setText((unit or '') + '/second')
+        self.changed()
+
+    def isValid(self):
+        valid = [
+            self.markValid(self.start, isFloat(self.start)),
+            self.markValid(self.stop, isFloat(self.stop)),
+            self.markValid(self.speed, isFloat(self.speed, 0.00001)),
+            self.markValid(self.delta, isFloat(self.delta, 0.05)),
+        ]
+        return all(valid)
+
+    def generate(self, mode):
+        args = (
+            self.device.currentText(),
+            self.start.text(),
+            self.stop.text(),
+            self.speed.text(),
+            self.delta.text(),
+        )
+        if mode == 'simple':
+            return 'contscan %s %s %s %s %s\n' % args
+        return 'contscan(%s, %s, %s, %s, %s)\n' % args
+
+
 class Sleep(Cmdlet):
 
     name = 'Sleep'
@@ -331,5 +408,5 @@ class NewSample(Cmdlet):
         return 'NewSample(%r)\n' % self.samplename.text()
 
 
-all_cmdlets = [Move, Count, Scan, CScan, Sleep, Configure, NewSample]
+all_cmdlets = [Move, Count, Scan, CScan, ContScan, Sleep, Configure, NewSample]
 all_categories = ['Device', 'Scan', 'Other']
