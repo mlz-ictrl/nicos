@@ -31,7 +31,7 @@ from PyQt4.QtGui import QMenu, QAction, QMessageBox, QColor
 from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.utils import loadUi, setBackgroundColor, \
-     ScriptExecQuestion
+    ScriptExecQuestion
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.cmdlets import all_cmdlets, all_categories
 from nicos.core import SIMULATION, SLAVE, MAINTENANCE
@@ -57,6 +57,7 @@ class CommandPanel(Panel):
 
         for cmdlet in all_cmdlets:
             action = QAction(cmdlet.name, self)
+
             def callback(on, cmdlet=cmdlet):
                 self.selectCmdlet(cmdlet)
             action.triggered.connect(callback)
@@ -67,8 +68,9 @@ class CommandPanel(Panel):
 
     def postInit(self):
         self.console = self.window.getPanel('Console')
-        self.console.outView.anchorClicked.connect(
-                                           self.on_consoleView_anchorClicked)
+        if self.console:
+            self.console.outView.anchorClicked.connect(
+                self.on_consoleView_anchorClicked)
 
     def loadSettings(self, settings):
         self.cmdhistory = settings.value('cmdhistory') or []
@@ -133,6 +135,7 @@ class CommandPanel(Panel):
             self.current_cmdlet.removeSelf()
         inst = cmdlet(self.frame, self.client)
         inst.buttons.setVisible(False)
+        inst.line.setVisible(False)
         self.frame.layout().insertWidget(0, inst)
         self.current_cmdlet = inst
         self.connect(inst, SIGNAL('dataChanged'), self.updateCommand)
