@@ -217,17 +217,18 @@ class CScan(Cmdlet):
         self.changed()
 
     def on_range_change(self, *args):
+        numpoints = self.numpoints.value()
         try:
             start = float(self.start.text())
             step = float(self.step.text())
         except ValueError:
             edgepos = ''
         else:
-            numpoints = self.numpoints.value()
             edgepos = '%.3f - %.3f %s' % (start - numpoints*step,
                                           start + numpoints*step,
                                           self.unit1.text())
         self.edgePos.setText(edgepos)
+        self.totalPoints.setText('Total: %d points' % (2 * numpoints + 1))
         self.changed()
 
     def isValid(self):
