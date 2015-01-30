@@ -146,7 +146,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self._plot.xlabel = self.xaxisName()
         self._plot.ylabel = self.yaxisName()
         if self.normalized:
-            self._plot.ylabel += " (norm)"
+            self._plot.ylabel += " (norm: %s)" % self.normalized
 
         self.plotcurves = []
         self.addAllCurves()
@@ -433,15 +433,11 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
             if curve.dyindex != -1:
                 dy = np.array(curve.datady)
             if self.normalized:
-                norm = None
-                if curve.monindices:
-                    norm = np.array(curve.datamon)
-                elif curve.timeindex > -1:
-                    norm = np.array(curve.datatime)
-                if norm is not None:
-                    y /= norm
-                    if dy is not None:
-                        dy /= norm
+                i = curve.normnames.index(self.normalized)
+                norm = np.array(curve.datanorm[i])
+                y /= norm
+                if dy is not None:
+                    dy /= norm
             if dy is not None:
                 errbar = ErrorBar(x[:n], y[:n], dy)
 
@@ -461,15 +457,11 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         if curve.dyindex != -1:
             dy = np.array(curve.datady)
         if self.normalized:
-            norm = None
-            if curve.monindices:
-                norm = np.array(curve.datamon)
-            elif curve.timeindex > -1:
-                norm = np.array(curve.datatime)
-            if norm is not None:
-                y /= norm
-                if dy is not None:
-                    dy /= norm
+            i = curve.normnames.index(self.normalized)
+            norm = np.array(curve.datanorm[i])
+            y /= norm
+            if dy is not None:
+                dy /= norm
 
         if dy is not None:
             errbar = ErrorBar(x[:n], y[:n], dy,

@@ -297,8 +297,8 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         yaxisname = self.yaxisName()
         y2axisname = self.y2axisName()
         if self.normalized:
-            yaxistext = QwtText(yaxisname + ' (norm)')
-            y2axistext = QwtText(y2axisname + ' (norm)')
+            yaxistext = QwtText(yaxisname + ' (norm: %s)' % self.normalized)
+            y2axistext = QwtText(y2axisname + ' (norm: %s)' % self.normalized)
         else:
             yaxistext = QwtText(yaxisname)
             y2axistext = QwtText(y2axisname)
@@ -644,15 +644,11 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
         if curve.dyindex != -1:
             dy = np.array(curve.datady)
         if self.normalized:
-            norm = None
-            if curve.monindices:
-                norm = np.array(curve.datamon)
-            elif curve.timeindex > -1:
-                norm = np.array(curve.datatime)
-            if norm is not None:
-                y /= norm
-                if dy is not None:
-                    dy /= norm
+            i = curve.normnames.index(self.normalized)
+            norm = np.array(curve.datanorm[i])
+            y /= norm
+            if dy is not None:
+                dy /= norm
         plotcurve.setData(x, y, None, dy)
         # setData creates a new legend item that must be styled
         if not plotcurve.isVisible() and self.legend():

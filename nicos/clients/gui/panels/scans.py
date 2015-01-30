@@ -88,6 +88,10 @@ class ScansPanel(Panel):
         self.statusBar.setSizePolicy(policy)
         self.layout().addWidget(self.statusBar)
 
+        self.norm_menu = QMenu(self)
+        self.norm_menu.aboutToShow.connect(self.on_norm_menu_aboutToShow)
+        self.actionNormalized.setMenu(self.norm_menu)
+
         quickfit = QShortcut(QKeySequence("G"), self)
         self.connect(quickfit, SIGNAL('activated()'), self.on_quickfit)
 
@@ -96,6 +100,7 @@ class ScansPanel(Panel):
 
         self.bulk_adding = False
         self.no_openset = False
+        self.last_norm_selection = None
 
         self.menus = None
         self.bar = None
@@ -280,7 +285,7 @@ class ScansPanel(Panel):
             self.datasetList.setCurrentItem(self.setitems[plot.dataset.uid])
 
             self.actionLogScale.setChecked(plot.isLogScaling())
-            self.actionNormalized.setChecked(plot.normalized)
+            self.actionNormalized.setChecked(bool(plot.normalized))
             self.actionLegend.setChecked(plot.isLegendEnabled())
             if plot.HAS_AUTOSCALE:
                 self.actionAutoScale.setChecked(plot.plot.autoscale)
@@ -414,9 +419,47 @@ class ScansPanel(Panel):
             self.currentPlot.setAutoScale(on)
             self.currentPlot.update()
 
-    @qtsig('bool')
-    def on_actionNormalized_toggled(self, on):
-        self.currentPlot.normalized = on
+    @qtsig('')
+    def on_actionNormalized_triggered(self):
+        if not self.currentPlot:
+            return
+        if self.currentPlot.normalized is not None:
+            self.on_norm_action_triggered('None')
+        else:
+            if self.last_norm_selection and \
+               self.last_norm_selection in self.currentPlot.norm_names:
+                use = self.last_norm_selection
+            else:
+                use = self.currentPlot.norm_names[0]
+            self.on_norm_action_triggered(use)
+
+    def on_norm_menu_aboutToShow(self):
+        self.norm_menu.clear()
+        if self.currentPlot:
+            none_action = self.norm_menu.addAction('None')
+            none_action.setCheckable(True)
+            none_action.setChecked(True)
+            none_action.triggered.connect(self.on_norm_action_triggered)
+            for name in self.currentPlot.norm_names:
+                action = self.norm_menu.addAction(name)
+                action.setCheckable(True)
+                if name == self.currentPlot.normalized:
+                    action.setChecked(True)
+                    none_action.setChecked(False)
+                action.triggered.connect(self.on_norm_action_triggered)
+
+    @qtsig('')
+    def on_norm_action_triggered(self, text=None):
+        if text is None:
+            sender = self.sender()
+            text = sender.text()
+        if text == 'None':
+            self.currentPlot.normalized = None
+            self.actionNormalized.setChecked(False)
+        else:
+            self.last_norm_selection = text
+            self.currentPlot.normalized = text
+            self.actionNormalized.setChecked(True)
         self.currentPlot.updateDisplay()
         self.on_actionUnzoom_triggered()
 
@@ -534,11 +577,16 @@ class ScansPanel(Panel):
             #newset.xunits = firstset.xunits
             for curves in zip(*(dataset.curves for dataset in sets)):
                 newcurve = curves[0].copy()
-                for attr in ('datax', 'datay', 'datady', 'datatime', 'datamon'):
+                for attr in ('datax', 'datay', 'datady'):
                     setattr(newcurve, attr, DataProxy(getattr(curve, attr)
                                                       for curve in curves))
+                newcurve.datanorm = []
+                for i in range(len(curves[0].datanorm)):
+                    newcurve.datanorm.append(DataProxy(curve.datanorm[i]
+                                                       for curve in curves))
                 newset.curves.append(newcurve)
-            self.data.add_existing_dataset(newset, [dataset.uid for dataset in sets])
+            self.data.add_existing_dataset(newset,
+                                           [dataset.uid for dataset in sets])
             return newset.uid
 
         if op == ADD:
@@ -572,8 +620,8 @@ class ScansPanel(Panel):
                     if op == ADD:
                         newcurve.datay[i] = y1 + y2
                         newcurve.datady[i] = sqrt(dy1**2 + dy2**2)
-                        newcurve.datatime[i] += curve.datatime[i]
-                        newcurve.datamon[i] += curve.datamon[i]
+                        for j in range(len(newcurve.datanorm)):
+                            newcurve.datanorm[j][i] += curve.datanorm[j][i]
                     elif op == SUBTRACT:
                         newcurve.datay[i] = y1 - y2
                         newcurve.datady[i] = sqrt(dy1**2 + dy2**2)
@@ -586,14 +634,18 @@ class ScansPanel(Panel):
                                                   (dy2*y1 / y2**2)**2)
             # remove information about normalization -- doesn't make sense
             if op in (SUBTRACT, DIVIDE):
-                newcurve.timeindex = -1
-                newcurve.monindices = []
+                newcurve.normindices = []
+                newcurve.normnames = []
             # remove points where we would have divided by zero
             if removepoints:
-                for arr in ('datax', 'datay', 'datady', 'datatime', 'datamon'):
+                for arr in ('datax', 'datay', 'datady'):
                     new = [v for (i, v) in enumerate(getattr(newcurve, arr))
                            if i not in removepoints]
                     setattr(newcurve, arr, new)
+                for j in range(len(newcurve.datanorm)):
+                    new = [v for (i, v) in enumerate(newcurve.datanorm[j][i])
+                           if i not in removepoints]
+                    newcurve.datanorm[j] = new
             newset.curves.append(newcurve)
         self.data.add_existing_dataset(newset)
         return newset.uid

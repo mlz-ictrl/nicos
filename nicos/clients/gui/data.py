@@ -57,14 +57,16 @@ class Curve(object):
     yaxis = 1
     yindex = -1
     dyindex = -1
-    timeindex = -1
-    monindices = []
+    normindices = []
+    normnames = []
     disabled = False
     function = False
 
     def __init__(self):
-        self.datax, self.datay, self.datady, self.datatime, self.datamon = \
-                    [], [], [], [], []
+        self.datax = []
+        self.datay = []
+        self.datady = []
+        self.datanorm = []
 
     @property
     def full_description(self):
@@ -167,8 +169,8 @@ class DataHandler(QObject):
 
     def _init_curves(self, dataset):
         curves = []
-        timeindex = -1
-        monindices = []
+        normindices = []
+        normnames = []
         for i, (name, info) in enumerate(zip(dataset.ynames, dataset.yvalueinfo)):
             if info.type in ('info', 'error'):
                 continue
@@ -180,22 +182,21 @@ class DataHandler(QObject):
             curve.yindex = i
             if info.type == 'other':
                 curve.yaxis = 2
-            elif info.type == 'time':
-                timeindex = i
-                curve.disabled = True
-            elif info.type == 'monitor':
-                monindices.append(i)
+            elif info.type in ('time', 'monitor'):
+                normindices.append(i)
+                normnames.append(name)
                 curve.disabled = True
             elif info.type == 'calc':
                 curve.function = True
             if info.errors == 'sqrt':
                 curve.dyindex = -2
             elif info.errors == 'next':
-                curve.dyindex = i+1
+                curve.dyindex = i + 1
             curves.append(curve)
         for curve in curves:
-            curve.timeindex = timeindex
-            curve.monindices = monindices
+            curve.normindices = normindices
+            curve.normnames = normnames
+            curve.datanorm = [[] for _ in range(len(normindices))]
         return curves
 
     def _update_curves(self, xvalues, yvalues):
@@ -211,13 +212,5 @@ class DataHandler(QObject):
                 curve.datady.append(np.sqrt(yvalues[curve.yindex]))
             else:
                 curve.datady.append(0)
-            if curve.timeindex != -1:
-                curve.datatime.append(yvalues[curve.timeindex])
-            else:
-                curve.datatime.append(0)
-            for i in curve.monindices:
-                if yvalues[i] != 0:
-                    curve.datamon.append(yvalues[i])
-                    break
-            else:
-                curve.datamon.append(0)
+            for i, index in enumerate(curve.normindices):
+                curve.datanorm[i].append(yvalues[index])

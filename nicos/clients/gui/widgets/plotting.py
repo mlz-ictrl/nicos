@@ -350,7 +350,7 @@ class NicosPlot(DlgUtils):
         DlgUtils.__init__(self, 'Plot')
         self.window = window
         self.plotcurves = []
-        self.normalized = False
+        self.normalized = None
         self.has_secondary = False
         self.show_all = False
         self.timeaxis = timeaxis
@@ -549,6 +549,7 @@ class NicosPlot(DlgUtils):
 class DataSetPlotMixin(object):
     def __init__(self, dataset):
         self.dataset = dataset
+        self.norm_names = dataset.curves[0].normnames
 
     def titleString(self):
         return '<h3>Scan %s</h3><font size="-2">%s, started %s</font>' % \
