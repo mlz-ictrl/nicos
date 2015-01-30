@@ -78,7 +78,7 @@ class ConnectionDialog(QDialog):
         if type(lastpreset) == QPyNullVariant:
             lastpreset = None
 
-        self.presetOrAddr.addItems(list(connpresets))
+        self.presetOrAddr.addItems(sorted(connpresets))
         self.presetOrAddr.setEditText(lastpreset)
         if not lastpreset:
             # if we have no stored last preset connection, put in the raw data
