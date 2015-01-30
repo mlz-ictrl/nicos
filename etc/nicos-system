@@ -31,14 +31,17 @@
 #
 # *****************************************************************************
 
+from __future__ import print_function
+
 import os
 import sys
 import time
 import errno
-import psutil
 import socket
 import signal
 from os import path
+
+import psutil
 
 _DEFAULT = path.join(os.sep, 'etc', 'default', 'nicos-system')
 nicos_root = path.dirname(path.dirname(path.realpath(__file__)))
@@ -47,6 +50,12 @@ try:
     import nicos
 except ImportError:
     sys.path.insert(0, nicos_root)
+
+
+def printerr(*args, **kwargs):
+    kwargs.pop('file', None)
+    print(*args, file=sys.stderr, **kwargs)
+
 
 if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
     try:
@@ -58,8 +67,8 @@ if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
                         key = key.replace('export', '').strip()
                         os.environ[key] = value.rstrip()
     except IOError as e:
-        print >>sys.stderr, '  ERROR: %s' % e
-        print >>sys.stderr, 'WARNING: Ignoring defaults in %s.' % _DEFAULT
+        printerr('  ERROR:', e)
+        printerr('WARNING: Ignoring defaults in %s.' % _DEFAULT)
 
 # We need to read the nicos.conf file, so let nicos do that.
 from nicos import config
@@ -70,12 +79,10 @@ def get_config():
     try:
         hostname = socket.getfqdn().split('.')[0]
     except socket.error as e:
-        print >>sys.stderr, \
-            'Could not figure out host name (%s).' % str(e)
-        print >>sys.stderr, \
-            'Continue with nonspecific services.'
-    host_spec_services = 'services_%s' % hostname
+        printerr('Could not figure out host name (%s).' % e)
+        printerr('Continue with nonspecific services.')
 
+    host_spec_services = 'services_%s' % hostname
     if hostname and hasattr(config, host_spec_services):
         services = getattr(config, host_spec_services)
     else:
@@ -92,10 +99,8 @@ SERVICES, LOG_PATH, PID_PATH = get_config()
 
 
 def usage(prog):
-    print >>sys.stderr, \
-        'Usage: %s start|stop|restart|status [service ...]' % prog
-    print >>sys.stderr, \
-        'Possible services are %s' % ', '.join(SERVICES)
+    printerr('Usage: %s start|stop|restart|status [service ...]' % prog)
+    printerr('Possible services are', ', '.join(SERVICES))
     return 1
 
 
@@ -144,20 +149,20 @@ def check_stray_procs(name):
             continue
         if p.pid in known_subprocs:
             continue
-        if ('python' in p.name()
-            and ('nicos-%s' % name) in ' '.join(p.cmdline())):
-                still_running.add(p)
+        if 'python' in p.name() and 'nicos-%s' % name in ' '.join(p.cmdline()):
+            still_running.add(p)
 
     if still_running:
-        print 'WARNING: some other %s processes seem to run!' % name
-        print ' PID    Commandline'
+        printerr('WARNING: some other', name, 'processes seem to run!')
+        printerr(' PID    Commandline')
         for p in still_running:
-            print '%-6d  %s' % (p.pid, ' '.join(p.cmdline))
-        print "You could kill all of them with this command:"
-        print "# kill %s" % ' '.join(str(p.pid) for p in still_running)
-        print
-        print "if this does not work, you may be tempted to use this instead:"
-        print "# kill -9 %s" % ' '.join(str(p.pid) for p in still_running)
+            printerr('%-6d  %s' % (p.pid, ' '.join(p.cmdline())))
+        printerr('You could kill all of them with this command:')
+        printerr('# kill %s' % ' '.join(str(p.pid) for p in still_running))
+        printerr()
+        printerr('if this does not work, you may be tempted to '
+                 'use this instead:')
+        printerr('# kill -9 %s' % ' '.join(str(p.pid) for p in still_running))
         return True
     return False
 
@@ -165,15 +170,14 @@ def check_stray_procs(name):
 def start_daemon(name):
     # check for processes we would not see
     if check_stray_procs(name):
-        print
-        print "NOT starting any additional daemons until this is resolved."
-        print
+        printerr()
+        printerr('NOT starting any additional daemons until this is resolved.')
+        printerr()
         return
-    print 'Starting %s...' % name,
-    sys.stdout.flush()
+    print('Starting %s...' % name, end=' ')
     previous_pid = read_pidfile(name)
     if previous_pid:
-        print 'already running? (pid = %d)' % previous_pid
+        print('already running? (pid = %d)' % previous_pid)
         return
     try:
         procname, instname = name.split('-')
@@ -184,10 +188,11 @@ def start_daemon(name):
                            else '', ))
     pid = read_pidfile(name, wait=10)
     if not pid:
-        print 'failed, please look in the logfile at %s' % \
-            path.join(LOG_PATH, name, name + time.strftime('-%Y-%m-%d.log'))
+        print('failed, please look in the logfile at %s'
+              % path.join(LOG_PATH, name, name
+                          + time.strftime('-%Y-%m-%d.log')))
         return False
-    print 'pid =', pid
+    print('pid =', pid)
     if name == 'cache':
         time.sleep(3)
     return True
@@ -195,40 +200,38 @@ def start_daemon(name):
 
 def kill_daemon(name):
     try:
-        print 'Killing %s...' % name,
-        sys.stdout.flush()
+        print('Killing %s...' % name, end=' ')
         pid = read_pidfile(name)
         if not pid:
-            print 'not running?'
+            print('not running?')
             return True
-        print 'pid =', pid,
-        sys.stdout.flush()
+        print('pid =', pid, end=' ')
         os.kill(pid, signal.SIGTERM)
         time.sleep(0.1)
         begin = time.time()
         while 1:
             pid = read_pidfile(name)
             if not pid:
-                print
+                print()
                 return True
             time.sleep(0.1)
             current = time.time()
             if current > begin + 10:
-                print 'FAILED to stop!'
+                print('FAILED to stop!')
                 return False
             elif current > begin + 6:
-                print 'KILL',
+                print('KILL')
                 try:
                     os.kill(pid, signal.SIGKILL)
                 except OSError as err:
                     # ESRCH means: already terminated
                     if err.errno != errno.ESRCH:
-                        print 'FAILED to kill:', err
+                        printerr('FAILED to kill:', err)
                         return False
             elif current > begin + 1:
                 time.sleep(0.2)
-            print '.',
-            sys.stdout.flush()
+            print('.', end=' ')
+        print()
     finally:
         # no matching process should have survived. If they do, warn!
         check_stray_procs(name)
@@ -267,7 +270,7 @@ def main(args):
 
     elif action == 'stop':
         if not all_option and not explicit_daemons and 'cache' in daemons:
-            print 'Not stopping cache, use -a option to force'
+            print('Not stopping cache, use -a option to force')
             daemons.remove('cache')
         for name in reversed(daemons):
             if not kill_daemon(name):
@@ -275,7 +278,7 @@ def main(args):
 
     elif action == 'restart':
         if not all_option and not explicit_daemons and 'cache' in daemons:
-            print 'Not restarting cache, use -a option to force'
+            print('Not restarting cache, use -a option to force')
             daemons.remove('cache')
         dmns = ' '.join(daemons)
         os.system('%s stop %s && sleep 1 && %s start %s' % (
@@ -286,11 +289,11 @@ def main(args):
             try:
                 pid = read_pidfile(name)
             except Exception as e:
-                print '%-12s: could not read pidfile: %s' % (name, e)
+                printerr('%-12s: could not read pidfile: %s' % (name, e))
             if pid:
-                print '%-12s: running (pid = %s)' % (name, pid)
+                print('%-12s: running (pid = %s)' % (name, pid))
             else:
-                print '%-12s: dead' % name
+                print('%-12s: dead' % name)
                 exitstatus = 1
             # ignoring return value here.
             check_stray_procs(name)
@@ -300,6 +303,6 @@ def main(args):
 try:
     exitstatus = main(sys.argv)
 except BaseException as e:
-    print >>sys.stderr, 'ERROR:', e.__class__.__name__, '-', e
+    printerr('ERROR:', e.__class__.__name__, '-', e)
 else:
     sys.exit(exitstatus)
