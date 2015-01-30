@@ -24,10 +24,12 @@
 
 """Dialog for entering authentication data."""
 
-from PyQt4.QtGui import QDialog
 from PyQt4.QtCore import QSize
+from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem, QPalette
+
+
 try:
-    from PyQt4.QtCore import QPyNullVariant # pylint: disable=E0611
+    from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
 except ImportError:
     QPyNullVariant = None
 
@@ -78,6 +80,26 @@ class ConnectionDialog(QDialog):
         if type(lastpreset) == QPyNullVariant:
             lastpreset = None
 
+        pal = self.quickList.palette()
+        pal.setColor(QPalette.Window, pal.color(QPalette.Base))
+        self.quickList.setPalette(pal)
+
+        if len(connpresets) < 3:
+            self.quickList.hide()
+        else:
+            self.quickList.setStyleSheet('padding: 10px 5px;')
+            self.quickList.clear()
+            icon = QIcon(':/appicon')
+            for preset in sorted(connpresets):
+                item = QListWidgetItem(preset, self.quickList)
+                item.setIcon(icon)
+            # the automatic sizing still leads to a vertical scrollbar
+            hint = self.quickList.sizeHint()
+            hint.setWidth(5*72 + 42)
+            hint.setHeight(hint.height() + 26)
+            self.quickList.setMinimumSize(hint)
+            self.resize(self.sizeHint())
+
         self.presetOrAddr.addItems(sorted(connpresets))
         self.presetOrAddr.setEditText(lastpreset)
         if not lastpreset:
@@ -97,3 +119,15 @@ class ConnectionDialog(QDialog):
             self.presetFrame.hide()
         else:
             self.presetFrame.show()
+
+    def on_quickList_itemClicked(self, item):
+        conn = self.connpresets[item.text()]
+        self.presetOrAddr.setEditText(item.text())
+        self.userName.setText(conn[2])
+        self.password.setFocus()
+
+    def on_quickList_itemDoubleClicked(self, item):
+        conn = self.connpresets[item.text()]
+        if conn[2] == 'guest':
+            self.password.setText('')
+            self.accept()
