@@ -615,15 +615,16 @@ class ContinuousScan(Scan):
             if session.mode == SIMULATION:
                 preset = 1  # prevent all contscans taking 1 hour
             session.experiment.advanceImageCounter(detlist)
+            devpos = device.read(0)
             for det in detlist:
                 det.start(t=preset)
             last = sum((det.read() for det in detlist), [])
             while device.status(0)[0] == status.BUSY:
                 sleep(self._timedelta)
-                devpos = device.read(0)
+                new_devpos = device.read(0)
                 read = sum((det.read() for det in detlist), [])
-                actualpos = [devpos] + self.readEnvironment(starttime,
-                                                            currenttime())
+                actualpos = [0.5 * (devpos + new_devpos)] + \
+                    self.readEnvironment(starttime, currenttime())
                 starttime = currenttime()
                 diff = [read[i] - last[i]
                         if isinstance(read[i], number_types) else read[i]
@@ -631,6 +632,7 @@ class ContinuousScan(Scan):
                 self.dataset.curpoint += 1
                 self.addPoint(actualpos, diff)
                 last = read
+                devpos = new_devpos
                 for det in detlist:
                     if isinstance(det, ImageProducer):
                         det.updateImage()
