@@ -230,6 +230,9 @@
      <property name="flow">
       <enum>QListView::LeftToRight</enum>
      </property>
+     <property name="resizeMode">
+      <enum>QListView::Adjust</enum>
+     </property>
      <property name="gridSize">
       <size>
        <width>72</width>

@@ -24,8 +24,8 @@
 
 """Dialog for entering authentication data."""
 
+from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QListWidgetItem, QPalette
 from PyQt4.QtCore import QSize
-from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem, QPalette
 
 
 try:
@@ -89,14 +89,18 @@ class ConnectionDialog(QDialog):
         else:
             self.quickList.setStyleSheet('padding: 10px 5px;')
             self.quickList.clear()
+            maxw = 64
             icon = QIcon(':/appicon')
+            metric = QFontMetrics(self.quickList.font())
             for preset in sorted(connpresets):
                 item = QListWidgetItem(preset, self.quickList)
                 item.setIcon(icon)
+                maxw = max(maxw, metric.width(preset))
+            self.quickList.setGridSize(QSize(maxw + 8, 72))
             # the automatic sizing still leads to a vertical scrollbar
             hint = self.quickList.sizeHint()
-            hint.setWidth(5*72 + 42)
-            hint.setHeight(hint.height() + 26)
+            hint.setHeight(hint.height() + 50)
+            hint.setWidth(4.7 * maxw)
             self.quickList.setMinimumSize(hint)
             self.resize(self.sizeHint())
 
