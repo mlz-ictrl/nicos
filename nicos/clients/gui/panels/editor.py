@@ -507,7 +507,7 @@ class EditorPanel(Panel):
         else:
             editor = QScintillaCompatible(self)
             lexer = None
-        editor.setFrameStyle(0)
+        #editor.setFrameStyle(0)
         self.connect(editor, SIGNAL('modificationChanged(bool)'), self.setDirty)
         self._updateStyle(editor, lexer)
         return editor, lexer

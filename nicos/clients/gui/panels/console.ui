@@ -47,22 +47,6 @@
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>3</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <widget class="MessageView" name="outView">
        <property name="focusPolicy">
         <enum>Qt::TabFocus</enum>
@@ -699,14 +683,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>HistoryLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>nicos.clients.gui.widgets.histedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>MessageView</class>
    <extends>QTextBrowser</extends>
    <header>nicos.clients.gui.widgets.messageview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>HistoryLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>nicos.clients.gui.widgets.histedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

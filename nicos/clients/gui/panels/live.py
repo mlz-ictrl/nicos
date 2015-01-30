@@ -284,7 +284,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
         mainframe = QFrame(self)
         mainframe.setLayout(layout1)
         self.setCentralWidget(mainframe)
-        self.setContentsMargins(5, 5, 5, 5)
+        self.setContentsMargins(6, 6, 6, 6)
         plotfont = QFont(self.font())
         plotfont.setPointSize(plotfont.pointSize() * 0.7)
         self.plot.setAxisFont(QwtPlot.xBottom, plotfont)

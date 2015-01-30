@@ -60,7 +60,7 @@ class AuxiliaryWindow(QMainWindow):
         self.setWindowTitle(config.name)
         widget = createWindowItem(config.contents, self, self, self)
         self.centralLayout.addWidget(widget)
-        self.centralLayout.setContentsMargins(0, 0, 0, 0)
+        self.centralLayout.setContentsMargins(6, 6, 6, 6)
 
         with self.sgroup as settings:
             loadBasicWindowSettings(self, settings)
@@ -257,6 +257,8 @@ def createWindowItem(item, window, menuwindow, topwindow):
         return sp
     elif isinstance(item, tabbed):
         tw = TearOffTabWidget(menuwindow)
+        # don't draw a frame around the tab contents
+        tw.setDocumentMode(True)
         for _ in range(5):
             loaded_setups = window.client.eval('session.loaded_setups', [])
             if loaded_setups: # sometimes the first request returns nothing useful..???
@@ -276,6 +278,8 @@ def createWindowItem(item, window, menuwindow, topwindow):
             # around the central widget
             central = QWidget(subwindow)
             layout = QVBoxLayout()
+            # only keep margin at the top (below the tabs)
+            layout.setContentsMargins(0, 6, 0, 0)
             item = createWindowItem(subitem, window, menuwindow, subwindow)
             if isinstance(item, Panel):
                 item.hideTitle()
@@ -299,7 +303,7 @@ def createWindowItem(item, window, menuwindow, topwindow):
             if isinstance(sub, Panel):
                 sub.hideTitle()
             dw.setWidget(sub)
-            dw.setContentsMargins(5, 5, 5, 5)
+            dw.setContentsMargins(6, 6, 6, 6)
             dockPos = item.options.get('dockpos', 'left')
             if dockPos not in dockPosMap:
                 menuwindow.log.warn('Illegal dockpos specification %s for '
