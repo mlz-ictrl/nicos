@@ -358,7 +358,7 @@ class Wavelength(HasLimits, PropertyChanger):
     """The wave length parameter device of the chopper."""
     _prop = 'wavelength'
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='A'),
+        'unit':  Override(mandatory=False, default='AA'),
     }
     valuetype = float
 
