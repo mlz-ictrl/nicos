@@ -75,9 +75,7 @@ config = ('Default', [
         tool('Neutron calculations',
              'nicos.clients.gui.tools.website.WebsiteTool',
              url='http://www.frm2.tum.de/intranet/neutroncalc/'),
-        tool('Report NICOS bug',
-             'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+        tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
         tool('Maintenance commands',
              'nicos.clients.gui.tools.commands.CommandsTool',
              commands=[

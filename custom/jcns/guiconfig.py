@@ -80,9 +80,7 @@ tools = [
          url='http://www.frm2.tum.de/intranet/activation/'),
     tool('Neutron calculations', 'website.WebsiteTool',
          url='http://www.frm2.tum.de/intranet/neutroncalc/'),
-    tool('Create NICOS ticket', 'bugreport.BugreportTool'),
-    tool('Report NICOS bug', 'website.WebsiteTool',
-         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+    tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=True),
 ]

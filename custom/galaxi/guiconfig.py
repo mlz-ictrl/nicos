@@ -37,6 +37,7 @@ config = ('Default', [
     ], [
         tool('Calculator',
              'nicos.clients.gui.tools.calculator.CalculatorTool'),
+        tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
         tool('Emergency stop button', 'estop.EmergencyStopTool',
             runatstartup=True),
     ]

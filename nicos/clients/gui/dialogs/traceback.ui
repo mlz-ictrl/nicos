@@ -71,7 +71,7 @@
      <item>
       <widget class="QPushButton" name="ticketButton">
        <property name="text">
-        <string>Create NICOS ticket for this error</string>
+        <string>Report NICOS bug for this error</string>
        </property>
       </widget>
      </item>

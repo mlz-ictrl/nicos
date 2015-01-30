@@ -68,6 +68,5 @@ tools = [
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
     tool('Neutron activation', 'website.WebsiteTool',
          url='http://www.frm2.tum.de/intranet/activation/'),
-    tool('Report NICOS bug', 'website.WebsiteTool',
-         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+    tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
 ]
