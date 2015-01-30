@@ -24,7 +24,7 @@
 
 """NICOS GUI command input widgets."""
 
-from PyQt4.QtGui import QWidget, QColor
+from PyQt4.QtGui import QWidget, QColor, QDoubleValidator
 from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL
 
 from nicos.utils import formatDuration
@@ -69,10 +69,35 @@ class Cmdlet(QWidget):
         self.hide()
 
     def changed(self, *args):
-        """Should be emitted whenever any value in the cmdlet changes."""
+        """Should be called whenever any value in the cmdlet changes."""
         self.emit(SIGNAL('dataChanged'))
 
+    def getValues(self):
+        """Return a dict with the values of the cmdlet.
+
+        Values should have a name that is the same for the same logical
+        value in multiple cmdlets, e.g. "dev" for the device in a command.
+        """
+        return {}
+
+    def _setDevice(self, values):
+        """Helper for setValues for setting a device combo box."""
+        if 'dev' in values:
+            idx = self.device.findText(values['dev'])
+            if idx > -1:
+                self.device.setCurrentIndex(idx)
+
+    def setValues(self, values):
+        """Set values of the cmdlet with values from the argument.
+
+        Unknown values must be ignored.
+        """
+
     def markValid(self, ctl, condition):
+        """Return boolean condition, and also mark the offending widget.
+
+        For use in isValid().
+        """
         if condition:
             setBackgroundColor(ctl, Qt.white)
         else:
@@ -118,17 +143,24 @@ class Move(Cmdlet):
         self.target.dev = text
         self.changed()
 
+    def getValues(self):
+        return {'dev':    self.device.currentText(),
+                'moveto': self.target.getValue()}
+
+    def setValues(self, values):
+        self._setDevice(values)
+        # DeviceValueEdit doesn't support setValue (yet)
+        # if 'moveto' in values:
+        #     self.target.setValue(values['moveto'])
+
     def isValid(self):
         return self.markValid(self.target, True)
 
     def generate(self, mode):
-        cmd = 'maw'
-        if not self.waitBox.isChecked():
-            cmd = 'move'
-        args = (cmd, self.device.currentText(), self.target.getValue())
+        cmd = 'maw' if self.waitBox.isChecked() else 'move'
         if mode == 'simple':
-            return '%s %s %r\n' % args
-        return '%s(%s, %r)\n' % args
+            return cmd + ' %(dev)s %(moveto)r' % self.getValues()
+        return cmd + '(%(dev)s, %(moveto)r)' % self.getValues()
 
 
 class Count(Cmdlet):
@@ -140,26 +172,35 @@ class Count(Cmdlet):
         Cmdlet.__init__(self, parent, client, 'count.ui')
         self.seconds.valueChanged.connect(self.changed)
 
+    def getValues(self):
+        return {'counttime': self.seconds.value()}
+
+    def setValues(self, values):
+        if 'counttime' in values:
+            self.seconds.setValue(values['counttime'])
+
     def isValid(self):
         return self.markValid(self.seconds, self.seconds.value() > 0)
 
     def generate(self, mode):
         if mode == 'simple':
-            return 'count %s\n' % self.seconds.value()
-        return 'count(%s)\n' % self.seconds.value()
+            return 'count %(counttime)s' % self.getValues()
+        return 'count(%(counttime)s)' % self.getValues()
 
 
-class Scan(Cmdlet):
+class CommonScan(Cmdlet):
 
-    name = 'Scan'
-    category = 'Scan'
+    cmdname = ''
+    uiname = ''
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'scan.ui')
+        Cmdlet.__init__(self, parent, client, self.uiname)
         self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
+        self.start.setValidator(QDoubleValidator(self))
+        self.step.setValidator(QDoubleValidator(self))
         self.start.textChanged.connect(self.on_range_change)
         self.step.textChanged.connect(self.on_range_change)
         self.numpoints.valueChanged.connect(self.on_range_change)
@@ -170,6 +211,50 @@ class Scan(Cmdlet):
         self.unit1.setText(unit or '')
         self.unit2.setText(unit or '')
         self.changed()
+
+    def getValues(self):
+        return {'dev': self.device.currentText(),
+                'scanstart': self.start.text(),
+                'scanstep': self.step.text(),
+                'scanpoints': self.numpoints.value(),
+                'counttime': self.seconds.value()}
+
+    def setValues(self, values):
+        self._setDevice(values)
+        if 'scanstart' in values:
+            self.start.setText(values['scanstart'])
+        if 'scanstep' in values:
+            self.step.setText(values['scanstep'])
+        if 'scanpoints' in values:
+            self.numpoints.setValue(values['scanpoints'])
+        if 'counttime' in values:
+            self.seconds.setValue(int(values['counttime']))
+
+    def isValid(self):
+        # NOTE: cannot use "return markValid() and markValid() and ..." because
+        # that short-circuits evaluation and therefore skips marking all but the
+        # first invalid control
+        valid = [
+            self.markValid(self.start, isFloat(self.start)),
+            self.markValid(self.step, isFloat(self.step)),
+            self.markValid(self.seconds, self.seconds.value() > 0),
+        ]
+        return all(valid)
+
+    def generate(self, mode):
+        if mode == 'simple':
+            return self.cmdname + ' %(dev)s %(scanstart)s %(scanstep)s ' \
+                '%(scanpoints)s %(counttime)s' % self.getValues()
+        return self.cmdname + '(%(dev)s, %(scanstart)s, %(scanstep)s, ' \
+            '%(scanpoints)s, %(counttime)s)' % self.getValues()
+
+
+class Scan(CommonScan):
+
+    name = 'Scan'
+    category = 'Scan'
+    cmdname = 'scan'
+    uiname = 'scan.ui'
 
     def on_range_change(self, *args):
         try:
@@ -183,51 +268,13 @@ class Scan(Cmdlet):
         self.endPos.setText(endpos)
         self.changed()
 
-    def isValid(self):
-        # NOTE: cannot use "return markValid() and markValid() and ..." because
-        # that short-circuits evaluation and therefore skips marking all but the
-        # first invalid control
-        valid = [
-            self.markValid(self.start, self.start.text()),
-            self.markValid(self.step, self.step.text()),
-            self.markValid(self.seconds, self.seconds.value() > 0),
-        ]
-        return all(valid)
 
-    def generate(self, mode):
-        args = (
-            self.device.currentText(),
-            self.start.text(),
-            self.step.text(),
-            self.numpoints.value(),
-            self.seconds.value(),
-        )
-        if mode == 'simple':
-            return 'scan %s %s %s %s %s\n' % args
-        return 'scan(%s, %s, %s, %s, %s)\n' % args
-
-
-class CScan(Cmdlet):
+class CScan(CommonScan):
 
     name = 'Centered Scan'
     category = 'Scan'
-
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'cscan.ui')
-        self.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
-        self.on_device_change(self.device.currentText())
-        self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
-                     self.on_device_change)
-        self.start.textChanged.connect(self.on_range_change)
-        self.step.textChanged.connect(self.on_range_change)
-        self.numpoints.valueChanged.connect(self.on_range_change)
-        self.seconds.valueChanged.connect(self.changed)
-
-    def on_device_change(self, text):
-        unit = self.client.getDeviceParam(text, 'unit')
-        self.unit1.setText(unit or '')
-        self.unit2.setText(unit or '')
-        self.changed()
+    cmdname = 'cscan'
+    uiname = 'cscan.ui'
 
     def on_range_change(self, *args):
         numpoints = self.numpoints.value()
@@ -244,26 +291,6 @@ class CScan(Cmdlet):
         self.totalPoints.setText('Total: %d points' % (2 * numpoints + 1))
         self.changed()
 
-    def isValid(self):
-        valid = [
-            self.markValid(self.start, self.start.text()),
-            self.markValid(self.step, self.step.text()),
-            self.markValid(self.seconds, self.seconds.value() > 0),
-        ]
-        return all(valid)
-
-    def generate(self, mode):
-        args = (
-            self.device.currentText(),
-            self.start.text(),
-            self.step.text(),
-            self.numpoints.value(),
-            self.seconds.value(),
-        )
-        if mode == 'simple':
-            return 'cscan %s %s %s %s %s\n' % args
-        return 'cscan(%s, %s, %s, %s, %s)\n' % args
-
 
 class ContScan(Cmdlet):
 
@@ -278,6 +305,10 @@ class ContScan(Cmdlet):
         self.on_device_change(self.device.currentText())
         self.connect(self.device, SIGNAL('currentIndexChanged(const QString&)'),
                      self.on_device_change)
+        self.start.setValidator(QDoubleValidator(self))
+        self.stop.setValidator(QDoubleValidator(self))
+        self.speed.setValidator(QDoubleValidator(self))
+        self.delta.setValidator(QDoubleValidator(self))
         self.start.textChanged.connect(self.on_range_change)
         self.stop.textChanged.connect(self.on_range_change)
         self.speed.textChanged.connect(self.on_range_change)
@@ -307,6 +338,24 @@ class ContScan(Cmdlet):
         self.unit3.setText((unit or '') + '/second')
         self.changed()
 
+    def getValues(self):
+        return {'dev': self.device.currentText(),
+                'scanstart': self.start.text(),
+                'scanend': self.stop.text(),
+                'devspeed': self.speed.text(),
+                'counttime': float(self.delta.text())}
+
+    def setValues(self, values):
+        self._setDevice(values)
+        if 'scanstart' in values:
+            self.start.setText(values['scanstart'])
+        if 'scanend' in values:
+            self.stop.setText(values['scanend'])
+        if 'devspeed' in values:
+            self.speed.setText(values['devspeed'])
+        if 'counttime' in values:
+            self.delta.setText(str(values['counttime']))
+
     def isValid(self):
         valid = [
             self.markValid(self.start, isFloat(self.start)),
@@ -317,16 +366,11 @@ class ContScan(Cmdlet):
         return all(valid)
 
     def generate(self, mode):
-        args = (
-            self.device.currentText(),
-            self.start.text(),
-            self.stop.text(),
-            self.speed.text(),
-            self.delta.text(),
-        )
         if mode == 'simple':
-            return 'contscan %s %s %s %s %s\n' % args
-        return 'contscan(%s, %s, %s, %s, %s)\n' % args
+            return 'contscan %(dev)s %(scanstart)s %(scanend)s %(devspeed)s ' \
+                   '%(counttime)s' % self.getValues()
+        return 'contscan(%(dev)s, %(scanstart)s, %(scanend)s, %(devspeed)s, ' \
+               '%(counttime)s)' % self.getValues()
 
 
 class Sleep(Cmdlet):
@@ -338,13 +382,20 @@ class Sleep(Cmdlet):
         Cmdlet.__init__(self, parent, client, 'sleep.ui')
         self.seconds.valueChanged.connect(self.changed)
 
+    def getValues(self):
+        return {'sleeptime': self.seconds.value()}
+
+    def setValues(self, values):
+        if 'sleeptime' in values:
+            self.seconds.setValue(values['sleeptime'])
+
     def isValid(self):
         return self.markValid(self.seconds, self.seconds.value() > 0)
 
     def generate(self, mode):
         if mode == 'simple':
-            return 'sleep %s\n' % self.seconds.text()
-        return 'sleep(%s)\n' % self.seconds.text()
+            return 'sleep %(sleeptime)s' % self.getValues()
+        return 'sleep(%(sleeptime)s)' % self.getValues()
 
 
 class Configure(Cmdlet):
@@ -382,15 +433,28 @@ class Configure(Cmdlet):
         self.target.param = text
         self.changed()
 
+    def getValues(self):
+        return {'dev': self.device.currentText(),
+                'param': self.parameter.currentText(),
+                'paramvalue': self.target.getValue()}
+
+    def setValues(self, values):
+        self._setDevice(values)
+        if 'param' in values:
+            idx = self.parameter.findText(values['param'])
+            if idx > -1:
+                self.parameter.setCurrentIndex(idx)
+        # DeviceValueEdit doesn't support setValue (yet)
+        # if 'paramvalue' in values:
+        #     self.target.setValue(values['paramvalue'])
+
     def isValid(self):
         return self.markValid(self.target, True)
 
     def generate(self, mode):
-        args = (self.device.currentText(), self.parameter.currentText(),
-                self.target.getValue())
         if mode == 'simple':
-            return 'set %s %s %r\n' % args
-        return '%s.%s = %r\n' % args
+            return 'set %(dev)s %(param)s %(paramvalue)r' % self.getValues()
+        return 'set(%(dev)s, %(param)r, %(paramvalue)r)' % self.getValues()
 
 
 class NewSample(Cmdlet):
@@ -402,10 +466,17 @@ class NewSample(Cmdlet):
         Cmdlet.__init__(self, parent, client, 'sample.ui')
         self.samplename.textChanged.connect(self.changed)
 
+    def getValues(self):
+        return {'samplename': self.samplename.text()}
+
+    def setValues(self, values):
+        if 'samplename' in values:
+            self.samplename.setText(values['samplename'])
+
     def generate(self, mode):
         if mode == 'simple':
-            return 'NewSample %r\n' % self.samplename.text()
-        return 'NewSample(%r)\n' % self.samplename.text()
+            return 'NewSample %(samplename)r' % self.getValues()
+        return 'NewSample(%(samplename)r)' % self.getValues()
 
 
 all_cmdlets = [Move, Count, Scan, CScan, ContScan, Sleep, Configure, NewSample]

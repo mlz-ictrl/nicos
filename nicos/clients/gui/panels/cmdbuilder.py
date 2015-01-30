@@ -48,6 +48,10 @@ class CommandPanel(Panel):
         self.mapping = {}
         self.current_cmdlet = None
 
+        # collect values of all cmdlets that have been added
+        # so that the common fields carry over to the next cmdlet
+        self.value_collection = {}
+
         self.current_status = None
         self.run_color = QColor('#ffdddd')
         self.idle_color = parent.user_color
@@ -132,8 +136,10 @@ class CommandPanel(Panel):
 
     def selectCmdlet(self, cmdlet):
         if self.current_cmdlet:
+            self.value_collection.update(self.current_cmdlet.getValues())
             self.current_cmdlet.removeSelf()
         inst = cmdlet(self.frame, self.client)
+        inst.setValues(self.value_collection)
         inst.buttons.setVisible(False)
         inst.line.setVisible(False)
         self.frame.layout().insertWidget(0, inst)

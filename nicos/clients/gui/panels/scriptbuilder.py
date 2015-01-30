@@ -111,7 +111,10 @@ class CommandsPanel(Panel):
         for i in range(self.frame.layout().count() - 2):
             cmdlet = self.frame.layout().itemAt(i).widget()
             valid = valid and cmdlet.isValid()
-            code += cmdlet.generate(mode)
+            generated = cmdlet.generate(mode)
+            if not generated.endswith('\n'):
+                generated += '\n'
+            code += generated
         if not valid:
             return
         self.window.emit(SIGNAL('codeGenerated'), code)
