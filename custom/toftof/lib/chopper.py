@@ -355,7 +355,7 @@ class PropertyChanger(Moveable):
 class Wavelength(HasLimits, PropertyChanger):
     _prop = 'wavelength'
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='A'),
+        'unit':  Override(mandatory=False, default='AA'),
     }
     valuetype = float
 
