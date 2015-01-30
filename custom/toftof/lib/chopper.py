@@ -105,7 +105,7 @@ class Controller(TacoDevice, Readable):
                 self._setROParam('crc', 1)
             for ch in range(2, 8):
                 phases.append(
-                    int(round(self._read(4048 + ch*100) / 466.0378)))
+                    int(round(self._read(4048 + ch * 100) / 466.0378)))
             self._setROParam('phases', phases)
         except NicosError:
             self._setROParam('wavelength', 4.5)
@@ -124,7 +124,7 @@ class Controller(TacoDevice, Readable):
     def _is_cal(self):
         for ch in range(1, 8):
             ret = self._read(4140 + ch)
-            if ret in [0,1,2,6,8]:
+            if ret in [0, 1, 2, 6, 8]:
                 return False
         return True
 
@@ -133,7 +133,7 @@ class Controller(TacoDevice, Readable):
         if not self._is_cal():
             raise NicosError(self, 'chopper system not yet calibrated')
         if name == 'wavelength':
-            self._setROParam('wavelength', round(value*1000.0)/1000.0)
+            self._setROParam('wavelength', round(value * 1000.0) / 1000.0)
         elif name == 'speed':
             assert 150 <= value <= 22000
             self._setROParam('speed', value)
@@ -162,18 +162,18 @@ class Controller(TacoDevice, Readable):
         rr = self.ratio + 1
         self._write_multi(4073, 1, 4076, 0,  4074, self.speed,
                           4075, phases[1], 4077,
-                          int(round(self.wavelength*1000.0)), 4070, 7)
-        self._write_multi(4073, 2, 4076, r1, 4074, r2*self.speed,
+                          int(round(self.wavelength * 1000.0)), 4070, 7)
+        self._write_multi(4073, 2, 4076, r1, 4074, r2 * self.speed,
                           4075, phases[2], 4077, int(self.slittype + 1), 4070, 7)
         self._write_multi(4073, 3, 4076, 1,  4074, self.speed,
                           4075, phases[3], 4077, int(self.crc + 1), 4070, 7)
         self._write_multi(4073, 4, 4076, 1,  4074, self.speed,
                           4075, phases[4], 4070, 7)
-        self._write_multi(4073, 5, 4076, rr, 4074, -1*self.speed,
+        self._write_multi(4073, 5, 4076, rr, 4074, -1 * self.speed,
                           4075, phases[5], 4070, 7)
         self._write_multi(4073, 6, 4076, 1,  4074, self.speed,
                           4075, phases[6], 4070, 7)
-        self._write_multi(4073, 7, 4076, r1, 4074, r2*self.speed,
+        self._write_multi(4073, 7, 4076, r1, 4074, r2 * self.speed,
                           4075, phases[7], 4070, 7)
         self._setROParam('phases', phases)
         self._setROParam('changetime', currenttime())
@@ -190,7 +190,7 @@ class Controller(TacoDevice, Readable):
         return [abs(self._read(4080 + ch)) for ch in range(1, 8)]
 
     def _readspeeds_actual(self):
-        return [abs(self._read(66 + ch*100)) for ch in range(1, 8)]
+        return [abs(self._read(66 + ch * 100)) for ch in range(1, 8)]
 
     def _readphase(self, ch):
         return self._read(4100 + ch) / 100.0
@@ -203,14 +203,14 @@ class Controller(TacoDevice, Readable):
         speeds = self._readspeeds()
         speed = 0.0
         for ch in [1, 2, 3, 4, 6, 7]:
-            speed += speeds[ch-1]
+            speed += speeds[ch - 1]
         if self.ratio != None:
             if self.ratio == 1:
-                speed += speeds[5-1]
+                speed += speeds[5 - 1]
             elif self.ratio < 9:
-                speed += speeds[5-1] * self.ratio / (self.ratio - 1.0)
+                speed += speeds[5 - 1] * self.ratio / (self.ratio - 1.0)
             else:
-                speed += speeds[5-1] * self.ratio / 7.0
+                speed += speeds[5 - 1] * self.ratio / 7.0
             return speed / 7.0
         else:
             return speed / 6.0
@@ -297,7 +297,7 @@ class Controller(TacoDevice, Readable):
         self._adjust()
         self._setROParam('speed', 0)
         self._write_multi(4073, ch, 4076, 0, 4074, self.speed,
-                          4075, int(round(angle*100.0)), 4070, 7)
+                          4075, int(round(angle * 100.0)), 4070, 7)
         self._setROParam('changetime', currenttime())
 
     @requires(level=ADMIN)
