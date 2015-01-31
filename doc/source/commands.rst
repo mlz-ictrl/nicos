@@ -43,7 +43,7 @@ Experiment-related commands
 ---------------------------
 
 .. autofunction:: NewExperiment
-.. autofunction:: AddUser
+.. .. autofunction:: AddUser
 .. autofunction:: NewSample
 .. autofunction:: Remark
 .. autofunction:: LogEntry
@@ -72,7 +72,7 @@ Miscellaneous commands
 .. autofunction:: sleep
 .. .. autofunction:: Keep
 .. autofunction:: ClearCache
-.. autofunction:: UserInfo
+.. .. autofunction:: UserInfo
 .. autofunction:: SetSimpleMode
 
    .. XXX See :ref:`spm`.
