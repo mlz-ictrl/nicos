@@ -38,7 +38,7 @@ from nicos.devices.tango import PyTangoDevice, \
     DEFAULT_STATUS_MAPPING as DEFAULT_MAP_TANGO_STATUS
 from nicos.devices.vendor.lima import Andor2LimaCCD
 from nicos.core.params import Attach, Param, Override, Value, oneof, tupleof
-from nicos.core.errors import NicosError
+from nicos.core.errors import NicosError, MoveError
 from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep
 from nicos.core.image import ImageProducer, ImageType
 from nicos.biodiff.shutter import Shutter
@@ -114,8 +114,13 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
 
     def doStart(self, pos):
         self.log.debug("doStart: pos: %s" % pos)
-        self._moveTo = pos
-        self._mapStart[pos]()
+        myStatus = self.status(0)
+        if myStatus[0] == status.OK:
+            self._moveTo = pos
+            self._mapStart[pos]()
+        else:
+            raise MoveError(self, "Movement not allowed during device status "
+                            "'%s'" % (status.statuses[myStatus[0]]))
 
     def doStop(self):
         self.log.debug("doStop")
@@ -131,15 +136,6 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
 
     def doRead(self, maxage=0):
         return self.target
-
-    def doIsAllowed(self, pos):
-        self.log.debug("doIsAllowed: pos: %s" % pos)
-        myStatus = self.status(0)
-        if myStatus[0] == status.OK:
-            return (True, None)
-        else:
-            return (False, "Movement not allowed during device status '%s'"
-                           % (status.statuses[myStatus[0]]))
 
     def doStatus(self, maxage=0, mapping=ImagePlateBase.MAP_STATUS): # pylint: disable=W0102
         # Workaround for status changes from busy to another state although the
