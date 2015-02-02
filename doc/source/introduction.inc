@@ -1,5 +1,3 @@
-:orphan:
-
 NICOS is an instrument control system which allows a 24/7 remote control of
 scientific instruments.  It was developed at the FRM-II (as a part of the MLZ)
 to control the neutron experiments. It is not limited in use for these
