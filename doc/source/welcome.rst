@@ -18,5 +18,4 @@ still incorporates much the design and philosophy of NICOS version 1.
 Introduction
 ************
 
-
-.. include:: introduction.rst
+.. include:: introduction.inc
