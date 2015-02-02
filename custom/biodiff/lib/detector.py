@@ -139,7 +139,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
             return (True, None)
         else:
             return (False, "Movement not allowed during device status '%s'"
-                           % (myStatus[0]))
+                           % (status.statuses[myStatus[0]]))
 
     def doStatus(self, maxage=0, mapping=ImagePlateBase.MAP_STATUS): # pylint: disable=W0102
         # Workaround for status changes from busy to another state although the
