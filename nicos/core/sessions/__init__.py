@@ -40,7 +40,7 @@ import numpy
 from nicos import config
 from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink
-from nicos.core.device import Device, DeviceAlias
+from nicos.core.device import Device, DeviceAlias, DeviceMeta
 from nicos.core.errors import NicosError, UsageError, ModeError, \
     ConfigurationError, AccessError, CacheError
 from nicos.core.utils import system_user
@@ -893,6 +893,9 @@ class Session(object):
         except (ImportError, AttributeError) as err:
             raise ConfigurationError('failed to import device class %r: %s'
                                      % (devclsname, err))
+        if not isinstance(devcls, DeviceMeta):
+            raise ConfigurationError('configured device class %r is not a '
+                                     'Device or derived class' % devclsname)
         if replace_classes is not None:
             for orig_class, replace_class, class_config in replace_classes:
                 if issubclass(devcls, orig_class):
