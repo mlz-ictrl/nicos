@@ -477,6 +477,7 @@ def ensureDirectory(dirname, enableDirMode=DEFAULT_DIR_MODE, **kwargs):
     if not path.isdir(dirname):
         os.makedirs(dirname)
         os.chmod(dirname, enableDirMode)
+        enableDirectory(dirname, enableDirMode, **kwargs)
 
 
 def enableDisableFileItem(filepath, mode, owner=None, group=None):
@@ -537,6 +538,8 @@ def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
     disableFileMode default to 0400 (-r--------).
     owner or group will only be changed if specified.
     """
+    owner = kwargs.get("disableOwner", owner)
+    group = kwargs.get("disableGroup", group)
     failflag = enableDisableDirectory(startdir,
                                       disableDirMode, disableFileMode,
                                       owner, group, enable=False)
@@ -557,6 +560,8 @@ def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
     enableFileMode default to 0644 (-rw-r--r--).
     owner or group will only be changed if specified.
     """
+    owner = kwargs.get("enableOwner", owner)
+    group = kwargs.get("enableGroup", group)
     failflag = enableDisableDirectory(startdir,
                                       enableDirMode, enableFileMode,
                                       owner, group, enable=True)

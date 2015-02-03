@@ -121,8 +121,12 @@ class Experiment(Device):
                               'access rights of data dirs on proposal change.',
                               mandatory=False, settable=False, default={},
                               type=dictof(oneof('owner', 'group',
-                                                'enableDirMode', 'enableFileMode',
-                                                'disableDirMode', 'disableFileMode'),
+                                                'enableOwner', 'enableGroup',
+                                                'disableOwner', 'disableGroup',
+                                                'enableDirMode',
+                                                'enableFileMode',
+                                                'disableDirMode',
+                                                'disableFileMode'),
                                           anytype),
                               userparam=False),
         'zipdata':      Param('Whether to zip up experiment data after '
@@ -665,6 +669,9 @@ class Experiment(Device):
 
         # need to enable before checking templated files...
         if self.managerights:
+            self.log.debug("managerights: %s" % self.managerights)
+            self.log.debug("enableDirectory: %s"
+                           % self.proposalpath_of(proposal))
             enableDirectory(self.proposalpath_of(proposal), **self.managerights)
 
         if proptype != 'service':
