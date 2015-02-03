@@ -2,13 +2,19 @@
 JCNS
 ====
 
-Instrument setups
-=================
+.. Instrument setups
+   =================
+
+   .. toctree::
+       :maxdepth: 1
+       :glob:
+
+       setups/*
+
+Custom classes
+==============
 
 .. toctree::
     :maxdepth: 1
-    :glob:
 
-    setups/*
-
-
+    classes

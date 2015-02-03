@@ -9,11 +9,6 @@ Instrument specific devices
 .. autoclass:: Andor2LimaCCDFPGA()
 .. autoclass:: Andor2LimaCCDDetector()
 
-.. automodule:: nicos.biodiff.fpga
-
-.. autoclass:: FPGAChannelBase()
-.. autoclass:: FPGATimerChannel()
-
 .. automodule:: nicos.biodiff.motor
 
 .. autoclass:: MicrostepMotor()

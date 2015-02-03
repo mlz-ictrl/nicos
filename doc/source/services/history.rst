@@ -17,11 +17,11 @@ The history plotter is invoked with the ``nicos-history`` script::
 
 It has a few options:
 
--h, --help                            show the help message and exit
--c server:port, --cache server:port   connect to the cache at this location
-                                      (the default is localhost)
--p prefix, --prefix prefix            set prefix of the cache keys, normally
-                                      you don't have to set this
+-h, --help                  show the help message and exit
+-c server, --cache server   connect to the cache at this location
+                            ("host[:port]", the default is localhost)
+-p prefix, --prefix prefix  set prefix of the cache keys, normally
+                            you don't have to set this
 
 Also, you can give "view" arguments on the command line to open plots at
 startup.  For example::

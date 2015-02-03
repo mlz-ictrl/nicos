@@ -8,11 +8,6 @@ Instrument specific devices
 .. automodule:: nicos.dns.DNSFileFormat
 .. autoclass:: DNSFileFormat()
 
-.. automodule:: nicos.dns.fpga
-.. autoclass:: FPGAChannelBase()
-.. autoclass:: FPGATimerChannel()
-.. autoclass:: FPGACounterChannel()
-
 .. automodule:: nicos.dns.shutter
 .. autoclass:: Shutter()
 
