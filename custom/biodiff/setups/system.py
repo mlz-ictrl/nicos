@@ -110,16 +110,9 @@ devices = dict(
     mailer    = device('devices.notifiers.Mailer',
                        description = 'E-Mail notifier',
                        sender = 'biodiff@frm2.tum.de',
-                       # receivers:
-                       # receive all notifications
-                       receivers = ['t.schrader@fz-juelich.de',
-                                    'andreas.ostermann@frm2.tum.de'],
-                       # copies:
-                       # receive just notifications with important flag,
-                       # e.g. errors
-                       copies = ['t.schrader@fz-juelich.de',
-                                 'andreas.ostermann@frm2.tum.de',
-                                 'c.felder@fz-juelich.de'],
+                       copies = [('t.schrader@fz-juelich.de', 'all'),
+                                 ('andreas.ostermann@frm2.tum.de', 'all'),
+                                 ('c.felder@fz-juelich.de', 'important')],
                        subject = '[NICOS] BIODIFF',
                       ),
 

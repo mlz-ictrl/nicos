@@ -15,8 +15,7 @@ modules = ['nicos.commands.standard']
 devices = dict(
     TOFTOF   = device('devices.instrument.Instrument',
                       description = 'The famous TOFTOF instrument',
-                      responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>, ' \
-                                    'G. Simeoni <giovanna.simeoni@frm2.tum.de>',
+                      responsible = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>',
                       instrument = 'TOFTOF',
                      ),
 
@@ -28,8 +27,7 @@ devices = dict(
                       description = 'The current running experiment',
                       dataroot = '/users/data',
                       sample = 'Sample',
-                      localcontact = 'W. Lohstroh, G. Simeoni'
-                               '<wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>',
+                      localcontact = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>',
                       serviceexp = '0',
                       propprefix = '',
                       sendmail = True,
@@ -56,8 +54,8 @@ devices = dict(
     emailer  = device('devices.notifiers.Mailer',
                       description = 'Notifier service to send emails',
                       sender = 'nicos.toftof@frm2.tum.de',
-                      copies = ['wiebke.lohstroh@frm2.tum.de',
-                                'giovanna.simeoni@frm2.tum.de'],
+                      copies = [('wiebke.lohstroh@frm2.tum.de', 'important'),
+                               ],
                       subject = 'TOFTOF',
                      ),
 

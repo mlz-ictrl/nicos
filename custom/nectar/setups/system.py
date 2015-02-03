@@ -49,7 +49,7 @@ devices = dict(
     # Configure source and copy addresses to an existing address.
     email    = device('devices.notifiers.Mailer',
                       sender = 'nectar@frm2.tum.de',
-                      copies = ['stefan.soellradl@frm2.tum.de'],
+                      copies = [('stefan.soellradl@frm2.tum.de', 'all')],
                       subject = '[NICOS]',
                       mailserver = 'smtp.frm2.tum.de',
                      ),

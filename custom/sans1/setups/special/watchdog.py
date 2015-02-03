@@ -63,16 +63,14 @@ watchlist = [
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'andreas.wilhelm@frm2.tum.de',
-                      receivers = ['andreas.wilhelm@frm2.tum.de'],
-                      copies = ['andreas.wilhelm@frm2.tum.de'],
+                      copies = [('andreas.wilhelm@frm2.tum.de', 'all')],
                       subject = 'SANS-1 Warning',
                       mailserver='mailhost.frm2.tum.de',
                      ),
 
     info    = device('devices.notifiers.Mailer',
                      sender = 'andreas.wilhelm@frm2.tum.de',
-                     receivers = ['andreas.wilhelm@frm2.tum.de'],
-                     copies = ['andreas.wilhelm@frm2.tum.de'],
+                     copies = [('andreas.wilhelm@frm2.tum.de', 'all')],
                      subject = 'SANS-1 Info',
                     ),
 

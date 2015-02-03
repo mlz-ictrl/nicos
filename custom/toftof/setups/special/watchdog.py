@@ -35,9 +35,8 @@ devices = dict(
     emailer  = device('devices.notifiers.Mailer',
                       description = 'Notifier service to send emails',
                       sender = 'nicos.toftof@frm2.tum.de',
-                      copies = ['wiebke.lohstroh@frm2.tum.de',
-                                'giovanna.simeoni@frm2.tum.de'],
-                      receivers = [],
+                      copies = [('wiebke.lohstroh@frm2.tum.de', 'all'),
+                               ],
                       subject = 'TOFTOF Warning',
                      ),
 

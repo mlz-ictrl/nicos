@@ -107,8 +107,8 @@ devices = dict(
     mailer    = device('devices.notifiers.Mailer',
                       description = 'E-Mail notifier',
                       sender = 'noreply@fz-juelich.de',
-                      receivers = ['y.su@fz-juelich.de'],
-                      copies = ['l.fleischhauer-fuss@fz-juelich.de'],
+                      copies = [('y.su@fz-juelich.de', 'all'),
+                                ('l.fleischhauer-fuss@fz-juelich.de', 'important')],
                       subject = 'NICOS on DNS',
                      ),
 

@@ -34,8 +34,8 @@ watchlist = [
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'rgeorgii@frm2.tum.de',
-                      receivers = [],
-                      copies = ['robert.georgii@frm2.tum.de', 'klaus.seemann@frm2.tum.de'],
+                      copies = [('robert.georgii@frm2.tum.de', 'all'),
+                                ('klaus.seemann@frm2.tum.de', 'all')],
                       subject = 'MIRA Warning',
                      ),
 

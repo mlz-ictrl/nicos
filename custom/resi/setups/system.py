@@ -14,7 +14,7 @@ modules = ['nicos.commands.standard']
 devices = dict(
     email = device('devices.notifiers.Mailer',
                       sender = 'bjoern.pedersen@frm2.tum.de',
-                      copies = ['bjoern.pedersen@frm2.tum.de'],
+                      copies = [('bjoern.pedersen@frm2.tum.de', 'all')],
                       subject = 'RESI'),
 
     #smser    = device('devices.notifiers.SMSer',

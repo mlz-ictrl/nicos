@@ -14,7 +14,7 @@ modules = ['nicos.commands.standard', 'nicos.commands.taco']
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'karl.zeitelhack@frm2.tum.de',
-                      copies = ['karl.zeitelhack@frm2.tum.de', ],
+                      copies = [('karl.zeitelhack@frm2.tum.de', 'all')],
                       subject = 'DEL',
                      ),
 
@@ -50,4 +50,3 @@ devices = dict(
                       minfree = 10,
                      ),
 )
-

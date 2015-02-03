@@ -42,9 +42,9 @@ devices = dict(
     mailer    = device('devices.notifiers.Mailer',
                       description = 'E-Mail notifier',
                       sender = 'noreply@fz-juelich.de',
-                      receivers = ['t.schrader@fz-juelich.de',
-                                   'andreas.ostermann@frm2.tum.de'],
-                      copies = ['c.felder@fz-juelich.de'],
+                      copies = [('t.schrader@fz-juelich.de', 'all'),
+                                ('andreas.ostermann@frm2.tum.de', 'all'),
+                                ('c.felder@fz-juelich.de', 'important')],
                       subject = '[NICOS] BIODIFF',
                      ),
 

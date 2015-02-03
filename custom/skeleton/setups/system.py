@@ -95,7 +95,8 @@ devices = dict(
     # Configure source and copy addresses to an existing address.
     email    = device('devices.notifiers.Mailer',
                       sender = 'nobody@frm2.tum.de',
-                      copies = ['nobody@frm2.tum.de'],
+                      copies = [('nobody@frm2.tum.de', 'all'),   # gets all messages
+                                ('nobody@frm2.tum.de', 'important')], # gets only important messages
                       subject = 'NICOS',
                      ),
 

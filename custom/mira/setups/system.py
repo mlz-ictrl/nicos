@@ -14,7 +14,8 @@ modules = ['nicos.commands.standard', 'nicos.commands.taco']
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'rgeorgii@frm2.tum.de',
-                      copies = ['rgeorgii@frm2.tum.de', 'klaus.seemann@frm2.tum.de'],
+                      copies = [('rgeorgii@frm2.tum.de', 'all'),
+                                ('klaus.seemann@frm2.tum.de', 'all')],
                       subject = 'MIRA'),
 
     smser    = device('devices.notifiers.SMSer',
@@ -47,4 +48,3 @@ devices = dict(
                       path = '/data',
                       minfree = 10),
 )
-

@@ -29,8 +29,7 @@ watchlist = [
 devices = dict(
     email    = device('devices.notifiers.Mailer',
                       sender = 'karl.zeitelhack@frm2.tum.de',
-                      receivers = ['karl.zeitelhack@frm2.tum.de', ],
-                      copies = ['karl.zeitelhack@frm2.tum.de', ],
+                      copies = [('karl.zeitelhack@frm2.tum.de', 'all')],
                       subject = 'DEL Warning',
                      ),
 

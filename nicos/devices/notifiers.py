@@ -26,7 +26,8 @@
 
 import subprocess
 
-from nicos.core import listof, mailaddress, usermethod, Device, Param
+from nicos.core import Device, Param, listof, mailaddress, oneof, tupleof, \
+    usermethod
 from nicos.pycompat import text_type
 from nicos.utils import createThread
 from nicos.utils.emails import sendMail
@@ -74,8 +75,12 @@ class Mailer(Notifier):
                             mandatory=True),
         'receivers':  Param('Mail receiver addresses', type=listof(mailaddress),
                             settable=True),
-        'copies':     Param('Adresses that get a copy of important messages',
-                            type=listof(mailaddress), settable=True),
+        'copies':     Param('Addresses that get a copy of messages, a list of '
+                            'tuples: (mailaddress, messagelevel: "all" or '
+                            '"important")',
+                            type=listof(tupleof(mailaddress,
+                                                oneof('all', 'important'))),
+                            settable=True),
         'subject':    Param('Subject prefix', type=str, default='NICOS'),
     }
 
@@ -86,8 +91,8 @@ class Mailer(Notifier):
     def send(self, subject, body, what=None, short=None, important=True):
         def send():
             receivers = list(self.receivers)
-            if important:
-                receivers.extend(self.copies)
+            receivers.extend(addr for (addr, level) in self.copies
+                             if level == 'all' or important)
             if not receivers:
                 return
             ret = sendMail(self.mailserver, receivers, self.sender,
