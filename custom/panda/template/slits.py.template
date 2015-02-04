@@ -1,0 +1,56 @@
+Remark('SLITS adjustment')
+#
+# SETTINGS
+#
+countfor = 1      #how long count one point
+
+lr_limit = 10     #from which value to scan left and right slit
+tb_limit = 20     #same for top and bottom
+
+lr_step = 2       #what is stepsize for left and right
+tb_step = lr_step #same for top and bottom
+
+do_lr = True      #whether to scan left and right
+do_tb = False     #whether to scan top and bottom
+#
+# END OF SETTING
+#
+
+lr_np = int((lr_limit + 10) / lr_step)
+tb_np = int((tb_limit + 10) / tb_step)
+
+move(ss1, (-lr_limit, lr_limit, -tb_limit, tb_limit))
+move(ss2, (-lr_limit, lr_limit, -tb_limit, tb_limit))
+wait(ss1, ss2)
+
+#before sample:
+if do_lr:
+    scan(ss1.left, -lr_limit, lr_step, lr_np, countfor)
+    maw(ss1.left, -lr_limit)
+
+    scan(ss1.right, lr_limit, -lr_step, lr_np, countfor)
+    maw(ss1.right, lr_limit)
+
+if do_tb:
+    scan(ss1.bottom, -tb_limit, tb_step, tb_np, countfor)
+    maw(ss1.bottom, -tb_limit)
+
+    scan(ss1.top, tb_limit, -tb_step, tb_np, countfor)
+    maw(ss1.top, tb_limit)
+
+#after sample:
+if do_lr:
+    scan(ss2.left, -lr_limit, lr_step, lr_np, countfor)
+    maw(ss2.left, -lr_limit)
+
+    scan(ss2.right, lr_limit, -lr_step, lr_np, countfor)
+    maw(ss2.right, lr_limit)
+
+if do_tb:
+    scan(ss2.bottom, -tb_limit, tb_step, tb_np, countfor)
+    maw(ss2.bottom, -tb_limit)
+
+    scan(ss2.top, tb_limit, -tb_step, tb_np, countfor)
+    maw(ss2.top, tb_limit)
+
+

@@ -21,7 +21,7 @@ panda.axiscoupling=False
 
 Sample.orient1 = (1, 0, 0)
 Sample.orient2 = (0, 1, 0)
-Sample.psi0 = 0  # psi_0 is calc-meas = soll - ist
+# Sample.psi0 = 0  # psi_0 is calc-meas = soll - ist
 
 panda.scanconstant={{kf:1.57#kf in A-1}}
 panda.scanmode='CKF'

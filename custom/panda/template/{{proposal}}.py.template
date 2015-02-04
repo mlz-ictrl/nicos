@@ -41,7 +41,4 @@ switch(pgfilter, 'unused')
 
 
 # end of user commands
-# start next file if exists
-Run('{{proposal}}-1.py')
-
 
