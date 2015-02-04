@@ -108,6 +108,7 @@ class ScriptStatusPanel(Panel):
         self.connect(client, SIGNAL('blocked'), self.on_client_blocked)
         self.connect(client, SIGNAL('status'), self.on_client_status)
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
+        self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
 
     def setCustomStyle(self, font, back):
         self.idle_color = back
@@ -225,6 +226,9 @@ class ScriptStatusPanel(Panel):
         _status, line = data
         if line != self.current_line:
             self.setCurrentLine(line)
+
+    def on_client_disconnected(self):
+        self.script_queue.clear()
 
     @qtsig('')
     def on_actionBreak_triggered(self):
