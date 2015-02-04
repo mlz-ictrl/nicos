@@ -457,10 +457,11 @@ class MainWindow(QMainWindow, DlgUtils):
         self.setTitlebar(True)
         # get all server status info
         initstatus = self.client.ask('getstatus')
-        # handle initial status
-        self.on_client_status(initstatus['status'])
-        # propagate info to all components
-        self.client.signal('initstatus', initstatus)
+        if initstatus:
+            # handle initial status
+            self.on_client_status(initstatus['status'])
+            # propagate info to all components
+            self.client.signal('initstatus', initstatus)
 
         # set focus to command input, if present
         for panel in self.panels:
