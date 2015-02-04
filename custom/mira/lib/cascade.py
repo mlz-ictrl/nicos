@@ -25,7 +25,6 @@
 """Class for CASCADE detector measurement and readout."""
 
 import gzip
-from math import pi
 from time import sleep, time as currenttime
 
 import numpy
@@ -35,6 +34,7 @@ from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
     CommunicationError, TimeoutError, NicosError, Readable, Measurable, \
     ImageProducer, ImageSink, ImageType
 from nicos.devices.generic import MultiChannelDetector
+from nicos.devices.tas.mono import to_k, from_k
 from nicos.devices.fileformats.raw import SingleRAWFileFormat
 from nicos.core import SIMULATION
 
@@ -109,8 +109,9 @@ class MiraXMLFormat(ImageSink):
         tmp.ConvertPAD(self._padimg)
         mon = self._adevs['master']._adevs['monitors'][self.monchannel - 1]
         timer = self._adevs['master']._adevs['timer']
+        mono = self._adevs['mono']
         tmp.WriteXML(imageinfo.filepath, self._adevs['sampledet'].read(),
-                     2*pi/self._adevs['mono']._readInvAng(),
+                     from_k(to_k(mono.read(), mono.unit), 'A'),
                      timer.read()[0], mon.read()[0])
 
 

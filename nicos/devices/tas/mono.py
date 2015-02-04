@@ -25,22 +25,58 @@
 
 """NICOS triple-axis instrument devices."""
 
-from math import pi, cos, sin, asin, radians, degrees, sqrt
+from math import asin, cos, degrees, pi, radians, sin, sqrt
 from time import time
 
-from nicos.core import Moveable, HasLimits, HasPrecision, Param, Override, \
-    listof, oneof, ComputationError, LimitError, status, multiStatus, \
-    multiReset, Attach
+from nicos.core import Attach, ComputationError, HasLimits, HasPrecision, \
+    LimitError, Moveable, Override, Param, ProgrammingError, listof, multiReset, \
+    multiStatus, oneof, status
+
 
 THZ2MEV = 4.1356675
 ANG2MEV = 81.804165
 
 
-def wavelength(dvalue, order, theta):
-    return 2.0 * dvalue / order * sin(radians(theta))
+def wavevector(dvalue, order, theta):
+    return pi * order / (dvalue * sin(radians(theta)))
 
-def thetaangle(dvalue, order, lam):
-    return degrees(asin(lam / (2.0 * dvalue/order)))
+
+def thetaangle(dvalue, order, k):
+    return degrees(asin(pi * order / (k * dvalue)))
+
+
+def from_k(value, unit):
+    try:
+        if unit == 'A-1':
+            return value
+        elif unit == 'A':
+            return 2.0 * pi / value
+        elif unit == 'meV':
+            return ANG2MEV * value**2 / (2*pi)**2
+        elif unit == 'THz':
+            return ANG2MEV / THZ2MEV * value**2 / (2*pi)**2
+        else:
+            raise ProgrammingError('unknown energy unit %r' % unit)
+    except (ArithmeticError, ValueError) as err:
+        raise ComputationError('cannot convert %s A-1 to %s: %s' %
+                               (value, unit, err))
+
+
+def to_k(value, unit):
+    try:
+        if unit == 'A-1':
+            return value
+        elif unit == 'A':
+            return 2.0 * pi / value
+        elif unit == 'meV':
+            return 2.0 * pi * sqrt(value / ANG2MEV)
+        elif unit == 'THz':
+            return 2.0 * pi * sqrt(value * THZ2MEV / ANG2MEV)
+        else:
+            raise ProgrammingError('unknown energy unit %r' % unit)
+    except (ArithmeticError, ValueError) as err:
+        raise ComputationError('cannot convert %s A-1 to %s: %s' %
+                               (value, unit, err))
 
 
 class Monochromator(HasLimits, HasPrecision, Moveable):
@@ -132,9 +168,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         self._focwarnings = 3
 
     def doStart(self, pos):
-        lam = self._tolambda(pos)  # get position in basic unit
+        k = to_k(pos, self.unit)
         try:
-            angle = thetaangle(self.dvalue, self.order, lam)
+            angle = thetaangle(self.dvalue, self.order, k)
         except ValueError:
             raise LimitError(self, 'wavelength not reachable with d=%.3f A '
                              'and n=%s' % (self.dvalue, self.order))
@@ -152,7 +188,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         self._sim_setValue(pos)
 
     def _movefoci(self, focmode, hfocuspars, vfocuspars):
-        lam = self._tolambda(self.target)  # get goalposition in basic unit
+        lam = from_k(to_k(self.target, self.unit), 'A')  # get goalposition in A
         focusv, focush = self._adevs['focusv'], self._adevs['focush']
         if focmode == 'flat':
             if focusv:
@@ -188,7 +224,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
 
     def doIsAllowed(self, pos):
         try:
-            theta = thetaangle(self.dvalue, self.order, self._tolambda(pos))
+            theta = thetaangle(self.dvalue, self.order, to_k(pos, self.unit))
         except ValueError:
             return False, 'wavelength not reachable with d=%.3f A and n=%s' % \
                    (self.dvalue, self.order)
@@ -223,7 +259,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                 self._lastwarn = time()
 
         # even on mismatch, the scattering angle is deciding
-        return self._fromlambda(wavelength(self.dvalue, self.order, tt/2.0))
+        return from_k(wavevector(self.dvalue, self.order, tt/2.0), self.unit)
 
     def doStatus(self, maxage=0):
         # order is important here.
@@ -237,24 +273,12 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                     (tt, 2.0*th, th)
         return const, text
 
-    # methods used by the TAS class to ensure the correct unit is used: it
-    # calculates all ki/kf in A-1
-
-    def _allowedInvAng(self, pos):
-        return self.isAllowed(self._fromlambda(2*pi/pos))
-
-    def _startInvAng(self, pos):
-        return self.start(self._fromlambda(2*pi/pos))
-
-    def _readInvAng(self, maxage=0):
-        return 2*pi/self._tolambda(self.read(maxage))
-
     def doReadPrecision(self):
         if not hasattr(self, '_scatsense'):
             # object not yet intialized
             return 0
         # the precision depends on the angular precision of theta and twotheta
-        lam = self._tolambda(self.read())
+        lam = from_k(to_k(self.read(), self.unit), 'A')
         dtheta = self._adevs['theta'].precision + \
                  self._adevs['twotheta'].precision
         dlambda = abs(2.0 * self.dvalue *
@@ -289,62 +313,30 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         if 'unit' not in self._params:
             # this is the initial update
             return
-        new_absmin = self._fromlambda(self._tolambda(self.abslimits[0]), value)
-        new_absmax = self._fromlambda(self._tolambda(self.abslimits[1]), value)
+        new_absmin = from_k(to_k(self.abslimits[0], self.unit), value)
+        new_absmax = from_k(to_k(self.abslimits[1], self.unit), value)
         if new_absmin > new_absmax:
             new_absmin, new_absmax = new_absmax, new_absmin
         self._setROParam('abslimits', (new_absmin, new_absmax))
         if self.userlimits != (0, 0):
-            new_umin = self._fromlambda(self._tolambda(self.userlimits[0]), value)
-            new_umax = self._fromlambda(self._tolambda(self.userlimits[1]), value)
+            new_umin = from_k(to_k(self.userlimits[0], self.unit), value)
+            new_umax = from_k(to_k(self.userlimits[1], self.unit), value)
             if new_umin > new_umax:
                 new_umin, new_umax = new_umax, new_umin
             new_umin = max(new_umin, new_absmin)
             new_umax = min(new_umax, new_absmax)
             self.userlimits = (new_umin, new_umax)
-        if 'target' in self._params and self.target and self.target !='unknown':
+        if 'target' in self._params and self.target and self.target != 'unknown':
             # this should be still within the limits
-            self._setROParam('target', self._fromlambda(
-                self._tolambda(self.target), value))
+            self._setROParam(
+                'target', from_k(to_k(self.target, self.unit), value))
         if self._cache:
             self._cache.invalidate(self, 'value')
-
-    def _fromlambda(self, value, unit=None):
-        if unit is None:
-            unit = self.unit
-        try:
-            if unit == 'A-1':
-                return 2.0 * pi / value
-            elif unit == 'A':
-                return value
-            elif unit == 'meV':
-                return ANG2MEV / value**2
-            elif unit == 'THz':
-                return ANG2MEV / THZ2MEV / value**2
-        except (ArithmeticError, ValueError) as err:
-            raise ComputationError(self, 'cannot convert %s A to %s: %s' %
-                                   (value, unit, err))
-
-    def _tolambda(self, value, unit=None):
-        if unit is None:
-            unit = self.unit
-        try:
-            if unit == 'A-1':
-                return 2.0 * pi / value
-            elif unit == 'A':
-                return value
-            elif unit == 'meV':
-                return sqrt(ANG2MEV / value)
-            elif unit == 'THz':
-                return sqrt(ANG2MEV / THZ2MEV / value)
-        except (ArithmeticError, ValueError) as err:
-            raise ComputationError(self, 'cannot convert %s A to %s: %s' %
-                                   (value, unit, err))
 
     def _calcurvature(self, L1, L2, k, vertical=True):
         """Calculate optimum curvature (1/radius) for given lengths and
         monochromator rotation angle (given by wavevector in A-1).
         """
-        theta = thetaangle(self.dvalue, self.order, 2*pi/k)
+        theta = thetaangle(self.dvalue, self.order, k)
         exp = vertical and -1 or +1
         return 0.5*(1./L1 + 1./L2)*sin(radians(abs(theta)))**exp

@@ -25,11 +25,13 @@
 
 """NICOS triple-axis instrument devices."""
 
+from math import pi
+
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
     ConfigurationError, ComputationError, LimitError, oneof, multiStatus, \
     multiWait, waitForStatus, Attach
 from nicos.devices.tas.cell import Cell
-from nicos.devices.tas.mono import Monochromator, THZ2MEV
+from nicos.devices.tas.mono import Monochromator, THZ2MEV, from_k, to_k
 from nicos.devices.tas import spurions
 from nicos.devices.instrument import Instrument
 from nicos.core import SIMULATION
@@ -129,7 +131,7 @@ class TAS(Instrument, Moveable):
             if dev is None:
                 continue
             if isinstance(dev, Monochromator):
-                ok, why = dev._allowedInvAng(value)
+                ok, why = dev.isAllowed(from_k(value, dev.unit))
             else:
                 ok, why = dev.isAllowed(value)
             if not ok:
@@ -161,10 +163,10 @@ class TAS(Instrument, Moveable):
             self.log.debug('moving alpha to %s' % angles[4])
             alpha.start(angles[4])
         self.log.debug('moving mono to %s' % angles[0])
-        mono._startInvAng(angles[0])
+        mono.start(from_k(angles[0], mono.unit))
         if self.scanmode != 'DIFF':
             self.log.debug('moving ana to %s' % angles[1])
-            ana._startInvAng(angles[1])
+            ana.start(from_k(angles[1], ana.unit))
         self._waiters = [mono, phi, psi]
         if alpha is not None:
             self._waiters.append(alpha)
@@ -232,14 +234,14 @@ class TAS(Instrument, Moveable):
         mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
                               self._adevs['phi'], self._adevs['psi']
         # read out position
-        monovalue = mono._readInvAng(maxage)
+        monovalue = to_k(mono.read(maxage), mono.unit)
         if self.scanmode == 'DIFF':
             hkl = self._adevs['cell'].angle2hkl(
                 [monovalue, monovalue, phi.read(maxage), psi.read(maxage)],
                 self.axiscoupling)
             ny = 0
         else:
-            anavalue = ana._readInvAng(maxage)
+            anavalue = to_k(ana.read(maxage), ana.unit)
             hkl = self._adevs['cell'].angle2hkl(
                 [monovalue, anavalue, phi.read(maxage), psi.read(maxage)],
                 self.axiscoupling)
@@ -273,7 +275,7 @@ class TAS(Instrument, Moveable):
             if dev is None:
                 continue
             if isinstance(dev, Monochromator):
-                devok, devwhy = dev._allowedInvAng(value)
+                devok, devwhy = dev.isAllowed(from_k(value, dev.unit))
             else:
                 devok, devwhy = dev.isAllowed(value)
             if not devok:
@@ -399,10 +401,11 @@ class TAS(Instrument, Moveable):
     def _spurionCheck(self, pos):
         for line in spurions.check_acc_bragg(self, *pos):
             self.log.info(line)
-        for line in spurions.check_ho_spurions(self._adevs['ana']._readInvAng(),
-                                               pos[3]-0.25, pos[3]+0.25):
+        for line in spurions.check_ho_spurions(
+                to_k(self._adevs['ana'].read(), self._adevs['ana'].unit),
+                pos[3] - 0.25, pos[3] + 0.25):
             self.log.info(line)
-        kival = self._adevs['mono']._readInvAng()
+        kival = to_k(self._adevs['mono'].read(), self._adevs['mono'].unit)
         phival = self._adevs['phi'].read()
         for line in spurions.check_powderrays(kival, spurions.alu_hkl, phival):
             self.log.info(line)
@@ -457,15 +460,17 @@ class Wavevector(Moveable):
     hardware_access = False
 
     def doRead(self, maxage=0):
-        return self._adevs['base']._readInvAng(maxage)
+        base = self._adevs['base']
+        return to_k(base.read(maxage), base.unit)
 
     def doStatus(self, maxage=0):
         return self._adevs['base'].status(maxage)
 
     def doStart(self, pos):
         # first drive there, to determine if it is within limits
-        self._adevs['base']._startInvAng(pos)
         tas = self._adevs['tas']
+        mono = self._adevs['base']
+        mono.start(from_k(pos, mono.unit))
         msg = False
         if tas.scanmode != self.scanmode:
             tas.scanmode = self.scanmode
@@ -510,8 +515,8 @@ class Energy(Moveable):
 
     def doRead(self, maxage=0):
         mono = self._adevs['base']
-        lam = mono._tolambda(mono.read(maxage))
-        return mono._fromlambda(lam, self._adevs['tas'].energytransferunit)
+        return from_k(to_k(mono.read(maxage), mono.unit),
+                      self._adevs['tas'].energytransferunit)
 
     def doStatus(self, maxage=0):
         return self._adevs['base'].status(maxage)
@@ -520,15 +525,14 @@ class Energy(Moveable):
         # first drive there, to determine if it is within limits
         tas = self._adevs['tas']
         mono = self._adevs['base']
-        lam = mono._tolambda(pos_e, tas.energytransferunit)
-        pos = mono._fromlambda(lam, 'A-1')
-        self._adevs['base']._startInvAng(pos)
+        pos = from_k(to_k(pos_e, tas.energytransferunit), mono.unit)
+        mono.start(pos)
         msg = False
         if tas.scanmode != self.scanmode:
             tas.scanmode = self.scanmode
             msg = True
         if tas.scanconstant != pos:
-            self._adevs['tas'].scanconstant = pos
+            tas.scanconstant = pos
             msg = True
         if msg:
             tas.log.info('scan mode is now %s at %s' %
@@ -570,7 +574,7 @@ class Wavelength(Moveable):
 
     def doRead(self, maxage=0):
         mono = self._adevs['base']
-        return mono._tolambda(mono.read(maxage))
+        return 2 * pi / to_k(mono.read(maxage), mono.unit)
 
     def doStatus(self, maxage=0):
         return self._adevs['base'].status(maxage)
@@ -579,14 +583,14 @@ class Wavelength(Moveable):
         # first drive there, to determine if it is within limits
         tas = self._adevs['tas']
         mono = self._adevs['base']
-        pos = mono._fromlambda(lam, 'A-1')
-        self._adevs['base']._startInvAng(pos)
+        pos = from_k(to_k(lam, 'A'), mono.unit)
+        mono.start(pos)
         msg = False
         if tas.scanmode != self.scanmode:
             tas.scanmode = self.scanmode
             msg = True
         if tas.scanconstant != pos:
-            self._adevs['tas'].scanconstant = pos
+            tas.scanconstant = pos
             msg = True
         if msg:
             tas.log.info('scan mode is now %s at %s' %
