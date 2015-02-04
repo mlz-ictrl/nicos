@@ -189,7 +189,7 @@ class Poller(Device):
                         pass  # just poll if timed out
                 else:
                     if do_log:
-                        self.log.debug('%-10s ignoring events for one round' % dev)
+                        self.log.debug('%-10s: ignoring events for one round' % dev)
 
                 # also do rate-limiting if too many events occur which would
                 # retrigger this device
@@ -255,16 +255,16 @@ class Poller(Device):
                 self.log.info('%-10s: starting polling loop' % dev)
                 poll_loop(dev)
 
-            except Exception as err:
+            except Exception:
                 errcount += 1
                 # only warn 5 times in a row, and later occasionally
                 if (errcount < 5) or (errcount % 10 == 0):
                     if dev is None:
                         self.log.warning('error creating %s, retrying in '
-                                         '%d sec' % (devname, waittime), exc=err)
+                                         '%d sec' % (devname, waittime), exc=True)
                     else:
                         self.log.warning('%-10s: error polling, retrying in '
-                                         '%d sec' % (dev, waittime), exc=err)
+                                         '%d sec' % (dev, waittime), exc=True)
                 elif errcount % 5 == 0:
                     # use exponential back-off for the waittime; in the worst
                     # case wait 15 minutes between attempts
