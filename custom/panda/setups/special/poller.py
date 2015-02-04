@@ -10,12 +10,12 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('services.poller.Poller',
-                    autosetup = False,
-                    poll = ['lakeshore', 'detector', 'befilter', 'cryo1',
-                            'cryo3', 'cryo4', 'cryo5', 'magnet75', '7T5',
-                            'ccr11', 'ccr16', 'panda', 'sat', 'saph'],
-                    alwayspoll = [],
-                    neverpoll = [],
-                    #~ blacklist=['sB', 'ss1', 'ss2'],
+                    autosetup = True,
+                    #~ poll = ['lakeshore', 'detector', 'befilter', 'cryo1',
+                            #~ 'cryo3', 'cryo4', 'cryo5', 'magnet75', '7T5',
+                            #~ 'ccr11', 'ccr16', 'panda', 'sat', 'saph','water'],
+                    alwayspoll = ['water'],
+                    neverpoll = ['blenden'],
+                    blacklist = ['ss1', 'ss2'],
                     ),
 )

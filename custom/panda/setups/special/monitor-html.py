@@ -22,8 +22,8 @@ _expcolumn = Column(
 filters = Block('Primary Beam/Filters', [
     BlockRow(
         Field(dev='saph', name='Saphir'),
-        Field(dev='reactor', name='Power'),
-        Field(dev='shutter', name='Shutter'),
+        Field(dev='reactorpower', name='Power'),
+        Field(dev='water', name='Water'),
         Field(dev='ms1', name='ms1'),
     ),
     BlockRow(
@@ -352,7 +352,7 @@ column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)
 devices = dict(
     Monitor = device('services.monitor.html.Monitor',
                      title = 'PANDA Status monitor',
-                     filename = '/home/jcns/pandastatus/status.html',
+                     filename = '/data/pandastatus/index.html',
                      interval = 10,
                      loglevel = 'info',
                      cache = 'pandasrv:14869',

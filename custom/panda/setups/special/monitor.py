@@ -23,8 +23,8 @@ expcolumn = Column(
 filters = Block('Primary Beam/Filters', [
     BlockRow(
         Field(dev='saph', name='Saphir'),
-        Field(dev='reactor', name='Power'),
-        Field(dev='shutter', name='Shutter'),
+        Field(dev='reactorpower', name='Power'),
+        Field(dev='water', name='Water'),
         Field(dev='ms1', name='ms1'),
     ),
     BlockRow(
