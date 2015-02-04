@@ -100,7 +100,7 @@ class ConnectionDialog(QDialog):
             # the automatic sizing still leads to a vertical scrollbar
             hint = self.quickList.sizeHint()
             hint.setHeight(hint.height() + 50)
-            hint.setWidth(4.7 * maxw)
+            hint.setWidth(max(4.7 * maxw, 330))
             self.quickList.setMinimumSize(hint)
             self.resize(self.sizeHint())
 
