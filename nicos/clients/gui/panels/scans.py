@@ -170,7 +170,7 @@ class ScansPanel(Panel):
             self.actionFitArby,
         ]:
             action.setEnabled(on)
-        self.actionAutoScale.setEnabled(self.currentPlot.HAS_AUTOSCALE)
+        self.actionAutoScale.setEnabled(on and self.currentPlot.HAS_AUTOSCALE)
 
     def getMenus(self):
         if not self.menus:
