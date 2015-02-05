@@ -29,9 +29,10 @@ from logging import WARNING
 from PyQt4.QtGui import QDialogButtonBox
 from PyQt4.QtCore import SIGNAL
 
-from nicos.clients.gui.utils import loadUi, setBackgroundColor
+from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
+from nicos.guisupport.utils import setBackgroundColor
 
 
 class ErrorPanel(Panel):

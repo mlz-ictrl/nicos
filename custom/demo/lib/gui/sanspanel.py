@@ -34,9 +34,10 @@ from PyQt4.QtGui import QPrinter, QPrintDialog, QDialog, QMenu, QToolBar, \
 from PyQt4.QtCore import Qt, QByteArray, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-from nicos.clients.gui.utils import loadUi, dialogFromUi, setBackgroundColor
+from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.clients.gui.panels import Panel
 from nicos.protocols.cache import cache_load
+from nicos.guisupport.utils import setBackgroundColor
 
 from nicoslivewidget import LWWidget, LWData, Logscale, MinimumMaximum, \
     Integrate, Histogram, CreateProfile

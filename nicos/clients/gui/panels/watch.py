@@ -28,8 +28,9 @@ from PyQt4.QtGui import QInputDialog, QMessageBox, QTreeWidgetItem
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
-from nicos.clients.gui.utils import loadUi, setBackgroundColor
+from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
+from nicos.guisupport.utils import setBackgroundColor
 from nicos.pycompat import iteritems
 
 

@@ -38,6 +38,7 @@ def setBackgroundColor(widget, color):
 def setForegroundColor(widget, color):
     palette = widget.palette()
     palette.setColor(QPalette.WindowText, color)
+    palette.setColor(QPalette.Text, color)
     widget.setForegroundRole(QPalette.WindowText)
     widget.setPalette(palette)
 

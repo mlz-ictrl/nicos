@@ -32,7 +32,8 @@ from PyQt4.QtCore import Qt, QTimer, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, setBackgroundColor
+from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP, \
     BREAK_AFTER_LINE
 

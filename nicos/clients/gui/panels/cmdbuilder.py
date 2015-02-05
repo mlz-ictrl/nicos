@@ -27,14 +27,13 @@
 
 import time
 
-from PyQt4.QtGui import QMenu, QAction, QMessageBox, QColor
+from PyQt4.QtGui import QMenu, QAction
 from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
 
-from nicos.clients.gui.utils import loadUi, setBackgroundColor, \
-    ScriptExecQuestion
+from nicos.clients.gui.utils import loadUi, modePrompt
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.cmdlets import all_cmdlets, all_categories
-from nicos.core import SIMULATION, SLAVE, MAINTENANCE
+from nicos.guisupport.utils import setBackgroundColor
 
 
 class CommandPanel(Panel):
@@ -53,8 +52,6 @@ class CommandPanel(Panel):
         self.value_collection = {}
 
         self.current_status = None
-        self.run_color = QColor('#ffdddd')
-        self.idle_color = parent.user_color
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput
         self.console = None
@@ -86,15 +83,10 @@ class CommandPanel(Panel):
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
-        if status != 'idle':
-            setBackgroundColor(self.commandInput, self.run_color)
-        else:
-            setBackgroundColor(self.commandInput, self.idle_color)
-        self.commandInput.update()
-        self.commandInput.setEnabled(status != 'disconnected')
+        self.commandInput.setStatus(status)
 
     def setCustomStyle(self, font, back):
-        self.idle_color = back
+        self.commandInput.idle_color = back
         self.commandInput.setFont(font)
         setBackgroundColor(self.commandInput, back)
 
@@ -118,14 +110,7 @@ class CommandPanel(Panel):
         self.on_client_mode(state['mode'])
 
     def on_client_mode(self, mode):
-        if mode == SLAVE:
-            self.label.setText('slave >>')
-        elif mode == SIMULATION:
-            self.label.setText('SIM >>')
-        elif mode == MAINTENANCE:
-            self.label.setText('maint >>')
-        else:
-            self.label.setText('>>')
+        self.label.setText(modePrompt(mode))
 
     def on_consoleView_anchorClicked(self, url):
         """Called when the user clicks a link in the out view."""
@@ -171,22 +156,11 @@ class CommandPanel(Panel):
             return
         self.client.tell('simulate', '', script, 'sim')
 
-    def on_commandInput_returnPressed(self):
-        self.on_runBtn_clicked()
-
     @qtsig('')
     def on_runBtn_clicked(self):
-        script = self.commandInput.text()
-        if not script:
-            return
-        action = 'queue'
-        if self.current_status != 'idle':
-            qwindow = ScriptExecQuestion()
-            result = qwindow.exec_()
-            if result == QMessageBox.Cancel:
-                return
-            elif result == QMessageBox.Apply:
-                action = 'execute'
+        self.commandInput.on_returnPressed()
+
+    def on_commandInput_execRequested(self, script, action):
         if action == 'queue':
             self.mainwindow.action_start_time = time.time()
             self.client.tell('queue', '', script)

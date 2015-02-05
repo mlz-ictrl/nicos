@@ -46,11 +46,12 @@ else:
 
 from nicos.utils import formatDuration, formatEndtime, importString
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import showToolText, loadUi, setBackgroundColor
+from nicos.clients.gui.utils import showToolText, loadUi
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.pycompat import iteritems
 from nicos.clients.gui.config import tabbed
 from nicos.clients.gui.panels.tabwidget import firstWindow
+from nicos.guisupport.utils import setBackgroundColor
 
 COMMENT_STR = '## '
 

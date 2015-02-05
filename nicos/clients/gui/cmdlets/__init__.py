@@ -29,7 +29,8 @@ from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL
 
 from nicos.utils import formatDuration
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
-from nicos.clients.gui.utils import loadUi, setBackgroundColor
+from nicos.guisupport.utils import setBackgroundColor
+from nicos.clients.gui.utils import loadUi
 
 invalid = QColor('#ffcccc')
 

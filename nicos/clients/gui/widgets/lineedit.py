@@ -26,18 +26,21 @@
 
 import re
 
-from PyQt4.QtGui import QApplication, QKeyEvent, QLineEdit, QCompleter, \
-     QStringListModel
-from PyQt4.QtCore import Qt, SIGNAL, QEvent
+from PyQt4.QtCore import QEvent, Qt, SIGNAL, pyqtSignal
+from PyQt4.QtGui import QApplication, QColor, QCompleter, QKeyEvent, QLineEdit, \
+    QMessageBox, QPalette, QStringListModel
 
+from nicos.clients.gui.utils import ScriptExecQuestion
+from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
 from nicos.pycompat import xrange as range  # pylint: disable=W0622
+
 
 wordsplit_re = re.compile(r'[ \t\n\"\\\'`@$><=;|&{(\[]')
 
 
 class HistoryLineEdit(QLineEdit):
     """
-    A line editor with history stepping.
+    A line edit with history stepping.
     """
     __pyqtSignals__ = ['escapePressed()']
 
@@ -45,6 +48,8 @@ class HistoryLineEdit(QLineEdit):
 
     def __init__(self, parent, history=None):
         QLineEdit.__init__(self, parent)
+        self.run_color = QColor('#ffdddd')
+        self.idle_color = self.palette().color(QPalette.Base)
         self.history = history or []
         self.scrollWidget = None
         self.completion_callback = lambda text: []
@@ -166,3 +171,63 @@ class HistoryLineEdit(QLineEdit):
             self._current = -1
             self.setText(self._start_text)
             self.setCursorPosition(len(prefix))
+
+
+class CommandLineEdit(HistoryLineEdit):
+    """
+    A NICOS command input line with history stepping.
+    """
+
+    def __init__(self, parent, history=None):
+        HistoryLineEdit.__init__(self, parent, history)
+        self.textChanged.connect(self.on_textChanged)
+        self.returnPressed.connect(self.on_returnPressed)
+        self.current_status = None
+
+    execRequested = pyqtSignal(str, str)
+
+    def setStatus(self, status):
+        """Update with the daemon status."""
+        self.current_status = status
+        if status != 'idle':
+            setBackgroundColor(self, self.run_color)
+        else:
+            setBackgroundColor(self, self.idle_color)
+        self.update()
+        self.setEnabled(status != 'disconnected')
+
+    def on_textChanged(self):
+        try:
+            script = self.text()
+            if not script or script.strip().startswith('#'):
+                return
+            compile(script + '\n', 'script', 'single')
+        except Exception:
+            setForegroundColor(self, QColor("#ff0000"))
+            self.update()
+        else:
+            setForegroundColor(self, QColor("#000000"))
+
+    def on_returnPressed(self):
+        script = self.text()
+        if not script:
+            return
+        # XXX: this does not apply in SPM mode
+        # sscript = script.strip()
+        # if not (sscript.startswith(('#', '?', '.', ':')) or sscript.endswith('?')):
+        #     try:
+        #         compile(script+'\n', 'script', 'single')
+        #     except SyntaxError as err:
+        #         QMessageBox.information(
+        #             self, 'Command', 'Syntax error in command: %s' % err.msg)
+        #         self.setCursorPosition(err.offset)
+        #         return
+        action = 'queue'
+        if self.current_status != 'idle':
+            qwindow = ScriptExecQuestion()
+            result = qwindow.exec_()
+            if result == QMessageBox.Cancel:
+                return
+            elif result == QMessageBox.Apply:
+                action = 'execute'
+        self.execRequested.emit(script, action)

@@ -28,17 +28,16 @@ import io
 import sys
 import time
 
-from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QColor, \
-    QPrinter, QPrintDialog, QAbstractPrintDialog
+from PyQt4.QtGui import QDialog, QFileDialog, QMessageBox, QMenu, QPrinter, \
+    QPrintDialog, QAbstractPrintDialog
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig, Qt
 
 from nicos.utils import chunks
 from nicos.clients.gui.panels import Panel, showPanel
-from nicos.clients.gui.utils import loadUi, setBackgroundColor, setForegroundColor, \
-    enumerateWithProgress, ScriptExecQuestion
+from nicos.clients.gui.utils import loadUi, enumerateWithProgress, modePrompt
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
-from nicos.core import SIMULATION, SLAVE, MAINTENANCE
+from nicos.guisupport.utils import setBackgroundColor
 
 
 class ConsolePanel(Panel):
@@ -49,8 +48,6 @@ class ConsolePanel(Panel):
         loadUi(self, 'console.ui', 'panels')
 
         self.current_status = None
-        self.run_color = QColor('#ffdddd')
-        self.idle_color = parent.user_color
         self.commandInput.scrollWidget = self.outView
         self.grepPanel.hide()
         self.grepText.scrollWidget = self.outView
@@ -101,7 +98,7 @@ class ConsolePanel(Panel):
         return []
 
     def setCustomStyle(self, font, back):
-        self.idle_color = back
+        self.commandInput.idle_color = back
         for widget in (self.outView, self.commandInput):
             widget.setFont(font)
             setBackgroundColor(widget, back)
@@ -109,12 +106,7 @@ class ConsolePanel(Panel):
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
-        if status != 'idle':
-            setBackgroundColor(self.commandInput, self.run_color)
-        else:
-            setBackgroundColor(self.commandInput, self.idle_color)
-        self.commandInput.update()
-        self.commandInput.setEnabled(status != 'disconnected')
+        self.commandInput.setStatus(status)
 
     def completeInput(self, fullstring, lastword):
         try:
@@ -126,14 +118,7 @@ class ConsolePanel(Panel):
         self.outView._currentuser = self.client.login
 
     def on_client_mode(self, mode):
-        if mode == SLAVE:
-            self.label.setText('slave >>')
-        elif mode == SIMULATION:
-            self.label.setText('SIM >>')
-        elif mode == MAINTENANCE:
-            self.label.setText('maint >>')
-        else:
-            self.label.setText('>>')
+        self.label.setText(modePrompt(mode))
 
     def on_client_initstatus(self, state):
         self.on_client_mode(state['mode'])
@@ -236,38 +221,7 @@ class ConsolePanel(Panel):
             return
         self.outView.occur(st, self.grepRegex.isChecked())
 
-    def on_commandInput_textChanged(self, text):
-        try:
-            script = self.commandInput.text()
-            if not script or script.strip().startswith('#'):
-                return
-            compile(script+'\n', 'script', 'single')
-        except Exception:
-            setForegroundColor(self.commandInput, QColor("#ff0000"))
-        else:
-            setForegroundColor(self.commandInput, QColor("#000000"))
-
-    def on_commandInput_returnPressed(self):
-        script = self.commandInput.text().strip()
-        if not script:
-            return
-        # XXX: this does not apply in SPM mode
-        # if not (sscript.startswith(('#', '?', '.', ':')) or sscript.endswith('?')):
-        #     try:
-        #         compile(script+'\n', 'script', 'single')
-        #     except SyntaxError as err:
-        #         QMessageBox.information(
-        #             self, 'Command', 'Syntax error in command: %s' % err.msg)
-        #         self.commandInput.setCursorPosition(err.offset)
-        #         return
-        action = 'queue'
-        if self.current_status != 'idle':
-            qwindow = ScriptExecQuestion()
-            result = qwindow.exec_()
-            if result == QMessageBox.Cancel:
-                return
-            elif result == QMessageBox.Apply:
-                action = 'execute'
+    def on_commandInput_execRequested(self, script, action):
         if action == 'queue':
             self.mainwindow.action_start_time = time.time()
             self.client.tell('queue', '', script)

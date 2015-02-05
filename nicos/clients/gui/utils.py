@@ -26,22 +26,19 @@
 
 from __future__ import print_function
 
+import logging
 import os
 import socket
-import logging
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QApplication, QDialog, QProgressDialog, QMessageBox, \
-    QPushButton, QFont, QToolButton, QFileDialog, QLabel, QTextEdit, QWidget, \
-    QVBoxLayout, QColor, QStyle
-from PyQt4.QtCore import Qt, QSettings, QDateTime, QSize, QByteArray, SIGNAL
+from PyQt4.QtCore import QByteArray, QDateTime, QSettings, QSize, Qt, SIGNAL
+from PyQt4.QtGui import QApplication, QColor, QDialog, QFileDialog, QFont, \
+    QLabel, QMessageBox, QProgressDialog, QPushButton, QStyle, QTextEdit, \
+    QToolButton, QVBoxLayout, QWidget
 
+from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.pycompat import string_types
-
-# re-exported for compatibility
-from nicos.guisupport.utils import (setForegroundColor,  # pylint: disable=W0611
-                                    setBackgroundColor)
 
 
 def getXDisplay():
@@ -55,8 +52,10 @@ def getXDisplay():
 
 uipath = path.dirname(__file__)
 
+
 def loadUi(widget, uiname, subdir=''):
     uic.loadUi(path.join(uipath, subdir, uiname), widget)
+
 
 def dialogFromUi(parent, uiname, subdir=''):
     dlg = QDialog(parent)
@@ -104,6 +103,13 @@ def showToolText(toolbar, action):
     widget = toolbar.widgetForAction(action)
     if isinstance(widget, QToolButton):
         widget.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+
+
+def modePrompt(mode):
+    return {SLAVE:       'slave >>',
+            SIMULATION:  'SIM >>',
+            MAINTENANCE: 'maint >>',
+            MASTER:      '>>'}[mode]
 
 
 def checkSetupSpec(setupspec, setups):

@@ -36,7 +36,7 @@
       </widget>
      </item>
      <item>
-      <widget class="HistoryLineEdit" name="commandInput">
+      <widget class="CommandLineEdit" name="commandInput">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
          <horstretch>0</horstretch>
@@ -180,9 +180,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>HistoryLineEdit</class>
+   <class>CommandLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>nicos.clients.gui.widgets.histedit.h</header>
+   <header>nicos.clients.gui.widgets.lineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

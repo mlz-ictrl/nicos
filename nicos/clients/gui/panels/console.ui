@@ -623,7 +623,7 @@
        </widget>
       </item>
       <item>
-       <widget class="HistoryLineEdit" name="commandInput">
+       <widget class="CommandLineEdit" name="commandInput">
         <property name="autoFillBackground">
          <bool>true</bool>
         </property>
@@ -690,7 +690,12 @@
   <customwidget>
    <class>HistoryLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>nicos.clients.gui.widgets.histedit.h</header>
+   <header>nicos.clients.gui.widgets.lineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CommandLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>nicos.clients.gui.widgets.lineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>
