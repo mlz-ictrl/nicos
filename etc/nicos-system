@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 ### BEGIN INIT INFO
 # Provides: nicos-system
-# Required-Start: $local_fs $remote_fs $network $named
+# Required-Start: $local_fs $remote_fs $network $named $time
+# Should-Start: taco-server tango
 # Required-Stop: $local_fs $remote_fs $network
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
