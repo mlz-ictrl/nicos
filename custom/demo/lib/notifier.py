@@ -33,6 +33,7 @@ try:
 except ImportError:
     xmpp = None
 
+from nicos import session
 from nicos.core import listof, Param
 from nicos.devices.notifiers import Notifier
 
@@ -78,7 +79,8 @@ class Jabberer(Notifier):
         self._jid = xmpp.protocol.JID(self.jid)
         self._client = xmpp.Client(self._jid.getDomain(), debug=[])
         self._client.connect()
-        self._client.auth(self._jid.getNode(), self.password)
+        self._client.auth(self._jid.getNode(), self.password,
+                          resource=session.instrument.instrument)
 
     def send(self, subject, body, what=None, short=None, important=True):
         receivers = self.receivers
