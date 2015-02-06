@@ -27,11 +27,11 @@
 # The status constants are ordered by ascending "severity": this way the status
 # constant for a combined device is very easily determined as the maximum of the
 # subordinate device values.
-OK = 100
-BUSY = 101
-# PAUSED = 102
-NOTREACHED = 103
-ERROR = 104
+OK = 200
+WARN = 210
+BUSY = 220
+NOTREACHED = 230
+ERROR = 240
 UNKNOWN = 999
 
 # dictionary mapping all status constants to their names

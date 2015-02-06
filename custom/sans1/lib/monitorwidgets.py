@@ -180,7 +180,7 @@ class BeamOption(NicosWidget, QWidget):
         self._curstr = unitvalue
         self.update()
 
-    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed):
         self._fixed = fixed
         self.update()
 
@@ -243,7 +243,7 @@ class CollimatorTable(NicosWidget, QWidget):
         self._curstr = strvalue
         self.update()
 
-    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed):
         self._fixed = fixed
         self.update()
 

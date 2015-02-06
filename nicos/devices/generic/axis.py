@@ -158,7 +158,6 @@ class Axis(CanReference, BaseAxis):
             devs = [self._adevs['motor']] + self._adevs['obs']
         for dev in devs:
             dev.poll()
-        return self.doStatus(None), self.doRead(None)
 
     def _getReading(self):
         """Find a good value from the observers, taking into account that they

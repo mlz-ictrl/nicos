@@ -60,8 +60,6 @@ class NicosListener(object):
              'unit': unit,
              'fixed': '',
              'changetime': 0,
-             'min': None,
-             'max': None,
              'expired': True,
              'isdevice': isdevice})
 
@@ -70,7 +68,6 @@ class NicosListener(object):
         self._devmap[self._source.register(self, dev+'/value')] = dev
         self._devmap[self._source.register(self, dev+'/status')] = dev
         self._devmap[self._source.register(self, dev+'/fixed')] = dev
-        self._devmap[self._source.register(self, dev+'/warnlimits')] = dev
         if not unit:
             self._devmap[self._source.register(self, dev+'/unit')] = dev
         if not fmtstr:
@@ -109,15 +106,7 @@ class NicosListener(object):
             elif key.endswith('/fixed'):
                 devinfo.fixed = value
                 self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
-                                      devinfo.unit, devinfo.fixed, devinfo.min,
-                                      devinfo.max)
-                return
-            elif key.endswith('/warnlimits'):
-                if value is not None:
-                    devinfo.min, devinfo.max = value
-                    self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
-                                          devinfo.unit, devinfo.fixed, devinfo.min,
-                                          devinfo.max)
+                                      devinfo.unit, devinfo.fixed)
                 return
             elif key.endswith('/fmtstr'):
                 devinfo.fmtstr = value
@@ -137,14 +126,12 @@ class NicosListener(object):
                     self.on_devValueChange(self._devmap[key], fvalue, strvalue,
                                            devinfo.fullvalue, devinfo.expired)
                 self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
-                                      devinfo.unit, devinfo.fixed, devinfo.min,
-                                      devinfo.max)
+                                      devinfo.unit, devinfo.fixed)
                 return
             elif key.endswith('/unit'):
                 devinfo.unit = value
                 self.on_devMetaChange(self._devmap[key], devinfo.fmtstr,
-                                      devinfo.unit, devinfo.fixed, devinfo.min,
-                                      devinfo.max)
+                                      devinfo.unit, devinfo.fixed)
                 return
         # it's either /value, or any key registered as value
         # first, apply item selection
@@ -179,7 +166,7 @@ class NicosListener(object):
     def on_devStatusChange(self, dev, code, status, expired):
         pass
 
-    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed):
         pass
 
 

@@ -30,7 +30,7 @@ from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
     QByteArray
 
-from nicos.core.status import OK, BUSY, ERROR, NOTREACHED, UNKNOWN
+from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
     DeviceComboWidget
 from nicos.clients.gui.panels import Panel, showPanel
@@ -41,6 +41,7 @@ from nicos.pycompat import iteritems
 
 foregroundBrush = {
     OK:         QBrush(QColor('#00aa00')),
+    WARN:       QBrush(Qt.black),
     BUSY:       QBrush(Qt.black),
     UNKNOWN:    QBrush(QColor('#cccccc')),
     ERROR:      QBrush(Qt.black),
@@ -49,6 +50,7 @@ foregroundBrush = {
 
 backgroundBrush = {
     OK:         QBrush(),
+    WARN:       QBrush(QColor('#ffa500')),
     BUSY:       QBrush(Qt.yellow),
     UNKNOWN:    QBrush(),
     ERROR:      QBrush(QColor('#ff6655')),
@@ -57,6 +59,7 @@ backgroundBrush = {
 
 statusIcon = {
     OK:         QIcon(':/leds/status_green'),
+    WARN:       QIcon(':/leds/status_red'),
     BUSY:       QIcon(':/leds/status_yellow'),
     UNKNOWN:    QIcon(':/leds/status_white'),
     ERROR:      QIcon(':/leds/status_red'),
@@ -82,8 +85,6 @@ lowlevelFont = {
     False:      QFont(),
     True:       QFont(QFont().family(), -1, -1, True),
 }
-
-
 
 
 def setBackgroundBrush(widget, color):
@@ -253,7 +254,7 @@ class DevicesPanel(Panel):
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
-        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', '', [], None, None]
+        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', '', []]
 
         # let the cache handler process all properties
         for key, value in iteritems(params):
@@ -315,11 +316,6 @@ class DevicesPanel(Panel):
             if ldevname in self._control_dialogs:
                 self._control_dialogs[ldevname].valuelabel.setText(
                     fmted + ' ' + devinfo[3])
-            if (devinfo[6] is not None and devinfo[0] != '-' and devinfo[0] < devinfo[6]) or \
-               (devinfo[7] is not None and devinfo[0] != '-' and devinfo[0] > devinfo[7]):
-                devitem.setBackground(1, backgroundBrush[ERROR])
-            else:
-                devitem.setBackground(1, backgroundBrush[OK])
             devitem.setForeground(1, expiredBrush[op != OP_TELL])
         elif subkey == 'status':
             if not value:
@@ -377,17 +373,6 @@ class DevicesPanel(Panel):
                 dlg = self._control_dialogs[ldevname]
                 dlg.limitMin.setText(str(value[0]))
                 dlg.limitMax.setText(str(value[1]))
-        elif subkey == 'warnlimits':
-            if not value:
-                value = "None"
-            value = cache_load(value)
-            st = OK
-            if value:
-                devinfo[6], devinfo[7] = value
-                if (devinfo[6] is not None and devinfo[0] != '-' and devinfo[0] < devinfo[6]) or \
-                   (devinfo[7] is not None and devinfo[0] != '-' and devinfo[0] > devinfo[7]):
-                    st = ERROR
-            devitem.setBackground(1, backgroundBrush[st])
         elif subkey == 'classes':
             if not value:
                 value = "[]"

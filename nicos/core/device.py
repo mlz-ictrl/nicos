@@ -978,6 +978,7 @@ class Readable(Device):
         """
         if self._sim_active:
             return (status.OK, 'simulated ok')
+
         try:
             value = self._get_from_cache('status', self._combinedStatus, maxage)
         except NicosError as err:
@@ -991,9 +992,19 @@ class Readable(Device):
         """Return the status of the device combined from hardware status and
         movement status determined by NICOS such as timeouts.
 
-        The default implementation just returns the hardware status.
+        The default implementation just returns the hardware status, except that
+        the warnlimits of the device are checked, and the status is changed to
+        WARN if they are exceeded.
         """
-        return self.doStatus(maxage)
+        stvalue = self.doStatus(maxage)
+        if stvalue[0] == status.OK:
+            value = self.read(maxage)
+            if self.warnlimits:
+                if self.warnlimits[0] is not None and value < self.warnlimits[0]:
+                    stvalue = status.WARN, stvalue[1] + ', below warn limit'
+                elif self.warnlimits[1] is not None and value > self.warnlimits[1]:
+                    stvalue = status.WARN, stvalue[1] + ', above warn limit'
+        return stvalue
 
     def doStatus(self, maxage=0):
         if self._adevs:

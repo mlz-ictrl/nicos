@@ -408,7 +408,8 @@ class HasTimeout(DeviceMixinBase):
         """
         code, msg = Readable._combinedStatus(maxage)
 
-        if code == status.OK and not self.isAtTarget(self.read(maxage)):
+        if code in (status.OK, status.WARN) and \
+                not self.isAtTarget(self.read(maxage)):
             code = status.BUSY
             msg = 'target not yet reached, ' + msg
         if code == status.BUSY:

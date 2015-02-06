@@ -103,7 +103,7 @@ class Switcher(MappedMoveable):
         # if the underlying device is moving or in error state,
         # reflect its status
         move_status = self._adevs['moveable'].status(maxage)
-        if move_status[0] != status.OK:
+        if move_status[0] not in (status.OK, status.WARN):
             return move_status
         # otherwise, we have to check if we are at a known position,
         # and otherwise return an error status
@@ -164,7 +164,7 @@ class ReadonlySwitcher(MappedReadable):
         # if the underlying device is moving or in error state,
         # reflect its status
         move_status = self._adevs['readable'].status(maxage)
-        if move_status[0] != status.OK:
+        if move_status[0] not in (status.OK, status.WARN):
             return move_status
         # otherwise, we have to check if we are at a known position,
         # and otherwise return an error status
@@ -298,7 +298,7 @@ class MultiSwitcher(MappedMoveable):
         # if the underlying device is moving or in error state,
         # reflect its status
         move_status = multiStatus(self.devices, maxage)
-        if move_status[0] != status.OK:
+        if move_status[0] not in (status.OK, status.WARN):
             return move_status
         return MappedReadable.doStatus(self, maxage)
 

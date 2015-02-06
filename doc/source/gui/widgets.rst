@@ -99,7 +99,7 @@ and attributes you can use and override when you implement your own widget.
 
    .. method:: on_devStatusChange(dev, code, status, expired)
 
-   .. method:: on_devMetaChange(dev, fmtstr, unit, fixed, minval, maxval)
+   .. method:: on_devMetaChange(dev, fmtstr, unit, fixed)
 
    **Methods to use**
 

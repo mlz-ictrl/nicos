@@ -30,6 +30,7 @@ from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString, createThread
 from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
     HasLimits, UsageError, AccessError, formatStatus, INFO_CATEGORIES
+from nicos.core.status import OK, BUSY
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
 from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist
@@ -221,7 +222,10 @@ def status(*devlist):
         except Exception:
             dev.log.exception('error reading status')
         else:
-            dev.log.info('status is %s' % formatStatus(status))
+            if status[0] in (OK, BUSY):
+                dev.log.info('status is %s' % formatStatus(status))
+            else:
+                dev.log.warning('status is %s' % formatStatus(status))
 
 
 @usercommand

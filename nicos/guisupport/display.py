@@ -26,7 +26,6 @@
 NICOS value display widget.
 """
 
-import ast
 from cgi import escape
 from time import time as currenttime
 
@@ -35,7 +34,7 @@ from PyQt4.QtCore import Qt, QSize, QTimer, SIGNAL
 from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
     QHBoxLayout, QFontMetrics
 
-from nicos.core.status import OK, BUSY, ERROR, NOTREACHED, UNKNOWN, \
+from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN, \
     statuses
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor, \
     setBothColors
@@ -47,6 +46,7 @@ from nicos.pycompat import text_type, from_maybe_utf8
 defaultColorScheme = {
     'fore': {
         OK:         QColor('#00ff00'),
+        WARN:       QColor('#ffa500'),
         BUSY:       QColor('yellow'),
         ERROR:      QColor('red'),
         NOTREACHED: QColor('red'),
@@ -54,18 +54,27 @@ defaultColorScheme = {
     },
     'back': {
         OK:         QColor('black'),
+        WARN:       QColor('black'),
         BUSY:       QColor('black'),
         ERROR:      QColor('black'),
         NOTREACHED: QColor('black'),
         UNKNOWN:    QColor('black'),
     },
+    'label': {
+        OK:         None,
+        WARN:       QColor('red'),
+        BUSY:       None,
+        ERROR:      QColor('red'),
+        NOTREACHED: QColor('red'),
+        UNKNOWN:    None,
+    },
     'expired':      QColor('gray'),
-    'warn':         QColor('red'),
 }
 
 lightColorScheme = {
     'fore': {
         OK:         QColor('#00cc00'),
+        WARN:       QColor('black'),
         BUSY:       QColor('black'),
         ERROR:      QColor('black'),
         NOTREACHED: QColor('black'),
@@ -73,13 +82,21 @@ lightColorScheme = {
     },
     'back': {
         OK:         QColor('white'),
+        WARN:       QColor('#ffa500'),
         BUSY:       QColor('yellow'),
         ERROR:      QColor('#ff4444'),
         NOTREACHED: QColor('#ff4444'),
         UNKNOWN:    QColor('white'),
     },
+    'label': {
+        OK:         None,
+        WARN:       QColor('red'),
+        BUSY:       None,
+        ERROR:      QColor('red'),
+        NOTREACHED: QColor('red'),
+        UNKNOWN:    None,
+    },
     'expired':      QColor('#cccccc'),
-    'warn':         QColor('#ff4444'),
 }
 
 
@@ -151,10 +168,6 @@ class ValueDisplay(NicosWidget, QWidget):
         self._mainkeyid = None
         self._statuskeyid = None
 
-        # eval()ed min and max values
-        self._minvalue = None
-        self._maxvalue = None
-
         # other current values
         self._isfixed = ''
         # XXX could be taken from devinfo
@@ -171,6 +184,7 @@ class ValueDisplay(NicosWidget, QWidget):
         NicosWidget.__init__(self)
         self._statuscolors = self._colorscheme['fore'][UNKNOWN], \
             self._colorscheme['back'][UNKNOWN]
+        self._labelcolor = None
 
     properties = {
         'dev':        PropDef(str, '', 'NICOS device name, if set, display '
@@ -219,18 +233,6 @@ class ValueDisplay(NicosWidget, QWidget):
             if value:
                 self.key = value + '.value'
                 self.statuskey = value + '.status'
-        elif pname == 'min':
-            if not value:
-                self._minvalue = None
-            else:
-                self._minvalue = ast.literal_eval(value)
-            self._applywarncolor(self._lastvalue)
-        elif pname == 'max':
-            if not value:
-                self._maxvalue = None
-            else:
-                self._maxvalue = ast.literal_eval(value)
-            self._applywarncolor(self._lastvalue)
         elif pname == 'width':
             onechar = QFontMetrics(self.valueFont).width('0')
             self.valuelabel.setMinimumSize(QSize(onechar * (value + .5), 0))
@@ -312,7 +314,6 @@ class ValueDisplay(NicosWidget, QWidget):
             setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
         else:
             setBackgroundColor(self.valuelabel, self._colorscheme['back'][BUSY])
-        self._applywarncolor(value)
         if self.props['maxlen'] > -1:
             self.valuelabel.setText(from_maybe_utf8(strvalue[:self.props['maxlen']]))
         else:
@@ -327,29 +328,24 @@ class ValueDisplay(NicosWidget, QWidget):
             setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
         else:
             setBothColors(self.valuelabel, self._statuscolors)
-
-    def _applywarncolor(self, value):
-        # check min/max values
-        if (self._minvalue is not None and value < self._minvalue) or \
-                (self._maxvalue is not None and value > self._maxvalue):
-            self.namelabel.setAutoFillBackground(True)
-            setBackgroundColor(self.namelabel, self._colorscheme['warn'])
-        else:
-            self.namelabel.setAutoFillBackground(False)
+            if self._labelcolor:
+                self.namelabel.setAutoFillBackground(True)
+                setBackgroundColor(self.namelabel, self._labelcolor)
+            else:
+                self.namelabel.setAutoFillBackground(False)
 
     def on_devStatusChange(self, dev, code, status, expired):
         if self.props['showStatus']:
             self._statuscolors = self._colorscheme['fore'][code], \
                 self._colorscheme['back'][code]
+            self._labelcolor = self._colorscheme['label'][code]
             self._laststatus = code, status
             self._applystatuscolor()
 
-    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed):
         self._isfixed = fixed and ' (F)'
         self.format = fmtstr
         self.unit = unit or ''
-        self.min = repr(minval)
-        self.max = repr(maxval)
 
     def update_namelabel(self):
         name = self.props['name'] or self.props['dev'] or self.props['key']

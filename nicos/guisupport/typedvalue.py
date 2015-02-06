@@ -86,7 +86,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         self._reinit(value)
 
-    def on_devMetaChange(self, dev, fmtstr, unit, fixed, minval, maxval):
+    def on_devMetaChange(self, dev, fmtstr, unit, fixed):
         self._reinit()
 
     def _reinit(self, curvalue=None):

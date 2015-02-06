@@ -40,7 +40,7 @@ except ImportError:
     matplotlib = None
 
 from nicos.core import Param
-from nicos.core.status import OK, BUSY, ERROR, NOTREACHED
+from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
 from nicos.services.monitor.icon import nicos_icon
@@ -86,7 +86,6 @@ class Field(object):
     unitkey = ''     # key for value unit
     formatkey = ''   # key for value format string
     fixedkey = ''    # key for value fixed-ness
-    warnlkey = ''    # key for value warn-limits
 
     # how to display it
     width = 8        # width of the widget (in characters, usually)
@@ -115,13 +114,11 @@ class Field(object):
             desc['key'] =       dev + '/value'
             desc['statuskey'] = dev + '/status'
             desc['fixedkey'] =  dev + '/fixed'
-            desc['warnlkey'] =  dev + '/warnlimits'
             if 'unit' not in desc:
                 desc['unitkey'] = dev + '/unit'
             if 'format' not in desc:
                 desc['formatkey'] = dev + '/fmtstr'
-        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey',
-                   'warnlkey'):
+        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
             if kn in desc:
                 desc[kn] = (prefix + desc[kn]).replace('.', '/').lower()
         if 'name' not in desc:
@@ -130,8 +127,7 @@ class Field(object):
 
     def updateKeymap(self, keymap):
         # store reference from key to field for updates
-        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey',
-                   'warnlkey'):
+        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
             key = getattr(self, kn)
             if key:
                 keymap.setdefault(key, []).append(self)
@@ -267,6 +263,7 @@ class Monitor(BaseMonitor):
         self._red = 'red'
         self._gray = 'gray'
         self._white = 'white'
+        self._orange = '#ffa500'
 
         add = self._content.append
 
@@ -398,6 +395,8 @@ class Monitor(BaseMonitor):
                 status = value[0]
                 if status == OK:
                     field._valuelabel.fore = self._green
+                elif status == WARN:
+                    field._valuelabel.fore = self._orange
                 elif status == BUSY:
                     field._valuelabel.fore = self._yellow
                 elif status in (ERROR, NOTREACHED):
@@ -416,10 +415,6 @@ class Monitor(BaseMonitor):
         elif key == field.formatkey:
             if value is not None:
                 field.format = value
-                self.signal(field, 'keyChange', field.key, field.value, 0, False)
-        elif key == field.warnlkey:
-            if value:
-                field.min, field.max = value
                 self.signal(field, 'keyChange', field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):

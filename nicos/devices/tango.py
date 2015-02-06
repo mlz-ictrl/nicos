@@ -46,6 +46,7 @@ __all__ = [
 
 DEFAULT_STATUS_MAPPING = {
     PyTango.DevState.ON:     status.OK,
+    PyTango.DevState.ALARM:  status.WARN,
     PyTango.DevState.OFF:    status.ERROR,
     PyTango.DevState.FAULT:  status.ERROR,
     PyTango.DevState.MOVING: status.BUSY,
