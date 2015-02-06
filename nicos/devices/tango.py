@@ -175,7 +175,7 @@ class PyTangoDevice(DeviceMixinBase):
                     self.log.debug('\t=> %s' % repr(result)[:300])
 
                 return result
-            except tuple(EXC_MAPPING.keys()) as e:
+            except tuple(EXC_MAPPING) as e:  # pylint: disable=E0712
                 exc = str(e)
                 if e.args:
                     exc = e.args[0]  # Can be str or DevError
