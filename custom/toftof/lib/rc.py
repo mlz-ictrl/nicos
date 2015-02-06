@@ -204,6 +204,7 @@ class RadialCollimator(HasTimeout, Moveable):
 
     def doReset(self):
         # doReset is blocking, may take a while!
+        timeouterr = 'could not reach reset position within timeout'
         self._stime = currenttime()
         bus = self._adevs['bus']
         # bus.write("osc%d:0" % (self.address,))
@@ -214,13 +215,13 @@ class RadialCollimator(HasTimeout, Moveable):
         try:
             self.wait()
         except NicosError:
-            raise TimeoutError(self, 'could not reach reset position within timeout')
+            raise TimeoutError(self, timeouterr)
         bus.write("move%d:%f" % (self.address, 0.3))
         sleep(0.4)
         try:
             self.wait()
         except NicosError:
-            raise TimeoutError(self, 'could not reach reset position within timeout')
+            raise TimeoutError(self, timeouterr)
         bus.write("ffast%d:%f" % (self.address, self.ref_speed))
         bus.write("frun%d:%f" % (self.address, 100))
         bus.write("move%d:%f" % (self.address, -10))
@@ -228,7 +229,7 @@ class RadialCollimator(HasTimeout, Moveable):
         try:
             self.wait()
         except NicosError:
-            raise TimeoutError(self, 'could not reach reset position within timeout')
+            raise TimeoutError(self, timeouterr)
         bus.write("zero%d" % (self.address,))
         bus.write("ffast%d:%f" % (self.address, self.std_speed))
         sspeed = int(round(self.std_speed / 4.0))
