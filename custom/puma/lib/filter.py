@@ -26,10 +26,10 @@
 """Class for PUMA PG filter."""
 
 from nicos.core import Moveable, Readable, Param, PositionError, oneof, \
-     status, waitForStatus, Override
+    status, Override, HasTimeout
 
 
-class PumaFilter(Moveable):
+class PumaFilter(HasTimeout, Moveable):
     """Class for the PUMA PG filter.
 
     Components:
@@ -56,7 +56,8 @@ class PumaFilter(Moveable):
     }
 
     parameter_overrides = {
-        'unit':      Override(mandatory=False, default='')
+        'unit':      Override(mandatory=False, default=''),
+        'timeout':   Override(mandatory=False, default=5),
     }
 
     valuetype = oneof('in', 'out')
@@ -102,6 +103,3 @@ class PumaFilter(Moveable):
             return status.OK, 'idle'
         else:
             return status.ERROR, 'undefined state'
-
-    def doWait(self):
-        waitForStatus(self, timeout=5)

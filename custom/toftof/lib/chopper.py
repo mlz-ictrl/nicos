@@ -29,17 +29,20 @@ from time import sleep, time as currenttime
 
 import IO
 
-from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach,\
-     NicosError, intrange, oneof, status, requires, ADMIN, listof, tupleof
+from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach, \
+    NicosError, intrange, oneof, status, requires, ADMIN, listof, tupleof, \
+    HasTimeout
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
 
 from nicos.toftof import calculations as calc
 
 
-class Controller(TacoDevice, Readable):
+class Controller(TacoDevice, HasTimeout, Readable):
     """The main controller device of the chopper."""
     taco_class = IO.StringIO
+
+    # XXX: maybe HasWindowTimeout is better suited here....
 
     parameters = {
         'ch5_90deg_offset': Param('Whether chopper 5 is mounted the right way '
@@ -51,9 +54,6 @@ class Controller(TacoDevice, Readable):
                                 settable=True, default=2, type=float),  # XXX unit?
         'resolution':     Param('Current energy resolution',
                                 volatile=True, type=tupleof(float, float),),
-        'timeout':        Param('Timeout waiting for changes',
-                                settable=True, default=90.0, unit='s',
-                                type=float),
 
         # readonly hidden state parameters giving current values
         'wavelength': Param('Selected wavelength',
@@ -70,6 +70,10 @@ class Controller(TacoDevice, Readable):
                             type=listof(float), userparam=False),
         'changetime': Param('Time of last change',
                             userparam=False, type=float,),
+    }
+
+    parameter_overrides = {
+        'timeout'       : Override(default=90),
     }
 
     def _read(self, n):
@@ -240,7 +244,6 @@ class Controller(TacoDevice, Readable):
         errstates = {0: 'inactive', 1: 'cal', 2: 'com', 8: 'estop'}
         ret = []
         stval = status.OK
-        timedout = currenttime() > self.changetime + self.timeout
         # read status values
         for ch in range(1, 8):
             state = self._read(4140 + ch)
@@ -263,20 +266,14 @@ class Controller(TacoDevice, Readable):
             nominal = self.speed / rat
             maxdelta = self.speed_accuracy / rat
             if abs(speed - nominal) > maxdelta:
-                if timedout:
-                    stval = status.ERROR
-                else:
-                    stval = status.BUSY
+                stval = status.BUSY
                 ret.append('ch %d: speed %.2f != nominal %.2f' %
                            (ch, speed, nominal))
         # read phases
         for ch in range(2, 8):
             phase = self._read(4100 + ch)
             if abs(phase - self.phases[ch]) > self.phase_accuracy:
-                if timedout:
-                    stval = status.ERROR
-                else:
-                    stval = status.BUSY
+                stval = status.BUSY
                 ret.append('ch %d: phase %s != nominal %s' %
                            (ch, phase, self.phases[ch]))
         return stval, ', '.join(ret) or 'normal'

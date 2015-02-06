@@ -25,11 +25,11 @@
 
 """Class for PUMA SR7 shutter control."""
 
-from nicos.core import Moveable, Readable, PositionError, oneof, \
-     status, waitForStatus, Override
+from nicos.core import Moveable, Readable, PositionError, oneof, HasTimeout, \
+    status, Override
 
 
-class SR7Shutter(Moveable):
+class SR7Shutter(HasTimeout, Moveable):
     """Class for the PUMA secondary shutter."""
 
     attached_devices = {
@@ -44,7 +44,8 @@ class SR7Shutter(Moveable):
     }
 
     parameter_overrides = {
-        'unit':      Override(mandatory=False, default='')
+        'unit':      Override(mandatory=False, default=''),
+        'timeout':   Override(mandatory=False, default=5),
     }
 
     positions = ['close', 'S1', 'S2', 'S3']
@@ -63,9 +64,6 @@ class SR7Shutter(Moveable):
         if self.wait() != pos:
             raise PositionError(self, 'device returned wrong position')
         self.log.info('SR7: %s' % pos)
-
-    def doWait(self):
-        waitForStatus(self, timeout=5)
 
     def doRead(self, maxage=0):
         res = self.doStatus()[0]

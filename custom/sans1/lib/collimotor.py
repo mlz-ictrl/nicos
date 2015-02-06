@@ -32,7 +32,7 @@ from Modbus import Modbus
 from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
     floatrange, intrange, status, waitForStatus, InvalidValueError, Moveable, \
     UsageError, CommunicationError, PositionError, MoveError, SIMULATION, \
-    Attach, usermethod, requires
+    HasTimeout, Attach, usermethod, requires
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import CanReference, Motor, Coder
 from nicos.devices.generic.sequence import SequencerMixin, SeqMethod
@@ -164,7 +164,7 @@ class Sans1ColliCoder(TacoDevice, Coder):
         return status.OK, '' # not impl.
 
 
-class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, Motor):
+class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Motor):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
@@ -199,6 +199,10 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, Motor):
         'refpos'     : Param('Position of reference switch', unit='main',
                              type=float, mandatory=True, settable=False,
                              prefercache=False),
+    }
+
+    parameter_overrides = {
+        'timeout':  Override(mandatory=False, default=300),
     }
 
     def doInit(self, mode):
@@ -543,7 +547,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, Motor):
     def doWait(self):
         if self._seq_thread:
             self._seq_thread.join() # XXX timeout?
-        waitForStatus(self, timeout=300)
+        waitForStatus(self)
 
     @requires(level='admin')
     def doReference(self):

@@ -29,8 +29,9 @@ from time import sleep, time as currenttime
 
 from IO import StringIO
 
-from nicos.core import status, intrange, oneofdict, Device, Moveable, \
-     Param, NicosError, CommunicationError, ProgrammingError
+from nicos.core import status, intrange, oneofdict, Device, Moveable, Override, \
+     Param, NicosError, CommunicationError, ProgrammingError, HasTimeout, \
+     TimeoutError
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -104,7 +105,7 @@ class ModBusDriverHP(TacoDevice, Device):
         self._buffer = []     # buffer for input lines
 
 
-class RadialCollimator(Moveable):
+class RadialCollimator(HasTimeout, Moveable):
     """Start/Stop movement of radial collimator"""
 
     attached_devices = {
@@ -122,8 +123,9 @@ class RadialCollimator(Moveable):
                              type=int, default=1200),
         'ref_speed':   Param('Speed when referencing',
                              type=int, default=100),
-        'timeout':     Param('Timeout when waiting',
-                             type=float, default=120),
+    }
+    parameter_overrides = {
+        'timeout': Override(default=120),
     }
 
     valuetype = oneofdict({1: 'on', 0: 'off'})
@@ -171,14 +173,18 @@ class RadialCollimator(Moveable):
         self.log.info('note: radial collimator does not use stop() anymore, '
                       'use move(%s, "off")' % self)
 
-    def doStatus(self, maxage=0):
+    def _rc_status(self):
         try:
             ret = self._adevs['bus'].write("?s%d" % (self.address,))
         except NicosError:
             raise CommunicationError(self, 'could not get the status of the '
                                      'motor axis of the radial collimator')
         val = int(ret[ret.find(":")+1:-1])
-        self.log.debug('%d, 0x%04x' % (val, val))
+        self.log.debug('_rc_status is %d, 0x%04x' % (val, val))
+        return val
+
+    def doStatus(self, maxage=0):
+        val = self._rc_status()
         if (val & 0x001) == 0x001:  # Controller passive
             return (status.OK, 'stopped')
         elif (val & 0x040) == 0x040:  # Program execution active
@@ -197,7 +203,7 @@ class RadialCollimator(Moveable):
                                      'motor axis of the radial collimator')
 
     def doReset(self):
-        timeouterr = 'could not reach reset position within timeout'
+        # doReset is blocking, may take a while!
         self._stime = currenttime()
         bus = self._adevs['bus']
         # bus.write("osc%d:0" % (self.address,))
@@ -205,36 +211,47 @@ class RadialCollimator(Moveable):
         bus.write("frun%d:%f" % (self.address, 100))
         bus.write("move%d:%f" % (self.address, -10))
         sleep(0.4)
-        ret = 0
-        while ret & 1 == 0:
-            ret = bus.write("?s%d" % (self.address,))
-            ret = int(ret[ret.find(":")+1:-1])
-            if currenttime() > self._stime + self.timeout:
-                bus.write("q%d" % (self.address,))
-                raise NicosError(self, '%s' % timeouterr)
-            sleep(0.1)
+        try:
+            self.wait()
+        except NicosError:
+            raise TimeoutError(self, 'could not reach reset position within timeout')
+#        ret = 0
+#        while ret & 1 == 0:
+#            ret = self._rc_status()
+#            if currenttime() > self._stime + self.timeout:
+#                bus.write("q%d" % (self.address,))
+#                raise NicosError(self, 'could not reach reset position within timeout')
+#            sleep(0.1)
         bus.write("move%d:%f" % (self.address, 0.3))
         sleep(0.4)
-        ret = 0
-        while ret & 1 == 0:
-            ret = bus.write("?s%d" % (self.address,))
-            ret = int(ret[ret.find(":")+1:-1])
-            if currenttime() > self._stime + self.timeout:
-                bus.write("q%d" % (self.address,))
-                raise NicosError(self, '%s' % timeouterr)
-            sleep(0.1)
+        try:
+            self.wait()
+        except NicosError:
+            raise TimeoutError(self, 'could not reach reset position within timeout')
+#        ret = 0
+#        while ret & 1 == 0:
+#            ret = bus.write("?s%d" % (self.address,))
+#            ret = int(ret[ret.find(":")+1:-1])
+#            if currenttime() > self._stime + self.timeout:
+#                bus.write("q%d" % (self.address,))
+#                raise NicosError(self, 'could not reach reset position within timeout')
+#            sleep(0.1)
         bus.write("ffast%d:%f" % (self.address, self.ref_speed))
         bus.write("frun%d:%f" % (self.address, 100))
         bus.write("move%d:%f" % (self.address, -10))
         sleep(0.4)
-        ret = 0
-        while ret & 1 == 0:
-            ret = bus.write("?s%d" % (self.address,))
-            ret = int(ret[ret.find(":")+1:-1])
-            if currenttime() > self._stime + self.timeout:
-                bus.write("q%d" % (self.address,))
-                raise NicosError(self, '%s' % timeouterr)
-            sleep(0.1)
+        try:
+            self.wait()
+        except NicosError:
+            raise TimeoutError(self, 'could not reach reset position within timeout')
+#        ret = 0
+#        while ret & 1 == 0:
+#            ret = bus.write("?s%d" % (self.address,))
+#            ret = int(ret[ret.find(":")+1:-1])
+#            if currenttime() > self._stime + self.timeout:
+#                bus.write("q%d" % (self.address,))
+#                raise NicosError(self, 'could not reach reset position within timeout')
+#            sleep(0.1)
         bus.write("zero%d" % (self.address,))
         bus.write("ffast%d:%f" % (self.address, self.std_speed))
         sspeed = int(round(self.std_speed / 4.0))

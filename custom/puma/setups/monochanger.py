@@ -59,8 +59,8 @@ devices = dict(
 
     lift   = device('puma.senseswitch.SenseSwitch',
                     description = 'Monochromator lift',
-                    moveable = 'mli',
-                    readable = 'sw_lift',
+                    moveables = 'mli',
+                    readables = 'sw_lift',
                     mapping = dict( top2   = (358.1, 1),
                                     top1   = (356.1, 0),
                                     ref    = (0, 4),
@@ -68,6 +68,7 @@ devices = dict(
                                   ),
                     precision = [0.5, 0],
                     blockingmove = True,
+                    fallback ='<unknown>',
                     timeout = 300,
                    ),
 
@@ -117,12 +118,13 @@ devices = dict(
 
     magazin = device('puma.senseswitch.SenseSwitch',
                      description = 'Monochromatormagazin',
-                     moveable = 'mag',
-                     readable = 'io_mag',
+                     moveables = 'mag',
+                     readables = 'io_mag',
                      mapping = dict(zip(monostates[:4], magazinpos)),
                      precision = [0.2, 0],
                      unit = '',
                      blockingmove = True,
+                     fallback ='<unknown>',
                      timeout = 300,
                     ),
 
@@ -184,12 +186,14 @@ devices = dict(
 
     grip = device('puma.senseswitch.SenseSwitch',
                   description = 'monochromator grip',
-                  moveable = 'gr_set',
-                  readable = 'gr_stat',
+                  moveables = 'gr_set',
+                  readables = 'gr_stat',
                   mapping = dict(open=(1, 2), closed=(0, 1)),
                   precision = None,  # literal compare!
                   blockingmove = True,
                   unit = '',
+                  timeout = 13,
+                  fallback ='<unknown>',
                  ),
 
 # 3R coupling

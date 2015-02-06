@@ -25,16 +25,18 @@
 
 """Haake/Julabo thermostat Protocol NICOS driver."""
 
-from time import sleep, time
+from time import sleep
 
 from IO import StringIO
 
 from nicos.core import status, intrange, oneof, Moveable, \
-     Param, HasLimits
+    Param, Override, HasWindowTimeout, HasLimits
 from nicos.devices.taco.core import TacoDevice
 
+# TODO: split into two classes for the TWO used protocols.
 
-class Controller(TacoDevice, HasLimits, Moveable):
+
+class Controller(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
     """The Julabo temperature controller."""
     taco_class = StringIO
 
@@ -44,18 +46,12 @@ class Controller(TacoDevice, HasLimits, Moveable):
                                  default='JulaboF32HD'),
         'intern_extern': Param('internal(0) or external(1) temperature sensor',
                                type=intrange(0, 1), default=1),
-        'setpoint':  Param('setpoint',
-                           unit='main', type=float),
-        'tolerance': Param('tolerance',
-                           unit='main', type=float, default=0.2,
-                           settable=True),
-        'timeout':   Param('timeout for temperature changes',
-                           unit='s', default=600, settable=True),
     }
 
-    def doInit(self, mode):
-        # set default values
-        self._stime = 0
+    parameter_overrides = {
+        'timeout':   Override(mandatory=False, default=600),
+        'precision': Override(mandatory=False, default=0.02),
+    }
 
     def _comm(self, cmd):
         return self._taco_guard(self._dev.communicate, cmd)
@@ -68,22 +64,20 @@ class Controller(TacoDevice, HasLimits, Moveable):
             # switch thermostat on if it is off
             if self._comm("in_mode_05") == "0":
                 self._write("out_mode_05 1")
-                sleep(2)
+                sleep(2) # ???
             # set correct external sensor setting
             if self._comm("in_mode_04") != str(self.intern_extern):
                 self._write("out_mode_04 %d" % self.intern_extern)
-                sleep(2)
+                sleep(2) # ???
             # set correct setpoint (T1)
             if self._comm("in_mode_01") != "0":
                 self._write("out_mode_01 0")
-                sleep(2)
+                sleep(2) # ???
         if self.thermostat_type == "JulaboF32HD":
             self._write("out_sp_00 %s" % pos)
         elif self.thermostat_type == "HaakeDC50":
             self._write("W S0 %f" % (pos,))
-        self._setROParam('setpoint', pos)
-        self._stime = time()
-        sleep(1)
+        sleep(1) # ???
 
     def doRead(self, maxage=0):
         # return current temperature
@@ -99,9 +93,9 @@ class Controller(TacoDevice, HasLimits, Moveable):
     def doStop(self):
         # stop ramp/step immediately
         if self.thermostat_type == "JulaboF32HD":
-            self._write("out_sp_00 %s" % self.doRead())
+            self.start(self.doRead())
+            #self._write("out_sp_00 %s" % self.doRead())
 
     def doStatus(self, maxage=0):
-        if abs(self.read() - self.setpoint) > self.tolerance:
-            return status.BUSY, 'ramping'
-        return status.OK, 'idle'
+        # no HW status available.
+        return status.OK, ''

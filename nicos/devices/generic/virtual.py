@@ -34,10 +34,9 @@ import numpy as np
 
 from nicos import session
 from nicos.utils import clamp, createThread
-from nicos.services.poller.psession import PollerSession
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
     none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
-    ImageProducer, ImageType, SIMULATION, Attach, Device
+    ImageProducer, ImageType, SIMULATION, Attach, Device, HasWindowTimeout
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import Channel
 
@@ -334,6 +333,8 @@ class VirtualCounter(VirtualChannel):
 class VirtualTemperature(VirtualMotor):
     """A virtual temperature regulation device."""
 
+    # XXX: change to HasPrecision
+
     parameters = {
         'tolerance': Param('Tolerance for wait()', default=1, settable=True,
                            unit='main', category='general'),
@@ -369,7 +370,8 @@ class VirtualTemperature(VirtualMotor):
         return cval
 
 
-class VirtualRealTemperature(HasLimits, Moveable):
+class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
+
     parameters = {
         'jitter':    Param('Jitter of the read-out value', default=0,
                            unit='main'),
@@ -381,14 +383,8 @@ class VirtualRealTemperature(HasLimits, Moveable):
                            settable=True, default=(status.OK, 'idle')),
         'ramp':      Param('Ramping speed of the setpoint', settable=True,
                            type=none_or(floatrange(0, 1000)), unit='main/min'),
-        'tolerance': Param('Tolerance for wait()', default=1, settable=True,
-                           unit='main', category='general'),
-        'window':    Param('Window for wait()', default=60, settable=True,
-                           unit='s', category='general'),
         'loopdelay': Param('Cycle time for internal thread', default=1,
                            settable=True, unit='s', type=floatrange(0.2, 10)),
-        'timeout':   Param('Timeout for wait()', default=900, settable=True,
-                           unit='s', category='general'),
         'setpoint':  Param('Current setpoint', settable=True, unit='main',
                            category='general', default=2.),
         'heater':    Param('Simulated heater output power in percent',
@@ -412,6 +408,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
 
     parameter_overrides = {
         'unit':      Override(mandatory=False, default='K'),
+        'timeout' : Override(default=900),
     }
 
     _thread = None
@@ -421,7 +418,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
     def doInit(self, mode):
         if mode == SIMULATION:
             return
-        if not isinstance(session, PollerSession): # dont run in the poller!
+        if session.sessiontype != 'poller': # dont run in the poller!
             self._window = []
             self._statusLock = threading.Lock()
             self._thread = createThread('cryo simulator %s' % self, self.__run)
@@ -458,7 +455,7 @@ class VirtualRealTemperature(HasLimits, Moveable):
         self.heater = clamp(self.heater * self.maxpower / float(newpower), 0, 100)
 
     def doReadTarget(self):
-        """Bootstrapping helper, called at most once"""
+        #Bootstrapping helper, called at most once
         return sum(self.abslimits) * 0.5
 
     #
@@ -511,7 +508,6 @@ class VirtualRealTemperature(HasLimits, Moveable):
         regulation = self.regulation
         sample = self.sample
         timestamp = time.time()
-        stable = False
         heater = 0
         lastflow = 0
         last_heaters = (0, 0)
@@ -621,35 +617,21 @@ class VirtualRealTemperature(HasLimits, Moveable):
                     pass
 
             # keep max self.window seconds long history
-            self._window.append((t, regulation))
-            while t - self._window[0][0] > self.window:
-                self._window.pop(0)
+            self._cacheCB('value', regulation, t)
 
             # temperature is stable when all recorded values in the window
             # differ from setpoint by less than tolerance
             with self._statusLock:
-                stable = max(abs(x - self.setpoint) for _, x in self._window) \
-                    <= self.tolerance
-                fullwindow = len(self._window) >= self.window / float(self.loopdelay)
-                # but status is only OK if setpoint is already at target
-                if stable and fullwindow and (self.setpoint == self.target):
-                    # XXX TODO: timeout
-                    self.curstatus = status.OK, 'stable'
+                if self.setpoint == self.target:
+                    self._setROParam('curstatus', (status.OK, 'stable'))
                     damper -= (damper - 1) / 10. # max value for damper is 11
-                    self._starttime = 0
                 else:
-                    if self._starttime + self.timeout >= t:
-                        self.curstatus = status.BUSY, 'moving'
-                    elif self._starttime > 0:
-                        self.curstatus = status.NOTREACHED, 'timeout'
-                    else:
-                        # unstable: BUSY, or NOTREACHED ???
-                        self.curstatus = status.BUSY, 'unstable'
+                    self._setROParam('curstatus', (status.BUSY, 'moving'))
             damper -= (damper - 1) / 20.
             self._setROParam('regulation', round(regulation, 3))
             self._setROParam('sample', round(sample, 3))
             self._setROParam('heaterpower', round(heater * self.maxpower * 0.01, 3))
-            self.heater = heater
+            self._setROParam('heater', heater)
             timestamp = t
 
 

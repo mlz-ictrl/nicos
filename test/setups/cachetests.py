@@ -47,5 +47,6 @@ devices = dict(
                       unit='',
                       loglevel='debug',
                       loopdelay=0.05,
+                      precision=1,
                      ),
 )

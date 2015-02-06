@@ -24,10 +24,10 @@
 
 """PANDA S7 Interface for NICOS."""
 
-from time import sleep, time as currenttime
+from time import sleep
 
-from nicos.core import status, intrange, oneof, Device, Param, NicosError, \
-     ProgrammingError, TimeoutError, formatStatus, MoveError
+from nicos.core import status, oneof, Device, Param, Override, NicosError, \
+     ProgrammingError, MoveError, HasTimeout
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.generic.axis import Axis
@@ -97,11 +97,10 @@ class S7Coder(NicosCoder):
     def doSetPosition(self, pos):
         raise NotImplementedError('implement doSetPosition for concrete coders')
 
-class S7Motor(NicosMotor):
+
+class S7Motor(HasTimeout, NicosMotor):
     """Class for the control of the S7-Motor moving mtt."""
     parameters = {
-        'timeout'   : Param('Timeout in seconds for moving the motor or getting'
-                            ' a reaction', type=intrange(1, 3600), default=360),
         'sign'      : Param('Sign of moving direction value',
                             type=oneof(-1.0, 1.0), default=-1.0),
         'precision' : Param('Precision of the device value',
@@ -111,11 +110,14 @@ class S7Motor(NicosMotor):
                             type=str, default='%.3f', settable=False),
     }
 
+    parameter_overrides = {
+        'timeout'   : Override(description='Extra time in seconds for moving the '
+                               'motor from a to b', default=60),
+    }
+
     attached_devices = {
         'bus': (S7Bus, 'S7 communication bus'),
     }
-
-    _timeout_time = None
 
     def doReset(self):
         self.doStop()
@@ -139,17 +141,6 @@ class S7Motor(NicosMotor):
         sleep(0.5)
         bus.write(0, 'bit', 0, 2)            # Startbit Sollwertfahrt aufheben
         sleep(0.5)
-        self._timeout_time = None
-
-    def doWait(self):
-        if self._timeout_time is None:
-            self._timeout_time = currenttime() + self.timeout
-        while self._posreached() == False:
-            if currenttime() > self._timeout_time:
-                raise TimeoutError(self, 'maximum time for S7 motor movement '
-                                   'reached, check hardware!')
-            sleep(1)
-        self._timeout_time = None
 
     def _gettarget(self):
         """Returns current target."""
@@ -220,16 +211,6 @@ class S7Motor(NicosMotor):
         if sps_err != 0:
             self.log.info(m('SPS-Error:')+' '+hex(sps_err))
 
-    def doStatus(self, maxage=0):
-        s = self._doStatus()
-        if self._timeout_time is not None:
-            if currenttime() > self._timeout_time:
-                if s[0] != status.OK:
-                    return status.ERROR, 'timeout reached, original status ' \
-                        'is %s' % formatStatus(s)
-                self._timeout_time = None
-        return s
-
     def _ack( self ):
         ''' acks a sps/Nc error '''
         self.log.info('Acknowledging SPS-ERROR')
@@ -245,7 +226,7 @@ class S7Motor(NicosMotor):
             sleep(1)
         self.log.info('Status is now:' + self.doStatus()[1])
 
-    def _doStatus(self):
+    def doStatus(self, maxage=0):
         """Asks hardware and figures out status."""
         bus = self._adevs['bus']
         # first get all needed statusbytes
@@ -327,7 +308,6 @@ class S7Motor(NicosMotor):
         if self.status()[0] == status.ERROR:
             raise NicosError(self, 'S7 motor in error state')
         self.log.debug('starting to '+self.fmtstr%position + ' %s'%self.unit )
-        self._timeout_time = currenttime() + self.timeout     # set timeouttime
         #sleep(0.2)
         #20091116 EF: round to 1 thousands, or SPS doesn't switch air off
         position = float(self.fmtstr % position) * self.sign
@@ -358,7 +338,7 @@ class S7Motor(NicosMotor):
     def doTime(self, pos1, pos2):
         return (abs( pos1 - pos2 ) *7   # 7 seconds per degree
             + 12*(int(abs(pos1 - pos2) / 11) + 1))
-            # 12 seconds per mobilblock which come ever 11 degree plus one extra
+            # 12 seconds per mobilblock which come every 11 degree plus one extra
 
 
 

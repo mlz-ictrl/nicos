@@ -14,6 +14,7 @@ devices = dict(
                       ramp = 60,
                       unit = 'K',
                       jitter = 0,
+                      precision = 0.1,
                      ),
     T_sample = device('devices.generic.ReadonlyParamDevice',
                       parameter = 'sample',

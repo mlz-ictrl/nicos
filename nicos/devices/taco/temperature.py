@@ -47,6 +47,8 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
     _TACO_STATUS_MAPPING = dict(TacoDevice._TACO_STATUS_MAPPING)
     _TACO_STATUS_MAPPING[TACOStates.UNDEFINED] = (status.NOTREACHED, 'temperature not reached')
 
+    # XXX: rework timeout handling
+
     parameters = {
         'setpoint':  Param('Current temperature setpoint', unit='main',
                            category='general'),
@@ -86,6 +88,12 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
     parameter_overrides = {
         'userlimits': Override(volatile=True),
     }
+
+    @property
+    def timeout_status(self):
+        if self.timeoutaction == 'raise':
+            return status.ERROR
+        return status.NOTREACHED
 
     def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read)

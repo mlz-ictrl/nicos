@@ -25,12 +25,10 @@
 
 """Cache reader/writer devices."""
 
-from time import time as currenttime, sleep
-from collections import deque
+from time import time as currenttime
 
 from nicos.core import status, Readable, Moveable, HasLimits, Param, \
-    CommunicationError, TimeoutError, CacheError
-from nicos.pycompat import number_types
+    CommunicationError, HasWindowTimeout, CacheError, Override
 
 
 CACHE_NOSTATUS_STRING = 'no status found in cache'
@@ -94,7 +92,7 @@ class CacheReader(Readable):
         return status.UNKNOWN, CACHE_NOSTATUS_STRING
 
 
-class CacheWriter(HasLimits, CacheReader, Moveable):
+class CacheWriter(HasWindowTimeout, HasLimits, CacheReader, Moveable):
     """A moveable device that writes values via the cache.
 
     This is the equivalent to `CacheReader` for moveable devices.  The device is
@@ -109,59 +107,16 @@ class CacheWriter(HasLimits, CacheReader, Moveable):
     parameters = {
         'setkey':    Param('Subkey to use to set the device value',
                            type=str, default='setpoint'),
-        'window':    Param('Time window for checking stabilization (zero for '
-                           'no stabilization check)', unit='s', default=60.0,
-                           settable=True, category='general'),
-        'tolerance': Param('Size of the stabilization window', unit='main',
-                           default=1.0, settable=True, category='general'),
-        'timeout':   Param('Timeout for checking stabilization',
-                           unit='s', default=900.0, settable=True),
         'loopdelay': Param('Sleep time when waiting',
                            unit='s', default=1.0, settable=True),
+    }
+
+    parameter_overrides = {
+        'timeout' : Override(default=900),
     }
 
     def doStart(self, pos):
         self._cache.put(self, self.setkey, pos)
 
-    def doWait(self):
-        if self.window == 0:
-            return self.read(0)
-        timesout = currenttime() + self.timeout
-        histlen = max(int(self.window / self.loopdelay), 5)
-        values = deque(maxlen=histlen)
-
-        mystat = self.status(0)
-
-        # is it worth to put his in an extra thread to derive a 'stable' status
-        # and give this back in doStatus???
-        while True:
-            if mystat[0] != status.BUSY and mystat[1] != CACHE_NOSTATUS_STRING:
-                break # we got a thrustworthy state of not beeing idle....
-
-            values.append(self.read(0))
-            self.log.debug('Values are %r'%list(values))
-
-            if len(values) == histlen:  # enough values ?
-                if max(values) - min(values) <= self.tolerance:
-                    # we are 'kind of' stable
-                    if type(self.target) not in number_types:
-                        # stable, but no target to compare with -> OK
-                        self.log.debug('Stable but no target given')
-                        break
-                    elif ( max(values) <= self.target + self.tolerance*0.5 and
-                            self.target - self.tolerance*0.5 <= min(values) ):
-                        self.log.debug('Value considered stable')
-                        break
-                    self.log.debug('Value is stable but not within '
-                                   '[target-tolerance/2, target+tolerance/2]')
-
-            self.log.debug('Still busy, %ds of %ds left, status is %r' % (
-                timesout-currenttime(), self.timeout, mystat[1]))
-
-            if currenttime() > timesout:
-                raise TimeoutError(self, 'timeout waiting for Status!')
-
-            sleep(self.loopdelay)
-            mystat = self.status(0)
-
-        return self.read(0)
+    def doStop(self):
+        self._cache.put(self, self.setkey, self.target)

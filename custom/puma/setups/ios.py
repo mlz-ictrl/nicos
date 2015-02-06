@@ -87,13 +87,14 @@ devices = dict(
 
    fpg2 = device('puma.senseswitch.SenseSwitch',
                  description = 'Second PG filter',
-                 moveable = 'uni_st',
-                 readable = 'uni_sw',
+                 moveables = 'uni_st',
+                 readables = 'uni_sw',
                  mapping = { 'in'  : (500000, 1),
                              'out' : (535900, 2),
                            },
                  precision = [100, 0],
                  blockingmove = True,
+                 fallback ='<unknown>',
                  timeout = 300,
                 ),
 )

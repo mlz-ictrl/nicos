@@ -36,7 +36,7 @@ from RS485Client import RS485Client # pylint: disable=F0401
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
      none_or, usermethod, Device, Readable, Moveable, Param, Override, \
      NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
-     waitForStatus
+     HasTimeout, waitForStatus
 from nicos.utils import closeSocket, lazy_property, HardwareStub
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
@@ -602,7 +602,7 @@ class Coder(NicosCoder):
             raise CommunicationError(self, 'cannot clear alarm for encoder')
 
 
-class Motor(NicosMotor):
+class Motor(HasTimeout, NicosMotor):
     """This class supports IPC 6-fold, 3-fold and single motor cards.
 
     It can be used with the `nicos.devices.generic.Axis` class.
@@ -610,7 +610,6 @@ class Motor(NicosMotor):
 
     parameters = {
         'addr':       Param('Bus address of the motor', type=int, mandatory=True),
-        'timeout':    Param('Waiting timeout', type=int, unit='s', default=360),
         'unit':       Param('Motor unit', type=str, default='steps'),
         'zerosteps':  Param('Motor steps for physical zero', type=float,
                             unit='steps', settable=True),
@@ -647,6 +646,10 @@ class Motor(NicosMotor):
         'power':      Param('Internal power stage switch', default='on',
                             type=oneofdict({0: 'off', 1: 'on'}), settable=True,
                             volatile=True),
+    }
+
+    parameter_overrides = {
+        'timeout': Override(mandatory=False, default=360),
     }
 
     attached_devices = {
@@ -1180,7 +1183,7 @@ class Output(Input, Moveable):
         self._adevs['bus'].send(self.addr, 190, newval, 3)
 
 
-class SlitMotor(NicosMotor):
+class SlitMotor(HasTimeout, NicosMotor):
     """Class for one axis of a IPC 4-wing slit.
 
     Use this together with `nicos.devices.generic.Axis` to create a single slit axis,
@@ -1191,7 +1194,6 @@ class SlitMotor(NicosMotor):
     parameters = {
         'addr':       Param('Bus address of the slit', type=int, mandatory=True),
         'side':       Param('Side of axis', type=int, mandatory=True),
-        'timeout':    Param('Waiting timeout', type=int, unit='s', default=40),
         'unit':       Param('Axis unit', type=str, default='mm'),
         'zerosteps':  Param('Motor steps for physical zero', type=int,
                             unit='steps', settable=True),
@@ -1203,6 +1205,7 @@ class SlitMotor(NicosMotor):
 
     parameter_overrides = {
         'speed':      Override(settable=False),
+        'timeout':    Override(mandatory=False, default=40),
     }
 
     attached_devices = {

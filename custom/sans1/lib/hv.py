@@ -28,7 +28,7 @@
 from time import localtime, strftime, time as currenttime
 
 from nicos.core import Attach, Param, Override, Readable, Moveable, listof, \
-    tupleof, HasPrecision, status, InvalidValueError, PositionError
+    tupleof, HasPrecision, HasTimeout, status, InvalidValueError, PositionError
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.generic.sequence import BaseSequencer, \
     SeqDev, SeqMethod, SeqParam, SeqSleep
@@ -73,7 +73,7 @@ class VoltageSwitcher(Switcher):
         return move_status
 
 
-class VoltageSupply(HasPrecision, TacoVoltageSupply):
+class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
     """work around a bug either in the taco server or in thehv supply itself
 
     basically the idle status is returned at the end of the ramp,
@@ -87,6 +87,17 @@ class VoltageSupply(HasPrecision, TacoVoltageSupply):
                           userparam=False,
                           default=False),
     }
+
+    parameter_overrides = {
+        'timeout' : Override(default=90),
+    }
+
+    def timeoutAction(self):
+        if self.target is not None:
+            self.log.warning('Timeout! retrying once to reach ' +
+                             self.format(self.target, unit=True))
+            # start() would clear timeoutActionCalled Flag
+            self.start(self.target)
 
     def doStart(self, target): # pylint: disable=W0221
         self._stopflag = False

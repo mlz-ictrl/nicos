@@ -32,15 +32,13 @@ from nicos.core import SIMULATION
 
 class Attenuator(HasLimits, Moveable):
 
+    # XXX rework this as it is basically a MultiSwitcher with a blocking start
+
     attached_devices = {
         'io_status':    (Readable, 'readout for the status'),
         'io_set':       (Moveable, 'output to set'),
         'io_press':     (Readable, '...'),
     }
-
-    #parameters = {
-    #   'timeout':  Param('Timeout', unit='s', default=10),
-    #}
 
     def doInit(self, mode):
         self._filterlist = [1, 2, 5, 10, 20]

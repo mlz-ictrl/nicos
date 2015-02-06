@@ -122,6 +122,8 @@ class CascadeDetector(ImageProducer, Measurable):
     on a Windows machine.
     """
 
+    # XXX rework timeout mechanism with HasTimeout
+
     attached_devices = {
         'master':    (MultiChannelDetector, 'Master to control measurement time'
                       ' in slave mode and to read monitor counts'),

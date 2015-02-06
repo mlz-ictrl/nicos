@@ -46,13 +46,14 @@ devices = dict(
 
    erbium = device('puma.senseswitch.SenseSwitch',
                    description = 'Erbium filter',
-                   moveable = 'cy1',
-                   readable = 'io_sw1',
+                   moveables = 'cy1',
+                   readables = 'io_sw1',
                    mapping = dict(closed = (-1, 1),
                                   In   = (0, 4),
                                   out    = (1, 2),
                                  ),
                    precision = None,
+                   fallback ='<unknown>',
                    timeout = 10,
                 ),
 
@@ -94,8 +95,8 @@ devices = dict(
 
    alpha1 = device('puma.senseswitch.SenseSwitch',
                    description = 'Primary collimator',
-                   moveable = 'cy2',
-                   readable = 'io_sw2',
+                   moveables = 'cy2',
+                   readables = 'io_sw2',
                    mapping = dict(closed = (-1, 1),
                                   c120   = (1, 2),
                                   c20    = (0, 16),
@@ -103,6 +104,7 @@ devices = dict(
                                   c60    = (4, 8),
                                  ),
                    precision = None,
+                   fallback ='<unknown>',
                    timeout = 10,
                   ),
 
@@ -144,13 +146,14 @@ devices = dict(
 
    sapphire = device('puma.senseswitch.SenseSwitch',
                      description = 'Sapphire filter',
-                     moveable = 'cy3',
-                     readable = 'io_sw3',
+                     moveables = 'cy3',
+                     readables = 'io_sw3',
                      mapping = dict(closed = (-1, 1),
                                     In   = (0, 4),
                                     out    = (1, 2),
                                    ),
                      precision = None,
+                     fallback ='<unknown>',
                      timeout = 10,
                     ),
 )

@@ -30,8 +30,8 @@ from time import time as currenttime, sleep
 from IO import StringIO
 
 from nicos.core import status, Moveable, Readable, HasLimits, Override, Param, \
-    CommunicationError, HasPrecision, InvalidValueError, MoveError, listof, \
-    limits
+    CommunicationError, HasPrecision, HasTimeout, InvalidValueError, \
+    MoveError, listof, limits
 from nicos.devices.taco.core import TacoDevice
 
 FSEP = '#'  # separator for fields in reply ("/" in manual, "#" in reality)
@@ -95,7 +95,7 @@ class SelectorState(TacoDevice, Readable):
         return self.communicate('STATE ')[1]
 
 
-class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
+class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, HasTimeout, Moveable):
     """
     Device object for controlling the speed of an Astrium NVS.
 
@@ -105,8 +105,6 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, Moveable):
     taco_class = StringIO
 
     parameters = {
-        'timeout':   Param('Timeout for reaching desired speed', type=float,
-                           unit='s', settable=True),
         'commdelay': Param('Time between host communication tries', type=float,
                            unit='s', settable=True, default=5),
         'maxtries':  Param('Maximum tries for setting a new speed', type=int,
