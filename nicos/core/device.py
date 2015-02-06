@@ -1269,6 +1269,25 @@ class Moveable(Readable):
 
     move = start
 
+    def doTime(self, old_value, target):
+        """Calculate the time to move from one position to another.
+
+        Return the estimated moving time in seconds.
+        This is a pure calculatory method which may be overwritten in derived classes.
+
+        This basic implementation estimates the moving time
+        by evaluating the `speed` or `ramp` parameters, if they are defined.
+        If no calculation can be performed, return 0.
+        """
+        if old_value is None or target is None:
+            return 0.
+        # speed is in physical units per second and ramp is per minute
+        if 'speed' in self.parameters and self.speed != 0:
+            return abs(target - old_value) / self.speed
+        elif 'ramp' in self.parameters and self.ramp != 0:
+            return abs(target - old_value) / (self.ramp / 60.)
+        return 0.
+
     @usermethod
     def wait(self):
         """Wait until movement of device is completed.
@@ -1292,20 +1311,10 @@ class Moveable(Readable):
         """
         if self._sim_active:
             time = 0
-            if not hasattr(self, 'doTime'):
-                if 'speed' in self.parameters and self.speed != 0 and \
-                        self._sim_old_value is not None:
-                    time = abs(self._sim_value - self._sim_old_value) / \
-                        self.speed
-                elif 'ramp' in self.parameters and self.ramp != 0 and \
-                        self._sim_old_value is not None:
-                    time = abs(self._sim_value - self._sim_old_value) / \
-                        (self.ramp / 60.)
-            elif self._sim_old_value is not None:
-                try:
-                    time = self.doTime(self._sim_old_value, self._sim_value)
-                except Exception:
-                    self.log.warning('could not time movement', exc=1)
+            try:
+                time = self.doTime(self._sim_old_value, self._sim_value)
+            except Exception:
+                self.log.warning('could not time movement', exc=1)
             if self._sim_started is not None:
                 session.clock.wait(self._sim_started + time)
                 self._sim_started = None
