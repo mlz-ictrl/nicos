@@ -26,7 +26,7 @@
 """NICOS "switcher" devices."""
 
 from nicos.utils import lazy_property
-from nicos.core import anytype, dictof, none_or, floatrange, listof, \
+from nicos.core import anytype, dictof, none_or, listof, \
     PositionError, ConfigurationError, Moveable, Readable, Param, \
     Override, status, InvalidValueError, multiStatus, multiStop, multiReset
 from nicos.core.params import Attach
@@ -211,7 +211,7 @@ class MultiSwitcher(MappedMoveable):
     parameters = {
         'precision': Param('List of allowed deviations (1 or N) from target '
                            'position, or None to disable.', mandatory=True,
-                           type=none_or(listof(floatrange(0., 360.)))),
+                           type=none_or(listof(none_or(float)))),
         'blockingmove': Param('Should we wait for the move to finish?',
                               mandatory=False, default=True, settable=True,
                               type=bool),
