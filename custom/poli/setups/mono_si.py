@@ -2,24 +2,20 @@ description = 'POLI silicon monochromator devices'
 
 group = 'lowlevel'
 
-nethost = 'slow.poli.frm2'
+tango_host = 'tango://localhost:10000'
 
 devices = dict(
-    sih = device('devices.taco.Motor',
-                 lowlevel = True,
+    sih = device('devices.tango.Motor',
+                 lowlevel = False,
                  description = 'Silicon monochromator horizontal focus',
-                 tacodevice = '//%s/poli/fzjs7/sih' % (nethost, ),
-                 pollinterval = 15,
-                 maxage = 61,
+                 tangodevice = '%s/poli/fzjs7/sih' % (tango_host, ),
                  fmtstr = '%.2f',
                  abslimits = (0, 10),
                 ),
-    siv = device('devices.taco.Motor',
-                 lowlevel = True,
+    siv = device('devices.tango.Motor',
+                 lowlevel = False,
                  description = 'Silicon monochromator vertical focus',
-                 tacodevice = '//%s/poli/fzjs7/siv' % (nethost, ),
-                 pollinterval = 15,
-                 maxage = 61,
+                 tangodevice = '%s/poli/fzjs7/siv' % (tango_host, ),
                  fmtstr = '%.2f',
                  abslimits = (0, 10),
                 ),

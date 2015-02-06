@@ -6,24 +6,20 @@ includes = ['mono', ]
 
 excludes = []
 
-nethost = 'slow.poli.frm2'
+tango_host = 'tango://localhost:10000'
 
 devices = dict(
-    bmv = device('devices.taco.Motor',
+    bmv = device('devices.tango.Motor',
                  description = 'Monochromator vertical opening slit',
-                 tacodevice = '//%s/poli/fzjs7/bmv' % (nethost, ),
-                 pollinterval = 15,
-                 maxage = 61,
+                 tangodevice = '%s/poli/fzjs7/bmv' % (tango_host, ),
                  fmtstr = '%.2f',
                  abslimits = (114, 190),
                  precision = 0.2,
                  lowlevel = False,
                 ),
-    bmh = device('devices.taco.Motor',
+    bmh = device('devices.tango.Motor',
                  description = 'Monochromator horizontal opening slit',
-                 tacodevice = '//%s/poli/fzjs7/bmh' % (nethost, ),
-                 pollinterval = 15,
-                 maxage = 61,
+                 tangodevice = '%s/poli/fzjs7/bmh' % (tango_host, ),
                  fmtstr = '%.2f',
                  abslimits = (6.5, 80),
                  precision = 0.2,

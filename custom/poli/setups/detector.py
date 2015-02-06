@@ -2,6 +2,7 @@ description = 'POLI detector and counter card'
 group = 'lowlevel'
 
 includes = []
+excludes = ['zeadetector']
 
 nethost = 'heidi22.poli.frm2'
 

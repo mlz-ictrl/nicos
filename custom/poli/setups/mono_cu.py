@@ -2,24 +2,20 @@ description = 'POLI copper monochromator devices'
 
 group = 'lowlevel'
 
-nethost = 'slow.poli.frm2'
+tango_host = 'tango://localhost:10000'
 
 devices = dict(
-    cuh = device('devices.taco.Motor',
-                 lowlevel = True,
+    cuh = device('devices.tango.Motor',
+                 lowlevel = False,
                  description = 'Copper monochromator horizontal focus',
-                 tacodevice = '//%s/poli/fzjs7/cuh' % (nethost, ),
-                 pollinterval = 15,
-                 maxage = 61,
+                 tangodevice = '%s/poli/fzjs7/cuh' % (tango_host, ),
                  fmtstr = '%.2f',
                  abslimits = (-75, 75),
                 ),
-    cuv = device('devices.taco.Motor',
-                 lowlevel = True,
+    cuv = device('devices.tango.Motor',
+                 lowlevel = False,
                  description = 'Copper monochromator vertical focus',
-                 tacodevice = '//%s/poli/fzjs7/cuv' % (nethost, ),
-                 pollinterval = 15,
-                 maxage = 61,
+                 tangodevice = '%s/poli/fzjs7/cuv' % (tango_host, ),
                  fmtstr = '%.2f',
                  abslimits = (0, 171.2),
                 ),
