@@ -31,8 +31,8 @@ from nicos.core.errors import NicosError, ProgrammingError, \
     PositionError, MoveError, LimitError, CommunicationError, \
     HardwareError, TimeoutError, ComputationError, \
     CacheLockError, AccessError, CacheError, SPMError
-from nicos.core.mixins import DeviceMixinBase, AutoDevice, \
-    HasLimits, HasOffset, HasPrecision, HasMapping
+from nicos.core.mixins import DeviceMixinBase, AutoDevice, HasLimits, \
+    HasOffset, HasPrecision, HasMapping, HasTimeout, HasWindowTimeout
 from nicos.core.device import DeviceMeta, Device, Readable, Moveable, \
     Measurable, DeviceAlias, NoDevice, usermethod, requires
 from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \

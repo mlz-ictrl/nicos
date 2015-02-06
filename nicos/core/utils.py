@@ -26,12 +26,12 @@
 """NICOS core utility functions."""
 
 import sys
-from time import sleep, localtime, time as currenttime
+from time import sleep, localtime
 from collections import namedtuple
 
 from nicos import session
 from nicos.core import status
-from nicos.core.errors import TimeoutError, MoveError, PositionError
+from nicos.core.errors import MoveError, PositionError
 from nicos.pycompat import reraise, to_ascii_escaped
 
 
@@ -114,8 +114,7 @@ def multiStatus(devices, maxage=None):
         return status.UNKNOWN, 'no status could be determined (no doStatus implemented?)'
 
 
-def waitForStatus(device, delay=0.3, timeout=None,
-                  busystates=(status.BUSY,),
+def waitForStatus(device, delay=0.3, busystates=(status.BUSY,),
                   errorstates=(status.ERROR, status.NOTREACHED)):
     """Wait for the *device* status to return exit the busy state.
 
@@ -123,15 +122,6 @@ def waitForStatus(device, delay=0.3, timeout=None,
     state values that are considered as "busy" states; by default only
     `status.BUSY`.
     """
-    if hasattr(device, '_started'):
-        started = device._started
-        if timeout is None and 'timeout' in device.parameters:
-            try:
-                timeout = float(device.timeout)
-            except (TypeError, ValueError):
-                pass
-    else:
-        started =  currenttime()
     while True:
         st = device.status(0)
         if device.loglevel == 'debug':
@@ -143,9 +133,6 @@ def waitForStatus(device, delay=0.3, timeout=None,
                              device.format(position, unit=True)))
         if st[0] in busystates:
             sleep(delay)
-            if timeout is not None and currenttime() - started > timeout:
-                raise TimeoutError(device, 'waiting timed out (last status %r, '
-                                   'timeout %.1f s)' % (st[1], timeout))
         elif st[0] in errorstates:
             if st[0] == status.NOTREACHED:
                 raise PositionError(device, st[1])

@@ -979,13 +979,21 @@ class Readable(Device):
         if self._sim_active:
             return (status.OK, 'simulated ok')
         try:
-            value = self._get_from_cache('status', self.doStatus, maxage)
+            value = self._get_from_cache('status', self._combinedStatus, maxage)
         except NicosError as err:
             value = (status.ERROR, str(err))
         if value[0] not in status.statuses:
             raise ProgrammingError(self, 'status constant %r is unknown' %
                                    value[0])
         return value
+
+    def _combinedStatus(self, maxage=0):
+        """Return the status of the device combined from hardware status and
+        movement status determined by NICOS such as timeouts.
+
+        The default implementation just returns the hardware status.
+        """
+        return self.doStatus(maxage)
 
     def doStatus(self, maxage=0):
         if self._adevs:
@@ -1056,6 +1064,8 @@ class Readable(Device):
             raise ModeError('reset not possible in slave mode')
         elif self._sim_active:
             return
+        if isinstance(self, HasTimeout):
+            self._setROParam('_timesout', None)
         if hasattr(self, 'doReset'):
             self.doReset()
         # make sure, status is propagated to the cache after a reset
@@ -1254,7 +1264,9 @@ class Moveable(Readable):
             raise LimitError(self, 'moving to %s is not allowed: %s' %
                              (self.format(pos, unit=True), why))
         if isinstance(self, HasTimeout):
-            self._setROParam('_started', currenttime())
+            self._timeoutActionCalled = False
+            self._setROParam('_timesout', self._getTimeoutTimes(self.read(), pos,
+                                           currenttime()))
         if self._sim_active:
             self._setROParam('target', pos)
             self._sim_setValue(pos)
@@ -1427,6 +1439,8 @@ class Moveable(Readable):
                 session.checkAccess(self.requires)
             except AccessError as err:
                 raise AccessError(self, 'cannot stop device: %s' % err)
+        if isinstance(self, HasTimeout):
+            self._setROParam('_timesout', None)
         if hasattr(self, 'doStop'):
             self.doStop()
         elif self._adevs:

@@ -27,10 +27,12 @@
 from time import time as currenttime
 
 from nicos import session
-from nicos.core.params import Param, Override, anytype, none_or, \
-    limits, dictof
+from nicos.core import MAINTENANCE, MASTER, status
 from nicos.core.errors import ConfigurationError
+from nicos.core.params import Override, Param, anytype, dictof, limits, none_or, \
+    nonemptylistof, string, tupleof
 from nicos.pycompat import add_metaclass, itervalues
+from nicos.utils import lazy_property
 
 
 class DeviceMixinMeta(type):
@@ -94,8 +96,8 @@ class HasLimits(DeviceMixinBase):
     """
     This mixin can be inherited from device classes that are continuously
     moveable.  It automatically adds two parameters, absolute and user limits,
-    and overrides :meth:`.isAllowed` to check if the given position is within the
-    limits before moving.
+    and overrides :meth:`.isAllowed` to check if the given position is within
+    the limits before moving.
 
     .. note:: In a base class list, ``HasLimits`` must come before ``Moveable``,
        e.g.::
@@ -264,9 +266,13 @@ class HasPrecision(DeviceMixinBase):
 
     This is mainly useful for user info, and for high-level devices that have
     to work with limited-precision subordinate devices.
+
+    The class also implements a default `doIsAtTarget` method, which checks
+    the value is within the precision.
     """
     parameters = {
-        'precision': Param('Precision of the device value', unit='main',
+        'precision': Param('Precision of the device value (allowed deviation of'
+                           ' stable values from target)', unit='main',
                            settable=True, category='precisions'),
     }
 
@@ -311,13 +317,189 @@ class HasMapping(DeviceMixinBase):
 class HasTimeout(DeviceMixinBase):
     """
     Mixin class for devices whose wait() should have a simple timeout.
+
+    Classes using this mixin may provide a `timeoutAction` which gets
+    called once as soon as the device times out (and a status is obtained).
+    Any Exceptions occurring therein will not stop a script!
+
+    The time at which the device will get a timeout (in case it is still in
+    `status.BUSY` or has not reached its target value which corresponds to
+    `isAtTarget` being False if implemented) is determined upon calling
+    `start` and is saved to the non-userparameter `_timesout`.
+    If you need a more dynamic timeout calculation, you may provide a
+    `doReadTimeout` method (with volatile=True) to calculate the extra amount
+    on the fly.
+
+    The relevant timestamps are internally stored in the (non-userparam)
+    `_timesout`, which is either set to None, if there is no nicos-initiated
+    movement, or to an iterable of tuples describing what action is supposedly
+    performed and at which time it should be finished.
+    If there is a doTime method, it is used to calculate the length of an
+    intermediary 'ramping' phase and timeout. In any case a last phase is added
+    which takes `timeout` seconds to time out.
+
+    You may set the `timeout` parameter to None in which case the device will
+    never time out.
     """
     parameters = {
-        'timeout':  Param('Timeout of after start(), or None', unit='s',
-                          type=none_or(float), settable=True, mandatory=True),
-        '_started': Param('Timestamp of last doStart() call',
-                          userparam=False, settable=True, unit='s'),
+        'timeout':   Param('Time limit for the device to reach its target'
+                           ', or None', unit='s', type=none_or(float),
+                           settable=True, mandatory=False, chatty=True),
+        '_timesout': Param('Device movement should finish between these '
+                           'timestamps',
+                           type=none_or(nonemptylistof(tupleof(string, float))),
+                           unit='s', userparam=False, settable=True),
     }
 
+    # derived classes may redefine this if they need different behaviour
+    timeout_status = status.NOTREACHED
 
-from nicos.core.device import DeviceAlias, NoDevice
+    # internal flag to determine if the timeout action has been executed
+    _timeoutActionCalled = False
+
+    @property
+    def _startTime(self):
+        return self._timesout[0][1] if self._timesout else None
+
+    @property
+    def _timeoutTime(self):
+        return self._timesout[-1][1] if self._timesout else None
+
+    def _getTimeoutTimes(self, current_pos, target_pos, current_time):
+        """Calculates timestamps for timeouts
+
+        returns an iterable of tuples (status_string, timestamp) with ascending
+        timestamps.
+        First timestamp has to be `current_time` which is the only argument to
+        this.
+        The last timestamp will be used as the final timestamp to determine if
+        the device's movement timed out or not.
+        Additional timestamps (in between) may be set if need for _combinedStatus
+        returning individual status text's (e.g. to differentiate between
+        'ramping' and 'stabilization').
+        """
+        res = [('start', current_time)]
+        if hasattr(self, 'doTime'):
+            res.append(('ramping', current_time + self.doTime(current_pos,
+                                                              target_pos)))
+        res.append(('stabilizing', res[-1][1] + (self.timeout or 0)))
+        return res
+
+    def isTimedOut(self):
+        """Method to (only) check whether a device's movement timed out or not.
+
+        Returns False unless there was a timeout in which case it returns True.
+        """
+        if self._timeoutTime is not None:
+            remaining = self._timeoutTime - currenttime()
+            if remaining > 0:
+                self.log.debug("%.2f s left before timeout" % remaining)
+            else:
+                self.log.debug("Timeout since %.2f s" % -remaining)
+            return remaining < 0
+        return False
+
+    def _combinedStatus(self, maxage=0):
+        """Create a combined status from doStatus, isAtTarget and timedOut
+
+        If a timeout happens, use the status set by self.timeout_status and
+        call `timeoutAction` once if defined. Pollers and other `SLAVE`s do
+        *not* call `timeoutAction`.
+        """
+        code, msg = Readable._combinedStatus(maxage)
+
+        if code == status.OK and not self.isAtTarget(self.read(maxage)):
+            code = status.BUSY
+            msg = 'target not yet reached, ' + msg
+        if code == status.BUSY:
+            if self.isTimedOut():
+                code = self.timeout_status
+                msg = 'movement timed out, ' + msg
+                # only call once per timeout, flag is reset in Device.start()
+                if not self._timeoutActionCalled and \
+                        session.mode in (MASTER, MAINTENANCE):
+                    try:
+                        if hasattr(self, 'timeoutAction'):
+                            self.timeoutAction()
+                            self._timeoutActionCalled = True
+                            return self._combinedStatus(maxage)
+                    except Exception:
+                        self.log.exception('error calling timeout action',
+                                           exc=True)
+                    finally:
+                        self._timeoutActionCalled = True
+            elif self._timesout:
+                # give indication about the phase of the movement
+                for m, t in self._timesout:
+                    if t > currenttime():
+                        msg = m + ', ' + msg
+                        break
+
+        return (code, msg)
+
+
+class HasWindowTimeout(HasPrecision, HasTimeout):
+    """
+    Mixin class for devices needing a more fancy timeout handling than
+    `HasTimeout`.
+
+    Basically we keep a (length limited) history of past values and check if
+    they are close enough to the target (deviation is smaller than
+    `precision`). The length of that history is determined by
+    :attr:`~HasWindowTimeout.window`.
+    In any case the last read value is used to determine `isAtTarget`.
+    If the value is outside the defined window for longer than
+    :attr:`~HasTimeout.timeout` seconds after the HW is no longer busy.
+    """
+    parameters = {
+        'window':    Param('Time window for checking stabilization', unit='s',
+                           default=60.0, settable=True, category='general'),
+    }
+
+    parameter_overrides = {
+        'precision': Override(mandatory=True),
+    }
+
+    @lazy_property
+    def _history(self):
+        if self._cache:
+            self._cache. addCallback(self, 'value', self._cacheCB)
+            self._subscriptions.append(('value', self._cacheCB))
+        return []
+
+    # use values determined by poller or waitForStatus loop to fill our history
+    def _cacheCB(self, key, value, time):
+        self._history.append((time, value))
+        # clean out stale values, if more than one
+        stale = None
+        for i, entry in enumerate(self._history):
+            t, _ = entry
+            if t >= time - self.window:
+                stale = i
+                break
+        else:
+            return
+        # remove oldest entries, but keep one stale
+        if stale > 1:
+            del self._history[:stale - 1]
+
+    def isAtTarget(self, val):
+        ct = currenttime()
+        self._cacheCB('value', val, ct)
+
+        # check subset of _history which is in window
+        # also check if there is at least one value before window
+        # to know we have enough datapoints
+        hist = self._history[:]
+        window_start = ct - self.window
+        hist_in_window = [v for (t, v) in hist if t >= window_start]
+        stable = all(abs(v - self.target) <= self.precision
+                     for v in hist_in_window)
+        if 0 < len(hist_in_window) < len(hist) and stable:
+            if hasattr(self, 'doIsAtTarget'):
+                return self.doIsAtTarget(val)
+            return True
+        return False
+
+
+from nicos.core.device import DeviceAlias, NoDevice, Readable
