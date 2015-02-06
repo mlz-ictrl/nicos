@@ -30,6 +30,7 @@ from nicos import session
 from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
 from nicos.core.spm import spmsyntax, Bare
 from nicos.core.scan import QScan
+from nicos.devices.tas.mono import to_k
 from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
 from nicos.devices.tas.plotting import plot_hklmap, plot_resatpoint, plot_resscan
@@ -419,7 +420,8 @@ def ho_spurions(kf=None, dEmin=0, dEmax=20):
     """
     instr = session.instrument
     if kf is None:
-        kf = instr._adevs['ana'].read()
+        ana = instr._adevs['ana']
+        kf = to_k(ana.read(), ana.unit)
     printinfo('calculation of potential weak spurions due to higher harmonic '
               'ki / kf combinations')
     printinfo('calculated for kf = %6.3f A-1' % kf)
@@ -445,7 +447,8 @@ def powderrays(dlist, ki=None, phi=None):
     """Calculate powder ray positions."""
     instr = session.instrument
     if ki is None:
-        ki = instr._adevs['mono'].read()
+        mono = instr._adevs['mono']
+        ki = to_k(mono.read(), mono.unit)
     for line in check_powderrays(ki, dlist, phi):
         printinfo(line)
 
