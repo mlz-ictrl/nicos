@@ -62,9 +62,9 @@ class DeviceValueEdit(NicosWidget, QWidget):
     properties = {
         'dev':         PropDef(str, ''),
         'useButtons':  PropDef(bool, False,
-                           'Use buttons for values with few choices?'),
+                               'Use buttons for values with few choices?'),
         'updateValue': PropDef(bool, False,
-                           'Update the editor when the device value changes?'),
+                               'Update the editor when the device value changes?'),
     }
 
     def propertyUpdated(self, pname, value):
@@ -257,6 +257,7 @@ class AnnotatedWidget(QWidget):
     def setFocus(self):
         self._inner.setFocus()
 
+
 class MultiWidget(QWidget):
 
     def __init__(self, parent, types, curvalue, client):
@@ -275,12 +276,14 @@ class MultiWidget(QWidget):
     def getValue(self):
         return tuple(w.getValue() for w in self._widgets)
 
+
 class LimitsWidget(MultiWidget):
 
     def __init__(self, parent, curvalue, client):
         MultiWidget.__init__(self, parent, (float, float), curvalue, client)
         self._layout.insertWidget(0, QLabel('from', self))
         self._layout.insertWidget(2, QLabel('to', self))
+
 
 class ComboWidget(QComboBox):
 
@@ -296,6 +299,7 @@ class ComboWidget(QComboBox):
 
     def getValue(self):
         return self._values[self._textvals.index(self.currentText())]
+
 
 class ButtonWidget(QWidget):
 
@@ -314,6 +318,7 @@ class ButtonWidget(QWidget):
 
     def getValue(self):
         return None
+
 
 class EditWidget(QLineEdit):
 
@@ -340,6 +345,7 @@ class EditWidget(QLineEdit):
     def getValue(self):
         return self._typ(self.text())
 
+
 class SpinBoxWidget(QSpinBox):
 
     def __init__(self, parent, curvalue, minmax, fmtstr='%.4g'):
@@ -352,6 +358,7 @@ class SpinBoxWidget(QSpinBox):
     def getValue(self):
         return self.value()
 
+
 class ExprWidget(QLineEdit):
 
     def __init__(self, parent, curvalue):
@@ -362,6 +369,7 @@ class ExprWidget(QLineEdit):
 
     def getValue(self):
         return cache_load(self.text())
+
 
 class CheckWidget(QWidget):
 
@@ -393,6 +401,7 @@ class CheckWidget(QWidget):
             return self.inner_widget.getValue()
         return None
 
+
 class MissingWidget(QLabel):
 
     def __init__(self, parent, curvalue):
@@ -402,6 +411,7 @@ class MissingWidget(QLabel):
 
     def getValue(self):
         return self._value
+
 
 class DeviceComboWidget(QComboBox):
 
@@ -423,6 +433,7 @@ class DeviceComboWidget(QComboBox):
 
     def getValue(self):
         return self.currentText()
+
 
 class ItemsWidget(QScrollArea):
 
@@ -506,6 +517,7 @@ class ItemsWidget(QScrollArea):
         self.layout.insertWidget(firstindex+1, item1)
         self.emit(SIGNAL('dataChanged'))
 
+
 class ListOfWidget(ItemsWidget):
 
     def __init__(self, parent, inner, curvalue, client, nmin=0):
@@ -526,6 +538,7 @@ class ListOfWidget(ItemsWidget):
 
     def getValue(self):
         return [w._widgets[0].getValue() for w in self.items]
+
 
 class DictOfWidget(ItemsWidget):
 
