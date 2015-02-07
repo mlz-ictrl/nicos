@@ -307,14 +307,16 @@ class ButtonWidget(QWidget):
         QWidget.__init__(self, parent)
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        self._values = {}
         for value in values:
-            btn = QPushButton(value, self)
+            btn = QPushButton(str(value), self)
+            self._values[btn] = value
             btn.clicked.connect(self.on_button_pressed)
             layout.addWidget(btn)
         self.setLayout(layout)
 
     def on_button_pressed(self):
-        self.emit(SIGNAL('valueChosen'), self.sender().text())
+        self.emit(SIGNAL('valueChosen'), self._values[self.sender()])
 
     def getValue(self):
         return None
