@@ -45,6 +45,8 @@ _column1 = Column(
                  Field(dev='Cooling', width=6),
                  Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
                  #Field(dev='PSDGas', width=6),
+                 Field(dev='ar', name='PSD Ar', width=4, format='%.1f', unit=' '),
+                 Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
                  Field(dev='FAKTemp', name='FAK40', width=6, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7)),
     ], 'reactor'),

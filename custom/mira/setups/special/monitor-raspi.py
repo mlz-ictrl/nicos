@@ -45,6 +45,7 @@ _column1 = Column(
                  Field(name='T5', dev='m5T_T5', width=6),
                  Field(name='T6', dev='m5T_T6', width=6)),
     ], 'magnet5'),
+    Block('HTS Magnet', [BlockRow(Field(dev='B_ccmhts01', name='I'))], 'ccmhts01'),
     Block('3He cell', [
         BlockRow(Field(name='Polarization', dev='pol', width=7),
                  Field(name='Guide field', dev='He_GF')),
