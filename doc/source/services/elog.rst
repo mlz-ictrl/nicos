@@ -23,8 +23,15 @@ The elog expects a setup file named ``elog.py`` with a device named ``Logbook``.
 There are several command-line options that allow to customize the startup of
 the elog.
 
--h, --help    show the help message and exit
--d, --daemon  daemonize the elog process
+.. program:: elog
+
+.. option:: -h, --help
+
+   show the help message and exit
+
+.. option:: -d, --daemon
+
+   daemonize the elog process
 
 If you want to use the electronic logbook, make sure the "system" setup for the
 NICOS master has also a cache configured, and the ``elog`` parameter of the

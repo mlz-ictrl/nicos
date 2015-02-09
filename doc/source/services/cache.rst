@@ -32,9 +32,19 @@ with command line arguments ``-S`` or ``--setup``.
 There are several command-line options that allow to customize the startup of
 the cache.
 
--h, --help                       show the help message and exit
--d, --daemon                     daemonize the cache process
--S SETUPNAME, --setup=SETUPNAME  name of the setup, default is 'cache'
+.. program:: cache
+
+.. option:: -h, --help
+
+    show the help message and exit
+
+.. option:: -d, --daemon
+
+    daemonize the cache process
+
+.. option:: -S SETUPNAME, --setup=SETUPNAME
+
+    name of the setup, default is 'cache'
 
 
 Setup file

@@ -29,9 +29,19 @@ with command line arguments ``-S`` or ``--setup``.
 There are several command-line options that allow to customize the startup of
 the daemon.
 
--h, --help                       show the help message and exit
--d, --daemon                     daemonize the daemon process
--S SETUPNAME, --setup=SETUPNAME  name of the setup, default is 'daemon'
+.. program:: daemon
+
+.. option:: -h, --help
+
+    show the help message and exit
+
+.. option:: -d, --daemon
+
+    daemonize the daemon process
+
+.. option:: -S SETUPNAME, --setup=SETUPNAME
+
+    name of the setup, default is 'daemon'
 
 
 Setup file

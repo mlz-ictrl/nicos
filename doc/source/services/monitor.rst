@@ -27,12 +27,31 @@ There are several command-line options that allow to display the same monitor
 setup on the personal screen, and on a big dedicated status display with bigger
 font.
 
--h, --help                            show the help message and exit
--d, --daemon                          daemonize the monitor process (only useful for non-GUI versions)
--s size, --fontsize=size              select the base font size.
--p padding, --padding=padding         select the padding between blocks.
--S SETUPNAME, --setup=SETUPNAME       name of the setup, default is 'monitor'
--g geom, --geometry=geom              select the window geometry with a string 'WxH+X+Y' or 'fullscreen'
+.. program:: monitor
+
+.. option:: -h, --help
+
+    show the help message and exit
+
+.. option:: -d, --daemon
+
+    daemonize the monitor process (only useful for non-GUI versions)
+
+.. option:: -s size, --fontsize=size
+
+    select the base font size.
+
+.. option:: -p padding, --padding=padding
+
+    select the padding between blocks.
+
+.. option:: -S SETUPNAME, --setup=SETUPNAME
+
+    name of the setup, default is 'monitor'
+
+.. option:: -g geom, --geometry=geom
+
+    select the window geometry with a string 'WxH+X+Y' or 'fullscreen'
 
 The Qt monitor supports two key bindings: press ``q`` to exit and ``f`` to
 toggle full-screen mode.
