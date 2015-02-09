@@ -29,7 +29,7 @@ from time import sleep, time as currenttime
 
 import IO
 
-from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach, \
+from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach,\
      NicosError, intrange, oneof, status, requires, ADMIN, listof, tupleof
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
@@ -46,24 +46,30 @@ class Controller(TacoDevice, Readable):
                                   '(= 0) or with 90deg offset (= 1)',
                                   type=intrange(0, 1), mandatory=True),
         'phase_accuracy': Param('Required accuracy of the chopper phases',
-                                settable=True, default=10, type=float), # XXX unit?
+                                settable=True, default=10, type=float),  # XXX unit?
         'speed_accuracy': Param('Required accuracy of the chopper speeds',
                                 settable=True, default=2, type=float),  # XXX unit?
-        'resolution':     Param('Current energy resolution', volatile=True,
-                                type=tupleof(float, float),),
-        'timeout':        Param('Timeout waiting for changes', settable=True,
-                                default=90.0, unit='s', type=float),
+        'resolution':     Param('Current energy resolution',
+                                volatile=True, type=tupleof(float, float),),
+        'timeout':        Param('Timeout waiting for changes',
+                                settable=True, default=90.0, unit='s',
+                                type=float),
 
         # readonly hidden state parameters giving current values
-        'wavelength': Param('Selected wavelength', unit='AA', userparam=False,
-                            type=float,),
-        'speed':      Param('Disk speed', unit='rpm', userparam=False,
-                            type=int,),
-        'ratio':      Param('Frame-overlap ratio', type=int, userparam=False),
-        'crc':        Param('Counter-rotating mode', type=int, userparam=False),
-        'slittype':   Param('Slit type', type=int, userparam=False),
-        'phases':     Param('Current phases', type=listof(float), userparam=False),
-        'changetime': Param('Time of last change', userparam=False, type=float),
+        'wavelength': Param('Selected wavelength',
+                            unit='AA', userparam=False, type=float,),
+        'speed':      Param('Disk speed',
+                            unit='rpm', userparam=False, type=int,),
+        'ratio':      Param('Frame-overlap ratio',
+                            type=int, userparam=False),
+        'crc':        Param('Counter-rotating mode',
+                            type=int, userparam=False),
+        'slittype':   Param('Slit type',
+                            type=int, userparam=False),
+        'phases':     Param('Current phases',
+                            type=listof(float), userparam=False),
+        'changetime': Param('Time of last change',
+                            userparam=False, type=float,),
     }
 
     def _read(self, n):
@@ -165,7 +171,8 @@ class Controller(TacoDevice, Readable):
                           4075, phases[1], 4077,
                           int(round(self.wavelength * 1000.0)), 4070, 7)
         self._write_multi(4073, 2, 4076, r1, 4074, r2 * self.speed,
-                          4075, phases[2], 4077, int(self.slittype + 1), 4070, 7)
+                          4075, phases[2], 4077, int(self.slittype + 1),
+                          4070, 7)
         self._write_multi(4073, 3, 4076, 1,  4074, self.speed,
                           4075, phases[3], 4077, int(self.crc + 1), 4070, 7)
         self._write_multi(4073, 4, 4076, 1,  4074, self.speed,
@@ -205,7 +212,7 @@ class Controller(TacoDevice, Readable):
         speed = 0.0
         for ch in [1, 2, 3, 4, 6, 7]:
             speed += speeds[ch - 1]
-        if self.ratio != None:
+        if self.ratio is not None:
             if self.ratio == 1:
                 speed += speeds[5 - 1]
             elif self.ratio < 9:

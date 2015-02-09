@@ -98,13 +98,15 @@ class TofTofMeasurement(ImageProducer, Measurable):
                 if 'None' not in ls[13]:
                     dmap[int(ls[12])] = float(ls[5])
                 dinfo.append(
-                    list(map(int, ls[:5])) + [float(ls[5])] +
-                    list(map(int, ls[6:8])) + [float(ls[8])] +
-                    list(map(int, ls[9:13])) + [' '.join(ls[13:-2]).strip("'")] +
-                    list(map(int, ls[-2:]))
+                    list(map(int, ls[:5])) + [float(ls[5])]
+                    + list(map(int, ls[6:8])) + [float(ls[8])]
+                    + list(map(int, ls[9:13]))
+                    + [' '.join(ls[13:-2]).strip("'")]
+                    + list(map(int, ls[-2:]))
                 )
         self._detinfo_parsed = dinfo
-        self._anglemap = tuple((i-1) for i in sorted(dmap, key=dmap.__getitem__))
+        self._anglemap = tuple((i - 1) for i in sorted(dmap,
+                                                       key=dmap.__getitem__))
         self._measuring = False
         self._devicelogs = {}
 
@@ -150,15 +152,17 @@ class TofTofMeasurement(ImageProducer, Measurable):
         if chspeed > 150:
             # select chopper delay from chopper parameters
             self.log.debug('calculating chopper delay')
+            ch5_90deg_offset = self._adevs['chopper'].ch5_90deg_offset
             chdelay = calc.calculateChopperDelay(chwl, chspeed, chratio, chst,
-                                        self._adevs['chopper'].ch5_90deg_offset)
+                                                 ch5_90deg_offset)
             self.log.debug('setting chopper delay to : %d' % chdelay)
             self._adevs['chdelay'].start(chdelay)
 
             # select counter delay from chopper parameters
             self.log.debug('setting counter delay')
             ctr.delay = calc.calculateCounterDelay(chwl, chspeed, chratio,
-                        self.delay, self._adevs['chopper'].ch5_90deg_offset)
+                                                   self.delay,
+                                                   ch5_90deg_offset)
         else:
             chdelay = 0
 
@@ -184,7 +188,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self._lastcounts = 0
         self._lastmoncounts = 0
         self._lasttemps = []
-        self.log.info('Measurement %06d started' % session.experiment.doReadLastimage())
+        self.log.info('Measurement %06d started' %
+                      session.experiment.doReadLastimage())
         session.action('#%06d' % session.experiment.doReadLastimage())
         self._measuring = True
         self._starttime = currenttime()
@@ -194,7 +199,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
     def _newFile(self):
         self.log.warning('Deprecated: _newFile')
         exp = session.experiment
-        sname, lname, fp = exp.createImageFile(self.filenametemplate, self.subdir)
+        sname, lname, fp = exp.createImageFile(self.filenametemplate,
+                                               self.subdir)
         self._imagename = sname
         self.lastfilename = self._relpath = lname
         self._file = fp
@@ -203,14 +209,17 @@ class TofTofMeasurement(ImageProducer, Measurable):
 
     def _startHeader(self, interval, chdelay):
         ctr = self._adevs['counter']
-        chwl, chspeed, chratio, chcrc, chst = self._adevs['chopper']._getparams()
+        chwl, chspeed, chratio, chcrc, chst = \
+            self._adevs['chopper']._getparams()
         head = []
         head.append('File_Creation_Time: %s\n' % asctime())
         head.append('Title: %s\n' % self._curtitle)
-        head.append('ExperimentTitle: %s\n' % session.experiment.sample.samplename)
+        head.append('ExperimentTitle: %s\n' %
+                    session.experiment.sample.samplename)
         head.append('ProposalTitle: %s\n' % session.experiment.title)
         head.append('ProposalNr: %s\n' % session.experiment.proposal)
-#        head.append('ExperimentTeam: %s\n' % ', '.join(session.experiment.users))
+#       head.append('ExperimentTeam: %s\n' %
+#                   ', '.join(session.experiment.users))
         head.append('ExperimentTeam: %s\n' % session.experiment.users)
         head.append('LocalContact: %s\n' % session.experiment.localcontact)
         head.append('StartDate: %s\n' % strftime('%d.%m.%Y'))
@@ -229,7 +238,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
         head.append('TOF_MonitorInput: %d\n' % ctr.monitorchannel)
         head.append('TOF_Ch5_90deg_Offset: %d\n' %
                     self._adevs['chopper'].ch5_90deg_offset)
-        guess = round(4.0 * chwl * 1e-6 * calc.alpha / calc.ttr / ctr.channelwidth)
+        guess = round(4.0 * chwl * 1e-6 * calc.alpha / (calc.ttr *
+                                                        ctr.channelwidth))
         head.append('TOF_ChannelOfElasticLine_Guess: %d\n' % guess)
         hvvals = []
         for i in range(3):
@@ -238,7 +248,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
             except NicosError:
                 value = 'unknown'
             hvvals.append(value)
-        head.append('HV_PowerSupplies: hv0-2: %s V, %s V, %s V\n' % tuple(hvvals))
+        head.append('HV_PowerSupplies: hv0-2: %s V, %s V, %s V\n' %
+                    tuple(hvvals))
         lvvals = []
         for i in range(8):
             try:
@@ -246,7 +257,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
             except NicosError:
                 value = 'unknown'
             lvvals.append(value)
-        head.append('LV_PowerSupplies: lv0-7: %s\n' % ', '.join(map(str, lvvals)))
+        head.append('LV_PowerSupplies: lv0-7: %s\n' %
+                    ', '.join(map(str, lvvals)))
         slit_pos = session.getDevice('slit').read()
         head.append('SampleSlit_ho: %s\n' % slit_pos[0])
         head.append('SampleSlit_hg: %s\n' % slit_pos[2])
@@ -280,7 +292,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
         head.append('Goniometer_XYZ: %s %s %s\n' % (gvals['gx'],
                                                     gvals['gy'], gvals['gz']))
         head.append('Goniometer_PhiCxCy: %s %s %s\n' % (gvals['gphi'],
-                                                        gvals['gcx'], gvals['gcy']))
+                                                        gvals['gcx'],
+                                                        gvals['gcy']))
         return head
 
     def _openDeviceLogs(self):
@@ -304,7 +317,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
                 self._cache.addCallback(dev, 'value', self._logCallback)
                 self.log.debug('opened logfile %d for device %s' % (i, dev))
             except Exception:
-                self.log.warning('could not open device logfile for %s' % dev, exc=1)
+                self.log.warning('could not open device logfile for %s' % dev,
+                                 exc=1)
                 if isinstance(dev, Device):
                     self._devicelogs.pop(dev.name.lower(), None)
             i += 1
@@ -349,14 +363,16 @@ class TofTofMeasurement(ImageProducer, Measurable):
         head.append('SavingTime: %s\n' % strftime('%H:%M:%S'))
         if self._last_mode == 'monitor':
             if moncounts < self._last_preset:
-                head.append('ToGo: %d counts\n' % (self._last_preset - moncounts))
+                head.append('ToGo: %d counts\n' %
+                            (self._last_preset - moncounts))
             head.append('Status: %5.1f %% completed\n' %
                         ((100. * moncounts) / self._last_preset))
         else:
             if timeleft > 0:
                 head.append('ToGo: %.0f s\n' % timeleft)
             head.append('Status: %5.1f %% completed\n' %
-                        (100. * (self._last_preset - timeleft) / self._last_preset))
+                        (100. * (self._last_preset - timeleft)
+                         / self._last_preset))
         # sample temperature is assumed to be the first device in the envlist
         tempinfo = []
         if session.experiment.sampleenv:
@@ -374,8 +390,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
                 lt = self._lasttemps
                 stats = np.mean(lt), np.std(lt), np.min(lt), np.max(lt)
                 head.append('AverageSampleTemperature: %10.4f K\n' % stats[0])
-                head.append('StandardDeviationOfSampleTemperature: %10.4f K\n' %
-                            stats[1])
+                head.append('StandardDeviationOfSampleTemperature: %10.4f K\n'
+                            % stats[1])
                 head.append('MinimumSampleTemperature: %10.4f K\n' % stats[2])
                 head.append('MaximumSampleTemperature: %10.4f K\n' % stats[3])
                 tempinfo.extend(stats)
@@ -439,7 +455,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self._lastmoncounts = moncounts
         self._lastcounts = countsum
         self.laststats = [meastime, moncounts, countsum, monrate, detrate,
-                          monrate_inst, detrate_inst,]
+                          monrate_inst, detrate_inst, ]
 
     def doStop(self):
         self._adevs['counter'].stop()

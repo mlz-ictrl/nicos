@@ -37,10 +37,10 @@ class TemperatureSensor(TacoDevice, Readable):
     taco_class = StringIO
 
     parameters = {
-        'address' : Param('device address', type=intrange(0, 97),
-                          default=0, settable=False,),
-        'maxtry' :  Param('maximum number of retries for communication',
-                          type=int, default=5, settable=True,),
+        'address': Param('device address',
+                         type=intrange(0, 97), default=0, settable=False,),
+        'maxtry':  Param('maximum number of retries for communication',
+                         type=int, default=5, settable=True,),
     }
 
     def _comm(self, cmd):
@@ -62,5 +62,5 @@ class TemperatureSensor(TacoDevice, Readable):
             temp /= 10.0
         return temp
 
-    def doStatus (self, maxage=0):
+    def doStatus(self, maxage=0):
         return status.OK, 'idle'

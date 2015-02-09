@@ -30,20 +30,21 @@ from nicos.devices.generic import Switcher as BaseSwitcher
 from nicos.core.params import Attach
 from nicos.devices.taco import Motor as BaseMotor, DigitalInput
 
+
 class Switcher(BaseSwitcher):
     """
     Switcher, specially adopted to TOFTOF needs
 
-    The neutron guide switcher has two different guides and the job is to change
-    between them. Since there is no encoder mounted to check the position each
-    change has to start with a reference move, followed by the move to the
-    target position.
+    The neutron guide switcher has two different guides and the job is to
+    change between them. Since there is no encoder mounted to check the
+    position each change has to start with a reference move, followed by
+    the move to the target position.
     """
 
     parameter_overrides = {
-        'precision'    : Override(default=0.1, mandatory=False),
-        'fallback'     : Override(default='Unknown', mandatory=False),
-        'blockingmove' : Override(default='False', mandatory=False),
+        'precision':    Override(default=0.1, mandatory=False),
+        'fallback':     Override(default='Unknown', mandatory=False),
+        'blockingmove': Override(default='False', mandatory=False),
     }
 
     def _startRaw(self, target):
@@ -61,12 +62,13 @@ class Switcher(BaseSwitcher):
 
 class Motor(BaseMotor):
     """
-    These devices move the neutron guide blades of the focussing neutron guide
-    via the connected piezo motor. Since there is no encoder mounted and the
-    positioning is very strongly depending on the bending force of the glass
-    blade each positioning must be start with a referencing task. The reference
-    task moves the motor in a position that the 'limit switch' is activated,
-    followed by stepwise move backwards until the 'limit switch' is deactivated.
+    These devices move the neutron guide blades of the focussing neutron
+    guide via the connected piezo motor. Since there is no encoder mounted
+    and the positioning is very strongly depending on the bending force of
+    the glass blade each positioning must be start with a referencing task.
+    The reference task moves the motor in a position that the 'limit switch'
+    is activated, followed by stepwise move backwards until the 'limit switch'
+    is deactivated.
     The used controller has no input for a limit switch.
     """
 
@@ -74,16 +76,16 @@ class Motor(BaseMotor):
         'refspeed': Param('Reference speed',
                           type=float, default=500, settable=False,
                          ),
-        'refpos': Param('Reference position',
-                        type=float, default=0, settable=False,
-                       ),
+        'refpos':   Param('Reference position',
+                          type=float, default=0, settable=False,
+                         ),
         'refstep': Param('Number of steps to move to reference position',
                          type=intrange(1, 100), default=10, settable=False,
                         ),
     }
 
     attached_devices = {
-        'limitsw' : Attach('Lower limit switch device', DigitalInput),
+        'limitsw': Attach('Lower limit switch device', DigitalInput),
     }
 
     def doStart(self, target):

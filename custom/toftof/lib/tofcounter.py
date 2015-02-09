@@ -132,15 +132,14 @@ class TofCounter(TacoDevice, Measurable):
     def doRead(self, maxage=0):
         arr = self._taco_guard(self._dev.read)
         return [self._taco_guard(self._timer.read),
-                                 self._taco_guard(self._monitor.read),
-                                 sum(arr[2:])]
+                self._taco_guard(self._monitor.read),
+                sum(arr[2:])]
 
     def read_full(self):
         arr = np.array(self._taco_guard(self._dev.read))
         ndata = np.reshape(arr[2:], (arr[1], arr[0]))
         return self._taco_guard(self._timer.read), \
-                                self._taco_guard(self._monitor.read), \
-                                ndata
+            self._taco_guard(self._monitor.read), ndata
 
     def doReset(self):
         self._taco_guard(self._dev.deviceOn)

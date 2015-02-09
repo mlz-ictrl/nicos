@@ -24,7 +24,7 @@
 
 """Iseg high voltage power supply device classes."""
 
-from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
+from nicos.core import status, intrange, Moveable, HasLimits, Param, Override,\
      NicosError, CommunicationError
 from nicos.core import SIMULATION
 
@@ -39,12 +39,14 @@ class Voltage(HasLimits, Moveable):
     }
 
     parameters = {
-        'toniaddr': Param('Toni address', type=intrange(0xF0, 0xFF), mandatory=True),
-        'tonichannel': Param('Toni channel', type=intrange(0, 2), mandatory=True),
+        'toniaddr': Param('Toni address',
+                          type=intrange(0xF0, 0xFF), mandatory=True),
+        'tonichannel': Param('Toni channel',
+                             type=intrange(0, 2), mandatory=True),
         'channel':  Param('Channel of the Iseg HV (1 = A, 2 = B)',
                           type=intrange(1, 2), mandatory=True),
-        'ramp':     Param('Voltage ramp', unit='main/s',
-                          type=intrange(1, 255), settable=True),
+        'ramp':     Param('Voltage ramp',
+                          unit='main/s', type=intrange(1, 255), settable=True),
     }
 
     parameter_overrides = {
@@ -60,7 +62,7 @@ class Voltage(HasLimits, Moveable):
               'L2H': status.BUSY,
               'H2L': status.BUSY,
               'LAS': status.BUSY,
-              'TRP': status.ERROR,}
+              'TRP': status.ERROR, }
 
     def _comm(self, istr, isint=False):
         bus = self._adevs['bus']
@@ -112,10 +114,10 @@ class Voltage(HasLimits, Moveable):
         if resp[:3] != ('S%d=' % self.channel):
             raise NicosError('could not set voltage: %r' % resp)
         if resp[3:] not in self.states or \
-               self.states[resp[3:]] not in (status.OK, status.BUSY):
+                self.states[resp[3:]] not in (status.OK, status.BUSY):
             if resp[3:] == 'MAN':
                 raise NicosError('could not set voltage, voltage control '
-                                'switched to manual')
+                                 'switched to manual')
             elif resp[3:] == 'OFF':
                 raise NicosError('could not set voltage, device off')
             raise NicosError('could not set voltage: error %r' % resp[3:])

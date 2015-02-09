@@ -40,6 +40,7 @@ except ImportError:
 # in us (1e6) / AA (1e-10) / m
 alpha = 1e6 * (mn / h) / 1e10           # Should be 252.7784
 
+
 def sgn(x):
     return -1 if x < 0 else 1
 
@@ -55,7 +56,8 @@ a = (11.4, 0.0, 0.1, 3.397, 7.953, 8.028, 9.925, 10.0)
 
 # offsets of chopper zero position in deg (definition of the sign is unknown
 # chopperOffset = (0.00, 0.00, -0.25, 0.45, 0.39, -0.25, 0.13, 0.36)
-# chopperOffset = (0.00, 0.00, -0.06, 0.45, 0.39, -0.25, -0.81, 0.36) # 2.12.2009
+# 02.12.2009
+# chopperOffset = (0.00, 0.00, -0.06, 0.45, 0.39, -0.25, -0.81, 0.36)
 chopperOffset = (0.00, 0.00, 0.00, 0.0, 0.0, 0.0, 0.70, 0.70)
 
 # signs for counter-rotating ch1/2 and ch6/7 (all others run like chopper1)
@@ -80,12 +82,13 @@ def speedRatio(ratio=1):
         return 7.0 / float(ratio)
     return 1.0
 
+
 def calculateChopperDelay(wl, speed, ratio, st, ch5_90deg_offset):
     chdelay = 0
     ratio2 = speedRatio(ratio)
     # calculate the speed in Hz instead of given speed in rpms
     speed /= 60.0
-    if ch5_90deg_offset: # chopper 5 90 deg rotated
+    if ch5_90deg_offset:  # chopper 5 90 deg rotated
         chdelay = -1.e6 / (ratio2 * (4 * speed))
     if st == 1:
         chdelay = 1.e6 / (4 * speed)
@@ -98,18 +101,20 @@ def calculateChopperDelay(wl, speed, ratio, st, ch5_90deg_offset):
         chdelay += 1.e6 / (2 * speed)
     return int(round(chdelay))
 
+
 def calculateCounterDelay(wl, speed, ratio, delay, ch5_90deg_offset):
     # calculate the speed in Hz instead of given speed in rpms
     speed /= 60.0
     ratio2 = speedRatio(ratio)
     # 4 * speed, since we have 4 slits in chopper disc 1
-    TOFoffset = 1.0 / (ratio2 * (4 * speed)) # normal mode
-    if ch5_90deg_offset: # chopper 5 90 deg rotated
+    TOFoffset = 1.0 / (ratio2 * (4 * speed))  # normal mode
+    if ch5_90deg_offset:  # chopper 5 90 deg rotated
         TOFoffset *= 2.0
     tel = 1e-6 * alpha * wl * (a[0] - a[5]) + TOFoffset + delay
     n = int(tel / (ratio / (2 * speed)))
     tel -= n * (ratio / (2 * speed))
     return int(round(tel / ttr))  # 50 ns of the TOF electronics
+
 
 def calculateTimeInterval(speed, ratio):
     # select time interval from chopper parameters
@@ -120,6 +125,7 @@ def calculateTimeInterval(speed, ratio):
     # 2 * speed since we have 2 identical slits in chopper 5
     return ratio / (2 * speed)
 
+
 # calculation of flight times
 
 def t1(x, y, ilambda=4.5, offset=0.0):
@@ -127,6 +133,7 @@ def t1(x, y, ilambda=4.5, offset=0.0):
     chopper *x* to chopper *y*, plus the distance *offset*.
     """
     return 1e-6 * alpha * ilambda * (abs(a[x] - a[y]) + offset)
+
 
 def t2(x, ilambda=4.5, offset=0.0):
     """Return the flight time [s] of a neutron of wavelength *ilambda* [A] from
@@ -142,6 +149,7 @@ def phi1(x, w, ilambda=4.5):
     wavelength *ilambda* [A] arrive at it from chopper 1.
     """
     return 360.0 * w / 60.0 * t1(1, x, ilambda, 0.0)
+
 
 def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1, ch5_90deg_offset=0):
     """Return the phase angle that has to be set for wavelength *ilambda* [A]
@@ -212,7 +220,7 @@ def Eres1(li, w, st=0, crc=1, dL=0.0):
     A = tm * (Lpm + Lms + Lsd * (lf / li)**3)
     B = tp * (Lms + Lsd * (lf / li)**3)
     C = Lpm * mn * lf * dL / h
-    dt = sqrt(A**2 + B**2 + C**2) / Lpm        # uncertainty in time
-    res = h**3 / (mn**2 * e) * dt / (Lsd * lf**3) # uncertainty in energy
+    dt = sqrt(A**2 + B**2 + C**2) / Lpm            # uncertainty in time
+    res = h**3 / (mn**2 * e) * dt / (Lsd * lf**3)  # uncertainty in energy
 
     return (res, dt)
