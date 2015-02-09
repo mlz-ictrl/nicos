@@ -129,8 +129,8 @@ class TacoDevice(DeviceMixinBase):
         TACOStates.POSITIVE_ENDSTOP: (status.OK, 'limit switch +'),
         TACOStates.NEGATIVE_ENDSTOP: (status.OK, 'limit switch -'),
         TACOStates.STOPPED: (status.OK, 'idle or paused'),
-        TACOStates.TRIPPED: status.OK,
         TACOStates.PRESELECTION_REACHED: status.OK,
+        TACOStates.DISABLED: status.OK,
         # BUSY states
         # explicit ramp string as there seem to be some inconsistencies
         TACOStates.RAMP: (status.BUSY, 'ramping'),
@@ -142,8 +142,12 @@ class TacoDevice(DeviceMixinBase):
         TACOStates.COUNTING: status.BUSY,
         # NOTREACHED states
         TACOStates.UNDEFINED: status.NOTREACHED,
+        # WARN states
+        TACOStates.ALARM: status.WARN,
         # ERROR states
         TACOStates.FAULT: status.ERROR,
+        TACOStates.BLOCKED: status.ERROR,
+        TACOStates.TRIPPED: status.ERROR,
         TACOStates.OVERFLOW: status.ERROR,
         TACOStates.OFF: status.ERROR,
         TACOStates.DEVICE_OFF: status.ERROR,
