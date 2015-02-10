@@ -46,17 +46,22 @@ class DownTimeTool(QDialog, DlgUtils):
 
         self.parentwindow = parent
         self.client = client
-        self.mainwindow = parent.mainwindow
-        self.log = NicosLogger(self.toolName)
-        self.log.parent = self.mainwindow.log
+        if hasattr(parent, 'mainwindow'):
+            self.mainwindow = parent.mainwindow
+            self.log = NicosLogger(self.toolName)
+            self.log.parent = self.mainwindow.log
+        else:
+            self.log = configs.get('log', None)
         self.sgroup = SettingGroup(self.toolName)
 
+        self._sender = configs.get('sender', 'anonymous@frm2.tum.de')
         self._receiver = configs.get('receiver', 'f.carsughi@fz-juelich.de')
-        self._mailserver = configs.get('mailserver', self._getDeviceComponent(
-            'experiment', 'mailserver', 'smtp.frm2.tum.de'))
-        self._sender = configs.get('sender', '')
-        self._instrument = self._getDeviceComponent('instrument', 'instrument', 'DEMO')
-        t = self.mailheaderText.text().replace('{{instrument}}', self._instrument)
+        self._mailserver = configs.get('mailserver', '') or \
+            self._getDeviceComponent('experiment', 'mailserver', 'smtp.frm2.tum.de')
+        self._instrument = configs.get('instrument', '') or \
+            self._getDeviceComponent('instrument', 'instrument', 'DEMO')
+        t = self.mailheaderText.text().replace('{{instrument}}',
+                                               self._instrument)
         self.mailheaderText.setText(t)
 
         self.startDown.setDateTime(QDateTime.currentDateTime().addSecs(-3600))
@@ -72,10 +77,10 @@ class DownTimeTool(QDialog, DlgUtils):
         self.connect(self.buttonBox, SIGNAL('rejected()'), self.on_close)
         self.connect(self.reasons, SIGNAL('editTextChanged(const QString &)'),
                      self.on_text_changed)
-        self.connect(self.startDown, SIGNAL('dateTimeChanged (const '
+        self.connect(self.startDown, SIGNAL('dateTimeChanged(const '
                                             'QDateTime&)'),
                      self.on_date_changed)
-        self.connect(self.endDown, SIGNAL('dateTimeChanged (const QDateTime&)'),
+        self.connect(self.endDown, SIGNAL('dateTimeChanged(const QDateTime&)'),
                      self.on_date_changed)
         with self.sgroup as settings:
             self.loadSettings(settings)
@@ -116,8 +121,9 @@ class DownTimeTool(QDialog, DlgUtils):
 
     def _getDeviceComponent(self, devname, param, default=''):
         try:
-            val = self.client.eval('session.%s.%s' % (devname, param)) or default
-        except AttributeError:
+            val = self.client.eval('session.%s.%s' % (devname, param)) or \
+                    default
+        except (AttributeError, NameError):
             val = default
         return val
 
@@ -136,16 +142,20 @@ class DownTimeTool(QDialog, DlgUtils):
             settings.setValue('reasons', list(collections.Counter(items)))
 
     def _sendMail(self):
-        receivers = self._getMailAdresses(
+        responsibles = self._getMailAdresses(
             self._getDeviceComponent('instrument', 'responsible'))
-        sender = self._sender or self._getDeviceComponent('experiment', 'mailsender',
-                                                          receivers[0])
-        receivers = self._getMailAdresses(self._receiver) + receivers
+        sender = self._sender or self._getDeviceComponent('experiment',
+                                                          'mailsender',
+                                                          responsibles[0])
+        receivers = self._getMailAdresses(self._receiver)
+        if responsibles and responsibles[0]:
+            receivers += responsibles
         topic = self.mailheaderText.text()
-        body = 'The instrument %s had a downtime from %s to %s due to:\n\n%s' % \
+        body = 'The instrument %s had a downtime from %s to %s due to:\n\n%s' %\
                (self._instrument, self.startDown.text(), self.endDown.text(),
                 self.reasons.currentText())
         err = sendMail(self._mailserver, receivers, sender, topic, body)
         if err:
-            self.log.error(' '.join(err))
+            if self.log:
+                self.log.error(' - '.join(err))
             self.showError('\n'.join(err))

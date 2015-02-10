@@ -70,6 +70,9 @@ Requirements
   - coverage (optional)
   - sphinx (for generating doc)
 
+* For tools (optional)
+  - argparse
+
 * Under Windows:
   - pyreadline (optional, for the console to work)
   - colorama (optional, for colored console output)
@@ -82,6 +85,11 @@ If not supplied by the distribution (see below), most dependencies
 python package repository:
 
   pip install -r requirements.txt
+
+If you want to use additional tools located at tools/ please install the following
+requirements using pip:
+
+ pip install -r requirements-tools.txt
 
 pip can be obtained from http://www.pip-installer.org/en/latest/installing.html
 
