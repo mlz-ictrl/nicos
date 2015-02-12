@@ -41,7 +41,7 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
     taco_class = StringIO
 
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='A'),
+        'unit':     Override(mandatory=False, default='A'),
     }
 
     parameters = {
@@ -67,8 +67,7 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
         time.sleep(0.2)
 
     def doRead(self, maxage=0):
-        cval = float(self._taco_multitry('read', 3,
-                         self._dev.communicate, 'MEASURE:CURRENT?'))
+        cval = float(self._taco_guard(self._dev.communicate, 'MEASURE:CURRENT?'))
         return cval * 80. / self._calibvalue
 
     def doStatus(self, maxage=0):

@@ -25,13 +25,13 @@
 """Astrium selector device."""
 
 from math import pi, tan, radians
-from time import time as currenttime, sleep
+from time import time as currenttime
 
 from IO import StringIO
 
 from nicos.core import status, Moveable, Readable, HasLimits, Override, Param, \
     CommunicationError, HasPrecision, HasTimeout, InvalidValueError, \
-    MoveError, listof, limits
+    MoveError, listof, limits, HasCommunication
 from nicos.devices.taco.core import TacoDevice
 
 FSEP = '#'  # separator for fields in reply ("/" in manual, "#" in reality)
@@ -95,27 +95,23 @@ class SelectorState(TacoDevice, Readable):
         return self.communicate('STATE ')[1]
 
 
-class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, HasTimeout, Moveable):
+class SelectorSpeed(HasCommunication, HasLimits, HasPrecision, HasTimeout, Moveable):
     """
     Device object for controlling the speed of an Astrium NVS.
 
     Uses SelectorState for readout.
     """
 
-    taco_class = StringIO
-
     parameters = {
-        'commdelay': Param('Time between host communication tries', type=float,
-                           unit='s', settable=True, default=5),
-        'maxtries':  Param('Maximum tries for setting a new speed', type=int,
-                           settable=True, default=20),
-        'blockedspeeds': Param('List of tuples of forbidden speed values (rpm).',
-                           type=listof(limits)),
+        'blockedspeeds': Param('List of tuples of forbidden speed values',
+                               unit='rpm', type=listof(limits)),
     }
 
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default='rpm'),
+        'unit':      Override(mandatory=False, default='rpm'),
         'precision': Override(mandatory=False, type=float, default=0),
+        'comtries':  Override(default=20),
+        'comdelay':  Override(default=5),
     }
 
     attached_devices = {
@@ -162,35 +158,28 @@ class SelectorSpeed(TacoDevice, HasLimits, HasPrecision, HasTimeout, Moveable):
                                % (_min, _max)
         return True, ''
 
+    def _com_return(self, result, target):
+        accepted, state = result
+        if accepted:
+            rspeed = SelectorSpeed.valuetype(state.get('RSPEED'))
+            if abs(rspeed - target) > self.precision:
+                # we got a "requested speed" target back and it does not match
+                # the one we tried to set
+                raise CommunicationError(self, 'selector did not execute '
+                                         'speed request')
+        return accepted
+
     def doStart(self, target):
         if abs(self.doRead() - target) <= self.precision:
             return
         # the SPEED command is sometimes not accepted immediately; we try a few
         # times with lots of time in between
-        for i in range(self.maxtries):
-            try:
-                accepted, state = self._adevs['statedev'].communicate(
-                    'SPEED %05d' % target)
-            except CommunicationError:
-                self.log.warning('Communcation failed, sleeping %f secs before '
-                                    'retrying (retry %d of %d)' %
-                                    (self.commdelay, i, self.maxtries))
-                sleep(self.commdelay)
-            else:
-                if not accepted:
-                    raise InvalidValueError(self, 'speed of %d RPM not accepted'
-                                            ' by selector (is it in a forbidden'
-                                            ' range?)' % target)
-                rspeed = SelectorSpeed.valuetype(state.get('RSPEED'))
-                if abs(rspeed - target) <= self.precision:
-                    # we got a "requested speed" target back and it matches the
-                    # one we tried to set -- done
-                    return
-                self.log.warning('requested speed return not correct: %r '
-                                 'sleeping %f secs before retrying (retry %d of %d)' %
-                               (rspeed, self.commdelay, i, self.maxtries))
-                sleep(self.commdelay)
-        raise CommunicationError(self, 'selector did not execute speed request')
+        accepted = self._com_retry(target, self._adevs['statedev'].communicate,
+                                   'SPEED %05d' % target)
+        if not accepted:
+            raise InvalidValueError(self, 'speed of %d RPM not accepted'
+                                    ' by selector (is it in a forbidden'
+                                    ' range?)' % target)
 
     def doIsCompleted(self):
         # the selector does not return a "busy" state while speeding up/down, so

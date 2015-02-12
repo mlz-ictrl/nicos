@@ -26,7 +26,6 @@
 
 import os
 import sys
-import threading
 from time import sleep
 from subprocess import Popen, PIPE
 
@@ -51,16 +50,16 @@ except ImportError:
     DevErr_RPCTimedOut     = 2
 
 from nicos import config
-from nicos.core import status, tacodev, intrange, floatrange, Param, \
+from nicos.core import status, tacodev, floatrange, Param, \
     Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
-    InvalidValueError, DeviceMixinBase
+    InvalidValueError, HasCommunication
 from nicos.utils import HardwareStub
 from nicos.protocols.cache import cache_dump, cache_load
 from nicos.core import SIMULATION
 from nicos.pycompat import reraise
 
 
-class TacoDevice(DeviceMixinBase):
+class TacoDevice(HasCommunication):
     """Mixin class for TACO devices.
 
     Use it in concrete device classes like this::
@@ -100,7 +99,6 @@ class TacoDevice(DeviceMixinBase):
     The following utility methods are provided:
 
     .. automethod:: _taco_guard
-    .. automethod:: _taco_multitry
     .. automethod:: _taco_update_resource
     .. automethod:: _create_client
     """
@@ -111,10 +109,6 @@ class TacoDevice(DeviceMixinBase):
         'tacotimeout': Param('TACO network timeout for this process',
                              unit='s', type=floatrange(0.0, 1200), default=3,
                              settable=True, preinit=True),
-        'tacotries':   Param('Number of tries per TACO call', default=1,
-                             type=intrange(1, 10), settable=True),
-        'tacodelay':   Param('Delay between retries', unit='s', default=0.1,
-                             settable=True),
     }
 
     parameter_overrides = {
@@ -164,7 +158,6 @@ class TacoDevice(DeviceMixinBase):
     _dev = None
 
     def doPreinit(self, mode):
-        self.__lock = threading.Lock()
         if self.loglevel == 'debug':
             self._taco_guard = self._taco_guard_log
         if self.taco_class is None:
@@ -197,9 +190,9 @@ class TacoDevice(DeviceMixinBase):
         return self._taco_guard(self._dev.read)
 
     def doStatus(self, maxage=0):
-        for i in range(self.tacotries or 1):
+        for i in range(self.comtries or 1):
             if i:
-                sleep(self.tacodelay)
+                sleep(self.comdelay)
             tacoState = self._taco_guard(self._dev.deviceState)
             if tacoState != TACOStates.FAULT:
                 break
@@ -310,21 +303,25 @@ class TacoDevice(DeviceMixinBase):
         self.log.debug('TACO call: %s%r' % (function.__name__, args))
         if not self._dev:
             raise NicosError(self, 'TACO Device not initialised')
-        self.__lock.acquire()
+        self._com_lock.acquire()
         try:
             ret = function(*args)
         except TACOError as err:
             # for performance reasons, starting the loop and querying
-            # self.tacotries only triggers in the error case
-            if self.tacotries > 1 or err == DevErr_RPCTimedOut:
-                tries = 2 if err == DevErr_RPCTimedOut and self.tacotries == 1 \
-                    else self.tacotries - 1
+            # self.comtries only triggers in the error case
+            if self.comtries > 1 or err == DevErr_RPCTimedOut:
+                tries = 2 if err == DevErr_RPCTimedOut and self.comtries == 1 \
+                    else self.comtries - 1
                 self.log.warning('TACO %s failed, retrying up to %d times' %
                                  (function.__name__, tries), exc=1)
                 while True:
-                    sleep(self.tacodelay)
+                    sleep(self.comdelay)
                     tries -= 1
                     try:
+                        if self.taco_resetok and \
+                           self._dev.deviceState() == TACOStates.FAULT:
+                            self._dev.deviceInit()
+                            sleep(self.comdelay)
                         ret = function(*args)
                         self.log.debug('TACO return: %r' % (ret,))
                         return ret
@@ -339,7 +336,7 @@ class TacoDevice(DeviceMixinBase):
             self.log.debug('TACO return: %r' % (ret,))
             return ret
         finally:
-            self.__lock.release()
+            self._com_lock.release()
 
     def _taco_guard_nolog(self, function, *args):
         """Try running the TACO function, and raise a NicosError on exception.
@@ -350,23 +347,23 @@ class TacoDevice(DeviceMixinBase):
         A TacoDevice subclass can add custom error code to exception class
         mappings by using the `.taco_errorcodes` class attribute.
 
-        If the `tacotries` parameter is > 1, the call is retried accordingly.
+        If the `comtries` parameter is > 1, the call is retried accordingly.
         """
         if not self._dev:
             raise NicosError(self, 'TACO device not initialised')
-        self.__lock.acquire()
+        self._com_lock.acquire()
         try:
             return function(*args)
         except TACOError as err:
             # for performance reasons, starting the loop and querying
-            # self.tacotries only triggers in the error case
-            if self.tacotries > 1 or err == DevErr_RPCTimedOut:
-                tries = 2 if err == DevErr_RPCTimedOut and self.tacotries == 1 \
-                    else self.tacotries - 1
+            # self.comtries only triggers in the error case
+            if self.comtries > 1 or err == DevErr_RPCTimedOut:
+                tries = 2 if err == DevErr_RPCTimedOut and self.comtries == 1 \
+                    else self.comtries - 1
                 self.log.warning('TACO %s failed, retrying up to %d times' %
                                  (function.__name__, tries))
                 while True:
-                    sleep(self.tacodelay)
+                    sleep(self.comdelay)
                     tries -= 1
                     try:
                         return function(*args)
@@ -375,7 +372,7 @@ class TacoDevice(DeviceMixinBase):
                             break  # and fall through to _raise_taco
             self._raise_taco(err, '%s%r' % (function.__name__, args))
         finally:
-            self.__lock.release()
+            self._com_lock.release()
 
     _taco_guard = _taco_guard_nolog
 
@@ -385,7 +382,7 @@ class TacoDevice(DeviceMixinBase):
         """
         if not self._dev:
             raise NicosError(self, 'TACO device not initialised')
-        self.__lock.acquire()
+        self._com_lock.acquire()
         try:
             self.log.debug('TACO resource update: %s %s' %
                            (resname, value))
@@ -396,7 +393,7 @@ class TacoDevice(DeviceMixinBase):
         except TACOError as err:
             self._raise_taco(err, 'While updating %s resource' % resname)
         finally:
-            self.__lock.release()
+            self._com_lock.release()
 
     def _raise_taco(self, err, addmsg=None):
         """Raise a suitable NicosError for a given TACOError instance."""
@@ -444,34 +441,6 @@ class TacoDevice(DeviceMixinBase):
             self.log.warning('%s failed with %s' % (resetcall, err))
         if self._taco_guard(client.isDeviceOff):
             self._taco_guard(client.deviceOn)
-
-    def _taco_multitry(self, what, tries, func, *args):
-        """Try the TACO method *func* with given *args* for the number of times
-        given by *tries*.  On each failure, a warning log message is emitted.
-        If the device is in error state after a try, it is reset.  If the
-        number of tries is exceeded, the error from the call is re-raised.
-
-        *what* is a string that explains the call; it is used in the warning
-        messages.
-        """
-        while True:
-            tries -= 1
-            try:
-                return self._taco_guard(func, *args)
-            except NicosError:
-                if tries <= 0:
-                    raise
-                self.log.warning('%s failed; trying again' % what)
-                self.__lock.acquire()
-                try:
-                    if self._dev.deviceState() == TACOStates.FAULT:
-                        self._dev.deviceReset()
-                    self._dev.deviceOn()
-                    sleep(0.5)
-                except TACOError:
-                    pass
-                finally:
-                    self.__lock.release()
 
 
 class TacoStub(object):

@@ -32,7 +32,7 @@ FRM-II/JCNS TANGO interface for the respective device classes.
 import PyTango
 
 from nicos.core import Param, Override, status, Readable, Moveable, HasLimits, \
-    Device, tangodev, DeviceMixinBase, oneof, dictof, intrange, \
+    Device, tangodev, HasCommunication, oneof, dictof, intrange, \
     NicosError, CommunicationError, ConfigurationError
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
@@ -59,7 +59,7 @@ EXC_MAPPING = {
 }
 
 
-class PyTangoDevice(DeviceMixinBase):
+class PyTangoDevice(HasCommunication):
     """
     Basic PyTango device.
 
@@ -69,7 +69,7 @@ class PyTangoDevice(DeviceMixinBase):
 
     parameters = {
         'tangodevice': Param('Tango device name', type=tangodev,
-                             mandatory=True, preinit=True)
+                             mandatory=True, preinit=True),
     }
 
     def doPreinit(self, mode):
@@ -142,7 +142,7 @@ class PyTangoDevice(DeviceMixinBase):
         """
         Wrap given function with logging and exception mapping.
         """
-        def wrap(*args, **kwargs):
+        def wrap(*args, **kwds):
             # handle different types for better debug output
             if category == 'cmd':
                 self.log.debug('[PyTango] command: %s%r' % (args[0], args[1:]))
@@ -163,35 +163,32 @@ class PyTangoDevice(DeviceMixinBase):
                 self.log.debug('[PyTango] call: %s%r'
                                % (func.__name__, args))
 
-            # Try to execute the given func
-            try:
-                result = func(*args, **kwargs)
-
-                if isinstance(result, PyTango.DeviceAttribute):
-                    self.log.debug('\t=> %s' % repr(result.value)[:300])
-                else:
-                    # This line explicitly logs '=> None' for commands which
-                    # does not return a value. This indicates that the command
-                    # execution ended.
-                    self.log.debug('\t=> %s' % repr(result)[:300])
-
-                return result
-            except tuple(EXC_MAPPING) as e:  # pylint: disable=E0712
-                exc = str(e)
-                if e.args:
-                    exc = e.args[0]  # Can be str or DevError
-
-                    if isinstance(exc, PyTango.DevError):
-                        exc = '%s: [%s] %s' % (exc.origin, exc.reason,
-                                               exc.desc)
-
-                self.log.debug('PyTango error: %s' % exc)
-                raise EXC_MAPPING.get(type(e), NicosError)(self, exc)
+            return self._com_retry(None, func, *args, **kwds)
 
         # hide the wrapping
         wrap.__name__ = func.__name__
 
         return wrap
+
+    def _com_return(self, result, info):
+        if isinstance(result, PyTango.DeviceAttribute):
+            self.log.debug('\t=> %s' % repr(result.value)[:300])
+        else:
+            # This line explicitly logs '=> None' for commands which
+            # does not return a value. This indicates that the command
+            # execution ended.
+            self.log.debug('\t=> %s' % repr(result)[:300])
+        return result
+
+    def _com_raise(self, err, info):
+        exc = str(err)
+        if err.args:
+            exc = err.args[0]  # Can be str or DevError
+            if isinstance(exc, PyTango.DevError):
+                exc = '%s: [%s] %s' % (exc.origin, exc.reason,
+                                       exc.desc)
+        self.log.debug('PyTango error: %s' % exc)
+        raise EXC_MAPPING.get(type(err), NicosError)(self, exc)
 
 
 class AnalogInput(PyTangoDevice, Readable):

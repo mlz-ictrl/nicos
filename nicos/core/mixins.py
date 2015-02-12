@@ -24,13 +24,14 @@
 
 """Meta classes and Mixins for usage in NICOS."""
 
-from time import time as currenttime
+import threading
+from time import sleep, time as currenttime
 
 from nicos import session
 from nicos.core import MAINTENANCE, MASTER, status
-from nicos.core.errors import ConfigurationError
+from nicos.core.errors import ConfigurationError, CommunicationError
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
-    limits, none_or, nonemptylistof, string, tupleof
+    intrange, limits, none_or, nonemptylistof, string, tupleof
 from nicos.core.utils import statusString
 from nicos.pycompat import add_metaclass, itervalues
 from nicos.utils import lazy_property
@@ -505,6 +506,60 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
                 return self.doIsAtTarget(val)
             return True
         return False
+
+
+class HasCommunication(DeviceMixinBase):
+    """
+    Mixin class for devices that communicate with external devices or
+    device servers.
+
+    Provides parameters to set communication tries and delays, and basic
+    services to map external exceptions to NICOS exception classes.
+    """
+
+    parameters = {
+        'comtries':  Param('Maximum retries for communication',
+                           type=intrange(1, 100), default=3, settable=True),
+        'comdelay':  Param('Delay between retries', unit='s', default=0.1,
+                           settable=True),
+    }
+
+    @lazy_property
+    def _com_lock(self):
+        return threading.Lock()
+
+    def _com_retry(self, info, function, *args, **kwds):
+        """Try communicating with the hardware/device.
+
+        Parameter "info" is passed to _com_return and _com_raise methods that
+        process the return value or exception raised after maximum tries.
+        """
+        tries = self.comtries
+        with self._com_lock:
+            while True:
+                tries -= 1
+                try:
+                    result = function(*args, **kwds)
+                    return self._com_return(result, info)
+                except Exception as err:
+                    if tries == 0:
+                        self._com_raise(err, info)
+                    sleep(self.comdelay)
+
+    def _com_return(self, result, info):
+        """Process *result*, the return value of communication.
+
+        Can raise an exception to initiate a retry.  Default is to return result
+        unchanged.
+        """
+        return result
+
+    def _com_raise(self, err, info):
+        """Process the exception raised either by communication or _com_return.
+
+        Should raise a NICOS exception.  Default is to raise CommunicationError.
+        """
+        raise CommunicationError(self, str(err))
 
 
 from nicos.core.device import DeviceAlias, NoDevice, Readable

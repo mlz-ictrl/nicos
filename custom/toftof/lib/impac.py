@@ -27,7 +27,7 @@
 
 from IO import StringIO
 
-from nicos.core import status, intrange, Readable, Param
+from nicos.core import status, intrange, Readable, Param, Override
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -39,23 +39,19 @@ class TemperatureSensor(TacoDevice, Readable):
     parameters = {
         'address': Param('device address',
                          type=intrange(0, 97), default=0, settable=False,),
-        'maxtry':  Param('maximum number of retries for communication',
-                         type=int, default=5, settable=True,),
     }
 
-    def _comm(self, cmd):
-        what = '%02d%s' % (self.address, cmd)
-        # return self._taco_guard(self._dev.communicate, what)
-        return self._taco_multitry('Communicate', self.maxtry,
-                                   self._dev.communicate, what)
+    parameter_overrides = {
+        'comtries': Override(default=5),
+    }
 
     def doInit(self, mode):
         pass
 
     def doRead(self, maxage=0):
         # return current temperature
-        istr = self._comm('ms')
-        temp = float(istr)
+        what = ('%02d' % self.address) + 'ms'
+        temp = float(self._taco_guard(self._dev.communicate, what))
         if temp > 77769:
             temp = -0
         else:

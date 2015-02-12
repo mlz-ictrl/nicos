@@ -61,10 +61,10 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
         self._taco_guard(self._dev.setRamp, value)
 
     def doRead(self, maxage=0):
-        return self._taco_multitry('read', 2, self._dev.read) - self.offset
+        return self._taco_guard(self._dev.read) - self.offset
 
     def doStart(self, value, fromvarcheck=False):
-        self._taco_multitry('write', 2, self._dev.write, value + self.offset)
+        self._taco_guard(self._dev.write, value + self.offset)
         sleep(0.5)  # wait until server goes into "moving" status
         if self.variance > 0:
             newvalue = self.wait()

@@ -25,22 +25,21 @@
 
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
-import socket
 import select
-from time import sleep
+import socket
 from threading import RLock
+from time import sleep
 
 from IO import StringIO
-from RS485Client import RS485Client # pylint: disable=F0401
+from RS485Client import RS485Client  # pylint: disable=F0401
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
     none_or, usermethod, Device, Readable, Moveable, Param, Override, \
     NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
-    defaultIsCompleted, HasTimeout
-from nicos.utils import closeSocket, lazy_property, HardwareStub
-from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
+    defaultIsCompleted, HasTimeout, HasCommunication, SIMULATION
+from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.taco.core import TacoDevice
-from nicos.core import SIMULATION
+from nicos.utils import HardwareStub, closeSocket, lazy_property
 
 
 STX = chr(2)
@@ -192,22 +191,18 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
     }
 
     parameters = {
-        'maxtries': Param('Number of tries for sending and receiving',
-                          type=int, default=3, settable=True),
         'bustimeout': Param('Communication timeout for this device',
-                          type=floatrange(0.1, 1200), default=0.5, settable=True),
+                            type=floatrange(0.1, 1200), default=0.5, settable=True),
     }
 
-    def send(self, addr, cmd, param=0, length=0, maxtries=None):
-        return self._taco_multitry('%r on addr 0x%x' % (IPC_MAGIC[cmd][0], addr),
-            maxtries or self.maxtries, self._dev.SDARaw, addr, cmd, length, param)
+    def send(self, addr, cmd, param=0, length=0):
+        return self._taco_guard(self._dev.SDARaw, addr, cmd, length, param)
 
-    def get(self, addr, cmd, param=0, length=0, maxtries=None):
-        return self._taco_multitry('%r on addr 0x%x' % (IPC_MAGIC[cmd][0], addr),
-            maxtries or self.maxtries, self._dev.SRDRaw, addr, cmd, length, param)
+    def get(self, addr, cmd, param=0, length=0):
+        return self._taco_guard(self._dev.SRDRaw, addr, cmd, length, param)
 
     def ping(self, addr):
-        return self._taco_multitry('ping', self.maxtries, self._dev.Ping, addr)
+        return self._taco_guard(self._dev.Ping, addr)
 
     def doReadBustimeout(self):
         if self._dev and hasattr(self._dev, 'timeout'):
@@ -216,11 +211,10 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
 
     def doUpdateBustimeout(self, value):
         if self._dev:
-            self._taco_update_resource('timeout',str(value))
+            self._taco_update_resource('timeout', str(value))
 
 
-
-class IPCModBusRS232(IPCModBus):
+class IPCModBusRS232(HasCommunication, IPCModBus):
     """Base class for IPC connections not using the RS485 TACO server.
 
     This is an abstract class; use one of `IPCModBusTacoSerial`,
@@ -228,11 +222,13 @@ class IPCModBusRS232(IPCModBus):
     """
 
     parameters = {
-        'commtries': Param('Number of tries for sending and receiving',
-                           type=int, default=5, settable=True),
-        'roundtime': Param('Maximum time to wait for an answer, set '
-                           'this high to slow down everything', unit='s',
-                           type=float, default=0.1, settable=True),
+        'bustimeout': Param('Maximum time to wait for an answer, set '
+                            'this high to slow down everything', unit='s',
+                            type=float, default=0.1, settable=True),
+    }
+
+    parameter_overrides = {
+        'comtries':   Override(default=5),
     }
 
     def doInit(self, mode):
@@ -300,7 +296,7 @@ class IPCModBusRS232(IPCModBus):
         else:
             return -1
 
-    def send(self, addr, cmd, param=0, length=0, maxtries=None):
+    def send(self, addr, cmd, param=0, length=0):
         try:
             cmdname, limits = IPC_MAGIC[cmd]
         except KeyError:
@@ -318,8 +314,8 @@ class IPCModBusRS232(IPCModBus):
         self.log.debug('sending %s to card %s' % (cmdname, addr))
         return self._comm(s)
 
-    def get(self, addr, cmd, param=0, length=0, maxtries=None):
-        return self.send(addr, cmd, param, length, maxtries)
+    def get(self, addr, cmd, param=0, length=0):
+        return self.send(addr, cmd, param, length)
 
 
 class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
@@ -328,8 +324,8 @@ class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
     def _transmit(self, request, last_try=False):
         response = ''
         self._dev.write(request)
-        for _i in range(self.commtries):
-            sleep(self.roundtime)
+        for _i in range(self.comtries):
+            sleep(self.bustimeout)
             try:
                 data = self._dev.read()
             except Exception:
@@ -370,10 +366,10 @@ class IPCModBusTCP(IPCModBusRS232):
             self._connection.sendall(request)
             self.log.debug('request sent')
 
-            for i in range(self.commtries):
+            for i in range(self.comtries):
                 self.log.debug('waiting for response, try %d/%d' %
-                               (i, self.commtries))
-                p = select.select([self._connection], [], [], self.roundtime)
+                               (i, self.comtries))
+                p = select.select([self._connection], [], [], self.bustimeout)
                 if self._connection in p[0]:
                     data = self._connection.recv(20)  # more than enough!
                     if not data:
@@ -411,9 +407,9 @@ class IPCModBusSerial(IPCModBusRS232):
                 pass
         import serial
         self._connection = serial.Serial(self.port, baudrate=19200,
-                                         timeout=self.roundtime)
+                                         timeout=self.bustimeout)
 
-    def doUpdateRoundtime(self, value):
+    def doUpdateBustimeout(self, value):
         if self._connection:
             self._connection.timeout = value
 
@@ -422,7 +418,7 @@ class IPCModBusSerial(IPCModBusRS232):
         try:
             self._connection.write(request)
 
-            for _ in range(self.commtries):
+            for _ in range(self.comtries):
                 data = self._connection.read(20)
                 response += data
                 if response and response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
@@ -510,8 +506,8 @@ class Coder(NicosCoder):
         card types supports. 'analog' type is for potis and 'digital' is for
         rotary encoders.
         """
-        firmware = self._adevs['bus'].get(self.addr, 151, maxtries=1)
-        confbyte = self._adevs['bus'].get(self.addr, 152, maxtries=1)
+        firmware = self._adevs['bus'].get(self.addr, 151)
+        confbyte = self._adevs['bus'].get(self.addr, 152)
         if confbyte < 4:
             return 'digital'
         if confbyte & 0xe0 == 0x20:
@@ -746,7 +742,7 @@ class Motor(HasTimeout, NicosMotor):
         if self._mode == SIMULATION:
             return -1   # can't determine value in simulation mode!
         try:
-            return self._adevs['bus'].get(self.addr, 144, maxtries=1)
+            return self._adevs['bus'].get(self.addr, 144)
         except InvalidCommandError:
             return -1
 

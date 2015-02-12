@@ -476,3 +476,9 @@ Mixin classes are contained in :mod:`nicos.core.mixins` and re-exported in
 ====================
 
 .. autoclass:: HasWindowTimeout()
+
+
+``HasCommunication``
+====================
+
+.. autoclass:: HasCommunication()

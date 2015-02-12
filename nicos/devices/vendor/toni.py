@@ -30,8 +30,8 @@ from time import sleep, time as currenttime
 from IO import StringIO
 
 from nicos.core import status, intrange, listof, oneofdict, requires, ADMIN, \
-     Device, Readable, Moveable, Param, Attach, Override, NicosError, oneof, \
-     CommunicationError, ConfigurationError
+    Device, Readable, Moveable, Param, Attach, Override, oneof, \
+    CommunicationError, ConfigurationError
 from nicos.devices.taco.core import TacoDevice
 from nicos.core import MASTER
 
@@ -45,8 +45,11 @@ class ModBus(TacoDevice, Device):
     taco_class = StringIO
 
     parameters = {
-        'maxtries': Param('Maximum tries before raising', type=int, default=5),
         'source':   Param('Source address of host', type=int, default=0),
+    }
+
+    parameter_overrides = {
+        'comtries': Override(default=5),
     }
 
     def _crc(self, value):
@@ -58,17 +61,7 @@ class ModBus(TacoDevice, Device):
     def communicate(self, msg, dest, expect_ok=False, expect_hex=0):
         msg = '%02X%02X%s' % (dest, self.source, msg)
         msg = '\x02' + msg + self._crc(msg)
-        tries = self.maxtries
-        while True:
-            tries -= 1
-            try:
-                ret = self._taco_guard(self._dev.communicate, msg)
-            except NicosError:
-                if tries == 0:
-                    raise
-                sleep(0.1)
-            else:
-                break
+        ret = self._taco_guard(self._dev.communicate, msg)
         # check reply for validity
         crc = self._crc(ret[1:-2])
         if (len(ret) < 8 or ret[0] != '\x02' or ret[5] != '>' or ret[-2:] != crc
@@ -204,7 +197,7 @@ class Vacuum(Readable):
                          type=intrange(0xF0, 0xFF), mandatory=True),
         'channel': Param('Channel of the vacuum gauge',
                          type=intrange(0, 3), mandatory=True),
-        'power' :  Param('True if the readout is switched on',
+        'power':   Param('True if the readout is switched on',
                          type=intrange(0, 1), default=0, settable=True),
     }
 

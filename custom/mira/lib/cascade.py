@@ -32,7 +32,7 @@ import numpy
 from nicos.devices.tas import Monochromator
 from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
     CommunicationError, TimeoutError, NicosError, Readable, Measurable, \
-    ImageProducer, ImageSink, ImageType
+    ImageProducer, ImageSink, ImageType, HasCommunication
 from nicos.devices.generic import MultiChannelDetector
 from nicos.devices.tas.mono import to_k, from_k
 from nicos.devices.fileformats.raw import SingleRAWFileFormat
@@ -115,7 +115,7 @@ class MiraXMLFormat(ImageSink):
                      timer.read()[0], mon.read()[0])
 
 
-class CascadeDetector(ImageProducer, Measurable):
+class CascadeDetector(HasCommunication, ImageProducer, Measurable):
     """CASCADE-MIEZE detector.
 
     Controls the detector via a connection to the CASCADE socket server running
@@ -149,15 +149,11 @@ class CascadeDetector(ImageProducer, Measurable):
                               type=listof(float), settable=True),
         'fitfoil':      Param('Foil for contrast fitting', type=int, default=0,
                               settable=True),
-        'comtries':     Param('Tries for communication with cascade server',
-                              type=int, default=3, settable=True),
-        'comdelay':     Param('Delay between tries for communication with '
-                              'cascade server',
-                              type=float, default=3.0, settable=True),
     }
 
     parameter_overrides = {
         'fmtstr':   Override(default='roi %s, total %s, file %s'),
+        'comdelay': Override(default=3.0),
     }
 
     #

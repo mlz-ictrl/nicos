@@ -25,12 +25,13 @@
 """NICOS device class test suite."""
 
 from nicos import session
-from nicos.core import status, Device, Moveable, HasLimits, HasOffset, Param, \
-    ConfigurationError, ProgrammingError, LimitError, UsageError, \
-    AccessError, requires, usermethod, ADMIN
+from nicos.core import ADMIN, AccessError, CommunicationError, \
+    ConfigurationError, Device, HasCommunication, HasLimits, HasOffset, \
+    LimitError, Moveable, Param, ProgrammingError, UsageError, requires, status, \
+    usermethod
 from nicos.core.sessions.utils import MAINTENANCE
-
 from test.utils import raises
+
 
 methods_called = set()
 
@@ -117,6 +118,26 @@ class Dev2(HasLimits, HasOffset, Moveable):
     @requires(level=ADMIN, mode=MAINTENANCE)
     def calibrate(self):
         return True
+
+
+class Bus(HasCommunication, Device):
+
+    _replyontry = 5
+
+    def _llcomm(self, msg):
+        if self._replyontry == 0:
+            return 'reply: ' + msg
+        self._replyontry -= 1
+        raise Exception
+
+    def _com_raise(self, err, info):
+        raise CommunicationError(self, info)
+
+    def _com_return(self, result, info):
+        return result[7:]  # strip 'reply: '
+
+    def communicate(self, msg):
+        return self._com_retry('', self._llcomm, msg)
 
 
 def test_initialization():
@@ -268,3 +289,13 @@ def test_limits():
     # warn when setting limits that don't include current position
     dev2.move(6)
     assert session.testhandler.warns(setattr, dev2, 'userlimits', (0, 4))
+
+
+def test_hascomm():
+    bus = session.getDevice('bus')
+
+    bus._replyontry = 5
+    assert raises(CommunicationError, bus.communicate, 'test')
+
+    bus._replyontry = 2
+    assert bus.communicate('test') == 'test'

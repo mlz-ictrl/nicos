@@ -13,7 +13,7 @@ devices = dict(
                  maxage = 12,
                  userlimits = (0, 1010),
                  abslimits = (0, 1010),
-                 tacotries = 5,
+                 comtries = 5,
                 ),
     sty = device('antares.servostar.ServoStarMotor',
                  description = 'Sample Translation Y',
@@ -22,7 +22,7 @@ devices = dict(
                  maxage = 12,
                  userlimits = (0, 580),
                  abslimits = (0, 580),
-                 tacotries = 5,
+                 comtries = 5,
                 ),
     sry = device('antares.servostar.ServoStarMotor',
                  description = 'Sample Rotation around Y',
@@ -31,7 +31,7 @@ devices = dict(
                  maxage = 12,
                  userlimits = (0, 360),
                  abslimits = (0, 360),
-                 tacotries = 5,
+                 comtries = 5,
                 ),
 )
 
