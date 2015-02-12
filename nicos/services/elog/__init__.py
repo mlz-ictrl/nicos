@@ -26,8 +26,7 @@
 import sys
 from time import time as currenttime
 
-from nicos.core import Param, Override, oneof, ModeError, CacheLockError, \
-                       CacheError
+from nicos.core import Param, Override, oneof, CacheLockError
 from nicos.core.sessions.utils import sessionInfo
 from nicos.services.elog.handler import Handler
 from nicos.protocols.cache import OP_TELL, OP_ASK, OP_SUBSCRIBE, cache_load
@@ -57,7 +56,8 @@ class Logbook(BaseCacheClient):
 
     def _connect_action(self):
 
-        @timedRetryOnExcept(max_retries=1, timeout=self._locktimeout, ex=CacheLockError)
+        @timedRetryOnExcept(max_retries=1, timeout=self._locktimeout,
+                            ex=CacheLockError)
         def trylock():
             return self.lock('elog')
 
@@ -65,7 +65,7 @@ class Logbook(BaseCacheClient):
             trylock()
         except CacheLockError as err:
             self.log.info('another elog is already active: %s' %
-                                    sessionInfo(err.locked_by))
+                          sessionInfo(err.locked_by))
             sys.exit(-1)
         else:
             self._islocked = True
@@ -90,7 +90,7 @@ class Logbook(BaseCacheClient):
             return
         key = key[len(self._prefix):]
         time = time and float(time)
-        #self.log.info('got %s=%r' % (key, value))
+        # self.log.info('got %s=%r' % (key, value))
         if key in self._handler.handlers:
             try:
                 value = cache_load(value)
@@ -105,7 +105,7 @@ class Logbook(BaseCacheClient):
                 self._lock_expires = time + self._locktimeout - 1
                 self.lock('elog', self._locktimeout)
 
-    def _disconnect(self, why = None):
+    def _disconnect(self, why=None):
         if self._islocked and self._stoprequest and self._connected:
             self._islocked = False
             self.unlock('elog')
