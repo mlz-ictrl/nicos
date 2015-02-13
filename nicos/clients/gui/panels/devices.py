@@ -324,6 +324,9 @@ class DevicesPanel(Panel):
                 status = cache_load(value)
             devinfo[1] = status
             devitem.setText(2, status[1])
+            if status[0] not in statusIcon:
+                # old or wrong status constant
+                return
             if self.useicons:
                 devitem.setIcon(0, statusIcon[status[0]])
                 devitem.setForeground(2, foregroundBrush[status[0]])
