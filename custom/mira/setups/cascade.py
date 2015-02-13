@@ -1,7 +1,7 @@
 description = 'SANS mode with PSD detector'
 group = 'basic'
 
-includes = ['detector', 'mono2']
+includes = ['detector', 'mono2', 'gas']
 
 devices = dict(
     psd_padformat = device('mira.cascade.CascadePadRAWFormat',
