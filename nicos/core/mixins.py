@@ -29,8 +29,8 @@ from time import time as currenttime
 from nicos import session
 from nicos.core import MAINTENANCE, MASTER, status
 from nicos.core.errors import ConfigurationError
-from nicos.core.params import Override, Param, anytype, dictof, limits, none_or, \
-    nonemptylistof, string, tupleof
+from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
+    limits, none_or, nonemptylistof, string, tupleof
 from nicos.pycompat import add_metaclass, itervalues
 from nicos.utils import lazy_property
 
@@ -273,6 +273,7 @@ class HasPrecision(DeviceMixinBase):
     parameters = {
         'precision': Param('Precision of the device value (allowed deviation of'
                            ' stable values from target)', unit='main',
+                           type=floatrange(0),
                            settable=True, category='precisions'),
     }
 
@@ -458,7 +459,7 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
     }
 
     parameter_overrides = {
-        'precision': Override(mandatory=True),
+        'precision': Override(mandatory=True, type=floatrange(1e-8)),
     }
 
     @lazy_property

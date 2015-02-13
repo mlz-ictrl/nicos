@@ -207,8 +207,9 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif isinstance(typ, params.floatrange):
         edw = EditWidget(parent, float, curvalue, fmtstr or '%.4g',
                          minmax=(typ.fr, typ.to))
-        return AnnotatedWidget(parent, edw, '(range: %.5g to %.5g)' %
-                               (typ.fr, typ.to))
+        annotation = '(range: %.5g to %.5g)' % (typ.fr, typ.to) \
+            if typ.to is not None else '(must be >= %.5g)' % typ.fr
+        return AnnotatedWidget(parent, edw, annotation)
     elif isinstance(typ, params.intrange):
         edw = SpinBoxWidget(parent, curvalue, (typ.fr, typ.to),
                             fmtstr=fmtstr or '%.4g')
@@ -330,7 +331,8 @@ class EditWidget(QLineEdit):
         if typ is float:
             val = QDoubleValidator(self)
             if minmax:
-                val.setRange(minmax[0], minmax[1])
+                val.setRange(minmax[0], minmax[1]
+                             if minmax[1] is not None else float('inf'))
             self.setValidator(val)
             self.setText(fmtstr % curvalue)
         elif typ is int:

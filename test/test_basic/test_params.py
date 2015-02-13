@@ -144,6 +144,9 @@ def test_floatrange():
     assert raises(ValueError, floatrange(0, 10), 'x')
     assert raises(ValueError, floatrange, 2, 1)
 
+    assert floatrange(0)(5) == 5.0
+    assert raises(ValueError, floatrange(0), -5)
+
 
 def test_oneof():
     assert oneof(0, 1)(1) == 1

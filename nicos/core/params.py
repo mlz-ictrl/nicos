@@ -472,13 +472,16 @@ class intrange(object):
 
 class floatrange(object):
 
-    def __init__(self, fr, to):
+    def __init__(self, fr, to=None):
         fr = float(fr)
-        to = float(to)
-        if not fr <= to:
-            raise ValueError('floatrange must fulfill from <= to, given was '
-                             '[%f, %f]' % (fr, to))
-        self.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
+        if to is not None:
+            to = float(to)
+            if not fr <= to:
+                raise ValueError('floatrange must fulfill from <= to, given was '
+                                 '[%f, %f]' % (fr, to))
+            self.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
+        else:
+            self.__doc__ = 'a float >= %f' % fr
         self.fr = fr
         self.to = to
 
@@ -486,9 +489,13 @@ class floatrange(object):
         if val is None:
             return self.fr
         val = float(val)
-        if not self.fr <= val <= self.to:
-            raise ValueError('value needs to fulfill %d <= x <= %d' %
-                             (self.fr, self.to))
+        if self.to is not None:
+            if not self.fr <= val <= self.to:
+                raise ValueError('value needs to fulfill %d <= x <= %d' %
+                                 (self.fr, self.to))
+        else:
+            if not self.fr <= val:
+                raise ValueError('value needs to fulfill %d <= x' % self.fr)
         return val
 
 
