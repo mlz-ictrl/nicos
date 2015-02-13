@@ -86,7 +86,6 @@ class RFCurrent(HasLimits, Moveable):
 
     def doShutdown(self):
         self._runthread = False
-        Moveable.doShutdown(self)
 
     def _setMode(self, mode):
         Moveable._setMode(self, mode)
