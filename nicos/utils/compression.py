@@ -48,6 +48,8 @@ def zipFiles(zipfilename, rootdir, logger=None):
             for fn in files:
                 if fn.startswith('.'):
                     continue  # ignore hidden files
+                if fn.endswith('.zip'):
+                    continue  # ignore (potentially old data) zip files
                 zf.write(path.join(root, fn), path.join(xroot, fn))
                 nfiles += 1
                 if nfiles % 500 == 0:
