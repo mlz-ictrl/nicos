@@ -28,7 +28,7 @@ from time import sleep
 
 from nicos.core import status, oneof, HasLimits, Moveable, Readable, Param, \
     Override, MASTER
-from nicos.devices.taco import TacoDevice, AnalogOutput
+from nicos.devices.taco import AnalogOutput
 from nicos.utils import createThread
 
 
@@ -86,7 +86,7 @@ class RFCurrent(HasLimits, Moveable):
 
     def doShutdown(self):
         self._runthread = False
-        TacoDevice.doShutdown(self)
+        Moveable.doShutdown(self)
 
     def _setMode(self, mode):
         Moveable._setMode(self, mode)
