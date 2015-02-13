@@ -206,6 +206,11 @@ def formatStatus(st):
     return const + (message and ': ' + message or '')
 
 
+def statusString(*strs):
+    """Combine multiple status strings, using commas as needed."""
+    return ', '.join(s for s in strs if s)
+
+
 def _multiMethod(baseclass, method, devices, *args, **kwargs):
     """Calls a method on a list of devices.
 

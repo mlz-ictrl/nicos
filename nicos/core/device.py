@@ -33,7 +33,7 @@ from time import time as currenttime, sleep
 from nicos import session
 from nicos.core import status
 from nicos.core.constants import MASTER, SIMULATION, SLAVE, MAINTENANCE
-from nicos.core.utils import formatStatus, \
+from nicos.core.utils import formatStatus, statusString, \
     defaultIsCompleted, multiIsCompleted, multiStop, multiStatus, multiWait
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
     HasTimeout
@@ -1001,9 +1001,11 @@ class Readable(Device):
             value = self.read(maxage)
             if self.warnlimits:
                 if self.warnlimits[0] is not None and value < self.warnlimits[0]:
-                    stvalue = status.WARN, stvalue[1] + ', below warn limit'
+                    stvalue = status.WARN, \
+                        statusString(stvalue[1], 'below warn limit')
                 elif self.warnlimits[1] is not None and value > self.warnlimits[1]:
-                    stvalue = status.WARN, stvalue[1] + ', above warn limit'
+                    stvalue = status.WARN, \
+                        statusString(stvalue[1], 'above warn limit')
         return stvalue
 
     def doStatus(self, maxage=0):

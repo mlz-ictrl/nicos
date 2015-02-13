@@ -264,6 +264,7 @@ class VirtualTimer(VirtualChannel):
         if self._thread:
             self.doStop()
 
+
 class VirtualCounter(VirtualChannel):
     """A virtual counter channel for use together with
     `nicos.devices.generic.detector.MultiChannelDetector`.
@@ -430,7 +431,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             currtime = time.time()
             self._window.append( (currtime, pos))
             self._starttime = currtime
-            self.curstatus = status.BUSY, 'moving'
+            self.curstatus = status.BUSY, ''
 
     def doRead(self, maxage=0):
         return self.regulation + self.jitter * (0.5 - random.random())
@@ -621,10 +622,10 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             # differ from setpoint by less than tolerance
             with self._statusLock:
                 if self.setpoint == self.target:
-                    self._setROParam('curstatus', (status.OK, 'stable'))
-                    damper -= (damper - 1) / 10. # max value for damper is 11
+                    self._setROParam('curstatus', (status.OK, ''))
+                    damper -= (damper - 1) / 10.  # max value for damper is 11
                 else:
-                    self._setROParam('curstatus', (status.BUSY, 'moving'))
+                    self._setROParam('curstatus', (status.BUSY, ''))
             damper -= (damper - 1) / 20.
             self._setROParam('regulation', round(regulation, 3))
             self._setROParam('sample', round(sample, 3))

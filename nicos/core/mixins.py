@@ -31,6 +31,7 @@ from nicos.core import MAINTENANCE, MASTER, status
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
     limits, none_or, nonemptylistof, string, tupleof
+from nicos.core.utils import statusString
 from nicos.pycompat import add_metaclass, itervalues
 from nicos.utils import lazy_property
 
@@ -412,11 +413,11 @@ class HasTimeout(DeviceMixinBase):
         if code in (status.OK, status.WARN) and \
                 not self.isAtTarget(self.read(maxage)):
             code = status.BUSY
-            msg = 'target not yet reached, ' + msg
+            msg = statusString('target not yet reached', msg)
         if code == status.BUSY:
             if self.isTimedOut():
                 code = self.timeout_status
-                msg = 'movement timed out, ' + msg
+                msg = statusString('movement timed out', msg)
                 # only call once per timeout, flag is reset in Device.start()
                 if not self._timeoutActionCalled and \
                         session.mode in (MASTER, MAINTENANCE):
@@ -434,7 +435,7 @@ class HasTimeout(DeviceMixinBase):
                 # give indication about the phase of the movement
                 for m, t in self._timesout:
                     if t > currenttime():
-                        msg = m + ', ' + msg
+                        msg = statusString(m, msg)
                         break
 
         return (code, msg)
