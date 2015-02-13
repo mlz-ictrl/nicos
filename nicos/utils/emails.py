@@ -57,11 +57,15 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     errors = []
     if isinstance(receiverlist, string_types):
         receiverlist = receiverlist.replace(',', ' ').split()
-    for a in [mailsender] + receiverlist:
+    try:
+        mailaddress(mailsender)
+    except ValueError as e:
+        errors.append('Mailsender: %s' % e)
+    for a in receiverlist:
         try:
             mailaddress(a)
         except ValueError as e:
-            errors.append(e)
+            errors.append('Receiver: %s' % e)
     for fn in attach_files:
         if not path.exists(fn):
             errors.append('Attachment %r does not exist, please check config!' % fn)
