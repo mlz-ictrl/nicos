@@ -102,15 +102,15 @@ xBuntu 12.04
 
 * Basic system:
 
-  apt-get install python python-dev python-numpy python-scipy gnuplot python-psutil
+  apt-get install python python-{dev,zmq,numpy,scipy,psutil} gnuplot
 
 * Optional components:
 
-  apt-get install python-mysqldb python-pyxmpp python-serial python-matplotlib python-pyfits python-lxml
+  apt-get install python-{mysqldb,pyxmpp,serial,matplotlib,pyfits,lxml,ldap}
 
 * GUI and status monitor:
 
-  apt-get install python-numpy python-qt4 python-qwt5-qt4 python-scipy libcfitsio3-dev
+  apt-get install python-qt4 python-qwt5-qt4 libcfitsio3-dev
 
 * Development and documentation build:
 
