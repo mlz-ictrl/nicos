@@ -112,6 +112,23 @@ def usage(prog):
     return 1
 
 
+# compatibility across multiple versions of psutil
+
+def cmd_line(p):
+    return p.cmdline if isinstance(p.cmdline, list) else p.cmdline()
+
+
+def process_name(p):
+    return p.name if isinstance(p.name, str) else p.name()
+
+
+def process_children(p):
+    try:
+        return p.get_children(recursive=True)
+    except TypeError:  # always recursive in psutil < 1.0
+        return p.get_children()
+
+
 def read_pidfile(name, wait=0):
     begin = time.time()
     pidpath = path.join(PID_PATH, '%s.pid' % name)
@@ -127,7 +144,7 @@ def read_pidfile(name, wait=0):
         time.sleep(0.1)
     # check that pid really exists
     try:
-        params = open('/proc/%d/cmdline' % pid, 'r').read().split('\0')
+        params = cmd_line(psutil.Process(pid))
         if '-' in name:
             procname, instname = name.split('-')
             if not params[1].endswith(procname) and instname in params[2:]:
@@ -148,7 +165,7 @@ def check_stray_procs(name):
     known_subprocs = set()
     if known_process:
         known_subprocs.add(known_process)
-        for p in psutil.Process(known_process).get_children(recursive=True):
+        for p in process_children(psutil.Process(known_process)):
             known_subprocs.add(p.pid)
 
     still_running = set()
@@ -157,14 +174,14 @@ def check_stray_procs(name):
             continue
         if p.pid in known_subprocs:
             continue
-        if 'python' in p.name() and 'nicos-%s' % name in ' '.join(p.cmdline()):
+        if 'python' in process_name(p) and 'nicos-%s' % name in ' '.join(cmd_line(p)):
             still_running.add(p)
 
     if still_running:
         printerr('WARNING: some other', name, 'processes seem to run!')
         printerr(' PID    Commandline')
         for p in still_running:
-            printerr('%-6d  %s' % (p.pid, ' '.join(p.cmdline())))
+            printerr('%-6d  %s' % (p.pid, ' '.join(cmd_line(p))))
         printerr('You could kill all of them with this command:')
         printerr('# kill %s' % ' '.join(str(p.pid) for p in still_running))
         printerr()

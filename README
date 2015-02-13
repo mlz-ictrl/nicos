@@ -37,7 +37,7 @@ Requirements
 * pyzmq version >= 2
 
 * For the provided SysV compatible init script:
-  - psutil >= 2.0
+  - psutil version >= 0.4 (recommended >= 2.0)
 
 * Optional for the basic system:
   - the TACO Python libraries
