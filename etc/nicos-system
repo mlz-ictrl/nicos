@@ -56,6 +56,13 @@ except ImportError:
 def printerr(*args, **kwargs):
     kwargs.pop('file', None)
     print(*args, file=sys.stderr, **kwargs)
+    sys.stderr.flush()
+
+
+def printout(*args, **kwargs):
+    kwargs.pop('file', None)
+    print(*args, file=sys.stdout, **kwargs)
+    sys.stdout.flush()
 
 
 if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
@@ -175,10 +182,10 @@ def start_daemon(name):
         printerr('NOT starting any additional daemons until this is resolved.')
         printerr()
         return
-    print('Starting %s...' % name, end=' ')
+    printout('Starting %s...' % name, end=' ')
     previous_pid = read_pidfile(name)
     if previous_pid:
-        print('already running? (pid = %d)' % previous_pid)
+        printout('already running? (pid = %d)' % previous_pid)
         return
     try:
         procname, instname = name.split('-')
@@ -189,11 +196,11 @@ def start_daemon(name):
                            else '', ))
     pid = read_pidfile(name, wait=10)
     if not pid:
-        print('failed, please look in the logfile at %s'
-              % path.join(LOG_PATH, name, name
-                          + time.strftime('-%Y-%m-%d.log')))
+        printout('failed, please look in the logfile at %s'
+                 % path.join(LOG_PATH, name, name
+                             + time.strftime('-%Y-%m-%d.log')))
         return False
-    print('pid =', pid)
+    printout('pid =', pid)
     if name == 'cache':
         time.sleep(3)
     return True
@@ -201,27 +208,27 @@ def start_daemon(name):
 
 def kill_daemon(name):
     try:
-        print('Killing %s...' % name, end=' ')
+        printout('Killing %s...' % name, end=' ')
         pid = read_pidfile(name)
         if not pid:
-            print('not running?')
+            printout('not running?')
             return True
-        print('pid =', pid, end=' ')
+        printout('pid =', pid, end=' ')
         os.kill(pid, signal.SIGTERM)
         time.sleep(0.1)
         begin = time.time()
         while 1:
             pid = read_pidfile(name)
             if not pid:
-                print()
+                printout()
                 return True
             time.sleep(0.1)
             current = time.time()
             if current > begin + 10:
-                print('FAILED to stop!')
+                printout('FAILED to stop!')
                 return False
             elif current > begin + 6:
-                print('KILL')
+                printout('KILL')
                 try:
                     os.kill(pid, signal.SIGKILL)
                 except OSError as err:
@@ -231,8 +238,8 @@ def kill_daemon(name):
                         return False
             elif current > begin + 1:
                 time.sleep(0.2)
-            print('.', end=' ')
-        print()
+            printout('.', end=' ')
+        printout()
     finally:
         # no matching process should have survived. If they do, warn!
         check_stray_procs(name)
@@ -271,7 +278,7 @@ def main(args):
 
     elif action == 'stop':
         if not all_option and not explicit_daemons and 'cache' in daemons:
-            print('Not stopping cache, use -a option to force')
+            printout('Not stopping cache, use -a option to force')
             daemons.remove('cache')
         for name in reversed(daemons):
             if not kill_daemon(name):
@@ -279,7 +286,7 @@ def main(args):
 
     elif action == 'restart':
         if not all_option and not explicit_daemons and 'cache' in daemons:
-            print('Not restarting cache, use -a option to force')
+            printout('Not restarting cache, use -a option to force')
             daemons.remove('cache')
         dmns = ' '.join(daemons)
         os.system('%s stop %s && sleep 1 && %s start %s' % (
@@ -292,9 +299,9 @@ def main(args):
             except Exception as e:
                 printerr('%-12s: could not read pidfile: %s' % (name, e))
             if pid:
-                print('%-12s: running (pid = %s)' % (name, pid))
+                printout('%-12s: running (pid = %s)' % (name, pid))
             else:
-                print('%-12s: dead' % name)
+                printout('%-12s: dead' % name)
                 exitstatus = 1
             # ignoring return value here.
             check_stray_procs(name)
