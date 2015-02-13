@@ -25,7 +25,7 @@
 
 """Toni-protocol device classes."""
 
-from time import sleep, time
+from time import sleep, time as currenttime
 
 from IO import StringIO
 
@@ -110,6 +110,8 @@ class Valve(Moveable):
         'unit':     Override(mandatory=False),
     }
 
+    _started = 0
+
     def doInit(self, mode):
         if len(self.states) != 2:
             raise ConfigurationError(self, 'Valve states must be a list of '
@@ -121,6 +123,7 @@ class Valve(Moveable):
         self.wait()
         msg = '%s=%02x' % (value and 'O' or 'C', 1 << self.channel)
         self._adevs['bus'].communicate(msg, self.addr, expect_ok=True)
+        self._started = currenttime()
 
     def doRead(self, maxage=0):
         self.wait()
@@ -136,7 +139,7 @@ class Valve(Moveable):
             return status.BUSY, 'busy'
 
     def doIsCompleted(self):
-        return self.started + self.waittime > time()
+        return self._started + self.waittime > currenttime()
 
 
 class Leckmon(Readable):
