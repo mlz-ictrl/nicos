@@ -6,8 +6,8 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 description = "Axes setup"
 group = "optional"
 
-_TANGO_SRV = "phys.biodiff.frm2:10000"
-_TANGO_URL = "tango://" + _TANGO_SRV + "/biodiff/FZJS7/"
+tango_host = "tango://phys.biodiff.frm2:10000"
+_TANGO_URL = tango_host + "/biodiff/FZJS7/"
 
 devices = dict(
     omega_samplestepper = device("devices.tango.Motor",

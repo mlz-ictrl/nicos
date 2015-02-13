@@ -2,7 +2,7 @@ description = 'POLI copper monochromator devices'
 
 group = 'lowlevel'
 
-tango_host = 'tango://localhost:10000'
+tango_host = 'tango://phys.poli.frm2:10000'
 
 devices = dict(
     cuh = device('devices.tango.Motor',

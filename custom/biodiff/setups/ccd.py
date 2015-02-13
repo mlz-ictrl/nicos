@@ -8,8 +8,8 @@ group = "basic"
 
 includes = ["counter", "shutter", "microstep"]
 
-_TANGO_SRV = "phys.biodiff.frm2:10000"
-_TANGO_BASE_URL = "tango://%s/biodiff/detector" % _TANGO_SRV
+tango_host = "tango://phys.biodiff.frm2:10000"
+_TANGO_BASE_URL = "%s/biodiff/detector" % tango_host
 
 devices = dict(
     FITSFileSaver = device("devices.fileformats.fits.FITSFileFormat",

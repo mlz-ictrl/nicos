@@ -26,8 +26,7 @@ description = 'setup for the velocity selector'
 
 group = 'optional'
 
-#tango_host = 'tango://phys.dns.frm2:10000'
-tango_host = 'tango://localhost:10000'
+tango_host = 'tango://phys.dns.frm2:10000'
 tango_url = '%s/dns/Selector' % (tango_host,)
 
 

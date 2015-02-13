@@ -6,8 +6,8 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 description = "Shutter setup"
 group = "optional"
 
-_TANGO_SRV = "phys.biodiff.frm2:10000"
-_TANGO_URL = "tango://" + _TANGO_SRV + "/biodiff/FZJDP_Digital/"
+tango_host = "tango://phys.biodiff.frm2:10000"
+_TANGO_URL = tango_host + "/biodiff/FZJDP_Digital/"
 _MAP_SHUTTER = {
                 "open": 1,
                 "close": 2,

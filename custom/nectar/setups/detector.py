@@ -4,7 +4,7 @@ description = 'Andor DV434 CCD camera'
 
 group = 'optional'
 
-tango_host = 'nectarccd01.nectar.frm2:10000'
+tango_host = 'tango://nectarccd01.nectar.frm2:10000'
 
 devices = dict(
     FITSFileSaver = device('devices.fileformats.fits.FITSFileFormat',
@@ -13,8 +13,8 @@ devices = dict(
                           ),
 
     ccd = device('devices.vendor.lima.Andor2LimaCCD',
-                 tangodevice = 'tango://%s/nectar/detector/limaccd' % tango_host,
-                 hwdevice = 'tango://%s/nectar/detector/dv434' % tango_host,
+                 tangodevice = '%s/nectar/detector/limaccd' % tango_host,
+                 hwdevice = '%s/nectar/detector/dv434' % tango_host,
                  pollinterval = 5,
                  maxage = 12,
                  flip = (False, False),
@@ -29,7 +29,7 @@ devices = dict(
                  fileformats = ['FITSFileSaver'],
                 ),
     ccdTemp = device('devices.vendor.lima.Andor2TemperatureController',
-                     tangodevice = 'tango://%s/nectar/detector/dv434' % tango_host,
+                     tangodevice = '%s/nectar/detector/dv434' % tango_host,
                      pollinterval = 5,
                      maxage = 12,
                      abslimits = (-100, 0),

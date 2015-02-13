@@ -4,8 +4,7 @@ description = 'DNS motors'
 
 group = 'optional'
 
-#tango_host = 'tango://phys.dns.frm2:10000'
-tango_host = 'tango://localhost:10000'
+tango_host = 'tango://phys.dns.frm2:10000'
 
 devices = dict(
     det_rot        = device('devices.tango.Motor',

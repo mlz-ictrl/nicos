@@ -6,7 +6,7 @@ group = 'optional'
 
 includes = ['shutters']
 
-tango_host = 'antareshw.antares.frm2:10000'
+tango_host = 'tango://antareshw.antares.frm2:10000'
 
 devices = dict(
     FITSFileSaver = device('devices.fileformats.fits.FITSFileFormat',
@@ -16,8 +16,8 @@ devices = dict(
 
     ccd = device('antares.ikonl.AntaresIkonLCCD',
                  description = 'The Andor Ikon L CCD camera detector',
-                 tangodevice = 'tango://%s/antares/detector/limaccd' % tango_host,
-                 hwdevice = 'tango://%s/antares/detector/ikonl' % tango_host,
+                 tangodevice = '%s/antares/detector/limaccd' % tango_host,
+                 hwdevice = '%s/antares/detector/ikonl' % tango_host,
                  fastshutter = 'fastshutter',
                  pollinterval = 3,
                  maxage = 9,
@@ -34,7 +34,7 @@ devices = dict(
                 ),
     ccdTemp = device('devices.vendor.lima.Andor2TemperatureController',
                      description = 'The CCD chip temperature',
-                     tangodevice = 'tango://%s/antares/detector/ikonl' % tango_host,
+                     tangodevice = '%s/antares/detector/ikonl' % tango_host,
                      maxage = 5,
                      abslimits = (-100, 0),
                      userlimits = (-100, 0),

@@ -6,8 +6,8 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 description = "ZEA-2 counter card setup"
 group = "optional"
 
-_TANGO_SRV = "phys.biodiff.frm2:10000"
-_TANGO_URL = "tango://" + _TANGO_SRV + "/biodiff/count/"
+tango_host = "tango://phys.biodiff.frm2:10000"
+_TANGO_URL = tango_host + "/biodiff/count/"
 
 devices = dict(
     timer = device("jcns.fpga.FPGATimerChannel",

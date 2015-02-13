@@ -6,9 +6,9 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 description = "Coil setup"
 group = "optional"
 
-_TANGO_HOST = 'tango://phys.dns.frm2:10000'
-_GPIB_URL = _TANGO_HOST + '/dns/gpib/%d'
-_DIO_URL = _TANGO_HOST + '/dns/FZJDP_Digital/%s'
+tango_host = 'tango://phys.dns.frm2:10000'
+_GPIB_URL = tango_host + '/dns/gpib/%d'
+_DIO_URL = tango_host + '/dns/FZJDP_Digital/%s'
 _POLCHANGE = {"+": 0, "-": 1}
 
 ##

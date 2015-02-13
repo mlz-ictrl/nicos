@@ -6,7 +6,7 @@ includes = ['mono', ]
 
 excludes = []
 
-tango_host = 'tango://localhost:10000'
+tango_host = 'tango://phys.poli.frm2:10000'
 
 devices = dict(
     bmv = device('devices.tango.Motor',

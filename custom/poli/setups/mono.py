@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = ['mono_cu', 'mono_si']
 
-tango_host = 'tango://localhost:10000'
+tango_host = 'tango://phys.poli.frm2:10000'
 
 devices = dict(
     chi_m     = device('devices.tango.Motor',

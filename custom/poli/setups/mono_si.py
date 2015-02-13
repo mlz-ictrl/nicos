@@ -2,7 +2,7 @@ description = 'POLI silicon monochromator devices'
 
 group = 'lowlevel'
 
-tango_host = 'tango://localhost:10000'
+tango_host = 'tango://phys.poli.frm2:10000'
 
 devices = dict(
     sih = device('devices.tango.Motor',
