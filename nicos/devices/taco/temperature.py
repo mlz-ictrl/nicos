@@ -24,14 +24,13 @@
 
 """NICOS temperature controller classes."""
 
-import time
+from time import sleep
 
 import TACOStates
 import Temperature
 
 from nicos.core import status, oneof, Param, Readable, Moveable, HasLimits, \
-    TimeoutError, Override
-from nicos.core.utils import waitForStatus
+    Override, HasWindowTimeout, defaultIsCompleted
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -40,14 +39,12 @@ class TemperatureSensor(TacoDevice, Readable):
     taco_class = Temperature.Sensor
 
 
-class TemperatureController(TacoDevice, HasLimits, Moveable):
+class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
     """TACO temperature controller device."""
     taco_class = Temperature.Controller
 
     _TACO_STATUS_MAPPING = dict(TacoDevice._TACO_STATUS_MAPPING)
     _TACO_STATUS_MAPPING[TACOStates.UNDEFINED] = (status.NOTREACHED, 'temperature not reached')
-
-    # XXX: rework timeout handling
 
     parameters = {
         'setpoint':  Param('Current temperature setpoint', unit='main',
@@ -63,14 +60,6 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
                            type=float, category='general', chatty=True),
         'ramp':      Param('Temperature ramp in K/min', unit='K/min',
                            settable=True, volatile=True, chatty=True),
-        'tolerance': Param('The window\'s temperature tolerance', unit='K',
-                           settable=True, category='general', chatty=True),
-        'window':    Param('Time window for checking stable temperature',
-                           unit='s', settable=True, category='general',
-                           chatty=True),
-        'timeout':   Param('Maximum time to wait for stable temperature',
-                           unit='s', settable=True, category='general',
-                           chatty=True),
         'timeoutaction':  Param('What to do when a timeout occurs',
                                 type=oneof('continue', 'raise'), settable=True),
         'heaterpower':    Param('Current heater power', unit='W',
@@ -85,24 +74,27 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
 
     parameter_overrides = {
         'userlimits': Override(volatile=True),
+        'precision':  Override(mandatory=False),  # can be read from server
     }
 
-    @property
-    def timeout_status(self):
-        if self.timeoutaction == 'raise':
-            return status.ERROR
-        return status.NOTREACHED
-
-    def doRead(self, maxage=0):
-        return self._taco_guard(self._dev.read)
+    def _waitForTacoIdle(self):
+        while self.doStatus()[0] == status.BUSY:
+            sleep(self._base_loop_delay)
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
             self.log.debug('stopping running temperature change')
             self._taco_guard(self._dev.stop)
-            waitForStatus(self)
+            self._waitForTacoIdle()
         self._taco_guard(self._dev.write, target)
         self._pollParam('setpoint', 100)
+
+    def doTime(self, oldvalue, newvalue):
+        if self.ramp:
+            ramptime = 60 * abs(newvalue - oldvalue) / self.ramp
+        else:
+            ramptime = 0
+        return ramptime + self.window
 
     def doStop(self):
         # NOTE: TACO stop sets the setpoint to the current temperature,
@@ -110,56 +102,10 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
         if self.ramp and self.status(0)[0] == status.BUSY:
             self._taco_guard(self._dev.stop)
 
-    def doWait(self):
-        delay = self.loopdelay
-        # while 1:
-        #     v = self.read()
-        #     self.log.debug('current temperature %7.3f %s' % (v, self.unit))
-        #     s = self.status()[0]
-        #     if s == status.OK:
-        #         return v
-        #     elif s == status.ERROR:
-        #         raise CommunicationError(self, 'device in error state')
-        #     elif s == status.NOTREACHED:
-        #         raise TimeoutError(self, 'temperature not reached in %s seconds'
-        #                            % self.timeout)
-        #     time.sleep(delay)
-        tolerance = self.tolerance
-        setpoint = self.target
-        window = self.window
-        timeout = self.timeout
-        self.log.debug('wait time =  %d' % timeout)
-        if self.ramp != 0.:
-            timeout += 60 * abs(self.read() - setpoint) / self.ramp
-        self.log.debug('wait time =  %d' % timeout)
-        firststart = started = time.time()
-        while 1:
-            value = self.read()
-            now = time.time()
-            self.log.debug('%7.0f s: current temperature %7.3f %s' %
-                           ((now - firststart), value, self.unit))
-            if abs(value - setpoint) > tolerance:
-                # start again
-                started = now
-            elif now > started + window:
-                return value
-            if now - firststart > timeout:
-                if self.timeoutaction == 'raise':
-                    raise TimeoutError(self, 'temperature not reached in '
-                                       '%s seconds' % timeout)
-                else:
-                    self.log.warning('temperature not reached in %s seconds, '
-                                     'continuing anyway' % timeout)
-                    return
-            time.sleep(delay)
-
-    def doTime(self, oldvalue, newvalue):
-        if self.ramp:
-            ramptime = 60 * abs(newvalue - oldvalue) / self.ramp
-        else:
-            # XXX what to do here?  we cannot really make a good guess...
-            ramptime = 0
-        return ramptime + self.window
+    def doIsCompleted(self):
+        errorstates = (status.ERROR, status.NOTREACHED) \
+            if self.timeoutaction == 'raise' else (status.ERROR,)
+        return defaultIsCompleted(self, errorstates=errorstates)
 
     def doPoll(self, n):
         if self.ramp:
@@ -191,7 +137,7 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
         # despite the name this gives the current heater output in Watt
         return self._taco_guard(self._dev.manualHeaterOutput)
 
-    def doReadTolerance(self):
+    def doReadPrecision(self):
         return float(self._taco_guard(self._dev.deviceQueryResource,
                                       'tolerance'))
 
@@ -212,28 +158,26 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
             self._dev.deviceQueryResource, 'defaultmode')[:-1])]
 
     def doReadUserlimits(self):
-        ''' Try to get uptodate values from the hardware
+        """Try to get up-to-date values from the hardware.
 
-            If one of the limits is not supported, we keep any set
-            limit value.
-        '''
-
+        If one of the limits is not supported, we keep any set limit value.
+        """
         try:
             limits = list(self._params['userlimits'])
         except Exception:
             limits = list(self.abslimits)
         for i, res in enumerate(['usermin', 'usermax']):
             try:
-                limits[i] = self._dev.deviceQueryResource(res)
+                limits[i] = float(self._dev.deviceQueryResource(res))
             except Exception as err:
                 if str(err) != 'resource not supported':
                     self.log.warning('Could not query %s : %s'
-                                 % (res, err))
+                                     % (res, err))
         return tuple(limits)
 
     def doReadMaxheaterpower(self):
         return float(self._taco_guard(self._dev.deviceQueryResource,
-                                       'maxpower'))
+                                      'maxpower'))
 
     def doWriteP(self, value):
         self._taco_guard(self._dev.setPParam, value)
@@ -254,10 +198,10 @@ class TemperatureController(TacoDevice, HasLimits, Moveable):
                          'start/move it again.' % resource)
         self._taco_guard(self._dev.stop)
         # do wait for real stop
-        waitForStatus(self)
+        self._waitForTacoIdle()
         self._taco_update_resource(resource, str(value))
 
-    def doWriteTolerance(self, value):
+    def doWritePrecision(self, value):
         self.__stop_and_set('tolerance', value)
 
     def doWriteWindow(self, value):
