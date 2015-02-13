@@ -215,14 +215,13 @@ def kill_daemon(name):
             return True
         printout('pid =', pid, end=' ')
         os.kill(pid, signal.SIGTERM)
-        time.sleep(0.1)
         begin = time.time()
         while 1:
+            time.sleep(0.1)
             pid = read_pidfile(name)
             if not pid:
                 printout()
                 return True
-            time.sleep(0.1)
             current = time.time()
             if current > begin + 10:
                 printout('FAILED to stop!')
