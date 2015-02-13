@@ -407,7 +407,7 @@ class HasTimeout(DeviceMixinBase):
         call `timeoutAction` once if defined. Pollers and other `SLAVE`s do
         *not* call `timeoutAction`.
         """
-        code, msg = Readable._combinedStatus(maxage)
+        code, msg = Readable._combinedStatus(self, maxage)
 
         if code in (status.OK, status.WARN) and \
                 not self.isAtTarget(self.read(maxage)):
