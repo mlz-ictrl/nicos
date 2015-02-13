@@ -1,4 +1,4 @@
-description = 'PUMA Eulerian cradle with IPC motorbus'
+description = 'PUMA Eulerian cradle'
 group = 'optional'
 
 includes = ['base']
