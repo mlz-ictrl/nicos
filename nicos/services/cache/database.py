@@ -605,6 +605,9 @@ class FlatfileCacheDatabase(CacheDatabase):
                         lastvalue = '%s@%s=%s\n' % (time, key, value)
             except Exception:
                 self.log.exception('error reading store file for history query')
+        # return at least the last value, if none match the range
+        if not inrange and lastvalue is not None:
+            temp.append(lastvalue)
         yield ''.join(temp)
 
     def _clean(self):
