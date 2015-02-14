@@ -334,11 +334,7 @@ class VirtualCounter(VirtualChannel):
 class VirtualTemperature(VirtualMotor):
     """A virtual temperature regulation device."""
 
-    # XXX: change to HasPrecision
-
     parameters = {
-        'tolerance': Param('Tolerance for wait()', default=1, settable=True,
-                           unit='main', category='general'),
         'setpoint':  Param('Last setpoint', settable=True, unit='main',
                            category='general'),
     }
@@ -347,6 +343,7 @@ class VirtualTemperature(VirtualMotor):
         'unit':      Override(mandatory=False, default='K'),
         'jitter':    Override(default=0.1),
         'curvalue':  Override(default=10),
+        'precision': Override(default=1),
     }
 
     def doStart(self, pos):
@@ -354,7 +351,7 @@ class VirtualTemperature(VirtualMotor):
         VirtualMotor.doStart(self, pos)
 
     def doIsCompleted(self):
-        if abs(self.read(0) - self.setpoint) < self.tolerance:
+        if abs(self.read(0) - self.setpoint) < self.precision:
             self.curstatus = (status.OK, 'idle')
             return True
         return False
