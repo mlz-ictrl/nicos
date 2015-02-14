@@ -75,6 +75,8 @@ class Watchdog(BaseCacheClient):
 
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
+        # set to true during connect action
+        self._first_update = False
         # current setups
         self._setups = set()
         # mapping entry ids to entrys
@@ -154,6 +156,13 @@ class Watchdog(BaseCacheClient):
         self._queue.put('watchdog/%s%s%s\n' % (msgtype, OP_TELL,
                                                cache_dump(message)))
 
+    def _connect_action(self):
+        self._first_update = True
+        try:
+            BaseCacheClient._connect_action(self)
+        finally:
+            self._first_update = False
+
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if not value:
             return
@@ -199,8 +208,9 @@ class Watchdog(BaseCacheClient):
                 try:
                     value = eval(entry.condition, self._keydict)
                 except Exception:
-                    self.log.warning('error evaluating %r warning condition '
-                                     '(ok during startup)' % key, exc=1)
+                    if not self._first_update:
+                        self.log.warning('error evaluating %r warning '
+                                         'condition' % key, exc=1)
                     continue
                 if entry.gracetime and value and eid not in self._watch_grace:
                     self.log.info('condition %r triggered, awaiting grace time'
@@ -218,8 +228,9 @@ class Watchdog(BaseCacheClient):
             try:
                 value = eval(entry.precondition, self._keydict)
             except Exception:
-                self.log.warning('error evaluating %r warning precondition '
-                                 '(ok during startup)' % key, exc=1)
+                if not self._first_update:
+                    self.log.warning('error evaluating %r warning '
+                                     'precondition' % key, exc=1)
                 continue
             value = bool(value)
             self.log.debug('precondition %r is now %s' %
