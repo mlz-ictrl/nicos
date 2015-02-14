@@ -32,7 +32,7 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
-from nicos.core.constants import MASTER, SIMULATION, SLAVE, MAINTENANCE
+from nicos.core.constants import MASTER, SIMULATION, SLAVE
 from nicos.core.utils import formatStatus, statusString, \
     defaultIsCompleted, multiIsCompleted, multiStop, multiStatus, multiWait
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
@@ -1827,10 +1827,12 @@ class DeviceAlias(Device):
                              'alias devclass', exc=1)
             self._cls = Device
         Device.__init__(self, name, **config)
-        if self._cache and self._mode in (MASTER, MAINTENANCE):
-            # re-set alias to configured device every time... necessary to clean
-            # up old assignments pointing to now nonexisting devices
-            self.alias = config.get('alias', self._cache.get(self, 'alias', ''))
+        # update the configured alias device - we do this after the init
+        # procedure to avoid calling init stuff in the aliased dev
+        devname = config.get('alias', )
+        if devname is None and self._cache:
+            devname = self._cache.get(self, 'alias', '')
+        self.doUpdateAlias(devname)
         self._initialized = True
 
     def __repr__(self):
