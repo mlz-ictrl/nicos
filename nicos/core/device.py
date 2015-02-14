@@ -36,7 +36,7 @@ from nicos.core.constants import MASTER, SIMULATION, SLAVE
 from nicos.core.utils import formatStatus, statusString, \
     defaultIsCompleted, multiIsCompleted, multiStop, multiStatus, multiWait
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
-    HasTimeout
+    HasTimeout, HasPrecision
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
     anytype, none_or, dictof, listof, tupleof, nicosdev, Attach
 from nicos.core.errors import NicosError, ConfigurationError, \
@@ -998,6 +998,7 @@ class Readable(Device):
         """
         stvalue = self.doStatus(maxage)
         if stvalue[0] == status.OK:
+            value = None
             wl = self.warnlimits
             if wl:
                 value = self.read(maxage)
@@ -1009,6 +1010,21 @@ class Readable(Device):
                     stvalue = status.WARN, \
                         statusString(stvalue[1], 'above warn limit (%s)' %
                                      self.format(wl[1], unit=True))
+            if isinstance(self, HasLimits):
+                if value is None:
+                    value = self.read(maxage)
+                ul = self.userlimits
+                # take precision into account in case we drive exactly to the
+                # user limit but the device overshoots a little
+                prec = self.precision if isinstance(self, HasPrecision) else 0
+                if value < ul[0] - prec:
+                    stvalue = status.WARN, \
+                        statusString(stvalue[1], 'below user limit (%s)' %
+                                     self.format(ul[0], unit=True))
+                elif value > ul[1] + prec:
+                    stvalue = status.WARN, \
+                        statusString(stvalue[1], 'above user limit (%s)' %
+                                     self.format(ul[1], unit=True))
 
         return stvalue
 
