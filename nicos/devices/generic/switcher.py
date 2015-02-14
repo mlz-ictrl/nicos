@@ -26,7 +26,7 @@
 """NICOS "switcher" devices."""
 
 from nicos.utils import lazy_property
-from nicos.core import anytype, dictof, none_or, listof, \
+from nicos.core import anytype, dictof, none_or, listof, floatrange, \
     PositionError, ConfigurationError, Moveable, Readable, Param, \
     Override, status, InvalidValueError, multiStatus, multiStop, multiReset, \
     multiWait
@@ -135,7 +135,8 @@ class ReadonlySwitcher(MappedReadable):
     }
 
     parameters = {
-        'precision': Param('Precision for comparison', type=float, default=0),
+        'precision': Param('Precision for comparison', type=floatrange(0),
+                           default=0),
     }
 
     parameter_overrides = {
@@ -212,7 +213,7 @@ class MultiSwitcher(MappedMoveable):
     parameters = {
         'precision': Param('List of allowed deviations (1 or N) from target '
                            'position, or None to disable.', mandatory=True,
-                           type=none_or(listof(none_or(float)))),
+                           type=none_or(listof(none_or(floatrange(0))))),
         'blockingmove': Param('Should we wait for the move to finish?',
                               mandatory=False, default=True, settable=True,
                               type=bool),
