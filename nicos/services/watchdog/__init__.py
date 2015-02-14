@@ -337,5 +337,9 @@ class Watchdog(BaseCacheClient):
     def _spawn_action(self, action):
         self.log.warning('will execute action %r' % action)
         script = path.join(config.nicos_root, 'bin', 'nicos-script')
-        subprocess.Popen([script, '-M', '-A', 'watchdog-action',
-                          ','.join(self._setups), action])
+        subprocess.Popen([script,
+                          '-M',                     # start in maintenance mode
+                          '-S', '60',               # abort after 60 seconds
+                          '-A', 'watchdog-action',  # appname for the logfiles
+                          ','.join(self._setups),   # setups to load
+                          action])                  # code to execute

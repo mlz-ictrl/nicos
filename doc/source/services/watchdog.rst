@@ -165,3 +165,6 @@ specification can have these keys:
    detected.  It is run in a separate process, and therefore it can take a few
    seconds until the action is actually executed.  This should not be used for
    very time-critical conditions.
+
+   The action should not take longer than 60 seconds; in case it does the process
+   will be forcibly aborted.
