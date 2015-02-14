@@ -998,14 +998,18 @@ class Readable(Device):
         """
         stvalue = self.doStatus(maxage)
         if stvalue[0] == status.OK:
-            value = self.read(maxage)
-            if self.warnlimits:
-                if self.warnlimits[0] is not None and value < self.warnlimits[0]:
+            wl = self.warnlimits
+            if wl:
+                value = self.read(maxage)
+                if wl[0] is not None and value < wl[0]:
                     stvalue = status.WARN, \
-                        statusString(stvalue[1], 'below warn limit')
-                elif self.warnlimits[1] is not None and value > self.warnlimits[1]:
+                        statusString(stvalue[1], 'below warn limit (%s)' %
+                                     self.format(wl[0], unit=True))
+                elif wl[1] is not None and value > wl[1]:
                     stvalue = status.WARN, \
-                        statusString(stvalue[1], 'above warn limit')
+                        statusString(stvalue[1], 'above warn limit (%s)' %
+                                     self.format(wl[1], unit=True))
+
         return stvalue
 
     def doStatus(self, maxage=0):
