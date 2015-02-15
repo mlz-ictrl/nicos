@@ -26,6 +26,8 @@
 NICOS GUI LED class.
 """
 
+import ast
+
 from PyQt4.QtGui import QLabel, QWidget, QPixmap
 from PyQt4.QtCore import Qt, QSize
 
@@ -89,14 +91,20 @@ class ValueLed(BaseLed):
     designer_description = 'LED showing if the selected value is true'
 
     properties = {
-        'dev':   PropDef(str, ''),
-        'key':   PropDef(str, ''),
+        'dev':    PropDef(str, '', 'NICOS device to use the value'),
+        'key':    PropDef(str, '', 'Key to use as the value'),
+        'goal':   PropDef(str, '', 'Comparison value (by default the LED is '
+                          'green if value is true/nonzero)'),
     }
+
+    _goalval = None
 
     def propertyUpdated(self, pname, value):
         if pname == 'dev':
             if value:
                 self.key = value + '.value'
+        elif pname == 'goal':
+            self._goalval = ast.literal_eval(value) if value else None
         BaseLed.propertyUpdated(self, pname, value)
 
     def on_keyChange(self, key, value, time, expired):
@@ -104,7 +112,11 @@ class ValueLed(BaseLed):
             self.ledStatus = False
         else:
             self.ledStatus = True
-        if value:
+        if self._goalval is not None:
+            green = value == self._goalval
+        else:
+            green = value
+        if green:
             self.ledColor = 'green'
         else:
             self.ledColor = 'red'
