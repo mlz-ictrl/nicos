@@ -114,7 +114,7 @@ class ExpPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_finishButton_clicked(self):
-        self.client.tell('start', '', 'FinishExperiment()')
+        self.client.tell('queue', '', 'FinishExperiment()')
 
     @qtsig('')
     def on_queryDBButton_clicked(self):

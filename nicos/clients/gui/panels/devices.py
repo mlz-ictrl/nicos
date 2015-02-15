@@ -24,6 +24,8 @@
 
 """NICOS GUI panel with a list of all devices."""
 
+from logging import WARNING
+
 from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
     QDialog, QMessageBox, QPushButton
@@ -33,6 +35,7 @@ from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
     DeviceComboWidget
+from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import loadUi, dialogFromUi
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
@@ -138,12 +141,18 @@ class DevicesPanel(Panel):
         self._control_dialogs = {}
         self._show_lowlevel = self.mainwindow.expertmode
 
+        # daemon request number of last command executed from this panel
+        # (used to display messages from this command)
+        self._exec_reqno = None
+        self._error_window = None
+
         if client.connected:
             self.on_client_connected()
         self.connect(client, SIGNAL('connected'), self.on_client_connected)
         self.connect(client, SIGNAL('disconnected'), self.on_client_disconnected)
         self.connect(client, SIGNAL('cache'), self.on_client_cache)
         self.connect(client, SIGNAL('device'), self.on_client_device)
+        self.connect(client, SIGNAL('message'), self.on_client_message)
 
     def setOptions(self, options):
         self.useicons = bool(options.get('icons', True))
@@ -189,6 +198,23 @@ class DevicesPanel(Panel):
 
     def on_client_disconnected(self):
         self.clear()
+
+    def on_client_message(self, message):
+        # show warnings and errors emitted by the current command in a window
+        if len(message) < 7 or message[6] != self._exec_reqno or \
+           message[2] < WARNING:
+            return
+        msg = '%s: %s' % (message[0], message[3].strip())
+        if self._error_window is None:
+            def reset_errorwindow():
+                self._error_window = None
+            self._error_window = ErrorDialog(self)
+            self._error_window.accepted.connect(reset_errorwindow)
+            self._error_window.addMessage(msg)
+            self._error_window.show()
+        else:
+            self._error_window.addMessage(msg)
+            self._error_window.activateWindow()
 
     def _read_setup_info(self, state=None):
         if state is None:
@@ -489,8 +515,9 @@ class DevicesPanel(Panel):
             command = 'CreateDevice(%r)\n' % needed_dev + command
         if immediate:
             self.client.tell('exec', command)
+            self._exec_reqno = None  # no request assigned to this command
         else:
-            self.client.tell('queue', '', command)
+            self._exec_reqno = self.client.ask('queue', '', command)
 
     def plot_history(self, dev):
         if self.mainwindow.history_wintype:

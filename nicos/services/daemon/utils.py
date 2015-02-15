@@ -108,11 +108,14 @@ class DaemonLogHandler(logging.Handler):
     def __init__(self, daemon):
         logging.Handler.__init__(self)
         self.daemon = daemon
+        self.ctrl = daemon._controller
 
     def emit(self, record, entries=TRANSMIT_ENTRIES):  # pylint: disable=W0221
         msg = [getattr(record, e) for e in entries]
         if not hasattr(record, 'nonl'):
             msg[3] += '\n'
+        # record which request caused this message
+        msg.append(self.ctrl.reqno_work)
         if record.levelno != ACTION:
             # do not cache ACTIONs, they do not contribute to useful output if
             # received after the fact (this should also lower memory consumption

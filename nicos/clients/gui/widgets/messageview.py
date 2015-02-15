@@ -121,7 +121,7 @@ class MessageView(QTextBrowser):
 
     def formatMessage(self, message, actions=True):
         # message is a sequence:
-        # (logger, time, levelno, message, exc_text, prefix)
+        # (logger, time, levelno, message, exc_text, prefix, reqno)
         fmt = None
         levelno = message[2]
         if message[0] == 'nicos':
