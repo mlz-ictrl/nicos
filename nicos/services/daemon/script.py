@@ -370,6 +370,7 @@ class ExecutionController(Controller):
             self.eventfunc('request', request.serialize())
         # put the script on the queue (will not block)
         self.queue.put(request)
+        return request.reqno
 
     def block_all_requests(self):
         self.block_requests(range(self.reqno_work + 1,

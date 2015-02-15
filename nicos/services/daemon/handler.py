@@ -386,14 +386,14 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         if not name:
             name = None
         try:
-            self.controller.new_request(ScriptRequest(code, name, self.user,
-                                                      handler=self))
+            reqno = self.controller.new_request(
+                ScriptRequest(code, name, self.user, handler=self))
         except RequestError as err:
             self.write(NAK, str(err))
             return
         # take control of the session
         self.controller.controlling_user = self.user
-        self.write(ACK)
+        self.write(STX, reqno)
 
     @command()
     def unqueue(self, reqno):

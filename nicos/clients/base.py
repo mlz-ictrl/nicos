@@ -324,7 +324,7 @@ class NicosClient(object):
             with self.lock:
                 self._write(command, args)
                 ret, data = self._read()
-                if ret != ACK:
+                if ret == NAK:  # we ignore STX as being OK
                     raise ErrorResponse(data)
                 return True
         except (Exception, KeyboardInterrupt) as err:
@@ -346,7 +346,7 @@ class NicosClient(object):
             with self.lock:
                 self._write(command, args)
                 ret, data = self._read()
-                if ret != STX:
+                if ret == NAK:
                     raise ErrorResponse(data)
                 if self.compat_proto:
                     return self._compat_transform_reply(command, data)
