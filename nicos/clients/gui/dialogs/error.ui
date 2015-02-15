@@ -44,7 +44,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>&lt;Error description&gt;</string>
+        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

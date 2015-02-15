@@ -34,8 +34,8 @@ import subprocess
 import getopt
 from os import path
 
-from PyQt4.QtGui import QApplication, QMainWindow, QDialog, QMessageBox, \
-    QLabel, QSystemTrayIcon, QStyle, QPixmap, QMenu, QIcon, QAction, \
+from PyQt4.QtGui import QApplication, QMainWindow, QMessageBox, QDialog, \
+    QLabel, QSystemTrayIcon, QPixmap, QMenu, QIcon, QAction, \
     QFontDialog, QColorDialog
 from PyQt4.QtCore import Qt, QTimer, QSize, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
@@ -52,6 +52,7 @@ from nicos.clients.gui.config import gui_config
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
+from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.dialogs.pnp import PnPSetupQuestion
 from nicos.clients.gui.dialogs.help import HelpWindow
 from nicos.clients.gui.dialogs.debug import DebugConsole
@@ -422,21 +423,14 @@ class MainWindow(QMainWindow, DlgUtils):
             self.log.error('Error from daemon', exc=exc)
         problem = time.strftime('[%m-%d %H:%M:%S] ') + problem
         if self.errorWindow is None:
-            self.errorWindow = QDialog(self)
             def reset_errorWindow():
                 self.errorWindow = None
-            self.errorWindow.connect(self.errorWindow, SIGNAL('accepted()'),
-                                     reset_errorWindow)
-            loadUi(self.errorWindow, 'error.ui')
-            self.errorWindow.setWindowTitle('Connection error')
-            self.errorWindow.errorText.setText(problem)
-            self.errorWindow.iconLabel.setPixmap(
-                self.style().standardIcon(QStyle.SP_MessageBoxWarning).
-                pixmap(32, 32))
+            self.errorWindow = ErrorDialog(self, windowTitle='Daemon error')
+            self.errorWindow.accepted.connect(reset_errorWindow)
+            self.errorWindow.addMessage(problem)
             self.errorWindow.show()
         else:
-            self.errorWindow.errorText.setText(
-                self.errorWindow.errorText.text() + '\n' + problem)
+            self.errorWindow.addMessage(problem)
 
     def on_client_broken(self, problem):
         self.on_client_error(problem)
