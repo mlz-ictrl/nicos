@@ -41,10 +41,10 @@ class TimeSeries(object):
     """
     minsize = 500
 
-    def __init__(self, name, interval, window, signal_obj):
+    def __init__(self, name, interval, window, signal_obj, info=None):
         self.name = name
         self.signal_obj = signal_obj
-        self.info = None
+        self.info = info
         self.interval = interval
         self.window = window
         self.x = None

@@ -50,7 +50,7 @@ from nicos.pycompat import cPickle as pickle, iteritems, OrderedDict
 
 class View(QObject):
     def __init__(self, parent, name, keys_indices, interval, fromtime, totime,
-                 yfrom, yto, window, dlginfo, query_func):
+                 yfrom, yto, window, units, dlginfo, query_func):
         QObject.__init__(self, parent)
         self.name = name
         self.dlginfo = dlginfo
@@ -93,7 +93,8 @@ class View(QObject):
                         real_indices = range(len(first_value))
             for index in real_indices:
                 name = '%s[%d]' % (key, index) if index > -1 else key
-                series = TimeSeries(name, interval, window, self)
+                series = TimeSeries(name, interval, window, self,
+                                    units.get(key))
                 self.series[key, index] = series
                 if history:
                     series.init_from_history(history, fromtime, index)
@@ -343,6 +344,14 @@ class BaseHistoryWindow(object):
             return
         keys_indices = [extractKeyAndIndex(d.strip())
                         for d in info['devices'].split(',')]
+        units = {}
+        if hasattr(self, 'client'):
+            for key, _ in keys_indices:
+                if key not in units and key.endswith('/value'):
+                    devname = key[:-6]
+                    devunit = self.client.getDeviceParam(devname, 'unit')
+                    if devunit:
+                        units[key] = devunit
         name = info['name']
         if not name:
             name = info['devices']
@@ -383,7 +392,7 @@ class BaseHistoryWindow(object):
         else:
             yfrom = yto = None
         view = View(self, name, keys_indices, interval, fromtime, totime,
-                    yfrom, yto, window, info, self.gethistory_callback)
+                    yfrom, yto, window, units, info, self.gethistory_callback)
         self.views.append(view)
         view.listitem = QListWidgetItem(view.name, self.viewList)
         self.openView(view)
