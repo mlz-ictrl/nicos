@@ -212,14 +212,18 @@ class Poller(Device):
                         maxage = dev.maxage
                 # keep track of when we last (tried to) poll
                 lastpoll = currenttime()
+                # reset error count and waittime after first successful poll
+                if i == 1:
+                    errstate[:] = [0, 10]
+                    self.log.info('%-10s: polled successfully' % dev)
             # end of while not self._stoprequest
         # end of poll_loop(dev)
 
-        errcount = 0
-        waittime = 30
+        errstate = [0, 10]  # number of errors, current wait time
         dev = None
         registered = False
 
+        self.log.info('%-10s: starting main polling loop' % devname)
         while not self._stoprequest:
             try:
                 if dev is None:
@@ -252,26 +256,26 @@ class Poller(Device):
                         session.cache.addCallback(adev, 'status', reconfigure_adev_status)
                 registered = True
 
-                self.log.info('%-10s: starting polling loop' % dev)
                 poll_loop(dev)
 
             except Exception:
-                errcount += 1
+                errstate[0] += 1
                 # only warn 5 times in a row, and later occasionally
-                if (errcount < 5) or (errcount % 10 == 0):
-                    if dev is None:
-                        self.log.warning('error creating %s, retrying in '
-                                         '%d sec' % (devname, waittime), exc=True)
-                    else:
-                        self.log.warning('%-10s: error polling, retrying in '
-                                         '%d sec' % (dev, waittime), exc=True)
-                elif errcount % 5 == 0:
-                    # use exponential back-off for the waittime; in the worst
-                    # case wait 15 minutes between attempts
-                    waittime = min(2 * waittime, 900)
-                # sleep up to waittime seconds
+                if dev is None:
+                    self.log.warning('%-10s: error creating device, '
+                                     'retrying in %d sec' %
+                                     (devname, errstate[1]), exc=True)
+                else:
+                    self.log.warning('%-10s: error polling, retrying in '
+                                     '%d sec' % (dev, errstate[1]),
+                                     exc=True)
+                if errstate[0] % 5 == 0:
+                    # use exponential back-off for the wait time; in the worst
+                    # case wait 10 minutes between attempts
+                    errstate[1] = min(2 * errstate[1], 600)
+                # sleep up to wait time
                 try:
-                    queue.get(True, waittime)  # may return earlier
+                    queue.get(True, errstate[1])  # may return earlier
                 except Queue.Empty:
                     pass
         # end of while not self._stoprequest
