@@ -57,16 +57,14 @@ class Curve(object):
     yaxis = 1
     yindex = -1
     dyindex = -1
-    normindices = []
-    normnames = []
     disabled = False
     function = False
 
     def __init__(self):
-        self.datax = []
+        self.datax = {}
+        self.datanorm = {}
         self.datay = []
         self.datady = []
-        self.datanorm = []
 
     @property
     def full_description(self):
@@ -79,6 +77,12 @@ class Curve(object):
 
     def deepcopy(self):
         return copy.deepcopy(self)
+
+
+def name_unit(name, unit):
+    if unit:
+        return '%s (%s)' % (name, unit)
+    return name
 
 
 class DataHandler(QObject):
@@ -125,6 +129,8 @@ class DataHandler(QObject):
         # add some custom attributes of the dataset
         dataset.invisible = False
         dataset.name = str(dataset.sinkinfo.get('number', dataset.scaninfo))
+        dataset.default_xname = name_unit(dataset.xnames[dataset.xindex],
+                                          dataset.xunits[dataset.xindex])
         dataset.curves = self._init_curves(dataset)
         for xvalues, yvalues in zip(dataset.xresults, dataset.yresults):
             self._update_curves(xvalues, yvalues)
@@ -155,7 +161,7 @@ class DataHandler(QObject):
             raise DataError('No current set, trying to add a curve')
         newc = Curve()
         newc.description = title
-        newc.datax = xvalues
+        newc.datax = {self.currentset.default_xname: xvalues}
         newc.datay = yvalues
         newc.function = True
         self.currentset.curves.append(newc)
@@ -170,11 +176,17 @@ class DataHandler(QObject):
     def _init_curves(self, dataset):
         curves = []
         normindices = []
-        normnames = []
+        dataset.datanorm = {}
+        xnameunits = [name_unit(name, unit) for name, unit
+                      in zip(dataset.xnames, dataset.xunits)]
+        dataset.datax = {key: [] for key in xnameunits}
         for i, (name, info) in enumerate(zip(dataset.ynames, dataset.yvalueinfo)):
             if info.type in ('info', 'error'):
                 continue
             curve = Curve()
+            # share data for X and normalization
+            curve.datax = dataset.datax
+            curve.datanorm = dataset.datanorm
             if info.unit != 'cts':
                 curve.description = '%s (%s)' % (name, info.unit)
             else:
@@ -183,8 +195,7 @@ class DataHandler(QObject):
             if info.type == 'other':
                 curve.yaxis = 2
             elif info.type in ('time', 'monitor'):
-                normindices.append(i)
-                normnames.append(name)
+                normindices.append((i, name))
                 curve.disabled = True
             elif info.type == 'calc':
                 curve.function = True
@@ -193,18 +204,17 @@ class DataHandler(QObject):
             elif info.errors == 'next':
                 curve.dyindex = i + 1
             curves.append(curve)
-        for curve in curves:
-            curve.normindices = normindices
-            curve.normnames = normnames
-            curve.datanorm = [[] for _ in range(len(normindices))]
+        dataset.xnameunits = xnameunits
+        dataset.normindices = normindices
+        dataset.datanorm.update({name: [] for (i, name) in normindices})
         return curves
 
     def _update_curves(self, xvalues, yvalues):
+        for key, val in zip(self.currentset.xnameunits, xvalues):
+            self.currentset.datax[key].append(val)
+        for index, name in self.currentset.normindices:
+            self.currentset.datanorm[name].append(yvalues[index])
         for curve in self.currentset.curves:
-            try:
-                curve.datax.append(xvalues[self.currentset.xindex])
-            except IndexError:
-                curve.datax.append(len(curve.datax))
             curve.datay.append(yvalues[curve.yindex])
             if curve.dyindex >= 0:
                 curve.datady.append(yvalues[curve.dyindex])
@@ -212,5 +222,3 @@ class DataHandler(QObject):
                 curve.datady.append(np.sqrt(yvalues[curve.yindex]))
             else:
                 curve.datady.append(0)
-            for i, index in enumerate(curve.normindices):
-                curve.datanorm[i].append(yvalues[index])

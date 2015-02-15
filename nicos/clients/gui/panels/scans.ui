@@ -281,6 +281,11 @@
     <string>autoscale: growing window</string>
    </property>
   </action>
+  <action name="actionXAxis">
+   <property name="text">
+    <string>&amp;X axis</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

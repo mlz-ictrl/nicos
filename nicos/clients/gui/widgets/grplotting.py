@@ -228,7 +228,6 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self.window.statusBar.showMessage(msg)
 
     def addPlotCurve(self, plotcurve, replot=False):
-        curve = None
         curve = next((c for c in self._axes.getCurves()
                       if c.legend == plotcurve.legend), None)
         if curve:
@@ -427,38 +426,38 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
 
     def addCurve(self, i, curve, replot=False):
         dy, errbar = None, None
-        x, y = np.array(curve.datax), np.array(curve.datay, float)
-        n = len(curve.datax)
-        if n > 0:
-            if curve.dyindex != -1:
-                dy = np.array(curve.datady)
-            if self.normalized:
-                i = curve.normnames.index(self.normalized)
-                norm = np.array(curve.datanorm[i])
-                y /= norm
-                if dy is not None:
-                    dy /= norm
+        n = len(curve.datay)
+        if self.current_xname not in curve.datax or n <= 1:
+            return
+        x, y = np.array(curve.datax[self.current_xname]), \
+            np.array(curve.datay, float)
+        if curve.dyindex != -1:
+            dy = np.array(curve.datady)
+        if self.normalized:
+            norm = np.array(curve.datanorm[self.normalized])
+            y /= norm
             if dy is not None:
-                errbar = ErrorBar(x[:n], y[:n], dy)
+                dy /= norm
+        if dy is not None:
+            errbar = ErrorBar(x[:n], y[:n], dy[:n])
 
-            plotcurve = NicosPlotCurve(x[:n], y[:n], errbar,
-                                       legend=curve.full_description)
-            if curve.disabled:
-                plotcurve.visible = False
-            self.addPlotCurve(plotcurve, replot)
-            if curve.function:
-                plotcurve.markertype = gr.MARKERTYPE_DOT
+        plotcurve = NicosPlotCurve(x[:n], y[:n], errbar,
+                                   legend=curve.full_description)
+        if curve.disabled:
+            plotcurve.visible = False
+        self.addPlotCurve(plotcurve, replot)
+        if curve.function:
+            plotcurve.markertype = gr.MARKERTYPE_DOT
 
     def setCurveData(self, curve, plotcurve):
-        x = np.array(curve.datax)
+        x = np.array(curve.datax[self.current_xname])
         y = np.array(curve.datay, float)
-        n = len(curve.datax)
+        n = len(curve.datay)
         dy = None
         if curve.dyindex != -1:
             dy = np.array(curve.datady)
         if self.normalized:
-            i = curve.normnames.index(self.normalized)
-            norm = np.array(curve.datanorm[i])
+            norm = np.array(curve.datanorm[self.normalized])
             y /= norm
             if dy is not None:
                 dy /= norm

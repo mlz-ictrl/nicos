@@ -638,14 +638,15 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
         self.addPlotCurve(plotcurve, replot)
 
     def setCurveData(self, curve, plotcurve):
-        x = np.array(curve.datax)
+        if self.current_xname not in curve.datax:
+            return
+        x = np.array(curve.datax[self.current_xname])
         y = np.array(curve.datay, float)
         dy = None
         if curve.dyindex != -1:
             dy = np.array(curve.datady)
         if self.normalized:
-            i = curve.normnames.index(self.normalized)
-            norm = np.array(curve.datanorm[i])
+            norm = np.array(curve.datanorm[self.normalized])
             y /= norm
             if dy is not None:
                 dy /= norm
@@ -662,7 +663,7 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
         curve = None
         for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
             self.setCurveData(curve, plotcurve)
-        if curve and len(curve.datax) == 1:
+        if curve and len(curve.datay) == 1:
             self.zoomer.setZoomBase(True)
         else:
             self.replot()

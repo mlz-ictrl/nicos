@@ -88,6 +88,10 @@ class ScansPanel(Panel):
         self.statusBar.setSizePolicy(policy)
         self.layout().addWidget(self.statusBar)
 
+        self.x_menu = QMenu(self)
+        self.x_menu.aboutToShow.connect(self.on_x_menu_aboutToShow)
+        self.actionXAxis.setMenu(self.x_menu)
+
         self.norm_menu = QMenu(self)
         self.norm_menu.aboutToShow.connect(self.on_norm_menu_aboutToShow)
         self.actionNormalized.setMenu(self.norm_menu)
@@ -164,7 +168,7 @@ class ScansPanel(Panel):
             self.actionSavePlot, self.actionPrint,
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionAutoScale,
-            self.actionNormalized,
+            self.actionXAxis, self.actionNormalized,
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
             self.actionFitArby,
@@ -184,10 +188,12 @@ class ScansPanel(Panel):
             menu1.addAction(self.actionClosePlot)
             menu1.addAction(self.actionDeletePlot)
             menu1.addSeparator()
+            menu1.addAction(self.actionXAxis)
+            menu1.addAction(self.actionNormalized)
+            menu1.addSeparator()
             menu1.addAction(self.actionUnzoom)
             menu1.addAction(self.actionLogScale)
             menu1.addAction(self.actionAutoScale)
-            menu1.addAction(self.actionNormalized)
             menu1.addAction(self.actionLegend)
             menu1.addSeparator()
             menu2 = QMenu('Data &manipulation', self)
@@ -209,9 +215,11 @@ class ScansPanel(Panel):
             bar.addAction(self.actionSavePlot)
             bar.addAction(self.actionPrint)
             bar.addSeparator()
-            bar.addAction(self.actionUnzoom)
+            bar.addAction(self.actionXAxis)
             bar.addAction(self.actionNormalized)
+            bar.addSeparator()
             bar.addAction(self.actionLogScale)
+            bar.addAction(self.actionUnzoom)
             bar.addAction(self.actionAutoScale)
             bar.addAction(self.actionLegend)
             bar.addAction(self.actionResetPlot)
@@ -229,11 +237,7 @@ class ScansPanel(Panel):
         for dataset in self.data.sets:
             if dataset.invisible:
                 continue
-            try:
-                xname = ' (%s)' % dataset.xnames[dataset.xindex]
-            except IndexError:
-                xname = ''
-            shortname = dataset.name + xname
+            shortname = '%s - %s' % (dataset.name, dataset.default_xname)
             item = QListWidgetItem(shortname, self.datasetList)
             item.setData(32, dataset.uid)
             self.setitems[dataset.uid] = item
@@ -284,8 +288,10 @@ class ScansPanel(Panel):
             self.enablePlotActions(True)
             self.datasetList.setCurrentItem(self.setitems[plot.dataset.uid])
 
-            self.actionLogScale.setChecked(plot.isLogScaling())
+            self.actionXAxis.setText('X axis: %s' % plot.current_xname)
             self.actionNormalized.setChecked(bool(plot.normalized))
+
+            self.actionLogScale.setChecked(plot.isLogScaling())
             self.actionLegend.setChecked(plot.isLegendEnabled())
             if plot.HAS_AUTOSCALE:
                 self.actionAutoScale.setChecked(plot.plot.autoscale)
@@ -294,8 +300,7 @@ class ScansPanel(Panel):
             plot.show()
 
     def on_data_datasetAdded(self, dataset):
-        shortname = '%s (%s)' % (dataset.name,
-                                 dataset.xnames[dataset.xindex])
+        shortname = '%s - %s' % (dataset.name, dataset.default_xname)
         if dataset.uid in self.setitems:
             self.setitems[dataset.uid].setText(shortname)
             if dataset.uid in self.setplots:
@@ -419,6 +424,31 @@ class ScansPanel(Panel):
             self.currentPlot.setAutoScale(on)
             self.currentPlot.update()
 
+    def on_x_menu_aboutToShow(self):
+        self.x_menu.clear()
+        if not self.currentPlot:
+            return
+        for name in self.currentPlot.dataset.xnameunits:
+            action = self.x_menu.addAction(name)
+            action.setCheckable(True)
+            if name == self.currentPlot.current_xname:
+                action.setChecked(True)
+            action.triggered.connect(self.on_x_action_triggered)
+
+    @qtsig('')
+    def on_x_action_triggered(self, text=None):
+        if text is None:
+            sender = self.sender()
+            text = sender.text()
+        self.actionXAxis.setText('X axis: %s' % text)
+        self.currentPlot.current_xname = text
+        self.currentPlot.updateDisplay()
+        self.on_actionUnzoom_triggered()
+
+    @qtsig('')
+    def on_actionXAxis_triggered(self):
+        self.bar.widgetForAction(self.actionXAxis).showMenu()
+
     @qtsig('')
     def on_actionNormalized_triggered(self):
         if not self.currentPlot:
@@ -426,11 +456,13 @@ class ScansPanel(Panel):
         if self.currentPlot.normalized is not None:
             self.on_norm_action_triggered('None')
         else:
+            all_normnames = [name for (_, name)
+                             in self.currentPlot.dataset.normindices]
             if self.last_norm_selection and \
-               self.last_norm_selection in self.currentPlot.norm_names:
+               self.last_norm_selection in all_normnames:
                 use = self.last_norm_selection
             else:
-                use = self.currentPlot.norm_names[0]
+                use = all_normnames[0] if all_normnames else 'None'
             self.on_norm_action_triggered(use)
 
     def on_norm_menu_aboutToShow(self):
@@ -440,7 +472,7 @@ class ScansPanel(Panel):
             none_action.setCheckable(True)
             none_action.setChecked(True)
             none_action.triggered.connect(self.on_norm_action_triggered)
-            for name in self.currentPlot.norm_names:
+            for _, name in self.currentPlot.dataset.normindices:
                 action = self.norm_menu.addAction(name)
                 action.setCheckable(True)
                 if name == self.currentPlot.normalized:
@@ -537,9 +569,17 @@ class ScansPanel(Panel):
             newset.curves = []
             newset.scaninfo = 'combined set'
             newset.started = time.localtime()
-            newset.xvalueinfo = sets[0].xvalueinfo # XXX combine from sets
-            #newset.xnames = sets[0].xnames
-            newset.xindex = sets[0].xindex
+            # combine xnameunits from those that are in all sets
+            all_xnu = set(sets[0].xnameunits)
+            for dset in sets[1:]:
+                all_xnu &= set(dset.xnameunits)
+            newset.xnameunits = [xnu for xnu in sets[0].xnameunits
+                                 if xnu in all_xnu]
+            if sets[0].default_xname in all_xnu:
+                newset.default_xname = sets[0].default_xname
+            else:
+                newset.default_xname = newset.xnameunits[0]
+            newset.normindices = sets[0].normindices
             # for together only, the number of curves and their columns
             # are irrelevant, just put all together
             for dataset in sets:
@@ -561,7 +601,7 @@ class ScansPanel(Panel):
                 self.showError('Sets have different axes.')
                 return
             if [(curve.description, curve.yindex)
-                for curve in dataset.curves] != curveprops:
+                    for curve in dataset.curves] != curveprops:
                 self.showError('Sets have different curves.')
                 return
         if op == COMBINE:
@@ -571,19 +611,17 @@ class ScansPanel(Panel):
             newset.curves = []
             newset.scaninfo = 'combined set'
             newset.started = time.localtime()
-            newset.xvalueinfo = firstset.xvalueinfo
-            #newset.xnames = firstset.xnames
-            newset.xindex = firstset.xindex
-            #newset.xunits = firstset.xunits
+            newset.xnameunits = firstset.xnameunits
+            newset.default_xname = firstset.default_xname
+            newset.normindices = firstset.normindices
             for curves in zip(*(dataset.curves for dataset in sets)):
                 newcurve = curves[0].copy()
-                for attr in ('datax', 'datay', 'datady'):
-                    setattr(newcurve, attr, DataProxy(getattr(curve, attr)
-                                                      for curve in curves))
-                newcurve.datanorm = []
-                for i in range(len(curves[0].datanorm)):
-                    newcurve.datanorm.append(DataProxy(curve.datanorm[i]
-                                                       for curve in curves))
+                newcurve.datay = DataProxy(c.datay for c in curves)
+                newcurve.datady = DataProxy(c.datady for c in curves)
+                newcurve.datax = {xnu: DataProxy(c.datax[xnu] for c in curves)
+                                  for xnu in newset.xnameunits}
+                newcurve.datanorm = {nn: DataProxy(c.datanorm[nn] for c in curves)
+                                     for i, nn in newset.normindices}
                 newset.curves.append(newcurve)
             self.data.add_existing_dataset(newset,
                                            [dataset.uid for dataset in sets])
@@ -595,16 +633,21 @@ class ScansPanel(Panel):
             sep = ' - '
         elif op == DIVIDE:
             sep = ' / '
+
         newset = Dataset()
         newset.name = combineattr(sets, 'name', sep=sep)
         newset.invisible = False
         newset.scaninfo = 'combined set'
         newset.curves = []
         newset.started = time.localtime()
-        newset.xvalueinfo = firstset.xvalueinfo
-        # newset.xnames = firstset.xnames
-        newset.xindex = firstset.xindex
-        # newset.xunits = firstset.xunits
+        newset.xnameunits = firstset.xnameunits
+        newset.default_xname = firstset.default_xname
+        if op in (SUBTRACT, DIVIDE):
+            # remove information about normalization -- doesn't make sense
+            newset.normindices = []
+        else:
+            newset.normindices = firstset.normindices
+
         for curves in zip(*(dataset.curves for dataset in sets)):
             newcurve = curves[0].deepcopy()
             # CRUDE HACK: don't care about the x values, operate by index
@@ -620,32 +663,32 @@ class ScansPanel(Panel):
                     if op == ADD:
                         newcurve.datay[i] = y1 + y2
                         newcurve.datady[i] = sqrt(dy1**2 + dy2**2)
-                        for j in range(len(newcurve.datanorm)):
-                            newcurve.datanorm[j][i] += curve.datanorm[j][i]
+                        for name in newcurve.datanorm:
+                            newcurve.datanorm[name][i] += curve.datanorm[name][i]
                     elif op == SUBTRACT:
                         newcurve.datay[i] = y1 - y2
                         newcurve.datady[i] = sqrt(dy1**2 + dy2**2)
                     elif op == DIVIDE:
                         if y2 == 0:
-                            y2 = 1.  # generate a value for now, but...
-                            removepoints.add(i)  # remove point in the end
+                            y2 = 1.  # generate a value for now
+                            removepoints.add(i)
                         newcurve.datay[i] = y1 / y2
                         newcurve.datady[i] = sqrt((dy1/y2)**2 +
                                                   (dy2*y1 / y2**2)**2)
-            # remove information about normalization -- doesn't make sense
-            if op in (SUBTRACT, DIVIDE):
-                newcurve.normindices = []
-                newcurve.normnames = []
             # remove points where we would have divided by zero
             if removepoints:
-                for arr in ('datax', 'datay', 'datady'):
-                    new = [v for (i, v) in enumerate(getattr(newcurve, arr))
-                           if i not in removepoints]
-                    setattr(newcurve, arr, new)
-                for j in range(len(newcurve.datanorm)):
-                    new = [v for (i, v) in enumerate(newcurve.datanorm[j][i])
-                           if i not in removepoints]
-                    newcurve.datanorm[j] = new
+                newcurve.datay = [v for (i, v) in enumerate(newcurve.datay)
+                                  if i not in removepoints]
+                newcurve.datady = [v for (i, v) in enumerate(newcurve.datady)
+                                   if i not in removepoints]
+                for name in newcurve.datax:
+                    newcurve.datax[name] = \
+                        [v for (i, v) in enumerate(newcurve.datax[name])
+                         if i not in removepoints]
+                for name in newcurve.datanorm:
+                    newcurve.datanorm[name] = \
+                        [v for (i, v) in enumerate(newcurve.datanorm[name])
+                         if i not in removepoints]
             newset.curves.append(newcurve)
         self.data.add_existing_dataset(newset)
         return newset.uid

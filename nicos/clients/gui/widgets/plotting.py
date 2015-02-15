@@ -350,12 +350,14 @@ class NicosPlot(DlgUtils):
         DlgUtils.__init__(self, 'Plot')
         self.window = window
         self.plotcurves = []
-        self.normalized = None
         self.has_secondary = False
         self.show_all = False
         self.timeaxis = timeaxis
         self.hasSymbols = False
         self.hasLines = True
+
+        # currently selected normalization column
+        self.normalized = None
 
         self.fitter = None
 
@@ -549,7 +551,7 @@ class NicosPlot(DlgUtils):
 class DataSetPlotMixin(object):
     def __init__(self, dataset):
         self.dataset = dataset
-        self.norm_names = dataset.curves[0].normnames
+        self.current_xname = dataset.default_xname
 
     def titleString(self):
         return '<h3>Scan %s</h3><font size="-2">%s, started %s</font>' % \
@@ -557,27 +559,10 @@ class DataSetPlotMixin(object):
              strftime(TIMEFMT, self.dataset.started))
 
     def xaxisName(self):
-        try:
-            return '%s (%s)' % (self.dataset.xnames[self.dataset.xindex],
-                                self.dataset.xunits[self.dataset.xindex])
-        except IndexError:
-            return ''
+        return self.current_xname
 
     def yaxisName(self):
         return ''
-
-    def xaxisScale(self):
-        if self.dataset.xrange:
-            return self.dataset.xrange
-        try:
-            return (float(self.dataset.positions[0][self.dataset.xindex]),
-                    float(self.dataset.positions[-1][self.dataset.xindex]))
-        except (IndexError, TypeError, ValueError):
-            return None
-
-    def yaxisScale(self):
-        if self.dataset.yrange:
-            return self.dataset.yrange
 
     def addAllCurves(self):
         for i, curve in enumerate(self.dataset.curves):
