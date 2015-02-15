@@ -209,12 +209,6 @@ class ValueDisplay(NicosWidget, QWidget):
                               'allow; defaults to no limit'),
         'width':      PropDef(int, 8, 'Width of the widget in units of the '
                               'width of one character'),
-        'min':        PropDef(str, '', 'If given, and the value is below the '
-                              'minimum, the name will be displayed with a red '
-                              'background'),
-        'max':        PropDef(str, '', 'If given, and the value is above the '
-                              'maximum, the name will be displayed with a red '
-                              'background'),
         'istext':     PropDef(bool, False, 'If given, a "text" font will be '
                               'used for the value instead of the monospaced '
                               'font used for numeric values'),
