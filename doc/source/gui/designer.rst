@@ -1,3 +1,5 @@
+.. _gui-designer:
+
 Using the Qt designer with NICOS widgets
 ========================================
 
