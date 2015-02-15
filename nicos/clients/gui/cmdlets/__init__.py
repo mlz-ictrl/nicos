@@ -150,9 +150,8 @@ class Move(Cmdlet):
 
     def setValues(self, values):
         self._setDevice(values)
-        # DeviceValueEdit doesn't support setValue (yet)
-        # if 'moveto' in values:
-        #     self.target.setValue(values['moveto'])
+        if 'moveto' in values:
+            self.target.setValue(values['moveto'])
 
     def isValid(self):
         return self.markValid(self.target, True)

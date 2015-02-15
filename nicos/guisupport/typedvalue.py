@@ -126,6 +126,9 @@ class DeviceValueEdit(NicosWidget, QWidget):
         if self._inner:
             return self._inner.getValue()
 
+    def setValue(self, value):
+        self._reinit(value)
+
 
 class DeviceParamEdit(DeviceValueEdit):
 

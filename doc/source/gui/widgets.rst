@@ -324,12 +324,18 @@ Existing widget classes
       This is emitted with the chosen value when the user directly chooses a
       value through a button (see :attr:`useButtons`).
 
-   It also provides a public API method to query the current value:
+   It also provides public API methods to manipulate the current value:
 
-   .. attribute:: getValue()
+   .. method:: getValue()
 
       Return the current value of the widget.  Its type will match the valuetype
       of the selected device.
+
+   .. method:: setValue(value)
+
+      Set the current value of the widget.  If the value does not match the
+      valuetype of the device, the widget will be initialized with an "empty"
+      value depending on the valuetype.
 
 
 .. class:: DeviceParamEdit
