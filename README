@@ -37,7 +37,7 @@ Requirements
 * pyzmq version >= 2
 
 * For the provided SysV compatible init script:
-  - psutil
+  - psutil >= 2.0
 
 * Optional for the basic system:
   - the TACO Python libraries
@@ -73,6 +73,9 @@ Requirements
 * Under Windows:
   - pyreadline (optional, for the console to work)
   - colorama (optional, for colored console output)
+
+Detailed version requirements can always be found in the requirements.txt
+file in the root of the source tree.
 
 If not supplied by the distribution (see below), most dependencies
 (except PytQt, PyQwt, sip) can be installed from the
