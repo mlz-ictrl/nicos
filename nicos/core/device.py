@@ -1829,7 +1829,7 @@ class DeviceAlias(Device):
         Device.__init__(self, name, **config)
         # update the configured alias device - we do this after the init
         # procedure to avoid calling init stuff in the aliased dev
-        devname = config.get('alias', )
+        devname = config.get('alias')
         if devname is None and self._cache:
             devname = self._cache.get(self, 'alias', '')
         self.doUpdateAlias(devname)
