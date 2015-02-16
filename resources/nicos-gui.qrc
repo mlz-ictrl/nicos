@@ -64,6 +64,8 @@
     <file alias="status_red">leds/simplered.png</file>
     <file alias="status_yellow">leds/simpleyellow.png</file>
     <file alias="status_orange">leds/simpleorange.png</file>
+    <file alias="status_warn">leds/simplewarn.png</file>
+    <file alias="dot">leds/simpledot.png</file>
     <file alias="blue_on">leds/ledblue.png</file>
     <file alias="blue_off">leds/ledblueoff.png</file>
     <file alias="green_on">leds/ledgreen.png</file>
