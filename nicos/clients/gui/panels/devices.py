@@ -59,7 +59,7 @@ backgroundBrush = {
 
 statusIcon = {
     OK:         QIcon(':/leds/status_green'),
-    WARN:       QIcon(':/leds/status_red'),
+    WARN:       QIcon(':/leds/status_warn'),
     BUSY:       QIcon(':/leds/status_yellow'),
     UNKNOWN:    QIcon(':/leds/status_white'),
     ERROR:      QIcon(':/leds/status_red'),
