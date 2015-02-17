@@ -245,6 +245,10 @@ class DevicesPanel(Panel):
         if 'nicos.core.image.ImageSink' in params.get('classes', []):
             return
 
+        # remove still-existing previous item for the same device name
+        if ldevname in self._devitems:
+            self.on_client_device(('destroy', [devname]))
+
         cat = self._dev2setup.get(devname)
         if cat is None:   # device is not in any setup? reread setup info
             self._read_setup_info()
@@ -264,10 +268,6 @@ class DevicesPanel(Panel):
                 catitem.setExpanded(True)
         else:
             catitem = self._catitems[cat]
-
-        # remove still-existing previous item for the same device name
-        if ldevname in self._devitems:
-            self.on_client_device(('destroy', [devname]))
 
         # create a tree node for the device
         devitem = QTreeWidgetItem(catitem, [devname, '', ''], 1001)
