@@ -489,6 +489,8 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
     def isAtTarget(self, val):
         ct = currenttime()
         self._cacheCB('value', val, ct)
+        if self.target is None:
+            return True
 
         # check subset of _history which is in window
         # also check if there is at least one value before window
