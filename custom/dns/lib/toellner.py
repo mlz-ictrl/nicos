@@ -22,44 +22,39 @@
 #
 # *****************************************************************************
 
-from time import time as currenttime
-
 from nicos.core import Moveable, HasPrecision, Override, oneof, status, \
-    SIMULATION
-from nicos.core.params import Param, Attach, floatrange
+    SIMULATION, HasTimeout
+from nicos.core.params import Param, Attach
 from nicos.devices.tango import AnalogOutput
 
 
-class Toellner(HasPrecision, AnalogOutput):
+class Toellner(HasTimeout, HasPrecision, AnalogOutput):
 
     attached_devices = {
         'polchange': Attach('TANGO digital input device ', Moveable),
     }
 
     parameters = {
-        'channel' : Param('Channel of the device', type=oneof(1, 2),
-                          mandatory=True),
-        'voltage' : Param('Maximal voltage ', type=float,
-                          unit='V', volatile=True, settable=True),
-        'timeout' : Param('Maximum time to wait for the output to settle',
-                          unit='s', type=floatrange(0, 60), settable=True,
-                          default=4),
+        'channel': Param('Channel of the device', type=oneof(1, 2),
+                         mandatory=True),
+        'voltage': Param('Maximal voltage ', type=float,
+                         unit='V', volatile=True, settable=True),
     }
 
     parameter_overrides = {
         'precision':  Override(default=0.1),
+        'timeout':    Override(default=4),
     }
 
     def doInit(self, mode):
         self.log.debug('Initialize Current')
-        self._starttime = currenttime()
         if mode != SIMULATION:
             self._dev.write('syst:rem')
             current = self._dev.Query('mc%d?' % self.channel)
             self._setval = float(current.strip())
 
     def doReadAbslimits(self):
-        #there are no properties absmin,absmax in server
+        # there are no properties absmin,absmax in server
         return self._config.get('abslimits')
 
     def doReadVoltage(self):
@@ -80,23 +75,13 @@ class Toellner(HasPrecision, AnalogOutput):
         pass
 
     def doStatus(self, maxage=0, mapping=None):
-        val = self.read()
-        target = self.target if self.target is not None else val
-        reached = (abs(target - val) <= self.precision)
-        if reached:
-            return status.OK, ''
-        else:
-            # check for timeout
-            if currenttime() - self._starttime <= self.timeout:
-                return status.BUSY, 'waiting for target value'
-            else:
-                return status.NOTREACHED, 'cannot reach desired value'
+        return status.OK, ''  # timeout and target are checked elsewhere now
 
     def _getsign(self):
         polval = self._adevs['polchange'].read()
         return -1 if polval == '-' else 1
 
-    def _set_field_polarity(self,value):
+    def _set_field_polarity(self, value):
         polval = self._adevs['polchange'].read()
         return (value < 0 and polval == '+') or (value >= 0 and polval == '-')
 
@@ -128,7 +113,4 @@ class CurrentToellner(Toellner):
         return curfl * self._getsign()
 
     def _write_value(self, value, fromvarcheck):
-        self._starttime = currenttime()
         self._dev.write('c%d %f' % (self.channel, abs(value)))
-        self.wait()
-
