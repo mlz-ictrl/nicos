@@ -32,7 +32,7 @@ devices = {
                                      ),
 
     'T_%s_tube' % setupname : device('devices.taco.TemperatureController',
-                                     description = 'The control device of the' \
+                                     description = 'The control device of the '
                                                    'tube',
                                      tacodevice = '//%s/ccr/tube/control1' % nethost,
                                      abslimits = (0, 300),
