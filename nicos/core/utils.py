@@ -130,7 +130,8 @@ def multiWait(devices):
     first_exc = None
     devset = set(devIter(devices, onlydevs=True))
     values = {}
-    session.beginActionScope('Waiting: %s' % ', '.join(map(str, devices)))
+    session.beginActionScope('Waiting: %s' % ', '.join(
+        '%s -> %s' % (dev, dev.format(dev.target)) for dev in devices))
     try:
         while devset:
             for dev in list(devset):
