@@ -215,27 +215,12 @@ class RadialCollimator(HasTimeout, Moveable):
             self.wait()
         except NicosError:
             raise TimeoutError(self, 'could not reach reset position within timeout')
-#        ret = 0
-#        while ret & 1 == 0:
-#            ret = self._rc_status()
-#            if currenttime() > self._stime + self.timeout:
-#                bus.write("q%d" % (self.address,))
-#                raise NicosError(self, 'could not reach reset position within timeout')
-#            sleep(0.1)
         bus.write("move%d:%f" % (self.address, 0.3))
         sleep(0.4)
         try:
             self.wait()
         except NicosError:
             raise TimeoutError(self, 'could not reach reset position within timeout')
-#        ret = 0
-#        while ret & 1 == 0:
-#            ret = bus.write("?s%d" % (self.address,))
-#            ret = int(ret[ret.find(":")+1:-1])
-#            if currenttime() > self._stime + self.timeout:
-#                bus.write("q%d" % (self.address,))
-#                raise NicosError(self, 'could not reach reset position within timeout')
-#            sleep(0.1)
         bus.write("ffast%d:%f" % (self.address, self.ref_speed))
         bus.write("frun%d:%f" % (self.address, 100))
         bus.write("move%d:%f" % (self.address, -10))
@@ -244,14 +229,6 @@ class RadialCollimator(HasTimeout, Moveable):
             self.wait()
         except NicosError:
             raise TimeoutError(self, 'could not reach reset position within timeout')
-#        ret = 0
-#        while ret & 1 == 0:
-#            ret = bus.write("?s%d" % (self.address,))
-#            ret = int(ret[ret.find(":")+1:-1])
-#            if currenttime() > self._stime + self.timeout:
-#                bus.write("q%d" % (self.address,))
-#                raise NicosError(self, 'could not reach reset position within timeout')
-#            sleep(0.1)
         bus.write("zero%d" % (self.address,))
         bus.write("ffast%d:%f" % (self.address, self.std_speed))
         sspeed = int(round(self.std_speed / 4.0))
