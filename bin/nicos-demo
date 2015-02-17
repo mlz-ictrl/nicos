@@ -60,6 +60,8 @@ parser.add_option('-M', dest='nomonitor', action='store_true',
                   help='disable monitor')
 parser.add_option('-m', dest='monitorsetup', action='store',
                   help='use given monitor setup instead of the default one')
+parser.add_option('-O', dest='oh', action='store',
+                  help='does nothing (yet)')
 
 parser.add_option('-D', dest='nodaemon', action='store_true',
                   help='disable daemon')
