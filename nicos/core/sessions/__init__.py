@@ -703,7 +703,11 @@ class Session(object):
             self._mode = SIMULATION
 
         # Create the initial instrument setup.
-        self.loadSetup(setup)
+        self.startMultiCreate()
+        try:
+            self.loadSetup(setup)
+        finally:
+            self.endMultiCreate()
 
         if mode == SIMULATION:
             self.log.info('starting in simulation mode')
@@ -728,12 +732,15 @@ class Session(object):
             self.log.info('loading previously used master setups: ' +
                           ', '.join(setups))
             self.unloadSetup()
+            self.startMultiCreate()
             try:
                 self.loadSetup(setups)
             except NicosError:
                 self.log.warning('could not load previous setups, falling '
                                  'back to startup setup', exc=1)
                 self.loadSetup(setup)
+            finally:
+                self.endMultiCreate()
 
     def commandHandler(self, command, compiler):
         """This method is called when the user executes a simple command.  It
