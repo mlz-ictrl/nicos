@@ -341,6 +341,35 @@ class ArbitraryFitter(Fitter):
         self.plot._plotFit(self)
 
 
+def prepareData(x, y, dy, norm):
+    """Prepare and sanitize data for plotting.
+
+    x, y and dy are lists or arrays. norm can also be None.
+
+    Returns x, y and dy arrays, where dy can also be None.
+    """
+    # make arrays
+    x = np.asarray(x)
+    y = np.asarray(y, float)
+    dy = np.asarray(dy, float)
+    # normalize
+    if norm is not None:
+        norm = np.asarray(norm, float)
+        y /= norm
+        dy /= norm
+    # remove infinity/NaN
+    indices = np.isfinite(y)
+    x = x[indices]
+    y = y[indices]
+    dy = dy[indices]
+    # remove error bars that aren't finite
+    dy[~np.isfinite(dy)] = 0
+    # if there are no errors left, don't bother drawing them
+    if dy.sum() == 0:
+        return x, y, None
+    return x, y, dy
+
+
 class NicosPlot(DlgUtils):
 
     HAS_AUTOSCALE = False

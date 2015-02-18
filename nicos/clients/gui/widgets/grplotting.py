@@ -34,7 +34,6 @@ import tempfile
 sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
 
 import gr
-import numpy as np
 from PyQt4 import QtGui
 from PyQt4.QtCore import Qt
 from qtgr import InteractiveGRWidget
@@ -43,7 +42,7 @@ from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar, Text
 from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
-    DataSetPlotMixin, GaussFitter
+    DataSetPlotMixin, GaussFitter, prepareData
 from nicos.pycompat import string_types
 
 DATEFMT = "%Y-%m-%d"
@@ -425,49 +424,27 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         return "started %s" % time.strftime(TIMEFMT, self.dataset.started)
 
     def addCurve(self, i, curve, replot=False):
-        dy, errbar = None, None
-        n = len(curve.datay)
-        if self.current_xname not in curve.datax or n <= 1:
+        if self.current_xname not in curve.datax or not curve.datay:
             return
-        x, y = np.array(curve.datax[self.current_xname]), \
-            np.array(curve.datay, float)
-        if curve.dyindex != -1:
-            dy = np.array(curve.datady)
-        if self.normalized:
-            norm = np.array(curve.datanorm[self.normalized])
-            y /= norm
-            if dy is not None:
-                dy /= norm
-        if dy is not None:
-            errbar = ErrorBar(x[:n], y[:n], dy[:n])
-
-        plotcurve = NicosPlotCurve(x[:n], y[:n], errbar,
-                                   legend=curve.full_description)
-        if curve.disabled:
-            plotcurve.visible = False
+        plotcurve = NicosPlotCurve([], [])
+        self.setCurveData(curve, plotcurve)
         self.addPlotCurve(plotcurve, replot)
         if curve.function:
             plotcurve.markertype = gr.MARKERTYPE_DOT
 
     def setCurveData(self, curve, plotcurve):
-        x = np.array(curve.datax[self.current_xname])
-        y = np.array(curve.datay, float)
-        n = len(curve.datay)
-        dy = None
-        if curve.dyindex != -1:
-            dy = np.array(curve.datady)
-        if self.normalized:
-            norm = np.array(curve.datanorm[self.normalized])
-            y /= norm
-            if dy is not None:
-                dy /= norm
-
+        norm = curve.datanorm[self.normalized] if self.normalized else None
+        x, y, dy = prepareData(curve.datax[self.current_xname],
+                               curve.datay,
+                               curve.datady,
+                               norm)
         if dy is not None:
-            errbar = ErrorBar(x[:n], y[:n], dy,
-                              markercolor=plotcurve.markercolor)
+            errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)
             plotcurve.errorBar1 = errbar
-        plotcurve.x = x[:n]
-        plotcurve.y = y[:n]
+        if curve.disabled or not len(x):
+            plotcurve.visible = False
+        plotcurve.x = x
+        plotcurve.y = y
         plotcurve.legend = curve.full_description
 
     def pointsAdded(self):

@@ -39,7 +39,7 @@ from PyQt4.QtCore import Qt, QRectF, QLine, QSize, SIGNAL
 import numpy as np
 
 from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
-    DataSetPlotMixin, GaussFitter
+    DataSetPlotMixin, GaussFitter, prepareData
 from nicos.pycompat import string_types
 from nicos.guisupport.plots import ActivePlotPicker, TimeScaleEngine, \
     TimeScaleDraw
@@ -69,7 +69,7 @@ class ErrorBarPlotCurve(QwtPlotCurve):
         self.errorOnTop = errorOnTop
         self.dependent = []
 
-    def setData(self, x, y, dx = None, dy = None):
+    def setData(self, x, y, dx=None, dy=None):
         self._x = np.asarray(x, float)
         if len(self._x.shape) != 1:
             raise RuntimeError('len(asarray(x).shape) != 1')
@@ -620,6 +620,8 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
         NicosQwtPlot.__init__(self, parent, window)
 
     def addCurve(self, i, curve, replot=False):
+        if self.current_xname not in curve.datax:
+            return
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = ErrorBarPlotCurve(title=curve.full_description,
                                       curvePen=pen,
@@ -638,18 +640,11 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
         self.addPlotCurve(plotcurve, replot)
 
     def setCurveData(self, curve, plotcurve):
-        if self.current_xname not in curve.datax:
-            return
-        x = np.array(curve.datax[self.current_xname])
-        y = np.array(curve.datay, float)
-        dy = None
-        if curve.dyindex != -1:
-            dy = np.array(curve.datady)
-        if self.normalized:
-            norm = np.array(curve.datanorm[self.normalized])
-            y /= norm
-            if dy is not None:
-                dy /= norm
+        norm = curve.datanorm[self.normalized] if self.normalized else None
+        x, y, dy = prepareData(curve.datax[self.current_xname],
+                               curve.datay,
+                               curve.datady,
+                               norm)
         plotcurve.setData(x, y, None, dy)
         # setData creates a new legend item that must be styled
         if not plotcurve.isVisible() and self.legend():
