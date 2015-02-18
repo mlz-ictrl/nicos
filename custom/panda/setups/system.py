@@ -7,7 +7,7 @@ group = 'lowlevel'
 sysconfig = dict(
     cache = 'phys.panda.frm2',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    notifiers = ['email'],
     instrument = 'panda',
     experiment = 'Exp',
 )
@@ -58,4 +58,11 @@ devices = dict(
     daemonsink  = device('devices.datasinks.DaemonSink',
                           description = 'device used for output from the daemon',
                         ),
+
+    email  = device('devices.notifiers.Mailer',
+                    mailserver = 'smtp.frm2.tum.de',
+                    sender = 'panda@frm2.tum.de',
+                    copies = [('pcermak@frm2.tum.de', 'important')],
+                    subject = '[PANDA]',
+                   ),
 )

@@ -112,6 +112,7 @@ watchlist = [
 
 devices = dict(
     email    = device('devices.notifiers.Mailer',
+                      mailserver = 'smtp.frm2.tum.de',
                       sender = 'panda@frm2.tum.de',
                       receivers = ['pcermak@frm2.tum.de', 'fstoica@frm2.tum.de', 'astrid.schneidewind@frm2.tum.de'],
                       subject = '[PANDA warning]',
@@ -119,6 +120,7 @@ devices = dict(
                      ),
 
     email2  = device('devices.notifiers.Mailer',
+                      mailserver = 'smtp.frm2.tum.de',
                       sender = 'panda@frm2.tum.de',
                       receivers = ['pcermak@frm2.tum.de'],
                       subject = '[PANDA]',
@@ -126,6 +128,7 @@ devices = dict(
                      ),
 
     email3  = device('devices.notifiers.Mailer',
+                      mailserver = 'smtp.frm2.tum.de',
                       sender = 'panda@frm2.tum.de',
                       receivers = ['astrid.schneidewind@frm2.tum.de'],
                       subject = '[PANDA]',
@@ -151,7 +154,7 @@ devices = dict(
                                    'onlypetr': ['email2', 'smspetr'],
                                    'onlyastrid': ['email3']},
                       watch = watchlist,
-                      mailreceiverkey = 'email/receivers',
+                      mailreceiverkey = '',
                       loglevel='debug',
                      ),
 )
