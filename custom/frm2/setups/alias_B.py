@@ -5,6 +5,5 @@ includes = []
 
 devices = dict(
 
-    B = device('devices.generic.DeviceAlias',
-               description = 'Current magnetic field controller'),
+    B = device('devices.generic.DeviceAlias'),
 )

@@ -63,7 +63,6 @@ devices = dict(
                    ),
 
     mono     = device('devices.generic.DeviceAlias',
-                      description  = 'monochromator alias device',
                       alias = 'mono_pg002',
                       devclass = 'devices.tas.Monochromator',
                      ),

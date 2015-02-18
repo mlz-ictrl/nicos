@@ -21,11 +21,9 @@ devices = dict(
 
     mfh = device('devices.generic.DeviceAlias',
                  alias='',
-                 description = 'Alias to currently used horizontal focusing motor',
                 ),
     mfv = device('devices.generic.DeviceAlias',
                  alias='',
-                 description = 'Alias to currently used vertical focusing motor',
                 ),
 )
 

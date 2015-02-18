@@ -63,7 +63,6 @@ devices = dict(
                       scanmode = 'CKF',
                      ),
     mono  = device('devices.generic.DeviceAlias',
-                    description = 'Current mono',
                     alias = 'mono_virtual_dummy',
                   ),
     mono_virtual_dummy = device('devices.tas.Monochromator',
@@ -113,7 +112,6 @@ devices = dict(
                      ),
 
     sth  = device('devices.generic.DeviceAlias',
-                   description = 'Current sample rotation device',
                    alias = 'sth_virtual_dummy',
                  ),
     sth_virtual_dummy = device('devices.generic.VirtualMotor',

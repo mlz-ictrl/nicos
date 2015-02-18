@@ -2,10 +2,8 @@ group = 'optional'
 description = 'virtual temperature device'
 
 devices = dict(
-    T        = device('devices.generic.DeviceAlias',
-                      description = 'Sample temperature control'),
-    Ts       = device('devices.generic.DeviceAlias',
-                      description = 'Additional sample thermometer'),
+    T        = device('devices.generic.DeviceAlias'),
+    Ts       = device('devices.generic.DeviceAlias'),
 
     T_demo   = device('devices.generic.virtual.VirtualRealTemperature',
                       description = 'A virtual (but realistic) temperature controller',

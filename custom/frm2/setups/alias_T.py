@@ -5,9 +5,7 @@ includes = []
 
 devices = dict(
 
-    T  = device('devices.generic.DeviceAlias',
-                description = 'Current sample temperature controller'),
+    T  = device('devices.generic.DeviceAlias'),
 
-    Ts = device('devices.generic.DeviceAlias',
-                description = 'Current sample temperature sensor'),
+    Ts = device('devices.generic.DeviceAlias'),
 )

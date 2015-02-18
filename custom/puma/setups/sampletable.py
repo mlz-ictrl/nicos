@@ -95,7 +95,6 @@ devices = dict(
                       ),
 
      psi    = device('devices.generic.DeviceAlias',
-                     description  = 'Sample rocking angle Theta',
                      alias = 'psi_puma',
                      devclass = 'devices.generic.Axis',
                     ),

@@ -87,8 +87,6 @@ devices = dict(
 # of The BerSANS File
 for i in range(1, 11):
     dev = device('core.device.DeviceAlias',
-                 description = 'Alias for selecting a device to record as '
-                               'IEEE%d in BerSANS' % i,
                  alias = None,
                 )
     devices['ieee_%d' % i] = dev

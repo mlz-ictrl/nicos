@@ -258,7 +258,6 @@ devices = dict(
                     autoref = None, # disable autoref since there is no refswitch
                    ),
     afh  = device('devices.generic.DeviceAlias',
-                  description = 'Current afh',
                   alias = 'afh_pg',
                  ),
 )
