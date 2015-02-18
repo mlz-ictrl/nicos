@@ -710,7 +710,8 @@ class Experiment(Device):
         self._setROParam('propinfo', kwds)
         self.title = kwds.get('title', '')
         self.users = kwds.get('user', '')
-        self.localcontact = kwds.get('localcontact', session.instrument.responsible)
+        default_local = session.instrument and session.instrument.responsible or ''
+        self.localcontact = kwds.get('localcontact', default_local)
 
         # assignment to proposalpath/sampledir adjusts possible symlinks
         self.proposal = proposal
