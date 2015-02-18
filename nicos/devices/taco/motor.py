@@ -52,6 +52,7 @@ class Motor(CanReference, TacoDevice, BaseMotor):
         self._taco_reset(self._dev, self.resetcall)
 
     def doReference(self):
+        self._setROParam('target', None)  # don't check target in wait() below
         self._taco_guard(self._dev.deviceReset)
         self.wait()
 
