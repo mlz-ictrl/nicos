@@ -145,7 +145,7 @@ devices = dict(
                      ),
 
     Watchdog = device('services.watchdog.Watchdog',
-                      cache = 'pandasrv:14869',
+                      cache = 'phys.panda.frm2',
                       notifiers = {'default': ['email'],
                                    'critical': ['email', 'smser'],
                                    'onlypetr': ['email2', 'smspetr'],

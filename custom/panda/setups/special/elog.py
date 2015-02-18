@@ -9,5 +9,5 @@ sysconfig = dict(
 devices = dict(
     Logbook = device('services.elog.Logbook',
                      prefix = 'logbook/',
-                     cache = 'pandasrv:14869'),
+                     cache = 'phys.panda.frm2'),
 )

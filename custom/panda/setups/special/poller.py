@@ -5,7 +5,7 @@ group = 'special'
 includes = []
 
 sysconfig = dict(
-    cache = 'pandasrv'
+    cache = 'phys.panda.frm2'
 )
 
 devices = dict(

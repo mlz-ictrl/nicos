@@ -10,6 +10,6 @@ devices = dict(
 
     Server = device('services.cache.server.CacheServer',
                     db = 'DB2',
-                    server = 'pandasrv',
+                    server = '',
                     loglevel = 'info'),
 )

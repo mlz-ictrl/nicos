@@ -5,7 +5,7 @@ description = 'system setup for PANDA'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'pandasrv',
+    cache = 'phys.panda.frm2',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
     instrument = 'panda',
