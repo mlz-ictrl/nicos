@@ -44,13 +44,13 @@ from itertools import islice, chain
 from functools import wraps
 
 try:
-    import grp
     import pwd
+    import grp
 except ImportError:
-    grp = pwd = None
+    pwd = grp = None
 
 from nicos import config, session
-from nicos.pycompat import iteritems, xrange as range  # pylint: disable=W0622
+from nicos.pycompat import iteritems, string_types, xrange as range  # pylint: disable=W0622
 
 
 class attrdict(dict):
@@ -482,10 +482,14 @@ def ensureDirectory(dirname, enableDirMode=DEFAULT_DIR_MODE, **kwargs):
 
 def enableDisableFileItem(filepath, mode, owner=None, group=None):
     """set mode and maybe change uid/gid of a filesystem item"""
-    if (owner or group) and (hasattr(os, 'chown') and hasattr(os, 'stat')):
+    if (owner or group) and pwd and hasattr(os, 'chown') and hasattr(os, 'stat'):
         stats = os.stat(filepath)  # only change the requested parts
         owner = owner or stats.st_uid
         group = group or stats.st_gid
+        if isinstance(owner, string_types):
+            owner = pwd.getpwnam(owner)[2]
+        if isinstance(group, string_types):
+            group = grp.getgrnam(group)[2]
         try:
             os.chown(filepath, owner, group)
         except OSError as e:
@@ -566,8 +570,8 @@ def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
                                       enableDirMode, enableFileMode,
                                       owner, group, enable=True)
     if failflag:
-        session.log.warning('Enabling failed for some files, please check access'
-                            ' rights manually')
+        session.log.warning('Enabling failed for some files, please check '
+                            'access rights manually')
     return failflag
     # maybe logging is better done in the caller of enableDirectory
 

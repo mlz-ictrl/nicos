@@ -33,16 +33,6 @@ from os import path
 from uuid import uuid1
 from textwrap import dedent
 
-# both will fail on M$win
-try:
-    from pwd import getpwnam
-except ImportError:
-    getpwnam = lambda x: (x, '', None, 0, '', 'c:\\', 'cmd')
-try:
-    from grp import getgrnam
-except ImportError:
-    getgrnam = lambda x: (x, '', None, [])
-
 from nicos import session, config
 from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
@@ -51,7 +41,7 @@ from nicos.core import listof, anytype, oneof, \
 from nicos.core.params import subdir, nonemptystring, expanded_path
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
-    enableDirectory, readonlydict, lazy_property, printTable, \
+    enableDirectory, lazy_property, printTable, pwd, grp, \
     DEFAULT_FILE_MODE, readFileCounter, updateFileCounter
 from nicos.core.utils import DeviceValueDict
 from nicos.utils.ftp import ftpUpload
@@ -580,40 +570,29 @@ class Experiment(Device):
                              path.abspath(path.join(config.nicos_root, 'template')))
 
     def doUpdateManagerights(self, mrinfo):
-        """check and transform the managerights dict into values used later"""
-        if mrinfo in (None, False):  # ease upgrade 2.4->2.5
-            self._setROParam('managerights', readonlydict())
-        elif mrinfo:
-            changed = dict()
-            # check values and transform them to save time later
-            for k, f in [('owner', getpwnam), ('group', getgrnam)]:
-                v = mrinfo.get(k)
-                if isinstance(v, string_types):
+        """Check the managerights dict into values used later."""
+        if pwd:
+            for key, lookup in [('owner', pwd.getpwnam),
+                                ('enableOwner', pwd.getpwnam),
+                                ('disableOwner', pwd.getpwnam),
+                                ('group', grp.getgrnam),
+                                ('enableGroup', grp.getgrnam),
+                                ('disableGroup', grp.getgrnam)]:
+                value = mrinfo.get(key)
+                if isinstance(value, string_types):
                     try:
-                        r = f(v)
+                        lookup(value)
                     except Exception as e:
                         raise ConfigurationError(
-                            self, 'managerights: illegal value for key %r: %r (%s)' %
-                            (k, v, e), exc=1)
-                    if r[2] is not None:
-                        changed[k] = r[2]
-            for k in ['enableDirMode', 'enableFileMode',
-                      'disableDirMode', 'disableFileMode']:
-                v = mrinfo.get(k, None)
-                if isinstance(v, string_types):
-                    try:
-                        r = int(v, 8)  # filemodes are given in octal!
-                    except Exception as e:
-                        raise ConfigurationError(
-                            self, 'managerights: illegal value for key %r: %r (%s)' %
-                            (k, v, e), exc=1)
-                    if r is not None:
-                        changed[k] = r
-            if changed:
-                d = dict(mrinfo)
-                d.update(changed)
-                # assignment would trigger doUpdateManagerights again, looping!
-                self._setROParam('managerights', readonlydict(d))
+                            self, 'managerights: illegal value for key '
+                            '%r: %r (%s)' % (key, value, e), exc=1)
+        for key in ['enableDirMode', 'enableFileMode',
+                    'disableDirMode', 'disableFileMode']:
+            value = mrinfo.get(key)
+            if value is not None and not isinstance(value, int):
+                raise ConfigurationError(
+                    self, 'managerights: illegal value for key '
+                    '%r: not an integer' % key, exc=1)
 
     #
     # Experiment handling: New&Finish
