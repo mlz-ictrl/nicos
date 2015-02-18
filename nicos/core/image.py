@@ -37,12 +37,14 @@ from nicos.core.errors import NicosError, ProgrammingError
 from nicos.core.params import Param, Attach, subdir, listof
 from nicos.pycompat import iteritems
 
+
 # TODO: Move to utils?
 def _devParamValTupleListToDict(lst):
-    return {(dev, param) : val for dev, param, val in lst}
+    return dict(((dev, param), val) for dev, param, val in lst)
+
 
 def _devParamValDictToTupleList(dct):
-    return [(key[0], key[1], val)for key, val in iteritems(dct)]
+    return [(key[0], key[1], val) for key, val in iteritems(dct)]
 
 
 class ImageInfo(object):

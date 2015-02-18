@@ -179,7 +179,7 @@ class DataHandler(QObject):
         dataset.datanorm = {}
         xnameunits = [name_unit(name, unit) for name, unit
                       in zip(dataset.xnames, dataset.xunits)]
-        dataset.datax = {key: [] for key in xnameunits}
+        dataset.datax = dict((key, []) for key in xnameunits)
         for i, (name, info) in enumerate(zip(dataset.ynames, dataset.yvalueinfo)):
             if info.type in ('info', 'error'):
                 continue
@@ -206,7 +206,7 @@ class DataHandler(QObject):
             curves.append(curve)
         dataset.xnameunits = xnameunits
         dataset.normindices = normindices
-        dataset.datanorm.update({name: [] for (i, name) in normindices})
+        dataset.datanorm.update((name, []) for (i, name) in normindices)
         return curves
 
     def _update_curves(self, xvalues, yvalues):

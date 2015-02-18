@@ -618,10 +618,10 @@ class ScansPanel(Panel):
                 newcurve = curves[0].copy()
                 newcurve.datay = DataProxy(c.datay for c in curves)
                 newcurve.datady = DataProxy(c.datady for c in curves)
-                newcurve.datax = {xnu: DataProxy(c.datax[xnu] for c in curves)
-                                  for xnu in newset.xnameunits}
-                newcurve.datanorm = {nn: DataProxy(c.datanorm[nn] for c in curves)
-                                     for i, nn in newset.normindices}
+                newcurve.datax = dict((xnu, DataProxy(c.datax[xnu] for c in curves))
+                                      for xnu in newset.xnameunits)
+                newcurve.datanorm = dict((nn, DataProxy(c.datanorm[nn] for c in curves))
+                                         for i, nn in newset.normindices)
                 newset.curves.append(newcurve)
             self.data.add_existing_dataset(newset,
                                            [dataset.uid for dataset in sets])
