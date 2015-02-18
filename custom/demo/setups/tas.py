@@ -15,8 +15,7 @@ devices = dict(
     tas      = device('devices.tas.TAS',
                       description = 'virtual triple-axis spectrometer',
                       instrument = 'VTAS',
-                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>,'
-                                    'T. As <t.as@frm2.tum.de>',
+                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                       energytransferunit = 'meV',
                       scatteringsense = (-1, 1, -1),
                       axiscoupling = False,

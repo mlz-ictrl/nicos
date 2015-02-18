@@ -10,7 +10,7 @@ devices = dict(
 
     puma   = device('nicos.tas.TAS',
                     instrument = 'PUMA',
-                    responsible = 'O. Sobolev',
+                    responsible = 'O. Sobolev <oleg.sobolev@frm2.tum.de>',
                     cell = 'Sample',
                     phi = 'phi',
                     psi = 'psi',

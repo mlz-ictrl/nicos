@@ -38,7 +38,7 @@ devices = dict(
     Sample   = device('devices.sample.Sample'),
 
     Instrument = device('devices.instrument.Instrument',
-                        responsible = 'Dr. Petra Kudejova',
+                        responsible = 'Dr. Petra Kudejova <petra.kudejova@frm2.tum.de>',
                        ),
 
     Exp      = device('devices.experiment.Experiment',

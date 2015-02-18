@@ -148,6 +148,7 @@ devices = dict(
                       ana = 't_ana',
                       alpha = 't_alpha',
                       instrument = 'Tas',
+                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                      ),
 
     card    = device('devices.generic.VirtualCounterCard'),

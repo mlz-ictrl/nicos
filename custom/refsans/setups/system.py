@@ -44,7 +44,7 @@ devices = dict(
     REFSANS  = device('devices.instrument.Instrument',
                       description = 'Container storing Instrument properties',
                       instrument = 'REFSANS',
-                      responsible = 'Mathias Pomm',
+                      responsible = 'Matthias Pomm <matthias.pomm@hzg.de>',
                      ),
 
     Sample   = device('devices.sample.Sample',

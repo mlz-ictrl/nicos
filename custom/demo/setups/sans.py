@@ -14,8 +14,7 @@ devices = dict(
     Sample   = device('sans1.sans1_sample.Sans1Sample'),
 
     sans     = device('devices.instrument.Instrument',
-                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>' \
-                                    'S. Ans <s.ans@frm2.tum.de>',
+                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                       instrument = 'SANS-V2'
                      ),
 

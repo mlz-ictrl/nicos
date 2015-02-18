@@ -15,8 +15,7 @@ modules = ['nicos.commands.standard'] # , 'jcns.commands']
 devices = dict(
     tas     = device('devices.instrument.Instrument',
                       instrument = 'DEMO',
-                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>,'
-                                    'A. Demo <a.demo@frm2.tum.de>',
+                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                      ),
 
     Sample   = device('devices.tas.TASSample'),

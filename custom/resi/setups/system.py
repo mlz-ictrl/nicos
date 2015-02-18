@@ -28,7 +28,7 @@ devices = dict(
 
     resiInstrument = device('devices.instrument.Instrument',
                        instrument = 'RESI',
-                        responsible = 'BP'),
+                        responsible = 'BP <bjoern.pedersen@frm2.tum.de>'),
 
     Sample = device('devices.sample.Sample'),
 

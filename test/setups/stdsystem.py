@@ -154,5 +154,6 @@ devices = dict(
                       alpha = 't_alpha',
                       instrument = 'Tas',
                       countloopdelay = 0.002,
+                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                      ),
 )

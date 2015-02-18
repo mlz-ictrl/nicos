@@ -57,7 +57,7 @@ devices = dict(
     Instrument = device('devices.instrument.Instrument',
                         description = 'SANS1 instrument',
                         instrument = 'SANS-1',
-                        responsible = 'Dr. habil. Ralph Gilles',
+                        responsible = 'Dr. habil. Ralph Gilles <ralph.gilles@frm2.tum.de>',
                        ),
 
     Exp      = device('frm2.experiment.Experiment',

@@ -84,8 +84,7 @@ devices = dict(
                      description = 'Single crystal DIFFractometer '
                                    'for BIOlogical macromolecules',
                      instrument = "BIODIFF",
-                     responsible = "Tobias Schrader <t.schrader@fz-juelich.de>, "
-                                   "Andreas Ostermann <andreas.ostermann@frm2.tum.de>"
+                     responsible = "Tobias Schrader <t.schrader@fz-juelich.de>",
                     ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',

@@ -24,7 +24,7 @@
 
 """NICOS Instrument device."""
 
-from nicos.core import Device, Param
+from nicos.core import Device, Param, mailaddress
 
 
 class Instrument(Device):
@@ -38,11 +38,12 @@ class Instrument(Device):
     """
 
     parameters = {
-        'instrument': Param('Instrument name', type=str, category='experiment'),
-        'doi': Param('Instrument DOI', type=str, category='experiment',
-                     userparam=False),
+        'instrument':  Param('Instrument name', type=str, category='experiment'),
+        'doi':         Param('Instrument DOI', type=str, category='experiment',
+                             userparam=False),
         'responsible': Param('Instrument responsible name and email',
-                             type=str, category='experiment'),
+                             mandatory=True, type=mailaddress,
+                             category='experiment'),
         'countloopdelay': Param('Loop delay in checking for counting finished',
                                 type=float, default=0.025, userparam=False),
     }

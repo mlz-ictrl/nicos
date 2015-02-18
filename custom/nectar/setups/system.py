@@ -31,7 +31,7 @@ devices = dict(
     Instrument = device('devices.instrument.Instrument',
                         description = 'NECTAR instrument',
                         instrument = 'NECTAR',
-                        responsible = 'Dr. Stefan Soellradl',
+                        responsible = 'Dr. Stefan Soellradl <stefan.soellradl@frm2.tum.de>',
                        ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink'),
