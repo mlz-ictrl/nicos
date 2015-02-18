@@ -355,9 +355,10 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 # then, send data separately (doesn't create temporary strings)
                 send(data)
             except Exception as err:
-                if isinstance(err, socket.error) and err.args[0] == errno.EPIPE:
+                if isinstance(err, socket.error) and \
+                   err.args[0] in (errno.EPIPE, errno.EBADF):
                     # close sender on broken pipe
-                    self.log.warning('broken pipe in event sender')
+                    self.log.warning('broken pipe/bad socket in event sender')
                     break
                 self.log.exception('exception in event sender; event: %s, '
                                    'data: %s' % (event, repr(data)[:1000]))
