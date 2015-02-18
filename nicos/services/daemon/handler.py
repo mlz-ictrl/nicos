@@ -114,12 +114,13 @@ class SizedQueue(queue.Queue):
         return self.nbytes
 
     def _put(self, item):
-        self.nbytes += len(item[1])
+        # size of the queue item should never be zero, so add one
+        self.nbytes += len(item[1]) + 1
         self.queue.append(item)
 
     def _get(self):
         item = self.queue.popleft()
-        self.nbytes -= len(item[1])
+        self.nbytes -= len(item[1]) + 1
         return item
 
 
