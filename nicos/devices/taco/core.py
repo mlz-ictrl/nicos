@@ -129,6 +129,7 @@ class TacoDevice(HasCommunication):
         TACOStates.RESETTING: status.BUSY,
         TACOStates.STOP_REQUESTED: status.BUSY,
         TACOStates.COUNTING: status.BUSY,
+        TACOStates.STARTED: status.BUSY,
         # NOTREACHED states
         TACOStates.UNDEFINED: status.NOTREACHED,
         # WARN states
