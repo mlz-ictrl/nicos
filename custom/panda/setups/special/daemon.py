@@ -19,7 +19,7 @@ devices = dict(
                    ),
     Daemon = device('services.daemon.NicosDaemon',
                     description = 'Daemon, executing commands and scripts',
-                    server = 'phys.panda.frm2',
+                    server = '',
                     authenticators = ['Auth','UserDBAuth',],
                     loglevel = 'debug',
                     ),
