@@ -132,7 +132,7 @@ class Valve(Moveable):
             return status.BUSY, 'busy'
 
     def doIsCompleted(self):
-        return self._started + self.waittime > currenttime()
+        return not self._started or self._started + self.waittime > currenttime()
 
 
 class Leckmon(Readable):
