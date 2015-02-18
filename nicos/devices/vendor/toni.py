@@ -119,12 +119,10 @@ class Valve(Moveable):
         self._started = currenttime()
 
     def doRead(self, maxage=0):
-        self.wait()
         ret = self._adevs['bus'].communicate('R?', self.addr, expect_hex=2)
         return self.states[bool(ret & (1 << self.channel))]
 
     def doStatus(self, maxage=0):
-        self.wait()
         ret = self._adevs['bus'].communicate('I?', self.addr, expect_hex=2)
         if ret == 0:
             return status.OK, 'idle'
