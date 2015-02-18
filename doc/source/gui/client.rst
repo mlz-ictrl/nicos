@@ -43,3 +43,5 @@ NICOS daemon or to query it for current state or values.
    .. automethod:: getDeviceParams
 
    .. automethod:: getDeviceParam
+
+   .. automethod:: getCacheKey

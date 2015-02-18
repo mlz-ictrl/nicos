@@ -280,6 +280,11 @@ class NicosWidget(NicosListener):
     def setClient(self, client):
         self.setSource(client)
         self._client = client
+        # refresh all keys at widget creation time to get an initial value
+        for key in self._devmap:
+            ret = self._client.getCacheKey(key)
+            if ret:
+                self.on_keyChange(ret[0], ret[1], 0, False)
         # auto-connect client signal handlers
         for signal in DAEMON_EVENTS:
             if hasattr(self, 'on_client_' + signal):
