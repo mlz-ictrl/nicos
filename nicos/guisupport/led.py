@@ -74,7 +74,7 @@ class BaseLed(QLabel, NicosWidget):
         return QWidget.resizeEvent(self, event)
 
     def registerKeys(self):
-        self._skey = self._source.register(self, self.props['key'])
+        self.registerKey(self.props['key'])
 
     properties = {
         'ledStatus':   PropDef(bool, True),
