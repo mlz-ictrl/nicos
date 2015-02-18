@@ -1104,18 +1104,22 @@ class Session(object):
             self._script_text = data
         elif eventtype == 'exception':
             self.logUnhandledException(data)
-            exception = formatException(exc_info=data)
-            self.notifyConditionally(
-                time.time() - self._script_start,
-                'Error in script',
-                'An error occurred in the executed script:\n\n' +
-                exception + '\n\nThe script was:\n\n' +
-                self._script_text, 'error notification',
-                short='Exception: ' + exception.splitlines()[-1])
-            if isinstance(data[1], NameError):
-                guessCorrectCommand(self.current_script.text)
-            elif isinstance(data[1], AttributeError):
-                guessCorrectCommand(self.current_script.text, True)
+            # don't raise exceptions on exceptions
+            try:
+                exception = formatException(exc_info=data)
+                self.notifyConditionally(
+                    time.time() - self._script_start,
+                    'Error in script',
+                    'An error occurred in the executed script:\n\n' +
+                    exception + '\n\nThe script was:\n\n' +
+                    self._script_text, 'error notification',
+                    short='Exception: ' + exception.splitlines()[-1])
+                if isinstance(data[1], NameError):
+                    guessCorrectCommand(self._script_text)
+                elif isinstance(data[1], AttributeError):
+                    guessCorrectCommand(self._script_text, True)
+            except Exception:
+                pass
 
     # -- Action logging --------------------------------------------------------
 
