@@ -564,6 +564,9 @@ class EditorPanel(Panel):
             # close existing tabs when switching TO a user experiment
             for index in range(len(self.editors)-1, -1, -1):
                 self.on_tabber_tabCloseRequested(index)
+            # if all tabs have been closed, open a new file
+            if not self.tabber.count():
+                self.on_actionNew_triggered()
 
     def on_fileTree_doubleClicked(self, idx):
         fpath = self.treeModel.filePath(idx)
