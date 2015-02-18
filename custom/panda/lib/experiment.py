@@ -48,14 +48,9 @@ class PandaExperiment(Experiment):
     }
 
     @property
-    def proposaldir(self):
-        """deviating from default of <dataroot>/<year>/<proposal>"""
-        return path.join(self.dataroot, 'exp', self.proposal)
-
-    @property
     def proposalsymlink(self):
         """deviating from default of <dataroot>/current"""
-        return path.join(self.dataroot, 'exp', 'current')
+        return path.join(self.dataroot, 'currentexperiment')
 
     def _afterNewHook(self):
         if self.editor:
