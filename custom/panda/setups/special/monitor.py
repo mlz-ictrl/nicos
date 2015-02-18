@@ -98,7 +98,7 @@ detector = Block('Detector', [
     ),
 ], 'panda')
 
-detector = Block('Detector', [
+bambus = Block('Detector', [
     BlockRow(
         Field(name='events', key='det/value', item=0, format='%d'),
         Field(name='time', key='det/value', item=1, format='%4g'),
@@ -263,6 +263,13 @@ for i in range(10, 22 + 1):
         ], 'ccr%d' % i)
     )
 
+miramagnet = Block('MIRA Magnet', [
+    BlockRow(
+        Field(dev='I'),
+        Field(dev='B'),
+    ),
+], 'miramagnet')
+
 # for setup magnet frm2-setup
 magnet75 = Block('7T Magnet', [
     BlockRow(
@@ -366,8 +373,8 @@ foki = Block('Foki', [
     BlockRow(Field(dev='afh')),
 ], '!always!')
 
-column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, magnet75, magnet7t5, magnet14t5, vti)
+column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
+          Column(lakeshore, miramagnet, magnet75, magnet7t5, magnet14t5, vti)
 
 column3 = Column(magnet75supp, magnet7t5supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
