@@ -410,6 +410,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     _thread = None
     _window = None
     _starttime = 0
+    _stopflag = False
 
     def doInit(self, mode):
         if mode == SIMULATION:
@@ -418,6 +419,9 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             self._window = []
             self._statusLock = threading.Lock()
             self._thread = createThread('cryo simulator %s' % self, self.__run)
+
+    def doShutdown(self):
+        self._stopflag = True
 
     def doStart(self, pos):
         # do nothing more, its handled in the thread...
@@ -512,7 +516,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
         lastD = 0
         damper = 1
         lastmode = self.mode
-        while True:
+        while not self._stopflag:
             t = time.time()
             h = t - timestamp
             if h < self.loopdelay / damper:
@@ -535,9 +539,10 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
 
             # b) see
             # http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
-            if self.mode !='openloop':
+            if self.mode != 'openloop':
                 # fix artefacts due to too big timesteps
-                # actually i would prefer reducing loopdelay, but i have no good idea on when to increase it back again
+                # actually i would prefer reducing loopdelay, but i have no
+                # good idea on when to increase it back again
                 if heatflow * lastflow != -100:
                     if (newregulation - newsample) * (regulation - sample) < 0:
                         #~ newregulation = (newregulation + regulation) / 2
