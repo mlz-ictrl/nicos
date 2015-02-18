@@ -58,7 +58,7 @@ __all__ = [
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', '_trace', 'timer',
-    'LogEntry', '_LogAttach',
+    'LogEntry', '_LogAttach', 'SetErrorAbort',
 ]
 
 
