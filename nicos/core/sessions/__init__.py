@@ -111,6 +111,7 @@ class Session(object):
         # devices failed and succeeded to create in the current setup process
         self._failed_devices = None
         self._success_devices = None
+        self._multi_level = 0
         # info about all loadable setups
         self._setup_info = {}
         # namespace to place user-accessible items in
@@ -821,14 +822,18 @@ class Session(object):
         """Store devices that fail to create so that they are not tried again
         and again during one setup process.
         """
-        self._failed_devices = set()
-        self._success_devices = []
+        if not self._multi_level:
+            self._failed_devices = set()
+            self._success_devices = []
+        self._multi_level += 1
 
     def endMultiCreate(self):
         """Mark the end of a multi-create."""
-        self._failed_devices = None
-        self.deviceCallback('create', self._success_devices)
-        self._success_devices = None
+        self._multi_level -= 1
+        if not self._multi_level:
+            self._failed_devices = None
+            self.deviceCallback('create', self._success_devices)
+            self._success_devices = None
 
     def getDevice(self, dev, cls=None, source=None, replace_classes=None):
         """Return a device *dev* from the current setup.
