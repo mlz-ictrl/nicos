@@ -176,6 +176,10 @@ class MainWindow(QMainWindow, DlgUtils):
             def window_callback(on, i=i):
                 self.createWindow(i)
             self.connect(action, SIGNAL('triggered(bool)'), window_callback)
+        if not self.gui_conf.windows:
+            self.toolBarWindows.hide()
+        else:
+            self.toolBarWindows.show()
 
         # load tools menu
         for i, tconfig in enumerate(self.gui_conf.tools):
