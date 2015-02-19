@@ -101,11 +101,11 @@ class PSLDetector(ImageProducer, Measurable):
             self._preset = float(self._communicate('GetExposure')) / 1000.
         return self._preset
 
-    def doWritePreseletion(self, exptime):
+    def doWritePreselection(self, exptime):
         '''exposure in seconds, hardware wants ms)'''
         self._preset = exptime
-        self._communicate('SetExposure;%f' % self._preset * 1000.)
+        self._communicate('SetExposure;%f' % (( exptime * 1000.),))
 
     def doSetPreset(self, **presets):
         if 't' in presets:
-            self.preselection = presets['t']
+            self.doWritePreselection(float(presets['t']))
