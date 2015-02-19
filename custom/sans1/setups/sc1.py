@@ -28,7 +28,7 @@ group = 'optional'
 
 includes = ['sample_table_2'] # includes 'sample_table_1'
 
-nethost = '//sans1srv.sans1.frm2/'
+nethost = 'sans1srv.sans1.frm2'
 
 devices = dict(
     samplenameselector = device('devices.generic.ParamDevice',
@@ -38,13 +38,30 @@ devices = dict(
                                 parameter = 'activesample',
                                ),
 
-    sc1_y    = device('devices.taco.axis.Axis',
-                      description = 'Sample Changer 1 Axis',
-                      lowlevel = True,
-                      tacodevice = nethost + 'sans1/samplechanger/y-sc1',
-                      fmtstr = '%.2f',
-                      abslimits = (-0, 600),
-                     ),
+    sc1_y    = device('devices.generic.Axis',
+                         description = 'Sample Changer 1 Axis',
+                         pollinterval = 15,
+                         maxage = 60,
+                         fmtstr = '%.2f',
+                         abslimits = (-0, 600),
+                         precision = 0.01,
+                         motor = 'sc1_ymot',
+                         coder = 'sc1_yenc',
+                         obs=[],
+                        ),
+    sc1_ymot = device('devices.taco.motor.Motor',
+                         description = 'Sample Changer 1 Axis motor',
+                         tacodevice = '//%s/sans1/samplechanger/y-sc1mot' % (nethost, ),
+                         fmtstr = '%.2f',
+                         abslimits = (-0, 600),
+                         lowlevel = True,
+                        ),
+    sc1_yenc = device('devices.taco.coder.Coder',
+                         description = 'Sample Changer 1 Axis encoder',
+                         tacodevice = '//%s/sans1/samplechanger/y-sc1enc' % (nethost, ),
+                         fmtstr = '%.2f',
+                         lowlevel = True,
+                        ),
 
     sc1    = device('devices.generic.MultiSwitcher',
                     description = 'Sample Changer 1 Huber device',

@@ -23,8 +23,10 @@ _selcolumn = Column(
         BlockRow(
                  Field(name='selector_rpm', dev='selector_rpm'),
                  Field(name='selector_lambda', dev='selector_lambda'),
-                 Field(name='selector_ng', dev='selector_ng'),
-                 Field(name='selector_tilt', dev='selector_tilt'),
+                 #Field(name='selector_ng', dev='selector_ng'),
+                 #Field(name='selector_tilt', dev='selector_tilt'),
+                 Field(name='water flow', dev='selector_wflow'),
+                 Field(name='rotor temp.', dev='selector_rtemp'),
                 ),
         ],
     ),
