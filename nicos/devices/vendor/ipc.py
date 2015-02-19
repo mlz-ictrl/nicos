@@ -1244,7 +1244,8 @@ class SlitMotor(HasTimeout, NicosMotor):
         steps = self._tosteps(self.resetpos)
         self._adevs['bus'].send(self.addr, self.side+160, steps, 4)
         sleep(0.3)
-        self.wait()
+        while self.doStatus()[0] == status.BUSY:
+            sleep(self._base_loop_delay)
 
     def doStop(self):
         pass
