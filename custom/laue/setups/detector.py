@@ -8,7 +8,8 @@ devices = dict(
                  address = 'lauedet.laue.frm2',
                  port = 50000,
                  subdir='',
-                 fileformats = ['raw',],
+                 fileformats = ['raw','fits',],
                  lowlevel = False),
-    raw = device('devices.fileformats.raw.RAWFileFormat')
+    raw = device('devices.fileformats.raw.RAWFileFormat'),
+    fits = device('devices.fileformats.fits.FITSFileFormat'),
     )
