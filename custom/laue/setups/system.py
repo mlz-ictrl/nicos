@@ -108,4 +108,4 @@ devices = dict(
                      ),
 )
 
-includes = ['detector']
+includes = ['detector','kappa']
