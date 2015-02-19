@@ -188,7 +188,7 @@ def check_setupfile(filename):
             log.warning("%s: class %r has no 'parameters'",
                         devname, cls.__name__)
         else:
-            if not config.get('lowlevel', False):
+            if not config.get('lowlevel', False) and cls.__name__ != 'DeviceAlias':
                 if not config.get('description') and group != 'special':
                     log.warning('%s: device has no description', devname)
             for pname, pinfo in cls.parameters.iteritems():
