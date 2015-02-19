@@ -42,7 +42,7 @@ from nicos.devices.generic.cache import CacheReader
 from nicos.pycompat import listitems, queue as Queue
 
 
-POLL_MIN_VALID_TIME = 0.25  # latest time slot to poll before value times out due to maxage
+POLL_MIN_VALID_TIME = 0.15  # latest time slot to poll before value times out due to maxage
 POLL_BUSY_INTERVAL = 1.0    # if dev is busy, poll this often
 POLL_MIN_WAIT = 0.1         # minimum amount of time between two calls to poll()
 
@@ -124,7 +124,7 @@ class Poller(Device):
             """
             # get the initial values
             interval = dev.pollinterval
-            maxage = dev.maxage
+            maxage = dev.pollinterval - POLL_MIN_VALID_TIME
 
             i = 0
             lastpoll = 0  # last timestamp of succesfull poll
@@ -135,6 +135,7 @@ class Poller(Device):
                 # determine maximum waiting time with a default of 1h
                 ct = currenttime()
                 nextpoll = lastpoll + (interval or 3600)
+                # note: dev.maxage is intended here!
                 timesout = lastpoll + dev.maxage - POLL_MIN_VALID_TIME
                 maxwait = min(nextpoll - ct, timesout - ct)
                 if do_log:
@@ -154,33 +155,33 @@ class Poller(Device):
                         # use pass to trigger a poll or continue to just fetch the next event
                         if event == 'adev_busy':  # one of our attached_devices went busy
                             interval = POLL_BUSY_INTERVAL
-                            maxage = POLL_BUSY_INTERVAL / 5
+                            maxage = POLL_BUSY_INTERVAL / 2
                             # also poll
                         elif event == 'adev_normal':  # one of our attached_devices is no more busy
                             pass  # also poll
                         elif event == 'adev_target':  # one of our attached_devices got new target
                             interval = POLL_BUSY_INTERVAL
-                            maxage = POLL_BUSY_INTERVAL / 5
+                            maxage = POLL_BUSY_INTERVAL / 2
                             continue
                         elif event == 'adev_value':  # one of our attached_devices changed value
                             interval = POLL_BUSY_INTERVAL
-                            maxage = POLL_BUSY_INTERVAL / 5
+                            maxage = POLL_BUSY_INTERVAL / 2
                             continue
                         elif event == 'dev_busy':  # our device went busy
                             interval = POLL_BUSY_INTERVAL
-                            maxage = POLL_BUSY_INTERVAL / 5
+                            maxage = POLL_BUSY_INTERVAL / 2
                             continue
                         elif event == 'dev_normal':  # our device is no more busy
                             continue
                         elif event == 'dev_target':  # our device got new target
                             interval = POLL_BUSY_INTERVAL
-                            maxage = POLL_BUSY_INTERVAL / 5
+                            maxage = POLL_BUSY_INTERVAL / 2
                             continue
                         elif event == 'dev_value':  # our device changed value
                             continue
                         elif event == 'param':  # update local vars
                             interval = dev.pollinterval
-                            maxage = dev.maxage
+                            maxage = dev.pollinterval - POLL_MIN_VALID_TIME
                             continue
                         elif event == 'quit':  # stop doing anything
                             return
@@ -209,7 +210,7 @@ class Poller(Device):
                     # adjust timing of we are no longer busy
                     if stval is not None and stval[0] != status.BUSY:
                         interval = dev.pollinterval
-                        maxage = dev.maxage
+                        maxage = dev.pollinterval - POLL_MIN_VALID_TIME
                 # keep track of when we last (tried to) poll
                 lastpoll = currenttime()
                 # reset error count and waittime after first successful poll
