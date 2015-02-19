@@ -1,0 +1,99 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the FRM-II
+# Copyright (c) 2015 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   pedersen
+#
+# *****************************************************************************
+
+"""
+File writer for tiff files compatible with ESMERALDA
+"""
+
+try:
+    from PIL import PILLOW_VERSION
+    from distutils.version import LooseVersion  # pylint: disable=E0611
+    if LooseVersion(PILLOW_VERSION) < LooseVersion('2.7.0'):
+        raise ImportError
+    from PIL import Image
+    from PIL.TiffImagePlugin import ImageFileDirectory, STRIPOFFSETS
+    from nicos.laue.patch_tiff_image_plugin import save
+    ImageFileDirectory.save = save
+except ImportError:
+    Image = None
+
+import numpy
+
+from nicos.core import ImageSink, NicosError
+from nicos.pycompat import iteritems
+
+
+# tag values for esmeralda /Image_Modules_Src/Laue_tiff_read.f90
+# format: tiff tagnumber: ( descr, nicos key)
+TAGMAP = {'T/svalue': (1000, 'ICd%temp_begin'),
+          'T/evalue': (1001, 'ICd%temp_end'),
+          'Sample/name': (1002, 'ICd%sample'),
+          'det1/preset': (1003, 'ICd%expose_time'),
+          'phi/value': (1004, 'ICd%expose_phi'),
+          'startx': (1005, 'ICd%startx'),
+          'starty': (1006, 'ICd%starty'),
+          '???3': (1007, 'ICd%speed'),
+          'T/min': (1008, 'ICd%temp_min'),
+          'T/max': (1009, 'ICd%temp_max'),
+          }
+
+
+class TIFFLaueFileFormat(ImageSink):
+
+    fileFormat = 'TIFF'
+
+    def doPreinit(self, _mode):
+        # Stop creation of the TIFFLaueFileFormat as it would make no sense
+        # without correct PIL version.
+        if Image is None:
+            raise NicosError(self, 'PIL/Pillow module is not available. Check'
+                             ' if it\'s installed and in your PYTHONPATH')
+
+    def acceptImageType(self, imageType):
+        # Note: FITS would be capable of saving multiple images in one file
+        # (as 3. dimension). May be implemented if necessary. For now, only
+        # 2D data is supported.
+        return (len(imageType.shape) == 2)
+
+    def saveImage(self, info, data):
+        # ensure numpy type, with float values for PIL
+        npData = numpy.asarray(data,dtype= '<u2')
+        buf = numpy.getbuffer(npData)
+        self.log.info(npData.shape)
+        ifile = Image.frombuffer('I;16', npData.shape, buf, "raw", 'I;16', 0, 1)
+
+        ifile.save(info.file, 'TIFF', imageinfo=self._buildHeader(info))
+
+    def _buildHeader(self, imageinfo):
+        ifd = ImageFileDirectory()
+        ifd[TAGMAP['startx'][1]] = 1
+        ifd[TAGMAP['starty'][1]] = 1
+        ifd[STRIPOFFSETS] = 8
+        for _cat, dataSets in iteritems(imageinfo.header):
+            for dev, attr, attrVal in dataSets:
+                key = '%s/%s' % (dev.name, attr)
+                if key in TAGMAP:
+                    ifd[TAGMAP[key][1]] = attrVal
+
+        return ifd

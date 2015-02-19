@@ -8,8 +8,10 @@ devices = dict(
                  address = 'lauedet.laue.frm2',
                  port = 50000,
                  subdir='',
-                 fileformats = ['raw','fits',],
+                 fileformats = ['raw','fits','tiff'],
                  lowlevel = False),
     raw = device('devices.fileformats.raw.RAWFileFormat'),
     fits = device('devices.fileformats.fits.FITSFileFormat'),
+    tiff = device('laue.lauetiff.TIFFLaueFileFormat',
+                  filenametemplate=['%08d.tif']),
     )

@@ -40,7 +40,7 @@ class PSLDetector(ImageProducer, Measurable):
         'imagewidth': Param('Image width',
                             type=int, default=2000, category='general'),
         'imageheight': Param('Image height',
-                             type=int, default=1000, category='general'),
+                             type=int, default=1598, category='general'),
 
     }
 
@@ -61,7 +61,7 @@ class PSLDetector(ImageProducer, Measurable):
             iwstr, ihstr = data.split(';')
         except IOError:
             self.log.warning('Error during init', exc=1)
-            iwstr, ihstr = '2000', '1000'
+            iwstr, ihstr = '2000', '1598'
         self._setROParam('imagewidth', int(iwstr))
         self._setROParam('imageheight', int(ihstr))
         shape = (self.imagewidth, self.imageheight)
