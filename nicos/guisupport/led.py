@@ -68,6 +68,7 @@ class BaseLed(QLabel, NicosWidget):
         pixmap = QPixmap(ledName).scaled(self.size(), Qt.KeepAspectRatio,
                                          Qt.SmoothTransformation)
         self.setPixmap(pixmap)
+        self.setAlignment(Qt.AlignCenter)
 
     def resizeEvent(self, event):
         self._refresh()
@@ -151,3 +152,46 @@ class StatusLed(BaseLed):
             self.ledColor = 'yellow'
         else:
             self.ledColor = 'red'
+
+
+class ClickableOutputLed(ValueLed):
+    designer_description = 'Digital Output Led that changes device state on click'
+    designer_icon = ':/leds/orange_on'
+
+    properties = {
+        'ledColor':      PropDef(str, 'orange', 'Default led color'),
+        'stateActive':   PropDef(str, '1', 'Target for active LED state (green)'),
+        'stateInactive': PropDef(str, '0', 'Target for inactive LED state (red)'),
+    }
+
+    def __init__(self, parent=None, designMode=False):
+        self.current = None
+        self._stateActive = 1
+        self._stateInactive = 0
+        ValueLed.__init__(self, parent, designMode)
+
+    def on_keyChange(self, key, value, time, expired):
+        ValueLed.on_keyChange(self, key, value, time, expired)
+        self.current = value
+
+    def propertyUpdated(self, pname, value):
+        ValueLed.propertyUpdated(self, pname, value)
+
+        if pname == 'stateInactive':
+            self._stateInactive = ast.literal_eval(value) if value else 0
+        if pname == 'stateActive':
+            self._stateActive = ast.literal_eval(value) if value else 1
+
+
+    def mousePressEvent(self, event):
+        self.ledColor = 'orange'
+
+        if event.button() == Qt.LeftButton:
+            if self.current == self._stateActive:
+                self._client.tell('queue', '', 'move(%s, %r)'
+                                  % (self.dev, self._stateInactive))
+            else:
+                self._client.tell('queue', '', 'move(%s, %r)'
+                                  % (self.dev, self._stateActive))
+
+        event.accept()

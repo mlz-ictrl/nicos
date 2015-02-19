@@ -243,7 +243,7 @@ Existing widget classes
 
 .. class:: ValueLed
 
-   A LED like image that shows if the value is either true (nonzero) or equals a
+   An LED like image that shows if the value is either true (nonzero) or equals a
    set goal value.
 
    .. attribute:: dev
@@ -264,7 +264,7 @@ Existing widget classes
 
 .. class:: StatusLed
 
-   A LED like image that shows a device status constant:
+   An LED like image that shows a device status constant:
 
    * green = OK
    * orange = WARN
@@ -336,6 +336,21 @@ Existing widget classes
       Set the current value of the widget.  If the value does not match the
       valuetype of the device, the widget will be initialized with an "empty"
       value depending on the valuetype.
+
+
+.. class:: ClickableOutputLed
+
+   An LED like image that shows its device's state and changes it on click.
+   The LED then changes its color to orange until the value is updated in
+   the cache.
+
+   .. attribute:: stateActive
+
+      The equivalent to 'ON' for the selected device (green).
+
+   .. attribute:: stateInactive
+
+      The equivalent to 'OFF' for the selected device (red).
 
 
 .. class:: DeviceParamEdit
