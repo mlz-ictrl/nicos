@@ -443,7 +443,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     def doStop(self):
         self.start(self.setpoint)
 
-    def doPoll(self, nr):
+    def doPoll(self, nr, maxage):
         self._pollParam('setpoint', 1)
         self._pollParam('curvalue', 1)
         self._pollParam('curstatus', 1)

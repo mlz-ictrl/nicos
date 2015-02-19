@@ -1055,7 +1055,7 @@ class Readable(Device):
         ret = None
         if hasattr(self, 'doPoll'):
             try:
-                ret = self.doPoll(n)
+                ret = self.doPoll(n, maxage)
             except Exception:
                 self.log.debug('error in doPoll', exc=1)
         if ret is not None and ret[0] is not None:
@@ -1064,8 +1064,8 @@ class Readable(Device):
             self._cache.put(self, 'value', ret[1], ct, self.maxage)
             return ret[0], ret[1]
         # updates shall always get through to the cache
-        self._cache.invalidate(self, 'value')
-        self._cache.invalidate(self, 'status')
+        #self._cache.invalidate(self, 'value')
+        #self._cache.invalidate(self, 'status')
         return self.status(maxage), self.read(maxage)
 
     def _pollParam(self, name, with_ttl=0):

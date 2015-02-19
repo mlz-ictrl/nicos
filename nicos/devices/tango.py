@@ -330,7 +330,7 @@ class TemperatureController(Actuator):
     def doReadHeateroutput(self):
         return self._dev.heaterOutput
 
-    def doPoll(self, n):
+    def doPoll(self, n, maxage):
         if self.speed:
             self._pollParam('heateroutput', 1)
         else:

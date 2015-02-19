@@ -151,13 +151,13 @@ class Axis(CanReference, BaseAxis):
         """Returns the current position from coder controller."""
         return self._adevs['coder'].read(maxage) - self.offset
 
-    def doPoll(self, i):
+    def doPoll(self, i, maxage):
         if self._hascoder:
             devs = [self._adevs['coder'], self._adevs['motor']] + self._adevs['obs']
         else:
             devs = [self._adevs['motor']] + self._adevs['obs']
         for dev in devs:
-            dev.poll()
+            dev.poll(i, maxage)
 
     def _getReading(self):
         """Find a good value from the observers, taking into account that they
@@ -399,7 +399,7 @@ class Axis(CanReference, BaseAxis):
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
             _status, pos = self.poll()
-            mstatus, mstatusinfo = self._adevs['motor'].status()
+            mstatus, mstatusinfo = self._adevs['motor'].status(0)
             if mstatus != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 2:

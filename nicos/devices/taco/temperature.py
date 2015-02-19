@@ -107,7 +107,7 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
             if self.timeoutaction == 'raise' else (status.ERROR,)
         return defaultIsCompleted(self, errorstates=errorstates)
 
-    def doPoll(self, n):
+    def doPoll(self, n, maxage):
         if self.ramp:
             self._pollParam('setpoint', 1)
             self._pollParam('heaterpower', 1)

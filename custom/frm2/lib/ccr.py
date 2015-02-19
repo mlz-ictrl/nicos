@@ -142,7 +142,7 @@ class CCRControl(HasLimits, Moveable):
             raise ProgrammingError(self, 'unknown mode %r, don\'t know how to '
                                    'handle it!' % self.regulationmode)
 
-    def doPoll(self, n):
+    def doPoll(self, n, maxage):
         if n % 50 == 0:
             self._pollParam('setpoint', 60)
 
