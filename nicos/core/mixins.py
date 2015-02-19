@@ -383,9 +383,8 @@ class HasTimeout(DeviceMixinBase):
         """
         res = [('start', current_time)]
         if hasattr(self, 'doTime'):
-            res.append(('ramping', current_time + self.doTime(current_pos,
-                                                              target_pos)))
-        res.append(('stabilizing', res[-1][1] + (self.timeout or 0)))
+            res.append(('', current_time + self.doTime(current_pos, target_pos)))
+        res.append(('', res[-1][1] + (self.timeout or 0)))
         return res
 
     def isTimedOut(self):
