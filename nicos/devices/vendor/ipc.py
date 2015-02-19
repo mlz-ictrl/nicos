@@ -854,7 +854,8 @@ class Motor(HasTimeout, NicosMotor):
         target = self._tosteps(target)
         self.log.debug('target is %d steps' % target)
         bus = self._adevs['bus']
-        self.wait()
+        while self.doStatus()[0] == status.BUSY:
+            sleep(self._base_loop_delay)
         pos = self._tosteps(self.read(0))
         self.log.debug('pos is %d steps' % pos)
         diff = target - pos
@@ -872,7 +873,9 @@ class Motor(HasTimeout, NicosMotor):
         if self.status(0)[0] != status.OK:  # busy or error
             bus.send(self.addr, 33)  # stop
             try:
-                self.wait()        # this might take a while, ignore errors
+                # this might take a while, ignore errors
+                while self.doStatus()[0] == status.BUSY:
+                    sleep(self._base_loop_delay)
             except Exception:
                 pass
         # remember current state
