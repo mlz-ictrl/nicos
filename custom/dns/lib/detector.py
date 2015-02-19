@@ -66,8 +66,7 @@ class FlipperPresets(Measurable):
                                   'doIsCompleted.')
 
 
-class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
-                  FlipperPresets):
+class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
     """Basic Tango Device for TofDetector."""
 
     STRSHAPE = ['x', 'y', 'z', 't']
@@ -112,19 +111,13 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
         return seq
 
     def doSetPreset(self, **preset):
-        if T_SPIN_FLIP in preset and T_NO_SPIN_FLIP in preset:
-            if self.flipper.read() == ON:
-                t = preset[T_SPIN_FLIP]
-            else:
-                t = preset[T_NO_SPIN_FLIP]
-        elif T_TIME in preset:
+        if T_TIME in preset:
             t = preset[T_TIME]
         else:
             t = t or 1
-            self.log.warning("Incorrect preset setting. Specify either " +
-                             T_SPIN_FLIP + " and " + T_NO_SPIN_FLIP +
-                             " or just " + T_TIME + ". Falling back to "
-                             "previous value '%g'." % t)
+            self.log.warning("Incorrect preset setting. Please specify " +
+                             T_TIME + ". Falling back to previous value '%g'."
+                             % t)
         self._adevs['timer'].preselection = t
 
     def doReadTofmode(self):
@@ -202,3 +195,23 @@ class TofDetector(PyTangoDevice, ImageProducer, MeasureSequencer,
         # get final data at end of measurement
         self.log.debug("Tof Detector read final image")
         return self.readImage()
+
+
+class TofDetector(TofDetectorBase, FlipperPresets):
+    """TofDetector supporting different presets for spin flipper on or off."""
+
+    def doSetPreset(self, **preset):
+        if T_SPIN_FLIP in preset and T_NO_SPIN_FLIP in preset:
+            if self.flipper.read() == ON:
+                t = preset[T_SPIN_FLIP]
+            else:
+                t = preset[T_NO_SPIN_FLIP]
+        elif T_TIME in preset:
+            t = preset[T_TIME]
+        else:
+            t = t or 1
+            self.log.warning("Incorrect preset setting. Specify either " +
+                             T_SPIN_FLIP + " and " + T_NO_SPIN_FLIP +
+                             " or just " + T_TIME + ". Falling back to "
+                             "previous value '%g'." % t)
+        self._adevs['timer'].preselection = t
