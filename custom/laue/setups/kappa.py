@@ -23,7 +23,7 @@ devices = dict(
    phi =  device('devices.taco.Motor',
                       description = 'phi angle',
                       tacodevice = '//lauectrl.laue.frm2/laue/hubermc9300/phi',
-                      abslimits = (-180, 180),
+                      abslimits = (-360, 360),
                       fmtstr = '%.3f'),
 
    stx =  device('devices.taco.Motor',
@@ -47,7 +47,7 @@ devices = dict(
    detz =  device('devices.taco.Motor',
                       description = 'detector position',
                       tacodevice = '//lauectrl.laue.frm2/laue/hubermc9300/detz',
-                      abslimits = (100, 120),
+                      abslimits = (100, 130),
                       fmtstr = '%.3f'),
 
 )
