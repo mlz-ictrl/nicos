@@ -310,8 +310,10 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def doStart(self,position):
         """Start the motor movement."""
-        if self.status()[0] == status.BUSY:
-            self.wait()
+        # if hw still busy, wait until movement is done.
+        # DO NOT STOP THE SPS (looses a few steps)
+        while self.doStatus()[0] == status.BUSY:
+            sleep(self._base_loop_delay)
         if self.status()[0] == status.ERROR:
             raise NicosError(self, 'S7 motor in error state')
         self.log.debug('starting to '+self.fmtstr%position + ' %s'%self.unit )
