@@ -1,6 +1,6 @@
 description = 'High-Tc superconducting magnet'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_B']
 

@@ -223,7 +223,7 @@ class SetupName(Token):
 
     def complete(self, text, session, argsofar):
         all_setups = [name for (name, info) in iteritems(session._setup_info)
-                      if info and info['group'] in ('basic', 'optional', '')]
+                      if info and info['group'] in ('basic', 'optional', 'plugplay', '')]
         if self.what == 'all':
             candidates = all_setups
         elif self.what == 'unloaded':

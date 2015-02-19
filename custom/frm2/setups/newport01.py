@@ -1,6 +1,6 @@
 description = 'Newport sample stick rotator'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_sth']
 

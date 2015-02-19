@@ -1,6 +1,6 @@
 description = 'ANTARES garfield magnet'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_B']
 

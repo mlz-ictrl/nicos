@@ -271,8 +271,19 @@ class SetupsPanel(Panel, DlgUtils):
                 elif info['group'] == 'optional':
                     item = QListWidgetItem(name, self.optSetups)
                     item.setFlags(default_flags)
+                    item.setData(Qt.UserRole, 0)
                     if name in all_loaded:
                         self._loaded.add(name)
+                    item.setCheckState(Qt.Checked if name in all_loaded
+                                       else Qt.Unchecked)
+                elif info['group'] == 'plugplay':
+                    item = QListWidgetItem(name, self.optSetups)
+                    item.setFlags(default_flags)
+                    item.setData(Qt.UserRole, 1)
+                    if name in all_loaded:
+                        self._loaded.add(name)
+                    elif not self.showPnpBox.isChecked():
+                        item.setHidden(True)
                     item.setCheckState(Qt.Checked if name in all_loaded
                                        else Qt.Unchecked)
         self.basicSetup.setCurrentItem(keep)
@@ -294,6 +305,13 @@ class SetupsPanel(Panel, DlgUtils):
 
     def on_optSetups_itemClicked(self, item):
         self.showSetupInfo(item.text())
+
+    def on_showPnpBox_stateChanged(self, state):
+        for i in range(self.optSetups.count()):
+            item = self.optSetups.item(i)
+            if item.data(Qt.UserRole) == 1:
+                item.setHidden(item.checkState() == Qt.Unchecked and
+                               not self.showPnpBox.isChecked())
 
     def showSetupInfo(self, setup):
         info = self._setupinfo[str(setup)]

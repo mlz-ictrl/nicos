@@ -1,6 +1,6 @@
 description = 'Jcns cryo stream'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_T']
 

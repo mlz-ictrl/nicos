@@ -1,6 +1,6 @@
 description = 'FRM-II CCR box with LakeShore LS336 controller'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_T']
 

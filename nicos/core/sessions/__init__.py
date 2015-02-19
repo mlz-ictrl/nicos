@@ -980,7 +980,7 @@ class Session(object):
             setupname = value
             if (setupname in self._setup_info and
                     self._setup_info[setupname] is not None and
-                    self._setup_info[setupname]['group'] == 'optional'):
+                    self._setup_info[setupname]['group'] in ('plugplay', 'optional')):
                 description = self._pnp_cache['descriptions'].get(parts[1])
                 # an event is either generated if
                 # - the setup is unloaded and the key was added

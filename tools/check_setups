@@ -119,7 +119,7 @@ def check_setupfile(filename):
     if name:
         log.warning("found 'name' as setup description, please use 'description' instead.")
     description = namespace.get('description', None)
-    if description in (None, '') and group in ('basic', 'optional'):
+    if description in (None, '') and group in ('basic', 'optional', 'plugplay'):
         log.error('missing user-friendly setup description')
         good = False
     # check if devices are duplicated

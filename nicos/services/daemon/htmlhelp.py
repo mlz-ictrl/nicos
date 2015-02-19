@@ -193,6 +193,8 @@ class HelpGenerator(object):
         listsetups('basic')
         ret.append('<h4>Optional setups</h4>')
         listsetups('optional')
+        ret.append('<h4>Plug-and-play setups</h4>')
+        listsetups('plugplay')
         return ''.join(ret)
 
     def gen_funchelp(self, func):

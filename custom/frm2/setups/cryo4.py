@@ -1,6 +1,6 @@
 description = '3He insert from FRM-II Sample environment group'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_T']
 

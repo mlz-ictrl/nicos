@@ -1,6 +1,6 @@
 description = 'FRM-II high temperature furnace'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_T']
 

@@ -38,6 +38,9 @@ A setup file can consist of the following entries, all of which are optional:
    * ``optional`` means an optional setup, of which as many as needed can be
      loaded.  These setups can be presented to the user for multiple selection.
      This is the default.
+   * ``plugplay`` means an optional setup that is automatically detected by
+     NICOS when the corresponding hardware (usually sample environment) is
+     present.
    * ``lowlevel`` means a low-level setup, which will be included by others,
      but should not be presented to users.
 

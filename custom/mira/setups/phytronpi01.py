@@ -1,4 +1,5 @@
 description = 'Y-Z table combination'
+group = 'plugplay'
 
 devices = dict(
     dty = device('devices.taco.Motor',

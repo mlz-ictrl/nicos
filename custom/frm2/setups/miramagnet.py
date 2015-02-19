@@ -1,5 +1,6 @@
 description = 'MIRA 0.5 T electromagnet'
-group = 'optional'
+
+group = 'plugplay'
 
 includes = ['alias_B']
 

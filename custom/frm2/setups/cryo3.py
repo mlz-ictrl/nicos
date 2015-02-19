@@ -1,6 +1,6 @@
 description = '3He/4He dilution unit from FRM-II Sample environment group'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_T']
 

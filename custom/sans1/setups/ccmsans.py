@@ -25,7 +25,7 @@
 
 description = 'Sans1 Magnet'
 
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_B']
 
