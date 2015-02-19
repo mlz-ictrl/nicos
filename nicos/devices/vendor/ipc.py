@@ -932,6 +932,10 @@ class Motor(HasTimeout, NicosMotor):
         elif value in [1, 'on']:
             self._adevs['bus'].send(self.addr, 54)
 
+    def doReadPrecision(self):
+        # precision: 1 step
+        return 2. / self.slope
+
     def doStatus(self, maxage=0):
         state = self._adevs['bus'].get(self.addr, 134)
         st = status.OK
