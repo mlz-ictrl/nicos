@@ -272,7 +272,7 @@ class S7Motor(HasTimeout, NicosMotor):
 
         if b20 & 0x40:
             self.log.debug('MTT actively moving')
-            return status.BUSY,'MTT actively moving'
+            return status.BUSY, 'moving'
 
         if b24 & 0x40:
             self.log.debug('on Target')
