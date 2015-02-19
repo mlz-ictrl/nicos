@@ -29,12 +29,12 @@ store a position as realspace diffraction vector.
 see the `Unitcell` class for conversion to reciprocal space
 
 '''
-from .base import PositionBase, PositionFactory
+from nicos.laue.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
 from nicos import session
 from nicos.core import NicosError
-from .posutils import normalangle
+from nicos.laue.goniometer.posutils import normalangle
 
 
 class CVector(PositionBase):

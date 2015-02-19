@@ -28,12 +28,12 @@ class for stroing clockwise eulerian angles
 
 '''
 
-from .base import PositionBase, PositionFactory
+from nicos.laue.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
 from nicos import session
 from nicos.core import NicosError
-from .posutils import normalangle, Xrot, Zrot
+from nicos.laue.goniometer.posutils import normalangle, Xrot, Zrot
 
 
 class Euler(PositionBase):

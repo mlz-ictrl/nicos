@@ -26,10 +26,10 @@ Gmatrix
 
 store position as goniometer matrix
 '''
-from .base import PositionBase, PositionFactory
+from nicos.laue.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
-from .posutils import Xrot, Yrot, Zrot
+from nicos.laue.goniometer.posutils import Xrot, Yrot, Zrot
 
 
 class GMatrix(PositionBase):

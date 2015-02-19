@@ -87,12 +87,12 @@ class PositionBase(object):
         else:
             return val
 
-from .euler import Euler
-from .kappa import Kappa
-from .neuler import NEuler
-from .cvector import CVector
-from .gmatrix import GMatrix
-from .bisect import Bisecting
+from nicos.laue.goniometer.euler import Euler
+from nicos.laue.goniometer.kappa import Kappa
+from nicos.laue.goniometer.neuler import NEuler
+from nicos.laue.goniometer.cvector import CVector
+from nicos.laue.goniometer.gmatrix import GMatrix
+from nicos.laue.goniometer.bisect import Bisecting
 
 typelist = {'k': Kappa,
             'e': Euler,
