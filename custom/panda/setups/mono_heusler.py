@@ -2,7 +2,7 @@ description = 'PANDA Heusler-monochromator'
 
 group = 'lowlevel'
 
-includes = []
+includes = ['monofoci', 'monoturm', 'panda_s7']
 
 modules = []
 
