@@ -29,7 +29,6 @@ devices = dict(
                         sendmail = True,
                         serviceexp = 'service',
                         sample = 'Sample',
-                        localcontact = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                         reporttemplate = '',
                        ),
 

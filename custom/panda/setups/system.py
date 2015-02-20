@@ -17,7 +17,6 @@ modules = ['nicos.commands.standard']
 devices = dict(
     Exp      = device('panda.experiment.PandaExperiment',
                       description = 'Experiment device for Panda',
-                      localcontact = 'Astrid.Schneidewind@frm2.tum.de',
                       sample = 'Sample',
                       dataroot = '/data',
                       templates = 'templates',

@@ -65,7 +65,6 @@ devices = dict(
                       dataroot = '/data/nicos',
                       propdb = '/sans1control/propdb',
                       sample = 'Sample',
-                      localcontact = 'A. Heinemann <Andre.Heinemann@hzg.de>',
                      ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',

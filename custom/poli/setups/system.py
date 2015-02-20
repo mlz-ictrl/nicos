@@ -78,7 +78,6 @@ devices = dict(
                       dataroot = '/home/jcns/data',
                       sendmail = True,
                       serviceexp = 'p0',
-                      localcontact = 'V. Hutanu <vladimir.hutanu@frm2.tum.de>',
                       sample = 'Sample',
                       propdb = '/home/jcns/.propdb',
                      ),

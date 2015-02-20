@@ -34,7 +34,6 @@ devices = dict(
                       zipdata = True,
                       mailserver = 'smtp.frm2.tum.de',
                       mailsender = 'puma@frm2.tum.de',
-                      localcontact = 'O. Sobolev <oleg.sobolev@frm2.tum.de>',
                       serviceexp = 'service',
                       scancounter = 'filecounter', #backwards compatibility
                       ),

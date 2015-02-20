@@ -78,7 +78,6 @@ devices = dict(
                       dataroot = 'data',
                       sendmail = True,
                       serviceexp = '0',
-                      localcontact = 'R. Esponsible <r.esponsible@inst.org>',
                       sample = 'Sample',
                      ),
 

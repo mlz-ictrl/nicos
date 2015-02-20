@@ -73,7 +73,6 @@ devices = dict(
                                            enableFileMode=0644,
                                            disableDirMode=0700,
                                            disableFileMode=0400 ),
-                      localcontact = "Tobias Schrader <t.schrader@fz-juelich.de>",
                       sendmail = False,
                       zipdata = False,
                       serviceexp = 'service',

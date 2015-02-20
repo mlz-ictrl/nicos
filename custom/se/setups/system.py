@@ -11,15 +11,13 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    SE   = device('devices.instrument.Instrument',
+    SE       = device('devices.instrument.Instrument',
+                      responsible = 'juergen.peters@frm2.tum.de',
                       instrument = 'SE'),
 
     Sample   = device('devices.sample.Sample'),
 
     Exp      = device('devices.experiment.Experiment',
-                      localcontact = 'Harald Schneider ' \
-                                    '<ha.schneider@fz-juelich.de>',
-                    # localcontact = 'Juergen Peters <juergen.peters@frm2.tum.de>',
                       dataroot = '/data',
                       sample = 'Sample',
                       elog = False),

@@ -27,8 +27,6 @@ devices = dict(
                       sendmail = False,
                       zipdata = False,
                       managerights = {},
-                      localcontact = 'Dr. Stefan Soellradl '\
-                                    '<stefan.soellradl@frm2.tum.de>',
                      ),
 
     Instrument = device('devices.instrument.Instrument',

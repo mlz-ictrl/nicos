@@ -71,7 +71,6 @@ devices = dict(
                       description = 'Galaxi Experiment ',
                       dataroot = '/home/jcns/data',
                       sample = 'Sample',
-                      localcontact = 'Ulrich Ruecker <u.ruecker@fz-juelich.de>',
                       #mailsender = 'u.ruecker@fz-juelich.de',
                       propprefix = 'p',
                       serviceexp = 'service',

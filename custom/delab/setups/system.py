@@ -26,7 +26,6 @@ devices = dict(
                       dataroot = '/localdata/nicos',
                       serviceexp = '0',
                       sendmail = True,
-                      localcontact = 'karl.zeitelhack@frm2.tum.de',
                       mailsender = 'karl.zeitelhack@frm2.tum.de',
                      ),
 

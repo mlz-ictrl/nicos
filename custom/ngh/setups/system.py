@@ -70,8 +70,6 @@ devices = dict(
                       sendmail = True,
                       serviceexp = '0',
                       sample = 'Sample',
-                      localcontact = 'Chr. Breunig ' \
-                                '<christian.breunig@frm2.tu.de>',
                      ),
 
     # Configure source and copy addresses to an existing address.

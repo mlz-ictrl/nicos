@@ -77,7 +77,6 @@ devices = dict(
                       dataroot = 'data',
                       sendmail = True,
                       serviceexp = '0',
-                      localcontact = 'R. Esponsible <noreply@frm2.tum.de>',
                       # We do not have a dedicated responsible
                       sample = 'Sample',
                      ),

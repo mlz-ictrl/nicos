@@ -75,7 +75,6 @@ devices = dict(
                                            disableDirMode=0700,
                                            disableFileMode=0400 ),
                       sample = 'Sample',
-                      localcontact = 'Yixi Su <y.su@fz-juelich.de>',
                       propprefix = 'p',
                       serviceexp = 'service',
                       sendmail = False,

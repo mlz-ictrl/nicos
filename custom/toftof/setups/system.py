@@ -27,7 +27,6 @@ devices = dict(
                       description = 'The current running experiment',
                       dataroot = '/users/data',
                       sample = 'Sample',
-                      localcontact = 'W. Lohstroh <wiebke.lohstroh@frm2.tum.de>',
                       serviceexp = '0',
                       propprefix = '',
                       sendmail = True,
