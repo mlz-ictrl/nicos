@@ -139,6 +139,7 @@ devices = dict(
                       lowlevel = True,
                      ),
     field    = device('devices.generic.MultiSwitcher',
+                      description = 'Guide field switcher',
                       moveables = ["A", "B", "C", "ZB", "ZT",
                                    "flip_currents", "flipper"],
                       mapping = {

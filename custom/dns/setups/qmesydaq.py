@@ -26,6 +26,8 @@ description = 'qmesydaq channel devices'
 
 group = 'optional'
 
+excludes = ['detector']
+
 nethost = 'mesydaq.dns.frm2'
 qm = '//%s/test/qmesydaq/' % nethost
 
