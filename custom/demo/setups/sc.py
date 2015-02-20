@@ -23,6 +23,7 @@ devices = dict(
                   ),
 
     sc1 = device('devices.generic.MultiSwitcher',
+                 description = 'multi switcher demo',
                  moveables = ['sc1_x', 'z'],
                  mapping = {'1':  [594.5, bottom],  '2': [535.5, bottom],
                             '3':  [476.5, bottom],  '4': [417.5, bottom],

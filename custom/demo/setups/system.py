@@ -13,38 +13,51 @@ sysconfig = dict(
 modules = ['nicos.commands.standard'] # , 'jcns.commands']
 
 devices = dict(
-    tas     = device('devices.instrument.Instrument',
-                      instrument = 'DEMO',
-                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
-                     ),
+    tas        = device('devices.instrument.Instrument',
+                        description = 'demo instrument',
+                        instrument = 'DEMO',
+                        responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
+                       ),
 
-    Sample   = device('devices.tas.TASSample'),
+    Sample     = device('devices.tas.TASSample',
+                        description = 'sample object',
+                       ),
 
-    Exp      = device('devices.experiment.Experiment',
-                      dataroot = 'data',
-                      sendmail = True,
-                      serviceexp = 'service',
-                      sample = 'Sample',
-                      localcontact = 'R. Esponsible ' \
-                                    '<r.esponsible@frm2.tum.de>',
-                      reporttemplate = '',
-                     ),
+    Exp        = device('devices.experiment.Experiment',
+                        description = 'experiment object',
+                        dataroot = 'data',
+                        sendmail = True,
+                        serviceexp = 'service',
+                        sample = 'Sample',
+                        localcontact = 'R. Esponsible <r.esponsible@frm2.tum.de>',
+                        reporttemplate = '',
+                       ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
+    filesink   = device('devices.datasinks.AsciiDatafileSink',
+                        lowlevel = True,
+                       ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    conssink   = device('devices.datasinks.ConsoleSink',
+                        lowlevel = True,
+                       ),
 
-    daemonsink = device('devices.datasinks.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink',
+                        lowlevel = True,
+                       ),
 
-    serialsink = device('devices.datasinks.SerializedSink'),
+    serialsink = device('devices.datasinks.SerializedSink',
+                        lowlevel = True,
+                       ),
 
-    Space    = device('devices.generic.FreeSpace',
-                      description = 'The amount of free space for storing data',
-                      path = None,
-                      minfree = 5,
-                     ),
+    Space     = device('devices.generic.FreeSpace',
+                       description = 'The amount of free space for storing data',
+                       path = None,
+                       minfree = 5,
+                      ),
 
-    UBahn    = device('frm2.ubahn.UBahn'),
+    UBahn     = device('frm2.ubahn.UBahn',
+                       description = 'Next subway departures',
+                      ),
 )
 
 startupcode = '''

@@ -1,6 +1,8 @@
 description = 'testing qmesydaq'
 group = 'optional'
 
+excludes = ['sans']
+
 nethost = 'taco61.taco.frm2'
 
 devices = dict(

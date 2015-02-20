@@ -36,6 +36,7 @@ devices = dict(
                      ),
 
     alpha    = device('devices.generic.VirtualMotor',
+                      description = 'angle between ki and q',
                       abslimits = (0, 50),
                       unit = 'deg',
                      ),
@@ -168,6 +169,7 @@ devices = dict(
                      ),
 
     vdet     = device('devices.tas.virtual.VirtualTasDetector',
+                      description = 'simulated TAS intensity',
                       tas = 'tas',
                       background = 1,
                       realtime = True,
@@ -180,10 +182,12 @@ devices = dict(
                       chi = 'echi',
                       omega = 'ephi'),
     echi     = device('devices.generic.VirtualMotor',
+                      description = 'big Euler circle',
                       abslimits = (-180, 180),
                       unit = 'deg',
                      ),
     ephi     = device('devices.generic.VirtualMotor',
+                      description = 'small Euler circle',
                       abslimits = (-180, 180),
                       unit = 'deg',
                      ),

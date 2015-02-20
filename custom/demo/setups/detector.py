@@ -51,6 +51,7 @@ devices = dict(
                      ),
 
     ctr4     = device('devices.generic.VirtualCounter',
+                      description = 'single counter channel demo',
                       type = 'counter',
                       countrate = 3000,
                       card = 'card2',

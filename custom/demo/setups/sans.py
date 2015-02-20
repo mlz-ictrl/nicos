@@ -11,9 +11,12 @@ excludes = ['tas', 'refsans',]
 includes = ['cryo']
 
 devices = dict(
-    Sample   = device('sans1.sans1_sample.Sans1Sample'),
+    Sample   = device('sans1.sans1_sample.Sans1Sample',
+                      description = 'sample object',
+                     ),
 
     sans     = device('devices.instrument.Instrument',
+                      description = 'instrument object',
                       responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                       instrument = 'SANS-V2'
                      ),
@@ -70,7 +73,8 @@ devices = dict(
                        precision = 0,
                        blockingmove = False,
                       ),
-    guide    = device('devices.generic.MultiSwitcher',
+    guide     = device('devices.generic.MultiSwitcher',
+                       description = 'neutron guide switcher for collimation',
                        moveables = ['guide1', 'guide2', 'guide3', 'guide4'],
                        mapping = {'off': ['off', 'off', 'off', 'off'],
                                   '1m':  ['off', 'off', 'off', 'ng' ],
@@ -148,6 +152,7 @@ devices = dict(
                              ),
 
     det      = device('devices.generic.virtual.Virtual2DDetector',
+                      description = 'demo 2D detector',
                       fileformats = ['BerSANSFileSaver', 'RAWFileSaver', 'LiveViewFileSink'],
                       distance = 'det_pos1',
                       collimation = 'guide',
