@@ -494,8 +494,9 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
         try:
             self.__moving()
         except Exception as e:
-            self.log.exception(e)
-            self.curstatus = status.ERROR, str(e)
+            if not self._stopflag:
+                self.log.exception(e)
+                self.curstatus = status.ERROR, str(e)
 
     def __moving(self):
         # complex thread handling:
