@@ -4,8 +4,6 @@ group = 'lowlevel'
 includes = ['base']
 
 devices = dict(
-    Sample   = device('devices.tas.TASSample'),
-
     MonoIPC  = device('devices.vendor.ipc.IPCModBusTaco',
                       tacodevice = '//mirasrv/mira/rs485/mgott',
                       lowlevel = True,
@@ -33,6 +31,7 @@ devices = dict(
                       unit = 'deg',
                      ),
     mth      = device('devices.generic.Axis',
+                      description = 'monochromator theta angle',
                       motor = 'mo_mth',
                       coder = 'co_mth',
                       obs = [],
@@ -66,6 +65,7 @@ devices = dict(
                       lowlevel = True,
                      ),
     mtt      = device('devices.generic.Axis',
+                      description = 'monochromator two-theta angle',
                       motor = 'mo_mtt',
                       coder = 'co_mtt',
                       obs = [],
@@ -93,6 +93,7 @@ devices = dict(
                       unit = 'mm',
                      ),
     mtx      = device('devices.generic.Axis',
+                      description = 'monochromator translation',
                       motor = 'mo_mtx',
                       coder = 'co_mtx',
                       obs = [],
@@ -120,6 +121,7 @@ devices = dict(
                       unit = 'mm',
                      ),
     mty      = device('devices.generic.Axis',
+                      description = 'monochromator translation',
                       motor = 'mo_mty',
                       coder = 'co_mty',
                       obs = [],
@@ -147,6 +149,7 @@ devices = dict(
                       unit = 'deg',
                      ),
     mgx      = device('devices.generic.Axis',
+                      description = 'monochromator tilt',
                       motor = 'mo_mgx',
                       coder = 'co_mgx',
                       obs = [],
@@ -180,6 +183,7 @@ devices = dict(
                       lowlevel = True,
                      ),
     mchanger = device('devices.generic.Axis',
+                      description = 'monochromator changer table rotation',
                       motor = 'mo_mch',
                       coder = 'co_mch',
                       obs = [],

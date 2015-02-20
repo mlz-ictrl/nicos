@@ -32,7 +32,7 @@ devices = dict(
                       maxage = 2,
                      ),
     ccr5_p1  = device('devices.taco.AnalogInput',
-                      description = 'Cryo sample tube pressure',
+                      description = 'cryo sample tube pressure',
                       tacodevice = '//mirasrv/mira/ccr/p1',
                       fmtstr = '%.3f',
                      ),

@@ -82,7 +82,7 @@ devices = dict(
                       ),
 
     ms1       = device('devices.generic.Slit',
-                       description = 'Slit after monochromator Mira1',
+                       description = 'slit after monochromator Mira1',
                        left = 'ms1_l',
                        right = 'ms1_r',
                        bottom = 'ms1_b',

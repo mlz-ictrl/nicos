@@ -3,13 +3,13 @@ group = 'plugplay'
 
 devices = dict(
     dty = device('devices.taco.Motor',
-                 description = 'Horizontal table',
+                 description = 'horizontal table',
                  tacodevice = '//phytronpi01/raspi/motor/x1',
                  abslimits = (-100, 100),
                  unit = 'mm',
                 ),
     dtz = device('devices.taco.Motor',
-                 description = 'Vertical table',
+                 description = 'vertical table',
                  tacodevice = '//phytronpi01/raspi/motor/x2',
                  abslimits = (-100, 100),
                  unit = 'mm',

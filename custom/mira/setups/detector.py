@@ -39,7 +39,7 @@ devices = dict(
                      ),
 
     det_fore = device('devices.generic.DetectorForecast',
-                      description = 'Forecast for det values',
+                      description = 'forecast for det values',
                       pollinterval = 0.5,
                       maxage = 2,
                       unit = '',

@@ -19,7 +19,7 @@ devices = dict(
                       lowlevel = True,
                      ),
     ath      = device('devices.generic.Axis',
-                      description = 'Analyzer theta angle',
+                      description = 'analyzer theta angle',
                       coder = 'ath_co',
                       motor = 'ath_mo',
                       obs = [],
@@ -27,7 +27,7 @@ devices = dict(
                      ),
 
     att      = device('devices.taco.HoveringAxis',
-                      description = 'Analyzer two-theta angle',
+                      description = 'analyzer two-theta angle',
                       tacodevice = '//mirasrv/mira/axis/att',
                       abslimits = (-90 - 135, -90 + 135),
                       startdelay = 1,
@@ -38,7 +38,7 @@ devices = dict(
                      ),
 
     ana      = device('devices.tas.Monochromator',
-                      description = 'Analyzer unit (see ana.unit for setting new unit)',
+                      description = 'analyzer unit (see ana.unit for setting new unit)',
                       unit = 'A-1',
                       theta = 'ath',
                       twotheta = 'att',

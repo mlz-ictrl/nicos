@@ -5,6 +5,7 @@ description = 'Phytron device for 7.5 T magnet rotation'
 devices = dict(
     # Nicos based access to phytron in magnet rack
     magnetmotorbus=device('panda.mcc2.TacoSerial',
+                          lowlevel = True,
                           tacodevice = TACOBASE + 'rs232/phytron',        # new value as of 2012-07-30 EF
                          ),
     sth_B7T5_step = device('panda.mcc2.MCC2Motor',
@@ -41,6 +42,7 @@ devices = dict(
                             coderbits = 25,
                            ),
     sth_B7T5 = device('devices.generic.Axis',
+                      description = 'sample rotation inside magnet',
                       motor = 'sth_B7T5_step',
                       coder = 'sth_B7T5_coder',
                       obs = [],

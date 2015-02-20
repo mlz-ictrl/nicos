@@ -31,7 +31,7 @@ devices = dict(
                    ),
 
     PSDHV  = device('mira.iseg.CascadeIsegHV',
-                    description = 'High voltage supply for the CASCADE detector (usually -2850 V)',
+                    description = 'high voltage supply for the CASCADE detector (usually -2850 V)',
                     tacodevice = '//mirasrv/mira/network/rs12_4',
                     abslimits = (-3100, 0),
                     warnlimits = (-3100, -2800),
@@ -43,7 +43,7 @@ devices = dict(
                    ),
 
     dtx    = device('mira.phytron.Axis',
-                    description = 'Detector translation along the beam on Franke table',
+                    description = 'detector translation along the beam on Franke table',
                     tacodevice = '//mirasrv/mira/axis/dtx',
                     fmtstr = '%.1f',
                     abslimits = (0, 1490),
@@ -52,7 +52,7 @@ devices = dict(
                    ),
 
     sampledet = device('devices.generic.ManualMove',
-                       description = 'Sample-detector distance to be written to the data files',
+                       description = 'sample-detector distance to be written to the data files',
                        abslimits = (0, 5000),
                        unit = 'mm',
                       ),

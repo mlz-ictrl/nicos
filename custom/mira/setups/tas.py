@@ -6,9 +6,12 @@ includes = ['base', 'mono2', 'analyzer', 'detector', 'alias_sth']
 modules = ['nicos.commands.tas']
 
 devices = dict(
-    Sample = device('devices.tas.TASSample'),
+    Sample = device('devices.tas.TASSample',
+                    description = 'sample object',
+                   ),
 
     mira   = device('devices.tas.TAS',
+                    description = 'instrument, moves in HKL space',
                     instrument = 'MIRA',
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
                     cell = 'Sample',
@@ -23,7 +26,7 @@ devices = dict(
                    ),
 
     ki     = device('devices.tas.Wavevector',
-                    description = 'Incoming wavevector, also sets constant-ki mode when moved',
+                    description = 'incoming wavevector, also sets constant-ki mode when moved',
                     unit = 'A-1',
                     base = 'mono',
                     tas = 'mira',
@@ -31,7 +34,7 @@ devices = dict(
                    ),
 
     kf     = device('devices.tas.Wavevector',
-                    description = 'Outgoing wavevector, also sets constant-kf mode when moved',
+                    description = 'outgoing wavevector, also sets constant-kf mode when moved',
                     unit = 'A-1',
                     base = 'ana',
                     tas = 'mira',
@@ -39,7 +42,7 @@ devices = dict(
                    ),
 
     Ei     = device('devices.tas.Energy',
-                    description = 'Incoming energy, also sets constant-ki mode when moved',
+                    description = 'incoming energy, also sets constant-ki mode when moved',
                     unit = 'meV',
                     base = 'mono',
                     tas = 'mira',
@@ -47,7 +50,7 @@ devices = dict(
                    ),
 
     Ef     = device('devices.tas.Energy',
-                    description = 'Outgoing energy, also sets constant-kf mode when moved',
+                    description = 'outgoing energy, also sets constant-kf mode when moved',
                     unit = 'meV',
                     base = 'ana',
                     tas = 'mira',

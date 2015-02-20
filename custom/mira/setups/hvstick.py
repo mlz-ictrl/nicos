@@ -2,7 +2,7 @@ description = "high voltage stick"
 
 devices = dict(
     HV   = device('devices.taco.VoltageSupply',
-                  description = 'Voltage on the HV stick',
+                  description = 'voltage on the HV stick',
                   tacodevice = '//mirasrv/mira/fughv/voltage',
                   abslimits = (-5000, 5000),
                  ),
