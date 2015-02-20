@@ -45,11 +45,17 @@ devices = dict(
                       imagecounter = 'counter',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
+    filesink = device('devices.datasinks.AsciiDatafileSink',
+                      lowlevel = True,
+                     ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink',
+                      lowlevel = True,
+                     ),
 
-    daemonsink = device('devices.datasinks.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink',
+                        lowlevel = True,
+                       ),
 
     emailer  = device('devices.notifiers.Mailer',
                       description = 'Notifier service to send emails',
@@ -57,11 +63,13 @@ devices = dict(
                       copies = [('wiebke.lohstroh@frm2.tum.de', 'important'),
                                ],
                       subject = 'TOFTOF',
+                      lowlevel = True,
                      ),
 
     smser    = device('devices.notifiers.SMSer',
                       description = 'Notifier service to send SMS',
                       server = 'triton.admin.frm2',
+                      lowlevel = True,
                      ),
 
     Space    = device('devices.generic.FreeSpace',
