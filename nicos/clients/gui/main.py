@@ -31,6 +31,7 @@ import sys
 import time
 import logging
 import subprocess
+import traceback
 import getopt
 from os import path
 
@@ -640,7 +641,6 @@ def main(argv):
 
     # set up logging for unhandled exceptions in Qt callbacks
     def log_unhandled(*exc_info):
-        import traceback
         traceback.print_exception(*exc_info)
         log.exception('unhandled exception in QT callback', exc_info=exc_info)
     sys.excepthook = log_unhandled

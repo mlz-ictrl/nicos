@@ -24,6 +24,9 @@
 
 """Qt version of instrument monitor."""
 
+import sys
+import traceback
+
 import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
@@ -148,6 +151,12 @@ class Monitor(BaseMonitor):
         return getattr(mod, member)
 
     def initGui(self):
+        def log_unhandled(*exc_info):
+            traceback.print_exception(*exc_info)
+            self.log.exception('unhandled exception in QT callback',
+                               exc_info=exc_info)
+        sys.excepthook = log_unhandled
+
         self._qtapp = QApplication(['qtapp'],# '-style', 'windows'],
                                    organizationName='nicos',
                                    applicationName='gui',
