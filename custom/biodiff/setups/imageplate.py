@@ -23,7 +23,6 @@ devices = dict(
                     ),
     imgdet = device("biodiff.detector.ImagePlateDetector",
                     description = "Image plate detector",
-                    tangodevice = _TANGO_DEV,
                     imgdrum = "imgdrum",
                     gammashutter = "gammashutter",
                     photoshutter = "photoshutter",

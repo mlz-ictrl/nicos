@@ -8,6 +8,8 @@ __version__ = "0.1.1"
 description = "Test setup for virtual devices"
 group = "optional"
 
+excludes = ['shutter']
+
 devices = dict(
     vmotor = device("devices.generic.VirtualMotor",
                     description = "Test motor",
