@@ -74,6 +74,7 @@ devices = dict(
 
     # Configure dataroot here (usually /data).
     Exp      = device('frm2.experiment.Experiment',
+                      description = 'experiment object',
                       dataroot = '/home/jcns/data',
                       sendmail = True,
                       serviceexp = 'p0',
@@ -82,11 +83,17 @@ devices = dict(
                       propdb = '/home/jcns/.propdb',
                      ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
+    filesink = device('devices.datasinks.AsciiDatafileSink',
+                      lowlevel = True,
+                     ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink',
+                      lowlevel = True,
+                     ),
 
-    daemonsink = device('devices.datasinks.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink',
+                        lowlevel = True,
+                       ),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
@@ -103,11 +110,13 @@ devices = dict(
                                ],
                       subject = 'NICOS',
                       mailserver = 'mailhost.frm2.tum.de',
+                      lowlevel = True,
                      ),
 
     # Configure SMS receivers if wanted and registered with IT.
     smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = [],
+                      lowlevel = True,
                      ),
 )
