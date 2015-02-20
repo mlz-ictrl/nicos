@@ -281,7 +281,7 @@ def ListSetups(listall=False):
             continue
         if info['group'] == 'special':
             continue
-        if info['group'] in ('simulated', 'lowlevel') and not listall:
+        if info['group'] == 'lowlevel' and not listall:
             continue
         items.append((name, name in session.loaded_setups and 'yes' or '',
                       info['description'],

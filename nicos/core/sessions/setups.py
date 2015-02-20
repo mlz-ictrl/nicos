@@ -33,7 +33,7 @@ from nicos.pycompat import exec_, iteritems, listitems
 
 
 SETUP_GROUPS = set([
-    'basic', 'optional', 'plugplay', 'lowlevel', 'simulated', 'special'
+    'basic', 'optional', 'plugplay', 'lowlevel', 'special'
 ])
 
 
