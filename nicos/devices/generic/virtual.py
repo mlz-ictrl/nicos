@@ -57,6 +57,10 @@ class VirtualMotor(HasOffset, Motor):
 
     _thread = None
 
+    def doInit(self, mode):
+        if self.curstatus[0] < status.OK:  # clean up old status values
+            self._setROParam('curstatus', (status.OK, ''))
+
     def doStart(self, pos):
         pos = float(pos) + self.offset
         if self.speed != 0:
@@ -189,6 +193,8 @@ class VirtualChannel(Channel):
         self._finish = True
         self.curvalue = 0
         self._adevs['card'].addChannel(self)
+        if self.curstatus[0] < status.OK:  # clean up old status values
+            self._setROParam('curstatus', (status.OK, ''))
 
     def doStop(self):
         if self._thread is not None and self._thread.isAlive():
@@ -415,7 +421,9 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     def doInit(self, mode):
         if mode == SIMULATION:
             return
-        if session.sessiontype != 'poller': # dont run in the poller!
+        if self.curstatus[0] < status.OK:  # clean up old status values
+            self._setROParam('curstatus', (status.OK, ''))
+        if session.sessiontype != 'poller':  # dont run in the poller!
             self._window = []
             self._statusLock = threading.Lock()
             self._thread = createThread('cryo simulator %s' % self, self.__run)
