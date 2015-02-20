@@ -13,6 +13,7 @@ devices = dict(
                           ),
 
     ccd = device('devices.vendor.lima.Andor2LimaCCD',
+                 description = 'The CCD detector',
                  tangodevice = '%s/nectar/detector/limaccd' % tango_host,
                  hwdevice = '%s/nectar/detector/dv434' % tango_host,
                  pollinterval = 5,
@@ -29,6 +30,7 @@ devices = dict(
                  fileformats = ['FITSFileSaver'],
                 ),
     ccdTemp = device('devices.vendor.lima.Andor2TemperatureController',
+                     description = 'Temperature of the CCD detector',
                      tangodevice = '%s/nectar/detector/dv434' % tango_host,
                      pollinterval = 5,
                      maxage = 12,

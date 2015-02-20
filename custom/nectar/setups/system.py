@@ -13,9 +13,12 @@ sysconfig = dict(
 modules = ['nicos.commands.basic', 'nicos.commands.standard', 'nicos.commands.imaging']
 
 devices = dict(
-    Sample   = device('devices.sample.Sample'),
+    Sample   = device('devices.sample.Sample',
+                      description = 'sample object',
+                     ),
 
     Exp      = device('frm2.experiment.ImagingExperiment',
+                      description = 'experiment object',
                       dataroot = '/data',
                       propdb = '/etc/propdb',
                       serviceexp = 'service',
@@ -34,11 +37,17 @@ devices = dict(
                         responsible = 'Dr. Stefan Soellradl <stefan.soellradl@frm2.tum.de>',
                        ),
 
-    filesink = device('devices.datasinks.AsciiDatafileSink'),
+    filesink = device('devices.datasinks.AsciiDatafileSink',
+                      lowlevel = True,
+                     ),
 
-    conssink = device('devices.datasinks.ConsoleSink'),
+    conssink = device('devices.datasinks.ConsoleSink',
+                      lowlevel = True,
+                     ),
 
-    daemonsink = device('devices.datasinks.DaemonSink'),
+    daemonsink = device('devices.datasinks.DaemonSink',
+                        lowlevel = True,
+                       ),
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
@@ -52,11 +61,13 @@ devices = dict(
                       copies = [('stefan.soellradl@frm2.tum.de', 'all')],
                       subject = '[NICOS]',
                       mailserver = 'smtp.frm2.tum.de',
+                      lowlevel = True,
                      ),
 
     # Configure SMS receivers if wanted and registered with IT.
     smser    = device('devices.notifiers.SMSer',
                       server = 'triton.admin.frm2',
                       receivers = [],
+                      lowlevel = True,
                      ),
 )
