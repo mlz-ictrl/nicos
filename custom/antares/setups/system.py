@@ -14,6 +14,7 @@ modules = ['nicos.commands.basic', 'nicos.commands.standard', 'nicos.commands.im
 
 devices = dict(
     email    = device('devices.notifiers.Mailer',
+                      description = 'Email notifier',
                       sender = 'michael.schulz@frm2.tum.de',
                       copies = [('michael.schulz@frm2.tum.de', 'important'),
                                 ('alerts.sw.zea2@fz-juelich.de', 'important'),
@@ -21,6 +22,7 @@ devices = dict(
                       subject = 'ANTARES'),
 
     smser    = device('devices.notifiers.SMSer',
+                      description = 'SMS notifier',
                       receivers = ['015121100909'],
                       server = 'triton.admin.frm2'),
 
