@@ -10,7 +10,8 @@ sysconfig = dict(
 devices = dict(
     Poller = device('services.poller.Poller',
                     alwayspoll = [], # setups that should be polled regardless if loaded
-                    neverpoll = [],  # setups that should not be polled even if loaded
+                    # setups that should not be polled even if loaded
+                    neverpoll = ['detector', 'detectortest'],
                     blacklist = [],  # DEVICES that should never be polled
                                      # (usually detectors or devices that have problems
                                      # with concurrent access from processes)
