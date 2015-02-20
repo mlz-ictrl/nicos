@@ -93,11 +93,13 @@ def check_parameter(log, devname, name, value):
                     return False
     return True
 
+
 def check_setupfile(filename):
+    setupname = path.basename(filename)[:-3]
     log = logging.getLogger(filename)
     good = True
     namespace = {'device': lambda c, **kw: (c, kw),
-                 'setupname': path.basename(filename)[:-3]}
+                 'setupname': setupname}
     # check syntax
     try:
         execfile(filename, namespace)
@@ -109,6 +111,7 @@ def check_setupfile(filename):
     except Exception, e:
         return log_exception(log, e)
     log.info('syntax ok')
+    setup_info[setupname] = namespace
     # check for valid group
     group = namespace.get('group', 'optional')
     if group not in SETUP_GROUPS:
@@ -126,11 +129,25 @@ def check_setupfile(filename):
     if group != 'special':
         devs = namespace.get('devices', {})
         for devname in devs:
-            if devname in devs_seen:
-                log.warning('device name %s duplicate: also in %s',
-                            devname, devs_seen[devname])
-            else:
-                devs_seen[devname] = filename
+            if devname not in devs_seen:
+                devs_seen[devname] = setupname
+                continue
+            # we have a duplicate: it's okay if we exclude the other setup
+            # or if we are both basic setups
+            other = devs_seen[devname]
+            self_group = namespace.get('group', 'optional')
+            other_group = setup_info[other].get('group', 'optional')
+            if self_group == 'basic' and other_group == 'basic':
+                continue
+            if other in namespace.get('excludes', []) or \
+               setupname in setup_info[other].get('excludes', []):
+                continue
+            # it's also ok if one setup is basic and the other is system
+            if (self_group == 'basic' and other == 'system') or \
+               (other_group == 'basic' and setupname == 'system'):
+                continue
+            log.warning('device name %s duplicate: also in %s',
+                        devname, devs_seen[devname])
     # check for common misspelling of "includes"
     if 'include' in namespace:
         log.error("'include' list should be called 'includes'")
@@ -247,6 +264,7 @@ if opts.filename:
 generate_stubs()
 
 devs_seen = {}
+setup_info = {}
 ret = True
 for p in args:
     if path.isdir(p):
