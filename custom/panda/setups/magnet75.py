@@ -4,6 +4,8 @@ description = 'PANDA-version of a setup for the FRM2 7T5 Magnet'
 
 includes = ['alias_B']
 
+excludes = ['7T5']
+
 group = 'optional'
 
 TACOBASE = '//magnet.panda.frm2/magnet/'

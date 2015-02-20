@@ -59,6 +59,7 @@ devices = dict(
                         ),
 
     email  = device('devices.notifiers.Mailer',
+                    lowlevel = True,
                     mailserver = 'smtp.frm2.tum.de',
                     sender = 'panda@frm2.tum.de',
                     copies = [('pcermak@frm2.tum.de', 'important')],

@@ -4,6 +4,8 @@ description = 'Variox from Panda with labview-control'
 
 includes = ['alias_T']
 
+excludes = ['15T']
+
 group = 'optional'
 
 devices = dict(
@@ -18,6 +20,7 @@ devices = dict(
                  loopdelay = 5,
                  window = 60,
                  maxage = 30,
+                 precision = 0.2,
                 ),
     sTs = device('devices.generic.cache.CacheReader',
                  description = 'Sample Temperature',

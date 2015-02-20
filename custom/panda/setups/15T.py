@@ -97,6 +97,7 @@ devices = dict(
                          loopdelay = 5,
                          window = 60,
                          maxage = 30,
+                         precision = 0.2,
                         ),
     sTs         = device('devices.generic.cache.CacheReader',
                          description = 'Sample Temperature',
@@ -132,6 +133,7 @@ devices = dict(
                   setkey = 'target',
                   window = 10,
                   maxage = 30,
+                  precision = 0.001,
                  ),
 )
 

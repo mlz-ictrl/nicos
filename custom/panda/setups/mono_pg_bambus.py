@@ -6,9 +6,9 @@ includes = ['monofoci', 'monoturm', 'panda_s7']
 
 modules = []
 
-excludes = ['mono_si', 'mono_cu', 'mono_heusler']
+excludes = ['mono_pg', 'mono_si', 'mono_cu', 'mono_heusler']
 
-extended = dict( dynamic_loaded = True)
+extended = dict(dynamic_loaded = True)
 
 devices = dict(
     mono_pg     = device('devices.tas.Monochromator',

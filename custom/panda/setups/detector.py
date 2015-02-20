@@ -2,9 +2,11 @@
 
 description = 'detectors'
 
-group = 'lowlevel' # is included by panda.py
+group = 'lowlevel'  # is included by panda.py
 
 includes = []
+
+excludes = ['qmesydaq']
 
 modules = []
 
