@@ -132,6 +132,9 @@ _sans1det = Column(
                  Field(name='bs1_y', dev='bs1_y', width=13),
                 ),
         BlockRow(
+                 Field(name='events', dev='det1_ev', width=13),
+                ),
+        BlockRow(
                  Field(name='mon 1', dev='det1_mon1', width=13),
                  Field(name='mon 2', dev='det1_mon2', width=13),
                 ),
@@ -155,6 +158,7 @@ _sanscolumn = Column(
                  Field(dev='bg1', name='bg1', width=5),
                  Field(dev='bg2', name='bg2', width=5),
                  Field(dev='sa1', name='sa1', width=5),
+                 Field(dev='sa2', name='sa2', width=5),
                 ),
         BlockRow(
                  Field(dev='col', name='col', unit='m'),

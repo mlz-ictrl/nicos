@@ -57,19 +57,19 @@ devices = dict(
                         'col_8a', 'col_8b', 'col_4a', 'col_4b', 'col_2a', 'col_2b'],
                         # col_2b disabled !!!
                         mapping = {
-                            #~ 1:   ['NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG'],
-                            1.5: ['NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'COL'],
-                            2:   ['NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'COL', 'COL'],
-                            3:   ['NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'COL', 'COL', 'COL'],
-                            4:   ['NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'COL', 'COL', 'COL', 'COL'],
-                            6:   ['NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'COL', 'COL', 'COL', 'COL', 'COL'],
-                            8:   ['NG',  'NG',  'NG',  'NG',  'NG',  'NG',  'COL', 'COL', 'COL', 'COL', 'COL', 'COL'],
-                            10:  ['NG',  'NG',  'NG',  'NG',  'NG',  'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL'],
-                            12:  ['NG',  'NG',  'NG',  'NG',  'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL'],
-                            14:  ['NG',  'NG',  'NG',  'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL'],
-                            16:  ['NG',  'NG',  'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL'],
-                            18:  ['NG',  'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL'],
-                            20:  ['COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL', 'COL'],
+                            #~ 1:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng'],
+                            1.5: ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col'],
+                            2:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col'],
+                            3:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col'],
+                            4:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col'],
+                            6:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col'],
+                            8:   ['ng',  'ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col'],
+                            10:  ['ng',  'ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            12:  ['ng',  'ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            14:  ['ng',  'ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            16:  ['ng',  'ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            18:  ['ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
+                            20:  ['col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
                             },
                         lowlevel = True,
                        ),
@@ -78,7 +78,7 @@ devices = dict(
     att        = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Attenuator',
                         #mapping = dict(OPEN=0, x1000=117, x100=234, x10=351), old 4 position att
-                        mapping = dict(OPEN=0, x1000=95, x100=190, x10=285, dia10=380), #new 5 position att
+                        mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new 5 position att
                         moveable = 'att_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -103,7 +103,7 @@ devices = dict(
 
     ng_pol     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Neutronguide polariser',
-                        mapping = dict(NG=0, POL1=117, POL2=234, LAS=354),
+                        mapping = dict(ng=0, pol1=117, pol2=234, las=354),
                         moveable = 'ng_pol_m',
                         pollinterval = 15,
                         maxage = 60,
@@ -147,7 +147,7 @@ devices = dict(
 
     col_20a    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 20a',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_20a_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -192,7 +192,7 @@ devices = dict(
 
     col_20b    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 20b',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_20b_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -237,7 +237,7 @@ devices = dict(
 
     col_16a    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 16a',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_16a_m',
                         blockingmove = False,
                         pollinterval = 1,
@@ -282,10 +282,10 @@ devices = dict(
 
     bg1        = device('sans1.collimotor.Sans1ColliSlit',
                         description = 'Background slit1',
-                        mapping = {'50mm':0, 'OPEN':90, '20mm':180, '42mm':270 },
+                        mapping = {'50mm':0, 'open':90, '20mm':180, '42mm':270 },
                         moveable = 'bg1_m',
                         table = 'col_16a',
-                        activeposition = 'COL',
+                        activeposition = 'col',
                         pollinterval = 15,
                         maxage = 60,
                        ),
@@ -313,7 +313,7 @@ devices = dict(
 
     col_16b    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 16b',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_16b_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -358,7 +358,7 @@ devices = dict(
 
     col_12a    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 12a',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_12a_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -403,7 +403,7 @@ devices = dict(
 
     col_12b    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 12b',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_12b_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -448,7 +448,7 @@ devices = dict(
 
     col_8a     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 8a',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_8a_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -493,7 +493,7 @@ devices = dict(
 
     col_8b     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 8b',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_8b_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -538,10 +538,10 @@ devices = dict(
 
     bg2        = device('sans1.collimotor.Sans1ColliSlit',
                         description = 'Background slit2',
-                        mapping = {'28mm':0, '20mm':90, '12mm':180, 'OPEN':270 },
+                        mapping = {'28mm':0, '20mm':90, '12mm':180, 'open':270 },
                         moveable = 'bg2_m',
                         table = 'col_8b',
-                        activeposition = 'COL',
+                        activeposition = 'col',
                         pollinterval = 15,
                         maxage = 60,
                        ),
@@ -568,7 +568,7 @@ devices = dict(
 
     col_4a     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 4a',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_4a_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -613,7 +613,7 @@ devices = dict(
 
     col_4b     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 4b',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_4b_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -658,7 +658,7 @@ devices = dict(
 
     col_2a     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 2a',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_2a_m',
                         blockingmove = False,
                         pollinterval = 15,
@@ -704,7 +704,7 @@ devices = dict(
 
     col_2b     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 2b',
-                        mapping = dict(NG=0, COL=117, free=234, LAS=351),
+                        mapping = dict(ng=0, col=117, free=234, las=351),
                         moveable = 'col_2b_m',
                         blockingmove = False,
                         pollinterval = 15,

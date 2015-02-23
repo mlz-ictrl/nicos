@@ -18,18 +18,18 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #   Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 #
 # *****************************************************************************
 
-description = 'sans1 setup'
-
-group = 'basic'
-
-includes = ['collimation', 'detector', 'sample_table_1', 'det1',
-            'pressure', 'selector_tower', 'astrium', 'memograph',
-            'manual']
+description = 'manual move devices'
 
 devices = dict(
+    sa2      = device('devices.generic.ManualMove',
+                      description = 'sample aperture 2',
+                      unit = 'mm',
+                      fmtstr = '%.0f',
+                      default = 0,
+                      warnlimits = (1, 50),
+                      abslimits = (0, 50)),
 )

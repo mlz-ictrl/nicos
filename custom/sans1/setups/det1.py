@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2014 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -44,34 +44,34 @@ devices = dict(
                                #~ lowlevel = True,
                               #~ ),
     det1_mon1 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
-                       description = 'QMesyDAQ Counter0',
-                       tacodevice = '//%s/sans1/qmesydaq/counter0' % nethost,
-                       type = 'monitor',
-                      ),
+                     description = 'QMesyDAQ Counter0',
+                     tacodevice = '//%s/sans1/qmesydaq/counter0' % nethost,
+                     type = 'monitor',
+                     ),
     det1_mon2 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
-                       description = 'QMesyDAQ Counter1',
-                       tacodevice = '//%s/sans1/qmesydaq/counter1' % nethost,
-                       type = 'monitor',
-                      ),
+                     description = 'QMesyDAQ Counter1',
+                     tacodevice = '//%s/sans1/qmesydaq/counter1' % nethost,
+                     type = 'monitor',
+                     ),
     #~ qm_ctr2 = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
                      #~ description = 'QMesyDAQ Counter2',
                      #~ tacodevice = '//%s/sans1/qmesydaq/counter2' % nethost,
                      #~ type = 'monitor',
-                    #~ ),
+                     #~ ),
     #~ qm_ctr3= device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
-                    #~ description = 'QMesyDAQ Counter3',
-                    #~ tacodevice = '//%s/sans1/qmesydaq/counter3' % nethost,
-                    #~ type = 'monitor',
-                   #~ ),
-    #~ qm_ev  = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
-                    #~ description = 'QMesyDAQ Events channel',
-                    #~ tacodevice = '//%s/sans1/qmesydaq/events' % nethost,
-                    #~ type = 'counter',
-                   #~ ),
+                     #~ description = 'QMesyDAQ Counter3',
+                     #~ tacodevice = '//%s/sans1/qmesydaq/counter3' % nethost,
+                     #~ type = 'monitor',
+                     #~ ),
+    det1_ev  = device('nicos.devices.vendor.qmesydaq.QMesyDAQCounter',
+                     description = 'QMesyDAQ Events channel',
+                     tacodevice = '//%s/sans1/qmesydaq/events' % nethost,
+                     type = 'counter',
+                     ),
     det1_timer = device('nicos.devices.vendor.qmesydaq.QMesyDAQTimer',
-                        description = 'QMesyDAQ Timer',
-                        tacodevice = '//%s/sans1/qmesydaq/timer' % nethost,
-                       ),
+                     description = 'QMesyDAQ Timer',
+                     tacodevice = '//%s/sans1/qmesydaq/timer' % nethost,
+                     ),
     det1    = device('nicos.devices.vendor.qmesydaq.QMesyDAQImage',
                      description = 'QMesyDAQ Image type Detector1',
                      tacodevice = '//%s/sans1/qmesydaq/det' % nethost,
@@ -81,15 +81,8 @@ devices = dict(
                      monitors = ['det1_mon1', 'det1_mon2'],
                      fileformats = ['BerSANSFileSaver'],
                      subdir = 'bersans',
-                    ),
+                     ),
 )
-# Alias devices for recording selectable devices values into the IEEExx keys
-# of The BerSANS File
-for i in range(1, 11):
-    dev = device('core.device.DeviceAlias',
-                 alias = None,
-                )
-    devices['ieee_%d' % i] = dev
 
 startupcode = """
 SetDetectors(det1)

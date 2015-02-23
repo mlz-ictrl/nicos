@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2014 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -48,10 +48,10 @@ _selcolumn = Column(
                  Field(name='selector_rpm', dev='selector_rpm', width=14),
                  Field(name='selector_lambda', dev='selector_lambda', width=14),
                  ),
-         BlockRow(
-                 Field(name='selector_ng', dev='selector_ng', width=14),
-                 Field(name='selector_tilt', dev='selector_tilt', width=14, format = '%.1f'),
-                 ),
+#         BlockRow(
+#                 Field(name='selector_ng', dev='selector_ng', width=14),
+#                 Field(name='selector_tilt', dev='selector_tilt', width=14, format = '%.1f'),
+#                 ),
          BlockRow(
                  Field(name='water flow', dev='selector_wflow', width=14, format = '%.1f'),
                  Field(name='rotor temp.', dev='selector_rtemp', width=14, format = '%.1f'),
@@ -103,69 +103,69 @@ _collimationcolumn = Column(
       BlockRow(
         Field(dev='att', name='att',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['dia10', 'x10','x100','x1000','OPEN'],
+              options=['dia10', 'x10','x100','x1000','open'],
               width=6.5,height=9),
         Field(dev='ng_pol', name='ng_pol',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','POL2','POL1','NG'],
+              options=['las','pol2','pol1','ng'],
               width=5.5,height=9),
         Field(dev='col_20a', name='20',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_20b', name='18',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='bg1', name='bg1',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['50mm','OPEN','20mm','42mm'],
+              options=['50mm','open','20mm','42mm'],
               disabled_options = ['N.A.'],
               width=7,height=9),
         Field(dev='col_16a', name='16',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_16b', name='14',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_12a', name='12',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_12b', name='10',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_8a', name='8',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_8b', name='6',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='bg2', name='bg2',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['28mm','20mm','12mm','OPEN'],
+              options=['28mm','20mm','12mm','open'],
               disabled_options = ['N.A.'],
               width=7,height=9),
         Field(dev='col_4a', name='4',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_4b', name='3',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_2a', name='2',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='col_2b', name='1.5',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
-              options=['LAS','free','COL','NG'],
+              options=['las','free','col','ng'],
               width=5,height=9),
         Field(dev='sa1', name='sa1',
               widget='nicos.sans1.monitorwidgets.CollimatorTable',
@@ -177,6 +177,14 @@ _collimationcolumn = Column(
         Field(dev='col', name='col', unit='m', format = '%.1f'),
               ),
                 ],
+        ),
+)
+
+_sampleaperture = Column(
+    Block('SA', [
+        BlockRow(
+                 Field(name='sa2', dev='sa2', width=8, format = '%g'),
+                 )],
         ),
 )
 
@@ -193,6 +201,7 @@ _sans1det = Column(
                  Field(name='t', dev='det1_t_ist', width=12),
                  Field(name='t pres.', key='det1_timer.preselection', width=12, unit='s', format='%i'),
                  Field(name='det1_hv', dev='det1_hv_ax', width=12, format='%i'),
+                 Field(name='events', dev='det1_ev', width=12),
                  Field(name='mon 1', dev='det1_mon1', width=12),
                  Field(name='mon 2', dev='det1_mon2', width=12),
                  Field(name='bs1_x', dev='bs1_x', width=12, format='%.1f'),
@@ -214,7 +223,7 @@ devices = dict(
                      fontsize = 13,#12
                      padding = 0,#3
                      layout = [
-                                 Row(_selcolumn,_collimationcolumn),
+                                 Row(_selcolumn,_collimationcolumn,_sampleaperture),
                                  Row(_sans1det),
                                  #Row(_sans1general),
                                  Row(_pressurecolumn),
