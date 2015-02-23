@@ -35,6 +35,13 @@ devices = dict(
                   lowlevel = True,
                  ),
 
+    bus4 = device('devices.vendor.ipc.IPCModBusTaco',
+                  tacodevice = '//pandasrv/panda/moxa/port4',
+                  bustimeout = 0.1,
+                  loglevel = 'info',
+                  lowlevel = True,
+                 ),
+
     # STT is first device and has 1 stepper, 0 poti, 1 coder
     stt_step = device('devices.vendor.ipc.Motor',
                       bus = 'bus2',
@@ -75,7 +82,7 @@ devices = dict(
 
     # STH is second device and has 1 stepper, 0 poti, 1 coder
     sth_st_step = device('devices.vendor.ipc.Motor',
-                         bus = 'bus2',
+                         bus = 'bus4',  #was bus2
                          addr = MOTOR(2),
                          slope = 2000,
                          unit = 'deg',
