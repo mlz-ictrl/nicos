@@ -559,7 +559,7 @@ tacodev_re = re.compile(r'^(//[\w.-]+/)?[\w-]+/[\w-]+/[\w-]+$', re.I)
 
 def tacodev(val=None):
     """a valid taco device"""
-    if val is None:
+    if val in ('', None):
         return ''
     val = str(val)
     if not tacodev_re.match(val):
@@ -577,7 +577,7 @@ tangodev_re = re.compile(
 
 def tangodev(val=None):
     """a valid tango device"""
-    if val is None:
+    if val in ('', None):
         return ''
     val = str(val)
     if not tangodev_re.match(val):
@@ -596,7 +596,7 @@ mailaddress_re = re.compile(
 
 def mailaddress(val=None):
     """a valid mail address"""
-    if val is None:
+    if val in ('', None):
         return ''
     val = text_type(val)
     parts = val.split('@')
