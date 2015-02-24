@@ -92,6 +92,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         InteractiveGRWidget.__init__(self, parent)
         NicosPlot.__init__(self, window, timeaxis=timeaxis)
 
+        self.rightTurnedLegend = False
         self.statusMessage = None
         self.mouselocation = None
         self._cursor = self.cursor()
@@ -123,14 +124,16 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self.updateDisplay()
 
     def xtickCallBack(self, x, y, svalue):
-        gr.setcharup(1., 1.)
-        gr.settextalign(gr.TEXT_HALIGN_LEFT, gr.TEXT_VALIGN_TOP)
+        gr.setcharup(-1. if self.rightTurnedLegend else -1, 1.)
+        gr.settextalign(gr.TEXT_HALIGN_RIGHT if self.rightTurnedLegend else
+                        gr.TEXT_HALIGN_LEFT, gr.TEXT_VALIGN_TOP)
         try:
             dx = .015
-            gr.text(x - dx, y,
-                    time.strftime(DATEFMT, time.localtime(float(svalue))))
-            gr.text(x + dx, y,
-                    time.strftime(TIMEFMT, time.localtime(float(svalue))))
+            timeVal = time.localtime(float(svalue))
+            gr.text(x + (dx if self.rightTurnedLegend else -dx), y,
+                    time.strftime(DATEFMT, timeVal))
+            gr.text(x - (dx if self.rightTurnedLegend else -dx), y,
+                    time.strftime(TIMEFMT, timeVal))
         except ValueError:
             gr.text(x, y, svalue)
         gr.setcharup(0., 1.)
