@@ -409,6 +409,8 @@ possible with the device:
 
    .. automethod:: presetInfo
 
+   .. automethod:: prepare
+
    All :meth:`Measurable.doRead` implementations must return tuples with values
    according to :meth:`valueInfo`.
 

@@ -1713,7 +1713,7 @@ class Measurable(Readable):
     def prepare(self):
         """Prepare measurement before counting.
 
-        .. method: doPrepare
+        .. method:: doPrepare()
 
            If present, this is called to prepare the measurement.  This method
            will be called before start counting and e.g. for scans before
