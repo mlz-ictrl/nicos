@@ -44,64 +44,7 @@ def readSetups(paths, logger):
             for filename in files:
                 if not filename.endswith('.py'):
                     continue
-                modname = filename[:-3]
-                try:
-                    with open(path.join(root, filename), 'r') as modfile:
-                        code = modfile.read()
-                except IOError as err:
-                    logger.exception('Could not read setup '
-                                     'module %r: %s' % (modname, err))
-                    infodict[modname] = None
-                    continue
-                # device() is a helper function to make configuration prettier
-                ns = {
-                    'device': lambda cls, **params: (cls, params),
-                    'setupname': modname,
-                }
-                try:
-                    exec_(code, ns)
-                except Exception as err:
-                    logger.exception('An error occurred while processing '
-                                     'setup %s: %s' % (modname, err))
-                    continue
-                info = {
-                    'description': ns.get('description', modname),
-                    'group': ns.get('group', 'optional'),
-                    'sysconfig': ns.get('sysconfig', {}),
-                    'includes': ns.get('includes', []),
-                    'excludes': ns.get('excludes', []),
-                    'modules': ns.get('modules', []),
-                    'devices': ns.get('devices', {}),
-                    'startupcode': ns.get('startupcode', ''),
-                    'extended': ns.get('extended', {}),
-                    'filename': path.join(root, filename),
-                }
-                if info['group'] not in SETUP_GROUPS:
-                    logger.warning('Setup %s has an invalid group (valid groups '
-                                   'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
-                    info['group'] = 'optional'
-                if modname in infodict:
-                    # setup already exists; override/extend with new values
-                    oldinfo = infodict[modname] or {}
-                    oldinfo['description'] = ns.get('description',
-                                                    oldinfo['description'])
-                    oldinfo['group'] = ns.get('group', oldinfo['group'])
-                    oldinfo['sysconfig'].update(info['sysconfig'])
-                    oldinfo['includes'].extend(info['includes'])
-                    oldinfo['excludes'].extend(info['excludes'])
-                    oldinfo['modules'].extend(info['modules'])
-                    oldinfo['devices'].update(info['devices'])
-                    # remove devices overridden by "None" entries completely
-                    for devname, value in listitems(oldinfo['devices']):
-                        if value is None:
-                            del oldinfo['devices'][devname]
-                    oldinfo['startupcode'] += '\n' + info['startupcode']
-                    oldinfo['extended'].update(info['extended'])
-                    oldinfo['filename'] = path.join(root, filename)
-                    logger.debug('%r setup partially merged with version '
-                                 'from parent directory' % modname)
-                else:
-                    infodict[modname] = info
+                readSetup(infodict, root, filename, logger)
     # check if all includes exist
     for name, info in iteritems(infodict):
         if info is None:
@@ -113,3 +56,63 @@ def readSetups(paths, logger):
                 infodict[name] = None
 
     return infodict
+
+
+def readSetup(infodict, root, filename, logger):
+    modname = filename[:-3]
+    try:
+        with open(path.join(root, filename), 'r') as modfile:
+            code = modfile.read()
+    except IOError as err:
+        logger.exception('Could not read setup '
+                         'module %r: %s' % (modname, err))
+        return
+    # device() is a helper function to make configuration prettier
+    ns = {
+        'device': lambda cls, **params: (cls, params),
+        'setupname': modname,
+    }
+    try:
+        exec_(code, ns)
+    except Exception as err:
+        logger.exception('An error occurred while processing '
+                         'setup %s: %s' % (modname, err))
+        return
+    info = {
+        'description': ns.get('description', modname),
+        'group': ns.get('group', 'optional'),
+        'sysconfig': ns.get('sysconfig', {}),
+        'includes': ns.get('includes', []),
+        'excludes': ns.get('excludes', []),
+        'modules': ns.get('modules', []),
+        'devices': ns.get('devices', {}),
+        'startupcode': ns.get('startupcode', ''),
+        'extended': ns.get('extended', {}),
+        'filename': path.join(root, filename),
+    }
+    if info['group'] not in SETUP_GROUPS:
+        logger.warning('Setup %s has an invalid group (valid groups '
+                       'are: %s)' % (modname, ', '.join(SETUP_GROUPS)))
+        info['group'] = 'optional'
+    if modname in infodict:
+        # setup already exists; override/extend with new values
+        oldinfo = infodict[modname] or {}
+        oldinfo['description'] = ns.get('description',
+                                        oldinfo['description'])
+        oldinfo['group'] = ns.get('group', oldinfo['group'])
+        oldinfo['sysconfig'].update(info['sysconfig'])
+        oldinfo['includes'].extend(info['includes'])
+        oldinfo['excludes'].extend(info['excludes'])
+        oldinfo['modules'].extend(info['modules'])
+        oldinfo['devices'].update(info['devices'])
+        # remove devices overridden by "None" entries completely
+        for devname, value in listitems(oldinfo['devices']):
+            if value is None:
+                del oldinfo['devices'][devname]
+        oldinfo['startupcode'] += '\n' + info['startupcode']
+        oldinfo['extended'].update(info['extended'])
+        oldinfo['filename'] = path.join(root, filename)
+        logger.debug('%r setup partially merged with version '
+                     'from parent directory' % modname)
+    else:
+        infodict[modname] = info
