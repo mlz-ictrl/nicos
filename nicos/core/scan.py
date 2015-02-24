@@ -172,16 +172,19 @@ class Scan(object):
         self.dataset.curpoint = num
         self.dataset.updateHeaderInfo()
         # propagate to the relevant objects
-        for det in self._detlist:
-            if isinstance(det, ImageProducer):
-                for catinfo, bycategory in iteritems(self.dataset.headerinfo):
-                    det.addHeader(catinfo, bycategory)
-                det.addHeader('scan', [(self, 'pointnum', '%d' % num)])
-            # preparation before count command
-            det.prepare()
-        # wait for preparation has been finished.
-        for det in self._detlist:
-            waitForStatus(det)
+        try:
+            for det in self._detlist:
+                if isinstance(det, ImageProducer):
+                    for catinfo, bycategory in iteritems(self.dataset.headerinfo):
+                        det.addHeader(catinfo, bycategory)
+                    det.addHeader('scan', [(self, 'pointnum', '%d' % num)])
+                # preparation before count command
+                det.prepare()
+            # wait for preparation has been finished.
+            for det in self._detlist:
+                waitForStatus(det)
+        except NicosError as err:
+            self.handleError('prepare', None, None, err)
 
     def updatePoint(self, xvalues):
         # called after moving to current, just before counting
@@ -226,12 +229,24 @@ class Scan(object):
             # continue counting anyway
             if what == 'read':
                 printwarning('Readout problem', exc=1)
+            elif what == 'count':
+                printwarning('Counting problem', exc=1)
+            elif what == 'prepare':
+                printwarning('Prepare problem, skipping point', exc=1)
+                # no point in measuring this point in any case
+                raise SkipPoint
             else:
                 printwarning('Positioning problem, continuing', exc=1)
             return
         elif isinstance(err, SKIP_EXCEPTIONS):
             if what == 'read':
                 printwarning('Readout problem', exc=1)
+            elif what == 'count':
+                printwarning('Counting problem', exc=1)
+                # point is already skipped, no need to raise...
+            elif what == 'prepare':
+                printwarning('Prepare problem, skipping point', exc=1)
+                raise SkipPoint
             else:
                 printwarning('Skipping data point', exc=1)
                 raise SkipPoint
@@ -337,8 +352,8 @@ class Scan(object):
             else:  # intervals
                 num = lambda i: i
             for i, position in enumerate(self._positions):
-                self.preparePoint(num(i), position)
                 try:
+                    self.preparePoint(num(i), position)
                     if position:
                         if i != 0:
                             self.moveTo(position, wait=self._waitbeforecount)
@@ -347,6 +362,12 @@ class Scan(object):
                     # update changed positions
                     actualpos = self.readPosition()
                     self.updatePoint(actualpos)
+                except SkipPoint:
+                    continue
+                except:
+                    self.finishPoint()
+                    raise
+                try:
                     # measure...
                     started = currenttime()
                     try:
@@ -362,7 +383,15 @@ class Scan(object):
                                    dataset=self.dataset)
                     finally:
                         actualpos += self.readEnvironment(started, currenttime())
-                        self.addPoint(actualpos, result)
+                        # there are some values (or we are purposefully
+                        # scanning without detectors)
+                        if result or len(self.dataset.yvalueinfo) == 0:
+                            # add missing values
+                            result.extend(0 for _ in range(
+                                len(self.dataset.yvalueinfo) - len(result)))
+                            self.addPoint(actualpos, result)
+                except NicosError as err:
+                    self.handleError('count', None, None, err)
                 except SkipPoint:
                     pass
                 finally:
