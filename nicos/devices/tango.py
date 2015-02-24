@@ -56,6 +56,9 @@ EXC_MAPPING = {
     PyTango.CommunicationFailed: CommunicationError,
     PyTango.WrongNameSyntax: ConfigurationError,
     PyTango.DevFailed: NicosError,
+    # when a DeviceProxy is created with the device not exported,
+    # access to the named commands/attributes will raise AttributeError
+    AttributeError: CommunicationError,
 }
 
 
