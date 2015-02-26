@@ -78,8 +78,7 @@ class Toellner(HasTimeout, HasPrecision, AnalogOutput):
         return status.OK, ''  # timeout and target are checked elsewhere now
 
     def _getsign(self):
-        polval = self._adevs['polchange'].read()
-        return -1 if polval == '-' else 1
+        return -1 if self._adevs['polchange'].read() == '-' else 1
 
     def _set_field_polarity(self, value):
         polval = self._adevs['polchange'].read()
