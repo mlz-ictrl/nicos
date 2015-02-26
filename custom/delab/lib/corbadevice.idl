@@ -120,15 +120,15 @@ loadoffset = yes
  *       On CARESS side, the process "measur" and the "hardwarebag" server use
  *       memory sizes twice as large as your file size !
  *
- * $$HeadURL: https://dide10.hmi.de/svn/caress/current/corbadevices/AcqirisHZB/corbadevice.idl $$
+ * $$HeadURL: https://dide10.hmi.de/svn/caress/current/caress/omnisrc/corbadevice.idl $$
  *
  * file:            corbadevice.idl
  * authors:         dcy (Lutz Rossa),
- *                  <caress-devel@hmi.de>
+ *                  <caress-devel@helmholtz-berlin.de>
  *
- * last changed by: $$Author: caress $$
- * last update:     $$Date: 2013/05/16 12:07:18 $$
- * revision:        $$Rev: 1976 $$
+ * last changed by: $$Author: dcy $$
+ * last update:     $$Date: 2012-09-21 14:27:17 +0200 (Fri, 21 Sep 2012) $$
+ * revision:        $$Rev: 2188 $$
  *
  ****************************************************************************/
 
