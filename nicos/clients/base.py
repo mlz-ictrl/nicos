@@ -446,4 +446,7 @@ class NicosClient(object):
 
     def getDeviceParam(self, devname, param):
         """Return value of a specific device parameter from cache."""
-        return self.getCacheKey(devname.lower() + '/' + param)[1]
+        ret = self.getCacheKey(devname.lower() + '/' + param)
+        if ret:
+            return ret[1]
+        return None
