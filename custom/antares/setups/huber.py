@@ -2,8 +2,6 @@ description = 'HUBER Sample Table Experimental Chamber 1'
 
 group = 'optional'
 
-includes = ['alias_sample']
-
 tango_host = 'tango://cpci01.antares.frm2:10000'
 
 devices = dict(
@@ -35,7 +33,4 @@ devices = dict(
 )
 
 startupcode = '''
-stx.alias = 'stx_huber'
-sty.alias = 'sty_huber'
-sry.alias = 'sry_huber'
 '''

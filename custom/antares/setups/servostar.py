@@ -1,8 +1,6 @@
 description = 'Large sample manipulation stage using servostar controller'
 group = 'optional'
 
-includes = ['alias_sample']
-
 devices = dict(
     stx_servostar = device('antares.servostar.ServoStarMotor',
                            description = 'Sample Translation X',
@@ -29,7 +27,4 @@ devices = dict(
 )
 
 startupcode = '''
-stx.alias = 'stx_servostar'
-sty.alias = 'sty_servostar'
-sry.alias = 'sry_servostar'
 '''
