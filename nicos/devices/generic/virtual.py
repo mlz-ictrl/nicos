@@ -36,7 +36,7 @@ from nicos import session
 from nicos.utils import clamp, createThread
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
     none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
-    ImageProducer, ImageType, SIMULATION, Attach, Device, HasWindowTimeout
+    ImageProducer, ImageType, SIMULATION, POLLER, Attach, Device, HasWindowTimeout
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import Channel
 
@@ -423,7 +423,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             return
         if self.curstatus[0] < status.OK:  # clean up old status values
             self._setROParam('curstatus', (status.OK, ''))
-        if session.sessiontype != 'poller':  # dont run in the poller!
+        if session.sessiontype != POLLER:  # dont run in the poller!
             self._window = []
             self._statusLock = threading.Lock()
             self._thread = createThread('cryo simulator %s' % self, self.__run)

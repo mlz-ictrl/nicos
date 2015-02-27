@@ -106,7 +106,7 @@ class SimulationSession(Session):
     Subclass of Session for spawned simulation processes.
     """
 
-    sessiontype = 'simulation'
+    sessiontype = SIMULATION
 
     @classmethod
     def run(cls, port, prefix, setups, user, code):

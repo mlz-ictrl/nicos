@@ -24,7 +24,7 @@
 
 """Session class used with the NICOS poller."""
 
-from nicos.core import Device, Override, DeviceAlias
+from nicos.core import Device, Override, DeviceAlias, POLLER
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.generic.cache import CacheReader
 from nicos.devices.cacheclient import CacheClient
@@ -68,7 +68,7 @@ class PollerCacheReader(CacheReader):
 class PollerSession(NoninteractiveSession):
 
     cache_class = PollerCacheClient
-    sessiontype = 'poller'
+    sessiontype = POLLER
 
     # pylint: disable=W0102
     def getDevice(self, dev, cls=None, source=None,

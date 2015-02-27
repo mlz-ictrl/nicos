@@ -59,7 +59,7 @@ from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
 from nicos.core.sessions.setups import readSetups
 from nicos.pycompat import builtins, exec_, string_types, \
     itervalues, iteritems, listvalues
-
+from nicos.core.constants import MAIN
 
 class Session(object):
     """The Session class provides all low-level routines needed for NICOS
@@ -79,7 +79,7 @@ class Session(object):
     log = None
     name = 'session'
     cache_class = CacheClient
-    sessiontype = 'main'
+    sessiontype = MAIN
 
     def __str__(self):
         # used for cache operations

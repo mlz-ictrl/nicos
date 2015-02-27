@@ -25,7 +25,8 @@
 """NICOS core APIs and classes."""
 
 from nicos.core import status
-from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE
+from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE, MAIN,\
+    POLLER
 from nicos.core.errors import NicosError, ProgrammingError, \
     ConfigurationError, UsageError, InvalidValueError, ModeError, \
     PositionError, MoveError, LimitError, CommunicationError, \

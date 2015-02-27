@@ -34,7 +34,7 @@ import threading
 
 from nicos import session
 from nicos.core import Param, Override, intrange, floatrange, status, \
-    HasOffset, Device, Attach, SIMULATION
+    HasOffset, Device, Attach, SIMULATION, POLLER
 from nicos.utils import createThread
 from nicos.devices.abstract import Motor
 
@@ -70,7 +70,7 @@ class SerComIO(Device):
 
     def doInit(self, mode):
         if mode != SIMULATION:
-            if session.sessiontype != 'poller':
+            if session.sessiontype != POLLER:
                 for d in [self.devfile, '/dev/ttyACM0', '/dev/ttyACM1']:
                     try:
                         self._dev = serial.Serial(d, timeout=0.03)

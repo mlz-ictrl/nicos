@@ -32,7 +32,7 @@ from time import time as currenttime, sleep
 
 from nicos import session
 from nicos.core import status
-from nicos.core.constants import MASTER, SIMULATION, SLAVE
+from nicos.core.constants import MASTER, SIMULATION, SLAVE, POLLER
 from nicos.core.utils import formatStatus, statusString, \
     defaultIsCompleted, multiIsCompleted, multiStop, multiStatus, multiWait
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
@@ -391,7 +391,7 @@ class Device(object):
         return [c.__module__ + '.' + c.__name__ for c in self.__class__.__mro__]
 
     def doUpdateLoglevel(self, value):
-        if session.sessiontype == 'poller':
+        if session.sessiontype == POLLER:
             # suppress debug/info messages from ordinary devices in the poller
             self.log.setLevel(loggers.WARNING)
         else:
