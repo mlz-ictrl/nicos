@@ -656,6 +656,20 @@ def vec3(val=None):
         raise ValueError('value needs to be a 3-element vector')
     return readonlylist(ret)
 
+ipv4_re = re.compile(
+    r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}'
+    r'(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+    )
+
+def ipv4(val='0.0.0.0'):
+    """a IP v4 address"""
+    if val in ('', None):
+        return ''
+    val = str(val)
+    res = ipv4_re.match(val)
+    if not res or res.group() != res.string:
+        raise ValueError('%r is not a valid IPv4 address' % val)
+    return val
 
 def host(val=''):
     """a host[:port] value"""

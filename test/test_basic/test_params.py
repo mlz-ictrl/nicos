@@ -27,7 +27,7 @@
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
     tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
     none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
-    subdir, nicosdev, nonemptystring, host
+    subdir, nicosdev, nonemptystring, host, ipv4
 from nicos.core.errors import ProgrammingError
 
 from test.utils import raises
@@ -240,3 +240,21 @@ def test_host():
     assert raises(ValueError, host, 'localhost:0')
     assert raises(ValueError, host, 'localhost:65536')
     assert raises(ValueError, host, 'localhost:port')
+
+def test_ipv4():
+    assert ipv4('1.2.3.4') == '1.2.3.4'
+    assert ipv4('123.234.249.255') == '123.234.249.255'
+    assert ipv4('123.255.249.255') == '123.255.249.255'
+    assert ipv4('255.255.255.255') == '255.255.255.255'
+    assert ipv4() == '0.0.0.0'
+    assert ipv4('') == ''
+    assert ipv4(None) == ''
+    assert raises(ValueError, ipv4, '1')
+    assert raises(ValueError, ipv4, '1.2')
+    assert raises(ValueError, ipv4, '1.2.3')
+    assert raises(ValueError, ipv4, '1.2.3.4.')
+    assert raises(ValueError, ipv4, '1.2.3.256')
+    assert raises(ValueError, ipv4, '1.2.256.4')
+    assert raises(ValueError, ipv4, '1.256.3.4')
+    assert raises(ValueError, ipv4, '256.2.3.4')
+    assert raises(ValueError, ipv4, ' 255.255.255.255')
