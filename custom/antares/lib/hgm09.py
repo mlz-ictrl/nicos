@@ -28,7 +28,8 @@ Devices for the HGM09 gaussmeter.
 
 from IO import StringIO
 
-from nicos.core import Readable, Override, CommunicationError, NicosError
+from nicos.core import Readable, Override, CommunicationError, NicosError, \
+    SIMULATION
 
 from nicos.devices.taco import TacoDevice
 
@@ -47,7 +48,7 @@ class HGM09(TacoDevice, Readable):
     }
 
     def doInit(self, mode):
-        if mode == 'simulation':
+        if mode == SIMULATION:
             return
         reply = self._communicate('*IDN?')
         if not reply.startswith('MAGSYS-MAGNET-SYSTEME,HGM09'):

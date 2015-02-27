@@ -83,9 +83,9 @@ class TomographyPanel(Panel):
     def on_client_mode(self, mode):
 #       if mode == 'slave':
 #           self.label.setText('slave >>')
-#       elif mode == 'simulation':
+#       elif mode == SIMULATION:
 #           self.label.setText('SIM >>')
-#       elif mode == 'maintenance':
+#       elif mode == MAINTENANCE:
 #           self.label.setText('maint >>')
 #       else:
 #           self.label.setText('>>')

@@ -26,7 +26,7 @@
 
 import IO
 
-from nicos.core import tacodev, Param, Override, dictof
+from nicos.core import tacodev, Param, Override, dictof, SIMULATION
 from nicos.devices.taco.io import NamedDigitalOutput
 
 
@@ -46,7 +46,7 @@ class ReadbackSwitch(NamedDigitalOutput):
 
     def doInit(self, mode):
         super(ReadbackSwitch, self).doInit(mode)
-        if mode != 'simulation':
+        if mode != SIMULATION:
             self._readback = self._create_client(devname=self.readback,
                 class_=IO.DigitalInput, resetok=True, timeout=None)
 
