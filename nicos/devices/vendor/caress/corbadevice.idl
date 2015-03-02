@@ -1,0 +1,567 @@
+/*****************************************************************************
+ *
+ * generic CORBA device for CARESS
+ *
+ * this CORBA IDL file is the interface for any CORBA device
+ * which can be used by CARESS (with some knowledge of the
+ * "CARESS abstract device" and the extensions made in CARESS)
+ *
+ * NOTE: look at the file "corbadevice.txt" at the documentation directory
+ *
+ * There is support for a configuration file "corbadevice.dat" that controls
+ * any generic CORBA device together with CARESS (see "loadblock_module")
+ *
+ * The configuration has the following file format (INI file format):
+ * - empty lines and any lines starting with a semicolon are ignored
+ * - sections start with a name with surrounding brackets '[' and ']'
+ * - any other lines must have the format
+ *   item=value
+ *
+ * example:
+
+; section name == device name used by CARESS (example: area detector)
+[ADET]
+; after init: generate a "loadblock" call with this device section text
+; (white space will be stripped)
+; possible values are
+;   "yes", "true", "on"  -> load this text into device (default)
+;   "no", "false", "off" -> device will not get this text
+loadconf = yes
+
+; after init: generate a "loadblock" call with content of this file
+; (the minimum file size is 1 byte and the maximum file size is 16MB)
+loadfile = "my_own_local_binary_or_text_file_adet_info.dat"
+
+; set up when device gets a "start" and/or "stop" call:
+; possible values are
+;   before     -> before other CARESS devices
+;                 (may be after other generic CORBA devices)
+;   premaster  -> like other CARESS devices,
+;                 but before master counter (default for "stop")
+;   postmaster -> like other CARESS devices,
+;                 but after master counter (default for "start")
+;   behind     -> after other CARESS devices
+;                 (may be before other generic CORBA devices)
+;   never      -> never generate a call to "start"/"stop"
+;   async      -> asynchronous: start/stop devices in parallel
+;   sync       -> synchronous: start/stop device sequentially (default)
+start = premaster, sync
+stop  = sync, postmaster
+
+; set up readout point (possible values are):
+;   always     -> always
+;   noexpress  -> every time, but without READ_EXPRESS
+;   readall    -> "read_allmodules" only (all=yes)
+;   auto       -> "read_allmodules" only and (kind!=EXPRESS or state==ACTIVE)
+;                 (default)
+;   minimal    -> "read_allmodules" only, but without READ_EXPRESS
+;   async      -> asynchronous: read devices in parallel
+;   sync       -> synchronous: read device sequentially (default)
+read = auto, async
+
+; allowed kinds for call of "start_module"
+; (default: 0=normal=START_NORMAL, 1=continue=START_CONT [see also item "ignorepause"])
+; valid names (normal/start/cont/continue/snap/snapshot) or numbers
+startkinds=normal,continue,snapshot,42
+
+; allowed kinds for call of "stop_module"
+; (default: 0=STOP_PAUSE [see also item "ignorepause"], 1=STOP_TERMINATION)
+; valid names (halt/pause/end/term/termination/snap/snapshot) or numbers
+stopkinds=halt,end,snapshot,42
+
+; configure device, if it gets "stop(STOP_PAUSE)" and "start(START_CONT)" calls
+; possible values are
+;   "yes", "true", "on", "enable"  -> no calls of that type
+;   "no", "false", "off", "disable" -> halt and continue is possible (default)
+ignorepause = no
+
+; load names and values of this CARESS devices before start of measurement
+; (give values of existing devices only, never load empty string)
+startvalues=TTHS,OMGS,PHIS,CHIS
+
+; load additional information before start of measurement, which contains
+; data of specified CARESS commands
+; (give values of existing commands/modules only, never load empty string)
+startcommands=RELA,SPEC,MM1
+
+; set maximum channel count for single "readblock" call
+; possible values are positive integers in range
+;   1 ... 16777216   -> 1 byte to 16 MB (default: 4096 byte)
+; (if the size is above 4096, some CARESS parts may use block sizes of 4096 instead)
+readblocksize = 65536
+
+; after a CORBA::SystemException: if this value is greater 0 then try to
+; reconnect generic CORBA device (also read CORBA Name Service),
+; but next try will not be within this time (in seconds)
+;   0 ... 3600 (default: 60)
+; if this value is zero and an error occurs while reconnect then this
+; device is offline and no reconnection will be made until an "init" call
+reconnecttimeout = 30
+
+; overwrite detector size -> pixel width; use 300x300mm
+detector_size=300,300
+
+; this temperature controller knows a special configuration item
+[TEMP]
+; number of additional sample temperatures for device "TEMP"
+; possible values are 0 ... 4 (default: 0)
+additional_samples = 0
+
+; this motor controller is able to handle additional offsets
+[OMGS]
+; allow loading of CARESS specific device offset into the device itself; CARESS expects
+; that the device understands the call to "load_module" with kind==21 (LOAD_OFFSET)
+; (this is meaningful for drivable modules only)
+loadoffset = yes
+
+ * Note: Unusual file sizes of more than 1MB can cause network problems, broken
+ *       CORBA connections or other errors. Please check, if any involved
+ *       computers and devices can handle it.
+ *       On CARESS side, the process "measur" and the "hardwarebag" server use
+ *       memory sizes twice as large as your file size !
+ *
+ * $$HeadURL: https://dide10.hmi.de/svn/caress/current/caress/omnisrc/corbadevice.idl $$
+ *
+ * file:            corbadevice.idl
+ * authors:         dcy (Lutz Rossa),
+ *                  <caress-devel@helmholtz-berlin.de>
+ *
+ * last changed by: $$Author: dcy $$
+ * last update:     $$Date: 2012-09-21 14:27:17 +0200 (Fri, 21 Sep 2012) $$
+ * revision:        $$Rev: 2188 $$
+ *
+ ****************************************************************************/
+
+#ifndef __CORBADEVICE_IDL__E0DFEC78_0BD9_4167_BB3F_B473670709AB__
+#define __CORBADEVICE_IDL__E0DFEC78_0BD9_4167_BB3F_B473670709AB__
+
+// namespace CARESS, so this identifiers should not conflict with existing
+// identifiers of other user programs
+module CARESS
+{
+  enum ReturnType { OK, NOT_OK };
+
+  typedef sequence<long>      ArrayLong;
+  typedef sequence<float>     ArrayFloat;
+  typedef sequence<octet>     ArrayByte;
+  typedef sequence<any>       ArrayComplex;
+  typedef sequence<long long> ArrayLong64;
+  typedef sequence<double>    ArrayDouble;
+
+  // type "TypeArrayByte"/"ArrayByte" are usable with "loadblock_module" only
+  // type "TypeString" is usable with "{s,g}et_attribute" only
+  // type "TypeComplex" transfer one/more value group(s) {module_id, status, data type, count, value_array[]}
+  //      with types CHARTYPE/STRINGTYPE,REALTYPE,DOUBLETYPE,LONGINTEGER,INT64TYPE
+  enum DataType { TypeLong, TypeFloat,
+                  TypeArrayLong, TypeArrayFloat, TypeArrayByte,
+                  TypeString, TypeComplex,
+                  TypeLong64, TypeDouble, TypeArrayLong64, TypeArrayDouble };
+
+  union Value switch(DataType)
+  {
+    case TypeLong:        long         l;
+    case TypeFloat:       float        f;
+    case TypeArrayLong:   ArrayLong    al;
+    case TypeArrayFloat:  ArrayFloat   af;
+    case TypeArrayByte:   ArrayByte    ab; // loadblock_module, {s,g}et_attribute only
+    case TypeString:      string       s;  // {s,g}et_attribute only
+    case TypeComplex:     ArrayComplex c;
+    case TypeLong64:      long long    l64;
+    case TypeDouble:      double       d;
+    case TypeArrayLong64: ArrayLong64  al64;
+    case TypeArrayDouble: ArrayDouble  ad;
+  };
+
+  exception ErrorDescription
+  {
+    string description;
+  };
+
+  interface CORBADevice
+  {
+    ////////////////////////////////////////////////////////////////////////////
+    // init module (call "init_module" or "init_module_ex", but never both)
+    // - allocate resources
+    // - initialize device (see 'kind')
+    // - ...
+    //
+    //   kind ............ 0 = normal init
+    //                         set ONLINE/OFFLINE-state in module_status
+    //                         if ONLINE, return OK else NOT_OK
+    //   id .............. unique device ID given by CARESS
+    //   name ............ CARESS device name (only "init_module_ex")
+    //   config_line ..... configuration line from 'hardware_modules_*.dat'
+    //
+    //   module_status ... current device status
+    //                     1 = ONLINE  (device is usable)
+    //                     0 = OFFLINE (device is *NOT* usable)
+    //
+    //   errordesc ....... description text with error details
+    //                     (only "init_module_ex")
+    //
+    //   return value .... result of this function
+    //                     OK      device was found (and initialized)
+    //                     NOT_OK  device not found / error
+    //
+    // NOTE: function "init_module" disables use of exceptions;
+    //       function "init_module_ex" enables exceptions for other functions:
+    //       in case of errors, they may throw an exception with details
+    //       instead of a return value of NOT_OK
+    ReturnType init_module(in long kind, in long id, in string config_line,
+                           out long module_status);
+
+    ReturnType init_module_ex(in long kind, in long id, in string name, in string config_line,
+                              out long module_status, out string errordesc);
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // release module
+    // - release resources
+    //
+    //   kind ........... ignore this parameter
+    //   id ............. unique device ID given by CARESS
+    //
+    //   return value ... result of this function (OK / NOT_OK)
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType release_module(in long kind, in long id)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // start module
+    // - start module at beginning of data acquisition
+    // - called from CARESS-internal 'start_module'
+    //
+    //   kind ...
+    //     bit 00-31:
+    //       0 = normal start (start of measurement)
+    //       1 = START_CONT (re-start or continue measurement)
+    //
+    //   id ................ unique device ID given by CARESS
+    //   run_no ............ data file number
+    //   mesr_count ........ current resolution/detector position step
+    //                       (valid only with kind bits 30..31 == 1)
+    //
+    //   module_status ..... current device status
+    //                       1 = NOT_ACTIVE
+    //                       2 = ACTIVE
+    //   return value ...... result of this function
+    //                       OK      device was started
+    //                       NOT_OK  an error occurred
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType start_module(in long kind, in long id, in long run_no,
+                            in long mesr_count, out long module_status)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // stop module
+    // - called from CARESS-internal 'stop_module', 'stop_all'
+    //
+    //   kind ...
+    //     bit 31:
+    //       0 = stop_module (normal devices)
+    //       1 = stop_all    (emergency stop)
+    //     bit 00..30:
+    //        0 = pause/halt measurement (acquisition: inside measurement and at end)
+    //        1 = stop measurement (acquisition: only on end of measurement)
+    //       11 = KEEPACTION (motors: normal stop)
+    //       12 = STOPACTION (motors: emergency stop)
+    //   id ................ unique device ID given by CARESS
+    //
+    //   module_status ..... current device status
+    //                       1 = NOT_ACTIVE
+    //                       2 = ACTIVE
+    //   return value ...... result of this function
+    //                       OK      device was stopped
+    //                       NOT_OK  an error occurred
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType stop_module(in long kind, in long id, out long module_status)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // drive module
+    // - start move/drive one module to target position
+    // - this call should be non-blocking:
+    //   return module_status ACTIVE when started;
+    //   CARESS will call read_module and this device should set
+    //   module_status to DONE, when ready
+    // - if you have to implement this as blocking call: set module_status
+    //   to DONE with this call
+    //
+    //   kind ................. 0 = normal drive (start move to target positon)
+    //                          1 = special drive to
+    //                              Max       (target position==1),
+    //                              Min       (target position==2),
+    //                              Reference switch (target position==3),
+    //                              Ref rough (ST180 only: target position==3),
+    //                              Ref fine  (ST180 only: target position==4)
+    //                          2 = set digital output bits
+    //                              data is a bit mask for bits to set
+    //                          3 = clear digital output bits
+    //                              data is a bit mask for bits to clear
+    //   id ................... unique device ID given by CARESS
+    //   data ................. new target position
+    //
+    //   calculated_timeout ... timeout value in seconds:
+    //                          add a timeout for this device
+    //
+    //   delay ................ set flag, if this device must be delayed
+    //                          (e.g. multiplexed motors and an other motor
+    //                          is active)
+    //   module_status ........ current device status
+    //                          1 = NOT_ACTIVE,
+    //                          2 = ACTIVE,      (return OK, module started)
+    //                              MANUAL_MODE, (return NOT_OK, module error)
+    //                          3 = DONE         (return OK, target position reached)
+    //                          5 = ACTIVE1
+    //                          6 = COMBO_ACTIVE (multiplexed device ACTIVE)
+    //   return value ......... result of this function
+    //                          OK      target reached / device delayed
+    //                          NOT_OK  an error occurred
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType drive_module(in long kind, in long id, in Value data,
+                            inout long calculated_timeout, out boolean delay,
+                            out long module_status)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // load module
+    // - load one module with target value
+    // - reset/clear/... module (e.g. counters)
+    //
+    //   kind ............ 0  = normal load (store value from 'data')
+    //                     14 = LOADMASTER  (load preset counter with preset value)
+    //                     15 = LOADSLAVE   (prepare a counter, histogram for counting)
+    //                     16 = RESETMODULE (ignore 'data', clear counters)
+    //                     18 = SPECIALLOAD (load special info into hardware)
+    //                     19 = LOAD_PERM_INFO (load permanent moving info)
+    //                     21 = LOAD_OFFSET (load CARESS offset, see "loadoffset")
+    //   id .............. unique device ID given by CARESS
+    //   data ............ load this data
+    //
+    //   module_status ... current device status
+    //                     1 = NOT_ACTIVE,
+    //                     3 = DONE, 
+    //                     4 = LOADED
+    //   return value .... result of this function (OK / NOT_OK)
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType load_module(in long kind, in long id, in Value data,
+                           out long module_status)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // load block data
+    // - kind=0 and data type==CHARTYPE
+    //   load configuration information for this generic CORBA device;
+    //   it contains only the section content (without white space) for this
+    //   device; see head of this file for a file description
+    //   ("start_channel"==1, "end_channel"==size of data)
+    // - kind=2 and data type==CHARTYPE
+    //   load names and values of this CARESS devices before start of measurement
+    //   e.g. for "startvalues=TTHS,OMGS" this text will be loaded:
+    //     TTHS=-43.59
+    //     OMGS=10
+    // - kind=5 and data type==CHARTYPE
+    //   load text from CARESS command "loadtext"
+    // - kind=7 and data type==CHARTYPE
+    //   load additional information before start of measurement, which contains
+    //   data of specified CARESS commands, e.g. "startcommands=RELA,SPEC,MM1"
+    // - kind=18 and data type==CHARTYPE
+    //   load a user defined device specific file as bulk data
+    //   (e.g. complex data, special extensions, hacks, ...)
+    //   this file has to
+    //   * be exist and a regular file,
+    //   * have a minimum file size of 1 byte,
+    //   * have a maximum file size of 16 MB (16777216 bytes);
+    //   otherwise it will be ignored without any error message
+    //   ("start_channel"==1, "end_channel"==size of data)
+    //
+    //   kind ............ 0  = normal load; device section from configuration
+    //                          file "corbadevice.dat" for this device
+    //                     2  = LOADACTION; load names and values of other
+    //                          CARESS devices before start of measurements
+    //                     5  = GENERATION; text from "loadtext" command
+    //                     7  = SETACTION; load additional command information
+    //                     18 = SPECIALLOAD; content of a file specified with
+    //                          item "loadfile" in file "corbadevice.dat"
+    //   id .............. unique device ID given by CARESS
+    //   data ............ load this data
+    //   start_channel ... first channel to load (starts with 1)
+    //   end_channel ..... last channel to load (starts with 1)
+    //
+    //   module_status ... current device status
+    //                     1 = NOT_ACTIVE,
+    //                     3 = DONE, 
+    //                     4 = LOADED
+    //   return value .... result of this function (OK / NOT_OK)
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType loadblock_module(in long kind, in long id, in long start_channel,
+                                in long end_channel, out long module_status,
+                                in Value data)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // read module
+    // - read info from module (single value)
+    // - exceptions: temperature controllers, choppers/flipper, special devices
+    //
+    // remarks: values depend on CARESS device IDs (parameter 'id').
+    //
+    //     Common devices give a single value (32bit-int or 32bit-float).
+    //     Such devices are motors, counters, power supplies, digital
+    //     multimeters, digital in/out modules, ...
+    //
+    //     Special devices are temperature controllers, chopper/flipper,
+    //     detectors (line or area). Such devices give an array of 32-bit
+    //     int or float values with up to 9 values.
+    //
+    //         temperature controller (id=15/TEMP) give 5..9 float values:
+    //           [0] = set temp                 (set point/target value)
+    //           [1] = regu temp                (actual value)
+    //           [2] = sample temp              (reference)
+    //           [3] = mean sample temp         (average)
+    //           [4] = deviation of sample temp
+    //           [5] = 2nd sample temp          (optional)
+    //           [6] = 3rd sample temp          (optional)
+    //           [7] = 4th sample temp          (optional)
+    //           [8] = 5th sample temp          (optional)
+    //
+    //   kind ... bit 31:   0 = read_module     (ignore this bit)
+    //                      1 = read_allmodules (ignore this bit)
+    //            bit 30-0: 0 = normal read  (read all but some slow devices)
+    //                      1 = READ_EXPRESS (read only fast devices,
+    //                                        read time below some milliseconds)
+    //                      2 = READ_FORCED  (read all devices)
+    //                      3 = READ_STATUS  (read limit and reference switches)
+    //                     (4 = READ_NAMELIST, hwb_server only: read device names)
+    //   id ............... unique device ID given by CARESS
+    //
+    //   module_status ... current device status
+    //                     1 = NOT_ACTIVE, 2 = ACTIVE, 3 = DONE, 4 = LOADED
+    //                     5 = ACTIVE1, 6 = COMBO_ACTIVE
+    //   data ............. current value (see remarks, depends on 'id' !!)
+    //   return value ..... result of this function
+    //                      OK      read successful or device skipped
+    //                      NOT_OK  an error occurred
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType read_module(in long kind, in long id, out long module_status, out Value data)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // read data type of block data
+    // - allowed types (from DataType): TypeArrayLong, TypeArrayFloat
+    // - used for special devices, many devices do not need to change data in
+    //   "inout" parameters, but they are allowed to change
+    //   (e.g. check and prepare histogram readout)
+    //
+    //   kind ............ 0 = READBLOCK_NORMAL (normal read)
+    //                    (1 = READBLOCK_SINGLE, DAU only: read only single detector)
+    //                    (2 = READBLOCK_MULTI, DAU only: read only multi detector)
+    //                     3 = READBLOCK_NOSNAPSHOT (handle it like kind==0)
+    //   id .............. unique device ID given by CARESS
+    //
+    //   start_channel ... first channel to read (starts with 1)
+    //   end_channel ..... last channel to read (starts with 1)
+    //   type ............ current value type (modify this into
+    //                     'TypeArrayLong' or 'TypeArrayFloat')
+    //
+    //   return value .... result of this function (OK only, ignored)
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType readblock_params(in long kind, in long id, inout long start_channel,
+                                inout long end_channel, inout DataType type)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // read block data
+    // - read bulk data (e.g. histogram)
+    //
+    //   kind ............ 0 = READBLOCK_NORMAL (normal read)
+    //                    (1 = DAU only: read only single detector)
+    //                    (2 = DAU only: read only multi detector)
+    //                     3 = READBLOCK_NOSNAPSHOT (handle it like kind==0)
+    //   id .............. unique device ID given by CARESS
+    //
+    //   start_channel ... first channel to read (starts with 1)
+    //   end_channel ..... last channel to read (starts with 1)
+    //
+    //   module_status ... current device status
+    //                     1 = NOT_ACTIVE, 2 = ACTIVE, 3 = DONE, 4 = LOADED
+    //                     5 = ACTIVE1, 6 = COMBO_ACTIVE
+    //   return value .... result of this function
+    //                     OK      read successful or device skipped
+    //                     NOT_OK  an error occurred
+    //
+    // NOTE: initialisation with "init_module_ex" enables exceptions and in case
+    //       of an error, this function may throw an exception with details
+    ReturnType readblock_module(in long kind, in long id, in long start_channel,
+                                in long end_channel, out long module_status,
+                                out Value data)
+               raises(ErrorDescription);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // constant attributes:
+    //
+    // is_readable_module       set True, if CARESS can call 'read_module' or
+    //                          'readblock_params'/'readblock_module'
+    //
+    // is_drivable_module       set True, if this module is drivable and CARESS
+    //                          can call 'drive_module'
+    //
+    // is_counting_module       set True, if this module of type counting
+    //                          (e.g. counters, histogram)
+    //
+    // is_status_module         set True, if this module is something like
+    //                          digital I/O and provides only a single date value
+    //                          of 'TypeLong' (needs CARESS special treatment)
+    //
+    // needs_reference_module   set True, if this module has no fixed offset nor
+    //                          an absolute encoder nor something else
+    //                          (position is zero after "init_module")
+    boolean is_readable_module    (in long id);
+    boolean is_drivable_module    (in long id);
+    boolean is_counting_module    (in long id);
+    boolean is_status_module      (in long id);
+    boolean needs_reference_module(in long id);
+
+    ////////////////////////////////////////////////////////////////////////////
+    // CARESS extensions (see "corbadevice.txt" at documentation directory):
+    Value get_attribute(in long id, in string name) raises(ErrorDescription);
+    void  set_attribute(in long id, in string name, in Value data) raises(ErrorDescription);
+  }; // interface CORBADevice
+}; // module CARESS
+
+#endif /* __CORBADEVICE_IDL__E0DFEC78_0BD9_4167_BB3F_B473670709AB__ */
+

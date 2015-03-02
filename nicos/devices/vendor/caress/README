@@ -1,0 +1,4 @@
+The CARESS/CORBA stub should be generated via:
+
+make all
+

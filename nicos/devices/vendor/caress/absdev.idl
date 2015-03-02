@@ -1,0 +1,212 @@
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
+// CORBA IDL file for CARESS "abstract device".
+//
+// omniidl  -bcxx -Wba absdev.idl
+//
+// file:	absdev.idl
+// author:	K.H. Degenhardt
+// last update: 29-mar-2000
+//
+// Remarks:
+//	1. out for unbound sequence does not work, we use inout
+//	2. if block data parameter is not the last paramter then
+//	   much time is consumed (why?), we use it as last parameter
+//	3. number of array elements is limited to 4096 (why?)
+//	4. number of sequence elements is limited to 8192 (why?)
+//	5. sequence<any> is too slow for bulk data, we use dedicated
+//	   sequence types and methodes
+//
+//-----------------------------------------------------------------
+
+#ifndef __ABSDEV_IDL__
+#define __ABSDEV_IDL__
+
+// max. items in a data block
+const long MAX_ITEMS = 4096;
+
+// define module info
+typedef sequence<any> module_info_seq_t;
+
+// define block data info
+typedef sequence<char>      char_data_seq_t;
+typedef sequence<short>     short_data_seq_t;
+typedef sequence<long>      int_data_seq_t;
+typedef sequence<float>     float_data_seq_t;
+typedef sequence<long long> int64_data_seq_t;
+typedef sequence<double>    double_data_seq_t;
+
+interface absdev
+{
+  // init system
+  long init_system_orb(
+	in long kind_of_init_system,
+	out long system_status);
+
+  // release system
+  long release_system_orb(
+	in long kind_of_release_system);
+
+  // init module
+  long init_module_orb(
+	in long kind_of_init_module,
+	in long module_id,
+	in string module_line,
+	out long module_status);
+
+  // read module (out replaced by inout)
+  long read_module_orb(
+	in long kind_of_read_module,
+	in long module_id,
+	inout module_info_seq_t module_info_seq);
+
+  // drive module
+  long drive_module_orb(
+	in long kind_of_drive_module,
+	in module_info_seq_t module_info_seq,
+	in long event_number,
+	inout long calculated_timeout,
+	out long event_used,
+	out long delay_status,
+	out long module_status);
+
+  // load module
+  long load_module_orb(
+	in long kind_of_load_module,
+	in module_info_seq_t module_info_seq,
+	in long event_number,
+	out long event_used,
+	out long module_status);	
+
+  // stop module
+  long stop_module_orb(
+	in long kind_of_stop_module,
+	in long module_id,
+	out long module_status);
+
+  // stop all modules
+  long stop_all_orb(
+	in long kind_of_stop_all,
+	out long stop_all_status);
+
+  // start acquisition
+  long start_acquisition_orb(
+	in long kind_of_start_acquisition,
+	in long run_no,
+	in long mesr_count,
+	out long acquisition_status);
+
+  // stop acquisition
+  long stop_acquisition_orb(
+	in long kind_of_stop_acquisition,
+	out long acquisition_status);
+
+  // get parameters of block data
+  long readblock_params_orb(
+	in long kind_of_readblock_module,
+	in long module_id,
+	inout long start_channel,
+	inout long end_channel,
+	inout long channel_type);
+	
+  // read block data for char, short, long or float
+  long char_readblock_module_orb(
+	in long kind_of_readblock_module,
+	in long module_id,
+	in long start_channel,
+	in long end_channel,
+	out long module_status,
+	inout char_data_seq_t data_seq);
+  long short_readblock_module_orb(
+	in long kind_of_readblock_module,
+	in long module_id,
+	in long start_channel,
+	in long end_channel,
+	out long module_status,
+	inout short_data_seq_t data_seq);
+  long int_readblock_module_orb(
+	in long kind_of_readblock_module,
+	in long module_id,
+	in long start_channel,
+	in long end_channel,
+	out long module_status,
+	inout int_data_seq_t data_seq);
+  long int64_readblock_module_orb(
+	in long kind_of_readblock_module,
+	in long module_id,
+	in long start_channel,
+	in long end_channel,
+	out long module_status,
+	inout int64_data_seq_t data_seq);
+  long float_readblock_module_orb(
+	in long kind_of_readblock_module,
+	in long module_id,
+	in long start_channel,
+	in long end_channel,
+	out long module_status,
+	inout float_data_seq_t data_seq);
+  long double_readblock_module_orb(
+	in long kind_of_readblock_module,
+	in long module_id,
+	in long start_channel,
+	in long end_channel,
+	out long module_status,
+	inout double_data_seq_t data_seq);
+
+  // load block data for char, short, long or float
+  long char_loadblock_module_orb(
+	in long kind_of_loadblock_module,
+	in long module_id,
+	in long start_item,
+	in long end_item,
+	in long item_type,
+	out long module_status,
+	in char_data_seq_t data_seq);
+  long short_loadblock_module_orb(
+	in long kind_of_loadblock_module,
+	in long module_id,
+	in long start_item,
+	in long end_item,
+	in long item_type,
+	out long module_status,
+	in short_data_seq_t data_seq);
+  long int_loadblock_module_orb(
+	in long kind_of_loadblock_module,
+	in long module_id,
+	in long start_item,
+	in long end_item,
+	in long item_type,
+	out long module_status,
+	in int_data_seq_t data_seq);
+  long int64_loadblock_module_orb(
+	in long kind_of_loadblock_module,
+	in long module_id,
+	in long start_item,
+	in long end_item,
+	in long item_type,
+	out long module_status,
+	in int64_data_seq_t data_seq);
+  long float_loadblock_module_orb(
+	in long kind_of_loadblock_module,
+	in long module_id,
+	in long start_item,
+	in long end_item,
+	in long item_type,
+	out long module_status,
+	in float_data_seq_t data_seq);
+  long double_loadblock_module_orb(
+	in long kind_of_loadblock_module,
+	in long module_id,
+	in long start_item,
+	in long end_item,
+	in long item_type,
+	out long module_status,
+	in double_data_seq_t data_seq);
+
+  // read all modules (out replaced by inout)
+  long read_allmodules_orb(
+	in long kind_of_read_allmodules,
+	inout module_info_seq_t module_info_seq);
+};
+
+#endif
