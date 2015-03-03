@@ -76,7 +76,7 @@ class Poller(Device):
     def _worker_thread(self, devname, queue):
 
         def reconfigure_dev_target(key, value, time, oldvalues={}):  # pylint: disable=W0102
-            if value != oldvalues.get(key):
+            if value is not None:
                 queue.put('dev_target', False)
                 oldvalues[key] = value
 
