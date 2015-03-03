@@ -233,7 +233,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
             if name:
                 code.append('SetSample(%d, %r)' % (i + 1, name))
 
-        self.client.tell('queue', '', '\n'.join(code) + '\n')
+        self.client.run('\n'.join(code) + '\n')
 
         st = self.client.ask('getstatus')
         if st and st['requests']:

@@ -692,10 +692,10 @@ class NicosCmdClient(NicosClient):
                 if reply == 'x':
                     self.tell('exec', arg)
                 elif reply == 'q':
-                    self.tell('queue', '', arg)
+                    self.run(arg)
                     self.put_client('Command queued.')
             else:
-                self.tell('queue', '', arg)
+                self.run(arg)
         elif cmd in ('r', 'run', 'run!'):
             if not arg:
                 # since we remember the last edited file, we can offer
@@ -719,9 +719,9 @@ class NicosCmdClient(NicosClient):
                 if self.ask_question('A script is already running, '
                                      'queue script?', chars='yn',
                                      default='y') == 'y':
-                    self.tell('queue', fpath, code)
+                    self.run(code, fpath)
             else:
-                self.tell('queue', fpath, code)
+                self.run(code, fpath)
         elif cmd == 'update':
             if not arg:
                 # always take the current filename, if it still exists

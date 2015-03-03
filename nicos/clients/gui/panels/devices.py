@@ -517,7 +517,7 @@ class DevicesPanel(Panel):
             self.client.tell('exec', command)
             self._exec_reqno = None  # no request assigned to this command
         else:
-            self._exec_reqno = self.client.ask('queue', '', command)
+            self._exec_reqno = self.client.run(command)
 
     def plot_history(self, dev):
         if self.mainwindow.history_wintype:
@@ -727,7 +727,7 @@ class ControlDialog(QDialog):
 
     @qtsig('')
     def on_actionReference_triggered(self):
-        self.client.tell('queue', '', 'reference(%s)' % self.devname)
+        self.client.run('reference(%s)' % self.devname)
 
     @qtsig('')
     def on_actionFix_triggered(self):

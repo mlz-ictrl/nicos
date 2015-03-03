@@ -163,7 +163,7 @@ class CommandPanel(Panel):
     def on_commandInput_execRequested(self, script, action):
         if action == 'queue':
             self.mainwindow.action_start_time = time.time()
-            self.client.tell('queue', '', script)
+            self.client.run(script)
         else:
             self.client.tell('exec', script)
         self.commandInput.selectAll()

@@ -71,6 +71,7 @@ class NicosClient(object):
         self.disconnecting = False
         self.version = None
         self.gzip = False
+        self.last_reqno = None
 
         unique_id = to_utf8(str(time.time()) + str(os.getpid()))
         # spurious warning due to hashlib magic # pylint: disable=E1121
@@ -353,6 +354,11 @@ class NicosClient(object):
                 return data
         except (Exception, KeyboardInterrupt) as err:
             return self.handle_error(err)
+
+    def run(self, code, filename=None):
+        """Run a piece of code."""
+        self.last_reqno = self.ask('queue', filename or '', code)
+        return self.last_reqno
 
     def eval(self, expr, default=Ellipsis, stringify=False):
         """Evaluate a Python expression in the daemon's namespace and return the

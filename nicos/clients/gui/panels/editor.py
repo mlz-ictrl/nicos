@@ -627,7 +627,7 @@ class EditorPanel(Panel):
             if not self.askQuestion('A script is currently running, do you '
                                     'want to queue this script?', True):
                 return
-        self.client.tell('queue', self.filenames[self.currentEditor], script)
+        self.client.run(script, self.filenames[self.currentEditor])
 
     @qtsig('')
     def on_actionSimulate_triggered(self):

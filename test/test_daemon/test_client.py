@@ -97,7 +97,7 @@ def test_simple():
     client.tell('exec', 'NewSetup daemonmain')
 
     # queue
-    client.tell('queue', '', 'printinfo 1')
+    client.run('printinfo 1')
     time.sleep(0.05)
 
     # getstatus
@@ -110,8 +110,8 @@ def test_simple():
     assert status['requests'] == []                # no requests queued
 
     # queue/unqueue/emergency
-    client.tell('queue', '', 'sleep 0.1')
-    client.tell('queue', '', 'printinfo 2')
+    client.run('sleep 0.1')
+    client.run('printinfo 2')
     status = client.ask('getstatus')
     assert status['requests'][-1]['script'] == 'printinfo 2'
     assert status['requests'][-1]['user'] == 'user'
@@ -127,11 +127,11 @@ def test_simple():
 
 
 def test_encoding():
-    client.tell('queue', 'Meßzeit.py', '''\
+    client.run('''\
 # Kommentar: Meßzeit 1000s, d = 5 Å
 Remark("Meßzeit 1000s, d = 5 Å")
 scan(t_psi, 0, 0.1, 1, det, "Meßzeit 1000s, d = 5 Å")
-''')
+''', 'Meßzeit.py')
 
     # wait until command is done
     while True:

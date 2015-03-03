@@ -91,4 +91,4 @@ class ExpInfoPanel(Panel):
             'as a heading and will also appear in the data files.')
         if not ok or not remark:
             return
-        self.client.tell('queue', '', 'Remark(%r)' % remark)
+        self.client.run('Remark(%r)' % remark)

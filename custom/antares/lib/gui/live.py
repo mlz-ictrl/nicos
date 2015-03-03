@@ -163,9 +163,9 @@ class LiveDataPanel(Panel):
     def on_actionSetAsROI_triggered(self):
         zoom = self.widget.plot().getZoomer().zoomRect()
         # XXX this is detector specific!
-        self.client.tell('queue', '', 'det.setRelativeRoi(%s, %s, %s, %s)' %
-                         (int(zoom.left()), int(zoom.top()),
-                          int(zoom.right()), int(zoom.bottom())))
+        self.client.run('det.setRelativeRoi(%s, %s, %s, %s)' %
+                        (int(zoom.left()), int(zoom.top()),
+                         int(zoom.right()), int(zoom.bottom())))
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):

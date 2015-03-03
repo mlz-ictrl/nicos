@@ -114,7 +114,7 @@ class ExpPanel(Panel, DlgUtils):
 
     @qtsig('')
     def on_finishButton_clicked(self):
-        self.client.tell('queue', '', 'FinishExperiment()')
+        self.client.run('FinishExperiment()')
 
     @qtsig('')
     def on_queryDBButton_clicked(self):
@@ -200,25 +200,24 @@ class ExpPanel(Panel, DlgUtils):
                 args['user'] = users
             code = 'NewExperiment(%s)' % ', '.join('%s=%r' % i
                                                    for i in args.items())
-            self.client.tell('queue', '', code)
+            self.client.run(code)
             done.append('New experiment started.')
         else:
             if title != self._orig_proposal_info[1]:
-                self.client.tell('queue', '', 'Exp.title = %r' % title)
+                self.client.run('Exp.title = %r' % title)
                 done.append('New experiment title set.')
             if users != self._orig_proposal_info[2]:
-                self.client.tell('queue', '', 'Exp.users = %r' % users)
+                self.client.run('Exp.users = %r' % users)
                 done.append('New users set.')
             if local != self._orig_proposal_info[3]:
-                self.client.tell('queue', '', 'Exp.localcontact = %r' % local)
+                self.client.run('Exp.localcontact = %r' % local)
                 done.append('New local contact set.')
         sample = self.sampleName.text().encode('utf-8')
         if sample != self._orig_proposal_info[4]:
-            self.client.tell('queue', '', 'NewSample(%r)' % sample)
+            self.client.run('NewSample(%r)' % sample)
             done.append('New sample name set.')
         if email != self._orig_email:
-            self.client.tell('queue', '',
-                             'SetMailReceivers(%s)' % ', '.join(map(repr, email)))
+            self.client.run('SetMailReceivers(%s)' % ', '.join(map(repr, email)))
             done.append('New mail receivers set.')
 
         # tell user about everything we did
@@ -326,7 +325,7 @@ class SetupsPanel(Panel, DlgUtils):
 
     def on_buttonBox_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
-            self.client.tell('queue', '', 'NewSetup()')
+            self.client.run('NewSetup()')
             self.showInfo('Current setups reloaded.')
             # fall through to the close case
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
@@ -362,8 +361,7 @@ class SetupsPanel(Panel, DlgUtils):
         else:
             cmd = 'NewSetup'
         if setups:
-            self.client.tell('queue', '',
-                             '%s(%s)' % (cmd, ', '.join(map(repr, setups))))
+            self.client.run('%s(%s)' % (cmd, ', '.join(map(repr, setups))))
             self.showInfo('New setups loaded.')
 
 
@@ -419,16 +417,14 @@ class DetEnvPanel(Panel, DlgUtils):
         # detectors
         new_detlist = [item.text() for item in iterChecked(self.detectors)]
         if set(new_detlist) != set(self._orig_detlist):
-            self.client.tell('queue', '',
-                             'SetDetectors(%s)' % ', '.join(new_detlist))
+            self.client.run('SetDetectors(%s)' % ', '.join(new_detlist))
             done.append('New standard detectors applied.')
             self._orig_detlist = new_detlist
 
         # sample env
         new_envlist = [item.text() for item in iterChecked(self.sampleenv)]
         if set(new_envlist) != set(self._orig_envlist):
-            self.client.tell('queue', '',
-                             'SetEnvironment(%s)' % ', '.join(new_envlist))
+            self.client.run('SetEnvironment(%s)' % ', '.join(new_envlist))
             done.append('New standard environment devices applied.')
             self._orig_envlist = new_envlist
 
@@ -468,7 +464,7 @@ class GenericSamplePanel(Panel, DlgUtils):
             else:
                 code += 'Sample.%s = %r\n' % (edit.param, edit.getValue())
 
-        self.client.tell('queue', '', code.rstrip())
+        self.client.run(code.rstrip())
         self.showInfo('Sample parameters changed.')
 
 

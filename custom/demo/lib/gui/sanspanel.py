@@ -278,7 +278,7 @@ class SANSPanel(Panel):
             elif result[0] == 2:
                 action = 'execute'
         if action == 'queue':
-            self.client.tell('queue', '', script)
+            self.client.run(script)
             self.mainwindow.action_start_time = time.time()
         else:
             self.client.tell('exec', script)

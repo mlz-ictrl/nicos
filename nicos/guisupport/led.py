@@ -188,10 +188,8 @@ class ClickableOutputLed(ValueLed):
 
         if event.button() == Qt.LeftButton:
             if self.current == self._stateActive:
-                self._client.tell('queue', '', 'move(%s, %r)'
-                                  % (self.dev, self._stateInactive))
+                self._client.run('move(%s, %r)' % (self.dev, self._stateInactive))
             else:
-                self._client.tell('queue', '', 'move(%s, %r)'
-                                  % (self.dev, self._stateActive))
+                self._client.run('move(%s, %r)' % (self.dev, self._stateActive))
 
         event.accept()

@@ -253,9 +253,9 @@ class LiveDataPanel(Panel):
     @qtsig('')
     def on_actionSetAsROI_triggered(self):
         zoom = self.widget.GetPlot().GetZoomer().zoomRect()
-        self.client.tell('queue', '', 'psd.roi = (%s, %s, %s, %s)' %
-                         (int(zoom.left()), int(zoom.top()),
-                          int(zoom.right()), int(zoom.bottom())))
+        self.client.run('psd.roi = (%s, %s, %s, %s)' %
+                        (int(zoom.left()), int(zoom.top()),
+                         int(zoom.right()), int(zoom.bottom())))
 
     @qtsig('')
     def on_actionUnzoom_triggered(self):

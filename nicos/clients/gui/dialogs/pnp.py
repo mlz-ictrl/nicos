@@ -66,9 +66,9 @@ class PnPSetupQuestion(QMessageBox):
 
     def on_execute_clicked(self):
         if self.data[0] == 'added':
-            self.client.tell('queue', '', 'AddSetup(%r)' % self.data[1])
+            self.client.run('AddSetup(%r)' % self.data[1])
         else:
-            self.client.tell('queue', '', 'RemoveSetup(%r)' % self.data[1])
+            self.client.run('RemoveSetup(%r)' % self.data[1])
         self.emit(SIGNAL('closed'), self)
         self.accept()
 
