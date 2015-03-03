@@ -90,7 +90,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
         self._reinit()
 
     def _reinit(self, curvalue=None):
-        if not self._client:
+        if not self._client or not self._client.connected:
             return
         devname = str(self.props['dev'])
         if devname:
@@ -251,6 +251,8 @@ class AnnotatedWidget(QWidget):
         self._inner = inner
         self.connect(inner, SIGNAL('dataChanged'),
                      lambda: self.emit(SIGNAL('dataChanged')))
+        self.connect(inner, SIGNAL('valueChosen'),
+                     lambda val: self.emit(SIGNAL('valueChosen'), val))
         layout.addWidget(inner)
         layout.addWidget(QLabel(annotation, parent))
         self.setLayout(layout)
@@ -348,6 +350,8 @@ class EditWidget(QLineEdit):
             self.setText(str(curvalue))
         self.connect(self, SIGNAL('textChanged(const QString &)'),
                      lambda txt: self.emit(SIGNAL('dataChanged')))
+        self.connect(self, SIGNAL('returnPressed()'),
+                     lambda: self.emit(SIGNAL('valueChosen'), self.text()))
 
     def getValue(self):
         return self._typ(self.text())
