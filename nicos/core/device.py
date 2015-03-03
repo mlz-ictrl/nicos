@@ -1303,7 +1303,10 @@ class Moveable(Readable):
         if self._cache:
             self._cache.invalidate(self, 'value')
             self._cache.invalidate(self, 'status')
-            self._cache.invalidate(self, 'target')
+        if self.target == pos:
+            # if the target hasn't changed, make the poller receive the correct
+            # event in any case
+            self._setROParam('target', None)
         self._setROParam('target', pos)
         self.doStart(pos)
 
