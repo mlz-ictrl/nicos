@@ -24,17 +24,47 @@
 
 """NICOS GUI panel for generic panels made with Qt designer."""
 
+from logging import WARNING
+
+from PyQt4.QtCore import SIGNAL
+
 from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.guisupport.widget import NicosWidget
 
 
 class GenericPanel(Panel):
     panelName = 'Generic'  # XXX this is not unique
 
+    def __init__(self, parent, client):
+        Panel.__init__(self, parent, client)
+        self._error_window = None
+        self.connect(client, SIGNAL('connected'), self.on_client_connected)
+
     def setOptions(self, options):
         loadUi(self, findResource(options['uifile']))
+        if options.get('showmsg'):
+            self.connect(self.client, SIGNAL('message'), self.on_client_message)
 
+    def on_client_connected(self):
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)
+
+    def on_client_message(self, message):
+        # show warnings and errors emitted by the current command in a window
+        if len(message) < 7 or message[6] != self.client.last_reqno or \
+           message[2] < WARNING:
+            return
+        msg = '%s: %s' % (message[0], message[3].strip())
+        if self._error_window is None:
+            def reset_errorwindow():
+                self._error_window = None
+            self._error_window = ErrorDialog(self)
+            self._error_window.accepted.connect(reset_errorwindow)
+            self._error_window.addMessage(msg)
+            self._error_window.show()
+        else:
+            self._error_window.addMessage(msg)
+            self._error_window.activateWindow()
