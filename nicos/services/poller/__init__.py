@@ -43,7 +43,7 @@ from nicos.pycompat import listitems, queue as Queue
 
 
 POLL_MIN_VALID_TIME = 0.15  # latest time slot to poll before value times out due to maxage
-POLL_BUSY_INTERVAL = 1.0    # if dev is busy, poll this often
+POLL_BUSY_INTERVAL = 0.5    # if dev is busy, poll this often
 POLL_MIN_WAIT = 0.1         # minimum amount of time between two calls to poll()
 
 
