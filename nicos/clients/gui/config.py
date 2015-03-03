@@ -75,10 +75,11 @@ class tool(tuple):
         self.options = self[2]
 
 class gui_config(object):
-    def __init__(self, main_window, windows, tools):
+    def __init__(self, main_window, windows, tools, name):
         self.main_window = main_window
         self.windows = windows
         self.tools = tools
+        self.name = name
 
     def _has_panel(self, config, panel_classes):
         """Return True if the config contains a panel with the given class."""

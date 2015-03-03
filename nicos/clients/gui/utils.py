@@ -209,15 +209,21 @@ class DlgUtils(object):
 
 
 class SettingGroup(object):
+    global_group = ''
+
     def __init__(self, name):
         self.name = name
         self.settings = QSettings()
 
     def __enter__(self):
+        if self.global_group:
+            self.settings.beginGroup(self.global_group)
         self.settings.beginGroup(self.name)
         return self.settings
 
     def __exit__(self, *args):
+        if self.global_group:
+            self.settings.endGroup()
         self.settings.endGroup()
         self.settings.sync()
 

@@ -145,7 +145,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.mainwindow = self
 
         # setting presets
-        self.instrument = ''
+        self.instrument = self.gui_conf.name
 
         self.sgroup = SettingGroup('MainWindow')
         with self.sgroup as settings:
@@ -308,7 +308,7 @@ class MainWindow(QMainWindow, DlgUtils):
             self.connectionData['port']  = int(cdata[1])
             self.connectionData['login'] = str(cdata[2])
 
-        self.instrument = settings.value('instrument', '')
+        self.instrument = settings.value('instrument', self.gui_conf.name)
         self.confirmexit = settings.value('confirmexit', True, bool)
         self.showtrayicon = settings.value('showtrayicon', True, bool)
         self.autoreconnect = settings.value('autoreconnect', True, bool)
@@ -672,10 +672,12 @@ def main(argv):
         # backward compatibility
         gui_conf = gui_config(ns['config'][1][0],
                               ns['config'][1][1:],
-                              ns['config'][2])
+                              ns['config'][2], 'NICOS')
     else:
         gui_conf = gui_config(ns['main_window'], ns.get('windows', []),
-                              ns.get('tools', []))
+                              ns.get('tools', []), ns.get('name', 'NICOS'))
+    if gui_conf.name != 'NICOS':
+        SettingGroup.global_group = gui_conf.name
 
     stylefiles = [
         path.join(userpath, 'style-%s.qss' % sys.platform),
