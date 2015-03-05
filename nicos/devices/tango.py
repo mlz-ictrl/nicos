@@ -295,6 +295,7 @@ class Motor(CanReference, Actuator):
 
     def doReference(self):
         self._dev.Reference()
+        self.wait()
 
 
 class TemperatureController(Actuator):
