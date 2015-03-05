@@ -23,14 +23,16 @@
 #
 # *****************************************************************************
 
+from time import sleep
+
 import numpy
 
-from nicos.core import Value, waitForStatus
-from nicos.core.device import Measurable
+from nicos.core import Measurable, Value, status, waitForStatus
 from nicos.core.image import ImageProducer, ImageType
 from nicos.core.params import Param, Attach, oneof, dictof, tupleof
 from nicos.devices.polarized.flipper import BaseFlipper, ON
-from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod
+from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod, \
+    SeqSleep
 from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
 
 
@@ -98,9 +100,14 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
                                    numpy.uint32)
         self._dev.set_timeout_millis(10000)
 
+    def _hw_wait(self):
+        while PyTangoDevice.doStatus(self, 0)[0] == status.BUSY:
+            sleep(self._base_loop_delay)
+
     def _generateSequence(self, *args, **kwargs):
         seq = []
         seq.append(SeqMethod(self._dev, 'Clear'))
+        seq.append(SeqMethod(self, '_hw_wait'))
         self.log.debug("Detector cleared")
         seq.append(SeqMethod(self._dev, 'Start'))
         self.log.debug("Detector started")
@@ -108,6 +115,8 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         self.log.debug("Counter started")
         seq.append(SeqMethod(self._adevs['timer'], 'wait'))
         seq.append(SeqMethod(self._dev, 'Stop'))
+        seq.append(SeqSleep(0.2))
+        seq.append(SeqMethod(self, '_hw_wait'))
         return seq
 
     def doSetPreset(self, **preset):
@@ -195,6 +204,13 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         # get final data at end of measurement
         self.log.debug("Tof Detector read final image")
         return self.readImage()
+
+    # use the correct status (would inherit from PyTangoDevice otherwise)
+    def doStatus(self, maxage=0):  # pylint: disable=W0221
+        return MeasureSequencer.doStatus(self, maxage)
+
+    def doReset(self):
+        MeasureSequencer.doReset(self)
 
 
 class TofDetector(TofDetectorBase, FlipperPresets):
