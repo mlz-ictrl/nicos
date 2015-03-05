@@ -291,7 +291,7 @@ class Motor(CanReference, Actuator):
         return self._dev.decel
 
     def doWriteDecel(self, value):
-        self._dev.devel = value
+        self._dev.decel = value
 
     def doReference(self):
         self._dev.Reference()
