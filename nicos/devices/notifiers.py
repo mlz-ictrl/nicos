@@ -25,9 +25,10 @@
 """NICOS notification classes."""
 
 import subprocess
+from time import time as currenttime
 
 from nicos.core import Device, Param, listof, mailaddress, oneof, tupleof, \
-    usermethod
+    usermethod, floatrange
 from nicos.pycompat import text_type
 from nicos.utils import createThread
 from nicos.utils.emails import sendMail
@@ -43,7 +44,21 @@ class Notifier(Device):
         'minruntime': Param('Minimum runtime of a command before a failure '
                             'is sent over the notifier', type=float, unit='s',
                             default=300, settable=True),
+        'ratelimit':  Param('Minimum time between sending two notifications',
+                            default=60, type=floatrange(30), unit='s',
+                            settable=True),
     }
+
+    _lastsent = 0
+
+    def _checkRateLimit(self):
+        """Implement rate limiting."""
+        ct = currenttime()
+        if ct - self._lastsent < self.ratelimit:
+            self.log.info('rate limiting: not sending notification')
+            return False
+        self._lastsent = ct
+        return True
 
     @usermethod
     def send(self, subject, body, what=None, short=None, important=True):
@@ -100,6 +115,10 @@ class Mailer(Notifier):
             if not ret:  # on error, ret is a list of errors
                 self.log.info('%smail sent to %s' % (
                     what and what + ' ' or '', ', '.join(receivers)))
+            else:
+                self.log.warning('sending mail failed: %s' % ', '.join(ret))
+        if not self._checkRateLimit():
+            return
         createThread('mail sender', send)
 
 
@@ -157,6 +176,8 @@ class SMSer(Notifier):
             return
         receivers = self.receivers
         if not receivers:
+            return
+        if not self._checkRateLimit():
             return
         body = self.subject + ': ' + (short or body)
         body = self._transcode(body)[:160]
