@@ -38,8 +38,9 @@ from nicos.devices.tango import PyTangoDevice, \
     DEFAULT_STATUS_MAPPING as DEFAULT_MAP_TANGO_STATUS
 from nicos.devices.vendor.lima import Andor2LimaCCD
 from nicos.core.params import Attach, Param, Override, Value, oneof, tupleof
-from nicos.core.errors import NicosError, MoveError
-from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep
+from nicos.core.errors import NicosError, MoveError, InvalidValueError
+from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep, \
+    SeqMethod
 from nicos.core.image import ImageProducer, ImageType
 from nicos.biodiff.shutter import Shutter
 
@@ -261,6 +262,16 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
         self.imagetype = ImageType(ImagePlateDetector.MAP_SHAPE[self.pixelsize],
                                    numpy.uint16)
 
+    def _check_shutter(self):
+        if (self.ctrl_photoshutter
+            and self.photoshutter.read() == Shutter.CLOSED):
+            raise InvalidValueError(self, 'photo shutter not open after '
+                                    'exposure, check safety system')
+        if (self.ctrl_gammashutter
+            and self.gammashutter.read() == Shutter.CLOSED):
+            raise InvalidValueError(self, 'gamma shutter not open after '
+                                    'exposure, check safety system')
+
     def _generateSequence(self, expoTime, prepare=False, *args, **kwargs):
         seq = []
         if prepare:
@@ -281,6 +292,8 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
                 seq.append(SeqDev(self.photoshutter, Shutter.OPEN))
             # count
             seq.append(SeqSleep(expoTime, "counting for %fs" % expoTime))
+            # check if shutter closed during measurement
+            seq.append(SeqMethod(self, '_check_shutter'))
             # close shutter
             if self.ctrl_photoshutter:
                 seq.append(SeqDev(self.photoshutter, Shutter.CLOSED))
@@ -443,6 +456,16 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
     def doInit(self, mode):
         self.imagetype = self.ccd.imagetype
 
+    def _check_shutter(self):
+        if (self.ctrl_photoshutter
+            and self.photoshutter.read() == Shutter.CLOSED):
+            raise InvalidValueError(self, 'photo shutter not open after '
+                                    'exposure, check safety system')
+        if (self.ctrl_gammashutter
+            and self.gammashutter.read() == Shutter.CLOSED):
+            raise InvalidValueError(self, 'gamma shutter not open after '
+                                    'exposure, check safety system')
+
     def _generateSequence(self, *args, **kwargs):
         seq = []
         # open shutter
@@ -452,6 +475,8 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
             seq.append(SeqDev(self.photoshutter, Shutter.OPEN))
         # count
         seq.append(SeqDev(self.ccd))
+        # check if shutter closed during measurement
+        seq.append(SeqMethod(self, '_check_shutter'))
         # close shutter
         if self.ctrl_photoshutter:
             seq.append(SeqDev(self.photoshutter, Shutter.CLOSED))
