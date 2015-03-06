@@ -62,8 +62,8 @@ class PSLDetector(ImageProducer, Measurable):
         except IOError:
             self.log.warning('Error during init', exc=1)
             iwstr, ihstr = '2000', '1000'
-        self._params['imagewidth'] = int(iwstr)
-        self._params['imageheight'] = int(ihstr)
+        self._setROParam('imagewidth', int(iwstr))
+        self._setROParam('imageheight', int(ihstr))
         shape = (self.imagewidth, self.imageheight)
         self.imagetype = ImageType(shape, np.uint16)
 
@@ -73,11 +73,17 @@ class PSLDetector(ImageProducer, Measurable):
     def doStart(self):
         self._communicate('Snap')
 
+    _modemap = { 'I;16': '<u2',
+                 'I': '<u4',
+                 'F': '<f4',}
+
     def readFinalImage(self):
         (shape, data) = self._communicate('GetImage')
-        self._params['imagewidth'], self._params['imageheight'] = shape
+        mode = self._communicate('GetMode')
+        self._setROParam('imagewidth', shape[0])
+        self._setROParam('imageheight', shape[1])
         # default for detector 'I:16' mode
-        na = np.frombuffer(data, '<u2')
+        na = np.frombuffer(data, self._modemap[mode])
 
         na = na.reshape(shape)
         return na
