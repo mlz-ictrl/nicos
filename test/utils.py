@@ -320,6 +320,8 @@ def startCache(setup='cache', wait=5):
                 s.close()
                 break
         else:
+            cache.kill()
+            cache.wait()
             raise Exception('cache failed to start within %s sec' % wait)
     sys.stderr.write('%s ok]' % cache.pid)
     return cache
