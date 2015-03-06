@@ -301,7 +301,7 @@ def adjustPYTHONPATH():
         os.environ['PYTHONPATH'] = ':'.join(pythonpath)
 
 
-def startCache(setup='cache', wait=5):
+def startCache(setup='cache', wait=10):
     global cache  # pylint: disable=W0603,W0601
     sys.stderr.write('\n [cache start... ')
 
@@ -316,10 +316,17 @@ def startCache(setup='cache', wait=5):
                 s = tcpSocket('localhost', 14877)
             except socket.error:
                 time.sleep(0.02)
+            except Exception as e:
+                sys.stderr.write('%r' % e)
+                raise
             else:
                 s.close()
                 break
         else:
+            try:
+                sys.stderr.write('%s failed]' % cache.pid)
+            except Exception:
+                sys.stderr.write('process already dead')
             cache.kill()
             cache.wait()
             raise Exception('cache failed to start within %s sec' % wait)
