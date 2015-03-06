@@ -160,6 +160,8 @@ _column1 = Column(
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
                  Field(dev='CoolTemp', width=6, format='%.1f', unit=" "),
                  Field(dev='FAKTemp', width=6, format='%.1f', unit=' '),
+                 Field(dev='ar', name='PSD Ar', width=4, format='%.1f', unit=' '),
+                 Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7,)),
     ], 'reactor'),
 )
