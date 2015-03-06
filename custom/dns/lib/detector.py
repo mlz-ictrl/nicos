@@ -25,13 +25,13 @@
 
 import numpy
 
-from nicos.core import Value
+from nicos.core import Value, waitForStatus
 from nicos.core.device import Measurable
-from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
-from nicos.core.params import Param, Attach, oneof, dictof, tupleof
-from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod
 from nicos.core.image import ImageProducer, ImageType
+from nicos.core.params import Param, Attach, oneof, dictof, tupleof
 from nicos.devices.polarized.flipper import BaseFlipper, ON
+from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod
+from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
 
 
 T_TIME = 't'
@@ -154,7 +154,7 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         return dshape
 
     def doStart(self):
-        self.wait()
+        waitForStatus(self, errorstates=())
         self._startSequence(self._generateSequence())
 
     def doPause(self):

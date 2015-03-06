@@ -31,7 +31,7 @@ from PyTango import DevState
 # local library
 from nicos import session
 from nicos.utils import updateFileCounter
-from nicos.core import SIMULATION
+from nicos.core import SIMULATION, waitForStatus
 import nicos.core.status as status
 from nicos.core.device import Moveable, Measurable
 from nicos.devices.tango import PyTangoDevice, \
@@ -323,7 +323,7 @@ Retrying.""" % (action, exception))
         time.sleep(5)
 
     def doStart(self):
-        self.wait()
+        waitForStatus(self, errorstates=())
         expoTime = self._t if self._t is not None else self.exposure_time
         self._t = None
         self._startSequence(self._generateSequence(expoTime))
