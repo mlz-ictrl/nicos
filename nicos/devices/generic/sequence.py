@@ -121,7 +121,10 @@ class SeqDev(SequenceItem):
                 self.dev.name,
                 self._format_args_kwargs(self.args, self.kwargs),
                 self.dev.name)
-        return 'maw(%s, %s)' % (self.dev.name, ', '.join(map(repr, self.args)))
+        elif self.args:
+            return 'maw(%s, %s)' % (self.dev.name, ', '.join(map(repr, self.args)))
+        else:
+            return self.dev.name
 
 
 class SeqParam(SequenceItem):
