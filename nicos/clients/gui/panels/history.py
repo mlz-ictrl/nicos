@@ -455,9 +455,10 @@ class BaseHistoryWindow(object):
             self.plotLayout.addWidget(view.plot)
             self.actionAutoScale.setEnabled(view.plot.HAS_AUTOSCALE)
             if view.plot.HAS_AUTOSCALE:
-                view.plot.setAutoScale(True)
+                flag = view.yfrom is None and view.yto is None
+                view.plot.setAutoScale(flag)
                 view.plot.logYinDomain.connect(self.on_logYinDomain)
-                self.actionAutoScale.setChecked(True)
+                self.actionAutoScale.setChecked(flag)
             view.plot.show()
 
     @qtsig('')

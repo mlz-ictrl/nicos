@@ -165,6 +165,25 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             self._plot.viewport = (.1, .85, .18, .88)
             self._axes.setXtickCallback(self.xtickCallBack)
             self._plot.offsetXLabel = -.08
+
+        scale = self.yaxisScale()
+        if scale:
+            axes = self._plot.getAxes(0)
+            curwin = axes.getWindow()
+            if not curwin:
+                curwin = [0, 1, scale[0], scale[1]]
+                curves = axes.getCurves()
+                xmins = []
+                xmaxs = []
+                for c in curves:
+                    if c.visible:
+                        xmins.append(min(c.x))
+                        xmaxs.append(max(c.x))
+                if xmins and xmaxs:
+                    curwin[0] = min(xmins)
+                    curwin[1] = max(xmaxs)
+            self.setAutoScale(False)
+            axes.setWindow(curwin[0], curwin[1], scale[0], scale[1])
         InteractiveGRWidget.update(self)
 
     def isLegendEnabled(self):
