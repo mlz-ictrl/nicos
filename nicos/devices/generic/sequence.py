@@ -83,14 +83,6 @@ class SequenceItem(object):
     def stop(self):
         """Interrupts the action started by run()."""
 
-    def _format_args_kwargs(self, args, kwargs):
-        """Internal method.
-
-        Returns a string describing the given arg-tuple and kwargs dictionary.
-        """
-        return ', '.join(list(map(repr, args)) +
-                         ['%s=%r' % kv for kv in sorted(kwargs.items())])
-
 
 class SeqDev(SequenceItem):
     """Moves the given device to the given target and waits until it is there.
@@ -117,12 +109,12 @@ class SeqDev(SequenceItem):
 
     def __repr__(self):
         if self.kwargs:
-            return '%s.start(%s); %s.wait()' % (
-                self.dev.name,
-                self._format_args_kwargs(self.args, self.kwargs),
-                self.dev.name)
+            return '%s -> %s %s' % (
+                self.dev.name, ', '.join(map(repr, self.args)),
+                ', '.join('%s=%r' % v for v in self.kwargs.items()))
         elif self.args:
-            return 'maw(%s, %s)' % (self.dev.name, ', '.join(map(repr, self.args)))
+            return '%s -> %s' % (self.dev.name,
+                                 ', '.join(map(repr, self.args)))
         else:
             return self.dev.name
 
@@ -139,7 +131,7 @@ class SeqParam(SequenceItem):
                 self.paramname, self.dev, self.value))
 
     def __repr__(self):
-        return '%s.%s=%r' % (self.dev.name, self.paramname, self.value)
+        return '%s.%s -> %r' % (self.dev.name, self.paramname, self.value)
 
 
 class SeqMethod(SequenceItem):
@@ -164,8 +156,7 @@ class SeqMethod(SequenceItem):
             name = self.dev.name
         else:
             name = repr(self.dev)
-        return '%s.%s(%s)' % (name, self.method,
-                              self._format_args_kwargs(self.args, self.kwargs))
+        return '%s %s' % (name, self.method)
 
 
 class SeqCall(SequenceItem):
@@ -177,8 +168,7 @@ class SeqCall(SequenceItem):
         self.func(*self.args, **self.kwargs)
 
     def __repr__(self):
-        return '%s(%s)' % (self.func.__name__,
-                           self._format_args_kwargs(self.args, self.kwargs))
+        return '%s' % self.func.__name__
 
 
 class SeqSleep(SequenceItem):
@@ -209,10 +199,10 @@ class SeqSleep(SequenceItem):
     def __repr__(self):
         if self.endtime:
             # already started, __repr__ is used for updating status strings.
-            return 'waiting: ' + str(timedelta(seconds = round(self.endtime -
-                                                               currenttime())))
+            return 'waiting: ' + str(timedelta(
+                seconds=round(self.endtime - currenttime())))
         else:
-            return 'wait(%g)' % self.duration
+            return 'wait %g s' % self.duration
 
 
 class SeqNOP(SequenceItem):
@@ -225,7 +215,7 @@ class SeqNOP(SequenceItem):
         SequenceItem.__init__(self)
 
     def __repr__(self):
-        return 'NOP'  # any other NICOS-NOP ?
+        return '---'  # any other NICOS-NOP ?
 
 
 class SequencerMixin(DeviceMixinBase):
@@ -324,7 +314,7 @@ class SequencerMixin(DeviceMixinBase):
         try:
             self.log.debug('Performing Sequence of %d steps' % len(sequence))
             for i, step in enumerate(sequence):
-                self._set_seq_status(status.BUSY, '%d) starting actions: ' %
+                self._set_seq_status(status.BUSY, 'action %d: ' %
                                      (i + 1) + ';'.join(map(repr, step)))
                 # start all actions by calling run and if that fails, retry
                 for action in step:
@@ -350,7 +340,7 @@ class SequencerMixin(DeviceMixinBase):
                 waiters = set(step)
                 while waiters:
                     t = currenttime()
-                    self._set_seq_status(status.BUSY, '   waiting for: ' +
+                    self._set_seq_status(status.BUSY, 'waiting: ' +
                                          ';'.join(map(repr, waiters)))
                     for action in list(waiters):
                         try:
@@ -409,7 +399,7 @@ class SequencerMixin(DeviceMixinBase):
                 self._set_seq_status(status.OK, 'idle')
 
         except NicosError as e:
-            self._set_seq_status(status.ERROR, 'error %r upon ' % e +
+            self._set_seq_status(status.ERROR, 'error %s upon ' % e +
                                  self._seq_status[1])
             self.log.error(self._seq_status[1], exc=1)
         except Exception as e:

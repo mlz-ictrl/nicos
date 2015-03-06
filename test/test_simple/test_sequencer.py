@@ -67,7 +67,7 @@ def test_seqdev():
     # Device move
     sm1 = session.getDevice('sm1')
     sd = SeqDev(sm1, 3)
-    assert repr(sd) == 'maw(sm1, 3)'
+    assert repr(sd) == 'sm1 -> 3'
     sm1.start(0)
     sm1.wait()
     assert sm1.read(0) == 0
@@ -84,7 +84,6 @@ def test_seqparam():
     sm2 = session.getDevice('sm2')
     sp = SeqParam(sm2, 'speed', 1)
     assert 'sm2.speed' in repr(sp)
-    assert '=' in repr(sp)
     assert repr(sp).endswith('1')
 
     sm2.speed = 5
@@ -100,7 +99,7 @@ def test_seqmethod():
     # method calling, use fix/relase here
     sm1 = session.getDevice('sm1')
     sm = SeqMethod(sm1, 'fix', 'blubb')
-    assert repr(sm) == "sm1.fix('blubb')"
+    assert repr(sm) == "sm1 fix"
 
     assert sm1.fixed == ''
 
@@ -130,7 +129,7 @@ def test_seqsleep():
 def test_seqcall():
     # Calling
     sc = SeqCall(time.sleep, 0.1)
-    assert repr(sc).startswith('sleep(0.1')
+    assert repr(sc) == 'sleep'
     a = time.time()
     sc.check()
     sc.run()
