@@ -322,7 +322,10 @@ Retrying.""" % (action, exception))
             self._t = preset["t"]
 
     def doPrepare(self):
-        self.wait()
+        if self._seq_thread is not None:
+            raise MoveError(self, 'sequence is still running')
+        # reset sequence status
+        MeasureSequencer.doReset(self)
         self._startSequence(self._generateSequence(expoTime=False,
                                                    prepare=True))
         # workaround: insert short delay for status changes because waiting
@@ -465,6 +468,12 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
             and self.gammashutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
+
+    def doPrepare(self):
+        if self._seq_thread is not None:
+            raise MoveError(self, 'sequence is still running')
+        # reset sequence status
+        MeasureSequencer.doReset(self)
 
     def _generateSequence(self, *args, **kwargs):
         seq = []
