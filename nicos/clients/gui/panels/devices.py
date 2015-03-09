@@ -143,7 +143,7 @@ class DevicesPanel(Panel):
 
         # daemon request number of last command executed from this panel
         # (used to display messages from this command)
-        self._exec_reqno = None
+        self._exec_reqno = -1
         self._error_window = None
 
         if client.connected:
@@ -515,7 +515,7 @@ class DevicesPanel(Panel):
             command = 'CreateDevice(%r)\n' % needed_dev + command
         if immediate:
             self.client.tell('exec', command)
-            self._exec_reqno = None  # no request assigned to this command
+            self._exec_reqno = -1  # no request assigned to this command
         else:
             self._exec_reqno = self.client.run(command)
 
