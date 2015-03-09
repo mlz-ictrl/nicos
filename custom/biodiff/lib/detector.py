@@ -512,6 +512,9 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         else:
             ImageProducer.doSave(self, exception)
 
+    def valueInfo(self):
+        return Value(self.name + ".file", type="info", fmtstr="%s"),
+
     # -- act as a proxy class for ImageProducer calls ----------------------
     def doReadLastfilename(self):
         return self.ccd.lastfilename
