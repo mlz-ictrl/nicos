@@ -348,36 +348,37 @@ Retrying.""" % (action, exception))
 
     def readFinalImage(self):
         narray = None
-        timeout = self._dev.get_timeout_millis()
-        self._dev.set_timeout_millis(self.readout_millis)
+        timeout = self.drum._dev.get_timeout_millis()
+        self.drum._dev.set_timeout_millis(self.readout_millis)
         try:
-            narray = self._dev.Bitmap16Bit
+            narray = self.drum._dev.Bitmap16Bit
         finally:
-            self._dev.set_timeout_millis(timeout)
+            self.drum._dev.set_timeout_millis(timeout)
         return narray
 
     def doReadRoi(self):
-        return (0, self._dev.InterestZoneY, 1250, self._dev.InterestZoneH)
+        return (0, self.drum._dev.InterestZoneY, 1250,
+                self.drum._dev.InterestZoneH)
 
     def doReadPixelsize(self):
-        return self._dev.PixelSize
+        return self.drum._dev.PixelSize
 
     def doReadFile(self):
-        return self._dev.ImageFile
+        return self.drum._dev.ImageFile
 
     def doWriteRoi(self, value):
         self.log.warning("setting x offset and width are not supported "
                          "- ignored.")
-        self._dev.InterestZoneY = value[1]
-        self._dev.InterestZoneH = value[3]
+        self.drum._dev.InterestZoneY = value[1]
+        self.drum._dev.InterestZoneH = value[3]
 
     def doWritePixelsize(self, value):
-        self._dev.PixelSize = value
+        self.drum._dev.PixelSize = value
         self.imagetype = ImageType(ImagePlateDetector.MAP_SHAPE[value],
                                    numpy.uint16)
 
     def doWriteFile(self, value):
-        self._dev.ImageFile = value
+        self.drum._dev.ImageFile = value
 
 
 class Andor2LimaCCDFPGA(Andor2LimaCCD):
