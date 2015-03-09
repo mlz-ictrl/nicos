@@ -13,10 +13,12 @@ devices = dict(
                                    description = "Sample stepper omega variant"
                                                  " (micro)",
                                    motor = "omega_samplestepper",
+                                   precision = 0.001,
                                   ),
     omega_sampletable_m = device("biodiff.motor.MicrostepMotor",
                                  description = "Sample table omega variant "
                                                "(micro)",
                                  motor = "omega_sampletable",
+                                 precision = 0.001,
                                 ),
 )
