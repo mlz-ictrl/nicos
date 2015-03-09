@@ -344,10 +344,21 @@ Retrying.""" % (action, exception))
     def doRead(self, maxage=0):
         return self.lastfilename
 
+    def doStop(self):
+        # TODO: reduce code duplication
+        self.log.debug('Stopping image plate')
+        MeasureSequencer.doStop(self)
+        try:
+            self._seq_thread.join()
+        except AttributeError:
+            pass
+        self.drum.stop()
+
     def valueInfo(self):
         return Value(self.name + ".file", type="info", fmtstr="%s"),
 
     def doSave(self, exception=False):
+        # TODO: reduce code duplication
         if exception:
             exp = session.experiment
             if self._mode != SIMULATION:
@@ -494,6 +505,16 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         if self.ctrl_gammashutter:
             seq.append(SeqDev(self.gammashutter, Shutter.CLOSED))
         return seq
+
+    def doStop(self):
+        # TODO: reduce code duplication
+        self.log.debug('Stopping CCD')
+        MeasureSequencer.doStop(self)
+        try:
+            self._seq_thread.join()
+        except AttributeError:
+            pass
+        self.ccd.stop()
 
     def doSave(self, exception=False):
         # TODO: reduce code duplication

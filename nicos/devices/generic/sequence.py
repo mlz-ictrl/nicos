@@ -104,8 +104,8 @@ class SeqDev(SequenceItem):
         # dont wait on fixed devices
         if hasattr(self.dev, 'fixed') and self.dev.fixed:
             return True
-        self.dev.wait()
-        return True
+        time.sleep(0.1)
+        return self.dev.isCompleted()
 
     def __repr__(self):
         if self.kwargs:
