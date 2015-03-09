@@ -263,6 +263,7 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
                                    numpy.uint16)
 
     def _check_shutter(self):
+        # TODO: reduce code duplication
         if (self.ctrl_photoshutter
             and self.photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
@@ -460,6 +461,7 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         self.imagetype = self.ccd.imagetype
 
     def _check_shutter(self):
+        # TODO: reduce code duplication
         if (self.ctrl_photoshutter
             and self.photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
@@ -492,6 +494,23 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         if self.ctrl_gammashutter:
             seq.append(SeqDev(self.gammashutter, Shutter.CLOSED))
         return seq
+
+    def doSave(self, exception=False):
+        # TODO: reduce code duplication
+        if exception:
+            exp = session.experiment
+            if self._mode != SIMULATION:
+                lastimagepath = os.path.join(exp.proposalpath, exp.lastimagefile)
+                if (os.path.isfile(lastimagepath)
+                    and os.path.getsize(lastimagepath) == 0):
+                    self.log.debug("Remove empty file: %s" % exp.lastimagefile)
+                    os.unlink(lastimagepath)
+                updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
+            else:
+                # only in sim-mode, see nicos.devices.experiment.Experiment
+                exp._lastimage = (exp._lastimage or exp.lastimage) - 1
+        else:
+            ImageProducer.doSave(self, exception)
 
     # -- act as a proxy class for ImageProducer calls ----------------------
     def doReadLastfilename(self):
