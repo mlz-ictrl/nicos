@@ -115,7 +115,7 @@ def test_seqmethod():
 def test_seqsleep():
     # Sleeping??
     sw = SeqSleep(0.1)
-    assert repr(sw).startswith('wait')
+    assert repr(sw).startswith('0.1')
     a = time.time()
     sw.check()
     sw.run()

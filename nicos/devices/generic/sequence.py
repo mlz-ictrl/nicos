@@ -199,10 +199,10 @@ class SeqSleep(SequenceItem):
     def __repr__(self):
         if self.endtime:
             # already started, __repr__ is used for updating status strings.
-            return 'waiting: ' + str(timedelta(
+            return str(timedelta(
                 seconds=round(self.endtime - currenttime())))
         else:
-            return 'wait %g s' % self.duration
+            return '%g s' % self.duration
 
 
 class SeqNOP(SequenceItem):
