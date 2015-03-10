@@ -129,10 +129,10 @@ class Experiment(BaseExperiment):
                     kwds['user'] += ', ' + ', '.join(proplist)
                     what.append('co-proposers')
         # requested/assigned local contact
-        if info.get('local_contact', '-1') != '-1' \
-                and not kwds.get('localcontact'):
-            kwds['localcontact'] = info['local_contact'].replace('.', ' ')
-            what.append('local contact')
+        #if info.get('local_contact', '-1') != '-1' \
+        #        and not kwds.get('localcontact'):
+        #    kwds['localcontact'] = info['local_contact'].replace('.', ' ')
+        #    what.append('local contact')
         # requested sample environment
         v = []
         for k in 'cryo furnace magnet pressure'.split():
