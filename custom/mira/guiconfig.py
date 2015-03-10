@@ -78,9 +78,7 @@ tools = [
          url='http://mira2.mira.frm2:8080/'),
     tool('Phone database',
          'nicos.clients.gui.tools.website.WebsiteTool',
-         url='http://www.frm2.tum.de/intern/funktionen/phonedb/index.html'),
-    tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
-#    tool('Report NICOS bug',
-#         'nicos.clients.gui.tools.website.WebsiteTool',
-#         url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+         url='http://www.mlz-garching.de/ueber-mlz/telefonverzeichnis.html'),
+    tool('Report NICOS bug or request enhancement',
+         'bugreport.BugreportTool'),
 ]
