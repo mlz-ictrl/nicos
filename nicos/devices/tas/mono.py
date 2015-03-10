@@ -30,7 +30,7 @@ from time import time
 
 from nicos.core import Attach, ComputationError, HasLimits, HasPrecision, \
     LimitError, Moveable, Override, Param, ProgrammingError, listof, multiReset, \
-    multiStatus, oneof, status
+    multiStatus, oneof, status, MASTER, SIMULATION
 
 
 THZ2MEV = 4.1356675
@@ -312,6 +312,9 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
     def doUpdateUnit(self, value):
         if 'unit' not in self._params:
             # this is the initial update
+            return
+        if self._mode not in (MASTER, SIMULATION):
+            # change limits only from the master copy, or in simulation mode
             return
         new_absmin = from_k(to_k(self.abslimits[0], self.unit), value)
         new_absmax = from_k(to_k(self.abslimits[1], self.unit), value)
