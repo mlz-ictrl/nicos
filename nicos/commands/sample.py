@@ -40,7 +40,7 @@ from nicos.pycompat import urllib
 from nicos.utils.fitting import Fit
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
 
-ACTIVATIONURL = 'https://www.frm2.tum.de/intranet/activation/'
+ACTIVATIONURL = 'https://webapps.frm2.tum.de/intranet/activation/'
 
 
 @usercommand
