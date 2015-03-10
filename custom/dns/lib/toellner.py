@@ -88,7 +88,7 @@ class Toellner(HasTimeout, HasPrecision, AnalogOutput):
         polval = self._adevs['polchange'].read()
         target = self.target
         if self._set_field_polarity(value):
-            polval = 1 if value < 0 else 0
+            polval = '-' if value < 0 else '+'
             self._setROParam("target", 0)
             self._write_value(0, fromvarcheck=False)
             self._adevs['polchange'].start(polval)
