@@ -30,7 +30,7 @@ _column1 = Column(
         BlockRow('m2fv', Field(dev='atten1', width=4),
                  Field(dev='atten2', width=4), Field(dev='flip2', width=4)),
         BlockRow(Field(dev='lamfilter', width=4),
-                 Field(dev='TBe', width=6), #Field(dev='PBe', width=7),
+                 Field(dev='TBe', width=6), Field(dev='PBe', width=7),
                  Field(dev='Pccr', width=7)),
         BlockRow(Field(dev='ms2pos', width=4),
                  Field(dev='ms2', name='Mono slit 2 (ms2)', width=20, istext=True)),
@@ -94,7 +94,6 @@ _column3 = Column(
     ], 'diff'),
     Block('TAS', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
-
                  Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
                  Field(name='L', dev='mira', item=2, format='%.3f', unit=' '),
                  Field(name='E', dev='mira', item=3, format='%.3f', unit=' ')),
