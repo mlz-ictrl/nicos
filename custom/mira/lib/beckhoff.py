@@ -27,12 +27,46 @@
 from Modbus import Modbus
 
 from nicos.core import Param, listof
-from nicos.devices.taco.io import DigitalOutput as BaseDigitalOutput, \
-    NamedDigitalOutput as BaseNamedDigitalOutput
+from nicos.devices.taco import io
 from nicos.core import SIMULATION
 
 
-class DigitalOutput(BaseDigitalOutput):
+class DigitalInput(io.DigitalInput):
+    """Device object for a 1-bit digital input device via a Beckhoff modbus
+    interface.
+    """
+
+    taco_class = Modbus
+    valuetype = int
+
+    parameters = {
+        'offset': Param('Offset of digital input',
+                        type=int, mandatory=True),
+    }
+
+    def doRead(self, maxage=0):
+        return self._taco_guard(self._dev.readDiscreteInputs, (0, self.offset, 1))[0]
+
+
+class NamedDigitalInput(io.NamedDigitalInput):
+    """Device object for a 1-bit digital input device via a Beckhoff modbus
+    interface.
+    """
+
+    taco_class = Modbus
+    valuetype = int
+
+    parameters = {
+        'offset': Param('Offset of digital input',
+                        type=int, mandatory=True),
+    }
+
+    def doRead(self, maxage=0):
+        value = self._taco_guard(self._dev.readDiscreteInputs, (0, self.offset, 1))[0]
+        return self._reverse.get(value, value)
+
+
+class DigitalOutput(io.DigitalOutput):
     """Device object for a digital output device via a Beckhoff modbus
     interface.
 
@@ -76,7 +110,7 @@ class DigitalOutput(BaseDigitalOutput):
         return '[' + ', '.join(['%s'] * self.bitwidth) + ']'
 
 
-class NamedDigitalOutput(BaseNamedDigitalOutput):
+class NamedDigitalOutput(io.NamedDigitalOutput):
     """Device object for a digital output device via a Beckhoff modbus
     interface.
 
