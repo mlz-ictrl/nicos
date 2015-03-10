@@ -138,6 +138,14 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             gr.text(x, y, svalue)
         gr.setcharup(0., 1.)
 
+    def setAutoScaleFlags(self, xflag, yflag):
+        mask = 0x0
+        if xflag:
+            mask |= PlotAxes.SCALE_X
+        if yflag:
+            mask |= PlotAxes.SCALE_Y
+        self.setAutoScale(mask)
+
     def setFonts(self, font, bold, larger):
         pass  # not implemented
 
@@ -182,7 +190,6 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
                 if xmins and xmaxs:
                     curwin[0] = min(xmins)
                     curwin[1] = max(xmaxs)
-            self.setAutoScale(False)
             axes.setWindow(curwin[0], curwin[1], scale[0], scale[1])
         InteractiveGRWidget.update(self)
 

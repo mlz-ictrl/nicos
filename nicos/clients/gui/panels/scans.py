@@ -163,18 +163,33 @@ class ScansPanel(Panel):
         self.setplots.clear()
         return True
 
+    def _autoscale(self, x=None, y=None):
+        xflag = x if x is not None else self.actionScaleX.isChecked()
+        yflag = y if y is not None else self.actionScaleY.isChecked()
+        if self.currentPlot:
+            self.currentPlot.setAutoScaleFlags(xflag, yflag)
+            self.actionAutoScale.setChecked(xflag or yflag)
+            self.actionScaleX.setChecked(xflag)
+            self.actionScaleY.setChecked(yflag)
+            self.currentPlot.update()
+
     def enablePlotActions(self, on):
         for action in [
             self.actionSavePlot, self.actionPrint,
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
             self.actionDeletePlot, self.actionLogScale, self.actionAutoScale,
+            self.actionScaleX, self.actionScaleY,
             self.actionXAxis, self.actionNormalized,
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
             self.actionFitArby,
         ]:
             action.setEnabled(on)
-        self.actionAutoScale.setEnabled(on and self.currentPlot.HAS_AUTOSCALE)
+
+    def enableAutoScaleActions(self, on):
+        for action in [self.actionAutoScale, self.actionScaleX,
+                       self.actionScaleY]:
+            action.setEnabled(on)
 
     def getMenus(self):
         if not self.menus:
@@ -194,6 +209,8 @@ class ScansPanel(Panel):
             menu1.addAction(self.actionUnzoom)
             menu1.addAction(self.actionLogScale)
             menu1.addAction(self.actionAutoScale)
+            menu1.addAction(self.actionScaleX)
+            menu1.addAction(self.actionScaleY)
             menu1.addAction(self.actionLegend)
             menu1.addSeparator()
             menu2 = QMenu('Data &manipulation', self)
@@ -220,7 +237,10 @@ class ScansPanel(Panel):
             bar.addSeparator()
             bar.addAction(self.actionLogScale)
             bar.addAction(self.actionUnzoom)
+            bar.addSeparator()
             bar.addAction(self.actionAutoScale)
+            bar.addAction(self.actionScaleX)
+            bar.addAction(self.actionScaleY)
             bar.addAction(self.actionLegend)
             bar.addAction(self.actionResetPlot)
             bar.addAction(self.actionDeletePlot)
@@ -260,6 +280,7 @@ class ScansPanel(Panel):
 
     def openDataset(self, uid):
         dataset = self.data.uid2set[uid]
+        newplot = None
         if dataset.uid not in self.setplots:
             newplot = DataSetPlot(self.plotFrame, self, dataset)
             if self.currentPlot:
@@ -267,10 +288,10 @@ class ScansPanel(Panel):
             self.setplots[dataset.uid] = newplot
         self.datasetList.setCurrentItem(self.setitems[uid])
         plot = self.setplots[dataset.uid]
-        self.actionAutoScale.setEnabled(plot.HAS_AUTOSCALE)
-        if plot.HAS_AUTOSCALE:
-            plot.setAutoScale(True)
-            self.actionAutoScale.setChecked(True)
+        self.enableAutoScaleActions(plot.HAS_AUTOSCALE)
+        if newplot and plot.HAS_AUTOSCALE:
+            from gr.pygr import PlotAxes
+            plot.plot.autoscale = PlotAxes.SCALE_X | PlotAxes.SCALE_Y
         self.setCurrentDataset(plot)
 
     def setCurrentDataset(self, plot):
@@ -286,6 +307,7 @@ class ScansPanel(Panel):
             self.setUidStack.append(plot.dataset.uid)
 
             self.enablePlotActions(True)
+            self.enableAutoScaleActions(self.currentPlot.HAS_AUTOSCALE)
             self.datasetList.setCurrentItem(self.setitems[plot.dataset.uid])
 
             self.actionXAxis.setText('X axis: %s' % plot.current_xname)
@@ -294,7 +316,10 @@ class ScansPanel(Panel):
             self.actionLogScale.setChecked(plot.isLogScaling())
             self.actionLegend.setChecked(plot.isLegendEnabled())
             if plot.HAS_AUTOSCALE:
-                self.actionAutoScale.setChecked(plot.plot.autoscale)
+                from gr.pygr import PlotAxes
+                mask = plot.plot.autoscale
+                self._autoscale(x=mask & PlotAxes.SCALE_X,
+                                y=mask & PlotAxes.SCALE_Y)
                 plot.logYinDomain.connect(self.on_logYinDomain)
             self.plotLayout.addWidget(plot)
             plot.show()
@@ -420,9 +445,15 @@ class ScansPanel(Panel):
 
     @qtsig('bool')
     def on_actionAutoScale_toggled(self, on):
-        if self.currentPlot:
-            self.currentPlot.setAutoScale(on)
-            self.currentPlot.update()
+        self._autoscale(on, on)
+
+    @qtsig('bool')
+    def on_actionScaleX_toggled(self, on):
+        self._autoscale(x=on)
+
+    @qtsig('bool')
+    def on_actionScaleY_toggled(self, on):
+        self._autoscale(y=on)
 
     def on_x_menu_aboutToShow(self):
         self.x_menu.clear()

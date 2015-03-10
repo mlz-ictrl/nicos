@@ -305,15 +305,30 @@ class BaseHistoryWindow(object):
         # overridden in the Panel
         pass
 
+    def _autoscale(self, x=None, y=None):
+        xflag = x if x is not None else self.actionScaleX.isChecked()
+        yflag = y if y is not None else self.actionScaleY.isChecked()
+        if self.currentPlot:
+            self.currentPlot.setAutoScaleFlags(xflag, yflag)
+            self.actionAutoScale.setChecked(xflag or yflag)
+            self.actionScaleX.setChecked(xflag)
+            self.actionScaleY.setChecked(yflag)
+            self.currentPlot.update()
+
     def enablePlotActions(self, on):
         for action in [
             self.actionSavePlot, self.actionPrint, self.actionAttachElog,
-            self.actionSaveData, self.actionAutoScale,
-            self.actionEditView, self.actionCloseView, self.actionDeleteView,
-            self.actionResetView,
-            self.actionUnzoom, self.actionLogScale, self.actionLegend,
-            self.actionSymbols, self.actionLines, self.actionLinearFit,
+            self.actionSaveData, self.actionAutoScale, self.actionScaleX,
+            self.actionScaleY, self.actionEditView, self.actionCloseView,
+            self.actionDeleteView, self.actionResetView, self.actionUnzoom,
+            self.actionLogScale, self.actionLegend, self.actionSymbols,
+            self.actionLines, self.actionLinearFit,
         ]:
+            action.setEnabled(on)
+
+    def enableAutoScaleActions(self, on):
+        for action in [self.actionAutoScale, self.actionScaleX,
+                       self.actionScaleY]:
             action.setEnabled(on)
 
     def on_viewList_currentItemChanged(self, item, previous):
@@ -432,6 +447,7 @@ class BaseHistoryWindow(object):
         self.setCurrentView(view)
 
     def setCurrentView(self, view):
+        newView = False
         if self.currentPlot:
             self.plotLayout.removeWidget(self.currentPlot)
             self.currentPlot.hide()
@@ -443,22 +459,28 @@ class BaseHistoryWindow(object):
             try:
                 self.viewStack.remove(view)
             except ValueError:
-                pass
+                newView = True
             self.viewStack.append(view)
 
             self.enablePlotActions(True)
+            self.enableAutoScaleActions(view.plot.HAS_AUTOSCALE)
             self.viewList.setCurrentItem(view.listitem)
             self.actionLogScale.setChecked(view.plot.isLogScaling())
             self.actionLegend.setChecked(view.plot.isLegendEnabled())
             self.actionSymbols.setChecked(view.plot.hasSymbols)
             self.actionLines.setChecked(view.plot.hasLines)
             self.plotLayout.addWidget(view.plot)
-            self.actionAutoScale.setEnabled(view.plot.HAS_AUTOSCALE)
             if view.plot.HAS_AUTOSCALE:
-                flag = view.yfrom is None and view.yto is None
-                view.plot.setAutoScale(flag)
+                from gr.pygr import PlotAxes
+                if newView:
+                    mask = PlotAxes.SCALE_X | PlotAxes.SCALE_Y
+                else:
+                    mask = view.plot.plot.autoscale
+                if view.yfrom and view.yto:
+                    mask &= ~PlotAxes.SCALE_Y
+                self._autoscale(x=mask & PlotAxes.SCALE_X,
+                                y=mask & PlotAxes.SCALE_Y)
                 view.plot.logYinDomain.connect(self.on_logYinDomain)
-                self.actionAutoScale.setChecked(flag)
             view.plot.show()
 
     @qtsig('')
@@ -476,6 +498,8 @@ class BaseHistoryWindow(object):
         self.clearView(view)
         self.setCurrentView(None)
         self._createViewFromDialog(info)
+        if view.plot.HAS_AUTOSCALE:
+            self._autoscale(True, False)
 
     @qtsig('')
     def on_actionCloseView_triggered(self):
@@ -594,6 +618,8 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         menu.addSeparator()
         menu.addAction(self.actionLogScale)
         menu.addAction(self.actionAutoScale)
+        menu.addAction(self.actionScaleX)
+        menu.addAction(self.actionScaleY)
         menu.addAction(self.actionUnzoom)
         menu.addAction(self.actionLegend)
         menu.addAction(self.actionSymbols)
@@ -643,7 +669,10 @@ class HistoryPanel(Panel, BaseHistoryWindow):
             bar.addSeparator()
             bar.addAction(self.actionUnzoom)
             bar.addAction(self.actionLogScale)
+            bar.addSeparator()
             bar.addAction(self.actionAutoScale)
+            bar.addAction(self.actionScaleX)
+            bar.addAction(self.actionScaleY)
             bar.addSeparator()
             bar.addAction(self.actionResetView)
             bar.addAction(self.actionDeleteView)
@@ -720,10 +749,15 @@ class HistoryPanel(Panel, BaseHistoryWindow):
 
     @qtsig('bool')
     def on_actionAutoScale_toggled(self, on):
-        if self.currentPlot:
-            self.currentPlot.setAutoScale(on)
-            self.currentPlot.update()
+        self._autoscale(on, on)
 
+    @qtsig('bool')
+    def on_actionScaleX_toggled(self, on):
+        self._autoscale(x=on)
+
+    @qtsig('bool')
+    def on_actionScaleY_toggled(self, on):
+        self._autoscale(y=on)
 
 class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 

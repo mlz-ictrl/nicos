@@ -286,6 +286,28 @@
     <string>&amp;X axis</string>
    </property>
   </action>
+  <action name="actionScaleX">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>X</string>
+   </property>
+   <property name="toolTip">
+    <string>Automatic scaling in x direction</string>
+   </property>
+  </action>
+  <action name="actionScaleY">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Y</string>
+   </property>
+   <property name="toolTip">
+    <string>Automatic scaling in y direction</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
