@@ -102,10 +102,10 @@ devices = dict(
 
     Shutter   = device('mira.shutter.Shutter',
                        description = 'MIRA shutter position',
-                       tacodevice = '//mirasrv/mira/io/shutteropen',
-                       pollinterval = 1,
-                       output = '//mirasrv/mira/io/closeshutter',
-                       mapping = {'closed': 0, 'open': 1},
+                       tacodevice = '//mirasrv/mira/modbus/beckhoff2',
+                       openoffset = 8,
+                       closeoffset = 9,
+                       switchoffset = 0,
                        warnlimits = ('open', 'open'),
                       ),
 

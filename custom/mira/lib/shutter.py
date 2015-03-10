@@ -26,28 +26,52 @@
 
 import time
 
-import IO
+import Modbus
 
-from nicos.core import usermethod, tacodev, Param, ModeError
-from nicos.devices.taco.io import NamedDigitalInput
+from nicos.core import usermethod, Param, ModeError, Readable, status
+from nicos.devices.taco.io import TacoDevice
 from nicos.core import SIMULATION, SLAVE
 
 
-class Shutter(NamedDigitalInput):
+class Shutter(TacoDevice, Readable):
     """
     Class for readout of the MIRA shutter via digital input card, and closing
     the shutter via digital output (tied into Pilz security system).
     """
 
+    taco_class = Modbus.Modbus
+    valuetype = str
+
     parameters = {
-        'output': Param('The output for closing the shutter',
-                        type=tacodev, mandatory=True),
+        'openoffset':   Param('The bit offset for the "shutter open" input',
+                              type=int, mandatory=True),
+        'closeoffset':  Param('The bit offset for the "shutter closed" input',
+                              type=int, mandatory=True),
+        'switchoffset': Param('The bit offset for the "close shutter" output',
+                              type=int, mandatory=True),
     }
 
     def doInit(self, mode):
-        NamedDigitalInput.doInit(self, mode)
+        # switch off watchdog, important before doing any write access
         if mode != SIMULATION:
-            self._outdev = self._create_client(self.output, IO.DigitalOutput)
+            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
+
+    def doStatus(self, maxage=0):
+        is_open = self._taco_guard(self._dev.readDiscreteInputs, (0, self.openoffset, 1))[0]
+        is_clsd = self._taco_guard(self._dev.readDiscreteInputs, (0, self.closeoffset, 1))[0]
+        if is_open + is_clsd == 1:
+            return status.OK, ''
+        else:
+            return status.BUSY, 'moving'
+
+    def doRead(self, maxage=0):
+        is_open = self._taco_guard(self._dev.readDiscreteInputs, (0, self.openoffset, 1))[0]
+        is_clsd = self._taco_guard(self._dev.readDiscreteInputs, (0, self.closeoffset, 1))[0]
+        if is_open and not is_clsd:
+            return 'open'
+        elif is_clsd and not is_open:
+            return 'closed'
+        return ''
 
     @usermethod
     def close(self):
@@ -55,7 +79,7 @@ class Shutter(NamedDigitalInput):
             raise ModeError(self, 'closing shutter not allowed in slave mode')
         elif self._sim_active:
             return
-        self._taco_guard(self._outdev.write, 1)
+        self._taco_guard(self._dev.writeSingleCoil, (0, self.switchoffset, 1))
         time.sleep(0.5)
-        self._taco_guard(self._outdev.write, 0)
+        self._taco_guard(self._dev.writeSingleCoil, (0, self.switchoffset, 0))
         self.log.info('instrument shutter closed')
