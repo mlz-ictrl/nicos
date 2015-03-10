@@ -260,10 +260,12 @@ class HelpGenerator(object):
             if cls in listed:
                 return
             listed.add(cls)
-            for name, (args, doc) in sorted(iteritems(cls.commands)):
-                ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
-                           (escape_html(dev.name + '.' + name + args), cls.__name__,
-                            escape_html(doc)))
+            for name, (args, doc, fromtype, is_usermethod) in sorted(iteritems(cls.methods)):
+                if is_usermethod and fromtype is cls:
+                    ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
+                               (escape_html(dev.name + '.' + name + args),
+                                cls.__name__,
+                                escape_html(doc)))
             for base in cls.__bases__:
                 if issubclass(base, Device):
                     _list(base)

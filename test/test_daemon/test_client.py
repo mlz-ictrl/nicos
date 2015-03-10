@@ -156,6 +156,15 @@ def test_htmlhelp():
             break
     else:
         assert False, 'help request not arrived'
+    client.tell('exec', 'help t_phi')
+    time.sleep(0.1)
+    for sig in client._signals:
+        if sig[0] == 'showhelp' and sig[1][0] == 'dev:t_phi':
+            # default help page is the index page
+            assert sig[1][1].startswith('<html>')
+            break
+    else:
+        assert False, 'help request not arrived'
 
 
 def test_simulation():
