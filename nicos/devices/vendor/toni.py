@@ -111,9 +111,13 @@ class Valve(Moveable):
                                      'two strings for closed/open state')
         self.valuetype = oneof(*self.states)
 
+    def _hw_wait(self):
+        while self.doStatus()[0] == status.BUSY:
+            sleep(self._base_loop_delay)
+
     def doStart(self, value):
         value = self.states.index(value)
-        self.wait()
+        self._hw_wait()
         msg = '%s=%02x' % (value and 'O' or 'C', 1 << self.channel)
         self._adevs['bus'].communicate(msg, self.addr, expect_ok=True)
         self._started = currenttime()
