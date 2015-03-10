@@ -26,7 +26,7 @@
 
 from nicos.core import Readable, Override, NicosError, status
 
-URL = 'http://www.meteo.physik.uni-muenchen.de/mesomikro/garstat/messung.php'
+URL = 'http://www.meteo.physik.uni-muenchen.de/DokuWiki/doku.php?id=wetter:garching:neu'
 
 try:
     from lxml.html import parse
@@ -49,7 +49,7 @@ class Temp(Readable):
                              'installed on this system')
         try:
             tree = parse(URL)
-            return float(tree.find('//tr[3]/td[4]/span').text[:-2].strip())
+            return float(tree.find('//tr[3]/td[4]').text[:-2].strip())
         except Exception as err:
             raise NicosError(self, 'Meteo site not responding or changed format: '
                              '%s' % err)
