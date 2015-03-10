@@ -185,7 +185,7 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         res = array[start:end+1]
         tval = self._adevs['timer'].read()
         mval = self._adevs['monitor'].read()
-        return [tval, mval] + res
+        return tval + mval + res
 
     def valueInfo(self):
         start, end = self.readchannels
