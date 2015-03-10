@@ -67,6 +67,6 @@ tools = [
     tool('Neutron cross-sections', 'website.WebsiteTool',
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
     tool('Neutron activation', 'website.WebsiteTool',
-         url='http://www.frm2.tum.de/intranet/activation/'),
+         url='https://webapps.frm2.tum.de/intranet/activation/'),
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
 ]

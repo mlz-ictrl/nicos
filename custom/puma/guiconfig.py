@@ -73,10 +73,10 @@ config = ('Default', [
              url='http://www.ncnr.nist.gov/resources/n-lengths/'),
         tool('Neutron activation',
              'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/activation/'),
+             url='https://webapps.frm2.tum.de/intranet/activation/'),
         tool('Neutron calculations',
              'nicos.clients.gui.tools.website.WebsiteTool',
-             url='http://www.frm2.tum.de/intranet/neutroncalc/'),
+             url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
         tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
     ]
 )
