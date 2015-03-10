@@ -152,68 +152,77 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def printstatusinfo(self):
         bus = self._adevs['bus']
-        def m(s):
-            return '\x1b[7m'+s+'\x1b[0m'
-        #define a little helper
-        def f(value, nonzero, zero):
-            return nonzero if value else zero
-        b20 = bus.read('byte', 20); self.log.info('### Byte 20 = ' + bin(b20))
-        self.log.info('Steuerspannung: \t\t%s'                %f(b20 & 0x01, 'an', m('aus')))
-        self.log.info('Not-Aus: \t\t%s'                       %f(b20 & 0x02, m('gedrueckt'), 'Ok'))
-        self.log.info('Fernbedienung: \t\t%s'                 %f(b20 & 0x04, 'an', 'aus'))
-        self.log.info('Wartungsmodus: \t\t%s'                 %f(b20 & 0x08, m('an'), 'aus'))
-        self.log.info('Vor-Ortbedienung: \t%s'              %f(b20 & 0x10, 'an', 'aus'))
-        self.log.info('Sammelfehler: \t\t%s'                  %f(b20 & 0x20, m('an'), 'aus'))
-        self.log.info('MTT (Ebene) dreht \t%s'              %f(b20 & 0x40, m('!'), 'nicht.'))
-        self.log.info('Motor ausgeschwenkt:\t%s'            %f(b20 & 0x80, 'Ja', 'Nein'))
 
-        b21 = bus.read('byte', 21); self.log.info('### Byte 21 = ' + bin(b21))
-        self.log.info('Mobilblockarm dreht \t%s'            %f(b21 & 0x01, m('!'), 'nicht.'))
-        self.log.info('     Magnet: \t\t%s'                   %f(b21 & 0x02, 'an', 'aus'))
-        self.log.info('     Klinke cw: \t\t%s'                %f(b21 & 0x04, 'an', 'aus'))
-        self.log.info('     Klinke ccw: \t%s'               %f(b21 & 0x08, 'an', 'aus'))
-        self.log.info('     Endschalter cw: \t%s'           %f(b21 & 0x10, 'an', 'aus'))
-        self.log.info('     Endschalter ccw: \t%s'          %f(b21 & 0x20, 'an', 'aus'))
-        self.log.info('     Notendschalter cw: \t%s'        %f(b21 & 0x40, m('an'), 'aus'))
-        self.log.info('     Notendschalter ccw:\t%s'       %f(b21 & 0x80, m('an'), 'aus'))
+        #        Bit-Beschreibung                  Sollwert  Name an/aus
+        bit_desc = {
+            20: [
+                ('Steuerspannung',                   True,  'an', 'aus'),
+                ('Not-Aus',                          False, 'gedrueckt', 'ok'),
+                ('Fernbedienung',                    None,  'an', 'aus'),
+                ('Wartungsmodus',                    False, 'an', 'aus'),
+                ('Vor-Ortbedienung',                 None,  'an', 'aus'),
+                ('Sammelfehler',                     False, 'an', 'aus'),
+                ('MTT (Ebene) dreht',                False, '!',  'nicht'),
+                ('Motor ausgeschwenkt',              None,  'ja', 'nein'),
+            ],
+            21: [
+                ('Mobilblockarm dreht',              False, '!',  'nicht'),
+                ('    Magnet:',                      None,  'gedrueckt', 'ok'),
+                ('    Klinke cw:,',                  None,  'an', 'aus'),
+                ('    Klinke ccw:',                  None,  'an', 'aus'),
+                ('    Endschalter cw:',              None,  'an', 'aus'),
+                ('    Endschalter ccw:',             None,  'an', 'aus'),
+                ('    Notendschalter cw:',           False, 'an', 'aus'),
+                ('    Notendschalter ccw:',          False, 'an', 'aus'),
+            ],
+            22: [
+                ('        Referenz:',                None,  'an', 'aus'),
+                ('        0deg:',                    None,  'ja', 'nein'),
+                ('    Endschalter Klinke cw:',       None,  'an', 'aus'),
+                ('    Endschalter Klinke ccw:',      None,  'an', 'aus'),
+                ('        Arm faehrt:',              None,  'ja', 'nein'),
+                ('Strahlenleck cw:',                 False, 'ja', 'nein'),
+                ('Max MB-Wechsel cw:',               False, 'ja', 'nein'),
+                ('Min MB-Wechsel cw:',               False, 'ja', 'nein'),
+            ],
+            23: [
+                ('MB vor Fenster cw:',               False, 'ja', 'nein'),
+                ('MB vor Fenster ccw:',              False, 'ja', 'nein'),
+                ('Min MB-Wechsel ccw:',              None,  'ja', 'nein'),
+                ('Max MB-Wechsel ccw:',              None,  'ja', 'nein'),
+                ('Strahlenleck ccw:',                False, 'ja', 'nein'),
+                ('Freigabe Bewegung intern:',        None,  'ja', 'nein'),
+                ('Freigabe extern ueberbrueckt:',    None,  'ja', 'nein'),
+                ('Freigabe extern:',                 None,  'ja', 'nein'),
+            ],
+            24: [
+                ('Endschalter MB-Ebene cw:',         None,  'ja', 'nein'),
+                ('NotEndschalter MB-Ebene cw:',      False, 'ja', 'nein'),
+                ('Endschalter MB-Ebene ccw:',        None,  'ja', 'nein'),
+                ('NotEndschalter MB-Ebene ccw:',     False, 'ja', 'nein'),
+                ('Referenzschalter MB-Ebene:',       None,  'ja', 'nein'),
+                ('NC Fehler:',                       False, 'ja', 'nein'),
+                ('Sollwert erreicht:',               None,  'ja', 'nein'),
+                ('reserviert, offiziell ungenutzt',  False, '1',  '0')
+            ]
+        }
 
-        b22 = bus.read('byte', 22); self.log.info('### Byte 22 = ' + bin(b22))
-        self.log.info('        Referenz: \t\t%s'              %f(b22 & 0x01, 'an', 'aus'))
-        self.log.info('        0deg: \t\t\t%s'                  %f(b22 & 0x02, 'Ja', 'Nein'))
-        self.log.info('    Endschalter Klinke cw: \t%s'     %f(b22 & 0x04, 'an', 'aus'))
-        self.log.info('    Endschalter Klinke ccw: \t%s'    %f(b22 & 0x08, 'an', 'aus'))
-        self.log.info('        Arm faehrt: \t\t%s'            %f(b22 & 0x10, 'Ja', 'Nein'))
-        self.log.info('Strahlenleck cw: \t\t%s'               %f(b22 & 0x20, m('Ja'), 'Nein'))
-        self.log.info('Max MB-Wechsel cw: \t\t%s'             %f(b22 & 0x40, m('Ja'), 'Nein'))
-        self.log.info('Min MB-Wechsel cw: \t\t%s'             %f(b22 & 0x80, m('Ja'), 'Nein'))
-
-        b23 = bus.read('byte', 23); self.log.info('### Byte 23 = ' + bin(b23))
-        self.log.info('MB vor Fenster cw:               %s' %f(b23 & 0x01, m('Ja'), 'Nein'))
-        self.log.info('MB vor Fenster ccw:              %s' %f(b23 & 0x02, m('Ja'), 'Nein'))
-        self.log.info('Max MB-Wechsel cw:               %s' %f(b23 & 0x04, 'Ja', 'Nein'))
-        self.log.info('Min MB-Wechsel cw:               %s' %f(b23 & 0x08, 'Ja', 'Nein'))
-        self.log.info('Strahlenleck ccw:                %s' %f(b22 & 0x20, m('Ja'), 'Nein'))
-        self.log.info('Freigabe Bewegung intern:        %s' %f(b23 & 0x20, 'Ja', 'Nein'))
-        self.log.info('Freigabe extern überbrückt:      %s' %f(b23 & 0x40, 'Ja', 'Nein'))
-        self.log.info('Freigabe extern:                 %s' %f(b23 & 0x80, 'Ja', 'Nein'))
-
-        b24 = bus.read('byte', 24); self.log.info('### Byte 24 = ' + bin(b24))
-        self.log.info('Endschalter MB-Ebene cw:         %s' %f(b24 & 0x01, 'Ja', 'Nein'))
-        self.log.info('NotEndschalter MB-Ebene cw:      %s' %f(b24 & 0x02, m('Ja'), 'Nein'))
-        self.log.info('Endschalter MB-Ebene ccw:        %s' %f(b24 & 0x04, 'Ja', 'Nein'))
-        self.log.info('NotEndschalter MB-Ebene ccw:     %s' %f(b24 & 0x08, m('Ja'), 'Nein'))
-        self.log.info('Referenzschalter MB-Ebene:       %s' %f(b24 & 0x10, 'Ja', 'Nein'))
-        self.log.info('NC Fehler:                       %s' %f(b24 & 0x20, m('Ja'), 'Nein'))
-        self.log.info('Sollwert erreicht:               %s' %f(b24 & 0x40, 'Ja', 'Nein'))
-        self.log.info('reserviert, offiziell ungenutzt: %s' %f(b24 & 0x80, m('1'), '0'))
+        for bnum in range(20, 25):
+            byte = bus.read('byte', bnum)
+            self.log.info('### Byte %d = ' % bnum + bin(byte))
+            for i, (name, soll, don, doff) in enumerate(bit_desc[bnum]):
+                logger = self.log.info
+                if soll is not None and bool(byte & (1 << i)) != soll:
+                    logger = self.log.warning
+                logger('%-35s %s' % (name, don if byte & (1 << i) else doff))
 
         nc_err = bus.read('byte', 19) + 256 * bus.read('byte', 18)
         nc_err_flag = bus.read('bit', 24, 5)
         sps_err = bus.read('byte', 27) + 256 * bus.read('byte', 26)
         if nc_err_flag:
-            self.log.info(m('NC-Error:')+ ' '+hex(nc_err))
-        if sps_err != 0:
-            self.log.info(m('SPS-Error:')+' '+hex(sps_err))
+            self.log.warning('NC-Error: ' + hex(nc_err))
+        if sps_err:
+            self.log.warning('SPS-Error: ' + hex(sps_err))
 
     def doStatus(self, maxage=0):
         return self._doStatus()
