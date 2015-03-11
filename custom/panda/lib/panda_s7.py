@@ -24,7 +24,7 @@
 
 """PANDA S7 Interface for NICOS."""
 
-from time import sleep
+from time import sleep, time as currenttime
 
 from nicos.core import status, oneof, Device, Param, Override, NicosError, \
     ProgrammingError, MoveError, HasTimeout
@@ -120,7 +120,10 @@ class S7Motor(HasTimeout, NicosMotor):
         'bus': (S7Bus, 'S7 communication bus'),
     }
 
+    _last_warning = 0
+
     def doReset(self):
+        self._ack()
         self.doStop()
         self.doStop()
         self.doStop()
@@ -229,8 +232,13 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def _ack( self ):
         ''' acks a sps/Nc error '''
-        self.log.info('Acknowledging SPS-ERROR')
         bus = self._adevs['bus']
+        sps_err = bus.read('byte', 27) + 256 * bus.read('byte', 26)
+        if not(sps_err):
+            # nothing to do
+            return
+        self._last_warning = 0
+        self.log.info('Acknowledging SPS-ERROR')
         bus.write(1, 'bit', 0, 3)      # Stopbit setzen
         bus.write(1, 'bit', 2, 2)      # set ACK-Bit
         sleep(0.5)
@@ -271,9 +279,11 @@ class S7Motor(HasTimeout, NicosMotor):
 
         # XXX HACK !!!  better repair hardware !!!
         if (nc_err != 0) or (nc_err_flag != 0) or (sps_err != 0):
-            self.log.warning('SPS-ERROR: '+hex(sps_err)+ ', NC-ERROR: '+hex(nc_err)+', NC_ERR_FLAG: %d'%nc_err_flag)
+            if self._last_warning + 15 < currenttime():
+                self.log.warning('SPS-ERROR: '+hex(sps_err)+ ', NC-ERROR: '+hex(nc_err)+', NC_ERR_FLAG: %d'%nc_err_flag)
+                self._last_warning = currenttime()
             if sps_err in [ 0x1]:     # only 'allow' certain values to be ok for autoreset
-                return status.OK,'NC-Problem, MTT not moving anymore -> retry next round of positioning...'
+                return status.ERROR,'NC-Problem, MTT not moving anymore -> retry next round of positioning...'
             else:       # other values give real errors....
                 return status.ERROR,'NC-ERROR, check with mtt._printstatusinfo() !'
             #~ return status.ERROR,'NC-ERROR, check with mtt._printstatusinfo() !'
