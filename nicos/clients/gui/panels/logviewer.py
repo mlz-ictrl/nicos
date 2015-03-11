@@ -25,12 +25,14 @@
 """NICOS GUI log viewer panel with simple filter options."""
 
 import os.path
+from cgi import escape
 
 import PyQt4.QtGui  # pylint: disable=W0611
 from PyQt4.QtCore import QDateTime, pyqtSlot
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, DlgUtils
+
 
 class LogViewerPanel(Panel, DlgUtils):
     panelName = 'Log viewer'
@@ -154,7 +156,7 @@ class LogViewerPanel(Panel, DlgUtils):
             lastLevel = ''
 
             for line in f:
-                # split line to:
+                # split line into:
                 # time, level, service, msg
                 parts = [part.strip() for part in line.split(' : ')]
 
@@ -187,15 +189,14 @@ class LogViewerPanel(Panel, DlgUtils):
 
         return ''.join(result)
 
+    STYLES = {
+        'DEBUG':   'color: darkgray',
+        'WARNING': 'color: fuchsia',
+        'ERROR':   'color: red; font-weight: bold',
+    }
+
     def _colorizeLevel(self, line, level):
-        style = {
-            'DEBUG' : 'color:darkgray',
-            'WARNING' : 'color:fuchsia',
-            'ERROR' : 'color:red; font-weight: bold;',
-        }
-
-        return '<span style="%s">%s</span>' % (style.get(level, ''),
-                                                      line)
-
-
-
+        style = self.STYLES.get(level, '')
+        if style:
+            return '<span style="%s">%s</span>' % (style, escape(line))
+        return escape(line)
