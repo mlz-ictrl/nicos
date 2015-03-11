@@ -55,7 +55,7 @@ class RScan(Scan):
             Scan.moveTo(self, position, wait)
 
     def preparePoint(self, num, xvalues):
-        if num > 0: # skip starting point, because of range scan (0..1, ...)
+        if num > 0:  # skip starting point, because of range scan (0..1, ...)
             Scan.preparePoint(self, num, xvalues)
             # Open Shutters before movement of scan devices (e.g. motor).
             # Just for RScan because movement and counting should be done
@@ -69,12 +69,6 @@ class RScan(Scan):
                         where.append((det.photoshutter, Shutter.OPEN))
             if where:
                 self.moveDevices(where)
-        else:
-            if self.dataset.npoints == 0:
-                session.beginActionScope('Point %d' % num)
-            else:
-                session.beginActionScope('Point %d/%d' % (num,
-                                                          self.dataset.npoints))
 
 
 def _fixType(dev, args, mkpos):
