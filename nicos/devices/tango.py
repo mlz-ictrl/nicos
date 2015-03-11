@@ -32,7 +32,7 @@ FRM-II/JCNS TANGO interface for the respective device classes.
 import PyTango
 
 from nicos.core import Param, Override, status, Readable, Moveable, HasLimits, \
-    Device, tangodev, HasCommunication, oneof, dictof, intrange, \
+    Device, tangodev, HasCommunication, oneofdict, dictof, intrange, \
     NicosError, CommunicationError, ConfigurationError
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
@@ -422,8 +422,9 @@ class NamedDigitalOutput(DigitalOutput):
 
     def doInit(self, mode):
         self._reverse = dict((v, k) for (k, v) in self.mapping.items())
-        self.valuetype = oneof(*(list(self.mapping.keys()) +
-                                 list(self.mapping.values())))
+        # oneofdict: allows both types of values (string/int), but normalizes
+        # them into the string form
+        self.valuetype = oneofdict(self._reverse)
 
     def doStart(self, target):
         value = self.mapping.get(target, target)
