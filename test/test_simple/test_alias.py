@@ -63,6 +63,8 @@ def test_alias_dev():
     # "alias" is a chatty property, so it should emit something when changed
     assert session.testhandler.emits_message(setattr, alias, 'alias', v1)
     # check delegation of methods etc.
+    assert isinstance(alias, type(v1))
+    assert type(alias) != type(v1)
     assert v1.read() == alias.read()
     # check attribute access
     alias.speed = 5.1
