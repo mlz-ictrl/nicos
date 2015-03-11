@@ -147,6 +147,18 @@
     <string>Plot history</string>
    </property>
   </action>
+  <action name="actionShutDown">
+   <property name="icon">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
+     <normaloff>:/remove</normaloff>:/remove</iconset>
+   </property>
+   <property name="text">
+    <string>Shut down</string>
+   </property>
+   <property name="toolTip">
+    <string>Shut down the device</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

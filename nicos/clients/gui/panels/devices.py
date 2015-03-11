@@ -126,6 +126,7 @@ class DevicesPanel(Panel):
         self.devmenu.addSeparator()
         self.devmenu.addAction(self.actionPlotHistory)
         self.devmenu.addSeparator()
+        self.devmenu.addAction(self.actionShutDown)
         self.devmenu.addAction(self.actionHelp)
 
         self.devmenu_ro = QMenu(self)
@@ -134,6 +135,7 @@ class DevicesPanel(Panel):
         self.devmenu_ro.addSeparator()
         self.devmenu_ro.addAction(self.actionPlotHistory)
         self.devmenu_ro.addSeparator()
+        self.devmenu_ro.addAction(self.actionShutDown)
         self.devmenu_ro.addAction(self.actionHelp)
 
         self._menu_dev = None   # device for which context menu is shown
@@ -442,6 +444,14 @@ class DevicesPanel(Panel):
             item.setHidden(not any(not item.child(i).isHidden()
                                    for i in range(item.childCount())))
             it += 1
+
+    @qtsig('')
+    def on_actionShutDown_triggered(self):
+        if self._menu_dev:
+            if self.askQuestion('This will unload the device until the setup '
+                                'is loaded again. Proceed?'):
+                self.exec_command('RemoveDevice(%s)' % self._menu_dev,
+                                  self._menu_dev)
 
     @qtsig('')
     def on_actionReset_triggered(self):
