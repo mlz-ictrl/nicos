@@ -47,7 +47,7 @@ class RScan(Scan):
         if wait:
             # movement and counting separate
             # do not use software based micro stepping
-            where = [(dev._adevs["motor"], pos) if type(dev) == MicrostepMotor
+            where = [(dev._adevs["motor"], pos) if isinstance(dev, MicrostepMotor)
                      else (dev, pos)
                      for dev, pos in zip(self._devices, position)]
             self.moveDevices(where, wait)
@@ -62,7 +62,7 @@ class RScan(Scan):
             # simultaneous.
             where = []
             for det in self._detlist:
-                if type(det) in (ImagePlateDetector, Andor2LimaCCDDetector):
+                if isinstance(det, (ImagePlateDetector, Andor2LimaCCDDetector)):
                     if det.ctrl_gammashutter:
                         where.append((det.gammashutter, Shutter.OPEN))
                     if det.ctrl_photoshutter:
