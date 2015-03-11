@@ -337,8 +337,10 @@ class EditWidget(QLineEdit):
         if typ is float:
             val = QDoubleValidator(self)
             if minmax:
-                val.setRange(minmax[0], minmax[1]
-                             if minmax[1] is not None else float('inf'))
+                # setRange doesn't work correctly in some Qt versions...
+                val.setBottom(minmax[0])
+                if minmax[1] is not None:
+                    val.setTop(minmax[1])
             self.setValidator(val)
             self.setText(fmtstr % curvalue)
         elif typ is int:
