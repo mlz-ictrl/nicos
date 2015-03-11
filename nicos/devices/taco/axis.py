@@ -230,5 +230,9 @@ class HoveringAxis(SequencerMixin, Axis):
             return
         self._startSequence(self._generateSequence(target))
 
+    def doStop(self):
+        # stop only the axis, but the sequence has to run through
+        Axis.doStop(self)
+
     def doTime(self, start, end):
         return Axis.doTime(self, start, end) + self.startdelay + self.stopdelay
