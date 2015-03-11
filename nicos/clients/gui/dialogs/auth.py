@@ -77,7 +77,7 @@ class ConnectionDialog(QDialog):
         QDialog.__init__(self, parent)
         loadUi(self, 'auth.ui', 'dialogs')
         self.connpresets = connpresets
-        if type(lastpreset) == QPyNullVariant:
+        if isinstance(lastpreset, QPyNullVariant):
             lastpreset = None
 
         pal = self.quickList.palette()
