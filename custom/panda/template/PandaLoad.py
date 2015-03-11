@@ -66,18 +66,18 @@ def plot(*args, **kwargs):
     # parse args and sort possible label
     myargs = []
     for a in args:
-        if type(a) == NicosData:
+        if isinstance(a, NicosData):
             myargs.append(a)
-        elif type(a) in (list, tuple):
+        elif isinstance(a, (list, tuple)):
             for i in a:
                 myargs.append(i)
         else:
             myargs.append(a)
     scans = []
     for i in myargs:
-        if type(i) == NicosData:  # got a scan
+        if isinstance(i, NicosData):  # got a scan
             scans.append([i, '#%d' % i.number])
-        elif type(i) == str:   # got a label
+        elif isinstance(i, str):   # got a label
             if len(scans) == 0:
                 raise UsageError('Please put a scan before assigning a label')
             scans[-1][1] += ', ' + i
@@ -91,9 +91,9 @@ def plot(*args, **kwargs):
         raise UsageError('too many keyword arguments given I don\' understand:\n'
             ', '.join(kwargs.keys()))
     # evaluate pars
-    if pars != None and type(pars) == str:       # single par -> make tuple
+    if pars != None and isinstance(pars, str):       # single par -> make tuple
         pars = (pars, )
-    if type(pars) in (list, tuple):      # more than one!
+    if isinstance(pars, (list, tuple)):      # more than one!
         # check that we understand the string (it must be a valid attr for all scans)
         for i, (s, l) in enumerate(scans):
             for p in pars:
@@ -127,7 +127,7 @@ def MakeMap(*args, **kwargs):
         scans = args[0]
     else:
         scans = args
-    if not type(scans) in [list, tuple]:
+    if not isinstance(scans,(list, tuple)):
         scans = [scans]   # may be a single scan was given......
     points = kwargs.pop('points', 33)
     clim = kwargs.pop('clim', kwargs.pop('zlim', None))
@@ -192,7 +192,7 @@ def MakeMap(*args, **kwargs):
         for i in ticks(clim[0], clim[1], 2):
             if i in contourlines:
                 lw[contourlines.index(i)] = 1.5
-    elif type(lw) not in (tuple, list):
+    elif not isinstance(lw, (tuple, list)):
         lw = [lw] * len(contourlines)      # default linewidth is given
     # otherwise use given values...
 
@@ -274,7 +274,7 @@ class Mapping(object):
             scans = args[0]
         else:
             scans = args
-        if not type(scans) in [list, tuple]:
+        if not isinstance(scans, (list, tuple)):
             scans = [scans]   # may be a single scan was given......
         self.scans = scans
         self.points = [kwargs.pop('points', 20)] * 2 #default 'resolution'
@@ -395,7 +395,7 @@ class NicosData(dict):
     def __delattr__(self, name):
         del self[name]
     def join(self, other):
-        if type(other) in [tuple, list]:
+        if isinstance(other, (tuple, list)):
             for o in other:
                 self.join(o)
             return
@@ -416,7 +416,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
     '''
     if filenum != -1:
         # if we got more than one filenum, iterate and return a set of scans
-        if type(filenum) in [list, tuple]:
+        if isinstance(filenum, (list, tuple)):
             r = []
             for fn in filenum:
                 try:
@@ -753,7 +753,7 @@ def PandaLoad(filename):
                                 else: # now store data into the object
                                     for i in range(self.columns):
                                         l = self.colnames[i]
-                                        if l != ';' and type(self.__dict__[l])  != list:
+                                        if l != ';' and not isinstance(self.__dict__[l], list):
                                             self.__dict__[l] = [] # on first line we prepare the element to hold the data
                                         try:
                                             v = line[i]
