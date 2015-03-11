@@ -349,9 +349,9 @@ def prepareData(x, y, dy, norm):
     Returns x, y and dy arrays, where dy can also be None.
     """
     # make arrays
-    x = np.asarray(x)
-    y = np.asarray(y, float)
-    dy = np.asarray(dy, float)
+    x = np.array(x)
+    y = np.array(y, float)
+    dy = np.array(dy, float)
     # normalize
     if norm is not None:
         norm = np.asarray(norm, float)
