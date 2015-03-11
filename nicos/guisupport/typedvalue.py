@@ -352,7 +352,8 @@ class EditWidget(QLineEdit):
         self.connect(self, SIGNAL('textChanged(const QString &)'),
                      lambda txt: self.emit(SIGNAL('dataChanged')))
         self.connect(self, SIGNAL('returnPressed()'),
-                     lambda: self.emit(SIGNAL('valueChosen'), self.text()))
+                     lambda: self.emit(SIGNAL('valueChosen'),
+                                       self._typ(self.text())))
 
     def getValue(self):
         return self._typ(self.text())
