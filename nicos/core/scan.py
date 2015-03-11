@@ -25,6 +25,7 @@
 """Scan classes for NICOS."""
 
 from time import sleep, time as currenttime
+from contextlib import contextmanager
 
 from nicos import session
 from nicos.core import status
@@ -114,8 +115,20 @@ class Scan(object):
             npoints = 0
         self.dataset.npoints = npoints
 
+    @contextmanager
+    def pointScope(self, num):
+        if self.dataset.npoints == 0:
+            session.beginActionScope('Point %d' % num)
+        else:
+            session.beginActionScope('Point %d/%d' % (num,
+                                                      self.dataset.npoints))
+        try:
+            yield
+        finally:
+            session.endActionScope()
+
     def prepareScan(self, positions):
-        session.beginActionScope('%s (moving to start)' % self.shortDesc())
+        session.beginActionScope('Moving to start')
         try:
             # the move-before devices
             if self._firstmoves:
@@ -159,15 +172,8 @@ class Scan(object):
             for imageinfo in dataset.imageinfos:
                 imageinfo.header[catinfo] = bycategory[catname]
         session.elogEvent('scanbegin', dataset)
-        session.beginActionScope(self.shortDesc())
 
     def preparePoint(self, num, xvalues):
-        # called before moving to current scanpoint
-        if self.dataset.npoints == 0:
-            session.beginActionScope('Point %d' % num)
-        else:
-            session.beginActionScope('Point %d/%d' % (num,
-                                                      self.dataset.npoints))
         # update dataset values
         self.dataset.curpoint = num
         self.dataset.updateHeaderInfo()
@@ -201,11 +207,9 @@ class Scan(object):
             sink.addPoint(self.dataset, xvalues, yvalues)
 
     def finishPoint(self):
-        session.endActionScope()
         session.breakpoint(2)
 
     def endScan(self):
-        session.endActionScope()
         for sink in self._sinks:
             sink.endDataset(self.dataset)
         try:
@@ -326,9 +330,11 @@ class Scan(object):
         if getattr(session, '_currentscan', None):
             raise NicosError('cannot start scan while another scan is running')
         session._currentscan = self
+        session.beginActionScope(self.shortDesc())
         try:
             self._inner_run()
         finally:
+            session.endActionScope()
             session._currentscan = None
 
     def _inner_run(self):
@@ -352,50 +358,48 @@ class Scan(object):
             else:  # intervals
                 num = lambda i: i
             for i, position in enumerate(self._positions):
-                try:
-                    self.preparePoint(num(i), position)
-                    if position:
-                        if i != 0:
-                            self.moveTo(position, wait=self._waitbeforecount)
-                        elif not can_measure:
-                            continue
-                    # update changed positions
-                    actualpos = self.readPosition()
-                    self.updatePoint(actualpos)
-                except SkipPoint:
-                    continue
-                except:
-                    self.finishPoint()
-                    raise
-                try:
-                    # measure...
-                    started = currenttime()
+                with self.pointScope(num(i)):
                     try:
-                        result = []
-                        if self._multistep:
-                            for i in range(self._mscount):
-                                self.moveDevices(self._mswhere[i],
-                                                 wait=self._waitbeforecount)
+                        self.preparePoint(num(i), position)
+                        if position:
+                            if i != 0:
+                                self.moveTo(position, wait=self._waitbeforecount)
+                            elif not can_measure:
+                                continue
+                        # update changed positions
+                        actualpos = self.readPosition()
+                        self.updatePoint(actualpos)
+                    except SkipPoint:
+                        continue
+                    try:
+                        # measure...
+                        started = currenttime()
+                        try:
+                            result = []
+                            if self._multistep:
+                                for i in range(self._mscount):
+                                    self.moveDevices(self._mswhere[i],
+                                                     wait=self._waitbeforecount)
+                                    _count(self._detlist, self._preset, result,
+                                           dataset=self.dataset)
+                            else:
                                 _count(self._detlist, self._preset, result,
                                        dataset=self.dataset)
-                        else:
-                            _count(self._detlist, self._preset, result,
-                                   dataset=self.dataset)
+                        finally:
+                            actualpos += self.readEnvironment(started, currenttime())
+                            # there are some values (or we are purposefully
+                            # scanning without detectors)
+                            if result or len(self.dataset.yvalueinfo) == 0:
+                                # add missing values
+                                result.extend(0 for _ in range(
+                                    len(self.dataset.yvalueinfo) - len(result)))
+                                self.addPoint(actualpos, result)
+                    except NicosError as err:
+                        self.handleError('count', None, None, err)
+                    except SkipPoint:
+                        pass
                     finally:
-                        actualpos += self.readEnvironment(started, currenttime())
-                        # there are some values (or we are purposefully
-                        # scanning without detectors)
-                        if result or len(self.dataset.yvalueinfo) == 0:
-                            # add missing values
-                            result.extend(0 for _ in range(
-                                len(self.dataset.yvalueinfo) - len(result)))
-                            self.addPoint(actualpos, result)
-                except NicosError as err:
-                    self.handleError('count', None, None, err)
-                except SkipPoint:
-                    pass
-                finally:
-                    self.finishPoint()
+                        self.finishPoint()
         except StopScan:
             pass
         finally:
@@ -668,6 +672,7 @@ class ContinuousScan(Scan):
                         det.updateImage()
             device.wait()  # important for simulation
         finally:
+            session.endActionScope()
             for det in detlist:
                 try:
                     det.stop()
@@ -675,7 +680,6 @@ class ContinuousScan(Scan):
                     session.log.warning('could not stop %s' % det, exc=1)
                 if isinstance(det, ImageProducer):
                     det.saveImage()
-            session.endActionScope()
             try:
                 device.stop()
                 device.wait()
