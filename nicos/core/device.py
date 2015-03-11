@@ -979,8 +979,7 @@ class Readable(Device):
         except NicosError as err:
             value = (status.ERROR, str(err))
         if value[0] not in status.statuses:
-            raise ProgrammingError(self, 'status constant %r is unknown' %
-                                   value[0])
+            value = (status.UNKNOWN, 'status constant %r is unknown' % value[0])
         return value
 
     def _combinedStatus(self, maxage=0):
