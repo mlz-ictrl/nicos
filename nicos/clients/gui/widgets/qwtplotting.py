@@ -620,7 +620,8 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
         NicosQwtPlot.__init__(self, parent, window)
 
     def addCurve(self, i, curve, replot=False):
-        if self.current_xname not in curve.datax:
+        if self.current_xname != 'Default' and \
+           self.current_xname not in curve.datax:
             return
         pen = QPen(self.curvecolor[i % self.numcolors])
         plotcurve = ErrorBarPlotCurve(title=curve.full_description,
@@ -640,10 +641,10 @@ class DataSetPlot(DataSetPlotMixin, NicosQwtPlot):
         self.addPlotCurve(plotcurve, replot)
 
     def setCurveData(self, curve, plotcurve):
+        xname = curve.default_xname \
+            if self.current_xname == 'Default' else self.current_xname
         norm = curve.datanorm[self.normalized] if self.normalized else None
-        x, y, dy = prepareData(curve.datax[self.current_xname],
-                               curve.datay,
-                               curve.datady,
+        x, y, dy = prepareData(curve.datax[xname], curve.datay, curve.datady,
                                norm)
         plotcurve.setData(x, y, None, dy)
         # setData creates a new legend item that must be styled

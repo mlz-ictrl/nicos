@@ -59,6 +59,7 @@ class Curve(object):
     dyindex = -1
     disabled = False
     function = False
+    default_xname = None
 
     def __init__(self):
         self.datax = {}
@@ -187,6 +188,8 @@ class DataHandler(QObject):
             # share data for X and normalization
             curve.datax = dataset.datax
             curve.datanorm = dataset.datanorm
+            curve.default_xname = name_unit(dataset.xnames[dataset.xindex],
+                                            dataset.xunits[dataset.xindex])
             if info.unit != 'cts':
                 curve.description = '%s (%s)' % (name, info.unit)
             else:
