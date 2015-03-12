@@ -25,13 +25,12 @@
 """Astrium selector device."""
 
 from math import pi, tan, radians
-from time import time as currenttime
 
 from IO import StringIO
 
 from nicos.core import status, Moveable, Readable, HasLimits, Override, Param, \
     CommunicationError, HasPrecision, HasTimeout, InvalidValueError, \
-    MoveError, listof, limits, HasCommunication
+    listof, limits, HasCommunication
 from nicos.devices.taco.core import TacoDevice
 
 FSEP = '#'  # separator for fields in reply ("/" in manual, "#" in reality)
@@ -181,15 +180,9 @@ class SelectorSpeed(HasCommunication, HasLimits, HasPrecision, HasTimeout, Movea
                                     ' by selector (is it in a forbidden'
                                     ' range?)' % target)
 
-    def doIsCompleted(self):
-        # the selector does not return a "busy" state while speeding up/down, so
-        # we have to check for the speed reaching the target speed.
-        if abs(self.read() - self.target) < self.precision: # XXX: inconsistent with doStatus!
-            return True
-        if currenttime() < self.started + self.timeout:
-            return False
-        raise MoveError(self, 'selector did not reach %d rpm in %s seconds' %
-                        (self.target, self.timeout))
+    # if we could live with a PositionError instead of a MoveError in wait@timeout,
+    # remove this line:
+    timeout_status = status.ERROR
 
 
 class SelectorValue(Readable):
