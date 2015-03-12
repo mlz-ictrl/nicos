@@ -243,9 +243,11 @@ class DevicesPanel(Panel):
         lowlevel_device = params.get('lowlevel') or False
         if lowlevel_device and not self._show_lowlevel:
             return
-        if 'nicos.core.data.DataSink' in params.get('classes', []):
+        if 'nicos.core.data.DataSink' in params.get('classes', []) and \
+           not self._show_lowlevel:
             return
-        if 'nicos.core.image.ImageSink' in params.get('classes', []):
+        if 'nicos.core.image.ImageSink' in params.get('classes', []) and \
+           not self._show_lowlevel:
             return
 
         # remove still-existing previous item for the same device name
