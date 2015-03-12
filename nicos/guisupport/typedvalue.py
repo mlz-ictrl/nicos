@@ -63,6 +63,8 @@ class DeviceValueEdit(NicosWidget, QWidget):
         'dev':         PropDef(str, ''),
         'useButtons':  PropDef(bool, False,
                                'Use buttons for values with few choices?'),
+        'allowEnter':  PropDef(bool, True,
+                               'Emit valueChosen signal on pressing Enter?'),
         'updateValue': PropDef(bool, False,
                                'Update the editor when the device value changes?'),
     }
@@ -108,6 +110,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
             unit = ''
         self._inner = create(self, valuetype, curvalue, fmtstr, unit,
                              allow_buttons=self.props['useButtons'],
+                             allow_enter=self.props['allowEnter'],
                              client=self._client)
         last = self._layout.takeAt(0)
         if last:
@@ -184,14 +187,15 @@ class DeviceParamEdit(DeviceValueEdit):
 
 
 def create(parent, typ, curvalue, fmtstr='', unit='',
-           allow_buttons=False, client=None):
+           allow_buttons=False, allow_enter=True, client=None):
     # make sure the type is correct
     try:
         curvalue = typ(curvalue)
     except ValueError:
         curvalue = typ()
     if unit:
-        inner = create(parent, typ, curvalue, fmtstr, unit='', client=client)
+        inner = create(parent, typ, curvalue, fmtstr, unit='', client=client,
+                       allow_enter=allow_enter)
         return AnnotatedWidget(parent, inner, unit)
     if isinstance(typ, params.oneof):
         if allow_buttons and len(typ.vals) <= 3:
@@ -204,42 +208,48 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif isinstance(typ, params.none_or):
         return CheckWidget(parent, typ.conv, curvalue, client)
     elif isinstance(typ, params.tupleof):
-        return MultiWidget(parent, typ.types, curvalue, client)
+        return MultiWidget(parent, typ.types, curvalue, client,
+                           allow_enter=allow_enter)
     elif typ == params.limits:
-        return LimitsWidget(parent, curvalue, client)
+        return LimitsWidget(parent, curvalue, client, allow_enter=allow_enter)
     elif isinstance(typ, params.floatrange):
         edw = EditWidget(parent, float, curvalue, fmtstr or '%.4g',
-                         minmax=(typ.fr, typ.to))
+                         minmax=(typ.fr, typ.to), allow_enter=allow_enter)
         annotation = '(range: %.5g to %.5g)' % (typ.fr, typ.to) \
             if typ.to is not None else '(must be >= %.5g)' % typ.fr
         return AnnotatedWidget(parent, edw, annotation)
     elif isinstance(typ, params.intrange):
         edw = SpinBoxWidget(parent, curvalue, (typ.fr, typ.to),
-                            fmtstr=fmtstr or '%.4g')
+                            fmtstr=fmtstr or '%.4g', allow_enter=allow_enter)
         return AnnotatedWidget(parent, edw, '(range: %d to %d)' %
                                (typ.fr, typ.to))
     elif typ in (int, float, str, params.string):
-        return EditWidget(parent, typ, curvalue, fmtstr or '%.4g')
+        return EditWidget(parent, typ, curvalue, fmtstr or '%.4g',
+                          allow_enter=allow_enter)
     elif typ == bool:
         return ComboWidget(parent, [True, False], curvalue)
     elif typ == params.vec3:
-        return MultiWidget(parent, (float, float, float), curvalue, client)
+        return MultiWidget(parent, (float, float, float), curvalue, client,
+                           allow_enter=allow_enter)
     elif typ == params.nicosdev:
-        return DeviceComboWidget(parent, curvalue, client)
+        return DeviceComboWidget(parent, curvalue, client,
+                                 allow_enter=allow_enter)
     elif typ in (params.tacodev, params.tangodev, params.mailaddress,
                  params.host, params.ipv4,
                  params.subdir, params.relative_path, params.absolute_path):
         # XXX validate via regexp
-        return EditWidget(parent, str, curvalue)
+        return EditWidget(parent, str, curvalue, allow_enter=allow_enter)
     elif typ == anytype:
-        return ExprWidget(parent, curvalue)
+        return ExprWidget(parent, curvalue, allow_enter=allow_enter)
     elif isinstance(typ, params.listof):
-        return ListOfWidget(parent, typ.conv, curvalue, client)
+        return ListOfWidget(parent, typ.conv, curvalue, client,
+                            allow_enter=allow_enter)
     elif isinstance(typ, params.nonemptylistof):
-        return ListOfWidget(parent, typ.conv, curvalue, client, nmin=1)
+        return ListOfWidget(parent, typ.conv, curvalue, client, nmin=1,
+                            allow_enter=allow_enter)
     elif isinstance(typ, params.dictof):
         return DictOfWidget(parent, typ.keyconv, typ.valconv, curvalue,
-                            client)
+                            client, allow_enter=allow_enter)
     return MissingWidget(parent, curvalue)
 
 
@@ -267,16 +277,21 @@ class AnnotatedWidget(QWidget):
 
 class MultiWidget(QWidget):
 
-    def __init__(self, parent, types, curvalue, client):
+    def __init__(self, parent, types, curvalue, client, allow_enter=False):
         QWidget.__init__(self, parent)
         layout = self._layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self._widgets = []
         for (typ, val) in zip(types, curvalue):
-            widget = create(self, typ, val, client=client)
+            widget = create(self, typ, val, client=client,
+                            allow_enter=allow_enter)
             self._widgets.append(widget)
             self.connect(widget, SIGNAL('dataChanged'),
                          lambda: self.emit(SIGNAL('dataChanged')))
+            if allow_enter:
+                self.connect(widget, SIGNAL('valueChosen'),
+                             lambda val: self.emit(SIGNAL('valueChosen'),
+                                                   self.getValue()))
             layout.addWidget(widget)
         self.setLayout(layout)
 
@@ -286,8 +301,9 @@ class MultiWidget(QWidget):
 
 class LimitsWidget(MultiWidget):
 
-    def __init__(self, parent, curvalue, client):
-        MultiWidget.__init__(self, parent, (float, float), curvalue, client)
+    def __init__(self, parent, curvalue, client, allow_enter=False):
+        MultiWidget.__init__(self, parent, (float, float), curvalue, client,
+                             allow_enter=allow_enter)
         self._layout.insertWidget(0, QLabel('from', self))
         self._layout.insertWidget(2, QLabel('to', self))
 
@@ -301,8 +317,8 @@ class ComboWidget(QComboBox):
         self.addItems(self._textvals)
         if curvalue in self._values:
             self.setCurrentIndex(self._values.index(curvalue))
-        self.connect(self, SIGNAL('currentIndexChanged(int)'),
-                     lambda idx: self.emit(SIGNAL('dataChanged')))
+        self.currentIndexChanged['int'].connect(
+            lambda idx: self.emit(SIGNAL('dataChanged')))
 
     def getValue(self):
         return self._values[self._textvals.index(self.currentText())]
@@ -331,7 +347,8 @@ class ButtonWidget(QWidget):
 
 class EditWidget(QLineEdit):
 
-    def __init__(self, parent, typ, curvalue, fmtstr='%.4g', minmax=None):
+    def __init__(self, parent, typ, curvalue, fmtstr='%.4g', minmax=None,
+                 allow_enter=False):
         QLineEdit.__init__(self, parent)
         self._typ = typ
         if typ is float:
@@ -351,11 +368,10 @@ class EditWidget(QLineEdit):
             self.setText(str(curvalue))
         else:
             self.setText(str(curvalue))
-        self.connect(self, SIGNAL('textChanged(const QString &)'),
-                     lambda txt: self.emit(SIGNAL('dataChanged')))
-        self.connect(self, SIGNAL('returnPressed()'),
-                     lambda: self.emit(SIGNAL('valueChosen'),
-                                       self._typ(self.text())))
+        self.textChanged.connect(lambda txt: self.emit(SIGNAL('dataChanged')))
+        if allow_enter:
+            self.returnPressed.connect(
+                lambda: self.emit(SIGNAL('valueChosen'), self._typ(self.text())))
 
     def getValue(self):
         return self._typ(self.text())
@@ -363,12 +379,16 @@ class EditWidget(QLineEdit):
 
 class SpinBoxWidget(QSpinBox):
 
-    def __init__(self, parent, curvalue, minmax, fmtstr='%.4g'):
+    def __init__(self, parent, curvalue, minmax, fmtstr='%.4g',
+                 allow_enter=False):
         QSpinBox.__init__(self, parent)
         self.setRange(minmax[0], minmax[1])
         self.setValue(curvalue)
-        self.connect(self, SIGNAL('valueChanged(int)'),
-                     lambda val: self.emit(SIGNAL('dataChanged')))
+        self.valueChanged['int'].connect(
+            lambda val: self.emit(SIGNAL('dataChanged')))
+        if allow_enter:
+            self.lineEdit.returnPressed.connect(
+                lambda: self.emit(SIGNAL('valueChosen'), self.value()))
 
     def getValue(self):
         return self.value()
@@ -376,11 +396,13 @@ class SpinBoxWidget(QSpinBox):
 
 class ExprWidget(QLineEdit):
 
-    def __init__(self, parent, curvalue):
+    def __init__(self, parent, curvalue, allow_enter=False):
         QLineEdit.__init__(self, parent)
         self.setText(cache_dump(curvalue))
-        self.connect(self, SIGNAL('textChanged(const QString &)'),
-                     lambda txt: self.emit(SIGNAL('dataChanged')))
+        self.textChanged.connect(lambda txt: self.emit(SIGNAL('dataChanged')))
+        if allow_enter:
+            self.returnPressed.connect(
+                lambda: self.emit(SIGNAL('valueChosen'), cache_load(self.text())))
 
     def getValue(self):
         return cache_load(self.text())
@@ -403,8 +425,7 @@ class CheckWidget(QWidget):
         layout.addWidget(self.checkbox)
         layout.addWidget(self.inner_widget)
         layout.setContentsMargins(0, 0, 0, 0)
-        self.connect(self.checkbox, SIGNAL('stateChanged(int)'),
-                     self.on_checkbox_stateChanged)
+        self.checkbox.stateChanged.connect(self.on_checkbox_stateChanged)
         self.setLayout(layout)
 
     def on_checkbox_stateChanged(self, state):
@@ -431,7 +452,8 @@ class MissingWidget(QLabel):
 class DeviceComboWidget(QComboBox):
 
     def __init__(self, parent, curvalue, client,
-                 needs_class='nicos.core.device.Device'):
+                 needs_class='nicos.core.device.Device',
+                 allow_enter=False):
         QComboBox.__init__(self, parent, editable=True)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
         if client:
@@ -445,6 +467,9 @@ class DeviceComboWidget(QComboBox):
         else:
             self.setEditText(curvalue)
         self.editTextChanged.connect(lambda: self.emit(SIGNAL('dataChanged')))
+        if allow_enter:
+            self.lineEdit().returnPressed.connect(
+                lambda: self.emit(SIGNAL('valueChosen'), self.currentText()))
 
     def getValue(self):
         return self.currentText()
@@ -454,7 +479,7 @@ class ItemsWidget(QScrollArea):
 
     allow_reorder = True
 
-    def __init__(self, parent, nmin):
+    def __init__(self, parent, nmin, allow_enter=False):
         QScrollArea.__init__(self, parent)
         self.setWidgetResizable(True)
         self.frame = QFrame(self)
@@ -470,6 +495,7 @@ class ItemsWidget(QScrollArea):
         self.setWidget(self.frame)
         self.items = []
         self.nmin = nmin
+        self.allow_enter = allow_enter
 
     def insertItem(self, *widgets):
         item = QWidget(self.frame)
@@ -535,8 +561,9 @@ class ItemsWidget(QScrollArea):
 
 class ListOfWidget(ItemsWidget):
 
-    def __init__(self, parent, inner, curvalue, client, nmin=0):
-        ItemsWidget.__init__(self, parent, nmin)
+    def __init__(self, parent, inner, curvalue, client, nmin=0,
+                 allow_enter=False):
+        ItemsWidget.__init__(self, parent, nmin, allow_enter=allow_enter)
         self.inner = inner
         self.client = client
 
@@ -546,9 +573,13 @@ class ListOfWidget(ItemsWidget):
     def createItem(self, value=None):
         if value is None:
             value = self.inner()
-        widget = create(self, self.inner, value, client=self.client)
+        widget = create(self, self.inner, value, client=self.client,
+                        allow_enter=self.allow_enter)
         self.connect(widget, SIGNAL('dataChanged'),
                      lambda: self.emit(SIGNAL('dataChanged')))
+        self.connect(widget, SIGNAL('valueChosen'),
+                     lambda val: self.emit(SIGNAL('valueChosen'),
+                                           self.getValue()))
         return (widget,)
 
     def getValue(self):
@@ -559,8 +590,9 @@ class DictOfWidget(ItemsWidget):
 
     allow_reorder = False
 
-    def __init__(self, parent, keytype, valtype, curvalue, client, nmin=0):
-        ItemsWidget.__init__(self, parent, nmin)
+    def __init__(self, parent, keytype, valtype, curvalue, client, nmin=0,
+                 allow_enter=False):
+        ItemsWidget.__init__(self, parent, nmin, allow_enter=allow_enter)
         self.keytype = keytype
         self.valtype = valtype
         self.client = client
@@ -574,12 +606,20 @@ class DictOfWidget(ItemsWidget):
             val = self.valtype()
         else:
             key, val = keyval  # pylint: disable=W0633
-        keywidget = create(self, self.keytype, key, client=self.client)
+        keywidget = create(self, self.keytype, key, client=self.client,
+                           allow_enter=self.allow_enter)
         self.connect(keywidget, SIGNAL('dataChanged'),
                      lambda: self.emit(SIGNAL('dataChanged')))
-        valwidget = create(self, self.valtype, val, client=self.client)
+        self.connect(keywidget, SIGNAL('valueChosen'),
+                     lambda val: self.emit(SIGNAL('valueChosen'),
+                                           self.getValue()))
+        valwidget = create(self, self.valtype, val, client=self.client,
+                           allow_enter=self.allow_enter)
         self.connect(valwidget, SIGNAL('dataChanged'),
                      lambda: self.emit(SIGNAL('dataChanged')))
+        self.connect(valwidget, SIGNAL('valueChosen'),
+                     lambda val: self.emit(SIGNAL('valueChosen'),
+                                           self.getValue()))
         return (keywidget, QLabel('=>', self), valwidget)
 
     def getValue(self):

@@ -24,7 +24,6 @@
 
 """NICOS GUI panel with a list of all devices."""
 
-import time
 from logging import WARNING
 
 from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
@@ -554,7 +553,6 @@ class ControlDialog(QDialog):
         self.devinfo = devinfo
         self.devitem = devitem
         self.paramItems = {}
-        self._last_value_chosen = 0
 
         self._reinit()
 
@@ -636,11 +634,11 @@ class ControlDialog(QDialog):
                 self.limitMax.setText(str(params['userlimits'][1]))
 
             # insert a widget to enter a new device value
-            self.target = DeviceValueEdit(self, dev=self.devname, useButtons=True)
+            # allowEnter=False because we catch pressing Enter ourselves
+            self.target = DeviceValueEdit(self, dev=self.devname,
+                                          useButtons=True, allowEnter=False)
             self.target.setClient(self.client)
             def btn_callback(target):
-                # XXX this is a horrible hack, but fixes the issue for the moment
-                self._last_value_chosen = time.time()
                 self.device_panel.exec_command(
                     'move(%s, %r)' % (self.devname, target), self.devname)
             self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
@@ -682,8 +680,6 @@ class ControlDialog(QDialog):
                     self.device_panel.exec_command('stop(%s)' % self.devname,
                                                    self.devname, immediate=True)
                 elif button.text() == 'Move':
-                    if time.time() - self._last_value_chosen < 0.1:
-                        return
                     try:
                         target = self.target.getValue()
                     except ValueError:
