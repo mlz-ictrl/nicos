@@ -27,7 +27,7 @@
 from nicos.pycompat import string_types
 
 
-WIKI_URL = 'https://trac.frm2.tum.de/projects/NICOS/wiki/NicosError/'
+WIKI_URL = 'https://forge.frm2.tum.de/projects/NICOS/wiki/NicosError/'
 
 
 class NicosError(Exception):
@@ -47,7 +47,7 @@ class NicosError(Exception):
     The constructor accepts a the keyword *wikicode* with an integer argument to
     create a link to a wiki page
 
-       https://trac.frm2.tum.de/projects/NICOS/wiki/NicosError/<integer>
+       https://forge.frm2.tum.de/projects/NICOS/wiki/NicosError/<integer>
 
     where more information can be given.  The integer should be the Unix
     timestamp (e.g from ``date +%%s``, to get a uniqe id) of the first use of

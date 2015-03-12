@@ -31,12 +31,12 @@ def test_exceptions():
     try:
         raise NicosError(None, wikicode=1)
     except NicosError as e:
-        assert e.args == ('\nAdditional information: https://trac.frm2.tum.de/'
+        assert e.args == ('\nAdditional information: https://forge.frm2.tum.de/'
                           'projects/NICOS/wiki/NicosError/1',)
     try:
         raise NicosError(None, wikicode=1)
     except NicosError as e:
-        assert e.args != ('\nAdditional information: https://trac.frm2.tum.de/'
+        assert e.args != ('\nAdditional information: https://forge.frm2.tum.de/'
                           'projects/NICOS/wiki/NicosError/2',)
 
     try:
