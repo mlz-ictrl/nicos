@@ -61,6 +61,7 @@ from nicos.pycompat import builtins, exec_, string_types, \
     itervalues, iteritems, listvalues
 from nicos.core.constants import MAIN
 
+
 class Session(object):
     """The Session class provides all low-level routines needed for NICOS
     operations and keeps the global state: devices, configuration, loggers.
@@ -322,14 +323,13 @@ class Session(object):
         """Return the current list of setup paths."""
         return list(self._setup_paths)
 
-    def readSetups(self):
+    def readSetupInfo(self):
         """Read information of all existing setups, and validate them.
 
         Setup modules are looked for in subdirectories of the configured
         "custom_path".
         """
-        self._setup_info.clear()
-        self._setup_info.update(readSetups(self._setup_paths, self.log))
+        return readSetups(self._setup_paths, self.log)
 
     def getSetupInfo(self):
         """Return information about all existing setups.
@@ -343,6 +343,10 @@ class Session(object):
         ``None``.
         """
         return self._setup_info.copy()
+
+    def readSetups(self):
+        """Refresh the session's setup info."""
+        self._setup_info = self.readSetupInfo()
 
     def _nicos_import(self, modname, member='*'):
         try:

@@ -246,10 +246,8 @@ class SetupsPanel(Panel, DlgUtils):
         self.connect(self.client, SIGNAL('setup'), self.on_client_setup)
 
     def on_client_connected(self):
-        # re-read setup info
-        self.client.eval('session.readSetups()')
         # fill setups
-        self._setupinfo = self.client.eval('session.getSetupInfo()', {})
+        self._setupinfo = self.client.eval('session.readSetupInfo()', {})
         all_loaded = self.client.eval('session.loaded_setups', set())
         self._loaded = set()
         self._loaded_basic = None
