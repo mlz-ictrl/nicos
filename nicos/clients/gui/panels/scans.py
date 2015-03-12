@@ -573,12 +573,9 @@ class ScansPanel(Panel):
             all_xnu = set(sets[0].xnameunits)
             for dset in sets[1:]:
                 all_xnu &= set(dset.xnameunits)
-            newset.xnameunits = [xnu for xnu in sets[0].xnameunits
-                                 if xnu in all_xnu]
-            if sets[0].default_xname in all_xnu:
-                newset.default_xname = sets[0].default_xname
-            else:
-                newset.default_xname = newset.xnameunits[0]
+            newset.xnameunits = ['Default'] + [xnu for xnu in sets[0].xnameunits
+                                               if xnu in all_xnu]
+            newset.default_xname = 'Default'
             newset.normindices = sets[0].normindices
             # for together only, the number of curves and their columns
             # are irrelevant, just put all together

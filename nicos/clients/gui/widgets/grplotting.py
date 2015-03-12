@@ -427,7 +427,10 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         return "started %s" % time.strftime(TIMEFMT, self.dataset.started)
 
     def addCurve(self, i, curve, replot=False):
-        if self.current_xname not in curve.datax or not curve.datay:
+        if self.current_xname != 'Default' and \
+           self.current_xname not in curve.datax:
+            return
+        if not curve.datay:
             return
         plotcurve = NicosPlotCurve([], [])
         self.setCurveData(curve, plotcurve)
@@ -436,10 +439,10 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
             plotcurve.markertype = gr.MARKERTYPE_DOT
 
     def setCurveData(self, curve, plotcurve):
+        xname = curve.default_xname \
+            if self.current_xname == 'Default' else self.current_xname
         norm = curve.datanorm[self.normalized] if self.normalized else None
-        x, y, dy = prepareData(curve.datax[self.current_xname],
-                               curve.datay,
-                               curve.datady,
+        x, y, dy = prepareData(curve.datax[xname], curve.datay, curve.datady,
                                norm)
         if dy is not None:
             errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)
