@@ -438,9 +438,9 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             # if target is far away -> loop goes busy
             # else loop sets to stable again....
             currtime = time.time()
-            self._window.append( (currtime, pos))
+            self._window.append((currtime, pos))
             self._starttime = currtime
-            self.curstatus = status.BUSY, ''
+            self.curstatus = status.BUSY, 'ramping setpoint'
 
     def doRead(self, maxage=0):
         return self.regulation + self.jitter * (0.5 - random.random())
@@ -636,7 +636,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                     self._setROParam('curstatus', (status.OK, ''))
                     damper -= (damper - 1) / 10.  # max value for damper is 11
                 else:
-                    self._setROParam('curstatus', (status.BUSY, ''))
+                    self._setROParam('curstatus', (status.BUSY, 'ramping setpoint'))
             damper -= (damper - 1) / 20.
             self._setROParam('regulation', round(regulation, 3))
             self._setROParam('sample', round(sample, 3))
