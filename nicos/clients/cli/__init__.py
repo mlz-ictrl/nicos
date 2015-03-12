@@ -325,8 +325,9 @@ class NicosCmdClient(NicosClient):
         # zero-width control characters; ESC[K means "clear whole line"
         self.prompt = '\x01' + colorize(
             self.stcolmap[status],
-            '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s >> \x01' %
-            (self.modemap[self.current_mode], status, pending)) + '\x02'
+            '\r\x1b[K\x02# ' + self.instrument + '[%s%s]%s %s \x01' %
+            (self.modemap[self.current_mode], status, pending,
+             self.spy_mode and 'spy>' or '>>')) + '\x02'
         os.write(self.wakeup_pipe_w, b' ')
 
     def showhelp(self, html):
@@ -846,6 +847,7 @@ class NicosCmdClient(NicosClient):
             else:
                 self.put_client('Spy mode off.')
             self.spy_mode = not self.spy_mode
+            self.set_status(self.status)
         else:
             self.put_error('Unknown command %r.' % cmd)
 
