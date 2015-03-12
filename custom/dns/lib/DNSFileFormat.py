@@ -42,9 +42,11 @@ class DNSFileFormat(ImageSink):
     parameter_overrides = {
         'filenametemplate' : Override(mandatory=False, settable=False,
                                       userparam=False,
-                                      default=['%(scancounter)04d%(imagecounter)06d'
-                                               '%(session.experiment.sample.samplename)s'
-                                               '.d_dat'], #still needed: prefix depending on samplename
+                                      default=['%(proposal)s_%(counter)s.d_dat',
+                                               '%(proposal)s'
+                                               '%(imagecounter)010d'
+                                               '%(session.experiment.sample.'
+                                               'samplename)s.d_dat'],
                                      ),
     }
 
