@@ -1342,7 +1342,7 @@ class Moveable(Readable):
 
            Implementation hint: If you correctly implement :meth:`doStatus` and
            your device is not very special, there is no need to implement
-           :meth:`doIsMoving()`.
+           :meth:`doIsCompleted()`.
         """
         if self._sim_active:
             time = 0
