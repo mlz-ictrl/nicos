@@ -356,7 +356,8 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
             for (n, v, dv) in fitter.interesting)
         resultcurve.dependent.append(
-            Text(fitter.labelx, fitter.labely, text, self._axes, .012))
+            Text(fitter.labelx, fitter.labely, text, self._axes, .012,
+                 hideviewport=False))
         self.update()
 
     def on_fitPicker_selected(self, point):
