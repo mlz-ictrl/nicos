@@ -171,6 +171,7 @@ class NewViewDialog(QDialog, DlgUtils):
             self.simpleTime.setChecked(info['simpleTime'])
             self.simpleTimeSpec.setText(info['simpleTimeSpec'])
             self.slidingWindow.setChecked(info['slidingWindow'])
+            self.extTime.setChecked(not info['simpleTime'])
             self.frombox.setChecked(info['frombox'])
             self.tobox.setChecked(info['tobox'])
             self.fromdate.setDateTime(QDateTime.fromTime_t(info['fromdate']))
