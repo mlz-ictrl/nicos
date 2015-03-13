@@ -124,6 +124,8 @@ class FPGACounterChannel(FPGAChannelBase):
                           }
 
     def _setPreselection(self):
+        self._dev.DevFPGACountSetMinTime(0)
+        self._dev.DevFPGACountSetTimeLimit(3600*24)
         self._dev.DevFPGACountSetCountLimit([self.channel,
                                              int(self.preselection)])
 

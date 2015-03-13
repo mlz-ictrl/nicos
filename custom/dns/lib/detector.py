@@ -36,9 +36,12 @@ from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod, \
 from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
 
 
-T_TIME = 't'
-T_SPIN_FLIP = 'tsf'
-T_NO_SPIN_FLIP = 'tnsf'
+P_TIME = 't'
+P_TIME_SF = 'tsf'
+P_TIME_NSF = 'tnsf'
+P_MON = 'mon0'
+P_MON_SF = 'mon0sf'
+P_MON_NSF = 'mon0nsf'
 
 
 class FlipperPresets(Measurable):
@@ -51,9 +54,6 @@ class FlipperPresets(Measurable):
     @property
     def flipper(self):
         return self._adevs['flipper']
-
-    def presetInfo(self):
-        return (T_TIME, T_SPIN_FLIP, T_NO_SPIN_FLIP)
 
     def doStart(self):
         raise NotImplementedError('Please provide an implementation for '
@@ -99,6 +99,7 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
                                     int(self.detshape["t"])),
                                    numpy.uint32)
         self._dev.set_timeout_millis(10000)
+        self._last_counter = self._adevs['timer']
 
     def _hw_wait(self):
         while PyTangoDevice.doStatus(self, 0)[0] == status.BUSY:
@@ -111,23 +112,24 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         self.log.debug("Detector cleared")
         seq.append(SeqMethod(self._dev, 'Start'))
         self.log.debug("Detector started")
-        seq.append(SeqMethod(self._adevs['timer'], 'start'))
+        seq.append(SeqMethod(self._last_counter, 'start'))
         self.log.debug("Counter started")
-        seq.append(SeqMethod(self._adevs['timer'], 'wait'))
+        seq.append(SeqMethod(self._last_counter, 'wait'))
         seq.append(SeqMethod(self._dev, 'Stop'))
         seq.append(SeqSleep(0.2))
         seq.append(SeqMethod(self, '_hw_wait'))
         return seq
 
+    def presetInfo(self):
+        return (P_TIME, P_MON)
+
     def doSetPreset(self, **preset):
-        if T_TIME in preset:
-            t = preset[T_TIME]
-        else:
-            t = self._adevs['timer'].preselection or 1
-            self.log.warning("Incorrect preset setting. Please specify " +
-                             T_TIME + ". Falling back to previous value '%g'."
-                             % t)
-        self._adevs['timer'].preselection = t
+        if P_MON in preset:
+            self._adevs['monitor'].preselection = preset[P_MON]
+            self._last_counter = self._adevs['monitor']
+        elif P_TIME in preset:
+            self._adevs['timer'].preselection = preset[P_TIME]
+            self._last_counter = self._adevs['timer']
 
     def doReadTofmode(self):
         return self.TOFMODE[self._dev.mode]
@@ -167,14 +169,15 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         self._startSequence(self._generateSequence())
 
     def doPause(self):
-        self._adevs['timer'].pause()
+        self._last_counter.pause()
         self.log.debug("Tof Detector pause")
 
     def doResume(self):
-        self._adevs['timer'].resume()
+        self._last_counter.resume()
         self.log.debug("Tof Detector resume")
 
     def doStop(self):
+        self._last_counter.stop()
         self._dev.Stop()
         self.log.debug("Tof Detector stop")
 
@@ -216,18 +219,36 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
 class TofDetector(TofDetectorBase, FlipperPresets):
     """TofDetector supporting different presets for spin flipper on or off."""
 
+    def presetInfo(self):
+        return TofDetectorBase.presetInfo(self) + (P_TIME_SF, P_TIME_NSF,
+                                                   P_MON_SF, P_MON_NSF)
+
     def doSetPreset(self, **preset):
-        if T_SPIN_FLIP in preset and T_NO_SPIN_FLIP in preset:
+        if P_MON_SF in preset and P_MON_NSF in preset:
             if self.flipper.read() == ON:
-                t = preset[T_SPIN_FLIP]
+                m = preset[P_MON_SF]
             else:
-                t = preset[T_NO_SPIN_FLIP]
-        elif T_TIME in preset:
-            t = preset[T_TIME]
-        else:
-            t = self._adevs['timer'].preselection or 1
-            self.log.warning("Incorrect preset setting. Specify either " +
-                             T_SPIN_FLIP + " and " + T_NO_SPIN_FLIP +
-                             " or just " + T_TIME + ". Falling back to "
-                             "previous value '%g'." % t)
-        self._adevs['timer'].preselection = t
+                m = preset[P_MON_NSF]
+            self._adevs['monitor'].preselection = m
+            self._last_counter = self._adevs['monitor']
+        elif P_MON_SF in preset or P_MON_NSF in preset:
+            self.log.warning('Incorrect preset setting. Specify either both '
+                             '%s and %s or only %s.' %
+                             (P_MON_SF, P_MON_NSF, P_MON))
+        elif P_TIME_SF in preset and P_TIME_NSF in preset:
+            if self.flipper.read() == ON:
+                t = preset[P_TIME_SF]
+            else:
+                t = preset[P_TIME_NSF]
+            self._adevs['timer'].preselection = t
+            self._last_counter = self._adevs['timer']
+        elif P_TIME_SF in preset or P_TIME_NSF in preset:
+            self.log.warning('Incorrect preset setting. Specify either both '
+                             '%s and %s or only %s.' %
+                             (P_TIME_SF, P_TIME_NSF, P_TIME))
+        elif P_MON in preset:
+            self._adevs['monitor'].preselection = preset[P_MON]
+            self._last_counter = self._adevs['monitor']
+        elif P_TIME in preset:
+            self._adevs['timer'].preselection = preset[P_TIME]
+            self._last_counter = self._adevs['timer']
