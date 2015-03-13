@@ -690,6 +690,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         for v in self.views:
             v.plot = None
         self.currentPlot = None
+        self.disconnect(self.client, SIGNAL('cache'), self.newvalue_callback)
         return True
 
     def addPreset(self, name, info):
