@@ -15,10 +15,6 @@ devices = dict(
                             description = 'Monochromator tilt',
                             tangodevice = '%s/dns/fzjs7/mon_tilt' % tango_host,
                            ),
-    sel_lift       = device('devices.tango.Motor',
-                            description = 'Selector lift',
-                            tangodevice = '%s/dns/fzjs7/sel_lift' % tango_host,
-                           ),
 
     ap_sam_x_left  = device('devices.tango.Motor',
                             description = 'Aperture sample x left',
