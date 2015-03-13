@@ -26,6 +26,8 @@ from __future__ import print_function
 
 import time
 
+from test.utils import getDaemonPort
+
 from nicos import nicos_version
 from nicos.clients.base import NicosClient
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC
@@ -66,7 +68,7 @@ def setup_module():
     global client
     client = TestClient()
     client.connect({'host': 'localhost',
-                    'port': 14874,
+                    'port': getDaemonPort(),
                     'login': 'user',
                     'passwd': 'user',
                     'display': ''})

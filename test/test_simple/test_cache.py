@@ -1,4 +1,5 @@
 #  -*- coding: utf-8 -*-
+#  pylint: disable=unidiomatic-typecheck
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
 # Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
@@ -35,7 +36,7 @@ from nicos.core.errors import LimitError, CommunicationError
 from nicos.utils import readonlylist, readonlydict
 from nicos.core.sessions.utils import MASTER
 
-from test.utils import raises
+from test.utils import raises, getCacheNameAndPort
 
 
 def setup_module():
@@ -172,7 +173,7 @@ def test_05cachereadonlyobjects():
 
 def test_06cacheReader():
     cc = session.cache
-    cc2 = CacheClient(name='cache2', prefix='nicos', cache='localhost:14877')
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache=getCacheNameAndPort('localhost'))
     try:
         testval = 'testr1'
         testval2 = 'testr2'
@@ -200,7 +201,7 @@ def test_06cacheReader():
 
 def test_06acacheReader():
     cc = session.cache
-    cc2 = CacheClient(name='cache2', prefix='nicos', cache='localhost:14877')
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache=getCacheNameAndPort('localhost'))
     try:
         testval = 'testr3'
         key = 'value'
@@ -224,7 +225,7 @@ def test_07cacheWriter():
     cc = session.cache
     cc.loglevel = 'debug'
 
-    cc2 = CacheClient(name='cache2', prefix='nicos', cache='localhost:14877')
+    cc2 = CacheClient(name='cache2', prefix='nicos', cache=getCacheNameAndPort('localhost'))
     try:
         testval = 'testw1'
         testval2 = 'testw2'

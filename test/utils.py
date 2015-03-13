@@ -313,7 +313,7 @@ def startCache(setup='cache', wait=10):
         start = time.time()
         while time.time() < start + wait:
             try:
-                s = tcpSocket('localhost', 14877)
+                s = tcpSocket('localhost', getCachePort())
             except socket.error:
                 time.sleep(0.02)
             except Exception as e:
@@ -356,3 +356,13 @@ def hasGnuplot():
     except (IOError, ValueError):
         return False
     return True
+
+
+def getCachePort():
+    return int(os.environ.get('NICOS_CACHE_PORT', 14877))
+
+def getCacheNameAndPort(host):
+    return '%s:%d' % (host, getCachePort())
+
+def getDaemonPort():
+    return int(os.environ.get('NICOS_DAEMON_PORT', 14874))
