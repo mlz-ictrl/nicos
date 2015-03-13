@@ -26,8 +26,10 @@ name = 'simulation tests setup'
 
 includes = []
 
+from test.utils import getCacheNameAndPort
+
 sysconfig = dict(
-    cache = 'localhost:14877',
+    cache = getCacheNameAndPort('localhost'),
     experiment = 'Exp',
 )
 

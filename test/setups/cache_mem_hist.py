@@ -24,9 +24,11 @@
 
 name = 'cache setup'
 
+from test.utils import getCacheNameAndPort
+
 devices = dict(
     Server = device('services.cache.server.CacheServer',
-                    server = 'localhost:14877',
+                    server = getCacheNameAndPort('localhost'),
                     db = 'DB3',
                     loglevel='debug',
                    ),

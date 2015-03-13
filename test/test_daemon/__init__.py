@@ -33,7 +33,7 @@ import subprocess
 from os import path
 
 from test.utils import TestSession, cleanup, rootdir, startCache, killCache, \
-    adjustPYTHONPATH
+    adjustPYTHONPATH, getDaemonPort
 from nicos.protocols.daemon import ENQ, LENGTH, serialize, command2code
 from nicos import session
 from nicos.utils import tcpSocket
@@ -58,7 +58,7 @@ def setup_package():
     wait = 5
     while time.time() < start + wait:
         try:
-            s = tcpSocket('localhost', 14874)
+            s = tcpSocket('localhost', getDaemonPort())
         except socket.error:
             time.sleep(0.02)
         else:

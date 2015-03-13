@@ -25,9 +25,10 @@
 name = 'test system setup'
 # This setup is called "stdsystem" so that it is not loaded automatically
 # on every loadSetup.
+from test.utils import getCacheNameAndPort
 
 sysconfig = dict(
-    cache = 'localhost:14877',
+    cache = getCacheNameAndPort('localhost'),
     experiment = 'Exp',
     instrument = 'Tas',
     datasinks = ['testsink'],

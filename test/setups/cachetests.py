@@ -24,8 +24,10 @@
 
 name = 'setup for cache tests'
 
+from test.utils import getCacheNameAndPort
+
 sysconfig = dict(
-    cache = 'localhost:14877',
+    cache = getCacheNameAndPort('localhost'),
     datasinks = ['testsink'],
     loglevel = 'debug',
 )

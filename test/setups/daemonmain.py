@@ -23,11 +23,13 @@
 # *****************************************************************************
 
 name = 'nicos setup for the daemon test'
-
 # This is basically the same as "stdsystem.py" but without a cache configured
 
+from test.utils import getCacheNameAndPort
+
+
 sysconfig = dict(
-    cache = 'localhost:14877',
+    cache = getCacheNameAndPort('localhost'),
     experiment = 'Exp',
     instrument = 'Tas',
     datasinks = [],
