@@ -23,8 +23,7 @@
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
-
-"""NICOS GUI plotting helpers."""
+"""NICOS GR plotting backend."""
 
 import sys
 import os
@@ -43,10 +42,21 @@ from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
     DataSetPlotMixin, GaussFitter, prepareData
+from nicos.guisupport.timeseries import buildTickDistAndSubTicks
 from nicos.pycompat import string_types
 
 DATEFMT = "%Y-%m-%d"
 TIMEFMT = "%H:%M:%S"
+
+
+class NicosTimePlotAxes(PlotAxes):
+
+    def setWindow(self, xmin, xmax, ymin, ymax):
+        res = PlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
+        if res:
+            tickdist, self.majorx = buildTickDistAndSubTicks(xmin, xmax)
+            self.xtick = tickdist / self.majorx
+        return res
 
 
 class NicosPlotCurve(PlotCurve):
@@ -106,7 +116,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self._saveName = None
         self._color = ColorIndexGenerator()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
-        self._axes = PlotAxes(viewport=self._plot.viewport)
+        self._axes = NicosTimePlotAxes(viewport=self._plot.viewport)
         self._axes.backgroundColor = 0
         self._plot.addAxes(self._axes)
         self._plot.title = self.titleString()

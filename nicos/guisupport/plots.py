@@ -35,7 +35,7 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
     QwtPlotZoomer, QwtPicker, QwtPlotPicker, QwtPlotPanner, QwtScaleDraw, \
     QwtText, QwtLinearScaleEngine, QwtScaleDiv, QwtDoubleInterval
 
-from nicos.guisupport.timeseries import TimeSeries
+from nicos.guisupport.timeseries import TimeSeries, buildTimeTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.guisupport.utils import extractKeyAndIndex
 
@@ -73,7 +73,7 @@ class TimeScaleEngine(QwtLinearScaleEngine):
     def divideScale(self, x1, x2, maxmaj, maxmin, stepsize=0.):
         interval = QwtDoubleInterval(x1, x2).normalized()
         try:
-            ticks = self._buildTimeTicks(x1, x2)
+            ticks = buildTimeTicks(x1, x2)
         except Exception:
             # print('!!! could not build ticking for', x1, 'and', x2)
             ticks = [], [], [x1, x2]
@@ -82,67 +82,6 @@ class TimeScaleEngine(QwtLinearScaleEngine):
         if x1 > x2:
             scalediv.invert()
         return scalediv
-
-    def _buildTimeTicks(self, mintime, maxtime, minticks=3):
-        good = [1, 2, 5, 10, 30,                           # s
-                60, 2*60, 5*60, 10*60, 15*60, 30*60,       # m
-                3600, 2*3600, 3*3600, 6*3600, 12*3600,     # h
-                24*3600, 2*24*3600, 3*24*3600, 7*24*3600]  # d
-        divs = [5, 4, 5, 5, 6,
-                6, 4, 5, 5, 3, 6,
-                6, 4, 6, 6, 6,
-                6, 6, 6, 7]
-        upscaling = [1, 2, 5, 10]
-        downscaling = [1, 0.5, 0.2, 0.1]
-
-        # calculate maxticks, depends on 'good' values
-        maxticks = minticks
-        for i in range(len(good)-1):
-            if maxticks < minticks * good[i+1]/float(good[i]):
-                maxticks = minticks * good[i+1]/float(good[i])
-
-        # determine ticking range
-        length = maxtime - mintime
-        maxd = length / float(minticks)
-        mind = length / float(maxticks+1)
-
-        # scale to useful numbers
-        scale_ind = 0
-        scale_fact = 1
-        scale = 1
-        while maxd * scale < good[0]:  # too small ticking, increase scaling
-            scale_ind += 1
-            if scale_ind >= len(upscaling):
-                scale_fact *= upscaling[-1]
-                scale_ind = 1
-            scale = scale_fact * upscaling[scale_ind]
-        scale_ind = 0
-        while mind * scale > good[-1]:  # too big ticking, decrease scaling
-            scale_ind += 1
-            if scale_ind >= len(downscaling):
-                scale_fact *= downscaling[-1]
-                scale_ind = 1
-            scale = scale_fact * downscaling[scale_ind]
-
-        # find a good value for ticking
-        tickdist = 0
-        subticks = 0
-        for i, d in enumerate(good):
-            if mind * scale <= d <= maxd * scale:
-                tickdist = d / float(scale)
-                subticks = divs[i]
-
-        # check ticking
-        assert tickdist > 0
-
-        # calculate tick positions
-        minor, medium, major = [], [], []
-        for i in range(int(mintime/tickdist)-1, int(maxtime/tickdist)+1):
-            t = int(i+1) * tickdist
-            major.append(t)
-            for j in range(subticks):
-                minor.append(t + j*tickdist/subticks)
-        return minor, medium, major
 
 
 class TrendPlot(QwtPlot, NicosWidget):
