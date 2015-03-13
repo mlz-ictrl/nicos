@@ -6,6 +6,12 @@ Release 2.7.0
 
 * Commands
 
+  - Errors while executing script commands now don't automatically abort the
+    whole script.  Instead, the next command is attempted, but an error
+    notification is sent nevertheless.
+    You can control this behavior and switch back with the new command
+    "SetErrorAbort()".
+
   - Continuous scans with "contscan()" now have an additional argument to
     specify the integration time, which was always 1 second before.  The X value
     of points is now placed in the middle of the measured intervals.
@@ -31,6 +37,10 @@ Release 2.7.0
     normal devices.  For devices with timeout, this also contributes to the
     "movement complete within timeout" condition.
 
+  - A new mixin has been created for communicating devices.  All these devices
+    now have a "comtries" and a "comdelay" parameter, which can be used to
+    control retries and the sleep time inbetween retries.
+
   - The "wait()" method is now not a fundamental operation for Moveables
     anymore.  Instead, the method "isCompleted()" has been added, and the
     device-specific concrete method "doIsCompleted()" should be implemented by
@@ -41,7 +51,8 @@ Release 2.7.0
   - Added a new "WARN" device state that should be used to express that the
     device is ok, but there are potential problems the user should be aware of.
     Device values outside the limits defined by the "warnlimits" parameter now
-    set the device state to WARN.
+    set the device state to WARN.  Also, moveable devices with values outside
+    their userlimits use the WARN state.
 
 * Device classes
 
@@ -65,16 +76,24 @@ Release 2.7.0
   - On switching to a new user experiment, the GUI windows now clear information
     still stored/displayed from the old experiment.
 
-  - Advanced dataset manipulation (adding, subtracting and dividing datasets)
-    now has more sane behavior with respect to normalization and errorbars.
+  - Errors and warnings that result from an action in a GUI window (for example
+    the device control window) should now be shown in a dialog box.
+
+  - The X axis to use for the plot can now be selected in the scans window.
 
   - Data can now be normalized to any time or monitor column in the scans
     window.
+
+  - Advanced dataset manipulation (adding, subtracting and dividing datasets)
+    now has more sane behavior with respect to normalization and errorbars.
 
   - Fit results are now shown with errors for the fit parameters.
 
   - Non-user parameters are shown in the "Devices" panel when expert mode is
     active.
+
+  - The setup dialog now doesn't show plug-and-play setups (for sample
+    environment boxes) by default, and there is an option to show them.
 
   - Added a tool dialog to easily report NICOS bugs to the issue tracker.
 
