@@ -179,6 +179,7 @@ class NicosClient(object):
         self.login = conndata['login']
 
         self.version = 'NICOS daemon version %s' % banner['daemon_version']
+        self.daemon_info = banner
         self.signal('connected')
 
     def event_handler(self):

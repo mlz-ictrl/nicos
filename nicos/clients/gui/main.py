@@ -553,11 +553,21 @@ class MainWindow(QMainWindow, DlgUtils):
 
     @qtsig('')
     def on_actionAbout_triggered(self):
+        info = {'version': nicos_version,
+                'server_host': 'not connected',
+                'server_version': '',
+                'nicos_root': '',
+                'custom_path': ''}
+        if self.client.connected:
+            info['server_host'] = self.connectionData['host']
+            info['server_version'] = self.client.version
+            info['nicos_root'] = self.client.daemon_info.get('nicos_root', '')
+            info['custom_path'] = self.client.daemon_info.get('custom_path', '')
         QMessageBox.information(
-            self, 'About this application', 'NICOS GUI client version %s, '
-            'written by Georg Brandl.\n\nServer: ' % nicos_version
-            + (self.client.connected and self.client.version or
-               'not connected'))
+            self, 'About this application', 'NICOS GUI client version '
+            '%(version)s.\n\nServer info (from %(server_host)s):\n'
+            'Version: %(server_version)s\nNICOS path: %(nicos_root)s\n'
+            'Custom path: %(custom_path)s' % info)
 
     @qtsig('')
     def on_actionAboutQt_triggered(self):
