@@ -1561,6 +1561,8 @@ class Measurable(Readable):
            The `presetInfo` method is called to determine the presets that the
            class supports.
         """
+        if self._sim_active:
+            return
         self.doSetPreset(**preset)
 
     @usermethod
