@@ -35,6 +35,7 @@ import socket
 import linecache
 import threading
 import traceback
+import unicodedata
 from os import path
 from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, \
     S_IROTH, S_IXOTH
@@ -1004,6 +1005,26 @@ def decodeAny(string):
         # decoding latin9 never fails, since any byte is a valid
         # character there
         return string.decode('latin9')
+
+
+_SAFE_FILE_CHARS = frozenset('-=+_.,()[]{}0123456789abcdefghijklmnopqrstuvwxyz'
+                             'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+_BAD_NAMES = frozenset(('.', '..', 'con', 'prn', 'aux', 'nul') +
+                       tuple('com%d' for d in range(1, 10)) +
+                       tuple('lpt%d' for d in range(1, 10)))
+def safe_name(what, _SAFE_FILE_CHARS=_SAFE_FILE_CHARS):
+    '''returns a cleanup-version of the given string, which could e.g. be used for filenames'''
+    # normalize: é -> e, Â->A, etc.
+    s = unicodedata.normalize('NFKD', decodeAny(what)).encode('ascii', 'ignore')
+    # map unwanted characters (including space) to '_'
+    s = ''.join(c if c in _SAFE_FILE_CHARS else '_' for c in s)
+    # collate multiple '_'
+    while '__' in s:
+        s = s.replace('__', '_')
+    # avoid special bad names
+    if s.lower() in _BAD_NAMES:
+        s = '_%s_'
+    return s if s else '_empty_'
 
 
 # helper to access a certain nicos file which is non-python

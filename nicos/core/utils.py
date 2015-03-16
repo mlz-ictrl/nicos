@@ -389,3 +389,4 @@ class DeviceValueDict(object):
             if isinstance(res, str):
                 res = to_ascii_escaped(res)
             return res  # pylint: disable=W0150
+
