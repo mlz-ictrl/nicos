@@ -524,6 +524,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         elif self.controller.status == STATUS_STOPPING:
             self.write(ACK)
             return
+        session.log.warn('Immediate stop requested by %s' % self.user.name)
         self.log.warning('immediate stop request in %s' %
                          self.controller.current_location(True))
         self.controller.block_all_requests()

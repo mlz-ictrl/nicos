@@ -517,7 +517,7 @@ class ExecutionController(Controller):
 
     def execute_estop(self, user):
         self.log.warn('emergency stop caught, executing ESFs')
-        session.log.warn('Immediate stop requested by %s' % user)
+        session.log.info('Stopping devices for immediate stop')
         # now execute emergency stop functions
         for (func, args) in self.estop_functions:
             try:

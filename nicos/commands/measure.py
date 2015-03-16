@@ -122,9 +122,10 @@ def _count(detlist, preset, result, dataset=None):
                 for det in detset:
                     det.resume()
             sleep(delay)
-    except:  # really ALL exceptions
-        session.log.warning('Exception during count, trying to save data',
-                            exc=True)
+    except BaseException as e:  # really ALL exceptions
+        if e.__class__.__name__ != 'ControlStop':
+            session.log.warning('Exception during count, trying to save data',
+                                exc=True)
         for det in detset:
             try:
                 det.stop()
