@@ -1,6 +1,8 @@
 description = 'POLI silicon monochromator devices'
 
-group = 'lowlevel'
+group = 'optional'
+
+excludes = ['mono_cu']
 
 tango_host = 'tango://phys.poli.frm2:10000'
 
