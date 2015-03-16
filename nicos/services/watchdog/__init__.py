@@ -268,7 +268,7 @@ class Watchdog(BaseCacheClient):
                 del self._watch_grace[eid]
             if eid not in self._conditions:
                 return
-            if entry.type:
+            if eid in self._warnings:
                 del self._warnings[eid]
                 self._update_warnings_str()
             if entry.pausecount:
