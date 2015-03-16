@@ -80,16 +80,13 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
     even if the output voltage is nowhere near the target value
     """
     parameters = {
-        '_stopflag' : Param('Supply was stopped',
-                          type=bool,
-                          settable=True,
-                          mandatory=False,
-                          userparam=False,
-                          default=False),
+        '_stopflag': Param('Supply was stopped',
+                           type=bool, settable=True, mandatory=False,
+                           userparam=False, default=False),
     }
 
     parameter_overrides = {
-        'timeout' : Override(default=90),
+        'timeout':   Override(default=90),
     }
 
     def timeoutAction(self):
@@ -99,7 +96,7 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
             # start() would clear timeoutActionCalled Flag
             self.start(self.target)
 
-    def doStart(self, target): # pylint: disable=W0221
+    def doStart(self, target):  # pylint: disable=W0221
         self._stopflag = False
         TacoVoltageSupply.doStart(self, target)
 
@@ -126,39 +123,42 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
 
 class Sans1HV(BaseSequencer):
     attached_devices = {
-        'supply'     : Attach('NICOS Device for the highvoltage supply', Moveable),
-        'discharger' : Attach('Switch to activate the discharge resistors', Moveable),
-        'interlock' : Attach('Assume IDLE if set and Target is set to 0', Readable),
+        'supply':     Attach('NICOS Device for the highvoltage supply',
+                             Moveable),
+        'discharger': Attach('Switch to activate the discharge resistors',
+                             Moveable),
+        'interlock':  Attach('Assume IDLE if set and Target is set to 0',
+                             Readable),
     }
 
     parameters = {
-        'ramp'   : Param('current ramp speed (volt per minute)',
-                          type=int, unit='main/min', settable=True, volatile=True),
-        'lasthv'   : Param('when was hv applied last (timestamp)',
-                              type=float, userparam=False, default=0.0,
-                              mandatory=False, settable=False),
-        'maxofftime'   : Param('Maximum allowed Off-time for fast ramp-up',
-                              type=int, unit='s', default=4 * 3600),
-        'slowramp'   : Param('slow ramp-up speed (volt per minute)',
-                              type=int, unit='main/min', default=120),
-        'fastramp'   : Param('Fast ramp-up speed (volt per minute)',
-                              type=int, unit='main/min', default=1200),
-        'rampsteps'   : Param('Cold-ramp-up sequence (voltage, stabilize_minutes)',
-                              type=listof(tupleof(int,int)), unit='',
-                              default=[(70, 3),
-                                       (300, 3),
-                                       (500, 3),
-                                       (800, 3),
-                                       (1100, 3),
-                                       (1400, 3),
-                                       (1500, 10)]),
+        'ramp':       Param('current ramp speed (volt per minute)',
+                            type=int, unit='main/min', settable=True,
+                            volatile=True),
+        'lasthv':     Param('when was hv applied last (timestamp)',
+                            type=float, userparam=False, default=0.0,
+                            mandatory=False, settable=False),
+        'maxofftime': Param('Maximum allowed Off-time for fast ramp-up',
+                            type=int, unit='s', default=4 * 3600),
+        'slowramp':   Param('slow ramp-up speed (volt per minute)',
+                            type=int, unit='main/min', default=120),
+        'fastramp':   Param('Fast ramp-up speed (volt per minute)',
+                            type=int, unit='main/min', default=1200),
+        'rampsteps':  Param('Cold-ramp-up sequence (voltage, stabilize_minutes)',
+                            type=listof(tupleof(int, int)), unit='',
+                            default=[(70, 3),
+                                     (300, 3),
+                                     (500, 3),
+                                     (800, 3),
+                                     (1100, 3),
+                                     (1400, 3),
+                                     (1500, 10)]),
     }
 
     parameter_overrides = {
-        'abslimits' : Override(default=(0, 1500), mandatory=False),
-        'unit'      : Override(default='V', mandatory=False, settable=False),
+        'abslimits':  Override(default=(0, 1500), mandatory=False),
+        'unit':       Override(default='V', mandatory=False, settable=False),
     }
-
 
     def _generateSequence(self, target, *args, **kwargs):
         hvdev = self._adevs['supply']
@@ -190,9 +190,8 @@ class Sans1HV(BaseSequencer):
                          'ramping up slowly, be patient!' %
                          (self.maxofftime / 3600))
 
-        self.log.info('Voltage will be ready around %s' %
-                       strftime('%X', localtime(now +
-                                self.doTime(self.doRead(0), target))))
+        self.log.info('Voltage will be ready around %s' % strftime(
+            '%X', localtime(now + self.doTime(self.doRead(0), target))))
 
         seq.append(SeqParam(hvdev, 'ramp', self.slowramp))
         seq.append(SeqDev(disdev, 0))
@@ -201,14 +200,14 @@ class Sans1HV(BaseSequencer):
             if target <= voltage:
                 seq.append(SeqDev(hvdev, target))
                 seq.append(SeqSleep(minutes * 60, 'Stabilizing HV for %d minutes'
-                            % minutes))
+                                    % minutes))
                 break
-            else: # append
+            else:  # append
                 seq.append(SeqDev(hvdev, voltage))
                 seq.append(SeqSleep(minutes * 60, 'Stabilizing HV for %d minutes'
-                            % minutes))
-        seq.append(SeqDev(hvdev, target)) # be sure...
-        seq.append(SeqMethod(hvdev, 'poll')) # force a read
+                                    % minutes))
+        seq.append(SeqDev(hvdev, target))  # be sure...
+        seq.append(SeqMethod(hvdev, 'poll'))  # force a read
         return seq
 
     def doRead(self, maxage=0):
@@ -248,13 +247,13 @@ class Sans1HV(BaseSequencer):
 
 class Sans1HVOffDuration(Readable):
     attached_devices = {
-        'hv_supply' : Attach('Sans1HV Device', Sans1HV),
+        'hv_supply': Attach('Sans1HV Device', Sans1HV),
     }
     parameter_overrides = {
-        'unit' : Override(mandatory=False),
+        'unit':      Override(mandatory=False),
     }
 
-    valuetype=str
+    valuetype = str
 
     def doRead(self, maxage=0):
         if self._adevs['hv_supply']:
