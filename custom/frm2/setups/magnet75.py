@@ -36,6 +36,7 @@ for i in range(1, 9):
                                      tacodevice = '//%s/magnet/ls218/sens%d' % (nethost, i),
                                      warnlimits = (0, maxtemps[i]),
                                      pollinterval = 30,
+                                     maxage = 90,
                                      unit = 'K',
                                     )
 
