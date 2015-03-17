@@ -38,7 +38,7 @@ from os import path
 
 import numpy
 
-from nicos import config
+from nicos import config, nicos_version
 from nicos.core.spm import SPMHandler
 from nicos.core.data import DataSink
 from nicos.core.device import Device, DeviceAlias, DeviceMeta
@@ -213,6 +213,10 @@ class Session(object):
                                     sessionInfo(err.locked_by))
                 else:
                     cache._ismaster = True
+                # put version info into cache
+                cache.put(self, 'nicosversion', nicos_version)
+                cache.put(self, 'nicosroot', config.nicos_root)
+                cache.put(self, 'custompath', config.custom_path)
                 if set(self.explicit_setups) - set(['system', 'startup']):
                     cache.put(self, 'mastersetup', list(self.loaded_setups))
                     cache.put(self, 'mastersetupexplicit',
