@@ -6,7 +6,7 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 description = "Andor DV936 CCD camera setup"
 group = "basic"
 
-includes = ["counter", "shutter", "microstep"]
+includes = ["counter", "shutter", "microstep", "reactor"]
 
 tango_host = "tango://phys.biodiff.frm2:10000"
 _TANGO_BASE_URL = "%s/biodiff/detector" % tango_host
