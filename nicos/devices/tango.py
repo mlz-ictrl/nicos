@@ -29,6 +29,8 @@ All NICOS - TANGO devices only support devices which fulfill the official
 FRM-II/JCNS TANGO interface for the respective device classes.
 """
 
+from time import sleep
+
 import PyTango
 
 from nicos.core import Param, Override, status, Readable, Moveable, Measurable,\
@@ -98,6 +100,11 @@ class PyTangoDevice(HasCommunication):
         nicosState = mapping.get(tangoState, status.UNKNOWN)
 
         return (nicosState, tangoStatus)
+
+    def _hw_wait(self):
+        """Wait until hardware status is not BUSY."""
+        while self.doStatus(0)[0] == status.BUSY:
+            sleep(self._base_loop_delay)
 
     def doVersion(self):
         return [(self.tangodevice, self._dev.version)]

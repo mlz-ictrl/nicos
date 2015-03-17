@@ -24,8 +24,6 @@
 
 """NICOS temperature controller classes."""
 
-from time import sleep
-
 import TACOStates
 import Temperature
 
@@ -77,15 +75,11 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
         'precision':  Override(mandatory=False),  # can be read from server
     }
 
-    def _waitForTacoIdle(self):
-        while self.doStatus()[0] == status.BUSY:
-            sleep(self._base_loop_delay)
-
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
             self.log.debug('stopping running temperature change')
             self._taco_guard(self._dev.stop)
-            self._waitForTacoIdle()
+            self._hw_wait()
         self._taco_guard(self._dev.write, target)
         self._pollParam('setpoint', 100)
 

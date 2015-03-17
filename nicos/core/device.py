@@ -1418,6 +1418,11 @@ class Moveable(Readable):
             return False
         return True
 
+    def _hw_wait(self):
+        """Wait until hardware status is not BUSY."""
+        while self.doStatus(0)[0] == status.BUSY:
+            sleep(self._base_loop_delay)
+
     @usermethod
     def wait(self):
         """Wait until movement of device is completed.

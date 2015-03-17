@@ -216,14 +216,10 @@ class HoveringAxis(SequencerMixin, Axis):
             SeqDev(self._adevs['switch'], self.switchvalues[1]),
             SeqSleep(self.startdelay),
             SeqCall(Axis.doStart, self, target),
-            SeqCall(self._wait),
+            SeqCall(Axis._hw_wait, self),
             SeqSleep(self.stopdelay),
             SeqDev(self._adevs['switch'], self.switchvalues[0]),
         ]
-
-    def _wait(self):
-        while Axis.doStatus(self)[0] == status.BUSY:
-            sleep(self._base_loop_delay)
 
     def doStart(self, target):
         if self._seq_thread and self._seq_thread.isAlive():
