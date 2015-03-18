@@ -25,11 +25,11 @@
 """Sans1 spinflipper specific devices."""
 
 import time
-from nicos.core import Param, status, tacodev, SIMULATION
+from nicos.core import Param, status, tacodev, SIMULATION, HasTimeout
 from nicos.devices.taco import AnalogInput, AnalogOutput
 
 
-class SpinflipperPower(AnalogOutput):
+class SpinflipperPower(HasTimeout, AnalogOutput):
     """This class provides access to the ag1016 power, forward power
     and reverse power.
 
@@ -74,9 +74,13 @@ class SpinflipperPower(AnalogOutput):
                                            tacodevice=self.reversetacodevice,
                                            lowlevel=True)
 
+    def doTime(self, move_from, move_to):
+        return self.busytime
+
     def doStatus(self, maxage=0):
-        if time.time() < self.started + self.busytime:
-            return status.BUSY, 'waiting %.1gs for stabilisation' % self.busytime
+        if self._timesout:
+            if time.time() < self._timesout[-1][1]:
+                return status.BUSY, 'waiting %.1gs for stabilisation' % self.busytime
         return AnalogOutput.doStatus(self, maxage)
 
     def doReadForward(self):
