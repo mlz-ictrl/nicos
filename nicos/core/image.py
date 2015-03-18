@@ -361,9 +361,9 @@ class ImageProducer(DeviceMixinBase):
                         imageinfo.filesaver.fileFormat,
                         imageinfo.filepath,
                         imageinfo.imagetype.dtype,
-                        imageinfo.imagetype.shape[0],
-                        imageinfo.imagetype.shape[1] if len(imageinfo.imagetype.shape) > 1 else 1,
-                        imageinfo.imagetype.shape[2] if len(imageinfo.imagetype.shape) > 2 else 1,
+                        image.shape[0],
+                        image.shape[1] if len(image.shape) > 1 else 1,
+                        image.shape[2] if len(image.shape) > 2 else 1,
                         imageinfo.endtime-imageinfo.begintime,
                         '')
             else:
