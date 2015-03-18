@@ -76,7 +76,7 @@ devices = dict(
     Exp      = device('devices.experiment.Experiment',
                       dataroot = 'data',
                       sendmail = True,
-                      serviceexp = '0',
+                      serviceexp = 'service',
                       # We do not have a dedicated responsible
                       sample = 'Sample',
                      ),
