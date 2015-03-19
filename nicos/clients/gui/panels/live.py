@@ -61,6 +61,7 @@ class LiveDataPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'live.ui', 'panels')
 
+        self._allowed_tags = set()
         self._last_tag = None
         self._last_fname = None
         self._last_format = None
@@ -104,6 +105,7 @@ class LiveDataPanel(Panel):
         self._toftof_profile = None
 
     def setOptions(self, options):
+        # configure instrument specific behavior
         self._instrument = options.get('instrument', '')
         self.widget.setInstrumentOption(self._instrument)
         if self._instrument == 'toftof':
@@ -113,6 +115,9 @@ class LiveDataPanel(Panel):
                                     Normalize | Darkfield | Despeckle |
                                     CreateProfile | Histogram | MinimumMaximum)
             self.widget.setStandardColorMap(True, False)
+        # configure allowed file types
+        opt_filetypes = options.get('filetypes', list(FILETYPES))
+        self._allowed_tags = set(opt_filetypes) & set(FILETYPES)
         if self.client.connected:
             self.on_client_connected()
 
@@ -183,18 +188,19 @@ class LiveDataPanel(Panel):
 
     def on_client_livedata(self, data):
         if self._last_fname:
-            if path.isfile(self._last_fname) and self._last_tag in FILETYPES:
+            if path.isfile(self._last_fname) and self._last_tag in self._allowed_tags:
                 # in the case of a filename, we add it to the list
                 self.add_to_flist(self._last_fname, self._last_format, self._last_tag)
         # but display it right now only if on <Live> setting
         if self._no_direct_display:
             return
-        if len(data) and self._last_format:
-            # we got live data with a specified format
-            self.widget.setData(
-                LWData(self._nx, self._ny, self._nz, self._last_format, data))
-        elif self._last_fname:
-            if self._last_tag in FILETYPES:
+        # always allow live data
+        if self._last_tag in self._allowed_tags or self._last_tag == 'live':
+            if len(data) and self._last_format:
+                # we got live data with a specified format
+                self.widget.setData(
+                    LWData(self._nx, self._ny, self._nz, self._last_format, data))
+            elif self._last_fname:
                 # we got no live data, but a filename with the data
                 self.widget.setData(LWData(self._last_fname,
                                            FILETYPES[self._last_tag]))
@@ -219,7 +225,7 @@ class LiveDataPanel(Panel):
             if self._no_direct_display:
                 self._no_direct_display = False
                 if self._last_fname:
-                    if self._last_tag in FILETYPES:
+                    if self._last_tag in self._allowed_tags:
                         d = LWData(self._last_fname, FILETYPES[self._last_tag])
                         self.widget.setData(d)
         else:
