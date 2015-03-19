@@ -277,7 +277,8 @@ class VirtualCounter(VirtualChannel):
     """
 
     parameters = {
-        'countrate':  Param('The maximum countrate', type=int, default=1000, settable=False,),
+        'countrate':  Param('The maximum countrate', type=int, default=1000,
+                            settable=False),
         'type':       Param('Type of channel: monitor or counter',
                             type=oneof('monitor', 'counter'), mandatory=True),
     }
@@ -378,7 +379,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
         'jitter':    Param('Jitter of the read-out value', default=0,
                            unit='main'),
         'regulation': Param('Current temperature (regulation)', settable=False,
-                           unit='main', default=2.),
+                            unit='main', default=2.),
         'sample':    Param('Current temperature (sample)', settable=False,
                            unit='main', default=2.),
         'curstatus': Param('Current status', type=tupleof(int, str),
@@ -392,7 +393,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
         'heater':    Param('Simulated heater output power in percent',
                            settable=True, unit='%'),
         'heaterpower': Param('Simulated heater output power in Watt',
-                           settable=False, unit='W'),
+                             settable=False, unit='W'),
         'maxpower':  Param('Max heater power in W', settable=True, unit='W',
                            default=100),
         'p':         Param('P-value for regulation', settable=True,
@@ -401,16 +402,16 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                            default=10, unit='%/mains'),
         'd':         Param('D-value for regulation', settable=True,
                            default=1, unit='%s/main'),
-        'mode' :     Param('PID control or open loop heater mode',
+        'mode':      Param('PID control or open loop heater mode',
                            settable=True, default='manualpid',
                            type=oneof('manualpid', 'manual', 'openloop')),
-        'speedup' :  Param('speed up simulation by a factor', settable=True,
+        'speedup':   Param('speed up simulation by a factor', settable=True,
                            default=1, unit='', type=floatrange(0.01, 100)),
     }
 
     parameter_overrides = {
         'unit':      Override(mandatory=False, default='K'),
-        'timeout' : Override(default=900),
+        'timeout':   Override(default=900),
     }
 
     _thread = None
@@ -463,7 +464,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
         self.heater = clamp(self.heater * self.maxpower / float(newpower), 0, 100)
 
     def doReadTarget(self):
-        #Bootstrapping helper, called at most once
+        # Bootstrapping helper, called at most once
         return sum(self.abslimits) * 0.5
 
     #
@@ -472,7 +473,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     def __coolerPower(self, temp):
         """returns cooling power in W at given temperature"""
         # quadratic up to 42K, is linear from 40W@42K to 100W@600K
-        #~ return clamp((temp-2)**2 / 32., 0., 40.) + temp * 0.1
+        # return clamp((temp-2)**2 / 32., 0., 40.) + temp * 0.1
         return clamp(15 * atan(temp * 0.01) ** 3, 0., 40.) + temp * 0.1 - 0.2
 
     def __coolerCP(self, temp):
@@ -487,7 +488,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
 
     def __sampleCP(self, temp):
         return 3 * atan(temp / 30) + \
-                12 * temp / ((temp - 12.)**2 + 10) + 0.5
+            12 * temp / ((temp - 12.)**2 + 10) + 0.5
 
     def __sampleLeak(self, temp):
         return 0.02/temp
@@ -540,11 +541,14 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
             heatflow = self.__heatLink(regulation, sample)
             self.log.debug('sample = %.5f, regulation = %.5f, heatflow = %.5g'
                            % (sample, regulation, heatflow))
-            newsample = max(0, sample + (self.__sampleLeak(sample) - heatflow) / self.__sampleCP(sample) * h)
-            newsample = clamp(newsample, sample, regulation) # avoid instabilities due to too small CP
-            newregulation = max(0, regulation + (heater * 0.01 * self.maxpower
-                + heatflow - self.__coolerPower(regulation)) /
-                self.__coolerCP(regulation) * h)
+            newsample = max(0, sample + (self.__sampleLeak(sample) - heatflow) /
+                            self.__sampleCP(sample) * h)
+            # avoid instabilities due to too small CP
+            newsample = clamp(newsample, sample, regulation)
+            newregulation = max(0, regulation + (heater * 0.01 * self.maxpower +
+                                                 heatflow -
+                                                 self.__coolerPower(regulation)) /
+                                self.__coolerCP(regulation) * h)
 
             # b) see
             # http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
@@ -554,17 +558,16 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                 # good idea on when to increase it back again
                 if heatflow * lastflow != -100:
                     if (newregulation - newsample) * (regulation - sample) < 0:
-                        #~ newregulation = (newregulation + regulation) / 2
-                        #~ newsample = (newsample + sample) / 2
-                        damper +=1
+                        # newregulation = (newregulation + regulation) / 2
+                        # newsample = (newsample + sample) / 2
+                        damper += 1
                 lastflow = heatflow
 
                 error = self.setpoint - newregulation
-                #~ # use a simple filter to smooth delta a little
+                # use a simple filter to smooth delta a little
                 delta = (delta + regulation - newregulation) / 2.
 
-
-                kp = self.p / 10.        # LakeShore P = 10*k_p
+                kp = self.p / 10.             # LakeShore P = 10*k_p
                 ki = kp * abs(self.i) / 500.  # LakeShore I = 500/T_i
                 kd = kp * abs(self.d) / 2.    # LakeShore D = 2*T_d
 
@@ -573,7 +576,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                 D = kd * delta / h
 
                 # avoid reset windup
-                I = clamp(I, 0., 100.) # I is in %
+                I = clamp(I, 0., 100.)  # I is in %
 
                 # avoid jumping heaterpower if switching back to pid mode
                 if lastmode != self.mode:
@@ -596,8 +599,9 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                                (P, I, D, heater))
 
                 # check for turn-around points to detect oscillations -> increase damper
-                x,y = last_heaters
-                if (x + 0.1 < y and y > heater + 0.1) or (x > y + 0.1 and y + 0.1 < heater):
+                x, y = last_heaters
+                if (x + 0.1 < y and y > heater + 0.1) or \
+                   (x > y + 0.1 and y + 0.1 < heater):
                     damper += 1
                 last_heaters = (y, heater)
 
@@ -620,7 +624,7 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
                 try:
                     self.setpoint = round(self.setpoint +
                                           clamp(self.target - self.setpoint,
-                                         -maxdelta, maxdelta), 3)
+                                                -maxdelta, maxdelta), 3)
                     self.log.debug('setpoint changes to %r' % self.setpoint)
                 except (TypeError, ValueError):
                     # self.target might be None
@@ -723,9 +727,9 @@ class Virtual2DDetector(ImageProducer, Measurable):
 
     def _generate(self, t):
         dst = (self._adevs['distance'].read() * 5) if self._adevs['distance'] \
-              else 5
+            else 5
         coll = self._adevs['collimation'].read() if self._adevs['collimation'] \
-              else '15m'
+            else '15m'
         xx, yy = np.meshgrid(np.linspace(-64, 63, 128), np.linspace(-64, 63, 128))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
         sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)
