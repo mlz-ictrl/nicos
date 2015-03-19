@@ -85,6 +85,25 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         '_starttime':       Param('Cached counting start time',
                                   type=float, default=0, settable=False,
                                   userparam=False),
+        # some cached values are necessary as hw params are volatile on request
+        '_curexpotime':         Param('Cached exposure time for current'
+                                      ' acquisition',
+                                    type=float,
+                                    default=0,
+                                    settable=False,
+                                    userparam=False),
+        '_curshutteropentime':  Param('Cached shutter open time for current'
+                                      ' acquisition',
+                                    type=float,
+                                    default=0,
+                                    settable=False,
+                                    userparam=False),
+        '_curshutterclosetime': Param('Cached shutter close time for current'
+                                      ' acquisition',
+                                    type=float,
+                                    default=0,
+                                    settable=False,
+                                    userparam=False),
 
     }
 
@@ -119,6 +138,9 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         self._dev.prepareAcq()
 
         self._setROParam('_starttime', time.time())
+        self._setROParam('_curexpotime', self.expotime)
+        self._setROParam('_curshutteropentime', self.shutteropentime)
+        self._setROParam('_curshutterclosetime', self.shutterclosetime)
 
         self._dev.startAcq()
 
@@ -138,14 +160,14 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         if nicosStatus == status.BUSY:
             deltaTime = time.time() - self._starttime
 
-            if self._shutter and deltaTime <= self.shutteropentime:
+            if self._shutter and deltaTime <= self._curshutteropentime:
                 limaStatus += ' (Opening shutter)'
-            elif deltaTime <= (self.expotime):
-                remaining = self.expotime - deltaTime
+            elif deltaTime <= (self._curexpotime):
+                remaining = self._curexpotime - deltaTime
                 limaStatus += ' (Exposing; Remaining: %.2f s)' % remaining
-            elif self._shutter and deltaTime <= (self.shutteropentime
-                                                 + self.expotime
-                                                 + self.shutterclosetime):
+            elif self._shutter and deltaTime <= (self._curshutteropentime
+                                                 + self._curexpotime
+                                                 + self._curshutterclosetime):
                 limaStatus += ' (Closing shutter)'
             else:
                 limaStatus += ' (Readout)'
@@ -153,7 +175,7 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         return (nicosStatus, limaStatus)
 
     def doIsCompleted(self):
-        if self.doStatus()[0] == status.BUSY:
+        if self.status(0)[0] == status.BUSY:
             return False
         return True
 
