@@ -27,8 +27,7 @@ import os
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QMainWindow, QFileDialog, QMenu
-from PyQt4.QtCore import QString
+from PyQt4.QtGui import QMainWindow, QFileDialog, QTreeWidgetItem
 
 from nicos.core.sessions.setups import readSetup
 
@@ -38,41 +37,110 @@ class MainWindow(QMainWindow):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
 
+        #root directory containing all the setups or subdirectories with setups.
+        self.setupRoot = path.join(self.getNicosDir(), 'custom')
+
         # initialize empty dictionary
         # supposed to be a dictionary of Tuples of parsed files
         self.info = {}
-        self.scriptMenu = QMenu()
-        self.scriptMenuSpecial = QMenu()
-        self.scriptMenuSpecial.setTitle('special/')
-        self.pushButtonSelectScript.setMenu(self.scriptMenu)
 
-        self.pushButtonLoadSetupDir.clicked.connect(
+        self.pushButtonLoadFile.clicked.connect(
             self.loadFile)
-        self.pushButtonLoadInstruments.clicked.connect(
-            self.loadInstrumentsList)
-        self.comboBoxSelectInstrument.currentIndexChanged[QString].connect(
-            self.loadScriptList)
+        self.treeWidget.itemActivated.connect(self.loadSelection)
 
         # Initialize a logger required by setups.readSetup()
         self.log = logging.getLogger()
+
+        #list of directories in */nicos-core/custom/
+        self.setupDirectories = []
+        for item in os.listdir(self.setupRoot):
+            if path.isdir(path.join(self.setupRoot, item)):
+                self.setupDirectories.append(item)
+
+        #list of topLevelItems representing the directories in
+        #*/nicos-core/custom: for example instruments, ...
+        topLevelItems = []
+        for directory in sorted(self.setupDirectories):
+            topLevelItems.append(QTreeWidgetItem([directory]))
+        self.treeWidget.addTopLevelItems(topLevelItems)
+
+        #all these directories (may) have setups, find all of them and add them
+        #as children, after that, add all their devices as children
+        for item in topLevelItems:
+            scriptList = [[]] #list of rows, a row = list of strings
+            if path.isdir(path.join(self.setupRoot, item.text(0), 'setups')):
+                self.getSetupsForDir(path.join(self.setupRoot, item.text(0)),
+                                     'setups', scriptList)
+                for script in sorted(scriptList):
+                    if script:
+                        item.addChild(QTreeWidgetItem(script))
+
+            #setup for this directory has been loaded, add the devices.
+            currentIndex = 0
+            while currentIndex < item.childCount():
+                currentPath = item.child(currentIndex).text(1)
+                self.readSetupFile(currentPath)
+                for key in self.info[currentPath[:-3]]['devices'].keys():
+                    #read the setup and add all the devices as child tree items
+                    item.child(currentIndex).addChild(QTreeWidgetItem([key]))
+                currentIndex += 1
+
+        #hide the "path" column in treeWidget. May be toggleable later
+        self.treeWidget.setColumnCount(1)
+
+        #information of hidden column is still accessible.
+        #print(topLevelItems[0].child(0).text(1)) -> path to very first setup
+
+
+    def getSetupsForDir(self, previousDir, newDir, listOfSetups):
+        #gets a root directory: previousDir and a subdirectory in the root
+        #walks down every directory starting from newDir and appends every
+        #*.py file it finds to the initial listOfSetups which is passed to each
+        #level of recursion
+        #actually appends a list of strings: first string is filename, second
+        #string is the full path.
+        for item in os.listdir(path.join(previousDir, newDir)):
+            if item.endswith('.py'):
+                listOfSetups.append([item,
+                                     str(path.join(previousDir, newDir, item))])
+            elif path.isdir(path.join(previousDir, newDir, item)):
+                self.getSetupsForDir(path.join(
+                    previousDir, newDir), item, listOfSetups)
+
+
+    def loadSelection(self):
+        items = self.treeWidget.selectedItems()
+        for item in items: #no multiple selection -> only 1 item
+            if not item.parent(): #selection is directory in nicos-core/custom/
+                self.info.clear()
+                self.textEdit.clear()
+                return
+
+            if item.text(1).endswith(".py"): #selection is setup
+                self.readSetupFile(item.text(1))
+                self.updateText()
+
+            else: #selection is device
+                parentPath = item.parent().text(1)
+                self.readSetupFile(parentPath)
+                deviceConfig = self.info[parentPath[:-3]][
+                    'devices'][item.text(0)]
+                self.textEdit.setText(item.text(0) +
+                                      ':\n\n' +
+                                      str(deviceConfig))
+
 
     def loadFile(self):
         # allows a user specify the setup file to be parsed
         setupFile = QFileDialog.getOpenFileName(
             self,
-            'Open Python script',
+            'Open setup file',
             path.expanduser('~'),
             'Python Files (*.py)')
 
         if setupFile:
-            self.comboBoxSelectInstrument.clear()
-            self.comboBoxSelectInstrument.setEnabled(False)
-            self.scriptMenu.clear()
-            self.scriptMenuSpecial.clear()
-            self.pushButtonSelectScript.setEnabled(False)
-            self.pushButtonSelectScript.setText('Select script...')
-            self.pushButtonLoadInstruments.setText('Load instruments')
             self.readSetupFile(setupFile)
+        self.updateText()
 
 
     def readSetupFile(self, pathToFile):
@@ -80,134 +148,14 @@ class MainWindow(QMainWindow):
         # put the information in the self.info dictionary.
         self.info.clear()
         readSetup(self.info,
-                  path.dirname(str(pathToFile)),
-                  str(pathToFile),
+                  path.dirname(pathToFile),
+                  pathToFile,
                   self.log)
 
-        # sets the textEdit's text to the dictionary for debug purposes
+
+    def updateText(self):
         self.textEdit.clear()
-        self.printDict(self.info, 0)
-
-
-    def printDict(self, myDict, depth):
-        for value in myDict.iteritems():
-            if isinstance(value, dict):
-                self.printDict(value, depth + 1)
-            elif isinstance(value, tuple):
-                self.printTuple(value, depth + 1)
-            else:
-                self.textEdit.append(depth * ' ' + str(value))
-
-
-    def printTuple(self, myTuple, depth):
-        for value in myTuple:
-            if isinstance(value, dict):
-                self.printDict(value, depth + 1)
-            elif isinstance(value, tuple):
-                self.printTuple(value, depth + 1)
-            else:
-                self.textEdit.append(depth * ' ' + str(value))
-
-
-    def loadInstrumentsList(self):
-        # (re-)loads the list of instruments by going to the nicos dir,
-        # switching to directory "custom" and loading all the entries there
-        self.comboBoxSelectInstrument.clear()
-
-        # creating an empty list to store the instruments because apparently
-        # listDir does NOT return the files & directories alphabetically sorted
-        instrumentList = []
-        instrumentDir =  path.join(self.getNicosDir(), 'custom')
-        for instrument in os.listdir(instrumentDir):
-            if os.path.isdir(os.path.join(instrumentDir, instrument)):
-                instrumentList.append(instrument)
-
-        for instrument in sorted(instrumentList):
-            self.comboBoxSelectInstrument.addItem(instrument)
-
-        if not self.comboBoxSelectInstrument.isEnabled():
-            self.comboBoxSelectInstrument.setEnabled(True)
-            self.pushButtonLoadInstruments.setText('Reload Instruments')
-
-
-    def loadScriptList(self, instrument):
-        # loads all the setup files of the selected instrument into
-        # self.scriptMenu and all the special setup files in the subdirectory
-        # setups/special into scriptMenuSpecial
-        self.scriptMenu.clear()
-        self.scriptMenuSpecial.clear()
-
-        if instrument.isEmpty():
-            return
-
-        scriptDir = os.path.join(self.getNicosDir(),
-                                 'custom',
-                                 str(instrument),
-                                 'setups')
-
-        # add all scripts in the scriptDir to the scriptList as strings
-        # also add a string for the special subdirectory
-        scriptList = []
-        for script in os.listdir(scriptDir):
-            if script.endswith('.py'):
-                scriptList.append(script)
-        scriptList.append('special/')
-
-        # add all scripts in the special directory to the scriptListSpecial
-        scriptListSpecial = []
-        for script in os.listdir(os.path.join(scriptDir, 'special')):
-            if script.endswith('.py'):
-                scriptListSpecial.append(script)
-
-        # fill the submenu for the special directory with the scripts in the
-        # scriptListSpecial
-        for script in sorted(scriptListSpecial):
-            self.scriptMenuSpecial.addAction(script)
-
-        # fill the menu for the setups directory with the scripts in the
-        # scriptList, also add the submenu special/
-        for script in sorted(scriptList):
-            if script.endswith('special/'):
-                self.scriptMenu.addMenu(self.scriptMenuSpecial)
-            else:
-                self.scriptMenu.addAction(script)
-
-        # requiring two different functions because scripts in special/
-        # subdirectory have a different path than scripts in setups/
-        for action in self.scriptMenu.actions():
-            action.triggered.connect(self.loadSetupScript)
-
-        for specialAction in self.scriptMenuSpecial.actions():
-            specialAction.triggered.connect(self.loadSpecialScript)
-
-        if not self.pushButtonSelectScript.isEnabled():
-            self.pushButtonSelectScript.setEnabled(True)
-
-
-    def loadSetupScript(self):
-        if not str(self.sender().text()):
-            return
-        self.loadScript(str(self.sender().text()))
-
-
-    def loadSpecialScript(self):
-        if not str(self.sender().text()):
-            return
-        self.loadScript(os.path.join('special', str(self.sender().text())))
-
-
-    def loadScript(self, script):
-        # loads the given script using self.readSetupFile()
-        self.pushButtonSelectScript.setText(script)
-
-        pathToScript = os.path.join(
-            self.getNicosDir(),
-            'custom',
-            str(self.comboBoxSelectInstrument.currentText()),
-            'setups',
-            script)
-
-        self.readSetupFile(pathToScript)
+        self.textEdit.setText(repr(self.info))
 
 
     def getNicosDir(self):
