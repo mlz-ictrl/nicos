@@ -30,6 +30,7 @@ from nicos.core import ImageProducer, ImageType, Param, Device, Measurable, \
 from nicos.devices.tango import PyTangoDevice
 from .optional import LimaShutter
 
+
 class HwDevice(PyTangoDevice, AutoDevice, Device):
     pass
 
@@ -42,48 +43,48 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
     For hardware specific additions, have a look at the particular class.
     """
     parameters = {
-        'hwdevice': Param('Hardware specific tango device', type=tangodev,
-                          default='', preinit=True),
-        'imagewidth'      : Param('Image width',
-                                type=int, volatile=True, category='general'),
-        'imageheight'     : Param('Image height',
-                                type=int, volatile=True, category='general'),
-        'roi'             : Param('Region of interest',
-                                type=tupleof(int, int, int, int), settable=True,
-                                default=(0, 0, 0, 0), volatile=True,
-                                category='general'),
-        'bin'             : Param('Binning (x,y)',
-                                type=tupleof(int, int), settable=True,
-                                default=(1, 1), volatile=True, category='general'),
-        'flip'            : Param('Flipping (x,y)',
-                                type=tupleof(bool, bool), settable=True,
-                                default=(False, False), volatile=True,
-                                category='general'),
-        'rotation'        : Param('Rotation',
-                                type=oneof(0, 90, 180, 270), settable=True,
-                                default=0, volatile=True, category='general'),
-        'expotime'        : Param('Exposure time',
-                                type=float, settable=False, volatile=True,
-                                category='general'),
-        'cameramodel'     : Param('Camera type/model',
-                                type=str, settable=False,
-                                volatile=True, # Necessary?
-                                category='general'),
-        'shutteropentime' : Param('Shutter open time',
-                                type=none_or(float), settable=True, default=0,
-                                volatile=False, category='general'),
-        'shutterclosetime' : Param('Shutter open time',
-                                type=none_or(float), settable=True, default=0,
-                                volatile=False, category='general'),
-        'shuttermode'     : Param('Shutter mode',
-                                type=none_or(oneof('always_open',
-                                                   'always_closed',
-                                                   'auto')),
-                                settable=True, default='auto', volatile=True,
-                                category='general'),
-        '_starttime':       Param("Cached counting start time",
-                                type=float, default=0, settable=False,
-                                userparam=False),
+        'hwdevice':         Param('Hardware specific tango device', type=tangodev,
+                                  default='', preinit=True),
+        'imagewidth':       Param('Image width',
+                                  type=int, volatile=True, category='general'),
+        'imageheight':      Param('Image height',
+                                  type=int, volatile=True, category='general'),
+        'roi':              Param('Region of interest',
+                                  type=tupleof(int, int, int, int), settable=True,
+                                  default=(0, 0, 0, 0), volatile=True,
+                                  category='general'),
+        'bin':              Param('Binning (x,y)',
+                                  type=tupleof(int, int), settable=True,
+                                  default=(1, 1), volatile=True, category='general'),
+        'flip':             Param('Flipping (x,y)',
+                                  type=tupleof(bool, bool), settable=True,
+                                  default=(False, False), volatile=True,
+                                  category='general'),
+        'rotation':         Param('Rotation',
+                                  type=oneof(0, 90, 180, 270), settable=True,
+                                  default=0, volatile=True, category='general'),
+        'expotime':         Param('Exposure time',
+                                  type=float, settable=False, volatile=True,
+                                  category='general'),
+        'cameramodel':      Param('Camera type/model',
+                                  type=str, settable=False,
+                                  volatile=True,  # Necessary?
+                                  category='general'),
+        'shutteropentime':  Param('Shutter open time',
+                                  type=none_or(float), settable=True, default=0,
+                                  volatile=False, category='general'),
+        'shutterclosetime': Param('Shutter open time',
+                                  type=none_or(float), settable=True, default=0,
+                                  volatile=False, category='general'),
+        'shuttermode':      Param('Shutter mode',
+                                  type=none_or(oneof('always_open',
+                                                     'always_closed',
+                                                     'auto')),
+                                  settable=True, default='auto', volatile=True,
+                                  category='general'),
+        '_starttime':       Param('Cached counting start time',
+                                  type=float, default=0, settable=False,
+                                  userparam=False),
 
     }
 
@@ -98,7 +99,7 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         self._hwDev = None
         if self.hwdevice:
             self._hwDev = HwDevice(self.name + '._hwDev',
-                                      tangodevice=self.hwdevice, lowlevel=True)
+                                   tangodevice=self.hwdevice, lowlevel=True)
 
         self._initOptionalComponents()
 
@@ -124,18 +125,17 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
     def doStop(self):
         self._dev.stopAcq()
 
-    def doStatus(self, maxage=0):  #pylint: disable=W0221
+    def doStatus(self, maxage=0):  # pylint: disable=W0221
         statusMap = {
-             'Ready' : status.OK,
-             'Running' : status.BUSY,
-             'Fault' : status.ERROR,
-             }
+            'Ready': status.OK,
+            'Running': status.BUSY,
+            'Fault': status.ERROR,
+        }
 
         limaStatus = self._dev.acq_status
         nicosStatus = statusMap.get(limaStatus, status.UNKNOWN)
 
         if nicosStatus == status.BUSY:
-
             deltaTime = time.time() - self._starttime
 
             if self._shutter and deltaTime <= self.shutteropentime:
@@ -208,7 +208,7 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
     def doReadShutteropentime(self):
         if self._shutter:
             return self._shutter.doReadShutteropentime()
-        return None # will be overwritten
+        return None  # will be overwritten
 
     def doWriteShutteropentime(self, value):
         if self._shutter:
@@ -256,7 +256,6 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         except NicosError:
             pass
 
-
     def _getImageType(self):
         if self._mode == SIMULATION:
             return numpy.uint32
@@ -264,13 +263,12 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         imageType = self._dev.image_type
 
         mapping = {
-                   'Bpp8' : numpy.uint8,
-                   'Bpp8S' : numpy.int8,
-                   'Bpp16' : numpy.uint16,
-                   'Bpp16S' : numpy.int16,
-                   'Bpp32' : numpy.uint32,
-                   'Bpp32S' : numpy.int32,
-                   }
+            'Bpp8': numpy.uint8,
+            'Bpp8S': numpy.int8,
+            'Bpp16': numpy.uint16,
+            'Bpp16S': numpy.int16,
+            'Bpp32': numpy.uint32,
+            'Bpp32S': numpy.int32,
+        }
 
         return mapping.get(imageType, numpy.uint32)
-
