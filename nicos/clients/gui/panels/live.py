@@ -183,8 +183,9 @@ class LiveDataPanel(Panel):
 
     def on_client_livedata(self, data):
         if self._last_fname:
-            # in the case of a filename, we add it to the list
-            self.add_to_flist(self._last_fname, self._last_format, self._last_tag)
+            if path.isfile(self._last_fname) and self._last_tag in FILETYPES:
+                # in the case of a filename, we add it to the list
+                self.add_to_flist(self._last_fname, self._last_format, self._last_tag)
         # but display it right now only if on <Live> setting
         if self._no_direct_display:
             return
@@ -193,8 +194,10 @@ class LiveDataPanel(Panel):
             self.widget.setData(
                 LWData(self._nx, self._ny, self._nz, self._last_format, data))
         elif self._last_fname:
-            # we got no live data, but a filename with the data
-            self.widget.setData(LWData(self._last_fname, FILETYPES[self._last_tag]))
+            if self._last_tag in FILETYPES:
+                # we got no live data, but a filename with the data
+                self.widget.setData(LWData(self._last_fname,
+                                           FILETYPES[self._last_tag]))
 
     def add_to_flist(self, filename, fformat, ftag, scroll=True):
         shortname = path.basename(filename)
@@ -216,8 +219,9 @@ class LiveDataPanel(Panel):
             if self._no_direct_display:
                 self._no_direct_display = False
                 if self._last_fname:
-                    d = LWData(self._last_fname, FILETYPES[str(self._last_tag)])
-                    self.widget.setData(d)
+                    if self._last_tag in FILETYPES:
+                        d = LWData(self._last_fname, FILETYPES[self._last_tag])
+                        self.widget.setData(d)
         else:
             # show image from file
             self._no_direct_display = True
