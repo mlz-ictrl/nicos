@@ -428,7 +428,7 @@ class NamedDigitalOutput(DigitalOutput):
 
     def doStart(self, target):
         value = self.mapping.get(target, target)
-        self._dev.value = self.valuetype(value)
+        self._dev.value = value
 
     def doRead(self, maxage=0):
         value = self._dev.value
