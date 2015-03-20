@@ -127,6 +127,9 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         shape = (self.imagewidth, self.imageheight)
         self.imagetype = ImageType(shape, self._getImageType())
 
+    def doShutdown(self):
+        self._hwDev.shutdown()
+
     def doSetPreset(self, **preset):
         if 't' in preset:
             self._dev.acq_expo_time = preset['t']
