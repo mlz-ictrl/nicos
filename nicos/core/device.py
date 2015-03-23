@@ -1413,7 +1413,7 @@ class Moveable(Readable):
         """
         if hasattr(self, 'doIsAtTarget'):
             return self.doIsAtTarget(pos)
-        elif isinstance(self.target, (string_types, integer_types)) and \
+        elif isinstance(pos, (string_types, integer_types)) and \
                 self.target != pos:
             return False
         return True
