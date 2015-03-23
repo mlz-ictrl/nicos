@@ -49,8 +49,9 @@ from nicos.utils.emails import sendMail
 from nicos.utils.loggers import ELogHandler
 from nicos.utils.compression import zipFiles
 from nicos.commands.basic import run
-from nicos.pycompat import BytesIO, string_types
+from nicos.pycompat import BytesIO, string_types, from_maybe_utf8
 from nicos.devices.sample import Sample
+from nicos._vendor import rtfunicode  # for side effects - pylint: disable=W0611
 
 
 class Experiment(Device):
@@ -1107,6 +1108,10 @@ class Experiment(Device):
         stats = self._statistics()
         stats.update(self.propinfo)
         stats.update(kwds)
+        # encode all text that may be Unicode into RTF \u escapes
+        for key in stats:
+            if isinstance(stats[key], string_types):
+                stats[key] = from_maybe_utf8(stats[key]).encode('rtfunicode')
 
         # template data
         newcontent, _, _ = expandTemplate(data, stats)
