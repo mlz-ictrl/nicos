@@ -90,14 +90,14 @@ class Motor(BaseMotor):
 
     def doStart(self, target):
         self.doReference()
-        Motor.doStart(self, target)
+        BaseMotor.doStart(self, target)
 
     def _stepping_until(self, start, step, switch):
         self.log.debug('Set position : %d' % (start))
         self.doSetPosition(start)
         while self._adevs['limitsw'].read(0) == switch:
             start += step
-            Motor.doStart(self, start)
+            BaseMotor.doStart(self, start)
         self.wait()
 
     def doReference(self):
