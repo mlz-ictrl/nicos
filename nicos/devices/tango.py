@@ -166,7 +166,8 @@ class PyTangoDevice(HasCommunication):
                 self.log.debug('[PyTango] call: %s%r'
                                % (func.__name__, args))
 
-            return self._com_retry(None, func, *args, **kwds)
+            return self._com_retry(args[0] if args else None,
+                                   func, *args, **kwds)
 
         # hide the wrapping
         wrap.__name__ = func.__name__
@@ -183,13 +184,28 @@ class PyTangoDevice(HasCommunication):
             self.log.debug('\t=> %s' % repr(result)[:300])
         return result
 
-    def _com_raise(self, err, info):
+    def _tango_exc_desc(self, err):
         exc = str(err)
         if err.args:
             exc = err.args[0]  # Can be str or DevError
             if isinstance(exc, PyTango.DevError):
-                exc = '%s: [%s] %s' % (exc.origin, exc.reason,
-                                       exc.desc)
+                # reduce Python tracebacks
+                if '\n' in exc.origin and 'File ' in exc.origin:
+                    origin = exc.origin.splitlines()[-2].strip()
+                else:
+                    origin = exc.origin.strip()
+                exc = '%s: %s in %s' % (exc.reason.strip(),
+                                        exc.desc.strip(),
+                                        origin)
+        return exc
+
+    def _com_warn(self, retries, name, err, info):
+        if retries == self.comtries - 1:
+            self.log.warning('%s failed, retrying up to %d times: %s' %
+                             (info, retries, self._tango_exc_desc(err)))
+
+    def _com_raise(self, err, info):
+        exc = self._tango_exc_desc(err)
         self.log.debug('PyTango error: %s' % exc)
         raise EXC_MAPPING.get(type(err), NicosError)(self, exc)
 
