@@ -543,10 +543,9 @@ class HasCommunication(DeviceMixinBase):
                 except Exception as err:
                     if tries == 0:
                         self._com_raise(err, info)
-                    elif tries == self.comtries - 1:
+                    else:
                         name = getattr(function, '__name__', 'communication')
-                        self.log.warning('%s failed, retrying up to %d times' %
-                                         (name, tries), exc=1)
+                        self._com_warn(tries, name, err, info)
                     sleep(self.comdelay)
 
     def _com_return(self, result, info):
@@ -556,6 +555,15 @@ class HasCommunication(DeviceMixinBase):
         unchanged.
         """
         return result
+
+    def _com_warn(self, retries, name, err, info):
+        """Gives the opportunity to warn the user on failed tries.
+
+        Can also call _com_raise to abort early.
+        """
+        if retries == self.comtries - 1:
+            self.log.warning('%s failed, retrying up to %d times' %
+                             (name, retries), exc=1)
 
     def _com_raise(self, err, info):
         """Process the exception raised either by communication or _com_return.
