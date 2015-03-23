@@ -87,6 +87,7 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
 
     parameter_overrides = {
         'timeout':   Override(default=90),
+        'precision': Override(volatile=True),
     }
 
     def timeoutAction(self):
@@ -111,17 +112,13 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
         self._stopflag = False
         self._taco_reset(self._dev)
 
-    def doStatus(self, maxage=0):
-        tacostatus = TacoVoltageSupply.doStatus(self, maxage)
-        if self._stopflag:
-            return tacostatus
-        if tacostatus[0] == status.OK:
-            if abs(self.target - self.doRead(maxage)) > self.precision:
-                return (status.BUSY, 'waiting for output voltage to stabilize')
-        return tacostatus
-
+    def doReadPrecision(self):
+        if self.target == 1:
+            return 69
+        return 1
 
 class Sans1HV(BaseSequencer):
+    valuetype = float
     attached_devices = {
         'supply':     Attach('NICOS Device for the highvoltage supply',
                              Moveable),
