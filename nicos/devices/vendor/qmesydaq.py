@@ -340,14 +340,17 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]: #1D array
             self.imagetype = ImageType(shape=(res[0], ), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
+            self.lastcounts = data.sum()
             return data
         elif res[2] in [0, 1]: #2D array
             self.imagetype = ImageType(shape=(res[0], res[1]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
+            self.lastcounts = data.sum()
             return data.reshape((res[0], res[1]), order='C')
         else: #3D array
             self.imagetype = ImageType(shape=(res[0], res[1], res[2]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
+            self.lastcounts = data.sum()
             return data.reshape((res[0], res[1], res[2]), order='C')
         return None
 
