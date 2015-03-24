@@ -22,12 +22,14 @@
 #
 # *****************************************************************************
 
+#icons: https://launchpad.net/elementaryicons
+
 import logging
 import os
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QMainWindow, QFileDialog, QTreeWidgetItem
+from PyQt4.QtGui import QMainWindow, QFileDialog, QTreeWidgetItem, QIcon
 
 from nicos.core.sessions.setups import readSetup
 
@@ -36,6 +38,9 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__(parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
+
+        self.resDir = path.join(self.getNicosDir(),
+                                'tools', 'setupfiletool', 'res')
 
         #root directory containing all the setups or subdirectories with setups.
         self.setupRoot = path.join(self.getNicosDir(), 'custom')
@@ -67,6 +72,7 @@ class MainWindow(QMainWindow):
         #all these directories (may) have setups, find all of them and add them
         #as children, after that, add all their devices as children
         for item in topLevelItems:
+            item.setIcon(0, QIcon(path.join(self.resDir, 'folder.png')))
             scriptList = [[]] #list of rows, a row = list of strings
             if path.isdir(path.join(self.setupRoot, item.text(0), 'setups')):
                 self.getSetupsForDir(path.join(self.setupRoot, item.text(0)),
@@ -83,6 +89,15 @@ class MainWindow(QMainWindow):
                 for key in self.info[currentPath[:-3]]['devices'].keys():
                     #read the setup and add all the devices as child tree items
                     item.child(currentIndex).addChild(QTreeWidgetItem([key]))
+                item.child(currentIndex).setIcon(0, QIcon(
+                    path.join(self.resDir, 'setup.png')))
+
+                #icons for all devices
+                deviceIndex = 0
+                while deviceIndex < item.child(currentIndex).childCount():
+                    item.child(currentIndex).child(deviceIndex).setIcon(
+                        0, QIcon(path.join(self.resDir, 'device.png')))
+                    deviceIndex += 1
                 currentIndex += 1
 
         #hide the "path" column in treeWidget. May be toggleable later
