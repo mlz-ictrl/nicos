@@ -33,7 +33,7 @@ import numpy as np
 from nicos import session
 from nicos.core import Measurable, Device, Param, Value, Override, NicosError, \
     intrange, listof, status, ImageProducer
-from nicos.pycompat import string_types
+from nicos.pycompat import string_types, from_maybe_utf8
 
 from nicos.devices.vendor.toni import DelayBox
 from nicos.toftof.chopper import Controller
@@ -213,15 +213,15 @@ class TofTofMeasurement(ImageProducer, Measurable):
             self._adevs['chopper']._getparams()
         head = []
         head.append('File_Creation_Time: %s\n' % asctime())
-        head.append('Title: %s\n' % self._curtitle)
+        head.append('Title: %s\n' % from_maybe_utf8(self._curtitle))
         head.append('ExperimentTitle: %s\n' %
-                    session.experiment.sample.samplename)
-        head.append('ProposalTitle: %s\n' % session.experiment.title)
+                    from_maybe_utf8(session.experiment.sample.samplename))
+        head.append('ProposalTitle: %s\n' % from_maybe_utf8(session.experiment.title))
         head.append('ProposalNr: %s\n' % session.experiment.proposal)
 #       head.append('ExperimentTeam: %s\n' %
 #                   ', '.join(session.experiment.users))
-        head.append('ExperimentTeam: %s\n' % session.experiment.users)
-        head.append('LocalContact: %s\n' % session.experiment.localcontact)
+        head.append('ExperimentTeam: %s\n' % from_maybe_utf8(session.experiment.users))
+        head.append('LocalContact: %s\n' % from_maybe_utf8(session.experiment.localcontact))
         head.append('StartDate: %s\n' % strftime('%d.%m.%Y'))
         head.append('StartTime: %s\n' % strftime('%H:%M:%S'))
         if self._last_mode == 'monitor':
