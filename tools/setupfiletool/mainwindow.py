@@ -29,9 +29,13 @@ import os
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QMainWindow, QFileDialog, QTreeWidgetItem, QIcon
+from PyQt4.QtGui import QMainWindow, QFileDialog, QTreeWidgetItem, QIcon, QLabel
+from PyQt4.QtCore import Qt
 
 from nicos.core.sessions.setups import readSetup
+
+from setupfiletool.widgetsetup import WidgetSetup
+from setupfiletool.widgetdevice import WidgetDevice
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -49,6 +53,7 @@ class MainWindow(QMainWindow):
         # supposed to be a dictionary of Tuples of parsed files
         self.info = {}
 
+        #signal/slot connections
         self.pushButtonLoadFile.clicked.connect(
             self.loadFile)
         self.treeWidget.itemActivated.connect(self.loadSelection)
@@ -106,6 +111,16 @@ class MainWindow(QMainWindow):
         #information of hidden column is still accessible.
         #print(topLevelItems[0].child(0).text(1)) -> path to very first setup
 
+        #GUI setup for working area on the right
+        self.widgetSetup = WidgetSetup()
+        self.widgetDevice = WidgetDevice()
+        self.labelHeader = QLabel('Select Setup or device...')
+        self.labelHeader.setAlignment(Qt.AlignCenter)
+        self.workarea.addWidget(self.widgetSetup)
+        self.workarea.addWidget(self.widgetDevice)
+        self.workarea.addWidget(self.labelHeader)
+        self.workarea.setCurrentIndex(2)
+
 
     def getSetupsForDir(self, previousDir, newDir, listOfSetups):
         #gets a root directory: previousDir and a subdirectory in the root
@@ -128,21 +143,17 @@ class MainWindow(QMainWindow):
         for item in items: #no multiple selection -> only 1 item
             if not item.parent(): #selection is directory in nicos-core/custom/
                 self.info.clear()
-                self.textEdit.clear()
+                self.workarea.setCurrentIndex(2)
                 return
 
             if item.text(1).endswith(".py"): #selection is setup
                 self.readSetupFile(item.text(1))
-                self.updateText()
+                self.updateSetupGui()
 
             else: #selection is device
                 parentPath = item.parent().text(1)
                 self.readSetupFile(parentPath)
-                deviceConfig = self.info[parentPath[:-3]][
-                    'devices'][item.text(0)]
-                self.textEdit.setText(item.text(0) +
-                                      ':\n\n' +
-                                      str(deviceConfig))
+                self.updateDeviceGui()
 
 
     def loadFile(self):
@@ -155,7 +166,8 @@ class MainWindow(QMainWindow):
 
         if setupFile:
             self.readSetupFile(setupFile)
-        self.updateText()
+        self.updateSetupGui()
+        #TODO: Find a way to display devices of a manually loaded setup!!
 
 
     def readSetupFile(self, pathToFile):
@@ -168,9 +180,15 @@ class MainWindow(QMainWindow):
                   self.log)
 
 
-    def updateText(self):
-        self.textEdit.clear()
-        self.textEdit.setText(repr(self.info))
+    def updateSetupGui(self):
+        #selection = setup
+        self.widgetSetup.loadData(self.info)
+        self.workarea.setCurrentIndex(0)
+
+
+    def updateDeviceGui(self):
+        #selection = device
+        self.workarea.setCurrentIndex(1)
 
 
     def getNicosDir(self):

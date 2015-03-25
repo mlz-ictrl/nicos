@@ -6,22 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
-    <height>613</height>
+    <width>834</width>
+    <height>662</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SetupFileTool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QTextEdit" name="textEdit">
-      <property name="font">
-       <font>
-        <family>Droid Sans Mono</family>
-       </font>
-      </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="workarea">
      </widget>
     </item>
    </layout>
