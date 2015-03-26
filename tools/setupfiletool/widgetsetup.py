@@ -25,7 +25,7 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QWidget
+from PyQt4.QtGui import QWidget, QTreeWidgetItem
 
 class WidgetSetup(QWidget):
     def __init__(self, parent = None):
@@ -33,19 +33,43 @@ class WidgetSetup(QWidget):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'widgetsetup.ui'), self)
 
+
     def clear(self):
         self.lineEditDescription.clear()
-        self.lineEditGroup.clear()
+        self.comboBoxGroup.setCurrentIndex(0)
         while self.listWidgetIncludes.count() > 0:
             self.listWidgetIncludes.takeItem(0)
         while self.listWidgetExcludes.count() > 0:
             self.listWidgetExcludes.takeItem(0)
         while self.listWidgetModules.count() > 0:
             self.listWidgetModules.takeItem(0)
-        while self.tableWidgetSysconfig.rowCount() > 0:
-            self.tableWidgetSysconfig.removeRow(0)
+        self.treeWidgetSysconfig.clear()
 
 
     def loadData(self, info):
-        print('At some point I will do magic with this: ')
-        print(repr(info))
+        self.lineEditDescription.setText(info['description'])
+        self.comboBoxGroup.setCurrentIndex(
+            self.comboBoxGroup.findText(info['group']))
+        for includeItem in info['includes']:
+            self.listWidgetIncludes.addItem(includeItem)
+        for excludeItem in info['excludes']:
+            self.listWidgetExcludes.addItem(excludeItem)
+        for moduleItem in info['modules']:
+            self.listWidgetIncludes.addItem(moduleItem)
+
+        #keys taken from */nicos-core/custom/skeleton/setups/system.py
+        keys = ['cache', 'instrument', 'experiment', 'datasinks', 'notifiers']
+
+        topLevelItems = []
+        for key in keys:
+            if key in info['sysconfig']:
+                topLevelItems.append(QTreeWidgetItem([key]))
+        self.treeWidgetSysconfig.addTopLevelItems(topLevelItems)
+
+        for item in topLevelItems:
+            if isinstance(info['sysconfig'][item.text(0)], list):
+                for listItem in info['sysconfig'][item.text(0)]:
+                    item.addChild(QTreeWidgetItem([listItem]))
+            else:
+                item.addChild(QTreeWidgetItem(
+                    [info['sysconfig'][item.text(0)]]))

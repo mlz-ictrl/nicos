@@ -52,6 +52,7 @@ class MainWindow(QMainWindow):
         # initialize empty dictionary
         # supposed to be a dictionary of Tuples of parsed files
         self.info = {}
+        self.currentSetup = ''
 
         #signal/slot connections
         self.pushButtonLoadFile.clicked.connect(
@@ -143,16 +144,18 @@ class MainWindow(QMainWindow):
         for item in items: #no multiple selection -> only 1 item
             if not item.parent(): #selection is directory in nicos-core/custom/
                 self.info.clear()
+                self.currentSetup = ''
                 self.workarea.setCurrentIndex(2)
                 return
 
             if item.text(1).endswith(".py"): #selection is setup
-                self.readSetupFile(item.text(1))
+                self.currentSetup = item.text(1)
+                self.readSetupFile(self.currentSetup)
                 self.updateSetupGui()
 
             else: #selection is device
-                parentPath = item.parent().text(1)
-                self.readSetupFile(parentPath)
+                self.currentSetup = item.parent().text(1)
+                self.readSetupFile(self.currentSetup)
                 self.updateDeviceGui()
 
 
@@ -182,7 +185,8 @@ class MainWindow(QMainWindow):
 
     def updateSetupGui(self):
         #selection = setup
-        self.widgetSetup.loadData(self.info)
+        self.widgetSetup.clear()
+        self.widgetSetup.loadData(self.info[self.currentSetup[:-3]])
         self.workarea.setCurrentIndex(0)
 
 

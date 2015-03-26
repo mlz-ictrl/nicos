@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>536</width>
-    <height>580</height>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,50 @@
     <widget class="QLineEdit" name="lineEditDescription"/>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="lineEditGroup"/>
+    <layout class="QHBoxLayout" name="horizontalLayoutGroupComboBox">
+     <item>
+      <widget class="QComboBox" name="comboBoxGroup">
+       <item>
+        <property name="text">
+         <string>basic</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>optional</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>plugplay</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>lowlevel</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>special</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacerGroupComboBox">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>68</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="labelIncludes">
@@ -71,6 +114,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonRemoveInclude">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>-</string>
        </property>
@@ -102,6 +148,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonRemoveExclude">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>-</string>
        </property>
@@ -133,23 +182,6 @@
    <item row="6" column="0">
     <widget class="QListWidget" name="listWidgetModules"/>
    </item>
-   <item row="6" column="1">
-    <widget class="QTableWidget" name="tableWidgetSysconfig">
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Key</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Value</string>
-      </property>
-     </column>
-    </widget>
-   </item>
    <item row="7" column="0">
     <layout class="QHBoxLayout" name="horizontalLayoutModuleButtons" stretch="5,0,0">
      <item>
@@ -167,6 +199,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonRemoveModule">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>-</string>
        </property>
@@ -198,6 +233,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonRemoveSysconfig">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>-</string>
        </property>
@@ -212,13 +250,27 @@
      </item>
     </layout>
    </item>
+   <item row="6" column="1">
+    <widget class="QTreeWidget" name="treeWidgetSysconfig">
+     <property name="expandsOnDoubleClick">
+      <bool>false</bool>
+     </property>
+     <attribute name="headerVisible">
+      <bool>false</bool>
+     </attribute>
+     <column>
+      <property name="text">
+       <string>Sysconfig</string>
+      </property>
+     </column>
+    </widget>
+   </item>
   </layout>
   <zorder>labelExcludes</zorder>
   <zorder>labelIncludes</zorder>
   <zorder>labelDescription</zorder>
   <zorder>labelGroup</zorder>
   <zorder>lineEditDescription</zorder>
-  <zorder>lineEditGroup</zorder>
   <zorder>listWidgetIncludes</zorder>
   <zorder>listWidgetExcludes</zorder>
   <zorder></zorder>
@@ -226,7 +278,9 @@
   <zorder>labelSysconfig</zorder>
   <zorder>listWidgetModules</zorder>
   <zorder>labelModules</zorder>
-  <zorder>tableWidgetSysconfig</zorder>
+  <zorder>comboBoxGroup</zorder>
+  <zorder>horizontalSpacerGroupComboBox</zorder>
+  <zorder>treeWidgetSysconfig</zorder>
  </widget>
  <resources/>
  <connections/>
