@@ -26,6 +26,7 @@ from os import path
 
 from PyQt4 import uic
 from PyQt4.QtGui import QWidget, QTreeWidgetItem
+from PyQt4 import QtCore
 
 class WidgetSetup(QWidget):
     def __init__(self, parent = None):
@@ -40,42 +41,60 @@ class WidgetSetup(QWidget):
                               'datasinks',
                               'notifiers']
 
-        self.listWidgetIncludes.itemSelectionChanged.connect(
-            self.selectionIncludes)
-        self.listWidgetExcludes.itemSelectionChanged.connect(
-            self.selectionExcludes)
-        self.listWidgetModules.itemSelectionChanged.connect(
-            self.selectionModules)
-        self.treeWidgetSysconfig.itemSelectionChanged.connect(
-            self.selectionSysconfig)
-
-
-    def selectionIncludes(self):
+    def on_listWidgetIncludes_itemSelectionChanged(self):
         if self.listWidgetIncludes.currentRow() > -1:
             self.pushButtonRemoveInclude.setEnabled(True)
         else:
             self.pushButtonRemoveInclude.setEnabled(False)
 
 
-    def selectionExcludes(self):
+    def on_listWidgetExcludes_itemSelectionChanged(self):
         if self.listWidgetExcludes.currentRow() > -1:
             self.pushButtonRemoveExclude.setEnabled(True)
         else:
             self.pushButtonRemoveExclude.setEnabled(False)
 
 
-    def selectionModules(self):
+    def on_listWidgetModules_itemSelectionChanged(self):
         if self.listWidgetModules.currentRow() > -1:
             self.pushButtonRemoveModule.setEnabled(True)
         else:
             self.pushButtonRemoveModule.setEnabled(False)
 
 
-    def selectionSysconfig(self):
+    def on_treeWidgetSysconfig_itemSelectionChanged(self):
         if len(self.treeWidgetSysconfig.selectedItems()) == 0:
             self.pushButtonRemoveSysconfig.setEnabled(False)
         else:
             self.pushButtonRemoveSysconfig.setEnabled(True)
+
+
+    @QtCore.pyqtSlot()
+    def on_pushButtonRemoveInclude_clicked(self):
+        self.listWidgetIncludes.takeItem(self.listWidgetIncludes.currentRow())
+
+
+    @QtCore.pyqtSlot()
+    def on_pushButtonRemoveExclude_clicked(self):
+        self.listWidgetExcludes.takeItem(self.listWidgetExcludes.currentRow())
+
+
+    @QtCore.pyqtSlot()
+    def on_pushButtonRemoveModule_clicked(self):
+        self.listWidgetModules.takeItem(self.listWidgetModules.currentRow())
+
+
+    @QtCore.pyqtSlot()
+    def on_pushButtonRemoveSysconfig_clicked(self):
+        root = self.treeWidgetSysconfig.invisibleRootItem()
+        cur = self.treeWidgetSysconfig.currentItem()
+        (cur.parent() or root).removeChild(cur)
+
+        if self.treeWidgetSysconfig.topLevelItemCount() == len(
+            self.sysconfigKeys): #can't add any unknown keys
+            self.pushButtonAddSysconfig.setEnabled(False)
+        else:
+            self.pushButtonAddSysconfig.setEnabled(True)
 
 
     def clear(self):
