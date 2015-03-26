@@ -33,6 +33,50 @@ class WidgetSetup(QWidget):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'widgetsetup.ui'), self)
 
+        #keys taken from */nicos-core/custom/skeleton/setups/system.py
+        self.sysconfigKeys = ['cache',
+                              'instrument',
+                              'experiment',
+                              'datasinks',
+                              'notifiers']
+
+        self.listWidgetIncludes.itemSelectionChanged.connect(
+            self.selectionIncludes)
+        self.listWidgetExcludes.itemSelectionChanged.connect(
+            self.selectionExcludes)
+        self.listWidgetModules.itemSelectionChanged.connect(
+            self.selectionModules)
+        self.treeWidgetSysconfig.itemSelectionChanged.connect(
+            self.selectionSysconfig)
+
+
+    def selectionIncludes(self):
+        if self.listWidgetIncludes.currentRow() > -1:
+            self.pushButtonRemoveInclude.setEnabled(True)
+        else:
+            self.pushButtonRemoveInclude.setEnabled(False)
+
+
+    def selectionExcludes(self):
+        if self.listWidgetExcludes.currentRow() > -1:
+            self.pushButtonRemoveExclude.setEnabled(True)
+        else:
+            self.pushButtonRemoveExclude.setEnabled(False)
+
+
+    def selectionModules(self):
+        if self.listWidgetModules.currentRow() > -1:
+            self.pushButtonRemoveModule.setEnabled(True)
+        else:
+            self.pushButtonRemoveModule.setEnabled(False)
+
+
+    def selectionSysconfig(self):
+        if len(self.treeWidgetSysconfig.selectedItems()) == 0:
+            self.pushButtonRemoveSysconfig.setEnabled(False)
+        else:
+            self.pushButtonRemoveSysconfig.setEnabled(True)
+
 
     def clear(self):
         self.lineEditDescription.clear()
@@ -57,11 +101,8 @@ class WidgetSetup(QWidget):
         for moduleItem in info['modules']:
             self.listWidgetIncludes.addItem(moduleItem)
 
-        #keys taken from */nicos-core/custom/skeleton/setups/system.py
-        keys = ['cache', 'instrument', 'experiment', 'datasinks', 'notifiers']
-
         topLevelItems = []
-        for key in keys:
+        for key in self.sysconfigKeys:
             if key in info['sysconfig']:
                 topLevelItems.append(QTreeWidgetItem([key]))
         self.treeWidgetSysconfig.addTopLevelItems(topLevelItems)
@@ -73,3 +114,10 @@ class WidgetSetup(QWidget):
             else:
                 item.addChild(QTreeWidgetItem(
                     [info['sysconfig'][item.text(0)]]))
+
+        if self.treeWidgetSysconfig.topLevelItemCount() == len(
+            self.sysconfigKeys): #can't add any unknown keys
+            self.pushButtonAddSysconfig.setEnabled(False)
+        else:
+            self.pushButtonAddSysconfig.setEnabled(True)
+
