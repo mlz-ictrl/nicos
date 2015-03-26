@@ -353,19 +353,20 @@ class ImageProducer(DeviceMixinBase):
             self.log.debug('saveImage(%20s)' % ('%r' % image))
             if image is not None:
                 for imageinfo in self._imageinfos:
-                    if imageinfo.file:
-                        imageinfo.filesaver.saveImage(imageinfo, image)
+                    imageinfo.filesaver.saveImage(imageinfo, image)
                     # also inform possibly running liveWidgets
                     # tag, filename, dtype, nx, ny, nz, time, data
-                    session.updateLiveData(
-                        imageinfo.filesaver.fileFormat,
-                        imageinfo.filepath,
-                        imageinfo.imagetype.dtype,
-                        image.shape[0],
-                        image.shape[1] if len(image.shape) > 1 else 1,
-                        image.shape[2] if len(image.shape) > 2 else 1,
-                        imageinfo.endtime-imageinfo.begintime,
-                        '')
+                    # liveview saver calls this from saveImage already
+                    if imageinfo.filepath:
+                        session.updateLiveData(
+                            imageinfo.filesaver.fileFormat,
+                            imageinfo.filepath,
+                            imageinfo.imagetype.dtype,
+                            image.shape[0],
+                            image.shape[1] if len(image.shape) > 1 else 1,
+                            image.shape[2] if len(image.shape) > 2 else 1,
+                            imageinfo.endtime-imageinfo.begintime,
+                            '')
             else:
                 self.log.error("Can't save Image, got no data!")
                 return

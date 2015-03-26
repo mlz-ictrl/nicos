@@ -231,7 +231,7 @@ class LiveDataPanel(Panel):
         else:
             # show image from file
             self._no_direct_display = True
-            if fname:
+            if fname and str(ftag) in FILETYPES:
                 self.widget.setData(LWData(fname, FILETYPES[str(ftag)]))
 
     def on_fileList_currentItemChanged(self, item, previous):

@@ -54,7 +54,7 @@ class LiveViewSink(ImageSink):
             resX, resY, resZ = image.shape
         # see nicos.core.sessions.__init__:
         # updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data)
-        session.updateLiveData('', imageinfo.filename, '<u4', resX, resY, resZ,
+        session.updateLiveData(self.fileFormat, imageinfo.filename, '<u4', resX, resY, resZ,
             time.time() - imageinfo.begintime, buffer(image.astype('<u4')))
 
     def saveImage(self, imageinfo, image):
