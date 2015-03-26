@@ -83,6 +83,7 @@ class PSLDetector(ImageProducer, Measurable):
         self._setROParam('imagewidth', shape[0])
         self._setROParam('imageheight', shape[1])
         # default for detector 'I:16' mode
+        self.imagetype = ImageType(shape, self._modemap[mode])
         na = np.frombuffer(data, self._modemap[mode])
 
         na = na.reshape(shape)
