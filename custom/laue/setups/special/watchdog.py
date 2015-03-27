@@ -19,17 +19,16 @@ group = 'special'
 # 'pausecount' -- if True, the count loop should be paused on the condition
 #     (default False)
 # 'action' -- code to execute if condition is true (default no code is executed)
-# watchlist = [
-#     dict(condition = 't_value > 100',
-#          message = 'Temperature too high',
-#          type = 'critical',
-#          action = 'maw(T, 0)',
-#         ),
-#     dict(condition = 'phi_value > 100 and mono_value > 1.5',
-#          message = 'phi angle too high for current mono setting',
-#          gracetime = 5,
-#         ),
-# ]
+watchlist = [
+     dict(condition = 'reactorpower_value < 10',
+          precondition = 'reactorpower_value >19',
+          precondtime = 600,
+          message = 'Reactor power too low',
+          type = 'critical',
+          action = 'abort()',
+          gracetime = 300,
+         ),
+]
 
 notifiers = {
     'default':  ['mailer'],
@@ -50,13 +49,13 @@ devices = dict(
                       receivers = [],
                      ),
 
-#     Watchdog = device('services.watchdog.Watchdog',
-#                       # use only 'localhost' if the cache is really running on
-#                       # the same machine, otherwise use the official computer
-#                       # name
-#                       cache = 'localhost',
-#                       notifiers = notifiers,
-#                       mailreceiverkey = 'email/receivers',
-#                       watch = watchlist,
-#                      ),
+    Watchdog = device('services.watchdog.Watchdog',
+                      # use only 'localhost' if the cache is really running on
+                      # the same machine, otherwise use the official computer
+                      # name
+                      cache = 'localhost',
+                      notifiers = notifiers,
+                      mailreceiverkey = 'email/receivers',
+                      watch = watchlist,
+                     ),
 )
