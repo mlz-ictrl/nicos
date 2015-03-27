@@ -28,6 +28,11 @@ from PyQt4 import uic
 from PyQt4.QtGui import QWidget, QTreeWidgetItem
 from PyQt4 import QtCore
 
+from setupfiletool.dialogs.addincludedialog import AddIncludeDialog
+from setupfiletool.dialogs.addexcludedialog import AddExcludeDialog
+from setupfiletool.dialogs.addmoduledialog import AddModuleDialog
+from setupfiletool.dialogs.addsysconfigdialog import AddSysconfigDialog
+
 class WidgetSetup(QWidget):
     def __init__(self, parent = None):
         super(WidgetSetup, self).__init__(parent)
@@ -96,6 +101,67 @@ class WidgetSetup(QWidget):
         else:
             self.pushButtonAddSysconfig.setEnabled(True)
 
+    @QtCore.pyqtSlot()
+    def on_pushButtonAddInclude_clicked(self):
+        dlg = AddIncludeDialog()
+        if dlg.exec_():
+            newInclude = dlg.lineEditNewInclude.text()
+            if newInclude:
+                self.listWidgetIncludes.addItem(newInclude)
+
+
+    @QtCore.pyqtSlot()
+    def on_pushButtonAddExclude_clicked(self):
+        dlg = AddExcludeDialog()
+        if dlg.exec_():
+            newExclude = dlg.lineEditNewExclude.text()
+            if newExclude:
+                self.listWidgetExcludes.addItem(newExclude)
+
+
+    @QtCore.pyqtSlot()
+    def on_pushButtonAddModule_clicked(self):
+        dlg = AddModuleDialog()
+        if dlg.exec_():
+            newModule = dlg.lineEditNewModule.text()
+            if newModule:
+                self.listWidgetModules.addItem(newModule)
+
+
+    @QtCore.pyqtSlot()
+    def on_pushButtonAddSysconfig_clicked(self):
+        dlg = AddSysconfigDialog()
+        i = 0
+        topLevelItems = []
+        while i < self.treeWidgetSysconfig.topLevelItemCount():
+            #apparently, text() returns a unicode string..? Therefore str()
+            topLevelItems.append(str(self.treeWidgetSysconfig.topLevelItem(
+                i).text(0)))
+            i += 1
+
+        for key in self.sysconfigKeys:
+            if not key in topLevelItems:
+                dlg.comboBoxNewSysconfig.addItem(key)
+
+        if dlg.exec_():
+            key = dlg.comboBoxNewSysconfig.currentText()
+            value = dlg.lineEditValue.text()
+
+            self.treeWidgetSysconfig.addTopLevelItem(QTreeWidgetItem([key]))
+            if value:
+                currentIndex = 0
+                while currentIndex < self.treeWidgetSysconfig.topLevelItemCount(
+                    ):
+                    if self.treeWidgetSysconfig.topLevelItem(
+                        currentIndex).text(0) == key:
+                        self.treeWidgetSysconfig.topLevelItem(currentIndex
+                                                              ).addChild(
+                            QTreeWidgetItem([value]))
+                    currentIndex += 1
+            if self.treeWidgetSysconfig.topLevelItemCount() == len(
+                self.sysconfigKeys):
+                self.pushButtonAddSysconfig.setEnabled(False)
+
 
     def clear(self):
         self.lineEditDescription.clear()
@@ -118,7 +184,7 @@ class WidgetSetup(QWidget):
         for excludeItem in info['excludes']:
             self.listWidgetExcludes.addItem(excludeItem)
         for moduleItem in info['modules']:
-            self.listWidgetIncludes.addItem(moduleItem)
+            self.listWidgetModules.addItem(moduleItem)
 
         topLevelItems = []
         for key in self.sysconfigKeys:
