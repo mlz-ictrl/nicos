@@ -56,7 +56,7 @@ class ImagePlateBase(PyTangoDevice):
     MAP_STATUS[DevState.STANDBY] = status.OK
     MAP_STATUS[DevState.ALARM] = status.ERROR
 
-    def doStatus(self, maxage=0, mapping=MAP_STATUS): # pylint: disable=W0102
+    def doStatus(self, maxage=0, mapping=MAP_STATUS):  # pylint: disable=W0102
         return PyTangoDevice.doStatus(self, maxage, mapping)
 
 
@@ -71,47 +71,44 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
     valuetype = oneof(POS_ERASE, POS_EXPO, POS_READ)
 
     parameters = {
-                  "drumpos": Param("Drum position in degree", type=float,
-                                        settable=True, volatile=True,
-                                        category="general"),
-                  "readheadpos": Param("Read head motor position in mm",
-                                       type=float, settable=True, volatile=True,
-                                       category="general"),
-                  "drumexpo": Param("Drum expo position in degree",
-                                    type=float, settable=True, volatile=True,
-                                    category="general"),
-                  "readspeed": Param("Readout velocity for the detector drum "
-                                     "in rpm", type=float, settable=True,
-                                     volatile=True, category="general"),
-                  "erasespeed": Param("Erase velocity for the detector drum "
-                                      "in rpm", type=float, settable=True,
-                                      volatile=True, category="general"),
-                  "freqlaser": Param("Frequency for the laser diode in Hz",
-                                     type=float, settable=True, volatile=True,
-                                     category="general"),
-                  "timeerase": Param("Erasure time in seconds", type=float,
-                                     settable=True, volatile=True,
-                                     category="general"),
-                 }
+        "drumpos": Param("Drum position in degree", type=float,
+                         settable=True, volatile=True, category="general"),
+        "readheadpos": Param("Read head motor position in mm",
+                             type=float, settable=True, volatile=True,
+                             category="general"),
+        "drumexpo": Param("Drum expo position in degree",
+                          type=float, settable=True, volatile=True,
+                          category="general"),
+        "readspeed": Param("Readout velocity for the detector drum "
+                           "in rpm", type=float, settable=True,
+                           volatile=True, category="general"),
+        "erasespeed": Param("Erase velocity for the detector drum "
+                            "in rpm", type=float, settable=True,
+                            volatile=True, category="general"),
+        "freqlaser": Param("Frequency for the laser diode in Hz",
+                           type=float, settable=True, volatile=True,
+                           category="general"),
+        "timeerase": Param("Erasure time in seconds", type=float,
+                           settable=True, volatile=True, category="general"),
+    }
 
     parameter_overrides = {
-                           "unit": Override(default="", mandatory=False,
-                                            settable=False)
-                          }
+        "unit": Override(default="", mandatory=False, settable=False)
+    }
 
     def doInit(self, mode):
         self._lastStatus = None
         self._moveTo = None
         self._mapStart = {
-                      ImagePlateDrum.POS_ERASE: self._dev.StartErasureProcess,
-                      ImagePlateDrum.POS_EXPO: self._dev.MoveExpoPosition,
-                      ImagePlateDrum.POS_READ: self._dev.StartReadProcess,
-                     }
+            ImagePlateDrum.POS_ERASE: self._dev.StartErasureProcess,
+            ImagePlateDrum.POS_EXPO: self._dev.MoveExpoPosition,
+            ImagePlateDrum.POS_READ: self._dev.StartReadProcess,
+        }
         self._mapStop = {
-                      ImagePlateDrum.POS_ERASE: self._dev.AbortErasureProcess,
-                      ImagePlateDrum.POS_EXPO: self._dev.AbortExposureProcess,
-                      ImagePlateDrum.POS_READ: self._dev.AbortReadProcess,
-                     }
+            ImagePlateDrum.POS_ERASE: self._dev.AbortErasureProcess,
+            ImagePlateDrum.POS_EXPO: self._dev.AbortExposureProcess,
+            ImagePlateDrum.POS_READ: self._dev.AbortReadProcess,
+        }
 
     def doStart(self, pos):
         self.log.debug("doStart: pos: %s" % pos)
@@ -138,7 +135,7 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
     def doRead(self, maxage=0):
         return self.target
 
-    def doStatus(self, maxage=0, mapping=ImagePlateBase.MAP_STATUS): # pylint: disable=W0102
+    def doStatus(self, maxage=0, mapping=ImagePlateBase.MAP_STATUS):  # pylint: disable=W0102
         # Workaround for status changes from busy to another state although the
         # operation has _not_ been completed.
         st, msg = ImagePlateBase.doStatus(self, maxage, mapping)
@@ -205,45 +202,43 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
     """Represents the client to a MAATEL Image Plate Detector."""
 
     MAP_SHAPE = {
-                 125: (10000, 900),
-                 250: (5000, 900),
-                 500: (2500, 900),
-                 }
+        125: (10000, 900),
+        250: (5000, 900),
+        500: (2500, 900),
+    }
 
     attached_devices = {
-                        "imgdrum": Attach("Image Plate Detector Drum "
-                                          "control device.", Moveable),
-                        "gammashutter": Attach("Gamma shutter", Moveable),
-                        "photoshutter": Attach("Photo shutter", Moveable),
-                        }
+        "imgdrum": Attach("Image Plate Detector Drum "
+                          "control device.", Moveable),
+        "gammashutter": Attach("Gamma shutter", Moveable),
+        "photoshutter": Attach("Photo shutter", Moveable),
+    }
 
     parameters = {
-                  "erase": Param("Erase image plate on next start?", type=bool,
-                                 settable=True, mandatory=False, default=True),
-                  "ctrl_gammashutter": Param("Control gamma shutter?",
-                                             type=bool, settable=True,
-                                             mandatory=False, default=True),
-                  "ctrl_photoshutter": Param("Control photo shutter?",
-                                             type=bool, settable=True,
-                                             mandatory=False, default=True),
-                  "roi": Param("Region of interest",
-                               type=tupleof(int, int, int, int),
-                               default=(0, 0, 0, 0),
-                               settable=True, volatile=True,
-                               category="general"),
-                  "pixelsize": Param("Pixel size in microns",
-                                     type=oneof(125, 250, 500), default=500,
-                                     settable=True, volatile=True,
-                                     category="general"),
-                  "file": Param("Image file location on maatel computer",
-                                type=str, settable=True, volatile=True,
-                                category="general"),
-                  "readout_millis": Param("Timeout in ms for the readout.",
-                                          type=int, settable=True,
-                                          default=60000),
-                  "exposure_time": Param("Default exposure time in seconds",
-                                         type=float, settable=True, default=30.)
-                  }
+        "erase": Param("Erase image plate on next start?", type=bool,
+                       settable=True, mandatory=False, default=True),
+        "ctrl_gammashutter": Param("Control gamma shutter?",
+                                   type=bool, settable=True,
+                                   mandatory=False, default=True),
+        "ctrl_photoshutter": Param("Control photo shutter?",
+                                   type=bool, settable=True,
+                                   mandatory=False, default=True),
+        "roi": Param("Region of interest",
+                     type=tupleof(int, int, int, int),
+                     default=(0, 0, 0, 0),
+                     settable=True, volatile=True,
+                     category="general"),
+        "pixelsize": Param("Pixel size in microns",
+                           type=oneof(125, 250, 500), default=500,
+                           settable=True, volatile=True, category="general"),
+        "file": Param("Image file location on maatel computer",
+                      type=str, settable=True, volatile=True,
+                      category="general"),
+        "readout_millis": Param("Timeout in ms for the readout.",
+                                type=int, settable=True, default=60000),
+        "exposure_time": Param("Default exposure time in seconds",
+                               type=float, settable=True, default=30.)
+    }
 
     @property
     def drum(self):
@@ -265,11 +260,11 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
     def _check_shutter(self):
         # TODO: reduce code duplication
         if (self.ctrl_photoshutter
-            and self.photoshutter.read() == Shutter.CLOSED):
+                and self.photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
                                     'exposure, check safety system')
         if (self.ctrl_gammashutter
-            and self.gammashutter.read() == Shutter.CLOSED):
+                and self.gammashutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
@@ -364,7 +359,7 @@ Retrying.""" % (action, exception))
             if self._mode != SIMULATION:
                 lastimagepath = os.path.join(exp.proposalpath, exp.lastimagefile)
                 if (os.path.isfile(lastimagepath)
-                    and os.path.getsize(lastimagepath) == 0):
+                        and os.path.getsize(lastimagepath) == 0):
                     self.log.debug("Remove empty file: %s" % exp.lastimagefile)
                     os.unlink(lastimagepath)
                 updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
@@ -414,9 +409,9 @@ class Andor2LimaCCDFPGA(Andor2LimaCCD):
     device."""
 
     attached_devices = {
-                        "timer": Attach("ZEA-2 counter card timer channel, "
-                                       "photoshutter control", Measurable),
-                       }
+        "timer": Attach("ZEA-2 counter card timer channel, "
+                        "photoshutter control", Measurable),
+    }
 
     # needed for SeqDev in MeasureSequencer -> Andor2LimaCCDDetector
     def isAllowed(self):
@@ -438,23 +433,21 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
     FPGATimerChannel device."""
 
     attached_devices = {
-                        "ccd": Attach("Andor CCD camera", Measurable),
-                        "gammashutter": Attach("Gamma shutter", Moveable),
-                        "photoshutter": Attach("Photo shutter", Moveable),
-                        }
+        "ccd": Attach("Andor CCD camera", Measurable),
+        "gammashutter": Attach("Gamma shutter", Moveable),
+        "photoshutter": Attach("Photo shutter", Moveable),
+    }
 
     parameters = {
-                  "ctrl_gammashutter": Param("Control gamma shutter?",
-                                             type=bool, settable=True,
-                                             mandatory=False, default=True),
-                  "ctrl_photoshutter": Param("Control photo shutter?",
-                                             type=bool, settable=True,
-                                             mandatory=False, default=True),
-                  }
+        "ctrl_gammashutter": Param("Control gamma shutter?", type=bool,
+                                   settable=True, mandatory=False, default=True),
+        "ctrl_photoshutter": Param("Control photo shutter?", type=bool,
+                                   settable=True, mandatory=False, default=True),
+    }
 
     parameter_overrides = {
-                           "subdir": Override(mandatory=False, settable=False),
-                          }
+        "subdir": Override(mandatory=False, settable=False),
+    }
 
     @property
     def ccd(self):
@@ -474,11 +467,11 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
     def _check_shutter(self):
         # TODO: reduce code duplication
         if (self.ctrl_photoshutter
-            and self.photoshutter.read() == Shutter.CLOSED):
+                and self.photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
                                     'exposure, check safety system')
         if (self.ctrl_gammashutter
-            and self.gammashutter.read() == Shutter.CLOSED):
+                and self.gammashutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
@@ -523,7 +516,7 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
             if self._mode != SIMULATION:
                 lastimagepath = os.path.join(exp.proposalpath, exp.lastimagefile)
                 if (os.path.isfile(lastimagepath)
-                    and os.path.getsize(lastimagepath) == 0):
+                        and os.path.getsize(lastimagepath) == 0):
                     self.log.debug("Remove empty file: %s" % exp.lastimagefile)
                     os.unlink(lastimagepath)
                 updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
@@ -537,6 +530,7 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         return Value(self.name + ".file", type="info", fmtstr="%s"),
 
     # -- act as a proxy class for ImageProducer calls ----------------------
+
     def doReadLastfilename(self):
         return self.ccd.lastfilename
 
@@ -550,6 +544,7 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         return self.ccd.readFinalImage()
 
     # -- act as a proxy class for a Measurable, e.g. Andor2LimaCCDFPGA -----
+
     def doRead(self, maxage=0):
         return self.ccd.lastfilename
 
