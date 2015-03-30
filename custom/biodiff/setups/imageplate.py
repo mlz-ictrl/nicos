@@ -6,7 +6,7 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 description = "Image plate detector setup"
 group = "basic"
 
-includes = ["shutter", "microstep", "reactor"]
+includes = ["shutter", "microstep", "reactor", "nl1", "guidehall"]
 
 _TANGO_SRV = "maatel.biodiff.frm2:9999"
 _TANGO_DEV = "tango://%s/EMBL/Microdiff/General#dbase=no" % _TANGO_SRV
