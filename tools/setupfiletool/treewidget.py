@@ -26,6 +26,8 @@ from os import path
 
 from PyQt4.QtGui import QTreeWidget, QTreeWidgetItem, QMenu, QIcon
 
+from setupfiletool.utilities.itemtypes import ItemTypes
+
 class TreeWidget(QTreeWidget):
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -58,7 +60,7 @@ class TreeWidget(QTreeWidget):
                 itemrect.setWidth(portrect.width())
                 pos = self.mapToGlobal(itemrect.center())
         if pos is not None:
-            if item.text(1):
+            if item.type() == ItemTypes.Setup:
                 menu = QMenu(self)
                 addDeviceAction = menu.addAction('Add device...')
                 addDeviceAction.triggered.connect(self.addDevice)
@@ -69,6 +71,8 @@ class TreeWidget(QTreeWidget):
         #self->dockWidgetContents->dockWidget->MainWindow
         nicosDir = (self.parent().parent().parent().getNicosDir())
         resDir = path.join(nicosDir, 'tools', 'setupfiletool', 'res')
-        newItem = QTreeWidgetItem(['<New Device>'])
+        newItem = QTreeWidgetItem(
+            ['<New Device>', 'in file: ' + self.currentItem().text(0)],
+            ItemTypes.Device)
         newItem.setIcon(0, QIcon(path.join(resDir, 'device.png')))
         self.currentItem().addChild(newItem)

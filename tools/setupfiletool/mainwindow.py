@@ -36,6 +36,7 @@ from nicos.core.sessions.setups import readSetup
 
 from setupfiletool.widgetsetup import WidgetSetup
 from setupfiletool.widgetdevice import WidgetDevice
+from setupfiletool.utilities.itemtypes import ItemTypes
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -72,7 +73,9 @@ class MainWindow(QMainWindow):
         #*/nicos-core/custom: for example instruments, ...
         topLevelItems = []
         for directory in sorted(self.setupDirectories):
-            topLevelItems.append(QTreeWidgetItem([directory]))
+            topLevelItems.append(
+                QTreeWidgetItem([directory,
+                                 'nicos-core/custom'], ItemTypes.Directory))
         self.treeWidget.addTopLevelItems(topLevelItems)
 
         #all these directories (may) have setups, find all of them and add them
@@ -85,7 +88,7 @@ class MainWindow(QMainWindow):
                                      'setups', scriptList)
                 for script in sorted(scriptList):
                     if script:
-                        item.addChild(QTreeWidgetItem(script))
+                        item.addChild(QTreeWidgetItem(script, ItemTypes.Setup))
 
             #setup for this directory has been loaded, add the devices.
             currentIndex = 0
@@ -94,7 +97,10 @@ class MainWindow(QMainWindow):
                 self.readSetupFile(currentPath)
                 for key in self.info[currentPath[:-3]]['devices'].keys():
                     #read the setup and add all the devices as child tree items
-                    item.child(currentIndex).addChild(QTreeWidgetItem([key]))
+                    item.child(currentIndex).addChild(
+                        QTreeWidgetItem([key,
+                                         'in file: ' + item.child(currentIndex).text(0)],
+                        ItemTypes.Device))
                 item.child(currentIndex).setIcon(0, QIcon(
                     path.join(self.resDir, 'setup.png')))
 
