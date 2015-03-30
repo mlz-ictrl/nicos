@@ -34,7 +34,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QTreeWidget" name="treeWidget">
+      <widget class="TreeWidget" name="treeWidget">
        <property name="expandsOnDoubleClick">
         <bool>false</bool>
        </property>
@@ -54,6 +54,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>setupfiletool/treewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
