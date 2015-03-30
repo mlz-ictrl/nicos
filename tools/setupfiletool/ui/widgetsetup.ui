@@ -251,7 +251,7 @@
     </layout>
    </item>
    <item row="6" column="1">
-    <widget class="QTreeWidget" name="treeWidgetSysconfig">
+    <widget class="SysconfigWidget" name="treeWidgetSysconfig">
      <property name="expandsOnDoubleClick">
       <bool>false</bool>
      </property>
@@ -278,10 +278,15 @@
   <zorder>labelSysconfig</zorder>
   <zorder>listWidgetModules</zorder>
   <zorder>labelModules</zorder>
-  <zorder>comboBoxGroup</zorder>
-  <zorder>horizontalSpacerGroupComboBox</zorder>
   <zorder>treeWidgetSysconfig</zorder>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SysconfigWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>setupfiletool/sysconfigwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

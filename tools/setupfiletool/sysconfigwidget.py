@@ -22,32 +22,27 @@
 #
 # *****************************************************************************
 
-from os import path
-
-from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon
+from PyQt4.QtGui import QMenu, QTreeWidgetItem
 
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
-from setupfiletool.utilities.itemtypes import ItemTypes
 
-class TreeWidget(TreeWidgetContextMenu):
+class SysconfigWidget(TreeWidgetContextMenu):
     def __init__(self, parent=None):
         TreeWidgetContextMenu.__init__(self, parent)
 
 
     def contextMenuOnItem(self, item, pos):
-        if item.type() == ItemTypes.Setup:
+        topLevelItems = []
+        currentIndex = 0
+        while currentIndex < self.topLevelItemCount():
+            topLevelItems.append(self.topLevelItem(currentIndex))
+            currentIndex += 1
+        if self.currentItem() in topLevelItems:
             menu = QMenu(self)
-            addDeviceAction = menu.addAction('Add device...')
-            addDeviceAction.triggered.connect(self.addDevice)
+            addValueAction = menu.addAction('Add value...')
+            addValueAction.triggered.connect(self.addValue)
             menu.popup(pos)
 
 
-    def addDevice(self):
-        #self->dockWidgetContents->dockWidget->MainWindow
-        nicosDir = (self.parent().parent().parent().getNicosDir())
-        resDir = path.join(nicosDir, 'tools', 'setupfiletool', 'res')
-        newItem = QTreeWidgetItem(
-            ['<New Device>', 'in file: ' + self.currentItem().text(0)],
-            ItemTypes.Device)
-        newItem.setIcon(0, QIcon(path.join(resDir, 'device.png')))
-        self.currentItem().addChild(newItem)
+    def addValue(self):
+        self.currentItem().addChild(QTreeWidgetItem(['<New value>']))
