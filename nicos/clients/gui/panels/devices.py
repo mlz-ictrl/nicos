@@ -69,14 +69,12 @@ statusIcon = {
     NOTREACHED: QIcon(':/leds/status_red'),
 }
 
-fixedBrush = {
-    False:      QBrush(),
-    True:       QBrush(Qt.blue),
-}
-
-expiredBrush = {
-    False:      QBrush(Qt.black),
-    True:       QBrush(QColor('#aaaaaa')),
+# keys: (expired, fixed)
+valueBrush = {
+    (False, False):  QBrush(),
+    (False, True):   QBrush(Qt.blue),
+    (True, False):   QBrush(QColor('#aaaaaa')),
+    (True, True):    QBrush(QColor('#aaaaaa')),
 }
 
 lowlevelBrush = {
@@ -176,7 +174,8 @@ class DevicesPanel(Panel):
         self._catitems = {}
         # map lowercased devname -> tree widget item
         self._devitems = {}
-        # map lowercased devname -> [value, status, fmtstr, unit, fixed]
+        # map lowercased devname ->
+        # [value, status, fmtstr, unit, expired, fixed, classes]
         self._devinfo = {}
         self.tree.clear()
 
@@ -284,7 +283,7 @@ class DevicesPanel(Panel):
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
-        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', '', []]
+        self._devinfo[ldevname] = ['-', (OK, ''), '%s', '', False, False, []]
 
         # let the cache handler process all properties
         for key, value in iteritems(params):
@@ -338,6 +337,7 @@ class DevicesPanel(Panel):
                 if isinstance(fvalue, list):
                     fvalue = tuple(fvalue)
             devinfo[0] = fvalue
+            devinfo[4] = op != OP_TELL
             try:
                 fmted = devinfo[2] % fvalue
             except Exception:
@@ -346,7 +346,7 @@ class DevicesPanel(Panel):
             if ldevname in self._control_dialogs:
                 self._control_dialogs[ldevname].valuelabel.setText(
                     fmted + ' ' + devinfo[3])
-            devitem.setForeground(1, expiredBrush[op != OP_TELL])
+            devitem.setForeground(1, valueBrush[devinfo[4], devinfo[5]])
         elif subkey == 'status':
             if not value:
                 status = (UNKNOWN, '?')
@@ -391,13 +391,13 @@ class DevicesPanel(Panel):
         elif subkey == 'fixed':
             if not value:
                 value = "''"
-            devinfo[4] = bool(cache_load(value))
-            devitem.setForeground(1, fixedBrush[devinfo[4]])
+            devinfo[5] = bool(cache_load(value))
+            devitem.setForeground(1, valueBrush[devinfo[4], devinfo[5]])
             if ldevname in self._control_dialogs:
                 dlg = self._control_dialogs[ldevname]
                 if dlg.moveBtn:
-                    dlg.moveBtn.setEnabled(not devinfo[4])
-                    dlg.moveBtn.setText(devinfo[4] and '(fixed)' or 'Move')
+                    dlg.moveBtn.setEnabled(not devinfo[5])
+                    dlg.moveBtn.setText(devinfo[5] and '(fixed)' or 'Move')
         elif subkey == 'userlimits':
             if not value:
                 return
@@ -409,7 +409,7 @@ class DevicesPanel(Panel):
         elif subkey == 'classes':
             if not value:
                 value = "[]"
-            devinfo[5] = set(cache_load(value))
+            devinfo[6] = set(cache_load(value))
         elif subkey == 'alias':
             if not value:
                 return
@@ -557,7 +557,7 @@ class ControlDialog(QDialog):
         self._reinit()
 
     def _reinit(self):
-        classes = self.devinfo[5]
+        classes = self.devinfo[6]
 
         self.deviceName.setText('Device: %s' % self.devname)
         self.setWindowTitle('Control %s' % self.devname)
