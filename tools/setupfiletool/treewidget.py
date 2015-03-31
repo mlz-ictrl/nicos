@@ -25,11 +25,15 @@
 from os import path
 
 from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon
+from PyQt4.QtCore import pyqtSignal
 
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
 from setupfiletool.utilities.itemtypes import ItemTypes
 
 class TreeWidget(TreeWidgetContextMenu):
+    editedSetup = pyqtSignal()
+
+
     def __init__(self, parent=None):
         TreeWidgetContextMenu.__init__(self, parent)
 
@@ -51,3 +55,4 @@ class TreeWidget(TreeWidgetContextMenu):
             ItemTypes.Device)
         newItem.setIcon(0, QIcon(path.join(resDir, 'device.png')))
         self.currentItem().addChild(newItem)
+        self.editedSetup.emit()

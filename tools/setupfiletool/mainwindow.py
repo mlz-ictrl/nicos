@@ -30,6 +30,7 @@ from os import path
 
 from PyQt4 import uic
 from PyQt4.QtGui import QMainWindow, QFileDialog, QTreeWidgetItem, QIcon, QLabel
+from PyQt4.QtGui import QMessageBox
 from PyQt4.QtCore import Qt
 
 from nicos.core.sessions.setups import readSetup
@@ -53,7 +54,8 @@ class MainWindow(QMainWindow):
         # initialize empty dictionary
         # supposed to be a dictionary of Tuples of parsed files
         self.info = {}
-        self.currentSetup = ''
+        self.currentSetupPath = ''
+        self.currentSetup = None
 
         #signal/slot connections
         self.pushButtonLoadFile.clicked.connect(
@@ -120,6 +122,12 @@ class MainWindow(QMainWindow):
 
         #GUI setup for working area on the right
         self.widgetSetup = WidgetSetup()
+
+        #setup the tool to recognize changes made to setups
+        self.unsavedChanges = False
+        self.widgetSetup.editedSetup.connect(self.setupEdited)
+        self.treeWidget.editedSetup.connect(self.setupEdited)
+
         self.widgetDevice = WidgetDevice()
         self.labelHeader = QLabel('Select Setup or device...')
         self.labelHeader.setAlignment(Qt.AlignCenter)
@@ -127,6 +135,26 @@ class MainWindow(QMainWindow):
         self.workarea.addWidget(self.widgetDevice)
         self.workarea.addWidget(self.labelHeader)
         self.workarea.setCurrentIndex(2)
+
+
+    def msgboxUnsavedChanges(self):
+        if self.currentSetup:
+            fileStr = self.currentSetup.text(0)
+        else:
+            fileStr = self.currentSetupPath
+        reply = QMessageBox.question(self, 'Unsaved changes',
+            'Save changes to ' + fileStr + '?',
+            QMessageBox.Yes, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            #TODO write saving method
+            print('save')
+
+
+    def setupEdited(self):
+        if not self.unsavedChanges:
+            self.unsavedChanges = True
+            if self.currentSetup:
+                self.currentSetup.setText(0, '*' + self.currentSetup.text(0))
 
 
     def getSetupsForDir(self, previousDir, newDir, listOfSetups):
@@ -146,27 +174,41 @@ class MainWindow(QMainWindow):
 
 
     def loadSelection(self):
+        if self.unsavedChanges:
+            self.msgboxUnsavedChanges()
+            if self.currentSetup:
+                self.currentSetup.setText(0, self.currentSetup.text(0)[1:])
+            self.unsavedChanges = False
+            self.currentSetup = None
+
         items = self.treeWidget.selectedItems()
         for item in items: #no multiple selection -> only 1 item
-            if not item.parent(): #selection is directory in nicos-core/custom/
+            if item.type() == ItemTypes.Directory:
                 self.info.clear()
-                self.currentSetup = ''
+                self.currentSetupPath = ''
                 self.workarea.setCurrentIndex(2)
                 return
 
-            if item.text(1).endswith(".py"): #selection is setup
-                self.currentSetup = item.text(1)
-                self.readSetupFile(self.currentSetup)
+            elif item.type() == ItemTypes.Setup:
+                self.currentSetupPath = item.text(1)
+                self.currentSetup = item
+                self.readSetupFile(self.currentSetupPath)
                 self.updateSetupGui()
 
-            else: #selection is device
-                self.currentSetup = item.parent().text(1)
-                self.readSetupFile(self.currentSetup)
+            elif item.type() == ItemTypes.Device:
+                self.currentSetupPath = item.parent().text(1)
+                self.currentSetup = item.parent()
+                self.readSetupFile(self.currentSetupPath)
                 self.updateDeviceGui()
 
 
     def loadFile(self):
         # allows a user specify the setup file to be parsed
+        if self.unsavedChanges:
+            self.msgboxUnsavedChanges()
+            if self.currentSetup:
+                self.currentSetup.setText(0, self.currentSetup.text(0)[1:])
+            self.unsavedChanges = False
         setupFile = QFileDialog.getOpenFileName(
             self,
             'Open setup file',
@@ -175,7 +217,9 @@ class MainWindow(QMainWindow):
 
         if setupFile:
             self.readSetupFile(setupFile)
-        self.updateSetupGui()
+            self.currentSetupPath = setupFile
+            self.currentSetup = None #no item for custom files available
+            self.updateSetupGui()
         #TODO: Find a way to display devices of a manually loaded setup!!
 
 
@@ -192,7 +236,7 @@ class MainWindow(QMainWindow):
     def updateSetupGui(self):
         #selection = setup
         self.widgetSetup.clear()
-        self.widgetSetup.loadData(self.info[self.currentSetup[:-3]])
+        self.widgetSetup.loadData(self.info[self.currentSetupPath[:-3]])
         self.workarea.setCurrentIndex(0)
 
 
