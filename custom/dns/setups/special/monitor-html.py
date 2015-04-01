@@ -8,12 +8,7 @@ Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
     Block('Experiment', [
-        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=20,
-                       istext=True, maxlen=20),
-                 Field(name='Sample',   key='sample/samplename', width=15,
-                       istext=True, maxlen=15),
-                 Field(name='Current status', key='exp/action', width=40,
+        BlockRow(Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
                  Field(name='Last scan', key='exp/lastscan'))]),
 )
@@ -61,17 +56,32 @@ _thirdcolumn = Column(
     ], 'jlc3'),
 )
 
+_plotcolumn = Column(
+    Block('Temperature plots', [
+        BlockRow(Field(dev='T_jlc3_tube', plot='T',
+                       plotwindow=12*3600, plotinterval=20, width=100, height=40),
+                 Field(dev='T_jlc3_stick', plot='T'),),
+    ], 'jlc3'),
+    Block('Selector plot', [
+        BlockRow(Field(dev='selector_speed', plot='Sel',
+                       plotwindow=12*3600, plotinterval=60, width=100, height=40),),
+    ], 'astrium'),
+)
+
 devices = dict(
-    Monitor = device('services.monitor.qt.Monitor',
-                     title = 'DNS status',
+    Monitor = device('services.monitor.html.Monitor',
+                     title = 'NICOS status monitor for DNS',
                      loglevel = 'info',
                      cache = 'phys.dns.frm2',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      padding = 0,
+                     filename = '/dnscontrol/webroot/index.html',
+                     fontsize = 17,
                      layout = [
                          Row(_expcolumn),
                          Row(_firstcolumn, _secondcolumn, _thirdcolumn),
+                         Row(_plotcolumn),
                      ],
                     ),
 )
