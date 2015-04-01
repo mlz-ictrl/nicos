@@ -259,7 +259,10 @@ class TofTofMeasurement(ImageProducer, Measurable):
             lvvals.append(value)
         head.append('LV_PowerSupplies: lv0-7: %s\n' %
                     ', '.join(map(str, lvvals)))
-        slit_pos = session.getDevice('slit').read()
+        try:
+            slit_pos = session.getDevice('slit').read()
+        except NicosError:
+            slit_pos = ['unknown'] * 4
         head.append('SampleSlit_ho: %s\n' % slit_pos[0])
         head.append('SampleSlit_hg: %s\n' % slit_pos[2])
         head.append('SampleSlit_vo: %s\n' % slit_pos[1])
