@@ -63,6 +63,7 @@ class LimaCooler(DeviceMixinBase):
     def doWriteCooleron(self, value):
         self._dev.cooler = 'ON' if value else 'OFF'
 
+
 class LimaShutter(OptionalLimaFunctionality):
     def __init__(self, dev, hwdev):
         OptionalLimaFunctionality.__init__(self, dev, hwdev)
@@ -115,5 +116,3 @@ class LimaShutter(OptionalLimaFunctionality):
         elif value == 'always_closed':
             self._dev.shutter_mode = 'MANUAL'
             self._dev.closeShutterManual()
-
-

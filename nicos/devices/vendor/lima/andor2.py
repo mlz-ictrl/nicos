@@ -39,15 +39,15 @@ class Andor2LimaCCD(GenericLimaCCD):
     PGAINS = [1, 2, 4]  # Values from sdk manual
 
     parameters = {
-        'hsspeed'         : Param('Horizontal shift speed',
-                                type=oneof(*HSSPEEDS), settable=True, default=5,
-                                unit='MHz', volatile=True, category='general'),
-        'vsspeed'         : Param('Vertical shift speed',
-                                type=oneof(*VSSPEEDS), settable=True, default=76.95,
-                                unit='ms/shift', volatile=True, category='general'),
-        'pgain'           : Param('Preamplifier gain',
-                                type=oneof(*PGAINS), settable=True, default=4,
-                                volatile=True, category='general'),
+        'hsspeed': Param('Horizontal shift speed',
+                         type=oneof(*HSSPEEDS), settable=True, default=5,
+                         unit='MHz', volatile=True, category='general'),
+        'vsspeed': Param('Vertical shift speed',
+                         type=oneof(*VSSPEEDS), settable=True, default=76.95,
+                         unit='ms/shift', volatile=True, category='general'),
+        'pgain':   Param('Preamplifier gain',
+                         type=oneof(*PGAINS), settable=True, default=4,
+                         volatile=True, category='general'),
     }
 
     parameter_overrides = {
@@ -94,8 +94,8 @@ class Andor2LimaCCD(GenericLimaCCD):
         self._hwDev._dev.p_gain = index
 
 
-class Andor2TemperatureController(PyTangoDevice,
-                                  HasLimits, HasPrecision, LimaCooler, Moveable):
+class Andor2TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
+                                  LimaCooler, Moveable):
     """
     This devices provides access to the cooling feature of Andor2 cameras.
     """
@@ -103,7 +103,7 @@ class Andor2TemperatureController(PyTangoDevice,
     def doRead(self, maxage=0):
         return self._dev.temperature
 
-    def doStatus(self, maxage=0):  #pylint: disable=W0221
+    def doStatus(self, maxage=0):  # pylint: disable=W0221
         coolerState = self._dev.cooler
         temperature = self.doRead()
         sp = self._dev.temperature_sp
@@ -129,4 +129,3 @@ class Andor2TemperatureController(PyTangoDevice,
         else:
             self._dev.temperature_sp = value
             self.doWriteCooleron(True)
-
