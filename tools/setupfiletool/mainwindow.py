@@ -24,20 +24,16 @@
 
 #icons: https://launchpad.net/elementaryicons
 
-import logging
-import os
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QMainWindow, QFileDialog, QTreeWidgetItem, QIcon, QLabel
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMainWindow, QFileDialog, QLabel, QMessageBox
 from PyQt4.QtCore import Qt
-
-from nicos.core.sessions.setups import readSetup
 
 from setupfiletool.widgetsetup import WidgetSetup
 from setupfiletool.widgetdevice import WidgetDevice
-from setupfiletool.utilities.itemtypes import ItemTypes
+from setupfiletool.utilities.utilities import ItemTypes
+from setupfiletool.setuphandler import SetupHandler
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -45,206 +41,113 @@ class MainWindow(QMainWindow):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
 
-        self.resDir = path.join(self.getNicosDir(),
-                                'tools', 'setupfiletool', 'res')
-
-        #root directory containing all the setups or subdirectories with setups.
-        self.setupRoot = path.join(self.getNicosDir(), 'custom')
-
-        # initialize empty dictionary
-        # supposed to be a dictionary of Tuples of parsed files
-        self.info = {}
-        self.currentSetupPath = ''
-        self.currentSetup = None
-
-        #signal/slot connections
-        self.pushButtonLoadFile.clicked.connect(
-            self.loadFile)
-        self.treeWidget.itemActivated.connect(self.loadSelection)
-
-        # Initialize a logger required by setups.readSetup()
-        self.log = logging.getLogger()
-
-        #list of directories in */nicos-core/custom/
-        self.setupDirectories = []
-        for item in os.listdir(self.setupRoot):
-            if path.isdir(path.join(self.setupRoot, item)):
-                self.setupDirectories.append(item)
-
-        #list of topLevelItems representing the directories in
-        #*/nicos-core/custom: for example instruments, ...
-        topLevelItems = []
-        for directory in sorted(self.setupDirectories):
-            topLevelItems.append(
-                QTreeWidgetItem([directory,
-                                 'nicos-core/custom'], ItemTypes.Directory))
-        self.treeWidget.addTopLevelItems(topLevelItems)
-
-        #all these directories (may) have setups, find all of them and add them
-        #as children, after that, add all their devices as children
-        for item in topLevelItems:
-            item.setIcon(0, QIcon(path.join(self.resDir, 'folder.png')))
-            scriptList = [[]] #list of rows, a row = list of strings
-            if path.isdir(path.join(self.setupRoot, item.text(0), 'setups')):
-                self.getSetupsForDir(path.join(self.setupRoot, item.text(0)),
-                                     'setups', scriptList)
-                for script in sorted(scriptList):
-                    if script:
-                        item.addChild(QTreeWidgetItem(script, ItemTypes.Setup))
-
-            #setup for this directory has been loaded, add the devices.
-            currentIndex = 0
-            while currentIndex < item.childCount():
-                currentPath = item.child(currentIndex).text(1)
-                self.readSetupFile(currentPath)
-                for key in self.info[currentPath[:-3]]['devices'].keys():
-                    #read the setup and add all the devices as child tree items
-                    item.child(currentIndex).addChild(
-                        QTreeWidgetItem([key,
-                                         'in file: ' + item.child(currentIndex).text(0)],
-                        ItemTypes.Device))
-                item.child(currentIndex).setIcon(0, QIcon(
-                    path.join(self.resDir, 'setup.png')))
-
-                #icons for all devices
-                deviceIndex = 0
-                while deviceIndex < item.child(currentIndex).childCount():
-                    item.child(currentIndex).child(deviceIndex).setIcon(
-                        0, QIcon(path.join(self.resDir, 'device.png')))
-                    deviceIndex += 1
-                currentIndex += 1
-
-        #hide the "path" column in treeWidget. May be toggleable later
-        self.treeWidget.setColumnCount(1)
-
-        #information of hidden column is still accessible.
-        #print(topLevelItems[0].child(0).text(1)) -> path to very first setup
+        self.setupHandler = SetupHandler()
 
         #GUI setup for working area on the right
         self.widgetSetup = WidgetSetup()
-
-        #setup the tool to recognize changes made to setups
-        self.unsavedChanges = False
-        self.widgetSetup.editedSetup.connect(self.setupEdited)
-        self.treeWidget.editedSetup.connect(self.setupEdited)
-
         self.widgetDevice = WidgetDevice()
         self.labelHeader = QLabel('Select Setup or device...')
         self.labelHeader.setAlignment(Qt.AlignCenter)
+
+        #signal/slot connections
+        self.pushButtonLoadFile.clicked.connect(self.loadFile)
+        self.treeWidget.itemActivated.connect(self.loadSelection)
+        self.widgetSetup.editedSetup.connect(self.treeWidget.changedSlot)
+
         self.workarea.addWidget(self.widgetSetup)
         self.workarea.addWidget(self.widgetDevice)
         self.workarea.addWidget(self.labelHeader)
         self.workarea.setCurrentIndex(2)
 
+        self.treeWidget.setSetupHandler(self.setupHandler)
+        self.widgetSetup.setSetupHandler(self.setupHandler)
+        self.treeWidget.setColumnCount(1)
+        self.treeWidget.loadNicosData()
+
 
     def msgboxUnsavedChanges(self):
-        if self.currentSetup:
-            fileStr = self.currentSetup.text(0)
-        else:
-            fileStr = self.currentSetupPath
+        fileStr = self.setupHandler.currentSetupPath
         reply = QMessageBox.question(self, 'Unsaved changes',
             'Save changes to ' + fileStr + '?',
-            QMessageBox.Yes, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            #TODO write saving method
-            print('save')
-
-
-    def setupEdited(self):
-        if not self.unsavedChanges:
-            self.unsavedChanges = True
-            if self.currentSetup:
-                self.currentSetup.setText(0, '*' + self.currentSetup.text(0))
-
-
-    def getSetupsForDir(self, previousDir, newDir, listOfSetups):
-        #gets a root directory: previousDir and a subdirectory in the root
-        #walks down every directory starting from newDir and appends every
-        #*.py file it finds to the initial listOfSetups which is passed to each
-        #level of recursion
-        #actually appends a list of strings: first string is filename, second
-        #string is the full path.
-        for item in os.listdir(path.join(previousDir, newDir)):
-            if item.endswith('.py'):
-                listOfSetups.append([item,
-                                     str(path.join(previousDir, newDir, item))])
-            elif path.isdir(path.join(previousDir, newDir, item)):
-                self.getSetupsForDir(path.join(
-                    previousDir, newDir), item, listOfSetups)
+            QMessageBox.Yes, QMessageBox.No, QMessageBox.Cancel)
+        return reply
 
 
     def loadSelection(self):
-        if self.unsavedChanges:
-            self.msgboxUnsavedChanges()
-            if self.currentSetup:
-                self.currentSetup.setText(0, self.currentSetup.text(0)[1:])
-            self.unsavedChanges = False
-            self.currentSetup = None
+        if not self.treeWidget.currentItem().type() == ItemTypes.Directory:
+            if self.treeWidget.currentItem().text(
+                1) == self.setupHandler.currentSetupPath:
+                self.workarea.setCurrentIndex(0)
+                return
+            elif self.treeWidget.currentItem().parent(
+                ).text(1) == self.setupHandler.currentSetupPath:
+                #is device of current setup
+                self.updateDeviceGui()
+                return
 
+        if self.setupHandler.unsavedChanges:
+            reply = self.msgboxUnsavedChanges()
+            if reply == QMessageBox.Yes:
+                self.setupHandler.save()
+                self.treeWidget.unmarkItem()
+            elif reply == QMessageBox.No:
+                self.treeWidget.cleanUnsavedDevices()
+                self.setupHandler.clear()
+                self.treeWidget.unmarkItem()
+            elif reply ==  QMessageBox.Cancel:
+                return
+
+        self.setupHandler.clear()
         items = self.treeWidget.selectedItems()
         for item in items: #no multiple selection -> only 1 item
             if item.type() == ItemTypes.Directory:
-                self.info.clear()
-                self.currentSetupPath = ''
                 self.workarea.setCurrentIndex(2)
-                return
 
             elif item.type() == ItemTypes.Setup:
-                self.currentSetupPath = item.text(1)
-                self.currentSetup = item
-                self.readSetupFile(self.currentSetupPath)
+                self.setupHandler.readSetupFile(item.text(1))
                 self.updateSetupGui()
 
             elif item.type() == ItemTypes.Device:
-                self.currentSetupPath = item.parent().text(1)
-                self.currentSetup = item.parent()
-                self.readSetupFile(self.currentSetupPath)
+                self.setupHandler.readSetupFile(item.parent().text(1))
                 self.updateDeviceGui()
 
 
     def loadFile(self):
-        # allows a user specify the setup file to be parsed
-        if self.unsavedChanges:
-            self.msgboxUnsavedChanges()
-            if self.currentSetup:
-                self.currentSetup.setText(0, self.currentSetup.text(0)[1:])
-            self.unsavedChanges = False
+        if self.setupHandler.unsavedChanges:
+            reply = self.msgboxUnsavedChanges()
+            if reply == QMessageBox.Yes:
+                self.setupHandler.save()
+                self.treeWidget.unmarkItem()
+            elif reply == QMessageBox.No:
+                self.treeWidget.cleanUnsavedDevices()
+                self.setupHandler.clear()
+                self.treeWidget.unmarkItem()
+            elif reply ==  QMessageBox.Cancel:
+                return
+
         setupFile = QFileDialog.getOpenFileName(
             self,
             'Open setup file',
             path.expanduser('~'),
             'Python Files (*.py)')
-
         if setupFile:
-            self.readSetupFile(setupFile)
-            self.currentSetupPath = setupFile
-            self.currentSetup = None #no item for custom files available
+            self.setupHandler.readSetupFile(setupFile)
+            self.setupHandler.isCustomFile = True
             self.updateSetupGui()
-        #TODO: Find a way to display devices of a manually loaded setup!!
-
-
-    def readSetupFile(self, pathToFile):
-        # uses nicos.core.sessions.setups.readSetup() to read a setup file and
-        # put the information in the self.info dictionary.
-        self.info.clear()
-        readSetup(self.info,
-                  path.dirname(pathToFile),
-                  pathToFile,
-                  self.log)
+        else:
+            self.workarea.setCurrentIndex(2)
 
 
     def updateSetupGui(self):
         #selection = setup
         self.widgetSetup.clear()
-        self.widgetSetup.loadData(self.info[self.currentSetupPath[:-3]])
+        self.widgetSetup.loadData(self.setupHandler.info[
+            self.setupHandler.currentSetupPath[:-3]])
         self.workarea.setCurrentIndex(0)
 
 
     def updateDeviceGui(self):
         #selection = device
+        self.widgetDevice.label.setText(
+            'you loaded: ' + self.treeWidget.currentItem().text(0))
         self.workarea.setCurrentIndex(1)
-
-
-    def getNicosDir(self):
-        # this file should be in */nicos-core/tools/setupfiletool
-        return(path.abspath(path.join(path.dirname( __file__ ), '..', '..')))

@@ -220,4 +220,8 @@ class WidgetSetup(QWidget):
             self.pushButtonAddSysconfig.setEnabled(False)
         else:
             self.pushButtonAddSysconfig.setEnabled(True)
+        self.setupHandler.setupDisplayed = True
 
+
+    def setSetupHandler(self, setupHandler):
+        self.setupHandler = setupHandler

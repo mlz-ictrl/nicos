@@ -22,7 +22,18 @@
 #
 # *****************************************************************************
 
+from os import path
+
 class ItemTypes(object):
+    #used to distinguish QTreeWidgetItems
     Directory = 1200
     Setup = 1300
     Device = 1400
+    UnsavedDevice = 1500
+
+def getNicosDir():
+    #this file should be in */nicos-core/tools/setupfiletool/utilities
+    return(path.abspath(path.join(path.dirname( __file__ ), '..', '..', '..')))
+
+def getResDir():
+    return(path.join(getNicosDir(), 'tools', 'setupfiletool', 'res'))
