@@ -31,7 +31,7 @@ devices = dict(
 
     Cbox2    = device('mira.beckhoff.DigitalOutput',
                       description = 'second capacitor box',
-                      tacodevice = '//mirasrv/mira/modbus/beckhoff',
+                      tangodevice = 'tango://mira1.mira.frm2:10000/mira/beckhoff/beckhoff1',
                       startoffset = 40,
                       bitwidth = 32,
                      ),

@@ -70,6 +70,11 @@ _column2 = Column(
         ],
         setups='sample',
     ),
+    Block('Sample table', [
+        BlockRow('sth', 'phi'),
+        ],
+        setups='sample_ext',
+    ),
     Block('Analyzer', [
         BlockRow('ath', 'att'),
         ],

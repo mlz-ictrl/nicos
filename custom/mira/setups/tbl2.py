@@ -3,10 +3,10 @@ description = 'Huber rotation tables'
 group = 'optional'
 
 devices = dict(
-    tbl2    = device('devices.taco.Motor',
+    tbl2    = device('devices.tango.Motor',
                      description = 'second general-use rotator table',
-                     tacodevice = '//mirasrv/mira/rot/tbl2',
+                     tangodevice = 'tango://mira1.mira.frm2:10000/mira/table/rot2',
                      abslimits = (-360, 360),
-                     resetcall = 'deviceInit',
+                     precision = 0.05,
                     ),
 )

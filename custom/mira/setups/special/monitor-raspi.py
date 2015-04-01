@@ -31,7 +31,11 @@ _column1 = Column(
         setups='tas',
     ),
     Block('MIRA Magnet', [
-        BlockRow('I', 'B')
+        BlockRow('I', 'B'),
+        BlockRow(Field(name='T1', dev='miramagnet_T1', width=6, format='%d'),
+                 Field(name='T2', dev='miramagnet_T2', width=6, format='%d')),
+        BlockRow(Field(name='T3', dev='miramagnet_T3', width=6, format='%d'),
+                 Field(name='T4', dev='miramagnet_T4', width=6, format='%d')),
         ],
         setups='miramagnet',
     ),
@@ -42,7 +46,7 @@ _column1 = Column(
         setups='garfield',
     ),
     Block('FRM Magnet', [
-        BlockRow('B', Field(name='sth', dev='sth_m7T5_stick'),
+        BlockRow('B', # Field(name='sth', dev='sth_m7T5_stick'),
                  Field(name='T1', dev='m7T5_T1', width=6),
                  Field(name='T2', dev='m7T5_T2', width=6)),
         BlockRow(Field(name='T3', dev='m7T5_T3', width=6),

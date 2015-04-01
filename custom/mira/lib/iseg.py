@@ -27,10 +27,10 @@
 import time
 
 from nicos.core import Param
-from nicos.devices.vendor.iseg import IsegHV
+from nicos.devices.tango import Actuator
 
 
-class CascadeIsegHV(IsegHV):
+class CascadeIsegHV(Actuator):
     """Iseg that warns and waits before switching on the HV."""
 
     parameters = {
@@ -45,4 +45,4 @@ class CascadeIsegHV(IsegHV):
                              'for %d seconds before ramping up the HV.'
                              % self.waittime)
             time.sleep(self.waittime)
-        return IsegHV.doStart(self, value)
+        return Actuator.doStart(self, value)

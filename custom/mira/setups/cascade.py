@@ -32,13 +32,11 @@ devices = dict(
 
     PSDHV  = device('mira.iseg.CascadeIsegHV',
                     description = 'high voltage supply for the CASCADE detector (usually -2850 V)',
-                    tacodevice = '//mirasrv/mira/network/rs12_4',
+                    tangodevice = 'tango://mira1.mira.frm2:10000/mira/psdhv/voltage',
                     abslimits = (-3100, 0),
-                    warnlimits = (-3100, -2800),
+                    warnlimits = (-3000, -2945),
                     pollinterval = 10,
                     maxage = 20,
-                    channel = 1,
-                    unit = 'V',
                     fmtstr = '%d',
                    ),
 

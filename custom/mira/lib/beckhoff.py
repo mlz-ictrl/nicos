@@ -24,19 +24,16 @@
 
 """Devices for the Beckhoff Busklemmensystem."""
 
-from Modbus import Modbus
-
 from nicos.core import Param, listof
-from nicos.devices.taco import io
+from nicos.devices import tango
 from nicos.core import SIMULATION
 
 
-class DigitalInput(io.DigitalInput):
+class DigitalInput(tango.DigitalInput):
     """Device object for a 1-bit digital input device via a Beckhoff modbus
     interface.
     """
 
-    taco_class = Modbus
     valuetype = int
 
     parameters = {
@@ -45,15 +42,14 @@ class DigitalInput(io.DigitalInput):
     }
 
     def doRead(self, maxage=0):
-        return self._taco_guard(self._dev.readDiscreteInputs, (0, self.offset, 1))[0]
+        return self._dev.ReadInputBit(self.offset)
 
 
-class NamedDigitalInput(io.NamedDigitalInput):
+class NamedDigitalInput(tango.NamedDigitalInput):
     """Device object for a 1-bit digital input device via a Beckhoff modbus
     interface.
     """
 
-    taco_class = Modbus
     valuetype = int
 
     parameters = {
@@ -62,19 +58,15 @@ class NamedDigitalInput(io.NamedDigitalInput):
     }
 
     def doRead(self, maxage=0):
-        value = self._taco_guard(self._dev.readDiscreteInputs, (0, self.offset, 1))[0]
+        value = self._dev.ReadInputBit(self.offset)
         return self._reverse.get(value, value)
 
 
-class DigitalOutput(io.DigitalOutput):
+class DigitalOutput(tango.DigitalOutput):
     """Device object for a digital output device via a Beckhoff modbus
     interface.
-
-    Modeled after `~nicos.devices.taco.io.PartialDigitalOutput` from the TACO
-    module.
     """
 
-    taco_class = Modbus
     valuetype = listof(int)
 
     parameters = {
@@ -87,15 +79,13 @@ class DigitalOutput(io.DigitalOutput):
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
         if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
+            self._dev.WriteOutputWord([0x1120, 0])
 
     def doRead(self, maxage=0):
-        return tuple(self._taco_guard(self._dev.readCoils, (0,
-                                      self.startoffset, self.bitwidth)))
+        return tuple(self._dev.ReadOutputBits([self.startoffset, self.bitwidth]))
 
     def doStart(self, value):
-        self._taco_guard(self._dev.writeMultipleCoils, (0,
-                         self.startoffset) + tuple(value))
+        self._dev.WriteOutputBits([self.startoffset] + value)
 
     def doIsAllowed(self, target):
         try:
@@ -110,14 +100,10 @@ class DigitalOutput(io.DigitalOutput):
         return '[' + ', '.join(['%s'] * self.bitwidth) + ']'
 
 
-class NamedDigitalOutput(io.NamedDigitalOutput):
+class NamedDigitalOutput(tango.NamedDigitalOutput):
     """Device object for a digital output device via a Beckhoff modbus
     interface.
-
-    Modeled after `~nicos.devices.taco.io.NamedDigitalOutput` from the TACO
-    module.
     """
-    taco_class = Modbus
 
     parameters = {
         'startoffset': Param('Starting offset of digital output values',
@@ -127,15 +113,13 @@ class NamedDigitalOutput(io.NamedDigitalOutput):
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
         if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
-        NamedDigitalOutput.doInit(self, mode)
+            self._dev.WriteOutputWord([0x1120, 0])
+        tango.NamedDigitalOutput.doInit(self, mode)
 
     def doStart(self, target):
         value = self.mapping.get(target, target)
-        self._taco_guard(self._dev.writeMultipleCoils,
-                         (0, self.startoffset) + (value,))
+        self._dev.WriteOutputBit([self.startoffset, value])
 
     def doRead(self, maxage=0):
-        value = self._taco_guard(self._dev.readCoils,
-                                 (0, self.startoffset, 1))[0]
+        value = self._dev.ReadOutputBit(self.startoffset)
         return self._reverse.get(value, value)

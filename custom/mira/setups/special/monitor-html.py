@@ -86,7 +86,11 @@ _column3 = Column(
         setups='diff',
     ),
     Block('MIRA Magnet', [
-        BlockRow('I')
+        BlockRow('I', 'B'),
+        BlockRow(Field(name='T1', dev='miramagnet_T1', width=6, format='%.2f'),
+                 Field(name='T2', dev='miramagnet_T2', width=6, format='%.2f')),
+        BlockRow(Field(name='T3', dev='miramagnet_T3', width=6, format='%.2f'),
+                 Field(name='T4', dev='miramagnet_T4', width=6, format='%.2f')),
         ],
         setups='miramagnet',
     ),
@@ -209,8 +213,8 @@ _column1 = Column(
                  Field(dev='NL6', min='open', width=7)),
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
                  Field(dev='CoolTemp', width=6, format='%.1f', unit=" "),
-                 Field(dev='FAKTemp', width=6, format='%.1f', unit=' '),
-                 Field(dev='ar', name='PSD Ar', width=4, format='%.1f', unit=' '),
+                 Field(dev='FAKTemp', width=6, format='%.1f', unit=' ')),
+        BlockRow(Field(dev='ar', name='PSD Ar', width=4, format='%.1f', unit=' '),
                  Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7,)),
         ],
