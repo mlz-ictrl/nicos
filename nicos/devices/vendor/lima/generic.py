@@ -120,7 +120,11 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
             self._hwDev = HwDevice(self.name + '._hwDev',
                                    tangodevice=self.hwdevice, lowlevel=True)
 
-        self._initOptionalComponents()
+        # optional components
+        self._shutter = None
+
+        if mode != SIMULATION:
+            self._initOptionalComponents()
 
     def doInit(self, mode):
         # Determine image type
@@ -275,7 +279,6 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
         return imgData
 
     def _initOptionalComponents(self):
-        self._shutter = None
         try:
             self._shutter = LimaShutter(self._dev, self._hwDev)
         except NicosError:
