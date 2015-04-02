@@ -26,7 +26,7 @@ import numpy
 
 from nicos.core import ImageProducer, ImageType, Param, Device, Measurable, \
     AutoDevice, status, tupleof, oneof, none_or, tangodev, Override, SIMULATION, \
-    HardwareError, NicosError
+    HardwareError, NicosError, Value
 from nicos.devices.tango import PyTangoDevice
 from .optional import LimaShutter
 
@@ -140,6 +140,9 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
 
     def doRead(self, _maxage=0):
         return self.lastfilename
+
+    def valueInfo(self):
+        return Value(self.name + '.file', type='info', fmtstr='%s'),
 
     def doStart(self):
         self._dev.prepareAcq()
