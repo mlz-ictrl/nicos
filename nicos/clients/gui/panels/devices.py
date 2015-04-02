@@ -37,7 +37,7 @@ from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
     DeviceComboWidget
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels import Panel, showPanel
-from nicos.clients.gui.utils import loadUi, dialogFromUi
+from nicos.clients.gui.utils import loadUi, dialogFromUi, ScriptExecQuestion
 from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
 from nicos.pycompat import iteritems
 
@@ -143,6 +143,7 @@ class DevicesPanel(Panel):
 
         # daemon request number of last command executed from this panel
         # (used to display messages from this command)
+        self._current_status = 'idle'
         self._exec_reqno = -1
         self._error_window = None
 
@@ -153,6 +154,9 @@ class DevicesPanel(Panel):
         self.connect(client, SIGNAL('cache'), self.on_client_cache)
         self.connect(client, SIGNAL('device'), self.on_client_device)
         self.connect(client, SIGNAL('message'), self.on_client_message)
+
+    def updateStatus(self, status, exception=False):
+        self._current_status = status
 
     def setOptions(self, options):
         self.useicons = bool(options.get('icons', True))
@@ -452,7 +456,7 @@ class DevicesPanel(Panel):
             if self.askQuestion('This will unload the device until the setup '
                                 'is loaded again. Proceed?'):
                 self.exec_command('RemoveDevice(%s)' % self._menu_dev,
-                                  self._menu_dev)
+                                  self._menu_dev, ask_queue=False)
 
     @qtsig('')
     def on_actionReset_triggered(self):
@@ -522,9 +526,17 @@ class DevicesPanel(Panel):
 
     # API shared with ControlDialog
 
-    def exec_command(self, command, needed_dev, immediate=False):
+    def exec_command(self, command, needed_dev,
+                     ask_queue=True, immediate=False):
         if needed_dev not in self.client.getDeviceList():
             command = 'CreateDevice(%r)\n' % needed_dev + command
+        if ask_queue and not immediate and self._current_status != 'idle':
+            qwindow = ScriptExecQuestion()
+            result = qwindow.exec_()
+            if result == QMessageBox.Cancel:
+                return
+            elif result == QMessageBox.Apply:
+                immediate = True
         if immediate:
             self.client.tell('exec', command)
             self._exec_reqno = -1  # no request assigned to this command
