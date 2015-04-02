@@ -24,6 +24,7 @@
 
 """Module for measuring user commands."""
 
+import sys
 from time import sleep, time as currenttime
 
 from nicos import session
@@ -32,7 +33,7 @@ from nicos.core.errors import UsageError
 from nicos.core.constants import SIMULATION
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
-from nicos.pycompat import iteritems, number_types, string_types
+from nicos.pycompat import iteritems, number_types, string_types, reraise
 from nicos.core.utils import waitForStatus
 
 
@@ -122,8 +123,9 @@ def _count(detlist, preset, result, dataset=None):
                 for det in detset:
                     det.resume()
             sleep(delay)
-    except BaseException as e:  # really ALL exceptions
-        if e.__class__.__name__ != 'ControlStop':
+    except BaseException:  # really ALL exceptions
+        t, v, tb = sys.exc_info()
+        if v.__class__.__name__ != 'ControlStop':
             session.log.warning('Exception during count, trying to save data',
                                 exc=True)
         for det in detset:
@@ -133,7 +135,7 @@ def _count(detlist, preset, result, dataset=None):
             except Exception:
                 det.log.exception('error saving measurement data', exc=True)
         result.extend(sum((det.read() for det in detlist), []))
-        raise
+        reraise(t, v, tb)
     finally:
         session.endActionScope()
     result.extend(sum((det.read() for det in detlist), []))
