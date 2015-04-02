@@ -10,7 +10,7 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.basic', 'nicos.commands.standard', 'nicos.commands.imaging']
+modules = ['nicos.commands.basic', 'nicos.commands.standard', 'antares.commands']
 
 devices = dict(
     email    = device('devices.notifiers.Mailer',

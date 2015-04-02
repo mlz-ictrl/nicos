@@ -9,16 +9,15 @@ Field = lambda *args, **kwds: args or kwds
 _expcolumn = Column(
     Block('Experiment', [
         BlockRow(
-            Field(name='Proposal', key='exp/proposal', width=30),
-            Field(name='Title', key='exp/title', width=10, istext=True),
-            Field(name='Sample', key='sample/samplename', width=30,
-                 istext=True, maxlen=30),
-            Field(name='Current status', key='exp/action', width=15, istext=True),
-            Field(name='Remark',   key='exp/remark',   width=15,
-                 istext=True, maxlen=30),
-            ),
+            Field(name='Proposal', key='exp/proposal', width=10),
+            Field(name='Title', key='exp/title', width=50, istext=True),
+            Field(name='Current status', key='exp/action', width=30, istext=True),
+        ),
         BlockRow(
-            Field(name='Path', key='ccd/lastfilename', width=100),
+            Field(name='Sample', key='sample/samplename', width=40,
+                 istext=True, maxlen=40),
+            Field(name='Remark',   key='exp/remark',   width=40,
+                 istext=True, maxlen=40),
         ),
         ],
     ),
@@ -26,10 +25,10 @@ _expcolumn = Column(
 
 _huberblock = Block('HUBER Small Sample Manipulator', [
     BlockRow(
-        Field(dev='stx'), Field(dev='sty'), Field(dev='sry'),
+        Field(dev='stx_huber'), Field(dev='sty_huber'), Field(dev='sry_huber'),
         ),
     BlockRow(
-        Field(dev='sgx'), Field(dev='sgz'),
+        Field(dev='sgx_huber'), Field(dev='sgz_huber'),
         ),
     ],
     'huber',
@@ -38,7 +37,7 @@ _huberblock = Block('HUBER Small Sample Manipulator', [
 
 _servostarblock = Block('Servostar Large Sample Manipulator', [
     BlockRow(
-        Field(dev='stx'), Field(dev='sty'), Field(dev='sry'),
+        Field(dev='stx_servostar'), Field(dev='sty_servostar'), Field(dev='sry_servostar'),
         ),
     ],
     'servostar',
@@ -46,10 +45,10 @@ _servostarblock = Block('Servostar Large Sample Manipulator', [
 
 _detectorblock = Block('Detector', [
     BlockRow(
-        Field(name='Last Image', key='ccd.lastfilename'), Field(dev='ccdTemp'),
+        Field(name='Last Image', key='ccd.lastfilename'),
         ),
     BlockRow(
-        Field(name='CCD status', key='ccd/status', width=25, item=1),
+        Field(dev='ccdTemp'), Field(name='CCD status', key='ccd/status', width=15, item=1),
         ),
     BlockRow(
         Field(name='bin', key='ccd.bin'),
@@ -87,6 +86,8 @@ _basicblock = Block('Info', [
         Field(name='Flight Tube', dev='center3_sens2'),
         Field(dev='UBahn', width=12, istext=True),
         ),
+    BlockRow(Field(plot='Pressure', name='Ambient', dev='center3_sens1', width=40, height=20, plotwindow=24*3600),
+        Field(plot='Pressure', name='Flight Tube', dev='center3_sens2')),
     ],
     'basic',
 )
@@ -165,10 +166,8 @@ _filterwheelblock = Block('Filterwheel', [
 
 _selectorblock = Block('Velocity Selector', [
     BlockRow(
-        Field(name='Speed', dev='selector'),
-        Field(name='Lambda',dev='selector_lambda'),
-        Field(name='Tilt', dev='selector_tilt'),
-        Field(name='Position', dev='selector_inout'),
+        Field(name='Speed', dev='selector'), Field(name='Lambda',dev='selector_lambda'),
+        Field(name='Tilt', dev='selector_tilt'), Field(name='Position', dev='selector_inout'),
         ),
     BlockRow(
         Field(dev='selector_vacuum', name='Vacuum'), Field(dev='selector_rtemp', name='Rotor Temp'),
@@ -191,6 +190,17 @@ _monochromatorblock = Block('Double Crystal PG Monochromator', [
         ),
     ],
     'monochromator',
+)
+
+_ngiblock = Block('Neutron Grating Interferometer', [
+    BlockRow(
+        Field(name='G0rz', dev='G0rz'), Field(name='G0ry', dev='G0ry'), Field(name='G0tx', dev='G0tx'),
+        ),
+    BlockRow(
+        Field(name='G1rz', dev='G1rz'), Field(name='G1tz', dev='G1tz'), Field(name='G12rz', dev='G12rz'),
+        ),
+    ],
+    'ngi',
 )
 
 _leftcolumn = Column(
@@ -216,6 +226,7 @@ _rightcolumn = Column(
     _detectorblock,
     _selectorblock,
     _monochromatorblock,
+    _ngiblock,
 )
 
 devices = dict(
