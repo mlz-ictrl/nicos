@@ -58,3 +58,8 @@ class AntaresIkonLCCD(Andor2LimaCCD):
             time.sleep(0.1)
 
         Andor2LimaCCD.doStart(self, **preset)
+
+    def doSave(self, exception=False):
+        if exception:
+            return
+        Andor2LimaCCD.doSave(self, exception)
