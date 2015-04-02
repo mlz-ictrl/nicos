@@ -134,7 +134,7 @@ class Scan(object):
             if self._firstmoves:
                 self.moveDevices(self._firstmoves)
             # the scanned-over devices
-            self.moveTo(positions)
+            return self.moveTo(positions)
         finally:
             session.endActionScope()
 
@@ -279,24 +279,31 @@ class Scan(object):
                 self.handleError('move', dev, val, err)
             else:
                 waitdevs.append((dev, val))
+        # record the read values so that they can be used for the data point
         if not wait:
-            return
+            return {}
+        wait_values = {}
         for dev, val in waitdevs:
             # XXX this should be a multiWait loop
             try:
-                dev.wait()
+                wait_values[dev] = dev.wait()
             except NicosError as err:
                 self.handleError('wait', dev, val, err)
+        return wait_values
 
-    def readPosition(self):
-        # using read() assumes all devices have updated cached value on wait()
+    def readPosition(self, wait_values):
         ret = []
         for dev in self._devices:
-            try:
-                val = dev.read()
-            except NicosError as err:
-                self.handleError('read', dev, None, err)
-                val = [None] * len(dev.valueInfo())
+            # if we already know the value because wait() returned it, use it
+            if dev in wait_values:
+                val = wait_values[dev]
+            # otherwise query the device for its value right now
+            else:
+                try:
+                    val = dev.read(0)
+                except NicosError as err:
+                    self.handleError('read', dev, None, err)
+                    val = [None] * len(dev.valueInfo())
             if isinstance(val, list):
                 ret.extend(val)
             else:
@@ -340,7 +347,7 @@ class Scan(object):
     def _inner_run(self):
         # move all devices to starting position before starting scan
         try:
-            self.prepareScan(self._positions[0])
+            dev_values = self.prepareScan(self._positions[0])
         except StopScan:
             return
         except SkipPoint:
@@ -363,11 +370,12 @@ class Scan(object):
                         self.preparePoint(num(i), position)
                         if position:
                             if i != 0:
-                                self.moveTo(position, wait=self._waitbeforecount)
+                                dev_values = self.moveTo(position,
+                                                         wait=self._waitbeforecount)
                             elif not can_measure:
                                 continue
                         # update changed positions
-                        actualpos = self.readPosition()
+                        actualpos = self.readPosition(dev_values)
                         self.updatePoint(actualpos)
                     except SkipPoint:
                         continue
@@ -531,7 +539,7 @@ class ManualScan(Scan):
         result = actualpos = []
         started = currenttime()
         try:
-            actualpos = self.readPosition()
+            actualpos = self.readPosition({})
             try:
                 if self._multistep:
                     for i in range(self._mscount):

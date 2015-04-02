@@ -50,9 +50,9 @@ class RScan(Scan):
             where = [(dev._adevs["motor"], pos) if isinstance(dev, MicrostepMotor)
                      else (dev, pos)
                      for dev, pos in zip(self._devices, position)]
-            self.moveDevices(where, wait)
+            return self.moveDevices(where, wait)
         else:
-            Scan.moveTo(self, position, wait)
+            return Scan.moveTo(self, position, wait)
 
     def preparePoint(self, num, xvalues):
         if num > 0:  # skip starting point, because of range scan (0..1, ...)
