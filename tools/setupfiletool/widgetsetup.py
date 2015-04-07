@@ -178,6 +178,16 @@ class WidgetSetup(QWidget):
             self.editedSetup.emit()
 
 
+    @pyqtSlot()
+    def on_textEditStartupCode_textChanged(self):
+        #Because I'm blocking the textEdit's signals when clearing it and when
+        #loading data from a setup, textChagned will only be emitted when the
+        #user himself changes the text.
+        #Comparable to QLineEdit's textEdited signal. Sadly, QTextEdit does not
+        #implement this.
+        self.editedSetup.emit()
+
+
     def clear(self):
         self.lineEditDescription.clear()
         self.comboBoxGroup.setCurrentIndex(0)
@@ -188,6 +198,9 @@ class WidgetSetup(QWidget):
         while self.listWidgetModules.count() > 0:
             self.listWidgetModules.takeItem(0)
         self.treeWidgetSysconfig.clear()
+        self.textEditStartupCode.blockSignals(True)
+        self.textEditStartupCode.clear()
+        self.textEditStartupCode.blockSignals(False)
 
 
     def loadData(self, info):
@@ -220,6 +233,9 @@ class WidgetSetup(QWidget):
             self.pushButtonAddSysconfig.setEnabled(False)
         else:
             self.pushButtonAddSysconfig.setEnabled(True)
+        self.textEditStartupCode.blockSignals(True)
+        self.textEditStartupCode.setPlainText(info['startupcode'][1:-1])
+        self.textEditStartupCode.blockSignals(False)
         self.setupHandler.setupDisplayed = True
 
 
