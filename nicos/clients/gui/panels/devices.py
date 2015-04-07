@@ -424,9 +424,9 @@ class DevicesPanel(Panel):
         if item.type() == 1001:
             self._menu_dev = item.text(0)
             ldevname = self._menu_dev.lower()
-            if 'nicos.core.device.Moveable' in self._devinfo[ldevname][5]:
+            if 'nicos.core.device.Moveable' in self._devinfo[ldevname][6]:
                 self.devmenu.popup(self.tree.viewport().mapToGlobal(point))
-            elif 'nicos.core.device.Readable' in self._devinfo[ldevname][5]:
+            elif 'nicos.core.device.Readable' in self._devinfo[ldevname][6]:
                 self.devmenu_ro.popup(self.tree.viewport().mapToGlobal(point))
 
     def on_filter_textChanged(self, text):
