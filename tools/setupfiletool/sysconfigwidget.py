@@ -32,6 +32,9 @@ class SysconfigWidget(TreeWidgetContextMenu):
 
 
     def contextMenuOnItem(self, item, pos):
+        if item is None:
+            return #invoked context menu on whitespace
+
         topLevelItems = []
         currentIndex = 0
         while currentIndex < self.topLevelItemCount():

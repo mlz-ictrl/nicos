@@ -25,8 +25,8 @@
 from os import path
 import os
 
-from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon, QInputDialog, QMessageBox
+from PyQt4.QtCore import pyqtSignal, Qt
 
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
@@ -95,6 +95,8 @@ class TreeWidget(TreeWidgetContextMenu):
                         0, QIcon(path.join(getResDir(), 'device.png')))
                     deviceIndex += 1
                 currentIndex += 1
+        self.setSortingEnabled(True)
+        self.sortByColumn(0, Qt.AscendingOrder)
 
 
     def getSetupsForDir(self, previousDir, newDir, listOfSetups):
@@ -124,11 +126,61 @@ class TreeWidget(TreeWidgetContextMenu):
 
 
     def contextMenuOnItem(self, item, pos):
+        if item is None:
+            return #invoked context menu on whitespace
+
         if item.type() == ItemTypes.Setup:
             menu = QMenu(self)
             addDeviceAction = menu.addAction('Add device...')
             addDeviceAction.triggered.connect(self.addDevice)
             menu.popup(pos)
+
+        elif item.type() == ItemTypes.Directory:
+            menu = QMenu(self)
+            addSetupAction = menu.addAction('Add setup...')
+            addSetupAction.triggered.connect(self.addSetup)
+            menu.popup(pos)
+
+
+    def addSetup(self):
+        mw = self.parent().parent().parent()
+        if self.setupHandler.unsavedChanges:
+            if not mw.msgboxUnsavedChanges():
+                return
+        newSetup = QInputDialog.getText(self,
+                                        'New setup...',
+                                        'Enter name of new setup:')
+        if not newSetup[1]:
+            return #user pressed cancel
+
+        newSetup = str(newSetup[0])
+
+        if not newSetup:
+            return #string is empty
+
+        if not newSetup.endswith('.py'):
+            newSetup += '.py'
+
+        newPath = path.join(getNicosDir(),
+                            'custom',
+                            self.currentItem().text(0),
+                            'setups',
+                            newSetup)
+
+        try:
+            print('creating: ' + newPath)
+            open(newPath, 'w').close()
+        except IOError:
+            QMessageBox.warning(self,
+                                'Error',
+                                'Could not create new setup!')
+            return
+
+        newItem = QTreeWidgetItem(
+            [newSetup, newPath],
+            ItemTypes.Setup)
+        newItem.setIcon(0, QIcon(path.join(getResDir(), 'setup.png')))
+        self.currentItem().addChild(newItem)
 
 
     def addDevice(self):
@@ -138,9 +190,22 @@ class TreeWidget(TreeWidgetContextMenu):
             if self.setupHandler.unsavedChanges:
                 if not mw.msgboxUnsavedChanges():
                     return
+        newDevice = QInputDialog.getText(self,
+                                        'New device...',
+                                        'Enter name of new device:')
+        if not newDevice[1]:
+            return #user pressed cancel
+
+        newDevice = str(newDevice[0])
+
+        if not newDevice:
+            QMessageBox.warning(self,
+                                'Error',
+                                'No name entered for device.')
+            return
 
         newItem = QTreeWidgetItem(
-            ['<New Device>', 'in file: ' + self.currentItem().text(0)],
+            [newDevice, 'in file: ' + self.currentItem().text(0)],
             ItemTypes.UnsavedDevice)
         newItem.setIcon(0, QIcon(path.join(getResDir(), 'device.png')))
         self.currentItem().addChild(newItem)
