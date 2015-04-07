@@ -27,8 +27,9 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QMainWindow, QFileDialog, QLabel, QMessageBox
-from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QMainWindow, QFileDialog, QLabel, QMessageBox, \
+                        QApplication
+from PyQt4.QtCore import Qt, QCoreApplication
 
 from setupfiletool.widgetsetup import WidgetSetup
 from setupfiletool.widgetdevice import WidgetDevice
@@ -50,9 +51,12 @@ class MainWindow(QMainWindow):
         self.labelHeader.setAlignment(Qt.AlignCenter)
 
         #signal/slot connections
-        self.pushButtonLoadFile.clicked.connect(self.loadFile)
         self.treeWidget.itemActivated.connect(self.loadSelection)
         self.widgetSetup.editedSetup.connect(self.treeWidget.changedSlot)
+        self.actionExit.triggered.connect(QCoreApplication.instance().quit)
+        self.actionLoadFile.triggered.connect(self.loadFile)
+        self.actionAboutSetupFileTool.triggered.connect(self.aboutSetupFileTool)
+        self.actionAboutQt.triggered.connect(QApplication.aboutQt)
 
         self.workarea.addWidget(self.widgetSetup)
         self.workarea.addWidget(self.widgetDevice)
@@ -151,3 +155,9 @@ class MainWindow(QMainWindow):
         self.widgetDevice.label.setText(
             'you loaded: ' + self.treeWidget.currentItem().text(0))
         self.workarea.setCurrentIndex(1)
+
+
+    def aboutSetupFileTool(self):
+        QMessageBox.information(self,
+            'About SetupFileTool', 'A tool designed to optimize ' +
+            'editing setup files for NICOS.')

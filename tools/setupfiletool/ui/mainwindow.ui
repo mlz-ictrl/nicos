@@ -27,13 +27,6 @@
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QPushButton" name="pushButtonLoadFile">
-       <property name="text">
-        <string>Load file manually...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="TreeWidget" name="treeWidget">
        <property name="expandsOnDoubleClick">
         <bool>false</bool>
@@ -53,6 +46,52 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>834</width>
+     <height>35</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoadFile"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAboutSetupFileTool"/>
+    <addaction name="actionAboutQt"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionLoadFile">
+   <property name="text">
+    <string>Load file</string>
+   </property>
+  </action>
+  <action name="actionAboutSetupFileTool">
+   <property name="text">
+    <string>About SetupFileTool</string>
+   </property>
+  </action>
+  <action name="actionAboutQt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
