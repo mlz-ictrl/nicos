@@ -35,6 +35,7 @@ from setupfiletool.widgetsetup import WidgetSetup
 from setupfiletool.widgetdevice import WidgetDevice
 from setupfiletool.utilities.utilities import ItemTypes
 from setupfiletool.setuphandler import SetupHandler
+from setupfiletool.dialogs.newsetup import NewSetupDialog
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -53,8 +54,10 @@ class MainWindow(QMainWindow):
         #signal/slot connections
         self.treeWidget.itemActivated.connect(self.loadSelection)
         self.widgetSetup.editedSetup.connect(self.treeWidget.changedSlot)
-        self.actionExit.triggered.connect(QCoreApplication.instance().quit)
+
+        self.actionNewFile.triggered.connect(self.newFile)
         self.actionLoadFile.triggered.connect(self.loadFile)
+        self.actionExit.triggered.connect(QCoreApplication.instance().quit)
         self.actionAboutSetupFileTool.triggered.connect(self.aboutSetupFileTool)
         self.actionAboutQt.triggered.connect(QApplication.aboutQt)
 
@@ -139,6 +142,41 @@ class MainWindow(QMainWindow):
             self.setupHandler.isCustomFile = True
             self.updateSetupGui()
         else:
+            self.workarea.setCurrentIndex(2)
+
+
+    def newFile(self):
+        if self.setupHandler.unsavedChanges:
+            reply = self.msgboxUnsavedChanges()
+            if reply == QMessageBox.Yes:
+                self.setupHandler.save()
+                self.treeWidget.unmarkItem()
+            elif reply == QMessageBox.No:
+                self.treeWidget.cleanUnsavedDevices()
+                self.setupHandler.clear()
+                self.treeWidget.unmarkItem()
+            elif reply ==  QMessageBox.Cancel:
+                return
+
+        dlg = NewSetupDialog()
+        if dlg.exec_():
+            newFile = dlg.lineEditPath.text()
+            if not newFile:
+                QMessageBox.warning(self,
+                                    'Error',
+                                    'No path specified.')
+                return
+
+            try:
+                open(newFile, 'w').close()
+            except IOError:
+                QMessageBox.warning(self,
+                                    'Error',
+                                    'Could not create new setup!')
+                return
+
+            if dlg.checkBoxReload.isChecked():
+                self.treeWidget.loadNicosData()
             self.workarea.setCurrentIndex(2)
 
 

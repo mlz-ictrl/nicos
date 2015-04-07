@@ -59,6 +59,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionNewFile"/>
     <addaction name="actionLoadFile"/>
     <addaction name="actionExit"/>
    </widget>
@@ -79,7 +80,7 @@
   </action>
   <action name="actionLoadFile">
    <property name="text">
-    <string>Load file</string>
+    <string>Load...</string>
    </property>
   </action>
   <action name="actionAboutSetupFileTool">
@@ -90,6 +91,11 @@
   <action name="actionAboutQt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionNewFile">
+   <property name="text">
+    <string>New...</string>
    </property>
   </action>
  </widget>
