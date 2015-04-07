@@ -25,7 +25,7 @@
 from os import path
 import os
 
-from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon, QMessageBox
+from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon
 from PyQt4.QtCore import pyqtSignal
 
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
@@ -136,15 +136,7 @@ class TreeWidget(TreeWidgetContextMenu):
         #if current item == currently loaded setup
         if not self.currentItem().text(1) == self.setupHandler.currentSetupPath:
             if self.setupHandler.unsavedChanges:
-                reply = mw.msgboxUnsavedChanges()
-                if reply == QMessageBox.Yes:
-                    self.setupHandler.save()
-                    self.unmarkItem()
-                elif reply == QMessageBox.No:
-                    self.cleanUnsavedDevices()
-                    self.setupHandler.clear()
-                    self.unmarkItem()
-                elif reply ==  QMessageBox.Cancel:
+                if not mw.msgboxUnsavedChanges():
                     return
 
         newItem = QTreeWidgetItem(

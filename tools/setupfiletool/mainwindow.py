@@ -73,11 +73,24 @@ class MainWindow(QMainWindow):
 
 
     def msgboxUnsavedChanges(self):
+        #asks the user wether to save or discard his changes, or to abort the
+        #triggered action. Saving and Discarding return true, while cancelling
+        #returns false.
         fileStr = self.setupHandler.currentSetupPath
         reply = QMessageBox.question(self, 'Unsaved changes',
             'Save changes to ' + fileStr + '?',
             QMessageBox.Yes, QMessageBox.No, QMessageBox.Cancel)
-        return reply
+        if reply == QMessageBox.Yes:
+            self.setupHandler.save()
+            self.treeWidget.unmarkItem()
+            return True
+        elif reply == QMessageBox.No:
+            self.treeWidget.cleanUnsavedDevices()
+            self.setupHandler.clear()
+            self.treeWidget.unmarkItem()
+            return True
+        elif reply == QMessageBox.Cancel:
+            return False
 
 
     def loadSelection(self):
@@ -93,15 +106,7 @@ class MainWindow(QMainWindow):
                 return
 
         if self.setupHandler.unsavedChanges:
-            reply = self.msgboxUnsavedChanges()
-            if reply == QMessageBox.Yes:
-                self.setupHandler.save()
-                self.treeWidget.unmarkItem()
-            elif reply == QMessageBox.No:
-                self.treeWidget.cleanUnsavedDevices()
-                self.setupHandler.clear()
-                self.treeWidget.unmarkItem()
-            elif reply ==  QMessageBox.Cancel:
+            if not self.msgboxUnsavedChanges():
                 return
 
         self.setupHandler.clear()
@@ -121,15 +126,7 @@ class MainWindow(QMainWindow):
 
     def loadFile(self):
         if self.setupHandler.unsavedChanges:
-            reply = self.msgboxUnsavedChanges()
-            if reply == QMessageBox.Yes:
-                self.setupHandler.save()
-                self.treeWidget.unmarkItem()
-            elif reply == QMessageBox.No:
-                self.treeWidget.cleanUnsavedDevices()
-                self.setupHandler.clear()
-                self.treeWidget.unmarkItem()
-            elif reply ==  QMessageBox.Cancel:
+            if not self.msgboxUnsavedChanges():
                 return
 
         setupFile = QFileDialog.getOpenFileName(
@@ -147,15 +144,7 @@ class MainWindow(QMainWindow):
 
     def newFile(self):
         if self.setupHandler.unsavedChanges:
-            reply = self.msgboxUnsavedChanges()
-            if reply == QMessageBox.Yes:
-                self.setupHandler.save()
-                self.treeWidget.unmarkItem()
-            elif reply == QMessageBox.No:
-                self.treeWidget.cleanUnsavedDevices()
-                self.setupHandler.clear()
-                self.treeWidget.unmarkItem()
-            elif reply ==  QMessageBox.Cancel:
+            if not self.msgboxUnsavedChanges():
                 return
 
         dlg = NewSetupDialog()
