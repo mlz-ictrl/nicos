@@ -70,7 +70,13 @@
     <addaction name="actionAboutSetupFileTool"/>
     <addaction name="actionAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionExit">
@@ -96,6 +102,25 @@
   <action name="actionNewFile">
    <property name="text">
     <string>New...</string>
+   </property>
+  </action>
+  <action name="actionShowPathColumn">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show path column</string>
+   </property>
+  </action>
+  <action name="actionShowTree">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Tree</string>
    </property>
   </action>
  </widget>

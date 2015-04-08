@@ -55,9 +55,12 @@ class MainWindow(QMainWindow):
         self.treeWidget.itemActivated.connect(self.loadSelection)
         self.widgetSetup.editedSetup.connect(self.treeWidget.changedSlot)
 
+        #setup the menu bar
         self.actionNewFile.triggered.connect(self.newFile)
         self.actionLoadFile.triggered.connect(self.loadFile)
         self.actionExit.triggered.connect(QCoreApplication.instance().quit)
+        self.menuView.addAction(self.dockWidget.toggleViewAction())
+        self.dockWidget.toggleViewAction().setText('Show Tree')
         self.actionAboutSetupFileTool.triggered.connect(self.aboutSetupFileTool)
         self.actionAboutQt.triggered.connect(QApplication.aboutQt)
 
