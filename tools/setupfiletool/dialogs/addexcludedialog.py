@@ -28,7 +28,7 @@ from PyQt4 import uic
 from PyQt4.QtGui import QDialog
 
 class AddExcludeDialog(QDialog):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(AddExcludeDialog, self).__init__(parent)
         uic.loadUi(path.abspath(path.join(path.dirname( __file__ ),
                                           '..',

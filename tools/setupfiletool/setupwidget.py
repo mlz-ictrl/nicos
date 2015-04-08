@@ -33,14 +33,14 @@ from setupfiletool.dialogs.addexcludedialog import AddExcludeDialog
 from setupfiletool.dialogs.addmoduledialog import AddModuleDialog
 from setupfiletool.dialogs.addsysconfigdialog import AddSysconfigDialog
 
-class WidgetSetup(QWidget):
+class SetupWidget(QWidget):
     editedSetup = pyqtSignal()
 
 
-    def __init__(self, parent = None):
-        super(WidgetSetup, self).__init__(parent)
+    def __init__(self, parent=None):
+        super(SetupWidget, self).__init__(parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
-                             'ui', 'widgetsetup.ui'), self)
+                             'ui', 'setupwidget.ui'), self)
 
         #keys taken from */nicos-core/custom/skeleton/setups/system.py
         self.sysconfigKeys = ['cache',

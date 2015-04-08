@@ -27,8 +27,11 @@ from os import path
 from PyQt4 import uic
 from PyQt4.QtGui import QWidget
 
-class WidgetDevice(QWidget):
-    def __init__(self, parent = None):
-        super(WidgetDevice, self).__init__(parent)
-        uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
-                             'ui', 'widgetdevice.ui'), self)
+class DeviceParam(QWidget):
+    def __init__(self, parent=None, param='<PARAM>', value='<VALUE>'):
+        super(DeviceParam, self).__init__(parent)
+        uic.loadUi(path.abspath(path.join(path.dirname( __file__ ),
+                                          'ui',
+                                          'deviceparam.ui')), self)
+        self.labelParam.setText(param)
+        self.lineEditParam.setText(value)

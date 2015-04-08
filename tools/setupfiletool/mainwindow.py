@@ -31,14 +31,14 @@ from PyQt4.QtGui import QMainWindow, QFileDialog, QLabel, QMessageBox, \
                         QApplication
 from PyQt4.QtCore import Qt, QCoreApplication
 
-from setupfiletool.widgetsetup import WidgetSetup
-from setupfiletool.widgetdevice import WidgetDevice
+from setupfiletool.setupwidget import SetupWidget
+from setupfiletool.devicewidget import DeviceWidget
 from setupfiletool.utilities.utilities import ItemTypes
 from setupfiletool.setuphandler import SetupHandler
 from setupfiletool.dialogs.newsetup import NewSetupDialog
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
@@ -46,14 +46,14 @@ class MainWindow(QMainWindow):
         self.setupHandler = SetupHandler()
 
         #GUI setup for working area on the right
-        self.widgetSetup = WidgetSetup()
-        self.widgetDevice = WidgetDevice()
+        self.setupWidget = SetupWidget()
+        self.deviceWidget = DeviceWidget()
         self.labelHeader = QLabel('Select Setup or device...')
         self.labelHeader.setAlignment(Qt.AlignCenter)
 
         #signal/slot connections
         self.treeWidget.itemActivated.connect(self.loadSelection)
-        self.widgetSetup.editedSetup.connect(self.treeWidget.changedSlot)
+        self.setupWidget.editedSetup.connect(self.treeWidget.changedSlot)
 
         #setup the menu bar
         self.actionNewFile.triggered.connect(self.newFile)
@@ -64,13 +64,13 @@ class MainWindow(QMainWindow):
         self.actionAboutSetupFileTool.triggered.connect(self.aboutSetupFileTool)
         self.actionAboutQt.triggered.connect(QApplication.aboutQt)
 
-        self.workarea.addWidget(self.widgetSetup)
-        self.workarea.addWidget(self.widgetDevice)
+        self.workarea.addWidget(self.setupWidget)
+        self.workarea.addWidget(self.deviceWidget)
         self.workarea.addWidget(self.labelHeader)
         self.workarea.setCurrentIndex(2)
 
         self.treeWidget.setSetupHandler(self.setupHandler)
-        self.widgetSetup.setSetupHandler(self.setupHandler)
+        self.setupWidget.setSetupHandler(self.setupHandler)
         self.treeWidget.setColumnCount(1)
         self.treeWidget.loadNicosData()
 
@@ -111,7 +111,6 @@ class MainWindow(QMainWindow):
         if self.setupHandler.unsavedChanges:
             if not self.msgboxUnsavedChanges():
                 return
-
         self.setupHandler.clear()
         items = self.treeWidget.selectedItems()
         for item in items: #no multiple selection -> only 1 item
@@ -174,16 +173,18 @@ class MainWindow(QMainWindow):
 
     def updateSetupGui(self):
         #selection = setup
-        self.widgetSetup.clear()
-        self.widgetSetup.loadData(self.setupHandler.info[
+        self.setupWidget.clear()
+        self.setupWidget.loadData(self.setupHandler.info[
             self.setupHandler.currentSetupPath[:-3]])
         self.workarea.setCurrentIndex(0)
 
 
     def updateDeviceGui(self):
         #selection = device
-        self.widgetDevice.label.setText(
-            'you loaded: ' + self.treeWidget.currentItem().text(0))
+        currentDevice = self.treeWidget.currentItem().text(0)
+        currentSetup = self.setupHandler.currentSetupPath[:-3]
+        info = self.setupHandler.info[currentSetup]['devices'][currentDevice]
+        self.deviceWidget.loadDevice(info[0], info[1])
         self.workarea.setCurrentIndex(1)
 
 

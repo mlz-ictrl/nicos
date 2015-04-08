@@ -29,7 +29,7 @@ from PyQt4.QtGui import QDialog, QFileDialog
 from PyQt4.QtCore import pyqtSlot
 
 class NewSetupDialog(QDialog):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(NewSetupDialog, self).__init__(parent)
         uic.loadUi(path.abspath(path.join(path.dirname( __file__ ),
                                           '..',
