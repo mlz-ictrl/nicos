@@ -461,7 +461,8 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         return "Scan %s %s" % (self.dataset.name, self.dataset.scaninfo)
 
     def subTitleString(self):
-        return "started %s" % time.strftime(TIMEFMT, self.dataset.started)
+        return "started %s" % time.strftime(DATEFMT + ' ' + TIMEFMT,
+                                            self.dataset.started)
 
     def addCurve(self, i, curve, replot=False):
         if self.current_xname != 'Default' and \
