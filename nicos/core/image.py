@@ -283,7 +283,7 @@ class ImageProducer(DeviceMixinBase):
         self._imageinfos = imageinfos
         for ii in imageinfos:
             if ii.filepath:
-                self.lastfilename = path.relpath(imageinfos[0].filepath,
+                self.lastfilename = path.relpath(ii.filepath,
                                                  session.experiment.proposalpath)
                 break
         else:
