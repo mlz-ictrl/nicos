@@ -45,13 +45,13 @@ from nicos.clients.gui.panels import Panel
 
 from nicoslivewidget import LWWidget, LWData, Logscale, MinimumMaximum, \
     BrightnessContrast, Integrate, Histogram, TYPE_FITS, ShowGrid, Grayscale, \
-    Normalize, Darkfield, Despeckle, CreateProfile
+    Normalize, Darkfield, Despeckle, CreateProfile, TYPE_RAW
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4', ''))
 
-FILETYPES = {'fits': TYPE_FITS}
+FILETYPES = {'fits': TYPE_FITS, 'raw': TYPE_RAW}
 
 
 class LiveDataPanel(Panel):
