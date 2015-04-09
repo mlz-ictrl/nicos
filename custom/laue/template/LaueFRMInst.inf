@@ -1,0 +1,17 @@
+INFO        Laue @ MLZ
+NAME        LAUE_DIFF
+DET_TYPE    Rec
+DIST_DET      159.155
+DIM_XZP       261.000  200.000  2000  1568
+GN_CENTRE     180.000    0.000
+XZ_ORIGIN      1000.0    799.0 raster units (pixels) => In mm units:       0.0      0.0
+ROT_ORDER   xzy
+TILT_ANGLES     0.000    0.000    0.000
+RESOL           0.500
+WAV_LIMITS      0.700    4.000
+GAM+_LIMITS   134.070  180.000
+GAM-_LIMITS  -180.000 -134.070
+NU_LIMITS     -45.930   45.930
+X_LIMITS     -130.500  130.500
+Z_LIMITS     -101.914   98.086
+END
