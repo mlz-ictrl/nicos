@@ -11,6 +11,6 @@ devices = dict(
                      # Use only 'localhost' if the cache is really running on
                      # the same machine, otherwise use the hostname (official
                      # computer name) or an IP address.
-                     cache = 'localhost',
+                     cache = 'lauectrl.laue.frm2',
                     ),
 )

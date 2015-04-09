@@ -48,7 +48,7 @@ group = 'lowlevel'
 #       nicos.devices.notifiers.Notifier or a subclass.
 
 sysconfig = dict(
-    cache = 'localhost',
+    cache = 'lauectrl.laue.frm2',
     instrument = 'Laue',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -74,7 +74,7 @@ devices = dict(
 
     # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
-                      dataroot = 'data',
+                      dataroot = '/data',
                       sendmail = True,
                       serviceexp = 'service',
                       # We do not have a dedicated responsible
