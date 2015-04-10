@@ -77,11 +77,11 @@ class TreeWidget(TreeWidgetContextMenu):
             currentIndex = 0
             while currentIndex < item.childCount():
                 currentPath = item.child(currentIndex).text(1)
-                infoDict = self.setupHandler.readSetupReturnDict(currentPath)
-                for key in infoDict[currentPath[:-3]]['devices'].keys():
+                setup = self.setupHandler.readSetupReturn(currentPath)
+                for device in setup.devices:
                     #read the setup and add all the devices as child tree items
                     item.child(currentIndex).addChild(
-                        QTreeWidgetItem([key,
+                        QTreeWidgetItem([device.name,
                                          'in file: ' + item.child(
                                             currentIndex).text(0)],
                         ItemTypes.Device))
@@ -168,7 +168,6 @@ class TreeWidget(TreeWidgetContextMenu):
                             newSetup)
 
         try:
-            print('creating: ' + newPath)
             open(newPath, 'w').close()
         except IOError:
             QMessageBox.warning(self,
@@ -185,11 +184,21 @@ class TreeWidget(TreeWidgetContextMenu):
 
     def addDevice(self):
         mw = self.parent().parent().parent()
-        #if current item == currently loaded setup
-        if not self.currentItem().text(1) == self.setupHandler.currentSetupPath:
-            if self.setupHandler.unsavedChanges:
-                if not mw.msgboxUnsavedChanges():
-                    return
+
+        if self.setupHandler.currentSetup is not None: #a setup was loaded
+            if not self.currentItem().text(
+                1) == self.setupHandler.currentSetup.path: #the setup, the user
+                #wants to add a new device to, is not the currently loaded one
+                if self.setupHandler.unsavedChanges:
+                    if not mw.msgboxUnsavedChanges():
+                        return
+                #the user wants to continue. Old setup was saved/discarded
+                self.setupHandler.readSetupFile(self.currentItem().text(1))
+        else:
+            #if no setup has been loaded before, load the one the device is
+            #going to be added to.
+            self.setupHandler.readSetupFile(self.currentItem().text(1))
+
         newDevice = QInputDialog.getText(self,
                                         'New device...',
                                         'Enter name of new device:')
@@ -209,14 +218,14 @@ class TreeWidget(TreeWidgetContextMenu):
             ItemTypes.UnsavedDevice)
         newItem.setIcon(0, QIcon(path.join(getResDir(), 'device.png')))
         self.currentItem().addChild(newItem)
+        self.setupHandler.addDevice(newDevice)
         if not self.setupHandler.unsavedChanges:
             self.unmarkItem()
             if not self.setupHandler.isCustomFile:
                 self.markItem(self.currentItem())
             if not self.setupHandler.setupDisplayed:
                 self.setupHandler.readSetupFile(self.currentItem().text(1))
-                mw.widgetSetup.loadData(self.setupHandler.info[
-                    self.setupHandler.currentSetupPath[:-3]])
+                mw.setupWidget.loadData(self.setupHandler.currentSetup)
             self.setupHandler.changedSlot()
 
 
@@ -238,7 +247,6 @@ class TreeWidget(TreeWidgetContextMenu):
                     item = self.topLevelItem(currentDir).child(
                         currentSetup).child(currentDevice)
                     if item.type() == ItemTypes.UnsavedDevice:
-                        print(item.text(0))
                         self.topLevelItem(currentDir).child(
                             currentSetup).removeChild(item)
                     else:

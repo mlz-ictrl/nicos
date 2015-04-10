@@ -203,30 +203,30 @@ class SetupWidget(QWidget):
         self.textEditStartupCode.blockSignals(False)
 
 
-    def loadData(self, info):
-        self.lineEditDescription.setText(info['description'])
+    def loadData(self, setup):
+        self.lineEditDescription.setText(setup.description)
         self.comboBoxGroup.setCurrentIndex(
-            self.comboBoxGroup.findText(info['group']))
-        for includeItem in info['includes']:
+            self.comboBoxGroup.findText(setup.group))
+        for includeItem in setup.includes:
             self.listWidgetIncludes.addItem(includeItem)
-        for excludeItem in info['excludes']:
+        for excludeItem in setup.excludes:
             self.listWidgetExcludes.addItem(excludeItem)
-        for moduleItem in info['modules']:
+        for moduleItem in setup.modules:
             self.listWidgetModules.addItem(moduleItem)
 
         topLevelItems = []
         for key in self.sysconfigKeys:
-            if key in info['sysconfig']:
+            if key in setup.sysconfig:
                 topLevelItems.append(QTreeWidgetItem([key]))
         self.treeWidgetSysconfig.addTopLevelItems(topLevelItems)
 
         for item in topLevelItems:
-            if isinstance(info['sysconfig'][item.text(0)], list):
-                for listItem in info['sysconfig'][item.text(0)]:
+            if isinstance(setup.sysconfig[item.text(0)], list):
+                for listItem in setup.sysconfig[item.text(0)]:
                     item.addChild(QTreeWidgetItem([listItem]))
             else:
                 item.addChild(QTreeWidgetItem(
-                    [info['sysconfig'][item.text(0)]]))
+                    [setup.sysconfig[item.text(0)]]))
 
         if self.treeWidgetSysconfig.topLevelItemCount() == len(
             self.sysconfigKeys): #can't add any unknown keys
@@ -234,7 +234,7 @@ class SetupWidget(QWidget):
         else:
             self.pushButtonAddSysconfig.setEnabled(True)
         self.textEditStartupCode.blockSignals(True)
-        self.textEditStartupCode.setPlainText(info['startupcode'][1:-1])
+        self.textEditStartupCode.setPlainText(setup.startupcode[1:-1])
         self.textEditStartupCode.blockSignals(False)
         self.setupHandler.setupDisplayed = True
 

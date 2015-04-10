@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         #asks the user wether to save or discard his changes, or to abort the
         #triggered action. Saving and Discarding return true, while cancelling
         #returns false.
-        fileStr = self.setupHandler.currentSetupPath
+        fileStr = self.setupHandler.currentSetup.path
         reply = QMessageBox.question(self, 'Unsaved changes',
             'Save changes to ' + fileStr + '?',
             QMessageBox.Yes, QMessageBox.No, QMessageBox.Cancel)
@@ -98,15 +98,16 @@ class MainWindow(QMainWindow):
 
     def loadSelection(self):
         if not self.treeWidget.currentItem().type() == ItemTypes.Directory:
-            if self.treeWidget.currentItem().text(
-                1) == self.setupHandler.currentSetupPath:
-                self.workarea.setCurrentIndex(0)
-                return
-            elif self.treeWidget.currentItem().parent(
-                ).text(1) == self.setupHandler.currentSetupPath:
-                #is device of current setup
-                self.updateDeviceGui()
-                return
+            if self.setupHandler.currentSetup is not None:
+                if self.treeWidget.currentItem().text(
+                1) == self.setupHandler.currentSetup.path:
+                    self.workarea.setCurrentIndex(0)
+                    return
+                elif self.treeWidget.currentItem().parent(
+                    ).text(1) == self.setupHandler.currentSetup.path:
+                    #is device of current setup
+                    self.updateDeviceGui()
+                    return
 
         if self.setupHandler.unsavedChanges:
             if not self.msgboxUnsavedChanges():
@@ -174,17 +175,16 @@ class MainWindow(QMainWindow):
     def updateSetupGui(self):
         #selection = setup
         self.setupWidget.clear()
-        self.setupWidget.loadData(self.setupHandler.info[
-            self.setupHandler.currentSetupPath[:-3]])
+        self.setupWidget.loadData(self.setupHandler.currentSetup)
         self.workarea.setCurrentIndex(0)
 
 
     def updateDeviceGui(self):
         #selection = device
         currentDevice = self.treeWidget.currentItem().text(0)
-        currentSetup = self.setupHandler.currentSetupPath[:-3]
-        info = self.setupHandler.info[currentSetup]['devices'][currentDevice]
-        self.deviceWidget.loadDevice(info[0], info[1])
+        for device in self.setupHandler.currentSetup.devices:
+            if device.name == currentDevice:
+                self.deviceWidget.loadDevice(device)
         self.workarea.setCurrentIndex(1)
 
 
@@ -192,3 +192,7 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self,
             'About SetupFileTool', 'A tool designed to optimize ' +
             'editing setup files for NICOS.')
+
+
+    def closeEvent(self, event):
+        event.accept()

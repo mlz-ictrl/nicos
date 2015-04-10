@@ -44,7 +44,7 @@ class DeviceWidget(QWidget):
 
 
     def clear(self):
-        self.info = {}
+        self.currentDevice = None
         for index in reversed(range(self.paramList.count())):
             if not isinstance(self.paramList.itemAt(index), QSpacerItem):
                 self.paramList.itemAt(index).widget().setParent(None)
@@ -52,11 +52,15 @@ class DeviceWidget(QWidget):
                 self.paramList.takeAt(index)
 
 
-    def loadDevice(self, deviceClass, deviceDict):
+    def loadDevice(self, device):
         self.clear()
-        self.info = deviceDict
+        self.currentDevice = device
+        classParam = DeviceParam(self, 'Class:', device.classString)
+        self.paramList.addWidget(classParam)
+
         currentWidgets = []
-        for key, value in deviceDict.iteritems():
+        currentWidgets.append(classParam)
+        for key, value in device.parameters.iteritems():
             newParam = DeviceParam(self, key + ':', repr(value))
             self.paramList.addWidget(newParam)
             currentWidgets.append(newParam)

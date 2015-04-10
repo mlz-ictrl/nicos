@@ -27,12 +27,14 @@ import logging
 
 from nicos.core.sessions.setups import readSetup
 
+from setupfiletool.setup import Setup, Device
+
 class SetupHandler(object):
     def __init__(self, parent = None):
         self.log = logging.getLogger()
         self.info = {}
         self.unsavedChanges = False
-        self.currentSetupPath = ''
+        self.currentSetup = None
         self.setupDisplayed = False
         self.isCustomFile = False
 
@@ -57,10 +59,10 @@ class SetupHandler(object):
                   path.dirname(setupFile),
                   setupFile,
                   self.log)
-        self.currentSetupPath = setupFile
+        self.currentSetup = Setup(self.info, self)
 
 
-    def readSetupReturnDict(self, setupFile):
+    def readSetupReturn(self, setupFile):
         #for when you want to read a setup but don't destroy the currently
         #loaded info
         info = {}
@@ -68,7 +70,11 @@ class SetupHandler(object):
                   path.dirname(setupFile),
                   setupFile,
                   self.log)
-        return info
+        return Setup(info, self)
+
+
+    def addDevice(self, deviceName):
+        self.currentSetup.devices.append(Device(deviceName))
 
 
     def save(self):
