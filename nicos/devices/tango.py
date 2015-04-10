@@ -31,9 +31,9 @@ FRM-II/JCNS TANGO interface for the respective device classes.
 
 import PyTango
 
-from nicos.core import Param, Override, status, Readable, Moveable, HasLimits, \
-    Device, tangodev, HasCommunication, oneofdict, dictof, intrange, \
-    NicosError, CommunicationError, ConfigurationError
+from nicos.core import Param, Override, status, Readable, Moveable, Measurable,\
+    HasLimits, Device, tangodev, HasCommunication, oneofdict, dictof, intrange, \
+    nonemptylistof, NicosError, CommunicationError, ConfigurationError
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -543,3 +543,159 @@ class StringIO(PyTangoDevice, Device):
     @property
     def availablelines(self):
         return self._dev.availableLines
+
+
+class Detector(PyTangoDevice, Measurable):
+    """
+    Represents the client to a TANGO detector device.
+    """
+
+    parameters = {
+        'size': Param('Detector size',
+                      type=nonemptylistof(int), unit='', settable=False,
+                      volatile=True,
+                     ),
+        'roioffset': Param('ROI offset',
+                           type=nonemptylistof(int), unit='', mandatory=False,
+                           volatile=True,
+                          ),
+        'roisize': Param('ROI size',
+                         type=nonemptylistof(int), unit='', mandatory=False,
+                         volatile=True,
+                        ),
+        'binning': Param('Binning',
+                         type=nonemptylistof(int), unit='', mandatory=False,
+                         volatile=True,
+                        ),
+        'zeropoint': Param('Zero point',
+                           type=nonemptylistof(int), unit='', settable=False,
+                           mandatory=False, volatile=True,
+                          ),
+    }
+
+    def doReadSize(self):
+        return self._dev.detectorSize.tolist()
+
+    def doReadRoioffset(self):
+        return self._dev.roiOffset.tolist()
+
+    def doWriteRoioffset(self, value):
+        self._dev.roiOffset = value
+
+    def doReadRoisize(self):
+        return self._dev.roiSize.tolist()
+
+    def doWriteRoisize(self, value):
+        self._dev.roiSize = value
+
+    def doReadBinning(self):
+        return self._dev.binning.tolist()
+
+    def doWriteBinning(self, value):
+        self._dev.binning = value
+
+    def doReadZeropoint(self):
+        return self._dev.zeroPoint.tolist()
+
+    def doRead(self, maxage=0):
+        return self._dev.value.tolist()
+
+    def presetInfo(self):
+        return set(['t', 'time', 'm', 'monitor', ])
+
+    def doSetPreset(self, **preset):
+        self.doStop()
+        if 't' in preset:
+            self._dev.syncMode = 'time'
+            self._dev.syncValue = preset['t']
+        elif 'time' in preset:
+            self._dev.syncMode = 'time'
+            self._dev.syncValue = preset['time']
+        elif 'm' in preset:
+            self._dev.syncMode = 'monitor'
+            self._dev.syncValue = preset['m']
+        elif 'monitor' in preset:
+            self._dev.syncMode = 'monitor'
+            self._dev.syncValue = preset['monitor']
+
+    def doStart(self):
+        self._dev.Start()
+
+    def doStop(self):
+        self._dev.Stop()
+
+    def doResume(self):
+        self._dev.Resume()
+
+    def doPause(self):
+        self.doStop()
+        return True
+
+    def doIsCompleted(self):
+        return self.doStatus()[0] not in (status.BUSY,)
+
+    def doPrepare(self):
+        self._dev.Prepare()
+
+    def doClear(self):
+        self._dev.Clear()
+
+
+class TofDetector(Detector):
+    """
+    Represents the client to a TANGO time-of-flight detector device.
+    """
+
+    parameters = {
+        'delay': Param('Delay',
+                       type=int, unit='ns', default=0, volatile=True,
+                      ),
+        'timechannels': Param('Number of time channels',
+                              type=int, default=1, volatile=True,
+                             ),
+        'timeinterval': Param('Time for each time channel',
+                              type=int, unit='ns', default=1, volatile=True,
+                             ),
+    }
+
+    def doReadTimechannels(self):
+        return self._dev.timeChannels
+
+    def doWriteTimechannels(self, value):
+        self._dev.timeChannels = value
+
+    def doReadDelay(self):
+        return self._dev.delay
+
+    def doWriteDelay(self, value):
+        self._dev.delay = value
+
+    def doReadTimeinterval(self):
+        return self._dev.timeInterval
+
+    def doWriteTimeinterval(self, value):
+        self._dev.timeInterval = value
+
+    def presetInfo(self):
+        return set(['t', 'time', 'm', 'monitor', 'c', 'cycles',])
+
+    def doSetPreset(self, **preset):
+        self.doStop()
+        if 't' in preset:
+            self._dev.syncMode = 'time'
+            self._dev.syncValue = preset['t']
+        elif 'time' in preset:
+            self._dev.syncMode = 'time'
+            self._dev.syncValue = preset['time']
+        elif 'm' in preset:
+            self._dev.syncMode = 'monitor'
+            self._dev.syncValue = preset['m']
+        elif 'monitor' in preset:
+            self._dev.syncMode = 'monitor'
+            self._dev.syncValue = preset['monitor']
+        elif 'c' in preset:
+            self._dev.syncMode = 'cycles'
+            self._dev.syncValue = preset['c']
+        elif 'cycles' in preset:
+            self._dev.syncMode = 'cycles'
+            self._dev.syncValue = preset['cycles']
