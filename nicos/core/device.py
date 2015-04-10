@@ -1529,6 +1529,7 @@ class Measurable(Readable):
     * doTime()
     * doSimulate()
     * doSave()
+    * doPrepare()
     * valueInfo()
     * presetInfo()
     """
