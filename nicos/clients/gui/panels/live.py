@@ -202,7 +202,8 @@ class LiveDataPanel(Panel):
                     LWData(self._nx, self._ny, self._nz, self._last_format, data))
             elif self._last_fname:
                 # we got no live data, but a filename with the data
-                self.widget.setData(LWData(self._last_fname))
+                self.widget.setData(LWData(self._last_fname,
+                                           FILETYPES[self._last_tag]))
 
     def add_to_flist(self, filename, fformat, ftag, scroll=True):
         shortname = path.basename(filename)
@@ -225,13 +226,13 @@ class LiveDataPanel(Panel):
                 self._no_direct_display = False
                 if self._last_fname:
                     if self._last_tag in self._allowed_tags:
-                        d = LWData(self._last_fname)
+                        d = LWData(self._last_fname, FILETYPES[self._last_tag])
                         self.widget.setData(d)
         else:
             # show image from file
             self._no_direct_display = True
             if fname and str(ftag) in FILETYPES:
-                self.widget.setData(LWData(fname))
+                self.widget.setData(LWData(fname, FILETYPES[str(ftag)]))
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)

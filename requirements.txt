@@ -1,6 +1,6 @@
 --extra-index-url https://forge.frm2.tum.de/simple
 --allow-external nicoslivewidget
-nicoslivewidget>=1.1
+nicoslivewidget>=1.0
 --allow-external nicos-pyctl
 nicos-pyctl>=1.0
 --allow-external mysql-connector-python
