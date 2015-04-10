@@ -54,6 +54,7 @@ class MainWindow(QMainWindow):
         #signal/slot connections
         self.treeWidget.itemActivated.connect(self.loadSelection)
         self.setupWidget.editedSetup.connect(self.treeWidget.changedSlot)
+        self.deviceWidget.editedDevice.connect(self.treeWidget.changedSlot)
 
         #setup the menu bar
         self.actionNewFile.triggered.connect(self.newFile)
@@ -85,7 +86,7 @@ class MainWindow(QMainWindow):
             QMessageBox.Yes, QMessageBox.No, QMessageBox.Cancel)
         if reply == QMessageBox.Yes:
             self.setupHandler.save()
-            self.treeWidget.unmarkItem()
+            self.treeWidget.loadNicosData()
             return True
         elif reply == QMessageBox.No:
             self.treeWidget.cleanUnsavedDevices()

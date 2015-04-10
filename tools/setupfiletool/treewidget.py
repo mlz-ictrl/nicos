@@ -232,7 +232,10 @@ class TreeWidget(TreeWidgetContextMenu):
     def changedSlot(self):
         if not self.markedItem:
             if not self.setupHandler.isCustomFile:
-                self.markItem(self.currentItem())
+                if self.currentItem().type() == ItemTypes.Device:
+                    self.markItem(self.currentItem().parent())
+                else: #currentItem is setup
+                    self.markItem(self.currentItem())
         self.setupHandler.changedSlot()
 
 
