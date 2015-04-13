@@ -23,10 +23,20 @@
 # *****************************************************************************
 
 from copy import copy
+from os import path
+
+from nicos.core.sessions.setups import readSetup
+
 
 class Setup(object):
-    def __init__(self, info, parent=None):
-        self.path = info.keys()[0] + '.py'
+    def __init__(self, pathToSetup, log, parent=None):
+        info = {}
+        readSetup(info,
+                  path.dirname(pathToSetup),
+                  pathToSetup,
+                  log)
+
+        self.path = pathToSetup
         self.pathNoExtension = info.keys()[0]
         self.description = info[self.pathNoExtension]['description']
         self.group = info[self.pathNoExtension]['group']
@@ -41,6 +51,31 @@ class Setup(object):
             self.devices.append(Device(deviceName,
                                        devs[deviceName][0],
                                        copy(devs[deviceName][1])))
+
+    @staticmethod
+    def getDeviceNamesOfSetup(pathToSetup, log):
+        # returns the names of devices of a setup
+        info = {}
+        readSetup(info,
+                  path.dirname(pathToSetup),
+                  pathToSetup,
+                  log)
+        pathNoExtension = pathToSetup[:-3]
+        devices = []
+        for device in info[pathNoExtension]['devices'].keys():
+            devices.append(device)
+        return devices
+
+    @staticmethod
+    def getDeviceOfSetup(pathToSetup, deviceName, log):
+        # returns a Device instance of a setup identified by the name.
+        setup = Setup(pathToSetup, log)
+        for device in setup.devices:
+            if device.name == deviceName:
+                return device
+        # if no device with the corresponding name was found in the setup,
+        # create a new one.
+        return Device(deviceName)
 
 
 class Device(object):

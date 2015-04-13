@@ -22,8 +22,10 @@
 #
 # *****************************************************************************
 
-#base class for a QTreeWidget with context menu on items
+# base class for a QTreeWidget with context menu on items
+
 from PyQt4.QtGui import QTreeWidget
+
 
 class TreeWidgetContextMenu(QTreeWidget):
     def __init__(self, parent=None):
@@ -60,7 +62,6 @@ class TreeWidgetContextMenu(QTreeWidget):
             self.contextMenuOnItem(item, pos)
         event.accept()
 
-
     def contextMenuOnItem(self, item, pos):
-        #overwrite in subclass to create context menu
+        # overwrite in subclass to create context menu
         pass

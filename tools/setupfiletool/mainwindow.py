@@ -22,20 +22,22 @@
 #
 # *****************************************************************************
 
-#icons: https://launchpad.net/elementaryicons
+# icons: https://launchpad.net/elementaryicons
 
 from os import path
+import logging
 
 from PyQt4 import uic
 from PyQt4.QtGui import QMainWindow, QFileDialog, QLabel, QMessageBox, \
-                        QApplication
-from PyQt4.QtCore import Qt, QCoreApplication
+    QApplication
+from PyQt4.QtCore import Qt
 
 from setupfiletool.setupwidget import SetupWidget
 from setupfiletool.devicewidget import DeviceWidget
-from setupfiletool.utilities.utilities import ItemTypes
-from setupfiletool.setuphandler import SetupHandler
+from setupfiletool.utilities.utilities import ItemTypes, getNicosDir
 from setupfiletool.dialogs.newsetup import NewSetupDialog
+from setupfiletool.setup import Setup
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -43,114 +45,98 @@ class MainWindow(QMainWindow):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
 
-        self.setupHandler = SetupHandler()
+        self.log = logging.getLogger()
 
-        #GUI setup for working area on the right
-        self.setupWidget = SetupWidget()
-        self.deviceWidget = DeviceWidget()
+        # dictionary of setup - setupWidget
+        self.setupWidgets = {}
+        # dictionary of setup - dict, which is deviceName - deviceWidget
+        self.deviceWidgets = {}
+
         self.labelHeader = QLabel('Select Setup or device...')
         self.labelHeader.setAlignment(Qt.AlignCenter)
 
-        #signal/slot connections
+        # signal/slot connections
         self.treeWidget.itemActivated.connect(self.loadSelection)
-        self.setupWidget.editedSetup.connect(self.treeWidget.changedSlot)
-        self.deviceWidget.editedDevice.connect(self.treeWidget.changedSlot)
+        self.treeWidget.deviceRemoved.connect(self.deviceRemovedSlot)
 
-        #setup the menu bar
+        # setup the menu bar
         self.actionNewFile.triggered.connect(self.newFile)
         self.actionLoadFile.triggered.connect(self.loadFile)
-        self.actionExit.triggered.connect(QCoreApplication.instance().quit)
+        self.actionExit.triggered.connect(self.close)
         self.menuView.addAction(self.dockWidget.toggleViewAction())
         self.dockWidget.toggleViewAction().setText('Show Tree')
-        self.actionAboutSetupFileTool.triggered.connect(self.aboutSetupFileTool)
+        self.actionAboutSetupFileTool.triggered.connect(
+            self.aboutSetupFileTool)
         self.actionAboutQt.triggered.connect(QApplication.aboutQt)
 
-        self.workarea.addWidget(self.setupWidget)
-        self.workarea.addWidget(self.deviceWidget)
         self.workarea.addWidget(self.labelHeader)
-        self.workarea.setCurrentIndex(2)
 
-        self.treeWidget.setSetupHandler(self.setupHandler)
-        self.setupWidget.setSetupHandler(self.setupHandler)
         self.treeWidget.setColumnCount(1)
+        self.treeWidget.setLogger(self.log)
         self.treeWidget.loadNicosData()
 
+    def loadSelection(self, curItem, column):
+        self.treeWidget.setCurrentItem(curItem)
 
-    def msgboxUnsavedChanges(self):
-        #asks the user wether to save or discard his changes, or to abort the
-        #triggered action. Saving and Discarding return true, while cancelling
-        #returns false.
-        fileStr = self.setupHandler.currentSetup.path
-        reply = QMessageBox.question(self, 'Unsaved changes',
-            'Save changes to ' + fileStr + '?',
-            QMessageBox.Yes, QMessageBox.No, QMessageBox.Cancel)
-        if reply == QMessageBox.Yes:
-            self.setupHandler.save()
-            self.treeWidget.loadNicosData()
-            return True
-        elif reply == QMessageBox.No:
-            self.treeWidget.cleanUnsavedDevices()
-            self.setupHandler.clear()
-            self.treeWidget.unmarkItem()
-            return True
-        elif reply == QMessageBox.Cancel:
-            return False
+        if curItem.type() == ItemTypes.Directory:
+            self.workarea.setCurrentIndex(0)
 
+        elif curItem.type() == ItemTypes.Setup:
+            if curItem.text(1) in self.setupWidgets:
+                # if setup was loaded previously:
+                self.workarea.setCurrentIndex(
+                    self.workarea.indexOf(self.setupWidgets[curItem.text(1)]))
+            else:
+                # if setup hasn't been loaded before:
+                newWidget = SetupWidget()
+                newWidget.editedSetup.connect(self.editedSetupSlot)
+                newWidget.loadData(Setup(curItem.text(1), self.log, self))
+                self.workarea.addWidget(newWidget)
+                self.setupWidgets[curItem.text(1)] = newWidget
+                self.workarea.setCurrentIndex(self.workarea.indexOf(newWidget))
+                # initialize empty dictionary for this setup
+                self.deviceWidgets[curItem.text(1)] = {}
 
-    def loadSelection(self):
-        if not self.treeWidget.currentItem().type() == ItemTypes.Directory:
-            if self.setupHandler.currentSetup is not None:
-                if self.treeWidget.currentItem().text(
-                1) == self.setupHandler.currentSetup.path:
-                    self.workarea.setCurrentIndex(0)
-                    return
-                elif self.treeWidget.currentItem().parent(
-                    ).text(1) == self.setupHandler.currentSetup.path:
-                    #is device of current setup
-                    self.updateDeviceGui()
-                    return
+        elif curItem.type() == ItemTypes.Device:
+            if curItem.parent().text(1) not in self.setupWidgets:
+                # if the setup, this device belongs to, hasn't been loaded yet:
+                newWidget = SetupWidget()
+                newWidget.editedSetup.connect(self.editedSetupSlot)
+                newWidget.loadData(Setup(curItem.parent().text(1),
+                                         self.log, self))
+                self.workarea.addWidget(newWidget)
+                self.setupWidgets[curItem.parent().text(1)] = newWidget
+                # initialize empty dictionary for this setup
+                self.deviceWidgets[curItem.parent().text(1)] = {}
 
-        if self.setupHandler.unsavedChanges:
-            if not self.msgboxUnsavedChanges():
-                return
-        self.setupHandler.clear()
-        items = self.treeWidget.selectedItems()
-        for item in items: #no multiple selection -> only 1 item
-            if item.type() == ItemTypes.Directory:
-                self.workarea.setCurrentIndex(2)
+            if curItem.text(0) in self.deviceWidgets[curItem.parent().text(1)]:
+                # if device was loaded previously:
+                self.workarea.setCurrentIndex(
+                    self.workarea.indexOf(self.deviceWidgets[
+                        curItem.parent().text(1)][curItem.text(0)]))
 
-            elif item.type() == ItemTypes.Setup:
-                self.setupHandler.readSetupFile(item.text(1))
-                self.updateSetupGui()
-
-            elif item.type() == ItemTypes.Device:
-                self.setupHandler.readSetupFile(item.parent().text(1))
-                self.updateDeviceGui()
-
+            else:
+                # device has never been loaded before:
+                newWidget = DeviceWidget()
+                newWidget.editedDevice.connect(self.editedSetupSlot)
+                newWidget.loadDevice(Setup.getDeviceOfSetup(curItem.parent(
+                    ).text(1), curItem.text(0), self.log))
+                self.workarea.addWidget(newWidget)
+                self.deviceWidgets[curItem.parent(
+                    ).text(1)][curItem.text(0)] = newWidget
+                self.workarea.setCurrentIndex(self.workarea.indexOf(newWidget))
 
     def loadFile(self):
-        if self.setupHandler.unsavedChanges:
-            if not self.msgboxUnsavedChanges():
-                return
-
         setupFile = QFileDialog.getOpenFileName(
             self,
             'Open setup file',
-            path.expanduser('~'),
+            path.expanduser(getNicosDir()),
             'Python Files (*.py)')
         if setupFile:
-            self.setupHandler.readSetupFile(setupFile)
-            self.setupHandler.isCustomFile = True
-            self.updateSetupGui()
-        else:
-            self.workarea.setCurrentIndex(2)
-
+            self.treeWidget.showManualDirectory()
+            self.treeWidget.addManualFile(setupFile)
 
     def newFile(self):
-        if self.setupHandler.unsavedChanges:
-            if not self.msgboxUnsavedChanges():
-                return
-
         dlg = NewSetupDialog()
         if dlg.exec_():
             newFile = dlg.lineEditPath.text()
@@ -170,30 +156,56 @@ class MainWindow(QMainWindow):
 
             if dlg.checkBoxReload.isChecked():
                 self.treeWidget.loadNicosData()
-            self.workarea.setCurrentIndex(2)
+            self.workarea.setCurrentIndex(0)
 
+    def editedSetupSlot(self):
+        if self.treeWidget.currentItem().type() == ItemTypes.Setup:
+            self.treeWidget.markItem(self.treeWidget.currentItem())
+        elif self.treeWidget.currentItem().type() == ItemTypes.Device:
+            self.treeWidget.markItem(self.treeWidget.currentItem().parent())
 
-    def updateSetupGui(self):
-        #selection = setup
-        self.setupWidget.clear()
-        self.setupWidget.loadData(self.setupHandler.currentSetup)
-        self.workarea.setCurrentIndex(0)
+    def deviceRemovedSlot(self, setup, deviceName):
+        if setup not in self.setupWidgets.keys():
+            # setup was never loaded
+            return
+        if deviceName not in self.deviceWidgets[setup].keys():
+            # device was never loaded
+            return
 
-
-    def updateDeviceGui(self):
-        #selection = device
-        currentDevice = self.treeWidget.currentItem().text(0)
-        for device in self.setupHandler.currentSetup.devices:
-            if device.name == currentDevice:
-                self.deviceWidget.loadDevice(device)
-        self.workarea.setCurrentIndex(1)
-
+        deviceWidget = self.deviceWidgets[setup][deviceName]
+        if self.workarea.currentWidget() == deviceWidget:
+            self.workarea.setCurrentIndex(
+                self.workarea.indexOf(self.setupWidgets[setup]))
+            # when the device's widget was loaded, switch to the setup the
+            # device belonged to.
+        del self.deviceWidgets[setup][deviceName]
 
     def aboutSetupFileTool(self):
-        QMessageBox.information(self,
-            'About SetupFileTool', 'A tool designed to optimize ' +
-            'editing setup files for NICOS.')
-
+        QMessageBox.information(
+            self,
+            'About SetupFileTool', 'A tool designed to optimize \
+            editing setup files for NICOS.')
 
     def closeEvent(self, event):
-        event.accept()
+        if self.treeWidget.markedSetups:
+            reply = QMessageBox.question(self, 'Unsaved changes',
+                                         'Do you want to save your changes?',
+                                         QMessageBox.Yes,
+                                         QMessageBox.No,
+                                         QMessageBox.Cancel)
+            if reply == QMessageBox.Yes:
+                paths = []
+                for setup in self.treeWidget.markedSetups:
+                    paths.append(setup.text(1))
+                self.save(paths)
+                event.accept()
+            elif reply == QMessageBox.No:
+                event.accept()
+            elif reply == QMessageBox.Cancel:
+                event.ignore()
+        else:
+            event.accept()
+
+    def save(self, setupsToSave):
+        for setup in setupsToSave:
+            print(setup + ' will be saved')

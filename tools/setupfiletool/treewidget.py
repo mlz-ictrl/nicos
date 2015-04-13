@@ -25,35 +25,39 @@
 from os import path
 import os
 
-from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon, QInputDialog, QMessageBox
+from PyQt4.QtGui import QTreeWidgetItem, QMenu, QIcon, \
+    QInputDialog, QMessageBox
 from PyQt4.QtCore import pyqtSignal, Qt
 
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
+from setupfiletool.setup import Setup
+
 
 class TreeWidget(TreeWidgetContextMenu):
     editedSetup = pyqtSignal()
-
+    deviceRemoved = pyqtSignal(str, str)
 
     def __init__(self, parent=None):
         TreeWidgetContextMenu.__init__(self, parent)
-        self.markedItem = None
-
+        self.markedSetups = []
+        self.manualDirectory = None
+        self.showManualDirectoryBool = False
 
     def loadNicosData(self):
         while self.topLevelItemCount() > 0:
             self.takeTopLevelItem(0)
-        #root directory containing all the setups or subdirectories with setups.
+        # root directory containing all the setups or subdirs with setups.
         setupRoot = path.join(getNicosDir(), 'custom')
 
-        #list of directories in */nicos-core/custom/
+        # list of directories in */nicos-core/custom/
         setupDirectories = []
         for item in os.listdir(setupRoot):
             if path.isdir(path.join(setupRoot, item)):
                 setupDirectories.append(item)
 
-        #list of topLevelItems representing the directories in
-        #*/nicos-core/custom: for example instruments, ...
+        # list of topLevelItems representing the directories in
+        # */nicos-core/custom: for example instruments, ...
         topLevelItems = []
         for directory in sorted(setupDirectories):
             topLevelItems.append(
@@ -61,11 +65,11 @@ class TreeWidget(TreeWidgetContextMenu):
                                  'nicos-core/custom'], ItemTypes.Directory))
         self.addTopLevelItems(topLevelItems)
 
-        #all these directories (may) have setups, find all of them and add them
-        #as children, after that, add all their devices as children
+        # all these directories (may) have setups, find all of them and add
+        # them as children, after that, add all their devices as children
         for item in topLevelItems:
             item.setIcon(0, QIcon(path.join(getResDir(), 'folder.png')))
-            scriptList = [[]] #list of rows, a row = list of strings
+            scriptList = [[]]  # list of rows, a row = list of strings
             if path.isdir(path.join(setupRoot, item.text(0), 'setups')):
                 self.getSetupsForDir(path.join(setupRoot, item.text(0)),
                                      'setups', scriptList)
@@ -73,61 +77,87 @@ class TreeWidget(TreeWidgetContextMenu):
                     if script:
                         item.addChild(QTreeWidgetItem(script, ItemTypes.Setup))
 
-            #setup for this directory has been loaded, add the devices.
+            # setup for this directory has been loaded, add the devices.
             currentIndex = 0
             while currentIndex < item.childCount():
                 currentPath = item.child(currentIndex).text(1)
-                setup = self.setupHandler.readSetupReturn(currentPath)
-                for device in setup.devices:
-                    #read the setup and add all the devices as child tree items
+                devices = Setup.getDeviceNamesOfSetup(currentPath, self.log)
+                for device in devices:
+                    # read setup and add all the devices as child tree items
                     item.child(currentIndex).addChild(
-                        QTreeWidgetItem([device.name,
-                                         'in file: ' + item.child(
-                                            currentIndex).text(0)],
-                        ItemTypes.Device))
+                        QTreeWidgetItem([device,
+                                         'in file: ' + item.child(currentIndex
+                                                                  ).text(0)],
+                                        ItemTypes.Device))
                 item.child(currentIndex).setIcon(0, QIcon(
                     path.join(getResDir(), 'setup.png')))
 
-                #icons for all devices
+                # icons for all devices
                 deviceIndex = 0
                 while deviceIndex < item.child(currentIndex).childCount():
                     item.child(currentIndex).child(deviceIndex).setIcon(
                         0, QIcon(path.join(getResDir(), 'device.png')))
                     deviceIndex += 1
                 currentIndex += 1
+
+        if self.showManualDirectoryBool:
+            self.showManualDirectory()
         self.setSortingEnabled(True)
         self.sortByColumn(0, Qt.AscendingOrder)
 
+    def showManualDirectory(self):
+        self.showManualDirectoryBool = True
+        if self.manualDirectory is None:
+            self.manualDirectory = QTreeWidgetItem(
+                ['-manual-', '-'],
+                ItemTypes.ManualDirectory)
+            self.manualDirectory.setIcon(0, QIcon(path.join(getResDir(),
+                                                            'folder.png')))
+        self.addTopLevelItem(self.manualDirectory)
+
+    def addManualFile(self, pathToFile):
+        _, filename = path.split(pathToFile)
+        manualSetup = QTreeWidgetItem([filename, pathToFile], ItemTypes.Setup)
+        manualSetup.setIcon(0, QIcon(path.join(getResDir(), 'setup.png')))
+        self.manualDirectory.addChild(manualSetup)
+
+        devices = Setup.getDeviceNamesOfSetup(pathToFile, self.log)
+        for device in devices:
+            deviceItem = QTreeWidgetItem(
+                [device, 'in file: ' + filename],
+                ItemTypes.Device)
+            deviceItem.setIcon(0, QIcon(path.join(getResDir(), 'device.png')))
+            manualSetup.addChild(deviceItem)
 
     def getSetupsForDir(self, previousDir, newDir, listOfSetups):
-        #gets a root directory: previousDir and a subdirectory in the root
-        #walks down every directory starting from newDir and appends every
-        #*.py file it finds to the initial listOfSetups which is passed to each
-        #level of recursion
-        #actually appends a list of strings: first string is filename, second
-        #string is the full path.
+        # gets a root directory: previousDir and a subdirectory in the root
+        # walks down every directory starting from newDir and appends every
+        # *.py file it finds to the initial listOfSetups which is passed to
+        # each level of recursion
+        # actually appends a list of strings: first string is filename, second
+        # string is the full path.
         for item in os.listdir(path.join(previousDir, newDir)):
             if item.endswith('.py'):
                 listOfSetups.append([item,
-                                     str(path.join(previousDir, newDir, item))])
+                                     str(path.join(previousDir,
+                                                   newDir,
+                                                   item))])
             elif path.isdir(path.join(previousDir, newDir, item)):
                 self.getSetupsForDir(path.join(
                     previousDir, newDir), item, listOfSetups)
 
-
     def markItem(self, item):
-        self.markedItem = item
-        self.markedItem.setText(0, '*' + self.markedItem.text(0))
+        if item not in self.markedSetups:
+            item.setText(0, '*' + item.text(0))
+            self.markedSetups.append(item)
 
-    def unmarkItem(self):
-        if self.markedItem:
-            self.markedItem.setText(0, self.markedItem.text(0)[1:])
-        self.markedItem = None
-
+    def unmarkItem(self, item):
+        item.setText(0, item.text(0)[1:])
+        self.markedSetups.remove(item)
 
     def contextMenuOnItem(self, item, pos):
         if item is None:
-            return #invoked context menu on whitespace
+            return  # invoked context menu on whitespace
 
         if item.type() == ItemTypes.Setup:
             menu = QMenu(self)
@@ -141,22 +171,35 @@ class TreeWidget(TreeWidgetContextMenu):
             addSetupAction.triggered.connect(self.addSetup)
             menu.popup(pos)
 
+        elif item.type() == ItemTypes.Device:
+            menu = QMenu(self)
+            removeDeviceAction = menu.addAction('Remove')
+            removeDeviceAction.triggered.connect(self.removeDevice)
+            menu.popup(pos)
+
+        elif item.type() == ItemTypes.ManualDirectory:
+            return
+
+    def removeDevice(self):
+        device = self.currentItem()
+        setup = device.parent()
+        indexOfDevice = setup.indexOfChild(device)
+
+        self.markItem(setup)
+        setup.takeChild(indexOfDevice)
+        self.deviceRemoved.emit(setup.text(1), device.text(0))
 
     def addSetup(self):
-        mw = self.parent().parent().parent()
-        if self.setupHandler.unsavedChanges:
-            if not mw.msgboxUnsavedChanges():
-                return
         newSetup = QInputDialog.getText(self,
                                         'New setup...',
                                         'Enter name of new setup:')
         if not newSetup[1]:
-            return #user pressed cancel
+            return  # user pressed cancel
 
         newSetup = str(newSetup[0])
 
         if not newSetup:
-            return #string is empty
+            return  # string is empty
 
         if not newSetup.endswith('.py'):
             newSetup += '.py'
@@ -180,30 +223,16 @@ class TreeWidget(TreeWidgetContextMenu):
             ItemTypes.Setup)
         newItem.setIcon(0, QIcon(path.join(getResDir(), 'setup.png')))
         self.currentItem().addChild(newItem)
-
+        self.markItem(newItem)
+        self.itemActivated.emit(newItem, 0)
 
     def addDevice(self):
-        mw = self.parent().parent().parent()
-
-        if self.setupHandler.currentSetup is not None: #a setup was loaded
-            if not self.currentItem().text(
-                1) == self.setupHandler.currentSetup.path: #the setup, the user
-                #wants to add a new device to, is not the currently loaded one
-                if self.setupHandler.unsavedChanges:
-                    if not mw.msgboxUnsavedChanges():
-                        return
-                #the user wants to continue. Old setup was saved/discarded
-                self.setupHandler.readSetupFile(self.currentItem().text(1))
-        else:
-            #if no setup has been loaded before, load the one the device is
-            #going to be added to.
-            self.setupHandler.readSetupFile(self.currentItem().text(1))
-
-        newDevice = QInputDialog.getText(self,
-                                        'New device...',
-                                        'Enter name of new device:')
+        newDevice = QInputDialog.getText(
+            self,
+            'New device...',
+            'Enter name of new device:')
         if not newDevice[1]:
-            return #user pressed cancel
+            return  # user pressed cancel
 
         newDevice = str(newDevice[0])
 
@@ -215,48 +244,11 @@ class TreeWidget(TreeWidgetContextMenu):
 
         newItem = QTreeWidgetItem(
             [newDevice, 'in file: ' + self.currentItem().text(0)],
-            ItemTypes.UnsavedDevice)
+            ItemTypes.Device)
         newItem.setIcon(0, QIcon(path.join(getResDir(), 'device.png')))
         self.currentItem().addChild(newItem)
-        self.setupHandler.addDevice(newDevice)
-        if not self.setupHandler.unsavedChanges:
-            self.unmarkItem()
-            if not self.setupHandler.isCustomFile:
-                self.markItem(self.currentItem())
-            if not self.setupHandler.setupDisplayed:
-                self.setupHandler.readSetupFile(self.currentItem().text(1))
-                mw.setupWidget.loadData(self.setupHandler.currentSetup)
-            self.setupHandler.changedSlot()
+        self.markItem(self.currentItem())
+        self.itemActivated.emit(newItem, 0)
 
-
-    def changedSlot(self):
-        if not self.markedItem:
-            if not self.setupHandler.isCustomFile:
-                if self.currentItem().type() == ItemTypes.Device:
-                    self.markItem(self.currentItem().parent())
-                else: #currentItem is setup
-                    self.markItem(self.currentItem())
-        self.setupHandler.changedSlot()
-
-
-    def cleanUnsavedDevices(self):
-        currentDir = 0
-        while self.topLevelItemCount() > currentDir:
-            currentSetup = 0
-            while self.topLevelItem(currentDir).childCount() > currentSetup:
-                currentDevice = 0
-                while self.topLevelItem(currentDir).child(
-                    currentSetup).childCount() > currentDevice:
-                    item = self.topLevelItem(currentDir).child(
-                        currentSetup).child(currentDevice)
-                    if item.type() == ItemTypes.UnsavedDevice:
-                        self.topLevelItem(currentDir).child(
-                            currentSetup).removeChild(item)
-                    else:
-                        currentDevice += 1
-                currentSetup += 1
-            currentDir += 1
-
-
-    def setSetupHandler(self, setupHandler):
-        self.setupHandler = setupHandler
+    def setLogger(self, log):
+        self.log = log

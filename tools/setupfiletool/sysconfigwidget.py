@@ -26,14 +26,14 @@ from PyQt4.QtGui import QMenu, QTreeWidgetItem
 
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
 
+
 class SysconfigWidget(TreeWidgetContextMenu):
     def __init__(self, parent=None):
         TreeWidgetContextMenu.__init__(self, parent)
 
-
     def contextMenuOnItem(self, item, pos):
         if item is None:
-            return #invoked context menu on whitespace
+            return  # invoked context menu on whitespace
 
         topLevelItems = []
         currentIndex = 0
@@ -45,7 +45,6 @@ class SysconfigWidget(TreeWidgetContextMenu):
             addValueAction = menu.addAction('Add value...')
             addValueAction.triggered.connect(self.addValue)
             menu.popup(pos)
-
 
     def addValue(self):
         self.currentItem().addChild(QTreeWidgetItem(['<New value>']))
