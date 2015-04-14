@@ -333,8 +333,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             # this should be still within the limits
             self._setROParam(
                 'target', from_k(to_k(self.target, self.unit), value))
-        if self._cache:
-            self._cache.invalidate(self, 'value')
+        self.read(0)
 
     def _calcurvature(self, L1, L2, k, vertical=True):
         """Calculate optimum curvature (1/radius) for given lengths and

@@ -253,9 +253,9 @@ class Slit(CanReference, Moveable):
     def doWriteOpmode(self, mode):
         # interpretation of values may have changed, invalidate old values....
         if self._cache:
-            self._cache.invalidate(self, 'value')
             for d in [self.top, self.bottom, self.first, self.second, self.center, self.height]:
                 d._cache.invalidate(d, 'value')
+            self.read(0)
 
     def doWriteLeftshape(self, leftshape):
         self.shape = leftshape + 'x' + self.rightshape

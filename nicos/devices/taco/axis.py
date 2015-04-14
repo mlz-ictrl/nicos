@@ -93,8 +93,8 @@ class Axis(CanReference, TacoDevice, BaseAxis):
             self._sim_setValue(pos)
             return
         self._taco_guard(self._dev.setpos, pos)
-        if self._cache:
-            self._cache.invalidate(self, 'value')
+        # update current value in cache
+        self.read(0)
 
     def doStop(self):
         self._taco_guard(self._dev.stop)
