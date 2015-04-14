@@ -2,7 +2,7 @@ description = 'FRM II 7.5 T superconducting magnet'
 
 group = 'optional'
 
-includes = ['alias_B']
+includes = ['alias_B', 'alias_sth']
 
 nethost = 'magnet'
 
@@ -18,12 +18,6 @@ devices = dict(
                           tacodevice = '//%s/magnet/axis/tube' % (nethost,),
                           abslimits = (-180, 180),
                          ),
-
-    sth_m7T5_stick = device('devices.taco.Axis',
-                            description = 'Cryotstat stick rotation',
-                            tacodevice = '//%s/magnet/axis/stick' % (nethost,),
-                            abslimits = (-180, 180),
-                           ),
 )
 
 descriptions = ['', '', '', '', '', '', '', '', '']
@@ -42,4 +36,5 @@ for i in range(1, 9):
 
 startupcode = """
 B.alias = B_m7T5
+sth.alias = sth_m7T5_ccr
 """
