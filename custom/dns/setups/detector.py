@@ -6,13 +6,16 @@ group = "lowlevel"
 includes = ['counter']
 
 sysconfig = dict(
-    datasinks = ['DNSFileSaver'],
+    datasinks = ['DNSFileSaver', 'YAMLSaver'],
 )
 
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
     DNSFileSaver = device('dns.dnsfileformat.DNSFileSink',
+                          lowlevel = True,
+                         ),
+    YAMLSaver    = device('dns.yamlformat.YAMLFileSink',
                           lowlevel = True,
                          ),
     dettof       = device('dns.detector.TofChannel',
