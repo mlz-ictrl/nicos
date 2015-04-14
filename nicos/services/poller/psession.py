@@ -87,3 +87,14 @@ class PollerSession(NoninteractiveSession):
         """
         return NoninteractiveSession.getDevice(self, dev, Device, source,
                                                replace_classes=replace_classes)
+
+    # do not send action messages to the cache
+
+    def beginActionScope(self, what):
+        pass
+
+    def endActionScope(self):
+        pass
+
+    def action(self, what):
+        pass
