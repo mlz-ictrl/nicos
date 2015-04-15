@@ -58,7 +58,7 @@ class DeviceWidget(QWidget):
 
         self.currentWidgets.append(classParam)
         for key, value in device.parameters.iteritems():
-            newParam = DeviceParam(self, key + ':', str(value))
+            newParam = DeviceParam(self, key + ':', value)
             self.paramList.addWidget(newParam)
             self.currentWidgets.append(newParam)
         self.paramList.addStretch()
@@ -83,6 +83,7 @@ class DeviceWidget(QWidget):
     def removeParam(self):
         # removes the widget calling this function
         param = self.sender().parent()
+        self.currentWidgets.remove(param)
         param.setParent(None)
         self.editedDevice.emit()
 
@@ -100,6 +101,7 @@ class DeviceWidget(QWidget):
                                 'Error',
                                 'No name entered for parameter.')
             return
+        newParam = newParam + ':'
         self.paramList.takeAt(self.paramList.count() - 1)  # remove stretch
         newParamWidget = DeviceParam(self, newParam, '')
         newParamWidget.pushButtonRemove.clicked.connect(self.removeParam)

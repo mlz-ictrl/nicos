@@ -32,11 +32,12 @@ from PyQt4.QtCore import pyqtSignal
 class DeviceParam(QWidget):
     editedParam = pyqtSignal()
 
-    def __init__(self, parent=None, param='<PARAM>', value='<VALUE>'):
+    def __init__(self, parent=None, param='<PARAM>', value=None):
         super(DeviceParam, self).__init__(parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           'ui',
                                           'deviceparam.ui')), self)
         self.labelParam.setText(param)
-        self.lineEditParam.setText(value)
+        self.value = value
+        self.lineEditParam.setText(str(value))
         self.lineEditParam.textEdited.connect(self.editedParam.emit)
