@@ -15,7 +15,11 @@ _expcolumn = Column(
                  Field(name='Remark', key='exp/remark'),
                  Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
-                 Field(name='Last file', key='exp/lastscan'))]),
+                 Field(name='Last file', key='exp/lastimage',
+                       width=20),
+                 )
+        ]
+    ),
 )
 
 
@@ -70,6 +74,14 @@ _outsideWorldBlock = Block('Outside world', [
     ],
 )
 
+_pictureBlock = Block('Sampletable Directions', [
+    BlockRow(Field(widget='nicos.guisupport.display.PictureDisplay',
+                   filepath = 'custom/biodiff/lib/gui/omega_x_y.png',
+                   )
+             ),
+    ],
+)
+
 
 _secondRow = Row(
     Column(_reactorBlock),
@@ -77,12 +89,13 @@ _secondRow = Row(
 
 _thirdRow = Row(
     Column(_sampleTableBlock),
+    Column(_pictureBlock),
     Column(_sampleStepperBlock, _activeDetectorBlock),
     Column(_slitsBlock))
 
 _forthRow = Row(
     Column(_cryoStreamBlock),
-    Column(_outsideWorldBlock)
+    Column(_outsideWorldBlock),
     )
 
 
@@ -92,6 +105,7 @@ devices = dict(
                      loglevel = 'info',
                      cache = 'phys.biodiff.frm2:14869',
                      font = 'Luxi Sans',
+                     fontsize = 19,
                      valuefont = 'Consolas',
                      padding = 0,
                      layout = [Row(_expcolumn), _secondRow, _thirdRow, _forthRow],
