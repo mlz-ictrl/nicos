@@ -114,6 +114,10 @@ class LiveDataPanel(Panel):
             self.widget.setControls(ShowGrid | Logscale | Grayscale |
                                     Normalize | Darkfield | Despeckle |
                                     CreateProfile | Histogram | MinimumMaximum)
+        elif self._instrument == 'laue':
+            self.widget.setControls(ShowGrid | Grayscale |
+                                    Darkfield | Despeckle |
+                                    CreateProfile | Histogram | MinimumMaximum)
             self.widget.setStandardColorMap(True, False)
         # configure allowed file types
         opt_filetypes = options.get('filetypes', list(FILETYPES))
