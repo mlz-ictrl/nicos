@@ -17,7 +17,10 @@ Existing widgets are:
 
 :class:`.ValueDisplay` (in nicos.guisupport.display)
    Displays the name and value of either a device or any other value from
-   the cache.
+   the cache, with extended features like coloring for status.
+
+:class:`.ValueLabel` (in nicos.guisupport.display)
+   A very simple label that displays a single value without coloring
 
 :class:`.PictureDisplay` (in nicos.guisupport.display)
    Displays a picture file, with automatic checking for updates.
@@ -200,6 +203,25 @@ Existing widget classes
 
       If true (not the default), display name and value next to each other
       horizontally.
+
+
+.. class:: ValueLabel
+
+   A single label that displays a value from the cache without any styling.
+
+   Properties:
+
+   .. attribute:: key
+
+      This specifies the key to display.  If it should be a device value, use
+      ``dev/value``.
+
+   There is a helper method:
+
+   .. method:: setFormatCallback(callback)
+
+      Set a callback that will be used to format the raw value into a string.
+      By default this is just ``str``.
 
 
 .. class:: PictureDisplay
