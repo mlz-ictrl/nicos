@@ -28,11 +28,12 @@ NICOS value display widget.
 
 from cgi import escape
 from time import time as currenttime
+from os.path import getmtime
 
 import sip
 from PyQt4.QtCore import Qt, QSize, QTimer, SIGNAL
 from PyQt4.QtGui import QLabel, QFrame, QColor, QWidget, QVBoxLayout, \
-    QHBoxLayout, QFontMetrics
+    QHBoxLayout, QFontMetrics, QPixmap
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN, \
     statuses
@@ -41,6 +42,7 @@ from nicos.guisupport.utils import setBackgroundColor, setForegroundColor, \
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import text_type, from_maybe_utf8
+from nicos.utils import findResource
 
 
 defaultColorScheme = {
@@ -372,3 +374,43 @@ class ValueDisplay(NicosWidget, QWidget):
             self._mousetimer.stop()
             self._mousetimer = None
             self.emit(SIGNAL('widgetInfo'), '')
+
+
+class PictureDisplay(NicosWidget, QLabel):
+    '''A display widget to show a picture'''
+
+    designer_description = 'Widget to display the picture of the provided path.'
+
+    properties = {
+        'filepath': PropDef(str, '', 'Path to the picture that should'
+                            ' be displayed'),
+        'refresh'  : PropDef(int, 0, 'Updateintervall in seconds')
+    }
+
+    def __init__(self, parent=None, designMode=False, **kwds):
+        QLabel.__init__(self, parent, **kwds)
+        NicosWidget.__init__(self)
+
+    def registerKeys(self):
+        pass
+
+    def setPicture(self):
+        self.setPixmap(QPixmap(self._filePath))
+
+    def updatePicture(self):
+        if (currenttime() - getmtime(self._filePath)
+                < self._refreshTimer.interval()/1000):
+            self.setPicture()
+
+    def propertyUpdated(self, pname, value):
+        NicosWidget.propertyUpdated(self, pname, value)
+        if pname == 'filepath':
+            self._filePath = findResource(value)
+            self.setPicture()
+        elif pname == 'refresh':
+            if value:
+                self._refreshTimer = QTimer()
+                self._refreshTimer.setInterval(value * 1000)
+                self._refreshTimer.timeout.connect(self.updatePicture)
+                self._refreshTimer.start()
+
