@@ -199,7 +199,16 @@ class PyTangoDevice(HasCommunication):
                                         origin)
         return exc
 
+    def _tango_exc_reason(self, err):
+        if err.args:
+            exc = err.args[0]
+            if isinstance(exc, PyTango.DevError):
+                return exc.reason.strip()
+        return ''
+
     def _com_warn(self, retries, name, err, info):
+        if self._tango_exc_reason(err) == 'Entangle_InvalidValue':
+            self._com_raise(err, info)
         if retries == self.comtries - 1:
             self.log.warning('%s failed, retrying up to %d times: %s' %
                              (info, retries, self._tango_exc_desc(err)))
