@@ -686,7 +686,7 @@ class TofDetector(Detector):
         self._dev.timeInterval = value
 
     def presetInfo(self):
-        return set(['t', 'time', 'm', 'monitor', 'c', 'cycles',])
+        return set(['t', 'time', 'm', 'monitor', 'c', 'cycles', ])
 
     def doSetPreset(self, **preset):
         self.doStop()
