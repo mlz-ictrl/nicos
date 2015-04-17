@@ -243,6 +243,14 @@ Existing widget classes
       If no refresh (or 0) is provided, the picture won't be updated at all.
       Default value: 0.
 
+   .. attribute:: height
+
+      Height of the plot widget in characters.
+
+   .. attribute:: width
+
+      Width of the plot widget in characters.
+
 
 .. module:: nicos.guisupport.plots
 

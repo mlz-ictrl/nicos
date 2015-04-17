@@ -385,18 +385,27 @@ class PictureDisplay(NicosWidget, QLabel):
         'filepath': PropDef(str, '', 'Path to the picture that should '
                             'be displayed'),
         'refresh':  PropDef(int, 0, 'Interval to check for updates '
-                            'in seconds')
+                            'in seconds'),
+        'height':   PropDef(int, 0),
+        'width':    PropDef(int, 0),
     }
 
     def __init__(self, parent=None, designMode=False, **kwds):
         QLabel.__init__(self, parent, **kwds)
+        self.setScaledContents(True)
         NicosWidget.__init__(self)
 
     def registerKeys(self):
         pass
 
     def setPicture(self):
-        self.setPixmap(QPixmap(self._filePath))
+        pixmap = QPixmap(self._filePath)
+        size = QSize(self.props['width'] * self._scale,
+                     self.props['height'] * self._scale)
+        if size.isEmpty():
+            self.setPixmap(pixmap)
+        else:
+            self.setPixmap(pixmap.scaled(size))
 
     def updatePicture(self):
         if (currenttime() - getmtime(self._filePath)
