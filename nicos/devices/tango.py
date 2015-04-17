@@ -207,7 +207,19 @@ class PyTangoDevice(HasCommunication):
         return ''
 
     def _com_warn(self, retries, name, err, info):
-        if self._tango_exc_reason(err) == 'Entangle_InvalidValue':
+        if self._tango_exc_reason(err) in ['Entangle_ConfigurationError',
+                                           'Entangle_UnrecognizedHardware',
+                                           'Entangle_WrongAPICall',
+                                           'Entangle_InvalidValue',
+                                           'Entangle_NotSupported',
+                                           'Entangle_ProgrammingError',
+                                           'DB_DeviceNotDefined',
+                                           'API_DeviceNotDefined',
+                                           'API_CantConnectToDatabase',
+                                           'API_TangoHostNotSet',
+                                           'API_ServerNotRunning',
+                                           'API_DeviceNotExported',
+                                           ]:
             self._com_raise(err, info)
         if retries == self.comtries - 1:
             self.log.warning('%s failed, retrying up to %d times: %s' %
