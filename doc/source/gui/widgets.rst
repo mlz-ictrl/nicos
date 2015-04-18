@@ -20,7 +20,7 @@ Existing widgets are:
    the cache.
 
 :class:`.PictureDisplay` (in nicos.guisupport.display)
-   Displays a picture in the status monitor.
+   Displays a picture file, with automatic checking for updates.
 
 :class:`.TrendPlot` (in nicos.guisupport.plots)
    Displays a time series of one or more devices/cache values.
@@ -201,24 +201,25 @@ Existing widget classes
       If true (not the default), display name and value next to each other
       horizontally.
 
+
 .. class:: PictureDisplay
 
    A widget that displays a picture in the status monitor. The picture is
-   updated in intervals of 'refresh' milliseconds.
+   updated in intervals of 'refresh' seconds.
 
    Properties:
 
    .. attribute:: filepath
 
-      The path to the picture to be displayed in the widget. This can be
-      relative or absolute.
+      The path to the picture to be displayed in the widget.  This can be
+      absolute or relative to the NICOS root.
 
    .. attribute:: refresh
 
-      The time between refreshes in seconds. The longest it will take
+      The time between refreshes in seconds.  The longest it will take
       until any changes in the given picture are displayed.
       If no refresh (or 0) is provided, the picture won't be updated at all.
-      Default value: 0
+      Default value: 0.
 
 
 .. module:: nicos.guisupport.plots

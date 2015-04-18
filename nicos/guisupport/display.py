@@ -377,14 +377,15 @@ class ValueDisplay(NicosWidget, QWidget):
 
 
 class PictureDisplay(NicosWidget, QLabel):
-    '''A display widget to show a picture'''
+    """A display widget to show a picture."""
 
-    designer_description = 'Widget to display the picture of the provided path.'
+    designer_description = 'Widget to display a picture file'
 
     properties = {
-        'filepath': PropDef(str, '', 'Path to the picture that should'
-                            ' be displayed'),
-        'refresh'  : PropDef(int, 0, 'Updateintervall in seconds')
+        'filepath': PropDef(str, '', 'Path to the picture that should '
+                            'be displayed'),
+        'refresh':  PropDef(int, 0, 'Interval to check for updates '
+                            'in seconds')
     }
 
     def __init__(self, parent=None, designMode=False, **kwds):
@@ -413,4 +414,3 @@ class PictureDisplay(NicosWidget, QLabel):
                 self._refreshTimer.setInterval(value * 1000)
                 self._refreshTimer.timeout.connect(self.updatePicture)
                 self._refreshTimer.start()
-
