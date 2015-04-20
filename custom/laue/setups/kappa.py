@@ -47,7 +47,7 @@ devices = dict(
    detz =  device('devices.taco.Motor',
                       description = 'detector position',
                       tacodevice = '//lauectrl.laue.frm2/laue/hubermc9300/detz',
-                      abslimits = (100, 130),
+                      abslimits = (100, 200),
                       fmtstr = '%.3f'),
 
 )
