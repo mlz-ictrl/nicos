@@ -294,6 +294,10 @@ class Actuator(AnalogOutput, NicosMotor):
     Represents the client to a TANGO Actuator device.
     """
 
+    parameter_overrides = {
+        'speed':  Override(volatile=True),
+    }
+
     def doReadSpeed(self):
         return self._dev.speed
 
@@ -311,8 +315,8 @@ class Motor(CanReference, Actuator):
 
     parameters = {
         'refpos': Param('Reference position', type=float, unit='main'),
-        'accel':  Param('Acceleration', type=float, settable=True),
-        'decel':  Param('Decelartion', type=float, settable=True),
+        'accel':  Param('Acceleration', type=float, settable=True, volatile=True),
+        'decel':  Param('Deceleration', type=float, settable=True, volatile=True),
     }
 
     def doReadRefpos(self):
@@ -342,12 +346,18 @@ class TemperatureController(Actuator):
 
     parameters = {
         'p':            Param('Proportional control parameter', type=float,
-                              settable=True, category='general', chatty=True),
+                              settable=True, category='general', chatty=True,
+                              volatile=True),
         'i':            Param('Integral control parameter', type=float,
-                              settable=True, category='general', chatty=True),
+                              settable=True, category='general', chatty=True,
+                              volatile=True),
         'd':            Param('Derivative control parameter', type=float,
-                              settable=True, category='general', chatty=True),
-        'heateroutput': Param('Heater output', type=float, category='general'),
+                              settable=True, category='general', chatty=True,
+                              volatile=True),
+        'setpoint':     Param('Current setpoint', type=float, category='general',
+                              volatile=True),
+        'heateroutput': Param('Heater output', type=float, category='general',
+                              volatile=True),
     }
 
     def doReadP(self):
@@ -368,6 +378,9 @@ class TemperatureController(Actuator):
     def doWriteD(self, value):
         self._dev.d = value
 
+    def doReadSetpoint(self):
+        return self._dev.setpoint
+
     def doReadHeateroutput(self):
         return self._dev.heaterOutput
 
@@ -376,7 +389,7 @@ class TemperatureController(Actuator):
             self._pollParam('heateroutput', 1)
         else:
             self._pollParam('heateroutput', 60)
-
+        self._pollParam('setpoint')
         self._pollParam('p')
         self._pollParam('i')
         self._pollParam('d')
