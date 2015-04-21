@@ -106,23 +106,30 @@ class BlockBox(QFrame):
     def __init__(self, parent, text, font):
         QFrame.__init__(self, parent, frameShape=QFrame.Panel,
                         frameShadow=QFrame.Raised, lineWidth=2)
-        self._label = QLabel(' ' + text + ' ', parent, autoFillBackground=True,
+        self._label = None
+        if text:
+            self._label = QLabel(' ' + text + ' ', parent, autoFillBackground=True,
                              font=font)
-        self._label.resize(self._label.sizeHint())
-        self._label.show()
+            self._label.resize(self._label.sizeHint())
+            self._label.show()
         self.connect(self, SIGNAL('enableDisplay'), self.enableDisplay)
+
     def moveEvent(self, event):
         self._repos()
         return QFrame.moveEvent(self, event)
+
     def resizeEvent(self, event):
         self._repos()
         return QFrame.resizeEvent(self, event)
+
     def _repos(self):
-        mps = self.pos()
-        msz = self.size()
-        lsz = self._label.size()
-        self._label.move(mps.x() + 0.5*(msz.width() - lsz.width()),
-                         mps.y() - 0.5*lsz.height())
+        if self._label:
+            mps = self.pos()
+            msz = self.size()
+            lsz = self._label.size()
+            self._label.move(mps.x() + 0.5*(msz.width() - lsz.width()),
+                             mps.y() - 0.5*lsz.height())
+
     def enableDisplay(self, layout, isvis):
         QFrame.setVisible(self, isvis)
         self._label.setVisible(isvis)
