@@ -108,8 +108,8 @@ class BlockBox(QFrame):
                         frameShadow=QFrame.Raised, lineWidth=2)
         self._label = None
         if text:
-            self._label = QLabel(' ' + text + ' ', parent, autoFillBackground=True,
-                             font=font)
+            self._label = QLabel(' ' + text + ' ', parent,
+                                 autoFillBackground=True, font=font)
             self._label.resize(self._label.sizeHint())
             self._label.show()
         self.connect(self, SIGNAL('enableDisplay'), self.enableDisplay)
@@ -132,7 +132,8 @@ class BlockBox(QFrame):
 
     def enableDisplay(self, layout, isvis):
         QFrame.setVisible(self, isvis)
-        self._label.setVisible(isvis)
+        if self._label:
+            self._label.setVisible(isvis)
         if not isvis:
             layout.removeWidget(self)
         else:
