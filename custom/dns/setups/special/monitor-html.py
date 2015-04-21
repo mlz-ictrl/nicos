@@ -3,14 +3,18 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
     Block('Experiment', [
         BlockRow(Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
-                 Field(name='Last scan', key='exp/lastscan'))]),
+                 Field(name='Last scan', key='exp/lastscan'),
+                ),
+        ],
+    ),
 )
 
 _firstcolumn = Column(
@@ -19,23 +23,28 @@ _firstcolumn = Column(
                  Field(name='6-fold', dev='Sixfold', min='open', width=6),
                  Field(dev='NL6', min='open', width=6)),
         BlockRow(Field(name='Experiment shutter', dev='expshutter')),
-    ], 'reactor'),
+        ],
+        setups='reactor',
+    ),
 
     Block('Instrument angles', [
         BlockRow('sample_rot'),
         BlockRow('det_rot'),
         # BlockRow('cradle_lo', 'cradle_up'),
-    ]),
+        ],
+    ),
 )
 
 _secondcolumn = Column(
     Block('Detector', [
         BlockRow('mon0', 'timer'),
-    ]),
+        ],
+    ),
 
     Block('Field/flipper', [
         BlockRow('field', 'flipper'),
-    ]),
+        ],
+    ),
 )
 
 _thirdcolumn = Column(
@@ -43,7 +52,9 @@ _thirdcolumn = Column(
     Block('Selector', [
         BlockRow('selector_speed', 'selector_lift'),
         BlockRow('selector_vibrt'),
-    ], 'astrium'),
+        ],
+        setups='astrium',
+    ),
 
     Block('Cryostat (jlc3)', [
         BlockRow(Field(name='Temp. setpoint', key='T_jlc3_tube/setpoint',
@@ -53,7 +64,9 @@ _thirdcolumn = Column(
         BlockRow(Field(name='P', key='T_jlc3_tube/p'), Field(name='I', key='T_jlc3_tube/i'),
                  Field(name='D', key='T_jlc3_tube/d')),
         BlockRow(Field(name='He pressure', dev='T_jlc3_C', unit='mbar')),
-    ], 'jlc3'),
+        ],
+        setups='jlc3',
+    ),
 )
 
 _plotcolumn = Column(
@@ -61,11 +74,15 @@ _plotcolumn = Column(
         BlockRow(Field(dev='T_jlc3_tube', plot='T',
                        plotwindow=12*3600, plotinterval=20, width=100, height=40),
                  Field(dev='T_jlc3_stick', plot='T'),),
-    ], 'jlc3'),
+        ],
+        setups='jlc3',
+    ),
     Block('Selector plot', [
         BlockRow(Field(dev='selector_speed', plot='Sel',
                        plotwindow=12*3600, plotinterval=60, width=100, height=40),),
-    ], 'astrium'),
+        ],
+        setups='astrium',
+    ),
 )
 
 devices = dict(

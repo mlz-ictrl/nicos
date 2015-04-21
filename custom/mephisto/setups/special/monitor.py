@@ -25,6 +25,10 @@
 description = 'setup for the status monitor for SANS1'
 group = 'special'
 
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
+Field = lambda *args, **kwds: args or kwds
+
 _pressuretube = (
     'Pressure Tube',
     [
@@ -34,7 +38,7 @@ _pressuretube = (
 #            {'name': 'P3', 'dev': 'tub_p3'},
         ],
     ],
-#   'tube_environment',
+#   setups='tube_environment',
 )
 
 _pressurecoll = (

@@ -3,7 +3,8 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
@@ -13,14 +14,18 @@ _expcolumn = Column(
                        istext=True, maxlen=20),
                  Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
-                 Field(name='Last file', key='exp/lastscan'))]),
+                 Field(name='Last file', key='exp/lastscan'),
+                ),
+        ],
+    ),
 )
 
 _tablecolumn = Column(
     Block('Sample table', [
         BlockRow(Field(dev=u'omega'), Field(dev='twotheta'),
                  Field(dev='chi1'), Field(dev='chi2')),
-        ]),
+        ],
+    ),
 )
 
 devices = dict(

@@ -77,6 +77,7 @@ table { font-family: inherit; font-size: 100%%; }
 <body>
 '''
 
+
 class Field(object):
     # what to display
     key = ''         # main key (displayed value)
@@ -134,15 +135,19 @@ class Field(object):
 
 
 class Block(object):
-    def __init__(self):
+    def __init__(self, config=None):
+        config = config or {}
         self.enabled = True
         self.content = []
+
     def add(self, p):
         self.content.append(p)
+
     def __str__(self):
         if self.enabled:
             return ''.join(map(str, self.content))
         return ''
+
 
 class Label(object):
     def __init__(self, cls='label', width=0, text='&nbsp;',
@@ -157,6 +162,7 @@ class Label(object):
         return ('<div class="%s" style="color: %s; min-width: %sex; '
                 'background-color: %s">%s</div>' %
                 (self.cls, self.fore, self.width, self.back, self.text))
+
 
 class Plot(object):
     def __init__(self, window, width, height):
@@ -324,7 +330,9 @@ class Monitor(BaseMonitor):
             for column in superrow:
                 add('  <table class="column"><tr><td>')
                 for block in column:
-                    blk = Block()
+                    blockconfig = block[1] if len(block) > 1 else None
+                    block = block[0]
+                    blk = Block(blockconfig)
                     blk.add('<div class="block">')
                     blk.add('<div class="blockhead">%s</div>' % escape(block[0]))
                     blk.add('\n    <table class="blocktable">')
@@ -340,9 +348,10 @@ class Monitor(BaseMonitor):
                             blk.add('\n    </td></tr>')
                     blk.add('</table>\n  </div>')
                     add(blk)
-                    if len(block) > 2 and block[2]:
-                        setupnames = [block[2]] if isinstance(block[2], string_types) \
-                                     else block[2]
+                    if blockconfig:
+                        setups = blockconfig.get('setups', [])
+                        setupnames = [setups] if isinstance(setups, string_types) \
+                                     else setups
                         for setupname in setupnames:
                             self._onlymap.setdefault(setupname, []).append(blk)
                 add('</td></tr></table>\n')

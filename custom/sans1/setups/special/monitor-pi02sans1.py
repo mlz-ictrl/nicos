@@ -27,21 +27,24 @@ description = 'setup for the status monitor for SANS1'
 group = 'special'
 
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 
 _sc1 = Block('Sample Changer 1', [
     BlockRow(Field(name='sc1_y', dev='sc1_y'),),
     BlockRow(Field(name='SampleChanger', dev='sc1'),),
-], 'sc1'
+    ],
+    setups='sc1',
 )
 
 _st2 = Block('Sample Table 2', [
     BlockRow(Field(name='st2_z', dev='st2_z'),),
     BlockRow(Field(name='st2_y', dev='st2_y'),),
     BlockRow(Field(name='st2_x', dev='st2_x'),),
-], 'sample_table_2'
+    ],
+    setups='sample_table_2',
 )
 
 _st1 = Block('Sample Table 1', [
@@ -51,7 +54,8 @@ _st1 = Block('Sample Table 1', [
     BlockRow(Field(name='st1_y', dev='st1_y'),),
     BlockRow(Field(name='st1_z', dev='st1_z'),),
     BlockRow(Field(name='st1_x', dev='st1_x'),),
-], 'sample_table_1'
+    ],
+    setups='sample_table_1',
 )
 
 _htf03 = Block('HTF03', [
@@ -69,7 +73,9 @@ _htf03 = Block('HTF03', [
              Field(name='I', key='t_htf03/i', format='%i'),
              Field(name='D', key='t_htf03/d', format='%i'),
             ),
-], 'htf03')
+    ],
+    setups='htf03',
+)
 
 _htf03_plot = Block('HTF03 plot', [
     BlockRow(
@@ -78,15 +84,17 @@ _htf03_plot = Block('HTF03 plot', [
               devices=['T_htf03', 'T_htf03/setpoint', 'T_htf03/target'],
               names=['30min', 'Setpoint', 'Target'],
               ),
-        ),
+    ),
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=70, height=40, plotwindow=12*3600,
               devices=['T_htf03', 'T_htf03/setpoint', 'T_htf03/target'],
               names=['12h', 'Setpoint', 'Target'],
               ),
-        ),
-], 'htf03')
+    ),
+    ],
+    setups='htf03',
+)
 
 _htf01 = Block('HTF01', [
     BlockRow(
@@ -103,7 +111,9 @@ _htf01 = Block('HTF01', [
              Field(name='I', key='t_htf01/i', format='%i'),
              Field(name='D', key='t_htf01/d', format='%i'),
             ),
-], 'htf01')
+    ],
+    setups='htf01',
+)
 
 _htf01_plot = Block('HTF01 plot', [
     BlockRow(
@@ -112,15 +122,17 @@ _htf01_plot = Block('HTF01 plot', [
               devices=['T_htf01', 'T_htf01/setpoint', 'T_htf01/target'],
               names=['30min', 'Setpoint', 'Target'],
               ),
-        ),
+    ),
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=70, height=35, plotwindow=12*3600,
               devices=['T_htf01', 'T_htf01/setpoint', 'T_htf01/target'],
               names=['12h', 'Setpoint', 'Target'],
               ),
-        ),
-], 'htf01')
+    ),
+    ],
+    setups='htf01',
+)
 
 _ccmsans = Block('SANS-1 5T Magnet', [
     BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
@@ -133,7 +145,9 @@ _ccmsans = Block('SANS-1 5T Magnet', [
              Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
              Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
             ),
-], 'ccmsans')
+    ],
+    setups='ccmsans',
+)
 
 _ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
     BlockRow(
@@ -152,7 +166,9 @@ _ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
              Field(name='Magnet BL', dev='ccmsans_T8', width=12),
              Field(name='Magnet BR', dev='ccmsans_T7', width=12),
             ),
-], 'ccmsans')
+    ],
+    setups='ccmsans',
+)
 
 _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
     BlockRow(
@@ -167,7 +183,9 @@ _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
               names=['24h', 'Target'],
               ),
         ),
-], 'ccmsans')
+    ],
+    setups='ccmsans',
+)
 
 _miramagnet = Block('MIRA 0.5T Magnet', [
     BlockRow(Field(name='Field', dev='b_mira', width=12),
@@ -176,7 +194,9 @@ _miramagnet = Block('MIRA 0.5T Magnet', [
     BlockRow(
              Field(name='Current', dev='i', width=12),
             ),
-], 'miramagnet')
+    ],
+    setups='miramagnet',
+)
 
 _miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
     BlockRow(
@@ -190,8 +210,10 @@ _miramagnet_plot = Block('MIRA 0.5T Magnet plot', [
               devices=['B_mira', 'b_mira/target'],
               names=['24h', 'Target'],
               ),
-        ),
-], 'miramagnet')
+    ),
+    ],
+    setups='miramagnet',
+)
 
 _amagnet = Block('Antares Magnet', [
     BlockRow(Field(name='Field', dev='B_amagnet', width=12),
@@ -208,7 +230,9 @@ _amagnet = Block('Antares Magnet', [
     BlockRow(
              Field(name='Lambda out', dev='l_out', width=12),
             ),
-], 'amagnet')
+    ],
+    setups='amagnet',
+)
 
 _amagnet_plot = Block('Antares Magnet plot', [
     BlockRow(
@@ -223,7 +247,9 @@ _amagnet_plot = Block('Antares Magnet plot', [
               names=['12h', 'Setpoint', 'Target'],
               ),
         ),
-], 'amagnet')
+    ],
+    setups='amagnet',
+)
 
 _spinflipper = Block('Spin Flipper', [
     BlockRow(
@@ -239,7 +265,9 @@ _spinflipper = Block('Spin Flipper', [
              Field(name='A_spinflipper_hp', dev='A_spinflipper_hp'),
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
             ),
-], 'spinflipper')
+    ],
+    setups='spinflipper',
+)
 
 newports = []
 for k in range(1, 3 + 1):
@@ -248,7 +276,9 @@ for k in range(1, 3 + 1):
             Field(name='Position', dev='sth_newport0%d' % k,
                    unitkey='t/unit'),
         ),
-    ], 'newport0%d' % k))
+        ],
+        setups='newport0%d' % k,
+    ))
 
 ccrs = []
 for i in range(10, 22 + 1):
@@ -271,19 +301,23 @@ for i in range(10, 22 + 1):
              Field(name='C', dev='T_ccr%d_C' % i),
              Field(name='D', dev='T_ccr%d_D' % i),
         ),
-    ], 'ccr%d' % i))
+        ],
+        setups='ccr%d' % i,
+    ))
 
 T_Ts_plot = []
 for k in range(10, 22 + 1):
     T_Ts_plot.append(Block('30min T and Ts plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=50, height=15, plotwindow=30*60,
-              devices=['T', 'Ts', 'T/setpoint', 'T/target'],
-              names=['T', 'Ts', 'Setpoint', 'Target'],
-              ),
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=50, height=15, plotwindow=30*60,
+                  devices=['T', 'Ts', 'T/setpoint', 'T/target'],
+                  names=['T', 'Ts', 'Setpoint', 'Target'],
+                 ),
         ),
-], 'ccr%d' %k))
+        ],
+        setups='ccr%d' %k,
+    ))
 
 cryos = []
 for j in range(1, 5 + 1):
@@ -302,19 +336,23 @@ for j in range(1, 5 + 1):
              Field(name='A', dev='T_cryo%d_A' % j),
              Field(name='B', dev='T_cryo%d_B' % j),
         ),
-    ], 'cryo%d' % j))
+        ],
+        setups='cryo%d' % j,
+    ))
 
 _birmag = Block('17 T Magnet', [
-        BlockRow(
-                 Field(name='helium level', dev='helevel_birmag', width=13),
-                 Field(name='field birmag', dev='field_birmag', width=13),),
-        BlockRow(
-                 Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
-                 Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),),
-        BlockRow(
-                 Field(name='Temp a birmag', dev='ta_birmag', width=13),
-                 Field(name='Temp b birmag', dev='tb_birmag', width=13),),
-], 'birmag')
+    BlockRow(
+             Field(name='helium level', dev='helevel_birmag', width=13),
+             Field(name='field birmag', dev='field_birmag', width=13),),
+    BlockRow(
+             Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
+             Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),),
+    BlockRow(
+             Field(name='Temp a birmag', dev='ta_birmag', width=13),
+             Field(name='Temp b birmag', dev='tb_birmag', width=13),),
+    ],
+    setups='birmag',
+)
 
 _sans1reactor = Column(
     Block('Reactor', [
@@ -322,9 +360,9 @@ _sans1reactor = Column(
                  Field(name='Reactor', dev='ReactorPower', width=9.5, format = '%.2f', unit='MW'),
                  Field(name='6 Fold Shutter', dev='Sixfold', width=9.5),
                  Field(name='NL4a', dev='NL4a', width=9.5),
-                      ),
-                ],
-        ),
+                ),
+        ],
+    ),
 )
 
 _sans1general = Column(
@@ -338,18 +376,18 @@ _sans1general = Column(
                  Field(name='Leakage', dev='leak_memograph', width=9.5, unit='l/min'),
                  Field(name='P in', dev='p_in_memograph', width=9.5, unit='bar'),
                  Field(name='P out', dev='p_out_memograph', width=9.5, unit='bar'),
-                      ),
-                ],
-        ),
+                ),
+        ],
+    ),
 )
 
 _sans1crane = Column(
     Block('Crane', [
         BlockRow(
                  Field(name='Crane Pos.', dev='Crane', width=9.5, unit='m'),
-                      ),
-                ],
-        ),
+                ),
+        ],
+    ),
 )
 
 devices = dict(

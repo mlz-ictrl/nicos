@@ -2,6 +2,7 @@ description = 'setup for the HTML status monitor'
 group = 'special'
 
 Row = Column = Block = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
@@ -65,7 +66,8 @@ _table2 = Column(
         BlockRow(
                  Field(name='st2_x', dev='st2_x', width=11),
                  ),
-        ], 'sample_table_2'
+        ],
+        setups='sample_table_2',
     ),
 )
 
@@ -83,7 +85,8 @@ _table1 = Column(
                  Field(name='st1_omg', dev='st1_omg', width=11),
                  Field(name='st1_x', dev='st1_x', width=11),
                 ),
-        ], 'sample_table_1'
+        ],
+        setups='sample_table_1',
     ),
 )
 
@@ -181,7 +184,8 @@ _sanscolumn = Column(
                  #~ Field(name='Temp a birmag', dev='ta_birmag', width=13),
                  #~ Field(name='Temp b birmag', dev='tb_birmag', width=13),
                 #~ ),
-        #~ ], '!always!birmag'
+        #~ ],
+        #~ setups='!always!birmag',
     #~ ),
 #~ )
 
@@ -194,7 +198,8 @@ _miramagnet = Column(
         BlockRow(
                  Field(name='Current', dev='i', width=12),
                 ),
-        ],'miramagnet'
+        ],
+        setups='miramagnet',
     ),
 )
 
@@ -204,105 +209,130 @@ _amagnet = Column(
                  Field(name='Field', dev='B_amagnet'),
                  Field(name='Target', key='B_amagnet/target', width=12),
                 ),
-        ],'amagnet'
+        ],
+        setups='amagnet',
     ),
 )
 
 _sc1 = Column(
     Block('Sample Changer 1', [
-      BlockRow(
-       Field(name='Position', dev='sc1_y'),
-       Field(name='SampleChanger', dev='sc1'),
-       ),
-], 'sc1'),)
+         BlockRow(
+            Field(name='Position', dev='sc1_y'),
+            Field(name='SampleChanger', dev='sc1'),
+        ),
+        ],
+        setups='sc1',
+    ),
+)
 
 _htf03 = Column(
     Block('HTF03', [
-      BlockRow(
-       Field(name='Temperature', dev='T_htf03', format = '%.2f'),
-       Field(name='Target', key='t_htf03/target', format = '%.2f'),
-       ),
-      BlockRow(
-       Field(name='Setpoint', key='t_htf03/setpoint', format = '%.1f'),
-       Field(name='Heater Power', key='t_htf03/heaterpower', format = '%.1f'),
-       ),
-], 'htf03'),)
+        BlockRow(
+            Field(name='Temperature', dev='T_htf03', format = '%.2f'),
+            Field(name='Target', key='t_htf03/target', format = '%.2f'),
+        ),
+        BlockRow(
+            Field(name='Setpoint', key='t_htf03/setpoint', format = '%.1f'),
+            Field(name='Heater Power', key='t_htf03/heaterpower', format = '%.1f'),
+        ),
+        ],
+        setups='htf03',
+    ),
+)
 
 _htf01 = Column(
     Block('HTF01', [
-      BlockRow(
-       Field(name='Temperature', dev='T_htf01', format = '%.2f'),
-       Field(name='Target', key='t_htf01/target', format = '%.2f'),
-       ),
-      BlockRow(
-       Field(name='Setpoint', key='t_htf01/setpoint', format = '%.1f'),
-       Field(name='Heater Power', key='t_htf01/heaterpower', format = '%.1f'),
-       ),
-], 'htf01'),)
-
-_ccmsans = Column(Block('SANS-1 5T Magnet', [
-    BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
-             ),
-    BlockRow(
-             Field(name='Target', key='b_ccmsans/target', width=12),
-             Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=12),
-            ),
-    BlockRow(
-             Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
-             Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
-            ),
-], 'ccmsans'))
-
-_ccmsans_temperature = Column(Block('SANS-1 5T Magnet Temperatures', [
-    BlockRow(
-             Field(name='CH Stage 1', dev='ccmsans_T1', width=12),
-             Field(name='CH Stage 2', dev='ccmsans_T2', width=12),
-            ),
-    BlockRow(
-             Field(name='Shield Top', dev='ccmsans_T3', width=12),
-             Field(name='Shield Bottom', dev='ccmsans_T4', width=12),
-            ),
-    BlockRow(
-             Field(name='Magnet TL', dev='ccmsans_T5', width=12),
-             Field(name='Magnet TR', dev='ccmsans_T6', width=12),
-            ),
-    BlockRow(
-             Field(name='Magnet BL', dev='ccmsans_T8', width=12),
-             Field(name='Magnet BR', dev='ccmsans_T7', width=12),
-            ),
-], 'ccmsans'))
-
-_ccmsans_plot = Column(Block('SANS-1 5T Magnet plot', [
-    BlockRow(
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=45, plotwindow=1800,
-              devices=['B_ccmsans', 'b_ccmsans/target'],
-              names=['30min', 'Target'],
-              ),
-        Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=45, plotwindow=24*3600,
-              devices=['B_ccmsans', 'b_ccmsans/target'],
-              names=['24h', 'Target'],
-              ),
+        BlockRow(
+            Field(name='Temperature', dev='T_htf01', format = '%.2f'),
+            Field(name='Target', key='t_htf01/target', format = '%.2f'),
         ),
-], 'ccmsans'))
+        BlockRow(
+            Field(name='Setpoint', key='t_htf01/setpoint', format = '%.1f'),
+            Field(name='Heater Power', key='t_htf01/heaterpower', format = '%.1f'),
+        ),
+        ],
+        setups='htf01',
+    ),
+)
+
+_ccmsans = Column(
+    Block('SANS-1 5T Magnet', [
+        BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
+                ),
+        BlockRow(
+                 Field(name='Target', key='b_ccmsans/target', width=12),
+                 Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=12),
+                ),
+        BlockRow(
+                 Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
+                 Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
+                ),
+        ],
+        setups='ccmsans',
+    ),
+)
+
+_ccmsans_temperature = Column(
+    Block('SANS-1 5T Magnet Temperatures', [
+        BlockRow(
+                 Field(name='CH Stage 1', dev='ccmsans_T1', width=12),
+                 Field(name='CH Stage 2', dev='ccmsans_T2', width=12),
+                ),
+        BlockRow(
+                 Field(name='Shield Top', dev='ccmsans_T3', width=12),
+                 Field(name='Shield Bottom', dev='ccmsans_T4', width=12),
+                ),
+        BlockRow(
+                 Field(name='Magnet TL', dev='ccmsans_T5', width=12),
+                 Field(name='Magnet TR', dev='ccmsans_T6', width=12),
+                ),
+        BlockRow(
+                 Field(name='Magnet BL', dev='ccmsans_T8', width=12),
+                 Field(name='Magnet BR', dev='ccmsans_T7', width=12),
+                ),
+        ],
+        setups='ccmsans',
+    ),
+)
+
+_ccmsans_plot = Column(
+    Block('SANS-1 5T Magnet plot', [
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=65, height=45, plotwindow=1800,
+                  devices=['B_ccmsans', 'b_ccmsans/target'],
+                  names=['30min', 'Target'],
+                  ),
+            Field(widget='nicos.guisupport.plots.TrendPlot',
+                  width=65, height=45, plotwindow=24*3600,
+                  devices=['B_ccmsans', 'b_ccmsans/target'],
+                  names=['24h', 'Target'],
+                  ),
+        ),
+        ],
+        setups='ccmsans',
+    ),
+)
 
 _spinflipper = Column(
     Block('Spin Flipper', [
-    BlockRow(
+        BlockRow(
              Field(name='P_spinflipper', dev='P_spinflipper'),
              Field(name='F_spinflipper', dev='F_spinflipper'),
-            ),
-    BlockRow(
+        ),
+        BlockRow(
              Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
              Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
-            ),
-    BlockRow(Field(name='Temperature of AG1016', dev='T_spinflipper'),),
-    BlockRow(
+        ),
+        BlockRow(Field(name='Temperature of AG1016', dev='T_spinflipper'),),
+        BlockRow(
              Field(name='A_spinflipper_hp', dev='A_spinflipper_hp'),
              Field(name='F_spinflipper_hp', dev='F_spinflipper_hp'),
-            ),
-], 'spinflipper'))
+        ),
+        ],
+        setups='spinflipper',
+    ),
+)
 
 newports = []
 for k in range(1, 3 + 1):
@@ -311,7 +341,9 @@ for k in range(1, 3 + 1):
             Field(name='Position', dev='sth_newport0%d' % k,
                    unitkey='t/unit'),
         ),
-    ], 'newport0%d' % k))
+        ],
+        setups='newport0%d' % k,
+    ))
 _newports = Column(*tuple(newports))
 
 ccrs = []
@@ -331,7 +363,9 @@ for i in range(10, 22 + 1):
              Field(name='C', dev='T_ccr%d_C' % i),
              Field(name='D', dev='T_ccr%d_D' % i),
         ),
-    ], 'ccr%d' % i))
+        ],
+        setups='ccr%d' % i,
+    ))
 _ccrs = Column(*tuple(ccrs))
 
 cryos = []
@@ -347,7 +381,9 @@ for j in range(1, 5 + 1):
              Field(name='A', dev='T_cryo%d_A' % j),
              Field(name='B', dev='T_cryo%d_B' % j),
         ),
-    ], 'cryo%d' % j))
+        ],
+        setups='cryo%d' % j,
+    ))
 _cryos = Column(*tuple(cryos))
 
 devices = dict(

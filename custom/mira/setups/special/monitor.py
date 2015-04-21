@@ -1,7 +1,8 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
@@ -16,14 +17,17 @@ _expcolumn = Column(
                  Field(name='Current status', key='exp/action', width=30,
                        istext=True),
                  Field(name='Last file', key='exp/lastscan')),
-    ]),
+        ],
+    ),
 )
 
 _column1 = Column(
     Block('MIRA1 monochromator', [
         BlockRow('mth', 'mtt', 'mch', Field(dev='FOL', width=3)),
         BlockRow('mtx', 'mty', 'mgx', Field(dev='flip', width=3)),
-    ], 'mono1'),
+        ],
+        setups='mono1',
+    ),
     Block('MIRA2 monochromator', [
         BlockRow(Field(dev='Shutter', width=7), 'm2th', 'm2tt'),
         BlockRow('m2tx', 'm2ty', 'm2gx'),
@@ -34,7 +38,9 @@ _column1 = Column(
                  Field(dev='Pccr', width=7)),
         BlockRow(Field(dev='ms2pos', width=4),
                  Field(dev='ms2', name='Mono slit 2 (ms2)', width=20, istext=True)),
-    ], 'mono2'),
+        ],
+        setups='mono2',
+    ),
     Block('Environment', [
         BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=6),
                  Field(name='6-fold', dev='Sixfold', min='open', width=6),
@@ -49,22 +55,30 @@ _column1 = Column(
                  Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
                  Field(dev='FAKTemp', name='FAK40', width=6, format='%.1f', unit=' '),
                  Field(dev='Crane', min=10, width=7)),
-    ], 'reactor'),
+        ],
+        setups='reactor',
+    ),
 )
 
 _column2 = Column(
     Block('Sample slits', [
         BlockRow(Field(dev='ss1', name='Sample slit 1 (ss1)', width=24, istext=True)),
         BlockRow(Field(dev='ss2', name='Sample slit 2 (ss2)', width=24, istext=True)),
-    ], 'slits'),
+        ],
+        setups='slits',
+    ),
     Block('Sample table', [
         BlockRow('om', 'sth', 'phi'),
         BlockRow('stx', 'sty', 'stz'),
         BlockRow('sgx', 'sgy'),
-    ], 'sample'),
+        ],
+        setups='sample',
+    ),
     Block('Analyzer', [
         BlockRow('ath', 'att'),
-    ], 'analyzer'),
+        ],
+        setups='analyzer',
+    ),
 )
 
 _column3 = Column(
@@ -75,7 +89,9 @@ _column3 = Column(
                  Field(dev='det_fore', item=3, name='Forecast', format='%d')),
         BlockRow(Field(dev='MonHV', width=5),
                  Field(dev='DetHV', width=5)),
-    ], '!cascade'),
+        ],
+        setups='!cascade',
+    ),
     Block('Cascade detector', [
         BlockRow(Field(name='ROI',   key='psd/lastcounts', item=0, width=9),
                  Field(name='Total', key='psd/lastcounts', item=1, width=9),
@@ -85,13 +101,17 @@ _column3 = Column(
         BlockRow(Field(dev='MonHV', width=5),
                  Field(dev='PSDHV', width=5),
                  Field(dev='dtx')),
-    ], 'cascade'),
+        ],
+        setups='cascade',
+    ),
     Block('Diffraction', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
                  Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
                  Field(name='L', dev='mira', item=2, format='%.3f', unit=' ')),
         BlockRow(Field(name='ki', dev='mono'), Field(dev='lam', name='lambda'), Field(dev='Ei')),
-    ], 'diff'),
+        ],
+        setups='diff',
+    ),
     Block('TAS', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
                  Field(name='K', dev='mira', item=1, format='%.3f', unit=' '),
@@ -100,7 +120,9 @@ _column3 = Column(
         BlockRow(Field(name='Mode', key='mira/scanmode'),
                  Field(name='ki', dev='mono'), Field(name='kf', dev='ana'),
                  Field(name='Unit', key='mira/energytransferunit')),
-    ], 'tas'),
+        ],
+        setups='tas',
+    ),
 )
 
 devices = dict(

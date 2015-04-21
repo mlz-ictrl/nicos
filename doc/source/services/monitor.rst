@@ -66,7 +66,8 @@ A simple setup file for the monitor could look like this::
   group = 'special'
 
   # these are helper functions to make the configuration look more intuitive
-  Row = Column = Block = BlockRow = lambda *args: args
+  Row = Column = BlockRow = lambda *args: args
+  Block = lambda *args, **kwds: (args, kwds)
   Field = lambda *args, **kwds: args or kwds
 
   expcolumn = Column(
@@ -87,14 +88,14 @@ A simple setup file for the monitor could look like this::
        BlockRow(Field('psi'), Field('phi')),
        BlockRow(Field('ath'), Field('att'))],
     # setup that must be loaded for this block to be shown
-    'tas'),
+    setups='tas'),
 
     Block('Detector',
       [BlockRow(Field(name='timer', dev='timer'),
                 Field(name='ctr1',  dev='ctr1'),
                 Field(name='ctr2',  dev='ctr2')),
       ],
-    'detector'),
+    setups=['detector', '!qmesydaq']),
 
     Block('Triple-axis',
       [BlockRow(Field(dev='tas', item=0, name='H', format='%.3f', unit=' '),
@@ -106,7 +107,7 @@ A simple setup file for the monitor could look like this::
                 Field(dev='ana', name='kf'),
                 Field(key='tas/energytransferunit', name='Unit')),
       ],
-    'tas'),
+    setups='tas'),
   )
 
   devices = dict(
@@ -125,13 +126,29 @@ stacks of displayed units:
 * Each row consists of a number of columns.
 
 * Each column consists of a number of blocks.  Each block has a title and a
-  number of rows ("block rows") in it.  A block can have an associated setup
-  name, which means that it will only be shown if that setup is loaded in the
-  NICOS :term:`master`.  See the "Axes" block in the example.
+  number of rows ("block rows") in it.
 
 * Each block row consists of a number of fields.
 
 * A field has a name and a value.
+
+The configuration of a block may use further options:
+
+* ``setups`` -- A list of associated setup names.  The block will only be shown
+  if any of the specified setups are loaded in the NICOS :term:`master`.  If only
+  one setup needs to be specified here, it can be given literally, i.e. without
+  enclosing the name with '[]'.  See the "Axes" or "Detector" block in the example.
+
+  A '!' at the begining of any setup name will negate the selection and the
+  block will only be shown if the corresponding setup is **not** loaded.
+
+  A '*' at the end will match all loaded/not loaded setups beginning with
+  characters in front of the '*' character.  This is helpful if you have a lot
+  of possible setups for the same application like a set of temperature
+  environments starting with ``ccr`` but only one of them is loaded a the moment.
+
+* ``frame`` -- If set to ``False`` the frame drawn around all of the blocks fields
+  is omitted. The default value for this option is ``True``.
 
 The configuration for a Field is either a simple string naming a device (see the
 "Axes" block above) a dictionary with more detailed configuration what is

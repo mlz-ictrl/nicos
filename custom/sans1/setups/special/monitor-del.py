@@ -25,6 +25,10 @@
 description = 'setup for the status monitor for SANS1'
 group = 'special'
 
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
+Field = lambda *args, **kwds: args or kwds
+
 _interfaceboxtop = (
     'Interface Box (top)',
     [
@@ -48,7 +52,7 @@ _interfaceboxbottom = (
             {'name' : 'Temperature', 'dev': 'tub_t7'},
         ],
     ],
-#   'tube_environment',
+#   setups='tube_environment',
 )
 
 _nim_voltage = (
@@ -59,7 +63,7 @@ _nim_voltage = (
             {'name' : '-', 'dev' : 'tub_v2'},
         ],
     ],
-#   'tube_environment',
+#   setups='tube_environment',
 )
 
 _electronicsbox = (
@@ -71,7 +75,7 @@ _electronicsbox = (
              {'name' : 'right',  'dev' : 'tub_t3'},
          ],
     ],
-#   'tube_environment',
+#   setups='tube_environment',
 )
 
 _warnings = [

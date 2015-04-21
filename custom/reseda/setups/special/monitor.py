@@ -1,109 +1,102 @@
 description = 'RESEDA standard status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
-    Block('Experiment',
-    [BlockRow(Field(name='Exp no.', key='info/number', width=7),
-              Field(name='Exp title', key='info/title', width=20, istext=True),
-              Field(name='User', key='info/user', istext=True),
-              Field(name='Sample', key='info/sample', width=10, istext=True),
-             ),
-    ],
+    Block('Experiment', [
+        BlockRow(Field(name='Exp no.', key='info/number', width=7),
+                 Field(name='Exp title', key='info/title', width=20, istext=True),
+                 Field(name='User', key='info/user', istext=True),
+                 Field(name='Sample', key='info/sample', width=10, istext=True),
+                ),
+        ],
     ),
 )
 
-_motorblock = Block(
-    'Arm motors',
-    [BlockRow(Field(name='2 theta 1', dev='m1', unit='(deg)', format="%.2f"),
-              Field(name='2 theta 2', dev='m2', unit='(deg)', format="%.2f"),
-             ),
-    ],)
+_motorblock = Block('Arm motors', [
+    BlockRow(Field(name='2 theta 1', dev='m1', unit='(deg)', format="%.2f"),
+             Field(name='2 theta 2', dev='m2', unit='(deg)', format="%.2f"),
+            ),
+    ],
+)
 
-_sampletableblock = Block(
-    'Sample table',
-    [BlockRow(Field(name='ty - m 3', dev='m3', unit='(mm)', format="%.2f"),
-              Field(name='tx - m 4', dev='m4', unit='(mm)', format="%.2f"),
-              Field(name='gl - m 5', dev='m5', unit='(deg)', format="%.2f"),
-              Field(name='gu - m 6', dev='m6', unit='(deg)', format="%.2f"),
-              Field(name='w - m 7', dev='m7', unit='(deg)', format="%.2f"),
-             ),
-    ],)
+_sampletableblock = Block('Sample table', [
+    BlockRow(Field(name='ty - m 3', dev='m3', unit='(mm)', format="%.2f"),
+             Field(name='tx - m 4', dev='m4', unit='(mm)', format="%.2f"),
+             Field(name='gl - m 5', dev='m5', unit='(deg)', format="%.2f"),
+             Field(name='gu - m 6', dev='m6', unit='(deg)', format="%.2f"),
+             Field(name='w - m 7', dev='m7', unit='(deg)', format="%.2f"),
+            ),
+    ],
+)
 
-_rfflippers = Block(
-    'RF flippers',
-    [BlockRow(Field(name='b 0', dev='B01', unit='(A)', width=8, format="%.2f"),
-              Field(name='b 2', dev='B21', unit='(A)', width=8, format="%.2f"),
-              ),
+_rfflippers = Block('RF flippers', [
+    BlockRow(Field(name='b 0', dev='B01', unit='(A)', width=8, format="%.2f"),
+             Field(name='b 2', dev='B21', unit='(A)', width=8, format="%.2f"),
+            ),
     BlockRow(Field(name='k/s 0', dev='C01', unit='', width=8),
-              Field(name='k/s 1', dev='C11', unit='', width=8),
-              Field(name='k/s 2', dev='C21', unit='', width=8),
-             ),
+             Field(name='k/s 1', dev='C11', unit='', width=8),
+             Field(name='k/s 2', dev='C21', unit='', width=8),
+            ),
     BlockRow(Field(name='f 0', dev='F0', unit='(Hz)', width=8, format="%.0f"),
-              Field(name='f 1', dev='F1', unit='(Hz)', width=8, format="%.0f"),
-              Field(name='f 2', dev='F2', unit='(Hz)', width=8, format="%.0f"),
-             ),
+             Field(name='f 1', dev='F1', unit='(Hz)', width=8, format="%.0f"),
+             Field(name='f 2', dev='F2', unit='(Hz)', width=8, format="%.0f"),
+            ),
     BlockRow(Field(name='fu 0', dev='Fu0', unit='(A)', width=8),
-              Field(name='fu 1', dev='Fu1', unit='(A)', width=8),
-              Field(name='fu 2', dev='Fu2', unit='(A)', width=8),
-             ),
-    ],)
+             Field(name='fu 1', dev='Fu1', unit='(A)', width=8),
+             Field(name='fu 2', dev='Fu2', unit='(A)', width=8),
+            ),
+    ],
+)
 
-_tempblock = Block(
-    'Temperature',
-    [BlockRow(Field(key='t/setpoint', name='Setpoint', unit='(K)'),
-              Field(name='Tsa1', dev='TA', unit='(K)', format="%.2f"),
-              Field(name='Tsa2', dev='TB', unit='(K)', format="%.2f"),
-              Field(name='Trg', dev='TC', unit='(K)', format="%.2f"),
-              Field(name='Tch', dev='TD', unit='(K)', format="%.2f"),
-             ),
-
+_tempblock = Block('Temperature', [
+    BlockRow(Field(key='t/setpoint', name='Setpoint', unit='(K)'),
+             Field(name='Tsa1', dev='TA', unit='(K)', format="%.2f"),
+             Field(name='Tsa2', dev='TB', unit='(K)', format="%.2f"),
+             Field(name='Trg', dev='TC', unit='(K)', format="%.2f"),
+             Field(name='Tch', dev='TD', unit='(K)', format="%.2f"),
+            ),
     BlockRow(Field(dev='TA', plot='temp', interval=3600, width=55),
-	     Field(dev='TB', plot='temp', interval=3600, width=55),
-             )
-    ],)
+	         Field(dev='TB', plot='temp', interval=3600, width=55),
+            )
+    ],
+)
 
-_powersupplyblock = Block(
-    'Power supplies',
-    [BlockRow(Field(name='b 4', dev='b41_c', unit='(A)', width=10, format="%.2f"),
-	      Field(name='b 5', dev='b51_c', unit='(A)', width=10, format="%.2f"),
-              Field(name='b 6', dev='b52_c', unit='(A)', width=10, format="%.2f"),
-              Field(name='b 7', dev='b53_c', unit='(A)', width=10, format="%.2f"),
-              Field(name='b 8', dev='b61_c', unit='(A)', width=10, format="%.2f"),
-             ),
-
-    BlockRow(
-             Field(name='b 9', dev='b62_c', unit='(A)', width=10, format="%.2f"),
+_powersupplyblock = Block('Power supplies', [
+    BlockRow(Field(name='b 4', dev='b41_c', unit='(A)', width=10, format="%.2f"),
+	         Field(name='b 5', dev='b51_c', unit='(A)', width=10, format="%.2f"),
+             Field(name='b 6', dev='b52_c', unit='(A)', width=10, format="%.2f"),
+             Field(name='b 7', dev='b53_c', unit='(A)', width=10, format="%.2f"),
+             Field(name='b 8', dev='b61_c', unit='(A)', width=10, format="%.2f"),
+            ),
+    BlockRow(Field(name='b 9', dev='b62_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 10', dev='b63_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 11', dev='b71_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 12', dev='b72_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 13', dev='b73_c', unit='(A)', width=10, format="%.2f"),
             ),
-
     BlockRow(Field(name='b 14', dev='b81_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 15', dev='b82_c', unit='(A)', width=10, format="%.2f"),
-	     Field(name='b 16', dev='b91_c', unit='(A)', width=10, format="%.2f"),
+	         Field(name='b 16', dev='b91_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 17', dev='b92_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 18', dev='b101_c', unit='(A)', width=10, format="%.2f"),
             ),
-
-    BlockRow(
-             Field(name='b 19', dev='b102_c', unit='(A)', width=10, format="%.2f"),
-	     Field(name='b 20', dev='b111_c', unit='(A)', width=10, format="%.2f"),
+    BlockRow(Field(name='b 19', dev='b102_c', unit='(A)', width=10, format="%.2f"),
+	         Field(name='b 20', dev='b111_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 21', dev='b112_c', unit='(A)', width=10, format="%.2f"),
              Field(name='b 22', dev='b31_c', unit='(A)', width=10, format="%.2f"),
             ),
-    ],)
+    ],
+)
 
-_beamblock = Block(
-    'Beam properties',
-    [
+_beamblock = Block('Beam properties', [
      BlockRow(
-     #         Field(name='Selector speed', dev='Sel', unit='(rpm)', width=10, format="%.0f"),
+     #        Field(name='Selector speed', dev='Sel', unit='(rpm)', width=10, format="%.0f"),
               Field(name='Cooling water flux', dev='Flux', unit='(l/min)', width=10, format="%.2f"),
-     #         Field(name='Wavelength', dev='Lambda', width=10, unit='(A)', format="%.2f"),
+     #        Field(name='Wavelength', dev='Lambda', width=10, unit='(A)', format="%.2f"),
              ),
      BlockRow(Field(name='Attenuator 0', dev='Att0', unit='', format="%.0f"),
               Field(name='Attenuator 1', dev='Att1', unit='', format="%.0f"),
@@ -113,39 +106,38 @@ _beamblock = Block(
               Field(name='5 mm pinhole', dev='Slit1', unit='', format="%0.f"),
               Field(name='10 x 40 mm slit', dev='Slit2', unit='', format="%0.f"),
              ),
-    ],)
+    ],
+)
 
-_sqtblock = Block(
-    'Kinematic parameters',
-    [BlockRow(Field(name='Q1', dev='Q1', width=10, unit='(1/A)', format="%.3f"),
-              Field(name='Q2', dev='Q2', width=10, unit='(1/A)', format="%.3f"),
-              Field(name='tau', dev='TauT', width=10, unit='(ns)', format="%.3f"),
-             ),
-    ],)
+_sqtblock = Block('Kinematic parameters', [
+    BlockRow(Field(name='Q1', dev='Q1', width=10, unit='(1/A)', format="%.3f"),
+             Field(name='Q2', dev='Q2', width=10, unit='(1/A)', format="%.3f"),
+             Field(name='tau', dev='TauT', width=10, unit='(ns)', format="%.3f"),
+            ),
+    ],
+)
 
-_capacitanceblock = Block(
-    'Capacitance',
-    [BlockRow(Field(name='K0', dev='C00', unit='', width=10),
-              Field(name='K/s 0', dev='C01', unit='', width=10),
-              Field(name='K1', dev='C10', unit='', width=10),
-              Field(name='K/s 1', dev='C11', unit='', width=10),
-              Field(name='K2', dev='C20', unit='', width=10),
-              Field(name='K/s 2', dev='C21', unit='', width=10),
-              ),
-    ],)
-
+_capacitanceblock = Block('Capacitance', [
+    BlockRow(Field(name='K0', dev='C00', unit='', width=10),
+             Field(name='K/s 0', dev='C01', unit='', width=10),
+             Field(name='K1', dev='C10', unit='', width=10),
+             Field(name='K/s 1', dev='C11', unit='', width=10),
+             Field(name='K2', dev='C20', unit='', width=10),
+             Field(name='K/s 2', dev='C21', unit='', width=10),
+            ),
+    ],
+)
 
 _leftcolumn = Column(_beamblock,
-		      _motorblock,
-		      _rfflippers,
-		      _sqtblock,
+		             _motorblock,
+		             _rfflippers,
+		             _sqtblock,
                     )
 
 _rightcolumn = Column(_sampletableblock,
                       _tempblock,
-		      _powersupplyblock,
+		              _powersupplyblock,
                      )
-
 
 
 devices = dict(

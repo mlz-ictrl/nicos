@@ -3,7 +3,8 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
@@ -18,7 +19,7 @@ _expcolumn = Column(
                  Field(name='Last file', key='exp/lastimage',
                        width=20),
                  )
-        ]
+        ],
     ),
 )
 
@@ -35,36 +36,37 @@ _shutterBlock = Block('Shutter', [
     BlockRow(Field(name='Photo-shutter', dev='photoshutter'),
              Field(name='Gamma-shutter', dev='gammashutter'),
              )
-    ]
+    ],
 )
 
 _sampleTableBlock = Block('Sample table', [
     BlockRow(Field(name='omega', dev='omega_sampletable',)),
     BlockRow(Field(name='x', dev='x_sampletable',)),
     BlockRow(Field(name='y', dev='y_sampletable',)),
-    ]
+    ],
 )
 
 _sampleStepperBlock = Block('Sample stepper', [
     BlockRow(Field(name='omega', dev='omega_samplestepper')),
-    ]
+    ],
 )
 
 _activeDetectorBlock = Block('Active detector', [
     BlockRow(Field(name='Detector', key='exp/detlist', item=0)),
-    ]
+    ],
 )
 
 _slitsBlock = Block('Slits', [
     BlockRow(Field(name='Slit dia1', dev='d_diaphragm1')),
     BlockRow(Field(name='Slit dia2', dev='d_diaphragm2')),
-    ]
+    ],
 )
 
 _cryoStreamBlock = Block('Cryo-stream', [
     BlockRow(Field(name='Temperature', dev='T_cryostream')),
     BlockRow(Field(name='Setpoint', key='T_cryostream/setpoint')),
-    ], 'cryostream'
+    ],
+    setups='cryostream',
 )
 
 _outsideWorldBlock = Block('Outside world', [

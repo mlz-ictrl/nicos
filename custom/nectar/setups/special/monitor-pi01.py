@@ -3,7 +3,8 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
@@ -23,41 +24,47 @@ _expcolumn = Column(
     ),
 )
 
-_translationColumn = Column(Block('Sample translation', [
-    BlockRow(Field(dev='stx'),),
-    BlockRow(Field(dev='sty'),),
-    BlockRow(Field(dev='sry'),),
-    ],
-    'servostar',
-))
+_translationColumn = Column(
+    Block('Sample translation', [
+        BlockRow(Field(dev='stx'),),
+        BlockRow(Field(dev='sty'),),
+        BlockRow(Field(dev='sry'),),
+        ],
+        setups='servostar',
+    ),
+)
 
-_detectorblock = Column(Block('Detector', [
-    BlockRow(
-        Field(name='Last Image', key='ccd.lastfilename'),
+_detectorblock = Column(
+    Block('Detector', [
+        BlockRow(
+            Field(name='Last Image', key='ccd.lastfilename'),
         ),
-    BlockRow(
-        Field(dev='ccdTemp'), Field(name='CCD status', key='ccd/status', width=15, item=1),
+        BlockRow(
+            Field(dev='ccdTemp'), Field(name='CCD status', key='ccd/status', width=15, item=1),
         ),
-    BlockRow(
-        Field(name='bin', key='ccd.bin'),
-        Field(name='flip (H,V)', key='ccd.flip'),
-        Field(name='rotation', key='ccd.rotation'),
+        BlockRow(
+            Field(name='bin', key='ccd.bin'),
+            Field(name='flip (H,V)', key='ccd.flip'),
+            Field(name='rotation', key='ccd.rotation'),
         ),
-    BlockRow(
-        Field(name='roi', key='ccd.roi'),
-        Field(name='hsspeed', key='ccd.hsspeed', width=4),
-        Field(name='vsspeed', key='ccd.vsspeed', width=4),
-        Field(name='pgain', key='ccd.pgain', width=4),
+        BlockRow(
+            Field(name='roi', key='ccd.roi'),
+            Field(name='hsspeed', key='ccd.hsspeed', width=4),
+            Field(name='vsspeed', key='ccd.vsspeed', width=4),
+            Field(name='pgain', key='ccd.pgain', width=4),
         ),
-    ],
-    'detector',
-))
+        ],
+        setups='detector',
+    ),
+)
 
-_ubahnColumn = Column(Block('U-Bahn', [
-    BlockRow(Field(dev='UBahn'),),
-    ],
-    'ubahn',
-))
+_ubahnColumn = Column(
+    Block('U-Bahn', [
+        BlockRow(Field(dev='UBahn'),),
+        ],
+        setups='ubahn',
+    ),
+)
 
 
 devices = dict(

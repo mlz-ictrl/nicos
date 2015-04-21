@@ -3,7 +3,8 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
@@ -31,7 +32,7 @@ _huberblock = Block('HUBER Small Sample Manipulator', [
         Field(dev='sgx_huber'), Field(dev='sgz_huber'),
         ),
     ],
-    'huber',
+    setups='huber',
 )
 
 
@@ -40,7 +41,7 @@ _servostarblock = Block('Servostar Large Sample Manipulator', [
         Field(dev='stx_servostar'), Field(dev='sty_servostar'), Field(dev='sry_servostar'),
         ),
     ],
-    'servostar',
+    setups='servostar',
 )
 
 _detectorblock = Block('Detector', [
@@ -62,7 +63,7 @@ _detectorblock = Block('Detector', [
         Field(name='pgain', key='ccd.pgain', width=4),
         ),
     ],
-    'detector',
+    setups='detector',
 )
 
 _shutterblock = Block('Shutters & Collimators', [
@@ -77,7 +78,7 @@ _shutterblock = Block('Shutters & Collimators', [
         Field(dev='fastshutter', width=10, istext = True),
         ),
     ],
-    'basic',
+    setups='basic',
 )
 
 _basicblock = Block('Info', [
@@ -89,7 +90,7 @@ _basicblock = Block('Info', [
     BlockRow(Field(plot='Pressure', name='Ambient', dev='center3_sens1', width=40, height=20, plotwindow=24*3600),
         Field(plot='Pressure', name='Flight Tube', dev='center3_sens2')),
     ],
-    'basic',
+    setups='basic',
 )
 
 _sblblock = Block('Small Beam Limiter', [
@@ -97,7 +98,7 @@ _sblblock = Block('Small Beam Limiter', [
         Field(dev='sbl', name='sbl  [center[x,y], width[x,y]]', width=28),
         ),
     ],
-    'sbl',
+    setups='sbl',
 )
 
 _lblblock = Block('Large Beam Limiter', [
@@ -105,7 +106,7 @@ _lblblock = Block('Large Beam Limiter', [
         Field(dev='lbl', name='lbl  [center[x,y], width[x,y]]', width=28),
         ),
     ],
-    'lbl',
+    setups='lbl',
 )
 
 _detector_translationblock = Block('Detector Translation', [
@@ -113,7 +114,7 @@ _detector_translationblock = Block('Detector Translation', [
         Field(dev='dtx', width=13), Field(dev='dty', width=13),
         ),
     ],
-    'detector_translation',
+    setups='detector_translation',
 )
 
 _sockets1block = Block('Sockets Cabinet 1', [
@@ -121,7 +122,7 @@ _sockets1block = Block('Sockets Cabinet 1', [
         Field(dev='socket01', width=9), Field(dev='socket02', width=9), Field(dev='socket03', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _sockets2block = Block('Sockets Cabinet 2', [
@@ -129,7 +130,7 @@ _sockets2block = Block('Sockets Cabinet 2', [
         Field(dev='socket04', width=9), Field(dev='socket05', width=9), Field(dev='socket06', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _sockets3block = Block('Sockets Cabinet 3', [
@@ -137,7 +138,7 @@ _sockets3block = Block('Sockets Cabinet 3', [
         Field(dev='socket07', width=9), Field(dev='socket08', width=9), Field(dev='socket09', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _sockets6block = Block('Sockets Cabinet 6', [
@@ -145,7 +146,7 @@ _sockets6block = Block('Sockets Cabinet 6', [
         Field(dev='socket10', width=9), Field(dev='socket11', width=9), Field(dev='socket12', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _sockets7block = Block('Sockets Cabinet 7', [
@@ -153,7 +154,7 @@ _sockets7block = Block('Sockets Cabinet 7', [
         Field(dev='socket13', width=9), Field(dev='socket14', width=9), Field(dev='socket15', width=9),
         ),
     ],
-    'sockets',
+    setups='sockets',
 )
 
 _filterwheelblock = Block('Filterwheel', [
@@ -161,7 +162,7 @@ _filterwheelblock = Block('Filterwheel', [
         Field(dev='filterwheel', width=14), Field(dev='pbfilter', width=14),
         ),
     ],
-    'filterwheel',
+    setups='filterwheel',
 )
 
 _selectorblock = Block('Velocity Selector', [
@@ -178,7 +179,7 @@ _selectorblock = Block('Velocity Selector', [
         Field(name='Water Flow',dev='selector_wflow'),
         ),
     ],
-    'selector',
+    setups='selector',
 )
 
 _monochromatorblock = Block('Double Crystal PG Monochromator', [
@@ -189,7 +190,7 @@ _monochromatorblock = Block('Double Crystal PG Monochromator', [
         Field(dev='mr1'), Field(dev='mr2'), Field(dev='mtz'),
         ),
     ],
-    'monochromator',
+    setups='monochromator',
 )
 
 _ngiblock = Block('Neutron Grating Interferometer', [
@@ -200,7 +201,7 @@ _ngiblock = Block('Neutron Grating Interferometer', [
         Field(name='G1rz', dev='G1rz'), Field(name='G1tz', dev='G1tz'), Field(name='G12rz', dev='G12rz'),
         ),
     ],
-    'ngi',
+    setups='ngi',
 )
 
 _leftcolumn = Column(

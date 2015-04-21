@@ -103,9 +103,13 @@ class BlockBox(QFrame):
     """Provide the equivalent of a Tk LabelFrame: a group box that has a
     definite frame around it.
     """
-    def __init__(self, parent, text, font):
-        QFrame.__init__(self, parent, frameShape=QFrame.Panel,
-                        frameShadow=QFrame.Raised, lineWidth=2)
+    def __init__(self, parent, text, font, config=None):
+        config = config or {}
+        if config.get('frames', True):
+            QFrame.__init__(self, parent, frameShape=QFrame.Panel,
+                            frameShadow=QFrame.Raised, lineWidth=2)
+        else:
+            QFrame.__init__(self, parent, frameShape=QFrame.NoFrame)
         self._label = None
         if text:
             self._label = QLabel(' ' + text + ' ', parent,
@@ -303,11 +307,14 @@ class Monitor(BaseMonitor):
             for column in superrow:
                 columnlayout = QVBoxLayout(spacing=0.8*blheight)
                 for block in column:
+                    blockconfig = block[1] if len(block) > 1 else None
+                    block = block[0]
                     blocklayout_outer = QHBoxLayout()
                     blocklayout_outer.addStretch()
                     blocklayout = QVBoxLayout()
                     blocklayout.addSpacing(0.5 * blheight)
-                    blockbox = BlockBox(displayframe, block[0], blockfont)
+                    blockbox = BlockBox(displayframe, block[0], blockfont,
+                                        blockconfig)
                     for row in block[1]:
                         if row in (None, '---'):
                             blocklayout.addSpacing(12)
@@ -322,10 +329,11 @@ class Monitor(BaseMonitor):
                                     rowlayout.addSpacing(self._padding)
                             rowlayout.addStretch()
                             blocklayout.addLayout(rowlayout)
-                    if len(block) > 2 and block[2]:
+                    if blockconfig:
+                        setups = blockconfig.get('setups', [])
                         blockbox.setHidden(True) # start hidden
-                        setupnames = [block[2]] if isinstance(block[2], string_types) \
-                                     else block[2]
+                        setupnames = [setups] if isinstance(setups, string_types) \
+                                     else setups
                         for setupname in setupnames:
                             self._onlymap.setdefault(setupname, []).append(
                                 (blocklayout_outer, blockbox))

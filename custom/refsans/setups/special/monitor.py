@@ -25,7 +25,8 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
@@ -37,7 +38,8 @@ _expcolumn = Column(
                        istext=True, maxlen=40),
                  Field(name='Last file', key='det/lastfilenumber'),
             )
-        ],# 'experiment'
+        ],
+        # setups='experiment'
     ),
 )
 

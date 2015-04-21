@@ -1,7 +1,8 @@
 description = 'setup for the HTML status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
+Row = Column = BlockRow = lambda *args: args
+Block = lambda *args, **kwds: (args, kwds)
 Field = lambda *args, **kwds: args or kwds
 
 _expcolumn = Column(
@@ -16,7 +17,8 @@ _expcolumn = Column(
                  Field(name='Current status', key='exp/action', width=30,
                        istext=True),
                  Field(name='Last file', key='exp/lastscan')),
-    ]),
+        ],
+    ),
 )
 
 filters = Block('Primary Beam/Filters', [
@@ -32,7 +34,9 @@ filters = Block('Primary Beam/Filters', [
         Field(dev='beofilter', name='BeO'),
         Field(dev='pgfilter', name='PG'),
     ),
-], '!always!')
+    ],
+    setups='!always!',
+)
 
 primary = Block('Monochromator', [
     BlockRow(
@@ -41,7 +45,9 @@ primary = Block('Monochromator', [
         Field(dev='mth', name='mth (A1)'),
         Field(dev='mtt', name='mtt (A2)'),
     ),
-], '!always!')
+    ],
+    setups='!always!',
+)
 
 sample = Block('Sample stage', [
     BlockRow(
@@ -56,7 +62,9 @@ sample = Block('Sample stage', [
         Field(dev='sth', name='sth (A3)'),
         Field(dev='stt', name='stt (A4)'),
     ),
-], '!always!')
+    ],
+    setups='!always!',
+)
 
 analyzer = Block('Analyzer', [
     BlockRow(
@@ -65,7 +73,9 @@ analyzer = Block('Analyzer', [
         Field(dev='ath', name='ath (A5)', unit=''),
         Field(dev='att', name='att (A6)', unit=''),
     ),
-], '!always!')
+    ],
+    setups='!always!',
+)
 
 collimation = Block('Collimation and Lengths', [
     BlockRow(
@@ -80,7 +90,9 @@ collimation = Block('Collimation and Lengths', [
         Field(dev='lsa'),
         Field(dev='lad'),
     ),
-], '!always!')
+    ],
+    setups='!always!',
+)
 
 column1 = Column(filters, primary, sample, analyzer)
 
@@ -95,7 +107,9 @@ detector = Block('Detector', [
         Field(dev='det1', format='%d'),
         Field(dev='det2', format='%d'),
     ),
-], '!always!')
+    ],
+    setups='!always!',
+)
 
 detector_small = Block('Detector', [
     BlockRow(
@@ -105,7 +119,9 @@ detector_small = Block('Detector', [
         Field(dev='det1', format='%d'),
         Field(dev='det2', format='%d'),
     ),
-], '!always!')
+    ],
+    setups='!always!'
+)
 
 # for setup lakeshore
 lakeshore = Block('LakeShore', [
@@ -120,7 +136,9 @@ lakeshore = Block('LakeShore', [
         Field(key='t_ls340/i', name='I', width=5),
         Field(key='t_ls340/d', name='D', width=5),
     ),
-],'lakeshore')
+    ],
+    setups='lakeshore',
+)
 
 lakeshoreplot = Block('LakeShore', [
     BlockRow(
@@ -130,7 +148,9 @@ lakeshoreplot = Block('LakeShore', [
               names=['Setpoint', 'A', 'B'],
         ),
     ),
-], 'lakeshore')
+    ],
+    setups='lakeshore',
+)
 
 
 # generic Cryo-stuff
@@ -153,7 +173,9 @@ for i in range(1, 5 + 1):
                 Field(key='t_cryo%d/i' % i, name='I', width=7),
                 Field(key='t_cryo%d/d' % i, name='D', width=7),
             ),
-        ],'cryo%d' % i)
+            ],
+            setups='cryo%d' % i,
+        )
     )
     cryosupps.append(
         Block('Cryo%d-misc' % i,[
@@ -168,7 +190,9 @@ for i in range(1, 5 + 1):
             BlockRow(
                 Field(key='cryo%d_flow' % i, name='Flow', width=10),
             ),
-        ],'cryo%d' % i)
+            ],
+            setups='cryo%d' % i,
+        )
     )
     cryoplots.append(
         Block('cryo%d' % i, [
@@ -179,7 +203,9 @@ for i in range(1, 5 + 1):
                       names=['Setpoint', 'Regulation'],
                 ),
             ),
-        ], 'cryo%d' % i)
+            ],
+            setups='cryo%d' % i,
+        )
     )
 
 
@@ -201,7 +227,9 @@ for i in range(10, 22 + 1):
                 Field(key='t_ccr%d/i' % i, name='I', width=7),
                 Field(key='t_ccr%d/d' % i, name='D', width=6),
             ),
-        ],['ccr%d' % i, '!cryo*'])
+            ],
+            setups=['ccr%d' % i, '!cryo*'],
+        )
     )
     ccrsupps.append(
         Block('CCR%d' % i, [
@@ -223,7 +251,9 @@ for i in range(10, 22 + 1):
                 Field(key='t_ccr%d/i' % i, name='I', width=4),
                 Field(key='t_ccr%d/d' % i, name='D', width=3),
             ),
-        ], ['ccr%d' % i])
+            ],
+            setups=['ccr%d' % i],
+        )
     )
     ccrplots.append(
         Block('CCR%d' % i, [
@@ -235,7 +265,9 @@ for i in range(10, 22 + 1):
                       names=['Setpoint', 'Coldhead', 'Regulation', 'Sample'],
                 ),
             ),
-        ], 'ccr%d' % i)
+            ],
+            setups='ccr%d' % i,
+        )
     )
 
 # for setup magnet frm2-setup
@@ -244,7 +276,9 @@ magnet75 = Block('7T Magnet', [
         Field(dev='B_m7T5'),
         Field(key='b_m7t5/target', name='Target', fmtstr='%.2f'),
     ),
-],'magnet75')
+    ],
+    setups='magnet75',
+)
 
 magnet75supp = Block('Magnet', [
     BlockRow(
@@ -267,7 +301,9 @@ magnet75supp = Block('Magnet', [
         Field(dev='m7T5_T7'),
         Field(dev='m7T5_T8'),
     ),
-],'magnet75')
+    ],
+    setups='magnet75',
+)
 
 # for setup magnet PANDA-setup
 magnet7t5 = Block('7T Magnet', [
@@ -275,7 +311,9 @@ magnet7t5 = Block('7T Magnet', [
         Field(dev='B_m7T5'),
         Field(key='b_m7t5/target', name='Target', fmtstr='%.2f'),
     ),
-],'7T5')
+    ],
+    setups='7T5',
+)
 
 magnet7t5supp = Block('Magnet', [
     BlockRow(
@@ -299,7 +337,9 @@ magnet7t5supp = Block('Magnet', [
         Field(dev='m7T5_T7'),
         Field(dev='m7T5_T8',max=4.3),
     ),
-],'7T5')
+    ],
+    setups='7T5',
+)
 
 vti = Block('VTI', [
     BlockRow(
@@ -313,7 +353,9 @@ vti = Block('VTI', [
         Field(dev='LHe'),
         Field(dev='LN2'),
     ),
-],['15T', 'variox'])
+    ],
+    setups=['15T', 'variox'],
+)
 
 magnet14t5 = Block('14.5T Magnet', [
     BlockRow(
@@ -321,7 +363,9 @@ magnet14t5 = Block('14.5T Magnet', [
         Field(key='b15t/target', name='Target', unit='T'),
         Field(key='b15t/ramp', name='Ramp', unit='T/min'),
     ),
-],'15T')
+    ],
+    setups='15T',
+)
 
 kelvinox = Block('Kelvinox', [
     BlockRow(Field(dev='mc')),
@@ -331,7 +375,9 @@ kelvinox = Block('Kelvinox', [
     BlockRow(Field(dev='igh_p1')),
     BlockRow(Field(dev='igh_g1')),
     BlockRow(Field(dev='igh_g2')),
-],'kelvinox')
+    ],
+    setups='kelvinox',
+)
 
 foki = Block('Foki', [
     BlockRow(
@@ -339,7 +385,9 @@ foki = Block('Foki', [
         Field(dev='mfv'),
     ),
     BlockRow(Field(dev='afh')),
-], '!always!')
+    ],
+    setups='!always!',
+)
 
 column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
           Column(lakeshore, magnet75, magnet7t5, magnet14t5, vti)
