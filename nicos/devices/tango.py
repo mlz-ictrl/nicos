@@ -166,8 +166,8 @@ class PyTangoDevice(HasCommunication):
                 self.log.debug('[PyTango] call: %s%r'
                                % (func.__name__, args))
 
-            return self._com_retry(args[0] if args else None,
-                                   func, *args, **kwds)
+            info = category + ' ' + args[0] if args else category
+            return self._com_retry(info, func, *args, **kwds)
 
         # hide the wrapping
         wrap.__name__ = func.__name__
