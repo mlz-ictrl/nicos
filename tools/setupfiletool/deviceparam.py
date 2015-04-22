@@ -26,18 +26,25 @@ from os import path
 
 from PyQt4 import uic
 from PyQt4.QtGui import QWidget
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSignal, SIGNAL
 
 
 class DeviceParam(QWidget):
     editedParam = pyqtSignal()
 
-    def __init__(self, parent=None, param='<PARAM>', value=None):
+    def __init__(self, param, valueWidget, isUnknownValue=False, parent=None):
+        self.isUnknownValue = isUnknownValue
         super(DeviceParam, self).__init__(parent)
         uic.loadUi(path.abspath(path.join(path.dirname(__file__),
                                           'ui',
                                           'deviceparam.ui')), self)
+        self.valueWidget = valueWidget
         self.labelParam.setText(param)
-        self.value = value
-        self.lineEditParam.setText(str(value))
-        self.lineEditParam.textEdited.connect(self.editedParam.emit)
+        self.horizontalLayout.addWidget(self.valueWidget)
+        self.connect(self.valueWidget, SIGNAL('dataChanged'),
+                     self.editedParam.emit)
+        self.connect(self.valueWidget, SIGNAL('valueChosen'),
+                     self.editedParam.emit)
+
+    def getValue(self):
+        return self.valueWidget.getValue()

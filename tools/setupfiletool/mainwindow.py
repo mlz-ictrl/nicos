@@ -37,6 +37,7 @@ from setupfiletool.devicewidget import DeviceWidget
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir
 from setupfiletool.dialogs.newsetup import NewSetupDialog
 from setupfiletool.setup import Setup
+from setupfiletool.classparser import importModules
 from nicos.configmod import config
 
 
@@ -47,6 +48,9 @@ class MainWindow(QMainWindow):
                              'ui', 'mainwindow.ui'), self)
 
         self.log = logging.getLogger()
+
+        # try to import all nicos device modules
+        self.deviceModules = importModules()
 
         # dictionary of setup - setupWidget
         self.setupWidgets = {}
@@ -131,7 +135,7 @@ class MainWindow(QMainWindow):
 
             else:
                 # device has never been loaded before:
-                newWidget = DeviceWidget()
+                newWidget = DeviceWidget(self)
                 newWidget.editedDevice.connect(self.editedSetupSlot)
                 newWidget.loadDevice(Setup.getDeviceOfSetup(curItem.parent(
                     ).text(1), curItem.text(0), self.log))
@@ -365,7 +369,7 @@ class MainWindow(QMainWindow):
             # not loaded devices.
             if device.text(0) not in self.deviceWidgets[setup]:
                 # device wasn't loaded before
-                newWidget = DeviceWidget()
+                newWidget = DeviceWidget(self)
                 newWidget.editedDevice.connect(self.editedSetupSlot)
                 newWidget.loadDevice(Setup.getDeviceOfSetup(setup,
                                                             device.text(0),
@@ -377,20 +381,24 @@ class MainWindow(QMainWindow):
             output.append('    ' + name + ' = device(')
             indent = len(name) + 14
             for params in info.currentWidgets:
-                if isinstance(params.value, basestring):
-                    # if parameter is a string
+                # if parameter is a string
+                if isinstance(params.getValue(), basestring):
                     if str(params.labelParam.text()) == 'Class:':
                         prepend = ''
                         param = repr(str(
-                            params.lineEditParam.text())) + ',\n'
+                            params.getValue())) + ',\n'
                     else:
                         prepend = indent * ' ' + str(
                             params.labelParam.text())[:-1] + ' = '
-                        param = repr(str(params.lineEditParam.text())) + ',\n'
+                        if params.isUnknownValue:
+                            param = str(params.getValue()) + ',\n'
+                        else:
+                            param = repr(str(params.getValue())) + ',\n'
                 else:
                     prepend = indent * ' ' + str(
                         params.labelParam.text())[:-1] + ' = '
-                    param = str(params.lineEditParam.text()) + ',\n'
+                    param = str(params.getValue()) + ',\n'
+
                 output.append(prepend + param)
             output.append((indent - 1) * ' ' + '),\n')
         output.append(')\n\n')

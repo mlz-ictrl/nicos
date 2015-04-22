@@ -37,9 +37,6 @@
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QLineEdit" name="lineEditParam"/>
-   </item>
   </layout>
  </widget>
  <resources/>

@@ -25,10 +25,12 @@
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtGui import QWidget, QSpacerItem, QInputDialog, QMessageBox
+from PyQt4.QtGui import QWidget, QSpacerItem
 from PyQt4.QtCore import pyqtSignal
 
 from setupfiletool.deviceparam import DeviceParam
+
+from nicos.guisupport.typedvalue import create
 
 
 class DeviceWidget(QWidget):
@@ -38,8 +40,6 @@ class DeviceWidget(QWidget):
         super(DeviceWidget, self).__init__(parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'devicewidget.ui'), self)
-
-        self.pushButtonAdd.clicked.connect(self.addParam)
         self.currentWidgets = []
 
     def clear(self):
@@ -50,15 +50,54 @@ class DeviceWidget(QWidget):
             else:
                 self.paramList.takeAt(index)
 
+    def getClassOfDevice(self, device):
+        # this method gets a device and parses it's classString
+        # building two modules: one for nicos devices and one for
+        # instrument specific devices. it then tries to get the class in those
+        # modules. If it doesn't find the class, it returns None.
+        mods = self.parent().deviceModules
+        myClass = device.classString.split(".")[-1]
+        myMod = device.classString.split(".")
+        myMod.pop()
+        myMod1 = "nicos." + ".".join(myMod)
+        myMod2 = "custom." + ".".join(myMod)
+        myMods = [myMod1, myMod2]
+        for mod in myMods:
+            if mod in mods:
+                myClass = getattr(mods[mod], myClass)
+                return myClass
+        return None
+
     def loadDevice(self, device):
         self.clear()
-        classParam = DeviceParam(self, 'Class:', device.classString)
+
+        myClass = self.getClassOfDevice(device)
+        classParam = DeviceParam('Class:', create(
+            self, str, device.classString))
         classParam.pushButtonRemove.setEnabled(False)
         self.paramList.addWidget(classParam)
-
         self.currentWidgets.append(classParam)
-        for key, value in device.parameters.iteritems():
-            newParam = DeviceParam(self, key + ':', value)
+
+        for param, value in device.parameters.iteritems():
+            isUnkownValue = False
+            try:
+                typ = myClass.parameters[param].type
+            except (AttributeError, KeyError):
+                if isinstance(value, basestring):
+                    # this is why can't have nice things
+                    isUnkownValue = False
+                else:
+                    isUnkownValue = True
+                typ = str
+            try:
+                myUnit = myClass.parameters[param].unit
+            except (AttributeError, KeyError):
+                myUnit = ''
+            newParam = DeviceParam(param + ':', create(self,
+                                                       typ,
+                                                       value,
+                                                       unit=myUnit))
+            newParam.isUnknownValue = isUnkownValue
             self.paramList.addWidget(newParam)
             self.currentWidgets.append(newParam)
         self.paramList.addStretch()
@@ -82,33 +121,8 @@ class DeviceWidget(QWidget):
 
     def removeParam(self):
         # removes the widget calling this function
+        # Planned for redesign: Only allow optional parameters to be removed
         param = self.sender().parent()
         self.currentWidgets.remove(param)
         param.setParent(None)
-        self.editedDevice.emit()
-
-    def addParam(self):
-        newParam = QInputDialog.getText(self,
-                                        'New parameter...',
-                                        'Enter a new parameter:')
-        if not newParam[1]:
-            return  # user pressed cancel
-
-        newParam = str(newParam[0])
-
-        if not newParam:
-            QMessageBox.warning(self,
-                                'Error',
-                                'No name entered for parameter.')
-            return
-        newParam = newParam + ':'
-        self.paramList.takeAt(self.paramList.count() - 1)  # remove stretch
-        newParamWidget = DeviceParam(self, newParam, '')
-        newParamWidget.pushButtonRemove.clicked.connect(self.removeParam)
-        newParamWidget.pushButtonRemove.clicked.connect(self.editedDevice.emit)
-        newParamWidget.editedParam.connect(self.editedDevice.emit)
-        self.paramList.addWidget(newParamWidget)
-        self.currentWidgets.append(newParamWidget)
-        self.setOptimalWidth()
-        self.paramList.addStretch()
         self.editedDevice.emit()
