@@ -335,6 +335,7 @@ class Motor(CanReference, Actuator):
         self._dev.decel = value
 
     def doReference(self):
+        self._setROParam('target', None)  # don't check target in wait() below
         self._dev.Reference()
         self.wait()
 
