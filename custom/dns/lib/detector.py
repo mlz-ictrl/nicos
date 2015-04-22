@@ -123,7 +123,7 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         if T_TIME in preset:
             t = preset[T_TIME]
         else:
-            t = t or 1
+            t = self._adevs['timer'].preselection or 1
             self.log.warning("Incorrect preset setting. Please specify " +
                              T_TIME + ". Falling back to previous value '%g'."
                              % t)
@@ -225,7 +225,7 @@ class TofDetector(TofDetectorBase, FlipperPresets):
         elif T_TIME in preset:
             t = preset[T_TIME]
         else:
-            t = t or 1
+            t = self._adevs['timer'].preselection or 1
             self.log.warning("Incorrect preset setting. Specify either " +
                              T_SPIN_FLIP + " and " + T_NO_SPIN_FLIP +
                              " or just " + T_TIME + ". Falling back to "
