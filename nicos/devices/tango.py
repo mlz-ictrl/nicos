@@ -106,7 +106,7 @@ class PyTangoDevice(HasCommunication):
 
     def _setMode(self, mode):
         super(PyTangoDevice, self)._setMode(mode)
-        # remove the TACO device on entering simulation mode, to prevent
+        # remove the Tango device on entering simulation mode, to prevent
         # accidental access to the hardware
         if mode == SIMULATION:
             self._dev = HardwareStub(self)
