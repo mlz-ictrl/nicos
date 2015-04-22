@@ -127,6 +127,9 @@ class MultiChannelDetector(Measurable):
 
     def doSetPreset(self, **preset):
         self.doStop()
+        if not preset:
+            # keep old settings
+            return
         for master in self._masters:
             master.ismaster = False
             master.mode = 'normal'
@@ -143,7 +146,7 @@ class MultiChannelDetector(Measurable):
                 dev.preselection = preset[name]
                 if not self.multi_master:
                     master = dev
-        if not(self.multi_master or master):
+        if not (self.multi_master or master):
             self.log.warning('No usable preset given, '
                              'detector may not stop by itself!')
         self._getMasters()
