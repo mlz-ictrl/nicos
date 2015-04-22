@@ -27,7 +27,7 @@ File writer for tiff files compatible with ESMERALDA
 """
 
 try:
-    from PIL import PILLOW_VERSION
+    from PIL import PILLOW_VERSION  # pylint: disable=E0611
     from distutils.version import LooseVersion  # pylint: disable=E0611
     if LooseVersion(PILLOW_VERSION) < LooseVersion('2.7.0'):
         raise ImportError
@@ -78,7 +78,7 @@ class TIFFLaueFileFormat(ImageSink):
 
     def saveImage(self, info, data):
         # ensure numpy type, with float values for PIL
-        npData = numpy.asarray(data,dtype= '<u2')
+        npData = numpy.asarray(data, dtype='<u2')
         buf = numpy.getbuffer(npData)
         self.log.info(npData.shape)
         ifile = Image.frombuffer('I;16', npData.shape, buf, "raw", 'I;16', 0, 1)
@@ -86,7 +86,7 @@ class TIFFLaueFileFormat(ImageSink):
         ifile.save(info.file, 'TIFF', imageinfo=self._buildHeader(info))
 
     def _buildHeader(self, imageinfo):
-        ifd = ImageFileDirectory()
+        ifd = ImageFileDirectory()  # pylint: disable=E1120
         ifd[TAGMAP['startx'][1]] = 1
         ifd[TAGMAP['starty'][1]] = 1
         ifd[STRIPOFFSETS] = 8
