@@ -152,7 +152,15 @@ class Dataset(object):
         for catname, catinfo in INFO_CATEGORIES:
             if catname not in bycategory:
                 continue
-            headerinfo[catinfo] = bycategory.pop(catname)
+            if catinfo not in headerinfo:
+                headerinfo[catinfo] = bycategory.pop(catname)
+            else:
+                new_data = bycategory.pop(catname)
+                new_keys = set('%s_%s' % (dev, key) for (dev, key, val) in new_data)
+                headerinfo[catinfo] = [(dev, key, val)
+                                       for (dev, key, val) in headerinfo[catinfo]
+                                       if '%s_%s' % (dev, key) not in new_keys]
+                headerinfo[catinfo].extend(new_data)
         for category, devlist in bycategory.items():
             for device, key, _ in devlist:
                 device.log.error('parameter %s uses illegal category %s!' % (key, category))
