@@ -37,6 +37,7 @@ from setupfiletool.devicewidget import DeviceWidget
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir
 from setupfiletool.dialogs.newsetup import NewSetupDialog
 from setupfiletool.setup import Setup
+from nicos.configmod import config
 
 
 class MainWindow(QMainWindow):
@@ -65,6 +66,11 @@ class MainWindow(QMainWindow):
         self.actionSaveAs.triggered.connect(self.actionSaveAsSlot)
         self.actionLoadFile.triggered.connect(self.loadFile)
         self.actionExit.triggered.connect(self.close)
+        self.instrumentMenu = self.menuView.addMenu('Instrument')
+        self.actionShowAllInstrument = self.menuView.addAction(
+            'Show all instruments')
+        self.actionShowAllInstrument.triggered.connect(
+            self.treeWidget.setAllInstrumentsVisible)
         self.menuView.addAction(self.dockWidget.toggleViewAction())
         self.dockWidget.toggleViewAction().setText('Show Tree')
         self.actionAboutSetupFileTool.triggered.connect(
@@ -76,6 +82,11 @@ class MainWindow(QMainWindow):
         self.treeWidget.setColumnCount(1)
         self.treeWidget.setLogger(self.log)
         self.treeWidget.loadNicosData()
+        for directory in self.treeWidget.topLevelItems:
+            instrumentAction = self.instrumentMenu.addAction(directory.text(0))
+            instrumentAction.triggered.connect(
+                self.treeWidget.setInstrumentMode)
+        self.treeWidget.setSingleInstrument(config.instrument)
 
     def loadSelection(self, curItem, column):
         self.treeWidget.setCurrentItem(curItem)

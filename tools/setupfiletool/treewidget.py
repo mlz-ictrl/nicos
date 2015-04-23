@@ -58,16 +58,16 @@ class TreeWidget(TreeWidgetContextMenu):
 
         # list of topLevelItems representing the directories in
         # */nicos-core/custom: for example instruments, ...
-        topLevelItems = []
+        self.topLevelItems = []
         for directory in sorted(setupDirectories):
-            topLevelItems.append(
+            self.topLevelItems.append(
                 QTreeWidgetItem([directory,
                                  'nicos-core/custom'], ItemTypes.Directory))
-        self.addTopLevelItems(topLevelItems)
+        self.addTopLevelItems(self.topLevelItems)
 
         # all these directories (may) have setups, find all of them and add
         # them as children, after that, add all their devices as children
-        for item in topLevelItems:
+        for item in self.topLevelItems:
             item.setIcon(0, QIcon(path.join(getResDir(), 'folder.png')))
             scriptList = [[]]  # list of rows, a row = list of strings
             if path.isdir(path.join(setupRoot, item.text(0), 'setups')):
@@ -104,6 +104,18 @@ class TreeWidget(TreeWidgetContextMenu):
             self.showManualDirectory()
         self.setSortingEnabled(True)
         self.sortByColumn(0, Qt.AscendingOrder)
+
+    def setInstrumentMode(self):
+        instrument = self.sender().text()
+        self.setSingleInstrument(instrument)
+
+    def setSingleInstrument(self, instrument):
+        for directory in self.topLevelItems:
+            directory.setHidden(not directory.text(0) == instrument)
+
+    def setAllInstrumentsVisible(self):
+        for directory in self.topLevelItems:
+            directory.setHidden(False)
 
     def showManualDirectory(self):
         self.showManualDirectoryBool = True
