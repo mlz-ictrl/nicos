@@ -37,6 +37,8 @@ from nicos.utils import clamp, createThread
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
     none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
     ImageProducer, ImageType, SIMULATION, POLLER, Attach, Device, HasWindowTimeout
+from nicos.core.constants import MASTER
+
 from nicos.devices.abstract import Motor, Coder
 from nicos.devices.generic.detector import Channel
 
@@ -191,7 +193,8 @@ class VirtualChannel(Channel):
 
     def doInit(self, mode):
         self._finish = True
-        self.curvalue = 0
+        if mode == MASTER:
+            self.curvalue = 0
         self._adevs['card'].addChannel(self)
         if self.curstatus[0] < status.OK:  # clean up old status values
             self._setROParam('curstatus', (status.OK, ''))
