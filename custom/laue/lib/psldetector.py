@@ -24,13 +24,19 @@
 '''Detector class for the laue PSL detector via the windows server'''
 
 from nicos.core import Measurable, ImageProducer, \
-    ImageType, Param, Override, status
+    ImageType, Param, Override, status, Attach
+
+from nicos.devices.generic.detector import Channel
 
 from nicos.laue.psldrv import PSLdrv
 import numpy as np
 
 
 class PSLDetector(ImageProducer, Measurable):
+
+    attached_devices = {
+        'timer': Attach('Timer device', Channel)
+    }
 
     parameters = {
         'address': Param('inet address', type=str,
@@ -71,6 +77,7 @@ class PSLDetector(ImageProducer, Measurable):
         return self.lastfilename
 
     def doStart(self):
+        self._adevs['timer'].start()
         self._communicate('Snap')
 
     _modemap = { 'I;16': '<u2',
@@ -78,6 +85,7 @@ class PSLDetector(ImageProducer, Measurable):
                  'F': '<f4',}
 
     def readFinalImage(self):
+        self._adevs['timer'].stop()
         (shape, data) = self._communicate('GetImage')
         mode = self._communicate('GetMode')
         self._setROParam('imagewidth', shape[0])
@@ -91,14 +99,18 @@ class PSLDetector(ImageProducer, Measurable):
 
     def doStop(self):
         self._communicate('AbortSnap')
+        self._adevs['timer'].stop()
 
     def doStatus(self, maxage=0):  # pylint: disable=W0221
         if self._communicate('GetCamState') == 'ON':
+            if self._adevs['timer']:
+                remain = self._preset - self._adevs['timer'].read(0)[0]
+                return status.BUSY, '%.1f s remaining' % remain
             return status.BUSY, 'Exposure ongoing'
         return status.OK, 'OK'
 
     def doIsCompleted(self):
-        if self.doStatus()[0] == status.BUSY:
+        if self.status(0)[0] == status.BUSY:
             return False
         return True
 
@@ -112,6 +124,7 @@ class PSLDetector(ImageProducer, Measurable):
         '''exposure in seconds, hardware wants ms)'''
         self._preset = exptime
         self._communicate('SetExposure;%f' % (( exptime * 1000.),))
+        self._adevs['timer'].preselection = exptime
 
     def doSetPreset(self, **presets):
         if 't' in presets:

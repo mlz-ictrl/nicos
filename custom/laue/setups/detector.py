@@ -5,6 +5,7 @@ modules = ['nicos.laue.psldrv', 'nicos.laue.psldetector']
 devices = dict(
     det1 = device('laue.psldetector.PSLDetector',
                  description = "PSL detector",
+                 timer = 'timer',
                  address = 'lauedet.laue.frm2',
                  port = 50000,
                  subdir='',
@@ -18,4 +19,6 @@ devices = dict(
                 filenametemplate=['%08d.tif']),
     hbin=device('laue.lauehbin.HBINLaueFileFormat',
                 filenametemplate=['%08d.hbin']),
+    card=device('devices.generic.VirtualCounterCard', lowlevel=True),
+    timer=device('devices.generic.VirtualTimer', card='card', lowlevel=True),
 )
