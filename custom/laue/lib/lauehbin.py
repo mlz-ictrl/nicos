@@ -79,13 +79,16 @@ HEADER = \
 '''Image_Offset:  %(imageoffset)s bytes
 Header_Length:   %(headerlen)s bytes
 Title: %(title)s
+Instrument_Name: MLZ nLaue
 N_Frames:      1
 Nbits:   16
 Nrow-Ncol:    %(rows)s   %(cols)s
 Detector_Type: FLAT
 ColRow_Order: Column_Order
-Pixel_size_h:      2.50000
-Pixel_size_v:      1.56350
+Pixel_size_h(mm): 0.128
+Pixel_size_v(mm): 0.128
+Sample_Detector_Dist(mm): %(detdist)s
+Lambda range(angstroms):  0.5 4.0
 Scan_Type: Omega
 Scan Values:    %(start)s     %(step)s   %(end)s
 Sigma_Factor:      1.00000
@@ -114,14 +117,25 @@ class HBINLaueFileFormat(ImageSink):
 
     def saveImage(self, info, data):
         # ensure numpy type, with float values for PIL
+        npData = numpy.asarray(data, dtype='<u2')
+        self.log.info(npData.shape)
+        info.data['cols'] = npData.shape[0]
+        info.data['rows'] = npData.shape[1]
+
+        info.data['sumcounts']= 1 # npData.sum() is overflowing the INT needed.
         header = self._buildHeader(info)
-        npData = numpy.array(data, dtype='<u2')
 
         info.file.write(header + npData.tostring())
 
     def _buildHeader(self, imageinfo):
         header = ''
         prevheaderlen = -1
+        # map items
+        imageinfo.data['exposuretime'] = imageinfo.dataset.preset.get('t',0)
+        imageinfo.data['mon'] = 1 #TODO: adapt once a real monitor is in place
+        # TODO: adapt if we change the setup for detz in the HUBER controller
+        imageinfo.data['detdist'] = 300- float(imageinfo.data['detz'])
+
         # pre-generate environment and motor parts
         binhead = self._buildBinHeaderPart(imageinfo)
         epart = self._buildEnvHeaderPart(imageinfo)
@@ -133,7 +147,6 @@ class HBINLaueFileFormat(ImageSink):
             # can not  be addaed via the DeviceValueDict, newline in strings get escaped
             header += epart
             header += mpart
-            self.log.info('prev: %d, curr :%d' % (prevheaderlen, len(header)))
 
         header += binhead
         return header
@@ -141,10 +154,9 @@ class HBINLaueFileFormat(ImageSink):
     def _buildBinHeaderPart(self, imageinfo):
         headerpart = ''
 
-        self.log.info(imageinfo)
-        etime = 222  # int(imageinfo.data['exposuretime'])
-        counts = 999  # int(imageinfo.data['sumcounts'])
-        monitor = 77777  # int(imageinfo.data['mon'])
+        etime = int(imageinfo.data['exposuretime'])
+        counts = int(imageinfo.data['sumcounts'])
+        monitor = int(imageinfo.data['mon'])
 
         headerpart += struct.pack('<3I', etime, counts, monitor)
         headerpart += self._buildMotorHeaderPart(imageinfo, True)
@@ -154,9 +166,8 @@ class HBINLaueFileFormat(ImageSink):
     def hbinDeviceIter(self, imageinfo, getbin, strformat, binformat, devs):
         headerpart = ''
         for i, dev in enumerate(devs):
-            self.log.info('%d %s' % (i, dev))
-            key = '%s/value' % dev
-            ukey = '%s/unit' % dev
+            key = '%s' % dev
+            ukey = '%s.unit' % dev
             data = dict(i=i, name=dev, value=imageinfo.data[key], unit=imageinfo.data[ukey])
             if getbin:
                 try:
@@ -171,7 +182,7 @@ class HBINLaueFileFormat(ImageSink):
     def _buildEnvHeaderPart(self, imageinfo, getbin=False):
         FORMAT = 'Environment item #  %(i)s (%(name)s):    %(value)s~%(unit)s\n'
         BINFORMAT = '<f'
-        ENVIRONS = ['T_s', 'T']
+        ENVIRONS = ['Ts', 'T']
         if getbin:
             headerpart = ''
         else:
