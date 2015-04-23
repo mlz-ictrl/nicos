@@ -2,7 +2,7 @@ description = 'chopper setup'
 
 group = 'lowlevel'
 
-includes = []
+includes = ['chmemograph']
 
 nethost = 'toftofsrv.toftof.frm2'
 
