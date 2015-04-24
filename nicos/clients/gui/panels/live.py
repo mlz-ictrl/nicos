@@ -191,10 +191,12 @@ class LiveDataPanel(Panel):
         self._nz = nz
 
     def on_client_livedata(self, data):
+        file_ok = False
         if self._last_fname:
             if path.isfile(self._last_fname) and self._last_tag in self._allowed_tags:
                 # in the case of a filename, we add it to the list
                 self.add_to_flist(self._last_fname, self._last_format, self._last_tag)
+                file_ok = True
         # but display it right now only if on <Live> setting
         if self._no_direct_display:
             return
@@ -204,8 +206,8 @@ class LiveDataPanel(Panel):
                 # we got live data with a specified format
                 self.widget.setData(
                     LWData(self._nx, self._ny, self._nz, self._last_format, data))
-            elif self._last_fname:
-                # we got no live data, but a filename with the data
+            elif file_ok:
+                # we got no live data, but a valid filename with the data
                 self.widget.setData(LWData(self._last_fname))
 
     def add_to_flist(self, filename, fformat, ftag, scroll=True):
