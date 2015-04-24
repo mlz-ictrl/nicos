@@ -483,6 +483,10 @@ class BaseHistoryWindow(object):
                 view.plot.logYinDomain.connect(self.on_logYinDomain)
             view.plot.show()
 
+    def on_viewList_itemDoubleClicked(self, item):
+        if item:
+            self.on_actionEditView_triggered()
+
     @qtsig('')
     def on_actionEditView_triggered(self):
         view = self.viewStack[-1]
