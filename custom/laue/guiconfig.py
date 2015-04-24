@@ -50,7 +50,11 @@ windows = [
     window('Logbook', 'table', panel('elog.ELogPanel')),
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
-    window('Live data', 'live',panel('live.LiveDataPanel', instrument = 'laue', filetypes=['raw',])),
+    window('Live data', 'live',panel('live.LiveDataPanel',
+                                     cachesize = 20,
+                                     showcached = False,
+                                     instrument = 'laue',
+                                     filetypes=['raw',])),
 ]
 
 tools = [

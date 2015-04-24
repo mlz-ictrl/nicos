@@ -44,6 +44,7 @@ class LiveViewSink(ImageSink):
         return len(imagetype.shape) in (2, 3)
 
     def prepareImage(self, imageinfo, subdir=''):
+        # hardcoded live name
         imageinfo.filename = 'live@%s' % session.experiment.lastimage
 
     def updateLiveImage(self, imageinfo, image):

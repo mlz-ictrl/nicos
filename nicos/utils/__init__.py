@@ -44,6 +44,12 @@ from itertools import islice, chain
 from functools import wraps
 
 try:
+    from collections import OrderedDict
+except ImportError:
+    # python 2.6 only
+    from nicos._vendor.ordereddict import OrderedDict
+
+try:
     import pwd
     import grp
 except ImportError:
@@ -124,6 +130,26 @@ class readonlydict(dict):
     def __reduce__(self):
         return dict.__reduce__(self)
 
+
+class BoundedOrderedDict(OrderedDict):
+    def __init__(self, *args, **kwds):
+        self.maxlen = kwds.pop("maxlen", None)
+        OrderedDict.__init__(self, *args, **kwds)
+        self._checklen()
+
+    def __setitem__(self, key, value):  # pylint: disable=arguments-differ
+        OrderedDict.__setitem__(self, key, value)
+        self._checklen()
+
+    def _checklen(self):
+        if self.maxlen is not None:
+            while len(self) > self.maxlen:
+                self.popitem(last=False)
+
+    def getlast(self):
+        (key, value) = self.popitem(last=True)
+        self.__setitem__(key, value)
+        return value
 
 class Repeater(object):
     def __init__(self, obj):

@@ -40,6 +40,7 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
 from PyQt4.QtCore import QByteArray, Qt, SIGNAL, SLOT
 from PyQt4.QtCore import pyqtSignature as qtsig, QSize
 
+from nicos.utils import BoundedOrderedDict
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.clients.gui.panels import Panel
 
@@ -52,6 +53,7 @@ DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4', ''))
 
 FILETYPES = {'fits': TYPE_FITS, 'raw': TYPE_RAW}
+
 
 
 class LiveDataPanel(Panel):
@@ -68,6 +70,10 @@ class LiveDataPanel(Panel):
         self._runtime = 0
         self._no_direct_display = False
         self._range_active = False
+        self._cachesize = 20
+        self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
+        self._datapathok = False
+
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -122,6 +128,13 @@ class LiveDataPanel(Panel):
         # configure allowed file types
         opt_filetypes = options.get('filetypes', list(FILETYPES))
         self._allowed_tags = set(opt_filetypes) & set(FILETYPES)
+
+        #configure caching
+        self._showcached = options.get('showcached', False)
+        self._cachesize = options.get('cachesize', 20)
+        if self._cachesize < 1:
+            self._cachesize = 1  # always cache the last live image
+        self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
         if self.client.connected:
             self.on_client_connected()
 
@@ -152,7 +165,7 @@ class LiveDataPanel(Panel):
         bar.addAction(self.actionLogScale)
         bar.addSeparator()
         bar.addAction(self.actionUnzoom)
-        #bar.addAction(self.actionSetAsROI)
+        # bar.addAction(self.actionSetAsROI)
         return [bar]
 
     def on_widget_customContextMenuRequested(self, point):
@@ -168,7 +181,8 @@ class LiveDataPanel(Panel):
 
     def on_client_connected(self):
         datapath = self.client.eval('session.experiment.datapath', '')
-        if not path.isdir(datapath):
+        if not datapath or not path.isdir(datapath):
+            self._showcached = True   # always show  cached data if datapath is not accessible
             return
         if self._instrument == 'imaging':
             for fn in sorted(os.listdir(datapath)):
@@ -191,53 +205,79 @@ class LiveDataPanel(Panel):
         self._nz = nz
 
     def on_client_livedata(self, data):
-        file_ok = False
+        d = None
         if self._last_fname:
             if path.isfile(self._last_fname) and self._last_tag in self._allowed_tags:
                 # in the case of a filename, we add it to the list
                 self.add_to_flist(self._last_fname, self._last_format, self._last_tag)
-                file_ok = True
-        # but display it right now only if on <Live> setting
-        if self._no_direct_display:
-            return
+                d = LWData(self._last_fname)
+            elif len(data) and self._last_format and self._last_tag in self._allowed_tags or self._last_tag == 'live':
+                d = LWData(self._nx, self._ny, self._nz, self._last_format, data)
+                self._datacache[self._last_fname] = (self._nx, self._ny, self._nz, self._last_format, data)
+                if self._showcached:
+                    self.add_to_flist(self._last_fname, self._last_format, self._last_tag, cached=True)
         # always allow live data
-        if self._last_tag in self._allowed_tags or self._last_tag == 'live':
+        if self._last_tag == 'live':
             if len(data) and self._last_format:
                 # we got live data with a specified format
-                self.widget.setData(
-                    LWData(self._nx, self._ny, self._nz, self._last_format, data))
-            elif file_ok:
-                # we got no live data, but a valid filename with the data
-                self.widget.setData(LWData(self._last_fname))
+                d = LWData(self._nx, self._ny, self._nz, self._last_format, data)
+        # but display it right now only if on <Live> setting
+        if self._no_direct_display or not d:
+            return
+        self.widget.setData(d)
 
-    def add_to_flist(self, filename, fformat, ftag, scroll=True):
+    def add_to_flist(self, filename, fformat, ftag, cached=False, scroll=True):
         shortname = path.basename(filename)
         item = QListWidgetItem(shortname)
         item.setData(32, filename)
         item.setData(33, fformat)
         item.setData(34, ftag)
-        self.fileList.insertItem(self.fileList.count()-1, item)
+        item.setData(35, cached)
+        self.fileList.insertItem(self.fileList.count() - 1, item)
+        if cached:
+            self.del_obsolete_cached_data()
+
         if scroll:
             self.fileList.scrollToBottom()
+
+    def del_obsolete_cached_data(self):
+        cached_item_rows = list()
+        for row in range(self.fileList.count()):
+            item = self.fileList.item(row)
+            if item.data(35):
+                cached_item_rows.append(row)
+        if len(cached_item_rows) > self._cachesize:
+            for row in cached_item_rows[0:-self._cachesize]:
+                self.fileList.takeItem(row)
 
     def on_fileList_itemClicked(self, item):
         if item is None:
             return
         fname = item.data(32)
         ftag = item.data(34)
+        cached = item.data(35)
         if fname == '':
             # show always latest live image
             if self._no_direct_display:
                 self._no_direct_display = False
-                if self._last_fname:
-                    if self._last_tag in self._allowed_tags:
-                        d = LWData(self._last_fname)
-                        self.widget.setData(d)
+                if self._last_fname and path.isfile(self._last_fname) and \
+                   self._last_tag in self._allowed_tags:
+                    d = LWData(self._last_fname)
+                elif len(self._datacache):
+                    val = self._datacache.getlast()
+                    d = LWData(*val)
+                if d:
+                    self.widget.setData(d)
         else:
             # show image from file
             self._no_direct_display = True
-            if fname and str(ftag) in FILETYPES:
-                self.widget.setData(LWData(fname))
+            if fname and str(ftag) in self._allowed_tags or str(ftag) == 'live':
+                if cached:
+                    d = self._datacache.get(fname, None)
+                    if d:
+                        self.widget.setData(LWData(*d))
+                else:
+                    self.widget.setData(LWData(fname))
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
@@ -331,7 +371,7 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
             self._infowindow.setContentsMargins(10, 10, 10, 10)
             self._inv_anglemap = [
                 [entry for entry in self._detinfo[1:]
-                 if entry[12] == self._anglemap[detnr]+1][0]
+                 if entry[12] == self._anglemap[detnr] + 1][0]
                 for detnr in range(len(self._xs))
             ]
 
@@ -358,8 +398,8 @@ class ToftofProfileWindow(QMainWindow, DlgUtils):
                     self.showError('Could not determine wavelength.')
                     self.scale.setCurrentIndex(1)
                     return
-                xs = [4*pi/self._lambda*
-                      sin(radians(self._inv_anglemap[int(xi)][5]/2.))
+                xs = [4 * pi / self._lambda *
+                      sin(radians(self._inv_anglemap[int(xi)][5] / 2.))
                       for xi in xs]
         self._xs = xs
         self._ys = ys
