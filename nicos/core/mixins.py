@@ -667,4 +667,24 @@ class HasCommunication(DeviceMixinBase):
         raise CommunicationError(self, str(err))
 
 
+class IsController(DeviceMixinBase):
+    """Mixin class for complex Controllers
+
+    This mixin should be used for cases where limits are strongly
+    state-dependent.
+
+    Subclasses need to implement :meth:`isAdevTargetAllowed' function.
+
+    """
+    def isAdevTargetAllowed(self, adev, adevtarget):
+        """Check if target of an attached device is valid
+
+        *adev* The attached device instance requesting the check.
+        *adevtarget* The target value of the attached device to check for.
+
+        returns a tuple(bool status, string reason)
+        """
+        raise NotImplementedError('Please implement the isAdevTargetAllowed'
+                                  ' method')
+
 from nicos.core.device import DeviceAlias, NoDevice, Readable

@@ -537,6 +537,10 @@ classes.
 
 .. autoclass:: HasCommunication()
 
+``IsController``
+==================
+
+.. autoclass:: IsController()
 
 .. module:: nicos.devices.abstract
 

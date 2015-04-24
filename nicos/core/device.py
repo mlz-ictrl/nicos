@@ -38,7 +38,7 @@ from nicos.core.constants import MASTER, SIMULATION, SLAVE, POLLER
 from nicos.core.utils import formatStatus, statusString, \
     multiStop, multiStatus, multiWait
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
-    HasTimeout, HasPrecision
+    HasTimeout, HasPrecision, IsController
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
     anytype, none_or, dictof, listof, tupleof, nicosdev, Attach, \
     INFO_CATEGORIES
@@ -368,6 +368,8 @@ class Device(object):
         self._adevs = {}
         # superdevs: reverse adevs for dependency tracking
         self._sdevs = set()
+        # keep an explicit record of controllers
+        self._controllers = set()
         # execution mode
         self._mode = session.mode
 
@@ -465,6 +467,8 @@ class Device(object):
                             self, 'device %r item %d has wrong type (should be %s)' %
                             (aname, i + 1, entry.devclass.__name__))
                     dev._sdevs.add(self._name)
+                    if isinstance(self, IsController):
+                        dev._controllers.add(self._name)
                 devlist.append(dev)
             self.__dict__['_attached_%s' % aname] = self._adevs[aname] = \
                 devlist[0] if entry.single else devlist
@@ -852,8 +856,10 @@ class Device(object):
             if isinstance(adev, list):
                 for real_adev in adev:
                     real_adev._sdevs.discard(self._name)
+                    real_adev._controllers.discard(self._name)
             elif adev is not None:
                 adev._sdevs.discard(self._name)
+                adev._controllers.discard(self._name)
         session.devices.pop(self._name, None)
         session.device_case_map.pop(self._name.lower(), None)
         session.explicit_devices.discard(self._name)
@@ -1492,7 +1498,16 @@ class Moveable(Waitable):
            Note: to implement ordinary (min, max) limits, do not use this method
            but inherit your device from :class:`HasLimits`.  This takes care of
            all limit processing.
+
+           For complex state-dependent limit use a controller device
+           with :class:`IsController` implementing :meth:`isADevTargetAllowed`.
         """
+        for controller in self._controllers:
+            cdev = session.getDevice(controller)
+            ok, reason = cdev.isAdevTargetAllowed(self, pos)
+            if not ok:
+                return ok, reason
+
         if isinstance(self, HasLimits):
             limits = self.userlimits
             if isinstance(pos, number_types):

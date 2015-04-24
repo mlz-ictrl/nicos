@@ -43,7 +43,8 @@ import pytest
 
 from nicos import config
 from nicos.core import Moveable, HasLimits, DataSink, DataSinkHandler, \
-    status
+    status, Attach
+from nicos.core.mixins import IsController
 from nicos.core.sessions import Session
 from nicos.devices.notifiers import Mailer
 from nicos.devices.cacheclient import CacheClient
@@ -300,6 +301,39 @@ class TestDevice(HasLimits, Moveable):
             raise self._status_exception  # pylint: disable=E0702
         return status.OK, 'fine'
 
+class TestController(IsController, Moveable):
+
+    attached_devices = {
+        'dev1':  Attach('First device', Moveable),
+        'dev2':  Attach('Second device', Moveable),
+    }
+
+    def isAdevTargetAllowed(self, adev, adevtarget):
+        if adev == self._attached_dev1:
+            other = self._attached_dev2.read()
+            if other < adevtarget:
+                return (False, 'dev1 can only move to values smaller'
+                               ' than %r' % other)
+        if adev == self._attached_dev2:
+            other = self._attached_dev1.read()
+            if other > adevtarget:
+                return (False, 'dev2 can only move to values greater'
+                               ' than %r' % other)
+        return (True, 'Allowed')
+
+    def doRead(self, maxage=0):
+        return self._value
+
+    def doIsAllowed(self, target):
+        if target[0] > target[1]:
+            return (False, 'dev1 can only move to values greater'
+                           ' than dev2')
+        return (True, 'Allowed')
+
+    def doStart(self, target):
+        self._value = target
+        self._attached_dev1.start(target[0])
+        self._attached_dev2.start(target[1])
 
 class TestSinkHandler(DataSinkHandler):
 
