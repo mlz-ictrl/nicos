@@ -44,6 +44,7 @@ from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
 from nicos.clients.base import NicosClient
+from nicos.clients.cli.txtplot import txtplot
 from nicos.utils import colorize, which, formatDuration, formatEndtime, \
     terminalSize, parseConnectionString
 from nicos.utils.loggers import ACTION, INPUT
@@ -848,6 +849,17 @@ class NicosCmdClient(NicosClient):
                 self.put_client('Spy mode off.')
             self.spy_mode = not self.spy_mode
             self.set_status(self.status)
+        elif cmd == 'plot':
+            try:
+                xs, ys, _, names = self.eval(
+                    '__import__("nicos").commands.analyze._getData()[:4]')
+                plotlines = txtplot(xs, ys, names[0], names[1],
+                                    xterm_mode=(arg == 'x'))
+            except Exception as err:
+                self.put_error('Could not plot: %s.' % str(err))
+            else:
+                for line in plotlines:
+                    self.put(line)
         else:
             self.put_error('Unknown command %r.' % cmd)
 
@@ -872,7 +884,8 @@ class NicosCmdClient(NicosClient):
 
     commands = ['run', 'simulate', 'edit', 'update', 'break', 'continue',
                 'stop', 'where', 'disconnect', 'connect', 'reconnect',
-                'quit', 'help', 'log', 'pending', 'cancel', 'eval', 'spy']
+                'quit', 'help', 'log', 'pending', 'cancel', 'eval', 'spy',
+                'plot']
 
     def completer(self, text, state):
         """Try to complete the command line.  Called by readline."""
@@ -981,6 +994,9 @@ This client supports "meta-commands" beginning with a slash:
   /r(un) <file>       -- run a script file
   /sim(ulate) <file>  -- dry-run a script file
   /update <file>      -- update running script
+
+  /plot               -- plot the current scan in ASCII mode
+  /plot x             -- plot the current scan in xterm Tektronix mode
 
   /disconnect         -- disconnect from NICOS daemon
   /connect            -- connect to a NICOS daemon
