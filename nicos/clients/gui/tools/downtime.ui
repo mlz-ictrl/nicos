@@ -32,7 +32,7 @@
     <widget class="QDateTimeEdit" name="startDown">
      <property name="date">
       <date>
-       <year>2014</year>
+       <year>2015</year>
        <month>1</month>
        <day>1</day>
       </date>
