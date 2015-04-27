@@ -65,10 +65,10 @@ def _getData(columns):
 
     # xcol/ycol are 1-indexed here
     if not columns:
-        xcol = 1
+        xcol = dataset.xindex + 1
         ycol = -1
     elif len(columns) == 1:
-        xcol, ycol = 1, columns[0]
+        xcol, ycol = dataset.xindex + 1, columns[0]
     elif len(columns) == 2:
         xcol, ycol = columns[0], columns[1]
     else:
