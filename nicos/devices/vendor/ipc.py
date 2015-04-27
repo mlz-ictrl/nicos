@@ -39,6 +39,7 @@ from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
     defaultIsCompleted, HasTimeout, HasCommunication, SIMULATION
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.taco.core import TacoDevice
+from nicos.devices.tango import PyTangoDevice
 from nicos.utils import HardwareStub, closeSocket, lazy_property
 
 
@@ -67,90 +68,91 @@ IPC_MAGIC = {
     # motor cards
     # # only works for single cards, ### only works for triple cards
     # ###### only works for sixfold cards
-    # limits is None or a tuple (numdigits, minvalue, maxvalue)
-    31:  ['Reset motor card', None],                    # ### ######
-    32:  ['Start motor', None],                         # ### ######
-    33:  ['Stop motor immediately', None],              # ### ######
-    34:  ['Switch forward direction', None],            # ### ######
-    35:  ['Switch backward direction', None],           # ### ######
-    36:  ['Switch fullstep', None],                     #
-    37:  ['Switch halfstep', None],                     #
-    38:  ['Switch relay on', None],                     #
-    39:  ['Switch relay off', None],                    #
-    40:  ['Write values to EEPROM', None],              # ### ######
-    41:  ['Set speed', (3, 0, 255)],                    # ### ######
-    42:  ['Set acceleration', (3, 0, 255)],             # ### ######
-    43:  ['Set current position', (6, 0, 999999)],      # ### ######
-    44:  ['Set maximum position', (6, 0, 999999)],      # ### ######
-    45:  ['Set minimum position', (6, 0, 999999)],      # ### ######
-    46:  ['Set multisteps and start', (6, 0, 999999)],  # ### ######
+    # second element: None or a tuple (numdigits, minvalue, maxvalue)
+    # third element: number of bytes in response
+    31:  ['Reset motor card', None, 1],                    # ### ######
+    32:  ['Start motor', None, 1],                         # ### ######
+    33:  ['Stop motor immediately', None, 1],              # ### ######
+    34:  ['Switch forward direction', None, 1],            # ### ######
+    35:  ['Switch backward direction', None, 1],           # ### ######
+    36:  ['Switch fullstep', None, 1],                     #
+    37:  ['Switch halfstep', None, 1],                     #
+    38:  ['Switch relay on', None, 1],                     #
+    39:  ['Switch relay off', None, 1],                    #
+    40:  ['Write values to EEPROM', None, 1],              # ### ######
+    41:  ['Set speed', (3, 0, 255), 1],                    # ### ######
+    42:  ['Set acceleration', (3, 0, 255), 1],             # ### ######
+    43:  ['Set current position', (6, 0, 999999), 1],      # ### ######
+    44:  ['Set maximum position', (6, 0, 999999), 1],      # ### ######
+    45:  ['Set minimum position', (6, 0, 999999), 1],      # ### ######
+    46:  ['Set multisteps and start', (6, 0, 999999), 1],  # ### ######
     # ... with given speed and switch back
-    47:  ['Find reference switch', (3, 0, 255)],        #
-    48:  ['Check motor connection', None],              #
-    49:  ['Save config byte to EEPROM', (3, 0, 63)],    #
-    50:  ['Select ramp shape', (3, 1, 4)],              #
-    51:  ['Save user value to EEPROM', (6, 0, 999999)], # ### ######
-    52:  ['Stop motor using ramp', None],               #
-    53:  ['Switch driver off', None],                   # ### ######
-    54:  ['Switch driver on', None],                    # ### ######
-    55:  ['Set inhibit delay', (3, 0, 255)],            #
-    56:  ['Set target position', (6, 0, 999999)],         ### ######
-    57:  ['Set microsteps', (3, 0, 4)],                   ### ######
-    58:  ['Set stop delay', (3, 0, 255)],               #
-    60:  ['Set clock divider', (3, 1, 7)],                ###
-    128: ['Read speed', None],                          # ### ######
-    129: ['Read accel', None],                          # ### ######
-    130: ['Read position', None],                       # ### ######
-    131: ['Read maximum', None],                        # ### ######
-    132: ['Read minimum', None],                        # ### ######
-    133: ['Read multisteps', None],                     #
-    134: ['Read status', None],                         # ### ######
-    135: ['Read config byte', None],                    #
-    136: ['Read ramp shape', None],                     #
-    137: ['Read version number', None],                 # ### ######
-    138: ['Read user value', None],                     # ### ######
-    139: ['Read inhibit delay', None],                  #
-    140: ['Read target position', None],                  ### ######
-    141: ['Read microsteps', None],                       ### ######
-    142: ['Read load indicator', None],                   ### ######
-    143: ['Read stop delay', None],                     #
-    144: ['Read clock divider', None],                    ###
+    47:  ['Find reference switch', (3, 0, 255), 1],        #
+    48:  ['Check motor connection', None, 1],              #
+    49:  ['Save config byte to EEPROM', (3, 0, 63), 1],    #
+    50:  ['Select ramp shape', (3, 1, 4), 1],              #
+    51:  ['Save user value to EEPROM', (6, 0, 999999), 1], # ### ######
+    52:  ['Stop motor using ramp', None, 1],               #
+    53:  ['Switch driver off', None, 1],                   # ### ######
+    54:  ['Switch driver on', None, 1],                    # ### ######
+    55:  ['Set inhibit delay', (3, 0, 255), 1],            #
+    56:  ['Set target position', (6, 0, 999999), 1],         ### ######
+    57:  ['Set microsteps', (3, 0, 4), 1],                   ### ######
+    58:  ['Set stop delay', (3, 0, 255), 1],               #
+    60:  ['Set clock divider', (3, 1, 7), 1],                ###
+    128: ['Read speed', None, 10],                         # ### ######
+    129: ['Read accel', None, 10],                         # ### ######
+    130: ['Read position', None, 13],                      # ### ######
+    131: ['Read maximum', None, 13],                       # ### ######
+    132: ['Read minimum', None, 13],                       # ### ######
+    133: ['Read multisteps', None, 13],                    #
+    134: ['Read status', None, 13],                        # ### ######
+    135: ['Read config byte', None, 10],                   #
+    136: ['Read ramp shape', None, 10],                    #
+    137: ['Read version number', None, 10],                # ### ######
+    138: ['Read user value', None, 13],                    # ### ######
+    139: ['Read inhibit delay', None, 10],                 #
+    140: ['Read target position', None, 13],                 ### ######
+    141: ['Read microsteps', None, 10],                      ### ######
+    142: ['Read load indicator', None, 10],                  ### ######
+    143: ['Read stop delay', None, 10],                    #
+    144: ['Read clock divider', None, 10],                   ###
     # encoder/potentiometer (abs enc=#, inc enc=##, poti=###)
-    150: ['Read encoder value', None],                  # ## ###
-    151: ['Read encoder version', None],                # ## ###
-    152: ['Read encoder configuration', None],          # ## ###
-    153: ['Reset encoder', None],                       # ## ###
-    154: ['Set encoder configuration', (3, 0, 255)],    # ##
-    155: ['Select endat memory range', (3, 161, 185)],  #
-    156: ['Read endat parameter', (3, 0, 15)],          #
-    157: ['Write endat parameter', (3, 0, 15)],         #
+    150: ['Read encoder value', None, 8],                  # ## ###
+    151: ['Read encoder version', None, 10],               # ## ###
+    152: ['Read encoder configuration', None, 10],         # ## ###
+    153: ['Reset encoder', None, 1],                       # ## ###
+    154: ['Set encoder configuration', (3, 0, 255), 1],    # ##
+    155: ['Select endat memory range', (3, 161, 185), 1],  #
+    156: ['Read endat parameter', (3, 0, 15), 15],         #
+    157: ['Write endat parameter', (3, 0, 15), 1],         #
     # 4-wing slits
-    160: ['Set bottom target position', (4, 0, 4095)],
-    161: ['Set top target position', (4, 0, 4095)],
-    162: ['Set right target position', (4, 0, 4095)],
-    163: ['Set left target position', (4, 0, 4095)],
-    164: ['Read status', None],
-    165: ['Read version number', None],
-    166: ['Read bottom target position', None],
-    167: ['Read top target position', None],
-    168: ['Read right target position', None],
-    169: ['Read left target position', None],
-    170: ['Write user value to EEPROM', (4, 0, 9999)],
-    171: ['Read user value', None],
+    160: ['Set bottom target position', (4, 0, 4095), 1],
+    161: ['Set top target position', (4, 0, 4095), 1],
+    162: ['Set right target position', (4, 0, 4095), 1],
+    163: ['Set left target position', (4, 0, 4095), 1],
+    164: ['Read status', None, 10],
+    165: ['Read version number', None, 10],
+    166: ['Read bottom target position', None, 11],
+    167: ['Read top target position', None, 11],
+    168: ['Read right target position', None, 11],
+    169: ['Read left target position', None, 11],
+    170: ['Write user value to EEPROM', (4, 0, 9999), 1],
+    171: ['Read user value', None, 11],
     # digital input
-    180: ['Read digital bits 0-7', None],
-    181: ['Read digital bits 8-15', None],
-    182: ['Save user value to EEPROM', (6, 0, 999999)],
-    183: ['Read user value', None],
-    184: ['Read digital input version number', None],
-    185: ['Read digital bits 0-15', None],
+    180: ['Read digital bits 0-7', None, 10],
+    181: ['Read digital bits 8-15', None, 10],
+    182: ['Save user value to EEPROM', (6, 0, 999999), 1],
+    183: ['Read user value', None, 13],
+    184: ['Read digital input version number', None, 10],
+    185: ['Read digital bits 0-15', None, 13],
     # digital output
-    190: ['Set digital output bits', (3, 0, 255)],
-    191: ['Read digital output bits', None],
-    192: ['Save user value to EEPROM', (6, 0, 999999)],
-    193: ['Read user value', None],
-    194: ['Read digital output version number', None],
-    195: ['Read status', None],
+    190: ['Set digital output bits', (3, 0, 255), 1],
+    191: ['Read digital output bits', None, 10],
+    192: ['Save user value to EEPROM', (6, 0, 999999), 1],
+    193: ['Read user value', None, 13],
+    194: ['Read digital output version number', None, 10],
+    195: ['Read status', None, 10],
 }
 
 
@@ -245,13 +247,13 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
         if mode == SIMULATION:
             self._connection = HardwareStub(self)
 
-    def _comm(self, request, ping=False):
+    def _comm(self, request, retlen, ping=False):
         if not ping:
             request += crc_ipc(request)
         request = STX + request + EOT
         self.log.debug('sending %r' % convert(request))
         with self._lock:
-            response = self._transmit(request)
+            response = self._transmit(request, retlen)
         # now check data
         self.log.debug('received %r' % convert(response))
         if not response:
@@ -289,7 +291,7 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
 
     def ping(self, addr):
         if 32 <= addr <= 255:
-            if self._comm(chr(addr), ping=True):
+            if self._comm(chr(addr), 1, ping=True):
                 return addr
             else:
                 return -1
@@ -298,7 +300,7 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
 
     def send(self, addr, cmd, param=0, length=0):
         try:
-            cmdname, limits = IPC_MAGIC[cmd]
+            cmdname, limits, retlen = IPC_MAGIC[cmd]
         except KeyError:
             raise ProgrammingError(self, 'Command %s not supported' % cmd)
         if limits:
@@ -312,7 +314,7 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
         if length > 0:
             s += '%0*d' % (length, param)
         self.log.debug('sending %s to card %s' % (cmdname, addr))
-        return self._comm(s)
+        return self._comm(s, retlen)
 
     def get(self, addr, cmd, param=0, length=0):
         return self.send(addr, cmd, param, length)
@@ -321,7 +323,7 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
 class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
     taco_class = StringIO
 
-    def _transmit(self, request, last_try=False):
+    def _transmit(self, request, retlen, last_try=False):
         response = ''
         self._dev.write(request)
         for _i in range(self.comtries):
@@ -339,6 +341,18 @@ class IPCModBusTacoSerial(TacoDevice, IPCModBusRS232):
 
     def doReset(self):
         TacoDevice.doReset(self)
+
+
+class IPCModBusTango(PyTangoDevice, IPCModBusRS232):
+
+    def doInit(self, mode):
+        IPCModBusRS232.doInit(self, mode)
+        if mode != SIMULATION:
+            self._dev.communicationTimeout = self.bustimeout
+
+    def _transmit(self, request, retlen, last_try=False):
+        reply = self._dev.BinaryCommunicate([retlen] + map(ord, request))
+        return ''.join(map(chr, reply))
 
 
 class IPCModBusTCP(IPCModBusRS232):
@@ -360,7 +374,7 @@ class IPCModBusTCP(IPCModBusRS232):
         self._connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._connection.connect((self.host, self.port))
 
-    def _transmit(self, request, last_try=False):
+    def _transmit(self, request, retlen, last_try=False):
         response = ''
         try:
             self._connection.sendall(request)
@@ -384,7 +398,7 @@ class IPCModBusTCP(IPCModBusRS232):
             # try reopening connection
             self.log.warning('tcp connection failed, retrying', exc=1)
             self.doReset()
-            return self._transmit(request, last_try=True)
+            return self._transmit(request, retlen, last_try=True)
         else:
             return response
 
@@ -413,7 +427,7 @@ class IPCModBusSerial(IPCModBusRS232):
         if self._connection:
             self._connection.timeout = value
 
-    def _transmit(self, request, last_try=False):
+    def _transmit(self, request, retlen, last_try=False):
         response = ''
         try:
             self._connection.write(request)
@@ -429,7 +443,7 @@ class IPCModBusSerial(IPCModBusRS232):
             # try reopening connection
             self.log.warning('serial line failed, resetting', exc=1)
             self.doReset()
-            return self._transmit(request, last_try=True)
+            return self._transmit(request, retlen, last_try=True)
         else:
             return response
 
