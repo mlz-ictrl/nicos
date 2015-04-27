@@ -212,12 +212,7 @@ class Controller(TacoDevice, HasTimeout, Readable):
                            self.slittype, self.ratio, self.ch5_90deg_offset)
             assert -180. <= phi <= 180.
             phases.append(int(round(100.0 * phi)))
-        if self.crc == 0:
-            r1 = 2
-            r2 = -1.0
-        else:
-            r1 = 1
-            r2 = 1.0
+        r1, r2 = (2, -1.0) if self.crc == 0 else (1, 1.0)
         rr = self.ratio + 1
         self._write_multi(AXIS_ID, 1,
                           PAR_GEAR, 0,
