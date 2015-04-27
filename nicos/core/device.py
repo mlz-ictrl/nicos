@@ -1789,6 +1789,9 @@ class NoDevice(object):
     def __str__(self):
         return '<none>'
 
+    def __reduce__(self):
+        return (str, (self.name,))
+
     def __getattr__(self, name):
         raise ConfigurationError('alias %r does not point to any device' % self.name)
 
@@ -1869,7 +1872,7 @@ class DeviceAlias(Device):
             try:
                 newdev = session.getDevice(devname, (self._cls, DeviceAlias),
                                            source=self)
-            except NicosError:
+            except Exception:
                 if not self._initialized:
                     # should not raise an error, otherwise the device cannot
                     # be created at all
@@ -1878,7 +1881,7 @@ class DeviceAlias(Device):
                                      'to target from setup file (%s)' %
                                      (devname, fromconfig))
                     if 'alias' not in self._config:
-                        newdev = None
+                        newdev = NoDevice(str(self))
                     else:
                         try:
                             newdev = session.getDevice(self._config['alias'],
@@ -1888,7 +1891,7 @@ class DeviceAlias(Device):
                             self.log.error('could not find target from setup '
                                            'file either, pointing to nothing',
                                            exc=1)
-                            newdev = None
+                            newdev = NoDevice(str(self))
                 else:
                     raise
             if newdev is self:
