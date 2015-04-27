@@ -132,9 +132,9 @@ def readConfig():
             if path.isdir(path.join(custom_path, domain)):
                 instr = domain
     if instr is None:
-        print('No instrument configured or detected, using "demo" instrument.',
-              file=sys.stderr)
         instr = 'demo'
+        print('No instrument configured or detected, using "%s" instrument.' %
+              instr, file=sys.stderr)
 
     # Now read the instrument-specific nicos.conf.
     instr_cfg = NicosConfigParser()
