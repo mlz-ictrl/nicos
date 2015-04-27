@@ -34,6 +34,8 @@ from nicos.core import Attach
 from nicos.core.device import Moveable
 from nicos.core.mixins import IsController
 
+from nicos.devices.sxtal.goniometer.base import PositionFactory, PositionBase
+
 
 class KappaGon(IsController, Moveable):
     ''' Kappa goniometer base class'''
@@ -45,6 +47,25 @@ class KappaGon(IsController, Moveable):
         'phi': Attach('phi device', Moveable),
         'dx': Attach('detector movement device', Moveable),
     }
+
+
+    def doRead(self, maxage=0):
+        return PositionFactory('k',
+                               ttheta=self._adevs['ttheta'].read(maxage),
+                               omega=self._adevs['omega'].read(maxage),
+                               kappa=self._adevs['kappa'].read(maxage),
+                               phi=self._adevs['phi'].read(maxage),
+                               )
+
+    def doStart(self, pos):
+        if isinstance(pos, PositionBase):
+            target = pos.asK()
+            self._adevs['ttheta'].start(target.theta * 2.)
+            self._adevs['omega'].start(target.omega)
+            self._adevs['kappa'].start(target.kappa)
+            self._adevs['phi'].start(target.phi)
+        else:
+            raise ValueError('incorrect arguments for start, needs to be a PositionBase object')
 
 
     def isAdevTargetAllowed(self, adev, adevtarget):
@@ -61,8 +82,7 @@ class KappaGon(IsController, Moveable):
                         return False, ' -10 < kappa < 10 for  this omega position'
 
         if adev == self._adevs['omega']:
-            if (self._adevs['ttheta'].target - adevtarget < 45 or
-                self._adevs['ttheta'].target - adevtarget > 135):
+            if (self._adevs['ttheta'].target - adevtarget < 45):
                     return False, 'Omega too close to two-theta'
             else:
                     return True, 'Position OK'
@@ -72,3 +92,4 @@ class KappaGon(IsController, Moveable):
                     return False, 'Omega too close to two-theta'
             else:
                     return True, 'Position OK'
+        return True, 'Position OK'
