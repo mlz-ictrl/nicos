@@ -505,6 +505,7 @@ class EditorPanel(Panel):
             editor.setFolding(QsciScintilla.PlainFoldStyle)
             editor.setIndentationGuidesForegroundColor(QColor("#CCC"))
             editor.setWrapMode(QsciScintilla.WrapCharacter)
+            editor.setMarginLineNumbers(1, True)
         else:
             editor = QScintillaCompatible(self)
             lexer = None
