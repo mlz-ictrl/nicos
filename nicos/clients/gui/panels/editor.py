@@ -33,9 +33,10 @@ from logging import WARNING
 from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
     QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
     QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
-    QFileSystemModel, QTabWidget, QStyle, QInputDialog
+    QFileSystemModel, QTabWidget, QStyle, QInputDialog, QTextEdit, \
+    QTextFormat, QWidget, QPainter
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QByteArray, \
-    QFileSystemWatcher
+    QFileSystemWatcher, QSize, QRect
 
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
@@ -78,15 +79,103 @@ class OverwriteQuestion(QMessageBox):
         return QMessageBox.Cancel     # Cancel
 
 
+class LineNumberArea(QWidget):
+
+    codeEditor = None
+
+    def __init__(self, editor):
+        QWidget.__init__(self, editor)
+        self.codeEditor = editor
+
+    def sizeHint(self):
+        return QSize(self.codeEditor.lineNumberAreaWidth(), 0)
+
+    def paintEvent(self, event):
+        self.codeEditor.lineNumberAreaPaintEvent(event)
+
+
 class QScintillaCompatible(QPlainTextEdit):
     """
     Wrapper that lets us use the same methods on the editor as for the
     QScintilla control.
     """
+    lineNumberArea = None
+
     def __init__(self, parent):
         QPlainTextEdit.__init__(self, parent)
-        self.findtext  = ''
+        self.findtext = ''
         self.findflags = 0
+        self.lineNumberArea = LineNumberArea(self)
+
+        self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
+        self.updateRequest.connect(self.updateLineNumberArea)
+        self.cursorPositionChanged.connect(self.highlightCurrentLine)
+
+        self.updateLineNumberAreaWidth(0)
+        self.highlightCurrentLine()
+
+    def lineNumberAreaPaintEvent(self, event):
+        painter = QPainter(self.lineNumberArea)
+        painter.fillRect(event.rect(), Qt.lightGray)
+
+        block = self.firstVisibleBlock()
+        blockNumber = block.blockNumber()
+        top = int(self.blockBoundingGeometry(block).
+                  translated(self.contentOffset()).top())
+        bottom = top + int(self.blockBoundingRect(block).height())
+
+        while block.isValid() and top <= event.rect().bottom():
+            if block.isVisible() and bottom >= event.rect().top():
+                number = unicode(blockNumber + 1)
+                painter.setPen(Qt.black)
+                painter.drawText(0, top, self.lineNumberArea.width(),
+                                 self.fontMetrics().height(), Qt.AlignRight,
+                                 number)
+
+            block = block.next()
+            top = bottom
+            bottom = top + int(self.blockBoundingRect(block).height())
+            blockNumber += 1
+
+    def updateLineNumberAreaWidth(self, newBlockCount):
+        self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
+
+    def resizeEvent(self, event):
+        QPlainTextEdit.resizeEvent(self, event)
+
+        cr = self.contentsRect()
+        self.lineNumberArea.setGeometry(QRect(cr.left(), cr.top(),
+                                              self.lineNumberAreaWidth(),
+                                              cr.height()))
+
+    def lineNumberAreaWidth(self):
+        return 3 + self.fontMetrics().width(unicode(max(1, self.blockCount())))
+
+    def highlightCurrentLine(self):
+        extraSelections = []
+
+        if not self.isReadOnly():
+            selection = QTextEdit.ExtraSelection()
+            lineColor = QColor(Qt.yellow).lighter(160)
+
+            selection.format.setBackground(lineColor)
+            selection.format.setProperty(QTextFormat.FullWidthSelection, True)
+            selection.cursor = self.textCursor()
+            selection.cursor.clearSelection()
+            extraSelections.append(selection)
+
+        self.setExtraSelections(extraSelections)
+
+    def updateLineNumberArea(self, rect, dy):
+        if dy:
+            self.lineNumberArea.scroll(0, dy)
+        else:
+            self.lineNumberArea.update(0, rect.y(),
+                                       self.lineNumberArea.width(),
+                                       rect.height())
+
+        if rect.contains(self.viewport().rect()):
+            self.updateLineNumberAreaWidth(0)
 
     def text(self):
         return self.toPlainText()
