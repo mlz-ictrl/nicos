@@ -44,23 +44,23 @@ _selcolumn = Column(
     Block('Selector', [
         BlockRow(
                  Field(name='selector_rpm', dev='selector_rpm', width=8),
-                 ),
-         BlockRow(
+                ),
+        BlockRow(
                  Field(name='selector_lambda', dev='selector_lambda', width=8),
-                 ),
-         BlockRow(
+                ),
+        BlockRow(
                  Field(name='selector_ng', dev='selector_ng', width=8),
-                 ),
-         BlockRow(
+                ),
+        BlockRow(
                  Field(name='selector_tilt', dev='selector_tilt', width=8, format = '%.1f'),
-                 ),
-         BlockRow(
+                ),
+        BlockRow(
                  Field(name='water flow', dev='selector_wflow', width=8, format = '%.1f'),
-                 ),
-         BlockRow(
+                ),
+        BlockRow(
                  Field(name='rotor temp.', dev='selector_rtemp', width=8, format = '%.1f'),
                  ),
-         ],
+        ],
     ),
 )
 
@@ -195,7 +195,7 @@ devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'SANS-1 status monitor',
                      loglevel = 'debug',
-#                     loglevel = 'info',
+#                    loglevel = 'info',
                      cache = 'sans1ctrl.sans1.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',

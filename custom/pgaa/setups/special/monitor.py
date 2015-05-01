@@ -25,14 +25,11 @@
 description = 'setup for the status monitor for PGAA'
 group = 'special'
 
-_pressuresample = (
-    'Sample ',
-    [
-        [
-            {'name': 'Vacuum', 'dev': 'sample_p1'},
-        ],
-    ],
-#   setups='',
+
+_pressuresample = Block('Sample ', [
+    BlockRow(Field(name='Vacuum', dev='sample_p1'),
+            ),
+    ],  # setups = '',
 )
 
 _leftcolumn = [
@@ -54,7 +51,7 @@ devices = dict(
                      padding = 5,
                      layout = [
                                   [[_pressuresample,],]
-#                                  [_leftcolumn, _rightcolumn, ]
+#                                 [_leftcolumn, _rightcolumn, ]
                               ],
                     ),
 )

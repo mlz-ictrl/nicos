@@ -298,12 +298,12 @@ _ccmsans_plot = Column(
                   width=65, height=45, plotwindow=1800,
                   devices=['B_ccmsans', 'b_ccmsans/target'],
                   names=['30min', 'Target'],
-                  ),
+                 ),
             Field(widget='nicos.guisupport.plots.TrendPlot',
                   width=65, height=45, plotwindow=24*3600,
                   devices=['B_ccmsans', 'b_ccmsans/target'],
                   names=['24h', 'Target'],
-                  ),
+                 ),
         ),
         ],
         setups='ccmsans',
@@ -346,15 +346,15 @@ ccrs = []
 for i in range(10, 22 + 1):
     ccrs.append(Block('CCR%d' % i, [
         BlockRow(
-            Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
-                   unitkey='t/unit'),
-            Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
-                   unitkey=''),
-        ),
+                 Field(name='Setpoint', key='t_ccr%d_tube/setpoint' % i,
+                       unitkey='t/unit'),
+                 Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
+                       unitkey=''),
+                ),
         BlockRow(
-             Field(name='A', dev='T_ccr%d_A' % i),
-             Field(name='B', dev='T_ccr%d_B' % i),
-        ),
+                 Field(name='A', dev='T_ccr%d_A' % i),
+                 Field(name='B', dev='T_ccr%d_B' % i),
+                ),
         BlockRow(
              Field(name='C', dev='T_ccr%d_C' % i),
              Field(name='D', dev='T_ccr%d_D' % i),
@@ -368,11 +368,11 @@ cryos = []
 for j in range(1, 5 + 1):
     cryos.append(Block('Cryo%d' % j, [
         BlockRow(
-            Field(name='Setpoint', key='t_cryo%d/setpoint' % j,
-                   unitkey='t/unit'),
-            Field(name='Manual Heater Power', key='t_cryo%d/heaterpower' % j,
-                   unitkey='t/unit'),
-        ),
+                 Field(name='Setpoint', key='t_cryo%d/setpoint' % j,
+                       unitkey='t/unit'),
+                 Field(name='Manual Heater Power', key='t_cryo%d/heaterpower' % j,
+                       unitkey='t/unit'),
+                ),
         BlockRow(
              Field(name='A', dev='T_cryo%d_A' % j),
              Field(name='B', dev='T_cryo%d_B' % j),

@@ -131,7 +131,7 @@ _htf01_plot = Block('HTF01 plot', [
 
 _ccmsans = Block('SANS-1 5T Magnet', [
     BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
-             ),
+            ),
     BlockRow(
              Field(name='Target', key='b_ccmsans/target', width=12),
              Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=12),

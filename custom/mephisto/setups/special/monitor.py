@@ -22,53 +22,20 @@
 #
 # *****************************************************************************
 
-description = 'setup for the status monitor for SANS1'
+description = 'setup for the status monitor for MEPHISTO'
 group = 'special'
 
-_pressuretube = (
-    'Pressure Tube',
-    [
-        [
-            {'name': 'Tube', 'dev': 'tub_p1'},
-            {'name': 'Nose', 'dev': 'tub_p2'},
-#            {'name': 'P3', 'dev': 'tub_p3'},
-        ],
-    ],
-#   setups='tube_environment',
-)
-
-_pressurecoll = (
-    'Pressure Collimation',
-    [
-        [
-            {'name' : 'Tube', 'dev' : 'coll_p1'},
-            {'name' : 'Nose', 'dev' : 'coll_p2'},
-            {'name' : 'Pump', 'dev' : 'coll_p2'},
-        ],
-    ],
-)
-
-_leftcolumn = [
-    _pressuretube,
-]
-
-_rightcolumn = [
-    _pressurecoll,
-]
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
-                     title = 'SANS1 status monitor',
+                     title = 'MEPHISTO status monitor',
                      loglevel = 'info',
-                     cache = 'sans1ctrl.sans1.frm2',
+                     cache = 'mephistoctrl.mephisto.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
                      valuefont = 'Consolas',
                      fontsize = 16,
                      padding = 5,
-                     layout = [
-                                  [[_pressuretube,], [_pressurecoll,], ]
-#                                  [_leftcolumn, _rightcolumn, ]
-                              ],
+                     layout = [],
                     ),
 )

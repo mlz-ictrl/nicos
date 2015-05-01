@@ -206,7 +206,7 @@ _sans1det = Column(
                  Field(name='mon 2', dev='det1_mon2', width=12),
                  Field(name='bs1_x', dev='bs1_x', width=12, format='%.1f'),
                  Field(name='bs1_y', dev='bs1_y', width=12, format='%.1f'),
-                 ),
+                ),
         ],
     ),
 )
@@ -215,7 +215,7 @@ devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'SANS-1 status monitor',
                      loglevel = 'debug',
-#                     loglevel = 'info',
+#                    loglevel = 'info',
                      cache = 'sans1ctrl.sans1.frm2',
                      prefix = 'nicos/',
                      font = 'Luxi Sans',
