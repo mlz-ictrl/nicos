@@ -32,7 +32,7 @@ def spawn(script, *args, **kwds):
         except KeyboardInterrupt:
             p.terminate()
     else:
-        background_processes[script] = p
+        background_processes[script, args] = p
 
 def wait():
     echo('Services started, press Enter to stop them.\n')
@@ -44,12 +44,13 @@ def wait():
 @atexit.register
 def cleanup():
     # clean up processes, even if nicos-demo is terminated early
-    for name, proc in background_processes.iteritems():
+    for (name, args), proc in background_processes.iteritems():
         try:
             proc.terminate()
         except OSError as e:
             # might already have terminated early
-            echo('could not stop %s: %s\n' % (name, e))
+            echo('could not stop %s %s: %s\n' %
+                 (name, ' '.join(args), e))
 
 parser = optparse.OptionParser()
 parser.add_option('-E', dest='noelog', action='store_true',
@@ -60,6 +61,8 @@ parser.add_option('-M', dest='nomonitor', action='store_true',
                   help='disable monitor')
 parser.add_option('-m', dest='monitorsetup', action='store',
                   help='use given monitor setup instead of the default one')
+parser.add_option('-H', dest='htmlmonitor', action='store_true',
+                  help='start the web status service')
 parser.add_option('-O', dest='oh', action='store',
                   help='does nothing (yet)')
 
@@ -109,6 +112,11 @@ if not opts.nomonitor:
         spawn('nicos-monitor', *monitorargs)
         echo(' monitor')
         sleep(0.1)
+
+if opts.htmlmonitor:
+    monitorargs = ['-S', 'monitor-html',]
+    spawn('nicos-monitor', *monitorargs)
+    echo(' web-monitor')
 
 if opts.aioclient:
     echo('\nServices started, starting console.\n')
