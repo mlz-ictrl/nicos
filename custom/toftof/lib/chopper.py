@@ -346,8 +346,28 @@ class Controller(TacoDevice, HasTimeout, Readable):
         # read phases
         for ch in range(2, 8):
             phase = self._read(ACT_PHASE + ch)
-            if abs(phase - self.phases[ch]) > self.phase_accuracy:
-                stval = status.BUSY
+            phase_diff = abs(phase - self.phases[ch])
+            if phase_diff > self.phase_accuracy:
+                if self.isTimedOut():
+                    # Due to some problems with the electronics the phase of the
+                    # chopper disc 5 may have a phase differs from real value in
+                    # the range of 360 or 270 degrees
+                    if ch == 5:
+                        if phase_diff > 360:
+                            self.log.warning('phase of chopper disc 5 : %.3f' %
+                                             phase)
+                            if phase_diff % 360 <= self.phase_accuracy:
+                                continue
+                        elif phase_diff > 180:
+                            self.log.warning('phase of chopper disc 5 : %.3f' %
+                                             phase)
+                            if abs(phase_diff - 270) <= self.phase_accuracy:
+                                continue
+                        stval = status.ERROR
+                    else:
+                        stval = status.ERROR
+                else:
+                    stval = status.BUSY
                 ret.append('ch %d: phase %s != nominal %s' %
                            (ch, phase, self.phases[ch]))
         return stval, ', '.join(ret) or 'normal'
