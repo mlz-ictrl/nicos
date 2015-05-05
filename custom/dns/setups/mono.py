@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-description = 'DNS monochromator and polarizer'
+description = 'DNS monochromator'
 
 group = 'lowlevel'
 
@@ -61,6 +61,13 @@ devices = dict(
                           tangodevice = tango_mot + 'beam_rot',
                           precision = 1.0,
                          ),
+
+    mon_lambda   = device('devices.generic.ManualMove',
+                          description = 'Monochromator wavelength',
+                          abslimits = (3, 5),
+                          unit = 'A',
+                         ),
+
     mon_x_left   = device('devices.tango.Motor',
                           description = 'Monochromator slit left',
                           tangodevice = tango_mot + 'mon_x_left',
