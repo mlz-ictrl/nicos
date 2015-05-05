@@ -48,7 +48,7 @@ __all__ = [
 ]
 
 
-def _getData(columns):
+def _getData(columns=None):
     if not session.experiment._last_datasets:
         raise NicosError('no latest dataset has been stored')
     dataset = session.experiment._last_datasets[-1]
@@ -96,6 +96,8 @@ def _getData(columns):
     xcol -= 1
     ycol -= 1
 
+    names = [dataset.xvalueinfo[xcol].name, dataset.yvalueinfo[ycol].name]
+
     try:
         xs = np.array([p[xcol] for p in xresults])
     except IndexError:
@@ -115,7 +117,7 @@ def _getData(columns):
     else:
         dys = np.array([1] * len(ys))
 
-    return xs, ys, dys, dataset
+    return xs, ys, dys, names, dataset
 
 
 COLHELP = """
@@ -138,7 +140,7 @@ COLHELP = """
 @helparglist('[[xcol, ]ycol]')
 def center_of_mass(*columns):
     """Calculate the center of mass x-coordinate of the last scan."""
-    xs, ys, _, _ = _getData(columns)
+    xs, ys = _getData(columns)[:2]
     cm = (xs * ys).sum() / ys.sum()
     return float(cm)
 
@@ -159,7 +161,7 @@ def fwhm(*columns):
     * ymax - maximum y-value
     * ymin - minimum y-value
     """
-    xs, ys, _, _ = _getData(columns)
+    xs, ys = _getData(columns)[:2]
     return estimateFWHM(xs, ys)
 
 fwhm.__doc__ += COLHELP.replace('func(', 'fwhm(')
@@ -173,7 +175,7 @@ def root_mean_square(col=None):
     The data column to use can be given by an argument (by name or number); the
     default is the first Y column of type "counter".
     """
-    _, ys, _, _ = _getData(col and (0, col) or ())
+    ys = _getData(col and (0, col) or ())[1]
     return sqrt((ys**2).sum() / len(ys))
 
 
@@ -192,7 +194,7 @@ def poly(n, *columns):
 
     where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
     """
-    xs, ys, dys, ds = _getData(columns)
+    xs, ys, dys, _, ds = _getData(columns)
 
     def model(x, *v):
         return sum(v[i]*x**i for i in range(n+1))
@@ -231,7 +233,7 @@ def gauss(*columns):
     * sigma - FWHM
     * background
     """
-    xs, ys, dys, ds = _getData(columns)
+    xs, ys, dys, _, ds = _getData(columns)
     c = 2 * np.sqrt(2 * np.log(2))
 
     def model(x, x0, A, sigma, back):
@@ -333,7 +335,7 @@ def findpeaks(*columns, **kwds):
     # parabola model
     def model(x, b, s, c):
         return b + s*(x-c)**2
-    xs, ys, dys, _ = _getData(columns)
+    xs, ys, dys = _getData(columns)[:3]
     np = kwds.get('npoints', 2)
     peaks = []
     # peak has to be different from background
