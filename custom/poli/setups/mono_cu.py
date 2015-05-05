@@ -19,7 +19,9 @@ devices = dict(
                  description = 'Copper monochromator vertical focus',
                  tangodevice = '%s/poli/fzjs7/cuv' % (tango_host, ),
                  fmtstr = '%.2f',
-                 abslimits = (0, 171.2),
+                 # abslimits = (0, 171.2),
+                 # until limit switches are fixed...
+                 abslimits = (45.0, 171.2),
                 ),
 )
 
