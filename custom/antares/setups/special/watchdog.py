@@ -26,6 +26,12 @@ watchlist = [
          setup = 'center3',
          gracetime = 300,
         ),
+    dict(condition = 'reactorpower_value < 19',
+         message = 'Possible Reactor Shutdown! Reactor power < 19MW',
+         type = 'critical',
+         setup = 'reactor',
+         gracetime = 300,
+        ),
 ]
 
 notifiers = {
