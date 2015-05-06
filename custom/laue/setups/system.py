@@ -75,7 +75,8 @@ devices = dict(
     # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
                       dataroot = '/data',
-                      sendmail = True,
+                      sendmail = False,
+                      zipdata = False,
                       serviceexp = 'service',
                       # We do not have a dedicated responsible
                       sample = 'Sample',
