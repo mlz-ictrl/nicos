@@ -23,7 +23,7 @@
 
 import time
 
-from nicos.core import Param
+from nicos.core import Param, status
 from nicos.devices.generic import Switcher
 from nicos.devices.vendor.lima import Andor2LimaCCD
 
@@ -38,20 +38,27 @@ class AntaresIkonLCCD(Andor2LimaCCD):
     """
 
     attached_devices = {
-        'fastshutter' : (Switcher, 'Fast shutter switcher device'),
+        'fastshutter': (Switcher, 'Fast shutter switcher device'),
     }
 
     parameters = {
-                  'openfastshutter' : Param('Open fast shutter before the'
-                                             'acquisition. Caution: It has'
-                                             'to be closed manually',
-                                type=bool, settable=True, default=True),
-                  }
+        'openfastshutter': Param('Open fast shutter before the acquisition. '
+                                 'Caution: It has to be closed manually',
+                                 type=bool, settable=True, default=True),
+    }
 
     def doStart(self, **preset):
         # open fastshutter automatically if desired
         if self.shuttermode in ['always_open', 'auto'] and self.openfastshutter:
-            self._adevs['fastshutter']('open')
+            # reset fast shutter if in error state (the shutter sometimes goes
+            # into error state because it couldn't be opened, but it works
+            # again after reset on the next try
+            fastshutter = self._adevs['fastshutter']
+            if fastshutter.status(0)[0] == status.ERROR:
+                self.log.warning('resetting fast shutter before opening: it is '
+                                 'in error state')
+                fastshutter.reset()
+            fastshutter.move('open')
 
             # wait some time due to a bug in the jcns tango servers
             # (the moving status isn't set immediately)
