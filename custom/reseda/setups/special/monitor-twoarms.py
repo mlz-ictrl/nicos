@@ -1,10 +1,6 @@
 description = 'RESEDA standard status monitor'
 group = 'special'
 
-Row = Column = BlockRow = lambda *args: args
-Block = lambda *args, **kwds: (args, kwds)
-Field = lambda *args, **kwds: args or kwds
-
 _expcolumn = Column(
     Block('Experiment', [
         BlockRow(Field(name='Exp no.', key='info/number', width=7),

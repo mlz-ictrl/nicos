@@ -27,11 +27,6 @@ description = 'setup for the status monitor for SANS1'
 group = 'special'
 
 
-Row = Column = BlockRow = lambda *args: args
-Block = lambda *args, **kwds: (args, kwds)
-Field = lambda *args, **kwds: args or kwds
-
-
 _sc1 = Block('Sample Changer 1', [
     BlockRow(Field(name='sc1_y', dev='sc1_y'),),
     BlockRow(Field(name='SampleChanger', dev='sc1'),),

@@ -100,6 +100,12 @@ def check_setupfile(filename):
     good = True
     namespace = {'device': lambda c, **kw: (c, kw),
                  'setupname': setupname}
+    if setupname.startswith('monitor'):
+        namespace['Row'] = lambda *args: args
+        namespace['Column'] = lambda *args: args
+        namespace['BlockRow'] = lambda *args: args
+        namespace['Block'] = lambda *args, **kwds: (args, kwds)
+        namespace['Field'] = lambda *args, **kwds: args or kwds
     # check syntax
     try:
         execfile(filename, namespace)

@@ -122,7 +122,7 @@ dummy-variables-rgx=_|dummy
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
-additional-builtins=device, setupname
+additional-builtins=device, setupname, Row, Column, BlockRow, Block, Field
 
 
 [BASIC]

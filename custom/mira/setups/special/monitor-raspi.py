@@ -1,10 +1,6 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = BlockRow = lambda *args: args
-Block = lambda *args, **kwds: (args, kwds)
-Field = lambda *args, **kwds: args or kwds
-
 _column1 = Column(
     Block('Heater long-term', [
         BlockRow(Field(plot='TPower', dev='t/heaterpower', width=40, height=30, plotwindow=24*3600)),

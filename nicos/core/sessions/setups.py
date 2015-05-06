@@ -72,6 +72,12 @@ def readSetup(infodict, root, filename, logger):
         'device': lambda cls, **params: (cls, params),
         'setupname': modname,
     }
+    if modname.startswith('monitor'):
+        ns['Row'] = lambda *args: args
+        ns['Column'] = lambda *args: args
+        ns['BlockRow'] = lambda *args: args
+        ns['Block'] = lambda *args, **kwds: (args, kwds)
+        ns['Field'] = lambda *args, **kwds: args or kwds
     try:
         exec_(code, ns)
     except Exception as err:

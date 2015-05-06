@@ -25,10 +25,6 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = BlockRow = lambda *args: args
-Block = lambda *args, **kwds: (args, kwds)
-Field = lambda *args, **kwds: args or kwds
-
 _testblock = Block('HTF03', [
     BlockRow(Field(gui='custom/sans1/lib/gui/htf03.ui')),
     ],
