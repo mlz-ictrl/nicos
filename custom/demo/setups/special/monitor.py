@@ -22,7 +22,7 @@ _expcolumn = Column(
                  Field(name='Last Image file', key='exp/lastimage'),
                 ),
         ],
-        setups=['sans', 'refsans'],
+        setups='sans or refsans',
     ),
 )
 

@@ -30,11 +30,26 @@ from __future__ import print_function
 
 from nicos.guisupport.utils import checkSetupSpec
 
+
 # setupspec : loaded_setups : result
 CASES = [
     (None,         None,            True),
     (None,         ['a', 'b', 'c'], True),
     ('a',          ['a', 'b', 'c'], True),
+    ('a and d',    ['a', 'b', 'c'], False),
+    ('a and b',    ['a', 'b', 'c'], True),
+    ('a or d',     ['a', 'b', 'c'], True),
+    ('a*',         ['alpha', 'b'],  True),
+    ('c*',         ['alpha', 'b'],  False),
+    ('(b and not (c or h)', ['b'], True),
+    ('(b and not (c or h))', ['b', 'c',], False),
+    ('(b and not (c or h))', ['b', 'h',], False),
+    ('(b and not (c or h))', ['b', 'c', 'h',], False),
+    ('(b and not (c or h))', [], False),
+    ('(b and not (c or h))', ['h',], False),
+    ('(b and not (c or h))', ['h', 'c'], False),
+    ('a and',      ['b'],           True),  # warns
+    # compatibility cases
     (['a'],        ['a', 'b', 'c'], True),
     ('!a',         ['a', 'b', 'c'], False),
     (['!a'],       ['a', 'b', 'c'], False),
@@ -53,5 +68,5 @@ def test_checkSetupSpec():
         # as the stacktrace doesn't output locals
         res = checkSetupSpec(spec, setups)
         print('testing checkSetupSpec(%r, %r) == %r: %r' %
-              (spec, setups, result, res), end=' ')
+              (spec, setups, result, res))
         assert res == result

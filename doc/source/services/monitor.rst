@@ -60,62 +60,72 @@ toggle full-screen mode.
 Setup file
 ----------
 
-A simple setup file for the monitor could look like this::
+A simple setup file for the monitor could look like this:
 
-  # this is not a setup with instrument devices
-  group = 'special'
+.. code-block:: python
+   :linenos:
 
-  # these are helper functions to make the configuration look more intuitive
-  Row = Column = BlockRow = lambda *args: args
-  Block = lambda *args, **kwds: (args, kwds)
-  Field = lambda *args, **kwds: args or kwds
+   # this is not a setup with instrument devices
+   group = 'special'
 
-  expcolumn = Column(
-    Block('Experiment',   # block name
-      # a list of rows in that block
-      [BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                Field(name='Title',    key='exp/title',    width=20,
-                      istext=True, maxlen=20),
-                Field(name='Current status', key='exp/action', width=30,
-                      istext=True),
-                Field(name='Last file', key='filesink/lastfilenumber'))]
-    ),
-  )
+   expcolumn = Column(
+     Block('Experiment',   # block name
+         [# a list of rows in that block
+         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
+                  Field(name='Title',    key='exp/title',    width=20,
+                       istext=True, maxlen=20),
+                  Field(name='Current status', key='exp/action', width=30,
+                        istext=True),
+                  Field(name='Last file', key='filesink/lastfilenumber'),
+                 ),
+         ],
+         # This block will always be displayed
+     ),
+   )
 
-  devcolumn = Column(
-    Block('Axes',
-      [BlockRow(Field('mth'), Field('mtt')),
-       BlockRow(Field('psi'), Field('phi')),
-       BlockRow(Field('ath'), Field('att'))],
-    # setup that must be loaded for this block to be shown
-    setups='tas'),
+   devcolumn = Column(
+     Block('Axes', [
+         BlockRow(Field('mth'), Field('mtt')),
+         BlockRow(Field('psi'), Field('phi')),
+         BlockRow(Field('ath'), Field('att')),
+         ],
+         # setup that must be loaded for this block to be shown
+         setups='tas',
+     ),
 
-    Block('Detector',
-      [BlockRow(Field(name='timer', dev='timer'),
-                Field(name='ctr1',  dev='ctr1'),
-                Field(name='ctr2',  dev='ctr2')),
-      ],
-    setups=['detector', '!qmesydaq']),
+     Block('Detector', [
+         BlockRow(Field(name='timer', dev='timer'),
+                  Field(name='ctr1',  dev='ctr1'),
+                  Field(name='ctr2',  dev='ctr2'),
+                 ),
+         ],
+         # setup 'detector' must and 'qmesydaq' must __not__ be loaded to
+         # show this block
+         setups='detector and not qmesydaq',
+     ),
 
-    Block('Triple-axis',
-      [BlockRow(Field(dev='tas', item=0, name='H', format='%.3f', unit=' '),
-                Field(dev='tas', item=1, name='K', format='%.3f', unit=' '),
-                Field(dev='tas', item=2, name='L', format='%.3f', unit=' '),
-                Field(dev='tas', item=3, name='E', format='%.3f', unit=' ')),
-       BlockRow(Field(key='tas/scanmode', name='Mode'),
-                Field(dev='mono', name='ki'),
-                Field(dev='ana', name='kf'),
-                Field(key='tas/energytransferunit', name='Unit')),
-      ],
-    setups='tas'),
-  )
+     Block('Triple-axis', [
+         BlockRow(Field(dev='tas', item=0, name='H', format='%.3f', unit=' '),
+                  Field(dev='tas', item=1, name='K', format='%.3f', unit=' '),
+                  Field(dev='tas', item=2, name='L', format='%.3f', unit=' '),
+                  Field(dev='tas', item=3, name='E', format='%.3f', unit=' ')
+                 ),
+         BlockRow(Field(key='tas/scanmode', name='Mode'),
+                  Field(dev='mono', name='ki'),
+                  Field(dev='ana', name='kf'),
+                  Field(key='tas/energytransferunit', name='Unit'),
+                 ),
+         ],
+         setups='tas',
+     ),
+   )
 
-  devices = dict(
-      Monitor = device('nicos.services.monitor.qt.Monitor',
-                       title = 'My status monitor',
-                       cache = 'localhost:14869',
-                       layout = [Row(expcolumn), Row(devcolumn)]),
-  )
+   devices = dict(
+       Monitor = device('nicos.services.monitor.qt.Monitor',
+                        title = 'My status monitor',
+                        cache = 'localhost:14869',
+                        layout = [Row(expcolumn), Row(devcolumn)]),
+   )
 
 The layout of the status monitor consists of nested vertical and horizontal
 stacks of displayed units:
@@ -134,18 +144,16 @@ stacks of displayed units:
 
 The configuration of a block may use further options:
 
-* ``setups`` -- A list of associated setup names.  The block will only be shown
-  if any of the specified setups are loaded in the NICOS :term:`master`.  If only
-  one setup needs to be specified here, it can be given literally, i.e. without
-  enclosing the name with '[]'.  See the "Axes" or "Detector" block in the example.
+* ``setups`` -- An expression of associated setup names.  The block will only be
+  shown if the specified setups condition is fulfilled.
 
-  A '!' at the begining of any setup name will negate the selection and the
-  block will only be shown if the corresponding setup is **not** loaded.
+  If a simple name is given the setup condition is fulfilled if the setup is
+  loaded in the NICOS :term:`master`.  Otherwise you can use Python boolean
+  operators and parentheses to construct an expression like ``(setup1 and
+  not setup2) or setup3`` (see for example the Detector block above).
 
-  A '*' at the end will match all loaded/not loaded setups beginning with
-  characters in front of the '*' character.  This is helpful if you have a lot
-  of possible setups for the same application like a set of temperature
-  environments starting with ``ccr`` but only one of them is loaded a the moment.
+  To match multiple setups, use filename patterns, for example: ``ccr* and not
+  cryo*``.
 
 * ``frame`` -- If set to ``False`` the frame drawn around all of the blocks fields
   is omitted. The default value for this option is ``True``.

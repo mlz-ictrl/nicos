@@ -224,6 +224,6 @@ class Monitor(BaseCacheClient):
             self.signal(obj, 'keyChange', key, value, time, expired)
 
     def _process_warnings(self, warnings):
-        #self.log.debug('new warnings: %s' % warnings)
+        # self.log.debug('new warnings: %s' % warnings)
         self._currwarnings = warnings
         self.switchWarnPanel(bool(warnings))

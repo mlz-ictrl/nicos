@@ -15,7 +15,6 @@ expcolumn = Column(
             Field(key='exp/lastscan', name='Last file'),
         ),
         ],
-        setups='!always!',
     )
 )
 
@@ -33,7 +32,6 @@ filters = Block('Primary Beam/Filters', [
         Field(dev='pgfilter', name='PG'),
     ),
     ],
-    setups='!always!',
 )
 
 primary = Block('Monochromator', [
@@ -44,7 +42,6 @@ primary = Block('Monochromator', [
         Field(dev='mtt', name='mtt (A2)'),
     ),
     ],
-    setups='!always!',
 )
 
 sample = Block('Sample stage', [
@@ -61,7 +58,6 @@ sample = Block('Sample stage', [
         Field(dev='stt', name='stt (A4)'),
     ),
     ],
-    setups='!always!',
 )
 
 analyzer = Block('Analyzer', [
@@ -72,7 +68,6 @@ analyzer = Block('Analyzer', [
         Field(dev='att', name='att (A6)', unit=''),
     ),
     ],
-    setups='!always!',
 )
 
 collimation = Block('Collimation and Lengths', [
@@ -89,7 +84,6 @@ collimation = Block('Collimation and Lengths', [
         Field(dev='lad'),
     ),
     ],
-    setups='!always!',
 )
 
 column1 = Column(filters, primary, sample, analyzer)
@@ -144,7 +138,6 @@ detector_small = Block('Detector', [
         Field(dev='det2', format='%d'),
     ),
     ],
-    setups='!always!',
 )
 
 # for setup lakeshore
@@ -252,7 +245,7 @@ for i in range(10, 22 + 1):
                 Field(key='t_ccr%d/d' % i, name='D', width=6),
             ),
             ],
-            setups=['ccr%d' % i, '!cryo*'],
+            setups='ccr%d and not cryo*' % i,
         )
     )
     ccrsupps.append(
@@ -276,7 +269,7 @@ for i in range(10, 22 + 1):
                 Field(key='t_ccr%d/d' % i, name='D', width=3),
             ),
             ],
-            setups=['ccr%d' % i],
+            setups='ccr%d' % i,
         )
     )
     ccrplots.append(
@@ -387,7 +380,7 @@ vti = Block('VTI', [
         Field(dev='LN2'),
     ),
     ],
-    setups=['15T', 'variox'],
+    setups='15T and variox',
 )
 
 magnet14t5 = Block('14.5T Magnet', [
@@ -419,7 +412,6 @@ foki = Block('Foki', [
     ),
     BlockRow(Field(dev='afh')),
     ],
-    setups='!always!',
 )
 
 column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \

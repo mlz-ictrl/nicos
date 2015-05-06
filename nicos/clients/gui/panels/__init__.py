@@ -33,6 +33,7 @@ from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
+from nicos.clients.gui.main import log
 
 from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
@@ -270,7 +271,7 @@ def createWindowItem(item, window, menuwindow, topwindow):
                 (title, subitem) = entry
             else:
                 (title, subitem, setupSpec) = entry
-                if not checkSetupSpec(setupSpec, loaded_setups):
+                if not checkSetupSpec(setupSpec, loaded_setups, log=log):
                     continue
             subwindow = AuxiliarySubWindow(tw)
             subwindow.mainwindow = window.mainwindow

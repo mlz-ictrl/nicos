@@ -41,6 +41,7 @@ from nicos.utils import findResource
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
 from nicos.guisupport.display import ValueDisplay, lightColorScheme
+from nicos.guisupport.utils import checkSetupSpec
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.pycompat import iteritems, string_types
 
@@ -401,22 +402,8 @@ class Monitor(BaseMonitor):
     def reconfigureBoxes(self):
         emitdict = {}
         for setup, boxes in iteritems(self._onlymap):
-            if setup.startswith('!'):
-                if setup.endswith('*'):
-                    enabled = True
-                    for s in self._setups:
-                        if s.startswith(setup[1:-1]):
-                            enabled = False
-                else:
-                    enabled = setup[1:] not in self._setups
-            else:
-                if setup.endswith('*'):
-                    enabled = False
-                    for s in self._setups:
-                        if s.startswith(setup[:-1]):
-                            enabled = True
-                else:
-                    enabled = setup in self._setups
+            enabled = checkSetupSpec(setup, self._setups,
+                                     compat='and', log=self.log)
             for k in boxes:
                 emitdict[k] = emitdict.get(k, True) and enabled
         self._master.emit(SIGNAL('reconfigure'), emitdict)

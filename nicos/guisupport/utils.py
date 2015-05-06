@@ -24,9 +24,10 @@
 
 """GUI support utilities."""
 
-from PyQt4.QtGui import QPalette
+import re
+import fnmatch
 
-from nicos.pycompat import string_types
+from PyQt4.QtGui import QPalette
 
 
 def setBackgroundColor(widget, color):
@@ -78,28 +79,35 @@ def extractKeyAndIndex(spec):
     return key, index
 
 
-def checkSetupSpec(setupspec, setups):
-    """check if the given setupspec should be displayed given the loaded setups
-
-    Logic is an OR of all given setups in setupspec.
-    setup may be prepended by '!', meaning it should be visible if the
-    given setup is NOT loaded.
-    checkSetupSpec(['a'], ['a',...]) -> True
-    checkSetupSpec(['!a'], ['a',...]) -> False
+def checkSetupSpec(setupspec, setups, compat='or', log=None):
+    """Check if the given setupspec should be displayed given the loaded setups.
     """
-    if isinstance(setupspec, string_types):
-        setupspec = [setupspec]
-    if not setups:
-        return True # no setups -> visible (safety)
+    def fixup_old(s):
+        if s.startswith('!'):
+            return 'not %s' % s[1:]
+        return s
+
+    def subst_setupexpr(match):
+        if match.group() in ('has_setup', 'and', 'or', 'not'):
+            return match.group()
+        return 'has_setup(%r)' % match.group()
+
+    def has_setup(spec):
+        return bool(fnmatch.filter(setups, spec))
+
     if not setupspec:
-        return True # no spec -> always visible
-    if not isinstance(setups, (set, list, tuple)):
-        return True # wrong type -> visible (safety)
-    for setup in setupspec:
-        if setup[0] == '!':
-            if setup[1:] not in setups:
-                return True
-        else:
-            if setup in setups:
-                return True
-    return False
+        return True  # no spec -> always visible
+    if not setups:
+        return False  # no setups -> not visible (safety)
+    if isinstance(setupspec, list):
+        setupspec = (' %s ' % compat).join(fixup_old(v) for v in setupspec)
+    if setupspec.startswith('!'):
+        setupspec = fixup_old(setupspec)
+    expr = re.sub(r'[\w\[\]*?]+', subst_setupexpr, setupspec)
+    ns = {'has_setup': has_setup}
+    try:
+        return eval(expr, ns)
+    except Exception:  # wrong spec -> visible
+        if log:
+            log.warning('invalid setup spec: %r' % setupspec)
+        return True

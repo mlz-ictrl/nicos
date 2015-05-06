@@ -44,6 +44,7 @@ from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types
 from nicos.services.monitor.icon import nicos_icon
+from nicos.guisupport.utils import checkSetupSpec
 
 
 HEAD = '''\
@@ -439,7 +440,5 @@ class Monitor(BaseMonitor):
     def reconfigureBoxes(self):
         for setup, boxes in iteritems(self._onlymap):
             for block in boxes:
-                if setup.startswith('!'):
-                    block.enabled = setup[1:] not in self._setups
-                else:
-                    block.enabled = setup in self._setups
+                block.enabled = checkSetupSpec(setup, self._setups,
+                                               compat='and', log=self.log)
