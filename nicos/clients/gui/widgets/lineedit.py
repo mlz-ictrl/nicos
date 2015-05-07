@@ -26,9 +26,9 @@
 
 import re
 
-from PyQt4.QtCore import QEvent, Qt, SIGNAL, pyqtSignal
+from PyQt4.QtCore import QEvent, Qt, QRegExp, SIGNAL, pyqtSignal
 from PyQt4.QtGui import QApplication, QColor, QCompleter, QKeyEvent, QLineEdit, \
-    QMessageBox, QPalette, QStringListModel
+    QMessageBox, QPalette, QStringListModel, QRegExpValidator
 
 from nicos.clients.gui.utils import ScriptExecQuestion
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
@@ -182,6 +182,7 @@ class CommandLineEdit(HistoryLineEdit):
         HistoryLineEdit.__init__(self, parent, history)
         self.textChanged.connect(self.on_textChanged)
         self.returnPressed.connect(self.on_returnPressed)
+        self.setValidator(QRegExpValidator(QRegExp(r"^\S.*"), self))
         self.current_status = None
 
     execRequested = pyqtSignal(str, str)
