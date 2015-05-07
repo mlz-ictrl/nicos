@@ -268,7 +268,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
     def addPlotCurve(self, plotcurve, replot=False):
         curve = next((c for c in self._axes.getCurves()
                       if c.legend == plotcurve.legend), None)
-        if curve:
+        if curve and not replot:
             # update curve
             curve.x, curve.y = plotcurve.x, plotcurve.y
             if plotcurve.errorBar1 and curve.errorBar1:
@@ -382,7 +382,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         resultcurve = NicosPlotCurve(fitter.xfit, fitter.yfit,
                                      legend=fitter.title,
                                      linecolor=color, markercolor=color)
-        self.addPlotCurve(resultcurve)
+        self.addPlotCurve(resultcurve, True)
         resultcurve.markertype = gr.MARKERTYPE_DOT
         self.window.statusBar.showMessage("Fitting complete")
 
