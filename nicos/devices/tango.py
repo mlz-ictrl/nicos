@@ -361,7 +361,15 @@ class TemperatureController(Actuator):
                               volatile=True),
         'heateroutput': Param('Heater output', type=float, category='general',
                               volatile=True),
+        'ramp':         Param('Temperature ramp', unit='main/min',
+                              type=float, settable=True, volatile=True),
     }
+
+    def doReadRamp(self):
+        return self._dev.ramp
+
+    def doWriteRamp(self, value):
+        self._dev.ramp = value
 
     def doReadP(self):
         return self._dev.p
