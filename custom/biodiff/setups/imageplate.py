@@ -14,7 +14,8 @@ _TANGO_DEV = "tango://%s/EMBL/Microdiff/General#dbase=no" % _TANGO_SRV
 devices = dict(
     TIFFFileSaver = device("biodiff.tiff.TIFFFileFormat",
                            description = "Saves image data in TIFF format",
-                           filenametemplate = ["%08d.tiff"],
+                           filenametemplate = ["%(proposal)s_%(counter)08d"
+                                               ".tiff"],
                            mode = "I;16",
                           ),
     imgdrum = device("biodiff.detector.ImagePlateDrum",

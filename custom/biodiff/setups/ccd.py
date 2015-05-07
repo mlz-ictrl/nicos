@@ -14,7 +14,8 @@ _TANGO_BASE_URL = "%s/biodiff/detector" % tango_host
 devices = dict(
     FITSFileSaver = device("devices.fileformats.fits.FITSFileFormat",
                            description = "Saves image data in FITS format",
-                           filenametemplate = ['%08d.fits'],
+                           filenametemplate = ["%(proposal)s_%(counter)08d"
+                                               ".fits"],
                           ),
     ccd = device("biodiff.detector.Andor2LimaCCDFPGA",
                  description = "Andor DV936 CCD camera",
