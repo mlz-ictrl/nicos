@@ -49,10 +49,27 @@ DATEFMT = "%Y-%m-%d"
 TIMEFMT = "%H:%M:%S"
 
 
-class NicosTimePlotAxes(PlotAxes):
+class NicosPlotAxes(PlotAxes):
 
     def setWindow(self, xmin, xmax, ymin, ymax):
         res = PlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
+        if res and self.autoscale & PlotAxes.SCALE_X:
+            window = self.getWindow()
+            if window:
+                mask = self.autoscale
+                self.autoscale = 0x0
+                # pylint: disable=unpacking-non-sequence
+                xmin, xmax, ymin, ymax = window
+                dx = (xmax - xmin) * .1
+                PlotAxes.setWindow(self, xmin - dx, xmax + dx, ymin, ymax)
+                self.autoscale = mask
+        return res
+
+
+class NicosTimePlotAxes(NicosPlotAxes):
+
+    def setWindow(self, xmin, xmax, ymin, ymax):
+        res = NicosPlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
         if res:
             tickdist, self.majorx = buildTickDistAndSubTicks(xmin, xmax)
             self.xtick = tickdist / self.majorx
@@ -116,7 +133,10 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self._saveName = None
         self._color = ColorIndexGenerator()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
-        self._axes = NicosTimePlotAxes(viewport=self._plot.viewport)
+        if timeaxis:
+            self._axes = NicosTimePlotAxes(viewport=self._plot.viewport)
+        else:
+            self._axes = NicosPlotAxes(viewport=self._plot.viewport)
         self._axes.backgroundColor = 0
         self._plot.addAxes(self._axes)
         self._plot.title = self.titleString()
