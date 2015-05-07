@@ -41,7 +41,9 @@ from nicos.core import SIMULATION
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [
     'AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
-    'TemperatureController', 'DigitalInput', 'DigitalOutput', 'StringIO'
+    'TemperatureController', 'DigitalInput', 'NamedDigitalInput',
+    'PartialDigitalInput', 'DigitalOutput', 'NamedDigitalOutput',
+    'PartialDigitalOutput', 'StringIO', 'Detector', 'TofDetector',
 ]
 
 DEFAULT_STATUS_MAPPING = {
