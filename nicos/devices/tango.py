@@ -35,7 +35,8 @@ import PyTango
 
 from nicos.core import Param, Override, status, Readable, Moveable, Measurable,\
     HasLimits, Device, tangodev, HasCommunication, oneofdict, dictof, intrange, \
-    nonemptylistof, NicosError, CommunicationError, ConfigurationError
+    nonemptylistof, NicosError, CommunicationError, ConfigurationError, \
+    HasTimeout
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -43,7 +44,7 @@ from nicos.core import SIMULATION
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [
     'AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
-    'TemperatureController', 'DigitalInput', 'NamedDigitalInput',
+    'TemperatureController', 'PowerSupply', 'DigitalInput', 'NamedDigitalInput',
     'PartialDigitalInput', 'DigitalOutput', 'NamedDigitalOutput',
     'PartialDigitalOutput', 'StringIO', 'Detector', 'TofDetector',
 ]
@@ -411,6 +412,33 @@ class TemperatureController(Actuator):
         self._pollParam('p')
         self._pollParam('i')
         self._pollParam('d')
+
+
+class PowerSupply(HasTimeout, Actuator):
+    """
+    Represents a power supply.
+    """
+
+    parameters = {
+        'ramp':    Param('Current/voltage ramp', unit='main/min',
+                         type=float, settable=True, volatile=True),
+        'voltage': Param('Actual voltage', unit='V',
+                         type=float, settable=False, volatile=True),
+        'current': Param('Actual current', unit='A',
+                         type=float, settable=False, volatile=True),
+    }
+
+    def doReadRamp(self):
+        return self._dev.ramp
+
+    def doWriteRamp(self, value):
+        self._dev.ramp = value
+
+    def doReadVoltage(self):
+        return self._dev.voltage
+
+    def doReadCurrent(self):
+        return self._dev.current
 
 
 class DigitalInput(PyTangoDevice, Readable):
