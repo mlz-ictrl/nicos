@@ -7,7 +7,7 @@ description = "Coil setup"
 group = "optional"
 
 tango_host = 'tango://phys.dns.frm2:10000'
-_GPIB_URL = tango_host + '/dns/gpib/%d'
+_PS_URL = tango_host + '/dns/toellner/%s'
 _DIO_URL = tango_host + '/dns/FZJDP_Digital/%s'
 _POLCHANGE = {"+": 0, "-": 1}
 
@@ -59,12 +59,12 @@ devices = dict(
                       mapping = _POLCHANGE,
                       lowlevel = True
                      ),
-    Fi       = device('dns.toellner.CurrentToellner',
+# Devices for toellner must be changed with new names from database
+    Fi       = device('dns.toellner.Toellner',
                       description = 'Flipper Field',
-                      tangodevice = _GPIB_URL % 21,
-                      abslimits = (-3.2,3.2),
+                      tangodevice = _PS_URL % 'fi',
+                      abslimits = (-3.2, 3.2),
                       polchange = 'polch_Fi',
-                      channel = 2,
                      ),
     polch_Co = device('devices.tango.NamedDigitalOutput',
                       description = 'Polarity changer for Flipper Compensation',
@@ -72,19 +72,17 @@ devices = dict(
                       mapping = _POLCHANGE,
                       lowlevel = True
                      ),
-    Co       = device('dns.toellner.CurrentToellner',
+    Co       = device('dns.toellner.Toellner',
                       description = 'Flipper Compensation Field',
-                      tangodevice = _GPIB_URL % 21,
-                      abslimits = (-3.2,3.2),
+                      tangodevice = _PS_URL % 'co',
+                      abslimits = (-3.2, 3.2),
                       polchange = 'polch_Co',
-                      channel = 1,
                      ),
-    A        = device('dns.toellner.CurrentToellner',
+    A        = device('dns.toellner.Toellner',
                       description = 'Coil A',
-                      tangodevice = _GPIB_URL % 22,
-                      abslimits = (-3.2,3.2),
+                      tangodevice = _PS_URL % 'a',
+                      abslimits = (-3.2, 3.2),
                       polchange = 'polch_A',
-                      channel = 1,
                      ),
     polch_A  = device('devices.tango.NamedDigitalOutput',
                       description = 'Polarity changer for coil A',
@@ -92,12 +90,11 @@ devices = dict(
                       mapping = _POLCHANGE,
                       lowlevel = True,
                      ),
-    B        = device('dns.toellner.CurrentToellner',
+    B        = device('dns.toellner.Toellner',
                       description = 'Coil B',
-                      tangodevice = _GPIB_URL % 22,
-                      abslimits = (-3.2,3.2),
+                      tangodevice = _PS_URL % 'b',
+                      abslimits = (-3.2, 3.2),
                       polchange = 'polch_B',
-                      channel = 2,
                      ),
     polch_B  = device('devices.tango.NamedDigitalOutput',
                       description = 'Polarity changer for coil B',
@@ -105,12 +102,11 @@ devices = dict(
                       mapping = _POLCHANGE,
                       lowlevel = True,
                      ),
-    ZB       = device('dns.toellner.CurrentToellner',
+    ZB       = device('dns.toellner.Toellner',
                       description = 'Coil-Z Bottom',
-                      tangodevice = _GPIB_URL % 23,
+                      tangodevice = _PS_URL % 'zb',
                       abslimits = (-5, 5),
                       polchange = 'polch_ZB',
-                      channel = 1,
                      ),
     polch_ZB = device('devices.tango.NamedDigitalOutput',
                       description = 'Polarity changer for coil Z Bottom',
@@ -118,12 +114,11 @@ devices = dict(
                       mapping = _POLCHANGE,
                       lowlevel = True,
                      ),
-    ZT       = device('dns.toellner.CurrentToellner',
+    ZT       = device('dns.toellner.Toellner',
                       description = 'Coil-Z Top',
-                      tangodevice = _GPIB_URL % 23,
+                      tangodevice = _PS_URL % 'zt',
                       abslimits = (-5, 5),
                       polchange = 'polch_ZT',
-                      channel = 2,
                      ),
     polch_ZT = device('devices.tango.NamedDigitalOutput',
                       description = 'Polarity changer for coil Z Top',
@@ -131,12 +126,11 @@ devices = dict(
                       mapping = _POLCHANGE,
                       lowlevel = True,
                      ),
-    C        = device('dns.toellner.CurrentToellner',
+    C        = device('dns.toellner.Toellner',
                       description = 'Coil C',
-                      tangodevice = _GPIB_URL % 24,
+                      tangodevice = _PS_URL % 'c',
                       abslimits = (-3.2, 3.2),
                       polchange = 'polch_C',
-                      channel = 1,
                      ),
     polch_C  = device('devices.tango.NamedDigitalOutput',
                       description = 'Polarity changer for coil C',
@@ -171,11 +165,4 @@ devices = dict(
 )
 
 startupcode = '''
-Fi.voltage = 24
-Co.voltage = 24
-A.voltage = 24
-B.voltage = 24
-ZB.voltage = 32
-ZT.voltage = 32
-C.voltage = 24
 '''
