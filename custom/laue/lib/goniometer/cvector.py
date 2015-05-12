@@ -46,7 +46,6 @@ class CVector(PositionBase):
         """
 
         PositionBase.__init__(self)
-        self.wavelength = session.experiment.wavelength
         if p:
             self.c = (p.c[0], p.c[1], p.c[2])
             self.psi = p.psi
@@ -61,8 +60,10 @@ class CVector(PositionBase):
                 self.psi = psi
             self.signtheta = signtheta
 
-    def asB(self):
-        if not self.wavelength:
+    def asB(self, wavelength=None):
+        if wavelength is None:
+            wavelength = session.instrument.wavelength or None
+        if not wavelength:
             raise NicosError("Cannot perform conversion without knowing wavelength")
         cosx = np.sqrt(self.c[0] ** 2 + self.c[1] ** 2)
         chi = np.arctan2(self.c[2], cosx)
@@ -74,7 +75,7 @@ class CVector(PositionBase):
             except ValueError:
                 print "Oops: ", self
                 phi = 0
-        sinx = np.sqrt(cosx ** 2 + self.c[2] ** 2) * self.wavelength / 2.0
+        sinx = np.sqrt(cosx ** 2 + self.c[2] ** 2) * wavelength / 2.0
         if sinx >= 1.0:
             theta = self.signtheta * np.pi / 2.0
         else:

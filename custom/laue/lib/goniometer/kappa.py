@@ -34,7 +34,6 @@ to allow conversions, the kappa-angle alpha needs to be known
 from nicos.laue.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
-from nicos import session
 from nicos.core import NicosError
 from nicos.laue.goniometer.posutils import normalangle, Yrot, Zrot
 
@@ -49,8 +48,7 @@ class Kappa(PositionBase):
         """ Constructor. Part of Position subclass protocol.
         """
         PositionBase.__init__(self)
-        self.wavelength = session.experiment.wavelength
-        self.alpha = np.ged2rad(60)  #TODO: get from experiment?
+        self.alpha = np.deg2rad(60)  #TODO: get from experiment?
         if p:
             self.theta = p.theta
             self.omega = p.omega
@@ -165,12 +163,12 @@ class Kappa(PositionBase):
         """
         s = "[Kappa angles:"
         if self.theta is not None:
-            s = s + " theta=%8.3f" % (np.deg2rad(self.theta))
+            s = s + " theta=%8.3f" % (np.rad2deg(self.theta))
         if self.phi is not None:
-            s = s + " phi=%8.3f" % (np.deg2rad(self.phi))
+            s = s + " phi=%8.3f" % (np.rad2deg(self.phi))
         if self.omega is not None:
-            s = s + " omega=%8.3f" % (np.deg2rad(self.omega))
+            s = s + " omega=%8.3f" % (np.rad2deg(self.omega))
         if self.kappa is not None:
-            s = s + " kappa=%8.3f" % (np.deg2rad(self.kappa))
+            s = s + " kappa=%8.3f" % (np.rad2deg(self.kappa))
         s = s + "]"
         return s

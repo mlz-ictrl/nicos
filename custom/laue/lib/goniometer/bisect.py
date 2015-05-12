@@ -43,7 +43,6 @@ class Bisecting(PositionBase):
         """ Constructor. Part of Position subclass protocol.
         """
         PositionBase.__init__(self)
-        self.wavelength = session.experiment.wavelength
         if p:
             self.theta = p.theta
             self.phi = p.phi
@@ -55,16 +54,18 @@ class Bisecting(PositionBase):
             self.chi = self._r2d(chi, _rad)
             self.phi = self._r2d(phi, _rad)
 
-    def asC(self):
+    def asC(self, wavelength=None):
         """ Conversion. Part of Position subclass protocol.
         """
-        if not self.wavelength:
+        if wavelength is None:
+            wavelength = session.instrument.wavelength or None
+        if not wavelength:
             raise NicosError("Cannot perform conversion without knowing wavelength")
         if self.theta >= 0:
             signtheta = 1
         else:
             signtheta = -1
-        d = 2 * np.sin(self.theta) / self.wavelength
+        d = 2 * np.sin(self.theta) / wavelength
         c = [-np.sin(self.phi) * np.cos(self.chi) * d,
              np.cos(self.phi) * np.cos(self.chi) * d,
              np.sin(self.chi) * d]

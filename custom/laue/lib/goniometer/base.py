@@ -82,7 +82,7 @@ class PositionBase(object):
 
     def _r2d(self, val, _rad):
         if not _rad:
-            if val:
+            if val is not None:
                 return np.deg2rad(val)
             else:
                 return 0.0
