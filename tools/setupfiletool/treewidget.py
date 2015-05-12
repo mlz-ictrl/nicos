@@ -32,6 +32,7 @@ from PyQt4.QtCore import pyqtSignal, Qt
 from setupfiletool.utilities.treewidgetcontextmenu import TreeWidgetContextMenu
 from setupfiletool.utilities.utilities import ItemTypes, getNicosDir, getResDir
 from setupfiletool.setup import Setup
+from setupfiletool.devicewidget import DeviceWidget
 
 
 class TreeWidget(TreeWidgetContextMenu):
@@ -43,6 +44,11 @@ class TreeWidget(TreeWidgetContextMenu):
         self.markedSetups = []
         self.manualDirectory = None
         self.showManualDirectoryBool = False
+        self.holdingItem = False
+
+        # don't allow dropping items in root
+        root = self.invisibleRootItem()
+        root.setFlags(root.flags() & ~Qt.ItemIsDropEnabled)
 
     def loadNicosData(self):
         while self.topLevelItemCount() > 0:
@@ -68,6 +74,9 @@ class TreeWidget(TreeWidgetContextMenu):
         # all these directories (may) have setups, find all of them and add
         # them as children, after that, add all their devices as children
         for item in self.topLevelItems:
+            # directories can neither be dragged nor have something dropped on
+            item.setFlags(item.flags() & ~Qt.ItemIsDragEnabled &
+                          ~Qt.ItemIsDropEnabled)
             item.setIcon(0, QIcon(path.join(getResDir(), 'folder.png')))
             scriptList = [[]]  # list of rows, a row = list of strings
             if path.isdir(path.join(setupRoot, item.text(0), 'setups')):
@@ -75,7 +84,12 @@ class TreeWidget(TreeWidgetContextMenu):
                                      'setups', scriptList)
                 for script in sorted(scriptList):
                     if script:
-                        item.addChild(QTreeWidgetItem(script, ItemTypes.Setup))
+                        scriptItem = QTreeWidgetItem(script, ItemTypes.Setup)
+                        # scripts cannot be dragged, but they can have
+                        # something dropped on them (a device).
+                        scriptItem.setFlags(scriptItem.flags() &
+                                            ~Qt.ItemIsDragEnabled)
+                        item.addChild(scriptItem)
 
             # setup for this directory has been loaded, add the devices.
             currentIndex = 0
@@ -84,11 +98,16 @@ class TreeWidget(TreeWidgetContextMenu):
                 devices = Setup.getDeviceNamesOfSetup(currentPath, self.log)
                 for device in devices:
                     # read setup and add all the devices as child tree items
-                    item.child(currentIndex).addChild(
-                        QTreeWidgetItem([device,
-                                         'in file: ' + item.child(currentIndex
-                                                                  ).text(0)],
-                                        ItemTypes.Device))
+                    deviceItem = QTreeWidgetItem([device,
+                                                  'in file: ' +
+                                                  item.child(
+                                                      currentIndex).text(0)],
+                                                 ItemTypes.Device)
+                    # devices can be dragged, but they can't have something
+                    # dropped on them.
+                    deviceItem.setFlags(deviceItem.flags() &
+                                        ~Qt.ItemIsDropEnabled)
+                    item.child(currentIndex).addChild(deviceItem)
                 item.child(currentIndex).setIcon(0, QIcon(
                     path.join(getResDir(), 'setup.png')))
 
@@ -104,6 +123,63 @@ class TreeWidget(TreeWidgetContextMenu):
             self.showManualDirectory()
         self.setSortingEnabled(True)
         self.sortByColumn(0, Qt.AscendingOrder)
+
+    def dragEnterEvent(self, event):
+        # dragEnterEvent may occur while user still drags an item
+        if self.holdingItem:
+            TreeWidgetContextMenu.dragEnterEvent(self, event)
+            return
+
+        self.origin = self.currentItem()
+        self.holdingItem = True
+        TreeWidgetContextMenu.dragEnterEvent(self, event)
+
+    def dropEvent(self, event):
+        target = self.getSetupOfDropPos(event.pos())
+        if target != self.origin.parent():
+            childIndex = 0
+            deviceItems = []
+            while childIndex < target.childCount():
+                deviceItems.append(target.child(childIndex).text(0))
+                childIndex += 1
+
+            if self.origin.text(0) in deviceItems:
+                QMessageBox.warning(self,
+                                    'Error',
+                                    'The target setup already contains'
+                                    'a device with that name!')
+                self.holdingItem = False
+                self.origin = None
+                return
+            device = self.currentItem()
+            MainWindow = self.parent().parent().parent()
+
+            MainWindow.loadSetup(self.origin.parent().text(1))
+            MainWindow.loadSetup(target.text(1))
+
+            newWidget = DeviceWidget()
+            newWidget.editedDevice.connect(MainWindow.editedSetupSlot)
+            newWidget.loadDevice(Setup.getDeviceOfSetup(
+                self.origin.parent().text(1), device.text(0), self.log))
+            MainWindow.workarea.addWidget(newWidget)
+            MainWindow.deviceWidgets[
+                target.text(1)][device.text(0)] = newWidget
+
+            self.markItem(self.origin.parent())
+            self.markItem(target)
+
+        self.holdingItem = False
+        self.origin = None
+        TreeWidgetContextMenu.dropEvent(self, event)
+
+    def getSetupOfDropPos(self, pos):
+        # pos is event.pos() when dropping a device
+        if self.itemAt(pos).type() == ItemTypes.Device:
+            # dropped inside of the setup's device list
+            return self.itemAt(pos).parent()
+        else:
+            # dropped on the setup itself
+            return self.itemAt(pos)
 
     def setInstrumentMode(self):
         instrument = self.sender().text()
@@ -125,12 +201,16 @@ class TreeWidget(TreeWidgetContextMenu):
                 ItemTypes.ManualDirectory)
             self.manualDirectory.setIcon(0, QIcon(path.join(getResDir(),
                                                             'folder.png')))
+            self.manualDirectory.setFlags(self.manualDirectory.flags(
+                ) & ~Qt.ItemIsDragEnabled &
+                    ~Qt.ItemIsDropEnabled)
         self.addTopLevelItem(self.manualDirectory)
 
     def addManualFile(self, pathToFile):
         _, filename = path.split(pathToFile)
         manualSetup = QTreeWidgetItem([filename, pathToFile], ItemTypes.Setup)
         manualSetup.setIcon(0, QIcon(path.join(getResDir(), 'setup.png')))
+        manualSetup.setFlags(manualSetup.flags() & ~Qt.ItemIsDragEnabled)
         self.manualDirectory.addChild(manualSetup)
 
         devices = Setup.getDeviceNamesOfSetup(pathToFile, self.log)
@@ -139,6 +219,7 @@ class TreeWidget(TreeWidgetContextMenu):
                 [device, 'in file: ' + filename],
                 ItemTypes.Device)
             deviceItem.setIcon(0, QIcon(path.join(getResDir(), 'device.png')))
+            deviceItem.setFlags(deviceItem.flags() & ~Qt.ItemIsDropEnabled)
             manualSetup.addChild(deviceItem)
 
     def getSetupsForDir(self, previousDir, newDir, listOfSetups):

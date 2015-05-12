@@ -93,6 +93,19 @@ class MainWindow(QMainWindow):
         if config.instrument and config.instrument not in ('jcns', 'demo'):
             self.treeWidget.setSingleInstrument(config.instrument)
 
+    def loadSetup(self, setup):
+        # load a previously not loaded setup's data and initialize their
+        # dict in self.setupWidgets.
+        # returns index of the setup's widget in self.workarea.
+        newWidget = SetupWidget()
+        newWidget.editedSetup.connect(self.editedSetupSlot)
+        newWidget.loadData(Setup(setup, self.log, self))
+        self.workarea.addWidget(newWidget)
+        self.setupWidgets[setup] = newWidget
+        # initialize empty dictionary for this setup
+        self.deviceWidgets[setup] = {}
+        return self.workarea.indexOf(newWidget)
+
     def loadSelection(self, curItem, column):
         self.treeWidget.setCurrentItem(curItem)
 
@@ -106,26 +119,13 @@ class MainWindow(QMainWindow):
                     self.workarea.indexOf(self.setupWidgets[curItem.text(1)]))
             else:
                 # if setup hasn't been loaded before:
-                newWidget = SetupWidget()
-                newWidget.editedSetup.connect(self.editedSetupSlot)
-                newWidget.loadData(Setup(curItem.text(1), self.log, self))
-                self.workarea.addWidget(newWidget)
-                self.setupWidgets[curItem.text(1)] = newWidget
-                self.workarea.setCurrentIndex(self.workarea.indexOf(newWidget))
-                # initialize empty dictionary for this setup
-                self.deviceWidgets[curItem.text(1)] = {}
+                i = self.loadSetup(curItem.text(1))
+                self.workarea.setCurrentIndex(i)
 
         elif curItem.type() == ItemTypes.Device:
             if curItem.parent().text(1) not in self.setupWidgets:
                 # if the setup, this device belongs to, hasn't been loaded yet:
-                newWidget = SetupWidget()
-                newWidget.editedSetup.connect(self.editedSetupSlot)
-                newWidget.loadData(Setup(curItem.parent().text(1),
-                                         self.log, self))
-                self.workarea.addWidget(newWidget)
-                self.setupWidgets[curItem.parent().text(1)] = newWidget
-                # initialize empty dictionary for this setup
-                self.deviceWidgets[curItem.parent().text(1)] = {}
+                self.loadSetup(curItem.parent().text(1))
 
             if curItem.text(0) in self.deviceWidgets[curItem.parent().text(1)]:
                 # if device was loaded previously:
@@ -201,8 +201,8 @@ class MainWindow(QMainWindow):
     def aboutSetupFileTool(self):
         QMessageBox.information(
             self,
-            'About SetupFileTool', 'A tool designed to optimize \
-            editing setup files for NICOS.')
+            'About SetupFileTool', 'A tool designed to optimize '
+            'editing setup files for NICOS.')
 
     def closeEvent(self, event):
         if self.treeWidget.markedSetups:
