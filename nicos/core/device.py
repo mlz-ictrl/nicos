@@ -497,6 +497,8 @@ class Device(object):
                 if param in self._config:
                     cfgvalue = self._config[param]
                     if cfgvalue != value:
+                        cfgvalue = self._validateType(cfgvalue, param, paraminfo)
+                    if cfgvalue != value:
                         prefercache = paraminfo.prefercache
                         if prefercache is None:
                             prefercache = paraminfo.settable
@@ -506,7 +508,6 @@ class Device(object):
                                 'configured value (%r), using configured '
                                 'since it was changed in the setup file' %
                                 (param, value, cfgvalue))
-                            value = self._validateType(cfgvalue, param, paraminfo)
                             self._cache.put(self, param, value)
                         elif prefercache:
                             self.log.warning(
