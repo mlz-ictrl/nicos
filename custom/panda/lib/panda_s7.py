@@ -167,7 +167,7 @@ class S7Motor(HasTimeout, NicosMotor):
             ],
             21: [
                 ('Mobilblockarm dreht',              False, '!',  'nicht'),
-                ('    Magnet:',                      None,  'gedrueckt', 'ok'),
+                ('    Magnet:',                      None,  'an', 'aus'),
                 ('    Klinke cw:,',                  None,  'an', 'aus'),
                 ('    Klinke ccw:',                  None,  'an', 'aus'),
                 ('    Endschalter cw:',              None,  'an', 'aus'),
