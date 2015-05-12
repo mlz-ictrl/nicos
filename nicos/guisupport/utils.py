@@ -26,6 +26,8 @@
 
 from PyQt4.QtGui import QPalette
 
+from nicos.pycompat import string_types
+
 
 def setBackgroundColor(widget, color):
     palette = widget.palette()
@@ -74,3 +76,30 @@ def extractKeyAndIndex(spec):
     if '/' not in key:
         key += '/value'
     return key, index
+
+
+def checkSetupSpec(setupspec, setups):
+    """check if the given setupspec should be displayed given the loaded setups
+
+    Logic is an OR of all given setups in setupspec.
+    setup may be prepended by '!', meaning it should be visible if the
+    given setup is NOT loaded.
+    checkSetupSpec(['a'], ['a',...]) -> True
+    checkSetupSpec(['!a'], ['a',...]) -> False
+    """
+    if isinstance(setupspec, string_types):
+        setupspec = [setupspec]
+    if not setups:
+        return True # no setups -> visible (safety)
+    if not setupspec:
+        return True # no spec -> always visible
+    if not isinstance(setups, (set, list, tuple)):
+        return True # wrong type -> visible (safety)
+    for setup in setupspec:
+        if setup[0] == '!':
+            if setup[1:] not in setups:
+                return True
+        else:
+            if setup in setups:
+                return True
+    return False

@@ -37,8 +37,9 @@ from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-    loadBasicWindowSettings, loadUserStyle, checkSetupSpec
+    loadBasicWindowSettings, loadUserStyle
 from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel, docked
+from nicos.guisupport.utils import checkSetupSpec
 
 
 class AuxiliaryWindow(QMainWindow):

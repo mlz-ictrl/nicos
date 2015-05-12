@@ -28,7 +28,7 @@ in dependence of loaded_setups.
 
 from __future__ import print_function
 
-from nicos.clients.gui.utils import checkSetupSpec
+from nicos.guisupport.utils import checkSetupSpec
 
 # setupspec : loaded_setups : result
 CASES = [
