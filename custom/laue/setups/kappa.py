@@ -49,5 +49,14 @@ devices = dict(
                       tacodevice = '//lauectrl.laue.frm2/laue/hubermc9300/detz',
                       abslimits = (100, 200),
                       fmtstr = '%.3f'),
+   gonio = device('nicos.laue.kappagon.KappaGon',
+                   description = 'Full goniometer',
+                   ttheta = 'twotheta',
+                   omega = 'omega',
+                   kappa = 'kappa',
+                   phi ='phi',
+                   dx = 'detz',
+                   unit = '',
+                   fmtstr ='%r'),
 
 )
