@@ -45,17 +45,17 @@ from nicos.pycompat import iteritems
 
 
 # tag values for esmeralda /Image_Modules_Src/Laue_tiff_read.f90
-# format: tiff tagnumber: ( descr, nicos key)
-TAGMAP = {'T/svalue': (1000, 'ICd%temp_begin'),
-          'T/evalue': (1001, 'ICd%temp_end'),
-          'Sample/name': (1002, 'ICd%sample'),
-          'det1/preset': (1003, 'ICd%expose_time'),
-          'phi/value': (1004, 'ICd%expose_phi'),
-          'startx': (1005, 'ICd%startx'),
-          'starty': (1006, 'ICd%starty'),
-          '???3': (1007, 'ICd%speed'),
-          'T/min': (1008, 'ICd%temp_min'),
-          'T/max': (1009, 'ICd%temp_max'),
+# format: nicos key: ( tiff tag nr, descr, tiff valuetype (3=str, 11, float)
+TAGMAP = {'T/svalue': (1000, 'ICd%temp_begin', 11),
+          'T/evalue': (1001, 'ICd%temp_end', 11),
+          'Sample/name': (1002, 'ICd%sample', 2),
+          'det1/preset': (1003, 'ICd%expose_time', 11),
+          'phi/value': (1004, 'ICd%expose_phi', 11),
+          'startx': (1005, 'ICd%startx', 11),
+          'starty': (1006, 'ICd%starty', 11 ),
+          '???3': (1007, 'ICd%speed', 11),
+          'T/min': (1008, 'ICd%temp_min', 11),
+          'T/max': (1009, 'ICd%temp_max', 11),
           }
 
 
@@ -80,20 +80,24 @@ class TIFFLaueFileFormat(ImageSink):
         # ensure numpy type, with float values for PIL
         npData = numpy.asarray(data, dtype='<u2')
         buf = numpy.getbuffer(npData)
-        self.log.info(npData.shape)
         ifile = Image.frombuffer('I;16', npData.shape, buf, "raw", 'I;16', 0, 1)
 
-        ifile.save(info.file, 'TIFF', imageinfo=self._buildHeader(info))
+        ifile.save(info.file, 'TIFF', tiffinfo=self._buildHeader(info))
 
     def _buildHeader(self, imageinfo):
         ifd = ImageFileDirectory()  # pylint: disable=E1120
-        ifd[TAGMAP['startx'][1]] = 1
-        ifd[TAGMAP['starty'][1]] = 1
+        ifd[TAGMAP['startx'][0]] = 1
+        ifd[TAGMAP['starty'][0]] = 1
         ifd[STRIPOFFSETS] = 8
         for _cat, dataSets in iteritems(imageinfo.header):
             for dev, attr, attrVal in dataSets:
                 key = '%s/%s' % (dev.name, attr)
                 if key in TAGMAP:
-                    ifd[TAGMAP[key][1]] = attrVal
+                    tag = TAGMAP[key][0]
+                    typ = TAGMAP[key][2]
+                    ifd.tagtype[tag] = typ
+                    if typ == 11:
+                        attrVal=float(attrVal.split(' ')[0])
+                    ifd[tag] = attrVal
 
         return ifd
