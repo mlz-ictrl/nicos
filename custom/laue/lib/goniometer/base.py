@@ -84,6 +84,8 @@ class PositionBase(object):
         if not _rad:
             if val:
                 return np.deg2rad(val)
+            else:
+                return 0.0
         else:
             return val
 
