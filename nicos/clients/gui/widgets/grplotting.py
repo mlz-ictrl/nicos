@@ -31,14 +31,16 @@ import tempfile
 
 import gr
 from PyQt4 import QtGui
-from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QApplication, QMenu, QAction
+from PyQt4.QtCore import Qt, QPoint
 from qtgr import InteractiveGRWidget
-from qtgr.events import GUIConnector, MouseEvent, LegendEvent
-from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar, Text
+from qtgr.events import GUIConnector, MouseEvent, LegendEvent, ROIEvent
+from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar, Text, \
+    RegionOfInterest, CoordConverter
 from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
-    DataSetPlotMixin, GaussFitter, prepareData
+    DataSetPlotMixin, GaussFitter, prepareData, Fitter
 from nicos.guisupport.timeseries import buildTickDistAndSubTicks
 from nicos.pycompat import string_types
 
@@ -141,7 +143,9 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
         self._guiConn = GUIConnector(self)
         self._guiConn.connect(LegendEvent.ROI_CLICKED,
-                              self.on_legendItemClicked)
+                              self.on_legendItemClicked, LegendEvent)
+        self._guiConn.connect(ROIEvent.ROI_CLICKED,
+                              self.on_roiItemClicked, ROIEvent)
         self._guiConn.connect(MouseEvent.MOUSE_PRESS,
                               self.on_fitPicker_selected)
         self._guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
@@ -269,6 +273,26 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         if event.getButtons() & MouseEvent.LEFT_BUTTON:
             event.curve.visible = not event.curve.visible
             self.update()
+
+    def on_roiItemClicked(self, event):
+        if event.getButtons() & MouseEvent.RIGHT_BUTTON:
+            if isinstance(event.roi.reference, Fitter):
+                menu = QMenu(self)
+                actionClipboard = QAction("Copy fit values to clipboard", menu)
+                menu.addAction(actionClipboard)
+                p0dc = event.getDC()
+                selectedItem = menu.exec_(self.mapToGlobal(QPoint(p0dc.x,
+                                                                  p0dc.y)))
+                if selectedItem == actionClipboard:
+                    fitter = event.roi.reference
+                    text = '\n'.join(
+                                     (n + '\t' if n else '\t') +
+                                     (v + '\t' if isinstance(v, string_types)
+                                      else '%g\t' % v) +
+                                     (dv if isinstance(dv, string_types)
+                                      else '%g' % dv)
+                                     for (n, v, dv) in fitter.interesting)
+                    QApplication.clipboard().setText(text)
 
     def on_mouseMove(self, event):
         self.mouselocation = event
@@ -405,9 +429,17 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             (v if isinstance(v, string_types) else '%g' % v) +
             (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
             for (n, v, dv) in fitter.interesting)
-        resultcurve.dependent.append(
-            Text(fitter.labelx, fitter.labely, text, self._axes, .012,
-                 hideviewport=False))
+        grtext = Text(fitter.labelx, fitter.labely, text, self._axes, .012,
+                      hideviewport=False)
+        resultcurve.dependent.append(grtext)
+        coord = CoordConverter(self._axes.sizex, self._axes.sizey,
+                               self._axes.getWindow())
+        roi = RegionOfInterest(reference=fitter, regionType=RegionOfInterest.TEXT,
+                               axes=self._axes)
+        for nxi, nyi in zip(*grtext.getBoundingBox()):
+            coord.setNDC(nxi, nyi)
+            roi.append(coord.getWC(self._axes.viewport))
+        self._plot.addROI(roi)
         self.update()
 
     def on_fitPicker_selected(self, point):
