@@ -439,7 +439,11 @@ class NicosClient(object):
         """Return values of all device parameters from cache, as a dictionary."""
         params = {}
         devkeys = self.ask('getcachekeys', devname.lower() + '/') or []
-        for key, value in devkeys:
+        for item in devkeys:
+            try:
+                key, value = item
+            except ValueError:
+                continue
             param = key.split('/')[1]
             params[param] = value
         return params
