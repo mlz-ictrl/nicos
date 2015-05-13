@@ -274,13 +274,15 @@ magnet75supp = Block('Magnet', [
         Field(dev='sth_B7T5_Taco_motor',name='motor'),
         Field(dev='sth_B7T5_Taco_coder',name='coder'),
     ),
+    # Maximum temperatures for field operation above 6.6 T (80A) taken from the
+    # manual
     BlockRow(
-        Field(dev='m7T5_T1'),
-        Field(dev='m7T5_T2'),
+        Field(dev='m7T5_T1', max=4.3),
+        Field(dev='m7T5_T2', max=4.3),
     ),
     BlockRow(
-        Field(dev='m7T5_T3'),
-        Field(dev='m7T5_T4'),
+        Field(dev='m7T5_T3', max=5.1),
+        Field(dev='m7T5_T4', max=4.7),
     ),
     BlockRow(
         Field(dev='m7T5_T5'),
@@ -288,46 +290,10 @@ magnet75supp = Block('Magnet', [
     ),
     BlockRow(
         Field(dev='m7T5_T7'),
-        Field(dev='m7T5_T8'),
+        Field(dev='m7T5_T8', max=4.3),
     ),
     ],
     setups='magnet75',
-)
-
-# for setup magnet PANDA-setup
-magnet7t5 = Block('7T Magnet', [
-    BlockRow(
-        Field(dev='B_m7T5'),
-        Field(key='b_m7t5/target', name='Target', fmtstr='%.2f'),
-    ),
-    ],
-    setups='7T5',
-)
-
-magnet7t5supp = Block('Magnet', [
-    BlockRow(
-        Field(dev='sth_B7T5_Taco_motor',name='motor'),
-        Field(dev='sth_B7T5_Taco_coder',name='coder'),
-    ),
-    # Maximum temeratures for field operation above 80A (6.6T) taken from the manual
-    BlockRow(
-        Field(dev='m7T5_T1',max=4.3),
-        Field(dev='m7T5_T2',max=4.3),
-    ),
-    BlockRow(
-        Field(dev='m7T5_T3',max=5.1),
-        Field(dev='m7T5_T4',max=4.7),
-    ),
-    BlockRow(
-        Field(dev='m7T5_T5'),
-        Field(dev='m7T5_T6'),
-    ),
-    BlockRow(
-        Field(dev='m7T5_T7'),
-        Field(dev='m7T5_T8',max=4.3),
-    ),
-    ],
-    setups='7T5',
 )
 
 vti = Block('VTI', [
@@ -378,9 +344,9 @@ foki = Block('Foki', [
 )
 
 column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, magnet75, magnet7t5, magnet14t5, vti)
+          Column(lakeshore, magnet75, magnet14t5, vti)
 
-column3 = Column(magnet75supp, magnet7t5supp, kelvinox, foki) + \
+column3 = Column(magnet75supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)
