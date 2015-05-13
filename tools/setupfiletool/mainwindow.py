@@ -86,7 +86,8 @@ class MainWindow(QMainWindow):
             instrumentAction = self.instrumentMenu.addAction(directory.text(0))
             instrumentAction.triggered.connect(
                 self.treeWidget.setInstrumentMode)
-        self.treeWidget.setSingleInstrument(config.instrument)
+        if config.instrument and config.instrument not in ('jcns', 'demo'):
+            self.treeWidget.setSingleInstrument(config.instrument)
 
     def loadSelection(self, curItem, column):
         self.treeWidget.setCurrentItem(curItem)
