@@ -24,7 +24,7 @@
 
 """NICOS GUI command input widgets."""
 
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal
 from PyQt4.QtGui import QColor, QComboBox, QDoubleValidator, QHBoxLayout, \
     QLabel, QSizePolicy, QSpacerItem, QToolButton, QWidget
 
@@ -535,5 +535,15 @@ class NewSample(Cmdlet):
         return 'NewSample(%(samplename)r)' % self.getValues()
 
 
-all_cmdlets = [Move, Count, Scan, CScan, ContScan, Sleep, Configure, NewSample]
-all_categories = ['Device', 'Scan', 'Other']
+all_cmdlets = []
+all_categories = []
+
+
+def register(cmdlet):
+    all_cmdlets.append(cmdlet)
+    if cmdlet.category not in all_categories:
+        all_categories.append(cmdlet.category)
+
+
+for cmdlet in [Move, Count, Scan, CScan, ContScan, Sleep, Configure, NewSample]:
+    register(cmdlet)

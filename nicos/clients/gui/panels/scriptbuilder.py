@@ -24,12 +24,13 @@
 
 """NICOS GUI multiple cmdlet script-builder input."""
 
-from PyQt4.QtGui import QMenu, QAction, QToolButton
 from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtGui import QAction, QMenu, QToolButton
 
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.cmdlets import all_cmdlets, all_categories
+from nicos.clients.gui.utils import loadUi
+from nicos.utils import importString
 
 
 class CommandsPanel(Panel):
@@ -66,6 +67,11 @@ class CommandsPanel(Panel):
             menu.addActions(self.mapping[category])
             toolbtn.setMenu(menu)
             self.btnLayout.insertWidget(1, toolbtn)
+
+    def setOptions(self, options):
+        modules = options.get('modules', [])
+        for module in modules:
+            importString(module, ('nicos.',))  # should register cmdlets
 
     def on_cmdletRemove(self):
         cmdlet = self.sender()

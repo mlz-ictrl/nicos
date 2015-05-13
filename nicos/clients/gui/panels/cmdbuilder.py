@@ -27,13 +27,14 @@
 
 import time
 
-from PyQt4.QtGui import QMenu, QAction
 from PyQt4.QtCore import SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtGui import QAction, QMenu
 
-from nicos.clients.gui.utils import loadUi, modePrompt
+from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.cmdlets import all_cmdlets, all_categories
+from nicos.clients.gui.utils import loadUi, modePrompt
 from nicos.guisupport.utils import setBackgroundColor
+from nicos.utils import importString
 
 
 class CommandPanel(Panel):
@@ -72,6 +73,11 @@ class CommandPanel(Panel):
         if self.console:
             self.console.outView.anchorClicked.connect(
                 self.on_consoleView_anchorClicked)
+
+    def setOptions(self, options):
+        modules = options.get('modules', [])
+        for module in modules:
+            importString(module, ('nicos.',))  # should register cmdlets
 
     def loadSettings(self, settings):
         self.cmdhistory = settings.value('cmdhistory') or []
