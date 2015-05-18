@@ -33,7 +33,7 @@ class Setup(object):
         info = {}
         readSetup(info,
                   path.dirname(pathToSetup),
-                  pathToSetup,
+                  path.basename(pathToSetup),
                   log)
 
         self.path = pathToSetup
@@ -58,12 +58,13 @@ class Setup(object):
         info = {}
         readSetup(info,
                   path.dirname(pathToSetup),
-                  pathToSetup,
+                  path.basename(pathToSetup),
                   log)
-        pathNoExtension = pathToSetup[:-3]
+        modname = path.basename(path.splitext(pathToSetup)[0])
         devices = []
-        for device in info[pathNoExtension]['devices'].keys():
-            devices.append(device)
+        if modname in info and 'devices' in info[modname]:
+            for device in info[modname]['devices'].keys():
+                devices.append(device)
         return devices
 
     @staticmethod
