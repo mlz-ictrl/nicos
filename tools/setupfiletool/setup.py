@@ -31,10 +31,7 @@ from nicos.core.sessions.setups import readSetup
 class Setup(object):
     def __init__(self, pathToSetup, log, parent=None):
         info = {}
-        readSetup(info,
-                  path.dirname(pathToSetup),
-                  path.basename(pathToSetup),
-                  log)
+        readSetup(info, pathToSetup, log)
 
         self.path = pathToSetup
         self.pathNoExtension = info.keys()[0]
@@ -56,10 +53,7 @@ class Setup(object):
     def getDeviceNamesOfSetup(pathToSetup, log):
         # returns the names of devices of a setup
         info = {}
-        readSetup(info,
-                  path.dirname(pathToSetup),
-                  path.basename(pathToSetup),
-                  log)
+        readSetup(info, pathToSetup, log)
         modname = path.basename(path.splitext(pathToSetup)[0])
         devices = []
         if modname in info and 'devices' in info[modname]:

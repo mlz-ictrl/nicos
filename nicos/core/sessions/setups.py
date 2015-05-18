@@ -44,7 +44,7 @@ def readSetups(paths, logger):
             for filename in files:
                 if not filename.endswith('.py'):
                     continue
-                readSetup(infodict, root, filename, logger)
+                readSetup(infodict, path.join(root, filename), logger)
     # check if all includes exist
     for name, info in iteritems(infodict):
         if info is None:
@@ -58,14 +58,14 @@ def readSetups(paths, logger):
     return infodict
 
 
-def readSetup(infodict, root, filename, logger):
-    modname = filename[:-3]
+def readSetup(infodict, filepath, logger):
+    modname = path.splitext(path.basename(filepath))[0]
     try:
-        with open(path.join(root, filename), 'r') as modfile:
+        with open(filepath, 'r') as modfile:
             code = modfile.read()
     except IOError as err:
         logger.exception('Could not read setup '
-                         'module %r: %s' % (modname, err))
+                         'module %r: %s' % (filepath, err))
         return
     # device() is a helper function to make configuration prettier
     ns = {
@@ -82,7 +82,7 @@ def readSetup(infodict, root, filename, logger):
         exec_(code, ns)
     except Exception as err:
         logger.exception('An error occurred while processing '
-                         'setup %s: %s' % (modname, err))
+                         'setup %r: %s' % (filepath, err))
         return
     info = {
         'description': ns.get('description', modname),
@@ -94,7 +94,7 @@ def readSetup(infodict, root, filename, logger):
         'devices': ns.get('devices', {}),
         'startupcode': ns.get('startupcode', ''),
         'extended': ns.get('extended', {}),
-        'filename': path.join(root, filename),
+        'filename': filepath,
     }
     if info['group'] not in SETUP_GROUPS:
         logger.warning('Setup %s has an invalid group (valid groups '
@@ -117,7 +117,7 @@ def readSetup(infodict, root, filename, logger):
                 del oldinfo['devices'][devname]
         oldinfo['startupcode'] += '\n' + info['startupcode']
         oldinfo['extended'].update(info['extended'])
-        oldinfo['filename'] = path.join(root, filename)
+        oldinfo['filename'] = filepath
         logger.debug('%r setup partially merged with version '
                      'from parent directory' % modname)
     else:

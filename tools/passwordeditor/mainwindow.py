@@ -100,10 +100,7 @@ class MainWindow(QMainWindow):
         while self.userList.count() > 1:
             self.userList.takeItem(1)
 
-        readSetup(self.info,
-                  path.dirname(str(pathToFile)),
-                  str(pathToFile),
-                  self.log)
+        readSetup(self.info, str(pathToFile), self.log)
         self.loadedScript = str(pathToFile[:-3])
 
         #if device Auth doesnt exist, create it
