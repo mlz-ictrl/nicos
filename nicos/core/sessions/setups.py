@@ -72,7 +72,7 @@ def readSetup(infodict, root, filename, logger):
         'device': lambda cls, **params: (cls, params),
         'setupname': modname,
     }
-    if modname.startswith('monitor'):
+    if path.basename(modname).startswith('monitor'):
         ns['Row'] = lambda *args: args
         ns['Column'] = lambda *args: args
         ns['BlockRow'] = lambda *args: args
