@@ -86,17 +86,17 @@ function fetch
 mkdir -p $BASEDIR/download
 cd $BASEDIR/download
 WGET="wget -c --no-check-certificate"
-$WGET https://trac.frm2.tum.de/externalpackages/Python-2.7.6.tar.xz
-$WGET https://trac.frm2.tum.de/externalpackages/Python-3.3.4.tar.xz
-$WGET https://trac.frm2.tum.de/externalpackages/PyQt-x11-gpl-4.10.1.tar.gz
-$WGET https://trac.frm2.tum.de/externalpackages/PyQwt-5.2.0.tar.gz
-$WGET https://trac.frm2.tum.de/externalpackages/pyqwt5.2.1-frm2.tar.gz
-$WGET https://trac.frm2.tum.de/externalpackages/sip-4.14.6.tar.gz
-$WGET https://trac.frm2.tum.de/externalpackages/QScintilla-gpl-2.7.1.tar.gz
-$WGET https://trac.frm2.tum.de/externalpackages/qt-everywhere-opensource-src-4.8.5.tar.gz
-$WGET https://trac.frm2.tum.de/externalpackages/virtualenv-1.11.2.tar.gz
-$WGET https://trac.frm2.tum.de/externalpackages/pip-1.5.2.tar.gz
-$WGET https://trac.frm2.tum.de/externalpackages/setuptools-2.1.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/Python-2.7.6.tar.xz
+$WGET https://forge.frm2.tum.de/externalpackages/Python-3.3.4.tar.xz
+$WGET https://forge.frm2.tum.de/externalpackages/PyQt-x11-gpl-4.10.1.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/PyQwt-5.2.0.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/pyqwt5.2.1-frm2.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/sip-4.14.6.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/QScintilla-gpl-2.7.1.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/qt-everywhere-opensource-src-4.8.5.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/virtualenv-1.11.2.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/pip-1.5.2.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/setuptools-2.1.tar.gz
 
 # check downloaded files
 md5sum -c <<EOF

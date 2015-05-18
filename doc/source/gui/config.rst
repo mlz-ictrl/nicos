@@ -36,7 +36,7 @@ A small example configuration file looks like this::
    tools = [
        tool('Calculator', 'calculator.CalculatorTool'),
        tool('Report NICOS bug', 'website.WebsiteTool',
-            url='http://trac.frm2.tum.de/redmine/projects/nicos/issues/new'),
+            url='http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'),
    ]
 
 There must be three top-level values called ``main_window``, ``windows`` and

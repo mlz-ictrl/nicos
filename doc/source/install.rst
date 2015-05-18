@@ -7,18 +7,18 @@ Get the source code
 NICOS is maintained in a Git repository hosted at the FRM II.  You can clone
 this repository using ::
 
-  git clone git://trac.frm2.tum.de/home/repos/git/frm2/nicos/nicos-core.git
+  git clone git://forge.frm2.tum.de/home/repos/git/frm2/nicos/nicos-core.git
 
 Alternatively you can get the current snapshot from
 
-  http://trac.frm2.tum.de/cgit/cgit.cgi/nicos/nicos-core.git/snapshot/nicos-core-master.tar.bz2
+  http://forge.frm2.tum.de/cgit/cgit.cgi/frm2/nicos/nicos-core.git/snapshot/nicos-core-master.tar.bz2
 
 For development, we use SSH access via Gerrit::
 
-  git clone ssh://trac.frm2.tum.de:29418/frm2/nicos/nicos-core.git
+  git clone ssh://forge.frm2.tum.de:29418/frm2/nicos/nicos-core.git
 
 Note that you have to log in once at the `FRM II Gerrit instance
-<http://trac.frm2.tum.de/review/>`_ and add a public key for SSH, since only
+<http://forge.frm2.tum.de/review/>`_ and add a public key for SSH, since only
 public key authentication is enabled.
 
 The bug tracker and project wiki are at

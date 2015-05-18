@@ -51,7 +51,7 @@ class NicosError(Exception):
 
     where more information can be given.  The integer should be the Unix
     timestamp (e.g from ``date +%%s``, to get a uniqe id) of the first use of
-    this specific error.  To create the wiki page, log in to trac and enter
+    this specific error.  To create the wiki page, log in to redmine (forge) and enter
     'wiki:NicosError/<integer>' in the search box on the upper right.
     """
     category = 'Error'
