@@ -90,7 +90,6 @@ The result is used to create the status string.
   .. automethod:: retry
   .. automethod:: stop
   .. automethod:: wait
-  .. automethod:: _format_args_kwargs
 
 .. autoclass:: SeqDev
 .. autoclass:: SeqParam
