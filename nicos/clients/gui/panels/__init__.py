@@ -33,7 +33,6 @@ from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
-from nicos.clients.gui.main import log
 
 from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
@@ -213,6 +212,7 @@ class Panel(QWidget, DlgUtils):
 
 
 def createWindowItem(item, window, menuwindow, topwindow):
+    from nicos.clients.gui.main import log
     dockPosMap = {'left':   Qt.LeftDockWidgetArea,
                   'right':  Qt.RightDockWidgetArea,
                   'top':    Qt.TopDockWidgetArea,
