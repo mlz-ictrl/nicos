@@ -30,7 +30,7 @@ from datetime import timedelta
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import ConfigurationError, Device, DeviceMixinBase, LimitError, \
+from nicos.core import Device, DeviceMixinBase, LimitError, \
     Measurable, MoveError, Moveable, NicosError, Override, Param, \
     ProgrammingError, SIMULATION, anytype, none_or, status, tupleof
 from nicos.utils import createThread
@@ -135,27 +135,27 @@ class SeqParam(SequenceItem):
 
 
 class SeqMethod(SequenceItem):
-    """Calls a method of a Device with the given arguments.
+    """Calls a method of an object with the given arguments.
 
     Useful for e.g. fix/release or other usermethods.
     """
-    def __init__(self, dev, method, *args, **kwargs):
-        SequenceItem.__init__(self, dev=dev, method=method, args=args,
+    def __init__(self, obj, method, *args, **kwargs):
+        SequenceItem.__init__(self, obj=obj, method=method, args=args,
                               kwargs=kwargs)
 
     def check(self):
-        if not hasattr(self.dev, self.method):
-            raise ConfigurationError(self.dev,
-                                     'method %s does not exist!' % self.method)
+        if not hasattr(self.obj, self.method):
+            raise AttributeError('method %r.%s does not exist!' %
+                                 (self.obj, self.method))
 
     def run(self):
-        getattr(self.dev, self.method)(*self.args)
+        getattr(self.obj, self.method)(*self.args)
 
     def __repr__(self):
-        if isinstance(self.dev, Device):
-            name = self.dev.name
+        if isinstance(self.obj, Device):
+            name = self.obj.name
         else:
-            name = repr(self.dev)
+            name = repr(self.obj)
         return '%s %s' % (name, self.method)
 
 
