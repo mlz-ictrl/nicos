@@ -595,11 +595,17 @@ class ExecutionController(Controller):
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     # perhaps also send an error notification
-                    session.scriptEvent('exception', sys.exc_info())
+                    try:
+                        session.scriptEvent('exception', sys.exc_info())
+                    except Exception:
+                        # last resort: do not exit script thread even if we
+                        # can't handle this exception
+                        pass
                 if self.debugger:
                     self.debug_end(tracing=False)
                 session.scriptEvent('finish', None)
         except Exception:
             self.log.exception('unhandled exception in script thread')
+            session.log.error('internal error in NICOS daemon, please restart')
         finally:
             self.thread = None
