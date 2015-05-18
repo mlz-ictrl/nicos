@@ -15,11 +15,13 @@ if not os.environ.get('INSTRUMENT'):
     os.environ['INSTRUMENT'] = 'demo'
 
 dev_null = open(os.devnull, 'wb')
-background_processes = {}
+background_processes = []
+
 
 def echo(s):
     sys.stdout.write(s)
     sys.stdout.flush()
+
 
 def spawn(script, *args, **kwds):
     wait = kwds.pop('wait', False)
@@ -32,7 +34,9 @@ def spawn(script, *args, **kwds):
         except KeyboardInterrupt:
             p.terminate()
     else:
-        background_processes[script, args] = p
+        nice_name = '%s %s' % (script, ' '.join(args))
+        background_processes.append((nice_name, p))
+
 
 def wait():
     echo('Services started, press Enter to stop them.\n')
@@ -41,16 +45,22 @@ def wait():
     except (KeyboardInterrupt, EOFError):
         pass
 
+
 @atexit.register
 def cleanup():
     # clean up processes, even if nicos-demo is terminated early
-    for (name, args), proc in background_processes.iteritems():
+    if background_processes:
+        echo('Cleaning up...\n')
+    for nice_name, proc in reversed(background_processes):
         try:
             proc.terminate()
         except OSError as e:
             # might already have terminated early
-            echo('could not stop %s %s: %s\n' %
-                 (name, ' '.join(args), e))
+            echo('could not stop %s %s: %s\n' % (nice_name, e))
+        else:
+            proc.wait()
+    echo('NICOS demo finished.\n')
+
 
 parser = optparse.OptionParser()
 parser.add_option('-E', dest='noelog', action='store_true',
@@ -139,5 +149,3 @@ elif not opts.nodaemon:
 else:
     echo('.\n')
     wait()
-
-echo('NICOS demo finished.\n')
