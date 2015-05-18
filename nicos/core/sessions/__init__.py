@@ -1080,7 +1080,8 @@ class Session(object):
             exc_info = sys.exc_info()
         self._lastUnhandled = exc_info
         if isinstance(exc_info[1], NicosError):
-            if exc_info[1].device and exc_info[1].device.log:
+            if isinstance(exc_info[1].device, Device) and \
+               exc_info[1].device.log:
                 exc_info[1].device.log.error(exc_info=exc_info)
                 return
         if cut_frames:
