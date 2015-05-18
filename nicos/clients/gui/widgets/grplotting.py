@@ -25,12 +25,9 @@
 # *****************************************************************************
 """NICOS GR plotting backend."""
 
-import sys
 import os
 import time
 import tempfile
-
-sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
 
 import gr
 from PyQt4 import QtGui

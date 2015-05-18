@@ -29,8 +29,6 @@ import os
 import sys
 from time import time as currenttime, localtime, mktime
 
-sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
-
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, \
     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
 from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, QSettings, \

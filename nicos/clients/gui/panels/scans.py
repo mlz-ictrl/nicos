@@ -25,12 +25,9 @@
 
 """NICOS GUI scan plot window."""
 
-import sys
 import os
 import time
 from math import sqrt
-
-sys.QT_BACKEND_ORDER = ["PyQt4", "PySide"]
 
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
     QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
