@@ -353,6 +353,7 @@ class ImageProducer(DeviceMixinBase):
             self.log.debug('saveImage(%20s)' % ('%r' % image))
             if image is not None:
                 for imageinfo in self._imageinfos:
+                    imageinfo.imagetype = self.imagetype
                     imageinfo.filesaver.saveImage(imageinfo, image)
                     # also inform possibly running liveWidgets
                     # tag, filename, dtype, nx, ny, nz, time, data
