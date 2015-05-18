@@ -533,7 +533,7 @@ class CacheClient(BaseCacheClient):
         another value that is returned if the value is missing or expired.  A
         singleton such as ``Ellipsis`` works well in these cases.
         """
-        if not self._startup_done.wait(15):
+        if not self._stoprequest and not self._startup_done.wait(15):
             self.log.warning('Cache _startup_done took more than 15s!')
             raise CacheError(self, 'Cache _startup_done took more than 15s!')
         dbkey = ('%s/%s' % (dev, key)).lower()
