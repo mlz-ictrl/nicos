@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath('..')) # for custom extensions
 
 import nicos
 
-extensions = ['sphinx.ext.autodoc', 'rst2pdf.pdfbuilder', 'sphinx.ext.viewcode',
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
               'ext.setupdoc', 'ext.daemondoc', 'ext.tacostubs', 'ext.devicedoc']
 templates_path = ['_templates']
 source_suffix = '.rst'
