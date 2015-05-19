@@ -31,6 +31,8 @@ from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.docstrings import prepare_docstring
 
+from nicos.core.sessions.setups import readSetup
+
 EXCLUDE_PARAMS = set(['description', 'passwd', 'target'])
 
 
@@ -68,12 +70,12 @@ Startup code
 '''
 
 rstSnipSetup = '''
-.. _%(unique_id)s:
+.. _%(uniqueid)s:
 
 %(setupname)s
 %(setupname_underline)s
 
-*File: %(basepath)s*
+*File: %(shortsetuppath)s*
 
 %(description)s
 
@@ -98,108 +100,92 @@ class SetupDirective(Directive):
     indention = '    '
 
     def run(self):
-        # simplify logging access
+        # simplify env access
         self.env = self.state.document.settings.env
-        self.warn = self.env.app.warn
 
-        # relative to the doc source dir
-        rel_path = path.join(self.env.config.setupdoc_setup_base_dir,
-                             self.arguments[0])
+        # short setup path:
+        # like it's used in nicos (custom/instr/setups/setup.py)
+        self._shortSetupPath = self.arguments[0]
+        self._absSetupPath = self._getAbsoluteSetupPath(self._shortSetupPath)
+        self._setupName = path.basename(self._absSetupPath)[:-3]
+
+        ## relative to the doc source dir
+        #rel_path = path.join(self.env.config.setupdoc_setup_base_dir,
+        #                     self.arguments[0])
 
         # note actual setup as dependency
-        self.env.note_dependency(rel_path)
+        self.env.note_dependency(self._absSetupPath)
 
-        info = self._readSetup(rel_path, self.arguments[0])
+        info = self._readSetup()
         node = nodes.paragraph()
         if info:
             content = self._buildSetupRst(info)
-            content = ViewList(content.splitlines(), rel_path)
+            content = ViewList(content.splitlines(), self._absSetupPath)
             nested_parse_with_titles(self.state, content, node)
 
         return node.children
 
-    def _readSetup(self, rel_path, base_path):
-        # self.debug('Handle setup: %s' % rel_path)
-        full_path = path.join(self.env.srcdir, rel_path)
+    def exception(self, *args, **kwargs):
+        self.warn(*args, **kwargs)
 
-        if not full_path.endswith('.py'):
-            self.warn('Given setup is not a python file: %s' % full_path)
+    def warn(self, *args, **kwargs):
+        self.env.app.warn(*args, **kwargs)
+
+    def _readSetup(self):
+        uniqueId = self._getUniqueSetupId(self._shortSetupPath)
+
+        setups = {}
+        readSetup(setups, self._absSetupPath, self)
+
+        if not setups:
+            # logging will be done by readSetup
             return None
 
-        setup_name = path.basename(rel_path)[:-3]
+        info = setups.values()[0]
+        info['uniqueid'] = uniqueId
+        info['setupname'] = self._setupName
+        info['shortsetuppath'] = self._shortSetupPath
 
-        try:
-            with open(full_path, 'r') as modfile:
-                code = modfile.read()
-        except (ImportError, IOError) as e:
-            self.warn('Error while reading setup: %s (%s)' % (full_path, str(e)))
-            return None
+        return info
 
-        ns = {
-              'device': lambda cls, **params: (cls, params),
-              'setupname' : setup_name
-              }
+    def _buildSetupRst(self, setupInfo):
+        setupInfo['setupname_underline'] = '=' * len(setupInfo['setupname'])
 
-        try:
-            exec code in ns
-        except Exception as e:
-            self.warn('Error while processing setup: %s (%s)' % (full_path, str(e)))
-            return None
+        setupInfo['rst_group'] = self._buildGroupBlock(setupInfo)
+        setupInfo['rst_includes'] = self._buildIncludesBlock(setupInfo)
+        setupInfo['rst_excludes'] = self._buildExcludesBlock(setupInfo)
+        setupInfo['rst_modules'] = self._buildModulesBlock(setupInfo)
+        setupInfo['rst_devices'] = self._buildDevicesBlock(setupInfo)
+        setupInfo['rst_startupcode'] = self._buildStartupcodeBlock(setupInfo)
 
-        unique_id = 'setup-%s' % base_path.replace('.', '-').replace('/', '-')
-        return {
-                  'unique_id' : unique_id,
-                  'setupname' : setup_name,
-                  'basepath' : base_path,
-                  'description': ns.get('description', setup_name),
-                  'group': ns.get('group', 'optional'),
-                  'sysconfig': ns.get('sysconfig', {}),
-                  'includes': ns.get('includes', []),
-                  'excludes': ns.get('excludes', []),
-                  'modules': ns.get('modules', []),
-                  'devices': ns.get('devices', {}),
-                  'startupcode': ns.get('startupcode', ''),
-                  'extended': ns.get('extended', {}),
-                  }
+        return rstSnipSetup % setupInfo
 
-    def _buildSetupRst(self, setup_info):
-        setup_info['setupname_underline'] = '=' * len(setup_info['setupname'])
+    def _buildGroupBlock(self, setupInfo):
+        return rstSnipGroup % setupInfo if setupInfo['group'] else ''
 
-        setup_info['rst_group'] = self._buildGroupBlock(setup_info)
-        setup_info['rst_includes'] = self._buildIncludesBlock(setup_info)
-        setup_info['rst_excludes'] = self._buildExcludesBlock(setup_info)
-        setup_info['rst_modules'] = self._buildModulesBlock(setup_info)
-        setup_info['rst_devices'] = self._buildDevicesBlock(setup_info)
-        setup_info['rst_startupcode'] = self._buildStartupcodeBlock(setup_info)
+    def _buildIncludesBlock(self, setupInfo):
+        setupInfo['includes'] = ', '.join(self._buildSetupLink(setup)
+                                          for setup in setupInfo['includes'])
+        return rstSnipIncludes % setupInfo if setupInfo['includes'] else ''
 
-        return rstSnipSetup % setup_info
+    def _buildExcludesBlock(self, setupInfo):
+        setupInfo['excludes'] = ', '.join(self._buildSetupLink( setup)
+                                          for setup in setupInfo['excludes'])
+        return rstSnipExcludes % setupInfo if setupInfo['excludes'] else ''
 
-    def _buildGroupBlock(self, setup_info):
-        return rstSnipGroup % setup_info if setup_info['group'] else ''
+    def _buildModulesBlock(self, setupInfo):
+        setupInfo['modules'] = ', '.join(self._buildModuleLink(module)
+                                         for module in setupInfo['modules'])
+        return rstSnipModules % setupInfo if setupInfo['modules'] else ''
 
-    def _buildIncludesBlock(self, setup_info):
-        setup_info['includes'] = ', '.join(self._buildSetupLink(setup_info['basepath'], setup)
-                                          for setup in setup_info['includes'])
-        return rstSnipIncludes % setup_info if setup_info['includes'] else ''
-
-    def _buildExcludesBlock(self, setup_info):
-        setup_info['excludes'] = ', '.join(self._buildSetupLink(setup_info['basepath'], setup)
-                                          for setup in setup_info['excludes'])
-        return rstSnipExcludes % setup_info if setup_info['excludes'] else ''
-
-    def _buildModulesBlock(self, setup_info):
-        setup_info['modules'] = ', '.join(self._buildModuleLink(module)
-                                         for module in setup_info['modules'])
-        return rstSnipModules % setup_info if setup_info['modules'] else ''
-
-    def _buildStartupcodeBlock(self, setup_info):
-        if not setup_info['startupcode'].strip():
+    def _buildStartupcodeBlock(self, setupInfo):
+        if not setupInfo['startupcode'].strip():
             return ''
-        setup_info['startupcode'] = '\n    '.join(prepare_docstring(setup_info['startupcode']))
-        return rstSnipStartupcode % setup_info
+        setupInfo['startupcode'] = '\n    '.join(prepare_docstring(setupInfo['startupcode']))
+        return rstSnipStartupcode % setupInfo
 
-    def _buildDevicesBlock(self, setup_info):
-        devices_dict = setup_info['devices']
+    def _buildDevicesBlock(self, setupInfo):
+        devices_dict = setupInfo['devices']
         if not devices_dict:
             return ''
 
@@ -217,7 +203,7 @@ class SetupDirective(Directive):
             if not klass:
                 continue
 
-            rst.append('.. _%s-%s:\n' % (setup_info['unique_id'], devName))
+            rst.append('.. _%s-%s:\n' % (setupInfo['uniqueid'], devName))
             rst.append(devName)
             rst.append('~' * len(devName))
             rst.append('')
@@ -253,13 +239,18 @@ class SetupDirective(Directive):
 
         return '\n'.join(rst)
 
-    def _buildSetupLink(self, basepath, setup_name):
-        setuplink = 'setup-%s-py' % path.join(path.dirname(basepath),
-                                           setup_name).replace('/', '-')
-        return rstSnipSetupLink % {
-                                   'setupname' : setup_name,
-                                   'setuplink' : setuplink
-                                   }
+    def _buildSetupLink(self, setup_name):
+        shortPath = '%s.py' % path.join(path.dirname(self._shortSetupPath),
+                                        setup_name)
+        fullPath = self._getAbsoluteSetupPath(shortPath)
+
+        if path.exists(fullPath):
+            setuplink = self._getUniqueSetupId(shortPath)
+            return rstSnipSetupLink % {
+                                       'setupname' : setup_name,
+                                       'setuplink' : setuplink
+                                       }
+        return setup_name
 
     def _buildModuleLink(self, modulePath):
         return rstSnipModuleLink % {'modpath' : modulePath}
@@ -270,13 +261,13 @@ class SetupDirective(Directive):
                                    'paramname' : paramName
                                    }
 
-    def _buildCSVTable(self, rows, indent_lvl=1, h_header=True, v_Header=True):
+    def _buildCSVTable(self, rows, indent_lvl=1, hHeader=True, vHeader=True):
         rst = ['%s.. csv-table::' % (self.indention*indent_lvl)]
         rst.append('%s:widths: 20 25 55' % (self.indention*(indent_lvl + 1)))
 
-        if h_header:
+        if hHeader:
             rst.append('%s:header-rows: 1' % (self.indention*(indent_lvl + 1)))
-        if v_Header:
+        if vHeader:
             rst.append('%s:stub-columns: 1' % (self.indention*(indent_lvl + 1)))
         rst.append('')
 
@@ -286,24 +277,37 @@ class SetupDirective(Directive):
         rst.append('')
         return '\n'.join(rst)
 
-    def _importDeviceClass(self, class_path):
+    def _importDeviceClass(self, classPath):
 
-        if class_path in devClassCache:
-            return devClassCache[class_path]
+        if classPath in devClassCache:
+            return devClassCache[classPath]
 
         try:
-            module, _, klass = class_path.rpartition('.')
+            module, _, klass = classPath.rpartition('.')
             mod = __import__(module, None, None, ['*'])
 
             klass = getattr(mod, klass)
-            devClassCache[class_path] = klass
+            devClassCache[classPath] = klass
             return klass
         except ImportError as e:
-            self.warn('Could not import device class %s' % class_path)
+            self.warn('Could not import device class %s' % classPath)
         except AttributeError as e:
             self.warn(str(e))
-            self.warn('Could not get device class %s from module' % class_path)
+            self.warn('Could not get device class %s from module' % classPath)
         return None
+
+    def _getAbsoluteSetupPath(self, shortPath):
+        '''
+        Return the absolute path to the setup file.
+        short path is: custom/xy/setups/z.py
+        '''
+        return path.join(self.env.srcdir,
+                        self.env.config.setupdoc_setup_base_dir,
+                        shortPath)
+
+    def _getUniqueSetupId(self, shortPath):
+        return 'setup-%s' % shortPath.replace('.', '-').replace('/', '-')
+
 
 
 ###############################################################################
