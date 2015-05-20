@@ -728,7 +728,7 @@ class Session(object):
                               exc=True)
             except Exception:
                 self.log.warning('could not enter master mode', exc=True)
-            if setup != 'startup' or not self.cache:
+            if setup not in ('startup', ['startup']) or not self.cache:
                 return
             # If we became master, the user didn't select a specific startup
             # setup and a previous master setup was configured, re-use that.
