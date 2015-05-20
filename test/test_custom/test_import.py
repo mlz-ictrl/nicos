@@ -26,6 +26,7 @@
 
 import os
 from os import path
+import nose
 
 from nicos.utils.tacostubs import generate_stubs
 
@@ -58,3 +59,18 @@ def test_import_all():
         for mod in os.listdir(path.join(custom_dir, instr, 'lib')):
             if mod.endswith('.py'):
                 yield import_and_check, 'nicos.%s.%s' % (instr, mod[:-3])
+
+
+def test_all_tests():
+    custom_dir = path.join(rootdir, '..', '..', 'custom')
+    loader = nose.loader.TestLoader()
+    for instr in sorted(os.listdir(custom_dir)):
+        if instr == 'delab':
+            continue
+        libdir = path.join(custom_dir, instr, 'lib')
+        if not path.isdir(libdir):
+            continue
+
+        for s in loader.loadTestsFromDir(libdir):
+            if s:
+                nose.run(suite=s)
