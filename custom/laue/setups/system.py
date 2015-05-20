@@ -55,7 +55,7 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.standard', 'nicos.commands.utility']
+modules = ['nicos.commands.standard', 'nicos.commands.utility', 'nicos.laue.lauecommands']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
