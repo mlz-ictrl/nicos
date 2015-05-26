@@ -67,8 +67,7 @@ def pylab_key_handler(event):
 
 class SpaceMap(object):
 
-    def __init__(self, resmat, tasinfo, E=0, ki=None, kf=None, hkl=None,
-                 scan=None, **kwds):
+    def __init__(self, resmat, tasinfo, E=0, ki=None, kf=None, scan=None, **kwds):
         self.resmat = resmat
         self.tasinfo = tasinfo
         self.cell = CellBase()
@@ -77,9 +76,12 @@ class SpaceMap(object):
                           tasinfo['psi0'])
 
         self.taus = []
+        self.hkls = []
         for kwd in kwds:
             if kwd.startswith('tau'):
                 self.taus.append(kwds[kwd])
+            elif kwd.startswith('hkl'):
+                self.hkls.append(kwds[kwd])
 
         mode = self.tasinfo['scanmode']
         const = self.tasinfo['scanconstant']
@@ -93,7 +95,6 @@ class SpaceMap(object):
         self.ny = self._thz(E)
         self.mode = mode
         self.const = const
-        self.hkl = hkl
         self.scan = scan
 
     def _thz(self, E):
@@ -108,7 +109,7 @@ class SpaceMap(object):
             return
         pylab.scatter([x], [y], **props)
         if label is not None:
-            pylab.text(x, y-0.2, label, size='x-small',
+            pylab.text(x, y-0.1, label, size='x-small',
                        horizontalalignment='center', verticalalignment='top')
 
     def plot_hkls(self, hkls, labels=None, **props):
@@ -126,7 +127,7 @@ class SpaceMap(object):
         pylab.scatter(xs, ys, **props)
         if labels is not None:
             for i, x, y in zip(indices, xs, ys):
-                pylab.text(x, y-0.2, labels[i], size='x-small',
+                pylab.text(x, y-0.1, labels[i], size='x-small',
                            horizontalalignment='center', verticalalignment='top')
 
     def check_hkls(self, hkls):
@@ -304,9 +305,10 @@ class SpaceMap(object):
         self.plot_hkls(allowed, labels=['(%d%d%d)' % tuple(v) for v in allowed])
         # plot Bragg indices allowed by scattering plane, but limited by devices
         self.plot_hkls(limited, color='red')
-        # plot user-supplied point
-        if self.hkl is not None:
-            self.plot_hkl(self.hkl, color='#009900', edgecolor='black', linewidth=0.5)
+        # plot user-supplied points
+        for hkl in self.hkls:
+            self.plot_hkl(hkl, color='#009900', edgecolor='black', linewidth=0.5,
+                          label='(%.3g %.3g %.3g)' % tuple(hkl))
         # plot user-supplied propagation vectors
         for tau in self.taus:
             tau = array(tau)
