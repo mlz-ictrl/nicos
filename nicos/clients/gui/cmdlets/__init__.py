@@ -25,13 +25,12 @@
 """NICOS GUI command input widgets."""
 
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal
-from PyQt4.QtGui import QColor, QComboBox, QDoubleValidator, QHBoxLayout, \
-    QLabel, QSizePolicy, QSpacerItem, QToolButton, QWidget
+from PyQt4.QtGui import QColor, QDoubleValidator, QWidget
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
+from nicos.guisupport.typedvalue import DeviceParamEdit
 from nicos.guisupport.utils import setBackgroundColor
-from nicos.utils import formatDuration
+from nicos.utils import findResource, formatDuration
 
 
 invalid = QColor('#ffcccc')
@@ -129,44 +128,6 @@ class Cmdlet(QWidget):
         return ''
 
 
-class DevTargetFrame(QWidget):
-    def __init__(self, parent, client):
-        QWidget.__init__(self, parent)
-        new_layout = QHBoxLayout()
-        self.device = QComboBox(self)
-        self.device.addItems(client.getDeviceList('nicos.core.device.Moveable'))
-        self.device.currentIndexChanged['QString'].connect(self.on_device_change)
-        self.label = QLabel('to', self)
-        self.target = DeviceValueEdit(self)
-        self.target.setClient(client)
-        self.connect(self.target, SIGNAL('dataChanged'), self.parent().changed)
-        self.on_device_change(self.device.currentText())
-        self.button = QToolButton(self)
-        self.setButton('+')
-        self.button.clicked.connect(self.on_button_click)
-        new_layout.addWidget(self.device)
-        new_layout.addWidget(self.label)
-        new_layout.addWidget(self.target)
-        new_layout.addSpacerItem(QSpacerItem(15, 1, QSizePolicy.Fixed))
-        new_layout.addWidget(self.button)
-        new_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(new_layout)
-
-    def setButton(self, plusminus):
-        self.button.setText(plusminus)
-        if plusminus == '+':
-            self.button.setToolTip('Add another device to the move command')
-        else:
-            self.button.setToolTip('Remove this device')
-
-    def on_device_change(self, text):
-        self.target.dev = text
-        self.parent().changed()
-
-    def on_button_click(self):
-        self.emit(SIGNAL('addRemove'))
-
-
 class Move(Cmdlet):
 
     name = 'Move'
@@ -174,40 +135,35 @@ class Move(Cmdlet):
 
     def __init__(self, parent, client):
         Cmdlet.__init__(self, parent, client, 'move.ui')
-        self.frames = []
-        self.addRemove()
+        self.multiList.entryAdded.connect(self.on_entryAdded)
+        self.multiList.uifile = findResource('nicos/clients/gui/cmdlets/move_one.ui')
         self.waitBox.stateChanged.connect(self.changed)
+
+    def on_entryAdded(self, entry):
+        def on_device_change(text):
+            entry.target.dev = text
+            self.changed()
+        entry.device.addItems(self.client.getDeviceList('nicos.core.device.Moveable'))
+        on_device_change(entry.device.currentText())
+        entry.device.currentIndexChanged['QString'].connect(on_device_change)
+        entry.target.setClient(self.client)
+        self.connect(entry.target, SIGNAL('dataChanged'), self.changed)
 
     def _setDevice(self, values):
         """Helper for setValues for setting a device combo box."""
         if 'dev' in values:
-            idx = self.frames[0].device.findText(values['dev'])
+            idx = self.multiList.entry(0).device.findText(values['dev'])
             if idx > -1:
-                self.frames[0].device.setCurrentIndex(idx)
-
-    def addRemove(self):
-        sender = self.sender()
-        if not self.frames or sender is self.frames[-1]:
-            new_frame = DevTargetFrame(self, self.client)
-            self.connect(new_frame, SIGNAL('addRemove'), self.addRemove)
-            if self.frames:
-                self.frames[-1].setButton('-')
-            self.frames.append(new_frame)
-            self.vlayout.addWidget(new_frame)
-        else:
-            self.frames.remove(sender)
-            self.vlayout.removeWidget(sender)
-            self.frames[-1].setButton('+')
-            sender.deleteLater()
+                self.multiList.entry(0).device.setCurrentIndex(idx)
 
     def getValues(self):
-        return {'dev':    self.frames[0].device.currentText(),
-                'moveto': self.frames[0].target.getValue()}
+        return {'dev':    self.multiList.entry(0).device.currentText(),
+                'moveto': self.multiList.entry(0).target.getValue()}
 
     def setValues(self, values):
         self._setDevice(values)
         if 'moveto' in values:
-            self.frames[0].target.setValue(values['moveto'])
+            self.multiList.entry(0).target.setValue(values['moveto'])
 
     def isValid(self):
         return True
@@ -217,10 +173,10 @@ class Move(Cmdlet):
         if mode == 'simple':
             return cmd + ''.join(' %s %r' % (frm.device.currentText(),
                                              frm.target.getValue())
-                                 for frm in self.frames)
+                                 for frm in self.multiList.entries())
         return cmd + '(' + ', '.join('%s, %r' % (frm.device.currentText(),
                                                  frm.target.getValue())
-                                     for frm in self.frames) + ')'
+                                     for frm in self.multiList.entries()) + ')'
 
 
 class Count(Cmdlet):

@@ -100,7 +100,7 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
 from nicos.guisupport.widget import NicosWidget
 
 # imported for side effects
-from nicos.guisupport import display, led, typedvalue  # pylint: disable=W0611
+from nicos.guisupport import display, led, typedvalue, containers  # pylint: disable=W0611
 try:
     from nicos.guisupport import plots  # pylint: disable=W0611
 except (ImportError, RuntimeError):
