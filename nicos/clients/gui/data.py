@@ -213,8 +213,12 @@ class DataHandler(QObject):
         return curves
 
     def _update_curves(self, xvalues, yvalues):
+        done = set()
         for key, val in zip(self.currentset.xnameunits, xvalues):
-            self.currentset.datax[key].append(val)
+            # avoid adding values twice
+            if key not in done:
+                self.currentset.datax[key].append(val)
+                done.add(key)
         for index, name in self.currentset.normindices:
             self.currentset.datanorm[name].append(yvalues[index])
         for curve in self.currentset.curves:

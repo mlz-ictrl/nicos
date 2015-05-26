@@ -456,7 +456,11 @@ class ScansPanel(Panel):
         self.x_menu.clear()
         if not self.currentPlot:
             return
+        done = set()
         for name in self.currentPlot.dataset.xnameunits:
+            if name in done:
+                continue
+            done.add(name)
             action = self.x_menu.addAction(name)
             action.setCheckable(True)
             if name == self.currentPlot.current_xname:
