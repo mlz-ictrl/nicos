@@ -192,7 +192,7 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
                          'start/move it again.' % resource)
         self._taco_guard(self._dev.stop)
         # do wait for real stop
-        self._waitForTacoIdle()
+        self._hw_wait()
         self._taco_update_resource(resource, str(value))
 
     def doWritePrecision(self, value):
