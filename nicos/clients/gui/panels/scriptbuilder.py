@@ -44,6 +44,11 @@ class CommandsPanel(Panel):
         self.runBtn.setVisible(False)
         self.mapping = {}
 
+    def setOptions(self, options):
+        modules = options.get('modules', [])
+        for module in modules:
+            importString(module, ('nicos.',))  # should register cmdlets
+
         for cmdlet in all_cmdlets:
             action = QAction(cmdlet.name, self)
             def callback(on, cmdlet=cmdlet):
@@ -67,11 +72,6 @@ class CommandsPanel(Panel):
             menu.addActions(self.mapping[category])
             toolbtn.setMenu(menu)
             self.btnLayout.insertWidget(1, toolbtn)
-
-    def setOptions(self, options):
-        modules = options.get('modules', [])
-        for module in modules:
-            importString(module, ('nicos.',))  # should register cmdlets
 
     def on_cmdletRemove(self):
         cmdlet = self.sender()
