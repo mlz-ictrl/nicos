@@ -361,9 +361,10 @@ def prepareData(x, y, dy, norm):
     indices = np.isfinite(y)
     x = x[indices]
     y = y[indices]
-    dy = dy[indices]
-    # remove error bars that aren't finite
-    dy[~np.isfinite(dy)] = 0
+    if len(dy):
+        dy = dy[indices]
+        # remove error bars that aren't finite
+        dy[~np.isfinite(dy)] = 0
     # if there are no errors left, don't bother drawing them
     if dy.sum() == 0:
         return x, y, None
