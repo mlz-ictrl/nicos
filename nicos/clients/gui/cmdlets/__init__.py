@@ -37,9 +37,9 @@ from nicos.utils import formatDuration
 invalid = QColor('#ffcccc')
 
 
-def isFloat(ctl, minval=None, maxval=None):
+def isFloat(ctl, minval=None, maxval=None, conv=float):
     try:
-        v = float(ctl.text())
+        v = conv(ctl.text())
     except ValueError:
         return False
     if minval is not None and v < minval:
@@ -47,6 +47,10 @@ def isFloat(ctl, minval=None, maxval=None):
     if maxval is not None and v > maxval:
         return False
     return True
+
+
+def isInt(ctl, minval=None, maxval=None):
+    return isFloat(ctl, minval, maxval, int)
 
 
 class Cmdlet(QWidget):
