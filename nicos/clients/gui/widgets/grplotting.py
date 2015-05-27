@@ -514,7 +514,7 @@ class DataSetPlot(DataSetPlotMixin, NicosGrPlot):
         if self.current_xname != 'Default' and \
            self.current_xname not in curve.datax:
             return
-        if not curve.datay:
+        if len(curve.datay) == 0:
             return
         plotcurve = NicosPlotCurve([], [])
         self.setCurveData(curve, plotcurve)
