@@ -29,6 +29,14 @@ watchlist = [
 #         message = 'phi angle too high for current mono setting',
 #         gracetime = 5,
 #        ),
+    dict(condition = '( fugwatch_value == "on" and'
+                     '  abs(t_setpoint - ts_value) > 1.5 )',
+         type = 'default',
+         message = 'Temperature deviation between setpoint and value '
+                   'is too high shutting down high voltage.',
+         setup = 'highvoltage',
+         action = 'maw(fug, 0)',
+        ),
 ]
 
 notifiers = {
