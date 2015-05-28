@@ -57,9 +57,9 @@ class WatchdogDialog(QDialog):
         self.frame.layout().insertWidget(self.frame.layout().count()-1, w)
         if data[0] == 'warning':
             w.datelabel.setText('Watchdog alert - %s' %
-                time.strftime('%Y-%m-%d %H:%S', time.localtime(data[1])))
+                time.strftime('%Y-%m-%d %H:%M', time.localtime(data[1])))
             w.messagelabel.setText(data[2])
         elif data[0] == 'action':
             w.datelabel.setText('Watchdog action - %s' %
-                time.strftime('%Y-%m-%d %H:%S', time.localtime(data[1])))
+                time.strftime('%Y-%m-%d %H:%M', time.localtime(data[1])))
             w.messagelabel.setText('Executing action:\n' + data[2])
