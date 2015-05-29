@@ -1365,8 +1365,7 @@ class Moveable(Readable):
             val = self.read(0)
             # check reached value to be equal to target
             if not self.isAtTarget(val):
-                self.log.warning('did not reach target %s, last value is %s. This '
-                                 'may raise an error in the future!' %
+                self.log.warning('did not reach target %s, last value is %s.' %
                                  (self.format(self.target, unit=True),
                                   self.format(val, unit=True)))
         return done
