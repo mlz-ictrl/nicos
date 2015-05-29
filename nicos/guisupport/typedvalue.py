@@ -387,7 +387,7 @@ class SpinBoxWidget(QSpinBox):
         self.valueChanged['int'].connect(
             lambda val: self.emit(SIGNAL('dataChanged')))
         if allow_enter:
-            self.lineEdit.returnPressed.connect(
+            self.lineEdit().returnPressed.connect(
                 lambda: self.emit(SIGNAL('valueChosen'), self.value()))
 
     def getValue(self):
