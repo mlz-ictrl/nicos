@@ -3,9 +3,6 @@
 description = 'setup for the status monitor'
 group = 'special'
 
-Row = Column = Block = BlockRow = lambda *args: args
-Field = lambda *args, **kwds: args or kwds
-
 _expcolumn = Column(
     Block('Experiment', [
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
