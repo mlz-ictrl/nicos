@@ -48,7 +48,7 @@ devices = dict(
                           ),
     polch_Fi = device('devices.tango.NamedDigitalOutput',
                       description = 'Polarity changer for Flipper Field',
-                      tangodevice = _DIO_URL % 'Polum2',
+                      tangodevice = _DIO_URL % 'Polum1',
                       mapping = _POLCHANGE,
                       lowlevel = True
                      ),
@@ -61,7 +61,7 @@ devices = dict(
                      ),
     polch_Co = device('devices.tango.NamedDigitalOutput',
                       description = 'Polarity changer for Flipper Compensation',
-                      tangodevice = _DIO_URL % 'Polum1',
+                      tangodevice = _DIO_URL % 'Polum2',
                       mapping = _POLCHANGE,
                       lowlevel = True
                      ),
