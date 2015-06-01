@@ -75,7 +75,7 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
 class MiraMagnet(BipolarSwitchingMagnet):
     """MiraMagnet
 
-    second best way(*) to control a bipolar magnet, using two relays
+    Second best way(*) to control a bipolar magnet, using two relays
     to put current directly (plusswitch) or reversed (minusswitch)
     into the coils. if both are activated, short the powerswitch
     to have a clean zero current in the coil.
@@ -86,37 +86,17 @@ class MiraMagnet(BipolarSwitchingMagnet):
     """
 
     attached_devices = {
-        'plusswitch':  (Moveable, 'Switch to positive polarity'),
-        'minusswitch': (Moveable, 'Switch to negative polarity'),
+        'switch':  (Moveable, 'Switch to plus/minus polarity'),
     }
 
     def _get_field_polarity(self):
-        code = ','.join(self._adevs[n].read() for n in ('plusswitch', 'minusswitch'))
-        if code == 'on,off':
-            sign = +1
-        elif code == 'off,on':
-            sign = -1
-        else:
-            sign = 0 # off or short
+        sign = self._adevs['switch'].read()
         self.log.debug('Field polarity is %s' % sign)
         return sign
 
     def _seq_set_field_polarity(self, polarity, sequence):
-        plus, minus = self._adevs['plusswitch'], self._adevs['minusswitch']
-        # first switch on, then switch off
-        subsequence = []
-        if polarity >= 0 and plus.read(0) != 'on':
-            subsequence.append(SeqDev(plus, 'on'))
-        if polarity <=0 and minus.read(0) != 'on':
-            subsequence.append(SeqDev(minus, 'on'))
-        if subsequence:
-            subsequence.append(SeqSleep(0.3, 'shorting output'))
-            sequence.append(subsequence)
-        if polarity < 0:
-            sequence.append(SeqDev(plus, 'off'))
-            sequence.append(SeqDev(minus, 'on'))   # due to bug in Phytron server.
-            sequence.append(SeqSleep(0.3, 'switching to negative polarity'))
-        elif polarity > 0:
-            sequence.append(SeqDev(minus, 'off'))
-            sequence.append(SeqSleep(0.3, 'switching to positive polarity'))
-
+        # always switch to zero first
+        sequence.append(SeqDev(self._adevs['switch'], 0))
+        sequence.append(SeqSleep(0.3, 'shorting output'))
+        if polarity != 0:
+            sequence.append(SeqDev(self._adevs['switch'], polarity))
