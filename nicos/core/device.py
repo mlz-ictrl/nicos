@@ -508,6 +508,7 @@ class Device(object):
                                 'configured value (%r), using configured '
                                 'since it was changed in the setup file' %
                                 (param, value, cfgvalue))
+                            value = cfgvalue
                             self._cache.put(self, param, value)
                         elif prefercache:
                             self.log.warning(
@@ -519,7 +520,7 @@ class Device(object):
                                 'value of %s from cache (%r) differs from '
                                 'configured value (%r), using configured' %
                                 (param, value, cfgvalue))
-                            value = self._validateType(cfgvalue, param, paraminfo)
+                            value = cfgvalue
                             self._cache.put(self, param, value)
                 umethod = getattr(self, 'doUpdate' + param.title(), None)
                 if umethod:
