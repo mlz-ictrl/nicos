@@ -2,7 +2,7 @@ INFO        Laue @ MLZ
 NAME        LAUE_DIFF
 DET_TYPE    Rec
 DIST_DET      159.155
-DIM_XZP       261.000  200.000  2000  1568
+DIM_XZP       261.000  200.000  2000  1598
 GN_CENTRE     180.000    0.000
 XZ_ORIGIN      1000.0    799.0 raster units (pixels) => In mm units:       0.0      0.0
 ROT_ORDER   xzy
