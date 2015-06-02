@@ -857,6 +857,7 @@ class StandaloneHistoryApp(CacheClient):
         CacheClient.doInit(self, mode)
 
     def start(self):
+        self._startup_done.wait(2)
         self._window.openViews(self.views)
         self._window.show()
         try:
