@@ -214,7 +214,12 @@ class PyTangoDevice(HasCommunication):
         """
         if dev is None:
             dev = self._dev
-        return dev.GetProperties((name, 'device'))[2]
+        # Entangle and later API
+        if dev.command_query('GetProperties').in_type == PyTango.DevVoid:
+            props = dev.GetProperties()
+            return props[props.index(name) + 1] if name in props else None
+        # old (pre-Entangle) API
+        return dev.GetProperties([name, 'device'])[2]
 
     def _createPyTangoDevice(self, address):  # pylint: disable=E0202
         """
