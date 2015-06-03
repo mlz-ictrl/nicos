@@ -27,9 +27,6 @@
 from nicos.pycompat import string_types
 
 
-WIKI_URL = 'https://forge.frm2.tum.de/projects/NICOS/wiki/NicosError/'
-
-
 class NicosError(Exception):
     """The basic exception class for exceptions raised by NICOS.
 
@@ -43,16 +40,6 @@ class NicosError(Exception):
        def doRead(self, maxage=0):
            if not self._ready:
                raise NicosError(self, 'device is not ready')
-
-    The constructor accepts a the keyword *wikicode* with an integer argument to
-    create a link to a wiki page
-
-       https://forge.frm2.tum.de/projects/NICOS/wiki/NicosError/<integer>
-
-    where more information can be given.  The integer should be the Unix
-    timestamp (e.g from ``date +%%s``, to get a uniqe id) of the first use of
-    this specific error.  To create the wiki page, log in to redmine (forge) and enter
-    'wiki:NicosError/<integer>' in the search box on the upper right.
     """
     category = 'Error'
     device = None
@@ -73,10 +60,6 @@ class NicosError(Exception):
                     del args[0]
                 else:
                     args[0] = prefix
-        if 'wikicode' in kwds:
-            self.wikiinfo = kwds['wikicode']
-            args.append('\nAdditional information: %s%d' %
-                        (WIKI_URL, kwds['wikicode']))
         self.__dict__.update(kwds)
         Exception.__init__(self, ''.join(args))
 

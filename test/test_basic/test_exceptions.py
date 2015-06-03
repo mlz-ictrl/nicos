@@ -24,21 +24,10 @@
 
 """NICOS exception tests."""
 
-from nicos.core.errors import NicosError, CacheLockError
+from nicos.core.errors import CacheLockError
 
 
 def test_exceptions():
-    try:
-        raise NicosError(None, wikicode=1)
-    except NicosError as e:
-        assert e.args == ('\nAdditional information: https://forge.frm2.tum.de/'
-                          'projects/NICOS/wiki/NicosError/1',)
-    try:
-        raise NicosError(None, wikicode=1)
-    except NicosError as e:
-        assert e.args != ('\nAdditional information: https://forge.frm2.tum.de/'
-                          'projects/NICOS/wiki/NicosError/2',)
-
     try:
         raise CacheLockError('user')
     except CacheLockError as e:
