@@ -93,7 +93,6 @@ class Experiment(Device):
                               category='experiment'),
         'remark':       Param('Current remark about experiment configuration',
                               type=str, settable=True, category='experiment'),
-        # XXX: unfortunately tests need this to be non-absolute atm.
         'dataroot':     Param('Root data path under which all proposal specific'
                               ' paths are created', type=expanded_path,
                               default='/data', mandatory=True),
