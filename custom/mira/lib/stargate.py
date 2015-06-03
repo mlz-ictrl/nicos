@@ -43,7 +43,7 @@ done in three different holding registers with addresses n, n+2, n+4.
 from time import time as currenttime
 
 from nicos.core import Param, listof, status, InvalidValueError, Attach
-from nicos.devices.taco.axis import HoveringAxis
+from nicos.mira.axis import HoveringAxis
 from nicos.devices import tango
 
 

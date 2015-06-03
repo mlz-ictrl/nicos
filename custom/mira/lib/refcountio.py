@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos.devices.taco import DigitalOutput
+from nicos.core import Moveable, NicosError
+from nicos.devices.tango import DigitalOutput
 
 
 class RefcountDigitalOutput(DigitalOutput):
@@ -35,4 +36,30 @@ class RefcountDigitalOutput(DigitalOutput):
             self._counter += 1
         else:
             self._counter -= 1
-        self._taco_guard(self._dev.write, self._counter >= 1)
+        self._dev.value = self._counter >= 1
+
+
+class MultiDigitalOutput(Moveable):
+    """Writes the same value to multiple digital outputs at once."""
+
+    attached_devices = {
+        'outputs': ([DigitalOutput], 'A list of digital outputs to '
+                    'switch simultaneously'),
+    }
+
+    valuetype = int
+
+    def doStart(self, target):
+        for dev in self._adevs['outputs']:
+            dev.start(target)
+
+    def doRead(self, maxage=0):
+        values = []
+        for dev in self._adevs['outputs']:
+            values.append(dev.read(maxage))
+        if len(set(values)) != 1:
+            devnames = [dev.name for dev in self._adevs['outputs']]
+            raise NicosError(self,
+                'outputs have different read values: '
+                + ', '.join('%s=%s' % x for x in zip(devnames, values)))
+        return values[0]

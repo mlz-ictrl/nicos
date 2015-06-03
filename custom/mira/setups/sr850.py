@@ -6,7 +6,7 @@ includes = ['base', 'ccr5']
 devices = dict(
     M = device('mira.sr850.Amplifier',
                description = 'SR850 lock-in amplifier',
-               tacodevice = '//mirasrv/mira/network/rs3_1',
+               tangodevice = 'tango://mira1.mira.frm2:10000/mira/sr850/io',
               ),
 )
 

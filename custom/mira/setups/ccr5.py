@@ -5,13 +5,15 @@ includes = ['alias_T']
 
 modules = ['nicos.mira.commands']
 
+tango_url = 'tango://mira1.mira.frm2:10000/mira/'
+
 devices = dict(
     T_ccr5   = device('devices.taco.TemperatureController',
                       description = 'CCR5 temperature regulation',
                       tacodevice = '//mirasrv/mira/ls340/control',
                       pollinterval = 0.7,
                       maxage = 2,
-                      abslimits = (0, 300),
+                      abslimits = (0, 325),
                      ),
     T_ccr5_A = device('devices.taco.TemperatureSensor',
                       description = 'CCR5 sensor A',
@@ -31,34 +33,34 @@ devices = dict(
                       pollinterval = 0.7,
                       maxage = 2,
                      ),
-    ccr5_p1  = device('devices.taco.AnalogInput',
+    ccr5_p1  = device('devices.tango.AnalogInput',
                       description = 'cryo sample tube pressure',
-                      tacodevice = '//mirasrv/mira/ccr/p1',
+                      tangodevice = tango_url + 'ccr5/p1',
                       fmtstr = '%.3f',
                      ),
-#    ccr5_p2  = device('devices.taco.AnalogInput',
+#    ccr5_p2  = device('devices.tango.AnalogInput',
 #                      description = 'Cryo sample tube pressure (second sensor)',
-#                      tacodevice = '//mirasrv/mira/ccr/p2',
+#                      tangodevice = tango_url + 'ccr5/p2',
 #                      fmtstr = '%.3f',
 #                     ),
-    ccr5_compressor_switch = device('devices.taco.NamedDigitalOutput',
+    ccr5_compressor_switch = device('devices.tango.NamedDigitalOutput',
                                     description = 'CCR5 compressor switch on/off',
                                     mapping = {'off': 0, 'on': 1},
-                                    tacodevice = '//mirasrv/mira/ccr/pump',
+                                    tangodevice = tango_url + 'ccr5/comp',
                                    ),
-    ccr5_gas_switch        = device('devices.taco.NamedDigitalOutput',
+    ccr5_gas_switch        = device('devices.tango.NamedDigitalOutput',
                                     description = 'CCR5 sample tube gas switch on/off',
                                     mapping = {'off': 0, 'on': 1},
-                                    tacodevice = '//mirasrv/mira/ccr/gas',
+                                    tangodevice = tango_url + 'ccr5/gas',
                                    ),
-    ccr5_vacuum_switch     = device('devices.taco.NamedDigitalOutput',
+    ccr5_vacuum_switch     = device('devices.tango.NamedDigitalOutput',
                                     description = 'CCR5 sample tube vacuum switch on/off',
                                     mapping = {'off': 0, 'on': 1},
-                                    tacodevice = '//mirasrv/mira/ccr/vacuum',
+                                    tangodevice = tango_url + 'ccr5/vacuum',
                                    ),
 )
 
-startupcode = '''
-T.alias = T_ccr5
-Ts.alias = T_ccr5_A
-'''
+alias_config = {
+    'T': {'T_ccr5': 200},
+    'Ts': {'T_ccr5_A': 100, 'T_ccr5_B': 90, 'T_ccr5_C': 70},
+}

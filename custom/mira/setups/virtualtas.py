@@ -1,7 +1,7 @@
 description = 'fully virtual TAS setup'
 group = 'basic'
 
-includes = ['base']
+includes = ['base', 'sample']
 excludes = ['tas']
 
 modules = ['commands.tas']
@@ -18,21 +18,21 @@ devices = dict(
                     axiscoupling = False,
                     psi360 = False,
                     cell = 'Sample',
-                    phi = 'vphi',
-                    psi = 'vom',
+                    phi = 'vstt',
+                    psi = 'vsth',
                     mono = 'vmono',
                     ana = 'vana',
                     alpha = None,
                     scatteringsense = (-1, 1, -1),
                    ),
 
-    vom    = device('devices.generic.VirtualMotor',
+    vsth   = device('devices.generic.VirtualMotor',
                     description = 'virtual sample theta',
                     abslimits = (-360, 360),
                     unit = 'deg',
                    ),
 
-    vphi   = device('devices.generic.VirtualMotor',
+    vstt   = device('devices.generic.VirtualMotor',
                     description = 'virtual sample two-theta',
                     abslimits = (0, 120),
                     unit = 'deg',

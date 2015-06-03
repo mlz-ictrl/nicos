@@ -1,4 +1,4 @@
-description = 'setup for the status monitor'
+description = 'setup for the right status monitor'
 group = 'special'
 
 _column1 = Column(

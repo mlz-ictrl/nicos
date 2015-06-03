@@ -1,4 +1,4 @@
-description = 'setup for the status monitor'
+description = 'setup for the left status monitor'
 group = 'special'
 
 _expcolumn = Column(
@@ -19,15 +19,15 @@ _expcolumn = Column(
 
 _column1 = Column(
     Block('MIRA1 monochromator', [
-        BlockRow('m1th', 'm1tt', 'm1ch', Field(dev='FOL', width=3)),
-        BlockRow('m1tx', 'm1ty', 'm1gx', Field(dev='flip', width=3)),
+        BlockRow('mth', 'mtt', 'm1ch', Field(dev='FOL', width=3)),
+        BlockRow('mtx', 'mty', 'mgx', Field(dev='flip', width=3)),
         ],
         setups='mono1',
     ),
     Block('MIRA2 monochromator', [
-        BlockRow(Field(dev='Shutter', width=7), 'm2th', 'm2tt'),
-        BlockRow('m2tx', 'm2ty', 'm2gx'),
-        BlockRow('m2fv', Field(dev='atten1', width=4),
+        BlockRow(Field(dev='Shutter', width=7), 'mth', 'mtt'),
+        BlockRow('mtx', 'mty', 'mgx'),
+        BlockRow('mfv', Field(dev='atten1', width=4),
                  Field(dev='atten2', width=4), Field(dev='flip2', width=4)),
         BlockRow(Field(dev='lamfilter', width=4),
                  Field(dev='TBe', width=6), Field(dev='PBe', width=7),
@@ -38,7 +38,7 @@ _column1 = Column(
         setups='mono2',
     ),
     Block('Environment', [
-        BlockRow(Field(name='Power', dev='ReactorPower', width=6),
+        BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=6),
                  Field(name='6-fold', dev='Sixfold', min='open', width=6),
                  Field(dev='NL6', min='open', width=6),
                  Field(dev='UBahn', width=5, istext=True, unit=' '),
@@ -111,7 +111,7 @@ _column3 = Column(
                  Field(name='L', dev='mira', item=2, format='%.3f', unit=' ')),
         BlockRow(Field(name='ki', dev='mono'), Field(dev='lam', name='lambda'), Field(dev='Ei')),
         ],
-        setups='diff',
+        setups='diff or psd_diff',
     ),
     Block('TAS', [
         BlockRow(Field(name='H', dev='mira', item=0, format='%.3f', unit=' '),
@@ -132,9 +132,9 @@ devices = dict(
                      loglevel = 'info',
                      cache = 'mira1:14869',
                      prefix = 'nicos/',
-                     font = 'Luxi Sans',
+                     font = 'Droid Sans',
                      valuefont = 'Consolas',
-                     fontsize = 12,
+                     fontsize = 21,
                      padding = 5,
                      layout = [[_expcolumn], [_column1, _column2, _column3]]),
 )

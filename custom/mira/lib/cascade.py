@@ -292,20 +292,26 @@ class CascadeDetector(HasCommunication, ImageChannelMixin, PassiveChannel):
         self._started = currenttime()
         self._lastlivetime = 0
 
-    def doIsCompleted(self):
-        if currenttime() - self._started > self._last_preset + 10:
-            try:
-                self.doStop()
-            except NicosError:
-                pass
-            raise TimeoutError(self, 'measurement not finished within '
-                               'selected preset time')
-        return self._getstatus().get('stop', '0') == '1'
-
-    def doFinish(self):
-        reply = str(self._client.communicate('CMD_stop'))
-        if reply != 'OKAY':
-            self._raise_reply('could not stop measurement', reply)
+#    def doIsCompleted(self):
+#        if currenttime() - self._started > self._last_preset + 10:
+#            try:
+#                self.doStop()
+#            except NicosError:
+#                pass
+#            raise TimeoutError(self, 'measurement not finished within '
+#                               'selected preset time')
+#        stopped = self._getstatus().get('stop', '0')
+#        if stopped == '1':
+#            self._started = 0
+#        return stopped
+#
+    def doStop(self):
+        if self.slave:
+            self._attached_master.stop()
+        else:
+            reply = str(self._client.communicate('CMD_stop'))
+            if reply != 'OKAY':
+                self._raise_reply('could not stop measurement', reply)
 
     def doStop(self):
         self.doFinish()

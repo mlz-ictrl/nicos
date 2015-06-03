@@ -27,18 +27,16 @@
 from math import hypot, atan2, degrees
 from time import time
 
-from IO import StringIO
-
 from nicos.core import intrange, Measurable, Param, Value, CommunicationError, \
     ConfigurationError, NicosError, Override
-from nicos.devices.taco.core import TacoDevice
+from nicos.devices.tango import PyTangoDevice
 from nicos.core import SIMULATION
 
 
 TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])
 
 
-class Amplifier(TacoDevice, Measurable):
+class Amplifier(PyTangoDevice, Measurable):
     """
     Stanford Research SR850 lock-in amplifier.
     """
@@ -71,12 +69,10 @@ class Amplifier(TacoDevice, Measurable):
         'fmtstr':    Override(default='%.6g'),
     }
 
-    taco_class = StringIO
-
     def doInit(self, mode):
         if mode == SIMULATION:
             return
-        reply = self._taco_guard(self._dev.communicate, '*IDN?')
+        reply = self._dev.Communicate('*IDN?')
         if not reply.startswith('Stanford_Research_Systems,SR8'):
             raise CommunicationError('wrong identification: %r' % reply)
 
@@ -100,11 +96,11 @@ class Amplifier(TacoDevice, Measurable):
         N = self.measurements
         for _ in range(N):
             try:
-                newx = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
-                newy = float(self._taco_guard(self._dev.communicate, 'OUTP? 2'))
+                newx = float(self._dev.Communicate('OUTP? 1'))
+                newy = float(self._dev.communicate('OUTP? 2'))
             except (NicosError, ValueError):
-                newx = float(self._taco_guard(self._dev.communicate, 'OUTP? 1'))
-                newy = float(self._taco_guard(self._dev.communicate, 'OUTP? 2'))
+                newx = float(self._dev.communicate('OUTP? 1'))
+                newy = float(self._dev.communicate('OUTP? 2'))
             xs.append(newx)
             ys.append(newy)
         X = sum(xs) / float(N)
@@ -120,39 +116,39 @@ class Amplifier(TacoDevice, Measurable):
         pass
 
     def doReadFrequency(self):
-        return float(self._taco_guard(self._dev.communicate, 'FREQ?'))
+        return float(self._dev.Communicate('FREQ?'))
 
     def doWriteFrequency(self, value):
-        self._taco_guard(self._dev.writeLine, 'FREQ %f' % value)
+        self._dev.WriteLine('FREQ %f' % value)
         if self.doReadFrequency() != value:
             raise NicosError(self, 'setting new frequency failed')
 
     def doReadAmplitude(self):
-        return float(self._taco_guard(self._dev.communicate, 'SLVL?'))
+        return float(self._dev.Communicate('SLVL?'))
 
     def doWriteAmplitude(self, value):
-        self._taco_guard(self._dev.writeLine, 'SLVL %f' % value)
+        self._dev.WriteLine('SLVL %f' % value)
         if self.doReadAmplitude() != value:
             raise NicosError(self, 'setting new amplitude failed')
 
     def doReadPhase(self):
-        return float(self._taco_guard(self._dev.communicate, 'PHAS?'))
+        return float(self._dev.Communicate('PHAS?'))
 
     def doWritePhase(self, value):
-        self._taco_guard(self._dev.writeLine, 'PHAS %f' % value)
+        self._dev.WriteLine('PHAS %f' % value)
         if self.doReadPhase() != value:
             raise NicosError(self, 'setting new phase failed')
 
     def doReadHarmonic(self):
-        return int(self._taco_guard(self._dev.communicate, 'HARM?'))
+        return int(self._dev.Communicate('HARM?'))
 
     def doWriteHarmonic(self, value):
-        self._taco_guard(self._dev.writeLine, 'HARM %d' % value)
+        self._dev.WriteLine('HARM %d' % value)
         if self.doReadHarmonic() != value:
             raise NicosError(self, 'setting new harmonic failed')
 
     def doReadTimeconstant(self):
-        value = int(self._taco_guard(self._dev.communicate, 'OFLT?'))
+        value = int(self._dev.Communicate('OFLT?'))
         return TIMECONSTANTS[value]
 
     def doWriteTimeconstant(self, value):
@@ -160,22 +156,22 @@ class Amplifier(TacoDevice, Measurable):
             raise ConfigurationError(self, 'invalid time constant, valid ones '
                                      'are ' + ', '.join(map(str, TIMECONSTANTS)))
         value = TIMECONSTANTS.index(value)
-        self._taco_guard(self._dev.writeLine, 'OFLT %d' % value)
+        self._dev.WriteLine('OFLT %d' % value)
         if self.doReadTimeconstant() != value:
             raise NicosError(self, 'setting new time constant failed')
 
     def doReadReserve(self):
-        return int(self._taco_guard(self._dev.communicate, 'RSRV?'))
+        return int(self._dev.Communicate('RSRV?'))
 
     def doWriteReserve(self, value):
-        self._taco_guard(self._dev.writeLine, 'RSRV %d' % value)
+        self._dev.WriteLine('RSRV %d' % value)
         if self.doReadReserve() != value:
             raise NicosError(self, 'setting new reserve failed')
 
     def doReadSensitivity(self):
-        return int(self._taco_guard(self._dev.communicate, 'SENS?'))
+        return int(self._dev.Communicate('SENS?'))
 
     def doWriteSensitivity(self, value):
-        self._taco_guard(self._dev.writeLine, 'SENS %d' % value)
+        self._dev.WriteLine('SENS %d' % value)
         if self.doReadSensitivity() != value:
             raise NicosError(self, 'setting new sensitivity failed')

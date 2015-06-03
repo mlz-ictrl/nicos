@@ -3,6 +3,8 @@ group = 'lowlevel'
 
 includes = ['detector', 'gas']
 
+tango_host = 'mira1.mira.frm2:10000'
+
 devices = dict(
     psd_padformat = device('mira.cascade.CascadePadRAWFormat',
                            lowlevel = True,
@@ -19,6 +21,7 @@ devices = dict(
                           ),
     psd_liveview  = device('devices.fileformats.liveview.LiveViewSink',
                            lowlevel = True,
+                           showcached=False,
                           ),
 
     psd_channel   = device('mira.cascade.CascadeDetector',
@@ -47,14 +50,26 @@ devices = dict(
                     fmtstr = '%d',
                    ),
 
-    dtx    = device('mira.phytron.Axis',
-                    description = 'detector translation along the beam on Franke table',
-                    tacodevice = '//mirasrv/mira/axis/dtx',
-                    fmtstr = '%.1f',
-                    abslimits = (0, 1490),
-                    pollinterval = 5,
-                    maxage = 10,
-                   ),
+    co_dtx   = device('devices.tango.Sensor',
+                      lowlevel = True,
+                      tangodevice = 'tango://%s/mira/detector/dtx_enc' % tango_host,
+                      unit = 'mm',
+                     ),
+    mo_dtx   = device('devices.tango.Motor',
+                      lowlevel = True,
+                      tangodevice = 'tango://%s/mira/detector/dtx_mot' % tango_host,
+                      abslimits = (0, 1490),
+                      unit = 'mm',
+                      precision = 0.1,
+                     ),
+    dtx      = device('devices.generic.Axis',
+                      description = 'detector translation along the beam on Franke table',
+                      motor = 'mo_dtx',
+                      coder = 'co_dtx',
+                      obs = [],
+                      fmtstr = '%.1f',
+                      precision = 0.1,
+                     ),
 
     sampledet = device('devices.generic.ManualMove',
                        description = 'sample-detector distance to be written to the data files',

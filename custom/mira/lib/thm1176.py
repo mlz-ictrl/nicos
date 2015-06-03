@@ -80,7 +80,7 @@ class THM(Measurable):
                 pass
         self._io = os.open(self.device, os.O_RDWR)
         try:
-            ident = self._query('*IDN?', t=0)
+            ident = self._query('*IDN?', binary=False, t=0)
             self.log.debug('sensor identification: %s' % ident)
             self._execute('FORMAT INTEGER')
             self.doRead()
@@ -96,20 +96,21 @@ class THM(Measurable):
             self._io = None
 
     def doStatus(self, maxage=0):
-        # self._query('*IDN?')
         return status.OK, 'idle'
 
-    def _query(self, q, t=5):
+    def _query(self, q, binary=True, t=5):
         try:
             os.write(self._io, q.encode() + b'\n')
-            ret = os.read(self._io, 2000).rstrip().decode()
+            ret = os.read(self._io, 2000).rstrip()
+            if not binary:
+               ret = ret.decode()
         except OSError as err:
             self.log.debug('exception in query: %s' % err)
             if t == 0:
                 raise CommunicationError(self, 'error querying: %s' % err)
             time.sleep(0.5)
             self.doReset()
-            return self._query(q, t-1)
+            return self._query(q, binary, t-1)
         self._check_status()
         return ret
 

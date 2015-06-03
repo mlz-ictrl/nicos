@@ -1,7 +1,7 @@
 description = 'MIRA2 diffraction setup'
 group = 'basic'
 
-includes = ['base', 'mono2', 'detector', 'alias_sth']
+includes = ['base', 'mono2', 'detector', 'alias_sth', 'sample']
 
 modules = ['commands.tas']
 
@@ -11,11 +11,11 @@ devices = dict(
                    ),
 
     mira   = device('devices.tas.TAS',
-                    description = 'instrument, moves in HKL space',
+                    description = 'instrument object',
                     instrument = 'MIRA',
                     responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
                     cell = 'Sample',
-                    phi = 'phi',
+                    phi = 'stt',
                     psi = 'sth',
                     mono = 'mono',
                     ana = 'vana',

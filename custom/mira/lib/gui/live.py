@@ -161,8 +161,9 @@ class LiveDataPanel(Panel):
     def on_client_livedata(self, data):
         if self._format not in ('pad', 'tof'):
             return
-        if not self._no_direct_display and data:
+        if data:
             self._last_data = data
+        if not self._no_direct_display and data:
             if self._format == 'pad':
                 self.widget.LoadPadMem(data, 128*128*4)
                 cts = self.widget.GetPad().GetCounts()

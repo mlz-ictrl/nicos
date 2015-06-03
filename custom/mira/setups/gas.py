@@ -1,5 +1,5 @@
 description = 'Gas flow for the (Cascade) PSD detector'
-group = 'optional'
+group = 'lowlevel'
 
 includes = []
 
@@ -9,8 +9,8 @@ devices = dict(
     ar = device('devices.tango.AnalogOutput',
                 description = 'Ar gas flow through the detector',
                 tangodevice = '%s/mira/gasmix/arflow' % tango_host,
-                abslimits = (0, 101),
-                userlimits = (0, 101),
+                abslimits = (0, 250),
+                userlimits = (0, 250),
                 unit = 'mln/min',
                ),
     ar_temp = device('devices.tango.Sensor',
