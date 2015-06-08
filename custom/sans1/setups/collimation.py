@@ -78,7 +78,8 @@ devices = dict(
     att        = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Attenuator',
                         #mapping = dict(OPEN=0, x1000=117, x100=234, x10=351), old 4 position att
-                        mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new 5 position att
+                        #mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=380), #new 5 position att
+                        mapping = dict(open=0, x1000=95, x100=190, x10=285, dia10=379.85), #new att_m position!!!
                         moveable = 'att_m',
                         blockingmove = False,
                         pollinterval = 15,
