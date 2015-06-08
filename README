@@ -125,9 +125,9 @@ xBuntu 12.04
 
 * Development and documentation build:
 
-  apt-get install python-sip-dev python-qt4-dev python-nose python-coverage python-sphinx
+  apt-get install python-sip-dev python-qt4-dev python-nose python-coverage python-sphinx libldap2-dev libsasl2-dev
 
-* For the livewidget you have to install the Qwt development package:
+* For the livewidget you have to install the Qwt and TIFF development packages:
 
-  apt-get install libqwt5-qt4-dev
+  apt-get install libqwt5-qt4-dev libtiff5-dev
 
