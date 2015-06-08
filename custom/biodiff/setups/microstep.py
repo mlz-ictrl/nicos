@@ -4,7 +4,7 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 description = "Software based micro stepping for several axes"
-group = "optional"
+group = "lowlevel"
 
 includes = ["motor"]
 

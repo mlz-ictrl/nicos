@@ -4,7 +4,7 @@ __author__  = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 description = "ZEA-2 counter card setup"
-group = "optional"
+group = "lowlevel"
 
 tango_host = "tango://phys.biodiff.frm2:10000"
 _TANGO_URL = tango_host + "/biodiff/count/"

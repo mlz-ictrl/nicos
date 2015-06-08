@@ -4,7 +4,7 @@ __author__ = "Stefan Rainow <s.rainow@fz-juelich.de>"
 
 
 description = "Outside world data"
-group = "optional"
+group = "lowlevel"
 
 
 devices = dict(

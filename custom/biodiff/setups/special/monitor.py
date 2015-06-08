@@ -8,8 +8,8 @@ _expcolumn = Column(
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
                  Field(name='Title', key='exp/title', width=20,
                        istext=True, maxlen=20),
-                 Field(name='Sample', key='sample/samplename'),
-                 Field(name='Remark', key='exp/remark'),
+                 Field(name='Sample', key='sample/samplename', istext=True),
+                 Field(name='Remark', key='exp/remark', istext=True),
                  Field(name='Current status', key='exp/action', width=40,
                        istext=True, maxlen=40),
                  Field(name='Last file', key='exp/lastimage',
@@ -22,8 +22,8 @@ _expcolumn = Column(
 
 _reactorBlock = Block('Reactor', [
     BlockRow(Field(name='Reactor power', dev='ReactorPower', format='%.1f', width=6),
-             Field(name='6-fold-shutter', dev='Sixfold'),
-             Field(name='NL-1', dev='NL1', min='open', width=6),
+             Field(name='6-fold-shutter', dev='Sixfold', istext=True),
+             Field(name='NL-1', dev='NL1', min='open', istext=True),
              )
     ],
 )
@@ -76,9 +76,8 @@ _selectorBlock = Block('Selector', [
 )
 
 _outsideWorldBlock = Block('Outside world', [
-    BlockRow(Field(name='Next U-Bahn U6', dev='ubahn'),
-             Field(name='Outside T', dev='meteo'),
-             )
+    BlockRow(Field(name='Next U-Bahn U6', dev='ubahn', istext=True),
+             Field(name='Outside T', dev='meteo')),
     ],
 )
 
@@ -115,7 +114,7 @@ devices = dict(
                      cache = 'phys.biodiff.frm2:14869',
                      font = 'Luxi Sans',
                      fontsize = 19,
-                     valuefont = 'Consolas',
+                     valuefont = 'Droid Sans Mono',
                      padding = 0,
                      layout = [Row(_expcolumn), _secondRow, _thirdRow, _forthRow],
                     ),
