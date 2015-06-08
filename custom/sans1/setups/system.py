@@ -44,7 +44,7 @@ devices = dict(
                       sender = 'andreas.wilhelm@frm2.tum.de',
                       copies = [('andreas.wilhelm@frm2.tum.de', 'important'),
                                 ('Andre.Heinemann@hzg.de', 'important'),
-                                ('ralph.gilles@frm2.tum.de', 'important'),
+                                ('sebastian.busch@hzg.de', 'important'),
                                 ('sebastian.muehlbauer@frm2.tum.de', 'important')],
                       mailserver ='mailhost.frm2.tum.de',
                       subject = 'SANS-1',
@@ -57,7 +57,7 @@ devices = dict(
     Instrument = device('devices.instrument.Instrument',
                         description = 'SANS1 instrument',
                         instrument = 'SANS-1',
-                        responsible = 'Dr. habil. Ralph Gilles <ralph.gilles@frm2.tum.de>',
+                        responsible = 'Dr. Andre Heinemann <Andre.Heinemann@hzg.de>',
                        ),
 
     Exp      = device('frm2.experiment.Experiment',

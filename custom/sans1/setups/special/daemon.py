@@ -38,7 +38,7 @@ devices = dict(
                               ('ralph', 'e543fdb4737f66b96e764d7303a15ae8', 'admin'),
                               ('andre', '1b2bc04a135d959e8da04733e24195da', 'admin'),
                               ('sebastian', '6c79a7389f572813edfe5fc873e099ce', 'admin'),
-                              ('sebastianb', 'b71e7f18a043b020b4935f6694a918cf', 'admin'),
+                              ('sbusch', 'b71e7f18a043b020b4935f6694a918cf', 'admin'),
                               ('edv', 'cb50179ebd60c94a29770c652a848765', 'admin'),
                               ],
                    ),
