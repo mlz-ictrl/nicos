@@ -556,18 +556,22 @@ class MainWindow(QMainWindow, DlgUtils):
         info = {'version': nicos_version,
                 'server_host': 'not connected',
                 'server_version': '',
+                'custom_version': '',
                 'nicos_root': '',
                 'custom_path': ''}
         if self.client.connected:
+            dinfo = self.client.daemon_info
             info['server_host'] = self.connectionData['host']
-            info['server_version'] = self.client.version
-            info['nicos_root'] = self.client.daemon_info.get('nicos_root', '')
-            info['custom_path'] = self.client.daemon_info.get('custom_path', '')
+            info['server_version'] = dinfo.get('daemon_version', 'unknown')
+            info['custom_version'] = dinfo.get('custom_version', 'unknown')
+            info['nicos_root'] = dinfo.get('nicos_root', 'unknown')
+            info['custom_path'] = dinfo.get('custom_path', 'unknown')
         QMessageBox.information(
             self, 'About this application', 'NICOS GUI client version '
             '%(version)s.\n\nServer info (from %(server_host)s):\n'
-            'Version: %(server_version)s\nNICOS path: %(nicos_root)s\n'
-            'Custom path: %(custom_path)s' % info)
+            'NICOS path: %(nicos_root)s\nNICOS version: %(server_version)s\n'
+            'Custom path: %(custom_path)s\nCustom version: %(custom_version)s'
+            % info)
 
     @qtsig('')
     def on_actionAboutQt_triggered(self):

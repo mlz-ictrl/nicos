@@ -37,7 +37,7 @@ except ImportError:
 
 import hashlib
 
-from nicos import session, nicos_version, config
+from nicos import session, nicos_version, custom_version, config
 from nicos.core import ADMIN, ConfigurationError, SPMError, User
 from nicos.utils import closeSocket
 from nicos.services.daemon.auth import AuthenticationError
@@ -276,6 +276,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         # announce version and authentication modality
         self.write(STX, dict(
             daemon_version = nicos_version,
+            custom_version = custom_version,
             nicos_root = config.nicos_root,
             custom_path = config.custom_path,
             pw_hashing = bannerhashing,

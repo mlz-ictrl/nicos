@@ -69,7 +69,6 @@ class NicosClient(object):
         self.lock = threading.Lock()
         self.connected = False
         self.disconnecting = False
-        self.version = None
         self.gzip = False
         self.last_reqno = None
 
@@ -178,7 +177,6 @@ class NicosClient(object):
         self.host, self.port = conndata['host'], conndata['port']
         self.login = conndata['login']
 
-        self.version = 'NICOS daemon version %s' % banner['daemon_version']
         self.daemon_info = banner
         self.signal('connected')
 
@@ -248,7 +246,6 @@ class NicosClient(object):
         except Exception:
             pass
         self.socket = None
-        self.version = None
         self.gzip = False
         if self.connected:
             self.connected = False
