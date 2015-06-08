@@ -2,6 +2,8 @@
 
 description = 'single detector'
 
+excludes = ['detector']
+
 group = 'lowlevel'
 
 devices = dict(

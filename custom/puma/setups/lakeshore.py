@@ -10,7 +10,7 @@ devices = dict(
                        tacodevice = 'puma/ls340/control',
                        maxage = 11,
                        pollinterval = 5,
-                       abslimits = (0, 500),
+                       abslimits = (0, 550),
                       ),
     T_ls340_A = device('devices.taco.TemperatureSensor',
                        description = 'LS340 Sensor A (Cold head)',

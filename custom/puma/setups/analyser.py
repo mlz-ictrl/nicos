@@ -72,7 +72,7 @@ devices = dict(
                     coder = 'co_att',
                     obs = [],
                     precision = 0.01,
-                    offset = 0.379, # focused
+                    offset = 0.165, # offset = 0.379, focused before magnet used 16.09.2014
 #                   offset = 0.307, # with collimator
                     maxtries = 10,
                    ),
@@ -84,7 +84,7 @@ devices = dict(
                     obs = [],
                     precision = 0.01,
 #                   offset = -0.678, #with collimator
-                    offset = -0.719, #focussed
+                    offset = -1.1024, # offset = -0.719, focussed before magnet used 16.09.2014
                     maxtries = 8,
                    ),
 
@@ -159,7 +159,7 @@ devices = dict(
                    addr = 63,
                    slope = -2500,
                    unit = 'mm',
-                   abslimits = (-6.1, 5.1),
+                   abslimits = (-6.1, 7.1),
                    zerosteps = 500000,
                    lowlevel = True,
                   ),
@@ -231,7 +231,7 @@ devices = dict(
                       addr = 67,
                       slope = 4500,
                       unit = 'mm',
-                      abslimits = (-5.5, 4.5),
+                      abslimits = (-5.5, 30),
                       zerosteps = 500000,
                       lowlevel = True,
                      ),

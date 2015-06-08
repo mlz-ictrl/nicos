@@ -4,7 +4,7 @@ description = 'Sample Slits'
 
 group = 'optional'
 
-includes = ['system','motorbus6','motorbus9']
+includes = ['system', 'motorbus6', 'motorbus9']
 
 
 
@@ -13,7 +13,7 @@ devices = dict(
     ss1_l_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'motorbus9',
-                       addr = 46,
+                       addr = 47,
                        side = 2,
                        slope = -82.3045,
                        zerosteps = 1876.5426,
@@ -23,7 +23,7 @@ devices = dict(
     ss1_r_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'motorbus9',
-                       addr = 46,
+                       addr = 47,
                        side = 3,
                        slope = 82.3045,
                        zerosteps = 1876.5426,
@@ -33,7 +33,7 @@ devices = dict(
     ss1_b_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'motorbus9',
-                       addr = 46,
+                       addr = 47,
                        side = 0,
                        slope = -54.25,
                        zerosteps = 1209.775,
@@ -43,12 +43,12 @@ devices = dict(
     ss1_t_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'motorbus9',
-                       addr = 46,
+                       addr = 47,
                        side = 1,
                        slope = 54.25,
                        zerosteps = 1209.775,
                        resetpos = 40,
-                       abslimits = (-20, 50),
+                       abslimits = (-40, 50),
                       ),
 
     ss1_l     = device('devices.generic.Axis',
@@ -80,6 +80,7 @@ devices = dict(
                        backlash = 2.,
                        motor = 'ss1_t_mot',
                        coder = 'ss1_t_mot',
+                       abslimits = (-40, 50),
                        obs = None,
                       ),
 
@@ -94,7 +95,7 @@ devices = dict(
                        maxage = 10,
                       ),
 
-     ss2_l_mot = device('devices.vendor.ipc.SlitMotor',
+    ss2_l_mot = device('devices.vendor.ipc.SlitMotor',
                        lowlevel = True,
                        bus = 'motorbus6',
                        addr = 47,

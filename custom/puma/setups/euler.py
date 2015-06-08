@@ -27,6 +27,7 @@ devices = dict(
                    ),
 
     echi   = device('devices.generic.Axis',
+                    description = 'Chi Angle of the eulerian gradle',
                     motor = 'st_echi',
                     coder = 'co_echi',
                     obs = [],
@@ -58,6 +59,7 @@ devices = dict(
                    ),
 
     ephi   = device('devices.generic.Axis',
+                    description = 'Phi Angle of the eulerian gradle',
                     motor = 'st_ephi',
                     coder = 'co_ephi',
                     obs = [],
