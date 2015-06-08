@@ -65,6 +65,16 @@ _cryoStreamBlock = Block('Cryo-stream', [
     setups='cryostream',
 )
 
+_selectorBlock = Block('Selector', [
+    BlockRow(Field(name='Speed', dev='selector_speed')),
+    BlockRow(Field(name='Vac', dev='selector_vacuum'),
+             Field(name='Rotor T', dev='selector_rtemp')),
+    BlockRow(Field(name='Flow', dev='selector_wflow'),
+             Field(name='Vibration', dev='selector_vibrt')),
+    ],
+    setups='astrium',
+)
+
 _outsideWorldBlock = Block('Outside world', [
     BlockRow(Field(name='Next U-Bahn U6', dev='ubahn'),
              Field(name='Outside T', dev='meteo'),
@@ -93,6 +103,7 @@ _thirdRow = Row(
 
 _forthRow = Row(
     Column(_cryoStreamBlock),
+    Column(_selectorBlock),
     Column(_outsideWorldBlock),
     )
 
