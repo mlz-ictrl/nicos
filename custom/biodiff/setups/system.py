@@ -68,7 +68,7 @@ devices = dict(
     # Configure dataroot here (usually /data).
     Exp      = device('devices.experiment.Experiment',
                       description = 'Experiment device',
-                      dataroot = '~/data',
+                      dataroot = '/data',
                       managerights = dict( enableDirMode=0775,
                                            enableFileMode=0644,
                                            disableDirMode=0700,
