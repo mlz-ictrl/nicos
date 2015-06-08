@@ -170,10 +170,10 @@ class NicosCompleter(object):
             return []
         expr, attr = match.group(1, 3)
         try:
-            thisobject = eval(expr, self.namespace)
+            thisobject = eval(expr, self.namespace2)
         except Exception:
             try:
-                thisobject = eval(expr, self.namespace2)
+                thisobject = eval(expr, self.namespace)
             except Exception:
                 return []
 
@@ -204,7 +204,7 @@ class NicosCompleter(object):
         """Compute matches when text is a simple name.
 
         Return a list of all keywords, built-in functions and names currently
-        defined in self.namespace that match.
+        defined in self.namespace and self.namespace2 that match.
         """
         if line is None:
             line = readline and readline.get_line_buffer() or ''

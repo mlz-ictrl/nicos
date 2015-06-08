@@ -153,7 +153,7 @@ class SimulationSession(Session):
         session.log_sender.begin_exec()
         # Execute the script code.
         try:
-            exec_(code, session.namespace)
+            exec_(code, session.namespace, session.local_namespace)
         except:  # pylint: disable=W0702
             session.log.exception('Exception in dry run')
         else:

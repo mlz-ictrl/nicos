@@ -171,7 +171,8 @@ class ScriptRequest(Request):
                 self.curblock += 1
                 controller.start_exec(self.code[self.curblock],
                                       controller.namespace,
-                                      None, self.settrace)
+                                      controller.local_namespace,
+                                      self.settrace)
         finally:
             if self.name:
                 session.endActionScope()
@@ -291,10 +292,11 @@ class ExecutionController(Controller):
                                     # start in simulation mode?
         self.queue = queue.Queue()  # user scripts get put here
         self.current_script = None  # currently executed script
+        # namespaces in which scripts execute
         self.namespace = session.namespace
-                                    # namespace in which scripts execute
-        self.completer = NicosCompleter(self.namespace, session.local_namespace)
-                                    # completer for the namespace
+        self.local_namespace = session.local_namespace
+        # completer for the namespaces
+        self.completer = NicosCompleter(self.namespace, self.local_namespace)
         self.watchexprs = set()     # watch expressions to evaluate
         self.watchlock = Lock()     # lock for watch expression list modification
         self.estop_functions = []   # functions to run on emergency stop
@@ -402,7 +404,7 @@ class ExecutionController(Controller):
         session.log.log(INPUT, formatScript(temp_request, '---'))
         self.last_handler = weakref.ref(handler)
         try:
-            exec_(temp_request.code[0], self.namespace)
+            exec_(temp_request.code[0], self.namespace, self.local_namespace)
         finally:
             self.last_handler = None
 
@@ -410,6 +412,7 @@ class ExecutionController(Controller):
         self.last_handler = weakref.ref(handler)
         ns = {'session': session, 'config': config}
         ns.update(self.namespace)
+        ns.update(self.local_namespace)
         try:
             ret = eval(expr, ns)
             if stringify:
@@ -460,7 +463,7 @@ class ExecutionController(Controller):
         for val in vals:
             try:
                 expr = val.partition(':')[0]
-                ret[val] = repr(eval(expr, self.namespace))
+                ret[val] = repr(eval(expr, self.namespace, self.local_namespace))
             except Exception as err:
                 ret[val] = '<cannot be evaluated: %s>' % err
         return ret

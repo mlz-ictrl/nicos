@@ -162,11 +162,6 @@ class Session(object):
         # set up initial namespace
         self.initNamespace()
 
-    def setNamespace(self, ns):
-        """Set the namespace to export commands and devices into."""
-        self.namespace = ns
-        self._exported_names = set()
-
     def initNamespace(self):
         # add some useful mathematical functions
         for name in [
@@ -576,6 +571,7 @@ class Session(object):
             for code in startupcode:
                 if code:
                     try:
+                        # no local_namespace here
                         exec_(code, self.namespace)
                     except Exception:
                         self.log.exception('error running startup code, ignoring')
@@ -669,12 +665,9 @@ class Session(object):
 
     def export(self, name, obj):
         """Export an object *obj* into the NICOS namespace with given *name*."""
-        if isinstance(self.namespace, NicosNamespace):
-            self.namespace.setForbidden(name, obj)
-            self.namespace.addForbidden(name)
-            self.local_namespace.addForbidden(name)
-        else:
-            self.namespace[name] = obj
+        self.namespace.setForbidden(name, obj)
+        self.namespace.addForbidden(name)
+        self.local_namespace.addForbidden(name)
         self._exported_names.add(name)
 
     def unexport(self, name, warn=True):
@@ -686,9 +679,8 @@ class Session(object):
         if name not in self._exported_names:
             if warn:
                 self.log.warning('unexport: name %r not exported by NICOS' % name)
-        if isinstance(self.namespace, NicosNamespace):
-            self.namespace.removeForbidden(name)
-            self.local_namespace.removeForbidden(name)
+        self.namespace.removeForbidden(name)
+        self.local_namespace.removeForbidden(name)
         del self.namespace[name]
         self._exported_names.discard(name)
 
@@ -1230,6 +1222,8 @@ class Session(object):
 
     def experimentCallback(self, proposal, proptype):
         """Callback when the experiment has been changed."""
+        # clear local (= user-specific) namespace
+        self.local_namespace.clear()
 
 
 # must be imported after class definitions due to module interdependencies

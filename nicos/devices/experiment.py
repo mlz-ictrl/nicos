@@ -708,6 +708,10 @@ class Experiment(Device):
         session.elogEvent('newexperiment', (proposal, title))
         session.elogEvent('setup', list(session.explicit_setups))
 
+        # send 'experiment' change event before the last hooks
+        # maybe better after the last hook?
+        session.experimentCallback(self.proposal, proptype)
+
         # expand templates
         if proptype != 'service':
             if self.templates:
@@ -720,10 +724,6 @@ class Experiment(Device):
             else:
                 self.log.debug('not running service script, none configured')
             self.log.info('Maintenance time started')
-
-        # send 'experiment' change event before the last hook
-        # maybe better after the last hook?
-        session.experimentCallback(self.proposal, proptype)
 
         self._createCustomProposalSymlink()
         self._afterNewHook()

@@ -131,5 +131,5 @@ class ScriptSession(Session):
         session.handleInitialSetup(setup, mode)
 
         # Execute the script code and shut down.
-        exec_(code, session.namespace)
+        exec_(code, session.namespace, session.local_namespace)
         session.shutdown()

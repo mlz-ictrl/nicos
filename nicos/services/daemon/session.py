@@ -158,6 +158,7 @@ class DaemonSession(NoninteractiveSession):
 
     def experimentCallback(self, proposal, proptype):
         """Callback when the experiment has been changed."""
+        NoninteractiveSession.experimentCallback(self, proposal, proptype)
         # reset cached messages when switching TO user experiment
         if proptype == 'user':
             del self.daemon_device._messages[:]
