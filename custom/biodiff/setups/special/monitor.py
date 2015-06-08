@@ -59,8 +59,9 @@ _slitsBlock = Block('Slits', [
 )
 
 _cryoStreamBlock = Block('Cryo-stream', [
-    BlockRow(Field(name='Temperature', dev='T_cryostream')),
-    BlockRow(Field(name='Setpoint', key='T_cryostream/setpoint')),
+    BlockRow(Field(name='Temperature', dev='T_cryostream'),
+             Field(name='Target', key='T_cryostream/target', unit='K')),
+    BlockRow(Field(name='LN2', dev='cryostream_LN2')),
     ],
     setups='cryostream',
 )
