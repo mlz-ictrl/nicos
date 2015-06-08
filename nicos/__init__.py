@@ -26,15 +26,15 @@
 The nicos package contains all standard NICOS commands and devices.
 """
 
-__version__ = __import__('nicos._vendor.gitversion',
-                         globals(), locals(), ['*']).get_git_version()
-nicos_version = __version__
-
 import os
 import sys
 import types
 from os import path
 from logging import Logger
+
+# Determine our version(s).
+from nicos._vendor.gitversion import get_nicos_version, get_git_version
+__version__ = nicos_version = get_nicos_version()
 
 # Check for Python version 2.6+.
 if sys.version_info[:2] < (2, 6):
@@ -48,8 +48,14 @@ class Session(object):
 
 session = Session()
 
+
 # Read config file and set environment variables.
 from nicos.configmod import config
+
+if config.custom_path != path.join(config.nicos_root, 'custom'):
+    custom_version = get_git_version(cwd=config.custom_path)
+else:
+    custom_version = nicos_version
 
 pkgpath = config.custom_path
 if path.isdir(pkgpath):
