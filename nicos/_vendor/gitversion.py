@@ -54,11 +54,11 @@ def get_nicos_version(abbrev=4):
     release_version = read_release_version()
 
     # if we have a git version, it is authoritative
-    if git_version is not None:
+    if git_version:
         if git_version != release_version:
             write_release_version(git_version)
         return git_version
-    elif release_version is not None:
+    elif release_version:
         return release_version
     else:
         raise ValueError('Cannot find a version number!')
