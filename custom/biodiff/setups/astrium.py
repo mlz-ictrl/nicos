@@ -72,7 +72,7 @@ devices = dict(
     selector_vacuum = device('devices.tango.AnalogInput',
                              description = 'Vacuum in the selector',
                              tangodevice = tango_url + '/vacuum',
-                             unit = 'x1e-3 mbar',
+                             unit = 'mbar',
                              fmtstr = '%.5f',
                              warnlimits = (0, 0.005),
                             ),
