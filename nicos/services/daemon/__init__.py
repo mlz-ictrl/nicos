@@ -24,15 +24,17 @@
 
 """NICOS daemon package."""
 
+import sys
 import time
 import socket
 import weakref
+import traceback
 import threading
 
 from nicos import nicos_version
 from nicos.core import listof, Device, Param, ConfigurationError, host
 from nicos.utils import closeSocket, createThread
-from nicos.pycompat import get_thread_id, queue, socketserver
+from nicos.pycompat import get_thread_id, queue, socketserver, listitems
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
 from nicos.services.daemon.handler import ConnectionHandler
@@ -232,6 +234,17 @@ class NicosDaemon(Device):
     def clear_handlers(self):
         """Remove all handlers."""
         self._server.handlers.clear()
+
+    def statusinfo(self):
+        self.log.info('got SIGUSR2 - current stacktraces for each thread:')
+        active = threading._active
+        for tid, frame in listitems(sys._current_frames()):
+            if tid in active:
+                name = active[tid].getName()
+            else:
+                name = str(tid)
+            self.log.info('%s: %s' %
+                          (name, ''.join(traceback.format_stack(frame))))
 
     def start(self):
         """Start the daemon's server."""
