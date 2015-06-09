@@ -517,13 +517,12 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
     if enable:
         failflag |= enableDisableFileItem(startdir, dirMode, owner, group)
 
-    # handle the content ouf 'our' directory, traversing if needed
-    for child in os.listdir(startdir):
-        full = path.join(startdir, child)
-        if path.isdir(full):
-            failflag |= enableDisableDirectory(full, dirMode, fileMode,
-                                               owner, group, enable)
-        else:
+    for root, dirs, files in os.walk(startdir, topdown=enable):
+        for d in dirs:
+            full = path.join(root, d)
+            failflag |= enableDisableFileItem(full, dirMode, owner, group)
+        for f in files:
+            full = path.join(root, f)
             failflag |= enableDisableFileItem(full, fileMode, owner, group)
 
     # for disable, we have to close 'our' directory last
