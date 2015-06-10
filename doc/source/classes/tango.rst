@@ -20,6 +20,8 @@ https://forge.frm2.tum.de/entangle/defs/entangle-master/
 
 .. autoclass:: AnalogOutput()
 
+.. autoclass:: WindowTimeoutAO()
+
 .. autoclass:: Actuator()
 
 .. autoclass:: Motor()

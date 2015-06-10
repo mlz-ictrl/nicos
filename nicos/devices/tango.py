@@ -41,6 +41,7 @@ from nicos.core import Param, Override, status, Readable, Moveable, Measurable, 
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
+from nicos.core.mixins import HasWindowTimeout
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [
@@ -386,6 +387,13 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
 
     def doStop(self):
         self._dev.Stop()
+
+
+class WindowTimeoutAO(HasWindowTimeout, AnalogOutput):
+    """
+    AnalogOutput with window timeout.
+    """
+    pass
 
 
 class Actuator(AnalogOutput, NicosMotor):
