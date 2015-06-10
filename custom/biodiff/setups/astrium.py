@@ -32,13 +32,14 @@ tango_url = '%s/biodiff/selector' % (tango_host,)
 
 devices = dict(
 
-    selector_speed  = device('devices.tango.AnalogOutput',
+    selector_speed  = device('devices.tango.WindowTimeoutAO',
                              description = 'Selector speed control',
                              tangodevice = tango_url + '/speed',
                              unit = 'rpm',
                              fmtstr = '%.0f',
                              warnlimits = (11000, 22000),
                              abslimits = (11000, 22000),
+                             precision = 10,
                             ),
 
     selector_lambda = device('devices.vendor.astrium.SelectorLambda',
