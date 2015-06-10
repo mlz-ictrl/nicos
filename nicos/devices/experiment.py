@@ -650,9 +650,10 @@ class Experiment(Device):
         kwds['proposal'] = proposal
 
         # need to enable before checking templated files...
-        if self.managerights:
-            self.log.debug("managerights: %s" % self.managerights)
-            self.log.debug("enableDirectory: %s"
+        # if next proposal is of type 'user'
+        if self.managerights and proptype == 'user':
+            self.log.debug('managerights: %s' % self.managerights)
+            self.log.debug('enableDirectory: %s'
                            % self.proposalpath_of(proposal))
             enableDirectory(self.proposalpath_of(proposal), **self.managerights)
 
