@@ -33,9 +33,9 @@ try:
     mn = constants.value('neutron mass')
     e = constants.value('elementary charge')
 except ImportError:
-    h = 6.62606896e-34                      # Planck constant [Js]
-    mn = 1.674927211e-27                    # Neutron mass [kg]
-    e = 1.602176487e-19                     # Elementary charge [C]
+    h = 6.62606896e-34                  # Planck constant [Js]
+    mn = 1.674927211e-27                # Neutron mass [kg]
+    e = 1.602176487e-19                 # Elementary charge [C]
 
 # in us (1e6) / AA (1e-10) / m
 alpha = 1e6 * (mn / h) / 1e10           # Should be 252.7784
@@ -117,8 +117,13 @@ def calculateCounterDelay(wl, speed, ratio, delay, ch5_90deg_offset):
 
 
 def calculateTimeInterval(speed, ratio):
-    # select time interval from chopper parameters
-    # calculate the speed in Hz instead of given speed in rpms
+    """
+    Calculates the time interval from chopper parameters.
+
+    Chopper speed in rpm given, but calculations are in Hz.
+    The interval is the time between pulses of chopper 5 because chopper 5
+    has only 2 slits
+    """
     speed /= 60.0
     if speed == 0:
         return 0.052
@@ -217,10 +222,10 @@ def Eres1(li, w, st=0, crc=1, dL=0.0):
     li *= 1.0e-10
     lf = li
 
-    A = tm * (Lpm + Lms + Lsd * (lf / li)**3)
-    B = tp * (Lms + Lsd * (lf / li)**3)
+    A = tm * (Lpm + Lms + Lsd * (lf / li) ** 3)
+    B = tp * (Lms + Lsd * (lf / li) ** 3)
     C = Lpm * mn * lf * dL / h
-    dt = sqrt(A**2 + B**2 + C**2) / Lpm            # uncertainty in time
-    res = h**3 / (mn**2 * e) * dt / (Lsd * lf**3)  # uncertainty in energy
+    dt = sqrt(A ** 2 + B ** 2 + C ** 2) / Lpm            # uncertainty in time
+    res = h ** 3 / (mn ** 2 * e) * dt / (Lsd * lf ** 3)  # uncertainty in energy
 
     return (res, dt)
