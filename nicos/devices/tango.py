@@ -29,6 +29,7 @@ All NICOS - TANGO devices only support devices which fulfill the official
 FRM-II/JCNS TANGO interface for the respective device classes.
 """
 
+import re
 from time import sleep
 
 import PyTango
@@ -36,7 +37,7 @@ import PyTango
 from nicos.core import Param, Override, status, Readable, Moveable, Measurable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, dictof, intrange, \
     nonemptylistof, NicosError, CommunicationError, ConfigurationError, \
-    HasTimeout
+    ProgrammingError, HardwareError, InvalidValueError, HasTimeout
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -61,10 +62,94 @@ EXC_MAPPING = {
     PyTango.CommunicationFailed: CommunicationError,
     PyTango.WrongNameSyntax: ConfigurationError,
     PyTango.DevFailed: NicosError,
-    # when a DeviceProxy is created with the device not exported,
-    # access to the named commands/attributes will raise AttributeError
-    AttributeError: CommunicationError,
 }
+
+REASON_MAPPING = {
+    'Entangle_ConfigurationError': ConfigurationError,
+    'Entangle_WrongAPICall': ProgrammingError,
+    'Entangle_CommunicationFailure': CommunicationError,
+    'Entangle_InvalidValue': InvalidValueError,
+    'Entangle_ProgrammingError': ProgrammingError,
+    'Entangle_HardwareFailure': HardwareError,
+}
+
+# Tango DevFailed reasons that should not cause a retry
+FATAL_REASONS = set((
+    'Entangle_ConfigurationError',
+    'Entangle_UnrecognizedHardware',
+    'Entangle_WrongAPICall',
+    'Entangle_InvalidValue',
+    'Entangle_NotSupported',
+    'Entangle_ProgrammingError',
+    'DB_DeviceNotDefined',
+    'API_DeviceNotDefined',
+    'API_CantConnectToDatabase',
+    'API_TangoHostNotSet',
+    'API_ServerNotRunning',
+    'API_DeviceNotExported',
+))
+
+
+def describe_dev_error(exc):
+    """Return a better description for a Tango exception.
+
+    Most Tango exceptions are quite verbose and not suitable for user consumption.
+    Map the most common ones, that can also happen during normal operation, to a
+    bit more friendly ones.
+    """
+    # general attributes
+    reason = exc.reason.strip()
+    fulldesc = reason + ': ' + exc.desc.strip()
+    # reduce Python tracebacks
+    if '\n' in exc.origin and 'File ' in exc.origin:
+        origin = exc.origin.splitlines()[-2].strip()
+    else:
+        origin = exc.origin.strip()
+
+    # we don't need origin info for Tango itself
+    if origin.startswith(('DeviceProxy::', 'DeviceImpl::', 'Device_3Impl::',
+                          'Device_4Impl::', 'Connection::', 'TangoMonitor::')):
+        origin = None
+
+    # now handle specific cases better
+    if reason == 'API_AttrNotAllowed':
+        m = re.search(r'to (read|write) attribute (\w+)', fulldesc)
+        if m:
+            if m.group(1) == 'read':
+                fulldesc = 'reading %r not allowed in current state'
+            else:
+                fulldesc = 'writing %r not allowed in current state'
+            fulldesc %= m.group(2)
+    elif reason == 'API_CommandNotAllowed':
+        m = re.search(r'Command (\w+) not allowed when the '
+                      r'device is in (\w+) state', fulldesc)
+        if m:
+            fulldesc = 'executing %r not allowed in state %s' \
+                % (m.group(1), m.group(2))
+    elif reason == 'API_DeviceNotExported':
+        m = re.search(r'Device ([\w/]+) is not', fulldesc)
+        if m:
+            fulldesc = 'Tango device %s is not exported, is the server ' \
+                'running?' % m.group(1)
+    elif reason == 'API_CorbaException':
+        if 'TRANSIENT_CallTimedout' in fulldesc:
+            fulldesc = 'Tango client-server call timed out'
+        elif 'TRANSIENT_ConnectFailed' in fulldesc:
+            fulldesc = 'connection to Tango server failed, is the server ' \
+                'running?'
+    elif reason == 'API_CantConnectToDevice':
+        m = re.search(r'connect to device ([\w/]+)', fulldesc)
+        if m:
+            fulldesc = 'connection to Tango device %s failed, is the server ' \
+                'running?' % m.group(1)
+    elif reason == 'API_CommandTimedOut':
+        if 'acquire serialization' in fulldesc:
+            fulldesc = 'Tango call timed out waiting for lock on server'
+
+    # append origin if wanted
+    if origin:
+        fulldesc += ' in %s' % origin
+    return fulldesc
 
 
 class PyTangoDevice(HasCommunication):
@@ -135,6 +220,13 @@ class PyTangoDevice(HasCommunication):
         attribute operations with logging and exception mapping.
         """
         device = PyTango.DeviceProxy(address)
+        # detect not running and not exported devices early, because that
+        # otherwise would lead to attribute errors later
+        try:
+            device.State
+        except AttributeError:
+            raise NicosError(self, 'connection to Tango server failed, '
+                             'is the server running?')
         return self._applyGuardsToPyTangoDevice(device)
 
     def _applyGuardsToPyTangoDevice(self, dev):
@@ -199,46 +291,28 @@ class PyTangoDevice(HasCommunication):
         if err.args:
             exc = err.args[0]  # Can be str or DevError
             if isinstance(exc, PyTango.DevError):
-                # reduce Python tracebacks
-                if '\n' in exc.origin and 'File ' in exc.origin:
-                    origin = exc.origin.splitlines()[-2].strip()
-                else:
-                    origin = exc.origin.strip()
-                exc = '%s: %s in %s' % (exc.reason.strip(),
-                                        exc.desc.strip(),
-                                        origin)
+                return describe_dev_error(exc)
         return exc
 
     def _tango_exc_reason(self, err):
-        if err.args:
-            exc = err.args[0]
-            if isinstance(exc, PyTango.DevError):
-                return exc.reason.strip()
+        if err.args and isinstance(err.args[0], PyTango.DevError):
+            return err.args[0].reason.strip()
         return ''
 
     def _com_warn(self, retries, name, err, info):
-        if self._tango_exc_reason(err) in ['Entangle_ConfigurationError',
-                                           'Entangle_UnrecognizedHardware',
-                                           'Entangle_WrongAPICall',
-                                           'Entangle_InvalidValue',
-                                           'Entangle_NotSupported',
-                                           'Entangle_ProgrammingError',
-                                           'DB_DeviceNotDefined',
-                                           'API_DeviceNotDefined',
-                                           'API_CantConnectToDatabase',
-                                           'API_TangoHostNotSet',
-                                           'API_ServerNotRunning',
-                                           'API_DeviceNotExported',
-                                           ]:
+        if self._tango_exc_reason(err) in FATAL_REASONS:
             self._com_raise(err, info)
         if retries == self.comtries - 1:
             self.log.warning('%s failed, retrying up to %d times: %s' %
                              (info, retries, self._tango_exc_desc(err)))
 
     def _com_raise(self, err, info):
-        exc = self._tango_exc_desc(err)
-        self.log.debug('PyTango error: %s' % exc)
-        raise EXC_MAPPING.get(type(err), NicosError)(self, exc)
+        reason = self._tango_exc_reason(err)
+        exclass = REASON_MAPPING.get(
+            reason, EXC_MAPPING.get(type(err), NicosError))
+        fulldesc = self._tango_exc_desc(err)
+        self.log.debug('PyTango error: %s' % fulldesc)
+        raise exclass(self, fulldesc)
 
 
 class AnalogInput(PyTangoDevice, Readable):
