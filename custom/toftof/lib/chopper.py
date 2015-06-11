@@ -318,7 +318,6 @@ class Controller(TacoDevice, HasTimeout, Readable):
         errstates = {0: 'inactive', 1: 'cal', 2: 'com', 8: 'estop'}
         ret = []
         stval = status.OK
-        timedout = currenttime() > self.changetime + self.timeout
         # read status values
         for ch in range(1, 8):
             state = self._read(STATUS + ch)
@@ -341,11 +340,11 @@ class Controller(TacoDevice, HasTimeout, Readable):
             nominal = self.speed / rat
             maxdelta = self.speed_accuracy / rat
             if abs(speed - nominal) > maxdelta:
-                ret.append('ch %d: speed %.2f != nominal %.2f' %
-                           (ch, speed, nominal))
-                if timedout:
-                    stval = status.ERROR
-                    self.log.warning(ret)
+                msg = 'ch %d: speed %.2f != nominal %.2f' % (ch, speed, nominal)
+                ret.append(msg)
+                if self.isTimedOut():
+                    stval = status.OK  # NOTREACHED
+                    self.log.warning(msg)
                 else:
                     stval = status.BUSY
         # read phases
@@ -373,11 +372,12 @@ class Controller(TacoDevice, HasTimeout, Readable):
                         stval = status.ERROR
                 else:
                     stval = status.BUSY
-                ret.append('ch %d: phase %s != nominal %s' %
-                           (ch, phase, self.phases[ch]))
-                if timedout:
-                    stval = status.ERROR
-                    self.log.warning(ret)
+                msg = 'ch %d: phase %s != nominal %s' % (ch, phase,
+                                                         self.phases[ch])
+                ret.append(msg)
+                if self.isTimedOut():
+                    stval = status.OK  # NOTREACHED
+                    self.log.warning(msg)
                 else:
                     stval = status.BUSY
         return stval, ', '.join(ret) or 'normal'
