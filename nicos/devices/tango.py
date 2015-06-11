@@ -33,7 +33,7 @@ from time import sleep
 
 import PyTango
 
-from nicos.core import Param, Override, status, Readable, Moveable, Measurable,\
+from nicos.core import Param, Override, status, Readable, Moveable, Measurable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, dictof, intrange, \
     nonemptylistof, NicosError, CommunicationError, ConfigurationError, \
     HasTimeout
@@ -243,7 +243,7 @@ class PyTangoDevice(HasCommunication):
 
 class AnalogInput(PyTangoDevice, Readable):
     """
-    Represents the client to a TANGO AnalogInput device.
+    The AnalogInput handles all devices only delivering an analogue value.
     """
 
     valuetype = float
@@ -264,7 +264,10 @@ class AnalogInput(PyTangoDevice, Readable):
 
 class Sensor(AnalogInput, Coder):
     """
-    Represents the client to a TANGO Sensor device.
+    The sensor interface describes all analog read only devices.
+
+    The difference to AnalogInput is that the “value” attribute can be converted
+    from the “raw value” to a physical value with an offset and a formula.
     """
 
     def doSetPosition(self, value):
@@ -273,7 +276,15 @@ class Sensor(AnalogInput, Coder):
 
 class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
     """
-    Represents the client to a TANGO AnalogOutput device.
+    The AnalogOutput handles all devices which set an analogue value.
+
+    The main application field is the output of any signal which may be
+    considered as continously in a range. The values may have nearly any
+    value between the limits. The compactness is limited by the resolution of
+    the hardware.
+
+    This class should be considered as a base class for motors, temperature
+    controllers, ...
     """
 
     valuetype = float
@@ -304,7 +315,11 @@ class AnalogOutput(PyTangoDevice, HasLimits, Moveable):
 
 class Actuator(AnalogOutput, NicosMotor):
     """
-    Represents the client to a TANGO Actuator device.
+    The actuator interface describes all analog devices which DO something in a
+    defined way.
+
+    The difference to AnalogOutput is that there is a speed attribute, and the
+    value attribute is converted from the “raw value” with a formula and offset.
     """
 
     parameter_overrides = {
@@ -323,13 +338,18 @@ class Actuator(AnalogOutput, NicosMotor):
 
 class Motor(CanReference, Actuator):
     """
-    Represents the client to a TANGO Motor device.
+    This class implements a motor device (in a sense of a real motor
+    (stepper motor, servo motor, ...)).
+
+    It has the ability to move a real object from one place to another place.
     """
 
     parameters = {
         'refpos': Param('Reference position', type=float, unit='main'),
-        'accel':  Param('Acceleration', type=float, settable=True, volatile=True),
-        'decel':  Param('Deceleration', type=float, settable=True, volatile=True),
+        'accel':  Param('Acceleration', type=float, settable=True, volatile=True,
+                        unit='main/s^2'),
+        'decel':  Param('Deceleration', type=float, settable=True, volatile=True,
+                        unit='main/s^2'),
     }
 
     def doReadRefpos(self):
@@ -355,7 +375,7 @@ class Motor(CanReference, Actuator):
 
 class TemperatureController(Actuator):
     """
-    Represents the client to a TANGO TemperatureController device.
+    A temperature control loop device.
     """
 
     parameters = {
@@ -419,7 +439,7 @@ class TemperatureController(Actuator):
 
 class PowerSupply(HasTimeout, Actuator):
     """
-    Represents a power supply.
+    A power supply (voltage and current) device.
     """
 
     parameters = {
@@ -446,7 +466,7 @@ class PowerSupply(HasTimeout, Actuator):
 
 class DigitalInput(PyTangoDevice, Readable):
     """
-    Represents the client to a TANGO DigitalInput device.
+    A device reading a bitfield.
     """
 
     valuetype = int
@@ -459,7 +479,9 @@ class DigitalInput(PyTangoDevice, Readable):
 
 
 class NamedDigitalInput(DigitalInput):
-    """A DigitalInput with numeric values mapped to names."""
+    """
+    A DigitalInput with numeric values mapped to names.
+    """
 
     parameters = {
         'mapping': Param('A dictionary mapping state names to integers',
@@ -475,7 +497,8 @@ class NamedDigitalInput(DigitalInput):
 
 
 class PartialDigitalInput(NamedDigitalInput):
-    """Base class for a TANGO DigitalInput with only a part of the full
+    """
+    Base class for a TANGO DigitalInput with only a part of the full
     bit width accessed.
     """
 
@@ -496,7 +519,7 @@ class PartialDigitalInput(NamedDigitalInput):
 
 class DigitalOutput(PyTangoDevice, Moveable):
     """
-    Represents the client to a TANGO DigitalOutput device.
+    A devices that can set and read a digital value corresponding to a bitfield.
     """
 
     valuetype = int
@@ -512,7 +535,9 @@ class DigitalOutput(PyTangoDevice, Moveable):
 
 
 class NamedDigitalOutput(DigitalOutput):
-    """A DigitalOutput with numeric values mapped to names."""
+    """
+    A DigitalOutput with numeric values mapped to names.
+    """
 
     parameters = {
         'mapping': Param('A dictionary mapping state names to integer values',
@@ -535,7 +560,8 @@ class NamedDigitalOutput(DigitalOutput):
 
 
 class PartialDigitalOutput(NamedDigitalOutput):
-    """Base class for a TANGO DigitalOutput with only a part of the full
+    """
+    Base class for a TANGO DigitalOutput with only a part of the full
     bit width accessed.
     """
 
@@ -570,7 +596,8 @@ class PartialDigitalOutput(NamedDigitalOutput):
 
 class StringIO(PyTangoDevice, Device):
     """
-    Represents the client to a TANGO StringIO device.
+    StringIO abstracts communication over a hardware bus that sends and
+    receives strings.
     """
 
     parameters = {
