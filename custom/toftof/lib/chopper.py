@@ -311,7 +311,11 @@ class Controller(TacoDevice, HasTimeout, Readable):
         self._setROParam('changetime', currenttime())
 
     def doStatus(self, maxage=0):
-        errstates = {0: 'inactive', 1: 'cal', 2: 'com', 8: 'estop'}
+        errstates = {  # 0: 'inactive',
+                     1: 'cal',
+                     2: 'com',
+                     8: 'estop',
+                    }
         ret = []
         stval = status.OK
         # read status values
