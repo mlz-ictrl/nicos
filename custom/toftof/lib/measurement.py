@@ -177,7 +177,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self.log.debug('collecting status information')
         self._startheader = self._startHeader(interval, chdelay)
         # update interval: about every 30 seconds for 1024 time channels
-        self._updateevery = min(int(30. * ctr.timechannels / 1024), 80)
+        self._updateevery = min(int(30. * ctr.timechannels / 1024.), 80)
 
         self._newFile()
         self._startheader.append('FileName: %s\n' % self.lastfilename)
