@@ -112,7 +112,7 @@ class Motor(BaseMotor):
             self.speed = self.refspeed
             self._stepping_until(self.absmin, self.refstep, 0)
             self.doSetPosition(self.refpos)
-            self.log.debug('Referenced')
+            self.log.info('Referenced to : %.2f' % self.refpos)
         except NicosError as err:
             self.log.debug('exception in referencing : %s' % err)
         finally:
