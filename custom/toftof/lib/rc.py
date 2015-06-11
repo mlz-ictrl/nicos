@@ -153,16 +153,26 @@ class RadialCollimator(HasTimeout, Moveable):
             # bus.write("osc%d:%f" % (self.address, self.stop_angle -
             #                         self.start_angle))
             # sleep(0.1)
-            if self.status()[0] == status.OK:
+            if self.status()[0] in [status.OK, status.BUSY, status.NOTREACHED]:
+                sleeptime = .01
                 bus.write("clr")
+                sleep(sleeptime)
                 bus.write("%d:a%.1f" % (self.address, self.start_angle))
+                sleep(sleeptime)
                 bus.write("nl")
+                sleep(sleeptime)
                 bus.write("%d:a%.1f" % (self.address, self.stop_angle))
+                sleep(sleeptime)
                 bus.write("nl")
+                sleep(sleeptime)
                 bus.write("jmp1")
+                sleep(sleeptime)
                 bus.write("nl")
+                sleep(sleeptime)
                 bus.write("end")
+                sleep(sleeptime)
                 bus.write("start")
+                sleep(sleeptime)
         else:
             # self._adevs['bus'].write("osc%d:0" % (self.address,))
             # sleep(0.1)
