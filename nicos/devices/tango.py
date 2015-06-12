@@ -197,7 +197,6 @@ class PyTangoDevice(HasCommunication):
 
     def doReset(self):
         self._dev.Reset()
-        # XXX do we need to "if isOff(): On()" dance?
 
     def _setMode(self, mode):
         super(PyTangoDevice, self)._setMode(mode)
