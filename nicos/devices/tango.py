@@ -160,6 +160,8 @@ class PyTangoDevice(HasCommunication):
     execution and attribute operations with logging and exception mapping.
     """
 
+    hardware_access = True
+
     parameters = {
         'tangodevice': Param('Tango device name', type=tangodev,
                              mandatory=True, preinit=True),
