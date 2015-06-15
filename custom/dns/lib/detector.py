@@ -25,7 +25,7 @@
 
 import numpy
 
-from nicos.core import Measurable, Value, waitForStatus
+from nicos.core import Measurable, Value, waitForStatus, SIMULATION
 from nicos.core.image import ImageProducer, ImageType
 from nicos.core.params import Param, Attach, oneof, dictof, tupleof
 from nicos.devices.polarized.flipper import BaseFlipper, ON
@@ -93,10 +93,11 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
 
     def doInit(self, mode):
         self.log.debug("doInit")
-        self.imagetype = ImageType((int(self.detshape["x"]),
-                                    int(self.detshape["t"])),
+        self.imagetype = ImageType((int(self.detshape.get('x', 1)),
+                                    int(self.detshape.get('t', 1))),
                                    numpy.uint32)
-        self._dev.set_timeout_millis(10000)
+        if mode != SIMULATION:
+            self._dev.set_timeout_millis(10000)
         self._last_counter = self._adevs['timer']
 
     def _generateSequence(self, *args, **kwargs):
