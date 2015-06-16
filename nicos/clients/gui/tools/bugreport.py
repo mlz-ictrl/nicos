@@ -41,9 +41,9 @@ from nicos.clients.gui.utils import loadUi
 
 
 TRACKER_URL = 'http://forge.frm2.tum.de/redmine'
-TICKET_URL = 'http://forge.frm2.tum.de/issues/%d'
+TICKET_URL = 'http://forge.frm2.tum.de/redmine/issues/%d'
 PROJECT_ID = 'NICOS'
-CREATE_TICKET_URL = 'http://forge.frm2.tum.de/projects/nicos/issues/new'
+CREATE_TICKET_URL = 'http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'
 
 
 class BugreportTool(QDialog, DlgUtils):
