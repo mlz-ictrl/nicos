@@ -173,9 +173,9 @@ _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=35, plotwindow=24*3600,
+              width=65, height=35, plotwindow=12*3600,
               devices=['B_ccmsans', 'b_ccmsans/target'],
-              names=['24h', 'Target'],
+              names=['12h', 'Target'],
               ),
         ),
     ],
@@ -286,7 +286,7 @@ for i in range(10, 22 + 1):
         ),
         BlockRow(
             Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
-                   unitkey='t/unit'),
+                   format='%.3f', unitkey='t/unit'),
         ),
         BlockRow(
              Field(name='A', dev='T_ccr%d_A' % i),
@@ -391,7 +391,7 @@ devices = dict(
                      title='SANS-1 status monitor',
                      cache='sans1ctrl.sans1.frm2',
                      font='Luxi Sans',
-                     fontsize=13,#12
+                     fontsize=11,#12
                      loglevel='info',
                      padding=0,#3
                      prefix='nicos/',
@@ -399,8 +399,8 @@ devices = dict(
                      layout=[
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _st2, _st1),
-                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet, *newports),
+                                    Column(_sc1, _st2, _st1, *newports),
+                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet),
                                     Column(_htf01_plot, _htf03_plot, _spinflipper, *cryos) + Column(*T_Ts_plot),
                                     Column(*ccrs) + Column(_birmag),
                                    ),
