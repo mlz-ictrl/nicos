@@ -66,6 +66,8 @@ class Monitor(BaseCacheClient):
                            default=True),
         'colors':    Param('Color scheme for value displays (dark or light '
                            'background)', type=oneof('dark', 'light')),
+        'showwatchdog':  Param('Whether to show watchdog warnings', type=bool,
+                               default=True),
     }
 
     parameter_overrides = {
@@ -166,9 +168,10 @@ class Monitor(BaseCacheClient):
 
     def _connect_action(self):
         BaseCacheClient._connect_action(self)
-        # also ask for and subscribe to all watchdog events
-        self._socket.sendall('@watchdog/%s\n' % OP_WILDCARD)
-        self._socket.sendall('@watchdog/%s\n' % OP_SUBSCRIBE)
+        if self.showwatchdog:
+            # also ask for and subscribe to all watchdog events
+            self._socket.sendall('@watchdog/%s\n' % OP_WILDCARD)
+            self._socket.sendall('@watchdog/%s\n' % OP_SUBSCRIBE)
 
     # called between connection attempts
     def _wait_retry(self):
@@ -200,7 +203,7 @@ class Monitor(BaseCacheClient):
         except ValueError:
             value = None
 
-        if key == 'watchdog/warnings':
+        if key == 'watchdog/warnings' and self.showwatchdog:
             self._process_warnings(value)
             return
 
