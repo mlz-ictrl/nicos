@@ -58,6 +58,22 @@ def readSetups(paths, logger):
     return infodict
 
 
+def prepareNamespace(setupname):
+    """Return a namespace prepared for reading setup "setupname"."""
+    # device() is a helper function to make configuration prettier
+    ns = {
+        'device': lambda cls, **params: (cls, params),
+        'setupname': setupname,
+    }
+    if path.basename(setupname).startswith('monitor'):
+        ns['Row'] = lambda *args: args
+        ns['Column'] = lambda *args: args
+        ns['BlockRow'] = lambda *args: args
+        ns['Block'] = lambda *args, **kwds: (args, kwds)
+        ns['Field'] = lambda *args, **kwds: args or kwds
+    return ns
+
+
 def readSetup(infodict, filepath, logger):
     modname = path.splitext(path.basename(filepath))[0]
     try:
@@ -67,17 +83,7 @@ def readSetup(infodict, filepath, logger):
         logger.exception('Could not read setup '
                          'module %r: %s' % (filepath, err))
         return
-    # device() is a helper function to make configuration prettier
-    ns = {
-        'device': lambda cls, **params: (cls, params),
-        'setupname': modname,
-    }
-    if path.basename(modname).startswith('monitor'):
-        ns['Row'] = lambda *args: args
-        ns['Column'] = lambda *args: args
-        ns['BlockRow'] = lambda *args: args
-        ns['Block'] = lambda *args, **kwds: (args, kwds)
-        ns['Field'] = lambda *args, **kwds: args or kwds
+    ns = prepareNamespace(modname)
     try:
         exec_(code, ns)
     except Exception as err:
