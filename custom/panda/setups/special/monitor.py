@@ -334,19 +334,32 @@ magnet75supp = Block('Magnet', [
 )
 
 vti = Block('VTI', [
-    BlockRow(
-        Field(dev='sTs'),
-        Field(dev='vti'),
-        Field(key='vti/setpoint',name='Setpoint',min=1,max=200),
-        Field(key='vti/heater',name='Heater (%)'),
-    ),
+#    BlockRow(
+#        Field(dev='sTs'),
+#        Field(dev='vti'),
+#        Field(key='vti/setpoint',name='Setpoint',min=1,max=200),
+#        Field(key='vti/heater',name='Heater (%)'),
+#    ),
     BlockRow(
         Field(dev='NV'),
+        Field(dev='vti_pressure', name='p(NV)'),
         Field(dev='LHe'),
         Field(dev='LN2'),
     ),
     ],
-    setups='15T and variox',
+    setups='variox',
+)
+
+vtiplot = Block('Needle Valve', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=25, height=25, plotwindow=300,
+              devices=['NV/setpoint', 'NV'],
+              names=['Setpoint', 'Value'],
+        ),
+    ),
+    ],
+    setups='variox',
 )
 
 magnet14t5 = Block('14.5T Magnet', [
@@ -386,7 +399,8 @@ column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs)
 column3 = Column(magnet75supp, kelvinox, foki) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
-column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)
+column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots) + \
+          Column(vtiplot)
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',

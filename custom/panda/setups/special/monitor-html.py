@@ -297,19 +297,20 @@ magnet75supp = Block('Magnet', [
 )
 
 vti = Block('VTI', [
-    BlockRow(
-        Field(dev='sTs'),
-        Field(dev='vti'),
-        Field(key='vti/setpoint',name='Setpoint',min=1,max=200),
-        Field(key='vti/heater',name='Heater (%)'),
-    ),
+#    BlockRow(
+#        Field(dev='sTs'),
+#        Field(dev='vti'),
+#        Field(key='vti/setpoint',name='Setpoint',min=1,max=200),
+#        Field(key='vti/heater',name='Heater (%)'),
+#    ),
     BlockRow(
         Field(dev='NV'),
+        Field(dev='vti_pressure', name='p(NV)'),
         Field(dev='LHe'),
         Field(dev='LN2'),
     ),
     ],
-    setups='15T and variox',
+    setups='variox',
 )
 
 magnet14t5 = Block('14.5T Magnet', [

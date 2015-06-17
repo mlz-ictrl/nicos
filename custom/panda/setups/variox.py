@@ -40,15 +40,29 @@ devices = dict(
                  unit = '%',
                  maxage = 900,
                 ),
-    NV  = device('devices.generic.cache.CacheReader',
+    NV  = device('devices.generic.cache.CacheWriter',
                  description = 'Position of Needlevalve controlling cooling of vti',
+                 userlimits = (0, 99.9),
+                 abslimits = (0, 99.9),
                  fmtstr = '%.1f',
                  unit = '%',
+                 maxage = 30,
+                 window = 20,
+                 loopdelay = 5,
+                 precision = 0.1,
+                ),
+    vti_pressure = device('devices.generic.cache.CacheReader',
+                 description = 'Actual pressure on Needle valve',
+                 fmtstr = '%.1f',
+                 unit = 'mbar',
                  maxage = 30,
                 ),
 )
 
 startupcode = '''
-T.alias='vti'
-Ts.alias='sTs'
 '''
+
+#startupcode = '''
+#T.alias='vti'
+#Ts.alias='sTs'
+#'''

@@ -19,6 +19,7 @@ watchlist = [
 #    ),
     dict(condition = 'befilter_value != \'unused\' and TBeFilter_value > 80 and TBeFilter_value < 1000',
          message = 'Be filter temperature > 80 K, check cooling!',
+         gracetime = 30,
          type = 'critical',
          setup = 'befilter',
     ),
