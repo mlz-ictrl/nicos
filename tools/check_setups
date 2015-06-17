@@ -2,8 +2,10 @@
 
 import os
 import re
+import ast
 import sys
 import logging
+import optparse
 import traceback
 from os import path
 
@@ -25,16 +27,15 @@ except ImportError:
 
 from nicos import config
 from nicos.core.errors import ConfigurationError
-from nicos.core.sessions.setups import SETUP_GROUPS, readSetup
+from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.tacostubs import generate_stubs
+from nicos.pycompat import exec_
 
 # get default custom paths
 default_dirs = [path.join(config.custom_path, p.strip(), 'setups')
                 for p in config.setup_subdirs.split(',')]
 
-# generate stub TACO modules as needed to be able to import nicos.devices.taco
-# modules and check parameters
 
 class ConsoleHandler(ColoredConsoleHandler):
     def emit(self, record):
@@ -44,17 +45,20 @@ class ConsoleHandler(ColoredConsoleHandler):
         record.filename = ''
         ColoredConsoleHandler.emit(self, record)
 
+
 class FileHandler(StreamHandler):
     def __init__(self, *args):
         StreamHandler.__init__(self, *args)
         self.setFormatter(
-            logging.Formatter('! %(name)s: %(levelname)s: %(message)s'))
+            logging.Formatter('! %(name)s:%(line)s: %(levelname)s: %(message)s'))
     def emit(self, record):
         # reintroduce standard logging behavior that the Nicos logger overrides
         record.message = record.getMessage()
         # remove this, the Nicos handler uses it differently
         record.filename = ''
+        record.line = str(record.line) if getattr(record, 'line', 0) else ''
         StreamHandler.emit(self, record)
+
 
 def nicos_import(clspath):
     modname, clsname = clspath.rsplit('.', 1)
@@ -64,6 +68,7 @@ def nicos_import(clspath):
         mod = __import__(modname, None, None, [clsname])
     return getattr(mod, clsname)
 
+
 def log_exception(log, exception):
     formatted_lines = traceback.format_exc().splitlines()
     msg = 'Exception while executing: %s\n|' % str(exception)
@@ -71,15 +76,18 @@ def log_exception(log, exception):
     log.error(msg)
     return False
 
+
 interpol_re = re.compile(r'%[-#0 +]*(?:[0-9]+)?(?:\.(?:[0-9]+))?'
                          r'[hlL]?[diouxXeEfFgGcrs%]')
 
-def check_parameter(log, devname, name, value):
+
+def check_parameter(log, devname, name, value, file_ast):
     # for format strings, check interpolations for syntax errors
     if name == 'fmtstr':
         if '%' not in value:
             log.error('%s: parameter fmtstr has a value without any '
-                      'interpolation placeholders', devname)
+                      'interpolation placeholders', devname,
+                      extra=find_deventry(file_ast, devname, name))
             return False
         else:
             # split() returns all pieces not part of a string
@@ -89,9 +97,66 @@ def check_parameter(log, devname, name, value):
             for piece in pieces:
                 if '%' in piece:
                     log.error('%s: parameter fmtstr has an invalid '
-                              'placeholder (%r)', devname, piece)
+                              'placeholder (%r)', devname, piece,
+                              extra=find_deventry(file_ast, devname, name))
                     return False
     return True
+
+
+def _find_binding(file_ast, binding):
+    assign = [x for x in file_ast.body if
+              isinstance(x, ast.Assign) and
+              isinstance(x.targets[0], ast.Name) and
+              x.targets[0].id == binding]
+    if not assign:
+        return None
+    return assign[0]
+
+
+def find_global(file_ast, binding):
+    assign = _find_binding(file_ast, binding)
+    if assign:
+        return {'line': assign.lineno}
+
+
+def find_deventry(file_ast, devname, parname=None):
+    # find a binding for 'devices'
+    assign = _find_binding(file_ast, 'devices')
+    if not assign:
+        return
+    dev_val = assign.value
+    # now we look for the device() call that belongs to the given devname
+    #
+    # the 'devices' dict can be in two forms: either a dict literal
+    if isinstance(dev_val, ast.Dict):
+        # find index of the device we need in the keys
+        for (i, key) in enumerate(dev_val.keys):
+            if isinstance(key, ast.Str) and key.s == devname:
+                dev_call = dev_val.values[i]
+                break
+        else:
+            # device not found
+            return
+    # or a dict() call
+    elif isinstance(dev_val, ast.Call) and dev_val.func.id == 'dict':
+        # look for our device name in the kwargs
+        for devkw in dev_val.keywords:
+            if devkw.arg == devname:
+                dev_call = devkw.value
+                break
+        else:
+            # device not found
+            return
+    # else it's something strange
+    else:
+        return
+    # we have our Call node in dev_call
+    # do we need to look for param?
+    if parname and isinstance(dev_call, ast.Call):
+        for parkw in dev_call.keywords:
+            if parkw.arg == parname:
+                return {'line': parkw.value.lineno}
+    return {'line': dev_call.lineno}
 
 
 def check_setupfile(filename):
@@ -99,30 +164,32 @@ def check_setupfile(filename):
     log = logging.getLogger(filename)
     good = True
     # check syntax
-    infodict = {}
+    infodict = prepareNamespace(setupname)
     try:
-        readSetup(infodict, filename, log)
+        with open(filename) as fp:
+            code = fp.read()
+        exec_(code, infodict)
+        file_ast = ast.parse(code)
     except SyntaxError, e:
         msg = 'SyntaxError:\t%s' % e.msg
         msg += '\n|line: %s : %s ' % (e.lineno, e.text.strip())
-        log.error(msg)
+        log.error(msg, extra={'line': e.lineno})
         return False
     except Exception, e:
         return log_exception(log, e)
     log.info('syntax ok')
-    namespace = setup_info[setupname] = infodict[setupname]
+    namespace = setup_info[setupname] = infodict
     # check for valid group
     group = namespace.get('group', 'optional')
     if group not in SETUP_GROUPS:
-        log.error('invalid setup group %r', group)
+        log.error('invalid setup group %r', group,
+                  extra=find_global(file_ast, 'group'))
         good = False
     # check for a description
-    name = namespace.get('name', None)
-    if name:
-        log.warning("found 'name' as setup description, please use 'description' instead.")
     description = namespace.get('description', None)
     if description in (None, '') and group in ('basic', 'optional', 'plugplay'):
-        log.error('missing user-friendly setup description')
+        log.error('missing user-friendly setup description',
+                  extra=find_global(file_ast, 'description'))
         good = False
     # check if devices are duplicated
     if group != 'special':
@@ -146,10 +213,12 @@ def check_setupfile(filename):
                (other_group == 'basic' and setupname == 'system'):
                 continue
             log.warning('device name %s duplicate: also in %s',
-                        devname, devs_seen[devname])
+                        devname, devs_seen[devname],
+                        extra=find_deventry(file_ast, devname))
     # check for common misspelling of "includes"
     if 'include' in namespace:
-        log.error("'include' list should be called 'includes'")
+        log.error("'include' list should be called 'includes'",
+                  extra=find_global(file_ast, 'include'))
         good = False
     # check for types of recognized variables
     for (vname, vtype) in [('description', (str, unicode)),
@@ -163,7 +232,8 @@ def check_setupfile(filename):
                            ('extended', dict)]:
         if vname in namespace and not isinstance(namespace[vname], vtype):
             log.error('%r must be of type %s (but is %s)' %
-                      (vname, vtype, type(namespace[vname])))
+                      (vname, vtype, type(namespace[vname])),
+                      extra=find_global(file_ast, vname))
             good = False
     # check for valid device classes (if importable) and parameters
     for devname, devconfig in namespace.get('devices', {}).iteritems():
@@ -172,16 +242,19 @@ def check_setupfile(filename):
             cls = nicos_import(devconfig[0])
         except (ImportError, RuntimeError), err:  # the latter for SIP
             log.warning('device class %r for %r not importable: %s',
-                        devconfig[0], devname, err)
+                        devconfig[0], devname, err,
+                        extra=find_deventry(file_ast, devname))
             continue
         except Exception, e:
             log.error('could not get device class %r for %r:',
-                      devconfig[0], devname)
+                      devconfig[0], devname,
+                      extra=find_deventry(file_ast, devname))
             log_exception(log, e)
             good = False
             continue
-        # check missing and unsupported parameter config entries
         config = devconfig[1]
+
+        # check missing attached devices
         if not hasattr(cls, 'attached_devices'):
             log.warning("%s: class %r has no 'attached_devices'",
                         devname, cls.__name__)
@@ -190,58 +263,58 @@ def check_setupfile(filename):
                 try:
                     ainfo.check(None, aname, config.get(aname))
                 except ConfigurationError as err:
-                    log.error(ainfo)
                     log.error('%s: attached device %s (%s) is wrongly configured: %s' %
-                              (devname, aname, cls.__name__, err))
+                              (devname, aname, cls.__name__, err),
+                              extra=find_deventry(file_ast, devname, aname))
                 if aname in config:
                     del config[aname]
                 else:
                     if ainfo.optional:
                         continue
-                    log.error('%s: attached device %r missing', devname, aname)
+                    log.error('%s: attached device %r missing', devname, aname,
+                              extra=find_deventry(file_ast, devname))
                     good = False
+
+        # check missing and unsupported parameter config entries
         if not hasattr(cls, 'parameters'):
             log.warning("%s: class %r has no 'parameters'",
                         devname, cls.__name__)
         else:
             if not config.get('lowlevel', False) and cls.__name__ != 'DeviceAlias':
                 if not config.get('description') and group != 'special':
-                    log.warning('%s: device has no description', devname)
+                    log.warning('%s: device has no description', devname,
+                                extra=find_deventry(file_ast, devname))
             for pname, pinfo in cls.parameters.iteritems():
                 if pname in config:
                     try:
                         pinfo.type(config[pname])
-                    except ValueError, e:
+                    except (ValueError, TypeError), e:
                         log.error('%s: parameter %r value %r is invalid: %s',
-                                  devname, pname, config[pname], e)
-                        good = False
-                    except TypeError, e:
-                        log.error('%s: parameter %r value %r is of invalid type: %s',
-                                  devname, pname, config[pname], e)
+                                  devname, pname, config[pname], e,
+                                  extra=find_deventry(file_ast, devname, pname))
                         good = False
                     # check value of certain parameters
-                    if not check_parameter(log, devname, pname, config[pname]):
+                    if not check_parameter(log, devname, pname, config[pname], file_ast):
                         good = False
                     del config[pname]
                 elif pinfo.mandatory:
-                    log.error('%s: mandatory parameter %r missing', devname, pname)
+                    log.error('%s: mandatory parameter %r missing', devname, pname,
+                              extra=find_deventry(file_ast, devname))
                     good = False
         if config:
             log.error('%s: configured parameters not accepted by the device '
-                      'class: %s', devname, ', '.join(config))
+                      'class: %s', devname, ', '.join(config),
+                      extra=find_deventry(file_ast, devname, config.popitem()[0]))
             good = False
     return good
 
-import optparse
 
 parser = optparse.OptionParser(usage='usage: %prog [options] dir|file')
 parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
-                  default=False, help='verbose output',
-                 )
+                  default=False, help='verbose output')
 parser.add_option('-o', '--outfile', dest='filename', action='store',
                   default=None, type='string',
-                  help='write report to FILE', metavar='FILE',
-                 )
+                  help='write report to FILE', metavar='FILE')
 
 opts, args = parser.parse_args()
 
