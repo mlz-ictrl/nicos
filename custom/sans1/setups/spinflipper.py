@@ -30,15 +30,15 @@ group = 'optional'
 
 modules = ['sans1.spinflipper_commands']
 
-nethost = 'spinflip02.sans1.frm2'
+tango_host = 'spinflip.sans1.frm2'
 
 devices = dict(
 # AG1016 amplifier
     P_spinflipper = device('sans1.spinflipper.SpinflipperPower',
                            description = 'overall power of ag1016',
-                           tacodevice = '//%s/spinflip/ag1016/power' % (nethost,),
-                           forwardtacodevice = '//%s/spinflip/ag1016/forward' % (nethost,),
-                           reversetacodevice = '//%s/spinflip/ag1016/reverse' % (nethost,),
+                           tangodevice = 'tango://%s:10000/box/amplifier/power' % tango_host,
+                           forwardtangodevice = 'tango://%s:10000/box/amplifier/fpower' % tango_host,
+                           reversetangodevice = 'tango://%s:10000/box/amplifier/rpower' % tango_host,
                            fmtstr = '%.1f',
                            abslimits = (0.0, 100.0),
                            userlimits = (0.0, 100.0),
@@ -64,38 +64,28 @@ devices = dict(
                                    pollinterval = 15,
                                   ),
 
-    F_spinflipper = device('devices.taco.AnalogOutput',
-                           description = 'frequency of ag1016',
-                           tacodevice = '//%s/spinflip/ag1016/frequency' % (nethost,),
-                           fmtstr = '%.0f',
-                           abslimits = (0.0, 4000000.0),
-                           userlimits = (0.0, 4000000.0),
-                           maxage = 120,
-                           pollinterval = 15,
-                          ),
-
-    T_spinflipper = device('devices.taco.AnalogInput',
+    T_spinflipper = device('devices.tango.AnalogInput',
                            description = 'temperature of ag1016',
-                           tacodevice = '//%s/spinflip/ag1016/temperature' % (nethost,),
+                           tangodevice = 'tango://%s:10000/box/amplifier/temp' % tango_host,
                            fmtstr = '%.3f',
                            maxage = 120,
                            pollinterval = 15,
                           ),
 
 # HP33220A
-    A_spinflipper_hp = device('devices.taco.AnalogOutput',
+    A_spinflipper_hp = device('devices.tango.AnalogOutput',
                               description = 'amplitude of the frequency generator',
-                              tacodevice = '//%s/spinflip/agilent/amp' % (nethost,),
+                              tangodevice = 'tango://%s:10000/box/funcgen/ampl' % tango_host,
                               fmtstr = '%.3f',
-                              abslimits = (-2.0, 2.0),
-                              userlimits = (-2.0, 2.0),
+                              abslimits = (0, 2.0),
+                              userlimits = (0, 2.0),
                               maxage = 120,
                               pollinterval = 15,
                              ),
 
-    F_spinflipper_hp = device('devices.taco.AnalogOutput',
+    F_spinflipper_hp = device('devices.tango.AnalogOutput',
                               description = 'frequency of the frequency generator',
-                              tacodevice = '//%s/spinflip/agilent/freq' % (nethost,),
+                              tangodevice = 'tango://%s:10000/box/funcgen/freq' % tango_host,
                               fmtstr = '%.0f',
                               abslimits = (0.0, 4000000.0),
                               userlimits = (0.0, 4000000.0),

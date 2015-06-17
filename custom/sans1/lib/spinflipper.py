@@ -25,8 +25,8 @@
 """Sans1 spinflipper specific devices."""
 
 import time
-from nicos.core import Param, status, tacodev, SIMULATION, HasTimeout
-from nicos.devices.taco import AnalogInput, AnalogOutput
+from nicos.core import Param, status, tangodev, SIMULATION, HasTimeout
+from nicos.devices.tango import AnalogInput, AnalogOutput
 
 
 class SpinflipperPower(HasTimeout, AnalogOutput):
@@ -43,11 +43,11 @@ class SpinflipperPower(HasTimeout, AnalogOutput):
     """
 
     parameters = {
-        'forwardtacodevice':  Param('Forward taco device address',
-                                    type=tacodev, mandatory=True, preinit=True,
+        'forwardtangodevice': Param('Forward tango device address',
+                                    type=tangodev, mandatory=True, preinit=True,
                                     settable=False),
-        'reversetacodevice':  Param('Reverse taco device address',
-                                    type=tacodev, mandatory=True, preinit=True,
+        'reversetangodevice': Param('Reverse tango device address',
+                                    type=tangodev, mandatory=True, preinit=True,
                                     settable=False),
         'forward':            Param('Forward power', unit='W',
                                     settable=False, category='general',
@@ -67,17 +67,17 @@ class SpinflipperPower(HasTimeout, AnalogOutput):
         AnalogOutput.doPreinit(self, mode)
         if mode != SIMULATION:
             self._forwardDev = AnalogInput('%s._forwardDev' % self.name,
-                                           tacodevice=self.forwardtacodevice,
+                                           tangodevice=self.forwardtangodevice,
                                            lowlevel=True)
 
             self._reverseDev = AnalogInput('%s._reverseDev' % self.name,
-                                           tacodevice=self.reversetacodevice,
+                                           tangodevice=self.reversetangodevice,
                                            lowlevel=True)
 
     def doTime(self, move_from, move_to):
         return self.busytime
 
-    def doStatus(self, maxage=0):
+    def doStatus(self, maxage=0):  # pylint: disable=W0221
         if self._timesout:
             if time.time() < self._timesout[-1][1]:
                 return status.BUSY, 'waiting %.1gs for stabilisation' % self.busytime
