@@ -192,7 +192,7 @@ class PyTangoDevice(HasCommunication):
 
     def _hw_wait(self):
         """Wait until hardware status is not BUSY."""
-        while self.doStatus(0)[0] == status.BUSY:
+        while PyTangoDevice.doStatus(self, 0)[0] == status.BUSY:
             sleep(self._base_loop_delay)
 
     def doVersion(self):
