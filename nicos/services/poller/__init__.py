@@ -336,12 +336,12 @@ class Poller(Device):
         for worker in self._workers:
             worker.join()
 
-    def quit(self):
+    def quit(self, signal=None):
         if self._setup is None:
             return self._quit_master()
         if self._stoprequest:
             return  # already quitting
-        self.log.info('poller quitting...')
+        self.log.info('poller quitting on signal %s...' % signal)
         self._stoprequest = True
         for worker in self._workers:
             worker.queue.put('quit', False)  # wake up to quit
@@ -514,8 +514,9 @@ class Poller(Device):
                                          (setup, ret))
         session.log.info('all pollers terminated')
 
-    def _quit_master(self):
+    def _quit_master(self, signal=None):
         self._stoprequest = True
+        self.log.info('quitting on signal %s...' % signal)
         for pid in self._childpids:
             try:
                 os.kill(pid, signal.SIGTERM)

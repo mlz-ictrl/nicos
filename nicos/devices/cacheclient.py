@@ -382,7 +382,8 @@ class BaseCacheClient(Device):
                     break
                 sleep(CYCLETIME)
 
-    def quit(self):
+    def quit(self, signal=None):
+        self.log.info('quitting on signal %s...')
         self._stoprequest = True
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
