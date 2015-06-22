@@ -314,7 +314,6 @@ _spinflipper = Column(
     Block('Spin Flipper', [
         BlockRow(
              Field(name='P_spinflipper', dev='P_spinflipper'),
-             Field(name='F_spinflipper', dev='F_spinflipper'),
         ),
         BlockRow(
              Field(name='Forward', key='P_spinflipper/forward', unitkey='W'),
