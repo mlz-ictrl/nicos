@@ -105,18 +105,18 @@ devices = dict(
     ng_pol     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Neutronguide polariser',
                         mapping = dict(ng=0, pol1=117, pol2=234, las=354),
-                        moveable = 'ng_pol_m',
+                        moveable = 'ng_pol_a',
                         pollinterval = 15,
                         maxage = 60,
                        ),
-    #~ ng_pol_a   = device('devices.generic.Axis',
-                        #~ description = 'Neutronguide polariser axis',
-                        #~ motor = 'ng_pol_m',
-                        #~ coder = 'ng_pol_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    ng_pol_a   = device('devices.generic.Axis',
+                        description = 'Neutronguide polariser axis',
+                        motor = 'ng_pol_m',
+                        coder = 'ng_pol_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     ng_pol_m   = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Neutronguide polariser motor',
                         # IP-adresse: 172.16.17.1 alt
@@ -128,8 +128,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -4.5,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     ng_pol_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -140,7 +140,7 @@ devices = dict(
                         address = 0x40c8,
                         #~ address = 0x40cD, // docu page 8 specifies both, which is correct?
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = -13.191,
+                        zeropos = -13.191 + 26.5861880569,
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -149,20 +149,20 @@ devices = dict(
     col_20a    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 20a',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_20a_m',
+                        moveable = 'col_20a_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_20a_a  = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 20a',
-                        #~ motor = 'col_20a_m',
-                        #~ coder = 'col_20a_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_20a_a  = device('devices.generic.Axis',
+                        description = 'Collimotor 20a',
+                        motor = 'col_20a_m',
+                        coder = 'col_20a_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_20a_m  = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 20a motor',
                         # IP-adresse: 172.16.17.2 alt
@@ -174,8 +174,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -5.39,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_20a_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -185,7 +185,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-20m'% (nethost,),
                         address = 0x40c8,  # docu page 9
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 9
+                        zeropos = 12.8533378965, # unspecified in docu page 9
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -194,20 +194,20 @@ devices = dict(
     col_20b    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 20b',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_20b_m',
+                        moveable = 'col_20b_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_20b_a  = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 20b',
-                        #~ motor = 'col_20b_m',
-                        #~ coder = 'col_20b_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_20b_a  = device('devices.generic.Axis',
+                        description = 'Collimotor 20b',
+                        motor = 'col_20b_m',
+                        coder = 'col_20b_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_20b_m  = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 20b',
                         # IP-adresse: 172.16.17.2 alt
@@ -219,8 +219,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -5.28,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_20b_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -230,7 +230,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-20m'% (nethost,),
                         address = 0x40cd,  # docu page 10
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 10
+                        zeropos = 13.899101438, # unspecified in docu page 10
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -239,20 +239,20 @@ devices = dict(
     col_16a    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 16a',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_16a_m',
+                        moveable = 'col_16a_a',
                         blockingmove = False,
                         pollinterval = 1,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_16a_a  = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 16a',
-                        #~ motor = 'col_16a_m',
-                        #~ coder = 'col_16a_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_16a_a  = device('devices.generic.Axis',
+                        description = 'Collimotor 16a',
+                        motor = 'col_16a_m',
+                        coder = 'col_16a_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_16a_m  = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 16a motor',
                         # IP-adresse: 172.16.17.3 alt
@@ -264,8 +264,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -4.29,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_16a_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -275,7 +275,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-16m'% (nethost,),
                         address = 0x40c8,  # docu page 12
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 12
+                        zeropos = 17.8761710467, # unspecified in docu page 12
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -315,20 +315,20 @@ devices = dict(
     col_16b    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 16b',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_16b_m',
+                        moveable = 'col_16b_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_16b_a  = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 16a',
-                        #~ motor = 'col_16b_m',
-                        #~ coder = 'col_16b_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_16b_a  = device('devices.generic.Axis',
+                        description = 'Collimotor 16a',
+                        motor = 'col_16b_m',
+                        coder = 'col_16b_c',
+                        dragerror = 1,
+                        precision = 0.001,
+                        lowlevel = True,
+                       ),
     col_16b_m  = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 16b motor',
                         # IP-adresse: 172.16.17.3 alt
@@ -340,8 +340,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -2.31,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_16b_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -351,7 +351,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-16m'% (nethost,),
                         address = 0x40cd,  # docu page 13
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 13
+                        zeropos = 17.2842048903, # unspecified in docu page 13
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -360,20 +360,20 @@ devices = dict(
     col_12a    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 12a',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_12a_m',
+                        moveable = 'col_12a_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_12a_a  = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 12a',
-                        #~ motor = 'col_12a_m',
-                        #~ coder = 'col_12a_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_12a_a  = device('devices.generic.Axis',
+                        description = 'Collimotor 12a',
+                        motor = 'col_12a_m',
+                        coder = 'col_12a_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_12a_m  = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 12a motor',
                         # IP-adresse: 172.16.17.4 alt
@@ -385,8 +385,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -1.7,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_12a_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -396,7 +396,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-12m'% (nethost,),
                         address = 0x40c8,  # docu page 14
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 14
+                        zeropos = 17.1303596823, # unspecified in docu page 14
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -405,20 +405,20 @@ devices = dict(
     col_12b    = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 12b',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_12b_m',
+                        moveable = 'col_12b_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_12b_a  = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 12b',
-                        #~ motor = 'col_12b_m',
-                        #~ coder = 'col_12b_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_12b_a  = device('devices.generic.Axis',
+                        description = 'Collimotor 12b',
+                        motor = 'col_12b_m',
+                        coder = 'col_12b_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_12b_m  = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 12b motor',
                         # IP-adresse: 172.16.17.4 alt
@@ -430,8 +430,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -5.14, #needs to be checked by O. Frank !!!
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_12b_c  = device('sans1.collimotor.Sans1ColliCoder',
@@ -441,7 +441,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-12m'% (nethost,),
                         address = 0x40cd,  # docu page 15
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 15
+                        zeropos = 17.2115868978, # unspecified in docu page 15
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -450,20 +450,20 @@ devices = dict(
     col_8a     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 8a',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_8a_m',
+                        moveable = 'col_8a_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_8a_a   = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 8a',
-                        #~ motor = 'col_8a_m',
-                        #~ coder = 'col_8a_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_8a_a   = device('devices.generic.Axis',
+                        description = 'Collimotor 8a',
+                        motor = 'col_8a_m',
+                        coder = 'col_8a_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_8a_m   = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 8a motor',
                         # IP-adresse: 172.16.17.5 alt
@@ -475,8 +475,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -3.88,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_8a_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -486,7 +486,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-8m'% (nethost,),
                         address = 0x40c8,  # docu page 17
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 17
+                        zeropos = 17.0752135418, # unspecified in docu page 17
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -495,20 +495,20 @@ devices = dict(
     col_8b     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 8b',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_8b_m',
+                        moveable = 'col_8b_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_8b_a   = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 8b',
-                        #~ motor = 'col_8b_m',
-                        #~ coder = 'col_8b_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_8b_a   = device('devices.generic.Axis',
+                        description = 'Collimotor 8b',
+                        motor = 'col_8b_m',
+                        coder = 'col_8b_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_8b_m   = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 8b motor',
                         # IP-adresse: 172.16.17.5 alt
@@ -520,8 +520,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -4.13,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_8b_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -531,7 +531,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-8m'% (nethost,),
                         address = 0x40cd,  # docu page 18
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 18
+                        zeropos = 15.859918895, # unspecified in docu page 18
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -570,20 +570,20 @@ devices = dict(
     col_4a     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 4a',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_4a_m',
+                        moveable = 'col_4a_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_4a_a   = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 4a',
-                        #~ motor = 'col_4a_m',
-                        #~ coder = 'col_4a_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_4a_a   = device('devices.generic.Axis',
+                        description = 'Collimotor 4a',
+                        motor = 'col_4a_m',
+                        coder = 'col_4a_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_4a_m   = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 4a motor',
                         # IP-adresse: 172.16.17.6 alt
@@ -595,8 +595,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -9.37,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_4a_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -606,7 +606,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-4m'% (nethost,),
                         address = 0x40c8,  # docu page 19
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 19
+                        zeropos = 16.9255767247, # unspecified in docu page 19
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -615,20 +615,20 @@ devices = dict(
     col_4b     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 4b',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_4b_m',
+                        moveable = 'col_4b_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_4b_a   = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 4b',
-                        #~ motor = 'col_4b_m',
-                        #~ coder = 'col_4b_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_4b_a   = device('devices.generic.Axis',
+                        description = 'Collimotor 4b',
+                        motor = 'col_4b_m',
+                        coder = 'col_4b_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_4b_m   = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 4b motor',
                         # IP-adresse: 172.16.17.6 alt
@@ -640,8 +640,8 @@ devices = dict(
                         unit = 'mm',
                         refpos = -9.35,
                         abslimits = (-400, 600),
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_4b_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -651,7 +651,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-4m'% (nethost,),
                         address = 0x40cd,  # docu page 20
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 20
+                        zeropos = 17.5324112754, # unspecified in docu page 20
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -660,20 +660,20 @@ devices = dict(
     col_2a     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 2a',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_2a_m',
+                        moveable = 'col_2a_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_2a_a   = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 2a',
-                        #~ motor = 'col_2a_m',
-                        #~ coder = 'col_2a_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_2a_a   = device('devices.generic.Axis',
+                        description = 'Collimotor 2a',
+                        motor = 'col_2a_m',
+                        coder = 'col_2a_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_2a_m   = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 2a motor',
                         # IP-adresse: 172.16.17.7 alt
@@ -686,8 +686,8 @@ devices = dict(
                         refpos = -8.,
                         abslimits = (-400, 600),
                         autopower = 'on',
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_2a_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -697,7 +697,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-2m'% (nethost,),
                         address = 0x40c8,  # docu page 22
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 22
+                        zeropos = 17.7929853926, # unspecified in docu page 22
                         unit = 'mm',
                         lowlevel = True,
                        ),
@@ -706,20 +706,20 @@ devices = dict(
     col_2b     = device('sans1.collimotor.Sans1ColliSwitcher',
                         description = 'Collimotor 2b',
                         mapping = dict(ng=0, col=117, free=234, las=351),
-                        moveable = 'col_2b_m',
+                        moveable = 'col_2b_a',
                         blockingmove = False,
                         pollinterval = 15,
                         maxage = 60,
                         lowlevel = True,
                        ),
-    #~ col_2b_a   = device('devices.generic.Axis',
-                        #~ description = 'Collimotor 4b',
-                        #~ motor = 'col_2b_m',
-                        #~ coder = 'col_2b_c',
-                        #~ dragerror = 1,
-                        #~ precision = 0.001,
-                        #~ lowlevel = True,
-                       #~ ),
+    col_2b_a   = device('devices.generic.Axis',
+                        description = 'Collimotor 4b',
+                        motor = 'col_2b_m',
+                        coder = 'col_2b_c',
+                        dragerror = 1,
+                        precision = 0.01,
+                        lowlevel = True,
+                       ),
     col_2b_m   = device('sans1.collimotor.Sans1ColliMotor',
                         description = 'Collimotor 2b motor',
                         # IP-adresse: 172.16.17.7 alt
@@ -733,8 +733,8 @@ devices = dict(
                         abslimits = (-400, 600),
                         fixed = 'unreliable, do not use !',
                         fixedby = ('setupfile', 99),      # deny release!
-                        autozero = 100,
-                        #~ autozero = None, # no auto referencing with an axis !!!
+                        #~ autozero = 100,
+                        autozero = None, # no auto referencing with an axis !!!
                         lowlevel = True,
                        ),
     col_2b_c   = device('sans1.collimotor.Sans1ColliCoder',
@@ -744,7 +744,7 @@ devices = dict(
                         tacodevice='//%s/sans1/coll/col-2m'% (nethost,),
                         address = 0x40cd,  # docu page 23
                         slope = 1000000, # resolution = nm, we want mm
-                        zeropos = 0, # unspecified in docu page 23
+                        zeropos = 17.7604015371, # unspecified in docu page 23
                         unit = 'mm',
                         lowlevel = True,
                        ),
