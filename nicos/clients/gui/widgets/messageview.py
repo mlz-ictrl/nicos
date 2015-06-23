@@ -143,8 +143,7 @@ class MessageView(QTextBrowser):
             fmt = grey
         elif levelno <= INFO:
             if message[3].startswith('  > '):
-                fmt = QTextCharFormat()
-                fmt.setFontWeight(QFont.Bold)
+                fmt = QTextCharFormat(bold)
                 fmt.setAnchor(True)
                 fmt.setAnchorHref('exec:' + message[3][4:].strip())
                 return name + message[3], fmt
@@ -152,8 +151,7 @@ class MessageView(QTextBrowser):
         elif levelno == INPUT:
             m = command_re.match(message[3])
             if m:
-                fmt = QTextCharFormat()
-                fmt.setFontWeight(QFont.Bold)
+                fmt = QTextCharFormat(bold)
                 fmt.setAnchor(True)
                 fmt.setAnchorHref('exec:' + m.group(2))
                 if m.group(1) != self._currentuser:
@@ -161,8 +159,7 @@ class MessageView(QTextBrowser):
                 return message[3], fmt
             m = script_re.match(message[3])
             if m:
-                fmt = QTextCharFormat()
-                fmt.setFontWeight(QFont.Bold)
+                fmt = QTextCharFormat(bold)
                 if m.group(2):
                     fmt.setAnchor(True)
                     fmt.setAnchorHref('edit:' + m.group(2))
@@ -171,8 +168,7 @@ class MessageView(QTextBrowser):
                 return message[3], fmt
             m = update_re.match(message[3])
             if m:
-                fmt = QTextCharFormat()
-                fmt.setFontWeight(QFont.Bold)
+                fmt = QTextCharFormat(bold)
                 if m.group(2):
                     fmt.setAnchor(True)
                     fmt.setAnchorHref('edit:' + m.group(2))
@@ -190,7 +186,9 @@ class MessageView(QTextBrowser):
                 name + message[3]
             fmt = redbold
         if message[4] and fmt:
-            # don't show traceback info by default, but on click
+            # need to construct a new unique object for this
+            fmt = QTextCharFormat(fmt)
+            # show traceback info on click
             fmt.setAnchor(True)
             fmt.setAnchorHref('trace:' + message[4])
         return text, fmt
