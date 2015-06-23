@@ -40,7 +40,7 @@ import socket
 import threading
 from time import time as currenttime, sleep
 
-from nicos import session
+from nicos import session, config
 from nicos.core import Device, Param, host
 from nicos.utils import loggers, closeSocket, createThread
 from nicos.pycompat import queue, listitems, listvalues, from_utf8, to_utf8
@@ -329,7 +329,9 @@ class CacheServer(Device):
         self._adevs['db']._server = self
         self._connectionLock = threading.Lock()
 
-    def start(self):
+    def start(self, *startargs):
+        if config.instrument == 'demo' and 'clear' in startargs:
+            self._adevs['db'].clearDatabase()
         self._adevs['db'].initDatabase()
         self._worker = createThread('server', self._server_thread)
 

@@ -78,6 +78,8 @@ parser.add_option('-O', dest='oh', action='store',
 
 parser.add_option('-D', dest='nodaemon', action='store_true',
                   help='disable daemon')
+parser.add_option('--clear-cache', dest='clearcache', action='store_true',
+                  help='clear the cache')
 parser.add_option('-T', dest='textclient', action='store_true',
                   help='start text daemon client instead of GUI')
 parser.add_option('-N', dest='noclient', action='store_true',
@@ -95,7 +97,10 @@ opts, rest_args = parser.parse_args()
 
 echo('Starting NICOS demo system, please wait:')
 
-spawn('nicos-cache')
+if not opts.clearcache:
+    spawn('nicos-cache')
+else:
+    spawn('nicos-cache', '--clear')
 echo(' cache')
 sleep(2)
 

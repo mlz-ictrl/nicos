@@ -13,6 +13,13 @@ parser.add_option('-d', '--daemon', dest='daemon', action='store_true',
 parser.add_option('-S', '--setup', action='store', dest='setupname',
                   default='cache',
                   help="name of the setup, default is 'cache'")
+parser.add_option('--clear', dest='clear', action='store_true',
+                  default=False,
+                  help='clear the whole cache')
 opts, args = parser.parse_args()
 
-NoninteractiveSession.run(opts.setupname, 'Server', daemon=opts.daemon)
+if opts.clear:
+    args.append('clear')
+
+NoninteractiveSession.run('cache', 'Server', setupname=opts.setupname,
+                          daemon=opts.daemon, start_args=args)

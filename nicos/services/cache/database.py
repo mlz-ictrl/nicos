@@ -26,6 +26,7 @@
 """NICOS cache server."""
 
 import os
+import shutil
 import threading
 from os import path
 from time import time as currenttime, sleep, localtime, mktime
@@ -77,6 +78,10 @@ class CacheDatabase(Device):
     def initDatabase(self):
         """Initialize the database from persistent store, if present."""
         pass
+
+    def clearDatabase(self):
+        """Clear the database also from persistent store, if present."""
+        self.log.info('clearing database')
 
     def rewrite(self, key, value):
         """Rewrite handling."""
@@ -437,6 +442,20 @@ class FlatfileCacheDatabase(CacheDatabase):
             if do_rollover:
                 self._rollover()
         self.log.info('loaded %d keys from files in %s' % (nkeys, curdir))
+
+    def clearDatabase(self):
+        self.log.info('clearing database from %s' % self._basepath)
+        self._clearDatabaseDir(self._basepath)
+
+    def _clearDatabaseDir(self, _path):
+        for fn in os.listdir(_path):
+            filename = path.join(_path, fn)
+            if os.path.isdir(filename) and not os.path.islink(filename):
+                self.log.info('removing cache directory %r' % filename)
+                shutil.rmtree(filename)
+            elif fn != '.keep':
+                self.log.info('removing cache file %r' % filename)
+                os.remove(filename)
 
     def _rollover(self):
         """Must be called with self._cat_lock held."""
