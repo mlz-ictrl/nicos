@@ -223,7 +223,7 @@ class SelectorLambda(Moveable):
     }
 
     attached_devices = {
-        'seldev' : (SelectorSpeed, 'The selector speed device'),
+        'seldev': (Moveable, 'The selector speed device'),
     }
 
     hardware_access = False
@@ -255,4 +255,3 @@ class SelectorLambda(Moveable):
         speed = int(self._constant() / value)
         self.log.debug('moving selector to %f rpm' % speed)
         self._adevs['seldev'].start(speed)
-
