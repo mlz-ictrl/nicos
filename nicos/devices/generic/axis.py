@@ -387,6 +387,7 @@ class Axis(CanReference, BaseAxis):
         # enforce initial good agreement between motor and coder
         if not self._checkDragerror():
             self._adevs['motor'].setPosition(self._getReading())
+            self._errorstate = None
 
         self._lastdiff = abs(target - self.read(0))
         self._adevs['motor'].start(target + offset)
