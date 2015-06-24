@@ -352,6 +352,7 @@ class Scan(object):
             return
         except SkipPoint:
             can_measure = False
+            dev_values = {}
         else:
             if not self._waitbeforecount:
                 # skip count at first point because we are scanning intervals
