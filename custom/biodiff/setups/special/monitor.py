@@ -42,6 +42,14 @@ _sampleTableBlock = Block('Sample table', [
     ],
 )
 
+_kappaBlock = Block('Mini-kappa', [
+    BlockRow(Field(name='kappa', dev='minikappa_kappa',)),
+    BlockRow(Field(name='phi', dev='minikappa_phi',)),
+    BlockRow(Field(name='omega', dev='minikappa_omega',)),
+    ],
+    setups='kappa',
+)
+
 _sampleStepperBlock = Block('Sample stepper', [
     BlockRow(Field(name='omega', dev='omega_samplestepper')),
     ],
@@ -98,6 +106,7 @@ _secondRow = Row(
 _thirdRow = Row(
     Column(_sampleTableBlock),
     Column(_pictureBlock),
+    Column(_kappaBlock),
     Column(_sampleStepperBlock, _activeDetectorBlock),
     Column(_slitsBlock))
 
