@@ -315,24 +315,24 @@ for k in range(10, 22 + 1):
     ))
 
 cryos = []
-for j in range(1, 5 + 1):
-    cryos.append(Block('Cryo%d' % j, [
+for cryo in 'cci3he1 cci3he2 cci3he3 cci3he4he1 cci3he4he2'.split():
+    cryos.append(Block(cryo.title(), [
         BlockRow(
-            Field(name='Setpoint', key='t_cryo%d/setpoint' % j,
+            Field(name='Setpoint', key='t_%s/setpoint' % cryo,
                    unitkey='t/unit'),
-            Field(name='Target', key='t_cryo%d/target' % j,
-                   unitkey='t/unit'),
-        ),
-        BlockRow(
-            Field(name='Manual Heater Power', key='t_cryo%d/heaterpower' % j,
+            Field(name='Target', key='t_%s/target' % cryo,
                    unitkey='t/unit'),
         ),
         BlockRow(
-             Field(name='A', dev='T_cryo%d_A' % j),
-             Field(name='B', dev='T_cryo%d_B' % j),
+            Field(name='Manual Heater Power', key='t_%s/heaterpower' % cryo,
+                   unitkey='t/unit'),
+        ),
+        BlockRow(
+             Field(name='A', dev='T_%s_A' % cryo),
+             Field(name='B', dev='T_%s_B' % cryo),
         ),
         ],
-        setups='cryo%d' % j,
+        setups=cryo,
     ))
 
 _birmag = Block('17 T Magnet', [

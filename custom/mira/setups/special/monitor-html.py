@@ -143,16 +143,16 @@ _column2 = Column(
         ],
         setups='irf01',
     ),
-    Block('3He-4He insert (cryo3)', [
+    Block('3He-4He insert (cci3he4he2)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
         BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
                  Field(name='D', key='t/d', width=4),
-                 Field(name='turbo', dev='cryo3_p1'),
-                 Field(name='cycle', dev='cryo3_p4'),
+                 Field(name='turbo', dev='cci3he4he2_p1'),
+                 Field(name='cycle', dev='cci3he4he2_p4'),
                  ),
         ],
-        setups='cryo3',
+        setups='cci3he4he2',
     ),
     Block('FRM Magnet', [
         BlockRow('B', Field(name='sth', dev='sth_m7T5_stick'),

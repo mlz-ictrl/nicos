@@ -4,7 +4,7 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-nethost = 'cryo4'
+nethost = 'cci3he2'
 
 devices = {
     'T_%s' % (nethost,) : device('devices.taco.TemperatureController',

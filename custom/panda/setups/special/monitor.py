@@ -174,54 +174,54 @@ lakeshoreplot = Block('LakeShore', [
 cryos = []
 cryosupps = []
 cryoplots = []
-cryonames = ['3He-insert', 'Dilution-insert', 'Dilution-insert', '3He-insert',
-             '3He-insert'] # correct?
-for i in range(1, 5 + 1):
+cryodict = dict(cci3he1='3He-insert', cci3he2='3He-insert', cci3he3='3He-insert',
+                cci3he4he1='Dilution-insert', cci3he4he2='Dilution-insert')
+for cryo, name in cryodict.items():
     cryos.append(
-        Block('Cryo%d:%s' % (i, cryonames[i-1]), [
+        Block('%s %s' % (name, cryo.title()), [
             BlockRow(
-                Field(dev='t_cryo%d' % i, name='Regulation', max=38),
-                Field(dev='t_cryo%d_a' % i, name='Sensor A', max=38),
-                Field(dev='t_cryo%d_b' % i, name='Sensor B',max=7),
+                Field(dev='t_%s'   % cryo, name='Regulation', max=38),
+                Field(dev='t_%s_a' % cryo, name='Sensor A', max=38),
+                Field(dev='t_%s_b' % cryo, name='Sensor B',max=7),
             ),
             BlockRow(
-                Field(key='t_cryo%d/setpoint' % i, name='Setpoint'),
-                Field(key='t_cryo%d/p' % i, name='P', width=7),
-                Field(key='t_cryo%d/i' % i, name='I', width=7),
-                Field(key='t_cryo%d/d' % i, name='D', width=7),
+                Field(key='t_%s/setpoint' % cryo, name='Setpoint'),
+                Field(key='t_%s/p' % cryo, name='P', width=7),
+                Field(key='t_%s/i' % cryo, name='I', width=7),
+                Field(key='t_%s/d' % cryo, name='D', width=7),
             ),
             ],
-            setups='cryo%d' % i,
+            setups=cryo,
         )
     )
     cryosupps.append(
-        Block('Cryo%d-misc' % i,[
+        Block('%s-misc' % cryo.title(),[
             BlockRow(
-                Field(dev='cryo%d_p1' % i, name='Pump', width=10),
-                Field(dev='cryo%d_p4' % i, name='Cond.', width=10),
+                Field(dev='%s_p1' % cryo, name='Pump', width=10),
+                Field(dev='%s_p4' % cryo, name='Cond.', width=10),
             ),
             BlockRow(
-                Field(dev='cryo%d_p5' % i, name='Dump', width=10),
-                Field(dev='cryo%d_p6' % i, name='IVC', width=10),
+                Field(dev='%s_p5' % cryo, name='Dump', width=10),
+                Field(dev='%s_p6' % cryo, name='IVC', width=10),
             ),
             BlockRow(
-                Field(key='cryo%d_flow' % i, name='Flow', width=10),
+                Field(key='%s_flow' % cryo, name='Flow', width=10),
             ),
             ],
-            setups='cryo%d' % i,
+            setups=cryo,
         )
     )
     cryoplots.append(
-        Block('cryo%d' % i, [
+        Block(cryo.title(), [
             BlockRow(
                 Field(widget='nicos.guisupport.plots.TrendPlot',
                       plotwindow=300, width=25, height=25,
-                      devices=['t_cryo%d/setpoint' % i, 't_cryo%d' % i],
+                      devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
                       names=['Setpoint', 'Regulation'],
                 ),
             ),
             ],
-            setups='cryo%d' % i,
+            setups=cryo,
         )
     )
 
@@ -245,7 +245,7 @@ for i in range(10, 22 + 1):
                 Field(key='t_ccr%d/d' % i, name='D', width=6),
             ),
             ],
-            setups='ccr%d and not cryo*' % i,
+            setups='ccr%d and not cci3he*' % i,
         )
     )
     ccrsupps.append(

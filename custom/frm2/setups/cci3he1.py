@@ -1,10 +1,10 @@
-description = '3He/4He dilution unit from FRM-II Sample environment group'
+description = '3He insert from FRM-II Sample environment group'
 
 group = 'plugplay'
 
 includes = ['alias_T']
 
-nethost = 'cryo2'
+nethost = 'cci3he1'
 
 devices = {
     'T_%s' % (nethost,) : device('devices.taco.TemperatureController',
@@ -18,7 +18,7 @@ devices = {
                                 ),
 
     'T_%s_A' % (nethost,) : device('devices.taco.TemperatureSensor',
-                                   description = 'The mixing chamber temperature',
+                                   description = 'The 3He pot temperature',
                                    tacodevice = '//%s/cryo/ls370/sensora' % (nethost, ),
                                    unit = 'K',
                                    fmtstr = '%.3f',
@@ -91,7 +91,6 @@ devices = {
                                     pollinterval = 15,
                                     maxage = 20,
                                    ),
-
 }
 
 startupcode = """
