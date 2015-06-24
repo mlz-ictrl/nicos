@@ -41,6 +41,17 @@ devices = dict(
                              abslimits = (11000, 22000),
                             ),
 
+    selector_lambda = device('devices.vendor.astrium.SelectorLambda',
+                             description = 'Selector wavelength control',
+                             seldev = 'selector_speed',
+                             unit = 'A',
+                             fmtstr = '%.2f',
+                             twistangle = 48.27,
+                             length = 0.25,
+                             beamcenter = 0.115,
+                             maxspeed = 28300,
+                            ),
+
     selector_rtemp  = device('devices.tango.AnalogInput',
                              description = 'Temperature of the selector rotor',
                              tangodevice = tango_url + '/rotortemp',

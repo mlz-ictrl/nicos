@@ -76,6 +76,7 @@ _cryoStreamBlock = Block('Cryo-stream', [
 
 _selectorBlock = Block('Selector', [
     BlockRow(Field(name='Speed', dev='selector_speed')),
+    BlockRow(Field(name='Lambda', dev='selector_lambda')),
     BlockRow(Field(name='Vac', dev='selector_vacuum'),
              Field(name='Rotor T', dev='selector_rtemp')),
     BlockRow(Field(name='Flow', dev='selector_wflow'),
