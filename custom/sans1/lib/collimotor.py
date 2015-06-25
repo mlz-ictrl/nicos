@@ -139,6 +139,8 @@ class Sans1ColliCoder(TacoDevice, Coder):
                              userparam=False, settable=False),
         'zeropos'    : Param('Value of the Coder when at physical zero',
                              type=float, userparam=False, settable=False, unit='main'),
+        'steps'      : Param('Current steps value of the Coder',
+                             type=int, settable=False, unit='steps'),
     }
 
     def doInit(self, mode):
@@ -154,14 +156,16 @@ class Sans1ColliCoder(TacoDevice, Coder):
     def doRead(self, maxage=0):
         regs = self._taco_guard(self._dev.readHoldingRegisters,
                                  (0, self.address, 2))
-        steps = struct.unpack('=i', struct.pack('<2H', *regs))[0]
-        value = steps / self.slope
+        self._setROParam('steps', struct.unpack('=i', struct.pack('<2H', *regs))[0])
+        value = self.steps / self.slope
         self.log.debug('doRead: %d steps -> %s' %
-                       (steps, self.format(value, unit=True)))
+                       (self.steps, self.format(value, unit=True)))
         return value - self.zeropos
 
     def doStatus(self, maxage=0):
-        return status.OK, '' # not impl.
+        if self.steps:
+            return status.OK, ''
+        return status.WARN, 'Coder should never be at 0 Steps, Coder may be broken!'
 
 
 class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Motor):
