@@ -864,6 +864,13 @@ class Motor(HasTimeout, NicosMotor):
         self.log.debug('setting new steps value: %s' % value)
         self._adevs['bus'].send(self.addr, 43, value, 6)
 
+    def doWritePrecision(self, precision):
+        minprec = abs(2 / self.slope)
+        if precision < minprec:
+            self.log.warning('Precision needs to be at least %.3f, adjusting.' %
+                             minprec)
+            return minprec
+
     def doStart(self, target):
         target = self._tosteps(target)
         self.log.debug('target is %d steps' % target)
