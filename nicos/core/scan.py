@@ -500,18 +500,22 @@ class SweepScan(Scan):
 
     def finishPoint(self):
         Scan.finishPoint(self)
-        if self._sweepdevices:
-            if not any(dev.status()[0] == status.BUSY
-                       for dev in self._sweepdevices):
-                raise StopScan
         if session.mode == SIMULATION:
             if self._numpoints > 1:
                 session.log.info('skipping %d points...' % (self._numpoints - 1))
                 duration = session.clock.time - self._sim_start
                 session.clock.tick(duration * (self._numpoints - 1))
             elif self._numpoints < 0:
-                session.log.info('would scan indefinitely, skipping...')
+                if self._sweepdevices:
+                    for dev in self._sweepdevices:
+                        dev.wait()
+                else:
+                    session.log.info('would scan indefinitely, skipping...')
             raise StopScan
+        if self._sweepdevices:
+            if not any(dev.status()[0] == status.BUSY
+                       for dev in self._sweepdevices):
+                raise StopScan
 
 
 class ManualScan(Scan):
