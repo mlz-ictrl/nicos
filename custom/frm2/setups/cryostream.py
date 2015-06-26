@@ -19,6 +19,7 @@ devices = {
     '%s_LN2' % setupname: device('devices.tango.Sensor',
                                  description = 'Cryostream LN2 supply',
                                  tangodevice = 'tango://' + tango_host + ':10000/box/levelmeter/level',
+                                 fmtstr = '%.1f',
                                 ),
     '%s_LN2_fill' % setupname:
                           device('devices.tango.NamedDigitalOutput',
