@@ -143,10 +143,11 @@ class MemoryCacheDatabase(CacheDatabase):
         CacheDatabase.doInit(self, mode)
 
     def ask(self, key, ts, time, ttl):
+        dbkey = key if '/' in key else 'nocat/' + key
         with self._db_lock:
-            if key not in self._db:
+            if dbkey not in self._db:
                 return [key + OP_TELLOLD + '\n']
-            lastent = self._db[key][-1]
+            lastent = self._db[dbkey][-1]
         # check for already removed keys
         if lastent.value is None:
             return [key + OP_TELLOLD + '\n']
@@ -175,6 +176,8 @@ class MemoryCacheDatabase(CacheDatabase):
                 # check for removed keys
                 if lastent.value is None:
                     continue
+                if dbkey.startswith('nocat/'):
+                    dbkey = dbkey[6:]
                 # check for expired keys
                 if lastent.ttl:
                     remaining = lastent.time + lastent.ttl - currenttime()
