@@ -160,7 +160,7 @@ class Monitor(BaseCacheClient):
         self._worker.join()
         self.log.info('done')
 
-    def quit(self, *ignored):
+    def quit(self, *ignored, **kwds):
         self.closeGui()
         self._stoprequest = True
 
