@@ -126,6 +126,13 @@ _sansblock = Block('SANS', [
         Field(dev='det_HV', name='Detector HV', format='%d'),
         Field(key='det/lastcounts', name='Counts on det', format='%d')
     ),
+    '---',
+    BlockRow(
+        Field(widget='nicos.guisupport.display.PictureDisplay',
+              filepath='data/live_lin.png', refresh=1),
+        Field(widget='nicos.guisupport.display.PictureDisplay',
+              filepath='data/live_log.png', refresh=1),
+    )
     ],
     setups='sans',
 )

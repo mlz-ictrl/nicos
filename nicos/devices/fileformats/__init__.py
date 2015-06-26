@@ -27,3 +27,4 @@
 from nicos.devices.fileformats.raw import RAWFileFormat
 from nicos.devices.fileformats.fits import FITSFileFormat
 from nicos.devices.fileformats.liveview import LiveViewSink
+from nicos.devices.fileformats.livepng import PNGLiveFileFormat

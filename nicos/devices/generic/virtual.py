@@ -707,6 +707,9 @@ class Virtual2DDetector(ImageProducer, Measurable):
             return status.BUSY,  'busy'
         return status.OK,  'idle'
 
+    def duringMeasureHook(self, elapsed):
+        self.updateLiveImage()
+
     def readImage(self):
         return self._buf
 
