@@ -196,6 +196,17 @@ class BaseCacheClient(Device):
         return data[i:]
 
     def _worker_thread(self):
+        while True:
+            try:
+                self._worker_inner()
+            except Exception:
+                self.log.exception('exception in cache worker thread; '
+                                   'restarting (please report a bug)')
+            else:
+                # normal termination
+                break
+
+    def _worker_inner(self):
         data = b''
         range10 = range(10)
         process = self._process_data
