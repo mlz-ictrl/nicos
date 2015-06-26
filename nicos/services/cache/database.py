@@ -658,14 +658,15 @@ class FlatfileCacheDatabase(CacheDatabase):
         if value is None:
             # deletes cannot have a TTL
             ttl = None
+        now = currenttime()
         if time is None:
-            time = currenttime()
+            time = now
         store_on_disk = True
         if key.endswith(FLAG_NO_STORE):
             key = key[:-len(FLAG_NO_STORE)]
             store_on_disk = False
         with self._cat_lock:
-            if currenttime() > self._nextmidnight:
+            if now > self._nextmidnight:
                 self._rollover()
         try:
             category, subkey = key.rsplit('/', 1)
@@ -702,7 +703,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                             ttl and '-' or (value and '+' or '-'),
                             value or '-'))
                         fd.flush()
-            if update:
+            if update and ttl and time + ttl > now:
                 key = newcat + '/' + subkey
                 for client in self._server._connected.values():
                     if client is not from_client:
