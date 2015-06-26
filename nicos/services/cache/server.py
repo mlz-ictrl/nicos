@@ -434,8 +434,8 @@ class CacheServer(Device):
             sleep(self._long_loop_delay)
         self._worker.join()
 
-    def quit(self, signal=None):
-        self.log.info('quitting on signal %s...' % signal)
+    def quit(self, signum=None):
+        self.log.info('quitting on signal %s...' % signum)
         self._stoprequest = True
         # without locking, the _connected list may not have all clients yet....
         with self._connectionLock:

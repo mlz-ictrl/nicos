@@ -260,8 +260,8 @@ class NicosDaemon(Device):
             time.sleep(self._long_loop_delay)
         self._worker.join()
 
-    def quit(self, signal=None):
-        self.log.info('quitting on signal %s...' % signal)
+    def quit(self, signum=None):
+        self.log.info('quitting on signal %s...' % signum)
         self._stoprequest = True
         self._server.shutdown()
         self._worker.join()

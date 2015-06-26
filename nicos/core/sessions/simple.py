@@ -62,7 +62,7 @@ class NoninteractiveSession(Session):
             setuser()
 
         def quit_handler(signum, frame):
-            maindev.quit(signal=signum)
+            maindev.quit(signum=signum)
 
         def reload_handler(signum, frame):
             if hasattr(maindev, 'reload'):
