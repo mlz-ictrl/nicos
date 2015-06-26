@@ -22,18 +22,14 @@
 #
 # *****************************************************************************
 
-# standard library
 import math
 import time
-# local library
+
 from nicos.devices.abstract import Motor as NicosMotor
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 from nicos.core.device import Moveable
 from nicos.core.params import Param, Override
 from nicos.core.errors import LimitError
-
-
-__author__ = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 class MicrostepMotor(BaseSequencer, NicosMotor):

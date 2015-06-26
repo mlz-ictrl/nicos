@@ -22,22 +22,17 @@
 #
 # *****************************************************************************
 
-# standard library
 from nicos.core.errors import NicosError
-# third party
+
 try:
     _thirdparty_available = True
     import requests
 except ImportError as e:
     _thirdparty_available = False
     _import_error = e
-# local library
+
 from nicos.core import Readable, HasOffset, Param, oneof, Override
 import nicos.core.status as status
-
-__author__ = "Christian Felder <c.felder@fz-juelich.de>"
-__date__ = "2013-11-05"
-__version__ = "0.1.1"
 
 _REST_URL = "http://jcnswww.jcns.frm2/meteo"
 

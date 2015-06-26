@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
-__author__  = "Christian Felder <c.felder@fz-juelich.de>"
-
-
 description = "Shutter setup"
 group = "lowlevel"
 
 tango_host = "tango://phys.biodiff.frm2:10000"
 _TANGO_URL = tango_host + "/biodiff/FZJDP_Digital/"
 _MAP_SHUTTER = {
-                "open": 1,
-                "close": 2,
-                }
+    "open": 1,
+    "close": 2,
+}
 
 devices = dict(
     _gshutter = device("devices.tango.DigitalOutput",

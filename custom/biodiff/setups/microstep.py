@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-__author__  = "Christian Felder <c.felder@fz-juelich.de>"
-
-
 description = "Software based micro stepping for several axes"
 group = "lowlevel"
 

@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-__author__  = "Christian Felder <c.felder@fz-juelich.de>"
-__date__    = "2013-07-11"
-__version__ = "0.1.0"
-
 _TEMP_AIR      = "temperature/air"
 _TEMP_WET_BULB = "temperature/wet_bulb"
 _DEWPOINT      = "dewpoint"

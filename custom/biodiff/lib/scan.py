@@ -24,9 +24,8 @@
 
 from __future__ import print_function
 
-# standard library
 import math
-# local library
+
 from nicos import session
 from nicos.core import Moveable, UsageError
 from nicos.core.scan import Scan
@@ -36,9 +35,6 @@ from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.biodiff.motor import MicrostepMotor
 from nicos.biodiff.detector import ImagePlateDetector, Andor2LimaCCDDetector
 from nicos.biodiff.shutter import Shutter
-
-
-__author__ = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 class RScan(Scan):

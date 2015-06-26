@@ -22,13 +22,12 @@
 #
 # *****************************************************************************
 
-# standard library
 import time
 import os.path
-# third party
+
 import numpy
 from PyTango import DevState
-# local library
+
 from nicos import session
 from nicos.utils import updateFileCounter
 from nicos.core import SIMULATION, waitForStatus
@@ -43,9 +42,6 @@ from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep, \
     SeqMethod
 from nicos.core.image import ImageProducer, ImageType
 from nicos.biodiff.shutter import Shutter
-
-
-__author__ = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 class ImagePlateBase(PyTangoDevice):

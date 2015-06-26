@@ -21,6 +21,7 @@
 #   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
+
 """FPGA Counter Card module
 
 This module provides classes for controlling the ZEA-2 FPGA Counter Card using
@@ -28,16 +29,11 @@ their own interface. The current implementation does _not_ support multiple
 masters, e.g. counting on time and count rate.
 
 """
-# standard library
 
-# local library
 import nicos.core.status as status
 from nicos.core.params import Param, Override, Value, oneof, intrange
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.generic.detector import Channel
-
-
-__author__ = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 class FPGAChannelBase(PyTangoDevice, Channel):

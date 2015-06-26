@@ -24,10 +24,6 @@
 
 """PANDA Monochromator changer hardware classes."""
 
-__author__  = "Enrico Fauhaber $Author$"
-__date__    = "$Date$"
-__version__ = "0.1beta"
-
 import random
 import socket
 from time import sleep, time

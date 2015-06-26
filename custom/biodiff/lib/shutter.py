@@ -22,12 +22,7 @@
 #
 # *****************************************************************************
 
-
-# local library
 from nicos.devices.generic.switcher import Switcher
-
-
-__author__ = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 class Shutter(Switcher):
@@ -38,4 +33,3 @@ class Shutter(Switcher):
     def doStop(self):
         self.start(Shutter.CLOSED)
         self.wait()
-

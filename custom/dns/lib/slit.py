@@ -22,12 +22,7 @@
 #
 # *****************************************************************************
 
-
-# local library
 from nicos.devices.generic.slit import Slit
-
-
-__author__ = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 class PosOpeningSlit(Slit):

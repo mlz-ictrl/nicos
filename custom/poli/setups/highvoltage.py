@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-__author__  = "Christian Felder <c.felder@fz-juelich.de>"
-
-
 description = "High voltage setup"
 group = "optional"
 
@@ -23,4 +20,3 @@ devices = dict(
                       states = ["off", "on"],
                      ),
 )
-

@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 
-__author__ = "Stefan Rainow <s.rainow@fz-juelich.de>"
-
-
 description = "Outside world data"
 group = "lowlevel"
-
 
 devices = dict(
     ubahn = device('frm2.ubahn.UBahn',

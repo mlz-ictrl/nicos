@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-# standard library
-# third party
 import numpy
 try:
     import PIL
@@ -31,13 +29,10 @@ try:
 except ImportError as e:
     PIL = None
     _import_error = e
-# local library
+
 from nicos.core.errors import NicosError
 from nicos.core import ImageSink
 from nicos.core.params import Param
-
-
-__author__ = "Christian Felder <c.felder@fz-juelich.de>"
 
 
 class TIFFFileFormat(ImageSink):
