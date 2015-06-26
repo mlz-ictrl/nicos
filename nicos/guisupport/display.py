@@ -28,7 +28,7 @@ NICOS value display widget.
 
 from cgi import escape
 from time import time as currenttime
-from os.path import getmtime
+from os.path import getmtime, isfile
 
 import sip
 from PyQt4.QtCore import Qt, QSize, QTimer, SIGNAL
@@ -408,6 +408,8 @@ class PictureDisplay(NicosWidget, QLabel):
             self.setPixmap(pixmap.scaled(size))
 
     def updatePicture(self):
+        if not isfile(self._filePath):
+            return
         if (currenttime() - getmtime(self._filePath)
                 < self._refreshTimer.interval()/1000):
             self.setPicture()
