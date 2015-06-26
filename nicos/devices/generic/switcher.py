@@ -263,7 +263,7 @@ class MultiSwitcher(MappedMoveable):
             self.log.debug('moving %r to %r' % (d, t))
             d.start(t)
         if self.blockingmove:
-            multiWait(self.devices)
+            multiWait(moveables)
 
     def _readRaw(self, maxage=0):
         return tuple(d.read(maxage) for d in self.devices)
