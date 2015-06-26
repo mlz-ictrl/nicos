@@ -52,7 +52,16 @@ _tempblock = Block('Temperature', [
     setups='cryo',
 )
 
-_rightcolumn = Column(_axisblock, _detectorblock)
+_sansblock = Block('SANS (log/lin)', [
+    BlockRow(
+        Field(picture='live_lin.png', width=24, height=24),
+        Field(picture='live_log.png', width=24, height=24),
+    )
+    ],
+    setups='sans',
+)
+
+_rightcolumn = Column(_axisblock, _detectorblock, _sansblock)
 
 _leftcolumn = Column(_tasblock, _tempblock)
 

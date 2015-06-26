@@ -40,7 +40,8 @@ from PyQt4.QtCore import Qt, SIGNAL
 from nicos.utils import findResource
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.guisupport.widget import NicosWidget
-from nicos.guisupport.display import ValueDisplay, lightColorScheme
+from nicos.guisupport.display import ValueDisplay, PictureDisplay, \
+    lightColorScheme
 from nicos.guisupport.utils import checkSetupSpec
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.pycompat import iteritems, string_types
@@ -296,6 +297,10 @@ class Monitor(BaseMonitor):
                 plotwidget.devices = [field.get('dev', field.get('key', ''))]
                 plotwidget.names = [field.get('name', field.get('dev', field.get('key', '')))]
                 return plotwidget
+            elif 'picture' in field:
+                picwidget = PictureDisplay(groupframe)
+                picwidget.filepath = field['picture']
+                return _setup(picwidget)
             else:
                 display = ValueDisplay(groupframe, colorScheme=colorScheme)
                 return _setup(display)

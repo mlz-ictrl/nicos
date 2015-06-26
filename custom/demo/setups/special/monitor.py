@@ -128,10 +128,8 @@ _sansblock = Block('SANS', [
     ),
     '---',
     BlockRow(
-        Field(widget='nicos.guisupport.display.PictureDisplay',
-              filepath='data/live_lin.png', refresh=1),
-        Field(widget='nicos.guisupport.display.PictureDisplay',
-              filepath='data/live_log.png', refresh=1),
+        Field(picture='data/live_lin.png', refresh=1),
+        Field(picture='data/live_log.png', refresh=1),
     )
     ],
     setups='sans',

@@ -231,6 +231,18 @@ them is the "trend plot" widget, which is selected by giving a ``plot`` key:
 
   will plot the ``TA`` and ``TB`` device values for the last 2 hours.
 
+Another special widget is the picture widget, which is selected by giving a
+``picture`` key:
+
+* ``picture`` -- this will display the image file with the given file name
+  (absolute or relative to the NICOS root).
+
+  ``width`` and ``height`` can be given to scale the picture in terms of
+  characters.
+
+* ``refresh`` -- if given as a number of seconds, the image will be reloaded
+  periodically.
+
 Other widgets have to be specified by a key named ``widget``:
 
 * ``widget`` -- if set, this names a class (with fully-qualified module name)

@@ -106,6 +106,9 @@ class Field(object):
     plot = None           # which plot to plot this value in
     plotwindow = 3600     # time span of plot
 
+    # for pictures
+    picture = None   # file name
+
     def __init__(self, prefix, desc):
         if isinstance(desc, string_types):
             desc = {'dev': desc}
@@ -123,7 +126,7 @@ class Field(object):
         for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
             if kn in desc:
                 desc[kn] = (prefix + desc[kn]).replace('.', '/').lower()
-        if 'name' not in desc:
+        if 'name' not in desc and 'key' in desc:
             desc['name'] = desc['key']
         self.__dict__.update(desc)
 
@@ -238,6 +241,18 @@ class Plot(object):
                     self.width, self.height))
 
 
+class Picture(object):
+
+    def __init__(self, filepath, width, height):
+        self.filepath = filepath
+        self.width = width
+        self.height = height
+
+    def __str__(self):
+        return '<img src="%s" style="width: %sex; height: %sex">' % (
+            self.filepath, self.width, self.height)
+
+
 class Monitor(BaseMonitor):
     """HTML specific implementation of instrument monitor."""
 
@@ -311,6 +326,9 @@ class Monitor(BaseMonitor):
                     self._plots[field.plot] = p
                     blk.add(p)
                 field._plotcurve = p.addcurve(field.name)
+            elif field.picture:
+                pic = Picture(field.picture, field.width, field.height)
+                blk.add(pic)
             else:
                 # deactivate plots
                 field.plot = None
