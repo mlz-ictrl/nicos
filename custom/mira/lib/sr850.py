@@ -30,7 +30,7 @@ from time import time
 from IO import StringIO
 
 from nicos.core import intrange, Measurable, Param, Value, CommunicationError, \
-    ConfigurationError, NicosError
+    ConfigurationError, NicosError, Override
 from nicos.devices.taco.core import TacoDevice
 from nicos.core import SIMULATION
 
@@ -44,20 +44,29 @@ class Amplifier(TacoDevice, Measurable):
     """
 
     parameters = {
+        # Lock-in parameters
         'frequency': Param('Reference freqency', unit='Hz', settable=True,
-                           category='general'),
+                           category='general', volatile=True),
         'amplitude': Param('Reference sine amplitude', unit='Vrms',
-                           settable=True, category='general'),
+                           settable=True, category='general', volatile=True),
         'phase':     Param('Phase shift', unit='deg',
-                           settable=True, category='general'),
+                           settable=True, category='general', volatile=True),
         'harmonic':  Param('Number of harmonic to detect', type=int,
-                           settable=True, category='general'),
+                           settable=True, category='general', volatile=True),
         'timeconstant': Param('Time constant of the low pass filter', type=int,
-                              settable=True, category='general', unit='us'),
+                              settable=True, category='general', unit='us',
+                              volatile=True),
         'reserve':      Param('Dynamic reserve', type=intrange(0, 5),
-                              settable=True, category='general'),
+                              settable=True, category='general', volatile=True),
+        'sensitivity':  Param('Sensitivity constant', type=intrange(0, 26),
+                              settable=True, category='general', volatile=True),
+        # internal parameters
         'measurements': Param('Number of measurements to average over',
                               type=int, default=100, settable=True),
+    }
+
+    parameter_overrides = {
+        'fmtstr':    Override(default='%.6g'),
     }
 
     taco_class = StringIO
@@ -71,9 +80,9 @@ class Amplifier(TacoDevice, Measurable):
 
     def valueInfo(self):
         return Value('X', unit='V', fmtstr=self.fmtstr), \
-               Value('Y', unit='V', fmtstr=self.fmtstr), \
-               Value('R', unit='V', fmtstr=self.fmtstr), \
-               Value('Theta', unit='deg', type='counter', fmtstr=self.fmtstr)
+            Value('Y', unit='V', fmtstr=self.fmtstr), \
+            Value('R', unit='V', fmtstr=self.fmtstr), \
+            Value('Theta', unit='deg', type='counter', fmtstr=self.fmtstr)
 
     def doSetPreset(self, **preset):
         self._delay = preset.get('delay', 0)
@@ -157,3 +166,11 @@ class Amplifier(TacoDevice, Measurable):
         self._taco_guard(self._dev.writeLine, 'RSRV %d' % value)
         if self.doReadReserve() != value:
             raise NicosError(self, 'setting new reserve failed')
+
+    def doReadSensitivity(self):
+        return int(self._taco_guard(self._dev.communicate, 'SENS?'))
+
+    def doWriteSensitivity(self, value):
+        self._taco_guard(self._dev.writeLine, 'SENS %d' % value)
+        if self.doReadSensitivity() != value:
+            raise NicosError(self, 'setting new sensitivity failed')
