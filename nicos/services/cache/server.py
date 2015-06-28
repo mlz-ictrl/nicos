@@ -117,12 +117,12 @@ class CacheWorker(object):
             try:
                 self.sock.sendall(to_utf8(data))
             except socket.timeout:
-                self.log.warning(self, 'send timed out, shutting down')
+                self.log.warning('send timed out, shutting down')
                 self.closedown()
             except Exception:
                 # if we can't write (or it would be blocking), there is some
                 # serious problem: forget writing and close down
-                self.log.warning(self, 'other end closed, shutting down')
+                self.log.warning('other end closed, shutting down')
                 self.closedown()
 
     def _receiver_thread(self):
