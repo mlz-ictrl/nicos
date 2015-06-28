@@ -30,6 +30,7 @@ import socket
 import weakref
 import traceback
 import threading
+import collections
 
 from nicos import nicos_version
 from nicos.core import listof, Device, Param, ConfigurationError, host
@@ -176,8 +177,8 @@ class NicosDaemon(Device):
                         '%s requires %r, while %s requires %r' %
                         (auths[0], self._pw_hashing, auth, auth.pw_hashing()))
 
-        # log messages emitted so far
-        self._messages = []
+        # cache log messages emitted so far - but place an upper limit
+        self._messages = collections.deque([], 100000)
 
         address = self.server
         if ':' not in address:
