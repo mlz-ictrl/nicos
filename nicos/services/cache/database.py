@@ -703,7 +703,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                             ttl and '-' or (value and '+' or '-'),
                             value or '-'))
                         fd.flush()
-            if update and ttl and time + ttl > now:
+            if update and (not ttl or time + ttl > now):
                 key = newcat + '/' + subkey
                 for client in self._server._connected.values():
                     if client is not from_client:
