@@ -54,8 +54,8 @@ _tempblock = Block('Temperature', [
 
 _sansblock = Block('SANS (log/lin)', [
     BlockRow(
-        Field(picture='live_lin.png', width=24, height=24),
-        Field(picture='live_log.png', width=24, height=24),
+        Field(name='Data (lin)', picture='live_lin.png', width=24, height=24),
+        Field(name='Data (log)', picture='live_log.png', width=24, height=24),
     )
     ],
     setups='sans',

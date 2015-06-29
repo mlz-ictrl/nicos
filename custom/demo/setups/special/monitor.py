@@ -128,8 +128,8 @@ _sansblock = Block('SANS', [
     ),
     '---',
     BlockRow(
-        Field(picture='data/live_lin.png', refresh=1),
-        Field(picture='data/live_log.png', refresh=1),
+        Field(name='Data (linear)', picture='data/live_lin.png', refresh=1, width=12, height=12),
+        Field(name='Data (log)', picture='data/live_log.png', refresh=1, width=12, height=12),
     )
     ],
     setups='sans',

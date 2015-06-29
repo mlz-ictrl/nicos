@@ -376,7 +376,7 @@ class ValueDisplay(NicosWidget, QWidget):
             self.emit(SIGNAL('widgetInfo'), '')
 
 
-class PictureDisplay(NicosWidget, QLabel):
+class PictureDisplay(NicosWidget, QWidget):
     """A display widget to show a picture."""
 
     designer_description = 'Widget to display a picture file'
@@ -384,6 +384,8 @@ class PictureDisplay(NicosWidget, QLabel):
     properties = {
         'filepath': PropDef(str, '', 'Path to the picture that should '
                             'be displayed'),
+        'name':     PropDef(str, '', 'Name (caption) to be displayed above '
+                            'the picture'),
         'refresh':  PropDef(int, 0, 'Interval to check for updates '
                             'in seconds'),
         'height':   PropDef(int, 0),
@@ -391,9 +393,16 @@ class PictureDisplay(NicosWidget, QLabel):
     }
 
     def __init__(self, parent=None, designMode=False, **kwds):
-        QLabel.__init__(self, parent, **kwds)
-        self.setScaledContents(True)
+        QWidget.__init__(self, parent, **kwds)
         NicosWidget.__init__(self)
+        self.namelabel = QLabel(self)
+        self.namelabel.setAlignment(Qt.AlignHCenter)
+        self.piclabel = QLabel(self)
+        self.piclabel.setScaledContents(True)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.piclabel, 1)
+        self.setLayout(layout)
 
     def registerKeys(self):
         pass
@@ -403,9 +412,10 @@ class PictureDisplay(NicosWidget, QLabel):
         size = QSize(self.props['width'] * self._scale,
                      self.props['height'] * self._scale)
         if size.isEmpty():
-            self.setPixmap(pixmap)
+            self.piclabel.setPixmap(pixmap)
         else:
-            self.setPixmap(pixmap.scaled(size))
+            self.piclabel.setPixmap(pixmap.scaled(size))
+            self.piclabel.resize(self.piclabel.sizeHint())
 
     def updatePicture(self):
         if not isfile(self._filePath):
@@ -418,6 +428,17 @@ class PictureDisplay(NicosWidget, QLabel):
         NicosWidget.propertyUpdated(self, pname, value)
         if pname == 'filepath':
             self._filePath = findResource(value)
+            self.setPicture()
+        elif pname == 'name':
+            layout = QVBoxLayout()
+            if value:
+                layout.addWidget(self.namelabel)
+                layout.addSpacing(5)
+            layout.addWidget(self.piclabel, 1)
+            sip.delete(self.layout())
+            self.setLayout(layout)
+            self.namelabel.setText(value)
+        elif pname in ('width', 'height'):
             self.setPicture()
         elif pname == 'refresh':
             if value:

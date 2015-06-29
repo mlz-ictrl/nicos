@@ -243,14 +243,19 @@ class Plot(object):
 
 class Picture(object):
 
-    def __init__(self, filepath, width, height):
+    def __init__(self, filepath, width, height, name):
         self.filepath = filepath
         self.width = width
         self.height = height
+        self.name = name
 
     def __str__(self):
-        return '<img src="%s" style="width: %sex; height: %sex">' % (
+        s = ''
+        if self.name:
+            s += '<div class="label">%s</div><br>' % self.name
+        s += '<img src="%s" style="width: %sex; height: %sex">' % (
             self.filepath, self.width, self.height)
+        return s
 
 
 class Monitor(BaseMonitor):
@@ -327,7 +332,8 @@ class Monitor(BaseMonitor):
                     blk.add(p)
                 field._plotcurve = p.addcurve(field.name)
             elif field.picture:
-                pic = Picture(field.picture, field.width, field.height)
+                pic = Picture(field.picture, field.width, field.height,
+                              escape(field.name))
                 blk.add(pic)
             else:
                 # deactivate plots

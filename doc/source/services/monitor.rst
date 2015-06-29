@@ -240,6 +240,8 @@ Another special widget is the picture widget, which is selected by giving a
   ``width`` and ``height`` can be given to scale the picture in terms of
   characters.
 
+* ``name`` -- if given, used as a caption above the picture.
+
 * ``refresh`` -- if given as a number of seconds, the image will be reloaded
   periodically.
 
