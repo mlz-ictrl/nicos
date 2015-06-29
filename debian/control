@@ -54,8 +54,7 @@ Depends: nicos-core,
  python-qwt5-qt4,
  python-qscintilla2,
  python-scipy,
- python-redmine,
- python-matplotlib
+ python-redmine
 Description: NICOS gui tools
 
 Package: nicos

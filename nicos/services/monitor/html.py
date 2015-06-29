@@ -24,30 +24,31 @@
 
 """Instrument monitor that generates an HTML page."""
 
+import os
+import time
 import operator
+import tempfile
 import functools
 
 from time import sleep, time as currenttime
 from binascii import b2a_base64
-from datetime import datetime
 from threading import RLock
 
 try:
-    import matplotlib
-    matplotlib.use('agg')
-    matplotlib.rc('font', family='Helvetica')
-    import matplotlib.pyplot as mpl
-    import matplotlib.dates as mpldate
+    from gr import pygr
+    import gr
 except ImportError:
-    matplotlib = None
+    pygr = None
 
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
 from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.pycompat import BytesIO, iteritems, from_utf8, string_types, \
-    escape_html
+from nicos.pycompat import iteritems, from_utf8, string_types, escape_html
 from nicos.services.monitor.icon import nicos_icon
+# required for import order on Py3
+import nicos.clients.gui.widgets.plotting  # pylint: disable=unused-import
+from nicos.clients.gui.widgets.grplotting import NicosTimePlotAxes
 from nicos.utils import checkSetupSpec, extractKeyAndIndex
 
 
@@ -179,6 +180,10 @@ class Label(object):
                 (self.cls, self.fore, self.width, self.back, self.text))
 
 
+DATEFMT = '%Y-%m-%d'
+TIMEFMT = '%H:%M:%S'
+
+
 class Plot(object):
     def __init__(self, window, width, height):
         self.window = window
@@ -186,69 +191,76 @@ class Plot(object):
         self.height = height
         self.data = []
         self.lock = RLock()
-        self.figure = mpl.figure(figsize=(width/11., height/11.))
-        ax = self.figure.gca()
-        ax.grid()
-        ax.xaxis.set_major_locator(mpldate.AutoDateLocator())
-        fmt = '%m-%d %H:%M:%S'
-        if window < 24*3600:
-            fmt = fmt[6:]
-        if window > 300:
-            fmt = fmt[:-3]
-        ax.xaxis.set_major_formatter(mpldate.DateFormatter(fmt))
+        self.plot = pygr.Plot(viewport=(.1, .95, .25, .95))
+        self.axes = NicosTimePlotAxes(self.plot._viewport)
+        self.plot.addAxes(self.axes)
+        self.plot.setLegend(True)
+        self.plot.setLegendWidth(0.07)
+        self.plot.offsetXLabel = -.2
+        self.axes.setXtickCallback(self.xtickCallBack)
         self.curves = []
+        os.environ['GKS_WSTYPE'] = 'svg'
+        (fd, self.tempfile) = tempfile.mkstemp('.svg')
+        os.close(fd)
+
+    def xtickCallBack(self, x, y, _svalue, value):
+        gr.setcharup(-1., 1.)
+        gr.settextalign(gr.TEXT_HALIGN_RIGHT, gr.TEXT_VALIGN_TOP)
+        dx = .02
+        timeVal = time.localtime(value)
+        gr.text(x + dx, y - 0.01, time.strftime(DATEFMT, timeVal))
+        gr.text(x - dx, y - 0.01, time.strftime(TIMEFMT, timeVal))
+        gr.setcharup(0., 1.)
 
     def addcurve(self, name):
-        self.curves.append(self.figure.gca().plot([], [], lw=2, label=name)[0])
-        self.data.append([[], [], []])
-        self.figure.gca().legend(loc=2, prop={'size': 'small'}).draw_frame(0)
+        self.curves.append(pygr.PlotCurve([currenttime()], [0], legend=name,
+                                          linewidth=4))
+        self.axes.addCurves(self.curves[-1])
+        self.data.append([[], []])
         return len(self.curves) - 1
 
     def updatevalues(self, curve, x, y):
         # we have to guard modifications to self.data, since otherwise the
-        # __str__ method below may see inconsistent X and Y lists, which will
-        # cause matplotlib to raise exceptions
+        # __str__ method below may see inconsistent X and Y lists
         with self.lock:
-            ts, dt, yy = self.data[curve]
+            ts, yy = self.data[curve]
             ts.append(x)
-            dt.append(datetime.fromtimestamp(x))
             yy.append(y)
             i = 0
             ll = len(ts)
             limit = currenttime() - self.window
             while i < ll and ts[i] < limit:
                 i += 1
-            self.data[curve][:] = [ts[i:], dt[i:], yy[i:]]
+            self.data[curve][:] = [ts[i:], yy[i:]]
 
     def __str__(self):
         with self.lock:
             for i, (d, c) in enumerate(zip(self.data, self.curves)):
-                # add a point "current value" at "right now" to avoid curves
-                # not updating if the value doesn't change
                 try:
-                    self.updatevalues(i, currenttime(), d[2][-1])
-                    c.set_data(d[1], d[2])
+                    # add a point "current value" at "right now" to avoid curves
+                    # not updating if the value doesn't change
+                    now = currenttime()
+                    if d[0][-1] < now - 10:
+                        self.updatevalues(i, now, d[1][-1])
+                    c.x, c.y = d
                 except IndexError:
                     # no data (yet)
                     pass
-        ax = self.figure.gca()
+        c = self.axes.getCurves()
+        self.axes.setWindow(c.xmin, c.xmax, c.ymin, c.ymax)
+        os.unlink(self.tempfile)
+        gr.beginprint(self.tempfile)
+        gr.setwsviewport(0, self.width * 0.0022, 0, self.height * 0.0022)
         try:
-            ax.relim()
-            ax.autoscale_view()
-        except Exception:
-            # print('error while determining limits')
-            return ''
-        try:
-            mpl.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
-        except Exception:
-            # no data yet in plot
-            return ''
-        self.figure.tight_layout()
-        io = BytesIO()
-        self.figure.savefig(io, format='svg', facecolor=(0,0,0,0))
+            self.plot.drawGR()
+        finally:
+            gr.endprint()
+            gr.clearws()
+        with open(self.tempfile, 'rb') as fp:
+            imgbytes = fp.read()
         return ('<img src="data:image/svg+xml;base64,%s" '
                 'style="width: %sex; height: %sex">' % (
-                    from_utf8(b2a_base64(io.getvalue())),
+                    from_utf8(b2a_base64(imgbytes)),
                     self.width, self.height))
 
 
@@ -279,7 +291,6 @@ class Monitor(BaseMonitor):
 
     def mainLoop(self):
         while not self._stoprequest:
-            sleep(self.interval)
             try:
                 content = ''.join(map(str, self._content))
                 open(self.filename, 'w').write(content)
@@ -288,6 +299,7 @@ class Monitor(BaseMonitor):
                                exc=1)
             else:
                 self.log.debug('wrote status to %r', self.filename)
+            sleep(self.interval)
 
     def closeGui(self):
         pass
@@ -335,7 +347,7 @@ class Monitor(BaseMonitor):
                 return
             field = Field(self._prefix, config)
             field.updateKeymap(self._keymap)
-            if field.plot and matplotlib:
+            if field.plot and pygr:
                 p = self._plots.get(field.plot)
                 if not p:
                     p = Plot(field.plotwindow, field.width, field.height)
