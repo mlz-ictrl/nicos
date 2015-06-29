@@ -177,8 +177,8 @@ class NicosDaemon(Device):
                         '%s requires %r, while %s requires %r' %
                         (auths[0], self._pw_hashing, auth, auth.pw_hashing()))
 
-        # cache log messages emitted so far - but place an upper limit
-        self._messages = collections.deque([], 100000)
+        # cache log messages emitted so far
+        self._messages = []
 
         address = self.server
         if ':' not in address:

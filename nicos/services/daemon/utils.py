@@ -121,4 +121,7 @@ class DaemonLogHandler(logging.Handler):
             # received after the fact (this should also lower memory consumption
             # of the daemon a bit)
             self.daemon._messages.append(msg)
+            # limit to 100000-110000 messages
+            if len(self.daemon._messages) > 110000:
+                del self.daemon._messages[:10000]
         self.daemon.emit_event('message', msg)
