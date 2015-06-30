@@ -50,19 +50,13 @@ TIMEFMT = "%H:%M:%S"
 
 class NicosPlotAxes(PlotAxes):
 
-    def setWindow(self, xmin, xmax, ymin, ymax):
-        res = PlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
-        if res and self.autoscale & PlotAxes.SCALE_X:
-            window = self.getWindow()
-            if window:
-                mask = self.autoscale
-                self.autoscale = 0x0
-                # pylint: disable=unpacking-non-sequence
-                xmin, xmax, ymin, ymax = window
-                dx = (xmax - xmin) * .1
-                PlotAxes.setWindow(self, xmin - dx, xmax + dx, ymin, ymax)
-                self.autoscale = mask
-        return res
+    def scaleWindow(self, xmin, xmax, xtick, ymin, ymax, ytick):
+        dx, dy = 0, 0
+        if self.autoscale & PlotAxes.SCALE_X:
+            dx = xtick
+        if self.autoscale & PlotAxes.SCALE_Y:
+            dy = ytick
+        return xmin - dx, xmax + dx, ymin - dy, ymax + dy
 
 
 class NicosTimePlotAxes(NicosPlotAxes):
