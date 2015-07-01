@@ -7,7 +7,7 @@ sysconfig = dict(
 
 modules = ['sans1.commands']
 
-excludes = ['tas', 'refsans',]
+excludes = ['tas', 'refsans', 'detector', 'qmchannel']
 includes = ['cryo']
 
 devices = dict(

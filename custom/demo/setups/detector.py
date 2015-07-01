@@ -2,6 +2,7 @@ description = 'virtual detector'
 group = 'lowlevel'
 
 includes = ['system']
+excludes = ['refsans', 'sans', 'qmchannel']
 
 devices = dict(
     card     = device('devices.generic.VirtualCounterCard',
