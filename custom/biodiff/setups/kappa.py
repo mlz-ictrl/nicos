@@ -25,4 +25,10 @@ devices = dict(
                              unit = "deg",
                              precision = 0.01,
                             ),
+    minikappa_omega_m = device("biodiff.motor.MicrostepMotor",
+                               description = "Mini-kappa omega axis "
+                                             "(micro)",
+                               motor = "minikappa_omega",
+                               precision = 0.001,
+                              ),
 )
