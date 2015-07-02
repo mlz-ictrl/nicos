@@ -27,8 +27,8 @@ import numpy
 
 from nicos.core import Measurable, Value, waitForStatus, SIMULATION
 from nicos.core.image import ImageProducer, ImageType
-from nicos.core.params import Param, Attach, oneof, dictof, tupleof
-from nicos.devices.polarized.flipper import BaseFlipper, ON
+from nicos.core.params import Param, Attach, oneof, dictof, tupleof, intrange
+from nicos.devices.polarized.flipper import BaseFlipper, ON, OFF
 from nicos.devices.generic.sequence import MeasureSequencer, SeqMethod, \
     SeqSleep
 from nicos.devices.tango import PyTangoDevice, NamedDigitalOutput
@@ -79,22 +79,24 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
     }
 
     parameters = {
-        'detshape':    Param('Shape of tof detector', type=dictof(str, int)),
-        'tofmode':     Param('Data acquisition mode', type=oneof('notof', 'tof')),
-        'nrtimechan':  Param('Number of time channel', type=long),
-        'divisor':     Param('Divisor between hardware and software time slice',
-                             type=long, settable=False),
-        'offsetdelay': Param('Offset delay in measure begin', type=long,
-                             unit='microsec', settable=False),
+        'detshape':     Param('Shape of tof detector', type=dictof(str, int)),
+        'tofmode':      Param('Data acquisition mode', type=oneof('notof', 'tof'),
+                              settable=True),
+        'nrtimechan':   Param('Number of time channel', type=intrange(1, 1024),
+                              settable=True),
+        'divisor':      Param('Divisor between hardware and software time slice',
+                              type=int, settable=True),
+        'offsetdelay':  Param('Offset delay in measure begin', type=int,
+                              unit='us', settable=True),
         'readchannels': Param('Tuple of (start, end) channel numbers will be '
-                              'returned by a read.', type=tupleof(int, int),
+                              'returned by a read', type=tupleof(int, int),
                               default=(0, 0), settable=True, mandatory=True)
     }
 
     def doInit(self, mode):
         self.log.debug("doInit")
-        self.imagetype = ImageType((int(self.detshape.get('x', 1)),
-                                    int(self.detshape.get('t', 1))),
+        self.imagetype = ImageType((int(self.detshape.get('t', 1)),
+                                    int(self.detshape.get('x', 1))),
                                    numpy.uint32)
         if mode != SIMULATION:
             self._dev.set_timeout_millis(10000)
@@ -105,6 +107,8 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         seq.append(SeqMethod(self._dev, 'Clear'))
         seq.append(SeqMethod(PyTangoDevice, '_hw_wait', self))
         self.log.debug("Detector cleared")
+        seq.append(SeqMethod(self._dev, 'Prepare'))
+        seq.append(SeqMethod(PyTangoDevice, '_hw_wait', self))
         seq.append(SeqMethod(self._dev, 'Start'))
         self.log.debug("Detector started")
         seq.append(SeqMethod(self._last_counter, 'start'))
@@ -130,13 +134,20 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         return self.TOFMODE[self._dev.mode]
 
     def doWriteTofmode(self, value):
-        self._dev.mode = 0 if value == self.TOFMODE[0] else 1
+        if value == self.TOFMODE[0]:
+            self._dev.mode = 0
+            self.nrtimechan = 1
+        else:
+            self._dev.mode = 1
 
     def doReadNrtimechan(self):
         return self._dev.numchan
 
     def doWriteNrtimechan(self, value):
         self._dev.numchan = value
+        if value > 1:
+            self.tofmode = self.TOFMODE[1]
+        self._pollParam('detshape')
 
     def doReadDivisor(self):
         return self._dev.divisor
@@ -151,12 +162,12 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         self._dev.delay = value
 
     def doReadDetshape(self):
-        # shvalue = self._getProperty('shape')
-        # Method currently not implemented in server
-        shvalue = self._dev.get_property('shape').values()[0]
-        dshape = dict()
+        # XXX non-standard implementation of GetProperties; should be fixed in
+        # the server
+        shvalue = self._dev.GetProperties(("shape", 'device'))
+        dshape = {}
         for i in range(4):
-            dshape[self.STRSHAPE[i]] = shvalue[i]
+            dshape[self.STRSHAPE[i]] = shvalue[i+2]
         return dshape
 
     def doStart(self):
@@ -195,8 +206,8 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
 
     def readImage(self):
         # get current data array from detector
-        return numpy.array(self._dev.value).reshape(int(self.detshape["x"]),
-                                                    int(self.detshape["t"]))
+        return numpy.array(self._dev.value).reshape(int(self.detshape['t']),
+                                                    int(self.detshape['x']))
 
     def readFinalImage(self):
         # get final data at end of measurement
@@ -213,6 +224,15 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
 
 class TofDetector(TofDetectorBase, FlipperPresets):
     """TofDetector supporting different presets for spin flipper on or off."""
+
+    def doTime(self, preset):
+        if P_TIME in preset:
+            return preset[P_TIME]
+        elif P_TIME_SF in preset and self.flipper.read() == ON:
+            return preset[P_TIME_SF]
+        elif P_TIME_NSF in preset and self.flipper.read() == OFF:
+            return preset[P_TIME_NSF]
+        return 0  # no preset that we can estimate found
 
     def presetInfo(self):
         return TofDetectorBase.presetInfo(self) + (P_TIME_SF, P_TIME_NSF,

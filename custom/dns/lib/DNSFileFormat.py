@@ -28,7 +28,7 @@
 .d_dat: document the file format here.
 """
 
-from time import strftime #, time as currenttime
+from time import strftime, localtime
 
 import numpy as np
 
@@ -79,7 +79,7 @@ class DNSFileFormat(ImageSink):
         ImageSink.finalizeImage(self, imageinfo)
 
     def saveImage(self, imageinfo, image):
-        """Save in DNS format, currently without tof-mode"""
+        """Save in DNS format"""
         imageinfo.file.seek(0)
         imageinfo.file.write("# DNS Data userid=%s,exp=%s,file=%s,sample=%s\n" %
                 (session.experiment.users, str(session.experiment.lastscan),
@@ -176,13 +176,14 @@ class DNSFileFormat(ImageSink):
         imageinfo.file.write("#  sample_setpoint            %6.3f K\n" % tset)
         imageinfo.file.write("#" + "-"*74 + "\n") #separation line
 
+        det_dev = session.getDevice('det')
         imageinfo.file.write("# TOF parameters\n")
-        ch = 1 #currently without tof-mode
-        imageinfo.file.write("#  TOF channels                  %4d\n" % ch)
-        #tch = 0.05 * (det.divisor + 1)
-        imageinfo.file.write("#  Time per channel \n")#           %6.1f microsecs\n" % tch)
-        #tdel = 0.05 * det.offsetdelay
-        imageinfo.file.write("#  Delay time  \n")#                 %6.1f microsecs\n" % tdel)
+        imageinfo.file.write("#  TOF channels                %4d\n" % det_dev.nrtimechan)
+        tdiv = 0.05 * (det_dev.divisor + 1)
+        imageinfo.file.write("#  Time per channel            %6.1f microsecs\n" % tdiv)
+        tdel = 0.05 * det_dev.offsetdelay
+        imageinfo.file.write("#  Delay time                  %6.1f microsecs\n" % tdel)
+
         imageinfo.file.write("#  Chopper slits\n")#        %4d\n" % config.datachopperslits) # todo
         imageinfo.file.write("#  Elastic time channel\n")# %4d\n" % config.dataelastictime) # todo
         imageinfo.file.write("#  Chopper frequency\n")#    %4d Hz\n" % monitor.getfreq()) # todo
@@ -194,14 +195,19 @@ class DNSFileFormat(ImageSink):
         imageinfo.file.write("#  Monitor           %16d\n" %
                              int(session.getDevice('mon0').read()[0]))
         imageinfo.file.write("#\n")
-        imageinfo.file.write("#    start   at \n")# %s\n" % detector.merkstart) # todo
-        imageinfo.file.write("#    stopped at \n")# %s\n" % detector.merkstop) # todo
+        begin_t = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.begintime))
+        end_t   = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.endtime))
+        imageinfo.file.write("#    start   at      %s\n" % begin_t)
+        imageinfo.file.write("#    stopped at      %s\n" % end_t)
         imageinfo.file.write("#" + "-"*74 + "\n") #separation line
 
         # write array
         imageinfo.file.write("# DATA (number of detectors, number of TOF channels)\n")
         numarr = np.array(image)
-        imageinfo.file.write("# 64 %4d\n" % 1)
+        imageinfo.file.write("# 64 %4d\n" % det_dev.nrtimechan)
         for ch in range(64):
-            imageinfo.file.write("%2d %8d\n" % (ch, numarr[ch]))
+            imageinfo.file.write("%2d " % ch)
+            for q in range(det_dev.nrtimechan):
+                imageinfo.file.write(" %8d" % (numarr[q,ch]))
+            imageinfo.file.write("\n")
         imageinfo.file.flush()
