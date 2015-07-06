@@ -215,7 +215,7 @@ def start_daemon(name):
                              + time.strftime('-%Y-%m-%d.log')))
         return False
     printout('pid =', pid)
-    if name == 'cache':
+    if name.startswith('cache'):
         time.sleep(3)
     return True
 
@@ -290,18 +290,21 @@ def main(args):
                 exitstatus = 1
 
     elif action == 'stop':
-        if not all_option and not explicit_daemons and 'cache' in daemons:
-            printout('Not stopping cache, use -a option to force')
-            daemons.remove('cache')
         for name in reversed(daemons):
+            if name.startswith('cache') and not all_option and not explicit_daemons:
+                printout('Not stopping %s, use -a option to force' % name)
+                continue
             if not kill_daemon(name):
                 exitstatus = 1
 
     elif action == 'restart':
-        if not all_option and not explicit_daemons and 'cache' in daemons:
-            printout('Not restarting cache, use -a option to force')
-            daemons.remove('cache')
-        dmns = ' '.join(daemons)
+        to_restart = []
+        for name in daemons:
+            if name.startswith('cache') and not all_option and not explicit_daemons:
+                printout('Not restarting %s, use -a option to force' % name)
+                continue
+            to_restart.append(name)
+        dmns = ' '.join(to_restart)
         os.system('%s stop %s && sleep 1 && %s start %s' % (
             args[0], dmns, args[0], dmns))
 
