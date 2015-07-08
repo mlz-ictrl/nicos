@@ -24,29 +24,27 @@ devices = dict(
                                ramp = 1.,
                               ),
     B_garfield        = device('frm2.magnet.GarfieldMagnet',
-                               description = 'magnetic field device, handling polarity switching and stuff',
+                               description = 'magnetic field device, handling '
+                                             'polarity switching and stuff',
                                currentsource = 'garfield_current',
                                onoffswitch = 'garfield_onoff',
                                polswitch = 'garfield_polarity',
                                unit = 'T',
-                               calibration = (0.0018467, -0.0346142, 0.021774, 0.0638581, 0.0541159),
+                               calibration = (0.0018467, -0.0346142, 0.021774,
+                                              0.0638581, 0.0541159),
                                abslimits = (-0.75, 0.75),
                               ),
 
-    mira_switch       = device('nicos.devices.generic.ManualSwitch',
-                               description = 'polarity switch',
-                               states = [-1, 0, 1],
-                              ),
-    mira_current      = device('devices.generic.VirtualMotor',
-                               description = 'current source for miramagnet test',
+    magnet_current    = device('devices.generic.VirtualMotor',
+                               description = 'current source for magnet test',
                                abslimits = (-250, 250),
                                unit = 'A',
                                ramp = 1.,
                               ),
-    B_mira            = device('frm2.magnet.MiraMagnet',
-                               description = 'magnetic field device, handling polarity switching and stuff',
-                               currentsource = 'mira_current',
-                               switch = 'mira_switch',
+    B_magnet          = device('devices.generic.CalibratedMagnet',
+                               description = 'magnetic field device, handling '
+                                             'polarity switching and stuff',
+                               currentsource = 'magnet_current',
                                unit = 'T',
                                calibration = (0.000872603, -0.0242964, 0.0148907,
                                               0.0437158, 0.0157436),
@@ -55,5 +53,5 @@ devices = dict(
 )
 
 alias_config = {
-    'B': {'B_mira': 100, 'B_garfield': 99, 'B_virt': 0},
+    'B': {'B_magnet': 100, 'B_garfield': 99, 'B_virt': 0},
 }

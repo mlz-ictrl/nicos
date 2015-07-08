@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 """
-Supporting classes for FRM2 magnets (Garfield, MiraMagnet, ...)
+Supporting classes for FRM2 magnets, currently only Garfield (amagnet).
 """
 
 from nicos.core import Moveable, Attach
@@ -71,33 +71,3 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
             sequence.append(SeqSleep(0.3, 're-enabling power source'))
         except Exception:
             pass  # would fail on non taco devices and is only needed on those
-
-
-class MiraMagnet(BipolarSwitchingMagnet):
-    """MiraMagnet
-
-    Second best way(*) to control a bipolar magnet, using two relays
-    to put current directly (plusswitch) or reversed (minusswitch)
-    into the coils. if both are activated, short the powerswitch
-    to have a clean zero current in the coil.
-    This also allows removing/reconnecting the coil without
-    depowering the currentsource.
-
-    (*) The best way would be to use a bipolar current supply.
-    """
-
-    attached_devices = {
-        'switch':  Attach('Switch to plus/minus polarity', Moveable),
-    }
-
-    def _get_field_polarity(self):
-        sign = self._attached_switch.read()
-        self.log.debug('Field polarity is %s' % sign)
-        return sign
-
-    def _seq_set_field_polarity(self, polarity, sequence):
-        # always switch to zero first
-        sequence.append(SeqDev(self._attached_switch, 0))
-        sequence.append(SeqSleep(0.3, 'shorting output'))
-        if polarity != 0:
-            sequence.append(SeqDev(self._attached_switch, polarity))
