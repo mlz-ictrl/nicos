@@ -168,6 +168,15 @@ _sampleaperture = Column(
     ),
 )
 
+_temp_garching = Column(
+    Block('Temperature @ Garching', [
+        BlockRow(
+                 Field(name='Temperature', dev='meteo'),
+                ),
+        ],
+    ),
+)
+
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
@@ -205,7 +214,7 @@ devices = dict(
                      layout = [
                                  Row(_selcolumn, _collimationcolumn, _sampleaperture),
                                  Row(_sans1det),
-                                 Row(_pressurecolumn),
+                                 Row(_pressurecolumn, _temp_garching),
                                  Row(_expcolumn),
                                ],
                     ),

@@ -36,7 +36,7 @@ devices = dict(
                                  'detector',
                                  'reactor', 'selector_tower',
                                  'guidehall', 'nl4a', 'memograph',
-                                 'ubahn',
+                                 'ubahn', 'outerworld',
                                 ],
                    blacklist = [],
                   ),
