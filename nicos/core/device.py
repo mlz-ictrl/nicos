@@ -174,7 +174,7 @@ class DeviceMeta(DeviceMixinMeta):
                     if self._mode == SIMULATION:
                         return self._initParam(param)
                     value = rmethod(self)
-                    if value == self._params[param]:
+                    if value == self._params.get(param, Ellipsis):
                         return value
                     if self._cache:
                         self._cache.put(self, param, value)
