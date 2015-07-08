@@ -32,7 +32,7 @@ from nicos import session
 from nicos.utils import clamp
 from nicos.utils.fitting import Fit
 from nicos.core import Moveable, HasLimits, status, ConfigurationError, \
-     LimitError, usermethod, NicosError
+    LimitError, usermethod, NicosError
 from nicos.core.params import Param, Override, tupleof
 from nicos.core.utils import multiStop
 from nicos.devices.generic.sequence import SeqDev, BaseSequencer
@@ -59,13 +59,14 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         'calibration': Param('Coefficients for calibration '
                              'function: [c0, c1, c2, c3, c4] calculates '
                              'B(I) = Ic0 + c1*erf(c2*I) + c3*atan(c4*I)'
-                             ' in T', type=tupleof(float, float, float, float, float),
+                             ' in T',
+                             type=tupleof(float, float, float, float, float),
                              settable=True, chatty=True),
     }
 
     parameter_overrides = {
-        'unit' : Override(mandatory=False, default='T'),
-        'abslimits' : Override(mandatory=False, volatile=True),
+        'unit': Override(mandatory=False, default='T'),
+        'abslimits': Override(mandatory=False, volatile=True),
     }
 
     def _current2field(self, current, *coefficients):
@@ -79,7 +80,8 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         if len(v) != 5:
             self.log.warning('Wrong number of coefficients in calibration data!'
                              ' Need exactly 5 coefficients!')
-        return current * v[0] + v[1] * math.erf(v[2] * current) + v[3] * math.atan(v[4] * current)
+        return current * v[0] + v[1] * math.erf(v[2] * current) + \
+            v[3] * math.atan(v[4] * current)
 
     def _field2current(self, field):
         """Return required current in A for requested field in T.
@@ -101,7 +103,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
             tryfield = self._current2field(trycurr)
             if field == tryfield:
                 self.log.debug('current for %g T is %g A' % (field, trycurr))
-                return trycurr # Gotcha!
+                return trycurr  # Gotcha!
             elif field > tryfield:
                 # retry upper interval
                 mincurr = trycurr
@@ -135,7 +137,8 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
 
         Note: need to be defined in derived classes.
         """
-        raise NotImplementedError('please use a proper derived class and implement this there!')
+        raise NotImplementedError('please use a proper derived class and '
+                                  'implement this there!')
 
     # pylint: disable=W0221
     def _generateSequence(self, value):
@@ -148,7 +151,8 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
             if curr_pol != need_pol:
                 if currentsource.read() != 0:
                     sequence.append(SeqDev(currentsource, 0.))
-                self._seq_set_field_polarity(need_pol, sequence) # insert switching Sequence
+                # insert switching Sequence
+                self._seq_set_field_polarity(need_pol, sequence)
         sequence.append(SeqDev(currentsource, abs(value)))
         if value == 0:
             self._seq_set_field_polarity(0, sequence)
@@ -244,7 +248,8 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         if not Is:
             self.log.error('no calibration data found')
             return
-        fit = Fit(self._current2field, ['c%d' % i for i in range(len(self.calibration))],
+        fit = Fit(self._current2field,
+                  ['c%d' % i for i in range(len(self.calibration))],
                   [1] * len(self.calibration))
         res = fit.run('calibration', Is, Bs, [1] * len(Bs))
         if res._failed:
