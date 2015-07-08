@@ -186,6 +186,9 @@ class ImagingExperiment(Experiment, BaseImagingExperiment):
 
     @property
     def customproposalsymlink(self):
+        if self.proptype == 'service':
+            return None
+
         # construct user name
         user = re.split('[,(<@]', self.users)[0].strip()
         user = user if user else 'default'
