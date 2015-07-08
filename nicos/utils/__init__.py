@@ -965,6 +965,11 @@ def watchFileContent(filename, log, interval=1.0, sleep=sleep):
         sleep(interval)
 
 
+def syncFile(fileObj):
+    fileObj.flush()
+    os.fsync(fileObj.fileno())
+
+
 def decodeAny(string):
     """Try to decode the string from UTF-8 or latin9 encoding."""
     try:

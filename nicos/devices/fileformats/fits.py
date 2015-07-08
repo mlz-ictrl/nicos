@@ -28,6 +28,7 @@ import numpy
 
 from nicos.core import ImageSink, NicosError
 from nicos.pycompat import iteritems, to_ascii_escaped, OrderedDict
+from nicos.utils import syncFile
 
 try:
     import pyfits
@@ -63,6 +64,9 @@ class FITSFileFormat(ImageSink):
         self._buildHeader(info, hdu)
 
         hdu.writeto(info.file)
+
+        # sync file to avoid caching problems (=> nfs)
+        syncFile(info.file)
 
     def _buildHeader(self, imageinfo, hdu):
 
