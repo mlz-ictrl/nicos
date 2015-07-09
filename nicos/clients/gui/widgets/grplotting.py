@@ -126,6 +126,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self._saveName = None
         self._color = ColorIndexGenerator()
         self._plot = Plot(viewport=(.1, .85, .15, .88))
+        self._plot.setLegendWidth(0.05)
         if timeaxis:
             self._axes = NicosTimePlotAxes(viewport=self._plot.viewport)
         else:
