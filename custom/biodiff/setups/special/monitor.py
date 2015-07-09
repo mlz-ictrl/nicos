@@ -74,6 +74,15 @@ _cryoStreamBlock = Block('Cryo-stream', [
     setups='cryostream',
 )
 
+_ls332Block = Block('LakeShore', [
+    BlockRow(Field(name='Temperature', dev='T_ls332'),
+             Field(name='Target', key='T_ls332/target', unit='K')),
+    BlockRow(Field(name='Sensor A', dev='T_ls332_A'),
+             Field(name='Sensor B', dev='T_ls332_B')),
+    ],
+    setups='ls332',
+)
+
 _selectorBlock = Block('Selector', [
     BlockRow(Field(name='Speed', dev='selector_speed')),
     BlockRow(Field(name='Lambda', dev='selector_lambda')),
@@ -112,7 +121,7 @@ _thirdRow = Row(
     Column(_slitsBlock))
 
 _forthRow = Row(
-    Column(_cryoStreamBlock),
+    Column(_cryoStreamBlock, _ls332Block),
     Column(_selectorBlock),
     Column(_outsideWorldBlock),
     )
