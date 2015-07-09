@@ -1,6 +1,53 @@
 Changelog for NICOS 2
 =====================
 
+Release 2.8.0
+-------------
+
+* Commands
+
+  - A "contscan()" can now be stopped without emergency stop while executing.
+
+  - "hklplot()" can now plot multiple "extra points".
+
+* Devices
+
+  - Much more support for Tango devices following the MLZ standard interfaces.
+
+  - Less cryptic Tango error messages.
+
+* GUI
+
+  - The GR plot windows now handling auto scaling much better: scaling can be
+    activated separately for X and Y, and the automatically selected plot area
+    includes some padding at the edges.
+
+  - The GR plot windows now automatically select a useful X tick distance for
+    time series plots.
+
+  - The GR plot window can now copy fit values to the clipboard from a right-
+    mouse button context menu.
+
+  - The live view window now supports TIFF files.
+
+  - Added a "shutdown device" entry for the context menu in the device list.
+
+  - The script editor now shows line numbers.
+
+  - Custom commandlets for the script editor are now supported.
+
+* Status monitor
+
+  - The status monitor (GUI and HTML) can now display (and update) images.
+
+  - The status monitor has a more expressive syntax for selecting for which
+    setups to display which blocks.
+
+* Other
+
+  - The command-line client can now display ASCII plots using Gnuplot.
+
+
 Release 2.7.0
 -------------
 
