@@ -24,8 +24,6 @@
 
 """The NICOS cache collector daemon."""
 
-__version__ = "$Revision$"
-
 from nicos.core import Override
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD
 from nicos.devices.cacheclient import BaseCacheClient
