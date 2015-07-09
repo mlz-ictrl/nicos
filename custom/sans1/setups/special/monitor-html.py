@@ -38,6 +38,15 @@ _ubahncolumn = Column(
     ),
 )
 
+_meteocolumn = Column(
+    Block('Outside Temp', [
+        BlockRow(
+                 Field(name='Temp', dev='meteo'),
+                ),
+        ],
+    ),
+)
+
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
@@ -221,6 +230,17 @@ _sc1 = Column(
     ),
 )
 
+_sc2 = Column(
+    Block('Sample Changer 2', [
+         BlockRow(
+            Field(name='Position', dev='sc2_y'),
+            Field(name='SampleChanger', dev='sc2'),
+        ),
+        ],
+        setups='sc2',
+    ),
+)
+
 _htf03 = Column(
     Block('HTF03', [
         BlockRow(
@@ -396,10 +416,10 @@ devices = dict(
                                  Row(_expcolumn),
                                  Row(_sans1general, _table2, _table1,
                                      _sans1det),
-                                 Row(_ubahncolumn, _pressurecolumn),
+                                 Row(_ubahncolumn, _meteocolumn, _pressurecolumn),
                                  Row(_selcolumn, _atpolcolumn, _sanscolumn),
                                  Row(_ccmsans, _ccmsans_temperature,
-                                     _spinflipper, _ccrs, _cryos, _sc1,
+                                     _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                                      _miramagnet, _amagnet, _htf03, _htf01,
                                      _newports),
                                ],

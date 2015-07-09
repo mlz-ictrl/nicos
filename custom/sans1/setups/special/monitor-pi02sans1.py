@@ -34,6 +34,13 @@ _sc1 = Block('Sample Changer 1', [
     setups='sc1',
 )
 
+_sc2 = Block('Sample Changer 2', [
+    BlockRow(Field(name='sc2_y', dev='sc2_y'),),
+    BlockRow(Field(name='SampleChanger', dev='sc2'),),
+    ],
+    setups='sc2',
+)
+
 _st2 = Block('Sample Table 2', [
     BlockRow(Field(name='st2_z', dev='st2_z'),),
     BlockRow(Field(name='st2_y', dev='st2_y'),),
@@ -391,7 +398,7 @@ devices = dict(
                      title='SANS-1 status monitor',
                      cache='sans1ctrl.sans1.frm2',
                      font='Luxi Sans',
-                     fontsize=11,#12
+                     fontsize=13,#12
                      loglevel='info',
                      padding=0,#3
                      prefix='nicos/',
@@ -399,7 +406,7 @@ devices = dict(
                      layout=[
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _st2, _st1, *newports),
+                                    Column(_sc1, _sc2, _st2, _st1, *newports),
                                     Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet),
                                     Column(_htf01_plot, _htf03_plot, _spinflipper, *cryos) + Column(*T_Ts_plot),
                                     Column(*ccrs) + Column(_birmag),
