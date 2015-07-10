@@ -17,9 +17,9 @@ devices = dict(
                       description = 'sample object',
                      ),
 
-    Exp      = device('frm2.experiment.ImagingExperiment',
+    Exp      = device('antares.experiment.Experiment',
                       description = 'experiment object',
-                      dataroot = '/data',
+                      dataroot = '/data/FRM-II',
                       propdb = '/etc/propdb',
                       serviceexp = 'service',
                       sample = 'Sample',
