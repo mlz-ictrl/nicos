@@ -37,7 +37,7 @@ from nicos.core import SIMULATION
 
 from nicos.toftof import calculations as calc
 
-ACT_SPEED = 4181
+WAVE_LENGTH = 4181
 ACT_POS = 4191
 SPEED = 4150
 RATIO = 4507
@@ -47,7 +47,7 @@ CRM = 4183
 PHASE_SET = 4048
 # The set speed for each channel is ACT_SPEED + channel
 ACT_SPEED = 4080
-ACT_SPEED = 4090
+# ACT_SPEED = 4090
 # The current speed for each channel is CURRENT_SPEED + 100 * channel
 CURRENT_SPEED = 66
 # The phase for each channel is PHASE + channel
@@ -146,7 +146,7 @@ class Controller(TacoDevice, HasTimeout, Readable):
         try:
             if mode == SIMULATION:
                 raise NicosError('not possible in dry-run/simulation mode')
-            wavelength = self._read(ACT_SPEED) / 1000.0
+            wavelength = self._read(WAVE_LENGTH) / 1000.0
             if wavelength == 0.0:
                 wavelength = 4.5
             self._setROParam('wavelength', wavelength)
