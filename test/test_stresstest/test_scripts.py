@@ -75,7 +75,7 @@ def run_script_session(setup, code):
     session.__init__('TestScriptSession')
     session.handleInitialSetup(setup)
     try:
-        exec_(code, session.namespace, session.local_namespace)
+        exec_(code, session.namespace)
     finally:
         session.shutdown()
 

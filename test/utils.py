@@ -216,7 +216,7 @@ class TestSession(Session):
                                    lambda src: compile(src, filename, symbol))
         if code is None:
             return
-        exec_(code, self.namespace, self.local_namespace)
+        exec_(code, self.namespace)
 
 config.user = None
 config.group = None

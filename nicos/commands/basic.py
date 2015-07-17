@@ -674,7 +674,7 @@ def _RunScript(filename, statdevices, debug=False):
         compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
             try:
-                exec_(compiled, session.namespace, session.local_namespace)
+                exec_(compiled, session.namespace)
             except Exception:
                 if debug:
                     traceback.print_exc()
@@ -696,7 +696,7 @@ def _RunCode(code, debug=False):
     if session.mode == SIMULATION:
         starttime = session.clock.time
     try:
-        exec_(code, session.namespace, session.local_namespace)
+        exec_(code, session.namespace)
     except Exception:
         if debug:
             traceback.print_exc()

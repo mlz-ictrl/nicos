@@ -313,7 +313,7 @@ class NicosApp(object):
             raise RuntimeError('session taken over by another client.')
         try:
             code = compile(code, '<stdin>', 'single', 0, 1)
-            exec_(code, session.namespace, session.local_namespace)
+            exec_(code, session.namespace)
         except SystemExit:
             print(QUIT_MESSAGE)
         except:  # pylint: disable=W0702

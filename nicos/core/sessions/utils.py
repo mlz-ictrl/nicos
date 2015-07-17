@@ -130,9 +130,8 @@ class NicosCompleter(object):
                             'scan', 'cscan', 'contscan'])
     special_setups = set(['NewSetup', 'AddSetup', 'RemoveSetup'])
 
-    def __init__(self, namespace1, namespace2):
-        self.namespace = namespace1
-        self.namespace2 = namespace2
+    def __init__(self, namespace):
+        self.namespace = namespace
         self.matches = []
 
     def _callable_postfix(self, val, word):
@@ -170,12 +169,9 @@ class NicosCompleter(object):
             return []
         expr, attr = match.group(1, 3)
         try:
-            thisobject = eval(expr, self.namespace2)
+            thisobject = eval(expr, self.namespace)
         except Exception:
-            try:
-                thisobject = eval(expr, self.namespace)
-            except Exception:
-                return []
+            return []
 
         # get the content of the object, except __builtins__
         words = dir(thisobject)
@@ -204,7 +200,7 @@ class NicosCompleter(object):
         """Compute matches when text is a simple name.
 
         Return a list of all keywords, built-in functions and names currently
-        defined in self.namespace and self.namespace2 that match.
+        defined in self.namespace that match.
         """
         if line is None:
             line = readline and readline.get_line_buffer() or ''
@@ -245,7 +241,7 @@ class NicosCompleter(object):
         for word in keyword.kwlist:
             if word[:n] == text and word not in self.hidden_keyword:
                 matches.append(word)
-        for nspace in [builtins.__dict__, self.namespace, self.namespace2]:
+        for nspace in [builtins.__dict__, self.namespace]:
             for word, val in nspace.items():
                 if word[:n] == text and word != '__builtins__':
                     matches.append(self._callable_postfix(val, word))
@@ -325,15 +321,12 @@ def guessCorrectCommand(source, attribute=False):
                             if hasattr(session.namespace[x], 'is_usercommand')])
         allowed_keys.update(__builtins__)
         allowed_keys -= NicosCompleter.global_hidden
-        allowed_keys.update(session.local_namespace)
         allowed_keys.update(session.namespace)
         # for attributes, use a list of existing attributes instead
         if attribute:
             obj = None
             if object_parts[0] in session.namespace:
                 obj = session.namespace.globals[object_parts[0]]
-            if object_parts[0] in session.local_namespace:
-                obj = session.local_namespace.locals[object_parts[0]]
             for i in range(1, len(object_parts)):
                 try:
                     obj = getattr(obj, object_parts[i])

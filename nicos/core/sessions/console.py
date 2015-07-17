@@ -69,7 +69,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
     NICOS logger and will therefore appear in the logfiles.
     """
 
-    def __init__(self, session, global_ns, local_ns):
+    def __init__(self, session, global_ns):
         if readline is None:
             raise RuntimeError('The NICOS console cannot run on platforms '
                                'without readline or pyreadline installed.')
@@ -77,7 +77,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         self.log = session.log
         code.InteractiveConsole.__init__(self, global_ns)
         self.globals = global_ns
-        self.locals = local_ns
         for line in DEFAULT_BINDINGS.splitlines():
             try:
                 readline.parse_and_bind(line)
@@ -145,7 +144,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """
         session.scriptEvent('start', source)
         try:
-            exec_(codeobj, self.globals, self.locals)
+            exec_(codeobj, self.globals)
         except NicosInteractiveStop:
             pass
         except KeyboardInterrupt:
@@ -156,7 +155,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         if hasattr(code, 'softspace') and code.softspace(sys.stdout, 0):
             print()
         session.scriptEvent('finish', None)
-        # self.locals.clear()
 
 
 class ConsoleSession(Session):
@@ -174,8 +172,7 @@ class ConsoleSession(Session):
         # showing prompt?
         self._prompting = False
         # our command completer for Python code
-        self._completer = NicosCompleter(self.namespace,
-                                         self.local_namespace).complete
+        self._completer = NicosCompleter(self.namespace).complete
 
     def _initLogging(self, prefix=None, console=True):
         Session._initLogging(self, prefix, console)
@@ -215,8 +212,7 @@ class ConsoleSession(Session):
         banner = ('NICOS console ready (version %s).\nTry help() for a '
                   'list of commands, or help(command) for help on a command.'
                   % nicos_version)
-        self._console = NicosInteractiveConsole(self, self.namespace,
-                                                self.local_namespace)
+        self._console = NicosInteractiveConsole(self, self.namespace)
         self._console.interact(banner)
         sys.stdout.write(colorcode('reset'))
 

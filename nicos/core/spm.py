@@ -106,8 +106,7 @@ class Bare(Token):
 
     def handle(self, arg, session):
         if id_re.match(arg):
-            if arg not in session.namespace and \
-               arg not in session.local_namespace:
+            if arg not in session.namespace:
                 return arg
         return bare('(' + arg + ')')
 

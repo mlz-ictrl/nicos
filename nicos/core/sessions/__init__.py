@@ -117,7 +117,6 @@ class Session(object):
         self._setup_info = {}
         # namespace to place user-accessible items in
         self.namespace = NicosNamespace()
-        self.local_namespace = NicosNamespace()
         # contains all NICOS-exported names
         self._exported_names = set()
         # action stack for status line
@@ -668,7 +667,6 @@ class Session(object):
         """Export an object *obj* into the NICOS namespace with given *name*."""
         self.namespace.setForbidden(name, obj)
         self.namespace.addForbidden(name)
-        self.local_namespace.addForbidden(name)
         self._exported_names.add(name)
 
     def unexport(self, name, warn=True):
@@ -681,7 +679,6 @@ class Session(object):
             if warn:
                 self.log.warning('unexport: name %r not exported by NICOS' % name)
         self.namespace.removeForbidden(name)
-        self.local_namespace.removeForbidden(name)
         del self.namespace[name]
         self._exported_names.discard(name)
 
@@ -1223,8 +1220,14 @@ class Session(object):
 
     def experimentCallback(self, proposal, proptype):
         """Callback when the experiment has been changed."""
-        # clear local (= user-specific) namespace
-        self.local_namespace.clear()
+        # clear user-specific names
+        for name in list(self.namespace):
+            if name == '__builtins__':
+                continue
+            if name not in self._exported_names:
+                del self.namespace[name]
+        # but need to put back the default imports
+        self.initNamespace()
 
 
 # must be imported after class definitions due to module interdependencies
