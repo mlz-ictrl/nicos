@@ -17,6 +17,8 @@ devices = dict(
                           timeout = 600,
                           pollinterval = 10,
                           maxage = 12,
+                          unit = 'rpm',
+                          fmtstr = '%.0f',
                          ),
     chWL         = device('toftof.chopper.Wavelength',
                           description = 'Neutron wavelength',
@@ -32,6 +34,7 @@ devices = dict(
                           abslimits = (0, 22000.),
                           pollinterval = 10,
                           maxage = 12,
+                          fmtstr = '%.0f',
                           unit = 'rpm',
                          ),
     chRatio      = device('toftof.chopper.Ratio',
@@ -58,8 +61,8 @@ devices = dict(
     chDS         = device('toftof.chopper.SpeedReadout',
                           description = 'Speed of the disks 1 - 7',
                           chopper = 'ch',
-                          fmtstr = '[%7.2f, %7.2f, %7.2f, %7.2f, %7.2f,' \
-                                   ' %7.2f, %7.2f]',
+                          fmtstr = '[%.0f, %.0f, %.0f, %.0f, %.0f,' \
+                                   ' %.0f, %.0f]',
                           pollinterval = 10,
                           maxage = 12,
                           unit = 'rpm',
