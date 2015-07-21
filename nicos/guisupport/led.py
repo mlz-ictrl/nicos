@@ -177,11 +177,18 @@ class ClickableOutputLed(ValueLed):
     def propertyUpdated(self, pname, value):
         ValueLed.propertyUpdated(self, pname, value)
 
+        if isinstance(value, unicode):
+            value = value.encode('ascii', 'ignore')
         if pname == 'stateInactive':
-            self._stateInactive = ast.literal_eval(value) if value else 0
+            if isinstance(value, str):
+                self._stateInactive = value
+            else:
+                self._stateInactive = ast.literal_eval(value) if value else 0
         if pname == 'stateActive':
-            self._stateActive = ast.literal_eval(value) if value else 1
-
+            if isinstance(value, str):
+                self._stateActive = value
+            else:
+                self._stateActive = ast.literal_eval(value) if value else 1
 
     def mousePressEvent(self, event):
         self.ledColor = 'orange'

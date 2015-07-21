@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PGAAShutters</class>
+ <widget class="QWidget" name="PGAAShutters">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>454</width>
+    <height>140</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Attenuators</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Att1</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Att2</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Att3</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="PushButton" name="attenuator1">
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="dev" stdset="0">
+         <string>att1</string>
+        </property>
+        <property name="ledColor" stdset="0">
+         <string>blue</string>
+        </property>
+        <property name="ledStatus" stdset="0">
+         <bool>false</bool>
+        </property>
+	<property name="stateActive" stdset="0">
+	 <string>in</string>
+        </property>
+        <property name="stateInactive" stdset="0">
+         <string>out</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="PushButton" name="attenuator2">
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="dev" stdset="0">
+         <string>att2</string>
+        </property>
+        <property name="ledColor" stdset="0">
+         <string>blue</string>
+        </property>
+        <property name="ledStatus" stdset="0">
+         <bool>false</bool>
+        </property>
+	<property name="stateActive" stdset="0">
+	 <string>in</string>
+        </property>
+        <property name="stateInactive" stdset="0">
+         <string>out</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="PushButton" name="attenuator3">
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="dev" stdset="0">
+         <string>att3</string>
+        </property>
+        <property name="ledColor" stdset="0">
+         <string>blue</string>
+        </property>
+        <property name="ledStatus" stdset="0">
+         <bool>false</bool>
+        </property>
+	<property name="stateActive" stdset="0">
+	 <string>in</string>
+        </property>
+        <property name="stateInactive" stdset="0">
+         <string>out</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Shutter</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="0">
+       <widget class="SinglePushButton" name="shutterOpen">
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="dev" stdset="0">
+         <string>shutter</string>
+        </property>
+        <property name="ledColor" stdset="0">
+         <string>red</string>
+        </property>
+        <property name="ledInverted" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="ledStatus" stdset="0">
+         <bool>false</bool>
+        </property>
+	<property name="stateActive" stdset="0">
+	 <string>closed</string>
+        </property>
+        <property name="stateInactive" stdset="0">
+         <string>open</string>
+        </property>
+        <property name="toState" stdset="0">
+         <string>open</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Close</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Open</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="2">
+       <widget class="SinglePushButton" name="shutterClose">
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="dev" stdset="0">
+         <string>shutter</string>
+        </property>
+        <property name="goal" stdset="0">
+         <string/>
+        </property>
+        <property name="ledColor" stdset="0">
+         <string>green</string>
+        </property>
+        <property name="ledInverted" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="ledStatus" stdset="0">
+         <bool>false</bool>
+        </property>
+	<property name="stateActive" stdset="0">
+	 <string>open</string>
+        </property>
+        <property name="stateInactive" stdset="0">
+         <string>closed</string>
+        </property>
+        <property name="toState" stdset="0">
+         <string>closed</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ValueLed</class>
+   <extends>QLabel</extends>
+   <header>nicos.guisupport.led</header>
+  </customwidget>
+  <customwidget>
+   <class>ClickableOutputLed</class>
+   <extends>ValueLed</extends>
+   <header>nicos.guisupport.button</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>ClickableOutputLed</extends>
+   <header>nicos.guisupport.button</header>
+  </customwidget>
+  <customwidget>
+   <class>SinglePushButton</class>
+   <extends>PushButton</extends>
+   <header>nicos.guisupport.button</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
