@@ -31,6 +31,6 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('services.poller.Poller',
-                    alwayspoll = ['pressure',],
+                    alwayspoll = ['pressure', 'pilz',],
                     blacklist = []),
 )
