@@ -25,7 +25,7 @@
 description = 'system setup'
 
 sysconfig = dict(
-    cache = 'bunker.pgaa.frm2',
+    cache = 'tequila.pgaa.frm2',
     instrument = 'Instrument',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
@@ -42,7 +42,7 @@ devices = dict(
                        ),
 
     Exp      = device('devices.experiment.Experiment',
-                      dataroot = '/mnt/tequila/data/',
+                      dataroot = '/localdata/',
                       sample = 'Sample'),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
