@@ -37,7 +37,7 @@ from nicos.core.errors import NicosError, LimitError, ModeError, TimeoutError, \
 from nicos.core.image import ImageProducer
 from nicos.core.constants import SIMULATION, SLAVE
 from nicos.utils import Repeater
-from nicos.core.utils import waitForStatus
+from nicos.core.utils import waitForStatus, multiWait
 from nicos.commands.output import printwarning
 from nicos.commands.measure import _count
 from nicos.pycompat import iteritems, number_types
@@ -272,26 +272,30 @@ class Scan(object):
         Returns a dictionary mapping devices to final positions if *wait* is
         True, an empty dictionary otherwise.
         """
+        skip = None
         waitdevs = []
         for dev, val in where:
             try:
                 dev.start(val)
             except NicosError as err:
-                # handleError can reraise for fatal error, return False
-                # to skip this point and True to measure anyway
-                self.handleError('move', err, dev)
+                try:
+                    # handleError can reraise for fatal error, raise SkipPoint
+                    # to skip this point or return to measure anyway
+                    self.handleError('move', err, dev)
+                except SkipPoint:
+                    skip = True
             else:
-                waitdevs.append((dev, val))
-        # record the read values so that they can be used for the data point
+                waitdevs.append(dev)
         if not wait:
             return {}
         wait_values = {}
-        for dev, val in waitdevs:
-            # XXX this should be a multiWait loop
-            try:
-                wait_values[dev] = dev.wait()
-            except NicosError as err:
-                self.handleError('wait', err, dev)
+        try:
+            # remember the read values so that they can be used for the data point
+            wait_values = multiWait(waitdevs)
+        except NicosError as err:
+            self.handleError('wait', err)
+        if skip:
+            raise SkipPoint
         return wait_values
 
     def readPosition(self, wait_values):
