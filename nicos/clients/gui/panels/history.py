@@ -31,13 +31,14 @@ from time import time as currenttime, localtime, mktime
 
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, \
     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
-from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, QSettings, \
-    SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import QObject, QTimer, QDateTime, Qt, QByteArray, SIGNAL, \
+    pyqtSignature as qtsig
 
 from nicos.core import Param, listof
 from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
+from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, \
+    CompatSettings
 from nicos.clients.gui.widgets.plotting import ViewPlot, LinearFitter
 from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
@@ -768,9 +769,9 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
         BaseHistoryWindow.__init__(self)
         DlgUtils.__init__(self, 'History viewer')
 
-        self.settings = QSettings()
+        self.settings = CompatSettings()
         self.splitter.restoreState(
-            self.settings.value('splitstate', QByteArray()))
+            self.settings.value('splitstate', b'', QByteArray))
 
         self.app = app
         self.setCentralWidget(self.splitter)

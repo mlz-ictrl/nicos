@@ -31,7 +31,8 @@ from PyQt4.QtCore import QSize
 try:
     from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
 except ImportError:
-    QPyNullVariant = None
+    class QPyNullVariant(object):
+        pass
 
 from nicos.protocols.daemon import DEFAULT_PORT
 from nicos.clients.gui.utils import loadUi

@@ -26,7 +26,7 @@
 
 from cgi import escape
 
-from PyQt4.QtCore import QSettings, QUrl
+from PyQt4.QtCore import QUrl
 from PyQt4.QtGui import QDesktopServices, QDialog, QDialogButtonBox, \
     QGridLayout, QLabel, QLineEdit
 
@@ -37,7 +37,7 @@ except ImportError:
     redmine = None
 
 from nicos.clients.gui.panels import DlgUtils
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import loadUi, CompatSettings
 
 
 TRACKER_URL = 'http://forge.frm2.tum.de/redmine'
@@ -54,7 +54,7 @@ class BugreportTool(QDialog, DlgUtils):
         DlgUtils.__init__(self, self.toolName)
         loadUi(self, 'bugreport.ui', 'tools')
 
-        settings = QSettings('nicos', 'secrets')
+        settings = CompatSettings('nicos', 'secrets')
         settings.beginGroup('Redmine')
         self.instrument = settings.value('instrument', 'not specified')
         self.apikey = settings.value('apikey')
@@ -123,7 +123,7 @@ class BugreportTool(QDialog, DlgUtils):
                 return False
             self.showInfo('Login successful.  Your API key has been stored '
                           'for further reports.')
-            settings = QSettings('nicos', 'secrets')
+            settings = CompatSettings('nicos', 'secrets')
             settings.beginGroup('Redmine')
             self.instrument = instrBox.text()
             self.apikey = apikey

@@ -32,7 +32,8 @@ import socket
 from os import path
 
 from PyQt4 import uic
-from PyQt4.QtCore import QByteArray, QDateTime, QSettings, QSize, Qt, SIGNAL
+from PyQt4.QtCore import QByteArray, QDateTime, QSettings, QSize, Qt, SIGNAL, \
+    PYQT_VERSION
 from PyQt4.QtGui import QApplication, QColor, QDialog, QFileDialog, QFont, \
     QLabel, QMessageBox, QProgressDialog, QPushButton, QStyle, QTextEdit, \
     QToolButton, QVBoxLayout, QWidget
@@ -68,7 +69,7 @@ def loadBasicWindowSettings(window, settings):
     try:
         window.splitstate = settings.value('splitstate', b'', QByteArray)
     except TypeError:
-        window.splitstate= b''
+        window.splitstate = b''
 
 
 def loadUserStyle(window, settings):
@@ -180,12 +181,29 @@ class DlgUtils(object):
         qd.show()
 
 
+# for compatibility with PyQt < 4.8.3
+if PYQT_VERSION < 0x040803:
+    class CompatSettings(QSettings):
+        def value(self, name, default, type=None):  # pylint: disable=W0622
+            value = QSettings.value(self, name, default)
+            if type is bool:
+                value = value not in (False, 'false')
+            elif type is QByteArray:
+                if isinstance(value, basestring):
+                    value = QByteArray(value)
+            elif type is not None:
+                value = type(value)
+            return value
+else:
+    CompatSettings = QSettings
+
+
 class SettingGroup(object):
     global_group = ''
 
     def __init__(self, name):
         self.name = name
-        self.settings = QSettings()
+        self.settings = CompatSettings()
 
     def __enter__(self):
         if self.global_group:
@@ -233,7 +251,7 @@ class DlgPresets(object):
     def __init__(self, group, ctls):
         self.group = group
         self.ctls = ctls
-        self.settings = QSettings()
+        self.settings = CompatSettings()
 
     def load(self):
         self.settings.beginGroup(self.group)
