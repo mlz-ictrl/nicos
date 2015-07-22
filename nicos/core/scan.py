@@ -549,9 +549,9 @@ class ManualScan(Scan):
                 if self._multistep:
                     for i in range(self._mscount):
                         self.moveDevices(self._mswhere[i])
-                        _count(self._detlist, preset, result,  dataset=self.dataset)
+                        _count(self._detlist, preset, result, dataset=self.dataset)
                 else:
-                    _count(self._detlist, preset, result,  dataset=self.dataset)
+                    _count(self._detlist, preset, result, dataset=self.dataset)
             finally:
                 actualpos += self.readEnvironment(started, currenttime())
                 self.addPoint(actualpos, result)
