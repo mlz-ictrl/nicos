@@ -1,19 +1,40 @@
 description = 'setup for the status monitor for PGAA'
 group = 'special'
 
-
-_pressuresample = Block('Sample ', [
-    BlockRow(Field(name='Vacuum', dev='sample_p1'),
-            ),
-    ],  # setups = '',
+_pgaageneral = Column(
+    Block('General', [
+        BlockRow(
+                 Field(name='Reactor', dev='ReactorPower', width=8, format = '%.2f', unit='MW'),
+                 Field(name='6 Fold Shutter', dev='Sixfold', width=8),
+                 Field(name='NL4b', dev='NL4b', width=8),
+#               ),
+#       BlockRow(
+#                Field(name='T in', dev='t_in_memograph', width=8, unit='C'),
+#                Field(name='T out', dev='t_out_memograph', width=8, unit='C'),
+#                Field(name='Cooling', dev='cooling_memograph', width=8, unit='kW'),
+#               ),
+#       BlockRow(
+#                Field(name='Flow in', dev='flow_in_memograph', width=8, unit='l/min'),
+#                Field(name='Flow out', dev='flow_out_memograph', width=8, unit='l/min'),
+#                Field(name='Leakage', dev='leak_memograph', width=8, unit='l/min'),
+#               ),
+#       BlockRow(
+#                Field(name='P in', dev='p_in_memograph', width=8, unit='bar'),
+#                Field(name='P out', dev='p_out_memograph', width=8, unit='bar'),
+                 Field(name='Crane Pos', dev='Crane', width=8, unit='m'),
+                ),
+        ],
+    ),
 )
 
-_leftcolumn = [
-    _pressuresample,
-]
-
-_rightcolumn = [
-]
+_pressuresample = Column(
+    Block('Sample ', [
+        BlockRow(
+            Field(name='Vacuum', dev='sample_p1'),
+            ),
+        ],  # setups = '',
+    )
+)
 
 devices = dict(
     Monitor = device('services.monitor.qt.Monitor',
@@ -26,8 +47,8 @@ devices = dict(
                      fontsize = 16,
                      padding = 5,
                      layout = [
-                                  [[_pressuresample,],]
-#                                 [_leftcolumn, _rightcolumn, ]
+                                  Row(_pgaageneral),
+                                  Row(_pressuresample,),
                               ],
                     ),
 )
