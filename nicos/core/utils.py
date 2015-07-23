@@ -47,13 +47,15 @@ User = namedtuple('User', 'name, level')
 system_user = User('system', ADMIN)
 
 
-def devIter(devices, baseclass=None, onlydevs=False):
+def devIter(devices, baseclass=None, onlydevs=False, recurse=False):
     """Filtering generator over the given devices.
 
-    Iterates over the given devices. If the `baseclass` argument is specified
-    (not `None`), filter out (ignore) those devices which do not belong to the
-    given baseclass. If the boolean `onlydevs` argument is `False` (default),
-    yield (name, devices) tuples otherwise just the devices.
+    Iterates over the given devices.  If the *baseclass* argument is specified
+    (not ``None``), filter out (ignore) those devices which do not belong to the
+    given baseclass.  If the boolean *onlydevs* argument is false (default),
+    yield (name, devices) tuples otherwise just the devices.  If `recurse` is
+    true, include one level of attached devices.
+
     The given devices argument can either be a dictionary (_adevs, _sdevs,...)
     or a list of (name, device) tuples or a simple list of devices.
     """
@@ -73,13 +75,19 @@ def devIter(devices, baseclass=None, onlydevs=False):
         except AttributeError:
             pass  # not convertible, must be right format already...
     for devname, dev in devices:
-        # handle _adev style entries correctly
+        # handle _adevs style entries correctly
         if isinstance(dev, (tuple, list)):
             for subdev in dev:
                 if isinstance(subdev, baseclass):
+                    if recurse and hasattr(subdev, '_adevs'):
+                        for subsubdev in devIter(subdev._adevs, baseclass, onlydevs, False):
+                            yield subsubdev
                     yield subdev if onlydevs else (subdev.name, subdev)
         else:
             if isinstance(dev, baseclass):
+                if recurse and hasattr(dev, '_adevs'):
+                    for subdev in devIter(dev._adevs, baseclass, onlydevs, False):
+                        yield subdev
                 yield dev if onlydevs else (devname, dev)
 
 
@@ -118,13 +126,14 @@ def multiWait(devices, baseclass=None):
     """Wait for the *devices*.
 
     Returns a dictionary mapping devices to current values after waiting.
-    # XXX should it be a tuple instead?
 
     This is the main waiting loop to be used when waiting for multiple devices.
     It calls `isCompleted()` until all devices return true.
 
     Errors raised are handled like in _multiMethod: the first one is reraised at
     the end, the others are only printed as errors.
+
+    *baseclass* allows to restrict the devices waited on.
     """
     delay = 0.3
     first_exc = None
@@ -145,6 +154,10 @@ def multiWait(devices, baseclass=None):
                         first_exc = sys.exc_info()
                     else:
                         dev.log.exception('while waiting')
+                    # include one level of subdevs
+                    devset.update(devIter([dev], baseclass=baseclass,
+                                          onlydevs=True, recurse=True))
+                    # but discard the parent immediately
                     devset.discard(dev)
                 else:
                     if done:

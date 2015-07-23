@@ -24,7 +24,7 @@
 
 from nicos import session
 from nicos.core import UsageError, LimitError, ConfigurationError, \
-    ComputationError, NicosError, status
+    ComputationError, NicosError, PositionError, MoveError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
 from nicos.commands.measure import count
@@ -148,6 +148,30 @@ def test_tas_device():
     assertAlmostEqual(tas.E(), 1, 3)
     tas.h.maw(1.5)
     assertAlmostEqual(tas.h(), 1.5, 3)
+
+
+def test_error_handling():
+    # check that if one subdev errors out, we wait for the other subdevs
+    tas = session.getDevice('Tas')
+    mfh = session.getDevice('t_mfh')
+    phi = session.getDevice('t_phi')
+    tas([1.01, 0, 0, 1])
+    phi.speed = 1
+    mfh._status_exception = PositionError(mfh, 'wrong position')
+    session.testhandler.enable_raising(False)
+    try:
+        try:
+            tas.maw([1, 0, 0, 1])
+        except MoveError:
+            pass
+        else:
+            assert False, 'PositionError not raised'
+        # but we still arrived with phi
+        assertAlmostEqual(phi(), 46.6, 1)
+    finally:
+        phi.speed = 0
+        mfh._status_exception = None
+        session.testhandler.enable_raising(True)
 
 
 def test_Q_object():
