@@ -306,6 +306,11 @@ class SetupChecker(object):
             self.log_error("'include' list should be called 'includes'",
                            extra=self.find_global('include'))
 
+        if os.path.basename(self.filename) == 'startup.py':
+            if len(self.ns.get('includes', [])) > 0:
+                self.log_error("The 'includes' in 'startup.py' must be empty!",
+                              extra=self.find_global('includes'))
+
         # check for types of recognized variables
         for (vname, vtype) in [('description', (str, unicode)),
                                # group is already checked against a fixed list
