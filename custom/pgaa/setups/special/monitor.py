@@ -30,7 +30,7 @@ _pgaageneral = Column(
 _pressuresample = Column(
     Block('Sample ', [
         BlockRow(
-            Field(name='Vacuum', dev='sample_p1'),
+            Field(name='Vacuum', dev='chamber_pressure'),
             ),
         ],  # setups = '',
     )
