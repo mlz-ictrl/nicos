@@ -114,12 +114,10 @@ def queryProposal(pnumber, instrument=None):
         rows = cur.fetchall()
         # get real instrument name
         cur.execute('''
-            SELECT name
-            FROM Proposal, Proposal_members, Proposal_values, instruments
-            WHERE xid = %s AND xid = _xid AND mid = _mid
-                AND mname = '_CM_INSTRUMENT' and db_name = value
-            ''', (pnumber,))
-        instrname = cur.fetchone()[0]
+            SELECT instruments.name
+            FROM frm2_tita_instruments, instruments
+            WHERE instruments.id = iid and proposal_id = %s ORDER BY start ASC''', (pnumber,))
+        instrumentnames = ','.join(instr[0] for instr in cur.fetchall()).lower()
         # get user info
         cur.execute('''
             SELECT name, user_email, institute1 FROM nuke_users, Proposal
@@ -137,16 +135,17 @@ def queryProposal(pnumber, instrument=None):
         raise InvalidValueError('user does not exist in database')
     if not permissions:
         raise InvalidValueError('no permissions entry in database')
-    if instrname == 'POLI-HEIDI':
-        instrname = 'POLI'
-    if instrument is not None and instrname.lower() != instrument.lower():
+    instrumentnames.replace('poli-heidi', 'poli')
+    instruments = set(instrumentnames.split(','))
+    if instrument is not None and (instrument.lower() not in instruments):
         session.log.error('proposal %s is not a proposal for '
                           '%s, but for %s, cannot use proposal information' %
-                          (pnumber, instrument, instrname))
-        return instrname, {'wrong_instrument': instrname}  # avoid data leakage
+                          (pnumber, instrument, instrumentnames))
+        return instrument, {'wrong_instrument': instruments}  # avoid data leakage
     # structure of returned data: (title, user, prop_name, prop_value)
     info = {
-        'instrument': instrname,
+        'instrument': instrument,
+        'instruments': instruments,
         'title': rows[0][0],
         'user': userrow[0],
         'user_email': userrow[1],
