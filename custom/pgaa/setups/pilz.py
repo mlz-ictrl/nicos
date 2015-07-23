@@ -1,28 +1,4 @@
-#  -*- coding: utf-8 -*-
-# *****************************************************************************
-# NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-# details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-# Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
-#
-# *****************************************************************************
-
-description = 'Pilz box'
+description = 'Shutter and attenuators via Pilz box'
 
 group = 'basic'
 
@@ -32,13 +8,16 @@ nethost= 'pgaasrv.pgaa.frm2'
 
 devices = dict(
 
-    shutter = device('pgaa.pilz.Switch',
+    shutter = device('pgaa.pilz.Shutter',
                      description = 'secondary experiment shutter',
                      tacodevice = '//%s/pgaa/pilz/shutter' % (nethost,),
                      readback = '//%s/pgaa/pilz/ishutter' % (nethost,),
                      error = '//%s/pgaa/pilz/eshutter' % (nethost,),
                      remote = '//%s/pgaa/pilz/erc' % (nethost,),
                      mapping = {'closed': 2, 'open': 1},
+                     maxage = 5,
+                     pollinterval = 2,
+                     timeout = 3,
                     ),
 
     att1 = device('pgaa.pilz.Switch',
@@ -48,6 +27,9 @@ devices = dict(
                   readback = '//%s/pgaa/pilz/iatt1' % (nethost,),
                   remote = '//%s/pgaa/pilz/erc' % (nethost,),
                   mapping = {'out': 0, 'in': 1},
+                  maxage = 5,
+                  pollinterval = 2,
+                  timeout = 3,
                  ),
 
     att2 = device('pgaa.pilz.Switch',
@@ -57,6 +39,9 @@ devices = dict(
                   readback = '//%s/pgaa/pilz/iatt2' % (nethost,),
                   remote = '//%s/pgaa/pilz/erc' % (nethost,),
                   mapping = {'out': 0, 'in': 1},
+                  maxage = 5,
+                  pollinterval = 2,
+                  timeout = 3,
                  ),
 
     att3 = device('pgaa.pilz.Switch',
@@ -66,5 +51,8 @@ devices = dict(
                   readback = '//%s/pgaa/pilz/iatt3' % (nethost,),
                   remote = '//%s/pgaa/pilz/erc' % (nethost,),
                   mapping = {'out': 0, 'in': 1},
+                  maxage = 5,
+                  pollinterval = 2,
+                  timeout = 3,
                  ),
 )
