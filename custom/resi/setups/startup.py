@@ -6,4 +6,4 @@ sysconfig = dict(
     cache = 'resi1',
 )
 
-includes = ['base']
+includes = []

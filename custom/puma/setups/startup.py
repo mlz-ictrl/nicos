@@ -2,6 +2,6 @@ description = 'minimal NICOS startup setup'
 
 group = 'lowlevel'
 
-includes = ['system']
+includes = []
 
 devices = dict()
