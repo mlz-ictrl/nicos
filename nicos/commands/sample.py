@@ -204,10 +204,17 @@ def _extract_powder_data(num, dataset):
         return
 
     # normalization column (monitor > timer)
+    mcol = None
     try:
-        mcol = [j for j in range(len(dataset.ynames))
-                if dataset.yvalueinfo[j].type == 'monitor'][0]
+        # ignore monitors with smaller count
+        mcol = sorted([(dataset.yresults[0][j], j)
+                        for j in range(len(dataset.ynames))
+                        if dataset.yvalueinfo[j].type == 'monitor'],
+                     )[-1][1]
     except IndexError:
+        mcol = None
+    # if highest monitor count is zero, prefer time
+    if mcol is None or (dataset.yresults[0][mcol] == 0):
         try:
             mcol = [j for j in range(len(dataset.ynames))
                     if dataset.yvalueinfo[j].type == 'time'][0]
