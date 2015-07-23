@@ -6,7 +6,7 @@ nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(
     sample_motor  = device('devices.taco.motor.Motor',
-                           tacodevice = '//%s/pgaa/phytronixe/sample' % (nethost,),
+                           tacodevice = '//%s/pgaa/pgaa/sample' % (nethost,),
                            fmtstr = '%7.3f',
                            abslimits = (-5, 356),
                            lowlevel = True,
