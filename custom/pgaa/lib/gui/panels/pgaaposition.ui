@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Interface</class>
+ <widget class="QWidget" name="Interface">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>579</width>
+    <height>611</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>PGAA sample positioning system</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0" colspan="2">
+    <layout class="QGridLayout" name="grd_select">
+     <item row="4" column="0" colspan="2">
+      <widget class="QRadioButton" name="rad_Pos4">
+       <property name="text">
+        <string>Position 4 (284)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QRadioButton" name="rad_Pos5">
+       <property name="text">
+        <string>Position 5 (354)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QRadioButton" name="rad_Pos1">
+       <property name="text">
+        <string>Position 1 (74)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QRadioButton" name="rad_Man">
+       <property name="text">
+        <string>Manual</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QRadioButton" name="rad_Pos3">
+       <property name="text">
+        <string>Position 3 (214)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QPushButton" name="submitPosition">
+       <property name="text">
+        <string>Add Position to Queue</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QPushButton" name="gotoPosition">
+       <property name="text">
+        <string>GoTo Pos.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QDoubleSpinBox" name="line_ManPos">
+       <property name="decimals">
+        <number>1</number>
+       </property>
+       <property name="minimum">
+        <double>-5.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>356.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="2">
+      <widget class="QRadioButton" name="rad_Pos0">
+       <property name="text">
+        <string>Position 0 (4)</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QRadioButton" name="rad_Pos2">
+       <property name="text">
+        <string>Position 2 (144)</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="2" rowspan="6">
+    <layout class="QGridLayout" name="grd_queue">
+     <item row="0" column="0">
+      <widget class="QLabel" name="lab_Queue">
+       <property name="text">
+        <string>Queue:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="clearBatch">
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="3">
+      <widget class="QTextEdit" name="txted_queue"/>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="lab_act_pos">
+       <property name="text">
+        <string>Actual Position:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="startBatch">
+       <property name="text">
+        <string>Start Batch</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="lab_act_status">
+       <property name="text">
+        <string>xxx</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QPushButton" name="refSearch">
+       <property name="text">
+        <string>DoRef Search</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="lab_dspec_ready">
+     <property name="text">
+      <string>Status DSpec Ready:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLabel" name="stat_dspec">
+     <property name="text">
+      <string>No Status</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="lab_RefSearch">
+     <property name="text">
+      <string>RefSearch Done:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="lab_motor_ready">
+     <property name="text">
+      <string>Status Motor Ready:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLabel" name="lab_RefSearchDone">
+     <property name="text">
+      <string>Not yet</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QPushButton" name="detOn">
+     <property name="text">
+      <string>Manual Detetor On</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="lab_Monitor">
+     <property name="text">
+      <string>StatusMonitor:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QPushButton" name="detOff">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Manual Detector Off</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="3">
+    <layout class="QGridLayout" name="grd_log">
+     <item row="1" column="0">
+      <widget class="MessageView" name="browser_log">
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="tabChangesFocus">
+        <bool>true</bool>
+       </property>
+       <property name="lineWrapMode">
+        <enum>QTextEdit::NoWrap</enum>
+       </property>
+       <property name="openLinks">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="lab_Log">
+       <property name="text">
+        <string>Log:</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLabel" name="stat_motor">
+     <property name="text">
+      <string>No Status</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>PGAA Sample Positioning System</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MessageView</class>
+   <extends>QTextBrowser</extends>
+   <header>nicos.clients.gui.widgets.messageview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
+</ui>

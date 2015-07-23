@@ -27,21 +27,45 @@
 import time
 from os import path
 
-from PyQt4.QtGui import QStyle, QColor, QDialogButtonBox, QPushButton
-from PyQt4.QtCore import SIGNAL
+from PyQt4.QtGui import QColor, QButtonGroup, QMessageBox
+from PyQt4.QtCore import pyqtSlot, SIGNAL, QTimer
 
+from nicos.utils import chunks
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, dialogFromUi
+from nicos.clients.gui.utils import loadUi, enumerateWithProgress, \
+    ScriptExecQuestion
 
 my_uipath = path.dirname(__file__)
 
 
-class TomographyPanel(Panel):
-    panelName = 'Tomography'
+class PGAAPanel(Panel):
+
+    panelName = 'PGAA'
+
+    positions = [4, 74, 144, 214, 284, 354, ]
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
-        loadUi(self, 'tomography.ui', my_uipath)
+        loadUi(self, 'pgaaposition.ui', my_uipath)
+
+        self.timer = QTimer()
+#       self.lab_act_status.setText(str(sampleholder.read()))
+        self.lab_RefSearchDone.setText("Not yet!")
+
+        # Connect the buttons and fields
+        self.gotoPosition.clicked.connect(self.on_gotoPosition)
+        self.submitPosition.clicked.connect(self.on_submitPosition)
+#       self.btn_ManReadyOn.clicked.connect(self.startDetector)
+#       self.btn_ManReadyOff.clicked.connect(self.stopDetector)
+        self.refSearch.clicked.connect(self.on_refSearch)
+        self.startBatch.clicked.connect(self.on_startBatch)
+        self.line_ManPos.valueChanged.connect(self.manPosChanged)
+        self.timer.timeout.connect(self.update)
+
+        self.timer.start(500)
+        # Regularly update the interface
+        self.update()
+        self.on_clearBatch_clicked()
 
         self.current_status = None
         self.run_color = QColor('#ffdddd')
@@ -52,125 +76,165 @@ class TomographyPanel(Panel):
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
+        self.buttonGroup = QButtonGroup()
+        self.buttonGroup.addButton(self.rad_Man, -2)
+        self.buttonGroup.addButton(self.rad_Pos0, 0)
+        self.buttonGroup.addButton(self.rad_Pos1, 1)
+        self.buttonGroup.addButton(self.rad_Pos2, 2)
+        self.buttonGroup.addButton(self.rad_Pos3, 3)
+        self.buttonGroup.addButton(self.rad_Pos4, 4)
+        self.buttonGroup.addButton(self.rad_Pos5, 5)
+
+        self.connect(self.buttonGroup, SIGNAL('buttonClicked(int)'),
+                     self.on_buttonClicked)
+
     def loadSettings(self, settings):
-#       self.hasinput = not settings.value('noinput', False, bool)
-#       self.cmdhistory = settings.value('cmdhistory') or []
         pass
+        # self.hasinput = not settings.value('noinput', False, bool)
+        # self.cmdhistory = settings.value('cmdhistory') or []
 
     def saveSettings(self, settings):
-#       settings.setValue('noinput', not self.hasinput)
+        # settings.setValue('noinput', not self.hasinput)
         # only save 100 entries of the history
-#       cmdhistory = self.commandInput.history[-100:]
-#       settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
+        # cmdhistory = self.commandInput.history[-100:]
+        # settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
         pass
 
     def getMenus(self):
-#       menu = QMenu('&Output', self)
-#       menu.addAction(self.actionGrep)
-#       menu.addSeparator()
-#       menu.addAction(self.actionSave)
-#       menu.addAction(self.actionPrint)
-#       return [menu]
+        # menu = QMenu('&Output', self)
+        # menu.addAction(self.actionGrep)
+        # menu.addSeparator()
+        # menu.addAction(self.actionSave)
+        # menu.addAction(self.actionPrint)
+        # return [menu]
         return []
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
 
     def on_client_connected(self):
-#       self.outView._currentuser = self.client.login
+        # self.outView._currentuser = self.client.login
         pass
 
     def on_client_mode(self, mode):
-#       if mode == 'slave':
-#           self.label.setText('slave >>')
-#       elif mode == SIMULATION:
-#           self.label.setText('SIM >>')
-#       elif mode == MAINTENANCE:
-#           self.label.setText('maint >>')
-#       else:
-#           self.label.setText('>>')
+        # if mode == 'slave':
+        #     self.label.setText('slave >>')
+        # elif mode == SIMULATION:
+        #     self.label.setText('SIM >>')
+        # elif mode == MAINTENANCE:
+        #     self.label.setText('maint >>')
+        # else:
+        #     self.label.setText('>>')
         pass
 
     def on_client_initstatus(self, state):
-        self.on_client_mode(state[2])
-#        messages = self.client.ask('getmessages', '10000')
-#       self.outView.clear()
-#       total = len(messages) // 2500 + 1
-#       for _, batch in enumerateWithProgress(chunks(messages, 2500),
-#                           text='Synchronizing...', parent=self, total=total):
-#           self.outView.addMessages(batch)
-#       self.outView.scrollToBottom()
+        self.on_client_mode(state['mode'])
+        messages = self.client.ask('getmessages', '10000')
+        self.browser_log.clear()
+        total = len(messages) // 2500 + 1
+        for _, batch in enumerateWithProgress(chunks(messages, 2500),
+                                              text='Synchronizing...',
+                                              parent=self, total=total):
+            self.browser_log.addMessages(batch)
+        self.browser_log.scrollToBottom()
 
     def on_client_message(self, message):
         if message[-1] == '(sim) ':
             return
-
-    def on_takeOpenBeam_clicked(self):
-        pass
-
-    def on_takeDarkImages_clicked(self):
-        pass
-
-    def on_takeSeries_clicked(self):
-        pass
-
-    def on_takeTomography_clicked(self):
-        pass
-
-    def on_takeImage_clicked(self):
-        pass
-
-    def on_setButton_clicked(self):
-        x = self.xValue.value()
-        y = self.yValue.value()
-        z = self.zValue.value()
-        phi = self.phiValue.value()
-        code = 'move(x, %r)\nmove(y, %r)\nmove(z, %r)\nmove(phi, %r)\nwait()\n'\
-                % (x, y, z, phi)
-        self.execScript(code)
-
-    def on_getPositions_clicked(self):
-        ret = self.client.eval('[x.read(), y.read(), z.read(), phi.read()]', None)
-        if ret:
-            self.xValue.setValue(float(ret[0]))
-            self.yValue.setValue(float(ret[1]))
-            self.zValue.setValue(float(ret[2]))
-            self.phiValue.setValue(float(ret[3]))
+        try:
+            self.browser_log.addMessage(message)
+        except Exception, e:
+            print e
+            print message
 
     def execScript(self, script):
         if not script:
             return
         action = 'queue'
         if self.current_status != 'idle':
-            qwindow = dialogFromUi(self, 'question.ui', 'panels')
-            qwindow.questionText.setText('A script is currently running.  What '
-                                         'do you want to do?')
-            icon = qwindow.style().standardIcon
-            qwindow.iconLabel.setPixmap(
-                icon(QStyle.SP_MessageBoxQuestion).pixmap(32, 32))
-            b0 = QPushButton(icon(QStyle.SP_DialogCancelButton), 'Cancel')
-            b1 = QPushButton(icon(QStyle.SP_DialogOkButton), 'Queue script')
-            b2 = QPushButton(icon(QStyle.SP_MessageBoxWarning), 'Execute now!')
-            qwindow.buttonBox.addButton(b0, QDialogButtonBox.ApplyRole)
-            qwindow.buttonBox.addButton(b1, QDialogButtonBox.ApplyRole)
-            qwindow.buttonBox.addButton(b2, QDialogButtonBox.ApplyRole)
-            qwindow.buttonBox.setFocus()
-            result = [0]
-            def pushed(btn):
-                if btn is b1:
-                    result[0] = 1
-                elif btn is b2:
-                    result[0] = 2
-                qwindow.accept()
-            self.connect(qwindow.buttonBox, SIGNAL('clicked(QAbstractButton*)'),
-                         pushed)
-            qwindow.exec_()
-            if result[0] == 0:
+            qwindow = ScriptExecQuestion()
+            result = qwindow.exec_()
+            if result == QMessageBox.Cancel:
                 return
-            elif result[0] == 2:
+            elif result == QMessageBox.Apply:
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)
             self.mainwindow.action_start_time = time.time()
         else:
             self.client.tell('exec', script)
+
+    @pyqtSlot(str)
+    def manPosChanged(self, text):
+        self.rad_Man.setChecked(True)
+
+    @pyqtSlot()
+    def on_startBatch(self):
+        text_in_queue = self.txted_queue.toPlainText()  # Read the postitions from the interface
+        list_of_positions = text_in_queue.split("\n")  # Split the positions of the list
+        if len(list_of_positions):
+            script = ["maw(shutter, 'open')"]
+            script.append('read(shutter)')
+            script.append('shutter.read(0)')
+            script.append('scan(sample_motor, [%s])' %
+                          ', '.join(list_of_positions))
+            script.append("maw(shutter, 'closed')")
+            script.append('')
+            self.execScript('\n'.join(script))
+
+    @pyqtSlot()
+    def on_refSearch(self):
+        script = 'reference(sample_motor)'
+        self.execScript(script)
+
+    def on_clearBatch_clicked(self):
+        self.txted_queue.setPlainText('')
+        self.startBatch.setDisabled(True)
+
+    def on_detOn_clicked(self):
+        # detector.start()
+        self.update()
+
+    def on_detOff_clicked(self):
+        # detector.stop()
+        self.update()
+
+    @pyqtSlot()
+    def on_submitPosition(self):
+        """Appends the queued positions to the text field"""
+        if self.buttonGroup.checkedId() != -1:
+            text = str(self.txted_queue.toPlainText())
+            text += '%r\n' % self.check_selected_button()
+            self.txted_queue.setPlainText(text)
+            self.startBatch.setEnabled(True)
+
+    def update(self):
+        """Used for the timer to start automatically and that it does not get
+        garbage collected"""
+        try:
+            pass
+#           detstatus = detector.status()
+#           self.detOn.setEnabled(not detstatus)
+#           self.detOff.setEnabled(detstatus)
+#           self.lab_act_status.setText(str(sampleholder.read()))
+#           self.stat_motor.setText(str(sampleholder.deviceState()))
+#           self.stat_dspec.setText(str(detector.get_ready.read()))
+        finally:
+            pass
+
+    def on_gotoPosition(self):
+        script = 'maw(sample_motor, %s)' % self.check_selected_button()
+        self.execScript(script)
+
+    def on_buttonClicked(self, index):
+        pass
+
+    def check_selected_button(self):
+        index = self.buttonGroup.checkedId()
+        if index == -2:
+            return self.line_ManPos.value()
+        elif index == -1:
+            # self.log('No Button selected! Please select a button first!')
+            return False
+        else:
+            return self.positions[index]

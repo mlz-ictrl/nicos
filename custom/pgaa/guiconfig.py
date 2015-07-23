@@ -28,10 +28,25 @@ from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
     tabbed, setups
 
 main_window = docked(
-    vsplit(
-        panel('status.ScriptStatusPanel'),
-        # panel('watch.WatchPanel'),
-        panel('console.ConsolePanel'),
+   tabbed(
+        ('PGAA',
+         panel('nicos.pgaa.gui.panels.PGAAPanel'),
+         setups('pgaa')
+        ),
+        ('Tomography',
+         panel('nicos.pgaa.gui.panels.TomographyPanel'),
+         setups('tomography'),
+        ),
+        ('Shutter/Attenuators',
+         panel('generic.GenericPanel', uifile='custom/pgaa/lib/gui/shutter.ui'),
+        ),
+        ('Expert mode',
+         vsplit(
+            panel('status.ScriptStatusPanel'),
+            # panel('watch.WatchPanel'),
+            panel('console.ConsolePanel'),
+         ),
+        ),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
@@ -39,8 +54,8 @@ main_window = docked(
           )
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-       )),
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')
+    ),
 )
 
 windows = [
