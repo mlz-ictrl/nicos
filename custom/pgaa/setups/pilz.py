@@ -8,7 +8,7 @@ nethost= 'pgaasrv.pgaa.frm2'
 
 devices = dict(
 
-    shutter = device('pgaa.pilz.Shutter',
+    shutter = device('pgaa.pilz.Switch',
                      description = 'secondary experiment shutter',
                      tacodevice = '//%s/pgaa/pilz/shutter' % (nethost,),
                      readback = '//%s/pgaa/pilz/ishutter' % (nethost,),
@@ -20,7 +20,7 @@ devices = dict(
                      timeout = 3,
                     ),
 
-    att1 = device('pgaa.pilz.Switch',
+    att1 = device('pgaa.pilz.Attenuator',
                   description = 'attenuator 1',
                   tacodevice = '//%s/pgaa/pilz/satt1' % (nethost,),
                   error = '//%s/pgaa/pilz/eatt1' % (nethost,),
@@ -32,7 +32,7 @@ devices = dict(
                   timeout = 3,
                  ),
 
-    att2 = device('pgaa.pilz.Switch',
+    att2 = device('pgaa.pilz.Attenuator',
                   description = 'attenuator 2',
                   tacodevice = '//%s/pgaa/pilz/satt2' % (nethost,),
                   error = '//%s/pgaa/pilz/eatt2' % (nethost,),
@@ -44,7 +44,7 @@ devices = dict(
                   timeout = 3,
                  ),
 
-    att3 = device('pgaa.pilz.Switch',
+    att3 = device('pgaa.pilz.Attenuator',
                   description = 'attenuator 3',
                   tacodevice = '//%s/pgaa/pilz/satt3' % (nethost,),
                   error = '//%s/pgaa/pilz/eatt3' % (nethost,),

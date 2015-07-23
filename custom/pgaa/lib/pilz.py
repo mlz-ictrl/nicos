@@ -65,7 +65,7 @@ class Switch(HasTimeout, NamedDigitalOutput):
             self._sleeptime = 0.1
 
     def _writeValue(self, value):
-        self._taco_guard(self._dev.write, 1)
+        self._taco_guard(self._dev.write, value)
         time.sleep(self._sleeptime)
 
     def _enableRemote(self):
@@ -101,10 +101,9 @@ class Switch(HasTimeout, NamedDigitalOutput):
             return status.ERROR, 'target not reached'
 
 
-class Shutter(Switch):
-    """ The normal switch must write always a '1' to change the value, but the
-    shutter is implemented to write the readback values"""
+class Attenuator(Switch):
+    """ The attentuator switch must write always a '1' to change the value."""
 
     def _writeValue(self, value):
-        self._taco_guard(self._dev.write, value)
+        self._taco_guard(self._dev.write, 1)
         time.sleep(self._sleeptime)
