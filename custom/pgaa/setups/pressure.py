@@ -13,6 +13,7 @@ devices = dict(
                               description = 'vacuum sensor in sample chamber',
                               tacodevice = '//%s/pgaa/sample/vacuum' % (nethost,),
                               fmtstr = '%9.2E',
+                              unit = 'mbar',
                               pollinterval = 15,
                               maxage = 60,
                               warnlimits = (None, 1),
