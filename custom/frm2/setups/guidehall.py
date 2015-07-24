@@ -19,6 +19,7 @@ devices = dict(
                       tacodevice = '//%s/frm2/smc10/pos' % (nethost, ),
                       pollinterval = 5,
                       maxage = 30,
-                      unit = 'm'
+                      unit = 'm',
+                      fmtstr = '%.1f',
                      ),
 )
