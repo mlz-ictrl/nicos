@@ -21,7 +21,7 @@ _expcolumn = Column(
 
 
 _reactorBlock = Block('Reactor', [
-    BlockRow(Field(name='Reactor power', dev='ReactorPower', format='%.1f', width=6),
+    BlockRow(Field(name='Reactor power', dev='ReactorPower', width=6),
              Field(name='6-fold-shutter', dev='Sixfold', istext=True),
              Field(name='NL-1', dev='NL1', min='open', istext=True),
              )

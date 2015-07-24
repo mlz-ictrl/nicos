@@ -66,7 +66,7 @@ _detectorcolumn = Column(
 
 _shutterblock = Block('Shutters & Collimators', [
     BlockRow(
-        Field(name='Reactor', dev='ReactorPower', format='%.1f', width=7),
+        Field(name='Reactor', dev='ReactorPower', width=7),
         Field(dev='collimator', width=10),
         Field(dev='pinhole', width=10),
         ),

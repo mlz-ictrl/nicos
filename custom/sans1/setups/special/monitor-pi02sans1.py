@@ -359,7 +359,7 @@ _birmag = Block('17 T Magnet', [
 _sans1reactor = Column(
     Block('Reactor', [
         BlockRow(
-                 Field(name='Reactor', dev='ReactorPower', width=9.5, format = '%.2f', unit='MW'),
+                 Field(name='Reactor', dev='ReactorPower', width=9.5),
                  Field(name='6 Fold Shutter', dev='Sixfold', width=9.5),
                  Field(name='NL4a', dev='NL4a', width=9.5),
                 ),
@@ -386,7 +386,7 @@ _sans1general = Column(
 _sans1crane = Column(
     Block('Crane', [
         BlockRow(
-                 Field(name='Crane Pos.', dev='Crane', width=9.5, unit='m'),
+                 Field(name='Crane Pos.', dev='Crane', width=9.5),
                 ),
         ],
     ),

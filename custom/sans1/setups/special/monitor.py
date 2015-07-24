@@ -74,7 +74,7 @@ _pressurecolumn = Column(
 _sans1general = Column(
     Block('General', [
         BlockRow(
-                 Field(name='Reactor', dev='ReactorPower', width=8, format = '%.2f', unit='MW'),
+                 Field(name='Reactor', dev='ReactorPower', width=8),
                  Field(name='6 Fold Shutter', dev='Sixfold', width=8),
                  Field(name='NL4a', dev='NL4a', width=8),
 #               ),
@@ -91,7 +91,7 @@ _sans1general = Column(
 #       BlockRow(
                  Field(name='P in', dev='p_in_memograph', width=8, unit='bar'),
                  Field(name='P out', dev='p_out_memograph', width=8, unit='bar'),
-                 Field(name='Crane Pos', dev='Crane', width=8, unit='m'),
+                 Field(name='Crane Pos', dev='Crane', width=8),
                 ),
         ],
     ),

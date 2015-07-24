@@ -208,7 +208,7 @@ _column1 = Column(
         setups='mono2',
     ),
     Block('Environment', [
-        BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=7),
+        BlockRow(Field(name='Power', dev='ReactorPower', width=7),
                  Field(name='6-fold', dev='Sixfold', min='open', width=7),
                  Field(dev='NL6', min='open', width=7)),
         BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
