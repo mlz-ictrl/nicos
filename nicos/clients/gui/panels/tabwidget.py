@@ -40,7 +40,6 @@ class TearOffTabBar(QTabBar):
         self._dragInitiated = False
         self._dragDroppedPos = QPoint()
         self._dragStartPos = QPoint()
-        self.tabIdx = []
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -53,13 +52,14 @@ class TearOffTabBar(QTabBar):
         if not (event.buttons() & Qt.LeftButton):
             return
         if not self._dragStartPos.isNull() and \
-            (event.pos() - self._dragStartPos).manhattanLength() \
-            < QApplication.startDragDistance():
+           (event.pos() - self._dragStartPos).manhattanLength() \
+           < QApplication.startDragDistance():
             self._dragInitiated = True
         if (event.buttons() == Qt.LeftButton) and self._dragInitiated and \
-            not self.geometry().contains(event.pos()):
+           not self.geometry().contains(event.pos()):
             finishMoveEvent = QMouseEvent(QEvent.MouseMove, event.pos(),
-                                          Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+                                          Qt.NoButton, Qt.NoButton,
+                                          Qt.NoModifier)
             QTabBar.mouseMoveEvent(self, finishMoveEvent)
 
             drag = QDrag(self)
@@ -92,7 +92,7 @@ class TearOffTabBar(QTabBar):
         mimedata = event.mimeData()
         formats = mimedata.formats()
         if 'action' in formats and \
-            mimedata.data('action') == 'application/tab-detach':
+           mimedata.data('action') == 'application/tab-detach':
             event.acceptProposedAction()
         QTabBar.dragEnterEvent(self, event)
 
@@ -111,30 +111,6 @@ class TearOffTabBar(QTabBar):
     #     QTabBar.dragMoveEvent(self, event)
 
 
-def topLevelWidget(w):
-    widget = w
-    while True:
-        parent = widget.parent()
-        if not parent:
-            break
-        else:
-            widget = parent
-    return widget
-
-def firstWindow(w):
-    widget = w
-    while True:
-        parent = widget.parent()
-        if not parent:
-            widget = None
-            break
-        else:
-            widget = parent
-            if widget.isWindow():
-                break
-    return widget
-
-
 class TearOffTabWidget(QTabWidget):
 
     def __init__(self, menuwindow, parent=None):
@@ -147,6 +123,7 @@ class TearOffTabWidget(QTabWidget):
         self.connect(self.tabBar, SIGNAL('on_detach_tab'), self.detachTab)
         self.connect(self.tabBar, SIGNAL('on_move_tab'), self.moveTab)
         self.connect(self, SIGNAL('currentChanged(int)'), self.tabChangedTab)
+        self.tabIdx = []
 
     def moveTab(self, fromInd, toInd):
         w = self.widget(fromInd)
@@ -155,12 +132,65 @@ class TearOffTabWidget(QTabWidget):
         self.insertTab(toInd, w, text)
         self.setCurrentIndex(toInd)
 
+    def tabRemoved(self, index):
+        for i in self.tabIdx:
+            if i[0] == index:
+                if i[3]:
+                    del self.tabIdx[index]
+                    return
+
+    def tabInserted(self, index):
+        for i in self.tabIdx:
+            if i[0] == index:
+                if not i[3]:
+                    i[3] = True
+                    return
+        self.tabIdx.append([index, self.widget(index), self.tabText(index),
+                            True],)
+
+    def _findFirstWindow(self, w):
+        widget = w
+        while True:
+            parent = widget.parent()
+            if not parent:
+                break
+            widget = parent
+            if isinstance(widget, QMainWindow):
+                break
+        return widget
+
+    def _tabWidgetIndex(self, widget):
+        for i in range(self.tabBar.count()):
+            if self.widget(i) == widget:
+                return i
+        return -1
+
+    def setTabVisible(self, widget, visible):
+        w = self._findFirstWindow(widget)  # get widget which is related to tab
+        for i in self.tabIdx:   # search for it in the list of tabs
+            if i[1] == w:       # found
+                if visible:
+                    if not i[3]:
+                        newIndex = -1
+                        for j in self.tabIdx:
+                            if j[3] and j[0] > i[0]:
+                                cIdx = self._tabWidgetIndex(j[1])
+                                if cIdx < i[0] and cIdx != -1:
+                                    newIndex = cIdx
+                                else:
+                                    newIndex = i[0]
+                                break
+                        self.insertTab(newIndex, i[1], i[2])
+                else:
+                    i[3] = False
+                    index = self._tabWidgetIndex(i[1])
+                    self.removeTab(index)
+
     def detachTab(self, index, point):
         # print '({0}, {1})'.format(point.x(), point.y())
         detachWindow = DetachedWindow(self.parentWidget())
         detachWindow.setWindowModality(Qt.NonModal)
-        detachWindow.tabIdx = self.tabBar.tabIdx[index]
-        del self.tabBar.tabIdx[index]
+        detachWindow.tabIdx = self.tabIdx[index][0]
 
         self.connect(detachWindow, SIGNAL('on_close'), self.attachTab)
         detachWindow.setWindowTitle(self.tabText(index))
@@ -215,22 +245,20 @@ class TearOffTabWidget(QTabWidget):
 
         newIndex = -1
         for i in range(self.tabBar.count()):
-            if self.tabBar.tabIdx[i] > detachWindow.tabIdx:
+            if self.tabIdx[i][0] > detachWindow.tabIdx:
                 newIndex = i
                 break
 
         if newIndex == -1:
             newIndex = self.tabBar.count()
 
-        self.tabBar.tabIdx.insert(newIndex, detachWindow.tabIdx)
-
-        newIndex = self.insertTab(newIndex, tearOffWidget, detachWindow.windowTitle())
+        newIndex = self.insertTab(newIndex, tearOffWidget,
+                                  detachWindow.windowTitle())
 
         if newIndex != -1:
             self.setCurrentIndex(newIndex)
 
         self.disconnect(detachWindow, SIGNAL('on_close'), self.attachTab)
-
 
     def tabChangedTab(self, index):
         for i in range(self.count()):
@@ -263,7 +291,8 @@ class TearOffTabWidget(QTabWidget):
 
                 for toolbar in p.getToolbars():
                     if hasattr(self.menuwindow, 'toolBarWindows'):
-                        self.menuwindow.insertToolBar(self.menuwindow.toolBarWindows, toolbar)
+                        self.menuwindow.insertToolBar(self.menuwindow.toolBarWindows,
+                                                      toolbar)
                     else:
                         self.menuwindow.addToolBar(toolbar)
                     toolbar.show()
@@ -286,3 +315,39 @@ class DetachedWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.emit(SIGNAL('on_close'), self)
+
+
+def topLevelWidget(w):
+    widget = w
+    while True:
+        parent = widget.parent()
+        if not parent:
+            break
+        widget = parent
+    return widget
+
+
+def firstWindow(w):
+    widget = w
+    while True:
+        parent = widget.parent()
+        if not parent:
+            widget = None
+            break
+        else:
+            widget = parent
+            if widget.isWindow():
+                break
+    return widget
+
+
+def findTabWidget(w):
+    widget = w
+    while True:
+        parent = widget.parent()
+        if not parent:
+            return None
+        widget = parent
+        if isinstance(widget, TearOffTabWidget):
+            break
+    return widget

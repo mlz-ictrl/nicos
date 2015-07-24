@@ -78,6 +78,8 @@ class NicosGuiClient(NicosClient, QObject):
         values = self.ask('getcachekeys', ','.join(self._reg_keys))
         if values is not None:
             for key, value in values:
-                for widget in self._reg_keys[key]:
-                    if widget():
-                        widget().on_keyChange(key, value, currenttime(), False)
+                if key in self._reg_keys:  # Not all keys are registered !
+                    for widget in self._reg_keys[key]:
+                        if widget():
+                            widget().on_keyChange(key, value, currenttime(),
+                                                  False)

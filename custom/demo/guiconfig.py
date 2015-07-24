@@ -41,12 +41,19 @@ main_window = docked(
     ('Experiment Information and Setup',
      panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
            sample_panel=tabbed(
-               ('Sample changer', panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
-                                       image = 'custom/sans1/lib/gui/sampleChanger11.png',
-                                       positions = 11), setups('sans')),
-               ('TAS sample', panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel'), setups('tas')),
+               ('Sample changer',
+                panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+                      image = 'custom/sans1/lib/gui/sampleChanger11.png',
+                      positions = 11),
+                setups('sans')
+               ),
+               ('TAS sample',
+                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel'),
+                setups('tas')
+               ),
            )
-       )),
+          )
+    ),
 )
 
 windows = [

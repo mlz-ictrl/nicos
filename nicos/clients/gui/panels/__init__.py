@@ -25,14 +25,15 @@
 
 """Support for "auxiliary" windows containing panels."""
 
-import time
+from time import time as currenttime
 
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
     QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette, \
     QTabWidget
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
 
-from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
+from nicos.clients.gui.panels.tabwidget import TearOffTabWidget, \
+    DetachedWindow, firstWindow, findTabWidget
 
 from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
@@ -137,6 +138,16 @@ class PanelDialog(QDialog):
         self.setLayout(hbox)
         self.setWindowTitle(title)
 
+        if self.client._reg_keys:
+            values = self.client.ask('getcachekeys', ','.join(self.client._reg_keys))
+            if values is not None:
+                for key, value in values:
+                    if key in self.client._reg_keys and \
+                       key == 'session/mastersetup':
+                        for widget in self.client._reg_keys[key]:
+                            if widget():
+                                widget().on_keyChange(key, value, currenttime(), False)
+
 
 class AuxiliarySubWindow(QMainWindow):
     def __init__(self, parent):
@@ -153,6 +164,7 @@ class AuxiliarySubWindow(QMainWindow):
 
 class Panel(QWidget, DlgUtils):
     panelName = ''
+    setupSpec = ()
 
     def __init__(self, parent, client):
         QWidget.__init__(self, parent)
@@ -204,15 +216,29 @@ class Panel(QWidget, DlgUtils):
         """
         pass
 
+    def setSetups(self, setupSpec):
+        self.setupSpec = list(setupSpec) if setupSpec else []
+
     def requestClose(self):
         return True
 
     def updateStatus(self, status, exception=False):
         pass
 
+    def on_keyChange(self, key, value, time, expired):
+        if key == 'session/mastersetup' and self.setupSpec:
+            enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
+            w = firstWindow(self)
+            if isinstance(w, DetachedWindow):
+                w.setVisible(enabled)
+            else:
+                t = findTabWidget(self)
+                if t:
+                    t.setTabVisible(self, enabled)
+
 
 def createWindowItem(item, window, menuwindow, topwindow):
-    from nicos.clients.gui.main import log
+
     dockPosMap = {'left':   Qt.LeftDockWidgetArea,
                   'right':  Qt.RightDockWidgetArea,
                   'top':    Qt.TopDockWidgetArea,
@@ -224,6 +250,7 @@ def createWindowItem(item, window, menuwindow, topwindow):
         p = cls(menuwindow, window.client)
         p.setOptions(item.options)
         window.panels.append(p)
+        window.client.register(p, 'session/mastersetup')
         if p not in topwindow.panels:
             topwindow.panels.append(p)
 
@@ -259,20 +286,15 @@ def createWindowItem(item, window, menuwindow, topwindow):
         return sp
     elif isinstance(item, tabbed):
         tw = TearOffTabWidget(menuwindow)
+        tw.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;margin:0;'
+                         'padding:0;border:none}')
         # don't draw a frame around the tab contents
         tw.setDocumentMode(True)
-        for _ in range(5):
-            loaded_setups = window.client.eval('session.loaded_setups', [])
-            if loaded_setups: # sometimes the first request returns nothing useful..???
-                break
-            time.sleep(0.1) # UGLY: a local, synchronized copy would be more elegant...
         for entry in item:
             if len(entry) == 2:
-                (title, subitem) = entry
+                (title, subitem, setupSpec) = entry + (None,)
             else:
                 (title, subitem, setupSpec) = entry
-                if not checkSetupSpec(setupSpec, loaded_setups, log=log):
-                    continue
             subwindow = AuxiliarySubWindow(tw)
             subwindow.mainwindow = window.mainwindow
             subwindow.user_color = window.user_color
@@ -282,13 +304,14 @@ def createWindowItem(item, window, menuwindow, topwindow):
             layout = QVBoxLayout()
             # only keep margin at the top (below the tabs)
             layout.setContentsMargins(0, 6, 0, 0)
-            item = createWindowItem(subitem, window, menuwindow, subwindow)
-            if isinstance(item, Panel):
-                item.hideTitle()
-            layout.addWidget(item)
+            it = createWindowItem(subitem, window, menuwindow, subwindow)
+            if isinstance(it, Panel):
+                it.hideTitle()
+                it.setSetups(setupSpec)
+            layout.addWidget(it)
             central.setLayout(layout)
             subwindow.setCentralWidget(central)
-            tw.tabBar.tabIdx.append(tw.addTab(subwindow, title))
+            tw.addTab(subwindow, title)
         return tw
     elif isinstance(item, docked):
         mainitem, dockitems = item
@@ -338,3 +361,22 @@ def showPanel(panel):
         parents.append(parent)
         widget = parent
     panel.activateWindow()
+
+
+def findTab(tab, w):
+    widget = w
+    while True:
+        parent = widget.parent()
+        if not parent:
+            return False
+        widget = parent
+        if isinstance(widget, AuxiliarySubWindow) and tab == widget:
+            return True
+    return False
+
+
+def findTabIndex(tabwidget, w):
+    for i in range(len(tabwidget)):
+        if findTab(tabwidget.widget(i), w):
+            return i
+    return None
