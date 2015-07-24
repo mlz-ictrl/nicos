@@ -4,7 +4,7 @@ description = 'Andor DV434 CCD camera'
 
 group = 'optional'
 
-tango_host = 'tango://nectarccd01.nectar.frm2:10000'
+tango_host = 'tango://nectarccd02.nectar.frm2:10000'
 nethost = 'nectarsrv.nectar.frm2' # taco
 
 devices = dict(
