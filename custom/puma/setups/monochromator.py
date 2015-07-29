@@ -32,7 +32,7 @@ devices = dict(
                    ),
 
 #    co_mtt = device('devices.vendor.ipc.Coder',
-    co_mtt = device('puma.mtt_coder.SpecialCoder',
+    co_mtt = device('devices.vendor.ipc.Resolver',
                     bus = 'motorbus8',
                     addr = 120,
                     slope = -182.044,
@@ -44,7 +44,7 @@ devices = dict(
                    ),
 
 #    co_mth = device('devices.vendor.ipc.Coder',
-    co_mth = device('puma.mtt_coder.SpecialCoder',
+    co_mth = device('devices.vendor.ipc.Resolver',
                     bus = 'motorbus8',
                     addr = 121,
                     slope = -181.638,

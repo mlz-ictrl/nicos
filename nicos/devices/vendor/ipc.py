@@ -124,7 +124,9 @@ IPC_MAGIC = {
     153: ['Reset encoder', None, 1],                       # ## ###
     154: ['Set encoder configuration', (3, 0, 255), 1],    # ##
     155: ['Select endat memory range', (3, 161, 185), 1],  #
-    156: ['Read endat parameter', (3, 0, 15), 15],         #
+    # 156 is used DIFFERENTLY for resolvers and endat-coders !!!
+    #156: ['Read statusbyte', None, 10],         #
+    #156: ['Read endat parameter', (3, 0, 15), 15],         #
     157: ['Write endat parameter', (3, 0, 15), 1],         #
     # 4-wing slits
     160: ['Set bottom target position', (4, 0, 4095), 1],
@@ -524,6 +526,9 @@ class Coder(NicosCoder):
         confbyte = self._adevs['bus'].get(self.addr, 152)
         if confbyte < 4:
             return 'digital'
+        if confbyte == 16:
+            if firmware <= 6:
+                return 'analog' # wild guess for resolvers
         if confbyte & 0xe0 == 0x20:
             if firmware < 20:  # wild guess, but seems to work...
                 return 'analog'
@@ -536,6 +541,8 @@ class Coder(NicosCoder):
                 ['no reset', 'reset once', 'reset always',
                  'reset once to halfrange'][byte]
         if self._hwtype == 'analog':
+            if byte == 16:
+                return 'resolver, 16bit'
             return 'potentiometer, %dbit' % (byte & 0x1F)
         proto = byte & 128 and 'endat' or 'ssi'
         coding = byte & 64 and 'gray' or 'binary'
@@ -610,6 +617,49 @@ class Coder(NicosCoder):
             self.doReset()
         except Exception:
             raise CommunicationError(self, 'cannot clear alarm for encoder')
+
+
+class Resolver(Coder):
+    """This class is for the IPC resolver cards. They are older and a little bitchy.
+
+    It can be used with the `nicos.devices.generic.Axis` class.
+    """
+    # derive from Coder and adjust needed things only
+
+    parameter_overrides = {
+        'confbyte':  Override(settable=False, default=16),
+    }
+
+    def doVersion(self):
+        version = self._adevs['bus'].get(self.addr, 151)
+        return [('IPC resolver card, %s' % self._hwtype, str(version))]
+
+    def doReadConfbyte(self):
+        confbyte = self._adevs['bus'].get(self.addr, 152)
+        if confbyte != 16:
+            self.log.warning('Got unexpected confbyte setting %d (expected 16)' % confbyte)
+        return confbyte
+
+    def doWriteConfbyte(self, byte):
+        # HW does not support changing the confbyte
+        return 16
+
+    def doReset(self):
+        # reset not supported by V0, but by V6
+        # it is unknown which firmware version implemented this
+        # be on the safe side and only use it for V6 and later
+        if self.firmware >= 6:
+            try:
+                self._adevs['bus'].send(self.addr, 153)
+                sleep(0.5)
+            except NicosError:
+                self.log.warning('Resetting failed!', exc=1)
+        else:
+            self.log.warning('Reset not supported by this firmware, please upgrade your HW!')
+
+    def doStatus(self, maxage=0):
+        # no way of determining a status
+        return status.OK, ''
 
 
 class Motor(HasTimeout, NicosMotor):
