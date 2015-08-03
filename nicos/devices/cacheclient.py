@@ -65,7 +65,7 @@ class BaseCacheClient(Device):
         self._connected = False
         self._socket = None
         self._secsocket = None
-        self._sec_lock = threading.Lock()
+        self._sec_lock = threading.RLock()
         self._prefix = self.prefix.strip('/')
         if self._prefix:
             self._prefix += '/'
@@ -332,8 +332,7 @@ class BaseCacheClient(Device):
                     self._disconnect('secondary socket: could not connect')
                     raise CacheError('secondary socket could not be created')
 
-        try:
-            with self._sec_lock:
+            try:
                 # write request
                 # self.log.debug("get_explicit: sending %r" % tosend)
                 self._secsocket.sendall(to_utf8(tosend))
@@ -343,14 +342,15 @@ class BaseCacheClient(Device):
                 while not data.endswith(sentinel) and n < 1000:
                     data += self._secsocket.recv(BUFSIZE)
                     n += 1
-        except socket.error:
-            # retry?
-            if retry:
+            except socket.error:
+                self.log.warning('error during cache query', exc=1)
+                closeSocket(self._secsocket)
                 self._secsocket = None
-                for m in self._single_request(tosend, sentinel, retry - 1):
-                    yield m
-                return
-            raise
+                if retry:
+                    for m in self._single_request(tosend, sentinel, retry - 1):
+                        yield m
+                    return
+                raise
 
         lmatch = line_pattern.match
         mmatch = msg_pattern.match
