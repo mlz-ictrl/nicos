@@ -62,6 +62,8 @@ class FileHandler(StreamHandler):
 
 
 def nicos_import(clspath):
+    if '.' not in clspath:
+        raise ImportError('%r is not a "module.Class" name' % clspath)
     modname, clsname = clspath.rsplit('.', 1)
     try:
         mod = __import__('nicos.' + modname, None, None, [clsname])
@@ -178,6 +180,11 @@ class SetupChecker(object):
         return True
 
     def check_device(self, devname, devconfig, is_special=False):
+        if not isinstance(devconfig, tuple) or len(devconfig) != 2:
+            self.log_error('%s: device entry has wrong format (should be '
+                           'device() or a 2-entry tuple)' % devname,
+                           extra=self.find_deventry(devname))
+            return False
         # try to import the device class
         try:
             cls = nicos_import(devconfig[0])
