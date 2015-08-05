@@ -232,6 +232,16 @@ def gauss(*columns):
     * ampl - amplitude
     * sigma - FWHM
     * background
+
+    If the fit failed, the result is ``(None, None)``.
+
+    Example::
+
+        qscan(...)
+        values, stderr = gauss('h', 'det2')
+        if values:  # if the fit was successful
+            center = values[0]
+            # now work with fitted peak center
     """
     xs, ys, dys, _, ds = _getData(columns)
     c = 2 * np.sqrt(2 * np.log(2))
