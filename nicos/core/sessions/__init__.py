@@ -497,6 +497,8 @@ class Session(object):
                 self.cache.addPrefixCallback('se/', self._pnpHandler)
                 # be notified about watchdog events
                 self.cache.addPrefixCallback('watchdog/', self._watchdogHandler)
+                # make sure we process all initial keys
+                self.cache.waitForStartup(1)
 
         # validate and attach sysconfig devices
         sysconfig_items = [

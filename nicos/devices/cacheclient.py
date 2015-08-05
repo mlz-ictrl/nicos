@@ -366,16 +366,8 @@ class BaseCacheClient(Device):
             yield msgmatch
             match = lmatch(data, i)
 
-    # methods to make this client usable as the main device in a simple session
-
-    def start(self, *args):
-        self._connect()
-        self._worker.start()
-
-    def wait(self):
-        while not self._stoprequest:
-            sleep(self._long_loop_delay)
-        self._worker.join()
+    def waitForStartup(self, timeout):
+        self._startup_done.wait(timeout)
 
     def flush(self):
         """wait for empty output queue"""
@@ -387,6 +379,17 @@ class BaseCacheClient(Device):
             if self._synced:
                 break
             sleep(CYCLETIME)
+
+    # methods to make this client usable as the main device in a simple session
+
+    def start(self, *args):
+        self._connect()
+        self._worker.start()
+
+    def wait(self):
+        while not self._stoprequest:
+            sleep(self._long_loop_delay)
+        self._worker.join()
 
     def quit(self, signum=None):
         self.log.info('quitting on signal %s...' % signum)
