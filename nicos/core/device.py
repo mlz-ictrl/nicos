@@ -1371,7 +1371,7 @@ class Moveable(Readable):
         return done
 
     def doIsCompleted(self):
-        """Wait until movement of device is completed.
+        """Query completion of movement of device.
 
         This default implementation is supposed to be overridden in derived
         classes and just checks for completion of all attached devices and
