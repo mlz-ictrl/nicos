@@ -46,3 +46,8 @@ def test_raisers():
     assert raises(ConfigurationError,
                   setattr, session.experiment, 'envlist', [])
     assert raises(ConfigurationError, getattr, session.instrument, 'instrument')
+
+    assert bool(session.experiment) is False
+
+    assert session._experiment is None
+    assert session._instrument is None

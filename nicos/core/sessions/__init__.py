@@ -141,21 +141,14 @@ class Session(object):
         self._script_start = None
         self._script_text = ''
 
+        # cache connection
+        self.cache = None
+
         # sysconfig devices
-        self._def_sysconfig = {
-            'cache':      None,
-            'instrument': AttributeRaiser(
-                ConfigurationError,
-                'You have not configured an instrument device in your sysconfig'
-                ' dictionary; this action cannot be completed.'),
-            'experiment': AttributeRaiser(
-                ConfigurationError,
-                'You have not configured an experiment device in your sysconfig'
-                ' dictionary; this action cannot be completed.'),
-            'datasinks':  [],
-            'notifiers':  [],
-        }
-        self.__dict__.update(self._def_sysconfig)
+        self._instrument = None
+        self._experiment = None
+        self._datasinks = None
+        self._notifiers = None
 
         # set up logging interface
         self._initLogging(console=not daemonized)
@@ -306,6 +299,83 @@ class Session(object):
         for umethod, value in umethods_to_call:
             umethod(value)
         self.log.info('synchronization complete')
+
+    @property
+    def instrument(self):
+        """Return the current instrument device."""
+        if self._instrument is not None:
+            return self._instrument
+        configured = self.current_sysconfig.get('instrument')
+        if not configured:
+            return AttributeRaiser(ConfigurationError,
+                                   'You have not configured an instrument '
+                                   'device in your sysconfig dictionary; this '
+                                   'action cannot be completed.')
+        self._instrument = self._createSysconfig('instrument')
+        return self._instrument
+
+    @property
+    def experiment(self):
+        """Return the current experiment device."""
+        if self._experiment is not None:
+            return self._experiment
+        configured = self.current_sysconfig.get('experiment')
+        if not configured:
+            return AttributeRaiser(ConfigurationError,
+                                   'You have not configured an experiment '
+                                   'device in your sysconfig dictionary; this '
+                                   'action cannot be completed.')
+        self._experiment = self._createSysconfig('experiment')
+        return self._experiment
+
+    @property
+    def datasinks(self):
+        """Return the list of configured data sinks."""
+        if self._datasinks is not None:
+            return self._datasinks
+        if not self.current_sysconfig.get('datasinks'):
+            return []
+        self._datasinks = self._createSysconfig('datasinks')
+        return self._datasinks
+
+    @property
+    def notifiers(self):
+        """Return the list of configured notifiers."""
+        if self._notifiers is not None:
+            return self._notifiers
+        if not self.current_sysconfig.get('notifiers'):
+            return []
+        self._notifiers = self._createSysconfig('notifiers')
+        return self._notifiers
+
+    def _createSysconfig(self, key):
+        cls, is_list = {'instrument': (Instrument, False),
+                        'experiment': (Experiment, False),
+                        'datasinks':  (DataSink, True),
+                        'notifiers':  (Notifier, True)}[key]
+        configured = self.current_sysconfig[key]
+        if not is_list:
+            try:
+                return self.getDevice(configured, cls)
+            except Exception:
+                self.log.exception('%s device %r failed to create' %
+                                   (key, configured))
+                raise
+        else:
+            if not isinstance(configured, list):
+                raise ConfigurationError('sysconfig entry %s must be a list'
+                                         % key)
+            devs = []
+            for devname in configured:
+                try:
+                    dev = self.getDevice(devname, cls)
+                except Exception:
+                    self.log.exception('%s device %r failed to create' %
+                                       (key, devname))
+                    raise
+                else:
+                    devs.append(dev)
+            return devs
 
     def setSetupPath(self, *paths):
         """Set the paths to the setup files.
@@ -509,56 +579,7 @@ class Session(object):
                 # make sure we process all initial keys
                 self.cache.waitForStartup(1)
 
-        # validate and attach sysconfig devices
-        sysconfig_items = [
-            ('instrument', Instrument),
-            ('experiment', Experiment),
-            ('datasinks',  [DataSink]),
-            ('notifiers',  [Notifier]),
-        ]
-
-        for key, devtype in sysconfig_items:
-            if key not in sysconfig:
-                continue
-            value = sysconfig[key]
-            if isinstance(devtype, list):
-                if not isinstance(sysconfig[key], list):
-                    raise ConfigurationError('sysconfig %s entry must be '
-                                             'a list' % key)
-                devs = []
-                for name in value:
-                    try:
-                        dev = self.getDevice(name, devtype[0])
-                    except Exception:
-                        if raise_failed:
-                            raise
-                        self.log.exception('%s device %r failed to create' %
-                                           (key, name))
-                    else:
-                        devs.append(dev)
-                setattr(self, key, devs)
-            else:
-                if value is None:
-                    dev = self._def_sysconfig[key]
-                elif not isinstance(value, string_types):
-                    raise ConfigurationError('sysconfig %s entry must be '
-                                             'a device name' % key)
-                elif key == 'experiment' and value not in (None, 'Exp'):
-                    raise ConfigurationError('the experiment device must now '
-                                             'be named "Exp", please fix your '
-                                             'system setup')
-                else:
-                    try:
-                        dev = self.getDevice(value, devtype)
-                    except Exception:
-                        if raise_failed:
-                            raise
-                        self.log.exception('%s device %r failed to create' %
-                                           (key, value))
-                        dev = None
-                setattr(self, key, dev)
-
-        # create all other devices
+        # create all devices
         if autocreate_devices is None:
             autocreate_devices = self.autocreate_devices
         if autocreate_devices:
@@ -572,6 +593,19 @@ class Session(object):
                         raise
                     self.log.exception('device %r failed to create' % devname)
                     failed_devs.append(devname)
+
+        # validate and try to attach sysconfig devices
+        if sysconfig.get('experiment') not in (None, 'Exp'):
+            raise ConfigurationError('the experiment device must be named '
+                                     '"Exp", please fix your system setup')
+        for key in ['instrument', 'experiment', 'datasinks', 'notifiers']:
+            setattr(self, '_' + key, None)
+            if sysconfig.get(key) is not None:
+                try:
+                    setattr(self, '_' + key, self._createSysconfig(key))
+                except Exception:
+                    if raise_failed:
+                        raise
 
         # set aliases according to alias_config
         self.applyAliasConfig()
@@ -650,10 +684,10 @@ class Session(object):
         if self.cache:
             self.cache.shutdown()
         self.cache = None
-        self.instrument = self._def_sysconfig['instrument']
-        self.experiment = self._def_sysconfig['experiment']
-        self.datasinks = []
-        self.notifiers = []
+        self._instrument = None
+        self._experiment = None
+        self._datasinks = None
+        self._notifiers = None
         self.current_sysconfig.clear()
         self.alias_config.clear()
         self.loaded_setups = set()
@@ -1160,20 +1194,20 @@ class Session(object):
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action', joined, flag=FLAG_NO_STORE)
+            self.cache.put('exp', 'action', joined, flag=FLAG_NO_STORE)
 
     def endActionScope(self):
         self._actionStack.pop()
         joined = ' :: '.join(self._actionStack)
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action', joined, flag=FLAG_NO_STORE)
+            self.cache.put('exp', 'action', joined, flag=FLAG_NO_STORE)
 
     def action(self, what):
         joined = ' :: '.join(self._actionStack + [what])
         self.log.action(joined)
         if self.cache:
-            self.cache.put(self.experiment, 'action', joined, flag=FLAG_NO_STORE)
+            self.cache.put('exp', 'action', joined, flag=FLAG_NO_STORE)
 
     # -- Simulation support ----------------------------------------------------
 
