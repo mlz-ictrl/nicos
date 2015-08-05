@@ -80,8 +80,6 @@ class BaseCacheClient(Device):
 
         self._stoprequest = False
         self._queue = queue.Queue()
-        self._sync = True  # must be set to False on forking, since no thread
-                           # can signal task_done anymore
         self._synced = True
 
         # create worker thread, but do not start yet, leave that to subclasses
@@ -318,7 +316,7 @@ class BaseCacheClient(Device):
             self._disconnect('single request: no socket')
             if not self._socket:
                 raise CacheError('cache not connected')
-        if sync and self._sync:
+        if sync:
             # sync has to be false for lock requests, as these occur during startup
             self._queue.join()
         with self._sec_lock:
@@ -381,17 +379,14 @@ class BaseCacheClient(Device):
 
     def flush(self):
         """wait for empty output queue"""
-
-        if self._sync:
-            # sync has to be false for lock requests, as these occur during startup
-            self._synced = False
-            self._queue.put('%s%s\n' % (SYNC_MARKER, OP_ASK))
-            self._queue.join()
-            for _ in range(100):
-                # self.log.debug('flush; waiting for sync...')
-                if self._synced:
-                    break
-                sleep(CYCLETIME)
+        self._synced = False
+        self._queue.put('%s%s\n' % (SYNC_MARKER, OP_ASK))
+        self._queue.join()
+        for _ in range(100):
+            # self.log.debug('flush; waiting for sync...')
+            if self._synced:
+                break
+            sleep(CYCLETIME)
 
     def quit(self, signum=None):
         self.log.info('quitting on signal %s...' % signum)
