@@ -106,6 +106,8 @@ class Session(object):
         self.explicit_setups = []
         # current "sysconfig" dictionary resulting from setup files
         self.current_sysconfig = {}
+        # current "alias preferences" config
+        self.alias_config = {}
         # paths to setup files
         self._setup_paths = [path.join(config.custom_path, p.strip(), 'setups')
                              for p in config.setup_subdirs.split(',')]
@@ -332,7 +334,7 @@ class Session(object):
         This is a dictionary mapping setup name to another dictionary.  The keys
         of that dictionary are those present in the setup files: 'description',
         'group', 'sysconfig', 'includes', 'excludes', 'modules', 'devices',
-        'startupcode', 'extended'.
+        'alias_config', 'startupcode', 'extended'.
 
         If a setup file could not be read or parsed, the value for that key is
         ``None``.
@@ -465,6 +467,8 @@ class Session(object):
             sysconfig.update(iteritems(info['sysconfig']))
             devlist.update(iteritems(info['devices']))
             startupcode.append(info['startupcode'])
+            for aliasname, target, prio in info['alias_config']:
+                self.alias_config.setdefault(aliasname, []).append((target, prio))
 
             return sysconfig, devlist, startupcode
 
@@ -481,6 +485,11 @@ class Session(object):
                 sysconfig.update(ret[0])
                 devlist.update(ret[1])
                 startupcode.extend(ret[2])
+
+        # sort the preferred aliases by priority
+        for aliasname in self.alias_config:
+            # first element has the highest priority
+            self.alias_config[aliasname].sort(key=lambda x: -x[1])
 
         # initialize the cache connection
         if sysconfig.get('cache') and self._mode != SIMULATION:
@@ -564,6 +573,9 @@ class Session(object):
                     self.log.exception('device %r failed to create' % devname)
                     failed_devs.append(devname)
 
+        # set aliases according to alias_config
+        self.applyAliasConfig()
+
         # execute the startup code
         if allow_startupcode:
             for code in startupcode:
@@ -643,6 +655,7 @@ class Session(object):
         self.datasinks = []
         self.notifiers = []
         self.current_sysconfig.clear()
+        self.alias_config.clear()
         self.loaded_setups = set()
         self.excluded_setups = set()
         self.explicit_setups = []
@@ -685,6 +698,25 @@ class Session(object):
         for name in self._exported_names:
             if name in self.namespace:
                 yield name, self.namespace[name]
+
+    def applyAliasConfig(self):
+        """Apply the desired aliases from self.alias_config."""
+        for aliasname in self.alias_config:
+            if aliasname not in self.devices:
+                # complain about this; setups should make sure that the device
+                # exists when configuring it
+                self.log.warning('alias device %s does not exist, cannot set '
+                                 'its target' % aliasname)
+                continue
+            aliasdev = self.getDevice(aliasname)
+            for target, _ in self.alias_config[aliasname]:
+                if target in self.devices:
+                    if aliasdev.alias != target:
+                        aliasdev.alias = target
+                    break
+            else:
+                self.log.warning('none of the desired targets for alias %s '
+                                 'actually exist' % aliasname)
 
     def handleInitialSetup(self, setup, mode=SLAVE):
         """Determine which setup to load, and try to become master.

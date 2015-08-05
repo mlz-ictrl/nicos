@@ -1869,37 +1869,18 @@ class DeviceAlias(Device):
                                                   self.description)
 
     def doUpdateAlias(self, devname):
+        # Important NOTE: this is never called in the poller, since the poller
+        # replaces DeviceAliases by a cache reader.  Therefore we get away with
+        # calling _setROParam on device creation.
         if not devname:
             self._obj = NoDevice(str(self))
             if self._cache:
                 self._cache.unsetRewrite(str(self))
                 self._reinitParams()
-        else:
-            try:
-                newdev = session.getDevice(devname, (self._cls, DeviceAlias),
-                                           source=self)
-            except Exception:
-                if not self._initialized:
-                    # should not raise an error, otherwise the device cannot
-                    # be created at all
-                    fromconfig = self._config.get('alias', 'nothing')
-                    self.log.warning('could not find aliased device %s, pointing '
-                                     'to target from setup file (%s)' %
-                                     (devname, fromconfig))
-                    if 'alias' not in self._config:
-                        newdev = NoDevice(str(self))
-                    else:
-                        try:
-                            newdev = session.getDevice(self._config['alias'],
-                                                       (self._cls, DeviceAlias),
-                                                       source=self)
-                        except NicosError:
-                            self.log.error('could not find target from setup '
-                                           'file either, pointing to nothing',
-                                           exc=1)
-                            newdev = NoDevice(str(self))
-                else:
-                    raise
+            return
+        try:
+            newdev = session.getDevice(devname, (self._cls, DeviceAlias),
+                                       source=self)
             if newdev is self:
                 raise NicosError(self, 'cannot set alias pointing to itself')
             if newdev != self._obj:
@@ -1907,6 +1888,13 @@ class DeviceAlias(Device):
                 if self._cache:
                     self._cache.setRewrite(str(self), devname)
                     self._reinitParams()
+        except Exception:
+            if self._initialized:
+                raise
+            # On initialization, this must not raise an error, otherwise the device
+            # cannot be created at all, and will fail depending devices.  Instead,
+            # select another target if possible.
+            self._recoverMissingDevice(devname)
 
     def _reinitParams(self):
         if self._mode != MASTER:  # only in the copy that changed the alias
@@ -1921,6 +1909,39 @@ class DeviceAlias(Device):
             if pname in self._ownparams:
                 continue
             self._cache.put(self, pname, getattr(self._obj, pname))
+
+    def _recoverMissingDevice(self, devname):
+        """Recover from not having a valid target (it does not exist, cannot be
+        created or has the wrong type).
+        """
+        # first, check the preferred alias config
+        for target, _ in session.alias_config.get(self._name, []):
+            if target != devname and target in session.configured_devices:
+                self.log.warning('could not find aliased device %s, '
+                                 'pointing to %s instead' % (devname, target))
+                new_target = target
+                break
+        else:
+            # then, check the config file
+            fromconfig = self._config.get('alias', '')
+            self.log.warning('could not find aliased device %s, pointing '
+                             'to target from setup file (%s)' %
+                             (devname, fromconfig or 'nothing'))
+            new_target = fromconfig
+        # if we have a potential new target, check if we can get hold of it
+        if new_target:
+            try:
+                session.getDevice(new_target, (self._cls, DeviceAlias),
+                                  source=self)
+            except Exception:
+                # all hope is lost!
+                self.log.warning('could not find %s either, pointing to nothing'
+                                 % new_target)
+                new_target = ''
+        # now make the new choice of alias permanent, including in the cache
+        # (which we must do with _setROParam since we might not be master yet)
+        self.doUpdateAlias(new_target)
+        self._setROParam('alias', new_target)
 
     # Device methods that would not be alias-aware
 

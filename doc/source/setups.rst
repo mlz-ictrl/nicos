@@ -77,6 +77,26 @@ A setup file can consist of the following entries, all of which are optional:
 
       modules = ['nicos.commands.standard', 'nicos.commands.taco']
 
+``alias_config``
+   A list of device aliases that the current setup would like to change.
+
+   This is preferred to setting aliases in the ``startupcode`` since NICOS will
+   combine this information from loaded setups and can make decisions how to set
+   the aliases.
+
+   The format is the following::
+
+       alias_config = [
+           ('T',  'T_ccr12',   100),
+           ('Ts', 'T_ccr12_A', 100),
+           ('Ts', 'T_ccr12_B',  50),
+       )
+
+   It maps the name of the alias device (which must exist in the setup) to a
+   tuple of the desired alias target and a priority.  If multiple loaded setups
+   want to change the same alias, the target with the highest priority is
+   selected.
+
 ``startupcode``
    A string of Python code that is executed after the setup file has been
    processed and the devices that are marked for automatic creation have been
@@ -85,9 +105,7 @@ A setup file can consist of the following entries, all of which are optional:
    Example::
 
       startupcode = """
-      T.alias = pyro
-      Ts.alias = pyro
-      SetEnvironment(T, Ts)
+      AddEnvironment(T, Ts)
       """
 
 ``extended``
