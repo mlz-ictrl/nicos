@@ -47,7 +47,7 @@ class PollerCacheClient(CacheClient):
     # but use _propagate to call callbacks always
     def _propagate(self, args):
         time, key, op, value = args
-        if op == OP_TELL and key in self._callbacks:
+        if op == OP_TELL and key in self._callbacks and value:
             self._call_callbacks(key, cache_load(value), time)
 
 
