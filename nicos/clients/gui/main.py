@@ -300,7 +300,7 @@ class MainWindow(QMainWindow, DlgUtils):
         self.autoconnect = settings.value('autoconnect', True, bool)
 
         self.connpresets = dict((str(k), v) for (k, v) in
-            iteritems(settings.value('connpresets', {})))
+                                iteritems(settings.value('connpresets', {})))
         self.lastpreset = settings.value('lastpreset', '')
         if self.lastpreset in self.connpresets:
             cdata = self.connpresets[self.lastpreset]

@@ -35,6 +35,7 @@ from nicos.clients.gui.utils import loadUi
 from nicos.protocols.cache import cache_load
 from nicos.toftof.safety_desc import bit_description
 
+
 class SafetyPanel(Panel):
     panelName = 'Safety'
     devname = 'saf'

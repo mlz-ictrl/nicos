@@ -25,7 +25,7 @@
 """Always-on-top emergency stop button."""
 
 from PyQt4.QtGui import QMainWindow, QWidget, QAbstractButton, QHBoxLayout, QIcon, \
-     QPainter
+    QPainter
 from PyQt4.QtCore import SIGNAL, Qt, QByteArray, QSize, QPoint
 
 from nicos.clients.gui.utils import SettingGroup

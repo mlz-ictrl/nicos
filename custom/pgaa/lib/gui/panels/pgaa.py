@@ -53,8 +53,8 @@ class TomographyPanel(Panel):
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
     def loadSettings(self, settings):
-#       self.hasinput = not settings.value('noinput').toBool()
-#       self.cmdhistory = list(settings.value('cmdhistory').toStringList())
+#       self.hasinput = not settings.value('noinput', False, bool)
+#       self.cmdhistory = settings.value('cmdhistory') or []
         pass
 
     def saveSettings(self, settings):

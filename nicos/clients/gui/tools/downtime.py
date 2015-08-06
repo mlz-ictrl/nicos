@@ -88,7 +88,7 @@ class DownTimeTool(QDialog, DlgUtils):
 
     def loadSettings(self, settings):
         try:
-            reasons = settings.value('reasons', type=unicode)
+            reasons = settings.value('reasons')
         except TypeError:
             reasons = []
         if reasons:
