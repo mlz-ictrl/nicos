@@ -1,6 +1,29 @@
 Changelog for NICOS 2
 =====================
 
+Release 2.9.0
+-------------
+
+* General behavior
+
+  - Better alias handling: alias preferences are now expressed in setups with
+    a new value "alias_config", instead of unconditionally setting aliases
+    from startup code.
+
+  - The "instrument" and other special devices are now (attempted to be) created
+    when accessed, not only once at setup loading time.
+
+* GUI
+
+  - Present a choice of aliases in the "load setups" panel.
+
+  - Can now turn off display of watchdog warnings in the status monitor setup.
+
+* Other
+
+  - Added some demo devices for presentations.
+
+
 Release 2.8.0
 -------------
 
