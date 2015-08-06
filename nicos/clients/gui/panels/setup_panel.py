@@ -24,7 +24,8 @@
 
 """NICOS GUI experiment setup window."""
 
-from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem, QMessageBox
+from PyQt4.QtGui import QDialogButtonBox, QListWidgetItem, QMessageBox, \
+    QFrame, QHBoxLayout, QLabel, QComboBox
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
 
 from nicos.utils import decodeAny
@@ -226,6 +227,31 @@ class ExpPanel(Panel, DlgUtils):
         self._update_proposal_info()
 
 
+class AliasWidget(QFrame):
+    def __init__(self, parent, name, selections):
+        QFrame.__init__(self, parent)
+        self.name = name
+        self.selections = selections
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel(name, self))
+        self.combo = QComboBox(self)
+        self.combo.addItems(selections)
+        self.combo.setCurrentIndex(0)
+        layout.addWidget(self.combo)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+
+    def setSelections(self, selections):
+        if selections != self.selections:
+            self.selections = selections
+            self.combo.clear()
+            self.combo.addItems(selections)
+            self.combo.setCurrentIndex(0)
+
+    def getSelection(self):
+        return self.combo.currentText()
+
+
 class SetupsPanel(Panel, DlgUtils):
     panelName = 'Setup selection'
 
@@ -233,6 +259,9 @@ class SetupsPanel(Panel, DlgUtils):
         Panel.__init__(self, parent, client)
         DlgUtils.__init__(self, 'Setup')
         loadUi(self, 'setup_setups.ui', 'panels')
+
+        self.aliasGroup.hide()
+        self._aliasWidgets = {}
 
         self._setupinfo = {}
         self._loaded = set()
@@ -291,10 +320,12 @@ class SetupsPanel(Panel, DlgUtils):
     def on_basicSetup_currentItemChanged(self, item, old):
         if item and item.text() != '<keep current>':
             self.showSetupInfo(item.text())
+        self.updateAliasList()
 
     def on_basicSetup_itemClicked(self, item):
         if item.text() != '<keep current>':
             self.showSetupInfo(item.text())
+        self.updateAliasList()
 
     def on_optSetups_currentItemChanged(self, item, old):
         if item:
@@ -302,6 +333,7 @@ class SetupsPanel(Panel, DlgUtils):
 
     def on_optSetups_itemClicked(self, item):
         self.showSetupInfo(item.text())
+        self.updateAliasList()
 
     def on_showPnpBox_stateChanged(self, state):
         for i in range(self.optSetups.count()):
@@ -309,17 +341,6 @@ class SetupsPanel(Panel, DlgUtils):
             if item.data(Qt.UserRole) == 1:
                 item.setHidden(item.checkState() == Qt.Unchecked and
                                not self.showPnpBox.isChecked())
-
-    def showSetupInfo(self, setup):
-        info = self._setupinfo[str(setup)]
-        devs = []
-        for devname, devconfig in iteritems(info['devices']):
-            if not devconfig[1].get('lowlevel'):
-                devs.append(devname)
-        devs = ', '.join(sorted(devs))
-        self.setupDescription.setText(
-            '<b>%s</b><br/>%s<br/><br/>'
-            'Devices: %s<br/>' % (setup, info['description'], devs))
 
     def on_buttonBox_clicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
@@ -334,10 +355,23 @@ class SetupsPanel(Panel, DlgUtils):
             parent = parent.parentWidget()
         parent.close()
 
-    def applyChanges(self):
-        setups = []
-        cmd = 'NewSetup'
-        basic = self.basicSetup.currentItem().text()
+    def showSetupInfo(self, setup):
+        info = self._setupinfo[str(setup)]
+        devs = []
+        for devname, devconfig in iteritems(info['devices']):
+            if not devconfig[1].get('lowlevel'):
+                devs.append(devname)
+        devs = ', '.join(sorted(devs))
+        self.setupDescription.setText(
+            '<b>%s</b><br/>%s<br/><br/>'
+            'Devices: %s<br/>' % (setup, info['description'], devs))
+
+    def _calculateSetups(self):
+        cur = self.basicSetup.currentItem()
+        if cur:
+            basic = cur.text()
+        else:
+            basic = '<keep current>'
         # calculate the new setups
         setups = set()
         new_basic = False
@@ -349,6 +383,52 @@ class SetupsPanel(Panel, DlgUtils):
             new_basic = True
         for item in iterChecked(self.optSetups):
             setups.add(item.text())
+        return setups, new_basic
+
+    def updateAliasList(self):
+        setups, _ = self._calculateSetups()
+        # get includes as well
+        seen = set()
+        def add_includes(s):
+            if s in seen or s not in self._setupinfo:
+                return
+            seen.add(s)
+            for inc in self._setupinfo[s]['includes']:
+                add_includes(inc)
+                setups.add(inc)
+        for setup in setups.copy():
+            add_includes(setup)
+        # now collect alias config
+        alias_config = {}
+        for setup in setups:
+            aliasconfig = self._setupinfo[setup]['alias_config']
+            for (aliasname, target, prio) in aliasconfig:
+                alias_config.setdefault(aliasname, []).append((target, prio))
+        # sort by priority
+        for aliasname in alias_config:
+            alias_config[aliasname].sort(key=lambda x: -x[1])
+        # create/update widgets
+        layout = self.aliasGroup.layout()
+        for aliasname in sorted(alias_config):
+            selections = [x[0] for x in alias_config[aliasname]]
+            if aliasname in self._aliasWidgets:
+                self._aliasWidgets[aliasname].setSelections(selections)
+            else:
+                wid = self._aliasWidgets[aliasname] = AliasWidget(self, aliasname,
+                                                                  selections)
+                layout.addWidget(wid)
+        for name, wid in self._aliasWidgets.items():
+            if name not in alias_config:
+                layout.takeAt(layout.indexOf(wid)).widget().deleteLater()
+                del self._aliasWidgets[name]
+        if alias_config:
+            self.aliasGroup.show()
+        else:
+            self.aliasGroup.hide()
+
+    def applyChanges(self):
+        cmd = 'NewSetup'
+        setups, new_basic = self._calculateSetups()
 
         to_add = setups - self._loaded
         to_remove = self._loaded - setups
@@ -360,6 +440,9 @@ class SetupsPanel(Panel, DlgUtils):
             cmd = 'NewSetup'
         if setups:
             self.client.run('%s(%s)' % (cmd, ', '.join(map(repr, setups))))
+        for name, wid in self._aliasWidgets.items():
+            self.client.run('%s.alias = %s' % (name, wid.getSelection()))
+        if setups or self._aliasWidgets:
             self.showInfo('New setups loaded.')
 
 

@@ -21,7 +21,7 @@ devices = dict(
                      ),
 )
 
-startupcode = '''
-T.alias = T_demo
-Ts.alias = T_sample
-'''
+alias_config = [
+    ('T',  'T_demo', 100),
+    ('Ts', 'T_sample', 100),
+]

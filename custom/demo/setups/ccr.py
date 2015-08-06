@@ -1,6 +1,8 @@
 group = 'optional'
 description = 'for testing the frm2.ccr module'
 
+includes = ['cryo']
+
 devices = dict(
     T_stick  = device('devices.generic.VirtualTemperature',
                       description = 'Temperature control of the stick',
@@ -25,3 +27,9 @@ devices = dict(
                       tube = 'T_tube',
                      ),
 )
+
+alias_config = [
+    ('T', 'T_ccr', 150),
+    ('Ts', 'T_stick', 150),
+    ('Ts', 'T_tube', 80),
+]
