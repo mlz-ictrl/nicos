@@ -9,7 +9,7 @@ nethost = 'toftofsrv.toftof.frm2'
 devices = dict(
     T_stick   = device('devices.taco.TemperatureController',
                        description = 'Controller for the sample stick',
-                       tacodevice = '//%s/toftof/ls2/control' % (nethost,),
+                       tacodevice = '//%s/toftof/ls2/control' % nethost,
                        abslimits = (0, 600),
                        unit = 'K',
                        fmtstr = '%.3f',
@@ -19,7 +19,7 @@ devices = dict(
 
     T_tube = device('devices.taco.TemperatureController',
                     description = 'Controller for tube of the CCR',
-                    tacodevice = '//%s/toftof/ls1/control' % (nethost,),
+                    tacodevice = '//%s/toftof/ls1/control' % nethost,
                     abslimits = (0, 600),
                     unit = 'K',
                     fmtstr = '%.3f',
@@ -29,28 +29,28 @@ devices = dict(
 
     T_A = device('devices.taco.TemperatureSensor',
                  description = 'Temperature of the channel A',
-                 tacodevice = '//%s/toftof/ls2/sensora' % (nethost,),
+                 tacodevice = '//%s/toftof/ls2/sensora' % nethost,
                  unit = 'K',
                  fmtstr = '%.3f',
                 ),
 
     T_B = device('devices.taco.TemperatureSensor',
                  description = 'Temperature of the channel B',
-                 tacodevice = '//%s/toftof/ls2/sensorb' % (nethost,),
+                 tacodevice = '//%s/toftof/ls2/sensorb' % nethost,
                  unit = 'K',
                  fmtstr = '%.3f',
                 ),
 
     T_C = device('devices.taco.TemperatureSensor',
                  description = 'Temperature of the channel C',
-                 tacodevice = '//%s/toftof/ls1/sensora' % (nethost,),
+                 tacodevice = '//%s/toftof/ls1/sensora' % nethost,
                  unit = 'K',
                  fmtstr = '%.3f',
                 ),
 
     T_D = device('devices.taco.TemperatureSensor',
                  description = 'Temperature of the channel D',
-                 tacodevice = '//%s/toftof/ls1/sensorb' % (nethost,),
+                 tacodevice = '//%s/toftof/ls1/sensorb' % nethost,
                  unit = 'K',
                  fmtstr = '%.3f',
                 ),
@@ -58,27 +58,29 @@ devices = dict(
     compressor_switch = device('devices.taco.DigitalOutput',
                                description = 'The switch for the compressor',
                                tacodevice = '//%s/toftof/ccr/compressor' % \
-                                            (nethost, ),
+                                            nethost,
                               ),
 
     gas_switch = device('devices.taco.DigitalOutput',
                         description = 'The gas valve of the CCR',
-                        tacodevice = '//%s/toftof/ccr/gas' % (nethost,),
+                        tacodevice = '//%s/toftof/ccr/gas' % nethost,
                        ),
 
     vacuum_switch = device('devices.taco.DigitalOutput',
                            description = 'The vaccuum valve of the CCR',
-                           tacodevice = '//%s/toftof/ccr/vacuum' % (nethost,),
+                           tacodevice = '//%s/toftof/ccr/vacuum' % nethost,
                           ),
 
     _p2 = device('devices.taco.AnalogInput',
                  description = 'Pressure P2 of the CCR',
-                 tacodevice = '//%s/toftof/ccr/p2' % (nethost,),
+                 tacodevice = '//%s/toftof/ccr/p2' % nethost,
                 ),
 )
-
-startupcode = """
-T.alias = T_tube
-Ts.alias = T_B
-AddEnvironment(T, Ts)
-"""
+alias_config = [
+    ('T', 'T_tube', 100),
+    ('T', 'T_stick', 90),
+    ('Ts', 'T_B', 100),
+    ('Ts', 'T_A', 90),
+    ('Ts', 'T_C', 80),
+    ('Ts', 'T_D', 70),
+]

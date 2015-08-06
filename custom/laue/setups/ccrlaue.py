@@ -30,8 +30,10 @@ devices = dict(
                                    ),
 
 )
+alias_config = [
+    ('T', 'T_laue', 100),
+    ('Ts', 'T_laue_B', 100),
+    ('Ts', 'T_laue_A', 90),
+]
 
-startupcode = '''
-T.alias = T_laue
-Ts.alias = T_laue_B
-'''
+

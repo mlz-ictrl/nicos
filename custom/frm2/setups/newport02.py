@@ -4,18 +4,18 @@ group = 'plugplay'
 
 includes = ['alias_sth']
 
-nethost = 'newport02'
+nethost = setupname
 
 devices = {
-    'sth_%s_m' % nethost : device('frm2.newport.Motor',
+    'sth_%s_m' % setupname : device('frm2.newport.Motor',
                                   tacodevice = '//%s/newport/newportmc/motor' % (nethost,),
                                   lowlevel = True,
                                  ),
 
-    'sth_%s' % nethost : device('devices.generic.Axis',
+    'sth_%s' % setupname : device('devices.generic.Axis',
                                 description = 'Newport rotation axis',
-                                motor = 'sth_%s_m' % (nethost,),
-                                coder = 'sth_%s_m' % (nethost,),
+                                motor = 'sth_%s_m' % (setupname,),
+                                coder = 'sth_%s_m' % (setupname,),
                                 fmtstr = '%.3f',
                                 precision = 0.01,
                                 unit = 'deg',
@@ -26,7 +26,6 @@ devices = {
                                 backlash = 0.0,
                                ),
 }
-
-startupcode = """
-sth.alias = sth_%s
-""" % (nethost,)
+alias_config = [
+    ('sth', 'sth_%s' % setupname, 200),
+]

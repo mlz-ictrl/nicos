@@ -109,9 +109,15 @@ devices = {
 #                                ),
 }
 
+alias_config = [
+    ('T', 'T_%s'%setupname, 200),
+    ('T', 'T_%s_stick'%setupname, 150),
+    ('T', 'T_%s_tube'%setupname, 100),
+    ('Ts', 'T_%s_B'%setupname, 100),
+    ('Ts', 'T_%s_A'%setupname, 90),
+    ('Ts', 'T_%s_D'%setupname, 20),
+    ('Ts', 'T_%s_C'%setupname, 10),
+]
 startupcode = """
-T.alias = T_%s
-Ts.alias = T_%s_B
-AddEnvironment(T, Ts)
 printinfo("Please set T_%s.regulationmode to either 'stick' or 'tube' according to your needs.")
-""" % (setupname, setupname, setupname, )
+""" % setupname

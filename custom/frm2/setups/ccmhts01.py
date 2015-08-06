@@ -4,7 +4,7 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-taco_host = 'ccmhts01'
+taco_host = setupname
 
 devices = dict(
     # by convention this needs to be B_%(setupname)s
@@ -15,7 +15,6 @@ devices = dict(
                          abslimits = (-210, 210),
                         ),
 )
-
-startupcode = '''
-B.alias = B_ccmhts01
-'''
+alias_config = [
+    ('B', 'B_ccmhts01', 100),
+]

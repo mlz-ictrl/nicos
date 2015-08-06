@@ -4,21 +4,19 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-nethost = 'irf01'
+nethost = setupname
 
 devices = {
-    'T_%s' % (nethost, ) : device('devices.taco.TemperatureController',
-                                  description = 'The sample temperature',
-                                  tacodevice = '//%s/irf/eurotherm/control' % \
-                                            (nethost, ),
-                                  abslimits = (0, 1200),
-                                  unit = 'C',
-                                  fmtstr = '%.3f',
-                                 ),
+    'T_%s' % setupname : device('devices.taco.TemperatureController',
+                                description = 'The sample temperature',
+                                tacodevice = '//%s/irf/eurotherm/control' % \
+                                             nethost,
+                                abslimits = (0, 1200),
+                                unit = 'C',
+                                fmtstr = '%.3f',
+                               ),
 }
-
-startupcode = """
-Ts.alias = T_%s
-T.alias = T_%s
-AddEnvironment(Ts, T)
-""" % (nethost, nethost, )
+alias_config = [
+    ('T', 'T_%s' % setupname, 100),
+    ('Ts', 'T_%s' % setupname, 100),
+]

@@ -24,8 +24,8 @@ devices = dict(
                       maxage = 6,
                      ),
 )
-
-startupcode = '''
-T.alias = T_cc
-Ts.alias = T_cc_B
-'''
+alias_config = [
+    ('T', 'T_cc', 100),
+    ('Ts', 'T_cc_B', 100),
+    ('Ts', 'T_cc_A', 90),
+]

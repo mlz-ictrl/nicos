@@ -68,7 +68,6 @@ devices = dict(
                            ),
 
 )
-
-startupcode = '''
-B.alias = B_birmag
-'''
+alias_config = [
+    ('B', 'B_birmag', 100),
+]

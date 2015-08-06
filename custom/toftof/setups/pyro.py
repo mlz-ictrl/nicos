@@ -15,8 +15,8 @@ devices = dict(
                  ),
 )
 
-startupcode = """
-T.alias = pyro
-Ts.alias = pyro
-SetEnvironment(T, Ts)
-"""
+alias_config = [
+    ('T', 'pyro', 100),
+    ('Ts', 'pyro', 100),
+]
+

@@ -4,7 +4,7 @@ group = 'plugplay'
 
 includes = ['alias_B']
 
-taco_host = 'amagnet'
+taco_host = setupname
 
 devices = dict(
     amagnet_onoff = device('antares.switches.ToggleSwitch',
@@ -74,7 +74,6 @@ devices = dict(
                          userlimits = (-0.35, 0.35),
                         ),
 )
-
-startupcode = '''
-B.alias = B_amagnet
-'''
+alias_config = [
+    ('B', 'B_amagnet', 100),
+]

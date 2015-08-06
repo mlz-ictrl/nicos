@@ -9,7 +9,7 @@ nethost = 'toftofsrv.toftof.frm2'
 devices = dict(
     oven = device('devices.taco.TemperatureController',
                   description = 'High temperature furnace controller',
-                  tacodevice = '//%s/toftof/htf/control' % (nethost, ),
+                  tacodevice = '//%s/toftof/htf/control' % nethost,
                   userlimits = (0, 2000),
                   abslimits = (0, 2000),
                   ramp = 0.1,
@@ -17,9 +17,7 @@ devices = dict(
                   fmtstr = '%.3f',
                  ),
 )
-
-startupcode = """
-Ts.alias = oven
-T.alias = oven
-AddEnvironment(Ts, T)
-"""
+alias_config = [
+    ('T', 'oven', 0),
+    ('Ts', 'oven', 0),
+]

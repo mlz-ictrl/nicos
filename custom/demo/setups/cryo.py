@@ -25,3 +25,6 @@ alias_config = [
     ('T',  'T_demo', 100),
     ('Ts', 'T_sample', 100),
 ]
+startup_code = """
+AddEnvironment(T, Ts)
+"""

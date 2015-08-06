@@ -17,9 +17,8 @@ devices = dict(
                       fmtstr = '%.0f',
                      ),
 )
-startupcode = """
-T.alias = T_manual
-Ts.alias = T_manual
-AddEnvironment(T, Ts)
-"""
+alias_config = [
+    ('T', 'T_manual', 80),
+    ('Ts', 'T_manual', 80),
+]
 

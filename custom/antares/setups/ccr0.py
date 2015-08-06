@@ -61,8 +61,10 @@ devices = dict(
                                     tacodevice = '//antaressrv/antares/ccr/vacuum',
                                    ),
 )
-
-startupcode = '''
-T.alias = T_ccr0
-Ts.alias = T_ccr0_A
-'''
+alias_config = [
+    ('T', 'T_ccr0',  100),
+    ('Ts', 'T_ccr0_A', 100),
+    ('Ts', 'T_ccr0_B', 90),
+    ('Ts', 'T_ccr0_C', 80),
+    ('Ts', 'T_ccr0_D', 70),
+]

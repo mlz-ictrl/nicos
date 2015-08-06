@@ -1,6 +1,7 @@
 description = 'plug-and-play magnet sample environment'
 group = 'optional'
 
+includes = ['alias_B']
 
 devices = dict(
     B_virt            = device('devices.generic.VirtualMotor',
@@ -52,3 +53,9 @@ devices = dict(
                                abslimits = (-0.5, 0.5),
                               ),
 )
+alias_config = [
+    ('B', 'B_mira', 100),
+    ('B', 'B_garfield', 99),
+    ('B', 'B_virt', 0),
+]
+

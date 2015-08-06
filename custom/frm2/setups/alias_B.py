@@ -4,6 +4,9 @@ group = 'lowlevel'
 includes = []
 
 devices = dict(
-
     B = device('devices.generic.DeviceAlias'),
 )
+
+startupcode = """
+AddEnvironment(B)
+"""
