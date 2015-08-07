@@ -1,8 +1,5 @@
 description = 'cpu load device'
-
-group = 'lowlevel'
-
-includes = []
+group = 'optional'
 
 devices = dict(
     cpuload = device('demo.cpuload.CPULoad',

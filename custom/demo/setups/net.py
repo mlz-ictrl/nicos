@@ -1,8 +1,5 @@
 description = 'networking transfer device'
-
-group = 'lowlevel'
-
-includes = []
+group = 'optional'
 
 devices = dict(
     net_RX = device('demo.net.Network',
