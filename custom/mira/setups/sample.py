@@ -1,6 +1,8 @@
 description = 'sample table'
 group = 'lowlevel'
 
+includes = ['alias_sth']
+
 devices = dict(
     phi      = device('devices.taco.HoveringAxis',
                       description = 'sample two-theta angle',
@@ -65,3 +67,7 @@ devices = dict(
                       fmtstr = '%.2f',
                      ),
 )
+
+alias_config = [
+    ('sth', 'om', 0),
+]

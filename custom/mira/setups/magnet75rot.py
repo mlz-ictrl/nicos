@@ -52,7 +52,7 @@ devices = dict(
                       backlash = -1,
                      ),
 )
+
 alias_config = [
     ('sth', 'sth_B7T5', 200),
 ]
-
