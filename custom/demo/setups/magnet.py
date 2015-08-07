@@ -53,9 +53,9 @@ devices = dict(
                                abslimits = (-0.5, 0.5),
                               ),
 )
+
 alias_config = [
     ('B', 'B_mira', 100),
     ('B', 'B_garfield', 99),
     ('B', 'B_virt', 0),
 ]
-
