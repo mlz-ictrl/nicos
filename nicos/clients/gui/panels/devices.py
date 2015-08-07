@@ -583,6 +583,7 @@ class ControlDialog(QDialog):
         self.paramvalues = dict(params)
 
         # put parameter values in the list widget
+        self.paramItems.clear()
         self.paramList.clear()
         for key, value in sorted(iteritems(params)):
             if self.paraminfo.get(key):
