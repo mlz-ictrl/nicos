@@ -37,8 +37,6 @@ class Network(Readable):
     parameters = {
         'interval':  Param('interval for load detection', type=floatrange(0.1, 60),
                            default=0.1, settable=True,),
-        'interface': Param('network interface device', type=str,
-                           default='lo', settable=False,),
         'direction': Param('transport direction', type=oneof('tx', 'rx'),
                            default='tx', settable=True,),
         'lastvalue': Param('last obtained value', type=float,
@@ -65,7 +63,7 @@ class Network(Readable):
         return status.OK, ''
 
     def _getData(self):
-        data = psutil.net_io_counters(True)[self.interface]
+        data = psutil.net_io_counters()
         return data.bytes_sent if self.direction == 'tx' else data.bytes_recv
 
     def _run(self):
