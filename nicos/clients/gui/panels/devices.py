@@ -28,13 +28,12 @@ from logging import WARNING
 
 from PyQt4.QtGui import QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
-    QDialog, QMessageBox, QPushButton
+    QDialog, QMessageBox, QPushButton, QComboBox
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig, QRegExp, \
     QByteArray
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN
-from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit, \
-    DeviceComboWidget
+from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, ScriptExecQuestion
@@ -232,7 +231,6 @@ class DevicesPanel(Panel):
                 continue
             if setupname not in loaded_setups:
                 continue
-            #setupname = key.split('/')[1]
             for devname in info['devices']:
                 self._dev2setup[devname] = setupname
 
@@ -609,13 +607,14 @@ class ControlDialog(QDialog):
             if params['alias']:
                 self.deviceName.setText(self.deviceName.text() +
                                         ' (alias for %s)' % params['alias'])
-
-            needs_class = params.get('devclass', 'nicos.core.device.Device')
-            # backwards compatibility
-            if needs_class == 'nicos.core.Device':
-                needs_class = 'nicos.core.device.Device'
-            self.aliasTarget = DeviceComboWidget(
-                self, params['alias'] or '', self.client, needs_class)
+            alias_config = self.client.eval('session.alias_config')
+            self.aliasTarget = QComboBox(self)
+            self.aliasTarget.setEditable(True)
+            if self.devname in alias_config:
+                items = [t[0] for t in alias_config[self.devname]]
+                self.aliasTarget.addItems(items)
+                if params['alias'] in items:
+                    self.aliasTarget.setCurrentIndex(items.index(params['alias']))
             self.targetLayoutAlias.takeAt(1).widget().deleteLater()
             self.targetLayoutAlias.insertWidget(1, self.aliasTarget)
         else:
@@ -773,7 +772,7 @@ class ControlDialog(QDialog):
     @qtsig('')
     def on_setAliasBtn_clicked(self):
         self.device_panel.exec_command(
-            '%s.alias = %r' % (self.devname, self.aliasTarget.getValue()),
+            '%s.alias = %r' % (self.devname, self.aliasTarget.currentText()),
             self.devname)
 
     def closeEvent(self, event):
