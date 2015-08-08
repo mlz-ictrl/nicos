@@ -25,7 +25,11 @@
 """NICOS demo class displaying the network traffic"""
 
 import time
-import psutil
+try:
+    from psutil import net_io_counters
+except ImportError:
+    from psutil import network_io_counters as net_io_counters
+
 from nicos import session
 from nicos.core import status, Readable, Param, POLLER, SIMULATION
 from nicos.core.params import oneof, floatrange
@@ -35,8 +39,12 @@ from nicos.utils import createThread
 class Network(Readable):
 
     parameters = {
-        'interval':  Param('interval for load detection', type=floatrange(0.1, 60),
-                           default=0.1, settable=True,),
+        'interval':  Param('interval for load detection',
+                           type=floatrange(0.1, 60), default=0.1,
+                           settable=True,),
+        'interface': Param('network interface device (None=all)',
+                           type=oneof(None, *net_io_counters(True).keys()),
+                           default=None, settable=True,),
         'direction': Param('transport direction', type=oneof('tx', 'rx'),
                            default='tx', settable=True,),
         'lastvalue': Param('last obtained value', type=float,
@@ -63,7 +71,10 @@ class Network(Readable):
         return status.OK, ''
 
     def _getData(self):
-        data = psutil.net_io_counters()
+        if not self.interface:
+            data = net_io_counters()
+        else:
+            data = net_io_counters(True)[self.interface]
         return data.bytes_sent if self.direction == 'tx' else data.bytes_recv
 
     def _run(self):
