@@ -26,15 +26,15 @@
 
 import time
 
-from nicos.core import Moveable, Readable, NicosError, Param
+from nicos.core import Moveable, Readable, NicosError, Param, Attach
 
 
 class SH_Cylinder(Moveable):
 
     attached_devices = {
-        'io_ref':    (Readable, 'limit switches'),
-        'io_air':    (Moveable, 'air in the open/close direction'),
-        'io_pos':    (Moveable, 'position stop, if in closed position, -1'),
+        'io_ref':    Attach('limit switches', Readable),
+        'io_air':    Attach('air in the open/close direction', Moveable),
+        'io_pos':    Attach('position stop, if in closed position, -1', Moveable),
     }
 
     parameters = {

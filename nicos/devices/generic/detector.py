@@ -211,7 +211,7 @@ class DetectorForecast(Readable):
     """
 
     attached_devices = {
-        'det':  (MultiChannelDetector, 'The detector to forecast values.'),
+        'det':  Attach('The detector to forecast values.', MultiChannelDetector),
     }
 
     parameter_overrides = {

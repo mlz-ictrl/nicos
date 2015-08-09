@@ -28,7 +28,7 @@ from nicos import session
 from nicos.core import ADMIN, AccessError, CommunicationError, \
     ConfigurationError, Device, HasCommunication, HasLimits, HasOffset, \
     LimitError, Moveable, Param, ProgrammingError, UsageError, requires, status, \
-    usermethod
+    usermethod, Attach
 from nicos.core.sessions.utils import MAINTENANCE
 from test.utils import raises
 
@@ -50,7 +50,9 @@ class Dev1(Device):
 
 
 class Dev2(HasLimits, HasOffset, Moveable):
-    attached_devices = {'attached': (Dev1, 'Test attached device')}
+    attached_devices = {
+        'attached': Attach('Test attached device', Dev1),
+    }
     parameters = {
         'param1': Param('An optional parameter', type=int, default=42),
         'param2': Param('A mandatory parameter', type=int, mandatory=True,

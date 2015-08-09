@@ -33,7 +33,7 @@ import threading
 import collections
 
 from nicos import nicos_version
-from nicos.core import listof, Device, Param, ConfigurationError, host
+from nicos.core import listof, Device, Param, ConfigurationError, host, Attach
 from nicos.utils import closeSocket, createThread
 from nicos.pycompat import get_thread_id, queue, socketserver, listitems
 from nicos.services.daemon.auth import Authenticator
@@ -140,8 +140,9 @@ class NicosDaemon(Device):
     """
 
     attached_devices = {
-        'authenticators': ([Authenticator], 'The authenticator devices to use '
-                           'for validating users and passwords'),
+        'authenticators': Attach('The authenticator devices to use for '
+                                 'validating users and passwords',
+                                 Authenticator, multiple=True),
     }
 
     parameters = {

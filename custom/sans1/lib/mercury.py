@@ -32,7 +32,7 @@ from nicos.core import Moveable, HasLimits, Param, Override, \
      floatrange, status, oneof, CommunicationError, InvalidValueError, \
      ConfigurationError
 from nicos.devices.taco.core import TacoDevice
-from nicos.core import SIMULATION
+from nicos.core import Attach, SIMULATION
 
 
 class OxfordMercury(HasLimits, TacoDevice, Moveable):
@@ -130,8 +130,8 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
     hardware_access = False
 
     attached_devices = {
-        'ps1':   (OxfordMercury, 'First power supply (more current)'),
-        'ps2':   (OxfordMercury, 'Second power supply (less current)'),
+        'ps1':   Attach('First power supply (more current)', OxfordMercury),
+        'ps2':   Attach('Second power supply (less current)', OxfordMercury),
     }
 
     # see Magnet handbook table 9.4.1.4

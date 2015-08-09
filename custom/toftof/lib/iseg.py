@@ -26,7 +26,7 @@
 
 from nicos.core import status, intrange, Moveable, HasLimits, Param, Override,\
      NicosError, CommunicationError
-from nicos.core import SIMULATION
+from nicos.core import Attach, SIMULATION
 
 from nicos.devices.vendor.toni import ModBus
 
@@ -35,7 +35,7 @@ class Voltage(HasLimits, Moveable):
     """Iseg high voltage power supply in Toni crate."""
 
     attached_devices = {
-        'bus':   (ModBus, 'Toni communication bus'),
+        'bus':   Attach('Toni communication bus', ModBus),
     }
 
     parameters = {

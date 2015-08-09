@@ -24,7 +24,8 @@
 
 """Generic device class for "moving" a parameter of another device."""
 
-from nicos.core import Device, Moveable, Readable, Param, Override, status
+from nicos.core import Device, Moveable, Readable, Param, Override, status, \
+    Attach
 
 
 class ReadonlyParamDevice(Readable):
@@ -35,7 +36,8 @@ class ReadonlyParamDevice(Readable):
     hardware_access = False
 
     attached_devices = {
-        'device':  (Device, 'The device to control the selected parameter'),
+        'device':  Attach('The device to control the selected parameter',
+                          Device),
     }
 
     parameters = {

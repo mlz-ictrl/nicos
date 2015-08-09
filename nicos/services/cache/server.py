@@ -41,7 +41,7 @@ import threading
 from time import time as currenttime, sleep
 
 from nicos import session, config
-from nicos.core import Device, Param, host
+from nicos.core import Device, Param, host, Attach
 from nicos.utils import loggers, closeSocket, createThread
 from nicos.pycompat import queue, listitems, listvalues, from_utf8, to_utf8
 
@@ -314,7 +314,7 @@ class CacheServer(Device):
     }
 
     attached_devices = {
-        'db':       (CacheDatabase, 'The cache database instance'),
+        'db': Attach('The cache database instance', CacheDatabase),
     }
 
     def doInit(self, mode):

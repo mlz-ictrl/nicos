@@ -25,23 +25,23 @@
 """Monochromator changer"""
 import time
 from nicos import session
-from nicos.core import PositionError, Moveable, Readable, Param, \
+from nicos.core import PositionError, Moveable, Readable, Param, Attach, \
     oneof, dictof, anytype, multiWait
 
 
 class Mchanger(Moveable):
 
     attached_devices = {
-        'monochromator': (Moveable, 'Monochromator'),
-        'magazin':(Moveable, 'Magazin'),
-        'r3': (Moveable, '3R coupling'),
-        'lift': (Moveable, 'Lift'),
-        'grip': (Moveable, 'Greifer'),
-        'mlock': (Moveable, 'Magnetic lock'),
-        'holdstat': (Readable, 'Read status of monochromators holders of the magazin'),
-#        'foch': (Moveable, 'Horizontal focusing'),
-#        'focv': (Moveable, 'Vertical focusing'),
-        'mono_stat': (Readable, 'Read status of monochromators on the monotable'),
+        'monochromator': Attach('Monochromator', Moveable),
+        'magazin': Attach('Magazin', Moveable),
+        'r3': Attach('3R coupling', Moveable),
+        'lift': Attach('Lift', Moveable),
+        'grip': Attach('Greifer', Moveable),
+        'mlock': Attach('Magnetic lock', Moveable),
+        'holdstat': Attach('Read status of monochromators holders of the magazin', Readable),
+#        'foch': Attach('Horizontal focusing', Moveable),
+#        'focv': Attach('Vertical focusing', Moveable),
+        'mono_stat': Attach('Read status of monochromators on the monotable', Readable),
     }
 
     parameters = {

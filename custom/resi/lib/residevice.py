@@ -35,7 +35,7 @@ import math
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/home/pedersen/Eclispe_projects/nonius_new/app')
 
-from nicos.core import Moveable, Param  #@UnusedImport  pylint: disable=W0611
+from nicos.core import Moveable, Param, Attach  #@UnusedImport  pylint: disable=W0611
 from nicos.devices.sample import Sample
 from nicos.core import vec3
 
@@ -135,14 +135,18 @@ class ResiDevice(Moveable):
         '''
         return self._hardware.getScanDataset(**kw)
 
+
 class ResiVAxis(Moveable):
     """ResiVAxis: Virtual single axes for RESI
 
     this device exports a single axis from the resi device
-
     """
-    attached_devices = { 'basedevice': (ResiDevice, 'the base device')}
-    parameters = {'mapped_axis': Param('Mapped axis', type=str, mandatory=True)}
+    attached_devices = {
+        'basedevice': Attach('the base device', ResiDevice)
+    }
+    parameters = {
+        'mapped_axis': Param('Mapped axis', type=str, mandatory=True)
+    }
     def doStart(self, value):
         self._adevs['basedevice'].doStart({self.mapped_axis:value})
     def doRead(self, maxage=0):
@@ -150,6 +154,7 @@ class ResiVAxis(Moveable):
     def doIsCompleted(self):
         # the moves are currently blocking due to restrictions in the underlying hardware access layer.
         return True
+
 
 class ResiSample(Sample):
     """Cell object representing sample geometry."""

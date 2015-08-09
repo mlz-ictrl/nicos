@@ -30,7 +30,7 @@ from IO import StringIO
 
 from nicos.core import status, Moveable, Readable, HasLimits, Override, Param, \
     CommunicationError, HasPrecision, HasTimeout, InvalidValueError, \
-    listof, limits, HasCommunication
+    listof, limits, HasCommunication, Attach
 from nicos.devices.taco.core import TacoDevice
 
 FSEP = '#'  # separator for fields in reply ("/" in manual, "#" in reality)
@@ -114,7 +114,7 @@ class SelectorSpeed(HasCommunication, HasLimits, HasPrecision, HasTimeout, Movea
     }
 
     attached_devices = {
-        'statedev': (SelectorState, 'The device to get all values from'),
+        'statedev': Attach('The device to get all values from', SelectorState),
     }
 
     valuetype = int
@@ -195,7 +195,7 @@ class SelectorValue(Readable):
     }
 
     attached_devices = {
-        'statedev': (SelectorState, 'The device to get all values from'),
+        'statedev': Attach('The device to get all values from', SelectorState),
     }
 
     def doRead(self, maxage=0):
@@ -223,7 +223,7 @@ class SelectorLambda(Moveable):
     }
 
     attached_devices = {
-        'seldev': (Moveable, 'The selector speed device'),
+        'seldev': Attach('The selector speed device', Moveable),
     }
 
     hardware_access = False

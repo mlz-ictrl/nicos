@@ -26,7 +26,7 @@
 Supporting classes for FRM2 magnets (Garfield, MiraMagnet, ...)
 """
 
-from nicos.core import Moveable
+from nicos.core import Moveable, Attach
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqSleep
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet
 
@@ -43,8 +43,8 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
     """
 
     attached_devices = {
-        'onoffswitch': (Moveable, 'Switch to set for on/off'),
-        'polswitch':   (Moveable, 'Switch to set for polarity'),
+        'onoffswitch': Attach('Switch to set for on/off', Moveable),
+        'polswitch':   Attach('Switch to set for polarity', Moveable),
     }
 
     def _get_field_polarity(self):
@@ -86,7 +86,7 @@ class MiraMagnet(BipolarSwitchingMagnet):
     """
 
     attached_devices = {
-        'switch':  (Moveable, 'Switch to plus/minus polarity'),
+        'switch':  Attach('Switch to plus/minus polarity', Moveable),
     }
 
     def _get_field_polarity(self):

@@ -27,7 +27,7 @@
 from time import sleep
 
 from nicos.core import status, oneof, HasLimits, Moveable, Readable, Param, \
-    Override, MASTER
+    Override, MASTER, Attach
 from nicos.devices.taco import AnalogOutput
 from nicos.utils import createThread
 
@@ -61,8 +61,8 @@ class RFCurrent(HasLimits, Moveable):
     """
 
     attached_devices = {
-        'amplitude': (Moveable, 'The frequency generator amplitude'),
-        'readout':   (Readable, 'The current readout'),
+        'amplitude': Attach('The frequency generator amplitude', Moveable),
+        'readout':   Attach('The current readout', Readable),
     }
 
     parameters = {

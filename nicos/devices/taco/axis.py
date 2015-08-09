@@ -30,7 +30,7 @@ from time import sleep
 import TACOStates
 from Motor import Motor as TACOMotor
 
-from nicos.core import ModeError, Moveable, Param, SLAVE, anytype, \
+from nicos.core import ModeError, Moveable, Param, Attach, SLAVE, anytype, \
     oneof, requires, status, tupleof, usermethod
 from nicos.devices.abstract import Axis as BaseAxis, CanReference
 from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqSleep, SeqCall
@@ -197,7 +197,7 @@ class HoveringAxis(SequencerMixin, Axis):
     """An axis that also controls air for airpads."""
 
     attached_devices = {
-        'switch': (Moveable, 'The device used for switching air on and off'),
+        'switch': Attach('The device used for switching air on and off', Moveable),
     }
 
     parameters = {

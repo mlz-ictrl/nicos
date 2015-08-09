@@ -30,7 +30,7 @@ from numpy import array, cross, dot, cos, sin, sqrt, arctan2, zeros, identity
 from numpy.linalg import inv, norm
 
 from nicos.core import Moveable, Param, Override, NicosError, vec3, tupleof, \
-    ComputationError, usermethod, multiStatus
+    ComputationError, usermethod, multiStatus, Attach
 from nicos.devices.tas.cell import Cell, D2R
 
 
@@ -52,10 +52,10 @@ class EulerianCradle(Moveable):
     """
 
     attached_devices = {
-        'cell':  (Cell, 'The sample cell object to modify'),
-        'tas':   (Moveable, 'Triple-axis device (to get scattering sense)'),
-        'chi':   (Moveable, 'Eulerian chi axis'),
-        'omega': (Moveable, 'Eulerian omega axis (smallest circle)'),
+        'cell':  Attach('The sample cell object to modify', Cell),
+        'tas':   Attach('Triple-axis device (to get scattering sense)', Moveable),
+        'chi':   Attach('Eulerian chi axis', Moveable),
+        'omega': Attach('Eulerian omega axis (smallest circle)', Moveable),
     }
 
     parameters = {

@@ -23,7 +23,7 @@
 
 import time
 
-from nicos.core import Param, status
+from nicos.core import Param, Attach, status
 from nicos.devices.generic import Switcher
 from nicos.devices.vendor.lima import Andor2LimaCCD
 
@@ -38,7 +38,7 @@ class AntaresIkonLCCD(Andor2LimaCCD):
     """
 
     attached_devices = {
-        'fastshutter': (Switcher, 'Fast shutter switcher device'),
+        'fastshutter': Attach('Fast shutter switcher device', Switcher),
     }
 
     parameters = {

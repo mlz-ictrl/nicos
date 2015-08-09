@@ -24,7 +24,7 @@
 
 """PANDA Beryllium filter readout."""
 
-from nicos.core import Param, Override, status, oneof, Readable
+from nicos.core import Param, Override, status, oneof, Readable, Attach
 from nicos.devices.taco import AnalogInput
 
 from nicos.panda.wechsler import Beckhoff
@@ -33,7 +33,7 @@ from nicos.panda.wechsler import Beckhoff
 class KL320xTemp(Readable):
 
     attached_devices = {
-        'beckhoff': (Beckhoff,'X'),
+        'beckhoff': Attach('X', Beckhoff),
     }
 
     parameters = {
@@ -42,7 +42,7 @@ class KL320xTemp(Readable):
     }
 
     parameter_overrides = {
-        'unit': Override(type=oneof('K','°C', 'Ohm')),
+        'unit': Override(type=oneof('K', '°C', 'Ohm')),
         'fmtstr': Override(default='%4.1f', settable=False),
     }
 

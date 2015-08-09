@@ -27,12 +27,12 @@
 from time import time as currenttime
 from numpy import random
 
-from nicos.core import Readable, Measurable, Param, Value, status
+from nicos.core import Readable, Measurable, Param, Value, Attach, status
 
 
 class VirtualTasDetector(Measurable):
     attached_devices = {
-        'tas': (Readable, 'TAS device to read'),
+        'tas': Attach('TAS device to read', Readable),
     }
 
     parameters = {

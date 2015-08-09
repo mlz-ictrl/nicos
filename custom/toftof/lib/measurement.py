@@ -32,7 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import Measurable, Device, Param, Value, Override, NicosError, \
-    intrange, listof, status, ImageProducer
+    intrange, listof, status, ImageProducer, Attach
 from nicos.pycompat import string_types, from_maybe_utf8
 
 from nicos.devices.vendor.toni import DelayBox
@@ -49,9 +49,9 @@ class TofTofMeasurement(ImageProducer, Measurable):
     """
 
     attached_devices = {
-        'counter': (TofCounter, 'The TOF counter'),
-        'chopper': (Controller, 'The chopper controller'),
-        'chdelay': (DelayBox, 'Setting chopper delay'),
+        'counter': Attach('The TOF counter', TofCounter),
+        'chopper': Attach('The chopper controller', Controller),
+        'chdelay': Attach('Setting chopper delay', DelayBox),
     }
 
     parameters = {

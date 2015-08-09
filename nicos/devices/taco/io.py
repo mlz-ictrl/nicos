@@ -27,7 +27,7 @@
 import IO
 
 from nicos.core import dictof, Readable, Moveable, HasLimits, Param, Override, \
-    NicosError, oneof, oneofdict, tupleof
+    NicosError, oneof, oneofdict, tupleof, Attach
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -230,8 +230,8 @@ class MultiDigitalOutput(Moveable):
     """Writes the same value to multiple digital outputs at once."""
 
     attached_devices = {
-        'outputs': ([DigitalOutput], 'A list of digital outputs to '
-                    'switch simultaneously'),
+        'outputs': Attach('A list of digital outputs to switch '
+                          'simultaneously', DigitalOutput, multiple=True),
     }
 
     valuetype = int

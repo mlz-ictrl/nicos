@@ -27,7 +27,7 @@
 from time import sleep, time as currenttime
 
 from nicos.core import status, oneof, Device, Param, Override, NicosError, \
-    ProgrammingError, MoveError, HasTimeout
+    ProgrammingError, MoveError, HasTimeout, Attach
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.generic.axis import Axis
@@ -82,7 +82,7 @@ class S7Coder(NicosCoder):
     }
 
     attached_devices = {
-        'bus': (S7Bus, 'S7 communication bus'),
+        'bus': Attach('S7 communication bus', S7Bus),
     }
 
     def doRead( self, maxage=0 ):
@@ -117,7 +117,7 @@ class S7Motor(HasTimeout, NicosMotor):
     }
 
     attached_devices = {
-        'bus': (S7Bus, 'S7 communication bus'),
+        'bus': Attach('S7 communication bus', S7Bus),
     }
 
     _last_warning = 0

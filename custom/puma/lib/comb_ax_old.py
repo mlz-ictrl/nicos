@@ -27,13 +27,13 @@ the incoming beam.
 For example, when the magnet is used
 """
 
-from nicos.core import Moveable, Param, status
+from nicos.core import Moveable, Param, Attach, status
 
 class CombAxis(Moveable):
 
     attached_devices = {
-        'main_ax':      (Moveable, 'moving axis'),
-        'fix_ax': (Moveable, 'axis that moves back'),
+        'main_ax': Attach('moving axis', Moveable),
+        'fix_ax': Attach('axis that moves back', Moveable),
     }
 
     parameters = {

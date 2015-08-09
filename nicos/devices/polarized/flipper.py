@@ -26,7 +26,7 @@
 """Spin flipper classes."""
 
 from nicos.core import Moveable, Param, Override, oneof, tupleof, multiStop, \
-     nonemptylistof
+     nonemptylistof, Attach
 
 ON = 'on'
 OFF = 'off'
@@ -39,8 +39,8 @@ class BaseFlipper(Moveable):
     hardware_access = False
 
     attached_devices = {
-        'flip': (Moveable, 'flipping current'),
-        'corr': (Moveable, 'correction current, compensating the ext. field'),
+        'flip': Attach('flipping current', Moveable),
+        'corr': Attach('correction current, compensating the ext. field', Moveable),
     }
 
     parameter_overrides = {
@@ -91,8 +91,8 @@ class KFlipper(BaseFlipper):
     depending on the location of the spinflipper.
     """
     attached_devices = {
-        'kvalue' : (Moveable, 'Device reading current k value, needed for '
-                                  'calculation of flipping current.'),
+        'kvalue' : Attach('Device reading current k value, needed for '
+                          'calculation of flipping current.', Moveable),
     }
 
     parameters = {

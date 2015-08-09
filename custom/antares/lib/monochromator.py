@@ -28,7 +28,7 @@ from math import asin, sin, tan, radians, degrees
 
 from nicos.utils import lazy_property
 from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
-     Override, status, none_or, dictof, anytype, oneof
+     Override, Attach, status, none_or, dictof, anytype, oneof
 from nicos.core.utils import multiStatus
 
 class Monochromator(HasLimits, Moveable):
@@ -41,10 +41,10 @@ class Monochromator(HasLimits, Moveable):
     CHECK THE FORMULAS!
     """
     attached_devices = {
-        'phi1'         : (Moveable, 'monochromator rotation 1'),
-        'phi2'         : (Moveable, 'monochromator rotation 2'),
-        'translation'  : (Moveable, 'monochromator translation'),
-        'inout'        : (Moveable, 'monochromator inout device'),
+        'phi1'         : Attach('monochromator rotation 1', Moveable),
+        'phi2'         : Attach('monochromator rotation 2', Moveable),
+        'translation'  : Attach('monochromator translation', Moveable),
+        'inout'        : Attach('monochromator inout device', Moveable),
     }
 
     parameters = {

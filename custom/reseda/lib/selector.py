@@ -26,7 +26,7 @@
 
 from IO import StringIO
 
-from nicos.core import Readable, Override, status
+from nicos.core import Readable, Override, Attach, status
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -53,8 +53,8 @@ class Selector(TacoDevice, Readable):
 class Wavelength(Readable):
 
     attached_devices = {
-        'selector': (Readable, 'to calculate the wavelength'),
-        'tiltangle': (Readable, 'calculation')
+        'selector': Attach('to calculate the wavelength', Readable),
+        'tiltangle': Attach('calculation', Readable)
     }
 
     parameter_overrides = {

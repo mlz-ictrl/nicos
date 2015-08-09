@@ -31,7 +31,7 @@ from IO import StringIO
 
 from nicos.core import status, intrange, oneofdict, Device, Moveable, Override, \
      Param, NicosError, CommunicationError, ProgrammingError, HasTimeout, \
-     TimeoutError
+     TimeoutError, Attach
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -109,7 +109,7 @@ class RadialCollimator(HasTimeout, Moveable):
     """Start/Stop movement of radial collimator"""
 
     attached_devices = {
-        'bus': (ModBusDriverHP, 'Serial communication bus'),
+        'bus': Attach('Serial communication bus', ModBusDriverHP),
     }
 
     parameters = {

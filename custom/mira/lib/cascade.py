@@ -36,7 +36,7 @@ from nicos.core import status, tupleof, listof, oneof, Param, Override, Value, \
 from nicos.devices.generic import MultiChannelDetector
 from nicos.devices.tas.mono import to_k, from_k
 from nicos.devices.fileformats.raw import SingleRAWFileFormat
-from nicos.core import SIMULATION
+from nicos.core import Attach, SIMULATION
 
 import nicoscascadeclient as cascadeclient  # pylint: disable=F0401
 
@@ -81,10 +81,10 @@ class MiraXMLFormat(ImageSink):
     }
 
     attached_devices = {
-        'master':    (MultiChannelDetector, 'Master to control measurement time'
-                      ' in slave mode and to read monitor counts'),
-        'mono':      (Monochromator, 'Monochromator device to read out'),
-        'sampledet': (Readable, 'Sample-detector distance readout'),
+        'master':    Attach('Master to control measurement time in slave mode '
+                            'and to read monitor counts', MultiChannelDetector),
+        'mono':      Attach('Monochromator device to read out', Monochromator),
+        'sampledet': Attach('Sample-detector distance readout', Readable),
     }
 
     parameter_overrides = {
@@ -125,8 +125,8 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
     # XXX rework timeout mechanism with HasTimeout
 
     attached_devices = {
-        'master':    (MultiChannelDetector, 'Master to control measurement time'
-                      ' in slave mode and to read monitor counts'),
+        'master':    Attach('Master to control measurement time in slave mode '
+                            'and to read monitor counts', MultiChannelDetector),
     }
 
     parameters = {

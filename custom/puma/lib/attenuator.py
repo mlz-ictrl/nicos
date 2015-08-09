@@ -27,7 +27,7 @@
 import time
 
 from nicos.core import Moveable, Readable, status, NicosError, HasLimits
-from nicos.core import SIMULATION
+from nicos.core import Attach, SIMULATION
 
 
 class Attenuator(HasLimits, Moveable):
@@ -35,9 +35,9 @@ class Attenuator(HasLimits, Moveable):
     # XXX rework this as it is basically a MultiSwitcher with a blocking start
 
     attached_devices = {
-        'io_status':    (Readable, 'readout for the status'),
-        'io_set':       (Moveable, 'output to set'),
-        'io_press':     (Readable, '...'),
+        'io_status': Attach('readout for the status', Readable),
+        'io_set':    Attach('output to set', Moveable),
+        'io_press':  Attach('...', Readable),
     }
 
     def doInit(self, mode):

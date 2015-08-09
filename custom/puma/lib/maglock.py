@@ -27,16 +27,17 @@
 
 import time
 
-from nicos.core import Moveable, Readable, status, NicosError, oneof, Param, listof
+from nicos.core import Moveable, Readable, status, NicosError, oneof, Param, \
+    Attach, listof
 
 
 class MagLock(Moveable):
 
     attached_devices = {
-        'magazin': (Moveable, 'The monochromator magazin'),
-        'io_open': (Readable, 'readout for the status'),
-        'io_closed': (Readable, 'readout for the status'),
-        'io_set': (Moveable, 'output to set'),
+        'magazin': Attach('The monochromator magazin', Moveable),
+        'io_open': Attach('readout for the status', Readable),
+        'io_closed': Attach('readout for the status', Readable),
+        'io_set': Attach('output to set', Moveable),
     }
 
     valuetype = oneof('open', 'closed')

@@ -56,7 +56,7 @@
 import numpy as np
 
 from nicos.utils import lazy_property
-from nicos.core import Param, Override, LimitError, multiWait
+from nicos.core import Param, Override, LimitError, multiWait, Attach
 from nicos.core.params import floatrange, tupleof
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.abstract import MappedMoveable
@@ -124,8 +124,10 @@ class GuideField(MappedMoveable):
     a given current needs the alpha-virtualmotor for calculations
     """
     attached_devices = {
-        'alpha' : (AlphaStorage, 'Device which provides the current \\alpha'),
-        'coils' : ([VectorCoil], 'List of 3 devices used for the vector field'),
+        'alpha' : Attach('Device which provides the current \\alpha',
+                         AlphaStorage),
+        'coils' : Attach('List of 3 devices used for the vector field',
+                         VectorCoil, multiple=(3, 3)),
     }
     parameter_overrides = {
         'mapping'   : Override(mandatory=False, type=dict,

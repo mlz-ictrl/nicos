@@ -24,7 +24,7 @@
 
 """The NICOS cache collector daemon."""
 
-from nicos.core import Override
+from nicos.core import Override, Attach
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD
 from nicos.devices.cacheclient import BaseCacheClient
 
@@ -46,7 +46,7 @@ class GlobalCache(BaseCacheClient):
 class Collector(BaseCacheClient):
 
     attached_devices = {
-        'globalcache':  (GlobalCache, 'The cache to submit keys to'),
+        'globalcache':  Attach('The cache to submit keys to', GlobalCache),
     }
 
     parameter_overrides = {

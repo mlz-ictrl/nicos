@@ -29,7 +29,7 @@
 from math import tan, radians
 
 from nicos.core import Moveable, HasPrecision, Param, Value, Override, oneof, \
-    AutoDevice, tupleof, dictof, multiWait, multiReset, ProgrammingError
+    AutoDevice, tupleof, dictof, multiWait, multiReset, ProgrammingError, Attach
 from nicos.utils import lazy_property
 from nicos.devices.abstract import CanReference
 
@@ -82,8 +82,8 @@ class Slit(CanReference, Moveable):
     """
 
     attached_devices = {
-        'first':   (HasPrecision, 'First Blade (normally also used for top)'),
-        'second':  (HasPrecision, 'Second Blade (normally also used for bottom)'),
+        'first':   Attach('First Blade (normally also used for top)', HasPrecision),
+        'second':  Attach('Second Blade (normally also used for bottom)', HasPrecision),
     }
 
     parameters = {
@@ -324,7 +324,7 @@ class SlitAxis(AutoDevice, Moveable):
     """
 
     attached_devices = {
-        'slit': (Slit, 'Slit whose axis is controlled'),
+        'slit': Attach('Slit whose axis is controlled', Slit),
     }
 
     parameters = {

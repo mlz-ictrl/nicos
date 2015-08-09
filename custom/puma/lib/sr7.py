@@ -26,21 +26,21 @@
 """Class for PUMA SR7 shutter control."""
 
 from nicos.core import Moveable, Readable, PositionError, oneof, HasTimeout, \
-    status, Override
+    status, Override, Attach
 
 
 class SR7Shutter(HasTimeout, Moveable):
     """Class for the PUMA secondary shutter."""
 
     attached_devices = {
-        'sr7cl':     (Readable, 'status of SR7 shutter closed/open'),
-        'sr7p1':     (Readable, 'status of SR7 position 1'),
-        'sr7p2':     (Readable, 'status of SR7 position 2'),
-        'sr7p3':     (Readable, 'status of SR7 position 3'),
-        #'hdiacl':    (Readable, 'status of virtual source closed/open'),
-        #'stopinh':   (Readable, 'status of emergency button active/inactive'),
-        #'sr7save':   (Readable, 'SR7 security circle ok for open the beam'),
-        'sr7set':    (Moveable, 'emergency close of all shutters'),
+        'sr7cl':     Attach('status of SR7 shutter closed/open', Readable),
+        'sr7p1':     Attach('status of SR7 position 1', Readable),
+        'sr7p2':     Attach('status of SR7 position 2', Readable),
+        'sr7p3':     Attach('status of SR7 position 3', Readable),
+        #'hdiacl':    Attach('status of virtual source closed/open', Readable),
+        #'stopinh':   Attach('status of emergency button active/inactive', Readable),
+        #'sr7save':   Attach('SR7 security circle ok for open the beam', Readable),
+        'sr7set':    Attach('emergency close of all shutters', Moveable),
     }
 
     parameter_overrides = {

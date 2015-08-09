@@ -424,7 +424,7 @@ class TASIndex(AutoDevice, Moveable):
     }
 
     attached_devices = {
-        'tas': (TAS, 'The spectrometer to control'),
+        'tas': Attach('The spectrometer to control', TAS),
     }
 
     valuetype = float
@@ -452,8 +452,8 @@ class Wavevector(Moveable):
     }
 
     attached_devices = {
-        'base': (Moveable, 'Device to move (mono or ana)'),
-        'tas':  (TAS, 'The spectrometer for setting scanmode'),
+        'base': Attach('Device to move (mono or ana)', Moveable),
+        'tas':  Attach('The spectrometer for setting scanmode', TAS),
     }
 
     valuetype = float
@@ -506,8 +506,8 @@ class Energy(Moveable):
     }
 
     attached_devices = {
-        'base': (Moveable, 'Device to move (mono or ana)'),
-        'tas':  (TAS, 'The spectrometer for setting scanmode'),
+        'base': Attach('Device to move (mono or ana)', Moveable),
+        'tas':  Attach('The spectrometer for setting scanmode', TAS),
     }
 
     valuetype = float
@@ -565,8 +565,8 @@ class Wavelength(Moveable):
     }
 
     attached_devices = {
-        'base': (Moveable, 'Device to move (mono or ana)'),
-        'tas':  (TAS, 'The spectrometer for setting scanmode'),
+        'base': Attach('Device to move (mono or ana)', Moveable),
+        'tas':  Attach('The spectrometer for setting scanmode', TAS),
     }
 
     valuetype = float

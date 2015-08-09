@@ -22,16 +22,16 @@
 #
 # *****************************************************************************
 
-"""Class for PUMA phi axis when psi axis must stay at the same angle relative to the incoming beam.
-For example, when the magnet is used"""
+"""Class for PUMA phi axis when psi axis must stay at the same angle relative to
+the incoming beam.  For example, when the magnet is used"""
 
-from nicos.core import Moveable, Param
+from nicos.core import Moveable, Param, Attach
 from nicos.devices.generic.axis import Axis
 
 class CombAxis(Axis):
 
     attached_devices = {
-        'fix_ax': (Moveable, 'axis that moves back'),
+        'fix_ax': Attach('axis that moves back', Moveable),
     }
 
     parameters = {

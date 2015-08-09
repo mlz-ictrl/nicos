@@ -33,7 +33,7 @@ from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
 from nicos.utils import lazy_property
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco import TacoDevice
-from nicos.core import SIMULATION
+from nicos.core import Attach, SIMULATION
 from nicos.pycompat import iteritems
 
 
@@ -46,7 +46,7 @@ class TacoSerial(TacoDevice, Device):
 class MCC2core(Device):
     """Class for comunication with MCC"""
     attached_devices = {
-        'bus' : (TacoSerial, 'The Serial connection to the phytron Box'),
+        'bus' : Attach('The Serial connection to the phytron Box', TacoSerial),
     }
     parameters = {
         'channel'       : Param('Channel of MCC2 to use (X or Y)',

@@ -30,7 +30,8 @@ from time import sleep, time
 from struct import pack, unpack
 
 #~ from nicos.core import status
-from nicos.core import oneof, usermethod, Device, Param, NicosError, UsageError
+from nicos.core import oneof, usermethod, Device, Param, NicosError,\
+    UsageError, Attach
 #from nicos.devices.taco.core import TacoDevice
 
 
@@ -277,7 +278,7 @@ class Beckhoff(Device):
 
 class MonoWechsler( Device ):
     attached_devices = {
-        'beckhoff': (Beckhoff,'X'),
+        'beckhoff': Attach('X', Beckhoff),
     }
 
     parameters = {

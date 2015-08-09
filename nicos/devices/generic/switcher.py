@@ -56,7 +56,7 @@ class Switcher(MappedMoveable):
     """
 
     attached_devices = {
-        'moveable': (Moveable, 'The continuous device which is controlled'),
+        'moveable': Attach('The continuous device which is controlled', Moveable),
     }
 
     parameters = {
@@ -131,7 +131,7 @@ class ReadonlySwitcher(MappedReadable):
     """Same as the `Switcher`, but for read-only underlying devices."""
 
     attached_devices = {
-        'readable': (Readable, 'The continuous device which is read'),
+        'readable': Attach('The continuous device which is read', Readable),
     }
 
     parameters = {

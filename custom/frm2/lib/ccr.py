@@ -29,7 +29,7 @@ import time
 
 from nicos.core import Moveable, HasLimits, Override, Param, SIMULATION, \
     ConfigurationError, InvalidValueError, ProgrammingError, oneof, \
-    floatrange, tacodev, status
+    floatrange, tacodev, status, Attach
 from nicos.utils import lazy_property, clamp
 from nicos.devices.taco.io import NamedDigitalOutput
 
@@ -48,8 +48,8 @@ class CCRControl(HasLimits, Moveable):
 
     """
     attached_devices = dict(
-        stick = (Moveable, "Temperaturecontroller for the stick"),
-        tube = (Moveable, "Temperaturecontroller for the outer ccr/tube"),
+        stick = Attach('Temperaturecontroller for the stick', Moveable),
+        tube = Attach('Temperaturecontroller for the outer ccr/tube', Moveable),
     )
 
     parameters = dict(

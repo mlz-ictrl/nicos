@@ -27,7 +27,8 @@
 from time import sleep
 
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
-    AutoDevice, InvalidValueError, tupleof, multiStatus, multiReset, multiWait
+    AutoDevice, InvalidValueError, tupleof, multiStatus, multiReset, \
+    multiWait, Attach
 from nicos.devices.abstract import CanReference
 
 
@@ -70,10 +71,10 @@ class Slit(CanReference, Moveable):
     """
 
     attached_devices = {
-        'left':   (HasPrecision, 'Left blade'),
-        'right':  (HasPrecision, 'Right blade'),
-        'bottom': (HasPrecision, 'Bottom blade'),
-        'top':    (HasPrecision, 'Top blade'),
+        'left':   Attach('Left blade', HasPrecision),
+        'right':  Attach('Right blade', HasPrecision),
+        'bottom': Attach('Bottom blade', HasPrecision),
+        'top':    Attach('Top blade', HasPrecision),
     }
 
     parameters = {
@@ -282,7 +283,7 @@ class SlitAxis(AutoDevice, Moveable):
     """
 
     attached_devices = {
-        'slit': (Slit, 'Slit whose axis is controlled'),
+        'slit': Attach('Slit whose axis is controlled', Slit),
     }
 
     valuetype = float
@@ -354,8 +355,8 @@ class TwoAxisSlit(CanReference, Moveable):
     """
 
     attached_devices = {
-        'horizontal': (HasPrecision, 'Horizontal slit'),
-        'vertical':   (HasPrecision, 'Vertical slit'),
+        'horizontal': Attach('Horizontal slit', HasPrecision),
+        'vertical':   Attach('Vertical slit', HasPrecision),
     }
 
     parameter_overrides = {

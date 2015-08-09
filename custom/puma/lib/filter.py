@@ -26,7 +26,7 @@
 """Class for PUMA PG filter."""
 
 from nicos.core import Moveable, Readable, Param, PositionError, oneof, \
-    status, Override, HasTimeout
+    status, Override, HasTimeout, Attach
 
 
 class PumaFilter(HasTimeout, Moveable):
@@ -41,10 +41,10 @@ class PumaFilter(HasTimeout, Moveable):
     """
 
     attached_devices = {
-        'motor':     (Moveable, 'rotation axis of filter device'),
-        'io_status': (Readable, 'status of the limit switches'),
-        'io_set':    (Moveable, 'query bit to set filter in/out of beam'),
-        'io_press':  (Readable, 'air pressure status readout'),
+        'motor':     Attach('rotation axis of filter device', Moveable),
+        'io_status': Attach('status of the limit switches', Readable),
+        'io_set':    Attach('query bit to set filter in/out of beam', Moveable),
+        'io_press':  Attach('air pressure status readout', Readable),
     }
 
     parameters = {

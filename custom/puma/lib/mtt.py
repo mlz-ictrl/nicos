@@ -28,7 +28,8 @@ Takes into account the mobilblock and the additional shielding block change."""
 
 from time import sleep
 
-from nicos.core import status, MoveError, waitForStatus, Param, Readable, Moveable
+from nicos.core import status, MoveError, waitForStatus, Param, Readable, \
+    Moveable, Attach
 from nicos.utils import createThread
 from nicos.devices.generic.axis import Axis
 
@@ -37,8 +38,8 @@ class MTT_Axis(Axis):
     """Axis implemented in Python, with NICOS devices for motor and coders."""
 
     attached_devices = {
-        'io_flag': (Readable, 'Mobilblock sygnal'),
-        'polyswitch': (Moveable, 'Main axis encoder device'),
+        'io_flag': Attach('Mobilblock signal', Readable),
+        'polyswitch': Attach('Main axis encoder device', Moveable),
     }
 
 

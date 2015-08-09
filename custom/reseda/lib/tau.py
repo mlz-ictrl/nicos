@@ -22,15 +22,15 @@
 #
 # *****************************************************************************
 
-from nicos.core import Readable, Override, status
+from nicos.core import Readable, Override, Attach, status
 
 class tauTwoarms(Readable):
 
     attached_devices = {
-        'current': (Readable, 'NSE'),
-        'frequency': (Readable, 'NRSE'),
-        'fu0': (Readable, 'Compare'),
-        'wavelength': (Readable, 'Calculation')
+        'current': Attach('NSE', Readable),
+        'frequency': Attach('NRSE', Readable),
+        'fu0': Attach('Compare', Readable),
+        'wavelength': Attach('Calculation', Readable)
     }
 
 
@@ -62,10 +62,10 @@ class tauTwoarms(Readable):
 class tauMieze(Readable):
 
     attached_devices = {
-        'length': (Readable, 'Readed from cache'),
-        'frequency0': (Readable, 'Calculation'),
-        'frequency1': (Readable, 'Calculation'),
-        'wavelength': (Readable, 'Calculation')
+        'length': Attach('Readed from cache', Readable),
+        'frequency0': Attach('Calculation', Readable),
+        'frequency1': Attach('Calculation', Readable),
+        'wavelength': Attach('Calculation', Readable)
     }
 
 

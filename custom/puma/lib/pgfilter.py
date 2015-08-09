@@ -26,14 +26,14 @@
 
 import time
 
-from nicos.core import Moveable, Readable, status, NicosError, oneof
+from nicos.core import Moveable, Readable, status, NicosError, oneof, Attach
 
 
 class PGFilter(Moveable):
 
     attached_devices = {
-        'io_status':    (Readable, 'status of the limit switches'),
-        'io_set':       (Moveable, 'output to set'),
+        'io_status': Attach('status of the limit switches', Readable),
+        'io_set':    Attach('output to set', Moveable),
     }
 
     valuetype = oneof('in', 'out')

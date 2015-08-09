@@ -26,14 +26,14 @@
 
 import math
 
-from nicos.core import Readable, Override, status
+from nicos.core import Readable, Override, Attach, status
 
 
 class ScatteringVector(Readable):
 
     attached_devices = {
-        'wavelength': (Readable, 'to calculate the wavelength'),
-        'twotheta': (Readable, 'Scattering angle')
+        'wavelength': Attach('to calculate the wavelength', Readable),
+        'twotheta': Attach('Scattering angle', Readable, )
     }
 
     parameter_overrides = {

@@ -32,7 +32,7 @@ from nicos import session
 from nicos.utils import clamp
 from nicos.utils.fitting import Fit
 from nicos.core import Moveable, HasLimits, status, ConfigurationError, \
-    LimitError, usermethod, NicosError
+    LimitError, usermethod, NicosError, Attach
 from nicos.core.params import Param, Override, tupleof
 from nicos.core.utils import multiStop
 from nicos.devices.generic.sequence import SeqDev, BaseSequencer
@@ -50,7 +50,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
     """
 
     attached_devices = {
-        'currentsource': (Moveable, 'unipolar Powersupply'),
+        'currentsource': Attach('unipolar Powersupply', Moveable),
     }
 
     parameters = {

@@ -29,6 +29,7 @@ from nicos.devices.abstract import Motor as NicosMotor
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 from nicos.core.device import Moveable
 from nicos.core.params import Param, Override
+from nicos.core import Attach
 from nicos.core.errors import LimitError
 
 
@@ -40,7 +41,7 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
     CODE_TIME = .05  # additional code execution time in polling routine
 
     attached_devices = {
-                        "motor": (Moveable, "Motor device which will be moved.")
+                        "motor": Attach("Motor device which will be moved.", Moveable)
                         }
 
     parameters = {

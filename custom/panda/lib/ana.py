@@ -24,14 +24,14 @@
 
 """Analysator stuff for PANDA"""
 
-from nicos.core import Param, usermethod, Moveable, status
+from nicos.core import Param, usermethod, Moveable, Attach, status
 from nicos.devices.generic.axis import Axis
 
 from nicos.panda.wechsler import Beckhoff
 
 class AnaBlocks(Moveable):
     attached_devices = {
-        'beckhoff': (Beckhoff,'X'),
+        'beckhoff': Attach('X', Beckhoff),
     }
     parameters = {
         'powertime':   Param('How long to power pushing down blocks', type=int, default=10, settable=True),
@@ -129,7 +129,7 @@ class AnaBlocks(Moveable):
 
 class ATT_Axis(Axis):
     attached_devices = {
-        'anablocks': (AnaBlocks,'AnaBlocks-device'),
+        'anablocks': Attach('AnaBlocks-device', AnaBlocks),
     }
 
     parameters = {

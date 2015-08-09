@@ -24,7 +24,7 @@
 
 """CCR switch device classes."""
 
-from nicos.core import Moveable, Override, status, oneofdict
+from nicos.core import Moveable, Override, Attach, status, oneofdict
 from nicos.devices.taco import DigitalInput, DigitalOutput
 
 
@@ -33,8 +33,8 @@ class CCRSwitch(Moveable):
     """
 
     attached_devices = {
-        'write':    (DigitalOutput, 'TACO digital output device'),
-        'feedback': (DigitalInput, 'TACO digital input device (feedback)'),
+        'write':    Attach('TACO digital output device', DigitalOutput),
+        'feedback': Attach('TACO digital input device (feedback)', DigitalInput),
     }
 
     parameter_overrides = {

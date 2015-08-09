@@ -37,7 +37,7 @@ from nicos import session, config
 from nicos.core import listof, anytype, oneof, \
     none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
     Param, Dataset, NicosError, ConfigurationError, UsageError, \
-    ProgrammingError, SIMULATION, MASTER, ImageProducer
+    ProgrammingError, SIMULATION, MASTER, ImageProducer, Attach
 from nicos.core.params import subdir, nonemptystring, expanded_path
 from nicos.core.scan import DevStatistics
 from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
@@ -166,7 +166,7 @@ class Experiment(Device):
     }
 
     attached_devices = {
-        'sample': (Sample, 'The device object representing the sample'),
+        'sample': Attach('The device object representing the sample', Sample),
     }
 
     #

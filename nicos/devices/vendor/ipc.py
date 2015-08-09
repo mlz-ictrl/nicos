@@ -36,7 +36,7 @@ from RS485Client import RS485Client  # pylint: disable=F0401
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
     none_or, usermethod, Device, Readable, Moveable, Param, Override, \
     NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
-    defaultIsCompleted, HasTimeout, HasCommunication, SIMULATION
+    defaultIsCompleted, HasTimeout, HasCommunication, SIMULATION, Attach
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.tango import PyTangoDevice
@@ -477,7 +477,7 @@ class Coder(NicosCoder):
     }
 
     attached_devices = {
-        'bus': (IPCModBus, 'The communication bus'),
+        'bus': Attach('The communication bus', IPCModBus),
     }
 
     def doInit(self, mode):
@@ -713,7 +713,7 @@ class Motor(HasTimeout, NicosMotor):
     }
 
     attached_devices = {
-        'bus': (IPCModBus, 'The communication bus'),
+        'bus': Attach('The communication bus', IPCModBus),
     }
 
     def doInit(self, mode):
@@ -1118,7 +1118,7 @@ class IPCRelay(Moveable):
     }
 
     attached_devices = {
-        'stepper': (Motor, 'The stepper card whose relay is controlled'),
+        'stepper': Attach('The stepper card whose relay is controlled', Motor),
     }
 
     valuetype = oneofdict({0: 'off', 1: 'on'})
@@ -1144,7 +1144,7 @@ class IPCInhibit(Readable):
     }
 
     attached_devices = {
-        'stepper': (Motor, 'The stepper card whose inhibit is read out'),
+        'stepper': Attach('The stepper card whose inhibit is read out', Motor),
     }
 
     def doRead(self, maxage=0):
@@ -1171,7 +1171,7 @@ class Input(Readable):
     }
 
     attached_devices = {
-        'bus': (IPCModBus, 'The communication bus'),
+        'bus': Attach('The communication bus', IPCModBus),
     }
 
     def doInit(self, mode):
@@ -1281,7 +1281,7 @@ class SlitMotor(HasTimeout, NicosMotor):
     }
 
     attached_devices = {
-        'bus': (IPCModBus, 'The communication bus'),
+        'bus': Attach('The communication bus', IPCModBus),
     }
 
     def doInit(self, mode):

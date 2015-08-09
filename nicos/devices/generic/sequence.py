@@ -30,7 +30,7 @@ from datetime import timedelta
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import Device, DeviceMixinBase, LimitError, \
+from nicos.core import Device, DeviceMixinBase, LimitError, Attach, \
     Measurable, MoveError, Moveable, NicosError, Override, Param, \
     ProgrammingError, SIMULATION, anytype, none_or, status, tupleof
 from nicos.utils import createThread
@@ -545,8 +545,8 @@ class LockedDevice(BaseSequencer):
     """
 
     attached_devices = {
-        'device': (Moveable, 'Moveable device which is protected by the lock'),
-        'lock': (Moveable, 'The lock, protecting the device'),
+        'device': Attach('Moveable device which is protected by the lock', Moveable),
+        'lock': Attach('The lock, protecting the device', Moveable),
     }
 
     parameters = {
