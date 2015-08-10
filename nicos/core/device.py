@@ -133,6 +133,8 @@ class DeviceMeta(DeviceMixinMeta):
                                        'not all-lowercase' % (name, adevname))
             # backwards compatibility: convert all entries to Attach objects
             if not isinstance(entry, Attach):
+                session.log.warning("Please use 'Attach' to define an attached"
+                                    " device. The use of a tuple is deprecated!")
                 _multiple = isinstance(entry[0], list)
                 _devclass = entry[0][0] if _multiple else entry[0]
                 newtype.attached_devices[adevname] = \

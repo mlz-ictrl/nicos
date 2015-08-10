@@ -30,7 +30,7 @@ import os
 import sys
 import types
 from os import path
-from logging import Logger
+from logging import getLogger
 
 # Determine our version(s).
 from nicos._vendor.gitversion import get_nicos_version, get_git_version
@@ -44,7 +44,7 @@ if sys.version_info[:2] < (2, 6):
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.
 class Session(object):
-    log = Logger('Nicos early logger')
+    log = getLogger('Nicos early logger')
 
 session = Session()
 
