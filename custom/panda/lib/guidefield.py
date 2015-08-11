@@ -127,7 +127,7 @@ class GuideField(MappedMoveable):
         'alpha' : Attach('Device which provides the current \\alpha',
                          AlphaStorage),
         'coils' : Attach('List of 3 devices used for the vector field',
-                         VectorCoil, multiple=(3, 4)),
+                         VectorCoil, multiple=3),
     }
     parameter_overrides = {
         'mapping'   : Override(mandatory=False, type=dict,

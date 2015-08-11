@@ -27,8 +27,8 @@
 from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
     tacodev, tangodev, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
     none_or, limits, mailaddress, Param, Value, absolute_path, relative_path, \
-    subdir, nicosdev, nonemptystring, host, ipv4
-from nicos.core.errors import ProgrammingError
+    subdir, nicosdev, nonemptystring, host, ipv4, Attach
+from nicos.core.errors import ProgrammingError, ConfigurationError
 
 from test.utils import raises
 
@@ -39,6 +39,91 @@ def test_param_class():
     assert text == 'Parameter: my parameter\n\n    * Type: float\n    * ' \
                    'Default value: ``0.0``\n    * Not settable at runtime\n' \
                    '    * Prefer value from cache: True'
+
+
+def test_attach_class():
+    class MyClass(object):
+        pass
+    # test __init__()
+    assert raises(ProgrammingError, Attach, 'desc.', MyClass, optional=3)
+    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=None)
+    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[])
+    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[None])
+    assert raises(ProgrammingError, Attach, 'desc.', MyClass, multiple=[3.14])
+    # test repr
+    a = Attach('description', MyClass, optional=True, multiple=[3, 4])
+    assert repr(a) == "Attach('description', " \
+                      "<class 'test.test_basic.test_params.MyClass'>, " \
+                      "multiple=[3, 4], optional=True)"
+
+    # test check()
+    a = Attach('description', MyClass)
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
+    assert a.check('devname', 'aname', 1) == [1]
+    assert a.check('devname', 'aname', [1]) == [1]
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2])
+
+    a = Attach('description', MyClass, optional=True)
+    assert a.check('devname', 'aname', None) == [None]
+    assert a.check('devname', 'aname', 1) == [1]
+    assert a.check('devname', 'aname', [1]) ==[1]
+    assert raises(ConfigurationError, a.check,'devname', 'aname', [1, 2])
+
+    a = Attach('description', MyClass, multiple=True)
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
+    assert a.check('devname', 'aname', 1) == [1]
+    assert a.check('devname', 'aname', [1]) == [1]
+    assert a.check('devname', 'aname', [1, 2]) == [1, 2]
+
+    a = Attach('description', MyClass, multiple=True, optional=True)
+    assert a.check('devname', 'aname', None) == []
+    assert a.check('devname', 'aname', 1) == [1]
+    assert a.check('devname', 'aname', [1]) == [1]
+    assert a.check('devname', 'aname', [1, 2]) == [1, 2]
+    assert a.check('devname', 'aname', [1, 2, 3]) == [1, 2, 3]
+
+    a = Attach('description', MyClass, multiple=2)
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', 1)
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1])
+    assert a.check('devname', 'aname', [1, 2]) == [1, 2]
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3])
+
+    # with optional and multiple a fixed number, we have either both, or None
+    a = Attach('description', MyClass, multiple=2, optional=True)
+    assert a.check('devname', 'aname', None) == [None, None]
+    assert a.check('devname', 'aname', 1) == [1, None]
+    assert a.check('devname', 'aname', [1]) == [1, None]
+    assert a.check('devname', 'aname', [1, 2]) == [1, 2]
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3])
+
+    # check that multiple=2 and multiple=[2] are the same
+    assert repr(Attach('devname', MyClass, multiple=2)) == \
+           repr(Attach('devname', MyClass, multiple=[2]))
+
+    a = Attach('description', MyClass, multiple=[2, 3])
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', 1)
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1])
+    assert a.check('devname', 'aname', [1, 2]) == [1, 2]
+    assert a.check('devname', 'aname', [1, 2, 3]) == [1, 2, 3]
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
+
+    a = Attach('description', MyClass, multiple=[2, 3], optional=True)
+    assert a.check('devname', 'aname', None) == [None, None, None]
+    assert a.check('devname', 'aname', 1) == [1, None, None]
+    assert a.check('devname', 'aname', [1]) == [1, None, None]
+    assert a.check('devname', 'aname', [1, 2]) == [1, 2, None]
+    assert a.check('devname', 'aname', [1, 2, 3]) == [1, 2, 3]
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
+
+    a = Attach('description', MyClass, multiple=[0, 2, 3])
+    assert a.check('devname', 'aname', None) == []
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', 1)
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1])
+    assert a.check('devname', 'aname', [1, 2]) == [1, 2]
+    assert a.check('devname', 'aname', [1, 2, 3]) == [1, 2, 3]
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2, 3, 4])
 
 
 def test_listof():

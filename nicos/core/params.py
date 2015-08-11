@@ -212,29 +212,60 @@ class Attach(object):
       Defaults to False.
 
     - *multiple*: Either False, specifying that there shall be exactly one
-      attached device (default), or True, allowing any number (including zero)
-      attached devices, or a tuple of (min, max) to require a number of devices
-      in the given range.
+      attached device (default), or True, allowing any number (1..N)
+      attached devices, an integer requesting exactly that many devices
+      or a nonempty list of integers, listing the allowed device counts.
+
+    If multiple is a list containing more than one number and optional is true,
+    the list of devices is filled with None's until it is at least as long
+    as the max of multiple.
 
     Only description and class are mandatory parameters.
     """
     def __init__(self, description, devclass, optional=False, multiple=False):
+        def complain(multiple, test):
+            raise ProgrammingError('devclass %r (%s): multiple should be a '
+                                   'bool or a list of integers, but is %r '
+                                   '(testing for %s)' % (devclass.__name__,
+                                                         description, multiple,
+                                                         test))
         # first check all our parameters.
-        if isinstance(multiple, tuple):
-            if len(multiple) != 2 or multiple[0] > multiple[1]:
-                raise ProgrammingError('multiple should be a bool or a tuple '
-                                       'of two integers')
-        elif not isinstance(multiple, bool):
-            raise ProgrammingError('multiple should be a bool or a tuple '
-                                   'of two integers')
-        if optional not in (True, False):
-            raise ProgrammingError('optional should be a boolean')
-        # no set member values
+        single = False
+
+        # Do not change the order since bool is a subclass of int
+        # see: https://docs.python.org/2/library/functions.html#bool
+        if isinstance(multiple, bool):
+            single = not multiple
+            if single:
+                # map False to [1] (single), whereas true is an unlimited list
+                # which could not be handled by a python list object
+                multiple = [1]
+        elif isinstance(multiple, int):
+            multiple = [multiple]
+
+        # allowed non-list values are converted to a list above already...
+        if isinstance(multiple, list):
+            if len(multiple) == 0:
+                complain(multiple, 'list should be non-empty')
+            for item in multiple:
+                try:
+                    if item != int(item):
+                        complain(multiple, 'list items should be int\'s')
+                    if item < 0:
+                        complain(multiple, 'list items should be positive')
+                except (TypeError, ValueError):
+                    complain(multiple, 'list items should be numbers')
+        elif not (isinstance(multiple, bool) and multiple):
+            complain(multiple, 'is-a-list')
+        # multiple is now True or a list of integers
+        if not isinstance(optional, bool):
+            raise ProgrammingError('optional must be a boolean')
+        # now set member values
         self.description = description
         self.devclass = devclass
         self.optional = optional
         self.multiple = multiple
-        self.single = not multiple  # always a bool
+        self.single = single
 
     def check(self, dev, aname, configargs):
         """Checks if the given arguments are valid for this entry.
@@ -242,28 +273,62 @@ class Attach(object):
         Also returns a list of all attached devices which should be created.
         May raise a configurationError, if something is wrongly configured.
         """
-        args = configargs if isinstance(configargs, (tuple, list)) else [configargs]
-        if self.single:
-            if args == [None]:
-                if not self.optional:
-                    raise ConfigurationError(dev, "device misses device %r in "
-                                             "configuration" % aname)
-            if len(args) != 1:
-                raise ConfigurationError(dev, "need a single device for attached "
-                                         "device %s, got %r" % (aname, configargs))
-        elif isinstance(self.multiple, tuple):
-            if args == [None] and self.optional:
-                args = [None] * self.multiple[0]
-            if len(args) < self.multiple[0]:
-                raise ConfigurationError(dev, "need at least %d devices for %r, "
-                                         "got %r" % (self.multiple[0], aname, args))
-            elif len(args) >= self.multiple[1]:
-                raise ConfigurationError(dev, "can only handle %d devices for %r, "
-                                         "got %r" % (self.multiple[1], aname, args))
+        def check_count(multiple, optional, count):
+            if (count == 0) and optional:
+                return True
+            # Don't change it to more pythonic style since we want to check for
+            # the boolean 'True' value
+            if self.multiple == True:  # nopep8
+                return count > 0
+            return (count in multiple)
+
+        if configargs:
+            if isinstance(configargs, (tuple, list)):
+                args = list(configargs)
+            else:
+                args = [configargs]
         else:
-            if args == [None]:
-                args = []
-        return args
+            args = []
+
+        if self.single:
+            if check_count(self.multiple, self.optional, len(args)):
+                return args or [None]
+            raise ConfigurationError(dev, "device misses device %r in "
+                                     "configuration" % aname)
+
+        # Don't change it to more pythonic style since we want to check for
+        # the boolean 'True' value
+        if self.multiple == True:  # nopep8
+            if check_count(self.multiple, self.optional, len(args)):
+                return args
+            raise ConfigurationError(dev, "wrong number of devices (%d) for %r"
+                                     " in configuration (specified=%r)" %
+                                     (len(args), aname, args))
+
+        # here we have:
+        # - multiple is a list
+        # - args has at least one real entry
+        mindevs = min(self.multiple)
+        maxdevs = max(self.multiple)
+        # if optional, fill up to maxdevs with None
+        if self.optional:
+            args.extend([None] * (maxdevs - len(args)))
+
+        # check number of devices
+        if len(args) < mindevs:
+            raise ConfigurationError(dev, "not enough devices (%d<%d) for %r"
+                                     " in configuration (specified=%r)" %
+                                     (len(args), mindevs, aname, args))
+        if len(args) > maxdevs:
+            raise ConfigurationError(dev, "too many devices (%d>%d) for %r in "
+                                          "configuration (specified=%r)" %
+                                          (len(args), maxdevs, aname, args))
+
+        if check_count(self.multiple, self.optional, len(args)):
+            return args
+        raise ConfigurationError(dev, "wrong number of devices (%d) for %r in "
+                                      "configuration (specified=%r)" %
+                                      (len(args), aname, args))
 
     def __repr__(self):
         s = 'Attach(%r, %r' % (self.description, self.devclass)
