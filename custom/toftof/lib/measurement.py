@@ -70,6 +70,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
         'filenametemplate': Param('Templates for data file name',
                                   type=str, default='%06d_0000.raw',
                                   settable=True),
+        'rc':               Param('Radial collimator motor device',
+                                  type=str, settable=False, default='rc',),
     }
 
     parameter_overrides = {
@@ -133,7 +135,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         ctr.stop()
 
         try:
-            rc = session.getDevice('rc')
+            rc = session.getDevice(self.rc)
             if rc.status()[0] != status.BUSY:
                 self.log.warning('radial collimator is not moving!')
         except NicosError:

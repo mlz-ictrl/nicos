@@ -24,6 +24,7 @@ devices = dict(
                chopper = 'ch',
                chdelay = 'chdelay',
                counter = 'det',
+               rc = 'rc_motor',
                fileformats = [],
                filenametemplate = '%06d_0000.raw',
               ),
