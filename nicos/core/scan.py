@@ -268,6 +268,9 @@ class Scan(object):
     def moveDevices(self, where, wait=True):
         """Move to *where*, which is a list of (dev, position) tuples.
         On errors, call handleError, which decides when the scan may continue.
+
+        Returns a dictionary mapping devices to final positions if *wait* is
+        True, an empty dictionary otherwise.
         """
         waitdevs = []
         for dev, val in where:
