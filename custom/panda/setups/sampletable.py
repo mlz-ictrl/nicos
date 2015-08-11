@@ -288,6 +288,6 @@ devices = dict(
 
 )
 
-startupcode = '''
-sth.alias = 'sth_st'
-'''
+alias_config = [
+    ('sth', 'sth_st', 10)
+]

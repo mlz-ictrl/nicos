@@ -113,6 +113,10 @@ devices = dict(
                               ),
 )
 
+alias_config = [
+    ('sth', 'sth_virtual_dummy', -1)
+]
+
 startupcode = '''
 from nicos import session
 from nicos.core import SIMULATION

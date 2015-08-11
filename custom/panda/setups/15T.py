@@ -137,9 +137,9 @@ devices = dict(
                  ),
 )
 
-startupcode = '''
-B.alias='B15T'
-T.alias='vti'
-Ts.alias='sTs'
-sth.alias='sth_15T'
-'''
+alias_config = [
+    ('sth', 'sth_15t', 100),
+    ('B', 'B15T', 100),
+    ('T', 'vti', 100),
+    ('Ts', 'sTs', 100),
+]

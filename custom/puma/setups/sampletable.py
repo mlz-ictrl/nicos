@@ -97,11 +97,7 @@ devices = dict(
      psi    = device('devices.generic.DeviceAlias',
                     description  = 'Sample rocking angle Theta',
                    alias = 'psi_puma',
-#when magnet is on :
-#                    alias = 'sth_m7T5_ccr',
                    devclass = 'devices.generic.Axis',
-#when magnet is on :
-#                    devclass = 'devices.taco.Axis',
                     ),
 
 #Magnet on 22.04.2015
@@ -263,4 +259,8 @@ devices = dict(
                     loopdelay = 2,
                    ),
 )
+
+alias_config = [
+    ('psi', 'psi_puma', 0)
+]
 

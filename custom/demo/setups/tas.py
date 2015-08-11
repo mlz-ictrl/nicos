@@ -203,6 +203,10 @@ devices = dict(
                          states = ['open', 'closed']),
 )
 
+alias_config = [
+    ('sth', 'psi', 0)
+]
+
 startupcode = '''
 if mth() == 0:
     mth.speed = mtt.speed = ath.speed = att.speed = psi.speed = phi.speed = 0
