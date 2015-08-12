@@ -190,7 +190,7 @@ class Scan(object):
             for det in self._detlist:
                 waitForStatus(det)
         except NicosError as err:
-            self.handleError('prepare', None, err)
+            self.handleError('prepare', err)
 
     def updatePoint(self, xvalues):
         # called after moving to current, just before counting
@@ -218,7 +218,7 @@ class Scan(object):
             session.log.debug('could not add scan to electronic logbook', exc=1)
         session.breakpoint(1)
 
-    def handleError(self, what, dev, err):
+    def handleError(self, what, err, dev=None):
         """Handle an error occurring during positioning or readout for a point.
 
         This method can do several things:
@@ -279,7 +279,7 @@ class Scan(object):
             except NicosError as err:
                 # handleError can reraise for fatal error, return False
                 # to skip this point and True to measure anyway
-                self.handleError('move', dev, err)
+                self.handleError('move', err, dev)
             else:
                 waitdevs.append((dev, val))
         # record the read values so that they can be used for the data point
@@ -291,7 +291,7 @@ class Scan(object):
             try:
                 wait_values[dev] = dev.wait()
             except NicosError as err:
-                self.handleError('wait', dev, err)
+                self.handleError('wait', err, dev)
         return wait_values
 
     def readPosition(self, wait_values):
@@ -305,7 +305,7 @@ class Scan(object):
                 try:
                     val = dev.read(0)
                 except NicosError as err:
-                    self.handleError('read', dev, err)
+                    self.handleError('read', err, dev)
                     val = [None] * len(dev.valueInfo())
             if isinstance(val, list):
                 ret.extend(val)
@@ -322,7 +322,7 @@ class Scan(object):
                 else:
                     val = dev.read(0)
             except NicosError as err:
-                self.handleError('read', dev, err)
+                self.handleError('read', err, dev)
                 val = [None] * len(dev.valueInfo())
             if isinstance(val, list):
                 ret.extend(val)
@@ -407,7 +407,7 @@ class Scan(object):
                                     len(self.dataset.yvalueinfo) - len(result)))
                                 self.addPoint(actualpos, result)
                     except NicosError as err:
-                        self.handleError('count', None, err)
+                        self.handleError('count', err)
                     except SkipPoint:
                         pass
                     finally:
