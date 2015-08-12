@@ -35,7 +35,7 @@ from nicos.core import status
 from nicos.core.constants import MASTER, SIMULATION, SLAVE, POLLER
 from nicos.core.utils import formatStatus, statusString, \
     defaultIsCompleted, multiIsCompleted, multiStop, multiStatus, multiWait
-from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
+from nicos.core.mixins import DeviceMixinMeta, HasIsCompleted, HasLimits, HasOffset, \
     HasTimeout, HasPrecision
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
     anytype, none_or, dictof, listof, tupleof, nicosdev, Attach
@@ -1148,7 +1148,7 @@ class Readable(Device):
         return ret + Device.info(self)
 
 
-class Moveable(Readable):
+class Moveable(HasIsCompleted, Readable):
     """
     Base class for moveable devices.
 
@@ -1518,7 +1518,7 @@ class Moveable(Readable):
             return True
 
 
-class Measurable(Readable):
+class Measurable(HasIsCompleted, Readable):
     """
     Base class for devices used for data acquisition.
 

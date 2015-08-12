@@ -225,6 +225,14 @@ class HasLimits(DeviceMixinBase):
         self.userlimits = (limits[0] - diff, limits[1] - diff)
         del self._new_offset
 
+class HasIsCompleted(DeviceMixinBase):
+    """Abstract mixin class for devices implementing isCompleted.
+
+    No default is provided as the the implementations differ too much.
+    """
+    def isCompleted(self):
+        raise NotImplementedError("Please implement the 'isCompleted' method")
+
 
 class HasOffset(DeviceMixinBase):
     """

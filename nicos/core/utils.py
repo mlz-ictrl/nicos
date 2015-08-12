@@ -114,7 +114,7 @@ def multiStatus(devices, maxage=None):
         return status.UNKNOWN, 'no status could be determined (no doStatus implemented?)'
 
 
-def multiWait(devices):
+def multiWait(devices, baseclass=None):
     """Wait for the *devices*.
 
     Returns a dictionary mapping devices to current values after waiting.
@@ -128,7 +128,10 @@ def multiWait(devices):
     """
     delay = 0.3
     first_exc = None
-    devset = set(devIter(devices, onlydevs=True))
+    if not baseclass:
+        from nicos.core.mixins import HasIsCompleted
+        baseclass = HasIsCompleted
+    devset = set(devIter(devices, baseclass=baseclass, onlydevs=True))
     values = {}
     session.beginActionScope('Waiting: %s' % ', '.join(
         '%s -> %s' % (dev, dev.format(dev.target)) for dev in devices))
@@ -242,8 +245,8 @@ def multiIsCompleted(devices):
 
     Returns true if all device movement is completed.
     """
-    from nicos.core import Moveable
-    return all(_multiMethod(Moveable, 'isCompleted', devices))
+    from nicos.core.mixins import HasIsCompleted
+    return all(_multiMethod(HasIsCompleted, 'isCompleted', devices))
 
 
 def multiStop(devices):
