@@ -25,7 +25,7 @@ devices = dict(
 
     Exp      = device('frm2.experiment.Experiment',
                       description = 'The current running experiment',
-                      dataroot = '/users/data',
+                      dataroot = '/data',
                       sample = 'Sample',
                       serviceexp = '0',
                       propprefix = '',
@@ -40,7 +40,7 @@ devices = dict(
                                          ),
                       elog = True,
                       scancounter = 'scancounter',
-                      # filecounter = '/users/data/counter',
+                      # filecounter = '/data/counter',
                       imagecounter = 'counter',
                      ),
 
@@ -73,7 +73,7 @@ devices = dict(
 
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
-                      path = '/users',
+                      path = '/data',
                       minfree = 5,
                      ),
 )
