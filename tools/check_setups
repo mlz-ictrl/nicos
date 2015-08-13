@@ -262,7 +262,8 @@ class SetupChecker(object):
             self.ast = ast.parse(self.code)
         except SyntaxError, e:
             msg = 'SyntaxError:\t%s' % e.msg
-            msg += '\n|line: %s : %s ' % (e.lineno, e.text.strip())
+            msg += '\n|line: %s : %s ' % (e.lineno, e.text.strip() if e.text
+                                          else '')
             self.log_error(msg, extra={'line': e.lineno})
             return self.good
         except Exception, e:
