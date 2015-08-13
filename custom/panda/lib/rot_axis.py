@@ -91,8 +91,8 @@ class RefAxis(Axis):
 
         try:
             # helper for DRY: check for ANY Refswitch
-            def refsw():
-                return m.doStatus()[1].lower().find('limit switch') > -1
+            def refsw(motor):
+                return motor.doStatus()[1].lower().find('limit switch') > -1
 
             # helper: wait until the motor HW is no longer busy
             def wait_for_motor(m):
@@ -120,7 +120,7 @@ class RefAxis(Axis):
                 pass
             # wait until a) refswitch fires or b) movement finished
             wait_for_motor(m)
-            if not refsw() and self._checkTargetPosition(self.read(0),
+            if not refsw(m) and self._checkTargetPosition(self.read(0),
                                                          self.abslimits[0],
                                                          error=False):
                 self.log.error('Referencing: No refswitch found!!! Exiting')
@@ -136,7 +136,7 @@ class RefAxis(Axis):
                 self.log.debug('trying %s' % self.format(stepsize, unit=True))
                 m.doStart(m.doRead() + stepsize)
                 wait_for_motor(m)
-                if not refsw():
+                if not refsw(m):
                     break
             else:
                 self.log.error('Referencing: RefSwitch still active after '
@@ -149,7 +149,7 @@ class RefAxis(Axis):
                 m.speed = self.refspeed
             tries = 7
             self.log.info('Referencing: SLOW Mode: find refswitch')
-            while not(refsw()) and tries > 0:
+            while not(refsw(m)) and tries > 0:
                 self.log.debug('Another %d slots left to try' % tries)
                 try:
                     m.doStart(m.doRead() - stepsize / 3.)  # pylint: disable=W0631
@@ -263,8 +263,8 @@ class RotAxis(RefAxis):
 
         try:
             # helper for DRY: check for ANY Refswitch
-            def refsw():
-                return m.doStatus()[1].lower().find('limit switch') > -1
+            def refsw(motor):
+                return motor.doStatus()[1].lower().find('limit switch') > -1
 
             # helper: wait until the motor HW is no longer busy
             def wait_for_motor(m):
@@ -296,7 +296,7 @@ class RotAxis(RefAxis):
                 pass
             # wait until a) refswitch fires or b) we did a complete turn
             wait_for_motor(m)
-            if not refsw():
+            if not refsw(m):
                 self.log.error('Referencing: No refswitch found!!! Exiting')
                 # no need to start, as we are (hopefully) physically at the
                 # same point as before.
@@ -307,7 +307,7 @@ class RotAxis(RefAxis):
             tries = self.wraparound/10+1
             self.log.info('Referencing: FAST Mode: looking for inactive '
                           'refswitch')
-            while refsw() and tries > 0:
+            while refsw(m) and tries > 0:
                 self.log.debug('Another %d 10 %s slots left to try' %
                                (tries, self.unit))
                 # This should never fail unless something is broken
@@ -326,7 +326,7 @@ class RotAxis(RefAxis):
                 m.speed = self.refspeed
             tries = 7
             self.log.info('Referencing: SLOW Mode: find refswitch')
-            while not(refsw()) and tries > 0:
+            while not(refsw(m)) and tries > 0:
                 self.log.debug('Another %d 3 %s slots left to try'
                                % (tries, self.unit))
                 try:

@@ -113,9 +113,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self._devicelogs = {}
 
     def doSetPreset(self, **preset):
-        ctr = self._attached_counter
-        ctr.stop()
-        ctr.setPreset(**preset)
+        self._attached_counter.stop()
+        self._attached_counter.setPreset(**preset)
         self._curtitle = preset.get('info', '')
         if 'm' in preset:
             self._last_mode = 'monitor'
@@ -168,8 +167,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
         else:
             chdelay = 0
 
-        # make sure to set the correct monitor input and number of time
-        # channels in the TACO server
+        # make sure to set the correct monitor input and number of time channels
+        # in the TACO server
         if ctr.timechannels is None:
             # detector disconnected?
             raise NicosError(self, 'detector device appears unavailable')

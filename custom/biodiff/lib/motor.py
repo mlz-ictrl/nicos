@@ -35,7 +35,8 @@ from nicos.core.errors import LimitError
 
 class MicrostepMotor(BaseSequencer, NicosMotor):
     """Virtual motor which implements software based micro stepping for an
-    attached Moveable device."""
+    attached Moveable device.
+    """
 
     STATUS_TIME = .3  # waitForStatus 300 ms
     CODE_TIME = .05   # additional code execution time in polling routine
@@ -81,22 +82,22 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
         return self._maxmovetime(self.maxtime)
 
     def doReadAbslimits(self):
-        return self.motor.abslimits
+        return self._attached_motor.abslimits
 
     def doWriteAbslimits(self, value):
-        self.motor.abslimits = value
+        self._attached_motor.abslimits = value
 
     def doReadUserlimits(self):
-        return self.motor.userlimits
+        return self._attached_motor.userlimits
 
     def doWriteUserlimits(self, value):
-        self.motor.userlimits = value
+        self._attached_motor.userlimits = value
 
     def doReadUnit(self):
-        return self.motor.unit
+        return self._attached_motor.unit
 
     def doWriteUnit(self, value):
-        self.motor.unit = value
+        self._attached_motor.unit = value
 
     def doWriteSpeed(self, value):
         delay = self.microstep / value
@@ -125,7 +126,7 @@ maxspeed: %.4f
             self.speed = self.maxspeed
 
     def doRead(self, maxage=0):
-        return self.motor.read(maxage)
+        return self._attached_motor.read(maxage)
 
     def _generateSequence(self, target, *args, **kwargs):
         pos = self.read(0)
@@ -136,9 +137,9 @@ maxspeed: %.4f
         if (math.fabs((pos + (n + 1) * s) - target)
            < math.fabs(self.microstep / 10)):
             n += 1
-        res = [(SeqDev(self.motor, pos + i * s),
+        res = [(SeqDev(self._attached_motor, pos + i * s),
                 SeqSleep(self._delay)) for i in range(1, n)]
-        res.append((SeqDev(self.motor, target), SeqSleep(self._delay)))
+        res.append((SeqDev(self._attached_motor, target), SeqSleep(self._delay)))
         return res
 
     def _sequence(self, sequence):

@@ -191,10 +191,9 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
 
     def doWriteUserlimits(self, limits):
         HasLimits.doWriteUserlimits(self, limits)
-        currentsource = self._attached_currentsource
         # all Ok, set source to max of pos/neg field current
         maxcurr = max(abs(self._field2current(i)) for i in limits)
-        currentsource.userlimits = (0, maxcurr)
+        self._attached_currentsource.userlimits = (0, maxcurr)
 
     def doTime(self, startval, target):
         # get difference in current

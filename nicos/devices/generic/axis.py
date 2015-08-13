@@ -75,10 +75,12 @@ class Axis(CanReference, BaseAxis):
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
-        self._hascoder = self._attached_motor != self._attached_coder
+        self._hascoder = (self._attached_motor != self._attached_coder)
         self._errorstate = None
         self._posthread = None
         self._stoprequest = 0
+
+    # legacy properties for users, DO NOT USE lazy_property here!
 
     @property
     def motor(self):

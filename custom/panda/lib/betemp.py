@@ -50,65 +50,61 @@ class KL320xTemp(Readable):
     # def doReadUnit(self):
     #     return 'K'
 
-    @property
-    def bhd(self):  # BeckHoffDevice
-        return self._attached_beckhoff
-
     def _switch_to_K(self):
         self.log.debug('Switching to K')
         # activate writing of the other regs
-        self.bhd.WriteReg(self.addr, 31, 0x1235)
+        self._attached_beckhoff.WriteReg(self.addr, 31, 0x1235)
         # PT1000, 2wire connection, no overrange cutof, active filter,
         # no watchdog, userscaling
-        self.bhd.WriteReg(self.addr, 32, 0x2481)
+        self._attached_beckhoff.WriteReg(self.addr, 32, 0x2481)
         # userscaling: offset=273.15*16 to read K instead of °C
-        # self.bhd.WriteReg( self.addr, 33, 0x1112 )
+        # self._attached_beckhoff.WriteReg( self.addr, 33, 0x1112 )
         # userscaling: offset=273.15*16 to read K instead of °C
-        self.bhd.WriteReg(self.addr, 33, 2732)
+        self._attached_beckhoff.WriteReg(self.addr, 33, 2732)
         # userscaling: Gain=1  (R34/100)
-        self.bhd.WriteReg(self.addr, 34, 0x00A0)
+        self._attached_beckhoff.WriteReg(self.addr, 34, 0x00A0)
         # Filterconst (50Hz)
-        self.bhd.WriteReg(self.addr, 37, 0x00A0)
+        self._attached_beckhoff.WriteReg(self.addr, 37, 0x00A0)
         # de-activate writing of the other regs
-        self.bhd.WriteReg(self.addr, 31, 0x0000)
+        self._attached_beckhoff.WriteReg(self.addr, 31, 0x0000)
         # switch to reading of scaled value
-        self.bhd.WriteWordOutput(self.addr+0x800, 0)
+        self._attached_beckhoff.WriteWordOutput(self.addr+0x800, 0)
 
     def _switch_to_C(self):
         self.log.debug('Switching to °C')
         # activate writing of the other regs
-        self.bhd.WriteReg(self.addr, 31, 0x1235)
+        self._attached_beckhoff.WriteReg(self.addr, 31, 0x1235)
         # PT1000, 2wire connection, no overrange cutof, active filter,
         # no watchdog, userscaling
-        self.bhd.WriteReg(self.addr, 32, 0x2481)
+        self._attached_beckhoff.WriteReg(self.addr, 32, 0x2481)
         # userscaling: offset=0 to read °C
-        self.bhd.WriteReg(self.addr, 33, 0x0000)
+        self._attached_beckhoff.WriteReg(self.addr, 33, 0x0000)
         # userscaling: Gain=1  (R34/100)
-        self.bhd.WriteReg(self.addr, 34, 0x00A0)
+        self._attached_beckhoff.WriteReg(self.addr, 34, 0x00A0)
         # Filterconst (50Hz)
-        self.bhd.WriteReg(self.addr, 37, 0x00A0)
+        self._attached_beckhoff.WriteReg(self.addr, 37, 0x00A0)
         # de-activate writing of the other regs
-        self.bhd.WriteReg(self.addr, 31, 0x0000)
+        self._attached_beckhoff.WriteReg(self.addr, 31, 0x0000)
         # switch to reading of scaled value
-        self.bhd.WriteWordOutput(self.addr+0x800, 0)
+        self._attached_beckhoff.WriteWordOutput(self.addr+0x800, 0)
 
     def _switch_to_Ohm(self):
         self.log.debug('Switching to Ohm')
         # activate writing of the other regs
-        self.bhd.WriteReg(self.addr, 31, 0x1235)
+        self._attached_beckhoff.WriteReg(self.addr, 31, 0x1235)
         # 1KOhm range, 2wire connection, no overrange cutof, active filter,
         # no watchdog, userscaling
-        self.bhd.WriteReg(self.addr, 32, 0xF481)
+        self._attached_beckhoff.WriteReg(self.addr, 32, 0xF481)
         # userscaling: offset=0
-        self.bhd.WriteReg(self.addr, 33, 0x0000)
+        self._attached_beckhoff.WriteReg(self.addr, 33, 0x0000)
         # userscaling: Gain=1  (R34/100)
-        self.bhd.WriteReg(self.addr, 34, 0x00A0)
+        self._attached_beckhoff.WriteReg(self.addr, 34, 0x00A0)
         # Filterconst (50Hz)
-        self.bhd.WriteReg(self.addr, 37, 0x00A0)
+        self._attached_beckhoff.WriteReg(self.addr, 37, 0x00A0)
         # de-activate writing of the other regs
-        self.bhd.WriteReg(self.addr, 31, 0x0000)
+        self._attached_beckhoff.WriteReg(self.addr, 31, 0x0000)
         # switch to reading of scaled value
-        self.bhd.WriteWordOutput(self.addr+0x800, 0)
+        self._attached_beckhoff.WriteWordOutput(self.addr+0x800, 0)
 
     def doWriteUnit(self, unit):
         self.log.debug('Setting unit from %s to %s' % (self.unit, unit))
@@ -124,7 +120,7 @@ class KL320xTemp(Readable):
 
     def doInit(self, mode):
         # This code only works for KL3201..4
-        if 3201 <= self.bhd.ReadReg(self.addr, 8) <= 3204:
+        if 3201 <= self._attached_beckhoff.ReadReg(self.addr, 8) <= 3204:
             # update hardware about our unit and set scaling
             self.doWriteUnit(self.unit)
         else:
@@ -132,14 +128,14 @@ class KL320xTemp(Readable):
                             'there! please correct')
 
     def doRead(self, maxage=0):
-        v = self.bhd.ReadWordInput(self.addr+1)
+        v = self._attached_beckhoff.ReadWordInput(self.addr+1)
         self.log.debug('Raw value is %d (0x%04x)' % (v, v))
         return float(v) * 0.1
 
     def doStatus(self, maxage=0):
         # why read value during the status detection ???
         self.doRead(maxage)
-        v = self.bhd.ReadWordInput(self.addr)
+        v = self._attached_beckhoff.ReadWordInput(self.addr)
         if v & 0x01:
             return (status.ERROR, 'Underrange bit set!')
         elif v & 0x02:

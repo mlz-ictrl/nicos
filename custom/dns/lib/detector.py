@@ -49,10 +49,6 @@ class FlipperPresets(Measurable):
                           'with respect to setting presets.', BaseFlipper),
     }
 
-    @property
-    def flipper(self):
-        return self._attached_flipper
-
     def doStart(self):
         raise NotImplementedError('Please provide an implementation for '
                                   'doStart.')
@@ -224,9 +220,9 @@ class TofDetector(TofDetectorBase, FlipperPresets):
     def doTime(self, preset):
         if P_TIME in preset:
             return preset[P_TIME]
-        elif P_TIME_SF in preset and self.flipper.read() == ON:
+        elif P_TIME_SF in preset and self._attached_flipper.read() == ON:
             return preset[P_TIME_SF]
-        elif P_TIME_NSF in preset and self.flipper.read() == OFF:
+        elif P_TIME_NSF in preset and self._attached_flipper.read() == OFF:
             return preset[P_TIME_NSF]
         return 0  # no preset that we can estimate found
 
@@ -236,7 +232,7 @@ class TofDetector(TofDetectorBase, FlipperPresets):
 
     def doSetPreset(self, **preset):
         if P_MON_SF in preset and P_MON_NSF in preset:
-            if self.flipper.read() == ON:
+            if self._attached_flipper.read() == ON:
                 m = preset[P_MON_SF]
             else:
                 m = preset[P_MON_NSF]
@@ -247,7 +243,7 @@ class TofDetector(TofDetectorBase, FlipperPresets):
                              '%s and %s or only %s.' %
                              (P_MON_SF, P_MON_NSF, P_MON))
         elif P_TIME_SF in preset and P_TIME_NSF in preset:
-            if self.flipper.read() == ON:
+            if self._attached_flipper.read() == ON:
                 t = preset[P_TIME_SF]
             else:
                 t = preset[P_TIME_NSF]

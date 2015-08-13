@@ -61,6 +61,7 @@ PRINTABLES = {
     DC3: '<DC3>',
 }
 
+
 def convert(string):
     return ''.join(PRINTABLES.get(c, c) for c in string)
 
@@ -311,7 +312,7 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
                     'values %s for cmd %s' % (param, limits, cmdname))
         elif length or param:
             raise ProgrammingError(self, 'Sending parameters is not allowed '
-                                    'for cmd %s' % cmdname)
+                                   'for cmd %s' % cmdname)
         s = chr(addr) + chr(cmd)
         if length > 0:
             s += '%0*d' % (length, param)
@@ -481,9 +482,8 @@ class Coder(NicosCoder):
     }
 
     def doInit(self, mode):
-        bus = self._attached_bus
         if mode != SIMULATION:
-            bus.ping(self.addr)
+            self._attached_bus.ping(self.addr)
             try:
                 actual_confbyte = self.doReadConfbyte()
             except NicosError:
@@ -528,7 +528,7 @@ class Coder(NicosCoder):
             return 'digital'
         if confbyte == 16:
             if firmware <= 6:
-                return 'analog' # wild guess for resolvers
+                return 'analog'  # wild guess for resolvers
         if confbyte & 0xe0 == 0x20:
             if firmware < 20:  # wild guess, but seems to work...
                 return 'analog'
@@ -562,15 +562,14 @@ class Coder(NicosCoder):
         return float((value - self.zerosteps) / self.slope)
 
     def doReadSteps(self):
-        bus = self._attached_bus
         try:
             try:
-                value = bus.get(self.addr, 150)
+                value = self._attached_bus.get(self.addr, 150)
             except NicosError:
                 self._endatclearalarm()
                 sleep(1)
                 # try again
-                value = bus.get(self.addr, 150)
+                value = self._attached_bus.get(self.addr, 150)
         except NicosError as e:
             # record last error to return it from doStatus()
             self._lasterror = str(e)
@@ -608,11 +607,10 @@ class Coder(NicosCoder):
         """Clear alarm for a binary-endat encoder."""
         if self._type is not None and 'endat-protocol' not in self._type:
             return
-        bus = self._attached_bus
         try:
-            bus.send(self.addr, 155, 185, 3)
+            self._attached_bus.send(self.addr, 155, 185, 3)
             sleep(0.5)
-            bus.send(self.addr, 157, 0, 3)
+            self._attached_bus.send(self.addr, 157, 0, 3)
             sleep(0.5)
             self.doReset()
         except Exception:
@@ -719,9 +717,8 @@ class Motor(HasTimeout, NicosMotor):
     errorstates = ()
 
     def doInit(self, mode):
-        bus = self._attached_bus
         if mode != SIMULATION:
-            bus.ping(self.addr)
+            self._attached_bus.ping(self.addr)
             if self._hwtype == 'single':
                 if self.confbyte != self.doReadConfbyte():
                     self.doWriteConfbyte(self.confbyte)
@@ -924,9 +921,9 @@ class Motor(HasTimeout, NicosMotor):
             return minprec
 
     def doStart(self, target):
+        bus = self._attached_bus
         target = self._tosteps(target)
         self.log.debug('target is %d steps' % target)
-        bus = self._attached_bus
         self._hw_wait()
         pos = self._tosteps(self.read(0))
         self.log.debug('pos is %d steps' % pos)
@@ -1012,8 +1009,8 @@ class Motor(HasTimeout, NicosMotor):
         st = status.OK
 
         msg = ''
-        #msg += (state & 2) and ', backward' or ', forward'
-        #msg += (state & 4) and ', halfsteps' or ', fullsteps'
+        # msg += (state & 2) and ', backward' or ', forward'
+        # msg += (state & 4) and ', halfsteps' or ', fullsteps'
         if state & 16:
             msg += ', inhibit active'
         if state & 128:
@@ -1041,7 +1038,7 @@ class Motor(HasTimeout, NicosMotor):
         if state & 32 and state & 64:
             st = status.ERROR
             msg = msg.replace('limit switch - active, limit switch + active',
-                'EMERGENCY STOP pressed or both limit switches broken')
+                              'EMERGENCY STOP pressed or both limit switches broken')
         if state & 1024:
             st = status.ERROR
             msg += ', device overheated'
@@ -1089,22 +1086,38 @@ class Motor(HasTimeout, NicosMotor):
         byte = self.confbyte
         c = ''
 
-        if byte & 1: c += 'limit switch 1:  high = active\n'
-        else: c += 'limit switch 1:  low = active\n'
-        if byte & 2: c += 'limit switch 2:  high = active\n'
-        else: c += 'limit switch 2:  low = active\n'
-        if byte & 4: c += 'inhibit entry:  high = active\n'
-        else: c += 'inhibit entry:  low = active\n'
-        if byte & 8: c += 'reference switch:  high = active\n'
-        else: c += 'reference switch:  low = active\n'
-        if byte & 16: c += 'use external powerstage\n'
-        else: c += 'use internal powerstage\n'
-        if byte & 32: c += 'leads testing disabled\n'
-        else: c += 'leads testing enabled\n'
-        if byte & 64: c += 'reversed limit switches\n'
-        else: c += 'normal limit switch order\n'
-        if byte & 128: c += 'freq-range: 8-300Hz\n'
-        else: c += 'freq-range: 90-3000Hz\n'
+        if byte & 1:
+            c += 'limit switch 1:  high = active\n'
+        else:
+            c += 'limit switch 1:  low = active\n'
+        if byte & 2:
+            c += 'limit switch 2:  high = active\n'
+        else:
+            c += 'limit switch 2:  low = active\n'
+        if byte & 4:
+            c += 'inhibit entry:  high = active\n'
+        else:
+            c += 'inhibit entry:  low = active\n'
+        if byte & 8:
+            c += 'reference switch:  high = active\n'
+        else:
+            c += 'reference switch:  low = active\n'
+        if byte & 16:
+            c += 'use external powerstage\n'
+        else:
+            c += 'use internal powerstage\n'
+        if byte & 32:
+            c += 'leads testing disabled\n'
+        else:
+            c += 'leads testing enabled\n'
+        if byte & 64:
+            c += 'reversed limit switches\n'
+        else:
+            c += 'normal limit switch order\n'
+        if byte & 128:
+            c += 'freq-range: 8-300Hz\n'
+        else:
+            c += 'freq-range: 90-3000Hz\n'
 
         self.log.info(c)
 
@@ -1184,12 +1197,13 @@ class Input(Readable):
     def doStatus(self, maxage=0):
         return status.OK, ''
 
+
 class IPCSwitches(Input):
     """ IPC motor card read out for the limit switches and reference switch """
 
     parameter_overrides = {
-         'first' : Override(mandatory=False, default=5, settable=False),
-         'last' : Override(mandatory=False, default=7, settable=False),
+        'first': Override(mandatory=False, default=5, settable=False),
+        'last': Override(mandatory=False, default=7, settable=False),
     }
 
     def doInit(self, mode):
@@ -1199,7 +1213,7 @@ class IPCSwitches(Input):
 
     def doStatus(self, maxage=0):
         try:
-            _ = self._attached_bus.get(self.addr, 134)
+            self._attached_bus.get(self.addr, 134)
             return status.OK, ''
         except NicosError:
             return status.ERROR, 'Hardware not found'
@@ -1211,13 +1225,14 @@ class IPCSwitches(Input):
                     4 if the reference switch is set
         """
         try:
-#           temp & 32 'low limit switch'
-#           temp & 64 'high limit switch'
-#           temp & 128 'ref switch'
+            # temp & 32 'low limit switch'
+            # temp & 64 'high limit switch'
+            # temp & 128 'ref switch'
             temp = self._attached_bus.get(self.addr, 134)
             return (temp & self._mask) >> self.first
         except Exception:
             raise NicosError(self, 'cannot evaluate status byte of stepper')
+
 
 class Output(Input, Moveable):
     """

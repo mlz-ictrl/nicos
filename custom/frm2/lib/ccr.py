@@ -30,7 +30,7 @@ import time
 from nicos.core import Moveable, HasLimits, Override, Param, SIMULATION, \
     ConfigurationError, InvalidValueError, ProgrammingError, oneof, \
     floatrange, tacodev, status, Attach
-from nicos.utils import lazy_property, clamp
+from nicos.utils import clamp
 from nicos.devices.taco.io import NamedDigitalOutput
 
 
@@ -72,36 +72,37 @@ class CCRControl(HasLimits, Moveable):
         'abslimits': Override(mandatory=False),
     }
 
-    @lazy_property
+    @property
     def stick(self):
         return self._attached_stick
 
-    @lazy_property
+    @property
     def tube(self):
         return self._attached_tube
 
     def doInit(self, mode):
         if mode != SIMULATION:
-            if self.stick is None or self.tube is None:
+            if self._attached_stick is None or self._attached_tube is None:
                 raise ConfigurationError(self, 'Both stick and tube needs to '
                                          'be set for this device!')
-            absmin = min(self.tube.absmin, self.stick.absmin)
-            absmax = self.stick.absmax
+            absmin = min(self._attached_tube.absmin, self._attached_stick.absmin)
+            absmax = self._attached_stick.absmax
             self._setROParam('abslimits', (absmin, absmax))
 
     def __start_tube_stick(self, tubetarget, sticktarget):
-        ok, why = self.tube.isAllowed(tubetarget)
+        ok, why = self._attached_tube.isAllowed(tubetarget)
         if not ok:
             raise InvalidValueError(self, why)
-        ok, why = self.stick.isAllowed(sticktarget)
+        ok, why = self._attached_stick.isAllowed(sticktarget)
         if not ok:
             raise InvalidValueError(self, why)
         self.log.debug('Moving %s to %r and %s to %r' %
-                       (self.tube.name, tubetarget, self.stick, sticktarget))
+                       (self._attached_tube.name, tubetarget,
+                        self._attached_stick, sticktarget))
         try:
-            self.tube.start(tubetarget)
+            self._attached_tube.start(tubetarget)
         finally:
-            self.stick.start(sticktarget)
+            self._attached_stick.start(sticktarget)
 
     def doStart(self, target):
         """Changes the intended setpoint
@@ -117,30 +118,30 @@ class CCRControl(HasLimits, Moveable):
         Normally the absmax of the tube is set to 300K, which is compatible
         with requirements from the SE-group.
         """
-        if target < self.tube.absmax:
+        if target < self._attached_tube.absmax:
             if self.regulationmode == 'stick':
-                self.__start_tube_stick(max(self.tube.absmin, 0), target)
+                self.__start_tube_stick(max(self._attached_tube.absmin, 0), target)
             elif self.regulationmode == 'tube':
-                self.__start_tube_stick(target, max(self.stick.absmin, 0))
+                self.__start_tube_stick(target, max(self._attached_stick.absmin, 0))
             elif self.regulationmode == 'both':
-                self.__start_tube_stick(max(self.tube.absmin, target),
-                                        max(self.stick.absmin, target))
+                self.__start_tube_stick(max(self._attached_tube.absmin, target),
+                                        max(self._attached_stick.absmin, target))
             else:
                 raise ProgrammingError(self, 'unknown mode %r, don\'t know how'
                                        ' to handle it!' % self.regulationmode)
         else:
             self.log.debug('ignoring mode, as target %r is above %s.absmax' %
-                           (target, self.tube.name))
-            self.__start_tube_stick(self.tube.absmax, target)
+                           (target, self._attached_tube.name))
+            self.__start_tube_stick(self._attached_tube.absmax, target)
 
     def doRead(self, maxage=0):
-        if self.stick.target is not None:
-            if self.stick.target >= self.tube.absmax:
-                return self.stick.read(maxage)
+        if self._attached_stick.target is not None:
+            if self._attached_stick.target >= self._attached_tube.absmax:
+                return self._attached_stick.read(maxage)
         if self.regulationmode in ('stick', 'both'):
-            return self.stick.read(maxage)
+            return self._attached_stick.read(maxage)
         elif self.regulationmode == 'tube':
-            return self.tube.read(maxage)
+            return self._attached_tube.read(maxage)
         else:
             raise ProgrammingError(self, 'unknown mode %r, don\'t know how to '
                                    'handle it!' % self.regulationmode)
@@ -155,24 +156,24 @@ class CCRControl(HasLimits, Moveable):
 
     def __set_param(self, attrname, value):
         self.log.debug('Setting param %s to %r' % (attrname, value))
-        setattr(self.tube, attrname, value)
-        setattr(self.stick, attrname, value)
+        setattr(self._attached_tube, attrname, value)
+        setattr(self._attached_stick, attrname, value)
 
     def __get_param(self, attrname):
         # take first match
-        tubeval = getattr(self.tube, attrname)
-        stickval = getattr(self.stick, attrname)
+        tubeval = getattr(self._attached_tube, attrname)
+        stickval = getattr(self._attached_stick, attrname)
         if tubeval == stickval:
             res = tubeval
         else:
             self.log.warning('%s.%s (%r) != %s.%s (%r), please set %s.%s to '
                              'the desired value!' %
-                             (self.tube.name, attrname, tubeval,
-                              self.stick.name, attrname, stickval,
+                             (self._attached_tube.name, attrname, tubeval,
+                              self._attached_stick.name, attrname, stickval,
                               self.name, attrname))
             # try to take the 'more important' one
-            if self.stick.target is not None and \
-               self.stick.target > self.tube.absmax:
+            if self._attached_stick.target is not None and \
+               self._attached_stick.target > self._attached_tube.absmax:
                 res = stickval
             else:
                 if self.regulationmode == 'stick':
@@ -183,8 +184,8 @@ class CCRControl(HasLimits, Moveable):
                     raise ConfigurationError(self, 'Parameters %s.%s and %s.%s'
                                              ' differ! please set them using '
                                              '%s.%s only.' % (
-                                                 self.tube.name, attrname,
-                                                 self.stick.name, attrname,
+                                                 self._attached_tube.name, attrname,
+                                                 self._attached_stick.name, attrname,
                                                  self.name, attrname))
 
         self.log.debug('param %s is %r' % (attrname, res))
@@ -222,14 +223,14 @@ class CCRControl(HasLimits, Moveable):
                       '%s...' % (value, self.name))
 
     def doReadSetpoint(self):
-        if self.stick.target is not None:
-            if self.stick.target >= self.tube.absmax:
-                return self.stick.setpoint
+        if self._attached_stick.target is not None:
+            if self._attached_stick.target >= self._attached_tube.absmax:
+                return self._attached_stick.setpoint
         # take the more important one, closer to the sample.
         if self.regulationmode in ('stick', 'both'):
-            return self.stick.setpoint
+            return self._attached_stick.setpoint
         elif self.regulationmode == 'tube':
-            return self.tube.setpoint
+            return self._attached_tube.setpoint
         else:
             raise ProgrammingError(self, 'unknown mode %r, don\'t know how to '
                                    'handle it!' % self.regulationmode)

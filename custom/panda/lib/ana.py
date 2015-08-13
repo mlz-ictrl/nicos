@@ -34,6 +34,7 @@ class AnaBlocks(Moveable):
     attached_devices = {
         'beckhoff': Attach('X', Beckhoff),
     }
+
     parameters = {
         'powertime': Param('How long to power pushing down blocks', type=int,
                            default=10, settable=True),
@@ -42,41 +43,38 @@ class AnaBlocks(Moveable):
 
     valuetype = int
 
-    @property
-    def bhd(self):  # BeckHoffDevice
-        return self._attached_beckhoff
-
     def doInit(self, mode):
         self._timer = None
         # disable beckhoff watchdog
-        self.bhd.WriteWordOutput(0x1120, 0)
+        self._attached_beckhoff.WriteWordOutput(0x1120, 0)
 
-        # self.bhd.WriteReg( 4, 31, 0x1235)   # enable user regs
+        # enable user regs
+        # self._attached_beckhoff.WriteReg( 4, 31, 0x1235)
         # make sure it has worked, or bail out early!
-        # assert( self.bhd.ReadReg( 4, 31 ) == 0x1235 )
+        # assert( self._attached_beckhoff.ReadReg( 4, 31 ) == 0x1235 )
         # disable watchdog
-        # self.bhd.WriteReg( 4, 32, self.bhd.ReadReg( 4, 32 ) | 4 )
+        # self._attached_beckhoff.WriteReg( 4, 32, self._attached_beckhoff.ReadReg( 4, 32 ) | 4 )
 
     # define a input helper
     def input2(self, which):
         try:
-            return ''.join([str(i) for i in self.bhd.ReadBitsOutput(which, 2)])
+            return ''.join([str(i) for i in self._attached_beckhoff.ReadBitsOutput(which, 2)])
         except Exception:
-            return ''.join([str(i) for i in self.bhd.ReadBitsOutput(which, 2)])
+            return ''.join([str(i) for i in self._attached_beckhoff.ReadBitsOutput(which, 2)])
 
     def output2(self, where, what):
         if what in ['00', 0]:
-            self.bhd.WriteBitsOutput(where, [0, 0])  # both coils off
+            self._attached_beckhoff.WriteBitsOutput(where, [0, 0])  # both coils off
         elif what in ['10', 1]:
-            self.bhd.WriteBitsOutput(where, [0, 1])  # move down
+            self._attached_beckhoff.WriteBitsOutput(where, [0, 1])  # move down
         elif what in ['01', 2]:
-            self.bhd.WriteBitsOutput(where, [1, 0])  # move up
+            self._attached_beckhoff.WriteBitsOutput(where, [1, 0])  # move up
         elif what in ['11', 3]:
             # both coils energized, AVOID THIS!
-            self.bhd.WriteBitsOutput(where, [1, 1])
+            self._attached_beckhoff.WriteBitsOutput(where, [1, 1])
 
     def myread(self):
-        return ''.join(['1' if self.bhd.ReadBitOutput(i) else '0'
+        return ''.join(['1' if self._attached_beckhoff.ReadBitOutput(i) else '0'
                         for i in range(34, -2, -2)])
 
     def doRead(self, maxage=0):
@@ -85,7 +83,8 @@ class AnaBlocks(Moveable):
     def doStatus(self, maxage=0):
         r = ''
         for i in range(0, 36, 2):
-            j = self.bhd.ReadBitOutput(i)+2*self.bhd.ReadBitOutput(i+1)
+            j = self._attached_beckhoff.ReadBitOutput(i) + \
+                2 * self._attached_beckhoff.ReadBitOutput(i + 1)
             r = ['_', '1', '0', 'X'][j] + r
         return status.OK, 'idle: ' + r
 
@@ -117,7 +116,7 @@ class AnaBlocks(Moveable):
         elif force:
             for k, v in force:
                 self.output2(k, v)
-        if self.powertime >= 1:
+        if self.powertime > 0:
             import threading
             self._timer = threading.Timer(self.powertime, self.powersaver)
             self._timer.start()  # switch off down's after powertime seconds

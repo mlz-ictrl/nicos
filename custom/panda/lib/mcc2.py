@@ -30,7 +30,6 @@ from IO import StringIO
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
     usermethod, Param, CommunicationError, HardwareError, MoveError, \
     Device, Readable
-from nicos.utils import lazy_property
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco import TacoDevice
 from nicos.core import Attach, SIMULATION
@@ -60,15 +59,11 @@ class MCC2core(Device):
                              type=int, settable=False, volatile=True),
     }
 
-    @lazy_property
-    def bus(self):
-        return self._attached_bus
-
     def comm(self, cmd, forcechannel=True):
         if forcechannel:
             cmd = cmd.replace('X', self.channel).replace('Y', self.channel)
         self.log.debug('comm: %r' % cmd)
-        temp = self.bus.communicate('\x02' + hex(self.addr)[-1] + cmd + '\x03')
+        temp = self._attached_bus.communicate('\x02' + hex(self.addr)[-1] + cmd + '\x03')
         if len(temp) >= 2 and temp[0] == '\x02':  # strip beginning STX
             temp = temp[1:]
             if temp[-1] == '\x03':  # strip optional ending stx

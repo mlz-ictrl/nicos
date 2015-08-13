@@ -342,59 +342,55 @@ class MonoWechsler(Device):
     shields = ['111', '111', '111', '111']  # which magzinslot after changing
     # (e.g. Put a PE dummy to 101 and set this to ('101,'*4).split(',')
 
-    @property
-    def bhd(self):  # BeckHoffDevice
-        return self._attached_beckhoff
-
     def doInit(self, mode):
-        self.bhd.WriteWordOutput(0x1120, 0)  # disable BK9100 Watchdog....
+        self._attached_beckhoff.WriteWordOutput(0x1120, 0)  # disable BK9100 Watchdog....
         # initialize DC-Motor device (KL2552)
         # Channel 1 is at baseaddr 4 and connects to the Lift
-        self.bhd.WriteReg(4, 31, 0x1235)  # enable user regs
+        self._attached_beckhoff.WriteReg(4, 31, 0x1235)  # enable user regs
         # make sure it has worked, or bail out early!
-        assert(self.bhd.ReadReg(4, 31) == 0x1235)
+        assert(self._attached_beckhoff.ReadReg(4, 31) == 0x1235)
 
         # disable watchdog
-        self.bhd.WriteReg(4, 32, self.bhd.ReadReg(4, 32) | 4)
-        self.bhd.WriteReg(4, 34, 6500)  # max 6,5A continous current
-        self.bhd.WriteReg(4, 35, 860)  # 0,86A normal current
-        self.bhd.WriteReg(4, 36, 30000)  # 30V normal voltage
-        self.bhd.WriteReg(4, 43, 3600)  # 3600 RPM
-        self.bhd.WriteReg(4, 44, 5800)  # R_i=5,8 Ohm
+        self._attached_beckhoff.WriteReg(4, 32, self._attached_beckhoff.ReadReg(4, 32) | 4)
+        self._attached_beckhoff.WriteReg(4, 34, 6500)  # max 6,5A continous current
+        self._attached_beckhoff.WriteReg(4, 35, 860)  # 0,86A normal current
+        self._attached_beckhoff.WriteReg(4, 36, 30000)  # 30V normal voltage
+        self._attached_beckhoff.WriteReg(4, 43, 3600)  # 3600 RPM
+        self._attached_beckhoff.WriteReg(4, 44, 5800)  # R_i=5,8 Ohm
         # set Flags: 16=moving positive, 32=moving negative, 8= enable driver
-        self.bhd.WriteReg(4, 0, self.bhd.ReadReg(4, 0) & 0xf | 32 | 16 | 4 | 8)
+        self._attached_beckhoff.WriteReg(4, 0, self._attached_beckhoff.ReadReg(4, 0) & 0xf | 32 | 16 | 4 | 8)
         # b7=0: normal operation, b5=1: enable Channel 1
-        self.bhd.WriteWordOutput(0x800+4, 0x20)
+        self._attached_beckhoff.WriteWordOutput(0x800+4, 0x20)
         # WARNING: SIGNED INT16, but we transfer unsigned values!
-        self.bhd.WriteWordOutput(0x800+5, 0x0)
+        self._attached_beckhoff.WriteWordOutput(0x800+5, 0x0)
         # not to self: positive= up, negative = down (positive=1..0x7fff,
         # negative=0xffff..0x8000, zero=0)
 
         # now init second channel
         # Channel 2 is at baseaddr 6 and connects to the rotatary magazin
-        self.bhd.WriteReg(6, 31, 0x1235)  # enable user regs
+        self._attached_beckhoff.WriteReg(6, 31, 0x1235)  # enable user regs
         # make sure it has worked, or bail out early!
-        assert(self.bhd.ReadReg(6, 31) == 0x1235)
+        assert(self._attached_beckhoff.ReadReg(6, 31) == 0x1235)
 
         # disable watchdog
-        self.bhd.WriteReg(6, 32, self.bhd.ReadReg(6, 32) | 4)
-        self.bhd.WriteReg(6, 34, 8000)  # max 8A continous current
-        self.bhd.WriteReg(6, 35, 1250)  # 1,25A normal current
-        self.bhd.WriteReg(6, 36, 30000)  # 30V normal voltage
-        self.bhd.WriteReg(6, 43, 3100)  # 3100 RPM
-        self.bhd.WriteReg(6, 44, 4100)  # R_i=4,1 Ohm
+        self._attached_beckhoff.WriteReg(6, 32, self._attached_beckhoff.ReadReg(6, 32) | 4)
+        self._attached_beckhoff.WriteReg(6, 34, 8000)  # max 8A continous current
+        self._attached_beckhoff.WriteReg(6, 35, 1250)  # 1,25A normal current
+        self._attached_beckhoff.WriteReg(6, 36, 30000)  # 30V normal voltage
+        self._attached_beckhoff.WriteReg(6, 43, 3100)  # 3100 RPM
+        self._attached_beckhoff.WriteReg(6, 44, 4100)  # R_i=4,1 Ohm
         # set Flags: 16=moving positive, 32=moving negative, 8= enable driver
-        self.bhd.WriteReg(6, 0, self.bhd.ReadReg(4, 0) & 0xf | 32 | 16 | 4 | 8)
+        self._attached_beckhoff.WriteReg(6, 0, self._attached_beckhoff.ReadReg(4, 0) & 0xf | 32 | 16 | 4 | 8)
         # b7=0: normal operation, b5=1: enable Channel 1
-        self.bhd.WriteWordOutput(0x800+6, 0x20)
+        self._attached_beckhoff.WriteWordOutput(0x800+6, 0x20)
         # WARNING: SIGNED INT16, but we transfer unsigned values!
-        self.bhd.WriteWordOutput(0x800+7, 0x0)
+        self._attached_beckhoff.WriteWordOutput(0x800+7, 0x0)
         # not to self: positive= up, negative = down (positive=1..0x7fff,
         # negative=0xffff..0x8000, zero=0)
 
     # define a input helper
     def input2(self, which):
-        return ''.join([str(i) for i in self.bhd.ReadBitsInput(which, 2)])
+        return ''.join([str(i) for i in self._attached_beckhoff.ReadBitsInput(which, 2)])
     # define all inputs
 
     def Monogreifer_011_Rechts(self):
@@ -720,12 +716,12 @@ class MonoWechsler(Device):
             if r[1] == '1':
                 raise HWError('Bremse Lift Kurzschluss !')
             # state OK, read current setting and return
-            return 1-self.bhd.ReadBitOutput(0)
+            return 1-self._attached_beckhoff.ReadBitOutput(0)
         else:
             if args[0]:
-                return self.bhd.WriteBitOutput(0, 0)
+                return self._attached_beckhoff.WriteBitOutput(0, 0)
             else:
-                return self.bhd.WriteBitOutput(0, 1)
+                return self._attached_beckhoff.WriteBitOutput(0, 1)
 
     # Bremse invertiert !!!
     def Magazin_Bremse(self, *args):
@@ -736,12 +732,12 @@ class MonoWechsler(Device):
             if r[1] == '1':
                 raise HWError('Bremse Magazin Kurzschluss !')
             # state OK, read current setting and return
-            return 1-self.bhd.ReadBitOutput(1)
+            return 1-self._attached_beckhoff.ReadBitOutput(1)
         else:
             if args[0]:
-                return self.bhd.WriteBitOutput(1, 0)
+                return self._attached_beckhoff.WriteBitOutput(1, 0)
             else:
-                return self.bhd.WriteBitOutput(1, 1)
+                return self._attached_beckhoff.WriteBitOutput(1, 1)
 
     def Lift_Druckluft(self, *args):
         if len(args) == 0:  # read_access
@@ -750,15 +746,15 @@ class MonoWechsler(Device):
                 raise HWError('Druckluft Lift Drahtbruch !')
             if r[1] == '1':
                 raise HWError('Druckluft Lift Kurzschluss !')
-            if self.bhd.ReadBitInput(60) == 0:
+            if self._attached_beckhoff.ReadBitInput(60) == 0:
                 raise HWError('Druckluft Lift: zu geringer Druck! ')
             # state OK, read current setting and return
-            return self.bhd.ReadBitOutput(4)
+            return self._attached_beckhoff.ReadBitOutput(4)
         else:
             if args[0]:
-                return self.bhd.WriteBitOutput(4, 1)
+                return self._attached_beckhoff.WriteBitOutput(4, 1)
             else:
-                return self.bhd.WriteBitOutput(4, 0)
+                return self._attached_beckhoff.WriteBitOutput(4, 0)
 
     def Magazin_Druckluft(self, *args):
         if len(args) == 0:
@@ -767,15 +763,15 @@ class MonoWechsler(Device):
                 raise HWError('Druckluft Magazin Drahtbruch !')
             if r[1] == '1':
                 raise HWError('Druckluft Magazin Kurzschluss !')
-            if self.bhd.ReadBitInput(61) == 0:
+            if self._attached_beckhoff.ReadBitInput(61) == 0:
                 raise HWError('Druckluft Magazin: zu geringer Druck! ')
             # state OK, read current setting and return
-            return self.bhd.ReadBitOutput(5)
+            return self._attached_beckhoff.ReadBitOutput(5)
         else:
             if args[0]:
-                return self.bhd.WriteBitOutput(5, 1)
+                return self._attached_beckhoff.WriteBitOutput(5, 1)
             else:
-                return self.bhd.WriteBitOutput(5, 0)
+                return self._attached_beckhoff.WriteBitOutput(5, 0)
 
     def Mono_Druckluft(self, *args):
         if len(args) == 0:
@@ -784,15 +780,15 @@ class MonoWechsler(Device):
                 raise HWError('Druckluft Mono Drahtbruch !')
             if r[1] == '1':
                 raise HWError('Druckluft Mono Kurzschluss !')
-            if self.bhd.ReadBitInput(62) == 0:
+            if self._attached_beckhoff.ReadBitInput(62) == 0:
                 raise HWError('Druckluft Mono: zu geringer Druck! ')
             # state OK, read current setting and return
-            return self.bhd.ReadBitOutput(8)
+            return self._attached_beckhoff.ReadBitOutput(8)
         else:
             if args[0]:
-                return self.bhd.WriteBitOutput(8, 1)
+                return self._attached_beckhoff.WriteBitOutput(8, 1)
             else:
-                return self.bhd.WriteBitOutput(8, 0)
+                return self._attached_beckhoff.WriteBitOutput(8, 0)
 
     def InhibitRelay(self, *args):
         if len(args) == 0:
@@ -802,18 +798,18 @@ class MonoWechsler(Device):
             if r[1] == '1':
                 raise HWError('InhibitRelay Kurzschluss !')
             # state OK, read current setting and return
-            return self.bhd.ReadBitOutput(9)
+            return self._attached_beckhoff.ReadBitOutput(9)
         else:
             if args[0]:
-                return self.bhd.WriteBitOutput(9, 1)
+                return self._attached_beckhoff.WriteBitOutput(9, 1)
             else:
-                return self.bhd.WriteBitOutput(9, 0)
+                return self._attached_beckhoff.WriteBitOutput(9, 0)
 
     def NotAus(self):
-        return [True, False][self.bhd.ReadBitInput(63)]
+        return [True, False][self._attached_beckhoff.ReadBitInput(63)]
 
     def KL2552_0(self):
-        r = self.bhd.ReadWordInput(4) & 0xff
+        r = self._attached_beckhoff.ReadWordInput(4) & 0xff
         if r < 128:
             if r & 1:
                 return True
@@ -822,7 +818,7 @@ class MonoWechsler(Device):
         return False  # dont mess with index bytes, return false instead !
 
     def KL2552_1(self):
-        r = self.bhd.ReadWordInput(6) & 0xff
+        r = self._attached_beckhoff.ReadWordInput(6) & 0xff
         if r < 128:
             if r & 1:
                 return True
@@ -839,126 +835,126 @@ class MonoWechsler(Device):
         return True
 
     # spare outs (from left to right...)
-    KL2032_0 = property(lambda self: self.bhd.ReadBitOutput(12),
-                        lambda self, x: self.bhd.WriteBitOutput(12, x))
-    KL2032_1 = property(lambda self: self.bhd.ReadBitOutput(13),
-                        lambda self, x: self.bhd.WriteBitOutput(13, x))
-    KL2032_2 = property(lambda self: self.bhd.ReadBitOutput(14),
-                        lambda self, x: self.bhd.WriteBitOutput(14, x))
-    KL2032_3 = property(lambda self: self.bhd.ReadBitOutput(15),
-                        lambda self, x: self.bhd.WriteBitOutput(15, x))
+    KL2032_0 = property(lambda self: self._attached_beckhoff.ReadBitOutput(12),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(12, x))
+    KL2032_1 = property(lambda self: self._attached_beckhoff.ReadBitOutput(13),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(13, x))
+    KL2032_2 = property(lambda self: self._attached_beckhoff.ReadBitOutput(14),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(14, x))
+    KL2032_3 = property(lambda self: self._attached_beckhoff.ReadBitOutput(15),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(15, x))
 
-    KL1859_0_out = property(lambda self: self.bhd.ReadBitOutput(16),
-                            lambda self, x: self.bhd.WriteBitOutput(16, x))
-    KL1859_1_out = property(lambda self: self.bhd.ReadBitOutput(17),
-                            lambda self, x: self.bhd.WriteBitOutput(17, x))
-    KL1859_2_out = property(lambda self: self.bhd.ReadBitOutput(18),
-                            lambda self, x: self.bhd.WriteBitOutput(18, x))
-    KL1859_3_out = property(lambda self: self.bhd.ReadBitOutput(19),
-                            lambda self, x: self.bhd.WriteBitOutput(19, x))
-    KL1859_4_out = property(lambda self: self.bhd.ReadBitOutput(20),
-                            lambda self, x: self.bhd.WriteBitOutput(20, x))
-    KL1859_5_out = property(lambda self: self.bhd.ReadBitOutput(21),
-                            lambda self, x: self.bhd.WriteBitOutput(21, x))
-    KL1859_6_out = property(lambda self: self.bhd.ReadBitOutput(22),
-                            lambda self, x: self.bhd.WriteBitOutput(22, x))
-    KL1859_7_out = property(lambda self: self.bhd.ReadBitOutput(23),
-                            lambda self, x: self.bhd.WriteBitOutput(23, x))
+    KL1859_0_out = property(lambda self: self._attached_beckhoff.ReadBitOutput(16),
+                            lambda self, x: self._attached_beckhoff.WriteBitOutput(16, x))
+    KL1859_1_out = property(lambda self: self._attached_beckhoff.ReadBitOutput(17),
+                            lambda self, x: self._attached_beckhoff.WriteBitOutput(17, x))
+    KL1859_2_out = property(lambda self: self._attached_beckhoff.ReadBitOutput(18),
+                            lambda self, x: self._attached_beckhoff.WriteBitOutput(18, x))
+    KL1859_3_out = property(lambda self: self._attached_beckhoff.ReadBitOutput(19),
+                            lambda self, x: self._attached_beckhoff.WriteBitOutput(19, x))
+    KL1859_4_out = property(lambda self: self._attached_beckhoff.ReadBitOutput(20),
+                            lambda self, x: self._attached_beckhoff.WriteBitOutput(20, x))
+    KL1859_5_out = property(lambda self: self._attached_beckhoff.ReadBitOutput(21),
+                            lambda self, x: self._attached_beckhoff.WriteBitOutput(21, x))
+    KL1859_6_out = property(lambda self: self._attached_beckhoff.ReadBitOutput(22),
+                            lambda self, x: self._attached_beckhoff.WriteBitOutput(22, x))
+    KL1859_7_out = property(lambda self: self._attached_beckhoff.ReadBitOutput(23),
+                            lambda self, x: self._attached_beckhoff.WriteBitOutput(23, x))
 
-    KL2408_0 = property(lambda self: self.bhd.ReadBitOutput(24),
-                        lambda self, x: self.bhd.WriteBitOutput(24, x))
-    KL2408_1 = property(lambda self: self.bhd.ReadBitOutput(25),
-                        lambda self, x: self.bhd.WriteBitOutput(25, x))
-    KL2408_2 = property(lambda self: self.bhd.ReadBitOutput(26),
-                        lambda self, x: self.bhd.WriteBitOutput(26, x))
-    KL2408_3 = property(lambda self: self.bhd.ReadBitOutput(27),
-                        lambda self, x: self.bhd.WriteBitOutput(27, x))
-    KL2408_4 = property(lambda self: self.bhd.ReadBitOutput(28),
-                        lambda self, x: self.bhd.WriteBitOutput(28, x))
-    KL2408_5 = property(lambda self: self.bhd.ReadBitOutput(29),
-                        lambda self, x: self.bhd.WriteBitOutput(29, x))
-    KL2408_6 = property(lambda self: self.bhd.ReadBitOutput(30),
-                        lambda self, x: self.bhd.WriteBitOutput(30, x))
-    KL2408_7 = property(lambda self: self.bhd.ReadBitOutput(31),
-                        lambda self, x: self.bhd.WriteBitOutput(31, x))
+    KL2408_0 = property(lambda self: self._attached_beckhoff.ReadBitOutput(24),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(24, x))
+    KL2408_1 = property(lambda self: self._attached_beckhoff.ReadBitOutput(25),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(25, x))
+    KL2408_2 = property(lambda self: self._attached_beckhoff.ReadBitOutput(26),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(26, x))
+    KL2408_3 = property(lambda self: self._attached_beckhoff.ReadBitOutput(27),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(27, x))
+    KL2408_4 = property(lambda self: self._attached_beckhoff.ReadBitOutput(28),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(28, x))
+    KL2408_5 = property(lambda self: self._attached_beckhoff.ReadBitOutput(29),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(29, x))
+    KL2408_6 = property(lambda self: self._attached_beckhoff.ReadBitOutput(30),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(30, x))
+    KL2408_7 = property(lambda self: self._attached_beckhoff.ReadBitOutput(31),
+                        lambda self, x: self._attached_beckhoff.WriteBitOutput(31, x))
 
     # spare inputs (from left to right...)
     @property
     def KL1808_0(self):
-        return self.bhd.ReadBitInput(64)
+        return self._attached_beckhoff.ReadBitInput(64)
 
     @property
     def KL1808_1(self):
-        return self.bhd.ReadBitInput(65)
+        return self._attached_beckhoff.ReadBitInput(65)
 
     @property
     def KL1808_2(self):
-        return self.bhd.ReadBitInput(66)
+        return self._attached_beckhoff.ReadBitInput(66)
 
     @property
     def KL1808_3(self):
-        return self.bhd.ReadBitInput(67)
+        return self._attached_beckhoff.ReadBitInput(67)
 
     @property
     def KL1808_4(self):
-        return self.bhd.ReadBitInput(68)
+        return self._attached_beckhoff.ReadBitInput(68)
 
     @property
     def KL1808_5(self):
-        return self.bhd.ReadBitInput(69)
+        return self._attached_beckhoff.ReadBitInput(69)
 
     @property
     def KL1808_6(self):
-        return self.bhd.ReadBitInput(70)
+        return self._attached_beckhoff.ReadBitInput(70)
 
     @property
     def KL1808_7(self):
-        return self.bhd.ReadBitInput(71)
+        return self._attached_beckhoff.ReadBitInput(71)
 
     @property
     def KL1859_0_In(self):
-        return self.bhd.ReadBitInput(72)
+        return self._attached_beckhoff.ReadBitInput(72)
 
     @property
     def KL1859_1_In(self):
-        return self.bhd.ReadBitInput(73)
+        return self._attached_beckhoff.ReadBitInput(73)
 
     @property
     def KL1859_2_In(self):
-        return self.bhd.ReadBitInput(74)
+        return self._attached_beckhoff.ReadBitInput(74)
 
     @property
     def KL1859_3_In(self):
-        return self.bhd.ReadBitInput(75)
+        return self._attached_beckhoff.ReadBitInput(75)
 
     @property
     def KL1859_4_In(self):
-        return self.bhd.ReadBitInput(76)
+        return self._attached_beckhoff.ReadBitInput(76)
 
     @property
     def KL1859_5_In(self):
-        return self.bhd.ReadBitInput(77)
+        return self._attached_beckhoff.ReadBitInput(77)
 
     @property
     def KL1859_6_In(self):
-        return self.bhd.ReadBitInput(78)
+        return self._attached_beckhoff.ReadBitInput(78)
 
     @property
     def KL1859_7_In(self):
-        return self.bhd.ReadBitInput(79)
+        return self._attached_beckhoff.ReadBitInput(79)
 
     # Bus coupler specific stuff
     @property
     def BK9100_CouplerState(self):
-        return self.bhd.ReadWordInput(13)
+        return self._attached_beckhoff.ReadWordInput(13)
 
     @property
     def BK9100_BoxState(self):
-        return self.bhd.ReadWordInput(14)
+        return self._attached_beckhoff.ReadWordInput(14)
 
     @property
     def BK9100_MissedCnt(self):
-        return self.bhd.ReadWordInput(15)
+        return self._attached_beckhoff.ReadWordInput(15)
 
     # now the middle layer functions....
     # first make Motors more easily accessible
@@ -968,15 +964,15 @@ class MonoWechsler(Device):
         Sinnvolle Werte sind +30000/-20000 (schnell), +/-5000 (langsam)'''
         assert(-32767 <= speed <= 32767)
         if speed == 0:
-            self.bhd.WriteWordOutput(0x805, 0)  # setze Speed 0
+            self._attached_beckhoff.WriteWordOutput(0x805, 0)  # setze Speed 0
             self.Lift_Bremse(True)  # aktiviere Bremse
-            self.bhd.WriteWordOutput(0x804, 0)  # loesche Enable-Bit Kanal1
+            self._attached_beckhoff.WriteWordOutput(0x804, 0)  # loesche Enable-Bit Kanal1
         else:
             if speed < 0:
                 speed = speed + 65536   # hack around signed/unsigned stuff...
-            self.bhd.WriteWordOutput(0x805, speed)
+            self._attached_beckhoff.WriteWordOutput(0x805, speed)
             # setze Enable-Bit und fahre los
-            self.bhd.WriteWordOutput(0x804, 0x20)
+            self._attached_beckhoff.WriteWordOutput(0x804, 0x20)
             self.Lift_Bremse(False)  # 'Hand'bremse loesen nicht vergessen!
 
     def FahreMagazinMotor(self, speed):
@@ -986,15 +982,15 @@ class MonoWechsler(Device):
         '''
         assert(-32767 <= speed <= 32767)
         if speed == 0:
-            self.bhd.WriteWordOutput(0x807, 0)  # setze Speed 0
+            self._attached_beckhoff.WriteWordOutput(0x807, 0)  # setze Speed 0
             self.Magazin_Bremse(True)  # aktiviere Bremse
-            self.bhd.WriteWordOutput(0x806, 0)  # loesche Enable-Bit Kanal2
+            self._attached_beckhoff.WriteWordOutput(0x806, 0)  # loesche Enable-Bit Kanal2
         else:
             if speed < 0:
                 speed = speed + 65536  # hack around signed/unsigned stuff...
-            self.bhd.WriteWordOutput(0x807, speed)
+            self._attached_beckhoff.WriteWordOutput(0x807, speed)
             # setze Enable-Bit und fahre los
-            self.bhd.WriteWordOutput(0x806, 0x20)
+            self._attached_beckhoff.WriteWordOutput(0x806, 0x20)
             self.Magazin_Bremse(False)  # Handbremse loesen nicht vergessen!
 
     # allgemeine 'fahrfunktion'

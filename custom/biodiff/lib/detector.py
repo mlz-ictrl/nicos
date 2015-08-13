@@ -230,18 +230,6 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
                                type=float, settable=True, default=30.)
     }
 
-    @property
-    def drum(self):
-        return self._attached_imgdrum
-
-    @property
-    def gammashutter(self):
-        return self._attached_gammashutter
-
-    @property
-    def photoshutter(self):
-        return self._attached_photoshutter
-
     def doInit(self, mode):
         self._t = None
         self.imagetype = ImageType(ImagePlateDetector.MAP_SHAPE[self.pixelsize],
@@ -250,11 +238,11 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
     def _check_shutter(self):
         # TODO: reduce code duplication
         if (self.ctrl_photoshutter
-                and self.photoshutter.read() == Shutter.CLOSED):
+                and self._attached_photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
                                     'exposure, check safety system')
         if (self.ctrl_gammashutter
-                and self.gammashutter.read() == Shutter.CLOSED):
+                and self._attached_gammashutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
@@ -263,42 +251,41 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
         if prepare:
             # close shutter
             if self.ctrl_photoshutter:
-                seq.append(SeqDev(self.photoshutter, Shutter.CLOSED))
+                seq.append(SeqDev(self._attached_photoshutter, Shutter.CLOSED))
             if self.ctrl_gammashutter:
-                seq.append(SeqDev(self.gammashutter, Shutter.CLOSED))
+                seq.append(SeqDev(self._attached_gammashutter, Shutter.CLOSED))
             # erase and expo position
             if self.erase:
-                seq.append(SeqDev(self.drum, ImagePlateDrum.POS_ERASE))
-            seq.append(SeqDev(self.drum, ImagePlateDrum.POS_EXPO))
+                seq.append(SeqDev(self._attached_imgdrum, ImagePlateDrum.POS_ERASE))
+            seq.append(SeqDev(self._attached_imgdrum, ImagePlateDrum.POS_EXPO))
         if expoTime > 0:
             # open shutter
             if self.ctrl_gammashutter:
-                seq.append(SeqDev(self.gammashutter, Shutter.OPEN))
+                seq.append(SeqDev(self._attached_gammashutter, Shutter.OPEN))
             if self.ctrl_photoshutter:
-                seq.append(SeqDev(self.photoshutter, Shutter.OPEN))
+                seq.append(SeqDev(self._attached_photoshutter, Shutter.OPEN))
             # count
             seq.append(SeqSleep(expoTime, "counting for %fs" % expoTime))
             # check if shutter closed during measurement
             seq.append(SeqMethod(self, '_check_shutter'))
             # close shutter
             if self.ctrl_photoshutter:
-                seq.append(SeqDev(self.photoshutter, Shutter.CLOSED))
+                seq.append(SeqDev(self._attached_photoshutter, Shutter.CLOSED))
             if self.ctrl_gammashutter:
-                seq.append(SeqDev(self.gammashutter, Shutter.CLOSED))
+                seq.append(SeqDev(self._attached_gammashutter, Shutter.CLOSED))
             # start readout
-            seq.append(SeqDev(self.drum, ImagePlateDrum.POS_READ))
+            seq.append(SeqDev(self._attached_imgdrum, ImagePlateDrum.POS_READ))
         return seq
 
     def _runFailed(self, step, action, exception):
         self.log.debug("RUNFAILED: %s" % action)
         self.log.debug("     args: %s" % action.args)
         self.log.debug("   device: %s" % action.dev)
-        if action.dev == self.drum:
-            self.log.warning("""%s failed.
-Exception was:
-%s
-
-Retrying.""" % (action, exception))
+        if action.dev == self._attached_imgdrum:
+            self.log.warning("%s failed.\n"
+                             "Exception was:\n\n"
+                             "%s\n\n"
+                             "Retrying." % (action, exception))
             return 3
         else:
             raise exception
@@ -337,7 +324,7 @@ Retrying.""" % (action, exception))
             self._seq_thread.join()
         except AttributeError:
             pass
-        self.drum.stop()
+        self._attached_imgdrum.stop()
 
     def valueInfo(self):
         return Value(self.name + ".file", type="info", fmtstr="%s"),
@@ -362,37 +349,37 @@ Retrying.""" % (action, exception))
 
     def readFinalImage(self):
         narray = None
-        timeout = self.drum._dev.get_timeout_millis()
-        self.drum._dev.set_timeout_millis(self.readout_millis)
+        timeout = self._attached_imgdrum._dev.get_timeout_millis()
+        self._attached_imgdrum._dev.set_timeout_millis(self.readout_millis)
         try:
-            narray = self.drum._dev.Bitmap16Bit
+            narray = self._attached_imgdrum._dev.Bitmap16Bit
         finally:
-            self.drum._dev.set_timeout_millis(timeout)
+            self._attached_imgdrum._dev.set_timeout_millis(timeout)
         return narray
 
     def doReadRoi(self):
-        return (0, self.drum._dev.InterestZoneY, 1250,
-                self.drum._dev.InterestZoneH)
+        return (0, self._attached_imgdrum._dev.InterestZoneY, 1250,
+                self._attached_imgdrum._dev.InterestZoneH)
 
     def doReadPixelsize(self):
-        return self.drum._dev.PixelSize
+        return self._attached_imgdrum._dev.PixelSize
 
     def doReadFile(self):
-        return self.drum._dev.ImageFile
+        return self._attached_imgdrum._dev.ImageFile
 
     def doWriteRoi(self, value):
         self.log.warning("setting x offset and width are not supported "
                          "- ignored.")
-        self.drum._dev.InterestZoneY = value[1]
-        self.drum._dev.InterestZoneH = value[3]
+        self._attached_imgdrum._dev.InterestZoneY = value[1]
+        self._attached_imgdrum._dev.InterestZoneH = value[3]
 
     def doWritePixelsize(self, value):
-        self.drum._dev.PixelSize = value
+        self._attached_imgdrum._dev.PixelSize = value
         self.imagetype = ImageType(ImagePlateDetector.MAP_SHAPE[value],
                                    numpy.uint16)
 
     def doWriteFile(self, value):
-        self.drum._dev.ImageFile = value
+        self._attached_imgdrum._dev.ImageFile = value
 
 
 class Andor2LimaCCDFPGA(Andor2LimaCCD):
@@ -442,29 +429,17 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         "subdir": Override(mandatory=False, settable=False),
     }
 
-    @property
-    def ccd(self):
-        return self._attached_ccd
-
-    @property
-    def gammashutter(self):
-        return self._attached_gammashutter
-
-    @property
-    def photoshutter(self):
-        return self._attached_photoshutter
-
     def doInit(self, mode):
-        self.imagetype = self.ccd.imagetype
+        self.imagetype = self._attached_ccd.imagetype
 
     def _check_shutter(self):
         # TODO: reduce code duplication
         if (self.ctrl_photoshutter
-                and self.photoshutter.read() == Shutter.CLOSED):
+                and self._attached_photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
                                     'exposure, check safety system')
         if (self.ctrl_gammashutter
-                and self.gammashutter.read() == Shutter.CLOSED):
+                and self._attached_gammashutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
@@ -478,19 +453,19 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         seq = []
         # open shutter
         if self.ctrl_gammashutter:
-            seq.append(SeqDev(self.gammashutter, Shutter.OPEN))
+            seq.append(SeqDev(self._attached_gammashutter, Shutter.OPEN))
         if self.ctrl_photoshutter:
-            seq.append(SeqDev(self.photoshutter, Shutter.OPEN))
+            seq.append(SeqDev(self._attached_photoshutter, Shutter.OPEN))
         # count
-        seq.append(SeqMethod(self.ccd, 'start'))
-        seq.append(SeqMethod(self.ccd, 'wait'))
+        seq.append(SeqMethod(self._attached_ccd, 'start'))
+        seq.append(SeqMethod(self._attached_ccd, 'wait'))
         # check if shutter closed during measurement
         seq.append(SeqMethod(self, '_check_shutter'))
         # close shutter
         if self.ctrl_photoshutter:
-            seq.append(SeqDev(self.photoshutter, Shutter.CLOSED))
+            seq.append(SeqDev(self._attached_photoshutter, Shutter.CLOSED))
         if self.ctrl_gammashutter:
-            seq.append(SeqDev(self.gammashutter, Shutter.CLOSED))
+            seq.append(SeqDev(self._attached_gammashutter, Shutter.CLOSED))
         return seq
 
     def doStop(self):
@@ -501,7 +476,7 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
             self._seq_thread.join()
         except AttributeError:
             pass
-        self.ccd.stop()
+        self._attached_ccd.stop()
 
     def doSave(self, exception=False):
         # TODO: reduce code duplication
@@ -527,21 +502,21 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
     # -- act as a proxy class for ImageProducer calls ----------------------
 
     def doReadLastfilename(self):
-        return self.ccd.lastfilename
+        return self._attached_ccd.lastfilename
 
     def doWriteLastfilename(self, value):
-        self.ccd.lastfilename = value
+        self._attached_ccd.lastfilename = value
 
     def doReadSubdir(self):
-        return self.ccd.subdir
+        return self._attached_ccd.subdir
 
     def readFinalImage(self):
-        return self.ccd.readFinalImage()
+        return self._attached_ccd.readFinalImage()
 
     # -- act as a proxy class for a Measurable, e.g. Andor2LimaCCDFPGA -----
 
     def doRead(self, maxage=0):
-        return self.ccd.lastfilename
+        return self._attached_ccd.lastfilename
 
     def doSetPreset(self, **preset):
-        self.ccd.doSetPreset(**preset)
+        self._attached_ccd.doSetPreset(**preset)

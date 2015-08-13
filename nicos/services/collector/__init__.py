@@ -55,14 +55,13 @@ class Collector(BaseCacheClient):
 
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
-        self._global = self._attached_globalcache
-        self._global._worker.start()
+        self._attached_globalcache._worker.start()
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if not key.startswith(self._prefix):
             return
         key = key[len(self._prefix):]
         if op == OP_TELL:
-            self._global.put_change(time, key, value or None)
+            self._attached_globalcache.put_change(time, key, value or None)
         elif op == OP_TELLOLD:
-            self._global.put_change(time, key, None)
+            self._attached_globalcache.put_change(time, key, None)

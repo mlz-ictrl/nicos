@@ -203,13 +203,9 @@ class PLCDevice(Readable):
         'unit': Override(mandatory=False, default=''),
         }
 
-    @property
-    def bus(self):
-        return self._attached_bus
-
     def doInit(self, mode):
         if mode != SIMULATION:
-            if self.addr not in self.bus._devices:
+            if self.addr not in self._attached_bus._devices:
                 raise ConfigurationError(self, 'Configured Address %0x04x not '
                                                'exported from the Beckhoff' %
                                                self.addr)
@@ -225,14 +221,14 @@ class SimpleDiscreteInput(PLCDevice):
     valuetype = intrange(0, 65535)
 
     def doRead(self, maxage=0):
-        return self.bus.ReadWord(self.addr)
+        return self._attached_bus.ReadWord(self.addr)
 
 
 class SimpleDiscreteOutput(SimpleDiscreteInput, Moveable):
     def doStart(self, target):
         self.wait()
-        self.bus.WriteWord(self.addr + 1, target)
-        readback = self.bus.ReadWord(self.addr + 1)
+        self._attached_bus.WriteWord(self.addr + 1, target)
+        readback = self._attached_bus.ReadWord(self.addr + 1)
         self.log.debug('Wrote %x, read back %x' % (target, readback))
         if readback != target:
             raise MoveError(self, 'target value %d not accepted, was reset to '
@@ -242,21 +238,21 @@ class SimpleDiscreteOutput(SimpleDiscreteInput, Moveable):
 class JustAWord(SimpleDiscreteInput):
     def doStart(self, target):
         self.wait()
-        self.bus.WriteWord(self.addr, target)
+        self._attached_bus.WriteWord(self.addr, target)
 
 
 class SimpleAnalogInput(PLCDevice):
     valuetype = float
 
     def doRead(self, maxage=0):
-        return self.bus.ReadFloat(self.addr)
+        return self._attached_bus.ReadFloat(self.addr)
 
 
 class SimpleAnalogOutput(Moveable, SimpleAnalogInput):
     def doStart(self, target):
         self.wait()
-        self.bus.WriteFloat(self.addr + 2, target)
-        readback = self.bus.ReadFloat(self.addr + 2)
+        self._attached_bus.WriteFloat(self.addr + 2, target)
+        readback = self._attached_bus.ReadFloat(self.addr + 2)
         self.log.debug('Wrote %g, read back %g' % (target, readback))
         if readback != target:
             raise MoveError(self, 'target value %g not accepted, was reset to '
@@ -265,7 +261,7 @@ class SimpleAnalogOutput(Moveable, SimpleAnalogInput):
 
 class FullDiscreteInput(SimpleDiscreteInput):
     def doStatus(self, maxage=0):
-        Status = self.bus.ReadWord(self.addr + 1)
+        Status = self._attached_bus.ReadWord(self.addr + 1)
         self.log.debug('Statusword = ' + bin(65536 | Status)[3:])
         return STATUS_MAP[Status >> 12], \
             'Status: %s, Aux bits: %s' % (bin(16 | (Status >> 12))[3:],
@@ -274,7 +270,7 @@ class FullDiscreteInput(SimpleDiscreteInput):
 
 class FullDiscreteOutput(SimpleDiscreteOutput):
     def doStatus(self, maxage=0):
-        Status = self.bus.ReadWord(self.addr + 2)
+        Status = self._attached_bus.ReadWord(self.addr + 2)
         self.log.debug('Statusword = ' + bin(65536 | Status)[3:])
         return STATUS_MAP[Status >> 12], \
             'Status: %s, Aux bits: %s' % (bin(16 | (Status >> 12))[3:],
@@ -283,7 +279,7 @@ class FullDiscreteOutput(SimpleDiscreteOutput):
 
 class FullAnalogInput(SimpleAnalogInput):
     def doStatus(self, maxage=0):
-        Status = self.bus.ReadWord(self.addr + 2)
+        Status = self._attached_bus.ReadWord(self.addr + 2)
         self.log.debug('Statusword = ' + bin(65536 | Status)[3:])
         return STATUS_MAP[Status >> 12], \
             'Status: %s, Aux bits: %s' % (bin(16 | (Status >> 12))[3:],
@@ -292,7 +288,7 @@ class FullAnalogInput(SimpleAnalogInput):
 
 class FullAnalogOutput(SimpleAnalogOutput):
     def doStatus(self, maxage=0):
-        Status = self.bus.ReadWord(self.addr + 4)
+        Status = self._attached_bus.ReadWord(self.addr + 4)
         self.log.debug('Statusword = ' + bin(65536 | Status)[3:])
         return STATUS_MAP[Status >> 12], \
             'Status: %s, Aux bits: %s' % (bin(16 | (Status >> 12))[3:],
@@ -699,14 +695,14 @@ class Changer(BaseSequencer):
         self.log.info('lift is at %s' %
                       liftposnames[self._attached_lift.read()])
         try:
-            magpos = self._attached_magazine
+            magpos = self._attached_magazine.read(0)
             self.log.info('magazine is at %r which is assigned to %s' % (
                           magpos, self.monos[self.positions.index(magpos)]))
         except Exception:
             self.log.error('magazine is at an unknown position !!!')
         for n in 'liftclamp magazineclamp tableclamp'.split():
             self.log.info('%s is %s' % (n, self._adevs[n].read()))
-        occ = self._attached_magazineocc.read()
+        occ = self._attached_magazineocc.read(0)
         for i in range(4):
             self.log.info('magazineslot %r is %s empty and %s occupied' %
                           (self.positions[i],

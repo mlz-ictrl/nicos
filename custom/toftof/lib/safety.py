@@ -40,9 +40,7 @@ class SafetyInputs(Readable):
     separate input which is integrated into the NICOS system.
     """
     attached_devices = {
-        'i7053_1': Attach('first 7053 module', DigitalInput),
-        'i7053_2': Attach('second 7053 module', DigitalInput),
-        'i7053_3': Attach('third 7053 module', DigitalInput),
+        'i7053': Attach('three 7053 modules', DigitalInput, multiple=3),
     }
 
     parameter_overrides = {
@@ -51,10 +49,14 @@ class SafetyInputs(Readable):
         'maxage': Override(default=0),
     }
 
+    def _readHWState(self, maxage=0):
+        state = 0
+        for i, sdev in enumerate(self._attached_i7053):
+            state |= (sdev.read(maxage) << (16 * i))
+        return state
+
     def doRead(self, maxage=0):
-        state = (self._attached_i7053_1.read() |
-                 (self._attached_i7053_2.read() << 16) |
-                 (self._attached_i7053_3.read() << 32))
+        state = self._readHWState(maxage)
         self.log.info('val description')
         for i, bit in enumerate(bin(state)[2:][::-1]):
             self.log.info('%s   %s' % (bit, bit_description[i]))
@@ -62,9 +64,7 @@ class SafetyInputs(Readable):
 
     def doStatus(self, maxage=0):
         # XXX define which bits may be active for normal state
-        state = (self._attached_i7053_1.read() |
-                 (self._attached_i7053_2.read() << 16) |
-                 (self._attached_i7053_3.read() << 32))
+        state = self._readHWState(maxage)
         return status.OK, str(state)
 
 
@@ -106,8 +106,4 @@ class Shutter(Moveable):
             return 'open'
 
     def doStatus(self, maxage=0):
-        ret = self.read(maxage)
-        if ret == 'open':
-            return status.BUSY, 'open'
-        else:
-            return status.OK, 'closed'
+        return status.OK, ''

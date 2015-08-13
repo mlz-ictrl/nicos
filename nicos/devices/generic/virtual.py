@@ -140,7 +140,7 @@ class VirtualCoder(HasOffset, Coder):
     }
 
     def doRead(self, maxage=0):
-        val = self._attached_motor and self._attached_motor.read(maxage) or 0
+        val = self._attached_motor.read(maxage) if self._attached_motor else 0
         return val - self.offset
 
     def doStatus(self, maxage=0):
