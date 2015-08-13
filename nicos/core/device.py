@@ -122,8 +122,10 @@ class DeviceMeta(DeviceMixinMeta):
             if isinstance(base, DeviceMeta):
                 seen_nonmixin = True
         newtype = DeviceMixinMeta.__new__(mcs, name, bases, attrs)
+
         # hack around a class creation bug in Python 2
         attrs['__constructed__'] = True
+
         # to debug MRO problems you could use this line
         # print 'MRO:', newtype, newtype.mro()
         for adevname, entry in listitems(newtype.attached_devices):
@@ -139,6 +141,8 @@ class DeviceMeta(DeviceMixinMeta):
                 _devclass = entry[0][0] if _multiple else entry[0]
                 newtype.attached_devices[adevname] = \
                     Attach(entry[1], _devclass, multiple=_multiple)
+
+        # create parameter properties
         for param, info in iteritems(newtype.parameters):
             # parameter names are always lowercased (enforce this)
             if param != param.lower():
@@ -232,6 +236,19 @@ class DeviceMeta(DeviceMixinMeta):
         if 'valuetype' in attrs:
             newtype.valuetype = staticmethod(attrs['valuetype'])
 
+        # check attribute names for the attached devices (created by Device.__init__)
+        for adevname, entry in newtype.attached_devices.items():
+            pname = '_attached_%s' % adevname
+            if newtype.parameters and (pname in newtype.parameters):
+                raise ProgrammingError('%r device: attached device helper '
+                                       'property %r collides with parameter' %
+                                       (name, pname))
+            if pname in attrs:
+                raise ProgrammingError('%r device: attached device helper '
+                                       'property %r collides with attribute' %
+                                       (name, pname))
+
+        # check names of methods to comply with coding style
         for name in attrs:
             if name.startswith(('_', 'do')):
                 continue
@@ -424,7 +441,8 @@ class Device(object):
                             (aname, i + 1, entry.devclass.__name__))
                     dev._sdevs.add(self._name)
                 devlist.append(dev)
-            self._adevs[aname] = devlist[0] if entry.single else devlist
+            self.__dict__['_attached_%s' % aname] = self._adevs[aname] = \
+                devlist[0] if entry.single else devlist
 
     def init(self):
         """Initialize the object; this is called by the NICOS system when the

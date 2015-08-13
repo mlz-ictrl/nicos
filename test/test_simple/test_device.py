@@ -175,6 +175,13 @@ def test_special_methods():
     assert dev.name in repr(dev)
 
 
+def test_attached_devices_property():
+    dev1 = session.getDevice('dev1')
+    dev2 = session.getDevice('dev2_1')
+    # stupid name: _attached_<name of attachment>
+    assert dev2._attached_attached == dev1
+
+
 def test_params():
     dev2 = session.getDevice('dev2_1')
     # make sure adev instances are created
