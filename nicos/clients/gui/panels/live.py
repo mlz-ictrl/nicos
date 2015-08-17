@@ -58,6 +58,8 @@ FILETYPES = {'fits': TYPE_FITS, 'raw': TYPE_RAW}
 
 class LiveDataPanel(Panel):
     panelName = 'Live data view'
+    bar = None
+    menu = None
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
@@ -148,25 +150,30 @@ class LiveDataPanel(Panel):
             self._toftof_profile.close()
 
     def getMenus(self):
-        self.menu = menu = QMenu('&Live data', self)
-        menu.addAction(self.actionPrint)
-        menu.addSeparator()
-        menu.addAction(self.actionSetAsROI)
-        menu.addAction(self.actionUnzoom)
-        menu.addAction(self.actionLogScale)
-        menu.addAction(self.actionNormalized)
-        menu.addAction(self.actionLegend)
-        return [menu]
+        if not self.menu:
+            menu = QMenu('&Live data', self)
+            menu.addAction(self.actionPrint)
+            menu.addSeparator()
+            menu.addAction(self.actionSetAsROI)
+            menu.addAction(self.actionUnzoom)
+            menu.addAction(self.actionLogScale)
+            menu.addAction(self.actionNormalized)
+            menu.addAction(self.actionLegend)
+            self.menu = menu
+        return [self.menu]
 
     def getToolbars(self):
-        bar = QToolBar('Live data')
-        bar.addAction(self.actionPrint)
-        bar.addSeparator()
-        bar.addAction(self.actionLogScale)
-        bar.addSeparator()
-        bar.addAction(self.actionUnzoom)
-        # bar.addAction(self.actionSetAsROI)
-        return [bar]
+        print self.bar
+        if not self.bar:
+            bar = QToolBar('Live data')
+            bar.addAction(self.actionPrint)
+            bar.addSeparator()
+            bar.addAction(self.actionLogScale)
+            bar.addSeparator()
+            bar.addAction(self.actionUnzoom)
+            # bar.addAction(self.actionSetAsROI)
+            self.bar = bar
+        return [self.bar]
 
     def on_widget_customContextMenuRequested(self, point):
         self.menu.popup(self.mapToGlobal(point))

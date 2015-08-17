@@ -51,6 +51,8 @@ my_uipath = path.dirname(__file__)
 
 class SANSPanel(Panel):
     panelName = 'SANS acquisition'
+    bar = None
+    menu = None
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
@@ -118,25 +120,29 @@ class SANSPanel(Panel):
         settings.setValue('geometry', self.saveGeometry())
 
     def getMenus(self):
-        self.menu = menu = QMenu('&Live data', self)
-        menu.addAction(self.actionPrint)
-        menu.addSeparator()
-        menu.addAction(self.actionSetAsROI)
-        menu.addAction(self.actionUnzoom)
-        menu.addAction(self.actionLogScale)
-        menu.addAction(self.actionNormalized)
-        menu.addAction(self.actionLegend)
-        return [menu]
+        if not self.menu:
+            menu = QMenu('&Live data', self)
+            menu.addAction(self.actionPrint)
+            menu.addSeparator()
+            menu.addAction(self.actionSetAsROI)
+            menu.addAction(self.actionUnzoom)
+            menu.addAction(self.actionLogScale)
+            menu.addAction(self.actionNormalized)
+            menu.addAction(self.actionLegend)
+            self.menu = menu
+        return [self.menu]
 
     def getToolbars(self):
-        bar = QToolBar('Live data')
-        bar.addAction(self.actionPrint)
-        bar.addSeparator()
-        bar.addAction(self.actionLogScale)
-        bar.addSeparator()
-        bar.addAction(self.actionUnzoom)
-        #bar.addAction(self.actionSetAsROI)
-        return [bar]
+        if not self.bar:
+            bar = QToolBar('Live data')
+            bar.addAction(self.actionPrint)
+            bar.addSeparator()
+            bar.addAction(self.actionLogScale)
+            bar.addSeparator()
+            bar.addAction(self.actionUnzoom)
+            # bar.addAction(self.actionSetAsROI)
+            self.bar = bar
+        return [self.bar]
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
