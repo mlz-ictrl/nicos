@@ -30,7 +30,8 @@ from PyQt4.QtCore import SIGNAL, Qt, pyqtSignature as qtsig
 
 from nicos.utils import decodeAny
 from nicos.guisupport.widget import NicosWidget
-from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.panels.tabwidget import DetachedWindow
+from nicos.clients.gui.panels import Panel, AuxiliaryWindow, PanelDialog
 from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.pycompat import iteritems
 from nicos.core.params import mailaddress
@@ -163,14 +164,19 @@ class ExpPanel(Panel, DlgUtils):
                           'Please check logfiles....\n' + repr(e))
 
     def on_buttonBox_clicked(self, button):
-        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+        role = self.buttonBox.buttonRole(button)
+        if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
-        else:
-            # Only the next interesting widget title isn't empty
-            parent = self.parentWidget()
-            while not parent.windowTitle():
-                parent = parent.parentWidget()
-            parent.close()
+        elif role == QDialogButtonBox.RejectRole:
+            # close the right instance"""
+            # traverse stack of Widgets and close the right ones...
+            obj = self
+            while hasattr(obj, 'parent'):
+                obj = obj.parent()
+                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
+                                    PanelDialog)):
+                    obj.close()
+                    return
 
     def applyChanges(self):
         done = []
@@ -184,8 +190,8 @@ class ExpPanel(Panel, DlgUtils):
 
         # check conditions
         if self.client.eval('session.experiment.serviceexp', True) and \
-            self.client.eval('session.experiment.proptype', 'user') == 'user' and \
-            self.client.eval('session.experiment.proposal', '') != prop:
+           self.client.eval('session.experiment.proptype', 'user') == 'user' and \
+           self.client.eval('session.experiment.proposal', '') != prop:
             self.showError('Can not directly switch experiments, please use '
                            'FinishExperiment first!')
             return
@@ -343,17 +349,23 @@ class SetupsPanel(Panel, DlgUtils):
                                not self.showPnpBox.isChecked())
 
     def on_buttonBox_clicked(self, button):
+        role = self.buttonBox.buttonRole(button)
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
             self.client.run('NewSetup()')
             self.showInfo('Current setups reloaded.')
             # fall through to the close case
-        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+        elif role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
-        # Only the next interesting widget title isn't empty
-        parent = self.parentWidget()
-        while not parent.windowTitle():
-            parent = parent.parentWidget()
-        parent.close()
+        elif role == QDialogButtonBox.RejectRole:
+            # close the right instance"""
+            # traverse stack of Widgets and close the right ones...
+            obj = self
+            while hasattr(obj, 'parent'):
+                obj = obj.parent()
+                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
+                                    PanelDialog)):
+                    obj.close()
+                    return
 
     def showSetupInfo(self, setup):
         info = self._setupinfo[str(setup)]
@@ -389,6 +401,7 @@ class SetupsPanel(Panel, DlgUtils):
         setups, _ = self._calculateSetups()
         # get includes as well
         seen = set()
+
         def add_includes(s):
             if s in seen or s not in self._setupinfo:
                 return
@@ -396,6 +409,7 @@ class SetupsPanel(Panel, DlgUtils):
             for inc in self._setupinfo[s]['includes']:
                 add_includes(inc)
                 setups.add(inc)
+
         for setup in setups.copy():
             add_includes(setup)
         # now collect alias config
@@ -483,14 +497,19 @@ class DetEnvPanel(Panel, DlgUtils):
                                else Qt.Unchecked)
 
     def on_buttonBox_clicked(self, button):
-        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+        role = self.buttonBox.buttonRole(button)
+        if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
-        else:
-            # Only the next interesting widget title isn't empty
-            parent = self.parentWidget()
-            while not parent.windowTitle():
-                parent = parent.parentWidget()
-            parent.close()
+        elif role == QDialogButtonBox.RejectRole:
+            # close the right instance"""
+            # traverse stack of Widgets and close the right ones...
+            obj = self
+            while hasattr(obj, 'parent'):
+                obj = obj.parent()
+                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
+                                    PanelDialog)):
+                    obj.close()
+                    return
 
     def applyChanges(self):
         done = []
@@ -525,14 +544,19 @@ class GenericSamplePanel(Panel, DlgUtils):
             ch.setClient(self.client)
 
     def on_buttonBox_clicked(self, button):
-        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+        role = self.buttonBox.buttonRole(button)
+        if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
-        else:
-            # Only the next interesting widget title isn't empty
-            parent = self.parentWidget()
-            while not parent.windowTitle():
-                parent = parent.parentWidget()
-            parent.close()
+        elif role == QDialogButtonBox.RejectRole:
+            # close the right instance"""
+            # traverse stack of Widgets and close the right ones...
+            obj = self
+            while hasattr(obj, 'parent'):
+                obj = obj.parent()
+                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
+                                    PanelDialog)):
+                    obj.close()
+                    return
 
     def getEditBoxes(self):
         return [self.samplenameEdit]

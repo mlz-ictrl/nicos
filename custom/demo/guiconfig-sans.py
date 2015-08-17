@@ -29,7 +29,8 @@ from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, \
 
 main_window = tabbed(
     ('SANS acquisition',
-     panel('nicos.demo.gui.sanspanel.SANSPanel'), setups('sans')),
+     panel('nicos.demo.gui.sanspanel.SANSPanel'), setups('sans')
+    ),
     ('Expert mode',
      vsplit(
          hsplit(
@@ -38,14 +39,18 @@ main_window = tabbed(
          ),
          panel('console.ConsolePanel'),
      )),
-    ('SampleChanger', panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
-                            image = 'custom/sans1/lib/gui/sampleChanger11.png',
-                            positions = 11), setups('sans')),
+    ('SampleChanger',
+     panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+           image = 'custom/sans1/lib/gui/sampleChanger11.png', positions = 11),
+     setups('sans')
+    ),
     ('Setup',
-     tabbed(('Experiment', panel('setup_panel.ExpPanel')),
-            ('Setups',     panel('setup_panel.SetupsPanel')),
-            ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
-        )),
+     tabbed(
+         ('Experiment', panel('setup_panel.ExpPanel')),
+         ('Setups',     panel('setup_panel.SetupsPanel')),
+         ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+     )
+    ),
 )
 
 windows = [

@@ -35,7 +35,7 @@ from PyQt4.QtCore import SIGNAL, Qt, QSize, QEvent
 from nicos.core import ProgrammingError
 from nicos.clients.gui.utils import DlgUtils
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel, PanelDialog
-from nicos.clients.gui.panels.tabwidget import DetachedWindow, TearOffTabWidget
+from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.utils import findResource
 from nicos.pycompat import from_maybe_utf8
 
@@ -82,7 +82,7 @@ class CustomButtonPanel(Panel, DlgUtils):
     fancy stuff...
     """
     def __init__(self, parent, client,
-                 buttons=QDialogButtonBox.Close|QDialogButtonBox.Apply):
+                 buttons=QDialogButtonBox.Close | QDialogButtonBox.Apply):
         Panel.__init__(self, parent, client)
         DlgUtils.__init__(self, self.panelName)
 
@@ -123,25 +123,11 @@ class CustomButtonPanel(Panel, DlgUtils):
         """close the right instance"""
         # traverse stack of Widgets and close the right ones...
         obj = self
-        tw = None
         while hasattr(obj, 'parent'):
             obj = obj.parent()
             if isinstance(obj, (DetachedWindow, AuxiliaryWindow, PanelDialog)):
                 obj.close()
                 return
-            elif isinstance(obj, TearOffTabWidget):
-                tw = obj
-        # no window closing, use the tab left of us (if available) or the leftmost
-        if not tw:
-            self.showInfo('This button does not work in the current configuration.')
-            return
-        idx = tw.currentIndex()
-        if idx + 1 < tw.count():
-            tw.setCurrentIndex(idx + 1)
-        elif idx > 0:
-            tw.setCurrentIndex(idx - 1)
-        else:
-            tw.setCurrentIndex(0)
 
     def on_buttonBox_Ok_clicked(self):
         """OK = Apply + Close"""
@@ -205,7 +191,6 @@ class SamplechangerSetupPanel(CustomButtonPanel):
                 msg = 'Loading of Image %r failed:' % image
                 msg += '\n\nCheck GUI config file for %r' % __file__
                 self.showError(msg)
-
 
         self._numSamples = int(options.get('positions', 11))
         self._tableWidget.setRowCount(self._numSamples)

@@ -30,7 +30,8 @@ from PyQt4.QtGui import QDialogButtonBox
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.utils import loadUi
-from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.panels.tabwidget import DetachedWindow
+from nicos.clients.gui.panels import Panel, AuxiliaryWindow, PanelDialog
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.guisupport.utils import setBackgroundColor
 
@@ -77,7 +78,16 @@ class ErrorPanel(Panel):
             TracebackDialog(self, self.outView, url[6:]).show()
 
     def on_buttonBox_clicked(self, button):
-        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
+        role = self.buttonBox.buttonRole(button)
+        if role == QDialogButtonBox.ResetRole:
             self.outView.clear()
-        else:
-            self.parentwindow.close()
+        elif role == QDialogButtonBox.RejectRole:
+            # close the right instance"""
+            # traverse stack of Widgets and close the right ones...
+            obj = self
+            while hasattr(obj, 'parent'):
+                obj = obj.parent()
+                if isinstance(obj, (DetachedWindow, AuxiliaryWindow,
+                                    PanelDialog)):
+                    obj.close()
+                    return
