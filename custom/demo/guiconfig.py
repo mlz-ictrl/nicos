@@ -47,6 +47,10 @@ main_window = docked(
                positions = 11),
          setups('sans'),
         ),
+        ('PiBox',
+         panel('generic.GenericPanel', uifile='custom/demo/lib/gui/piface.ui'),
+         setups('pibox01')
+        ),
 #       ('Setup',
 #        tabbed(
 #           ('Experiment', panel('setup_panel.ExpPanel')),
