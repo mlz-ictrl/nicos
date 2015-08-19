@@ -28,10 +28,40 @@ from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
     tabbed, setups
 
 main_window = docked(
-    vsplit(
-        panel('status.ScriptStatusPanel'),
-        # panel('watch.WatchPanel'),
-        panel('console.ConsolePanel'),
+    tabbed(
+        ('PGAA',
+         panel('nicos.pgaa.gui.panels.PGAAPanel'),
+         setups('pgaa'),
+        ),
+        ('Shutter/Attenuators',
+         panel('generic.GenericPanel', uifile='custom/pgaa/lib/gui/shutter.ui'),
+         setups('pgaa'),
+        ),
+        ('SANS acquisition',
+         panel('nicos.demo.gui.sanspanel.SANSPanel'),
+         setups('sans')
+        ),
+        ('SampleChanger',
+         panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
+               image = 'custom/sans1/lib/gui/sampleChanger11.png',
+               positions = 11),
+         setups('sans'),
+        ),
+#       ('Setup',
+#        tabbed(
+#           ('Experiment', panel('setup_panel.ExpPanel')),
+#           ('Setups',     panel('setup_panel.SetupsPanel')),
+#           ('Detectors/Environment', panel('setup_panel.DetEnvPanel')),
+#        ),
+#        setups('sans'),
+#       ),
+        ('Command line',
+         vsplit(
+            panel('status.ScriptStatusPanel'),
+            # panel('watch.WatchPanel'),
+            panel('console.ConsolePanel'),
+         ),
+        )
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
