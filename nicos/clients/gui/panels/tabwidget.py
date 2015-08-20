@@ -219,7 +219,7 @@ class TearOffTabWidget(QTabWidget):
 
         for p in tearOffWidget.panels:
             if hasattr(p, 'menuToolsActions'):
-                topLevelWindow = topLevelWidget(p)
+                topLevelWindow = self.topLevelWidget(p)
 
                 if hasattr(topLevelWindow, 'menuTools'):
                     for action in p.menuToolsActions:
@@ -235,7 +235,7 @@ class TearOffTabWidget(QTabWidget):
 
             for toolbar in p.getToolbars():
                 toolbar.hide()
-                topLevelWindow = topLevelWidget(p)
+                topLevelWindow = self.topLevelWidget(p)
                 topLevelWindow.removeToolBar(toolbar)
 
                 detachWindow.addToolBar(toolbar)
@@ -256,7 +256,7 @@ class TearOffTabWidget(QTabWidget):
 
         for p in tearOffWidget.panels:
             if hasattr(p, 'menuToolsActions'):
-                topLevelWindow = topLevelWidget(self)
+                topLevelWindow = self.topLevelWidget(self)
 
                 if hasattr(topLevelWindow, 'menuTools'):
                     for action in p.menuToolsActions:
@@ -297,7 +297,7 @@ class TearOffTabWidget(QTabWidget):
             if self.widget(self.previousTabIdx):
                 for p in self.widget(self.previousTabIdx).panels:
                     if hasattr(p, 'menuToolsActions'):
-                        topLevelWindow = topLevelWidget(p)
+                        topLevelWindow = self.topLevelWidget(p)
 
                         if hasattr(topLevelWindow, 'menuTools'):
                             for action in p.menuToolsActions:
@@ -308,7 +308,7 @@ class TearOffTabWidget(QTabWidget):
                 p.getMenus()
 
                 if hasattr(p, 'menuToolsActions'):
-                    topLevelWindow = topLevelWidget(p)
+                    topLevelWindow = self.topLevelWidget(p)
 
                     if hasattr(topLevelWindow, 'menuTools'):
                         for action in p.menuToolsActions:
@@ -326,6 +326,15 @@ class TearOffTabWidget(QTabWidget):
                     menu.setVisible(True)
 
         self.previousTabIdx = index
+
+    def topLevelWidget(self, w):
+        widget = w
+        while True:
+            parent = widget.parent()
+            if not parent:
+                break
+            widget = parent
+        return widget
 
 
 class DetachedWindow(QMainWindow):
@@ -346,16 +355,6 @@ class DetachedWindow(QMainWindow):
         self.emit(SIGNAL('on_close'), self)
 
 
-def topLevelWidget(w):
-    widget = w
-    while True:
-        parent = widget.parent()
-        if not parent:
-            break
-        widget = parent
-    return widget
-
-
 def firstWindow(w):
     widget = w
     while True:
@@ -367,16 +366,4 @@ def firstWindow(w):
             widget = parent
             if widget.isWindow():
                 break
-    return widget
-
-
-def findTabWidget(w):
-    widget = w
-    while True:
-        parent = widget.parent()
-        if not parent:
-            return None
-        widget = parent
-        if isinstance(widget, TearOffTabWidget):
-            break
     return widget

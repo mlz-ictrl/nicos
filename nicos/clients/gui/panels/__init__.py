@@ -238,108 +238,129 @@ class Panel(QWidget, DlgUtils):
             self.setWidgetVisible.emit(self, enabled)
 
 
-def createWindowItem(item, window, menuwindow, topwindow):
+def createPanel(item, window, menuwindow, topwindow):
+    prefixes = ('nicos.clients.gui.panels.',)
+    cls = importString(item.clsname, prefixes=prefixes)
+    p = cls(menuwindow, window.client)
+    p.setOptions(item.options)
+    window.panels.append(p)
+    window.client.register(p, 'session/mastersetup')
+    if p not in topwindow.panels:
+        topwindow.panels.append(p)
 
+    for toolbar in p.getToolbars():
+        # this helps for serializing window state
+        toolbar.setObjectName(toolbar.windowTitle())
+        if hasattr(menuwindow, 'toolBarWindows'):
+            menuwindow.insertToolBar(menuwindow.toolBarWindows, toolbar)
+        else:
+            menuwindow.addToolBar(toolbar)
+    for menu in p.getMenus():
+        if hasattr(menuwindow, 'menuWindows'):
+            p.actions.update((menuwindow.menuBar().insertMenu(
+                              menuwindow.menuWindows.menuAction(),
+                              menu),))
+        else:
+            p.actions.update((menuwindow.menuBar().addMenu(menu),))
+
+    p.setCustomStyle(window.user_font, window.user_color)
+    return p
+
+
+def createVerticalSplitter(item, window, menuwindow, topwindow):
+    sp = QSplitter(Qt.Vertical)
+    window.splitters.append(sp)
+    for subitem in item:
+        sub = createWindowItem(subitem, window, menuwindow, topwindow)
+        sp.addWidget(sub)
+    return sp
+
+
+def createHorizontalSplitter(item, window, menuwindow, topwindow):
+    sp = QSplitter(Qt.Horizontal)
+    window.splitters.append(sp)
+    for subitem in item:
+        sub = createWindowItem(subitem, window, menuwindow, topwindow)
+        sp.addWidget(sub)
+    return sp
+
+
+def createDockedWidget(item, window, menuwindow, topwindow):
     dockPosMap = {'left':   Qt.LeftDockWidgetArea,
                   'right':  Qt.RightDockWidgetArea,
                   'top':    Qt.TopDockWidgetArea,
                   'bottom': Qt.BottomDockWidgetArea}
-    prefixes = ('nicos.clients.gui.panels.',)
+
+    mainitem, dockitems = item
+    main = createWindowItem(mainitem, window, menuwindow, topwindow)
+    for title, item in dockitems:
+        dw = QDockWidget(title, window)
+        # prevent closing the dock widget
+        dw.setFeatures(QDockWidget.DockWidgetMovable |
+                       QDockWidget.DockWidgetFloatable)
+        # make the dock title bold
+        dw.setStyleSheet('QDockWidget { font-weight: bold; }')
+        dw.setObjectName(title)
+        sub = createWindowItem(item, window, menuwindow, topwindow)
+        if isinstance(sub, Panel):
+            sub.hideTitle()
+        dw.setWidget(sub)
+        dw.setContentsMargins(6, 6, 6, 6)
+        dockPos = item.options.get('dockpos', 'left')
+        if dockPos not in dockPosMap:
+            menuwindow.log.warn('Illegal dockpos specification %s for panel %r'
+                                % (dockPos, title))
+            dockPos = 'left'
+        menuwindow.addDockWidget(dockPosMap[dockPos], dw)
+    return main
+
+
+def createTabWidget(item, window, menuwindow, topwindow):
+    tw = TearOffTabWidget(menuwindow)
+    tw.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;margin:0;'
+                     'padding:0;border:none}')
+    # don't draw a frame around the tab contents
+    tw.setDocumentMode(True)
+    for entry in item:
+        subwindow = AuxiliarySubWindow(tw)
+        subwindow.mainwindow = window.mainwindow
+        subwindow.user_color = window.user_color
+        # we have to nest one step to get consistent layout spacing
+        # around the central widget
+        central = QWidget(subwindow)
+        layout = QVBoxLayout()
+        # only keep margin at the top (below the tabs)
+        layout.setContentsMargins(0, 6, 0, 0)
+        if len(entry) == 2:
+            (title, subitem, setupSpec) = entry + (None,)
+        else:
+            (title, subitem, setupSpec) = entry
+        it = createWindowItem(subitem, window, menuwindow, subwindow)
+        if isinstance(it, Panel):
+            it.hideTitle()
+            # if tab has its own setups overwrite panels setups
+            if setupSpec:
+                it.setSetups(setupSpec)
+            it.setWidgetVisible.connect(tw.setWidgetVisible)
+        layout.addWidget(it)
+        central.setLayout(layout)
+        subwindow.setCentralWidget(central)
+        tw.addTab(subwindow, title)
+    return tw
+
+
+def createWindowItem(item, window, menuwindow, topwindow):
 
     if isinstance(item, panel):
-        cls = importString(item.clsname, prefixes=prefixes)
-        p = cls(menuwindow, window.client)
-        p.setOptions(item.options)
-        window.panels.append(p)
-        window.client.register(p, 'session/mastersetup')
-        if p not in topwindow.panels:
-            topwindow.panels.append(p)
-
-        for toolbar in p.getToolbars():
-            # this helps for serializing window state
-            toolbar.setObjectName(toolbar.windowTitle())
-            if hasattr(menuwindow, 'toolBarWindows'):
-                menuwindow.insertToolBar(menuwindow.toolBarWindows, toolbar)
-            else:
-                menuwindow.addToolBar(toolbar)
-        for menu in p.getMenus():
-            if hasattr(menuwindow, 'menuWindows'):
-                p.actions.update((menuwindow.menuBar().insertMenu(
-                    menuwindow.menuWindows.menuAction(), menu),))
-            else:
-                p.actions.update((menuwindow.menuBar().addMenu(menu),))
-
-        p.setCustomStyle(window.user_font, window.user_color)
-        return p
+        return createPanel(item, window, menuwindow, topwindow)
     elif isinstance(item, hsplit):
-        sp = QSplitter(Qt.Horizontal)
-        window.splitters.append(sp)
-        for subitem in item:
-            sub = createWindowItem(subitem, window, menuwindow, topwindow)
-            sp.addWidget(sub)
-        return sp
+        return createHorizontalSplitter(item, window, menuwindow, topwindow)
     elif isinstance(item, vsplit):
-        sp = QSplitter(Qt.Vertical)
-        window.splitters.append(sp)
-        for subitem in item:
-            sub = createWindowItem(subitem, window, menuwindow, topwindow)
-            sp.addWidget(sub)
-        return sp
+        return createVerticalSplitter(item, window, menuwindow, topwindow)
     elif isinstance(item, tabbed):
-        tw = TearOffTabWidget(menuwindow)
-        tw.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;margin:0;'
-                         'padding:0;border:none}')
-        # don't draw a frame around the tab contents
-        tw.setDocumentMode(True)
-        for entry in item:
-            subwindow = AuxiliarySubWindow(tw)
-            subwindow.mainwindow = window.mainwindow
-            subwindow.user_color = window.user_color
-            # we have to nest one step to get consistent layout spacing
-            # around the central widget
-            central = QWidget(subwindow)
-            layout = QVBoxLayout()
-            # only keep margin at the top (below the tabs)
-            layout.setContentsMargins(0, 6, 0, 0)
-            if len(entry) == 2:
-                (title, subitem, setupSpec) = entry + (None,)
-            else:
-                (title, subitem, setupSpec) = entry
-            it = createWindowItem(subitem, window, menuwindow, subwindow)
-            if isinstance(it, Panel):
-                it.hideTitle()
-                # if tab has its own setups overwrite panels setups
-                if setupSpec:
-                    it.setSetups(setupSpec)
-                it.setWidgetVisible.connect(tw.setWidgetVisible)
-            layout.addWidget(it)
-            central.setLayout(layout)
-            subwindow.setCentralWidget(central)
-            tw.addTab(subwindow, title)
-        return tw
+        return createTabWidget(item, window, menuwindow, topwindow)
     elif isinstance(item, docked):
-        mainitem, dockitems = item
-        main = createWindowItem(mainitem, window, menuwindow, topwindow)
-        for title, item in dockitems:
-            dw = QDockWidget(title, window)
-            # prevent closing the dock widget
-            dw.setFeatures(QDockWidget.DockWidgetMovable |
-                           QDockWidget.DockWidgetFloatable)
-            # make the dock title bold
-            dw.setStyleSheet('QDockWidget { font-weight: bold; }')
-            dw.setObjectName(title)
-            sub = createWindowItem(item, window, menuwindow, topwindow)
-            if isinstance(sub, Panel):
-                sub.hideTitle()
-            dw.setWidget(sub)
-            dw.setContentsMargins(6, 6, 6, 6)
-            dockPos = item.options.get('dockpos', 'left')
-            if dockPos not in dockPosMap:
-                menuwindow.log.warn('Illegal dockpos specification %s for '
-                                    'panel %r' % (dockPos, title))
-                dockPos = 'left'
-            menuwindow.addDockWidget(dockPosMap[dockPos], dw)
-        return main
+        return createDockedWidget(item, window, menuwindow, topwindow)
 
 
 def showPanel(panel):
