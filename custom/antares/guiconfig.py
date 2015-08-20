@@ -24,20 +24,21 @@
 
 """NICOS GUI configuration for ANTARES."""
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
+main_window = docked(
+    vsplit(
+        panel('status.ScriptStatusPanel'),
+#       panel('watch.WatchPanel'),
+        panel('console.ConsolePanel'),
+    ),
+    ('Experiment Info',
+        panel('expinfo.ExpInfoPanel'),
+    ),
+    ('Devices',
+        panel('devices.DevicesPanel'),
+    ),
+)
 
-config = ('Default', [
-        hsplit(
-            vsplit(
-                panel('status.ScriptStatusPanel'),
-#                panel('watch.WatchPanel'),
-                panel('console.ConsolePanel'),
-            ),
-            vsplit(
-                panel('expinfo.ExpInfoPanel'),
-                panel('devices.DevicesPanel'),
-            ),
-        ),
+windows = [
         window('Setup', 'setup', True,
             tabbed(('Experiment', panel('setup_panel.ExpPanel')),
                    ('Setups',     panel('setup_panel.SetupsPanel')),
@@ -58,7 +59,9 @@ config = ('Default', [
         window('Live data', 'live', True,
             panel('live.LiveDataPanel',
                   instrument = 'imaging')),
-    ], [
+]
+
+tools = [
         tool('Downtime report', 'downtime.DownTimeTool',
              receiver='f.carsughi@fz-juelich.de',
              mailserver='smtp.frm2.tum.de',
@@ -81,5 +84,4 @@ config = ('Default', [
              commands=[
                  ('TACO server control panel (beta)', 'SSH_ASKPASS=/usr/bin/ssh-askpass setsid /usr/bin/ssh -XY maint@antareshw.antares.frm2 "source /etc/tacoenv.sh && sudo /usr/bin/python /opt/tacocp/tacocp.py antaressrv.antares.frm2" && exit'),
              ]),
-    ]
-)
+]

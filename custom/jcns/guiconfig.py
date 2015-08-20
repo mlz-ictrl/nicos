@@ -24,10 +24,6 @@
 
 """NICOS GUI default configuration."""
 
-# we import all possible config items here, so... pylint: disable=W0611
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, \
-     tabbed, docked
-
 main_window = tabbed(
     ('Instrument', docked(
         vsplit(

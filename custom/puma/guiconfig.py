@@ -24,17 +24,20 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed
-
-config = ('Default', [
-        hsplit(
-            vsplit(
+main_window = docked (
+        vsplit(
                 panel('status.ScriptStatusPanel'),
-#                panel('watch.WatchPanel'),
-                panel('devices.DevicesPanel'),
-            ),
-            panel('console.ConsolePanel'),
+#               panel('watch.WatchPanel'),
         ),
+        ('Console',
+                panel('console.ConsolePanel'),
+        ),
+        ('NICOS Devices',
+                panel('devices.DevicesPanel'),
+        ),
+)
+
+windows = [
         window('Setup', 'setup', True,
             tabbed(('Experiment', panel('setup_panel.ExpPanel')),
                    ('Setups',     panel('setup_panel.SetupsPanel')),
@@ -60,7 +63,9 @@ config = ('Default', [
         window('TAS status', 'table', True,
             panel('generic.GenericPanel',
                   uifile='custom/demo/lib/gui/tasaxes.ui')),
-    ], [
+]
+
+tools = [
         tool('Downtime report', 'downtime.DownTimeTool',
              receiver='f.carsughi@fz-juelich.de',
              mailserver='smtp.frm2.tum.de',
@@ -78,5 +83,4 @@ config = ('Default', [
              'nicos.clients.gui.tools.website.WebsiteTool',
              url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
         tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
-    ]
-)
+]

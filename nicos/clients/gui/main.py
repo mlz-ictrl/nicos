@@ -681,6 +681,8 @@ def main(argv):
     with open(configfile, 'rb') as fp:
         configcode = fp.read()
     ns = {}
+    exec_('from nicos.clients.gui.config import vsplit, hsplit, window, panel,'
+          ' tool, docked, tabbed, setups', ns)
     exec_(configcode, ns)
     if 'config' in ns:
         # backward compatibility

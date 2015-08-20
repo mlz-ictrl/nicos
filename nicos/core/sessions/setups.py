@@ -71,6 +71,9 @@ def prepareNamespace(setupname):
         ns['BlockRow'] = lambda *args: args
         ns['Block'] = lambda *args, **kwds: (args, kwds)
         ns['Field'] = lambda *args, **kwds: args or kwds
+    if path.basename(setupname).startswith('guiconfig'):
+        exec('from nicos.clients.gui.config import vsplit, hsplit, window, '
+             'panel, tool, docked, tabbed, setups', ns)
     return ns
 
 

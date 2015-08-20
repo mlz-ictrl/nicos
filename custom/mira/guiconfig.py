@@ -1,7 +1,5 @@
 # Default MIRA GUI config
 
-from nicos.clients.gui.config import vsplit, hsplit, panel, window, tool, tabbed
-
 main_window = vsplit(
     hsplit(
         panel('status.ScriptStatusPanel'),

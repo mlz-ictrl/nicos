@@ -24,9 +24,6 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
-    tabbed, setups
-
 main_window = docked(
     tabbed(
         ('PGAA',

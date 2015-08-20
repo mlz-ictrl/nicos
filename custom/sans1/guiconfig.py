@@ -24,8 +24,6 @@
 
 """SANS1 GUI default configuration."""
 
-from nicos.clients.gui.config import hsplit, vsplit, window, panel, tool, tabbed, docked, setups  # pylint: disable=W0611
-
 # evaluated by code in : nicos.clients.gui.panels.__init__.createWindowItem
 
 # vsplit( content1, content2, ... )

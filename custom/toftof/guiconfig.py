@@ -24,9 +24,6 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import vsplit, window, panel, tool, docked
-# additional available are hsplit, tabbed, setups
-
 main_window = docked(
     vsplit(
         panel('status.ScriptStatusPanel'),

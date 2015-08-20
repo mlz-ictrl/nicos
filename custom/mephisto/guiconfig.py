@@ -24,9 +24,6 @@
 
 """NICOS GUI default configuration."""
 
-from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
-    tabbed, setups
-
 main_window = docked(
     vsplit(
         panel('status.ScriptStatusPanel'),
@@ -35,12 +32,11 @@ main_window = docked(
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
-           icons=True, dockpos='right',
-          )
+           icons=True, dockpos='right',)
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-       )),
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',)
+    ),
 )
 
 windows = [
