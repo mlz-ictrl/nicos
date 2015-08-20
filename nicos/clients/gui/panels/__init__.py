@@ -30,7 +30,7 @@ from time import time as currenttime
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
     QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette, \
     QTabWidget
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig
+from PyQt4.QtCore import Qt, SIGNAL, SLOT, pyqtSignature as qtsig, pyqtSignal
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget, \
     DetachedWindow, firstWindow, findTabWidget
@@ -139,14 +139,16 @@ class PanelDialog(QDialog):
         self.setWindowTitle(title)
 
         if self.client._reg_keys:
-            values = self.client.ask('getcachekeys', ','.join(self.client._reg_keys))
+            values = self.client.ask('getcachekeys',
+                                     ','.join(self.client._reg_keys))
             if values is not None:
                 for key, value in values:
                     if key in self.client._reg_keys and \
                        key == 'session/mastersetup':
                         for widget in self.client._reg_keys[key]:
                             if widget():
-                                widget().on_keyChange(key, value, currenttime(), False)
+                                widget().on_keyChange(key, value,
+                                                      currenttime(), False)
 
 
 class AuxiliarySubWindow(QMainWindow):
@@ -165,6 +167,8 @@ class AuxiliarySubWindow(QMainWindow):
 class Panel(QWidget, DlgUtils):
     panelName = ''
     setupSpec = ()
+
+    setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
 
     def __init__(self, parent, client):
         QWidget.__init__(self, parent)
@@ -228,13 +232,7 @@ class Panel(QWidget, DlgUtils):
     def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:
             enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
-            w = firstWindow(self)
-            if isinstance(w, DetachedWindow):
-                w.setVisible(enabled)
-            else:
-                t = findTabWidget(self)
-                if t:
-                    t.setTabVisible(self, enabled)
+            self.setWidgetVisible.emit(self, enabled)
 
 
 def createWindowItem(item, window, menuwindow, topwindow):
@@ -308,6 +306,7 @@ def createWindowItem(item, window, menuwindow, topwindow):
             if isinstance(it, Panel):
                 it.hideTitle()
                 it.setSetups(setupSpec)
+                it.setWidgetVisible.connect(tw.setWidgetVisible)
             layout.addWidget(it)
             central.setLayout(layout)
             subwindow.setCentralWidget(central)
