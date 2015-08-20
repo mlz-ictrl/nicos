@@ -45,6 +45,8 @@ class CommandsPanel(Panel):
         self.mapping = {}
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
+
         modules = options.get('modules', [])
         for module in modules:
             importString(module, ('nicos.',))  # should register cmdlets

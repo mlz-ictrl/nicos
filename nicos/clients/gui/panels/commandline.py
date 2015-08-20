@@ -48,9 +48,6 @@ class CommandLinePanel(Panel):
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
         self.connect(client, SIGNAL('experiment'), self.on_client_experiment)
 
-    def setOptions(self, options):
-        pass
-
     def loadSettings(self, settings):
         self.cmdhistory = settings.value('cmdhistory') or []
 

@@ -30,26 +30,23 @@ from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
 main_window = docked(
     tabbed(
         ('PGAA',
-         panel('nicos.pgaa.gui.panels.PGAAPanel'),
-         setups('pgaa'),
+         panel('nicos.pgaa.gui.panels.PGAAPanel', setups='pgaa'),
         ),
         ('Shutter/Attenuators',
-         panel('generic.GenericPanel', uifile='custom/pgaa/lib/gui/shutter.ui'),
-         setups('pgaa'),
+         panel('generic.GenericPanel', uifile='custom/pgaa/lib/gui/shutter.ui',
+              setups='pgaa'),
         ),
         ('SANS acquisition',
-         panel('nicos.demo.gui.sanspanel.SANSPanel'),
-         setups('sans')
+         panel('nicos.demo.gui.sanspanel.SANSPanel', setups=setups('sans')),
         ),
         ('SampleChanger',
          panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
-               image = 'custom/sans1/lib/gui/sampleChanger11.png',
-               positions = 11),
-         setups('sans'),
+               image='custom/sans1/lib/gui/sampleChanger11.png',
+               positions=11, setups='sans',)
         ),
         ('PiBox',
-         panel('generic.GenericPanel', uifile='custom/demo/lib/gui/piface.ui'),
-         setups('pibox01')
+         panel('generic.GenericPanel', uifile='custom/demo/lib/gui/piface.ui',
+               setups='pibox01',)
         ),
 #       ('Setup',
 #        tabbed(
@@ -77,13 +74,12 @@ main_window = docked(
            sample_panel=tabbed(
                ('Sample changer',
                 panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
-                      image = 'custom/sans1/lib/gui/sampleChanger11.png',
-                      positions = 11),
-                setups('sans')
+                      image='custom/sans1/lib/gui/sampleChanger11.png',
+                      positions=11, setups='sans',)
                ),
                ('TAS sample',
-                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel'),
-                setups('tas')
+                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
+                      setups='tas',)
                ),
            )
           )

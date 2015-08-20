@@ -25,17 +25,17 @@
 """NICOS GUI default configuration."""
 
 from nicos.clients.gui.config import vsplit, window, panel, tool, docked, \
-    tabbed, setups
+    tabbed
+# , setups
 
 main_window = docked(
    tabbed(
         ('PGAA',
-         panel('nicos.pgaa.gui.panels.PGAAPanel'),
-         setups('pgaa')
+         panel('nicos.pgaa.gui.panels.PGAAPanel', setups='pgaa',)
         ),
         ('Tomography',
-         panel('nicos.pgaa.gui.panels.TomographyPanel'),
-         setups('tomography'),
+         panel('nicos.pgaa.gui.panels.TomographyPanel',
+               setups='tomography',),
         ),
         ('Shutter/Attenuators',
          panel('generic.GenericPanel', uifile='custom/pgaa/lib/gui/shutter.ui'),

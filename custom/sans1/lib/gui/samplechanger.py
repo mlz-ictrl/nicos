@@ -171,6 +171,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
         # this should be called only once!
         if self._numSamples:
             raise ProgrammingError('setOptions is supposed to be called ONCE!')

@@ -51,6 +51,7 @@ class ExpInfoPanel(Panel):
         self._sample_panel = None
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
         self._sample_panel = options.get('sample_panel', GenericSamplePanel)
 
     def hideTitle(self):

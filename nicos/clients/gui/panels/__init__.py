@@ -30,10 +30,9 @@ from time import time as currenttime
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
     QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette, \
     QTabWidget
-from PyQt4.QtCore import Qt, SIGNAL, SLOT, pyqtSignature as qtsig, pyqtSignal
+from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig, pyqtSignal
 
-from nicos.clients.gui.panels.tabwidget import TearOffTabWidget, \
-    DetachedWindow, firstWindow, findTabWidget
+from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
 from nicos.utils import importString
 from nicos.utils.loggers import NicosLogger
@@ -192,7 +191,14 @@ class Panel(QWidget, DlgUtils):
         """
 
     def setOptions(self, options):
-        pass
+        setups = options.get('setups', ())
+        if isinstance(setups, str):
+            setups = (setups,)
+        self.setSetups(list(setups))
+
+    def setSetups(self, setupSpec):
+        self.setupSpec = setupSpec
+        self.log.info('Setups are : %r' % self.setupSpec)
 
     def setExpertMode(self, expert):
         pass
@@ -219,9 +225,6 @@ class Panel(QWidget, DlgUtils):
         If the panel has a title widget, it should hide it in this method.
         """
         pass
-
-    def setSetups(self, setupSpec):
-        self.setupSpec = list(setupSpec) if setupSpec else []
 
     def requestClose(self):
         return True
@@ -289,10 +292,6 @@ def createWindowItem(item, window, menuwindow, topwindow):
         # don't draw a frame around the tab contents
         tw.setDocumentMode(True)
         for entry in item:
-            if len(entry) == 2:
-                (title, subitem, setupSpec) = entry + (None,)
-            else:
-                (title, subitem, setupSpec) = entry
             subwindow = AuxiliarySubWindow(tw)
             subwindow.mainwindow = window.mainwindow
             subwindow.user_color = window.user_color
@@ -302,10 +301,16 @@ def createWindowItem(item, window, menuwindow, topwindow):
             layout = QVBoxLayout()
             # only keep margin at the top (below the tabs)
             layout.setContentsMargins(0, 6, 0, 0)
+            if len(entry) == 2:
+                (title, subitem, setupSpec) = entry + (None,)
+            else:
+                (title, subitem, setupSpec) = entry
             it = createWindowItem(subitem, window, menuwindow, subwindow)
             if isinstance(it, Panel):
                 it.hideTitle()
-                it.setSetups(setupSpec)
+                # if tab has its own setups overwrite panels setups
+                if setupSpec:
+                    it.setSetups(setupSpec)
                 it.setWidgetVisible.connect(tw.setWidgetVisible)
             layout.addWidget(it)
             central.setLayout(layout)

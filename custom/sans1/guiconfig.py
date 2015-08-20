@@ -96,11 +96,11 @@ config = ('Default', [
                 #~ ('Samples',
                     #~ panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
                         #~ image='custom/sans1/lib/gui/sampleChanger11.png',
-                        #~ positions = 11), setups('!setup22')),
+                        #~ positions = 11, setups='!setup22',)),
                 ('Samples',
                     panel('nicos.sans1.gui.samplechanger.SamplechangerSetupPanel',
                         image='custom/sans1/lib/gui/sampleChanger22.png',
-                        positions = 22), setups('sc1')),
+                        positions = 22, setups='sc1',)),
             )
         ),
         window('Editor', 'editor', True,

@@ -158,6 +158,7 @@ class DevicesPanel(Panel):
         self._current_status = status
 
     def setOptions(self, options):
+        Panel.setOptions(self, options)
         self.useicons = bool(options.get('icons', True))
 
     def saveSettings(self, settings):
