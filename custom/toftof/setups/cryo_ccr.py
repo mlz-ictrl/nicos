@@ -105,10 +105,8 @@ devices = dict(
                     unit = 'mbar',
                    ),
 )
-alias_config = [
-    ('T', 'cryo', 100),
-    ('Ts', 'cryo_c', 100),
-    ('Ts', 'cryo_d', 90),
-    ('Ts', 'cryo_a', 80),
-    ('Ts', 'cryo_b', 70),
-]
+
+alias_config = {
+    'T':  {'cryo': 100},
+    'Ts': {'cryo_c': 100, 'cryo_d': 90, 'cryo_a': 80, 'cryo_b': 70},
+}

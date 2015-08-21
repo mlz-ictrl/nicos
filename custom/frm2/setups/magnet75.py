@@ -35,7 +35,7 @@ for i in range(1, 9):
                 )
     devices['%s_T%d' % (setupname, i)] = dev
 
-alias_config = [
-    ('B', 'B_%s' % setupname, 100),
-    ('sth', 'sth_%s' % setupname, 100),
-]
+alias_config = {
+    'B':   {'B_%s' % setupname: 100},
+    'sth': {'sth_%s' % setupname: 100},
+}

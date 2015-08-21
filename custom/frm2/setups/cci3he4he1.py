@@ -94,8 +94,7 @@ devices = {
 
 }
 
-alias_config = [
-    ('T', 'T_%s' % setupname, 300),
-    ('Ts', 'T_%s_A' % setupname, 300),
-    ('Ts', 'T_%s_B' % setupname, 280),
-]
+alias_config = {
+    'T':  {'T_%s' % setupname: 300},
+    'Ts': {'T_%s_A' % setupname: 300, 'T_%s_B' % setupname: 280},
+}

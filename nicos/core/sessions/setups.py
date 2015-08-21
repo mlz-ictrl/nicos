@@ -144,7 +144,7 @@ def readSetup(infodict, filepath, logger):
         'excludes': ns.get('excludes', []),
         'modules': ns.get('modules', []),
         'devices': fixup_stacked_devices(logger, ns.get('devices', {})),
-        'alias_config': ns.get('alias_config', []),
+        'alias_config': ns.get('alias_config', {}),
         'startupcode': ns.get('startupcode', ''),
         'extended': ns.get('extended', {}),
         'filename': filepath,
@@ -169,7 +169,7 @@ def readSetup(infodict, filepath, logger):
             if value is None:
                 del oldinfo['devices'][devname]
         oldinfo['startupcode'] += '\n' + info['startupcode']
-        oldinfo['alias_config'].extend(info['alias_config'])
+        oldinfo['alias_config'].update(info['alias_config'])
         oldinfo['extended'].update(info['extended'])
         oldinfo['filename'] = filepath
         logger.debug('%r setup partially merged with version '

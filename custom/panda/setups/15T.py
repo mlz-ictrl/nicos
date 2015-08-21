@@ -137,9 +137,9 @@ devices = dict(
                  ),
 )
 
-alias_config = [
-    ('sth', 'sth_15t', 100),
-    ('B', 'B15T', 100),
-    ('T', 'vti', 100),
-    ('Ts', 'sTs', 100),
-]
+alias_config = {
+    'sth': {'sth_15t': 100},
+    'B':   {'B15T': 100},
+    'T':   {'vti': 100},
+    'Ts':  {'sTs': 100},
+}

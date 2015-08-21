@@ -336,7 +336,7 @@ class SetupChecker(object):
                                ('excludes', list),
                                ('modules', list),
                                ('devices', dict),
-                               ('alias_config', list),
+                               ('alias_config', dict),
                                ('startupcode', str),
                                ('extended', dict)]:
             if vname in self.ns and not isinstance(self.ns[vname], vtype):
@@ -345,21 +345,28 @@ class SetupChecker(object):
                                extra=self.find_global(vname))
 
         # check for validity of alias_config
-        for entry in self.ns.get('alias_config', []):
-            if len(entry) != 3:
-                self.log_error('alias_config entries should be 3-tuples',
-                               extra=self.find_global('alias_config'))
-                continue
-            if not (isinstance(entry[0], basestring) and
-                    isinstance(entry[1], basestring) and
-                    isinstance(entry[2], (int, long))):
-                self.log_error('alias_config entries should be (str, str, int)',
-                               extra=self.find_global('alias_config'))
-                continue
-            if entry[1] not in self.ns.get('devices', {}):
-                self.log_error('alias_config middle entry should be a device '
-                               'from the current setup',
-                               extra=self.find_global('alias_config'))
+        aliascfg = self.ns.get('alias_config', {})
+        if isinstance(aliascfg, dict):  # else we complained above already
+            for aliasname, entrydict in aliascfg.items():
+                if not (isinstance(aliasname, basestring) and
+                        isinstance(entrydict, dict)):
+                    self.log_error('alias_config entries should map alias '
+                                   'device names to a dictionary',
+                                   extra=self.find_global('alias_config'))
+                    continue
+                for target, prio in entrydict.items():
+                    if not (isinstance(target, basestring) and
+                            isinstance(prio, (int, long)) and
+                            not(isinstance(prio, bool))):
+                        self.log_error('alias_config entries should map device '
+                                       'names to integer priorities',
+                                       extra=self.find_global('alias_config'))
+                        break
+                    if target not in self.ns.get('devices', {}):
+                        self.log_error('alias_config device target should be a '
+                                       'device from the current setup',
+                                       extra=self.find_global('alias_config'))
+                        break
 
         # check for valid device classes (if importable) and parameters
         for devname, devconfig in self.ns.get('devices', {}).iteritems():

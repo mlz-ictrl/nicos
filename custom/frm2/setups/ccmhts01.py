@@ -15,6 +15,6 @@ devices = dict(
                          abslimits = (-210, 210),
                         ),
 )
-alias_config = [
-    ('B', 'B_ccmhts01', 100),
-]
+alias_config = {
+    'B': {'B_ccmhts01': 100},
+}

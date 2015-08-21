@@ -16,7 +16,8 @@ devices = {
                                 fmtstr = '%.3f',
                                ),
 }
-alias_config = [
-    ('T', 'T_%s' % setupname, 100),
-    ('Ts', 'T_%s' % setupname, 100),
-]
+
+alias_config = {
+    'T':  {'T_%s' % setupname: 100},
+    'Ts': {'T_%s' % setupname: 100},
+}

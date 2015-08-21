@@ -31,9 +31,9 @@ devices = dict(
                      abslimits = (0, 5),
                      unit = 'K',
                      speed = 1.5
-    ),
+                    ),
 )
 
-alias_config = [
-    ('T', 'T_cryo4', 200),
-]
+alias_config = {
+    'T': {'T_cryo4': 200},
+}

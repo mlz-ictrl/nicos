@@ -28,8 +28,7 @@ devices = dict(
                      ),
 )
 
-alias_config = [
-    ('T', 'T_ccr', 150),
-    ('Ts', 'T_stick', 150),
-    ('Ts', 'T_tube', 80),
-]
+alias_config = {
+    'T': {'T_ccr': 150},
+    'Ts': {'T_stick': 150, 'T_tube': 80},
+}

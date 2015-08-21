@@ -17,8 +17,8 @@ devices = dict(
                       fmtstr = '%.0f',
                      ),
 )
-alias_config = [
-    ('T', 'T_manual', 80),
-    ('Ts', 'T_manual', 80),
-]
 
+alias_config = {
+    'T':  {'T_manual': 80},
+    'Ts': {'T_manual': 80},
+}

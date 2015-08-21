@@ -54,8 +54,6 @@ devices = dict(
                               ),
 )
 
-alias_config = [
-    ('B', 'B_mira', 100),
-    ('B', 'B_garfield', 99),
-    ('B', 'B_virt', 0),
-]
+alias_config = {
+    'B': {'B_mira': 100, 'B_garfield': 99, 'B_virt': 0},
+}

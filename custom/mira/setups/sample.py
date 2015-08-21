@@ -68,6 +68,6 @@ devices = dict(
                      ),
 )
 
-alias_config = [
-    ('sth', 'om', 0),
-]
+alias_config = {
+    'sth': {'om': 0},
+}

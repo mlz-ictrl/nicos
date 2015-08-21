@@ -608,7 +608,7 @@ class ControlDialog(QDialog):
             if params['alias']:
                 self.deviceName.setText(self.deviceName.text() +
                                         ' (alias for %s)' % params['alias'])
-            alias_config = self.client.eval('session.alias_config')
+            alias_config = self.client.eval('session.alias_config', {})
             self.aliasTarget = QComboBox(self)
             self.aliasTarget.setEditable(True)
             if self.devname in alias_config:

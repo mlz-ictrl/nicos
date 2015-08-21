@@ -7,16 +7,16 @@ includes = ['alias_T']
 nethost = setupname
 
 devices = {
-    'T_%s' % setupname : device('devices.taco.TemperatureController',
-                                description = 'The sample temperature',
-                                tacodevice = '//%s/irf/eurotherm/control' % \
-                                             nethost,
-                                abslimits = (0, 1200),
-                                unit = 'C',
-                                fmtstr = '%.3f',
-                               ),
+    'T_%s' % setupname: device('devices.taco.TemperatureController',
+                               description = 'The sample temperature',
+                               tacodevice = '//%s/irf/eurotherm/control' % nethost,
+                               abslimits = (0, 1200),
+                               unit = 'C',
+                               fmtstr = '%.3f',
+                              ),
 }
-alias_config = [
-    ('T', 'T_%s' % setupname, 100),
-    ('Ts', 'T_%s' % setupname, 100),
-]
+
+alias_config = {
+    'T':  {'T_%s' % setupname: 100},
+    'Ts': {'T_%s' % setupname: 100},
+}

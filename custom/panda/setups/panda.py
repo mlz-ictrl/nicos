@@ -113,9 +113,9 @@ devices = dict(
                               ),
 )
 
-alias_config = [
-    ('sth', 'sth_virtual_dummy', -1)
-]
+alias_config = {
+    'sth': {'sth_virtual_dummy': -1},
+}
 
 startupcode = '''
 from nicos import session

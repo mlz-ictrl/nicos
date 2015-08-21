@@ -78,7 +78,7 @@ A setup file can consist of the following entries, all of which are optional:
       modules = ['nicos.commands.standard', 'nicos.commands.taco']
 
 ``alias_config``
-   A list of device aliases that the current setup would like to change.
+   A dictionary of device aliases that the current setup would like to change.
 
    This is preferred to setting aliases in the ``startupcode`` since NICOS will
    combine this information from loaded setups and can make decisions how to set
@@ -86,16 +86,30 @@ A setup file can consist of the following entries, all of which are optional:
 
    The format is the following::
 
-       alias_config = [
-           ('T',  'T_ccr12',   100),
-           ('Ts', 'T_ccr12_A', 100),
-           ('Ts', 'T_ccr12_B',  50),
-       )
+       alias_config = {
+           'T':  {'T_ccr12':   100},
+           'Ts': {'T_ccr12_A': 100, 'T_ccr12_B':  50},
+       }
 
    It maps the name of the alias device (which must exist in the setup) to a
-   tuple of the desired alias target and a priority.  If multiple loaded setups
-   want to change the same alias, the target with the highest priority is
-   selected.
+   dictionary of the desired alias targets and the priority to use them.
+   If multiple loaded setups want to change the same alias, the target with
+   the highest priority is selected.
+
+   Regarding the choice of the priority numbers:
+
+   - below 0: fallbacks (should normally not be used, but sometimes a (virtual
+     dummy fallback) device is needed
+   - around 0: instrument default (normally always there, fallback)
+   - around 100: 'outermost' optional stuff (magnets, ovens, ...)
+   - around 200: 'spezialised' optional stuff (carrying cryostats, extra
+     rotational stages)
+   - around 300: 'innermost' optional stuff (cci3he/4he inserts, cold-end-sample
+     rotation,...)
+
+   If more than one choice is offered by a setupfile, they should have different
+   priorities (with the less common/sensible option getting a smaller number).
+
 
 ``startupcode``
    A string of Python code that is executed after the setup file has been

@@ -30,10 +30,8 @@ devices = dict(
                                    ),
 
 )
-alias_config = [
-    ('T', 'T_laue', 100),
-    ('Ts', 'T_laue_B', 100),
-    ('Ts', 'T_laue_A', 90),
-]
 
-
+alias_config = {
+    'T':  {'T_laue': 100},
+    'Ts': {'T_laue_B': 100, 'T_laue_A': 90},
+}

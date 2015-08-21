@@ -537,8 +537,9 @@ class Session(object):
             sysconfig.update(iteritems(info['sysconfig']))
             devlist.update(iteritems(info['devices']))
             startupcode.append(info['startupcode'])
-            for aliasname, target, prio in info['alias_config']:
-                self.alias_config.setdefault(aliasname, []).append((target, prio))
+            for aliasname, targets in info['alias_config'].items():
+                for target, prio in targets.items():
+                    self.alias_config.setdefault(aliasname, []).append((target, prio))
 
             return sysconfig, devlist, startupcode
 

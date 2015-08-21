@@ -114,6 +114,7 @@ devices = dict(
                         pollinterval = 15,
                        ),
 )
-alias_config = [
-    ('B', 'B_ccmsans', 100),
-]
+
+alias_config = {
+    'B': {'B_ccmsans': 100},
+}

@@ -421,9 +421,11 @@ class SetupsPanel(Panel, DlgUtils):
         # now collect alias config
         alias_config = {}
         for setup in setups:
-            aliasconfig = self._setupinfo[setup]['alias_config']
-            for (aliasname, target, prio) in aliasconfig:
-                alias_config.setdefault(aliasname, []).append((target, prio))
+            if 'alias_config' in self._setupinfo[setup]:
+                aliasconfig = self._setupinfo[setup]['alias_config']
+                for aliasname, targets in aliasconfig.items():
+                    for (target, prio) in targets.items():
+                        alias_config.setdefault(aliasname, []).append((target, prio))
         # sort by priority
         for aliasname in alias_config:
             alias_config[aliasname].sort(key=lambda x: -x[1])

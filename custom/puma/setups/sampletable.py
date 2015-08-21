@@ -260,7 +260,6 @@ devices = dict(
                    ),
 )
 
-alias_config = [
-    ('psi', 'psi_puma', 0)
-]
-
+alias_config = {
+    'psi': {'psi_puma': 0},
+}

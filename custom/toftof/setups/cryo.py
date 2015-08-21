@@ -76,11 +76,8 @@ devices = dict(
                  tacodevice = '//%s/toftof/ccr/p2' % nethost,
                 ),
 )
-alias_config = [
-    ('T', 'T_tube', 100),
-    ('T', 'T_stick', 90),
-    ('Ts', 'T_B', 100),
-    ('Ts', 'T_A', 90),
-    ('Ts', 'T_C', 80),
-    ('Ts', 'T_D', 70),
-]
+
+alias_config = {
+    'T':  {'T_tube': 100, 'T_stick': 90},
+    'Ts': {'T_B': 100, 'T_C': 80, 'T_A': 90, 'T_D': 70},
+}

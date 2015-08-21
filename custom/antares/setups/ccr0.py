@@ -61,10 +61,8 @@ devices = dict(
                                     tacodevice = '//antaressrv/antares/ccr/vacuum',
                                    ),
 )
-alias_config = [
-    ('T', 'T_ccr0',  100),
-    ('Ts', 'T_ccr0_A', 100),
-    ('Ts', 'T_ccr0_B', 90),
-    ('Ts', 'T_ccr0_C', 80),
-    ('Ts', 'T_ccr0_D', 70),
-]
+
+alias_config = {
+    'T':  {'T_ccr0': 100},
+    'Ts': {'T_ccr0_A': 100, 'T_ccr0_B': 90, 'T_ccr0_C': 80, 'T_ccr0_D': 70},
+}

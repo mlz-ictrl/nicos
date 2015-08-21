@@ -203,9 +203,9 @@ devices = dict(
                          states = ['open', 'closed']),
 )
 
-alias_config = [
-    ('sth', 'psi', 0)
-]
+alias_config = {
+    'sth': {'psi': 0},
+}
 
 startupcode = '''
 if mth() == 0:

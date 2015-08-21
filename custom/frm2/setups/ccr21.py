@@ -149,15 +149,11 @@ devices = {
                                 ),
 }
 
-alias_config = [
-    ('T', 'T_%s' % setupname, 200),
-    ('T', 'T_%s_stick' % setupname, 150),
-    ('T', 'T_%s_tube' % setupname, 100),
-    ('Ts', 'T_%s_B' % setupname, 100),
-    ('Ts', 'T_%s_A' % setupname, 90),
-    ('Ts', 'T_%s_D' % setupname, 20),
-    ('Ts', 'T_%s_C' % setupname, 10),
-]
+alias_config = {
+    'T':  {'T_%s' % setupname: 200, 'T_%s_stick' % setupname: 150, 'T_%s_tube' % setupname: 100},
+    'Ts': {'T_%s_B' % setupname: 100, 'T_%s_A' % setupname: 90, 'T_%s_D' % setupname: 20, 'T_%s_C' % setupname: 10},
+}
+
 startupcode = """
 printinfo("Please set T_%s.regulationmode to either 'stick', 'tube', or 'both' "
           "according to your needs.")

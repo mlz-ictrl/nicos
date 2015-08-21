@@ -74,6 +74,6 @@ devices = dict(
                          userlimits = (-0.35, 0.35),
                         ),
 )
-alias_config = [
-    ('B', 'B_amagnet', 100),
-]
+alias_config = {
+    'B': {'B_amagnet': 100},
+}

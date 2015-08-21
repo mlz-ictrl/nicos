@@ -49,7 +49,6 @@ devices = dict(
                            unit = 'degC'),
 )
 
-alias_config = [
-    ('B', 'B_mira', 100),
-    ('B', 'I', 80), # for the rare case you would need to use the current directly
-]
+alias_config = {
+    'B': {'B_mira': 100, 'I': 80},  # for the rare case you would need to use the current directly
+}
