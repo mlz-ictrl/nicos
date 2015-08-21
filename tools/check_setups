@@ -27,7 +27,7 @@ except ImportError:
 
 from nicos import config
 from nicos.core.errors import ConfigurationError
-from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace
+from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, fixup_stacked_devices
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.tacostubs import generate_stubs
 from nicos.pycompat import exec_
@@ -284,6 +284,7 @@ class SetupChecker(object):
             self.log_error('missing user-friendly setup description',
                            extra=self.find_global('description'))
 
+        self.ns['devices'] = fixup_stacked_devices(self.ns.get('devices', {}))
         # check if devices are duplicated
         if group != 'special':
             devs = self.ns.get('devices', {})

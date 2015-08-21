@@ -29,6 +29,12 @@ includes = ['stdsystem']
 devices = dict(
     dev1 = device('test.test_simple.test_device.Dev1',
                  ),
+    dev2_0 = device('test.test_simple.test_device.Dev2',
+                    attached = device('test.test_simple.test_device.Dev1'),
+                    param2 = 1,
+                    unit = 'mm',
+                    abslimits = (0, 10),
+                   ),
     dev2_1 = device('test.test_simple.test_device.Dev2',
                     attached = 'dev1',
                     param2 = 1,

@@ -57,12 +57,14 @@ def readSetups(paths, logger):
 
     return infodict
 
+class Device(tuple):
+    pass
 
 def prepareNamespace(setupname):
     """Return a namespace prepared for reading setup "setupname"."""
     # device() is a helper function to make configuration prettier
     ns = {
-        'device': lambda cls, **params: (cls, params),
+        'device': lambda cls, **params: Device((cls, params)),
         'setupname': setupname,
     }
     if path.basename(setupname).startswith('monitor'):
@@ -72,9 +74,49 @@ def prepareNamespace(setupname):
         ns['Block'] = lambda *args, **kwds: (args, kwds)
         ns['Field'] = lambda *args, **kwds: args or kwds
     if path.basename(setupname).startswith('guiconfig'):
-        exec('from nicos.clients.gui.config import vsplit, hsplit, window, '
-             'panel, tool, docked, tabbed, setups', ns)
+        from nicos.clients.gui.config import vsplit, hsplit, window, panel, \
+            tool, docked, tabbed, setups
+        ns['vsplit'] = vsplit
+        ns['hsplit'] = hsplit
+        ns['window'] = window
+        ns['panel'] = panel
+        ns['tool'] = tool
+        ns['docked'] = docked
+        ns['tabbed'] = tabbed
+        ns['setups'] = setups
     return ns
+
+def fixup_stacked_devices(devdict):
+    """replaces <adevname> = Device(..) entries in devices dict
+
+    with a proper name and move the device definition under that name.
+    """
+    patched = True
+    while patched:
+        patched = False
+        # iter over all devices
+        for devname, dev in devdict.items():
+            # iter over all key=value pairs for dict
+            for k, v in dev[1].items():
+                if isinstance(v, Device): #need to fixup!
+                    # guess a name:
+                    n = '%s_%s' % (devname, k)
+                    # 'rename' device, keeping logical connection
+                    devdict[n] = v
+                    dev[1][k] = n
+                    patched = True
+                elif isinstance(v, (tuple, list)):
+                    v = list(v)
+                    for idx, item in enumerate(v):
+                        if not isinstance(item, (Device, str)):
+                            break
+                        if isinstance(item, Device):
+                            n = '%s_%s%d' % (devname, k, idx+1)
+                            devdict[n] = item
+                            v[idx] = n
+                            dev[1][k] = v
+                            patched = True
+    return devdict
 
 
 def readSetup(infodict, filepath, logger):
@@ -100,7 +142,7 @@ def readSetup(infodict, filepath, logger):
         'includes': ns.get('includes', []),
         'excludes': ns.get('excludes', []),
         'modules': ns.get('modules', []),
-        'devices': ns.get('devices', {}),
+        'devices': fixup_stacked_devices(ns.get('devices', {})),
         'alias_config': ns.get('alias_config', []),
         'startupcode': ns.get('startupcode', ''),
         'extended': ns.get('extended', {}),
