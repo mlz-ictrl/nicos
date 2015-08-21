@@ -30,7 +30,7 @@ from time import time as currenttime
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
     QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette, \
     QTabWidget
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSignature as qtsig, pyqtSignal
+from PyQt4.QtCore import Qt, SIGNAL, pyqtSlot, pyqtSignal
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
@@ -95,10 +95,10 @@ class AuxiliaryWindow(QMainWindow):
             with pnl.sgroup as settings:
                 pnl.saveSettings(settings)
         event.accept()
-        self.emit(SIGNAL('closed'), self)
+        self.closed.emit(self)
         del self.panels[:]  # this is necessary to get the Qt objects destroyed
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionFont_triggered(self):
         font, ok = QFontDialog.getFont(self.user_font, self)
         if not ok:
@@ -107,7 +107,7 @@ class AuxiliaryWindow(QMainWindow):
             pnl.setCustomStyle(font, self.user_color)
         self.user_font = font
 
-    @qtsig('')
+    @pyqtSlot()
     def on_actionColor_triggered(self):
         color = QColorDialog.getColor(self.user_color, self)
         if not color.isValid():
@@ -198,7 +198,7 @@ class Panel(QWidget, DlgUtils):
 
     def setSetups(self, setupSpec):
         self.setupSpec = setupSpec
-        self.log.info('Setups are : %r' % self.setupSpec)
+        self.log.debug('Setups are : %r' % self.setupSpec)
 
     def setExpertMode(self, expert):
         pass
@@ -238,6 +238,49 @@ class Panel(QWidget, DlgUtils):
             self.setWidgetVisible.emit(self, enabled)
 
 
+class Splitter(QSplitter):
+    setupSpec = ()
+
+    setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
+
+    def __init__(self, item, window, menuwindow, topwindow, parent=None):
+        QSplitter.__init__(self, parent)
+        window.splitters.append(self)
+        window.client.register(self, 'session/mastersetup')
+        for subitem in item:
+            sub = createWindowItem(subitem, window, menuwindow, topwindow)
+            self.addWidget(sub)
+
+    def setOptions(self, options):
+        setups = options.get('setups', ())
+        if isinstance(setups, str):
+            setups = (setups,)
+        self.setSetups(list(setups))
+
+    def setSetups(self, setupSpec):
+        self.setupSpec = setupSpec
+        self.log.debug('Setups are : %r' % self.setupSpec)
+
+    def on_keyChange(self, key, value, time, expired):
+        if key == 'session/mastersetup' and self.setupSpec:
+            enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
+            self.setWidgetVisible.emit(self, enabled)
+
+
+class VerticalSplitter(Splitter):
+
+    def __init__(self, item, window, menuwindow, topwindow, parent=None):
+        Splitter.__init__(self, item, window, menuwindow, topwindow, parent)
+        self.setOrientation(Qt.Vertical)
+
+
+class HorizontalSplitter(Splitter):
+
+    def __init__(self, item, window, menuwindow, topwindow, parent=None):
+        Splitter.__init__(self, item, window, menuwindow, topwindow, parent)
+        self.setOrientation(Qt.Horizontal)
+
+
 def createPanel(item, window, menuwindow, topwindow):
     prefixes = ('nicos.clients.gui.panels.',)
     cls = importString(item.clsname, prefixes=prefixes)
@@ -268,21 +311,11 @@ def createPanel(item, window, menuwindow, topwindow):
 
 
 def createVerticalSplitter(item, window, menuwindow, topwindow):
-    sp = QSplitter(Qt.Vertical)
-    window.splitters.append(sp)
-    for subitem in item:
-        sub = createWindowItem(subitem, window, menuwindow, topwindow)
-        sp.addWidget(sub)
-    return sp
+    return VerticalSplitter(item, window, menuwindow, topwindow)
 
 
 def createHorizontalSplitter(item, window, menuwindow, topwindow):
-    sp = QSplitter(Qt.Horizontal)
-    window.splitters.append(sp)
-    for subitem in item:
-        sub = createWindowItem(subitem, window, menuwindow, topwindow)
-        sp.addWidget(sub)
-    return sp
+    return HorizontalSplitter(item, window, menuwindow, topwindow)
 
 
 def createDockedWidget(item, window, menuwindow, topwindow):
@@ -336,8 +369,9 @@ def createTabWidget(item, window, menuwindow, topwindow):
         else:
             (title, subitem, setupSpec) = entry
         it = createWindowItem(subitem, window, menuwindow, subwindow)
-        if isinstance(it, Panel):
-            it.hideTitle()
+        if isinstance(it, (Panel, QSplitter,)):
+            if isinstance(it, Panel):
+                it.hideTitle()
             # if tab has its own setups overwrite panels setups
             if setupSpec:
                 it.setSetups(setupSpec)

@@ -25,7 +25,7 @@
 """NICOS GUI enhanced TabWidget."""
 
 from PyQt4.QtGui import QTabWidget, QMainWindow, QMouseEvent, QPixmap, \
-     QTabBar, QDrag, QApplication, QCursor, QWidget
+    QTabBar, QDrag, QApplication, QCursor, QWidget
 from PyQt4.QtCore import Qt, SIGNAL, QPoint, QMimeData, QEvent, pyqtSlot
 
 
