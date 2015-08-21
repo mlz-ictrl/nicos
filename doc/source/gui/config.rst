@@ -98,8 +98,13 @@ The function to create a single panel is:
 
    See the example config above.
 
-   The possible ``options`` are panel-specific; the keywords given here are
-   passed to the panel.
+   Options:
+
+   * The ``setups`` options gives the possibility to define a setup depending
+     display of the panels, see :ref:`gui-config-setup`
+
+   The other possible ``options`` are panel-specific; the keywords given here
+   are passed to the panel.
 
 Each panel is implemented by a class inheriting from
 ``nicos.clients.gui.panels.Panel`` and usually a Designer ``.ui`` file.  See
@@ -132,9 +137,19 @@ Panels that come with NICOS are:
      :alt: command line panel
      :align: center
 
+.. _commandbuilder-commandpanel:
+
 ``cmdbuilder.CommandPanel``
    Provides a panel where the user can click-and-choose a NICOS command with the
    help of GUI elements known as "cmdlets".
+
+   Options:
+
+   * ``modules`` (default [ ]) -- TODO
+
+.. figure:: commandbuilder.png
+     :alt: command panel
+     :align: center
 
 ``devices.DevicesPanel``
    Provides a graphical list of NICOS devices and their current values.  The
@@ -238,8 +253,13 @@ Panels that come with NICOS are:
 
 ``scriptbuilder.CommandsPanel``
    Provides a panel where the user can click-and-choose multiple NICOS commands
-   with cmdlets (similar to the ``cmdbuilder.CommandPanel`` but for multiple
+   with cmdlets (similar to the
+   :ref:`cmdbuilder.CommandPanel <commandbuilder-commandpanel>` but for multiple
    commands).
+
+   Options:
+
+   * ``modules`` (default [ ]) -- TODO
 
 .. figure:: scriptbuilderpanel.png
      :alt: script builder panel
