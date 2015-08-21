@@ -135,6 +135,9 @@ def test_intrange():
     assert raises(ValueError, intrange(0, 10), 15)
     assert raises(ValueError, intrange(0, 10), 'x')
     assert raises(ValueError, intrange, 2, 1)
+    assert raises(ValueError, intrange, True, False)
+    assert raises(ValueError, intrange(0, 1), True)
+    assert raises(ValueError, intrange(0, 1), False)
 
 
 def test_floatrange():

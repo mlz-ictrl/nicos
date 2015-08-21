@@ -451,6 +451,9 @@ class dictof(object):
 class intrange(object):
 
     def __init__(self, fr, to):
+        if isinstance(fr, bool) or isinstance(to, bool):
+            raise ValueError('intrange works with integer numbers! '
+                             'A boolean was given!')
         fr = int(fr)
         to = int(to)
         if not fr <= to:
@@ -463,6 +466,8 @@ class intrange(object):
     def __call__(self, val=None):
         if val is None:
             return self.fr
+        if isinstance(val, bool):
+            raise ValueError('value is not an integer!')
         val = int(val)
         if not self.fr <= val <= self.to:
             raise ValueError('value needs to fulfill %d <= x <= %d' %
