@@ -78,35 +78,44 @@ def prepareNamespace(setupname):
     return ns
 
 
-def fixup_stacked_devices(devdict):
-    """replaces <adevname> = Device(..) entries in devices dict
-
-    with a proper name and move the device definition under that name.
+def fixup_stacked_devices(logger, devdict):
     """
+    Replace <adevname> = Device(..) entries in devices dict with a proper
+    name and move the device definition under that name.
+    """
+    def add_new_dev(devname, subname, devconfig):
+        # guess a name:
+        newname = '%s_%s' % (devname, subname)
+        while newname in devdict:
+            logger.error('Device %r already exists, but is also a '
+                         'subdevice of %r which should be renamed'
+                         % (newname, devname))
+            newname = '_' + newname
+        # set subDevice lowlevel if not specified otherwise
+        if 'lowlevel' not in devconfig[1]:
+            devconfig[1]['lowlevel'] = True
+        # 'rename' device, keeping logical connection
+        devdict[newname] = devconfig
+        return newname
+
     patched = True
     while patched:
         patched = False
         # iter over all devices
         for devname, dev in devdict.items():
             # iter over all key=value pairs for dict
-            for k, v in dev[1].items():
-                if isinstance(v, Device):  # need to fixup!
-                    # guess a name:
-                    n = '%s_%s' % (devname, k)
-                    # 'rename' device, keeping logical connection
-                    devdict[n] = v
-                    dev[1][k] = n
+            for subname, config in dev[1].items():
+                if isinstance(config, Device):  # need to fixup!
+                    newname = add_new_dev(devname, subname, config)
+                    dev[1][subname] = newname
                     patched = True
-                elif isinstance(v, (tuple, list)):
-                    v = list(v)
-                    for idx, item in enumerate(v):
-                        if not isinstance(item, (Device, str)):
-                            break
+                elif isinstance(config, (tuple, list)):
+                    dev[1][subname] = list(config)
+                    for idx, item in enumerate(config):
                         if isinstance(item, Device):
-                            n = '%s_%s%d' % (devname, k, idx+1)
-                            devdict[n] = item
-                            v[idx] = n
-                            dev[1][k] = v
+                            subname = '%s%d' % (subname, idx + 1)
+                            newname = add_new_dev(devname, subname, item)
+                            dev[1][subname][idx] = newname
                             patched = True
     return devdict
 
@@ -134,7 +143,7 @@ def readSetup(infodict, filepath, logger):
         'includes': ns.get('includes', []),
         'excludes': ns.get('excludes', []),
         'modules': ns.get('modules', []),
-        'devices': fixup_stacked_devices(ns.get('devices', {})),
+        'devices': fixup_stacked_devices(logger, ns.get('devices', {})),
         'alias_config': ns.get('alias_config', []),
         'startupcode': ns.get('startupcode', ''),
         'extended': ns.get('extended', {}),

@@ -106,6 +106,8 @@ class SetupChecker(object):
         self.good = False
         self.log.error(msg, *args, **kw)
 
+    error = log_error  # disguise ourself as a logger object
+
     # find line numbers in the AST
 
     def _find_binding(self, binding):
@@ -290,7 +292,7 @@ class SetupChecker(object):
             self.log_error('missing user-friendly setup description',
                            extra=self.find_global('description'))
 
-        self.ns['devices'] = fixup_stacked_devices(self.ns.get('devices', {}))
+        self.ns['devices'] = fixup_stacked_devices(self, self.ns.get('devices', {}))
         # check if devices are duplicated
         if group != 'special':
             devs = self.ns.get('devices', {})
