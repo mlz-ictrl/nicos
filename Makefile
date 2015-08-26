@@ -1,5 +1,5 @@
 .PHONY: install clean install-inplace test lint jenkinslintall jenkinslint changelint \
-	check test-coverage release help install-requirements
+	check test-coverage manualrelease release help install-requirements
 
 SHELL=/bin/bash
 
@@ -94,8 +94,9 @@ changelint:
 		PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $$PYFILESCHANGED; \
 	else echo 'no python files changed'; fi
 
+manualrelease: test release
+
 release:
-	${MAKE} test
 	cd doc; rm -r build/html; ${MAKE} html
 	python setup.py sdist
 
@@ -109,4 +110,5 @@ help:
 	@echo "  test-coverage - run test suite with coverage reporting"
 	@echo "  lint          - check source with pylint"
 	@echo "  changelint    - check source with pylint (only files in last commit)"
-	@echo "  release       - create tarball for official release"
+	@echo "  manualrelease - create tarball for official release (for manual usage)"
+	@echo "  release       - create tarball for official release(jenkins usage)"
