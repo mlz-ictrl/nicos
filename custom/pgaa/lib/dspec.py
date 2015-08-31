@@ -54,6 +54,7 @@ class DSPec(Measurable):
             self.doWait()
         self._adevs['set_ready'].move(0)
         time.sleep(self.startsleeptime)
+        self._adevs['set_ready'].move(1)
 
     def doStop(self):
         self._adevs['set_ready'].move(1)
