@@ -26,7 +26,7 @@
 
 import time
 
-from nicos.core import Measurable, Moveable, Attach, Param, status
+from nicos.core import Measurable, Moveable, Readable, Attach, Param, status
 # from nicos.devices.taco.io import DigitalOutput, DigitalInput
 # from nicos.core.mixins import HasTimeout
 
@@ -45,7 +45,7 @@ class DSPec(Measurable):
         'set_ready': Attach('Device to enable the remote control',
                             Moveable),  # DigitalOutput),
         'get_ready': Attach('Device to read back the reached value',
-                            Moveable),  # DigitalInput),
+                            Readable),  # DigitalInput),
     }
 
     def doStart(self):
