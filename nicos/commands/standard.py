@@ -24,8 +24,8 @@
 
 """Package for importing all normally used NICOS commands."""
 
-# pylint: disable=W0401
-# pylint: disable=W0622
+# pylint: disable=wildcard-import,unused-wildcard-import
+# pylint: disable=redefined-builtin
 from nicos.commands.basic import *
 from nicos.commands.output import *
 from nicos.commands.device import *

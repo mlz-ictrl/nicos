@@ -22,6 +22,8 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
+# legacy code:
+# pylint: disable=invalid-name,bad-whitespace
 
 """HKL transformation routines between crystal coordinates and physical device
 coordinates.

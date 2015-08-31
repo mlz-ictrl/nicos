@@ -24,6 +24,8 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
+# legacy code:
+# pylint: disable=invalid-name,bad-whitespace
 
 """
 Resolution calculation using the Popovici method.  Based on

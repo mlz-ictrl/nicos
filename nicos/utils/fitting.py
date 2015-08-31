@@ -68,7 +68,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
     # Remove full_output from kw, otherwise we're passing it in twice.
     return_full = kw.pop('full_output', False)
     res = leastsq(func, p0, args=args, full_output=1, **kw)
-    (popt, pcov, infodict, errmsg, ier) = res
+    (popt, pcov, infodict, errmsg, ier) = res  # pylint: disable=unbalanced-tuple-unpacking
 
     if ier not in [1, 2, 3, 4]:
         msg = "Optimal parameters not found: " + errmsg
@@ -146,7 +146,7 @@ class Fit(object):
                                'as there are parameters')
         xn, yn, dyn = array(xn), array(yn), array(dyn)
         try:
-            popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn)
+            popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn)  # pylint: disable=unbalanced-tuple-unpacking
             parerrors = sqrt(abs(diagonal(pcov)))
         except (RuntimeError, ValueError, TypeError) as e:
             return self.result(name, None, xn, yn, dyn, None, None, msg=str(e))
