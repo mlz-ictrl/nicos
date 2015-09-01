@@ -30,7 +30,7 @@ from time import time as currenttime
 from PyQt4.QtGui import QWidget, QMainWindow, QSplitter, QFontDialog, \
     QColorDialog, QHBoxLayout, QVBoxLayout, QDockWidget, QDialog, QPalette, \
     QTabWidget
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSlot, pyqtSignal
+from PyQt4.QtCore import Qt, QObject, pyqtSlot, pyqtSignal
 
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
@@ -163,11 +163,39 @@ class AuxiliarySubWindow(QMainWindow):
                 return panelobj
 
 
-class Panel(QWidget, DlgUtils):
-    panelName = ''
-    setupSpec = ()
+class SetupDepGuiMixin(QObject):
+    ''' Mixin to handle setup-dependent visibility
 
+    Note: You must explicity add the following class attribute in all
+    classes using this mixin (A PyQt resctriction, see
+    https://riverbankcomputing.com/pipermail/pyqt/2013-September/033199.html):
+
+    `setWidgetVisible = SetupDepGuiMixin.setWidgetVisible`
+
+    '''
+    setupSpec = ()
     setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
+
+    def setOptions(self, options):
+        setups = options.get('setups', ())
+        if isinstance(setups, str):
+            setups = (setups,)
+        self.setSetups(list(setups))
+
+    def setSetups(self, setupSpec):
+        self.setupSpec = setupSpec
+        self.log.debug('Setups are : %r' % self.setupSpec)
+
+    def on_keyChange(self, key, value, time, expired):
+        if key == 'session/mastersetup' and self.setupSpec:
+            enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
+            self.setWidgetVisible.emit(self, enabled)
+
+
+class Panel(QWidget, SetupDepGuiMixin, DlgUtils):
+    panelName = ''
+
+    setWidgetVisible = SetupDepGuiMixin.setWidgetVisible
 
     def __init__(self, parent, client):
         QWidget.__init__(self, parent)
@@ -189,16 +217,6 @@ class Panel(QWidget, DlgUtils):
         using their unique ``panelName``.
 
         """
-
-    def setOptions(self, options):
-        setups = options.get('setups', ())
-        if isinstance(setups, str):
-            setups = (setups,)
-        self.setSetups(list(setups))
-
-    def setSetups(self, setupSpec):
-        self.setupSpec = setupSpec
-        self.log.debug('Setups are : %r' % self.setupSpec)
 
     def setExpertMode(self, expert):
         pass
@@ -232,16 +250,9 @@ class Panel(QWidget, DlgUtils):
     def updateStatus(self, status, exception=False):
         pass
 
-    def on_keyChange(self, key, value, time, expired):
-        if key == 'session/mastersetup' and self.setupSpec:
-            enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
-            self.setWidgetVisible.emit(self, enabled)
 
-
-class Splitter(QSplitter):
-    setupSpec = ()
-
-    setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
+class Splitter(QSplitter, SetupDepGuiMixin):
+    setWidgetVisible = SetupDepGuiMixin.setWidgetVisible
 
     def __init__(self, item, window, menuwindow, topwindow, parent=None):
         QSplitter.__init__(self, parent)
@@ -250,21 +261,6 @@ class Splitter(QSplitter):
         for subitem in item:
             sub = createWindowItem(subitem, window, menuwindow, topwindow)
             self.addWidget(sub)
-
-    def setOptions(self, options):
-        setups = options.get('setups', ())
-        if isinstance(setups, str):
-            setups = (setups,)
-        self.setSetups(list(setups))
-
-    def setSetups(self, setupSpec):
-        self.setupSpec = setupSpec
-        self.log.debug('Setups are : %r' % self.setupSpec)
-
-    def on_keyChange(self, key, value, time, expired):
-        if key == 'session/mastersetup' and self.setupSpec:
-            enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
-            self.setWidgetVisible.emit(self, enabled)
 
 
 class VerticalSplitter(Splitter):
