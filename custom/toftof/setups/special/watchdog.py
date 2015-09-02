@@ -49,6 +49,7 @@ devices = dict(
                       sender = 'nicos.toftof@frm2.tum.de',
                       copies = [('wiebke.lohstroh@frm2.tum.de', 'all'),
                                 ('Josef.Huber@frm2.tum.de', 'all'),
+                                ('zachary.evenson@frm2.tum.de', 'all'),
                                ],
                       subject = 'TOFTOF Warning',
                      ),
