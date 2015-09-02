@@ -29,21 +29,26 @@ class hsplit(tuple):
     def __new__(cls, *children):
         return tuple.__new__(cls, children)
 
+
 class vsplit(tuple):
     def __new__(cls, *children):
         return tuple.__new__(cls, children)
+
 
 class tabbed(tuple):
     def __new__(cls, *children):
         return tuple.__new__(cls, children)
 
+
 class setups(tuple):
     def __new__(cls, *children):
         return tuple.__new__(cls, children)
 
+
 class docked(tuple):
     def __new__(cls, mainitem, *dockitems):
         return tuple.__new__(cls, (mainitem, dockitems))
+
 
 class window(tuple):
     def __new__(cls, *args):
@@ -57,6 +62,7 @@ class window(tuple):
         self.icon = self[1]
         self.contents = self[2]
 
+
 class panel(tuple):
     def __new__(cls, clsname, **options):
         return tuple.__new__(cls, (clsname, options))
@@ -64,6 +70,7 @@ class panel(tuple):
     def __init__(self, *args, **kw):  # pylint: disable=W0231
         self.clsname = self[0]
         self.options = self[1]
+
 
 class tool(tuple):
     def __new__(cls, name, clsname, **options):
@@ -73,6 +80,7 @@ class tool(tuple):
         self.name = self[0]
         self.clsname = self[1]
         self.options = self[2]
+
 
 class gui_config(object):
     def __init__(self, main_window, windows, tools, name):
