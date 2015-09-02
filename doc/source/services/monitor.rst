@@ -60,6 +60,22 @@ toggle full-screen mode.
 Setup file
 ----------
 
+The layout of the status monitor consists of nested vertical and horizontal
+stacks of displayed units:
+
+* At the top level, there are rows.  The ``layout`` parameter of the Monitor
+  device is a list of rows.
+
+* Each :func:`Row` consists of a number of :func:`Column` s.
+
+* Each :func:`Column` consists of a number of :func:`Block` s.  Each :func:`Block`
+  has a title and a number of rows (:func:`BlockRow` s) in it.
+
+* Each :func:`BlockRow` consists of a number of :func:`Field` s.
+
+* A :func:`Field` has a name and a value.
+
+
 A simple setup file for the monitor could look like this:
 
 .. code-block:: python
@@ -127,62 +143,58 @@ A simple setup file for the monitor could look like this:
                         layout = [Row(expcolumn), Row(devcolumn)]),
    )
 
-The layout of the status monitor consists of nested vertical and horizontal
-stacks of displayed units:
 
-* At the top level, there are rows.  The ``layout`` parameter of the Monitor
-  device is a list of rows.
+Elements
+--------
 
-* Each row consists of a number of columns.
+.. function:: Row(*configs)
 
-* Each column consists of a number of blocks.  Each block has a title and a
-  number of rows ("block rows") in it.
+.. function:: Column(*configs)
 
-* Each block row consists of a number of fields.
+.. function:: BlockRow(*configs)
 
-* A field has a name and a value.
+.. function:: Block(*configs, **options)
 
 The configuration of a block may use further options:
-
-* ``setups`` -- An expression of associated setup names.  The block will only be
-  shown if the specified setups condition is fulfilled.
-
-  If a simple name is given the setup condition is fulfilled if the setup is
-  loaded in the NICOS :term:`master`.  Otherwise you can use Python boolean
-  operators and parentheses to construct an expression like ``(setup1 and
-  not setup2) or setup3`` (see for example the Detector block above).
-
-  To match multiple setups, use filename patterns, for example: ``ccr* and not
-  cryo*``.
 
 * ``frame`` -- If set to ``False`` the frame drawn around all of the blocks fields
   is omitted. The default value for this option is ``True``.
 
+* ``setups`` -- An expression of associated setup names.  The block will only be
+  shown if the specified setups condition is fulfilled.
+
+  For more information see :ref:`gui-config-setup`
+
+.. function:: Field(*configs, **options)
+
 The configuration for a Field is either a simple string naming a device (see the
-"Axes" block above) a dictionary with more detailed configuration what is
+"Axes" block above) or a dictionary with more detailed configuration what is
 displayed and how.
 
 The recognized keys are:
 
 * ``dev`` -- set this field up for displaying the current value of a device.
 
-* ``key`` -- this can be set alternatively to ``dev`` to display arbitrary cache
-  keys.  This is useful to display device parameters: see the "Triple Axis"
-  block in the example configuration.  The current scanmode (``tas.scanmode`` in
-  NICOS) is displayed with the key ``tas/scanmode``.
-
-* ``name`` -- if given, sets a new name for the field (by default, it is the
-  ``dev`` or ``key``).
-
-* ``item`` -- if given, and the value is a tuple or list, only the specified
-  item of the value is displayed.  See the "Triple Axis" block above: the
-  current Q/E space position (which is a ``(h, k, l, E)`` tuple in NICOS) is
-  displayed in four different fields.
-
-* ``width`` -- controls the width of the field, as a number of characters.
+* ``format`` -- if set, it overrides the format string of the displayed value
+  (normally the foramt string of the device is used).  This is also useful for
+  values with a ``key`` (which have no default format string) or ``item`` (where
+  the devices' format string does not apply), see the "Triple Axis" block above.
 
 * ``istext`` -- if true, the value is displayed using a proportional font
   instead of a monospaced font that is used for numeric values.
+
+* ``item`` -- if given, and the value is a tuple or list, only the specified
+  item of the value is displayed.
+
+  See the "Triple Axis" block above: the current Q/E space position (which is
+  a ``(h, k, l, E)`` tuple in NICOS) is displayed in four different fields.
+
+* ``key`` -- this can be set alternatively to ``dev`` to display arbitrary cache
+  keys.
+
+  This is useful to display device parameters: see the "Triple Axis" block in
+  the example configuration.  The current scanmode (``tas.scanmode`` in NICOS)
+  is displayed with the key ``tas/scanmode``.
 
 * ``maxlen`` -- most useful for string values, can be used to cut the value
   after a certain number of characters.
@@ -193,15 +205,17 @@ The recognized keys are:
   parameter named ``warnlimits`` (a tuple of ``(min, max)`` values) which is
   used by the monitor.
 
-* ``unit`` -- if set, it overrides the displayed unit (normally, the unit of the
-  device is used).  For example, in the "Triple Axis" block above, the unit for
-  H/K/L and E is set to a space (empty string would mean the default unit) to
-  avoid displaying redundant "rlu".
+* ``name`` -- if given, sets a new name for the field (by default, it is the
+  ``dev`` or ``key``).
 
-* ``format`` -- if set, it overrides the format string of the displayed value
-  (normally the foramt string of the device is used).  This is also useful for
-  values with a ``key`` (which have no default format string) or ``item`` (where
-  the devices' format string does not apply), see the "Triple Axis" block above.
+* ``unit`` -- if set, it overrides the displayed unit (normally, the unit of the
+  device is used).
+
+  For example, in the "Triple Axis" block above, the unit for H/K/L and E is
+  set to a space (empty string would mean the default unit) to avoid displaying
+  redundant "rlu".
+
+* ``width`` -- controls the width of the field, as a number of characters.
 
 Special widgets
 ^^^^^^^^^^^^^^^

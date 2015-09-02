@@ -12,7 +12,10 @@ that together describe the lay-out of Qt panels and windows.
 
 .. _gui-config-example:
 
-A small example configuration file looks like this::
+A small example configuration file looks like this:
+
+.. code-block:: python
+   :linenos:
 
    main_window = docked(
        vsplit(
