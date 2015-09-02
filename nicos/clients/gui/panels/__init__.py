@@ -203,14 +203,14 @@ class Panel(QWidget, SetupDepGuiMixin, DlgUtils):
     setWidgetVisible = SetupDepGuiMixin.setWidgetVisible
 
     def __init__(self, parent, client):
-        SetupDepGuiMixin.__init__(self, client)
         QWidget.__init__(self, parent)
+        self.log = NicosLogger(self.panelName)
+        SetupDepGuiMixin.__init__(self, client)
         DlgUtils.__init__(self, self.panelName)
         self.parentwindow = parent
         self.client = client
         self.mainwindow = parent.mainwindow
         self.actions = set()
-        self.log = NicosLogger(self.panelName)
         self.log.parent = self.mainwindow.log
         self.sgroup = SettingGroup(self.panelName)
         with self.sgroup as settings:
@@ -261,10 +261,12 @@ class Splitter(QSplitter, SetupDepGuiMixin):
     setWidgetVisible = SetupDepGuiMixin.setWidgetVisible
 
     def __init__(self, item, window, menuwindow, topwindow, parent=None):
-        SetupDepGuiMixin.__init__(self, window.client)
         QSplitter.__init__(self, parent)
         window.splitters.append(self)
-        for subitem in item:
+        self.log = NicosLogger('Splitter')
+        SetupDepGuiMixin.__init__(self, window.client)
+        self.setOptions(item.options)
+        for subitem in item.children:
             sub = createWindowItem(subitem, window, menuwindow, topwindow)
             self.addWidget(sub)
 

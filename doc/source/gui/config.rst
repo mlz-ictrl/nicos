@@ -8,19 +8,18 @@ a configuration file usually called ``custom/<instrument>/guiconfig.py`` (anothe
 such file can be selected at startup with the ``-c`` option).
 
 The configuration file is a Python module that uses several special functions
-that together describe the lay-out of Qt panels and windows.  These functions
-must be imported from ``nicos.clients.gui.config``.
+that together describe the lay-out of Qt panels and windows.
+
+.. _gui-config-example:
 
 A small example configuration file looks like this::
-
-   from nicos.clients.gui.config import *
 
    main_window = docked(
        vsplit(
            panel('status.ScriptStatusPanel'),
            panel('console.ConsolePanel'),
        ),
-       ('NICOS devices', panel('devices.DevicesPanel', icons=True))
+       ('NICOS devices', panel('devices.DevicesPanel', icons=True, dockpos='right',))
    )
 
    windows = [
@@ -54,7 +53,7 @@ stay open for very long.
 Panel combinators
 -----------------
 
-The basic building blocks for windows (main and auxiliary) are **panels**.
+The basic building blocks for windows (main and auxiliary) are :ref:`panels<panels>`.
 Windows can consist of single panels, or multiple panels combined in several
 ways.
 
@@ -76,14 +75,26 @@ The functions to combine several panels are:
    panelconf)``.  This can be used as the "main" element of a ``docked``
    configuration.
 
-.. function:: hsplit(*confs)
+.. function:: hsplit(*confs, **options)
 
    Creates a layout of panel configurations separated horizontally by splitters.
 
-.. function:: vsplit(*confs)
+   Options:
+
+   * The ``setups`` options gives the possibility to define a setup depending
+     display of the panels, see :ref:`gui-config-setup`
+
+.. function:: vsplit(*confs, **options)
 
    Creates a layout of panel configurations separated vertically by splitters.
 
+   Options:
+
+   * The ``setups`` options gives the possibility to define a setup depending
+     display of the panels, see :ref:`gui-config-setup`
+
+
+.. _panels:
 
 Panels
 ------
@@ -96,12 +107,21 @@ The function to create a single panel is:
    fully qualified with the module name to import it from, with the exception
    that if it begins with ``nicos.clients.gui.panels.`` that can be left out.
 
-   See the example config above.
+   See :ref:`the example config above <gui-config-example>`.
 
    Options:
 
    * The ``setups`` options gives the possibility to define a setup depending
      display of the panels, see :ref:`gui-config-setup`
+
+   * The ``dockpos`` options is only used if the panel is part of the
+     :func:`docked` panel and give the default position insight a dock widget.
+
+     The values could be:
+        - left
+        - right
+        - top
+        - bottom
 
    The other possible ``options`` are panel-specific; the keywords given here
    are passed to the panel.

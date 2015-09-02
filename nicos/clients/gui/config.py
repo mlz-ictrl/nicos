@@ -26,13 +26,21 @@
 
 
 class hsplit(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
+    def __new__(cls, *children, **options):
+        return tuple.__new__(cls, (children, options))
+
+    def __init__(self, *args, **kw):  # pylint: disable=W0231
+        self.children = self[0]
+        self.options = self[1]
 
 
 class vsplit(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
+    def __new__(cls, *children, **options):
+        return tuple.__new__(cls, (children, options))
+
+    def __init__(self, *args, **kw):  # pylint: disable=W0231
+        self.children = self[0]
+        self.options = self[1]
 
 
 class tabbed(tuple):
