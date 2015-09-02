@@ -52,10 +52,10 @@ sysconfig = dict(
     instrument = 'galaxi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    notifiers = ['mailer'],
 )
 
-modules = ['commands.standard']
+modules = ['commands.standard', 'galaxi.commands']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
@@ -71,25 +71,25 @@ devices = dict(
                       description = 'Galaxi Experiment ',
                       dataroot = '/home/jcns/data',
                       sample = 'Sample',
-                      #mailsender = 'u.ruecker@fz-juelich.de',
-                      propprefix = 'p',
                       serviceexp = 'service',
-                      servicescript = '',
-                      templates = 'templates',
                       sendmail = False,
                       zipdata = False,
-                      #scancounter = 'filecounter', #backwards compatibility
+                      localcontact = 'Ulrich Ruecker <u.ruecker@fz-juelich.de>'
                      ),
 
 
     galaxi  = device('devices.instrument.Instrument',
-                     description = 'Galaxi Instrument test',
+                     description = 'GALAXI high resolution diffractometer',
                      instrument='GALAXI',
+                     facility = 'FZ-Juelich',
                      responsible= 'Ulrich Ruecker <u.ruecker@fz-juelich.de>'
                     ),
 
     filesink = device('devices.datasinks.AsciiDatafileSink',
                       description = 'Device storing scanfiles in Ascii output format.',
+                      filenametemplate = ['%(session.experiment.users)s_'
+                                          '%(session.experiment.sample.samplename)s_'
+                                          '%(session.experiment.lastscan)s.dat'],
                     ),
     conssink = device('devices.datasinks.ConsoleSink',
                       description = 'Device storing console output.',
@@ -102,4 +102,15 @@ devices = dict(
                       path = None,
                       minfree = 5,
                      ),
+    mailer    = device('devices.notifiers.Mailer',
+                      description = 'E-Mail notifier',
+                      mailserver = 'mail.fz-juelich.de',
+                      sender = 'noreply@fz-juelich.de',
+                      copies = [('u.ruecker@fz-juelich.de', 'important'),
+                                ('e.kentzinger@fz-juelich.de', 'important'),
+                                ('l.fleischhauer-fuss@fz-juelich.de', 'important'),
+                               ],
+                      subject = '[NICOS] GALAXI',
+                     ),
+
 )
