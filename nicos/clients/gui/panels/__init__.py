@@ -176,6 +176,9 @@ class SetupDepGuiMixin(QObject):
     setupSpec = ()
     setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
 
+    def __init__(self, client):
+        client.register(self, 'session/mastersetup')
+
     def setOptions(self, options):
         setups = options.get('setups', ())
         if isinstance(setups, str):
@@ -198,6 +201,7 @@ class Panel(QWidget, SetupDepGuiMixin, DlgUtils):
     setWidgetVisible = SetupDepGuiMixin.setWidgetVisible
 
     def __init__(self, parent, client):
+        SetupDepGuiMixin.__init__(self, client)
         QWidget.__init__(self, parent)
         DlgUtils.__init__(self, self.panelName)
         self.parentwindow = parent
@@ -255,9 +259,9 @@ class Splitter(QSplitter, SetupDepGuiMixin):
     setWidgetVisible = SetupDepGuiMixin.setWidgetVisible
 
     def __init__(self, item, window, menuwindow, topwindow, parent=None):
+        SetupDepGuiMixin.__init__(self, window.client)
         QSplitter.__init__(self, parent)
         window.splitters.append(self)
-        window.client.register(self, 'session/mastersetup')
         for subitem in item:
             sub = createWindowItem(subitem, window, menuwindow, topwindow)
             self.addWidget(sub)
@@ -283,7 +287,6 @@ def createPanel(item, window, menuwindow, topwindow):
     p = cls(menuwindow, window.client)
     p.setOptions(item.options)
     window.panels.append(p)
-    window.client.register(p, 'session/mastersetup')
     if p not in topwindow.panels:
         topwindow.panels.append(p)
 
