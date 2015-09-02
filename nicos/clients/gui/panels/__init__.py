@@ -44,6 +44,8 @@ from nicos.guisupport.utils import checkSetupSpec
 
 class AuxiliaryWindow(QMainWindow):
 
+    closed = pyqtSignal('QMainWindow')
+
     def __init__(self, parent, wintype, config):
         QMainWindow.__init__(self, parent)
         loadUi(self, 'auxwindow.ui')

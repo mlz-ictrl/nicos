@@ -25,11 +25,13 @@
 """Dialog for showing information about new plug-and-play events."""
 
 from PyQt4.QtGui import QMessageBox, QStyle
-from PyQt4.QtCore import Qt, SIGNAL
+from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL
 
 
 class PnPSetupQuestion(QMessageBox):
     """Special QMessageBox for asking what to do a new setup was detected."""
+
+    closed = pyqtSignal('QMessageBox')
 
     def __init__(self, parent, client, data):
         self.client = client
@@ -61,7 +63,7 @@ class PnPSetupQuestion(QMessageBox):
         self.b0.setFocus()
 
     def on_ignore_clicked(self):
-        self.emit(SIGNAL('closed'), self)
+        self.closed.emit(self)
         self.reject()
 
     def on_execute_clicked(self):
@@ -69,11 +71,11 @@ class PnPSetupQuestion(QMessageBox):
             self.client.run('AddSetup(%r)' % self.data[1])
         else:
             self.client.run('RemoveSetup(%r)' % self.data[1])
-        self.emit(SIGNAL('closed'), self)
+        self.closed.emit(self)
         self.accept()
 
     def closeEvent(self, event):
-        self.emit(SIGNAL('closed'), self)
+        self.closed.emit(self)
         return QMessageBox.closeEvent(self, event)
 
     def on_client_setup(self, data):

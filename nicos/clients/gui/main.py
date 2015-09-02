@@ -242,7 +242,7 @@ class MainWindow(QMainWindow, DlgUtils):
         window = AuxiliaryWindow(self, wtype, wconfig)
         window.setWindowIcon(QIcon(':/' + wconfig.icon))
         self.windows[wtype] = window
-        self.connect(window, SIGNAL('closed'), self.on_auxWindow_closed)
+        window.closed.connect(self.on_auxWindow_closed)
         for panel in window.panels:
             panel.updateStatus(self.current_status)
         window.show()
@@ -507,7 +507,7 @@ class MainWindow(QMainWindow, DlgUtils):
         else:
             window = PnPSetupQuestion(self, self.client, data)
             self.pnpWindows[windowkey] = window
-            self.connect(window, SIGNAL('closed'), self.on_pnpWindow_closed)
+            window.closed.connect(self.on_pnpWindow_closed)
             window.show()
 
     def on_pnpWindow_closed(self, window):
