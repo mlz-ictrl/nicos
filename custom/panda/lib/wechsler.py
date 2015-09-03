@@ -21,6 +21,7 @@
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
+#  pylint: disable=invalid-name
 
 """PANDA Monochromator changer hardware classes."""
 

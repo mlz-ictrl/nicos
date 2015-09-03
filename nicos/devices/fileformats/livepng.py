@@ -37,18 +37,18 @@ from nicos.core.errors import NicosError
 from nicos.core import ImageSink, Param, Override
 
 
-def makeLUT(N, spec):
-    lut = np.ones(N + 1, np.uint8)
+def makeLUT(n, spec):
+    lut = np.ones(n + 1, np.uint8)
     nold = 0
     yold = spec[0][2]
     for x, y1, y2 in spec[1:]:
-        n = int(x * N)
+        ni = int(x * n)
         # this 255 is due to 8 bpp, not due to size of LUT
-        lut[nold:n] = np.linspace(yold, y1, n - nold) * 255
-        nold = n
+        lut[nold:ni] = np.linspace(yold, y1, ni - nold) * 255
+        nold = ni
         yold = y2
-    assert n == N
-    lut[N] = lut[N - 1]
+    assert ni == n
+    lut[n] = lut[n - 1]
     return lut
 
 # "Jet" colormap parametrized as in Matplotlib

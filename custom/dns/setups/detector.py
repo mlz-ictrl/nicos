@@ -10,7 +10,7 @@ excludes = ['detectortest']
 tango_host = 'tango://phys.dns.frm2:10000'
 
 devices = dict(
-    DNSFileSaver = device('dns.DNSFileFormat.DNSFileFormat',
+    DNSFileSaver = device('dns.dnsfileformat.DNSFileFormat',
                           lowlevel = True,
                          ),
     det = device("dns.detector.TofDetector",

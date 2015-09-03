@@ -581,9 +581,9 @@ class Changer(BaseSequencer):
         seq.append(SeqDev(self._adevs['tableclamp'], 'close'))
         # move (without mono) to parking position
         seq.append(SeqDev(self._adevs['liftclamp'], 'open'))
-        def f(self):
+        def func(self):
             self.mono_on_table, self.mono_in_lift = self.mono_in_lift, 'None'
-        seq.append(SeqCall(f, self))
+        seq.append(SeqCall(func, self))
         #~ seq.append(SeqSetAttr(self, 'mono_on_table', self.mono_in_lift))
         #~ seq.append(SeqSetAttr(self, 'mono_in_lift', 'None'))
         seq.append(SeqDev(self._adevs['lift'], 2)) # park position
@@ -617,9 +617,9 @@ class Changer(BaseSequencer):
         seq.append(SeqDev(self._adevs['liftclamp'], 'close'))
         seq.append(SeqDev(self._adevs['tableclamp'], 'open'))
         # move (with mono) to parking position
-        def f(self):
+        def func(self):
             self.mono_on_table, self.mono_in_lift = 'None', self.mono_on_table
-        seq.append(SeqCall(f, self))
+        seq.append(SeqCall(func, self))
         #~ seq.append(SeqSetAttr(self, 'mono_on_table', 'None'))
         #~ seq.append(SeqSetAttr(self, 'mono_in_lift', self.mono_on_table))
         seq.append(SeqDev(self._adevs['lift'], 2)) # park position

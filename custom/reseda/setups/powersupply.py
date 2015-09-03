@@ -58,7 +58,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B51_c = device('reseda.powerSupply.PowerSupplyA',
+    B51_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B5',
                    tacodevice = '//%s/reseda/network/hpe3631_1' % (nethost,),
                    pollinterval = 10,
@@ -66,7 +66,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B51_v = device('reseda.powerSupply.PowerSupplyU',
+    B51_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B5',
                    tacodevice = '//%s/reseda/network/hpe3631_1' % (nethost,),
                    pollinterval = 10,
@@ -74,7 +74,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B52_c = device('reseda.powerSupply.PowerSupplyA',
+    B52_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B6',
                    tacodevice = '//%s/reseda/network/hpe3631_1' % (nethost,),
                    pollinterval = 10,
@@ -82,7 +82,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B52_v = device('reseda.powerSupply.PowerSupplyU',
+    B52_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B6',
                    tacodevice = '//%s/reseda/network/hpe3631_1' % (nethost,),
                    pollinterval = 10,
@@ -90,7 +90,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B53_c = device('reseda.powerSupply.PowerSupplyA',
+    B53_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B7',
                    tacodevice = '//%s/reseda/network/hpe3631_1' % (nethost,),
                    pollinterval = 10,
@@ -98,7 +98,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B53_v = device('reseda.powerSupply.PowerSupplyU',
+    B53_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B7',
                    tacodevice = '//%s/reseda/network/hpe3631_1' % (nethost,),
                    pollinterval = 10,
@@ -106,7 +106,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B61_c = device('reseda.powerSupply.PowerSupplyA',
+    B61_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B8',
                    tacodevice = '//%s/reseda/network/hpe3631_2' % (nethost,),
                    pollinterval = 10,
@@ -114,7 +114,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B61_v = device('reseda.powerSupply.PowerSupplyU',
+    B61_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B8',
                    tacodevice = '//%s/reseda/network/hpe3631_2' % (nethost,),
                    pollinterval = 10,
@@ -122,7 +122,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B62_c = device('reseda.powerSupply.PowerSupplyA',
+    B62_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B9',
                    tacodevice = '//%s/reseda/network/hpe3631_2' % (nethost,),
                    pollinterval = 10,
@@ -130,7 +130,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B62_v = device('reseda.powerSupply.PowerSupplyU',
+    B62_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B9',
                    tacodevice = '//%s/reseda/network/hpe3631_2' % (nethost,),
                    pollinterval = 10,
@@ -138,7 +138,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B63_c = device('reseda.powerSupply.PowerSupplyA',
+    B63_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B10',
                    tacodevice = '//%s/reseda/network/hpe3631_2' % (nethost,),
                    pollinterval = 10,
@@ -146,7 +146,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B63_v = device('reseda.powerSupply.PowerSupplyU',
+    B63_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B10',
                    tacodevice = '//%s/reseda/network/hpe3631_2' % (nethost,),
                    pollinterval = 10,
@@ -154,7 +154,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B71_c = device('reseda.powerSupply.PowerSupplyA',
+    B71_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B11',
                    tacodevice = '//%s/reseda/network/hpe3631_3' % (nethost,),
                    pollinterval = 10,
@@ -162,7 +162,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B71_v = device('reseda.powerSupply.PowerSupplyU',
+    B71_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B11',
                    tacodevice = '//%s/reseda/network/hpe3631_3' % (nethost,),
                    pollinterval = 10,
@@ -170,7 +170,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B72_c = device('reseda.powerSupply.PowerSupplyA',
+    B72_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B12',
                    tacodevice = '//%s/reseda/network/hpe3631_3' % (nethost,),
                    pollinterval = 10,
@@ -178,7 +178,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B72_v = device('reseda.powerSupply.PowerSupplyU',
+    B72_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B12',
                    tacodevice = '//%s/reseda/network/hpe3631_3' % (nethost,),
                    pollinterval = 10,
@@ -186,7 +186,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B73_c = device('reseda.powerSupply.PowerSupplyA',
+    B73_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B13',
                    tacodevice = '//%s/reseda/network/hpe3631_3' % (nethost,),
                    pollinterval = 10,
@@ -194,7 +194,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B73_v = device('reseda.powerSupply.PowerSupplyU',
+    B73_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B13',
                    tacodevice = '//%s/reseda/network/hpe3631_3' % (nethost,),
                    pollinterval = 10,
@@ -202,7 +202,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B81_c = device('reseda.powerSupply.PowerSupplyA',
+    B81_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B14',
                    tacodevice = '//%s/reseda/network/hpe3648_1' % (nethost,),
                    pollinterval = 10,
@@ -210,7 +210,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B81_v = device('reseda.powerSupply.PowerSupplyU',
+    B81_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B14',
                    tacodevice = '//%s/reseda/network/hpe3648_1' % (nethost,),
                    channel = 1,
@@ -218,7 +218,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B82_c = device('reseda.powerSupply.PowerSupplyA',
+    B82_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B15',
                    tacodevice = '//%s/reseda/network/hpe3648_1' % (nethost,),
                    pollinterval = 10,
@@ -226,7 +226,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B82_v = device('reseda.powerSupply.PowerSupplyU',
+    B82_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B15',
                    tacodevice = '//%s/reseda/network/hpe3648_1' % (nethost,),
                    pollinterval = 10,
@@ -234,7 +234,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B91_c = device('reseda.powerSupply.PowerSupplyA',
+    B91_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B16',
                    tacodevice = '//%s/reseda/network/hpe3648_2' % (nethost,),
                    channel = 1,
@@ -242,7 +242,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B91_v = device('reseda.powerSupply.PowerSupplyU',
+    B91_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B16',
                    tacodevice = '//%s/reseda/network/hpe3648_2' % (nethost,),
                    channel = 1,
@@ -250,7 +250,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B92_c = device('reseda.powerSupply.PowerSupplyA',
+    B92_c = device('reseda.powersupply.PowerSupplyA',
                    description = 'B17',
                    tacodevice = '//%s/reseda/network/hpe3648_2' % (nethost,),
                    channel = 2,
@@ -258,7 +258,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B92_v = device('reseda.powerSupply.PowerSupplyU',
+    B92_v = device('reseda.powersupply.PowerSupplyU',
                    description = 'B17',
                    tacodevice = '//%s/reseda/network/hpe3648_2' % (nethost,),
                    channel = 2,
@@ -266,7 +266,7 @@ devices = dict(
                    maxage = 15,
                   ),
 
-    B101_c = device('reseda.powerSupply.PowerSupplyA',
+    B101_c = device('reseda.powersupply.PowerSupplyA',
                     description = 'B18',
                     tacodevice = '//%s/reseda/network/hpe3648_3' % (nethost,),
                     channel = 1,
@@ -274,7 +274,7 @@ devices = dict(
                     maxage = 15,
                    ),
 
-    B101_v = device('reseda.powerSupply.PowerSupplyU',
+    B101_v = device('reseda.powersupply.PowerSupplyU',
                     description = 'B18',
                     tacodevice = '//%s/reseda/network/hpe3648_3' % (nethost,),
                     pollinterval = 10,
@@ -282,7 +282,7 @@ devices = dict(
                     maxage = 15,
                    ),
 
-    B102_c = device('reseda.powerSupply.PowerSupplyA',
+    B102_c = device('reseda.powersupply.PowerSupplyA',
                     description = 'B19',
                     tacodevice = '//%s/reseda/network/hpe3648_3' % (nethost,),
                     channel = 2,
@@ -290,7 +290,7 @@ devices = dict(
                     maxage = 15,
                    ),
 
-    B102_v = device('reseda.powerSupply.PowerSupplyU',
+    B102_v = device('reseda.powersupply.PowerSupplyU',
                     description = 'B19',
                     tacodevice = '//%s/reseda/network/hpe3648_3' % (nethost,),
                     pollinterval = 10,
@@ -298,7 +298,7 @@ devices = dict(
                     maxage = 15,
                    ),
 
-    B111_c = device('reseda.powerSupply.PowerSupplyA',
+    B111_c = device('reseda.powersupply.PowerSupplyA',
                     description = 'B20',
                     tacodevice = '//%s/reseda/network/hpe3648_4' % (nethost,),
                     pollinterval = 10,
@@ -306,7 +306,7 @@ devices = dict(
                     maxage = 15,
                    ),
 
-    B111_v = device('reseda.powerSupply.PowerSupplyU',
+    B111_v = device('reseda.powersupply.PowerSupplyU',
                     description = 'B20',
                     tacodevice = '//%s/reseda/network/hpe3648_4' % (nethost,),
                     pollinterval = 10,
@@ -314,7 +314,7 @@ devices = dict(
                     maxage = 15,
                    ),
 
-    B112_c = device('reseda.powerSupply.PowerSupplyA',
+    B112_c = device('reseda.powersupply.PowerSupplyA',
                     description = 'B21',
                     tacodevice = '//%s/reseda/network/hpe3648_4' % (nethost,),
                     pollinterval = 10,
@@ -322,7 +322,7 @@ devices = dict(
                     maxage = 15,
                    ),
 
-    B112_v = device('reseda.powerSupply.PowerSupplyU',
+    B112_v = device('reseda.powersupply.PowerSupplyU',
                     description = 'B21',
                     tacodevice = '//%s/reseda/network/hpe3648_4' % (nethost,),
                     pollinterval = 10,

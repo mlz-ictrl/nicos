@@ -116,7 +116,7 @@ devices = dict(
                 maxage = 8,
                ),
 
-    Q1 = device('reseda.scatteringVector.ScatteringVector',
+    Q1 = device('reseda.scatteringvector.ScatteringVector',
                 description = 'Calculation of scattering vector(m1)',
                 wavelength = 'Lambda',
                 twotheta = 'm1',
@@ -124,7 +124,7 @@ devices = dict(
                 maxage = 61,
                ),
 
-    Q2 = device('reseda.scatteringVector.ScatteringVector',
+    Q2 = device('reseda.scatteringvector.ScatteringVector',
                 description = 'Calculation of scattering vector(m2)',
                 wavelength = 'Lambda',
                 twotheta = 'm2',
