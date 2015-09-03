@@ -152,19 +152,6 @@ class PanelDialog(QDialog):
                                                       currenttime(), False)
 
 
-class AuxiliarySubWindow(QMainWindow):
-    def __init__(self, parent):
-        QMainWindow.__init__(self, parent)
-        self.mainwindow = parent
-
-        self.panels = []
-
-    def getPanel(self, panelName):
-        for panelobj in self.panels:
-            if panelobj.panelName == panelName:
-                return panelobj
-
-
 class SetupDepGuiMixin(QObject):
     ''' Mixin to handle setup-dependent visibility
 
@@ -194,7 +181,8 @@ class SetupDepGuiMixin(QObject):
     def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:
             enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
-            self.setWidgetVisible.emit(self, enabled)
+            if hasattr(self, 'setWidgetVisible'):
+                self.setWidgetVisible.emit(self, enabled)
 
 
 class Panel(QWidget, SetupDepGuiMixin, DlgUtils):
@@ -351,38 +339,48 @@ def createDockedWidget(item, window, menuwindow, topwindow):
     return main
 
 
-def createTabWidget(item, window, menuwindow, topwindow):
-    tw = TearOffTabWidget(menuwindow)
-    tw.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;margin:0;'
-                     'padding:0;border:none}')
-    # don't draw a frame around the tab contents
-    tw.setDocumentMode(True)
-    for entry in item:
-        subwindow = AuxiliarySubWindow(tw)
-        subwindow.mainwindow = window.mainwindow
-        subwindow.user_color = window.user_color
+class AuxiliarySubWindow(QMainWindow):
+    def __init__(self, item, window, menuwindow, parent):
+        QMainWindow.__init__(self, parent)
+        # self.mainwindow = parent
+        self.user_color = window.user_color
+        self.mainwindow = window.mainwindow
+
+        self.panels = []
+
         # we have to nest one step to get consistent layout spacing
         # around the central widget
-        central = QWidget(subwindow)
+        central = QWidget(self)
         layout = QVBoxLayout()
         # only keep margin at the top (below the tabs)
         layout.setContentsMargins(0, 6, 0, 0)
-        if len(entry) == 2:
-            (title, subitem, setupSpec) = entry + (None,)
+        if len(item) == 2:
+            (title, subitem, setupSpec) = item + (None,)
         else:
-            (title, subitem, setupSpec) = entry
-        it = createWindowItem(subitem, window, menuwindow, subwindow)
+            (title, subitem, setupSpec) = item
+        it = createWindowItem(subitem, window, menuwindow, self)
         if isinstance(it, (Panel, QSplitter,)):
             if isinstance(it, Panel):
                 it.hideTitle()
             # if tab has its own setups overwrite panels setups
             if setupSpec:
                 it.setSetups(setupSpec)
-            it.setWidgetVisible.connect(tw.setWidgetVisible)
+            it.setWidgetVisible.connect(parent.setWidgetVisible)
         layout.addWidget(it)
         central.setLayout(layout)
-        subwindow.setCentralWidget(central)
-        tw.addTab(subwindow, title)
+        self.setCentralWidget(central)
+        parent.addPanel(self, title)
+
+    def getPanel(self, panelName):
+        for panelobj in self.panels:
+            if panelobj.panelName == panelName:
+                return panelobj
+
+
+def createTabWidget(item, window, menuwindow, topwindow):
+    tw = TearOffTabWidget(menuwindow)
+    for entry in item:
+        _ = AuxiliarySubWindow(entry, window, menuwindow, tw)
     return tw
 
 

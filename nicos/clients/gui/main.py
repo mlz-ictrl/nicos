@@ -373,6 +373,7 @@ class MainWindow(QMainWindow, DlgUtils):
             self.client.disconnect()
 
         event.accept()
+        QApplication.instance().quit()
 
     def setTitlebar(self, connected):
         inststr = str(self.instrument) or 'NICOS'
