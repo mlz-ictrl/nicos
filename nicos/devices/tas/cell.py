@@ -22,23 +22,21 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-# legacy code:
-# pylint: disable=invalid-name,bad-whitespace
 
 """HKL transformation routines between crystal coordinates and physical device
 coordinates.
 """
 
-from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt, \
-     array, identity, zeros, cross, dot, sign
+from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt,\
+    array, identity, zeros, cross, dot, sign
 from numpy.linalg import inv, norm
 
 from nicos.core import Device, Param, ComputationError, vec3, anytype, NicosError
 from nicos.devices.sample import Sample
 from nicos.devices.tas.spacegroups import get_spacegroup
 
-D2R = pi/180
-R2D = 180/pi
+D2R = pi / 180
+R2D = 180 / pi
 # conversion from THz to A^-2
 K = 1.9958584
 
@@ -69,9 +67,9 @@ class CellBase(object):
             self._matrix = self.matrix_crystal2lab()
             # matrix for rotation about sgx, sgy for psi = 0; not changed so far
             self._matrix_cardan = identity(3)
-            #self._matrix_psi = identity(3)
+            # self._matrix_psi = identity(3)
             # matrix for rotation about echi, ephi, for psi = 0; not used
-            #self._matrix_euler  = identity(3)
+            # self._matrix_euler  = identity(3)
 
     def _info(self):
         self.log.info('direct lattice:   %4.7f   %4.7f   %4.7f' %
@@ -107,9 +105,9 @@ class CellBase(object):
             astar[0] = self._lattice[1] * self._lattice[2] * si[0] / V
             astar[1] = self._lattice[2] * self._lattice[0] * si[1] / V
             astar[2] = self._lattice[0] * self._lattice[1] * si[2] / V
-            alphastar[0] = arccos((co[1] * co[2] - co[0])/(si[1] * si[2]))
-            alphastar[1] = arccos((co[0] * co[2] - co[1])/(si[0] * si[2]))
-            alphastar[2] = arccos((co[0] * co[1] - co[2])/(si[0] * si[1]))
+            alphastar[0] = arccos((co[1] * co[2] - co[0]) / (si[1] * si[2]))
+            alphastar[1] = arccos((co[0] * co[2] - co[1]) / (si[0] * si[2]))
+            alphastar[2] = arccos((co[0] * co[1] - co[2]) / (si[0] * si[1]))
             return [astar, alphastar]
         except Exception as err:
             raise ComputationError('%s when calculating reciprocal '
@@ -119,7 +117,7 @@ class CellBase(object):
         try:
             co = cos(self._angles * D2R)
             mul = self._lattice[0] * self._lattice[1] * self._lattice[2]
-            V = mul * sqrt(1 - dot(co, co) + 2*co[0]*co[1]*co[2])
+            V = mul * sqrt(1 - dot(co, co) + 2 * co[0] * co[1] * co[2])
             return V
         except ComputationError:
             raise
@@ -172,21 +170,21 @@ class CellBase(object):
             B = zeros((3, 3))
             U = zeros((3, 3))
 
-            B[0,0] = self._lattice_rec[0] * 2 * pi
-            B[0,1] = self._lattice_rec[1] * cos(self._angles_rec[2]) * 2 * pi
-            B[0,2] = self._lattice_rec[2] * cos(self._angles_rec[1]) * 2 * pi
-            B[1,0] = 0
-            B[1,1] = self._lattice_rec[1] * sin(self._angles_rec[2]) * 2 * pi
-            B[1,2] = - self._lattice_rec[2] * sin(self._angles_rec[1]) * \
+            B[0, 0] = self._lattice_rec[0] * 2 * pi
+            B[0, 1] = self._lattice_rec[1] * cos(self._angles_rec[2]) * 2 * pi
+            B[0, 2] = self._lattice_rec[2] * cos(self._angles_rec[1]) * 2 * pi
+            B[1, 0] = 0
+            B[1, 1] = self._lattice_rec[1] * sin(self._angles_rec[2]) * 2 * pi
+            B[1, 2] = -self._lattice_rec[2] * sin(self._angles_rec[1]) * \
                      cos(self._angles[0] * D2R) * 2 * pi
-            B[2,0] = 0
-            B[2,1] = 0
-            B[2,2] = 2 * pi / self._lattice[2]
+            B[2, 0] = 0
+            B[2, 1] = 0
+            B[2, 2] = 2 * pi / self._lattice[2]
 
             for i in range(3):
                 for j in range(3):
-                    if -0.000001 < B[i,j] < 0.000001:
-                        B[i,j] = 0.0
+                    if -0.000001 < B[i, j] < 0.000001:
+                        B[i, j] = 0.0
 
             vec1 = dot(B, self._orient1)
             vec2 = dot(B, self._orient2)
@@ -213,10 +211,10 @@ class CellBase(object):
                 U[0] = vec2 / norm(vec2)
                 U[1] = vec1 / norm(vec1)
             elif direction == -1:
-                U[0] = - vec1 / norm(vec1)
+                U[0] = -vec1 / norm(vec1)
                 U[1] = vec2 / norm(vec2)
             elif direction == -2:
-                U[0] = - vec2 / norm(vec2)
+                U[0] = -vec2 / norm(vec2)
                 U[1] = vec1 / norm(vec1)
             return U
         except ComputationError:
@@ -303,11 +301,11 @@ class CellBase(object):
             a1 = arcsin(Y)
 
             if -crit < hkl[0] < crit:
-                Y = pi/2
+                Y = pi / 2
                 if hkl[1] < crit:
-                    Y = - Y
+                    Y = -Y
             elif hkl[0] < -crit:
-                Y = - a1
+                Y = -a1
                 if hkl[1] > crit:
                     Y += pi
                 else:
@@ -324,15 +322,15 @@ class CellBase(object):
 
     def _metric(self, a, alpha):
         m = zeros((3, 3))
-        m[0,0] = a[0]**2
-        m[0,1] = a[0] * a[1] * cos(alpha[2])
-        m[0,2] = a[0] * a[2] * cos(alpha[1])
-        m[1,0] = m[0,1]
-        m[1,1] = a[1]**2
-        m[1,2] = a[1] * a[2] * cos(alpha[0])
-        m[2,0] = m[0,2]
-        m[2,1] = m[1,2]
-        m[2,2] = a[2]**2
+        m[0, 0] = a[0]**2
+        m[0, 1] = a[0] * a[1] * cos(alpha[2])
+        m[0, 2] = a[0] * a[2] * cos(alpha[1])
+        m[1, 0] = m[0, 1]
+        m[1, 1] = a[1]**2
+        m[1, 2] = a[1] * a[2] * cos(alpha[0])
+        m[2, 0] = m[0, 2]
+        m[2, 1] = m[1, 2]
+        m[2, 2] = a[2]**2
         return m
 
     def metric_tensor(self):
@@ -425,7 +423,7 @@ class CellBase(object):
             ki = 0
             phi *= D2R
             Qabs = norm(Qlab)
-            a1 = (Qabs / sin(phi)) ** 2
+            a1 = (Qabs / sin(phi))**2
             a2 = K * ny
             a3 = a2 / sin(phi)
             a3 = a1**2 - a3**2
@@ -603,7 +601,7 @@ class Cell(CellBase, Device):
 
     parameters = {
         'lattice': Param('Lattice constants', type=vec3, settable=True,
-                         default=[2*pi, 2*pi, 2*pi], unit='A',
+                         default=[2 * pi, 2 * pi, 2 * pi], unit='A',
                          category='sample'),
         'angles':  Param('Lattice angles', type=vec3, settable=True,
                          default=[90, 90, 90], unit='deg', category='sample'),
@@ -613,7 +611,7 @@ class Cell(CellBase, Device):
                          default=[0, 1, 0], settable=True, category='sample'),
         'psi0':    Param('Zero position of psi axis', settable=True,
                          unit='deg', category='sample'),
-        #'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
+        # 'coordinatesystem': Param('Coordinate system for k_i: 1 parallel x, '
         #                          '-1 parallel -x, 2 parallel y, '
         #                          '-2 parallel -y.',
         #                          type=int, default=1, settable=True),
@@ -641,7 +639,7 @@ class Cell(CellBase, Device):
         self._psi0 = val
         self._reinit()
 
-    #def doWriteCoordinatesystem(self, val):
+    # def doWriteCoordinatesystem(self, val):
     #    if val not in [1, -1, 2, -2]:
     #        raise ConfigurationError('valid values for coordinatesystem: '
     #                                 '+/-1 and +/-2')
@@ -671,10 +669,10 @@ class TASSample(Sample, Cell):
 
     def reset(self):
         Sample.reset(self)
-        self.lattice = [2*pi, 2*pi, 2*pi]
-        self.angles  = [90, 90, 90]
+        self.lattice = [2 * pi, 2 * pi, 2 * pi]
+        self.angles = [90, 90, 90]
         self.orient1 = [1, 0, 0]
         self.orient2 = [0, 1, 0]
-        self.psi0    = 0.0
+        self.psi0 = 0.0
         self.spacegroup = 1  # primitive triclinic, all reflexes allowed
-        self.mosaic  = 0.5
+        self.mosaic = 0.5
