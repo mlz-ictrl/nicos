@@ -51,6 +51,8 @@ class AuxiliaryWindow(QMainWindow):
         loadUi(self, 'auxwindow.ui')
         self.mainwindow = parent
         self.client = parent.client
+        self.log = NicosLogger('AuxiliaryWindow')
+        self.log.parent = self.mainwindow.log
 
         self.type = wintype
         self.panels = []
@@ -252,6 +254,7 @@ class Splitter(QSplitter, SetupDepGuiMixin):
         QSplitter.__init__(self, parent)
         window.splitters.append(self)
         self.log = NicosLogger('Splitter')
+        self.log.parent = topwindow.log
         SetupDepGuiMixin.__init__(self, window.client)
         self.setOptions(item.options)
         for subitem in item.children:
@@ -345,6 +348,8 @@ class AuxiliarySubWindow(QMainWindow):
         # self.mainwindow = parent
         self.user_color = window.user_color
         self.mainwindow = window.mainwindow
+        self.log = NicosLogger('AuxiliarySubWindow')
+        self.log.parent = self.mainwindow.log
 
         self.panels = []
 
