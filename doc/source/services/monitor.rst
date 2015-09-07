@@ -63,8 +63,8 @@ Setup file
 The layout of the status monitor consists of nested vertical and horizontal
 stacks of displayed units:
 
-* At the top level, there are rows.  The ``layout`` parameter of the Monitor
-  device is a list of rows.
+* At the top level, there are rows.  The ``layout`` parameter of the
+  :class:`Monitor <nicos.services.monitor.Monitor>` device is a list of rows.
 
 * Each :func:`Row` consists of a number of :func:`Column` s.
 
@@ -280,18 +280,23 @@ Backends
 --------
 
 In the example setup above, the Monitor device is confiugred with the class
-``nicos.services.monitor.qt.Monitor``.  This selects the Qt backend, which
+:class:`nicos.services.monitor.qt.Monitor`.  This selects the Qt backend, which
 displays the monitor as a window using the Qt GUI toolkit.  Another backend
-exists:
+exists: :class:`nicos.services.monitor.html.Monitor` writing a HTML file
+periodically.
 
-* ``nicos.services.monitor.html.Monitor`` -- writing a HTML file periodically.
-  You have to configure two additional parameters:
+.. module:: nicos.services.monitor
 
-  - ``filename``: the filename for the HTML file
-  - ``interval``: the period, in seconds
+.. autoclass:: Monitor()
 
-  The HTML monitor only supports the standard value display and the trend plot
-  widget, but no custom widgets (yet).
+.. module:: nicos.services.monitor.qt
+
+.. autoclass:: Monitor()
+
+
+.. module:: nicos.services.monitor.html
+
+.. autoclass:: Monitor()
 
 
 Warnings

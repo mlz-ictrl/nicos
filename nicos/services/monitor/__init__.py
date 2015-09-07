@@ -60,8 +60,9 @@ class Monitor(BaseCacheClient):
                            settable=True),
         'padding':   Param('Padding for the display fields', type=int,
                            default=2, settable=True),
-        'geometry':  Param('Geometry for status window', type=str,
-                           settable=True),
+        'geometry':  Param('Geometry for status window. For the  allowed '
+                           'settings see :option:`--geometry`',
+                           type=str, settable=True),
         'resizable': Param('Whether the window is resizable', type=bool,
                            default=True),
         'colors':    Param('Color scheme for value displays (dark or light '
