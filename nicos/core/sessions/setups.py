@@ -57,8 +57,10 @@ def readSetups(paths, logger):
 
     return infodict
 
+
 class Device(tuple):
     pass
+
 
 def prepareNamespace(setupname):
     """Return a namespace prepared for reading setup "setupname"."""
@@ -73,18 +75,8 @@ def prepareNamespace(setupname):
         ns['BlockRow'] = lambda *args: args
         ns['Block'] = lambda *args, **kwds: (args, kwds)
         ns['Field'] = lambda *args, **kwds: args or kwds
-    if path.basename(setupname).startswith('guiconfig'):
-        from nicos.clients.gui.config import vsplit, hsplit, window, panel, \
-            tool, docked, tabbed, setups
-        ns['vsplit'] = vsplit
-        ns['hsplit'] = hsplit
-        ns['window'] = window
-        ns['panel'] = panel
-        ns['tool'] = tool
-        ns['docked'] = docked
-        ns['tabbed'] = tabbed
-        ns['setups'] = setups
     return ns
+
 
 def fixup_stacked_devices(devdict):
     """replaces <adevname> = Device(..) entries in devices dict
@@ -98,7 +90,7 @@ def fixup_stacked_devices(devdict):
         for devname, dev in devdict.items():
             # iter over all key=value pairs for dict
             for k, v in dev[1].items():
-                if isinstance(v, Device): #need to fixup!
+                if isinstance(v, Device):  # need to fixup!
                     # guess a name:
                     n = '%s_%s' % (devname, k)
                     # 'rename' device, keeping logical connection

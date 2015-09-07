@@ -82,7 +82,7 @@ class ErrorPanel(Panel):
         if role == QDialogButtonBox.ResetRole:
             self.outView.clear()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance"""
+            # close the right instance
             # traverse stack of Widgets and close the right ones...
             obj = self
             while hasattr(obj, 'parent'):

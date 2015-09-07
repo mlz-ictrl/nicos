@@ -671,7 +671,7 @@ def main(argv):
         usage()
         sys.exit(1)
     for o, a in opts:
-        if o  in ['-c', '--config-file']:
+        if o in ['-c', '--config-file']:
             configfile = a
         elif o in ['-h', '--help']:
             usage()

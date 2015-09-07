@@ -168,7 +168,7 @@ class ExpPanel(Panel, DlgUtils):
         if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance"""
+            # close the right instance
             # traverse stack of Widgets and close the right ones...
             obj = self
             while hasattr(obj, 'parent'):
@@ -357,7 +357,7 @@ class SetupsPanel(Panel, DlgUtils):
         elif role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance"""
+            # close the right instance
             # traverse stack of Widgets and close the right ones...
             obj = self
             while hasattr(obj, 'parent'):
@@ -501,7 +501,7 @@ class DetEnvPanel(Panel, DlgUtils):
         if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance"""
+            # close the right instance
             # traverse stack of Widgets and close the right ones...
             obj = self
             while hasattr(obj, 'parent'):
@@ -548,7 +548,7 @@ class GenericSamplePanel(Panel, DlgUtils):
         if role == QDialogButtonBox.ApplyRole:
             self.applyChanges()
         elif role == QDialogButtonBox.RejectRole:
-            # close the right instance"""
+            # close the right instance
             # traverse stack of Widgets and close the right ones...
             obj = self
             while hasattr(obj, 'parent'):

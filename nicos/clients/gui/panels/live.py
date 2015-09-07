@@ -164,7 +164,6 @@ class LiveDataPanel(Panel):
         return [self.menu]
 
     def getToolbars(self):
-        print self.bar
         if not self.bar:
             bar = QToolBar('Live data')
             bar.addAction(self.actionPrint)
