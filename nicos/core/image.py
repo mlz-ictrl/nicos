@@ -227,7 +227,7 @@ class ImageProducer(DeviceMixinBase):
 
     attached_devices = {
         'fileformats': Attach('Filesavers for all wanted fileformats',
-                              ImageSink, multiple=True),
+                              ImageSink, multiple=True, optional=True),
     }
 
     parameters = {
