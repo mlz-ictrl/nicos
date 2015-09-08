@@ -26,6 +26,13 @@
 
 main_window = docked(
     tabbed(
+        ('Command line',
+         vsplit(
+            panel('status.ScriptStatusPanel'),
+            # panel('watch.WatchPanel'),
+            panel('console.ConsolePanel'),
+         ),
+        ),
         ('PGAA',
          panel('nicos.pgaa.gui.panels.PGAAPanel', setups='pgaa'),
         ),
@@ -53,13 +60,6 @@ main_window = docked(
 #        ),
 #        setups('sans'),
 #       ),
-        ('Command line',
-         vsplit(
-            panel('status.ScriptStatusPanel'),
-            # panel('watch.WatchPanel'),
-            panel('console.ConsolePanel'),
-         ),
-        )
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
