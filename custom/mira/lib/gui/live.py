@@ -174,7 +174,8 @@ class LiveDataPanel(Panel):
                 self.statusBar.showMessage('cps: %.2f | total: %s' %
                                            (cts/self._runtime, cts))
             self.updateRange()
-        if self._filename:# and path.isfile(self._filename):
+        if self._filename and not self._filename.startswith('live@'):
+            # and path.isfile(self._filename):
             self.add_to_flist(self._filename, self._format)
 
     def on_fileList_itemClicked(self, item):
