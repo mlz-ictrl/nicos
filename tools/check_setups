@@ -285,7 +285,8 @@ class SetupChecker(object):
 
         # check for a description
         description = self.ns.get('description', None)
-        if description in (None, '') and group in ('basic', 'optional', 'plugplay'):
+        if description in (None, '') and not self.is_guiconfig \
+           and group in ('basic', 'optional', 'plugplay'):
             self.log_error('missing user-friendly setup description',
                            extra=self.find_global('description'))
 
