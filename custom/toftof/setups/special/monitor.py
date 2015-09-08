@@ -23,6 +23,8 @@ _expcolumn = Row(
 
 _chopperblock = Block('Chopper system', [
     BlockRow(Field(name='Wavelength', dev='chWL', format='%.1f'),
+	    ),
+    BlockRow(
              Field(name='Nom. Speed', dev='chSpeed', format='%.0f'),
              Field(name='Act. Speed', dev='ch', format='%.0f'),
             ),
@@ -33,19 +35,25 @@ _chopperblock = Block('Chopper system', [
     '---',
     BlockRow(Field(name='Disk 1', dev='chDS', item=0, format='%.1f'),
              Field(name='Disk 2', dev='chDS', item=1, format='%.1f'),
+#           ),
+#   BlockRow(
              Field(name='Disk 3', dev='chDS', item=2, format='%.1f'),
              Field(name='Disk 4', dev='chDS', item=3, format='%.1f'),
             ),
-    BlockRow(Field(name='Disk 5', dev='chDS', item=4, format='%.1f'),
+    BlockRow(
+             Field(name='Disk 5', dev='chDS', item=4, format='%.1f'),
+#           ),
+#   BlockRow(
              Field(name='Disk 6', dev='chDS', item=5, format='%.1f'),
              Field(name='Disk 7', dev='chDS', item=6, format='%.1f'),
             ),
     '---',
-    BlockRow(Field(name='Flow in', dev='flow_in_ch_cooling',),),
+    BlockRow(Field(name='Flow in (FAK40)', dev='flow_in_ch_cooling',),),
     '---',
     BlockRow(Field(name='Gauge 1', dev='vac0', format='%.2g'),
              Field(name='Gauge 2', dev='vac1', format='%.2g'),
-             Field(name='Gauge 3', dev='vac2', format='%.2g'),
+            ),
+    BlockRow(Field(name='Gauge 3', dev='vac2', format='%.2g'),
              Field(name='Gauge 4', dev='vac3', format='%.2g'),
             ),
     ],
@@ -65,7 +73,7 @@ _choppercoolingblock = Block('Cooling system (Chopper)', [
 )
 
 _collimationblock = Block('Radial Collimator/Collimation', [
-    BlockRow(Field(name='Radial', dev='rc',),
+    BlockRow(Field(name='Radial', dev='rc_motor',),
              Field(name='Collimator', dev='ngc',),
             ),
     ],
@@ -82,6 +90,8 @@ _samplecoolingblock = Block('Cooling system (Sample)', [
 _ccrblock = Block('Sample environment', [
     BlockRow(Field(name='Stick', dev='T_ccr17_stick',),
              Field(name='Tube', dev='T_ccr17_tube',),
+	    ),
+    BlockRow(
              Field(name='Vacuum/Gas', dev='ccr17_p2',)
             ),
     ],
@@ -142,13 +152,9 @@ _slitblock = Block('Sample slit', [
 
 _measblock = Block('Measurement', [
     BlockRow(Field(key='m/timechannels', name='Time channels'),),
-#   BlockRow(Field(name='Last file', key='m/lastfilename'),),
     BlockRow(Field(key='m/laststats', item=0, name='Time', format='%.1f'),
              Field(key='m/laststats', item=1, name='Monitor', format='%d'),
              Field(key='m/laststats', item=2, name='Counts', format='%d'),
-            ),
-    BlockRow(Field(key='m/laststats', item=0, name='Monitor rate', format='%.1f'),
-             Field(key='m/laststats', item=0, name='Count rate', format='%.1f'),
             ),
     ],
 )
@@ -165,18 +171,18 @@ _col1 = Column(
 )
 
 _col2 = Column(
-    _collimationblock,
     _reactorblock,
-    _rateblock,
-)
-
-_col3 = Column(
-    _ngblock,
-    _samplecoolingblock,
+#   _samplecoolingblock,
+    _collimationblock,
     _ccrblock,
+    _ngblock,
     _htfblock,
     _biofurnaceblock,
     _pressureblock,
+)
+
+_col3 = Column(
+    _rateblock,
 )
 
 devices = dict(
@@ -188,6 +194,8 @@ devices = dict(
                      font = 'Ubuntu',
                      valuefont = 'DejaVu Sans Mono',
                      padding = 2,
+                     fontsize = 14,
+                     geometry = 'fullscreen',
                      layout = [[_expcolumn], [_col1, _col2, _col3]],
                     ),
 )
