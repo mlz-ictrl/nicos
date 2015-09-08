@@ -430,7 +430,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         try:
             treated = counts[self._anglemap, :].astype('<u4')
             ndet, ntime = treated.shape
-            session.updateLiveData('toftof', self.lastfilename, '<u4',
+            session.updateLiveData('live', self.lastfilename, '<u4',
                                    ntime, ndet, 1, meastime, buffer(treated))
         except Exception:
             pass

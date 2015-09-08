@@ -55,7 +55,6 @@ DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
 FILETYPES = {'fits': TYPE_FITS, 'raw': TYPE_RAW}
 
 
-
 class LiveDataPanel(Panel):
     panelName = 'Live data view'
     bar = None
@@ -75,7 +74,6 @@ class LiveDataPanel(Panel):
         self._cachesize = 20
         self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
         self._datapathok = False
-
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -132,7 +130,7 @@ class LiveDataPanel(Panel):
         opt_filetypes = options.get('filetypes', list(FILETYPES))
         self._allowed_tags = set(opt_filetypes) & set(FILETYPES)
 
-        #configure caching
+        # configure caching
         self._showcached = options.get('showcached', False)
         self._cachesize = options.get('cachesize', 20)
         if self._cachesize < 1:
@@ -189,7 +187,7 @@ class LiveDataPanel(Panel):
     def on_client_connected(self):
         datapath = self.client.eval('session.experiment.datapath', '')
         if not datapath or not path.isdir(datapath):
-            self._showcached = True   # always show  cached data if datapath is not accessible
+            self._showcached = True  # always show  cached data if datapath is not accessible
             return
         if self._instrument == 'imaging':
             for fn in sorted(os.listdir(datapath)):
@@ -224,7 +222,7 @@ class LiveDataPanel(Panel):
                 if self._showcached:
                     self.add_to_flist(self._last_fname, self._last_format, self._last_tag, cached=True)
         # always allow live data
-        if self._last_tag in ('live', 'toftof'):
+        if self._last_tag == 'live':
             if len(data) and self._last_format:
                 # we got live data with a specified format
                 d = LWData(self._nx, self._ny, self._nz, self._last_format, data)
