@@ -30,6 +30,7 @@ from nicos.core.errors import ConfigurationError
 from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, fixup_stacked_devices
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.tacostubs import generate_stubs
+from nicos.clients.gui.config import prepareGuiNamespace
 from nicos.pycompat import exec_
 
 # get default custom paths
@@ -84,7 +85,11 @@ class SetupChecker(object):
         self.setup_info = setup_info
         self.setupname = path.basename(filename)[:-3]
         self.log = logging.getLogger(filename)
-        self.ns = prepareNamespace(self.setupname)
+        self.is_guiconfig = self.setupname.startswith('guiconfig')
+        if self.is_guiconfig:
+            self.ns = prepareGuiNamespace()
+        else:
+            self.ns = prepareNamespace(self.setupname)
         self.good = True
 
         # filled by check()

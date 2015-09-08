@@ -49,7 +49,7 @@ from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
     loadBasicWindowSettings, loadUserStyle, getXDisplay, DebugHandler
-from nicos.clients.gui.config import gui_config
+from nicos.clients.gui.config import gui_config, prepareGuiNamespace
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
@@ -681,9 +681,8 @@ def main(argv):
 
     with open(configfile, 'rb') as fp:
         configcode = fp.read()
-    ns = {}
-    exec_('from nicos.clients.gui.config import vsplit, hsplit, window, panel,'
-          ' tool, docked, tabbed, setups', ns)
+
+    ns = prepareGuiNamespace()
     exec_(configcode, ns)
     if 'config' in ns:
         # backward compatibility

@@ -122,3 +122,16 @@ class gui_config(object):
         for i, winconfig in enumerate(self.windows):
             if self._has_panel(winconfig, panel_classes):
                 return i
+
+
+def prepareGuiNamespace():
+    ns = {}
+    ns['vsplit'] = vsplit
+    ns['hsplit'] = hsplit
+    ns['window'] = window
+    ns['panel'] = panel
+    ns['tool'] = tool
+    ns['docked'] = docked
+    ns['tabbed'] = tabbed
+    ns['setups'] = setups
+    return ns
