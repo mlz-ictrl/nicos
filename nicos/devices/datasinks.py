@@ -28,7 +28,8 @@ import time
 from os import path
 
 from nicos import session
-from nicos.core import listof, Param, Override, ConfigurationError, DataSink
+from nicos.core import listof, subdir, Param, Override, ConfigurationError, \
+    DataSink
 from nicos.commands.output import printinfo
 from nicos.pycompat import iteritems, listitems, TextIOWrapper, cPickle as pickle
 
@@ -130,6 +131,8 @@ class AsciiDatafileSink(DatafileSink):
                                 'values', type=bool, default=True),
         'lastpoint':      Param('The number of the last point in the data file',
                                 type=int),
+        'subdir':         Param('Filetype specific subdirectory for the image files',
+                                type=subdir, mandatory=False, default=''),
         'filenametemplate':   Param('Name template for the files written',
                                     type=listof(str), userparam=False, settable=False,
                                     default=['%(proposal)s_%(counter)08d.dat']),
@@ -147,7 +150,7 @@ class AsciiDatafileSink(DatafileSink):
 
     def prepareDataset(self, dataset):
         shortname, longname, fp = \
-            session.experiment.createScanFile(self.filenametemplate)
+            session.experiment.createScanFile(self.filenametemplate, self.subdir)
         self._wrote_columninfo = False
         self._fname = shortname
         self._setROParam('lastpoint', 0)
