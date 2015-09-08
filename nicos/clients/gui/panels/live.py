@@ -224,7 +224,7 @@ class LiveDataPanel(Panel):
                 if self._showcached:
                     self.add_to_flist(self._last_fname, self._last_format, self._last_tag, cached=True)
         # always allow live data
-        if self._last_tag == 'live':
+        if self._last_tag in ('live', 'toftof'):
             if len(data) and self._last_format:
                 # we got live data with a specified format
                 d = LWData(self._nx, self._ny, self._nz, self._last_format, data)
