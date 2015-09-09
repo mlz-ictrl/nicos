@@ -35,7 +35,10 @@ import optparse
 
 
 def printline(fn, line, opts):
-    key, ts, _, val = line.split('\t', 3)
+    try:
+        key, ts, _, val = line.split('\t', 3)
+    except ValueError:  # old file format
+        key, ts, val = line.split('\t', 2)
     ts = float(ts)
     val = val.strip()
     if opts.table:
