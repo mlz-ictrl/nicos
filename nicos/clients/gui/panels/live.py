@@ -299,6 +299,8 @@ class LiveDataPanel(Panel):
         printer.setOutputFileName('')
         if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
             self.widget.plot().print_(printer)
+            self.statusBar.showMessage('Plot successfully printed to %s.' %
+                                       str(printer.printerName()))
 
 
 class ToftofProfileWindow(QMainWindow, DlgUtils):
