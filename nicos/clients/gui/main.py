@@ -152,8 +152,10 @@ class MainWindow(QMainWindow, DlgUtils):
             loadUserStyle(self, settings)
 
         # create panels in the main window
-        widget = createWindowItem(self.gui_conf.main_window, self, self, self)
-        self.centralLayout.addWidget(widget)
+        widget = createWindowItem(self.gui_conf.main_window, self, self, self,
+                                  self.log)
+        if widget:
+            self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
         # call postInit after creation of all panels
         for panel in self.panels:
@@ -220,7 +222,7 @@ class MainWindow(QMainWindow, DlgUtils):
         # plug-n-play notification windows
         self.pnpWindows = {}
 
-        if isinstance(self.gui_conf.main_window, tabbed):
+        if isinstance(self.gui_conf.main_window, tabbed) and widget:
             widget.tabChangedTab(0)
 
         # create initial state
@@ -240,13 +242,17 @@ class MainWindow(QMainWindow, DlgUtils):
             window.activateWindow()
             return window
         window = AuxiliaryWindow(self, wtype, wconfig)
-        window.setWindowIcon(QIcon(':/' + wconfig.icon))
-        self.windows[wtype] = window
-        window.closed.connect(self.on_auxWindow_closed)
-        for panel in window.panels:
-            panel.updateStatus(self.current_status)
-        window.show()
-        return window
+        if window.centralLayout.count():
+            window.setWindowIcon(QIcon(':/' + wconfig.icon))
+            self.windows[wtype] = window
+            window.closed.connect(self.on_auxWindow_closed)
+            for panel in window.panels:
+                panel.updateStatus(self.current_status)
+            window.show()
+            return window
+        else:
+            del window
+            return None
 
     def getPanel(self, panelName):
         for panelobj in self.panels:
@@ -638,7 +644,7 @@ def usage():
 
 
 def main(argv):
-    global log
+    global log  # pylint: disable=global-statement
 
     # Import the compiled resource file to register resources
     import nicos.guisupport.gui_rc  # pylint: disable=W0612

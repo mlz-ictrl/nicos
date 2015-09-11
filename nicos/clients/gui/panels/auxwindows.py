@@ -35,6 +35,7 @@ from nicos.clients.gui.utils import SettingGroup, loadUi, \
 
 from nicos.clients.gui.panels.base import Panel
 
+
 class AuxiliaryWindow(QMainWindow):
 
     closed = pyqtSignal('QMainWindow')
@@ -57,8 +58,9 @@ class AuxiliaryWindow(QMainWindow):
             loadUserStyle(self, settings)
 
         self.setWindowTitle(config.name)
-        widget = createWindowItem(config.contents, self, self, self)
-        self.centralLayout.addWidget(widget)
+        widget = createWindowItem(config.contents, self, self, self, self.log)
+        if widget:
+            self.centralLayout.addWidget(widget)
         self.centralLayout.setContentsMargins(6, 6, 6, 6)
 
         with self.sgroup as settings:
@@ -137,18 +139,19 @@ class AuxiliarySubWindow(QMainWindow):
             (title, subitem, setupSpec) = item + (None,)
         else:
             (title, subitem, setupSpec) = item
-        it = createWindowItem(subitem, window, menuwindow, self)
-        if isinstance(it, (Panel, QSplitter,)):
-            if isinstance(it, Panel):
-                it.hideTitle()
-            # if tab has its own setups overwrite panels setups
-            if setupSpec:
-                it.setSetups(setupSpec)
-            it.setWidgetVisible.connect(parent.setWidgetVisible)
-        layout.addWidget(it)
-        central.setLayout(layout)
-        self.setCentralWidget(central)
-        parent.addPanel(self, title)
+        it = createWindowItem(subitem, window, menuwindow, self, self.log)
+        if it:
+            if isinstance(it, (Panel, QSplitter,)):
+                if isinstance(it, Panel):
+                    it.hideTitle()
+                # if tab has its own setups overwrite panels setups
+                if setupSpec:
+                    it.setSetups(setupSpec)
+                it.setWidgetVisible.connect(parent.setWidgetVisible)
+            layout.addWidget(it)
+            central.setLayout(layout)
+            self.setCentralWidget(central)
+            parent.addPanel(self, title)
 
     def getPanel(self, panelName):
         for panelobj in self.panels:

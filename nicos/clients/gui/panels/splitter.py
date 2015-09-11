@@ -44,8 +44,10 @@ class Splitter(QSplitter, SetupDepGuiMixin):
         SetupDepGuiMixin.__init__(self, window.client)
         self.setOptions(item.options)
         for subitem in item.children:
-            sub = createWindowItem(subitem, window, menuwindow, topwindow)
-            self.addWidget(sub)
+            sub = createWindowItem(subitem, window, menuwindow, topwindow,
+                                   self.log)
+            if sub:
+                self.addWidget(sub)
 
 
 class VerticalSplitter(Splitter):

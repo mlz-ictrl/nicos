@@ -36,9 +36,14 @@ from nicos.clients.gui.panels.splitter import VerticalSplitter, \
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
 
 
-def createPanel(item, window, menuwindow, topwindow):
+def createPanel(item, window, menuwindow, topwindow, log):
     prefixes = ('nicos.clients.gui.panels.',)
-    cls = importString(item.clsname, prefixes=prefixes)
+    try:
+        cls = importString(item.clsname, prefixes=prefixes)
+    except Exception:
+        log.exception('Could not import class %s to create panel' %
+                      item.clsname)
+        return None
     p = cls(menuwindow, window.client)
     p.setOptions(item.options)
     window.panels.append(p)
@@ -64,22 +69,22 @@ def createPanel(item, window, menuwindow, topwindow):
     return p
 
 
-def createVerticalSplitter(item, window, menuwindow, topwindow):
+def createVerticalSplitter(item, window, menuwindow, topwindow, log):
     return VerticalSplitter(item, window, menuwindow, topwindow)
 
 
-def createHorizontalSplitter(item, window, menuwindow, topwindow):
+def createHorizontalSplitter(item, window, menuwindow, topwindow, log):
     return HorizontalSplitter(item, window, menuwindow, topwindow)
 
 
-def createDockedWidget(item, window, menuwindow, topwindow):
+def createDockedWidget(item, window, menuwindow, topwindow, log):
     dockPosMap = {'left':   Qt.LeftDockWidgetArea,
                   'right':  Qt.RightDockWidgetArea,
                   'top':    Qt.TopDockWidgetArea,
                   'bottom': Qt.BottomDockWidgetArea}
 
     mainitem, dockitems = item
-    main = createWindowItem(mainitem, window, menuwindow, topwindow)
+    main = createWindowItem(mainitem, window, menuwindow, topwindow, log)
     for title, item in dockitems:
         dw = QDockWidget(title, window)
         # prevent closing the dock widget
@@ -88,7 +93,7 @@ def createDockedWidget(item, window, menuwindow, topwindow):
         # make the dock title bold
         dw.setStyleSheet('QDockWidget { font-weight: bold; }')
         dw.setObjectName(title)
-        sub = createWindowItem(item, window, menuwindow, topwindow)
+        sub = createWindowItem(item, window, menuwindow, topwindow, log)
         if isinstance(sub, Panel):
             sub.hideTitle()
         dw.setWidget(sub)
@@ -102,22 +107,23 @@ def createDockedWidget(item, window, menuwindow, topwindow):
     return main
 
 
-def createTabWidget(item, window, menuwindow, topwindow):
+def createTabWidget(item, window, menuwindow, topwindow, log):
     return TearOffTabWidget(item, window, menuwindow)
 
 
-def createWindowItem(item, window, menuwindow, topwindow):
+def createWindowItem(item, window, menuwindow, topwindow, log):
 
     if isinstance(item, panel):
-        return createPanel(item, window, menuwindow, topwindow)
+        return createPanel(item, window, menuwindow, topwindow, log)
     elif isinstance(item, hsplit):
-        return createHorizontalSplitter(item, window, menuwindow, topwindow)
+        return createHorizontalSplitter(item, window, menuwindow, topwindow,
+                                        log)
     elif isinstance(item, vsplit):
-        return createVerticalSplitter(item, window, menuwindow, topwindow)
+        return createVerticalSplitter(item, window, menuwindow, topwindow, log)
     elif isinstance(item, tabbed):
-        return createTabWidget(item, window, menuwindow, topwindow)
+        return createTabWidget(item, window, menuwindow, topwindow, log)
     elif isinstance(item, docked):
-        return createDockedWidget(item, window, menuwindow, topwindow)
+        return createDockedWidget(item, window, menuwindow, topwindow, log)
 
 
 def showPanel(panel):

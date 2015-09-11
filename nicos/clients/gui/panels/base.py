@@ -43,6 +43,8 @@ class PanelDialog(QDialog):
         self.panels = []
         QDialog.__init__(self, parent)
         self.mainwindow = parent.mainwindow
+        self.log = NicosLogger('PanelDialog')
+        self.log.parent = self.mainwindow.log
         self.client = client
         self.user_color = self.palette().color(QPalette.Base)
         self.user_font = self.font()
@@ -51,10 +53,11 @@ class PanelDialog(QDialog):
                                         panelcfg.__name__))
         elif isinstance(panelcfg, str):
             panelcfg = panel(panelcfg)
-        pnl = createWindowItem(panelcfg, self, self, self.mainwindow)
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.addWidget(pnl)
+        pnl = createWindowItem(panelcfg, self, self, self.mainwindow, self.log)
+        if pnl:
+            hbox.addWidget(pnl)
         self.setLayout(hbox)
         self.setWindowTitle(title)
 

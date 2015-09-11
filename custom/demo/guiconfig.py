@@ -97,7 +97,7 @@ windows = [
     window('Log files', 'table', panel('logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('errors.ErrorPanel')),
     # window('Downtime', 'mail', panel('nicos.clients.gui.tools.downtime.DownTimeTool')),
-    # window('Live data', 'live', panel('live.LiveDataPanel')),
+    window('Live data', 'live', panel('live.LiveDataPanel')),
 ]
 
 tools = [
