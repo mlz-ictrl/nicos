@@ -57,14 +57,6 @@ class CommandPanel(Panel):
         self.commandInput.completion_callback = self.completeInput
         self.console = None
 
-        for cmdlet in all_cmdlets:
-            action = QAction(cmdlet.name, self)
-
-            def callback(on, cmdlet=cmdlet):
-                self.selectCmdlet(cmdlet)
-            action.triggered.connect(callback)
-            self.mapping.setdefault(cmdlet.category, []).append(action)
-
         self.connect(client, SIGNAL('initstatus'), self.on_client_initstatus)
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
@@ -79,6 +71,14 @@ class CommandPanel(Panel):
         modules = options.get('modules', [])
         for module in modules:
             importString(module, ('nicos.',))  # should register cmdlets
+
+        for cmdlet in all_cmdlets:
+            action = QAction(cmdlet.name, self)
+
+            def callback(on, cmdlet=cmdlet):
+                self.selectCmdlet(cmdlet)
+            action.triggered.connect(callback)
+            self.mapping.setdefault(cmdlet.category, []).append(action)
 
     def loadSettings(self, settings):
         self.cmdhistory = settings.value('cmdhistory') or []
