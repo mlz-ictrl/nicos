@@ -160,8 +160,9 @@ class DeviceDocumenter(ClassDocumenter):
             self.add_line('', '<autodoc>')
             self.indent += self.content_indent
             descr = info.description or ''
+            if descr and not descr.endswith('.'):
+                descr += '.'
             descr = descr.decode('utf-8')
-            if descr and not descr.endswith('.'): descr += '.'
             if not info.mandatory:
                 descr += ' Default value: ``%r``.' % (info.default,)
             if info.unit:
@@ -170,6 +171,10 @@ class DeviceDocumenter(ClassDocumenter):
                 else:
                     descr += ' Unit: ``%s``.' % info.unit
             self.add_line(descr, '<%s.%s description>' % (self.object, param))
+            if info.ext_desc:
+                self.add_line('', '<autodoc>')
+                for line in info.ext_desc.splitlines():
+                    self.add_line(line.strip(), '<%s.%s>' % (self.object, param))
             self.add_line('', '<autodoc>')
             self.indent = orig_indent
             n += 1
@@ -177,7 +182,7 @@ class DeviceDocumenter(ClassDocumenter):
             self.add_line('', '<autodoc>')
             self.add_line('Parameters inherited from the base classes: ' +
                           ', '.join('`~%s.%s`' % (info.classname or '', name)
-                          for (name, info) in baseparaminfo), '<autodoc>')
+                                    for (name, info) in baseparaminfo), '<autodoc>')
 
 
 def process_signature(app, objtype, fullname, obj, options, args, retann):

@@ -89,6 +89,21 @@ class Param(object):
 
     - *chatty*: wether changes of the parameter should produce a message
       (default is False).
+
+    - *ext_desc*: extended description for the generated documentation
+      (default is '').
+
+      For long extended descriptions, this can also be set after the
+      parameters block::
+
+          parameters = {
+              'param': Param(...),
+              ...
+          }
+
+          parameters['param'].ext_desc = '''
+          long description
+          '''
     """
 
     _notset = object()
@@ -97,7 +112,7 @@ class Param(object):
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, volatile=False,
                  unit=None, category=None, preinit=False, prefercache=None,
-                 userparam=True, chatty=False):
+                 userparam=True, chatty=False, ext_desc=''):
         self.type = fixup_conv(type)
         if default is self._notset:
             default = type()
@@ -112,6 +127,7 @@ class Param(object):
         self.prefercache = prefercache
         self.userparam = userparam
         self.chatty = chatty
+        self.ext_desc = ext_desc
         self.classname = None  # filled by DeviceMeta
 
     def __repr__(self):
