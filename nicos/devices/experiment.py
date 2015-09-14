@@ -241,7 +241,6 @@ class Experiment(Device):
         """
         return ''
 
-
     @property
     def samplesymlink(self):
         """dataroot based location of 'current' sample symlink to maintain,
@@ -323,7 +322,7 @@ class Experiment(Device):
         if self.elog:
             instname = session.instrument and session.instrument.instrument or ''
             session.elogEvent('directory', (newproposalpath, instname,
-                                             path.basename(newproposalpath)))
+                                            path.basename(newproposalpath)))
 
     def doWriteSampledir(self, newsampledir):
         # handle current symlink
@@ -560,7 +559,7 @@ class Experiment(Device):
                 self._setROParam('proptype', 'service')
             ensureDirectory(path.join(self.proposalpath, 'logbook'))
             session.elogEvent('directory', (self.proposalpath,
-                                             instname, self.proposal))
+                                            instname, self.proposal))
             self._eloghandler = ELogHandler()
             # only enable in master mode, see below
             self._eloghandler.disabled = session.mode != MASTER
@@ -1081,8 +1080,8 @@ class Experiment(Device):
         data = data.replace('\\par Please replace the place holder in the upper'
                             ' part (brackets <>) by the appropriate values.', '')
         data = data.replace('\\par Description', '\\par\n\\par '
-                            'Please check all pre-filled values carefully! They were partially '
-                            'read from the proposal and might need correction.\n'
+                            'Please check all pre-filled values carefully! They were '
+                            'partially read from the proposal and might need correction.\n'
                             '\\par\n'
                             '\\par Description')
         # replace placeholders with templating markup
@@ -1177,7 +1176,7 @@ class Experiment(Device):
             if det not in dlist:
                 dlist.append(det)
         self.detlist = dlist
-        #try to create them right now
+        # try to create them right now
         self.detectors  # pylint: disable=W0104
         session.elogEvent('detectors', dlist)
 
@@ -1234,7 +1233,6 @@ class Experiment(Device):
         self._envlist = None  # clear list of actual devices
 
 
-
 class ImagingExperiment(Experiment):
     """General experiment device for all imaging instruments.
 
@@ -1242,13 +1240,13 @@ class ImagingExperiment(Experiment):
     (dark images, open beam images) and behaviour for imaging instruments.
     """
 
-    parameters = dict(
+    parameters = {
         # for display purposes....
-        lastdarkimage = Param('Last dark image', type=str, settable=False,
-                               mandatory=False, default='', category='general'),
-        lastopenbeamimage = Param('Last Open Beam image', type=str, settable=False,
-                               mandatory=False, default='', category='general'),
-    )
+        'lastdarkimage':     Param('Last dark image', type=str, settable=False,
+                                   mandatory=False, default='', category='general'),
+        'lastopenbeamimage': Param('Last Open Beam image', type=str, settable=False,
+                                   mandatory=False, default='', category='general'),
+    }
 
     @property
     def darkimagedir(self):
@@ -1278,5 +1276,5 @@ class ImagingExperiment(Experiment):
 
     def _clearImgPaths(self):
         # clear state info
-        self._setROParam('lastdarkimage','')
-        self._setROParam('lastopenbeamimage','')
+        self._setROParam('lastdarkimage', '')
+        self._setROParam('lastopenbeamimage', '')
