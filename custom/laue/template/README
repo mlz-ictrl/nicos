@@ -14,3 +14,11 @@
 #
 # please list all files after the following line with a short description.
 # contents:
+LaueFRM.cfl: Main Esmeralda control file
+   Should be copied into the data directory
+
+LaueFRMInstr.inf: Instrument description for Esmeralda
+   Should be copied into data directory
+   Check Sample-detector distance
+
+

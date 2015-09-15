@@ -8,5 +8,5 @@ SpGR    F m -3 m
 INSTRM  LaueFRMInst.inf
 EXCL_RECT 0
 EXCL_CIRC  1
-   1000  799      90     !(z,x)coordinates of centre and radius in pixels
+   799    1000      120     !(z,x)coordinates of centre and radius in pixels
 
