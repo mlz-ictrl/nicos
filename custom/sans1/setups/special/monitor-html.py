@@ -271,6 +271,17 @@ _htf01 = Column(
     ),
 )
 
+_sans1wut_p_diff = Column(
+    Block('Pressure Water Filter FAK40', [
+        BlockRow(
+                 Field(name='P in', dev='p_in_wut', width=9.5, unit='bar'),
+                 Field(name='P out', dev='p_out_wut', width=9.5, unit='bar'),
+                 Field(name='P diff', dev='p_diff_wut', width=9.5, unit='bar'),
+                ),
+        ],
+    ),
+)
+
 _ccmsans = Column(
     Block('SANS-1 5T Magnet', [
         BlockRow(Field(name='Field', dev='b_ccmsans', width=12),
@@ -416,7 +427,7 @@ devices = dict(
                                  Row(_expcolumn),
                                  Row(_sans1general, _table2, _table1,
                                      _sans1det),
-                                 Row(_ubahncolumn, _meteocolumn, _pressurecolumn),
+                                 Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _sans1wut_p_diff),
                                  Row(_selcolumn, _atpolcolumn, _sanscolumn),
                                  Row(_ccmsans, _ccmsans_temperature,
                                      _spinflipper, _ccrs, _cryos, _sc1, _sc2,

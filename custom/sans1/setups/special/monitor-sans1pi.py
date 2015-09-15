@@ -200,6 +200,17 @@ _sans1det = Column(
     ),
 )
 
+_sans1wut_p_diff = Column(
+    Block('Pressure Water Filter FAK40', [
+        BlockRow(
+                 Field(name='P in', dev='p_in_wut', width=9.5, unit='bar'),
+                 Field(name='P out', dev='p_out_wut', width=9.5, unit='bar'),
+                 Field(name='P diff', dev='p_diff_wut', width=9.5, unit='bar'),
+                ),
+        ],
+    ),
+)
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
                      title = 'SANS-1 status monitor',
@@ -214,7 +225,7 @@ devices = dict(
                      layout = [
                                  Row(_selcolumn, _collimationcolumn, _sampleaperture),
                                  Row(_sans1det),
-                                 Row(_pressurecolumn, _temp_garching),
+                                 Row(_pressurecolumn, _sans1wut_p_diff, _temp_garching),
                                  Row(_expcolumn),
                                ],
                     ),
