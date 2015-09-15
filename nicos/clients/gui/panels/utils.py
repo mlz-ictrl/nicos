@@ -100,8 +100,8 @@ def createDockedWidget(item, window, menuwindow, topwindow, log):
         dw.setContentsMargins(6, 6, 6, 6)
         dockPos = item.options.get('dockpos', 'left')
         if dockPos not in dockPosMap:
-            menuwindow.log.warn('Illegal dockpos specification %s for panel %r'
-                                % (dockPos, title))
+            log.warn('Illegal dockpos specification %s for panel %r'
+                     % (dockPos, title))
             dockPos = 'left'
         menuwindow.addDockWidget(dockPosMap[dockPos], dw)
     return main
