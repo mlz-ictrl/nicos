@@ -472,14 +472,11 @@ class ViewPlot(ViewPlotMixin, NicosGrPlot):
         self.window.statusBar.showMessage(msg)
 
     def addCurve(self, i, series, replot=False):
-        curvename = series.name
-        if series.info:
-            curvename += ' (' + series.info + ')'
         n = series.n
         if n > 0:
             color = self._color.getNextColorIndex()
             plotcurve = NicosPlotCurve(series.x[:n], series.y[:n],
-                                       legend=curvename,
+                                       legend=series.title,
                                        linecolor=color, markercolor=color)
             self.series2curve[series] = plotcurve
             self.addPlotCurve(plotcurve, replot)
@@ -488,6 +485,7 @@ class ViewPlot(ViewPlotMixin, NicosGrPlot):
         plotcurve = self.series2curve[series]
         plotcurve.x = series.x[:series.n].copy()
         plotcurve.y = series.y[:series.n].copy()
+        plotcurve.legend = series.title
         self._axes.addCurves(plotcurve)
         InteractiveGRWidget.update(self)
 

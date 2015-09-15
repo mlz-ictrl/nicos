@@ -597,10 +597,7 @@ class ViewPlot(ViewPlotMixin, NicosQwtPlot):
 
     def addCurve(self, i, series, replot=False):
         pen = QPen(self.curvecolor[i % self.numcolors])
-        curvename = series.name
-        if series.info:
-            curvename += ' (' + series.info + ')'
-        plotcurve = QwtPlotCurve(curvename)
+        plotcurve = QwtPlotCurve(series.title)
         plotcurve.setPen(pen)
         plotcurve.setSymbol(self.nosymbol)
         plotcurve.setStyle(QwtPlotCurve.Lines)
@@ -609,8 +606,9 @@ class ViewPlot(ViewPlotMixin, NicosQwtPlot):
         self.addPlotCurve(plotcurve, replot)
 
     def pointsAdded(self, series):
-        self.series2curve[series].setData(series.x[:series.n],
-                                          series.y[:series.n])
+        curve = self.series2curve[series]
+        curve.setData(series.x[:series.n], series.y[:series.n])
+        curve.setTitle(series.title)
         self.replot()
 
 

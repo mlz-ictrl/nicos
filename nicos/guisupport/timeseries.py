@@ -120,13 +120,17 @@ class TimeSeries(object):
         self.n = 0
         self.real_n = 0
         self.last_y = None
+        self.string_mapping = {}
+
+    @property
+    def title(self):
+        return self.name + (' (' + self.info + ')' if self.info else '')
 
     def init_empty(self):
         self.x = np.zeros(self.minsize)
         self.y = np.zeros(self.minsize)
 
     def init_from_history(self, history, starttime, valueindex=-1):
-        string_mapping = {}
         ltime = 0
         lvalue = None
         maxdelta = max(2 * self.interval, 11)
@@ -150,7 +154,7 @@ class TimeSeries(object):
             if not isinstance(value, number_types):
                 # if it's a string, create a new unique integer value for the string
                 if isinstance(value, string_types):
-                    value = string_mapping.setdefault(value, len(string_mapping))
+                    value = self.string_mapping.setdefault(value, len(self.string_mapping))
                 # other values we can't use
                 else:
                     continue
@@ -179,15 +183,21 @@ class TimeSeries(object):
         y.resize((2 * i or 500,))
         self.x = x
         self.y = y
-        if string_mapping:
-            self.info = ', '.join('%s=%s' % (v, k)
-                                  for (k, v) in iteritems(string_mapping))
+        self.info = ', '.join('%s=%s' % (v, k)
+                              for (k, v) in iteritems(self.string_mapping))
 
     def synthesize_value(self):
         if self.n and self.x[self.n - 1] < currenttime() - self.interval:
             self.add_value(currenttime(), self.last_y, real=False)
 
     def add_value(self, vtime, value, real=True):
+        if not isinstance(value, number_types):
+            if isinstance(value, string_types):
+                value = self.string_mapping.setdefault(value, len(self.string_mapping))
+                self.info = ', '.join('%s=%s' % (v, k)
+                                      for (k, v) in iteritems(self.string_mapping))
+            else:
+                return
         n, x, y = self.n, self.x, self.y
         real_n = self.real_n
         self.last_y = value
