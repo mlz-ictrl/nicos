@@ -30,14 +30,12 @@ from PyQt4.QtCore import QUrl
 from PyQt4.QtGui import QDesktopServices, QDialog, QDialogButtonBox, \
     QGridLayout, QLabel, QLineEdit
 
-
 try:
     import redmine  # pylint: disable=F0401
 except ImportError:
     redmine = None
 
-from nicos.clients.gui.panels import DlgUtils
-from nicos.clients.gui.utils import loadUi, CompatSettings
+from nicos.clients.gui.utils import loadUi, CompatSettings, DlgUtils
 
 
 TRACKER_URL = 'http://forge.frm2.tum.de/redmine'

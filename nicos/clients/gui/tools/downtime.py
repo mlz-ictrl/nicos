@@ -33,7 +33,7 @@ from nicos.clients.gui.utils import loadUi
 from nicos.utils.emails import sendMail
 from nicos.utils.loggers import NicosLogger
 
-from nicos.clients.gui.panels import DlgUtils, SettingGroup
+from nicos.clients.gui.utils import DlgUtils, SettingGroup
 
 
 class DownTimeTool(QDialog, DlgUtils):
