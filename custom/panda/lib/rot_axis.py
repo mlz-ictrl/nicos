@@ -180,15 +180,20 @@ class RotAxis(RefAxis):
     forbidden or used for referencing.
     """
 
+    _wrapped = False
+
     parameters = {
         'wraparound': Param('axis wraps around above this value',
                             type=float, default=360.),
+        'wrapwaittime': Param('time to wait after wraparound', unit='s',
+                              settable=True, type=float, default=0.),
     }
 
     def doStart(self, target):
         if self._checkTargetPosition(self.read(0), target, error=False):
             return  # already at target
 
+        self._wrapped = False
         # change current position if we want to go backwards
         if target < self.read():
             # a negative move would be interpreted as positive by the RefAxis,
@@ -198,8 +203,13 @@ class RotAxis(RefAxis):
             d = self._adevs['motor']
             d.setPosition(d.read() - self.wraparound)
             self.poll()
+            self._wrapped = True
 
         return RefAxis.doStart(self, target)
+
+    def _postMoveAction(self):
+        if self._wrapped:
+            sleep(self.wrapwaittime)
 
     def doReference(self, gotopos=None):  # pylint: disable=W0221
         """references this axis by finding the reference switch and then setting current position to refpos.
