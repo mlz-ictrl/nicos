@@ -66,7 +66,8 @@ class ExpPanel(Panel, DlgUtils):
                                   'session.experiment.title, '
                                   'session.experiment.users, '
                                   'session.experiment.localcontact, '
-                                  'session.experiment.sample.samplename', None)
+                                  'session.experiment.sample.samplename, '
+                                  'session.experiment.errorbehavior', None)
         if values:
             self._orig_proposal_info = values
             self.proposalNum.setText(values[0])
@@ -74,6 +75,7 @@ class ExpPanel(Panel, DlgUtils):
             self.users.setText(decodeAny(values[2]))
             self.localContact.setText(decodeAny(values[3]))
             self.sampleName.setText(decodeAny(values[4]))
+            self.errorAbortBox.setChecked(values[5] == 'abort')
         emails = self.client.eval('[e.receivers for e in session.notifiers '
             'if "nicos.devices.notifiers.Mailer" in e.classes]', [])
         self._orig_email = sum(emails, [])
@@ -112,7 +114,8 @@ class ExpPanel(Panel, DlgUtils):
                                  ' a valid email address')
             raise ConfigurationError('')
         emails = self.notifEmails.toPlainText().encode('utf-8').split(b'\n')
-        return prop, title, users, local, emails
+        errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
+        return prop, title, users, local, emails, errorbehavior
 
     @qtsig('')
     def on_finishButton_clicked(self):
@@ -121,7 +124,7 @@ class ExpPanel(Panel, DlgUtils):
     @qtsig('')
     def on_queryDBButton_clicked(self):
         try:
-            prop, title, users, _, emails = self._getProposalInput()
+            prop, title, users, _, emails, _ = self._getProposalInput()
         except ConfigurationError:
             return
         sample = self.sampleName.text().encode('utf-8')
@@ -183,7 +186,7 @@ class ExpPanel(Panel, DlgUtils):
 
         # proposal settings
         try:
-            prop, title, users, local, email = self._getProposalInput()
+            prop, title, users, local, email, errorbehavior = self._getProposalInput()
         except ConfigurationError:
             return
         email = [_f for _f in email if _f]  # remove empty lines
@@ -226,6 +229,9 @@ class ExpPanel(Panel, DlgUtils):
         if email != self._orig_email:
             self.client.run('SetMailReceivers(%s)' % ', '.join(map(repr, email)))
             done.append('New mail receivers set.')
+        if errorbehavior != self._orig_proposal_info[5]:
+            self.client.run('SetErrorAbort(%s)' % (errorbehavior == 'abort'))
+            done.append('New error behavior set.')
 
         # tell user about everything we did
         if done:

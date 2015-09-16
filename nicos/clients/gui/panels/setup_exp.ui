@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>592</width>
-    <height>456</height>
+    <width>601</width>
+    <height>510</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -117,6 +117,13 @@
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0" colspan="2">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
         <item row="5" column="0" colspan="2">
          <widget class="Line" name="line_2">
           <property name="orientation">
@@ -146,13 +153,6 @@
         </item>
         <item row="6" column="1">
          <widget class="QLineEdit" name="sampleName"/>
-        </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
         </item>
         <item row="1" column="0" colspan="2">
          <widget class="QLabel" name="label_9">
@@ -229,6 +229,13 @@
             <width>16777215</width>
             <height>100</height>
            </size>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QCheckBox" name="errorAbortBox">
+          <property name="text">
+           <string>Do not continue scripts after fatal errors</string>
           </property>
          </widget>
         </item>
