@@ -19,13 +19,6 @@ Pyrometer
 
 .. autoclass:: TemperatureSensor()
 
-High Voltage
-------------
-
-.. automodule:: nicos.toftof.iseg
-
-.. autoclass:: Voltage()
-
 Temperature Controller
 ----------------------
 
