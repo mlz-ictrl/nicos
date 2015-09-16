@@ -1947,9 +1947,12 @@ class DeviceAlias(Device):
         # now make the new choice of alias permanent, including in the cache
         # (which we must do with _setROParam since we might not be master yet)
         self.doUpdateAlias(new_target)
-        self._setROParam('alias', new_target)
+        Device._setROParam(self, 'alias', new_target)
 
     # Device methods that would not be alias-aware
+
+    def _setROParam(self, param, value):
+        raise NicosError(self, 'please don\'t use _setROParam on a DeviceAlias')
 
     def valueInfo(self):
         # override to replace name of the aliased device with the alias' name
