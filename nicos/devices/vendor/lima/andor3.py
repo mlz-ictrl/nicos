@@ -74,12 +74,12 @@ class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
     """
 
     COOLER_STATUS_MAP = {
-        'Fault' : status.ERROR,
-        'Drift' : status.ERROR,
-        'Cooler Off' : status.OK,
-        'Stabilised' : status.OK,
-        'Cooling' : status.BUSY,
-        'Not Stabilised' : status.BUSY
+        'Fault': status.ERROR,
+        'Drift': status.ERROR,
+        'Cooler Off': status.OK,
+        'Stabilised': status.OK,
+        'Cooling': status.BUSY,
+        'Not Stabilised': status.BUSY,
     }
 
     def doRead(self, maxage=0):

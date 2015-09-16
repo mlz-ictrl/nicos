@@ -85,7 +85,7 @@ class LogViewerPanel(Panel, DlgUtils):
 
     def _getFilters(self):
         result = {
-            'levels' : []
+            'levels': []
         }
 
         # determine desired levels

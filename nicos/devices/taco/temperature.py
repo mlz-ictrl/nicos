@@ -165,8 +165,7 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
                 limits[i] = float(self._dev.deviceQueryResource(res))
             except Exception as err:
                 if str(err) != 'resource not supported':
-                    self.log.warning('Could not query %s : %s'
-                                     % (res, err))
+                    self.log.warning('Could not query %s: %s' % (res, err))
         return tuple(limits)
 
     def doReadMaxheaterpower(self):

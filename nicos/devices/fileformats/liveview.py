@@ -34,8 +34,8 @@ class LiveViewSink(ImageSink):
     parameter_overrides = {
         # this is not really used, so we give it a default that would
         # raise if used as a template filename
-        'filenametemplate' : Override(mandatory=False, settable=False,
-                                      userparam=False, default=['']),
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False, default=['']),
     }
 
     fileFormat = 'Live'     # should be unique amongst filesavers!
@@ -56,7 +56,7 @@ class LiveViewSink(ImageSink):
         # see nicos.core.sessions.__init__:
         # updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data)
         session.updateLiveData(self.fileFormat, imageinfo.filename, '<u4', resX, resY, resZ,
-            time.time() - imageinfo.begintime, buffer(image.astype('<u4')))
+                               time.time() - imageinfo.begintime, buffer(image.astype('<u4')))
 
     def saveImage(self, imageinfo, image):
         self.updateLiveImage(imageinfo, image)

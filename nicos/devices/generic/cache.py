@@ -63,7 +63,7 @@ class CacheReader(Readable):
         val = None
         if maxage != 0:
             val = self._cache.get(self, name,
-                mintime=currenttime() - maxage if maxage is not None else 0)
+                                  mintime=currenttime() - maxage if maxage is not None else 0)
         if val is None:
             val = func(self.maxage if maxage is None else maxage)
         return val
@@ -112,7 +112,7 @@ class CacheWriter(HasWindowTimeout, HasLimits, CacheReader, Moveable):
     }
 
     parameter_overrides = {
-        'timeout' : Override(default=900),
+        'timeout': Override(default=900),
     }
 
     def doStart(self, pos):

@@ -270,8 +270,8 @@ class TacoDevice(HasCommunication):
         try:
             if timeout != 0:
                 if timeout != 3.0:
-                    self.log.warning('%r : client network timeout changed to: '
-                                     '%.2f s' % (devname, timeout))
+                    self.log.warning('client network timeout changed to: '
+                                     '%.2f s' % timeout)
                 dev.setClientNetworkTimeout(timeout)
         except TACOError as err:
             self.log.warning('Setting TACO network timeout failed: '

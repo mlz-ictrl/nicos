@@ -291,7 +291,7 @@ class NicosApp(object):
                 errmsg = '%s: %s' % (err.__class__.__name__, err)
             except Exception:
                 errmsg = 'unknown error'
-            return json.dumps({'result' : None, 'error': errmsg})
+            return json.dumps({'result': None, 'error': errmsg})
 
     def _start_session(self):
         self.session_number += 1

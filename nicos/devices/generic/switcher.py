@@ -290,7 +290,7 @@ class MultiSwitcher(MappedMoveable):
                     return name
         if self.fallback is not None:
             return self.fallback
-        raise PositionError(self, 'unknown position of %s : %s' % (
+        raise PositionError(self, 'unknown position of %s: %s' % (
                             ', '.join(repr(p) for p in pos),
                             ', '.join(str(d) for d in self.devices)))
 

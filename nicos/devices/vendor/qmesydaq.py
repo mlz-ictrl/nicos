@@ -51,7 +51,7 @@ class QMesyDAQChannel(FRMChannel):
         'fmtstr': Override(default='%d'),
         'mode': Override(type=oneofdict({
                              IOCommon.MODE_NORMAL: 'normal',
-                             #IOCommon.MODE_RATEMETER: 'ratemeter', # not working
+                             # IOCommon.MODE_RATEMETER: 'ratemeter', # not working
                              IOCommon.MODE_PRESELECTION: 'preselection'})),
     }
 
@@ -71,6 +71,7 @@ class QMesyDAQCounter(QMesyDAQChannel, FRMCounterChannel):
     Monitor/counter channel for QMesyDAQ detector.
     """
 
+
 class QMesyDAQBase(TacoDevice, MultiChannelDetector):
     """
     Detector for QMesyDAQ that combines multiple channels to a single Measurable
@@ -80,33 +81,33 @@ class QMesyDAQBase(TacoDevice, MultiChannelDetector):
     # we also may have an total event counter
     # timer, monitors and counters ae defined in MultiChannelDetector
     attached_devices = {
-        'events' :  Attach('Events channel', Channel, optional=True),
+        'events':  Attach('Events channel', Channel, optional=True),
     }
 
     parameters = {
-        'lastcounts'   : Param('Current total number of counts', settable=True,
+        'lastcounts':    Param('Current total number of counts', settable=True,
                                type=int, userparam=False),
-        'lastlistfile' : Param('last eventmode list file on QMesyDAQ Server',
+        'lastlistfile':  Param('last eventmode list file on QMesyDAQ Server',
                                settable=False, mandatory=False, volatile=True,
                                type=str, category='general'),
-        'lasthistfile' : Param('last histogrammed file on QMesyDAQ Server',
+        'lasthistfile':  Param('last histogrammed file on QMesyDAQ Server',
                                settable=False, mandatory=False, volatile=True,
                                type=str, category='general'),
     }
 
     parameter_overrides = {
         'fmtstr': Override(default='%s'),
-        'mode': Override(userparam=False, default='normal', type=oneofdict({
-                             IOCommon.MODE_NORMAL: 'normal'})),
+        'mode':   Override(userparam=False, default='normal',
+                           type=oneofdict({IOCommon.MODE_NORMAL: 'normal'})),
     }
 
     taco_class = Detector
 
     _TACO_STATUS_MAPPING = {
-        TACOStates.DEVICE_NORMAL : (status.OK, 'idle'),
-        TACOStates.PRESELECTION_REACHED : (status.OK, 'idle'),
-        TACOStates.STOPPED : (status.OK, 'paused'),
-        TACOStates.COUNTING : (status.BUSY, 'counting'),
+        TACOStates.DEVICE_NORMAL: (status.OK, 'idle'),
+        TACOStates.PRESELECTION_REACHED: (status.OK, 'idle'),
+        TACOStates.STOPPED: (status.OK, 'paused'),
+        TACOStates.COUNTING: (status.BUSY, 'counting'),
     }
 
     hardware_access = True
@@ -192,8 +193,8 @@ class QMesyDAQMultiChannel(QMesyDAQBase):
     """
 
     parameters = {
-        'channels' : Param('tuple of active channels (1 based)', settable=True,
-                             type=listof(int)),
+        'channels': Param('tuple of active channels (1 based)', settable=True,
+                          type=listof(int)),
     }
 
     def _readData(self):
@@ -229,7 +230,8 @@ class QMesyDAQMultiChannel(QMesyDAQBase):
                      [Value('ch.sum', unit='cts', errors='sqrt',
                             type='counter', fmtstr='%d')]
         for ch in self.channels:
-            resultlist.append(Value('ch%d' % ch, unit='cts', errors='sqrt', type='counter', fmtstr='%d'))
+            resultlist.append(Value('ch%d' % ch, unit='cts', errors='sqrt',
+                                    type='counter', fmtstr='%d'))
         return tuple(resultlist)
 
     #
@@ -243,7 +245,6 @@ class QMesyDAQMultiChannel(QMesyDAQBase):
         return ', '.join(resultlist)
 
 
-
 class QMesyDAQImage(ImageProducer, QMesyDAQBase):
     """
     Extending QMesyDAQBase with an ImageProducer.
@@ -253,9 +254,9 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
     """
 
     parameters = {
-        'readout'    : Param('Readout mode of the Detector', settable=True,
-                             type=oneof('raw','mapped','amplitude','none'),
-                             default='mapped', mandatory=False, chatty=True)
+        'readout': Param('Readout mode of the Detector', settable=True,
+                         type=oneof('raw', 'mapped', 'amplitude', 'none'),
+                         default='mapped', mandatory=False, chatty=True)
     }
 
     # initial imagetype, will be updated upon readImage
@@ -264,8 +265,8 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
 
     def doInit(self, mode):
         self._filesavers = [ff for ff in self._adevs['fileformats']
-                             if not isinstance(ff, LiveViewSink)]
-        self.readImage() # also set imagetype
+                            if not isinstance(ff, LiveViewSink)]
+        self.readImage()  # also set imagetype
 
     def duringMeasureHook(self, elapsed):
         self.log.debug('duringMeasureHook(%f)' % elapsed)
@@ -275,26 +276,30 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
     def doRead(self, maxage=0):
         resultlist = [i for ctr in self._counters for i in ctr.read()] + \
                      [self.lastcounts]
-        # appending image infos is a litle more difficult as not all filesavers may be active....
+        # appending image infos is a litle more difficult as not all filesavers
+        # may be active...
         for ff in self._filesavers:
             for ii in self._imageinfos:
                 if ii.filesaver == ff:
                     resultlist.append(ii.filename)
                     break
-            else: # no match, 'invent' some value as placeholder
+            else:  # no match, 'invent' some value as placeholder
                 resultlist.append('-')
-        if self.readout == 'none': # no readout, transfer qmesydaqs version of filenames...
+        if self.readout == 'none':  # no readout, transfer qmesydaqs version
+                                    # of filenames...
             resultlist.append(self.lastlistfile)
             resultlist.append(self.lasthistfile)
         return resultlist
 
     def valueInfo(self):
         resultlist = [i for ctr in self._counters for i in ctr.valueInfo()] + \
-                     [Value(self.name+'.sum', unit='cts', errors='sqrt', type='counter', fmtstr='%d')] + \
-                     [Value(self.name+'.'+ff.fileFormat, unit='file', type='info', fmtstr='%s') for ff in self._filesavers]
-        if self.readout == 'none': # no readout, transfer qmesydaqs version of filenames...
-            resultlist.append(Value('listfile', unit='file', type='info',fmtstr='%s'))
-            resultlist.append(Value('histfile', unit='file', type='info',fmtstr='%s'))
+                     [Value(self.name + '.sum', unit='cts', errors='sqrt',
+                            type='counter', fmtstr='%d')] + \
+                     [Value(self.name + '.' + ff.fileFormat, unit='file',
+                            type='info', fmtstr='%s') for ff in self._filesavers]
+        if self.readout == 'none':  # no readout, transfer qmesydaqs version of filenames...
+            resultlist.append(Value('listfile', unit='file', type='info', fmtstr='%s'))
+            resultlist.append(Value('histfile', unit='file', type='info', fmtstr='%s'))
         return tuple(resultlist)
 
     #
@@ -304,13 +309,13 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
         resultlist = ['%s: %s' % (ctr.name, ctr.fmtstr) for ctr in self._counters] + \
                      ['lastcounts %d'] + \
                      ['%s %%s' % ff.fileFormat for ff in self._filesavers]
-        if self.readout == 'none': # no readout, transfer qmesydaqs version of filenames...
+        if self.readout == 'none':  # no readout, transfer qmesydaqs version of filenames...
             resultlist.append('listfile %s')
             resultlist.append('histfile %s')
         return ', '.join(resultlist)
 
-    #~ def doReadReadout(self):
-        #~ return 'mapped'
+    # def doReadReadout(self):
+    #     return 'mapped'
 
     def doWriteReadout(self, value):
         if value != 'none':
@@ -337,17 +342,17 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
             res = self._taco_guard(self._dev.read)
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
-        if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]: #1D array
+        if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array
             self.imagetype = ImageType(shape=(res[0], ), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
             self.lastcounts = data.sum()
             return data
-        elif res[2] in [0, 1]: #2D array
+        elif res[2] in [0, 1]:  # 2D array
             self.imagetype = ImageType(shape=(res[0], res[1]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1])
             self.lastcounts = data.sum()
             return data.reshape((res[0], res[1]), order='C')
-        else: #3D array
+        else:  # 3D array
             self.imagetype = ImageType(shape=(res[0], res[1], res[2]), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0]*res[1]*res[3])
             self.lastcounts = data.sum()

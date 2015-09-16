@@ -36,11 +36,11 @@ from nicos.core import Override, ImageSink
 class RAWFileFormat(ImageSink):
     """Saves RAW image and header data into two separate files"""
     parameter_overrides = {
-        'filenametemplate' : Override(mandatory=False, settable=False,
-                                      userparam=False,
-                                      default=['%(proposal)s_%(counter)s.raw',
-                                      '%(proposal)s_%(session.experiment.lastscan)s'
-                                      '_%(counter)s_%(scanpoint)s.raw']),
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False,
+                                     default=['%(proposal)s_%(counter)s.raw',
+                                              '%(proposal)s_%(session.experiment.lastscan)s'
+                                              '_%(counter)s_%(scanpoint)s.raw']),
     }
 
     fileFormat = 'RAW'     # should be unique amongst filesavers!
@@ -89,11 +89,11 @@ class RAWFileFormat(ImageSink):
 class SingleRAWFileFormat(ImageSink):
     """Saves RAW image and header data into a single file"""
     parameter_overrides = {
-        'filenametemplate' : Override(mandatory=False, settable=False,
-                                      userparam=False,
-                                      default=['%(proposal)s_%(counter)s.raw',
-                                      '%(proposal)s_%(session.experiment.lastscan)s'
-                                      '_%(counter)s_%(scanpoint)s.raw']),
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False,
+                                     default=['%(proposal)s_%(counter)s.raw',
+                                              '%(proposal)s_%(session.experiment.lastscan)s'
+                                              '_%(counter)s_%(scanpoint)s.raw']),
     }
 
     fileFormat = 'SingleRAW'     # should be unique amongst filesavers!

@@ -71,10 +71,10 @@ class FITSFileFormat(ImageSink):
     def _buildHeader(self, imageinfo, hdu):
 
         header = OrderedDict({
-            'begintime' : time.strftime('%Y-%m-%d %H:%M:%S',
-                                        time.localtime(imageinfo.begintime)),
-            'endtime' : time.strftime('%Y-%m-%d %H:%M:%S',
-                                      time.localtime(imageinfo.endtime))
+            'begintime': time.strftime('%Y-%m-%d %H:%M:%S',
+                                       time.localtime(imageinfo.begintime)),
+            'endtime': time.strftime('%Y-%m-%d %H:%M:%S',
+                                     time.localtime(imageinfo.endtime))
         })
 
         for _cat, dataSets in iteritems(imageinfo.header):
@@ -97,8 +97,7 @@ class FITSFileFormat(ImageSink):
             # Split the dataset into several header entries if necessary
             # (due to the limited length)
             splittedHeaderItems = [value[i:i + maxValLen]
-                       for i in range(0, len(value), maxValLen)]
+                                   for i in range(0, len(value), maxValLen)]
 
             for item in splittedHeaderItems:
                 hdu.header.append((key, item))
-

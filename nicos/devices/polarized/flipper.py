@@ -26,10 +26,11 @@
 """Spin flipper classes."""
 
 from nicos.core import Moveable, Param, Override, oneof, tupleof, multiStop, \
-     nonemptylistof, Attach
+    nonemptylistof, Attach
 
 ON = 'on'
 OFF = 'off'
+
 
 class BaseFlipper(Moveable):
     """
@@ -68,7 +69,6 @@ class MezeiFlipper(BaseFlipper):
                           type=tupleof(float, float)),
     }
 
-
     def doStart(self, value):
         if value == ON:
             self._adevs['flip'].start(self.currents[0])
@@ -91,19 +91,17 @@ class KFlipper(BaseFlipper):
     depending on the location of the spinflipper.
     """
     attached_devices = {
-        'kvalue' : Attach('Device reading current k value, needed for '
-                          'calculation of flipping current.', Moveable),
+        'kvalue': Attach('Device reading current k value, needed for '
+                         'calculation of flipping current.', Moveable),
     }
 
     parameters = {
-        'compcurrent' : Param('Current in A for the compensation coils, if active',
-                              settable=True, type=float, unit='A',
-                             ),
-        'flipcurrent' : Param('polynomial in wavevector to calculate the '
-                              'correct flipping current.',
-                              settable=True, type=nonemptylistof(float),
-                              unit='A', # actually A * Angstroms ** index
-                             ),
+        'compcurrent': Param('Current in A for the compensation coils, if active',
+                             settable=True, type=float, unit='A'),
+        'flipcurrent': Param('polynomial in wavevector to calculate the '
+                             'correct flipping current.',
+                             settable=True, type=nonemptylistof(float),
+                             unit='A'),  # actually A * Angstroms ** index
     }
 
     def doStart(self, value):
