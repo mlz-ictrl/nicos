@@ -38,7 +38,7 @@ class FakeStdin(queue.Queue):
         return self.get()
 
 
-class Rpdb(Pdb):
+class Rpdb(Pdb):  # pylint: disable=too-many-public-methods
     """Minimally modified Pdb to work with remote input."""
 
     # use self.stdin.read(), not readline

@@ -779,10 +779,10 @@ def notify(*args):
     """
     if len(args) == 1:
         # use first line of text as subject
-        text, = args
+        text, = args  # pylint: disable=unbalanced-tuple-unpacking
         session.notify(text.splitlines()[0], text, important=False)
     elif len(args) == 2:
-        subject, text = args
+        subject, text = args  # pylint: disable=unbalanced-tuple-unpacking
         session.notify(subject, text, important=False)
     else:
         raise UsageError("Usage: Notify('text') or Notify('subject', 'text')")

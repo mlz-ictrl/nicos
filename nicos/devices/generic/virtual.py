@@ -736,6 +736,7 @@ class Virtual2DDetector(ImageProducer, Measurable):
             else 5
         coll = self._adevs['collimation'].read() if self._adevs['collimation'] \
             else '15m'
+        # pylint: disable=unbalanced-tuple-unpacking
         xx, yy = np.meshgrid(np.linspace(-64, 63, 128), np.linspace(-64, 63, 128))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
         sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)

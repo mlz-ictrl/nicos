@@ -108,7 +108,7 @@ class LinearFitter(Fitter):
         return a*x + b
 
     def do_fit(self):
-        (x1, y1), (x2, y2) = self.values
+        (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         m0 = (y2-y1) / (x2-x1)
         f = Fit(self.model, ['a', 'b'], [m0, y1 - m0*x1], xmin=x1, xmax=x2)
         res = f.run('', *self.data)
@@ -132,7 +132,7 @@ class GaussFitter(Fitter):
         return abs(B) + A*np.exp(-(x - x0)**2 / (2 * sigma**2))
 
     def do_fit(self):
-        (xb, yb), (x0, y0), (xw, _) = self.values
+        (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         parstart = [yb, abs(y0-yb), x0, abs(x0-xw)/FWHM_TO_SIGMA]
         totalwidth = abs(x0 - xb)
         f = Fit(self.model, ['B', 'A', 'x0', 'sigma'], parstart,
@@ -169,7 +169,7 @@ class PseudoVoigtFitter(Fitter):
             (1 - eta) * np.exp(-np.log(2) * ((x-x0) / hwhm)**2))
 
     def do_fit(self):
-        (xb, yb), (x0, y0), (xw, _) = self.values
+        (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         parstart = [yb, abs(y0-yb), x0, abs(x0-xw), 0.5]
         totalwidth = abs(x0 - xb)
         f = Fit(self.model, ['B', 'A', 'x0', 'hwhm', 'eta'], parstart,
@@ -204,7 +204,7 @@ class PearsonVIIFitter(Fitter):
         return abs(B) + A / (1 + (2**(1/m) - 1)*((x-x0) / hwhm)**2) ** m
 
     def do_fit(self):
-        (xb, yb), (x0, y0), (xw, _) = self.values
+        (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         parstart = [yb, abs(y0-yb), x0, abs(x0-xw), 5.0]
         totalwidth = abs(x0 - xb)
         f = Fit(self.model, ['B', 'A', 'x0', 'hwhm', 'm'], parstart,
@@ -245,7 +245,7 @@ class TcFitter(Fitter):
         return np.piecewise(T, [T < Tc], [tc_curve_1, tc_curve_2])
 
     def do_fit(self):
-        (_, Ib), (Tc, _) = self.values
+        (_, Ib), (Tc, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         alpha0 = 0.5
         # guess A from maximum data point
         Tmin = min(self.data[0])
