@@ -208,9 +208,8 @@ def _extract_powder_data(num, dataset):
     try:
         # ignore monitors with smaller count
         mcol = sorted([(dataset.yresults[0][j], j)
-                        for j in range(len(dataset.ynames))
-                        if dataset.yvalueinfo[j].type == 'monitor'],
-                     )[-1][1]
+                       for j in range(len(dataset.ynames))
+                       if dataset.yvalueinfo[j].type == 'monitor'])[-1][1]
     except IndexError:
         mcol = None
     # if highest monitor count is zero, prefer time
@@ -344,6 +343,8 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
             printwarning('no data found, check the scan numbers!')
             return
     else:
+        if scans:
+            raise UsageError('please give either scans or peaks argument')
         if not ki:
             raise UsageError('please give ki argument together with peaks')
         data[float(ki)] = [[None, p, 0.1, ''] for p in peaks]
@@ -396,8 +397,8 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
             mtt0 = dk2tt(dmono, res.ki) - dk2tt(dmono, ki)
             restxt.append('%5.3f   %-6d | %-7.4f  %-7.4f  %-7.4f  %-7.4f  | '
                           '%-7.4f  %-7.4f  | %.2f' %
-                         (ki, len(peaks), res.ki, res.dki, mtt0, 2*pi/res.ki,
-                          res.stt0, res.dstt0, res.chi2))
+                          (ki, len(peaks), res.ki, res.dki, mtt0, 2*pi/res.ki,
+                           res.stt0, res.dstt0, res.chi2))
             stt0s.append(res.stt0)
             mtt0s.append(mtt0)
             peaks_fit = [model(el[0], res.ki, res.stt0) for el in peaks]
@@ -405,8 +406,8 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
             p('peak       dval     measured fitpos   delta')
             for i, el in enumerate(peaks):
                 p('%-10s %-7.3f  %-7.3f  %-7.3f  %-7.3f%s' % (
-                     dhkls[el[0]], el[0], el[1], peaks_fit[i], peaks_fit[i] - el[1],
-                             '' if abs(peaks_fit[i] - el[1]) < 0.10 else " **"))
+                    dhkls[el[0]], el[0], el[1], peaks_fit[i], peaks_fit[i] - el[1],
+                    '' if abs(peaks_fit[i] - el[1]) < 0.10 else " **"))
             p('')
             rms += sum((pobs - pfit)**2 for (pobs, pfit) in
                        zip([el[1] for el in peaks], peaks_fit)) / len(peaks)
