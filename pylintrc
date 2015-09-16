@@ -45,33 +45,36 @@ extension-pkg-whitelist = numpy,scipy,PyQt4.QtCore,PyQt4.QtGui,PyQt4.QtWebKit,Py
 # --disable=W"
 disable=access-member-before-definition
         ,no-member
-	,unexpected-keyword-arg
+        ,maybe-no-member
+        ,unexpected-keyword-arg
         ,protected-access
-	,redefined-outer-name
-	,broad-except
+        ,redefined-outer-name
+        ,broad-except
         ,logging-not-lazy
-	,no-self-use
-	,duplicate-code
+        ,no-self-use
+        ,duplicate-code
         ,bad-continuation
-	,unused-argument
-	,attribute-defined-outside-init
+        ,unused-argument
+        ,attribute-defined-outside-init
         ,missing-docstring,abstract-method
-	,no-init
+        ,no-init
         ,reimported
-	,duplicate-code
-	,multiple-statements
-	,eval-used
+        ,duplicate-code
+        ,multiple-statements
+        ,eval-used
         ,interface-not-implemented
         ,too-many-lines
-	,invalid-name
+        ,invalid-name
         ,fixme
-	,locally-disabled
-	,file-ignored
-	,bad-open-mode
+        ,locally-disabled
+        ,file-ignored
+        ,bad-open-mode
         ,superfluous-parens
         ,cell-var-from-loop
-	,cyclic-import
+        ,cyclic-import
         ,bad-whitespace
+        ,star-args
+        ,global-statement
 
 [REPORTS]
 
@@ -284,7 +287,7 @@ max-locals=50
 max-returns=40
 
 # Maximum number of branch for function / method body
-max-branches=50
+max-branches=70
 
 # Maximum number of statements in function / method body
 max-statements=150
