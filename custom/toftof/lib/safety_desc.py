@@ -77,10 +77,4 @@ bit_description = [
     "not used",                                                                 # bit 3-13
     "not used",                                                                 # bit 3-14
     "not used",                                                                 # bit 3-15
-
-#   "not used",                                                                 # bit 4-1
-#   "open shutter signal from computer",                                        # bit 4-0
-#   "close shutter signal from computer",                                       # bit 4-1
-#   "not used",                                                                 # bit 4-2
-#   "not used"                                                                  # bit 4-3
 ]

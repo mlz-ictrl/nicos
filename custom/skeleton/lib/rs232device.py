@@ -55,11 +55,11 @@ class RS232Example(Readable):
 
     parameters = {
         'port': Param('RS232 port', type=str,
-                       settable=False, mandatory=True),
+                      settable=False, mandatory=True),
         'param1': Param('first param', unit='Hz', settable=False,
-                           category='general'),
+                        category='general'),
         'param2': Param('second param', unit='Vrms',
-                           settable=True, category='general'),
+                        settable=True, category='general'),
     }
 
     def doInit(self, mode):
@@ -118,9 +118,9 @@ class RS232TACOExample(TacoDevice, Moveable):
 
     parameters = {
         'param1': Param('first param', unit='Hz', settable=False,
-                           category='general'),
+                        category='general'),
         'param2': Param('second param', unit='Vrms',
-                           settable=True, category='general'),
+                        settable=True, category='general'),
     }
 
     taco_class = StringIO
