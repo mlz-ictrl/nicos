@@ -26,7 +26,7 @@
 
 from os import path
 
-from PyQt4.QtGui import QColor, QMessageBox
+from PyQt4.QtGui import QColor, QMessageBox, QMenu
 from PyQt4.QtCore import SIGNAL
 
 from nicos.clients.gui.panels import Panel
@@ -37,6 +37,7 @@ my_uipath = path.dirname(__file__)
 
 class TomographyPanel(Panel):
     panelName = 'Tomography'
+    menu = None
 
     def __init__(self, parent, client):
         Panel.__init__(self, parent, client)
@@ -64,14 +65,14 @@ class TomographyPanel(Panel):
         pass
 
     def getMenus(self):
-        # if not self.menu:
-        #   menu = QMenu('&Output', self)
+        if not self.menu:
+            menu = QMenu('&Output', self)
         #   menu.addAction(self.actionGrep)
         #   menu.addSeparator()
         #   menu.addAction(self.actionSave)
         #   menu.addAction(self.actionPrint)
-        #   self.menu = menu
-        return []
+            self.menu = menu
+        return [self.menu]
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
