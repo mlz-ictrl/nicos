@@ -74,14 +74,11 @@ class Motor(BaseMotor):
 
     parameters = {
         'refspeed': Param('Reference speed',
-                          type=float, default=500, settable=False,
-                         ),
+                          type=float, default=500, settable=False,),
         'refpos':   Param('Reference position',
-                          type=float, default=0, settable=False,
-                         ),
+                          type=float, default=0, settable=False,),
         'refstep': Param('Number of steps to move to reference position',
-                         type=intrange(1, 100), default=10, settable=False,
-                        ),
+                         type=intrange(1, 100), default=10, settable=False,),
     }
 
     attached_devices = {

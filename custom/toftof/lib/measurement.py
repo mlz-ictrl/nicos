@@ -168,8 +168,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
         else:
             chdelay = 0
 
-        # make sure to set the correct monitor input and number of time channels
-        # in the TACO server
+        # make sure to set the correct monitor input and number of time
+        # channels in the TACO server
         if ctr.timechannels is None:
             # detector disconnected?
             raise NicosError(self, 'detector device appears unavailable')
@@ -218,12 +218,15 @@ class TofTofMeasurement(ImageProducer, Measurable):
         head.append('Title: %s\n' % from_maybe_utf8(self._curtitle))
         head.append('ExperimentTitle: %s\n' %
                     from_maybe_utf8(session.experiment.sample.samplename))
-        head.append('ProposalTitle: %s\n' % from_maybe_utf8(session.experiment.title))
+        head.append('ProposalTitle: %s\n' %
+                    from_maybe_utf8(session.experiment.title))
         head.append('ProposalNr: %s\n' % session.experiment.proposal)
 #       head.append('ExperimentTeam: %s\n' %
 #                   ', '.join(session.experiment.users))
-        head.append('ExperimentTeam: %s\n' % from_maybe_utf8(session.experiment.users))
-        head.append('LocalContact: %s\n' % from_maybe_utf8(session.experiment.localcontact))
+        head.append('ExperimentTeam: %s\n' %
+                    from_maybe_utf8(session.experiment.users))
+        head.append('LocalContact: %s\n' %
+                    from_maybe_utf8(session.experiment.localcontact))
         head.append('StartDate: %s\n' % strftime('%d.%m.%Y'))
         head.append('StartTime: %s\n' % strftime('%H:%M:%S'))
         if self._last_mode == 'monitor':

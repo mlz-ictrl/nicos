@@ -30,8 +30,8 @@ from time import sleep, time as currenttime
 from IO import StringIO
 
 from nicos.core import status, intrange, oneofdict, Device, Moveable, Override, \
-     Param, NicosError, CommunicationError, ProgrammingError, HasTimeout, \
-     TimeoutError, Attach
+    Param, NicosError, CommunicationError, ProgrammingError, HasTimeout, \
+    TimeoutError, Attach
 from nicos.devices.taco.core import TacoDevice
 
 
