@@ -56,7 +56,7 @@ try:
 except ImportError:
     pwd = grp = None
 
-from nicos import config, session
+from nicos import config
 from nicos.pycompat import iteritems, string_types, xrange as range  # pylint: disable=W0622
 
 
@@ -507,7 +507,7 @@ def ensureDirectory(dirname, enableDirMode=DEFAULT_DIR_MODE, **kwargs):
         enableDirectory(dirname, enableDirMode, **kwargs)
 
 
-def enableDisableFileItem(filepath, mode, owner=None, group=None):
+def enableDisableFileItem(filepath, mode, owner=None, group=None, logger=None):
     """set mode and maybe change uid/gid of a filesystem item"""
     if (owner or group) and pwd and hasattr(os, 'chown') and hasattr(os, 'stat'):
         stats = os.stat(filepath)  # only change the requested parts
@@ -520,18 +520,21 @@ def enableDisableFileItem(filepath, mode, owner=None, group=None):
         try:
             os.chown(filepath, owner, group)
         except OSError as e:
-            session.log.debug('chown(%r, %d, %d) failed: %s' %
-                              (filepath, owner, group, e))
+            if logger:
+                logger.debug('chown(%r, %d, %d) failed: %s' %
+                             (filepath, owner, group, e))
     try:
         os.chmod(filepath, mode)
     except OSError as e:
-        session.log.debug('chmod(%r, %o) failed: %s' % (filepath, mode, e))
+        if logger:
+            logger.debug('chmod(%r, %o) failed: %s' % (filepath, mode, e))
         return True
     return False
 
 
 def enableDisableDirectory(startdir, dirMode, fileMode,
-                           owner=None, group=None, enable=False):
+                           owner=None, group=None, enable=False,
+                           logger=None):
     """Traverse a directory tree and change access rights.
 
     returns True if there were some errors and False if everything went OK.
@@ -561,7 +564,7 @@ def enableDisableDirectory(startdir, dirMode, fileMode,
 
 def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
                      disableFileMode=S_IRUSR, owner=None, group=None,
-                     **kwargs):  # kwargs eats unused args
+                     logger=None, **kwargs):  # kwargs eats unused args
     """Traverse a directory tree and remove access rights.
     returns True if there were some errors and False if everything went OK.
     disableDirMode default to 0500 (dr-x------) and
@@ -572,17 +575,18 @@ def disableDirectory(startdir, disableDirMode=S_IRUSR | S_IXUSR,
     group = kwargs.get("disableGroup", group)
     failflag = enableDisableDirectory(startdir,
                                       disableDirMode, disableFileMode,
-                                      owner, group, enable=False)
+                                      owner, group, enable=False, logger=logger)
     if failflag:
-        session.log.warning('Disabling failed for some files, please check '
-                            'access rights manually')
+        if logger:
+            logger.warning('Disabling failed for some files, please check '
+                           'access rights manually')
     return failflag
     # maybe logging is better done in the caller of disableDirectory
 
 
 def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
                     enableFileMode=DEFAULT_FILE_MODE, owner=None, group=None,
-                    **kwargs):  # kwargs eats unused args
+                    logger=None, **kwargs):  # kwargs eats unused args
     """Traverse a directory tree and grant access rights.
 
     returns True if there were some errors and False if everything went OK.
@@ -594,10 +598,11 @@ def enableDirectory(startdir, enableDirMode=DEFAULT_DIR_MODE,
     group = kwargs.get("enableGroup", group)
     failflag = enableDisableDirectory(startdir,
                                       enableDirMode, enableFileMode,
-                                      owner, group, enable=True)
+                                      owner, group, enable=True, logger=logger)
     if failflag:
-        session.log.warning('Enabling failed for some files, please check '
-                            'access rights manually')
+        if logger:
+            logger.warning('Enabling failed for some files, please check '
+                           'access rights manually')
     return failflag
     # maybe logging is better done in the caller of enableDirectory
 

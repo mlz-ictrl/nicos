@@ -654,7 +654,8 @@ class Experiment(Device):
             self.log.debug('managerights: %s' % self.managerights)
             self.log.debug('enableDirectory: %s'
                            % self.proposalpath_of(proposal))
-            enableDirectory(self.proposalpath_of(proposal), **self.managerights)
+            enableDirectory(self.proposalpath_of(proposal),
+                            logger=self.log, **self.managerights)
 
         if proptype != 'service':
             if self.templates:
@@ -664,13 +665,13 @@ class Experiment(Device):
                     # restore previous state completely, thus disabling
                     if self.managerights:
                         disableDirectory(self.proposalpath_of(proposal),
-                                         **self.managerights)
+                                         logger=self.log, **self.managerights)
                     raise
 
         # all prepared, do the switch
         # remove access rights to old proposal if wanted
         if self.managerights and self.proptype == 'user':
-            disableDirectory(self.proposalpath, **self.managerights)
+            disableDirectory(self.proposalpath, logger=self.log, **self.managerights)
             self.log.debug('disabled directory %s' % self.proposalpath)
 
         # reset all experiment dependent parameters and values to defaults

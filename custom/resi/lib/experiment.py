@@ -65,7 +65,7 @@ class ResiExperiment(Experiment):
                                   exc=1)
         else:
             if old_proposal.startswith('p'):
-                disableDirectory(self.proposalpath_of(old_proposal))
+                disableDirectory(self.proposalpath_of(old_proposal), logger=self.log)
             os.unlink(self.proposalsymlink)
 
         # query new cycle
