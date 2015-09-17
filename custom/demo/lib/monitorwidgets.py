@@ -112,7 +112,8 @@ class VTas(NicosWidget, QWidget):
     }
 
     def registerKeys(self):
-        for dev in ['mth', 'mtt', 'sth', 'stt', 'ath', 'att', 'Lms', 'Lsa', 'Lad']:
+        for dev in ['mth', 'mtt', 'sth', 'stt', 'ath', 'att', 'Lms', 'Lsa',
+                    'Lad']:
             devname = str(self.props[dev+'dev'])
             if devname:
                 k1 = self._source.register(self, devname + '/value')
@@ -164,7 +165,8 @@ class VTas(NicosWidget, QWidget):
         # analyzer
         L = self.values['Lsa'] / 10.  # length is in mm -- scale down a bit
         sttangle = self.values['stt'] * pi/180.
-        ax, ay = sx + L*cos(sttangle + mttangle), sy - L*sin(sttangle + mttangle)
+        ax, ay = sx + L * cos(sttangle + mttangle), sy - L * sin(sttangle +
+                                                                 mttangle)
         sttangle_t = self.targets['stt'] * pi/180.
         ax_t, ay_t = sx_t + L*cos(sttangle_t + mttangle_t), \
             sy_t - L*sin(sttangle_t + mttangle_t)
@@ -218,9 +220,9 @@ class VTas(NicosWidget, QWidget):
         painter.setBrush(_white)
         painter.setPen(nopen)
         painter.drawEllipse(QPoint(mx, my), 20, 20)
-        #painter.drawEllipse(QPoint(sx, sy), 20, 20)
+        # painter.drawEllipse(QPoint(sx, sy), 20, 20)
         painter.drawEllipse(QPoint(ax, ay), 15, 15)
-        #painter.drawEllipse(QPoint(dx, dy), 20, 20)
+        # painter.drawEllipse(QPoint(dx, dy), 20, 20)
 
         beam = QPolygonF([
             QPointF(bx, by), QPointF(mx, my), QPointF(sx, sy),
@@ -243,7 +245,7 @@ class VTas(NicosWidget, QWidget):
         painter.setBrush(samplebrush)
         sthangle = self.values['sth'] * pi/180.
         alpha = sthangle + mttangle + pi/4.
-        #painter.drawRect(sx - 5, sy - 5, 10, 10)
+        # painter.drawRect(sx - 5, sy - 5, 10, 10)
         sz = 10
         painter.drawPolygon(QPolygonF([
             QPointF(sx + sz*cos(alpha), sy - sz*sin(alpha)),

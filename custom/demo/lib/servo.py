@@ -43,13 +43,14 @@ import serial
 
 CRLF = '\r\n'
 
+
 class SerComIO(Device):
     parameters = {
-        'devfile'      : Param('name of device file', type=str,
-                               default='/dev/ttyACM0'),
-        'pollinterval' : Param('pollinterval for registered super devices',
-                               type=floatrange(0.01,10), default=1.,
-                               settable=True),
+        'devfile':      Param('name of device file', type=str,
+                              default='/dev/ttyACM0'),
+        'pollinterval': Param('pollinterval for registered super devices',
+                              type=floatrange(0.01, 10), default=1.,
+                              settable=True),
     }
 
     _dev = None
@@ -78,7 +79,7 @@ class SerComIO(Device):
                     except Exception:
                         pass
                 self._lock = threading.RLock()
-                self._dev.write(' ' + CRLF + CRLF) # init sequence
+                self._dev.write(' ' + CRLF + CRLF)  # init sequence
                 self._dev.readall()
 
     def communicate(self, cmd):
@@ -121,14 +122,14 @@ class SerComIO(Device):
 
 class MicroPythonServo(HasOffset, Motor):
     attached_devices = {
-        'io' : Attach('Comm device', SerComIO),
+        'io': Attach('Comm device', SerComIO),
     }
     parameters = {
-        'channel' : Param('Channel (1..4)', type=intrange(1,4), default=1),
+        'channel': Param('Channel (1..4)', type=intrange(1, 4), default=1),
     }
     parameter_overrides = {
-        'precision' : Override(default=1),
-        'fmtstr'    : Override(default='%d'),
+        'precision': Override(default=1),
+        'fmtstr':    Override(default='%d'),
     }
 
     _busytime = 0
@@ -138,18 +139,20 @@ class MicroPythonServo(HasOffset, Motor):
             io = self._adevs['io']
             io.communicate('import pyb')
             io.communicate('s%d=pyb.Servo(%d)' % (self.channel, self.channel))
-            io.communicate('s%d.calibration(600,2400,1500,2400,2400)' % self.channel)
-            io.communicate('s%d.angle(%f)' %(self.channel, self.target or 0.0))
+            io.communicate('s%d.calibration(600,2400,1500,2400,2400)' %
+                           self.channel)
+            io.communicate('s%d.angle(%f)' % (self.channel, self.target or 0.))
             io.addPollDev(self)
 
     def doRead(self, maxage=None):
-        return float(self._adevs['io'].communicate('s%d.angle()' % self.channel)) - self.offset
+        return float(self._adevs['io'].communicate('s%d.angle()' %
+                                                   self.channel)) - self.offset
 
     def doStart(self, target):
         duration = abs(self.read(0) - target) / self.speed
         target = target + self.offset
         cmd = ("s%d.angle(%f,%d)" %
-            (self.channel, target, int(duration * 1000)))
+               (self.channel, target, int(duration * 1000)))
         self.log.debug(cmd)
         self._adevs['io'].communicate(cmd)
         self._busytime = time.time() + duration

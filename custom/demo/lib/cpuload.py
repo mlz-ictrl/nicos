@@ -34,7 +34,8 @@ from nicos.utils import createThread
 class CPULoad(Readable):
 
     parameters = {
-        'interval':  Param('Interval for load detection', type=floatrange(0.1, 60),
+        'interval':  Param('Interval for load detection',
+                           type=floatrange(0.1, 60),
                            default=0.1, settable=False,),
         'lastvalue': Param('Last obtained value', type=float,
                            userparam=False, mandatory=False, default=0.0),

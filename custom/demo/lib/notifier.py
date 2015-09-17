@@ -57,7 +57,7 @@ class DBusNotifier(Notifier):
                             [],                       # actions
                             {},                       # hints
                             10000,                    # timeout (in ms)
-        )
+                            )
 
 
 class Jabberer(Notifier):
