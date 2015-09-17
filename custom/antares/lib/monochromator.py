@@ -28,8 +28,9 @@ from math import asin, sin, tan, radians, degrees
 
 from nicos.utils import lazy_property
 from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
-     Override, Attach, status, none_or, dictof, anytype, oneof
+    Override, Attach, status, none_or, dictof, anytype, oneof
 from nicos.core.utils import multiStatus
+
 
 class Monochromator(HasLimits, Moveable):
     """Monochromator device of antares.
@@ -41,30 +42,33 @@ class Monochromator(HasLimits, Moveable):
     CHECK THE FORMULAS!
     """
     attached_devices = {
-        'phi1'         : Attach('monochromator rotation 1', Moveable),
-        'phi2'         : Attach('monochromator rotation 2', Moveable),
-        'translation'  : Attach('monochromator translation', Moveable),
-        'inout'        : Attach('monochromator inout device', Moveable),
+        'phi1':        Attach('monochromator rotation 1', Moveable),
+        'phi2':        Attach('monochromator rotation 2', Moveable),
+        'translation': Attach('monochromator translation', Moveable),
+        'inout':       Attach('monochromator inout device', Moveable),
     }
 
     parameters = {
-        'dvalue1' : Param('Lattice constant of Mono1', type=float,
-                          settable=True, mandatory=True),
-        'dvalue2' : Param('Lattice constant of Mono2', type=float,
-                          settable=True, mandatory=True),
-        'distance': Param('Parallactic distance of monos', type=float,
-                          settable=True, mandatory=True),
-        'tolphi'  : Param('Max deviation of phi1 or phi2 from calculated value',
-                          type=float, settable=True, default=0.01),
-        'toltrans': Param('Max deviation of translation from calculated value',
-                          type=float, settable=True, default=0.01),
-        'parkingpos' : Param('Monochromator parking position',
-                          type=dictof(oneof(*attached_devices.keys()), anytype),
-                          mandatory=True),
+        'dvalue1':    Param('Lattice constant of Mono1', type=float,
+                            settable=True, mandatory=True),
+        'dvalue2':    Param('Lattice constant of Mono2', type=float,
+                            settable=True, mandatory=True),
+        'distance':   Param('Parallactic distance of monos', type=float,
+                            settable=True, mandatory=True),
+        'tolphi':     Param('Max deviation of phi1 or phi2 from calculated '
+                            'value',
+                            type=float, settable=True, default=0.01),
+        'toltrans':   Param('Max deviation of translation from calculated '
+                            'value',
+                            type=float, settable=True, default=0.01),
+        'parkingpos': Param('Monochromator parking position',
+                            type=dictof(oneof(*attached_devices.keys()),
+                                        anytype),
+                            mandatory=True),
     }
 
     parameter_overrides = {
-        'unit' : Override(mandatory=False, default='Angstrom'),
+        'unit': Override(mandatory=False, default='Angstrom'),
     }
 
     valuetype = none_or(floatrange(1.4, 6.0))
@@ -77,8 +81,8 @@ class Monochromator(HasLimits, Moveable):
 
     def _from_lambda(self, lam):
         ''' returns 3 values used for phi1, phi2 and translation '''
-        phi1  =        degrees(asin(lam / float(2 * self.dvalue1)))
-        phi2  =        degrees(asin(lam / float(2 * self.dvalue2)))
+        phi1 = degrees(asin(lam / float(2 * self.dvalue1)))
+        phi2 = degrees(asin(lam / float(2 * self.dvalue2)))
         trans = self.distance / tan(2*radians(phi1))
         return phi1, phi2, trans
 
@@ -86,7 +90,8 @@ class Monochromator(HasLimits, Moveable):
         ''' calculates lambda from phi1, phi2, trans. May raise a PositionError
         not necessarily all arguments are used.
 
-        next iteration could evaluate all 3 args and return an average value...'''
+        next iteration could evaluate all 3 args and return an average value...
+        '''
         try:
             return abs(2 * self.dvalue1 * sin(radians(phi1)))
         except Exception:
@@ -95,7 +100,6 @@ class Monochromator(HasLimits, Moveable):
     def _moveToParkingpos(self):
         for dev, target in self.parkingpos.iteritems():
             self._adevs[dev].start(target)
-
 
     def doStart(self, target):
         if target is None:

@@ -27,6 +27,7 @@ from nicos.core import Param, Attach, status
 from nicos.devices.generic import Switcher
 from nicos.devices.vendor.lima import Andor2LimaCCD
 
+
 class AntaresIkonLCCD(Andor2LimaCCD):
     """
     Extension to Andor2LimaCCD; Adds the ability to open shutter before the
@@ -55,8 +56,8 @@ class AntaresIkonLCCD(Andor2LimaCCD):
             # again after reset on the next try
             fastshutter = self._adevs['fastshutter']
             if fastshutter.status(0)[0] == status.ERROR:
-                self.log.warning('resetting fast shutter before opening: it is '
-                                 'in error state')
+                self.log.warning('resetting fast shutter before opening: it is'
+                                 ' in error state')
                 fastshutter.reset()
             fastshutter.move('open')
 

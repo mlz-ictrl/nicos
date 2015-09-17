@@ -28,7 +28,9 @@ import TACOStates
 from nicos.core import status
 from nicos.devices.taco import Motor as TacoMotor
 
-# Just redefine doStatus as this doesn't work correctly with the ServoStarTacoServer
+
+# Just redefine doStatus as this doesn't work correctly with the
+# ServoStarTacoServer
 class ServoStarMotor(TacoMotor):
     """
     This device handles the DISABLED taco state thats given from the servostar

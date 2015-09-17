@@ -67,4 +67,3 @@ class HGM09(TacoDevice, Readable):
 
     def _communicate(self, msg):
         return self._taco_guard(self._dev.communicate, msg).strip()
-

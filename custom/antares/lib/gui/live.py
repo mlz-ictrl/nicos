@@ -87,8 +87,8 @@ class LiveDataPanel(Panel):
 
         self.connect(self.actionLogScale, SIGNAL("toggled(bool)"),
                      self.widget, SLOT("setLog10(bool)"))
-        #self.connect(self.actionSelectChannels, SIGNAL("triggered()"),
-        #             self.widget, SLOT("showSumDlg()"))
+        # self.connect(self.actionSelectChannels, SIGNAL("triggered()"),
+        #              self.widget, SLOT("showSumDlg()"))
         self.connect(self.widget,
                      SIGNAL('customContextMenuRequested(const QPoint&)'),
                      self.on_widget_customContextMenuRequested)
@@ -101,10 +101,10 @@ class LiveDataPanel(Panel):
 
     def getMenus(self):
         self.menu = menu = QMenu('&Live data', self)
-        #menu.addAction(self.actionLoadTOF)
-        #menu.addAction(self.actionLoadPAD)
-        #menu.addSeparator()
-        #menu.addAction(self.actionWriteXml)
+        # menu.addAction(self.actionLoadTOF)
+        # menu.addAction(self.actionLoadPAD)
+        # menu.addSeparator()
+        # menu.addAction(self.actionWriteXml)
         menu.addAction(self.actionPrint)
         menu.addSeparator()
         menu.addAction(self.actionSetAsROI)
@@ -116,15 +116,15 @@ class LiveDataPanel(Panel):
 
     def getToolbars(self):
         bar = QToolBar('Live data')
-        #bar.addAction(self.actionWriteXml)
+        # bar.addAction(self.actionWriteXml)
         bar.addAction(self.actionPrint)
         bar.addSeparator()
         bar.addAction(self.actionLogScale)
         bar.addSeparator()
         bar.addAction(self.actionUnzoom)
         bar.addAction(self.actionSetAsROI)
-        #bar.addSeparator()
-        #bar.addAction(self.actionSelectChannels)
+        # bar.addSeparator()
+        # bar.addAction(self.actionSelectChannels)
         return [bar]
 
     def on_widget_customContextMenuRequested(self, point):

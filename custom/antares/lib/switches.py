@@ -48,7 +48,8 @@ class ReadbackSwitch(NamedDigitalOutput):
         super(ReadbackSwitch, self).doInit(mode)
         if mode != SIMULATION:
             self._readback = self._create_client(devname=self.readback,
-                class_=IO.DigitalInput, resetok=True, timeout=None)
+                                                 class_=IO.DigitalInput,
+                                                 resetok=True, timeout=None)
 
     def doStart(self, target):
         value = self._reverse.get(target, target)
@@ -67,15 +68,16 @@ class ReadbackSwitch(NamedDigitalOutput):
         self.log.debug('Mapped value: %r' % value)
         return value
 
-    #def doStatus(self, maxage=0):
-    #    if self._taco_guard(self._error.read) == 0:
-    #        return status.OK, 'idle'
-    #    else:
-    #        return status.ERROR, 'target not reached'
+    # def doStatus(self, maxage=0):
+    #     if self._taco_guard(self._error.read) == 0:
+    #         return status.OK, 'idle'
+    #     else:
+    #         return status.ERROR, 'target not reached'
 
 
 class ToggleSwitch(ReadbackSwitch):
-    """A switch that is toggled every time a '1' is written to the write dev."""
+    """A switch that is toggled every time a '1' is written to the write dev.
+    """
 
     def doStart(self, target):
         value = self._reverse.get(target, target)

@@ -64,5 +64,5 @@ class PartialDigitalOutput(DigitalOutput):
     def doStart(self, target):
         curVal = DigitalOutput.doRead(self)
         newVal = (curVal & ~(self._mask << self.startbit)) | \
-                   (target << self.startbit)
+                 (target << self.startbit)
         DigitalOutput.doStart(self, newVal)

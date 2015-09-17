@@ -37,6 +37,7 @@ from nicos.commands.imaging import tomo, \
 
 __all__ = ['tomo', 'openbeamimage', 'darkimage']
 
+
 @usercommand
 @helparglist('shutter, [detectors], [presets]')
 def openbeamimage(shutter=None, *detlist, **preset):
@@ -84,7 +85,7 @@ def darkimage(shutter=None, *detlist, **preset):
 
 @usercommand
 @helparglist('n_images, p, angle, [detectors], [presets]')
-def nGI_stepping(n_images, p=1, angle = 0, *detlist, **preset):
+def nGI_stepping(n_images, p=1, angle=0, *detlist, **preset):
     """Performs a nGI stepping scan of G0 over p periods in n_images-1 steps.
     Calculates the stepping period from the angle of the
     grating lines to the vertical axis 'angle'.
@@ -102,4 +103,3 @@ def nGI_stepping(n_images, p=1, angle = 0, *detlist, **preset):
     printinfo('Starting nGI scan.')
 
     scan('G0tx', 0, stepwidth, n_images, *detlist, **preset)
-

@@ -48,5 +48,3 @@ class Experiment(ImagingExperiment):
             kwds['sample'] = ''
 
         return kwds
-
-
