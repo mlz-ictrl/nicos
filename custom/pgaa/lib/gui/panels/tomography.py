@@ -53,53 +53,55 @@ class TomographyPanel(Panel):
         self.connect(client, SIGNAL('mode'), self.on_client_mode)
 
     def loadSettings(self, settings):
-#       self.hasinput = not settings.value('noinput', False, bool)
-#       self.cmdhistory = settings.value('cmdhistory') or []
+        # self.hasinput = not settings.value('noinput', False, bool)
+        # self.cmdhistory = settings.value('cmdhistory') or []
         pass
 
     def saveSettings(self, settings):
-#       settings.setValue('noinput', not self.hasinput)
+        # settings.setValue('noinput', not self.hasinput)
         # only save 100 entries of the history
-#       cmdhistory = self.commandInput.history[-100:]
-#       settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
+        # cmdhistory = self.commandInput.history[-100:]
+        # settings.setValue('cmdhistory', QVariant(QStringList(cmdhistory)))
         pass
 
     def getMenus(self):
-#       menu = QMenu('&Output', self)
-#       menu.addAction(self.actionGrep)
-#       menu.addSeparator()
-#       menu.addAction(self.actionSave)
-#       menu.addAction(self.actionPrint)
-#       return [menu]
+        # if not self.menu:
+        #   menu = QMenu('&Output', self)
+        #   menu.addAction(self.actionGrep)
+        #   menu.addSeparator()
+        #   menu.addAction(self.actionSave)
+        #   menu.addAction(self.actionPrint)
+        #   self.menu = menu
         return []
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
 
     def on_client_connected(self):
-#       self.outView._currentuser = self.client.login
+        # self.outView._currentuser = self.client.login
         pass
 
     def on_client_mode(self, mode):
-#       if mode == 'slave':
-#           self.label.setText('slave >>')
-#       elif mode == SIMULATION:
-#           self.label.setText('SIM >>')
-#       elif mode == MAINTENANCE:
-#           self.label.setText('maint >>')
-#       else:
-#           self.label.setText('>>')
+        # if mode == 'slave':
+        #     self.label.setText('slave >>')
+        # elif mode == SIMULATION:
+        #     self.label.setText('SIM >>')
+        # elif mode == MAINTENANCE:
+        #     self.label.setText('maint >>')
+        # else:
+        #     self.label.setText('>>')
         pass
 
     def on_client_initstatus(self, state):
         self.on_client_mode(state['mode'])
-#        messages = self.client.ask('getmessages', '10000')
-#       self.outView.clear()
-#       total = len(messages) // 2500 + 1
-#       for _, batch in enumerateWithProgress(chunks(messages, 2500),
-#                           text='Synchronizing...', parent=self, total=total):
-#           self.outView.addMessages(batch)
-#       self.outView.scrollToBottom()
+        # messages = self.client.ask('getmessages', '10000')
+        # self.outView.clear()
+        # total = len(messages) // 2500 + 1
+        # for _, batch in enumerateWithProgress(chunks(messages, 2500),
+        #                                       text='Synchronizing...',
+        #                                       parent=self, total=total):
+        #     self.outView.addMessages(batch)
+        # self.outView.scrollToBottom()
 
     def on_client_message(self, message):
         if message[-1] == '(sim) ':
@@ -125,12 +127,13 @@ class TomographyPanel(Panel):
         y = self.yValue.value()
         z = self.zValue.value()
         phi = self.phiValue.value()
-        code = 'move(x, %r)\nmove(y, %r)\nmove(z, %r)\nmove(phi, %r)\nwait()\n'\
-                % (x, y, z, phi)
+        code = 'move(x, %r)\nmove(y, %r)\nmove(z, %r)\nmove(phi, %r)\n' \
+               'wait()\n' % (x, y, z, phi)
         self.execScript(code)
 
     def on_getPositions_clicked(self):
-        ret = self.client.eval('[x.read(), y.read(), z.read(), phi.read()]', None)
+        ret = self.client.eval('[x.read(), y.read(), z.read(), phi.read()]',
+                               None)
         if ret:
             self.xValue.setValue(float(ret[0]))
             self.yValue.setValue(float(ret[1]))

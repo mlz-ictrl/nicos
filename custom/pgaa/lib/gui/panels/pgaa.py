@@ -170,8 +170,10 @@ class PGAAPanel(Panel):
 
     @pyqtSlot()
     def on_startBatch(self):
-        text_in_queue = self.txted_queue.toPlainText()  # Read the postitions from the interface
-        list_of_positions = text_in_queue.split("\n")  # Split the positions of the list
+        # Read the postitions from the interface
+        text_in_queue = self.txted_queue.toPlainText()
+        # Split the positions of the list
+        list_of_positions = text_in_queue.split("\n")
         if len(list_of_positions):
             script = ["maw(shutter, 'open')"]
             script.append('read(shutter)')
