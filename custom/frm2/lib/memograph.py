@@ -29,7 +29,7 @@ neutron guide hall of the FRM-II.
 """
 
 from nicos.core import Param, Readable, Override, CommunicationError, \
-     ConfigurationError, NicosError, status
+    ConfigurationError, NicosError, status
 
 try:
     from lxml.html import parse
@@ -40,12 +40,12 @@ except ImportError:
 class MemographValue(Readable):
 
     parameters = {
-        'hostname':     Param('Host name of the memograph webserver',
-                              type=str, mandatory=True),
-        'group':        Param('Group in the memograph web UI',
-                              type=int, mandatory=True),
-        'valuename':    Param('Name of the value to read (as displayed in first'
-                              ' column of web UI)', type=str, mandatory=True),
+        'hostname':  Param('Host name of the memograph webserver',
+                           type=str, mandatory=True),
+        'group':     Param('Group in the memograph web UI',
+                           type=int, mandatory=True),
+        'valuename': Param('Name of the value to read (as displayed in first'
+                           ' column of web UI)', type=str, mandatory=True),
     }
 
     parameter_overrides = {
@@ -61,15 +61,16 @@ class MemographValue(Readable):
         url = 'http://%s/web?group=%d' % (self.hostname, self.group)
         try:
             tree = parse(url)
-            names  = [name.text.strip()
-                      for name in tree.findall('//font[@class="tagname"]')]
+            names = [name.text.strip()
+                     for name in tree.findall('//font[@class="tagname"]')]
             values = [value.text.strip()
                       for value in tree.findall('//font[@class="pv"]')]
             info = dict(zip(names, values))
             if self.valuename not in info:
-                raise ConfigurationError(self, 'value %r not found on Memograph'
-                    ' page (valid values are %s)' %
-                    (self.valuename, ', '.join(map(repr, names))))
+                raise ConfigurationError(self, 'value %r not found on '
+                                         'Memograph page (valid values are %s)'
+                                         % (self.valuename,
+                                            ', '.join(map(repr, names))))
             return info[self.valuename]
         except ConfigurationError:  # pass through error raised above
             raise

@@ -66,10 +66,11 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
         sequence.append(SeqDev(onoff, 'on'))
         sequence.append(SeqSleep(0.3, 'enabling power'))
         try:
-            sequence.append(SeqMethod(self._adevs['currentsource']._dev, 'deviceOn'))
+            sequence.append(SeqMethod(self._adevs['currentsource']._dev,
+                                      'deviceOn'))
             sequence.append(SeqSleep(0.3, 're-enabling power source'))
         except Exception:
-            pass # would fail on non taco devices and is only needed on those
+            pass  # would fail on non taco devices and is only needed on those
 
 
 class MiraMagnet(BipolarSwitchingMagnet):

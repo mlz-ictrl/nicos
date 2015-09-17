@@ -36,7 +36,8 @@ from nicos.devices.taco.io import NamedDigitalOutput
 
 class CCRControl(HasLimits, Moveable):
     """Combination of the temperature controller for the tube and sample stick
-    of the CCR (closed cycle refrigerator) of the SE (sample environment) group.
+    of the CCR (closed cycle refrigerator) of the SE (sample environment)
+    group.
 
     It gives a single point of controlling the temperature under certain
     conditions:
@@ -47,27 +48,29 @@ class CCRControl(HasLimits, Moveable):
       while the stick regulates.
 
     """
-    attached_devices = dict(
-        stick = Attach('Temperaturecontroller for the stick', Moveable),
-        tube = Attach('Temperaturecontroller for the outer ccr/tube', Moveable),
-    )
+    attached_devices = {
+        'stick': Attach('Temperaturecontroller for the stick', Moveable),
+        'tube':  Attach('Temperaturecontroller for the outer ccr/tube',
+                        Moveable),
+    }
 
-    parameters = dict(
-        regulationmode = Param('Preferred regulation point: stick or tube',
-                               unit='', type=oneof('stick', 'tube', 'both'),
-                               settable=True, chatty=True, category='general'),
-        ramp  = Param('Temperature ramp in K/min', unit='K/min', chatty=True,
-                      type=floatrange(0, 100), settable=True, volatile=True,
-                      default=1.),
-        setpoint = Param('Current temperature setpoint', unit='main',
-                         category='general'),
-    )
+    parameters = {
+        'regulationmode': Param('Preferred regulation point: stick or tube',
+                                unit='', type=oneof('stick', 'tube', 'both'),
+                                settable=True, chatty=True,
+                                category='general'),
+        'ramp':           Param('Temperature ramp in K/min', unit='K/min',
+                                chatty=True, type=floatrange(0, 100),
+                                settable=True, volatile=True, default=1.),
+        'setpoint':       Param('Current temperature setpoint', unit='main',
+                                category='general'),
+    }
 
-    parameter_overrides = dict(
-        unit = Override(default='K', type=oneof('K'), settable=False,
-                        mandatory=False),
-        abslimits = Override(mandatory=False),
-    )
+    parameter_overrides = {
+        'unit':      Override(default='K', type=oneof('K'), settable=False,
+                              mandatory=False),
+        'abslimits': Override(mandatory=False),
+    }
 
     @lazy_property
     def stick(self):

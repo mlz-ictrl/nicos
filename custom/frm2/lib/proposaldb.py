@@ -116,8 +116,10 @@ def queryProposal(pnumber, instrument=None):
         cur.execute('''
             SELECT instruments.name
             FROM frm2_tita_instruments, instruments
-            WHERE instruments.id = iid and proposal_id = %s ORDER BY start ASC''', (pnumber,))
-        instrumentnames = ','.join(instr[0] for instr in cur.fetchall()).lower()
+            WHERE instruments.id = iid and proposal_id = %s
+            ORDER BY start ASC''', (pnumber,))
+        instrumentnames = ','.join(instr[0] for instr in
+                                   cur.fetchall()).lower()
         # get user info
         cur.execute('''
             SELECT name, user_email, institute1 FROM nuke_users, Proposal
@@ -172,8 +174,8 @@ def queryUser(user):
             SELECT user_id, user_password FROM nuke_users WHERE username=%s
             ''', (user,))
         if count == 0:
-            raise InvalidValueError('user %s does not exist in the user office '
-                                    'database' % (user,))
+            raise InvalidValueError('user %s does not exist in the user '
+                                    'office database' % (user,))
         row = cur.fetchone()
     uid = int(row[0])
     passwd = row[1]

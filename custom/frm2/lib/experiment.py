@@ -34,7 +34,8 @@ from nicos import session
 from nicos.core import Param, Override, usermethod
 from nicos.utils import safe_name
 from nicos.frm2.proposaldb import queryCycle, queryProposal
-from nicos.devices.experiment import Experiment as BaseExperiment, ImagingExperiment as BaseImagingExperiment
+from nicos.devices.experiment import Experiment as BaseExperiment, \
+    ImagingExperiment as BaseImagingExperiment
 
 
 class Experiment(BaseExperiment):
@@ -79,7 +80,8 @@ class Experiment(BaseExperiment):
         if not self.propdb:
             return
         try:
-            instrument, info = queryProposal(proposal, session.instrument.instrument)
+            instrument, info = queryProposal(proposal,
+                                             session.instrument.instrument)
         except Exception:
             self.log.warning('unable to query proposal info', exc=1)
             return
@@ -89,11 +91,12 @@ class Experiment(BaseExperiment):
         # check permissions
         if 'wrong_instrument' not in info:
             if info.get('permission_security', 'no') != 'yes':
-                self.log.error('No permission for this experiment from security! '
-                               'Please call 12699 (929-142).')
+                self.log.error('No permission for this experiment from '
+                               'security!  Please call 12699 (929-142).')
             if info.get('permission_radiation_protection', 'no') != 'yes':
-                self.log.error('No permission for this experiment from radiation '
-                               'protection! Please call 14955 (14739/929-090).')
+                self.log.error('No permission for this experiment from '
+                               'radiation protection! Please call 14955 '
+                               '(14739/929-090).')
 
         kwds['permission_security'] = info.get('permission_security', 'no')
         kwds['permission_radiation_protection'] = \
@@ -130,15 +133,15 @@ class Experiment(BaseExperiment):
                     kwds['user'] += ', ' + ', '.join(proplist)
                     what.append('co-proposers')
         # requested/assigned local contact
-        #if info.get('local_contact', '-1') != '-1' \
-        #        and not kwds.get('localcontact'):
-        #    kwds['localcontact'] = info['local_contact'].replace('.', ' ')
-        #    what.append('local contact')
+        # if info.get('local_contact', '-1') != '-1' \
+        #         and not kwds.get('localcontact'):
+        #     kwds['localcontact'] = info['local_contact'].replace('.', ' ')
+        #     what.append('local contact')
         # requested sample environment
         v = []
         for k in 'cryo furnace magnet pressure'.split():
             if info.get(k):
-                v.append( "%s = %s"%(k, info.get(k)))
+                v.append("%s = %s" % (k, info.get(k)))
         if v:
             what.append('requested sample environment')
             kwds['se'] = ', '.join(v)
@@ -149,7 +152,7 @@ class Experiment(BaseExperiment):
         # display info about values we got.
         if what:
             self.log.info('Filled in %s from proposal database' %
-                           ', '.join(what))
+                          ', '.join(what))
         # make sure we can relay on certain fields to be set, even if they are
         # not in the DB
         kwds.setdefault('se', 'none specified')
@@ -197,8 +200,7 @@ class ImagingExperiment(Experiment, BaseImagingExperiment):
         date = time.strftime('%F').replace('-', '_')
         return path.join(self.proposalpath, '..',
                          safe_name('%s-%s-%s-%s' %
-                            (date, user, self.proposal, self.title))
-                        )
+                                   (date, user, self.proposal, self.title)))
 
     @usermethod
     def newSample(self, name, parameters):
@@ -212,4 +214,3 @@ class ImagingExperiment(Experiment, BaseImagingExperiment):
         self.log.debug('new dark image path: %s' % self.darkimagedir)
         self.log.debug('new open beam image path: %s' % self.openbeamdir)
         self.log.debug('new measurement image path: %s' % self.photodir)
-

@@ -26,11 +26,13 @@
 
 from nicos.devices.taco.motor import Motor as TacoMotor
 
+
 class Motor(TacoMotor):
     """TACOMotor with doSetPosition disabled
 
-    as the tacoserver for the newport motors does not provide setposition correctly,
-    we just ignore calls to this.
+    as the tacoserver for the newport motors does not provide setposition
+    correctly, we just ignore calls to this.
+
     This is intended to be used with a nicos-axis.
     """
     def doSetPosition(self, newpos):

@@ -60,8 +60,8 @@ class UBahn(Readable):
             return ', '.join(n.text for n in
                              tree.findall('//td[@class="inMinColumn"]'))
         except Exception as err:
-            raise NicosError(self, 'MVG site not responding or changed format: '
-                             '%s' % err)
+            raise NicosError(self, 'MVG site not responding or changed format:'
+                             ' %s' % err)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
