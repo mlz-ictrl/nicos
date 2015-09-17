@@ -324,7 +324,7 @@ class SetupChecker(object):
         if os.path.basename(self.filename) == 'startup.py':
             if len(self.ns.get('includes', [])) > 0:
                 self.log_error("The 'includes' in 'startup.py' must be empty!",
-                              extra=self.find_global('includes'))
+                               extra=self.find_global('includes'))
 
         # check for types of recognized variables
         for (vname, vtype) in [('description', (str, unicode)),
