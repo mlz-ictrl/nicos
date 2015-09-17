@@ -157,4 +157,8 @@ devices = dict(
                       countloopdelay = 0.002,
                       responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
                      ),
+
+    vtasdet  = device('devices.tas.virtual.VirtualTasDetector',
+                      tas = 'Tas',
+                     ),
 )

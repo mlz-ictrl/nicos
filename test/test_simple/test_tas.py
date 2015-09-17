@@ -27,6 +27,7 @@ from nicos.core import UsageError, LimitError, ConfigurationError, \
     ComputationError, NicosError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
     acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
+from nicos.commands.measure import count
 from nicos.devices.tas import spacegroups
 from nicos.core.sessions.utils import MASTER
 
@@ -259,3 +260,21 @@ def test_canreflect():
     assert spacegroups.can_reflect(sg, 0, 1, 0)
     assert spacegroups.can_reflect(sg, 0, 0, 1)
     assert spacegroups.can_reflect(sg, 1, 1, 1)
+
+
+def test_virtualdet():
+    tas = session.getDevice('Tas')
+    tdet = session.getDevice('vtasdet')
+    tas.maw([1, 0, 0, 0])
+    countres = count(tdet, 1)
+    assert countres[0] == 1.0
+    cps = float(countres[2])
+    countres2 = count(tdet, 100)
+    assert 90 < countres2[2] / cps < 110
+
+    tas.maw([0.5, 0, 0, 0])
+    countres = count(tdet, 1)
+    assert countres[2] < 10
+
+    countres = count(tdet, mon=10000)
+    assert countres[1] == 10000
