@@ -22,19 +22,89 @@
 #
 # *****************************************************************************
 
-# Test the text client (at least the basic connect-execute-disconnect function).
+# Test the text client.
 
 import os
+import sys
+import time
+import signal
+import subprocess
+from os import path
 
 import nose
+
+from nicos.pycompat import from_utf8
+
+from test.utils import rootdir, getDaemonPort
 
 if os.name != 'posix':
     # text client needs the readline C library
     raise nose.SkipTest('text client not available on this system')
 
-from nicos.clients.cli import main
+client = None
+
+
+def setup_module():
+    global client
+    os.environ['EDITOR'] = 'cat'
+    client = subprocess.Popen([sys.executable,
+                               path.join(rootdir, '..', 'cliclient.py'),
+                               'guest:guest@localhost:%s' % getDaemonPort()],
+                              stdin=subprocess.PIPE,
+                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    sys.stderr.write(' [client start... %s ok]\n' % client.pid)
+
+
+def teardown_module():
+    sys.stderr.write('\n [client kill %s...' % client.pid)
+    if client.poll() is None:  # usually should have exited already during the test
+        os.kill(client.pid, signal.SIGTERM)
+        if os.name == 'posix':
+            os.waitpid(client.pid, 0)
+    sys.stderr.write(' ok]\n')
 
 
 def test_textclient():
-    assert main(['nicos-client', 'user:user@localhost:14874',
-                 '-c', 'read']) == 0
+    client.stdin.write(b'''\
+/log 100
+/help
+/edit test.py
+/sim read
+NewSetup
+/wait
+read
+/wait
+help read
+/wait
+set t_alpha speed 1
+/wait
+maw t_alpha 100
+/wait 0.1
+maw t_alpha 200
+Q
+/pending
+/where
+/cancel *
+/trace
+/spy
+t_alpha()
+/spy
+/stop
+S
+/wait
+/disconnect
+/quit
+''')
+    time.sleep(1)
+
+    res = from_utf8(client.stdout.read())
+    assert 'Simulated minimum runtime' in res
+    assert 'Current stacktrace' in res
+    assert 'Showing pending scripts' in res
+    assert 'Printing current script' in res
+    assert 'Spy mode on' in res
+    assert 'Spy mode off' in res
+    assert 'Your choice?' in res
+    assert 'Disconnected from server' in res
+
+    print(res)

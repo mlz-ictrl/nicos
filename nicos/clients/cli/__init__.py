@@ -169,7 +169,7 @@ class NicosCmdClient(NicosClient):
         Thanks to ctypes this is possible without a custom C module.
         """
         global readline_result
-        term_encoding = sys.stdout.encoding
+        term_encoding = sys.stdout.encoding or 'utf-8'
         librl.rl_callback_handler_install(to_encoding(prompt, term_encoding),
                                           c_readline_finish_callback)
         readline_result = Ellipsis
@@ -820,10 +820,13 @@ class NicosCmdClient(NicosClient):
         elif cmd in ('w', 'where'):
             self.print_where()
         elif cmd == 'wait':
-            # this command is mainly meant for testing and scripting purposes
-            time.sleep(0.2)
-            while self.status != 'idle':
-                time.sleep(0.2)
+            if arg:
+                time.sleep(float(arg))
+            else:
+                # this command is mainly meant for testing and scripting purposes
+                time.sleep(0.1)
+                while self.status != 'idle':
+                    time.sleep(0.1)
         elif cmd == 'trace':
             trace = self.ask('gettrace')
             if trace is None:
@@ -966,6 +969,9 @@ class NicosCmdClient(NicosClient):
         self.quiet_connect = True
         self.command('reconnect', '')
         self.handle(command)
+        time.sleep(0.1)
+        while self.status != 'idle':
+            time.sleep(0.1)
         self.command('quit', '')
         return 0
 
