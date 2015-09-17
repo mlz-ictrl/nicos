@@ -209,7 +209,7 @@ class Monitor(BaseCacheClient):
             self._process_warnings(value)
             return
 
-        #self.log.debug('processing %s' % [time, ttl, key, op, value])
+        # self.log.debug('processing %s' % [time, ttl, key, op, value])
 
         if key == self._prefix + 'session/master':
             self._masteractive = value and op != OP_TELLOLD
@@ -219,7 +219,7 @@ class Monitor(BaseCacheClient):
             # reconfigure displayed blocks
             self.reconfigureBoxes()
             self.log.info('reconfigured display for setups %s'
-                           % ', '.join(self._setups))
+                          % ', '.join(self._setups))
 
         expired = value is None or op == OP_TELLOLD
 
