@@ -40,13 +40,13 @@ from nicos.core.utils import DeviceValueDict
 class DNSFileFormat(ImageSink):
     """Saves DNS image data"""
     parameter_overrides = {
-        'filenametemplate' : Override(mandatory=False, settable=False,
-                                      userparam=False,
-                                      default=['%(proposal)s_%(counter)s.d_dat',
-                                               '%(proposal)s'
-                                               '%(imagecounter)010d'
-                                               '%(session.experiment.sample.'
-                                               'samplename)s.d_dat'],
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False,
+                                     default=['%(proposal)s_%(counter)s.d_dat',
+                                              '%(proposal)s'
+                                              '%(imagecounter)010d'
+                                              '%(session.experiment.sample.'
+                                              'samplename)s.d_dat'],
                                      ),
     }
 
@@ -63,7 +63,7 @@ class DNSFileFormat(ImageSink):
                                          FromDate=strftime('%m/%d/%Y'),
                                          FromTime=strftime('%r'),
                                          Environment='_'.join(session.explicit_setups),
-                                        )
+                                         )
 
     def updateImage(self, imageinfo, image):
         """just write the data upon update"""
@@ -81,33 +81,35 @@ class DNSFileFormat(ImageSink):
     def saveImage(self, imageinfo, image):
         """Save in DNS format"""
         imageinfo.file.seek(0)
-        imageinfo.file.write("# DNS Data userid=%s,exp=%s,file=%s,sample=%s\n" %
-                (session.experiment.users, str(session.experiment.lastscan),
-                 str(session.experiment.lastimage),
-                 session.experiment.sample.samplename))
-        imageinfo.file.write("#" + "-"*74 + "\n") #separation line
+        imageinfo.file.write("# DNS Data userid=%s,exp=%s,file=%s,sample=%s\n"
+                             % (session.experiment.users,
+                                str(session.experiment.lastscan),
+                                str(session.experiment.lastimage),
+                                session.experiment.sample.samplename))
+        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
         # TODO: use right value, remove dummylines
-        #imageinfo.file.write("# %d\n" % len(datacomment))
-        #for i in range(len(datacomment)):
-        #    imageinfo.file.write("# " + datacomment[i] + "\n")
-        imageinfo.file.write("# 2\n") #Todo: add other comment maybe
+        # imageinfo.file.write("# %d\n" % len(datacomment))
+        # for i in range(len(datacomment)):
+        #     imageinfo.file.write("# " + datacomment[i] + "\n")
+        imageinfo.file.write("# 2\n")  # TODO: add other comment maybe
         imageinfo.file.write("# User: %s\n" % session.experiment.users)
         imageinfo.file.write("# Sample: %s\n" %
                              session.experiment.sample.samplename)
-        imageinfo.file.write("#" + "-"*74 + "\n") #separation line
+        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
         imageinfo.file.write("# DNS   Mono  d-spacing[nm]  Theta[deg]   "
                              "Lambda[nm]   Energy[meV]   Speed[m/sec]\n")
         # TODO: not hard coded?
         imageinfo.file.write("#      %s   %6.4f         %6.2f         %6.3f"
                              "%6.3f      %7.2f\n" % ("PG-002", 0.3350,
-                            float(session.getDevice('mon_rot').read()), 0.474,
-                                                     3.64, 834.6))
+                                                     float(session.getDevice(
+                                                         'mon_rot').read()),
+                                                     0.474, 3.64, 834.6))
         imageinfo.file.write("# Distances [cm] Sample_Chopper    "
                              "Sample_Detector    Sample_Monochromator\n")
         # TODO: not hard coded?
         imageinfo.file.write("#                  36.00            80.00"
                              "            220.00\n")
-        imageinfo.file.write("#" + "-"*74 + "\n") #separation line
+        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
 
         imageinfo.file.write("# Motors                      Position\n")
         imageinfo.file.write("# Monochromator              %6.2f deg\n" %
@@ -131,11 +133,11 @@ class DNSFileFormat(ImageSink):
         imageinfo.file.write("#                   right    %6.1f mm\n" %
                              float(session.getDevice('ap_sam_x_right').read()))
         imageinfo.file.write("#\n")
-        #dummy line
+        # dummy line
         imageinfo.file.write("# Slit_f_upper                %4d mm\n" % 0)
-        #dummy line
+        # dummy line
         imageinfo.file.write("# Slit_f_lower                %4d mm\n" % 0)
-        #dummy line
+        # dummy line
         imageinfo.file.write("# Detector_Position_vertical  %4d mm\n" % 0)
         imageinfo.file.write("#\n")
         imageinfo.file.write("# Polariser\n")
@@ -145,7 +147,7 @@ class DNSFileFormat(ImageSink):
                              float(session.getDevice('pol_rot').read()))
         imageinfo.file.write("#\n")
         imageinfo.file.write("# Analysers                 undefined\n")
-        imageinfo.file.write("#" + "-"*74 + "\n") #separation line
+        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
         # write currents
         imageinfo.file.write("# B-fields                   current[A]  field[G]\n")
         imageinfo.file.write("#   Flipper_precession        %6.3f A     %6.2f G\n" %
@@ -160,7 +162,7 @@ class DNSFileFormat(ImageSink):
                              (float(session.getDevice('C').read()), 0.0))
         imageinfo.file.write("#   C_z                       %6.3f A     %6.2f G\n" %
                              (float(session.getDevice('ZT').read()), 0.0))
-        imageinfo.file.write("#" + "-"*74 + "\n") #separation line
+        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
 
         td, tb, tset = float('NaN'), float('NaN'), float('NaN')
         if 'T_jlc3_D' in session.devices:
@@ -174,7 +176,7 @@ class DNSFileFormat(ImageSink):
         imageinfo.file.write("#  T1                         %6.3f K\n" % td)
         imageinfo.file.write("#  T2                         %6.3f K\n" % tb)
         imageinfo.file.write("#  sample_setpoint            %6.3f K\n" % tset)
-        imageinfo.file.write("#" + "-"*74 + "\n") #separation line
+        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
 
         det_dev = session.getDevice('det')
         imageinfo.file.write("# TOF parameters\n")
@@ -184,10 +186,10 @@ class DNSFileFormat(ImageSink):
         tdel = 0.05 * det_dev.offsetdelay
         imageinfo.file.write("#  Delay time                  %6.1f microsecs\n" % tdel)
 
-        imageinfo.file.write("#  Chopper slits\n")#        %4d\n" % config.datachopperslits) # todo
-        imageinfo.file.write("#  Elastic time channel\n")# %4d\n" % config.dataelastictime) # todo
-        imageinfo.file.write("#  Chopper frequency\n")#    %4d Hz\n" % monitor.getfreq()) # todo
-        imageinfo.file.write("#" + "-"*74 + "\n") #separation line
+        imageinfo.file.write("#  Chopper slits\n")  # %4d\n" % config.datachopperslits) # TODO
+        imageinfo.file.write("#  Elastic time channel\n")  # %4d\n" % config.dataelastictime) # TODO
+        imageinfo.file.write("#  Chopper frequency\n")  # %4d Hz\n" % monitor.getfreq()) # TODO
+        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
 
         imageinfo.file.write("# Active_Stop_Unit           TIMER\n")
         imageinfo.file.write("#  Timer                    %6.1f sec\n" %
@@ -196,18 +198,19 @@ class DNSFileFormat(ImageSink):
                              int(session.getDevice('mon0').read()[0]))
         imageinfo.file.write("#\n")
         begin_t = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.begintime))
-        end_t   = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.endtime))
+        end_t = strftime('%Y-%m-%d %H:%M:%S', localtime(imageinfo.endtime))
         imageinfo.file.write("#    start   at      %s\n" % begin_t)
         imageinfo.file.write("#    stopped at      %s\n" % end_t)
-        imageinfo.file.write("#" + "-"*74 + "\n") #separation line
+        imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
 
         # write array
-        imageinfo.file.write("# DATA (number of detectors, number of TOF channels)\n")
+        imageinfo.file.write("# DATA (number of detectors, number of TOF "
+                             "channels)\n")
         numarr = np.array(image)
         imageinfo.file.write("# 64 %4d\n" % det_dev.nrtimechan)
         for ch in range(64):
             imageinfo.file.write("%2d " % ch)
             for q in range(det_dev.nrtimechan):
-                imageinfo.file.write(" %8d" % (numarr[q,ch]))
+                imageinfo.file.write(" %8d" % (numarr[q, ch]))
             imageinfo.file.write("\n")
         imageinfo.file.flush()

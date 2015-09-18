@@ -70,7 +70,7 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
     """Basic Tango Device for TofDetector."""
 
     STRSHAPE = ['x', 'y', 'z', 't']
-    TOFMODE  = ['notof', 'tof']
+    TOFMODE = ['notof', 'tof']
 
     attached_devices = {
         'expshutter': Attach('Experiment shutter device', NamedDigitalOutput),
@@ -80,11 +80,11 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
 
     parameters = {
         'detshape':     Param('Shape of tof detector', type=dictof(str, int)),
-        'tofmode':      Param('Data acquisition mode', type=oneof('notof', 'tof'),
-                              settable=True),
+        'tofmode':      Param('Data acquisition mode',
+                              type=oneof('notof', 'tof'), settable=True),
         'nrtimechan':   Param('Number of time channel', type=intrange(1, 1024),
                               settable=True),
-        'divisor':      Param('Divisor between hardware and software time slice',
+        'divisor':      Param('Divisor between hard- and software time slice',
                               type=int, settable=True),
         'offsetdelay':  Param('Offset delay in measure begin', type=int,
                               unit='us', settable=True),
