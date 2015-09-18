@@ -33,7 +33,8 @@ from nicos.core import Param, Measurable, TimeoutError, Value
 class ArtemisCapture(Measurable):
 
     parameters = {
-        'datapath': Param('Path to watch for new files', mandatory=True, type=str),
+        'datapath': Param('Path to watch for new files', mandatory=True,
+                          type=str),
     }
 
     def doInit(self, mode):

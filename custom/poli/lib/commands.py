@@ -35,8 +35,8 @@ from nicos.pycompat import number_types
 
 
 @usercommand
-@helparglist('device1, device2, ..., [rounds=N], [steps=N], [steps_device1=N], '
-             '[step=stepsize], [step_device1=stepsize], [fit="func"], '
+@helparglist('device1, device2, ..., [rounds=N], [steps=N], [steps_device1=N],'
+             ' [step=stepsize], [step_device1=stepsize], [fit="func"], '
              '[cont=True], [convergence=C], [preset]')
 def centerpeak(*args, **kwargs):
     """Center a peak with multiple scans over multiple devices.
@@ -114,12 +114,14 @@ def centerpeak(*args, **kwargs):
         elif kw.startswith('step_'):
             dev = session.getDevice(kw[5:], Moveable)
             if dev not in devices:
-                raise UsageError('device %s not in list of devices to scan' % dev)
+                raise UsageError('device %s not in list of devices to scan' %
+                                 dev)
             stepsizes[dev] = value
         elif kw.startswith('steps_'):
             dev = session.getDevice(kw[6:], Moveable)
             if dev not in devices:
-                raise UsageError('device %s not in list of devices to scan' % dev)
+                raise UsageError('device %s not in list of devices to scan' %
+                                 dev)
             nsteps[dev] = value
         else:
             preset[kw] = value
@@ -144,7 +146,8 @@ def centerpeak(*args, **kwargs):
                          speed=stepsizes[dev] / preset.get('t', 1),
                          timedelta=preset.get('t', 1))
             else:
-                cscan(dev, center, stepsizes[dev], nsteps[dev], *devices, **preset)
+                cscan(dev, center, stepsizes[dev], nsteps[dev], *devices,
+                      **preset)
             if fit == 'center_of_mass':
                 thisround[dev] = center_of_mass()
             elif fit == 'gauss':
