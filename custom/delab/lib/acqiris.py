@@ -30,7 +30,7 @@ try:
     from omniORB import CORBA
     import CosNaming
 
-    import CARESS # pylint: disable=F0401,E0611,W0403
+    import CARESS  # pylint: disable=F0401,E0611,W0403
 
     sys.modules['CARESS'] = sys.modules['nicos.delab.CARESS']
     import omniORB
@@ -46,21 +46,21 @@ from nicos.utils import readFileCounter, updateFileCounter
 from nicos.pycompat import integer_types
 
 
-COUNTER_ID  = 100
-TIMER_ID    = 101
+COUNTER_ID = 100
+TIMER_ID = 101
 
-LOADMASTER  = 14
-LOADSLAVE   = 15
+LOADMASTER = 14
+LOADSLAVE = 15
 RESETMODULE = 16
 SPECIALLOAD = 18
 
-NOT_ACTIVE  = 1
-ACTIVE      = 2
-DONE        = 3
-LOADED      = 4
+NOT_ACTIVE = 1
+ACTIVE = 2
+DONE = 3
+LOADED = 4
 
-OFF_LINE    = 0
-ON_LINE     = 1
+OFF_LINE = 0
+ON_LINE = 1
 
 
 class Channel(BaseChannel):
@@ -72,27 +72,24 @@ class Channel(BaseChannel):
     _orb = None
 
     parameters = {
-        'nameserver' : Param('Computer name running the CORBA name service',
+        'nameserver':  Param('Computer name running the CORBA name service',
                              type=str, mandatory=True,
                              # default='deldaq50.del.frm2',
-                            ),
-        'counterfile' : Param('File name storing the runnumber',
-                              type=str, default='runid.txt', mandatory=True,
                              ),
-        'runnumber' : Param('Run number',
-                            type=int, settable=True,
-                           ),
-        'objname' : Param('Name of the CORBA object',
-                          type=str, mandatory=True,
-                          # default='acqirishzb',
-                         ),
+        'counterfile': Param('File name storing the runnumber',
+                             type=str, default='runid.txt', mandatory=True,),
+        'runnumber':   Param('Run number',
+                             type=int, settable=True,),
+        'objname':     Param('Name of the CORBA object',
+                             type=str, mandatory=True,
+                             # default='acqirishzb',
+                             ),
     }
 
     parameter_overrides = {
-        'mode' : Override(type=oneof('normal', 'preselection'),
-                          default='preselection',
-                          settable=True,
-                         ),
+        'mode': Override(type=oneof('normal', 'preselection'),
+                         default='preselection',
+                         settable=True,),
     }
 
     def _initORB(self, args):
@@ -111,13 +108,14 @@ class Channel(BaseChannel):
                                      ' context')
         try:
             obj = rootContext.resolve([CosNaming.NameComponent(
-                                        self.objname, 'caress_object'),])
+                self.objname, 'caress_object'), ])
         except CosNaming.NamingContext.NotFound as ex:
             raise ConfigurationError(self, 'Name not found: %s' % (ex,))
 
         self._caressObject = obj._narrow(CARESS.CORBADevice)
         if not self._caressObject:
-            raise ConfigurationError(self, 'Object is not a CARESS::CORBADevice')
+            raise ConfigurationError(self, 'Object is not a '
+                                     'CARESS::CORBADevice')
 
         self._cid = c_id
 
@@ -144,14 +142,14 @@ class Channel(BaseChannel):
                                                       'detector_channels')
             self.log.debug('Get attribute "detector_channels": %r' % (result,))
         except CARESS.ErrorDescription as ex:
-            self.log.info('Attribute "detector_channels" not found: %s' % (ex,))
+            self.log.info('Attribute "detector_channels" not found: %s' % ex)
 
         try:
             result = self._caressObject.get_attribute(self._cid,
                                                       'detector_pixelwidth')
-            self.log.debug('Get attribute "detector_pixelwidth": %r' % (result,))
+            self.log.debug('Get attribute "detector_pixelwidth": %r' % result)
         except CARESS.ErrorDescription as ex:
-            self.log.info('Attribute "detector_pixelwidth" not found: %s' % (ex,))
+            self.log.info('Attribute "detector_pixelwidth" not found: %s' % ex)
 
         self._initialized = False
 
@@ -169,7 +167,7 @@ class Channel(BaseChannel):
         if not omniORB:
             raise ConfigurationError(self, 'There is no CORBA module found')
         self._initORB(['-ORBInitRef', 'NameService=corbaname::%s' %
-                       (self.nameserver, ),])
+                       (self.nameserver, ), ])
 
     def doShutdown(self):
         if self._caressObject:
@@ -286,8 +284,8 @@ class Timer(Channel):
 class Counter(Channel):
 
     parameters = {
-        'config' : Param('Channel and trigger configuration',
-                         type=str, mandatory=True,
+        'config': Param('Channel and trigger configuration',
+                        type=str, mandatory=True,
                         ),
     }
 
@@ -306,7 +304,8 @@ class Counter(Channel):
 
         result = self._caressObject.loadblock_module(SPECIALLOAD, self._cid,
                                                      1, len(self.config),
-                                                     CARESS.Value(s=self.config))
+                                                     CARESS.Value(s=self.config)
+                                                     )
         self.log.debug('Load block module: %r' % (result,))
         if result != (CARESS.OK, LOADED):
             raise ConfigurationError(self, 'Could not load block module')
