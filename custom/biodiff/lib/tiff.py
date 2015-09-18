@@ -41,9 +41,10 @@ class TIFFFileFormat(ImageSink):
     fileFormat = "TIFF"
 
     parameters = {
-                  "mode": Param("Image mode (PIL)", type=str, default="I;16",
-                                mandatory=False, settable=True),
-                  }
+        "mode": Param("Image mode (PIL)",
+                      type=str, default="I;16", mandatory=False,
+                      settable=True),
+    }
 
     def doPreinit(self, mode):
         self.log.debug("INITIALISE TIFFFileFormat")
@@ -51,8 +52,8 @@ class TIFFFileFormat(ImageSink):
         # PIL is not available.
         if PIL is None:
             self.log.error(_import_error)
-            raise NicosError(self, "Python Image Library (PIL) is not " +
-                             "available. Please check wether it is installed " +
+            raise NicosError(self, "Python Image Library (PIL) is not "
+                             "available. Please check wether it is installed "
                              "and in your PYTHONPATH")
 
     def acceptImageType(self, imagetype):

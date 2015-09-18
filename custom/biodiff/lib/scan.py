@@ -43,7 +43,8 @@ class RScan(Scan):
         if wait:
             # movement and counting separate
             # do not use software based micro stepping
-            where = [(dev._adevs["motor"], pos) if isinstance(dev, MicrostepMotor)
+            where = [(dev._adevs["motor"], pos) if isinstance(dev,
+                                                              MicrostepMotor)
                      else (dev, pos)
                      for dev, pos in zip(self._devices, position)]
             return self.moveDevices(where, wait)
@@ -108,6 +109,7 @@ def _fixType(dev, args, mkpos):
     devs = [session.getDevice(d, Moveable) for d in devs]
     return devs, values, restargs
 
+
 @usercommand
 @helparglist('dev, [start, step, end | listofpoints], t=seconds, ...')
 @spmsyntax(Dev(Moveable), Bare, Bare, Bare)
@@ -123,8 +125,9 @@ def rscan(dev, *args, **kwargs):
     >>> rscan(dev, [0, 1, 2, 3, 7, 8, 9, 10])  # scans at the given positions.
 
     For floating point arguments, the length of the result is
-    ``int(round((end - start) / step + 1)``. Because of floating point overflow,
-    this rule may result in the last element being greater than ``end``, e.g.
+    ``int(round((end - start) / step + 1)``. Because of floating point
+    overflow, this rule may result in the last element being greater than
+    ``end``, e.g.
 
     >>> rscan(dev, 30, .1, 30.19)   # scans from 30 to 30.2 in steps of 0.1.
 
@@ -141,20 +144,20 @@ def rscan(dev, *args, **kwargs):
                 if numpoints[0] > 1:
                     return mk(starts, steps, numpoints[0])
                 else:
-                    raise UsageError(
-"""invalid number of points. At least two points are necessary
-to define a range scan. Please check parameters.""")
+                    raise UsageError("invalid number of points. At least two "
+                                     "points are necessary to define a range "
+                                     "scan. Please check parameters.")
             else:
-                raise UsageError(
-"""negative number of points. Please check parameters.
-Maybe step parameter has wrong sign.""")
+                raise UsageError("negative number of points. Please check "
+                                 "parameters. Maybe step parameter has wrong"
+                                 "sign.")
         else:
-            raise UsageError("all entries must generate the same " +
-                             "number of points")
+            raise UsageError("all entries must generate the same number of "
+                             "points")
 
     scanstr = _infostr('rscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep  = \
+    preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
     oldspeed = dev.speed
     try:
@@ -165,7 +168,7 @@ Maybe step parameter has wrong sign.""")
             dev.speed = speed
         else:
             raise UsageError("missing preset parameter t.")
-        RScan(devs, values, move, multistep, detlist, envlist, preset, scaninfo,
-              waitbeforecount=False).run()
+        RScan(devs, values, move, multistep, detlist, envlist, preset,
+              scaninfo, waitbeforecount=False).run()
     finally:
         dev.speed = oldspeed

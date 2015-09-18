@@ -37,27 +37,27 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
     """Virtual motor which implements software based micro stepping for an
     attached Moveable device."""
 
-    STATUS_TIME = .3 # waitForStatus 300 ms
-    CODE_TIME = .05  # additional code execution time in polling routine
+    STATUS_TIME = .3  # waitForStatus 300 ms
+    CODE_TIME = .05   # additional code execution time in polling routine
 
     attached_devices = {
-                        "motor": Attach("Motor device which will be moved.", Moveable)
-                        }
+        "motor": Attach("Motor device which will be moved.", Moveable),
+    }
 
     parameters = {
-                  "microstep": Param("Software/Pseudo micro step size",
-                                     type=float, settable=True, mandatory=False,
-                                     default=0.01),
-                  "maxtime": Param("Maximum time for one micro step in seconds",
-                                   type=float, settable=True, mandatory=False,
-                                   default=0.8),
-                  "maxspeed": Param("Maximum speed", type=float, settable=False,
-                                    mandatory=False)
-                  }
+        "microstep": Param("Software/Pseudo micro step size",
+                           type=float, settable=True, mandatory=False,
+                           default=0.01),
+        "maxtime": Param("Maximum time for one micro step in seconds",
+                         type=float, settable=True, mandatory=False,
+                         default=0.8),
+        "maxspeed": Param("Maximum speed",
+                          type=float, settable=False, mandatory=False),
+    }
 
     parameter_overrides = {
-                           "abslimits": Override(mandatory=False)
-                           }
+        "abslimits": Override(mandatory=False)
+    }
 
     def doInit(self, mode):
         self._setROParam("maxspeed", self.microstep / self.maxmovetime)
@@ -74,7 +74,7 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
     def _maxmovetime(self, t):
         # maximum movement time including polling time plus additional code
         # execution time.
-        return t  + MicrostepMotor.STATUS_TIME + MicrostepMotor.CODE_TIME
+        return t + MicrostepMotor.STATUS_TIME + MicrostepMotor.CODE_TIME
 
     @property
     def maxmovetime(self):
@@ -134,7 +134,7 @@ maxspeed: %.4f
         # handle floating point overflows
         # check whether or not one last microstep fits into movement to target.
         if (math.fabs((pos + (n + 1) * s) - target)
-            < math.fabs(self.microstep / 10)):
+           < math.fabs(self.microstep / 10)):
             n += 1
         res = [(SeqDev(self.motor, pos + i * s),
                 SeqSleep(self._delay)) for i in range(1, n)]

@@ -353,7 +353,8 @@ Retrying.""" % (action, exception))
         if exception:
             exp = session.experiment
             if self._mode != SIMULATION:
-                lastimagepath = os.path.join(exp.proposalpath, exp.lastimagefile)
+                lastimagepath = os.path.join(exp.proposalpath,
+                                             exp.lastimagefile)
                 if (os.path.isfile(lastimagepath)
                         and os.path.getsize(lastimagepath) == 0):
                     self.log.debug("Remove empty file: %s" % exp.lastimagefile)
@@ -436,9 +437,11 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
 
     parameters = {
         "ctrl_gammashutter": Param("Control gamma shutter?", type=bool,
-                                   settable=True, mandatory=False, default=True),
+                                   settable=True, mandatory=False,
+                                   default=True),
         "ctrl_photoshutter": Param("Control photo shutter?", type=bool,
-                                   settable=True, mandatory=False, default=True),
+                                   settable=True, mandatory=False,
+                                   default=True),
     }
 
     parameter_overrides = {
@@ -510,7 +513,8 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         if exception:
             exp = session.experiment
             if self._mode != SIMULATION:
-                lastimagepath = os.path.join(exp.proposalpath, exp.lastimagefile)
+                lastimagepath = os.path.join(exp.proposalpath,
+                                             exp.lastimagefile)
                 if (os.path.isfile(lastimagepath)
                         and os.path.getsize(lastimagepath) == 0):
                     self.log.debug("Remove empty file: %s" % exp.lastimagefile)
