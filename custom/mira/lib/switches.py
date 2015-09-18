@@ -48,8 +48,8 @@ class BeamElement(HasTimeout, Moveable):
     }
 
     def doStatus(self, maxage=0):
-        is_in    = self._adevs['switch_in'].read(maxage)
-        is_out   = self._adevs['switch_out'].read(maxage)
+        is_in = self._adevs['switch_in'].read(maxage)
+        is_out = self._adevs['switch_out'].read(maxage)
         valvepos = self._adevs['valve'].read(maxage)
         if (is_in and valvepos == 'in') or (is_out and valvepos == 'out'):
             return status.OK, 'idle'

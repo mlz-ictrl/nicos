@@ -40,7 +40,8 @@ class Axis(TacoAxis):
     """
 
     def _reset_phytron(self):
-        motor = Motor.Motor(self._taco_guard(self._dev.deviceQueryResource, 'motor'))
+        motor = Motor.Motor(self._taco_guard(self._dev.deviceQueryResource,
+                                             'motor'))
         iodev = self._taco_guard(motor.deviceQueryResource, 'iodev')
         addr = self._taco_guard(motor.deviceQueryResource, 'address')
         client = IO.StringIO(iodev)

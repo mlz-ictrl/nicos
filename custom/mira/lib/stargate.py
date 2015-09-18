@@ -58,7 +58,8 @@ class Stargate(tango.DigitalOutput):
         'offset_out': Param('Offset of digital output values',
                             type=int, mandatory=True),
         'chevron_att_angles': Param('att angle for shielding elements',
-                             type=listof(listof(int)), mandatory=True),
+                                    type=listof(listof(int)),
+                                    mandatory=True),
     }
 
     _started = 0
@@ -90,9 +91,9 @@ class Stargate(tango.DigitalOutput):
             bitidx = (curidx % 4) * 2
 
             if curval:
-                bitvals[byteidx] |= (1<<bitidx)
+                bitvals[byteidx] |= (1 << bitidx)
             else:
-                bitvals[byteidx] |= (1<<(bitidx+1))
+                bitvals[byteidx] |= (1 << (bitidx+1))
 
         self._dev.WriteOutputWords([self.offset_out] + bitvals)
         self._started = currenttime()

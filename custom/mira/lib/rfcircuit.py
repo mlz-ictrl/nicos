@@ -70,9 +70,10 @@ class RFCurrent(HasLimits, Moveable):
                             'current in the coils', type=bool, default=False,
                             settable=True),
         'kp':         Param('Proportionality constant between difference and '
-                            'correction', type=float, default=0.005, settable=True),
-        'checktime':  Param('Time between control checks', type=float, default=10.,
-                            settable=True, unit='s'),
+                            'correction', type=float, default=0.005,
+                            settable=True),
+        'checktime':  Param('Time between control checks', type=float,
+                            default=10., settable=True, unit='s'),
         'maxdelta':   Param('Maximum delta between read value and target value',
                             type=float, unit='%', default=5, settable=True),
     }

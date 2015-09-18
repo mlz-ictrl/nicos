@@ -82,7 +82,8 @@ class DigitalOutput(tango.DigitalOutput):
             self._dev.WriteOutputWord([0x1120, 0])
 
     def doRead(self, maxage=0):
-        return tuple(self._dev.ReadOutputBits([self.startoffset, self.bitwidth]))
+        return tuple(self._dev.ReadOutputBits([self.startoffset,
+                                               self.bitwidth]))
 
     def doStart(self, value):
         self._dev.WriteOutputBits([self.startoffset] + value)

@@ -32,7 +32,7 @@ import fcntl
 import struct
 
 from nicos.core import status, Measurable, Param, Value, usermethod, \
-     CommunicationError, ModeError
+    CommunicationError, ModeError
 from nicos.core import SIMULATION, SLAVE
 
 usbbus_pat = re.compile(r'Bus=(\s*\d+)')
@@ -96,7 +96,7 @@ class THM(Measurable):
             self._io = None
 
     def doStatus(self, maxage=0):
-        #self._query('*IDN?')
+        # self._query('*IDN?')
         return status.OK, 'idle'
 
     def _query(self, q, t=5):
@@ -156,12 +156,12 @@ class THM(Measurable):
 
     def valueInfo(self):
         return Value('B', unit='uT'), \
-               Value('Bx', unit='uT', errors='next'), \
-               Value('dBx', unit='uT', type='error'), \
-               Value('By', unit='uT', errors='next'), \
-               Value('dBy', unit='uT', type='error'), \
-               Value('Bz', unit='uT', errors='next'), \
-               Value('dBz', unit='uT', type='error')
+            Value('Bx', unit='uT', errors='next'), \
+            Value('dBx', unit='uT', type='error'), \
+            Value('By', unit='uT', errors='next'), \
+            Value('dBy', unit='uT', type='error'), \
+            Value('Bz', unit='uT', errors='next'), \
+            Value('dBz', unit='uT', type='error')
 
     def _average(self, nvalues, output):
         # format: #6nnnnnnbbbbbbbb...

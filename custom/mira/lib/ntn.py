@@ -45,16 +45,19 @@ class FUG(TacoDevice, HasLimits, Moveable):
 
     parameters = {
         'voltage':    Param('Maximum voltage', default=100),
-        'variance':   Param('Max difference of read and set value', default=0.05),
+        'variance':   Param('Max difference of read and set value',
+                            default=0.05),
         'readoffset': Param('Offset for read value', settable=True),
         'readslope':  Param('Slope for read value', settable=True, default=1),
     }
 
     def _ask(self, what):
-        # setting "what to ask" and asking are two different things; but we have to
-        # combine them to keep atomicity of communicate; in order to keep the
-        # supply happy about the rapid succession, a few spaces are needed as below
-        return self._taco_guard(self._dev.communicate, what + '\r' + ' '*24 + '?')
+        # setting "what to ask" and asking are two different things; but we
+        # have to combine them to keep atomicity of communicate; in order to
+        # keep the supply happy about the rapid succession, a few spaces are
+        # needed as below
+        return self._taco_guard(self._dev.communicate,
+                                what + '\r' + ' '*24 + '?')
 
     def doInit(self, mode):
         maxcur = self._ask('N4')

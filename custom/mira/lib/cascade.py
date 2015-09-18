@@ -125,8 +125,8 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
     # XXX rework timeout mechanism with HasTimeout
 
     attached_devices = {
-        'master':    Attach('Master to control measurement time in slave mode '
-                            'and to read monitor counts', MultiChannelDetector),
+        'master': Attach('Master to control measurement time in slave mode '
+                         'and to read monitor counts', MultiChannelDetector),
     }
 
     parameters = {
@@ -183,8 +183,8 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
     def _raise_reply(self, message, reply):
         """Raise an exception for an invalid reply."""
         if not reply:
-            raise CommunicationError(self,
-                message + ': empty reply (reset device to reconnect)')
+            raise CommunicationError(self, message + ': empty reply (reset '
+                                     'device to reconnect)')
         raise CommunicationError(self, message + ': ' + str(reply[4:]))
 
     def _getconfig(self):
@@ -199,7 +199,7 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
         st = self._client.communicate('CMD_status_cdr')
         if st == '':
             raise CommunicationError(self, 'no response from server')
-        #self.log.debug('got status %r' % st)
+        # self.log.debug('got status %r' % st)
         return dict(v.split('=') for v in str(st[4:]).split(' '))
 
     #
@@ -215,7 +215,8 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
 
     def doWriteMode(self, value):
         reply = self._client.communicate('CMD_config_cdr mode=%s tres=%d' %
-            (value, 128 if value == 'tof' else 1))
+                                         (value, 128 if value == 'tof' else 1)
+                                         )
         if reply != 'OKAY':
             self._raise_reply('could not set mode', reply)
 
@@ -348,15 +349,17 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
                  Value(self.name + '.total', unit='cts', type='counter',
                        errors='sqrt', fmtstr='%d'))
         if self.mode == 'tof':
-            cvals = cvals + (
-                 Value(self.name + '.c_roi', unit='', type='counter',
-                       errors='next', fmtstr='%.4f'),
-                 Value(self.name + '.dc_roi', unit='', type='error',
-                       fmtstr = '%.4f'),
-                 Value(self.name + '.c_tot', unit='', type='counter',
-                       errors='next', fmtstr='%.4f'),
-                 Value(self.name + '.dc_tot', unit='', type='error',
-                       fmtstr = '%.4f'))
+            cvals = cvals + (Value(self.name + '.c_roi', unit='',
+                                   type='counter', errors='next',
+                                   fmtstr='%.4f'),
+                             Value(self.name + '.dc_roi', unit='',
+                                   type='error', fmtstr='%.4f'),
+                             Value(self.name + '.c_tot', unit='',
+                                   type='counter', errors='next',
+                                   fmtstr='%.4f'),
+                             Value(self.name + '.dc_tot', unit='',
+                                   type='error', fmtstr='%.4f')
+                             )
         cvals = cvals + (Value(self.name + '.file', type='info', fmtstr='%s'),)
         if self.slave:
             return self._adevs['master'].valueInfo() + cvals

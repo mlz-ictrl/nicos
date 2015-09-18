@@ -66,12 +66,13 @@ class MiezeMaster(Moveable):
                 self.curtable[self.setting]['_tau_']]
 
     def valueInfo(self):
-        return Value('mieze', fmtstr='%s'), Value('tau', fmtstr='%.2f', unit='ps')
+        return Value('mieze', fmtstr='%s'), \
+            Value('tau', fmtstr='%.2f', unit='ps')
 
     def _findsetting(self, target):
         if self.tuning == '':
-            raise NicosError(self, 'no tuning selected, use %s.usetuning(name) '
-                             'to select a tuning table' % self)
+            raise NicosError(self, 'no tuning selected, use %s.usetuning(name)'
+                             ' to select a tuning table' % self)
         if not isinstance(target, integer_types):
             for idx, setting in enumerate(self.curtable):
                 if setting['_name_'] == target:
@@ -154,7 +155,8 @@ class MiezeMaster(Moveable):
             data.append((str(idx), setting['_name_'], '%.3f' %
                          setting['_tau_']) + tuple(values))
         self.log.info('current MIEZE settings (%s):' % self.tuning)
-        printTable(('#', 'name', 'tau (ps)') + tuple(all_values), data, printinfo)
+        printTable(('#', 'name', 'tau (ps)') + tuple(all_values), data,
+                   printinfo)
 
     @usermethod
     def savetuning(self, name):
@@ -327,7 +329,7 @@ def mscan(settings, dev, *args, **kwargs):
                 for i in range(numsteps)]
     scanstr = _infostr('mscan', (settings, dev) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep  = \
+    preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
     MiezeScan(settings, devs, values, move, multistep, detlist,
               envlist, preset, scaninfo).run()
@@ -346,7 +348,7 @@ def mcscan(settings, dev, *args, **kwargs):
                  in zip(centers, steps)] for i in range(2*numperside+1)]
     scanstr = _infostr('mcscan', (settings, dev) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep  = \
+    preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
     MiezeScan(settings, devs, values, move, multistep, detlist,
               envlist, preset, scaninfo).run()

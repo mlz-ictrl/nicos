@@ -57,9 +57,11 @@ class Amplifier(TacoDevice, Measurable):
                               settable=True, category='general', unit='us',
                               volatile=True),
         'reserve':      Param('Dynamic reserve', type=intrange(0, 5),
-                              settable=True, category='general', volatile=True),
+                              settable=True, category='general',
+                              volatile=True),
         'sensitivity':  Param('Sensitivity constant', type=intrange(0, 26),
-                              settable=True, category='general', volatile=True),
+                              settable=True, category='general',
+                              volatile=True),
         # internal parameters
         'measurements': Param('Number of measurements to average over',
                               type=int, default=100, settable=True),

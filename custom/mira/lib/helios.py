@@ -49,7 +49,7 @@ class HePolarizer(TacoDevice, Moveable):
     valuetype = oneof('up', 'down')
 
     def doInit(self, mode):
-        #self.current = 'up'
+        # self.current = 'up'
         pass
 
     @usermethod

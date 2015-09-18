@@ -155,7 +155,7 @@ class LiveDataPanel(Panel):
             self._runtime = runtime
             self._filename = filename
         else:
-            #print 'Unsupported live data format:', params
+            # print 'Unsupported live data format:', params
             self._format = None
 
     def on_client_livedata(self, data):

@@ -37,6 +37,7 @@ def addcrc(msg):
         crc ^= ord(c)
     return msg + '%02X' % crc
 
+
 class VarianPump(TacoDevice, Readable):
     """
     Device object for a Varian Mini-Task (AG81 type) pump.
@@ -69,12 +70,12 @@ class VarianPump(TacoDevice, Readable):
                  3: status.OK, 4: status.BUSY, 5: status.OK, 6: status.ERROR
                  }[stcode]
         errtext = bitDescription(errorcode,
-            (0, 'no connection'),
-            (1, 'pump overtemperature'),
-            (2, 'controller overtemperature'),
-            (5, 'overvoltage'),
-            (6, 'short circuit'),
-            (7, 'too high load')
-        )
+                                 (0, 'no connection'),
+                                 (1, 'pump overtemperature'),
+                                 (2, 'controller overtemperature'),
+                                 (5, 'overvoltage'),
+                                 (6, 'short circuit'),
+                                 (7, 'too high load')
+                                 )
         return stval, 'status: %s, error: %s, frequency: %s' % \
-               (sttext, errtext or 'none', frequency)
+            (sttext, errtext or 'none', frequency)

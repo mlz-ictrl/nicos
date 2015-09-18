@@ -41,11 +41,12 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
     taco_class = StringIO
 
     parameter_overrides = {
-        'unit':     Override(mandatory=False, default='A'),
+        'unit': Override(mandatory=False, default='A'),
     }
 
     parameters = {
-        'variance': Param('Max difference of real and set value', default=0.05),
+        'variance': Param('Max difference of real and set value',
+                          default=0.05),
     }
 
     def doInit(self, mode):
@@ -67,7 +68,8 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
         time.sleep(0.2)
 
     def doRead(self, maxage=0):
-        cval = float(self._taco_guard(self._dev.communicate, 'MEASURE:CURRENT?'))
+        cval = float(self._taco_guard(self._dev.communicate,
+                                      'MEASURE:CURRENT?'))
         return cval * 80. / self._calibvalue
 
     def doStatus(self, maxage=0):
@@ -81,21 +83,22 @@ class Heinzinger(TacoDevice, HasLimits, Moveable):
         time.sleep(1.5)
         newval = self.read(0)
         if abs(newval - value) > value*self.variance + 0.2:
-            self.log.warning('failed to set new current of %.3f A (readout %.3f A); '
-                             'trying again' % (value, newval))
+            self.log.warning('failed to set new current of %.3f A ('
+                             'readout %.3f A); trying again' % (value, newval))
             # first set nominal current to zero
             self._taco_guard(self._dev.writeLine, 'CURR 0')
             time.sleep(2)
             # now set desired current
             self._taco_guard(self._dev.writeLine, 'CURR %f' % value)
             time.sleep(1.5)
-            if abs(self.doRead() - value) > value*self.variance + 0.2:
+            if abs(self.doRead() - value) > value * self.variance + 0.2:
                 raise NicosError(self, 'power supply failed to set current value')
 
 
 class HeinzingerViaHPE(TacoDevice, HasLimits, Moveable):
     """
-    Device object for a Heinzinger PTN3p power supply via external input HPE3631.
+    Device object for a Heinzinger PTN3p power supply via external input
+    HPE3631.
     """
     taco_class = StringIO
 
@@ -116,11 +119,13 @@ class HeinzingerViaHPE(TacoDevice, HasLimits, Moveable):
         self._taco_guard(self._dev.writeLine, 'INSTRUMENT:NSELECT 2')
         time.sleep(1)
         try:
-            return float(self._taco_guard(self._dev.communicate, 'VOLT?')) * self.scale
+            return float(self._taco_guard(self._dev.communicate, 'VOLT?')) * \
+                self.scale
         except Exception:
             self.log.warning('read failed, trying again')
             time.sleep(5)
-            return float(self._taco_guard(self._dev.communicate, 'VOLT?')) * self.scale
+            return float(self._taco_guard(self._dev.communicate, 'VOLT?')) * \
+                self.scale
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
@@ -156,11 +161,13 @@ class HPECurrent(TacoDevice, HasLimits, Moveable):
             self.log.warning('read failed, trying again')
             time.sleep(3)
             try:
-                return float(self._taco_guard(self._dev.communicate, 'MEAS:CURR?'))
+                return float(self._taco_guard(self._dev.communicate,
+                                              'MEAS:CURR?'))
             except Exception:
                 self.log.warning('read failed, trying again')
                 time.sleep(5)
-                return float(self._taco_guard(self._dev.communicate, 'MEAS:CURR?'))
+                return float(self._taco_guard(self._dev.communicate,
+                                              'MEAS:CURR?'))
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
