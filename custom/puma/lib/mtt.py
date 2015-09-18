@@ -42,11 +42,10 @@ class MTT_Axis(Axis):
         'polyswitch': Attach('Main axis encoder device', Moveable),
     }
 
-
     parameters = {
-        'polypos':       Param('Shielding block change position', default = -89.8, unit='deg'),
+        'polypos': Param('Shielding block change position', default=-89.8,
+                         unit='deg'),
     }
-
 
     def doInit(self, mode):
         Axis.doInit(self, mode)
@@ -55,15 +54,16 @@ class MTT_Axis(Axis):
     def doStart(self, target):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
-            self.log.debug('not moving, already at %.4f within precision' % target)
+            self.log.debug('not moving, already at %.4f within precision' %
+                           target)
             return
 
         if self.status(0)[0] == status.BUSY:
             self.log.debug('need to stop axis first')
             self.stop()
             waitForStatus(self, errorstates=())
-            #raise NicosError(self, 'axis is moving now, please issue a stop '
-            #                 'command and try it again')
+            # raise NicosError(self, 'axis is moving now, please issue a stop '
+            #                  'command and try it again')
 
         if self._posthread:
             self._posthread.join()
@@ -75,7 +75,6 @@ class MTT_Axis(Axis):
         if not self._posthread:
             self._posthread = createThread('positioning thread %s' % self,
                                            self._positioningThread)
-
 
     def _preMoveAction(self):
         """This method will be called before the motor will be moved.
@@ -136,9 +135,9 @@ class MTT_Axis(Axis):
                         self.log.debug('cannot move to backlash position')
         # Shielding block position
         if abs(self._poly) == 1:
-#            print 'positions = ', positions
+            # print 'positions = ', positions
             positions.insert(0, (self.polypos, True))
-#            print 'positions = ', positions
+            # print 'positions = ', positions
 
         for (pos, precise) in positions:
             try:
@@ -182,7 +181,7 @@ class MTT_Axis(Axis):
             _, pos = self.poll()
             mstatus, mstatusinfo = self._adevs['motor'].status()
             if mstatus != status.BUSY:
-#               print 'mstatus =', mstatus
+                # print 'mstatus =', mstatus
                 # motor stopped; check why
                 if self._stoprequest == 2:
                     self.log.debug('stop requested, leaving positioning')
@@ -210,8 +209,8 @@ class MTT_Axis(Axis):
                     # if that failed, stop immediately
                     if newstatus[0] == status.ERROR:
                         moving = False
-                        self._setErrorState(MoveError,
-                            'motor in error state: %s' % newstatus[1])
+                        self._setErrorState(MoveError, 'motor in error state: '
+                                            '%s' % newstatus[1])
                 elif tries > 0:
                     if tries == 1:
                         self.log.warning('last try: %s' % self._errorstate)
@@ -228,9 +227,9 @@ class MTT_Axis(Axis):
                     tries -= 1
                 else:
                     moving = False
-                    self._setErrorState(MoveError,
-                        'target not reached after %d tries: %s' %
-                        (self.maxtries, self._errorstate))
+                    self._setErrorState(MoveError, 'target not reached after '
+                                        '%d tries: %s' % (self.maxtries,
+                                                          self._errorstate))
             elif not self._checkMoveToTarget(target, pos):
                 self.log.debug('stopping motor because not moving to target')
                 self._adevs['motor'].stop()
@@ -243,49 +242,47 @@ class MTT_Axis(Axis):
                 try:
                     self._duringMoveAction(pos)
                 except Exception as err:
-                    self._setErrorState(MoveError,
-                                        'error in during-move action: %s' % err)
+                    self._setErrorState(MoveError, 'error in during-move '
+                                        'action: %s' % err)
                     self._stoprequest = 1
             elif self._stoprequest == 2:
                 # motor should stop, but does not want to?
                 stoptries -= 1
                 if stoptries < 0:
-                    self._setErrorState(MoveError,
-                        'motor did not stop after stop request, aborting')
+                    self._setErrorState(MoveError, 'motor did not stop after '
+                                        'stop request, aborting')
                     moving = False
 
     def _checkpoly(self):
         current = self.read(0)
-        if self._target < self.polypos and current >= self.polypos :
+        if self._target < self.polypos and current >= self.polypos:
             return -1
         elif self._target > self.polypos and current <= self.polypos:
             return 1
         return 0
 
-
     def _switchpoly(self):
-
         """
         function to start air pressure cylinder for additional shielding block
         """
-#        print 'Switch poly0, mtt = ', self.read(0)
+#       print 'Switch poly0, mtt = ', self.read(0)
         temp = self.read(0)
         if abs(temp - self.polypos) <= 0.1:
-#           print 'Switch poly'
+            # print 'Switch poly'
             if self._poly < 0 and self._adevs['polyswitch'].read() != 1:
                 self._adevs['polyswitch'].move(1)
                 sleep(10)
                 if self._adevs['polyswitch'].read() != 1:
-                    self._setErrorState(MoveError,
-                          'shielding block in way, cannot move 2Theta monochromator')
+                    self._setErrorState(MoveError, 'shielding block in way, '
+                                        'cannot move 2Theta monochromator')
             elif self._poly > 0 and self._adevs['polyswitch'].read() != 0:
                 self._adevs['polyswitch'].move(0)
                 sleep(10)
                 if self._adevs['polyswitch'].read() != 0:
-                    self._setErrorState(MoveError,
-                          'shielding block not on position, measurement without'
-                          'shielding yields to enlarged background')
-
+                    self._setErrorState(MoveError, 'shielding block not on '
+                                        'position, measurement without'
+                                        'shielding yields to enlarged '
+                                        'background')
 
     def _checkinhibit(self):
 
@@ -303,8 +300,8 @@ class MTT_Axis(Axis):
 #                print 'Waiting for MB'
                 t -= 1
                 if t < 0:
-                    self._setErrorState(MoveError,
-                          'timeout occured during wait for mobile block change')
+                    self._setErrorState(MoveError, 'timeout occured during '
+                                        'wait for mobile block change')
                     self._stoprequest = 2
                     self.log.debug('Error state = %s' % self._errorstate)
                     break

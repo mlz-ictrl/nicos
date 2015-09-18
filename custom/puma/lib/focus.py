@@ -44,15 +44,16 @@ class focus_Axis(Axis):
     def doStart(self, target):
         """Starts the movement of the axis to target."""
         if self._checkTargetPosition(self.read(0), target, error=False):
-            self.log.debug('not moving, already at %.4f within precision' % target)
+            self.log.debug('not moving, already at %.4f within precision' %
+                           target)
             return
 
         if self.status(0)[0] == status.BUSY:
             self.log.debug('need to stop axis first')
             self.stop()
             waitForStatus(self, errorstates=())
-            #raise NicosError(self, 'axis is moving now, please issue a stop '
-            #                 'command and try it again')
+            # raise NicosError(self, 'axis is moving now, please issue a stop '
+            #                  'command and try it again')
 
         if self._posthread:
             self._posthread.join()
@@ -69,7 +70,8 @@ class focus_Axis(Axis):
         try:
             self._preMoveAction()
         except Exception as err:
-            self._setErrorState(MoveError, 'error in pre-move action: %s' % err)
+            self._setErrorState(MoveError, 'error in pre-move action: %s' %
+                                err)
             return
         target = self._target
 
@@ -145,8 +147,8 @@ class focus_Axis(Axis):
                     # if that failed, stop immediately
                     if newstatus[0] == status.ERROR:
                         moving = False
-                        self._setErrorState(MoveError,
-                            'motor in error state: %s' % newstatus[1])
+                        self._setErrorState(MoveError, 'motor in error state: '
+                                            '%s' % newstatus[1])
                 elif tries > 0:
                     if tries == 1:
                         self.log.warning('last try: %s' % self._errorstate)
@@ -163,9 +165,9 @@ class focus_Axis(Axis):
                     tries -= 1
                 else:
                     moving = False
-                    self._setErrorState(MoveError,
-                        'target not reached after %d tries: %s' %
-                        (self.maxtries, self._errorstate))
+                    self._setErrorState(MoveError, 'target not reached after '
+                                        '%d tries: %s' % (self.maxtries,
+                                                          self._errorstate))
             elif not self._checkMoveToTarget(target, pos):
                 self.log.debug('stopping motor because not moving to target')
                 self._adevs['motor'].stop()
@@ -178,13 +180,13 @@ class focus_Axis(Axis):
                 try:
                     self._duringMoveAction(pos)
                 except Exception as err:
-                    self._setErrorState(MoveError,
-                                        'error in during-move action: %s' % err)
+                    self._setErrorState(MoveError, 'error in during-move '
+                                        'action: %s' % err)
                     self._stoprequest = 1
             elif self._stoprequest == 2:
                 # motor should stop, but does not want to?
                 stoptries -= 1
                 if stoptries < 0:
-                    self._setErrorState(MoveError,
-                        'motor did not stop after stop request, aborting')
+                    self._setErrorState(MoveError, 'motor did not stop after '
+                                        'stop request, aborting')
                     moving = False

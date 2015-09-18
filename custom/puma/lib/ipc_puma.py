@@ -23,17 +23,19 @@
 #
 # *****************************************************************************
 
-"""PUMA specific modifications to NICOS's module for IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
+"""PUMA specific modifications to NICOS's module for IPC
+(Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
 from nicos.core import Override
-from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor, SlitMotor as IPCSlitMotor
+from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor, \
+    SlitMotor as IPCSlitMotor
 
 
 class Coder(IPCCoder):
     """Same as vendor.ipc.Coder but don't write the config byte
     """
     parameter_overrides = {
-        'confbyte' : Override(settable = False),
+        'confbyte': Override(settable=False),
     }
 
     def doWriteConfbyte(self, byte):
@@ -45,18 +47,18 @@ class Coder(IPCCoder):
 class Motor(IPCMotor):
     """Same as vendor.ipc.Motor but don't write the config byte."""
     parameter_overrides = {
-        'confbyte' : Override(settable = False),
+        'confbyte': Override(settable=False),
     }
 
     def doWriteConfbyte(self, value):
         self.log.warning('Config byte can\'t be changed like this.')
         return
- #       if self._hwtype == 'single':
- #           self._adevs['bus'].send(self.addr, 49, value, 3)
- #       else:
- #           raise InvalidValueError(self, 'confbyte not supported by card')
- #       self.log.info('parameter change not permanent, use _store() '
- #                     'method to write to EEPROM')
+#       if self._hwtype == 'single':
+#           self._adevs['bus'].send(self.addr, 49, value, 3)
+#       else:
+#           raise InvalidValueError(self, 'confbyte not supported by card')
+#       self.log.info('parameter change not permanent, use _store() '
+#                     'method to write to EEPROM')
 
 
 class SlitMotor(IPCSlitMotor):

@@ -59,7 +59,8 @@ class PGFilter(Moveable):
             time.sleep(2)
 
             if self.doStatus()[0] == status.ERROR:
-                raise NicosError(self, 'PG filter is not readable, check device!')
+                raise NicosError(self, 'PG filter is not readable, please '
+                                 'check device!')
         finally:
             self.log.info('PG filter: ', self.read(0))
 
@@ -72,10 +73,9 @@ class PGFilter(Moveable):
         else:
             raise NicosError(self, 'PG filter is not readable, check device!')
 
-
     def doStatus(self, maxage=0):
         s = self._adevs['io_status'].doRead(0)
-        if s in [1,2]:
+        if s in [1, 2]:
             return (status.OK, 'idle')
         else:
             return (status.ERROR, 'filter is in error state')

@@ -49,7 +49,7 @@ class Attenuator(HasLimits, Moveable):
         stat1 = self._adevs['io_status'].doRead()
         stat2 = 0
         for i in range(0, 5):
-            stat2 += (((stat1 >> (2*i+1)) &1) << i)
+            stat2 += (((stat1 >> (2*i+1)) & 1) << i)
         self._adevs['io_set'].move(stat2)
         self.log.debug("device status read from hardware: %s" % stat1)
         self.log.debug("device status sent to hardware: %s" % stat2)
@@ -74,14 +74,15 @@ class Attenuator(HasLimits, Moveable):
 #                    raise DeviceUndefinedError(msg)
             result = 0
             temp = 0
-            for i in range (4, -1, -1):
+            for i in range(4, -1, -1):
                 temp = (position - position % self._filterlist[i])
                 if temp > 0:
                     result += 2**i
                     position -= self._filterlist[i]
 
-                self.log.debug("position: %d, temp: %d result: %d, filterlist[i]: %d"
-                               % (position, temp, result, self._filterlist[i]))
+                self.log.debug("position: %d, temp: %d result: %d, "
+                               "filterlist[i]: %d" %
+                               (position, temp, result, self._filterlist[i]))
             self._adevs['io_set'].move(result)
             time.sleep(3)
 
@@ -127,8 +128,8 @@ class Attenuator(HasLimits, Moveable):
         stat2 = 0
         stat3 = 0
         for i in range(5):
-            stat2 += (((stat1 >> (2*i+1)) &1) << i)
-            stat3 += (((stat1 >> (2*i)) &1) << i)
+            stat2 += (((stat1 >> (2*i+1)) & 1) << i)
+            stat3 += (((stat1 >> (2*i)) & 1) << i)
 #            if self.debug == 1:
 #                print "%d,  %d,     %d" %(stat1, stat2, stat3)
         return (stat2, stat3)

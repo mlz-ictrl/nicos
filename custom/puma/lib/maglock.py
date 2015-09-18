@@ -68,12 +68,12 @@ class MagLock(Moveable):
         if position == 'closed':
             self._adevs['io_set'].move(0)
         elif position == 'open':
-            self._adevs['io_set'].move( self._bitmask(magpos) )
+            self._adevs['io_set'].move(self._bitmask(magpos))
         else:
             self.log.info('Maglock: illegal input')
             return
 
-        time.sleep(2)  #XXX!
+        time.sleep(2)  # XXX!
 
         if self.read(0) != position:
             raise NicosError(self, 'maglock returned wrong position!')
@@ -81,15 +81,19 @@ class MagLock(Moveable):
             self.log.info('Maglock: ', self.read(0))
 
     def _read(self):
-        '''return an internal string representation of the right sensing switches'''
+        '''return an internal string representation of the right sensing
+        switches
+        '''
         magpos = self._magpos
 
 #        if magpos == 4:
 #            raise NicosError(self, 'depot at unknown position')
 #            return
         bitmask = self._bitmask(magpos)
-        val = list(map(str, [(self._adevs['io_open'].read(0) & bitmask) / bitmask,
-                             (self._adevs['io_closed'].read(0) & bitmask) / bitmask]))
+        val = list(map(str,
+                       [(self._adevs['io_open'].read(0) & bitmask) / bitmask,
+                        (self._adevs['io_closed'].read(0) & bitmask) / bitmask]
+                       ))
         self.log.debug('Sensing switches are in State %s' % val)
         return ''.join(val)
 
@@ -102,8 +106,8 @@ class MagLock(Moveable):
         elif s == '00':
             return 'UNKNOWN'
         else:
-            raise NicosError(self, 'Depot magnet switches in undefined status %s '
-                             'check switches' % s)
+            raise NicosError(self, 'Depot magnet switches in undefined status '
+                             '%s check switches' % s)
 
     def doStatus(self, maxage=0):
         s = self._read()
@@ -112,7 +116,7 @@ class MagLock(Moveable):
         elif s == '10':
             return status.OK, 'idle'
         elif s == '00':
-            return status.BUSY, 'Moving' # '? or Error!'
+            return status.BUSY, 'Moving'  # '? or Error!'
         else:
             return status.ERROR, 'maglock is in error state'
 

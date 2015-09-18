@@ -22,11 +22,12 @@
 #
 # *****************************************************************************
 
-"""Class for PUMA phi axis when psi axis must stay at the same angle relative to
-the incoming beam.  For example, when the magnet is used"""
+"""Class for PUMA phi axis when psi axis must stay at the same angle relative
+to the incoming beam.  For example, when the magnet is used"""
 
 from nicos.core import Moveable, Param, Attach
 from nicos.devices.generic.axis import Axis
+
 
 class CombAxis(Axis):
 
@@ -41,18 +42,18 @@ class CombAxis(Axis):
 
     def doInit(self, mode):
         Axis.doInit(self, mode)
-        if self.iscomb == True:
+        if self.iscomb:
             self._fixpos = self.read(0) + self._adevs['fix_ax'].read(0)
         else:
             self._fixpos = None
 
-    def doWriteIscomb(self,val):
-        if val == True:
+    def doWriteIscomb(self, val):
+        if val:
             self._fixpos = self.read(0) + self._adevs['fix_ax'].read(0)
 
     def doIsAllowed(self, pos):
-        mainax = Axis.doIsAllowed(self,pos)
-        if self.iscomb == False:
+        mainax = Axis.doIsAllowed(self, pos)
+        if not self.iscomb:
             return mainax
         relpos = self._fixpos - pos
         fixax = self._adevs['fix_ax'].isAllowed(relpos)
@@ -60,11 +61,10 @@ class CombAxis(Axis):
             return (True, 'Ok')
         else:
             return (False, '%s: %s, %s: %s' %
-                            (self, mainax[1], self._adevs['fix_ax'], fixax[1]))
+                    (self, mainax[1], self._adevs['fix_ax'], fixax[1]))
 
     def _postMoveAction(self):
-        if self.iscomb == True:
+        if self.iscomb:
             relpos = self._fixpos - self.read(0)
             self._adevs['fix_ax'].start(relpos)
             self._adevs['fix_ax'].wait()
-

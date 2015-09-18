@@ -22,12 +22,13 @@
 #
 # *****************************************************************************
 
-"""Class for PUMA phi axis when psi axis must stay at the same angle relative to
-the incoming beam.
+"""Class for PUMA phi axis when psi axis must stay at the same angle relative
+to the incoming beam.
 For example, when the magnet is used
 """
 
 from nicos.core import Moveable, Param, Attach, status
+
 
 class CombAxis(Moveable):
 
@@ -42,43 +43,47 @@ class CombAxis(Moveable):
     }
 
     def doInit(self, mode):
-        if self.iscomb == True:
-            self._fixpos = self._adevs['main_ax'].read(0) + self._adevs['fix_ax'].read(0)
+        if self.iscomb:
+            self._fixpos = self._adevs['main_ax'].read(0) + \
+                self._adevs['fix_ax'].read(0)
         else:
             self._fixpos = None
 
-    def doWriteIscomb(self,val):
-        if val == True:
-            self._fixpos = self._adevs['main_ax'].read(0) + self._adevs['fix_ax'].read(0)
+    def doWriteIscomb(self, val):
+        if val:
+            self._fixpos = self._adevs['main_ax'].read(0) + \
+                self._adevs['fix_ax'].read(0)
 
     def doIsAllowed(self, pos):
         mainax = self._adevs['main_ax'].isAllowed(pos)
-        if self.iscomb == False:
+        if not self.iscomb:
             return mainax
         relpos = self._fixpos - pos
         fixax = self._adevs['fix_ax'].isAllowed(relpos)
         if mainax[0] and fixax[0]:
             return (True, 'Ok')
         else:
-            return (False, '%s: %s, %s: %s' % (self._adevs['main_ax'], mainax[1],
-                                               self._adevs['fix_ax'], fixax[1]))
+            return (False, '%s: %s, %s: %s' % (self._adevs['main_ax'],
+                                               mainax[1],
+                                               self._adevs['fix_ax'],
+                                               fixax[1]))
 
     def doRead(self, maxage=0):
         return self._adevs['main_ax'].read(maxage)
 
-    def doStart(self,pos):
+    def doStart(self, pos):
         self._adevs['main_ax'].start(pos)
 
     def doOldWait(self):
         self._adevs['main_ax'].wait()
-        if self.iscomb == True:
+        if self.iscomb:
             relpos = self._fixpos - self._adevs['main_ax'].read(0)
-            self._adevs['fix_ax'].start(relpos) # ??? start here?????
+            self._adevs['fix_ax'].start(relpos)  # ??? start here?????
             self._adevs['fix_ax'].wait()
 
     def doStatus(self, maxage=0):
         mainax = self._adevs['main_ax'].status(maxage)
-        if self.iscomb == False:
+        if not self.iscomb:
             return mainax
         if mainax[0] == status.BUSY or mainax[0] == status.ERROR:
             return mainax

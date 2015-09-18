@@ -38,10 +38,12 @@ class Mchanger(Moveable):
         'lift': Attach('Lift', Moveable),
         'grip': Attach('Greifer', Moveable),
         'mlock': Attach('Magnetic lock', Moveable),
-        'holdstat': Attach('Read status of monochromators holders of the magazin', Readable),
-#        'foch': Attach('Horizontal focusing', Moveable),
-#        'focv': Attach('Vertical focusing', Moveable),
-        'mono_stat': Attach('Read status of monochromators on the monotable', Readable),
+        'holdstat': Attach('Read status of monochromators holders of the '
+                           'magazin', Readable),
+        # 'foch': Attach('Horizontal focusing', Moveable),
+        # 'focv': Attach('Vertical focusing', Moveable),
+        'mono_stat': Attach('Read status of monochromators on the monotable',
+                            Readable),
     }
 
     parameters = {
@@ -49,18 +51,19 @@ class Mchanger(Moveable):
                                     'for monochromator change', mandatory=True,
                                     type=dictof(str, anytype), settable=False),
         'init_positions': Param('dictionary of devices and positions '
-                                    'for monochromator start', mandatory=True,
-                                    type=dictof(str, anytype), settable=False),
-        'mapping' : Param('Mapping of valid Changer states to '
-                          'monochromatordevice used in that state',
-                          type=dictof(str,str), mandatory=True, settable=False),
+                                'for monochromator start', mandatory=True,
+                                type=dictof(str, anytype), settable=False),
+        'mapping': Param('Mapping of valid Changer states to '
+                         'monochromatordevice used in that state',
+                         type=dictof(str, str), mandatory=True,
+                         settable=False),
     }
 
-#    hardware_access = False
+#   hardware_access = False
 
     def doInit(self, mode):
-        #self._switchlist = self._adevs['holdstat']._iolist.keys()
-        #self.valuetype = oneof(*self._switchlist)
+        # self._switchlist = self._adevs['holdstat']._iolist.keys()
+        # self.valuetype = oneof(*self._switchlist)
         self.valuetype = oneof(*self.mapping)
         # replaced devicename by device and make a local copy
         devices = self.changing_positions.keys()
@@ -98,14 +101,13 @@ class Mchanger(Moveable):
 
         self._finalize()
 
-
     def doRead(self, maxage=0):
         up = self._adevs['holdstat'].read(maxage)
         down = self._adevs['mono_stat'].read(maxage)
         if up != 'None':
             if up != down:
                 raise PositionError(self, 'unknown position of %s' %
-                            self.name)
+                                    self.name)
         return self._adevs['holdstat'].read(maxage)
 
     def _startCheck(self):
@@ -113,7 +115,8 @@ class Mchanger(Moveable):
         lift_pos = self._adevs['lift'].doRead(0)
         if lift_pos != 'ref':
             raise PositionError(self, 'Lift is not at reference position.'
-                     'Please check if mono is fixed at the magazin or at the monotable')
+                                'Please check if mono is fixed at the magazin '
+                                'or at the monotable')
         return carpos
 
     def _move2start(self):
@@ -127,36 +130,37 @@ class Mchanger(Moveable):
 
         for dev, pos in self._changing_values.items():
             if abs(dev.read(0) - pos) > dev.precision:
-                raise PositionError(self, '%r did not reach target position %r' %
-                                    (dev, pos))
+                raise PositionError(self, '%r did not reach target position %r'
+                                    % (dev, pos))
 
         for dev in self._changing_values:
             dev.fix('Monochromator change in progress')
-#        self._adevs['monochromator'].fix('Monochromator change in progress') # may block change of alias!
+        # may block change of alias!
+#       self._adevs['monochromator'].fix('Monochromator change in progress')
 
         # test this!
-#        self.log.debug('Disabling Powerstages for %s' %
+#       self.log.debug('Disabling Powerstages for %s' %
 #                       ', '.join(sorted(self.changing_positions)))
-#        for dev in self.changing_positions:
-#            dev.power = 'off'
+#       for dev in self.changing_positions:
+#           dev.power = 'off'
 
     def _focusOut(self):
         self.log.info('Move focusing to the flat position')
         aliasdevice = self._adevs['monochromator']
         foch = session.getDevice(aliasdevice.alias)._adevs['focush']
         focv = session.getDevice(aliasdevice.alias)._adevs['focusv']
-        if foch != None:
+        if foch is not None:
             foch.start(0)
-        if focv != None:
+        if focv is not None:
             focv.start(0)
-        if foch != None:
+        if foch is not None:
             foch.wait()
-        if focv != None:
+        if focv is not None:
             focv.wait()
         self.log.info('Switch off the foch and focv motors')
-        if focv != None:
+        if focv is not None:
             focv.motor.power = 'off'
-        if foch != None:
+        if foch is not None:
             foch.motor.power = 'off'
 
     def _focusOn(self):
@@ -164,22 +168,21 @@ class Mchanger(Moveable):
         foch = session.getDevice(aliasdevice.alias)._adevs['focush']
         focv = session.getDevice(aliasdevice.alias)._adevs['focusv']
         self.log.info('Switch on the foch and focv motors')
-        if focv != None:
+        if focv is not None:
             focv.motor.power = 'on'
-        if foch != None:
+        if foch is not None:
             foch.motor.power = 'on'
-
 
     def _finalize(self):
         ''' to be called after a successfull monochange'''
         # test this!
-#        self.log.debug('Enabling Powerstages for %s' %
-#                       ', '.join(sorted(self.changing_positions)))
-#        for dev in self._changing_values:
-#            dev.power = 'on'
+#       self.log.debug('Enabling Powerstages for %s' %
+#                      ', '.join(sorted(self.changing_positions)))
+#       for dev in self._changing_values:
+#           dev.power = 'on'
 
         self.log.info('releasing mono devices')
-#        self._adevs['monochromator'].release()
+#       self._adevs['monochromator'].release()
         for dev in self._changing_values:
             dev.release()
         self.log.info('move mono devices to the nominal positions')
@@ -190,38 +193,39 @@ class Mchanger(Moveable):
 
         for dev, pos in self._init_values.items():
             if abs(dev.read(0) - pos) > dev.precision:
-                raise PositionError(self, '%r did not reach target position %r' % (dev, pos))
+                raise PositionError(self, '%r did not reach target position %r'
+                                    % (dev, pos))
 
-    def _moveUp(self,pos):
-#        self._change_alias('None')
+    def _moveUp(self, pos):
+        # self._change_alias('None')
 
         self._step('magazin', pos)
-        self._step('grip','open')
-        self._step('lift','bottom')
-        self._step('grip','closed')
-        self._step('r3','open')
-        self._step('mlock','open')
-        self._step('lift','top2')
-        self._step('mlock','closed')
-        self._step('lift','top1')
-        self._step('grip','open')
-        self._step('lift','ref')
-        self._step('grip','closed')
+        self._step('grip', 'open')
+        self._step('lift', 'bottom')
+        self._step('grip', 'closed')
+        self._step('r3', 'open')
+        self._step('mlock', 'open')
+        self._step('lift', 'top2')
+        self._step('mlock', 'closed')
+        self._step('lift', 'top1')
+        self._step('grip', 'open')
+        self._step('lift', 'ref')
+        self._step('grip', 'closed')
 
-    def _moveDown(self,pos):
-        self._step('magazin',pos)
-        self._step('grip','open')
-        self._step('lift','top1')
-        self._step('grip','closed')
-        self._step('lift','top2')
-        self._step('mlock','open')
-        self._step('r3','open')
-        self._step('lift','bottom')
-        self._step('r3','closed')
-        self._step('grip','open')
-        self._step('lift','ref')
-        self._step('grip','closed')
-        self._step('mlock','closed')
+    def _moveDown(self, pos):
+        self._step('magazin', pos)
+        self._step('grip', 'open')
+        self._step('lift', 'top1')
+        self._step('grip', 'closed')
+        self._step('lift', 'top2')
+        self._step('mlock', 'open')
+        self._step('r3', 'open')
+        self._step('lift', 'bottom')
+        self._step('r3', 'closed')
+        self._step('grip', 'open')
+        self._step('lift', 'ref')
+        self._step('grip', 'closed')
+        self._step('mlock', 'closed')
 
 
 #        self._change_alias(pos)
@@ -230,10 +234,11 @@ class Mchanger(Moveable):
         '''
         changes the alias of the monochomator DeviceAlias
         '''
-        aliastarget = self.mapping.get( pos, None )
+        aliastarget = self.mapping.get(pos, None)
         aliasdevice = self._adevs['monochromator']
         if aliastarget and hasattr(aliasdevice, 'alias'):
-            self.log.info('switching alias %r to %r' % (aliasdevice, aliastarget))
+            self.log.info('switching alias %r to %r' % (aliasdevice,
+                                                        aliastarget))
             aliasdevice.alias = session.getDevice(aliastarget)
         else:
             self.log.info('NOT changing Aliasdevice')
@@ -245,10 +250,10 @@ class Mchanger(Moveable):
         moves the attached_device with the keyname to the value-position.
         Also checks success
         '''
-#        if len(kwargs) != 1:
-#            raise ProgrammingError('_step called with more than '\
+#       if len(kwargs) != 1:
+#           raise ProgrammingError('_step called with more than '\
 #                                    'ONE keyworded argument!')
-#        devicename, pos = kwargs.items()[0]
+#       devicename, pos = kwargs.items()[0]
         dev = self._adevs[devicename]
         # now log some info
         if pos == 'open':
@@ -259,8 +264,8 @@ class Mchanger(Moveable):
             self.log.info('Move %s to %r position' % (dev.name, pos))
         dev.start(pos)
         dev.wait()
-        if devicename == 'r3': # R3 does not wait!
+        if devicename == 'r3':  # R3 does not wait!
             time.sleep(2)
         if dev.read(0) != pos:
-            raise PositionError('Device %r did not reach its target '
-                                 '%r, aborting' % (dev,pos))
+            raise PositionError('Device %r did not reach its target %r, '
+                                'aborting' % (dev, pos))

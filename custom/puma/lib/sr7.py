@@ -33,19 +33,22 @@ class SR7Shutter(HasTimeout, Moveable):
     """Class for the PUMA secondary shutter."""
 
     attached_devices = {
-        'sr7cl':     Attach('status of SR7 shutter closed/open', Readable),
-        'sr7p1':     Attach('status of SR7 position 1', Readable),
-        'sr7p2':     Attach('status of SR7 position 2', Readable),
-        'sr7p3':     Attach('status of SR7 position 3', Readable),
-        #'hdiacl':    Attach('status of virtual source closed/open', Readable),
-        #'stopinh':   Attach('status of emergency button active/inactive', Readable),
-        #'sr7save':   Attach('SR7 security circle ok for open the beam', Readable),
-        'sr7set':    Attach('emergency close of all shutters', Moveable),
+        'sr7cl':   Attach('status of SR7 shutter closed/open', Readable),
+        'sr7p1':   Attach('status of SR7 position 1', Readable),
+        'sr7p2':   Attach('status of SR7 position 2', Readable),
+        'sr7p3':   Attach('status of SR7 position 3', Readable),
+        # 'hdiacl':  Attach('status of virtual source closed/open',
+        #                   Readable),
+        # 'stopinh': Attach('status of emergency button active/inactive',
+        #                   Readable),
+        # 'sr7save': Attach('SR7 security circle ok for open the beam',
+        #                   Readable),
+        'sr7set':  Attach('emergency close of all shutters', Moveable),
     }
 
     parameter_overrides = {
-        'unit':      Override(mandatory=False, default=''),
-        'timeout':   Override(mandatory=False, default=5),
+        'unit':    Override(mandatory=False, default=''),
+        'timeout': Override(mandatory=False, default=5),
     }
 
     positions = ['close', 'S1', 'S2', 'S3']
