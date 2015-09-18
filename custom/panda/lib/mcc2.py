@@ -28,8 +28,8 @@
 from IO import StringIO
 
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
-     usermethod, Param, CommunicationError, HardwareError, MoveError, \
-     Device, Readable
+    usermethod, Param, CommunicationError, HardwareError, MoveError, \
+    Device, Readable
 from nicos.utils import lazy_property
 from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
 from nicos.devices.taco import TacoDevice
@@ -39,6 +39,7 @@ from nicos.pycompat import iteritems
 
 class TacoSerial(TacoDevice, Device):
     taco_class = StringIO
+
     def communicate(self, what):
         return self._taco_guard(self._dev.communicate, what)
 
@@ -46,17 +47,17 @@ class TacoSerial(TacoDevice, Device):
 class MCC2core(Device):
     """Class for comunication with MCC"""
     attached_devices = {
-        'bus' : Attach('The Serial connection to the phytron Box', TacoSerial),
+        'bus': Attach('The Serial connection to the phytron Box', TacoSerial),
     }
     parameters = {
-        'channel'       : Param('Channel of MCC2 to use (X or Y)',
-                            type = oneof('X', 'Y'), default = 'Y',
-                            prefercache = False),
-        'addr'          : Param('address of MCC2 to use (0 to 15)',
-                            type = intrange(0, 15), default = 0,
-                            prefercache = False),
-        'temperature'   : Param('temperature of MCC-2 unit in °C',
-                            type = int, settable=False, volatile=True),
+        'channel':     Param('Channel of MCC2 to use (X or Y)',
+                             type=oneof('X', 'Y'), default='Y',
+                             prefercache=False),
+        'addr':        Param('address of MCC2 to use (0 to 15)',
+                             type=intrange(0, 15), default=0,
+                             prefercache=False),
+        'temperature': Param('temperature of MCC-2 unit in °C',
+                             type=int, settable=False, volatile=True),
     }
 
     @lazy_property
@@ -68,9 +69,9 @@ class MCC2core(Device):
             cmd = cmd.replace('X', self.channel).replace('Y', self.channel)
         self.log.debug('comm: %r' % cmd)
         temp = self.bus.communicate('\x02' + hex(self.addr)[-1] + cmd + '\x03')
-        if len(temp) >= 2 and temp[0] == '\x02':   #strip beginning STX
+        if len(temp) >= 2 and temp[0] == '\x02':  # strip beginning STX
             temp = temp[1:]
-            if temp[-1] == '\x03': #strip optional ending stx
+            if temp[-1] == '\x03':  # strip optional ending stx
                 temp = temp[:-1]
             if temp[0] == '\x06':
                 self.log.debug('  ->: %r' % temp)
@@ -83,7 +84,8 @@ class MCC2core(Device):
     def doInit(self, mode):
         if mode != SIMULATION:
             if not self.comm('IVR').startswith('MCC'):
-                raise CommunicationError(self, 'No Response from Phytron, please check!')
+                raise CommunicationError(self, 'No Response from Phytron, '
+                                         'please check!')
             self._pushParams()
             self.doReset()
 
@@ -101,9 +103,9 @@ class MCC2core(Device):
         for k, v in iteritems(t):
             m = getattr(self, 'doWrite' + k.title(), None)
             if m:
-                self.log.debug(self, 'Setting %r to %r'%(k, v))
+                self.log.debug(self, 'Setting %r to %r' % (k, v))
                 m(v)
-        try: #UGLY!
+        try:  # UGLY!
             self.idlecurrent = self._config['idlecurrent']
             self.movecurrent = self._config['movecurrent']
             self.rampcurrent = self._config['rampcurrent']
@@ -133,21 +135,21 @@ class MCC2Monoframe(MCC2core, Readable):
 
     """
     parameters = {
-        'driverenable' : Param('Enable pin (Output 8)', type = bool,
-                                mandatory = False, settable = True, default = False,
-                                prefercache = False),
+        'driverenable': Param('Enable pin (Output 8)', type=bool,
+                              mandatory=False, settable=True, default=False,
+                              prefercache=False),
     }
 
     monocodes = {   # input triple : (led_num, name)
-             '000' : (None, 'empty'),
-             '111' : (1,    'Cu'),
-             '011' : (2,    'Si'),
-             '101' : (3,    'Heusler'),
-             '110' : (4,    'PG'),
+        '000': (None, 'empty'),
+        '111': (1,    'Cu'),
+        '011': (2,    'Si'),
+        '101': (3,    'Heusler'),
+        '110': (4,    'PG'),
     }
 
     def doRead(self, maxage=0):
-        self.comm('A1R2R3R4R') #all LEDs off
+        self.comm('A1R2R3R4R')  # all LEDs off
 
         monoh = self.comm('ER1;2;3')
         self.log.debug(self, 'mono_h code is ' + monoh)
@@ -156,15 +158,17 @@ class MCC2Monoframe(MCC2core, Readable):
         self.log.debug(self, 'mono_v code is ' + monov)
 
         if monoh != monov:
-            raise HardwareError(self, 'monocodes from MFV and MFH are different!')
+            raise HardwareError(self, 'monocodes from MFV and MFH are '
+                                'different!')
 
         if monoh in self.monocodes:
-            #set LED
+            # set LED
             led = self.monocodes[monoh][0]
             if led:
                 self.comm('A%dS' % led)
             else:
-                self.comm('A1S2S3S4S') # set all to indicate empty to distinguish from no power....
+                # set all to indicate empty to distinguish from no power....
+                self.comm('A1S2S3S4S')
             return self.monocodes[monoh][1]
         else:
             raise HardwareError(self, 'unknown monochromator or wires broken')
@@ -192,26 +196,26 @@ class MCC2Monoframe(MCC2core, Readable):
         self.comm('A08R')    # disable enable_pin
 
 
-
 class MCC2Coder(MCC2core, NicosCoder):
     """Class for the readout of a MCC2-coder"""
 
     codertypes = ('none', 'incremental', 'ssi-binary', 'ssi-gray')
 
     parameters = {
-        'slope'     : Param('coder units per degree of rotation', type = float,
-                             default = 1, settable = True, unit = '1/main', prefercache = False),
-        'zerosteps' : Param('coder steps at physical zero',type = int,
-                             default = 0, settable = True, prefercache = False),
-        'codertype' : Param('type of encoder', type = oneof(*codertypes),
-                             default = 'none', settable = True, prefercache = False),
-        'coderbits' : Param('number of bits of ssi-encoder', default = 0,
-                             type = intrange(0, 31), settable = True, prefercache = False),
+        'slope':     Param('coder units per degree of rotation', type=float,
+                           default=1, settable=True, unit='1/main',
+                           prefercache=False),
+        'zerosteps': Param('coder steps at physical zero', type=int,
+                           default=0, settable=True, prefercache=False),
+        'codertype': Param('type of encoder', type=oneof(*codertypes),
+                           default='none', settable=True, prefercache=False),
+        'coderbits': Param('number of bits of ssi-encoder', default=0,
+                           type=intrange(0, 31), settable=True,
+                           prefercache=False),
     }
 
-
     def doReset(self):
-        self.comm('XP39S1') #encoder conversion factor set to 1
+        self.comm('XP39S1')  # encoder conversion factor set to 1
 
     def doReadCoderbits(self):
         return int(self.comm('XP35R'))
@@ -228,22 +232,23 @@ class MCC2Coder(MCC2core, NicosCoder):
     def doRead(self, maxage=0):
         return (float(self.comm('XP22R')) - self.zerosteps) / self.slope
 
-    def doSetPosition(self,pos):
-        self.comm('XP22S%d'%int(float(pos)*self.slope+self.zerosteps))
+    def doSetPosition(self, pos):
+        self.comm('XP22S%d' % int(float(pos)*self.slope+self.zerosteps))
         return self.doRead()
-
 
 
 class MCC2Poti(MCC2core, NicosCoder):
     """Class for the readout of a MCC2-A/D converter"""
 
     parameters = {
-        'slope'     : Param('coder units per degree of rotation', type = float,
-                             default = 1, settable = True, unit = '1/main', prefercache = False),
-        'zerosteps' : Param('coder steps at physical zero',type = int,
-                             default = 0, settable = True, prefercache = False),
-        'coderbits' : Param('number of bits of ssi-encoder', default = 10,
-                             type = int, settable = False, mandatory = False, prefercache = False),
+        'slope':     Param('coder units per degree of rotation', type=float,
+                           default=1, settable=True, unit='1/main',
+                           prefercache=False),
+        'zerosteps': Param('coder steps at physical zero', type=int,
+                           default=0, settable=True, prefercache=False),
+        'coderbits': Param('number of bits of ssi-encoder', default=10,
+                           type=int, settable=False, mandatory=False,
+                           prefercache=False),
     }
 
     def doRead(self, maxage=0):
@@ -255,46 +260,53 @@ class MCC2Poti(MCC2core, NicosCoder):
         return self.doRead(0)
 
 
-
 class MCC2Motor(MCC2core, NicosMotor):
     """Class for the control of the MCC2-Stepper"""
 
     movementTypes = ('rotational', 'linear')
 
     parameters = {
-        'mccmovement' : Param('Type of movement, change behaviour of limit switches',
-                               type = oneof(*movementTypes), default = 'linear',
-                               settable = True, prefercache = False),
-        'slope'       : Param('Full motor steps per physical unit',
-                               type = float, default = 1, unit = '1/main', prefercache = False),
-        'power'       : Param('Internal power stage switch', default = 'on',
-                               type = oneofdict({0: 'off', 1: 'on'}),
-                               settable = True, volatile = True),
-        'steps'       : Param('Last position in steps', settable = True,
-                               type = int, prefercache = False),
-        'accel'       : Param('Motor acceleration in physical units', prefercache = False,
-                               type = float, settable = True, unit = '1/main**2'),
-        'microstep'   : Param('Microstepping mode', unit = 'microsteps/fullstep',
-                               type = intrange(1, 255), settable = True, prefercache = False),
-        'idlecurrent' : Param('Current whenever motor is Idle', unit = 'A',
-                               type = floatrange(0, 2.5), settable = True, prefercache = False),
-        'rampcurrent' : Param('Current whenever motor is Ramping', unit = 'A',
-                               type = floatrange(0, 2.5), settable = True, prefercache = False),
-        'movecurrent' : Param('Current whenever motor is moving at speed',
-                               type = floatrange(0, 2.5), unit = 'A', prefercache = False,
-                               settable = True),
-        'linear'      : Param('linear stage (as opposed to choppered stage)',
-                               type = bool, settable=False, volatile = True),
+        'mccmovement': Param('Type of movement, change behaviour of limit '
+                             'switches',
+                             type=oneof(*movementTypes), default='linear',
+                             settable=True, prefercache=False),
+        'slope':       Param('Full motor steps per physical unit',
+                             type=float, default=1, unit='1/main',
+                             prefercache=False),
+        'power':       Param('Internal power stage switch', default='on',
+                             type=oneofdict({0: 'off', 1: 'on'}),
+                             settable=True, volatile=True),
+        'steps':       Param('Last position in steps', settable=True,
+                             type=int, prefercache=False),
+        'accel':       Param('Motor acceleration in physical units',
+                             prefercache=False, type=float, settable=True,
+                             unit='1/main**2'),
+        'microstep':   Param('Microstepping mode', unit='microsteps/fullstep',
+                             type=intrange(1, 255), settable=True,
+                             prefercache=False),
+        'idlecurrent': Param('Current whenever motor is Idle', unit='A',
+                             type=floatrange(0, 2.5), settable=True,
+                             prefercache=False),
+        'rampcurrent': Param('Current whenever motor is Ramping', unit='A',
+                             type=floatrange(0, 2.5), settable=True,
+                             prefercache=False),
+        'movecurrent': Param('Current whenever motor is moving at speed',
+                             type=floatrange(0, 2.5), unit='A',
+                             prefercache=False, settable=True),
+        'linear':      Param('linear stage (as opposed to choppered stage)',
+                             type=bool, settable=False, volatile=True),
     }
 
-    def doReset( self ):
-        self.comm('XC')  # Reset Axis (handbook is vague...)
-        self.comm('XP02S1')  # unit = steps
-        self.comm('XP03S1')  # unity slope
-        self.comm('XP04S20') # lowest frequency which is Ok whithout ramp
-        self.comm('XP17S2') # ramping uses boostcurrent
-        self.comm('XP25S0') # no backlash correction, this is done in the axis code
-        self.comm('XP27S0') # Limit switches are openers (normally closed=n.c.)
+    def doReset(self):
+        self.comm('XC')       # Reset Axis (handbook is vague...)
+        self.comm('XP02S1')   # unit = steps
+        self.comm('XP03S1')   # unity slope
+        self.comm('XP04S20')  # lowest frequency which is Ok whithout ramp
+        self.comm('XP17S2')   # ramping uses boostcurrent
+        # no backlash correction, this is done in the axis code
+        self.comm('XP25S0')
+        # Limit switches are openers (normally closed=n.c.)
+        self.comm('XP27S0')
 
     @usermethod
     def printcurrents(self):
@@ -388,18 +400,23 @@ class MCC2Motor(MCC2core, NicosMotor):
         return self.doReadMicrostep()
 
     def doReadSpeed(self):
-        return float(self.comm('XP14R')) / float(self.microstep * abs( self.slope ))
+        return float(self.comm('XP14R')) / float(self.microstep *
+                                                 abs(self.slope))
 
     def doWriteSpeed(self, value):
-        f = max(0, min(40000, value * abs( self.slope ) * self.microstep))
+        f = max(0, min(40000, value * abs(self.slope) * self.microstep))
         self.comm('XP14S%d' % int(f))
         return self.doReadSpeed()
 
     def doReadAccel(self):
-        return float(self.comm('XP15R')) / float(self.microstep * abs( self.slope )) ** 2
+        return float(self.comm('XP15R')) / \
+            float(self.microstep * abs(self.slope)) ** 2
 
     def doWriteAccel(self, value):
-        f = max(4000, min(500000, 4000 * round((value * (abs(self.slope) * self.microstep) ** 2) / 4000)))
+        f = max(4000, min(500000, 4000 *
+                          round((value *
+                                 (abs(self.slope) * self.microstep) ** 2)
+                                / 4000)))
         self.comm('XP15S%d' % int(f))
         return self.doReadAccel()
 
@@ -420,15 +437,16 @@ class MCC2Motor(MCC2core, NicosMotor):
     def doSetPosition(self, newpos):
         ''' set current position to given value'''
         d = int(newpos * self.slope * self.microstep)
-        self.comm('XP20S%d XP21S%d XP19S%d' % (d, d, d)) # set all counters
+        self.comm('XP20S%d XP21S%d XP19S%d' % (d, d, d))  # set all counters
 
     def doStatus(self, maxage=0):
-        sui = self.comm('SUI')[ ['X', 'Y', 'Z', 'W'].index(self.channel) ]
-        st = int(self.comm('ST')) #for reading enable switch
+        sui = self.comm('SUI')[['X', 'Y', 'Z', 'W'].index(self.channel)]
+        st = int(self.comm('ST'))  # for reading enable switch
         t = self._readSE()
-        sl = ['Overcurrent', 'Undervoltage', 'Overtemperature', 'Driver enabled',
-            'Limit switch - active', 'Limit switch + active', 'stepping error',
-            'Encoder error', 'Motor halted', 'referenced']
+        sl = ['Overcurrent', 'Undervoltage', 'Overtemperature',
+              'Driver enabled', 'Limit switch - active',
+              'Limit switch + active', 'stepping error',
+              'Encoder error', 'Motor halted', 'referenced']
         s = ''
 
         sc = status.OK

@@ -38,34 +38,38 @@ class SatBox(HasTimeout, TacoDevice, Moveable):
     """
     Device Object for PANDA's Attenuator
 
-    controlled by a WUT-device via a ModBusTCP interface via a ModBus TACO Server.
+    controlled by a WUT-device via a ModBusTCP interface via a ModBus TACO
+    Server.
     """
     taco_class = Modbus
 
     valuetype = int
 
     parameters = {
-        'blades'    : Param('Thickness of the blades, starting with lowest bit',
+        'blades':     Param('Thickness of the blades, starting with lowest '
+                            'bit',
                             type=listof(floatrange(0, 1000)), mandatory=True),
         'slave_addr': Param('Modbus-slave-addr (Beckhoff=0, WUT=1)',
-                            type=int,mandatory=True),
-        'addr_out'  : Param('Base Address for activating Coils',
                             type=int, mandatory=True),
-        'addr_in'   : Param('Base Address for reading switches giving real blade state',
+        'addr_out':   Param('Base Address for activating Coils',
                             type=int, mandatory=True),
-        'readout'   : Param('Determine blade state from output or from switches',
-                            type=oneof('switches','outputs'), mandatory=True,
+        'addr_in':    Param('Base Address for reading switches giving real'
+                            'blade state',
+                            type=int, mandatory=True),
+        'readout':    Param('Determine blade state from output or from '
+                            'switches',
+                            type=oneof('switches', 'outputs'), mandatory=True,
                             default='output', chatty=True),
     }
 
     parameter_overrides = {
-        'timeout' : Override(default=5),
+        'timeout': Override(default=5),
     }
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
         if mode != SIMULATION:
-            if self.slave_addr == 0: # only disable Watchdog for Beckhoff!
+            if self.slave_addr == 0:  # only disable Watchdog for Beckhoff!
                 self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
 
     def _readOutputs(self, maxage=0):
@@ -91,7 +95,8 @@ class SatBox(HasTimeout, TacoDevice, Moveable):
         return tuple(realstate)
 
     def doRead(self, maxage=0):
-        bladestate = self._readSwitches() if self.readout == 'switches' else self._readOutputs()
+        bladestate = self._readSwitches() if self.readout == 'switches' else \
+            self._readOutputs()
         # only sum up blades which are used for sure (0/None->ignore)
         return sum(b * r for b, r in zip(self.blades, bladestate) if r)
 
@@ -119,7 +124,7 @@ class SatBox(HasTimeout, TacoDevice, Moveable):
             return self.start(rpos + 1)
         self.log.debug('setting blades: %s' %
                        [s * b for s, b in zip(which, self.blades)]
-                      )
+                       )
         self._taco_guard(self._dev.writeMultipleCoils,
                          (self.slave_addr, self.addr_out) + tuple(which))
         if self.readout == 'output':

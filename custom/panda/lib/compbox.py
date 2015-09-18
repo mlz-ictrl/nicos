@@ -47,8 +47,8 @@ class WaterControlBox(TacoDevice, Readable):
     }
 
     waterStates = {
-         0: 'off',
-         1: 'on',
+        0: 'off',
+        1: 'on',
     }
 
     def doRead(self, maxage=0):

@@ -28,6 +28,7 @@
 from nicos.core import usermethod, status
 from nicos.devices.vendor.ipc import Motor as _Motor
 
+
 # create a workaround class, not resetting
 class Motor(_Motor):
     def doReset(self):
@@ -41,7 +42,6 @@ class Motor(_Motor):
     @usermethod
     def reallyReset(self):
         _Motor.reset(self)
-
 
 
 #
@@ -99,6 +99,7 @@ Firmware-upgrade of the cards is impossible, as the developer is no longer
 available and we dont have access to the sourcecode....
 """
 
+
 # create a workaround class
 # if using this, please rename the class!
 class MotorUntested(_Motor):
@@ -119,12 +120,11 @@ class MotorUntested(_Motor):
             _Motor.reset(self)
             # move by one step (so far this always worked)
             if self.doReadSteps() & 1:
-                bus.send(self.addr, 35) # go in negative direction
+                bus.send(self.addr, 35)  # go in negative direction
             else:
-                bus.send(self.addr, 34) # go in positive direction
+                bus.send(self.addr, 34)  # go in positive direction
             # do ONE step (basically toggling the least-significant bit)
             bus.send(self.addr, 46, 1, 6)
             self.wait()
         else:
             _Motor.reset(self)
-

@@ -60,11 +60,11 @@ from nicos.core import Param, Override, LimitError, multiWait, Attach
 from nicos.core.params import floatrange, tupleof
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.abstract import MappedMoveable
-#~ from nicos.devices.taco import CurrentSupply
+# from nicos.devices.taco import CurrentSupply
 from nicos.devices.taco.io import AnalogOutput
 
 
-################################################################################
+###############################################################################
 # configuration
 # 'orient' gives the field produced by coil i (i=0,1,2) by 'current' in XYZ
 # coordinates fixed to the spectrometer limits are currently given here too....
@@ -73,9 +73,9 @@ from nicos.devices.taco.io import AnalogOutput
 # - Y is 'to the left'
 # - Z is # 'up' (pointing to the sky)
 # - Y is chosen to have right-handed system....
-################################################################################
+###############################################################################
 
-#~ class VectorCoil(CurrentSupply):
+# class VectorCoil(CurrentSupply):
 class VectorCoil(AnalogOutput):
     """ Vectorcoil is a device to control a coil which creates a field a the
     sample position.
@@ -85,17 +85,17 @@ class VectorCoil(AnalogOutput):
     devices are used.
     """
     parameters = {
-        'orientation' : Param('Field vector which is created by this coil in '
-                              'mT (measured value!)',
-                              settable=True, default=(1., 1., 1.),
-                              type=tupleof(float, float, float), unit='mT',
-                              category='general',
+        'orientation': Param('Field vector which is created by this coil in '
+                             'mT (measured value!)',
+                             settable=True, default=(1., 1., 1.),
+                             type=tupleof(float, float, float), unit='mT',
+                             category='general',
                              ),
-        'calibrationcurrent' : Param('Current in A which created the field '
-                                     'given as Parameter orientation.',
-                                     settable=True, default=1., type=float,
-                                     unit='A',
-                                     category='general',
+        'calibrationcurrent': Param('Current in A which created the field '
+                                    'given as Parameter orientation.',
+                                    settable=True, default=1., type=float,
+                                    unit='A',
+                                    category='general',
                                     ),
     }
 
@@ -103,7 +103,7 @@ class VectorCoil(AnalogOutput):
 class AlphaStorage(VirtualMotor):
     """ Storage for the spectrometers \\alpha value """
     parameter_overrides = {
-        'speed' :       Override(default=0.),
+        'speed': Override(default=0.),
     }
 
     _callback = None
@@ -124,44 +124,45 @@ class GuideField(MappedMoveable):
     a given current needs the alpha-virtualmotor for calculations
     """
     attached_devices = {
-        'alpha' : Attach('Device which provides the current \\alpha',
-                         AlphaStorage),
-        'coils' : Attach('List of 3 devices used for the vector field',
-                         VectorCoil, multiple=3),
+        'alpha': Attach('Device which provides the current \\alpha',
+                        AlphaStorage),
+        'coils': Attach('List of 3 devices used for the vector field',
+                        VectorCoil, multiple=3),
     }
     parameter_overrides = {
-        'mapping'   : Override(mandatory=False, type=dict,
-                               default={'off'   : None,
-                                        'perp'  : ( 1., 0., 0.),
-                                        '-perp' : (-1., 0., 0.),
-                                        'par'   : ( 0., 1., 0.),
-                                        '-par'  : ( 0.,-1., 0.),
-                                        'z'     : ( 0., 0., 1.),
-                                        '-z'    : ( 0., 0.,-1.),
-                                        'up'    : ( 0., 0., 1.),
-                                        'down'  : ( 0., 0.,-1.),
-                                        '0'     : ( 0., 0., 0.),
-                                       }),
-        'blockingmove' : Override(default=False),
-        'precision' : Override(mandatory=False),
+        'mapping':      Override(mandatory=False, type=dict,
+                                 default={'off':   None,
+                                          'perp':  (1., 0., 0.),
+                                          '-perp': (-1., 0., 0.),
+                                          'par':   (0., 1., 0.),
+                                          '-par':  (0., -1., 0.),
+                                          'z':     (0., 0., 1.),
+                                          '-z':    (0., 0., -1.),
+                                          'up':    (0., 0., 1.),
+                                          'down':  (0., 0., -1.),
+                                          '0':     (0., 0., 0.),
+                                          }),
+        'blockingmove': Override(default=False),
+        'precision':    Override(mandatory=False),
     }
     parameters = {
-        'background' : Param('Static magnetic field which is always present and'
-                             ' should be corrected.',
-                             type=tupleof(float,float,float), unit='mT',
-                             settable='True', default=(0., 0., 0.),
-                             category='general',
+        'background': Param('Static magnetic field which is always present and'
+                            ' should be corrected.',
+                            type=tupleof(float, float, float), unit='mT',
+                            settable='True', default=(0., 0., 0.),
+                            category='general',
                             ),
-        'field'         : Param('absolute value of the desired field at the '
-                                'sample position.',
-                                type=floatrange(0.1, 100), unit='mT',
-                                settable='True', default=25.,
-                                category='general',
-                               ),
+        'field':      Param('absolute value of the desired field at the '
+                            'sample position.',
+                            type=floatrange(0.1, 100), unit='mT',
+                            settable='True', default=25.,
+                            category='general',
+                            ),
     }
 
     _currentmatrix = None
     _currentmatrix_inv = None
+
     @lazy_property
     def coils(self):
         return self._adevs['coils']
@@ -172,10 +173,10 @@ class GuideField(MappedMoveable):
 
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)
-        M = np.zeros([3,3])
+        M = np.zeros([3, 3])
         for i in range(3):
             for j in range(3):
-                M[i, j] = (self.coils[j].orientation[i] / \
+                M[i, j] = (self.coils[j].orientation[i] /
                            self.coils[j].calibrationcurrent)
         self._currentmatrix = M
         self._currentmatrix_inv = np.linalg.inv(M)
@@ -198,14 +199,14 @@ class GuideField(MappedMoveable):
             self.coils[1].doStart(0.0)
             self.coils[2].doStart(0.0)
 
-    #no _readRaw, as self.target is the unmapped (Higher level) value
+    # no _readRaw, as self.target is the unmapped (Higher level) value
     def doRead(self, maxage=0):
         return self.target
 
     def _B2I(self, B=np.array([0.0, 0.0, 0.0])):
         """rotate the requested field around z-axis by beta first we get alpha
-        from the spectrometer alpha is the angle between X-axis and \\vec{Q} and
-        is in degrees
+        from the spectrometer alpha is the angle between X-axis and \\vec{Q}
+        and is in degrees
         """
         # read alpha, calculate beta
         alpha = self.alpha.read(0)
@@ -229,38 +230,38 @@ class GuideField(MappedMoveable):
             [0.0, 0.0, 1.0]])
         return np.dot(RR, np.dot(self._currentmatrix, I))
 
-    def _setfield(self, B=np.array([0,0,0])):
+    def _setfield(self, B=np.array([0, 0, 0])):
         r"""set the given field and returns the actual field (computed from the
         actual currents)
         field components are:
         * Bqperp: component perpendicular to q, but within the scattering plane
         * Bqpar:  component parallel to q (within scattering plane)
         * Bz:     component perpendicular to the scattering plane
-        (if TwoTheta==0 & \\hbar\\omega=0 then this coordinate-system is the same
-        as the XYZ of the coils)
+        (if TwoTheta==0 & \\hbar\\omega=0 then this coordinate-system is the
+        same as the XYZ of the coils)
         """
-        # subtract offset (The field, which is already there, doesn't need to be
-        # generated....)
+        # subtract offset (The field, which is already there, doesn't need to
+        # be generated....)
         B = B - np.array(self.background)
-        F = self._B2I(B) # compute currents for requested field
+        F = self._B2I(B)  # compute currents for requested field
 
         # now check limits
         valueOk = True
         for i, d in enumerate(self.coils):
             check = d.isAllowed(F[i])
-            if check[0] == False:
-                self.log.error('Can\'t set %r to %s: %s' % \
+            if not check[0]:
+                self.log.error('Can\'t set %r to %s: %s' %
                                (d, d.format(F[i], unit=True), check[1]), exc=1)
                 valueOk = False
 
-        if valueOk == False:
+        if not valueOk:
             raise LimitError(check[1])
 
         # go there
         for i, d in enumerate(self.coils):
             d.start(F[i])
 
-        if self.blockingmove == False:
+        if not self.blockingmove:
             return
 
         # wait to get there

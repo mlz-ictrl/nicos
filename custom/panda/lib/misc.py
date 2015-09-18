@@ -22,20 +22,21 @@
 #
 # *****************************************************************************
 
-"""Device class to avoid driving the 7T5 magnet to the same field (crashes the TACOServer)"""
+"""Device class to avoid driving the 7T5 magnet to the same field (crashes the
+TACOServer)"""
 
 from nicos.core import Param
 from nicos.devices.taco import AnalogOutput
 
 
-class PrecisionAnalogOut( AnalogOutput ):
+class PrecisionAnalogOut(AnalogOutput):
 
     parameters = {
         'precision': Param('Moving Precision',
                            type=float, settable=True, default=1e-3),
     }
 
-    def doStart( self, target ):
+    def doStart(self, target):
         if abs(self.read(0) - target) < self.precision:
             return
-        return AnalogOutput.doStart( self, target )
+        return AnalogOutput.doStart(self, target)
