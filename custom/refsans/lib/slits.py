@@ -136,20 +136,20 @@ class Slit(CanReference, Moveable):
             for r in self.rightshapes:
                 self._shapes[l+'x'+r] = l, r
 
-        self.parameters['shape'].type.vals = sorted(self._shapes.keys())
-        self.parameters['leftshape'].type.vals = sorted(self.leftshapes.keys())
-        self.parameters['rightshape'].type.vals = sorted(self.rightshapes.keys())
+        self.parameters['shape'].type.vals = sorted(self._shapes)
+        self.parameters['leftshape'].type.vals = sorted(self.leftshapes)
+        self.parameters['rightshape'].type.vals = sorted(self.rightshapes)
 
         # sanity checks (raising here would prevent the device from being
         #                created, so you can adjust the wrong value!)
         if self.leftshape not in self.leftshapes:
             self.log.warning('unknown left shape %r, using %r instead' % \
-                             (self.leftshape, self.leftshapes.keys()[0]))
-            self._setROParam('leftshape', self.leftshapes.keys()[0])
+                             (self.leftshape, list(self.leftshapes)[0]))
+            self._setROParam('leftshape', list(self.leftshapes)[0])
         if self.rightshape not in self.rightshapes:
             self.log.warning('unknown right shape %r, using %r instead' % \
-                             (self.rightshape, self.rightshapes.keys()[0]))
-            self._setROParam('rightshape', self.rightshapes.keys()[0])
+                             (self.rightshape, list(self.rightshapes)[0]))
+            self._setROParam('rightshape', list(self.rightshapes)[0])
 
         # init private stuff
         self._leftOpening = Opening(*self.leftshapes[self.leftshape])

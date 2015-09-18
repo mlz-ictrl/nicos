@@ -35,7 +35,7 @@ from nicos.core import NicosError, UsageError
 from nicos.utils import printTable
 from nicos.utils.fitting import Fit
 from nicos.utils.analyze import estimateFWHM
-from nicos.pycompat import string_types
+from nicos.pycompat import string_types, xrange as range  # pylint: disable=W0622
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import cscan
 from nicos.commands.device import maw

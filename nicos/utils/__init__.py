@@ -57,7 +57,8 @@ except ImportError:
     pwd = grp = None
 
 from nicos import config
-from nicos.pycompat import iteritems, string_types, xrange as range  # pylint: disable=W0622
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
+from nicos.pycompat import iteritems, string_types, text_type
 
 
 class attrdict(dict):
@@ -1004,6 +1005,8 @@ def syncFile(fileObj):
 
 def decodeAny(string):
     """Try to decode the string from UTF-8 or latin9 encoding."""
+    if isinstance(string, text_type):
+        return string
     try:
         return string.decode('utf-8')
     except UnicodeError:
@@ -1017,10 +1020,12 @@ _SAFE_FILE_CHARS = frozenset('-=+_.,()[]{}0123456789abcdefghijklmnopqrstuvwxyz'
 _BAD_NAMES = frozenset(('.', '..', 'con', 'prn', 'aux', 'nul') +
                        tuple('com%d' for d in range(1, 10)) +
                        tuple('lpt%d' for d in range(1, 10)))
-def safe_name(what, _SAFE_FILE_CHARS=_SAFE_FILE_CHARS):
+
+
+def safeName(what, _SAFE_FILE_CHARS=_SAFE_FILE_CHARS):
     '''returns a cleanup-version of the given string, which could e.g. be used for filenames'''
     # normalize: é -> e, Â->A, etc.
-    s = unicodedata.normalize('NFKD', decodeAny(what)).encode('ascii', 'ignore')
+    s = unicodedata.normalize('NFKD', decodeAny(what))
     # map unwanted characters (including space) to '_'
     s = ''.join(c if c in _SAFE_FILE_CHARS else '_' for c in s)
     # collate multiple '_'
@@ -1079,6 +1084,6 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
                         actionOnFail()
 
                     sleep(timeout)
-            raise
+                    raise
         return wrapper
     return outer

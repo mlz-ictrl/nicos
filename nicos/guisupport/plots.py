@@ -38,6 +38,7 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotGrid, QwtLegend, \
 from nicos.guisupport.timeseries import TimeSeries, buildTimeTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.guisupport.utils import extractKeyAndIndex
+from nicos.pycompat import zip_longest
 
 
 class ActivePlotPicker(QwtPlotPicker):
@@ -242,7 +243,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
                 series.add_value(time, value)
 
     def registerKeys(self):
-        for key, name in map(None, self.props['devices'], self.props['names']):
+        for key, name in zip_longest(self.props['devices'], self.props['names']):
             if name is None:
                 name = key
             key, index = extractKeyAndIndex(key)

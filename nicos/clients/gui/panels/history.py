@@ -90,7 +90,7 @@ class View(QObject):
                 if history:
                     first_value = history[0][1]
                     if index == -1 and isinstance(first_value, (list, tuple)):
-                        real_indices = range(len(first_value))
+                        real_indices = list(range(len(first_value)))
             for index in real_indices:
                 name = '%s[%d]' % (key, index) if index > -1 else key
                 series = TimeSeries(name, interval, window, self,
@@ -708,7 +708,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         return [self.bar]
 
     def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter', b'', QByteArray)
+        self.splitterstate = settings.value('splitter', '', QByteArray)
         presetval = settings.value('presets')
         if presetval is not None:
             # there may be a problem reading the preset value...
@@ -795,7 +795,7 @@ class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 
         self.settings = CompatSettings()
         self.splitter.restoreState(
-            self.settings.value('splitstate', b'', QByteArray))
+            self.settings.value('splitstate', '', QByteArray))
 
         self.app = app
         self.setCentralWidget(self.splitter)

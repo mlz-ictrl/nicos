@@ -401,7 +401,7 @@ class TearOffTabWidget(QTabWidget):
             detachWindow.setWidget(widget)
             detachWindow.connect(self, SIGNAL('destroyed'),
                                  detachWindow.deleteLater)
-            detachWindow.restoreGeometry(settings.value('geometry', b'',
+            detachWindow.restoreGeometry(settings.value('geometry', '',
                                                         QByteArray))
             detachWindow.show()
 

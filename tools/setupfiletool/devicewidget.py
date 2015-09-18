@@ -31,6 +31,7 @@ from PyQt4.QtCore import pyqtSignal
 from setupfiletool.deviceparam import DeviceParam
 
 from nicos.guisupport.typedvalue import create
+from nicos.pycompat import string_types
 
 
 class DeviceWidget(QWidget):
@@ -78,12 +79,12 @@ class DeviceWidget(QWidget):
         self.paramList.addWidget(classParam)
         self.currentWidgets.append(classParam)
 
-        for param, value in device.parameters.iteritems():
+        for param, value in device.parameters.items():
             isUnkownValue = False
             try:
                 typ = myClass.parameters[param].type
             except (AttributeError, KeyError):
-                if isinstance(value, basestring):
+                if isinstance(value, string_types):
                     # this is why can't have nice things
                     isUnkownValue = False
                 else:

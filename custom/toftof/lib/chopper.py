@@ -34,6 +34,7 @@ from nicos.core import Readable, Moveable, HasLimits, Param, Override, Attach,\
     HasTimeout
 from nicos.devices.taco import TacoDevice
 from nicos.core import SIMULATION
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 from nicos.toftof import calculations as calc
 

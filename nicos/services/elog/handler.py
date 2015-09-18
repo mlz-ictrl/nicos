@@ -389,7 +389,8 @@ class Handler(object):
         links = []
         for fpath, name in zip(fpaths, names):
             fullname = path.join(self.logdir, name)
-            oname = name; i = 0
+            oname = name
+            i = 0
             while path.exists(fullname):
                 i += 1
                 name = oname + str(i)

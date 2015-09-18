@@ -119,7 +119,8 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self._mouseSelEnabled = self.getMouseSelectionEnabled()
 
         dictPrintType = dict(gr.PRINT_TYPE)
-        map(dictPrintType.pop, [gr.PRINT_JPEG, gr.PRINT_TIF])
+        for prtype in [gr.PRINT_JPEG, gr.PRINT_TIF]:
+            dictPrintType.pop(prtype)
         self._saveTypes = (";;".join(dictPrintType.values()) + ";;" +
                            ";;".join(gr.GRAPHIC_TYPE.values()))
         gr.setmarkersize(NicosGrPlot.GR_MARKER_SIZE)
@@ -281,12 +282,12 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
                 if selectedItem == actionClipboard:
                     fitter = event.roi.reference
                     text = '\n'.join(
-                                     (n + '\t' if n else '\t') +
-                                     (v + '\t' if isinstance(v, string_types)
-                                      else '%g\t' % v) +
-                                     (dv if isinstance(dv, string_types)
-                                      else '%g' % dv)
-                                     for (n, v, dv) in fitter.interesting)
+                        (n + '\t' if n else '\t') +
+                        (v + '\t' if isinstance(v, string_types)
+                         else '%g\t' % v) +
+                        (dv if isinstance(dv, string_types)
+                         else '%g' % dv)
+                        for (n, v, dv) in fitter.interesting)
                     QApplication.clipboard().setText(text)
 
     def on_mouseMove(self, event):
@@ -338,21 +339,20 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         dialog.setNameFilterDetailsVisible(True)
         dialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
         if dialog.exec_() == QtGui.QDialog.Accepted:
-            qpath = dialog.selectedFiles()[0]
-            if qpath:
-                path = unicode(qpath)
+            path = dialog.selectedFiles()[0]
+            if path:
                 _p, suffix = os.path.splitext(path)
                 if suffix:
                     suffix = suffix.lower()
                 else:
                     # append selected name filter suffix (filename extension)
                     nameFilter = dialog.selectedNameFilter()
-                    for k, v in gr.PRINT_TYPE.iteritems():
+                    for k, v in gr.PRINT_TYPE.items():
                         if v == nameFilter:
                             suffix = '.' + k
                             path += suffix
                             break
-                if suffix and (suffix[1:] in gr.PRINT_TYPE.keys() or
+                if suffix and (suffix[1:] in gr.PRINT_TYPE or
                                suffix[1:] in gr.GRAPHIC_TYPE):
                     self.save(path)
                     saveName = os.path.basename(path)

@@ -22,17 +22,19 @@
 #
 # *****************************************************************************
 
+from nicos.pycompat import from_utf8
+
 from test import test_console
 
 
 def test_shell():
     test_console.console.stdin.write(b'NewSetup("axis")\n1/0\nread()\n')
     stdout, _ = test_console.console.communicate()
-    stdout = stdout.splitlines()
+    stdout = from_utf8(stdout).splitlines()
 
     assert 'nicos: setups loaded: startup' in stdout
     assert 'nicos: setups loaded: axis' in stdout
-    assert 'nicos: >>> 1/0' in stdout
+    assert any(line.endswith('nicos: >>> 1/0') for line in stdout)
     assert 'nicos: ZeroDivisionError - division by zero' in stdout
-    assert 'nicos: >>> read()' in stdout
+    assert any(line.endswith('nicos: >>> read()') for line in stdout)
     assert 'nicos: shutting down...' in stdout

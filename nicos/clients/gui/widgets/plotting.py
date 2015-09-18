@@ -34,7 +34,7 @@ import numpy as np
 from nicos.utils.fitting import Fit
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
-from nicos.pycompat import exec_
+from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'

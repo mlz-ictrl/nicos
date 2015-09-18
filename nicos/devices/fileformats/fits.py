@@ -81,7 +81,7 @@ class FITSFileFormat(ImageSink):
             for dev, attr, attrVal in dataSets:
                 header['%s/%s' % (dev.name, attr)] = attrVal
 
-        for key, value in header.iteritems():
+        for key, value in iteritems(header):
             # The FITS standard defines max 8 characters for a header key.
             # To make longer keys possible, we use the HIERARCH keyword
             # here (67 chars max).

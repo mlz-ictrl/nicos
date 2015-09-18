@@ -32,7 +32,7 @@ from collections import namedtuple
 from nicos import session
 from nicos.core import status
 from nicos.core.errors import MoveError, PositionError
-from nicos.pycompat import reraise, to_ascii_escaped
+from nicos.pycompat import reraise, to_ascii_escaped, listitems
 
 
 # user access levels
@@ -65,7 +65,7 @@ def devIter(devices, baseclass=None, onlydevs=False, recurse=False):
         baseclass = Device
     # convert dict to list of name:dev tuples
     if isinstance(devices, dict):
-        devices = devices.items()
+        devices = listitems(devices)
     else:
         # we iterate twice: make sure to convert generators
         # to a list first
@@ -402,7 +402,6 @@ class DeviceValueDict(object):
         except Exception:
             session.log.warning("invalid key %r requested, returning %r" % (key, res), exc=1)
         finally:
-            if isinstance(res, str):
+            if isinstance(res, bytes):
                 res = to_ascii_escaped(res)
             return res  # pylint: disable=W0150
-

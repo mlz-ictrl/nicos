@@ -102,9 +102,9 @@ def fixup_stacked_devices(logger, devdict):
     while patched:
         patched = False
         # iter over all devices
-        for devname, dev in devdict.items():
+        for devname, dev in listitems(devdict):
             # iter over all key=value pairs for dict
-            for subname, config in dev[1].items():
+            for subname, config in listitems(dev[1]):
                 if isinstance(config, Device):  # need to fixup!
                     newname = add_new_dev(devname, subname, config)
                     dev[1][subname] = newname

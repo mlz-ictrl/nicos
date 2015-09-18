@@ -105,6 +105,8 @@ class FitResult(object):
     def __nonzero__(self):
         return not self._failed
 
+    __bool__ = __nonzero__
+
 
 class Fit(object):
     def __init__(self, model, parnames=None, parstart=None,

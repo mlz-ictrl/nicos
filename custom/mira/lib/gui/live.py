@@ -92,7 +92,7 @@ class LiveDataPanel(Panel):
                      self.on_widget_customContextMenuRequested)
 
     def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter', b'', QByteArray)
+        self.splitterstate = settings.value('splitter', '', QByteArray)
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())

@@ -33,6 +33,7 @@ from PyQt4.QtCore import Qt, QSize
 
 from nicos.core.status import OK, BUSY
 from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.pycompat import string_types
 
 
 ledColors = set(["blue", "green", "red", "yellow", "orange"])
@@ -177,15 +178,13 @@ class ClickableOutputLed(ValueLed):
     def propertyUpdated(self, pname, value):
         ValueLed.propertyUpdated(self, pname, value)
 
-        if isinstance(value, unicode):
-            value = value.encode('ascii', 'ignore')
         if pname == 'stateInactive':
-            if isinstance(value, str):
+            if isinstance(value, string_types):
                 self._stateInactive = value
             else:
                 self._stateInactive = ast.literal_eval(value) if value else 0
         if pname == 'stateActive':
-            if isinstance(value, str):
+            if isinstance(value, string_types):
                 self._stateActive = value
             else:
                 self._stateActive = ast.literal_eval(value) if value else 1

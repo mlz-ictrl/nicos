@@ -25,6 +25,8 @@
 
 """Q'n'D, hacked together GUI for debugging PANDA's Monochanger"""
 
+from __future__ import print_function
+
 # This is supposed to be a custom instrument specific stand-alone tool!
 
 import sys
@@ -375,10 +377,10 @@ class MainWindow(QMainWindow):
             self._bus = ModbusTcpClient('wechsler.panda.frm2')
             self._bus.connect()
             self._sync()
-            print "PLC conforms to spec %.4f" % self.ReadFloat(0)
+            print("PLC conforms to spec %.4f" % self.ReadFloat(0))
         except Exception:
-            print "Modbus failed, using demo mode!"
-            self._bus=None
+            print("Modbus failed, using demo mode!")
+            self._bus = None
 
         self._sync()
 

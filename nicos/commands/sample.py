@@ -36,7 +36,7 @@ from nicos.commands import usercommand
 from nicos.commands.output import printdebug, printinfo, printwarning
 from nicos.utils import printTable
 from nicos.utils.analyze import estimateFWHM
-from nicos.pycompat import urllib
+from nicos.pycompat import urllib, xrange as range  # pylint: disable=W0622
 from nicos.utils.fitting import Fit
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
 

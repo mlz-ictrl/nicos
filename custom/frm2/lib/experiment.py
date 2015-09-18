@@ -32,7 +32,7 @@ import time
 from os import path
 from nicos import session
 from nicos.core import Param, Override, usermethod
-from nicos.utils import safe_name
+from nicos.utils import safeName
 from nicos.frm2.proposaldb import queryCycle, queryProposal
 from nicos.devices.experiment import Experiment as BaseExperiment, \
     ImagingExperiment as BaseImagingExperiment
@@ -199,13 +199,13 @@ class ImagingExperiment(Experiment, BaseImagingExperiment):
 
         date = time.strftime('%F').replace('-', '_')
         return path.join(self.proposalpath, '..',
-                         safe_name('%s-%s-%s-%s' %
-                                   (date, user, self.proposal, self.title)))
+                         safeName('%s-%s-%s-%s' %
+                                  (date, user, self.proposal, self.title)))
 
     @usermethod
     def newSample(self, name, parameters):
         """Called by `.NewSample`. and `.NewExperiment`."""
-        self.sampledir = safe_name(name)
+        self.sampledir = safeName(name)
 
         Experiment.newSample(self, name, parameters)
 

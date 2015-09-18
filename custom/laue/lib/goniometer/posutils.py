@@ -26,6 +26,8 @@
 Utility functions for position module
 """
 
+from __future__ import print_function
+
 import numpy as np
 
 
@@ -36,7 +38,7 @@ def sign(x):
 def matvec(m, v):
     """Multiply a matrix with a 3D vector, or any array of vectors"""
     v = np.array(v, copy=0)
-    ax = range(1, len(v.shape)) + [0]
+    ax = list(range(1, len(v.shape))) + [0]
     return np.transpose(np.inner(m, v), axes=ax)
 
 
@@ -127,15 +129,15 @@ if __name__ == "__main__":
     v1 = np.array((1, 2, 3))
     v2 = np.array((4, 5, 6))
 
-    print 'length -> 3.74165738677'
-    print np.linalg.norm(v1)
+    print('length -> 3.74165738677')
+    print(np.linalg.norm(v1))
 
-    print 'vectorangle -> 0.225726128553'
-    print vectorangle(v1, v2)
+    print('vectorangle -> 0.225726128553')
+    print(vectorangle(v1, v2))
 
     m = np.array((1, 0, 0, 0, 2, 0, 0, 0, 3)).reshape(3, 3)
-    print 'volume -> 6'
-    print np.linalg.det(m)
+    print('volume -> 6')
+    print(np.linalg.det(m))
 
-    print 'Vrot'
-    print Vrot((1, 2, 3), 0.5)
+    print('Vrot')
+    print(Vrot((1, 2, 3), 0.5))

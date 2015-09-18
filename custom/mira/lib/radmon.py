@@ -23,19 +23,19 @@
 # *****************************************************************************
 
 import subprocess
-from urllib2 import HTTPBasicAuthHandler, build_opener
 
 from nicos.core import Readable, NicosError, status
+from nicos.pycompat import urllib
 
 
 class RadMon(Readable):
 
     def doInit(self, mode):
-        h = HTTPBasicAuthHandler()
+        h = urllib.HTTPBasicAuthHandler()
         h.add_password(realm='Administrator or User',
                        uri='http://miracam.mira.frm2/IMAGE.JPG',
                        user='rgeorgii', passwd='rg.frm2')
-        self._op = build_opener(h)
+        self._op = urllib.build_opener(h)
 
     def doRead(self, maxage=0):
         img = self._op.open('http://miracam.mira.frm2/IMAGE.JPG').read()

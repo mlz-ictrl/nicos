@@ -53,7 +53,7 @@ def test_attach_class():
     # test repr
     a = Attach('description', MyClass, optional=True, multiple=[3, 4])
     assert repr(a) == "Attach('description', " \
-                      "<class 'test.test_basic.test_params.MyClass'>, " \
+                      "test.test_basic.test_params.MyClass, " \
                       "multiple=[3, 4], optional=True)"
 
     # test check()
@@ -66,8 +66,8 @@ def test_attach_class():
     a = Attach('description', MyClass, optional=True)
     assert a.check('devname', 'aname', None) == [None]
     assert a.check('devname', 'aname', 1) == [1]
-    assert a.check('devname', 'aname', [1]) ==[1]
-    assert raises(ConfigurationError, a.check,'devname', 'aname', [1, 2])
+    assert a.check('devname', 'aname', [1]) == [1]
+    assert raises(ConfigurationError, a.check, 'devname', 'aname', [1, 2])
 
     a = Attach('description', MyClass, multiple=True)
     assert raises(ConfigurationError, a.check, 'devname', 'aname', None)
@@ -197,7 +197,7 @@ def test_tangodev():
     for validname in valid_names:
         assert tangodev(validname) == validname
 
-    for key, invalidname in invalid_names.iteritems():
+    for key, invalidname in invalid_names.items():
         assert raises(ValueError, tangodev, invalidname), key
 
 

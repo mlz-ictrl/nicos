@@ -31,7 +31,7 @@ from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, fixup_sta
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.tacostubs import generate_stubs
 from nicos.clients.gui.config import prepareGuiNamespace
-from nicos.pycompat import exec_
+from nicos.pycompat import string_types, integer_types, exec_
 
 # get default custom paths
 default_dirs = [path.join(config.custom_path, p.strip(), 'setups')
@@ -195,7 +195,7 @@ class SetupChecker(object):
             self.log.warning("%s: class %r has no 'attached_devices'",
                              devname, cls.__name__)
         else:
-            for aname, ainfo in cls.attached_devices.iteritems():
+            for aname, ainfo in cls.attached_devices.items():
                 try:
                     ainfo.check(None, aname, config.get(aname))
                 except ConfigurationError as err:
@@ -221,7 +221,7 @@ class SetupChecker(object):
                 if not config.get('description') and not is_special:
                     self.log.warning('%s: device has no description', devname,
                                      extra=self.find_deventry(devname))
-            for pname, pinfo in cls.parameters.iteritems():
+            for pname, pinfo in cls.parameters.items():
                 if pname in config:
                     try:
                         pinfo.type(config[pname])
@@ -312,7 +312,7 @@ class SetupChecker(object):
                                extra=self.find_global('includes'))
 
         # check for types of recognized variables
-        for (vname, vtype) in [('description', (str, unicode)),
+        for (vname, vtype) in [('description', string_types),
                                # group is already checked against a fixed list
                                ('sysconfig', dict),
                                ('includes', list),
@@ -331,15 +331,15 @@ class SetupChecker(object):
         aliascfg = self.ns.get('alias_config', {})
         if isinstance(aliascfg, dict):  # else we complained above already
             for aliasname, entrydict in aliascfg.items():
-                if not (isinstance(aliasname, basestring) and
+                if not (isinstance(aliasname, string_types) and
                         isinstance(entrydict, dict)):
                     self.log_error('alias_config entries should map alias '
                                    'device names to a dictionary',
                                    extra=self.find_global('alias_config'))
                     continue
                 for target, prio in entrydict.items():
-                    if not (isinstance(target, basestring) and
-                            isinstance(prio, (int, long)) and
+                    if not (isinstance(target, string_types) and
+                            isinstance(prio, integer_types) and
                             not(isinstance(prio, bool))):
                         self.log_error('alias_config entries should map device '
                                        'names to integer priorities',
@@ -352,7 +352,7 @@ class SetupChecker(object):
                         break
 
         # check for valid device classes (if importable) and parameters
-        for devname, devconfig in self.ns.get('devices', {}).iteritems():
+        for devname, devconfig in self.ns.get('devices', {}).items():
             self.check_device(devname, devconfig, group == 'special')
 
         # return overall "ok" flag

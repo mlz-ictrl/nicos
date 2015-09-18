@@ -136,12 +136,14 @@ class Dataset(object):
         # if updatedict is not empty, only update those devices & positions, else all
         if updatedict:
             headerinfo = self.headerinfo
-            devices = zip(*sorted(iteritems(updatedict),
-                          key=lambda dev_and_val: dev_and_val[0].name.lower()))[0]
+            devices = list(zip(*sorted(
+                iteritems(updatedict),
+                key=lambda dev_and_val: dev_and_val[0].name.lower())))[0]
         else:
             headerinfo = {}
-            devices = zip(*sorted(iteritems(session.devices),
-                          key=lambda name_and_dev: name_and_dev[0].lower()))[1]
+            devices = list(zip(*sorted(
+                iteritems(session.devices),
+                key=lambda name_and_dev: name_and_dev[0].lower())))[1]
 
         bycategory = {}
         for device in devices:

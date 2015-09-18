@@ -102,7 +102,7 @@ class Stargate(tango.DigitalOutput):
         if len(value) != 11:
             raise InvalidValueError(self, 'list must have 11 entries')
         # map everything to 0 or 1
-        value = map(bool, value)
+        value = [bool(v) for v in value]
         # check allowed positions
         if value == [True] * 11:
             # open everything is allowed

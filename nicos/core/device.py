@@ -43,7 +43,7 @@ from nicos.core.errors import NicosError, ConfigurationError, \
     ProgrammingError, UsageError, LimitError, ModeError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
-from nicos.pycompat import reraise, add_metaclass, iteritems, \
+from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
     string_types, integer_types, number_types
 
 
@@ -126,7 +126,7 @@ class DeviceMeta(DeviceMixinMeta):
         attrs['__constructed__'] = True
         # to debug MRO problems you could use this line
         # print 'MRO:', newtype, newtype.mro()
-        for adevname, entry in newtype.attached_devices.items():
+        for adevname, entry in listitems(newtype.attached_devices):
             # adev names are always lowercased
             if adevname != adevname.lower():
                 raise ProgrammingError('%r device: attached device name %r is '

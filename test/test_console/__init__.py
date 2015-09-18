@@ -29,7 +29,6 @@ import sys
 import signal
 import subprocess
 from os import path
-from time import sleep
 
 from test.utils import TestSession, cleanup, rootdir, startCache, killCache, \
     adjustPYTHONPATH

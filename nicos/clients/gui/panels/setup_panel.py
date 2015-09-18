@@ -33,7 +33,7 @@ from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.clients.gui.panels import Panel, AuxiliaryWindow, PanelDialog
 from nicos.clients.gui.utils import loadUi, DlgUtils
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, listitems
 from nicos.core.params import mailaddress
 from nicos.core import ConfigurationError
 
@@ -439,7 +439,7 @@ class SetupsPanel(Panel, DlgUtils):
                 wid = self._aliasWidgets[aliasname] = AliasWidget(self, aliasname,
                                                                   selections)
                 layout.addWidget(wid)
-        for name, wid in self._aliasWidgets.items():
+        for name, wid in listitems(self._aliasWidgets):
             if name not in alias_config:
                 layout.takeAt(layout.indexOf(wid)).widget().deleteLater()
                 del self._aliasWidgets[name]

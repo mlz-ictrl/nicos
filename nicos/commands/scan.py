@@ -33,6 +33,7 @@ from nicos.core.scan import Scan, SweepScan, ContinuousScan, ManualScan, \
 from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printwarning
 from nicos.pycompat import iteritems, number_types, string_types
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 
 __all__ = [

@@ -91,7 +91,7 @@ class DeviceDocumenter(ClassDocumenter):
         basecmdinfo = []
         if hasattr(self.object, 'commands'):
             n = 0
-            for name, (args, doc) in sorted(self.object.commands.iteritems()):
+            for name, (args, doc) in sorted(self.object.commands.items()):
                 func = getattr(self.object, name)
                 funccls = func.__module__ + '.' + func.__self__.__class__.__name__
                 if funccls != myclsname:
@@ -117,7 +117,7 @@ class DeviceDocumenter(ClassDocumenter):
             self.add_line('**Attached devices**', '<autodoc>')
             self.add_line('', '<autodoc>')
             for adev, attach in sorted(
-                    self.object.attached_devices.iteritems()):
+                    self.object.attached_devices.items()):
                 if attach.multiple:
                     n = ''
                     if isinstance(attach.multiple, tuple):
@@ -137,7 +137,7 @@ class DeviceDocumenter(ClassDocumenter):
             self.add_line('', '<autodoc>')
         baseparaminfo = []
         n = 0
-        for param, info in sorted(self.object.parameters.iteritems()):
+        for param, info in sorted(self.object.parameters.items()):
             if info.classname is not None and info.classname != myclsname:
                 baseparaminfo.append((param, info))
                 continue

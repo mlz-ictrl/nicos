@@ -88,6 +88,7 @@ copper_hkl = {
     'Cu 4,0,0': 0.9038,
 }
 
+
 def check_powderrays(ki, dlist, phi=None):
     lines1_list = {}
     lines2_list = {}

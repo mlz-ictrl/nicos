@@ -29,4 +29,3 @@ for i in range(8):
                                    tacodevice = '//%s/box/piface/out_%d' % (nethost, i,),
                                    maxage =5,
                                    pollinterval = 2)
-

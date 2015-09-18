@@ -260,7 +260,7 @@ class Slit(CanReference, Moveable):
                 Value('%s.top' % self, unit=self.unit, fmtstr='%.2f')
 
     def doStatus(self, maxage=0):
-        return multiStatus(zip(self._axnames, self._axes))
+        return multiStatus(list(zip(self._axnames, self._axes)))
 
     def doReadUnit(self):
         return self._adevs['left'].unit
@@ -420,7 +420,7 @@ class TwoAxisSlit(CanReference, Moveable):
             Value('%s.height' % self, unit=self.unit, fmtstr='%.2f')
 
     def doStatus(self, maxage=0):
-        return multiStatus(zip(self._slitnames, self._slits))
+        return multiStatus(list(zip(self._slitnames, self._slits)))
 
     def doReadUnit(self):
         return self._adevs['horizontal'].unit

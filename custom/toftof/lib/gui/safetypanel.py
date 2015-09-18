@@ -57,7 +57,7 @@ class SafetyPanel(Panel):
         settings.setValue('headers', self.table.horizontalHeader().saveState())
 
     def loadSettings(self, settings):
-        self._headerstate = settings.value('headers', b'', QByteArray)
+        self._headerstate = settings.value('headers', '', QByteArray)
 
     def clear(self):
         self.table.clearContents()

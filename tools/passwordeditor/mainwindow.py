@@ -270,7 +270,7 @@ class MainWindow(QMainWindow):
     def removeAllPasswords(self):
         #called when hashing changes: It's neccessary to enter all passwords
         #again, so they can be hashed in the new way.
-        for _, value in self.users.iteritems():
+        for _, value in self.users.items():
             value.password = ''
 
     def toggleEditable(self):
@@ -307,7 +307,7 @@ class MainWindow(QMainWindow):
         print('')
 
     def debugUsers(self):
-        for _, value in self.users.iteritems():
+        for _, value in self.users.items():
             print(value.userName)
             print(value.password)
             print(value.userLevel)
@@ -331,7 +331,7 @@ class MainWindow(QMainWindow):
         #put information in self.users, e.g. the User() classes, into tuples
         #and put them back into self.info['file']['devices']['Auth'][1][passwd]
         del self.authDict['passwd'][:]
-        for _, value in self.users.iteritems():
+        for _, value in self.users.items():
             self.authDict['passwd'].append((value.userName,
                                             value.password,
                                             value.userLevel))
@@ -368,7 +368,7 @@ class MainWindow(QMainWindow):
 
         add('sysconfig = dict(\n')
         for key, value in self.info[
-            self.loadedScript]['sysconfig'].iteritems():
+            self.loadedScript]['sysconfig'].items():
             add('    ' + str(key) + ' = ' + repr(value) + ',\n')
         add(')\n\n')
 
@@ -378,7 +378,7 @@ class MainWindow(QMainWindow):
         self.info[self.loadedScript]['devices'] = OrderedDict(
             sorted(self.info[self.loadedScript]['devices'].items()))
         for deviceName, deviceInfo in self.info[
-            self.loadedScript]['devices'].iteritems():
+            self.loadedScript]['devices'].items():
             add('    ' + str(deviceName) + ' = device(')
             indent = '              ' + (' ' * len(deviceName)) #fancy indent
 
@@ -388,7 +388,7 @@ class MainWindow(QMainWindow):
             else:
                 add(repr(deviceInfo[0]) + ',\n')
 
-            for deviceParam, paramValue in deviceInfo[1].iteritems():
+            for deviceParam, paramValue in deviceInfo[1].items():
                 add(indent + str(deviceParam) + ' = ')
                 if deviceParam == 'passwd':
                     add('[\n')

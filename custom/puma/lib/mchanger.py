@@ -23,10 +23,13 @@
 # *****************************************************************************
 
 """Monochromator changer"""
+
 import time
+
 from nicos import session
 from nicos.core import PositionError, Moveable, Readable, Param, Attach, \
     oneof, dictof, anytype, multiWait
+# from nicos.pycompat import list
 
 
 class Mchanger(Moveable):
@@ -66,10 +69,10 @@ class Mchanger(Moveable):
         # self.valuetype = oneof(*self._switchlist)
         self.valuetype = oneof(*self.mapping)
         # replaced devicename by device and make a local copy
-        devices = self.changing_positions.keys()
+        devices = list(self.changing_positions)
         self._changing_values = dict(zip(map(session.getDevice, devices),
                                          self.changing_positions.values()))
-        devices = self.init_positions.keys()
+        devices = list(self.init_positions)
         self._init_values = dict(zip(map(session.getDevice, devices),
                                      self.init_positions.values()))
 

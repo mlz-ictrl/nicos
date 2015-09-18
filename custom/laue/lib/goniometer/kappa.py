@@ -31,6 +31,8 @@ All angle move clockwise for positive values.
 to allow conversions, the kappa-angle alpha needs to be known
 '''
 
+from __future__ import print_function
+
 from nicos.laue.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
@@ -48,7 +50,7 @@ class Kappa(PositionBase):
         """ Constructor. Part of Position subclass protocol.
         """
         PositionBase.__init__(self)
-        self.alpha = np.deg2rad(60)  #TODO: get from experiment?
+        self.alpha = np.deg2rad(60)  # TODO: get from experiment?
         if p:
             self.theta = p.theta
             self.omega = p.omega
@@ -87,7 +89,7 @@ class Kappa(PositionBase):
         """ Conversion. Part of Position subclass protocol.
         """
         if self.kappa is None:
-            print "DBG> Convert incomplete kappa to eulerian!"
+            print("DBG> Convert incomplete kappa to eulerian!")
             return PositionFactory(ptype='e',
                                    theta=self.theta)
         halfkappa = 0.5 * self.kappa

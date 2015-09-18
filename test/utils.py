@@ -343,10 +343,10 @@ def killCache(cache):
 
 
 def hasGnuplot():
-    ''' Check for the presence of gnuplot in the environment
+    """Check for the presence of gnuplot in the environment.
 
-        To be used with the `requires` decorator.
-    '''
+    To be used with the `requires` decorator.
+    """
     try:
         gpProcess = subprocess.Popen(b'gnuplot', shell=True, stdin=subprocess.PIPE,
                                      stdout=None)
@@ -361,8 +361,10 @@ def hasGnuplot():
 def getCachePort():
     return int(os.environ.get('NICOS_CACHE_PORT', 14877))
 
+
 def getCacheNameAndPort(host):
     return '%s:%d' % (host, getCachePort())
+
 
 def getDaemonPort():
     return int(os.environ.get('NICOS_DAEMON_PORT', 14874))

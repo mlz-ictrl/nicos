@@ -165,7 +165,7 @@ class DevicesPanel(Panel):
         settings.setValue('headers', self.tree.header().saveState())
 
     def loadSettings(self, settings):
-        self._headerstate = settings.value('headers', b'', QByteArray)
+        self._headerstate = settings.value('headers', '', QByteArray)
 
     def hideTitle(self):
         self.titleLbl.setVisible(False)

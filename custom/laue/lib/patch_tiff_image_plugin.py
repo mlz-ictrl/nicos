@@ -32,8 +32,7 @@ import array
 import itertools
 from PIL import Image
 from PIL.TiffImagePlugin import native_prefix, STRIPOFFSETS, X_RESOLUTION, \
-                                Y_RESOLUTION, COLORMAP, IPTC_NAA_CHUNK, \
-                                PHOTOSHOP_CHUNK, ICCPROFILE, XMP
+    Y_RESOLUTION, COLORMAP, IPTC_NAA_CHUNK, PHOTOSHOP_CHUNK, ICCPROFILE, XMP
 from PIL._util import isStringType  # pylint: disable=E0611,F0401
 
 

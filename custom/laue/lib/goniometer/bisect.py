@@ -28,6 +28,8 @@ Bisect
 class for storing a bisecting position.
 """
 
+from __future__ import print_function
+
 from nicos.laue.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
@@ -85,7 +87,7 @@ class Bisecting(PositionBase):
         try:
             chi = np.arctan2(sinche, cosche)
         except ValueError:
-            print "B-E Chi problem:", self
+            print("B-E Chi problem:", self)
             chi = 0.0
         if sinchb == 0 and sinpsi == 0:
             omega = self.theta - 90.0 * (signcb - 1.0)
@@ -98,14 +100,14 @@ class Bisecting(PositionBase):
             try:
                 omega = np.arctan2(sinome, cosome) + self.theta
             except ValueError:
-                print "Oops:", self
+                print("Oops:", self)
                 omega = 0.0
             sinphe = -signch * signcb * sinpsi
             cosphe = signch * signth * signcb * sinchb * cospsi
         try:
             phi = np.arctan2(sinphe, cosphe) + self.phi
         except ValueError:
-            print "Oops:", self
+            print("Oops:", self)
             phi = 0.0
         return PositionFactory(ptype='er',
                                theta=self.theta,

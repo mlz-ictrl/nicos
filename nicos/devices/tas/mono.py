@@ -31,6 +31,7 @@ from time import time
 from nicos.core import Attach, ComputationError, HasLimits, HasPrecision, \
     LimitError, Moveable, Override, Param, ProgrammingError, listof, multiReset, \
     multiStatus, oneof, status, MASTER, SIMULATION
+from nicos.pycompat import listvalues
 
 
 THZ2MEV = 4.1356675
@@ -164,7 +165,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         self._axisprecision *= 1.25
 
     def doReset(self):
-        multiReset(self._adevs.values())
+        multiReset(listvalues(self._adevs))
         self._focwarnings = 3
 
     def doStart(self, pos):

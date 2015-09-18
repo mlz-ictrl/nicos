@@ -32,6 +32,8 @@
 # This is still a nicos1 module!
 """ Module for moving the NOK's and Apertures on REFSANS """
 
+from __future__ import print_function
+
 """
 MP was here!
 doing cear it!
@@ -299,38 +301,38 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             self.upper = upper
             self.recursive_break = 0
 
-            if Debug: print 'formal<'
-            if Debug: print index,
+            if Debug: print('formal<')
+            if Debug: print(index,)
             old = False #not Debug
             indexname = ['r','s']
             if False: #Debug:
                 try:
                     #if Debug:
-                    print 'new','test/'+upper.name+'/'+'m'+indexname[index],
+                    print('new','test/'+upper.name+'/'+'m'+indexname[index],)
                     #print sp+':','test/'+upper.name+'/'+indexname[index]+subparts[sp]
                     self.motor     = Motor.Motor(    'test/'+upper.name+'/'+'m'+indexname[index])
-                    print '1m','test/'+upper.name+'/'+'e'+indexname[index],'ACHTUNG enc spinnt',
+                    print('1m','test/'+upper.name+'/'+'e'+indexname[index],'ACHTUNG enc spinnt',)
                     self.enc       = Encoder.Encoder('test/'+upper.name+'/'+'e'+indexname[index])
-                    print '1e',
+                    print('1e',)
                     #QAD aber wegen Setpos MP 30.08.2010 13:45:04
-                    print '1e',
+                    print('1e',)
                     self.sll       = IO.DigitalInput('test/'+upper.name+'/'+'s'+indexname[index]+'ll')
-                    print '1ll',
+                    print('1ll',)
                     self.shl       = IO.DigitalInput('test/'+upper.name+'/'+'s'+indexname[index]+'hl')
-                    print '1hl',
+                    print('1hl',)
                     self.sref      = IO.DigitalInput('test/'+upper.name+'/'+'s'+indexname[index]+'ref')
-                    print '1bl',
+                    print('1bl',)
                     self._backlash = upper.backlash
-                    print '1ref',
+                    print('1ref',)
                     self._refPoint = upper.refpos[index]
-                    print '1'
+                    print('1')
                 except:
                     old = True
-                    if Debug: print 'formal<'
+                    if Debug: print('formal<')
 
             if True: #old:
                 #if Debug:
-                print 'old',upper.motor[index],
+                print('old',upper.motor[index],)
                 self.motor     = Motor.Motor(upper.motor[index])
                 self.enc       = Encoder.Encoder(upper.encoder[index])
                 #QAD aber wegen Setpos MP 30.08.2010 13:45:04
@@ -341,7 +343,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 self._refPoint = upper.refpos[index]
 
             if not IPCSMS: self.bus = upper.bus
-            if Debug: print 'ENC:cl_poti',
+            if Debug: print('ENC:cl_poti',)
             self.encoder = cl_poti(self.name)
 
             self.flags = {\
@@ -353,10 +355,10 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             if not self.__Debug:
                 try :
                     Taco = self.motor.deviceState()
-                    if Debug:print TACOStates.stateDescription(Taco)
+                    if Debug: print(TACOStates.stateDescription(Taco))
                     if Taco == TACOStates.FAULT :
                     #self.motor.deviceReset()
-                        print 'is in FAULT'
+                        print('is in FAULT')
                     if Taco != TACOStates.ON:
                         if self.motor.isDeviceOff(): self.motor.deviceOn()
                         if self.motor.isDeviceOff(): self.motor.deviceOn()
@@ -371,13 +373,13 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     #if Debug: print 'new Achs init for startstyle'
                 try :
                     if SSO(self.__startstyle,'quick'):
-                        if Debug: print 'Servertest',
+                        if Debug: print('Servertest',)
                         Taco = self.motor.deviceState()
                         if Taco == TACOStates.FAULT :
                             #self.motor.deviceReset()
-                            print 'is in FAULT'
+                            print('is in FAULT')
                     if SSO(self.__startstyle,'normal'):
-                        if Debug: print 'Server full',
+                        if Debug: print('Server full',)
                         if Taco != TACOStates.ON:
                             if self.motor.isDeviceOff(): self.motor.deviceOn()
                             if self.motor.isDeviceOff(): self.motor.deviceOn()
@@ -386,11 +388,11 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                         if self.sll.isDeviceOff():   self.sll.deviceOn()
                         if self.shl.isDeviceOff():   self.shl.deviceOn()
                         if self.sref.isDeviceOff():  self.sref.deviceOn()
-                    else: print TACOStates.stateDescription(Taco),
+                    else: print(TACOStates.stateDescription(Taco),)
                 except :
                     pass
             self.no('_NOKAxis__','motor')
-            if Debug: print 'Achse done>',
+            if Debug: print('Achse done>',)
             #if Debug: print '2 self.encoder',self.encoder
 
         def setbacklash(self, val) :
@@ -490,10 +492,10 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             !!! Bereichsfehler
             """
             Debug = self.__Debug and False
-            if Debug: print 'motorstart',self.name,units
+            if Debug: print('motorstart',self.name,units)
             if self.__readonly: self.ll_log('motorstart '+str(units)+' BLOCKED',True)
             else:               self.motor.start(units)
-            if Debug: print 'done'
+            if Debug: print('done')
             return
             maxRead = 1
             Readcount = 1
@@ -625,13 +627,13 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 if IPCSMS: self.MOTORctrl.forward()
                 else:      self.bus.send(sad, 34)
             except:
-                print "Could not set 'forward' on address %d" % sad
+                print("Could not set 'forward' on address %d" % sad)
                 raise
             try :
                 if IPCSMS: self.MOTORctrl.startref(curspeed)
                 else:      self.bus.send(sad, 47, curspeed, 3)
             except :
-                print "Could not start reference move on address %d" % sad
+                print("Could not start reference move on address %d" % sad)
                 raise
 
         def wait (self):
@@ -684,19 +686,19 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             Gives some information about the current state of the axis.
             """
             try :
-                print "Motor position : ", self.motor.read()
+                print("Motor position : ", self.motor.read())
                 #print "Encoder Position : ", self.read() #MP 29.12.2009 08:31:05
-                print "Low limit switch : ", self.sll.read()
-                print "High limit switch : ", self.shl.read()
-                print "Reference switch : ", self.sref.read()
+                print("Low limit switch : ", self.sll.read())
+                print("High limit switch : ", self.shl.read())
+                print("Reference switch : ", self.sref.read())
             except TACOError :
-                print "Could not get the status"
+                print("Could not get the status")
 
         #-----------------------------------------------------------------------
         def doSetPar (self,lable,Data):
             """keep deviceState"""
             Debug = self.__Debug and False
-            if Debug: print 'AXES setpar ',lable,' to ',Data
+            if Debug: print('AXES setpar ',lable,' to ',Data)
             #self.yes.enter_setpar(self.motor.deviceQueryResource(lable),Data)
             line = 'setpar %s from %s to %s'%(str(lable),self.motor.deviceQueryResource(lable),str(Data))
             if self.__readonly:
@@ -708,10 +710,10 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             else:
                 makeON = True
                 self.motor.deviceOff()
-            if Debug: print 'deviceState:',TACOStates.stateDescription(self.motor.deviceState())
-            if Debug: print 'makeON =',makeON
+            if Debug: print('deviceState:',TACOStates.stateDescription(self.motor.deviceState()))
+            if Debug: print('makeON =',makeON)
             self.motor.deviceUpdateResource(lable,str(Data))
-            if Debug: print 'witten'
+            if Debug: print('witten')
             if makeON: self.motor.deviceOn()
         #-----------------------------------------------------------------------
         def problem (self,ort,exc_info):
@@ -727,7 +729,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             time.sleep(1.0)
             if True or Debug:
                 if   '><'                                                              in line:
-                    print 'und?'             #ist zu sehen
+                    print('und?')             #ist zu sehen
                     raise Error('Keybord!')  #wird abgefangen!
                 elif   'cannot execute command : Lost connection to the device server' in line: pass #self.serverlock()
                 elif   'RPC client call timed out'                                     in line: pass
@@ -755,8 +757,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     try:    state=self.motor.deviceState()
                     except: state='readerror'
                     if Debug:
-                        if type(state) == type(''): print state
-                        else:                       print TACOStates.stateDescription(state)
+                        if type(state) == type(''): print(state)
+                        else:                       print(TACOStates.stateDescription(state))
                     for i in will:
                         if state == i:return
                     time.sleep(10)
@@ -822,7 +824,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         Debug = self.__Debug #and False
         Zeitmessung = Debug and False
         res = 'doInit nok'
-        if Debug: print res,
+        if Debug: print(res,)
         Debug = False
         if startstyle == '':startstyle=self.__startstyle
         dauer = cl_zeitpunkt()
@@ -874,24 +876,24 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             #self.typ = 'kanal' for NOKs  [A,  A] auch kanal kann masken habe: [NL RK TK VK]
             #self.typ = 'achse' wie gehabet compatible
             if Debug and False:
-                print #formal
-                print 'for Convert',Tmasktable
+                print() #formal
+                print('for Convert',Tmasktable)
             try:
                 for k in Tmasktable.keys():
-                    if Debug: print 'mask %5s'%k,
+                    if Debug: print('mask %5s'%k,)
                     for a in range(len(Tmasktable[k])):Tmasktable[k][a] = float(Tmasktable[k][a])
-                    if Debug: print 'read',
+                    if Debug: print('read',)
                     try:   open   = Tmasktable[k][2]
                     except:open   = 0.0
                     try:   offset = Tmasktable[k][3]
                     except:offset = 0.0
                     #if False: #wie gehabt
                     if self.naxes == 1:
-                        if Debug: print 'extract',
+                        if Debug: print('extract',)
                         if True: #erweitern, alles speichern
                             Tmasktable[k].append(Tmasktable[k][1])
                             Tmasktable[k][1] = Tmasktable[k][0]
-                        if Debug: print 'calculate',
+                        if Debug: print('calculate',)
                         Tmasktable[k][0] = Tmasktable[k][0] + offset
                         """ die indizex:
                         in geometrie.inf stehen die Werte 1 bis 2
@@ -903,13 +905,13 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                         #    print 'Developing'
                         #    raise Error('Developing')
                     elif self.naxes == 2:
-                        if Debug: print 'extract',
+                        if Debug: print('extract',)
                         if True: #erweitern, alles speichern
                             Tmasktable[k].append(Tmasktable[k][2])
                             Tmasktable[k].append(Tmasktable[k][3])
                             Tmasktable[k][2] = Tmasktable[k][0]
                             Tmasktable[k][3] = Tmasktable[k][1]
-                        if Debug: print 'calculate',
+                        if Debug: print('calculate',)
                         Tmasktable[k][0] = Tmasktable[k][0] + open/2 + offset
                         Tmasktable[k][1] = Tmasktable[k][1] - open/2 + offset
                         """ die indizex:
@@ -923,14 +925,14 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                         """
                     else:
                         line = 'suspishus element %d'%self.naxes
-                        if Debug: print #formal
-                        print line
+                        if Debug: print() #formal
+                        print(line)
                         raise Error(line)
                     #while len(Tmasktable[k])>2:Tmasktable[k].pop()
-                    if Debug: print '<'
+                    if Debug: print('<')
             except:
-                if Debug: print 'Fehler Convert config file'
-            if Debug and False: print 'nach Convert',Tmasktable
+                if Debug: print('Fehler Convert config file')
+            if Debug and False: print('nach Convert',Tmasktable)
             self.mask = '' #nur Init
             if maskchange                     and \
               Tmasktable    == self.masktable and \
@@ -945,7 +947,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             self.width        = Twidth
             self.beamtoleranz = Tbeamtoleranz
         except:
-            if Debug: print 'Geometrie laden fail so simple achse'
+            if Debug: print('Geometrie laden fail so simple achse')
             self.typ = 'achse' #wie bisher
         #-----------------------------------------------------------------------
         if SSO(startstyle,'normal'):
@@ -956,12 +958,12 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 print
                 dic = {'simple':'fatal doget fail proof: positon, Encoder, resources'}
             numeric = None
-            if dic['simple'] != 'ready': print 'no numeric init >%s< '%dic['simple'],
+            if dic['simple'] != 'ready': print('no numeric init >%s< '%dic['simple'],)
             else:                        numeric = dic['read'] #pos mit alten Parameter (masken)
-            try:    print self.mask,
-            except: print 'achse',
+            try:    print(self.mask,)
+            except: print('achse',)
         else: self.maskoffset = None
-        if SSO(startstyle,'show'): print numeric,
+        if SSO(startstyle,'show'): print(numeric,)
         #if Debug: print #formal
         #-----------------------------------------------------------------------
         dauer.read('recourcen laden (proof) todo',Zeitmessung)
@@ -974,18 +976,18 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         elif maskchange == 1: res = 'old:'+str(old)+'new:'+str(numeric)
         elif maskchange == 2: res = ' ok '
         else:                 raise Error('ill maskchange code >%s<'%str(maskchange))
-        print res,
+        print(res,)
         #-----------------------------------------------------------------------
         dauer.read('loading Parameter from resourses.inf',Zeitmessung)
         resources = self.try_ConfigObj(self.__resources_file+self.__file_sufix)
         try:    self.param = resources[self.name]
-        except: print 'NO parameters',
+        except: print('NO parameters',)
         dauer.read('Pfertig',Zeitmessung)
         if SSO(startstyle,'proof'):
             info=' proof FAIL!'
             if self.proof_resources(False): info=' proofed'
-            else:                           print
-            print info,
+            else:                           print()
+            print(info,)
             res += info
         self.diary = self.doDiary
         return res
@@ -1038,7 +1040,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             line = 'unknown mask >%s<'%usemask
             self.ll_log(line)
             raise Error(line)
-        if Debug: print 'naxes',self.naxes,'a_pos',a_pos,'usemask',usemask
+        if Debug: print('naxes',self.naxes,'a_pos',a_pos,'usemask',usemask)
 
 
 
@@ -1047,10 +1049,10 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #if Debug: print 'vor',self.mask,self.maskoffset
         get=self.enter_move(a_pos)
         #if Debug: print 'nach',self.mask,self.maskoffset
-        if Debug: print '_nok doStart:',
+        if Debug: print('_nok doStart:',)
         #-----------------------------------------------------------------------
         if self.typ == 'mask':
-            if Debug: print 'typ == mask'
+            if Debug: print('typ == mask')
             #if self.maskoffset == None:
             #if not usemask:
             if usemask == 'achse':
@@ -1065,7 +1067,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 if   self.naxes == 1:
                     #if type(usemask) == type(''):
                     if usemask == True:usemask = self.mask
-                    if Debug: print usemask,self.mask
+                    if Debug: print(usemask,self.mask)
                     pos = self.masktable[usemask][0] + a_pos[0]
                     self.ll_log('print P:%s U:%s '%(str(pos),str(a_pos)),True)
                     a_pos= [pos]
@@ -1075,7 +1077,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     else :               hight = a_pos[1]
                     #if type(usemask) == type(''):
                     if usemask == True:usemask = self.mask
-                    if Debug: print usemask,self.mask
+                    if Debug: print(usemask,self.mask)
                     reactor = hight + self.masktable[usemask][0] - (self.width - a_pos[0]) / 2.0
                     sample  = hight + self.masktable[usemask][1] + (self.width - a_pos[0]) / 2.0
                     #else:
@@ -1086,10 +1088,10 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     a_pos= [reactor, sample]
                 else:
                     line = 'naxes %s'%self.naxes
-                    print line
+                    print(line)
                     raise Error(line)
         else:
-            if Debug: print 'typ:',self.typ
+            if Debug: print('typ:',self.typ)
             while len(a_pos) < len(self._axes): a_pos.append(a_pos[0])
         #if Debug: print 'a_pos:',a_pos,get
         #-----------------------------------------------------------------------
@@ -1099,7 +1101,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 raise OutofBoundsError("Given target position would increase the positive inclination")
             elif self.neginclination < 0 and diff < 0 and diff < self.neginclination :
                 raise OutofBoundsError("Given target position would decrease the negative inclination")
-        if Debug: print 'passed inclination Test'
+        if Debug: print('passed inclination Test')
         #-----------------------------------------------------------------------
         #-----------------------------------------------------------------------
         if get['simple'] != 'ready':
@@ -1113,27 +1115,27 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 else:              return line
         #-----------------------------------------------------------------------
         #-----------------------------------------------------------------------
-        if Debug: print 'start first move'
+        if Debug: print('start first move')
         for i in range(len(self._axes)): self._axes[i]._movestep1(a_pos[i])
-        if Debug: print 'and Wait'
+        if Debug: print('and Wait')
         self.doWait()
         akt_pos = self.__achsread()
         for i in range(len(self._axes)):
             if float(akt_pos[i]) > a_pos[i]:
                 self.ll_log('move suspischus'+str(i)+' '+str(akt_pos)+' '+str(a_pos)+' '+str(self.status()),True)
-                if self.__readonly: print 'pass'
+                if self.__readonly: print('pass')
                 else:               return
         #if Debug: self.ll_log('extra Info: '+str(self.read())+' '+str(self.status()),True)
         #print a_pos
         #-----------------------------------------------------------------------
-        if Debug: print 'start second move'
+        if Debug: print('start second move')
         for i in range(len(self._axes)):
             res = self._axes[i]._movestep2(a_pos[i])
-            if Debug: print '_movestep2 i=%d res='%i,res
+            if Debug: print('_movestep2 i=%d res='%i,res)
         #07.01.2010 08:59:04 MP
         #if False:
         if True:
-            if Debug: print 'and Wait'
+            if Debug: print('and Wait')
             self.doWait()
             for i in range(len(self._axes)):
                 if (float(akt_pos[i]) - a_pos[i]) > 0.00125:
@@ -1172,17 +1174,17 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 try:   S = axis.motor.deviceStatus() #status()
                 except:
                     notausgang -= 1
-                    if Debug: print 'status notausgang -= 1'
+                    if Debug: print('status notausgang -= 1')
                 l += S+' '
                 if S == 'moving':
                     movement = True
                     try:    axis.motor.stop()
                     except:
                         notausgang -= 1
-                        if Debug: print 'STOP notausgang -= 1'
+                        if Debug: print('STOP notausgang -= 1')
                     time.sleep(0.2)
                     ok = False
-            if Debug: print l
+            if Debug: print(l)
             if ok:
                 min -= 1
                 if min <= 0:break
@@ -1228,7 +1230,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                     #MP 08.01.2010 08:55:58
                     #MP 24.01.2011 11:17:07 kein Fehler!
                     pos = self.do_get(['status','read'],False)['read']#self.__read()
-                    if Debug: print 'test for good numbers'
+                    if Debug: print('test for good numbers')
                     try:    use = self.width * self.beamtoleranz
                     except: use = 12 *1.5
                     for a in range(len(pos)):
@@ -1250,22 +1252,22 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             self.ll_log('Attribut '+name+' set '+value)
             setattr(self, name, value)
         else:
-            if Debug: print 'try devices'
+            if Debug: print('try devices')
             if True: #try: #das hier war das alte direction und so
                 #res = []
                 if type(value) == type(''): value = [value]
-                if Debug: print 'start test loop'
+                if Debug: print('start test loop')
                 #for count in range(len(value)):
                 #    if type(value[count]) != type(''):
                 #        print 'Part',count,'only string',value[count]
                 #        return
-                if Debug: print 'start loop'
+                if Debug: print('start loop')
                 for count,axis in enumerate(self._axes):
                     try:    value[count]
                     except: value.append(value[0])
-                    if Debug: print 'Achse',count,'name',name,'Wert',value[count]
+                    if Debug: print('Achse',count,'name',name,'Wert',value[count])
                     axis.doSetPar(name,value[count])
-                    if Debug: print 'ok'
+                    if Debug: print('ok')
             else: #except:
                 self.ll_log("not a user changeable parameter!")
                 self.ll_log("command ignored!")
@@ -1287,10 +1289,10 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #-----------------------------------------------------------------------
         def dauer(t,Text=''):
             if t == 0:
-                print '%s'%Text
+                print('%s'%Text)
                 return time.time()
             u = time.time()
-            print '%s %.4f'%(Text,(u-t))
+            print('%s %.4f'%(Text,(u-t)))
             return u
         #-----------------------------------------------------------------------
         Debug = self.__Debug
@@ -1386,8 +1388,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 #raise 'equ aufblasen' #MP 01.03.2010 21:50:55
                 b = list(b[0] for n in range(len(a)))
             if len(a) != len(b):
-                print 'a',a
-                print 'b',b
+                print('a',a)
+                print('b',b)
                 raise 'len in equ'
             res = []
             for c in range(len(a)):
@@ -1396,8 +1398,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #-----------------------------------------------------------------------
         def sub (a,b):
             if len(a) != len(b):
-                print 'a',a
-                print 'b',b
+                print('a',a)
+                print('b',b)
                 raise 'len in sub'
             res = []
             for c in range(len(a)):res.append(a[c]-b[c])
@@ -1409,8 +1411,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 #raise 'mul aufblasen' #MP 01.03.2010 21:50:55
                 b = list(b[0] for n in range(len(a)))
             if len(a) != len(b):
-                print 'a',a
-                print 'b',b
+                print('a',a)
+                print('b',b)
                 raise 'len in mul'
             res = []
             for c in range(len(a)):res.append(a[c]*b[c])
@@ -1421,8 +1423,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             if len(b) == 1:
                 b = list(b[0] for n in range(len(a)))
             if len(a) != len(b):
-                print 'a',a
-                print 'b',b
+                print('a',a)
+                print('b',b)
                 raise 'len in div'
             res = []
             for c in range(len(a)):
@@ -1434,9 +1436,9 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #-----------------------------------------------------------------------
         def choose (a,b,c):
             if len(a) != len(b) or len(a) != len(c):
-                print 'a',a
-                print 'b',b
-                print 'c',c
+                print('a',a)
+                print('b',b)
+                print('c',c)
                 raise 'len in choose'
             res = []
             for d in range(len(a)):
@@ -1510,8 +1512,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             self.mask = ''
             self.ll_log('Mask cleared',Debug) ###
         except:
-            if Debug: print 'no MASK'
-        if Debug: print 'proof_resources'
+            if Debug: print('no MASK')
+        if Debug: print('proof_resources')
         if self.proof_resources():pass
         else:
             line = 'Disaster: resources: deny reset! ask MP'
@@ -1528,7 +1530,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #-----------------------------------------------------------------------
         ### todo clear number of readings! make use of do_get
         if True or Debug:
-            print 'DEBUGFLAG = True'
+            print('DEBUGFLAG = True')
             get = self.do_get(['read','status','simple','achse','encoder'])
             if get['simple'] != 'ready' and use_encoder:
                 self.ll_log('moving, please try later (no Stop avilabl jet) >%s<'%str(get['simple']),True)
@@ -1593,7 +1595,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 self.ll_log(str(aktPOS)+' '+' truePos: '+str(truePos),Debug)
 
                 self.ll_log('moving to close to minPos',True)
-                print 'aktSW',aktSW,'aktPOS',aktPOS,'minPos',minPos,'somewhat',somewhat
+                print('aktSW',aktSW,'aktPOS',aktPOS,'minPos',minPos,'somewhat',somewhat)
                 if not runtimetest:
                     if max(aktSW)==0: self.__achsmove(add(minPos,somewhat))#,True)
                     else:             self.__achsmove(choose(aktPOS,add(minPos,somewhat),aktSW))#,True)
@@ -1722,7 +1724,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
             self.ll_log('* '+line+    ' *',Debug)
             self.ll_log('* '+line+    ' *',Debug)
             self.ll_log('****************',False)
-            print get
+            print(get)
             raise Error(line)
 
     #---------------------------------------------------------------------------
@@ -1751,7 +1753,7 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         #-----------------------------------------------------------------------
         Debug = self.__Debug #and False
         #-----------------------------------------------------------------------
-        if Debug: print 'Argumenttest'
+        if Debug: print('Argumenttest')
         if axes == [0,1] and len(self._axes) == 1:axes = [0]
         if type(axes)  != type([]): axes = [axes]
         if type(Labellok) == type([]): Label = Labellok[:]
@@ -1759,8 +1761,8 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
         if len(Label) > len(axes):raise Error('to many data for axes %s %s'%(str(Label),str(axes)))
         while len(Label) < 2: Label.append(Label[0]) #Label gibt es immer genug
         #-----------------------------------------------------------------------
-        if Debug: print 'Data geathering'
-        if Debug: print Label,axes
+        if Debug: print('Data geathering')
+        if Debug: print(Label,axes)
         get = self.do_get(['encoder_pos','simple'])
 
         if   'fail'  in get['simple']:pass
@@ -1780,17 +1782,17 @@ class Nok (Moveable,cl_no,cl_do_get,cl_do_wait):
                 #Label[achse] = self._axes[achse].doGetPar(Label[achse])
             else: raise Error('wrong type %s for Achse %d in %s'%(str(type(Label[achse])),axes,str(Label)))
         #-----------------------------------------------------------------------
-        if Debug: print 'execution'
-        if Debug: print 'data for axes >%s< >%s<'%(str(Label),str(axes))
+        if Debug: print('execution')
+        if Debug: print('data for axes >%s< >%s<'%(str(Label),str(axes)))
         #-----------------------------------------------------------------------
         if Debug:
-            for achse in axes: print Label[achse],'at',achse,
+            for achse in axes: print(Label[achse],'at',achse,)
         line = 'dosetpos: arg: '+str(Labellok)+' real: '
         for achse in axes:
             self._axes[achse].setpos(Label[achse])
             line += '%d: %s '%(achse,str(Label[achse]))
         self.ll_log(line)
-        if Debug: print 'ready'
+        if Debug: print('ready')
     #---------------------------------------------------------------------------
     def doadjustment (self):
         self.doInit(self._mode)

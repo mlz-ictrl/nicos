@@ -35,7 +35,7 @@ from PyQt4.QtGui import QLineEdit, QDoubleValidator, QIntValidator, \
 from nicos.core import params, anytype
 from nicos.protocols.cache import cache_dump, cache_load
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, listvalues
 
 
 class DeviceValueEdit(NicosWidget, QWidget):
@@ -203,8 +203,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return ComboWidget(parent, typ.vals, curvalue)
     elif isinstance(typ, params.oneofdict):
         if allow_buttons and len(typ.vals) <= 3:
-            return ButtonWidget(parent, typ.vals.values())
-        return ComboWidget(parent, typ.vals.values(), curvalue)
+            return ButtonWidget(parent, listvalues(typ.vals))
+        return ComboWidget(parent, listvalues(typ.vals), curvalue)
     elif isinstance(typ, params.none_or):
         return CheckWidget(parent, typ.conv, curvalue, client)
     elif isinstance(typ, params.tupleof):

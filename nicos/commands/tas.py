@@ -42,6 +42,7 @@ from nicos.commands.device import maw, read
 from nicos.commands.output import printinfo, printwarning
 from nicos.commands.analyze import gauss
 from nicos.pycompat import iteritems, string_types, number_types
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
 
 
 __all__ = [

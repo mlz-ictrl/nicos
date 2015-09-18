@@ -64,7 +64,7 @@ class EmergencyStopTool(QMainWindow):
 
         self.sgroup = SettingGroup('EstopTool')
         with self.sgroup as settings:
-            self.restoreGeometry(settings.value('geometry', b'', QByteArray))
+            self.restoreGeometry(settings.value('geometry', '', QByteArray))
 
         icon = QIcon(':/estop')
         icon.addFile(':/estopdown', mode=QIcon.Active)

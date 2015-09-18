@@ -33,7 +33,7 @@ from PyQt4.QtGui import QTextCharFormat, QBrush, QColor, QFont, QTextBrowser, \
 from PyQt4.QtCore import Qt, QRegExp
 
 from nicos.utils.loggers import INPUT, ACTION
-from nicos.pycompat import from_maybe_utf8
+from nicos.pycompat import from_maybe_utf8, xrange as range  # pylint: disable=W0622
 
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',

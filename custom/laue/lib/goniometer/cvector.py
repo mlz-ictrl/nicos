@@ -29,6 +29,9 @@ store a position as realspace diffraction vector.
 see the `Unitcell` class for conversion to reciprocal space
 
 '''
+
+from __future__ import print_function
+
 from nicos.laue.goniometer.base import PositionBase, PositionFactory
 
 import numpy as np
@@ -73,7 +76,7 @@ class CVector(PositionBase):
             try:
                 phi = np.arctan2(-self.c[0], self.c[1])
             except ValueError:
-                print "Oops: ", self
+                print("Oops: ", self)
                 phi = 0
         sinx = np.sqrt(cosx ** 2 + self.c[2] ** 2) * wavelength / 2.0
         if sinx >= 1.0:

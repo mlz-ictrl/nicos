@@ -24,7 +24,10 @@
 
 """Generate quick overview plots of scans, using Gnuplot."""
 
+from nicos.pycompat import to_utf8
+
 import subprocess
+
 
 def plotDataset(dataset, fn, fmt):
     if not dataset.xresults:
@@ -32,16 +35,19 @@ def plotDataset(dataset, fn, fmt):
 
     gpProcess = subprocess.Popen('gnuplot', shell=True, stdin=subprocess.PIPE,
                                  stdout=None)
-    gpStdin = gpProcess.stdin
-    gpStdin.write('set terminal %s size 600,400 dashed\n' % fmt)
-    gpStdin.write('set xlabel "%s (%s)"\n' % (dataset.xnames[dataset.xindex],
-                                         dataset.xunits[dataset.xindex]))
-    gpStdin.write('set title "Scan %s - %s"\n' %
-             (dataset.sinkinfo.get('number', ''), dataset.scaninfo))
-    gpStdin.write('set grid lt 3 lc 8\n')
-    gpStdin.write('set style increment user\n')
+
+    def write(s):
+        gpProcess.stdin.write(to_utf8(s))
+
+    write('set terminal %s size 600,400 dashed\n' % fmt)
+    write('set xlabel "%s (%s)"\n' % (dataset.xnames[dataset.xindex],
+                                      dataset.xunits[dataset.xindex]))
+    write('set title "Scan %s - %s"\n' %
+          (dataset.sinkinfo.get('number', ''), dataset.scaninfo))
+    write('set grid lt 3 lc 8\n')
+    write('set style increment user\n')
     for ls, pt in enumerate([7, 5, 9, 11, 13, 2, 1, 3]):
-        gpStdin.write('set style line %d lt 1 lc %d pt %d\n' % (ls+1, ls+1, pt))
+        write('set style line %d lt 1 lc %d pt %d\n' % (ls+1, ls+1, pt))
 
     data = []
     for xv, yv in zip(dataset.xresults, dataset.yresults):
@@ -70,21 +76,22 @@ def plotDataset(dataset, fn, fmt):
         yunits.add(info.unit)
 
     if len(ylabels) == 1:
-        gpStdin.write('set ylabel "%s"\n' % ylabels[0])
-        gpStdin.write('set key off\n')
+        write('set ylabel "%s"\n' % ylabels[0])
+        write('set key off\n')
     else:
         if len(yunits) == 1:
-            gpStdin.write('set ylabel "%s"\n' % yunits.pop())
-        gpStdin.write('set key outside below\n')
+            write('set ylabel "%s"\n' % yunits.pop())
+        write('set key outside below\n')
 
-    gpStdin.write('set output "%s-lin.%s"\n' % (fn, fmt))
-    gpStdin.write('plot %s\n' % ', '.join(plotterms))
+    write('set output "%s-lin.%s"\n' % (fn, fmt))
+    write('plot %s\n' % ', '.join(plotterms))
     for i in range(len(plotterms)):
-        gpStdin.write(data)
+        write(data)
 
-    gpStdin.write('set output "%s-log.%s"\n' % (fn, fmt))
-    gpStdin.write('set logscale y\n')
-    gpStdin.write('plot %s\n' % ', '.join(plotterms))
+    write('set output "%s-log.%s"\n' % (fn, fmt))
+    write('set logscale y\n')
+    write('plot %s\n' % ', '.join(plotterms))
     for i in range(len(plotterms)):
-        gpStdin.write(data)
-    gpProcess.communicate('exit')
+        write(data)
+    write('exit')
+    gpProcess.communicate()

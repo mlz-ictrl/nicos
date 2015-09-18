@@ -190,6 +190,18 @@ from ast import parse, Str, Num, Tuple, List, Dict, BinOp, UnaryOp, \
     Add, Sub, USub, Name, Call
 from base64 import b64encode, b64decode
 
+try:
+    from ast import NameConstant  # pylint: disable=no-name-in-module
+except ImportError:
+    class NameConstant(object):
+        pass
+
+try:
+    from ast import Bytes  # pylint: disable=no-name-in-module
+except ImportError:
+    class Bytes(object):
+        pass
+
 from nicos.utils import readonlylist, readonlydict
 from nicos.pycompat import cPickle as pickle, iteritems, from_utf8, \
     number_types, text_type, binary_type
@@ -285,7 +297,7 @@ _safe_names = {'None': None, 'True': True, 'False': False,
 def ast_eval(node):
     # copied from Python 2.7 ast.py, but added support for float inf/-inf/nan
     def _convert(node):
-        if isinstance(node, Str):
+        if isinstance(node, (Str, Bytes)):
             return node.s
         elif isinstance(node, Num):
             return node.n
@@ -299,6 +311,8 @@ def ast_eval(node):
         elif isinstance(node, Name):
             if node.id in _safe_names:
                 return _safe_names[node.id]
+        elif isinstance(node, NameConstant):
+            return node.value
         elif isinstance(node, UnaryOp) and \
                 isinstance(node.op, USub) and \
                 isinstance(node.operand, Name) and \

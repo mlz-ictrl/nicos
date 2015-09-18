@@ -389,3 +389,5 @@ class AttributeRaiser(object):
 
     def __nonzero__(self):
         return False
+
+    __bool__ = __nonzero__

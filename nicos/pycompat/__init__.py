@@ -34,15 +34,16 @@ __all__ = [
     'OrderedDict', 'get_thread_id', 'escape_html',
 ]
 
-from nicos._vendor import six
-import codecs
 import threading
+
+from nicos._vendor import six
 
 # Pylint cannot handle submodules created by "six".  Import them here to
 # ignore the Pylint errors only once.
 from nicos._vendor.six.moves import builtins, cPickle, socketserver  # pylint: disable=F0401
 from nicos._vendor.six.moves import queue, configparser, urllib      # pylint: disable=F0401
 from nicos._vendor.six.moves import xrange, input  # pylint: disable=F0401,W0622
+from nicos._vendor.six.moves import zip_longest    # pylint: disable=F0401,W0622
 
 # For consistency import everything from "six" here.
 from nicos._vendor.six import reraise, exec_, add_metaclass, BytesIO, StringIO

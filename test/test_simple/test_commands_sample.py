@@ -31,7 +31,7 @@ import mock
 from nicos import session
 from nicos.core import UsageError
 from nicos.commands.sample import activation
-from nicos.pycompat import BytesIO
+from nicos.pycompat import StringIO
 
 from test.utils import raises
 
@@ -44,10 +44,11 @@ AU_RESPONSE = {u'pdfurl': u'https://www.frm2.tum.de/intranet/activation/activati
 
 
 def mock_open_H2(url):
-    return BytesIO(json.dumps(H2_RESPONSE))
+    return StringIO(json.dumps(H2_RESPONSE))
+
 
 def mock_open_Au(url):
-    return BytesIO(json.dumps(AU_RESPONSE))
+    return StringIO(json.dumps(AU_RESPONSE))
 
 
 def test_01wronginput():

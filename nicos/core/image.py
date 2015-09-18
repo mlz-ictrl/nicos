@@ -268,7 +268,7 @@ class ImageProducer(DeviceMixinBase):
             for imageinfo in imageinfos:
                 imageinfo.dataset = dataset
 
-                for catName, cat in dataset.headerinfo.iteritems():
+                for catName, cat in iteritems(dataset.headerinfo):
                     if catName not in imageinfo.header:
                         imageinfo.header[catName] = cat
                         continue

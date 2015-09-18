@@ -24,6 +24,8 @@
 
 """NICOS GUI PGAA panel components."""
 
+from __future__ import print_function
+
 import time
 from os import path
 
@@ -143,9 +145,9 @@ class PGAAPanel(Panel):
             return
         try:
             self.browser_log.addMessage(message)
-        except Exception, e:
-            print e
-            print message
+        except Exception as e:
+            print(e)
+            print(message)
 
     def execScript(self, script):
         if not script:

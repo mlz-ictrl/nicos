@@ -31,11 +31,11 @@ import codeop
 traceback = __import__('traceback')
 
 from PyQt4.QtGui import QMainWindow, QPlainTextEdit, QFont, QTextOption, \
-     QTextCursor, QSplitter
+    QTextCursor, QSplitter
 from PyQt4.QtCore import Qt, QCoreApplication, SIGNAL
 
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.pycompat import exec_
+from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
 
 
 class StdoutProxy(object):

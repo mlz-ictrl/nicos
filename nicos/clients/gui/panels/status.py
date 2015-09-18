@@ -81,6 +81,8 @@ class ScriptQueue(object):
     def __nonzero__(self):
         return bool(self._no2item)
 
+    __bool__ = __nonzero__
+
 
 class ScriptStatusPanel(Panel):
     panelName = 'Script status'

@@ -26,7 +26,7 @@
 # modules and document them
 
 import sys
-import new
+import types
 import logging
 
 
@@ -75,14 +75,14 @@ STUBS = dict(
 def generate_stubs():
     logging.basicConfig()
     root_log = logging.getLogger()
-    for modname, content in STUBS.iteritems():
+    for modname, content in STUBS.items():
         try:
             __import__(modname)
         except Exception:
             pass  # generate stub below
         else:
             continue
-        mod = new.module(modname, "NICOS stub module")
+        mod = types.ModuleType(modname, "NICOS stub module")
         for obj in content:
             if obj.startswith('class '):
                 setattr(mod, obj[6:], type(obj[6:], (NICOSTACOStub,), {}))
@@ -93,4 +93,3 @@ def generate_stubs():
                 setattr(mod, name, eval(value))
         sys.modules[modname] = mod
         root_log.info('generated TACO stub module %r' % modname)
-

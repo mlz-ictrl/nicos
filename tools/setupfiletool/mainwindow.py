@@ -38,7 +38,9 @@ from setupfiletool.utilities.utilities import ItemTypes, getNicosDir
 from setupfiletool.dialogs.newsetup import NewSetupDialog
 from setupfiletool.setup import Setup
 from setupfiletool.classparser import importModules
+
 from nicos.configmod import config
+from nicos.pycompat import string_types
 
 
 class MainWindow(QMainWindow):
@@ -346,7 +348,7 @@ class MainWindow(QMainWindow):
         if setupData.treeWidgetSysconfig.topLevelItemCount() > 0:
             output.append('sysconfig = dict(\n')
             for key, value in setupData.treeWidgetSysconfig.getData(
-                    ).iteritems():
+                    ).items():
                 output.append('    ' + key + ' = ' + repr(value) + ',\n')
             output.append(')\n\n')
 
@@ -377,12 +379,12 @@ class MainWindow(QMainWindow):
                 self.workarea.addWidget(newWidget)
                 self.deviceWidgets[setup][device.text(0)] = newWidget
 
-        for name, info in self.deviceWidgets[setup].iteritems():
+        for name, info in self.deviceWidgets[setup].items():
             output.append('    ' + name + ' = device(')
             indent = len(name) + 14
             for params in info.currentWidgets:
                 # if parameter is a string
-                if isinstance(params.getValue(), basestring):
+                if isinstance(params.getValue(), string_types):
                     if str(params.labelParam.text()) == 'Class:':
                         prepend = ''
                         param = repr(str(

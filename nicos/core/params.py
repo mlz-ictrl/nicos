@@ -347,7 +347,9 @@ class Attach(object):
                                       (len(args), aname, args))
 
     def __repr__(self):
-        s = 'Attach(%r, %r' % (self.description, self.devclass)
+        s = 'Attach(%r, %s.%s' % (self.description,
+                                  self.devclass.__module__,
+                                  self.devclass.__name__)
         if self.multiple:
             s += ', multiple=%s' % self.multiple
         if self.optional:

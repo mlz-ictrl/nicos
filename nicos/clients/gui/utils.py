@@ -39,6 +39,7 @@ from PyQt4.QtGui import QApplication, QColor, QDialog, QFileDialog, QFont, \
     QToolButton, QVBoxLayout, QWidget
 
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
+from nicos.pycompat import string_types
 
 
 def getXDisplay():
@@ -64,12 +65,12 @@ def dialogFromUi(parent, uiname, subdir=''):
 
 
 def loadBasicWindowSettings(window, settings):
-    window.restoreGeometry(settings.value('geometry', b'', QByteArray))
-    window.restoreState(settings.value('windowstate', b'', QByteArray))
+    window.restoreGeometry(settings.value('geometry', '', QByteArray))
+    window.restoreState(settings.value('windowstate', '', QByteArray))
     try:
-        window.splitstate = settings.value('splitstate', b'', QByteArray)
+        window.splitstate = settings.value('splitstate', '', QByteArray)
     except TypeError:
-        window.splitstate = b''
+        window.splitstate = ''
 
 
 def loadUserStyle(window, settings):
@@ -189,7 +190,7 @@ if PYQT_VERSION < 0x040803:
             if type is bool:
                 value = value not in (False, 'false')
             elif type is QByteArray:
-                if isinstance(value, basestring):
+                if isinstance(value, string_types):
                     value = QByteArray(value)
             elif type is not None:
                 value = type(value)

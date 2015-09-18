@@ -30,6 +30,7 @@ from nicos.utils import lazy_property
 from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
     Override, Attach, status, none_or, dictof, anytype, oneof
 from nicos.core.utils import multiStatus
+from nicos.pycompat import listitems
 
 
 class Monochromator(HasLimits, Moveable):
@@ -98,7 +99,7 @@ class Monochromator(HasLimits, Moveable):
             raise PositionError('can not determine lambda!')
 
     def _moveToParkingpos(self):
-        for dev, target in self.parkingpos.iteritems():
+        for dev, target in self.parkingpos.items():
             self._adevs[dev].start(target)
 
     def doStart(self, target):
@@ -115,11 +116,11 @@ class Monochromator(HasLimits, Moveable):
             d.start(v)
 
     def doStatus(self, maxage=0):
-        st = multiStatus(self._adevs.items(), maxage)
+        st = multiStatus(listitems(self._adevs), maxage)
         if st[0] == status.OK:
             # check position
             try:
-                _ = self.doRead(maxage)
+                self.doRead(maxage)
             except PositionError as e:
                 return status.NOTREACHED, str(e)
         return st

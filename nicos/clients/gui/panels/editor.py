@@ -126,7 +126,7 @@ class QScintillaCompatible(QPlainTextEdit):
 
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
-                number = unicode(blockNumber + 1)
+                number = str(blockNumber + 1)
                 painter.setPen(Qt.black)
                 painter.drawText(0, top, self.lineNumberArea.width(),
                                  self.fontMetrics().height(), Qt.AlignRight,
@@ -149,7 +149,7 @@ class QScintillaCompatible(QPlainTextEdit):
                                               cr.height()))
 
     def lineNumberAreaWidth(self):
-        return 3 + self.fontMetrics().width(unicode(max(1, self.blockCount())))
+        return 3 + self.fontMetrics().width(str(max(1, self.blockCount())))
 
     def highlightCurrentLine(self):
         extraSelections = []
@@ -562,7 +562,7 @@ class EditorPanel(Panel):
 
     def loadSettings(self, settings):
         self.recentf = settings.value('recentf') or []
-        self.splitterstate = settings.value('splitter', b'', QByteArray)
+        self.splitterstate = settings.value('splitter', '', QByteArray)
         self.openfiles = settings.value('openfiles') or []
 
     def saveSettings(self, settings):
