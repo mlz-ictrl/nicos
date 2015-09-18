@@ -43,7 +43,7 @@ class FPGAChannelBase(PyTangoDevice, Channel):
     MODE_PRESELECTION = "preselection"
 
     parameter_overrides = {
-       "mode": Override(type=oneof(MODE_NORMAL, MODE_PRESELECTION)),
+        "mode": Override(type=oneof(MODE_NORMAL, MODE_PRESELECTION)),
     }
 
     def _setPreselection(self):
@@ -92,8 +92,8 @@ class FPGATimerChannel(FPGAChannelBase):
     """FPGATimerChannel implements one time channel for ZEA-2 counter card."""
 
     parameter_overrides = {
-                           "unit": Override(default='s', mandatory=False),
-                           }
+        "unit": Override(default='s', mandatory=False),
+    }
 
     def _setPreselection(self):
         millis = int(self.preselection * 1000)
@@ -108,16 +108,18 @@ class FPGATimerChannel(FPGAChannelBase):
 
 
 class FPGACounterChannel(FPGAChannelBase):
-    """FPGACounterChannel implements one monitor channel for ZEA-2 counter card."""
+    """FPGACounterChannel implements one monitor channel for ZEA-2 counter
+    card.
+    """
 
     parameters = {
-                  "channel": Param("Channel number", type=intrange(0, 4),
-                                   settable=False, mandatory=True)
-                 }
+        "channel": Param("Channel number", type=intrange(0, 4),
+                         settable=False, mandatory=True)
+    }
 
     parameter_overrides = {
-                           "unit": Override(default="cts", mandatory=False),
-                          }
+        "unit": Override(default="cts", mandatory=False),
+    }
 
     def _setPreselection(self):
         self._dev.DevFPGACountSetMinTime(0)

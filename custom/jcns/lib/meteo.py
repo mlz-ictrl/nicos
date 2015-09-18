@@ -45,29 +45,31 @@ class MeteoStation(HasOffset, Readable):
     HUMIDITY = "humidity"
     WIND_SPEED = "wind/speed"
 
-    _MAP_REST = { TEMP_AIR: "temperature_air",
-                  TEMP_WET_BULB: "temperature_wet_bulb",
-                  DEWPOINT: "dewpoint", HUMIDITY: "humidity",
-                  WIND_SPEED: "speed_wind" }
+    _MAP_REST = {TEMP_AIR: "temperature_air",
+                 TEMP_WET_BULB: "temperature_wet_bulb",
+                 DEWPOINT: "dewpoint", HUMIDITY: "humidity",
+                 WIND_SPEED: "speed_wind", }
 
     parameters = {
-                  "location": Param("Meteo Station location", type=str,
-                                    settable=True, mandatory=False,
-                                    default="Garching"),
-                  "query": Param("Meteo Station query parameter",
-                                 type=oneof(TEMP_AIR,
-                                            TEMP_WET_BULB,
-                                            DEWPOINT,
-                                            HUMIDITY,
-                                            WIND_SPEED),
-                                 settable=False, mandatory=True),
-                  "height": Param("Height of Measurement", type=float,
-                                  settable=True, mandatory=False, default=2.)
-                  }
+        "location": Param("Meteo Station location", type=str,
+                          settable=True, mandatory=False,
+                          default="Garching"),
+        "query":    Param("Meteo Station query parameter",
+                          type=oneof(TEMP_AIR,
+                                     TEMP_WET_BULB,
+                                     DEWPOINT,
+                                     HUMIDITY,
+                                     WIND_SPEED),
+                          settable=False, mandatory=True),
+        "height":   Param("Height of Measurement", type=float,
+                          settable=True, mandatory=False, default=2.)
+    }
 
-    parameter_overrides = { "fmtstr": Override(default="%.1f"),
-                            "maxage": Override(default=120),
-                            "pollinterval": Override(default=60) }
+    parameter_overrides = {
+        "fmtstr":       Override(default="%.1f"),
+        "maxage":       Override(default=120),
+        "pollinterval": Override(default=60)
+    }
 
     def doInit(self, mode):
         self._status = status.OK, ''

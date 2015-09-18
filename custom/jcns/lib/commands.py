@@ -28,7 +28,7 @@ from nicos.core import HasOffset, Readable
 from nicos.core.spm import spmsyntax, Dev, Bare, Multi, AnyDev, DevParam
 from nicos.commands import usercommand, helparglist
 from nicos.commands.device import adjust as _adjust, reset as _reset, \
-     set as _set
+    set as _set
 
 
 @usercommand
@@ -48,6 +48,7 @@ def init(*devlist):
     """
     _reset(*devlist)
 
+
 @usercommand
 @spmsyntax(Dev(HasOffset), Bare)
 def recalibrate(dev, value):
@@ -58,6 +59,7 @@ def recalibrate(dev, value):
     >>> recalibrate(om, 100)   # om's current value is now 100
     """
     _adjust(dev, value)
+
 
 @usercommand
 @spmsyntax(AnyDev, DevParam, Bare)
