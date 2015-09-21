@@ -26,7 +26,7 @@ description = 'setup for the velocity selector'
 
 group = 'lowlevel'
 
-tacodevice = '//sans1srv/sans1/network/selector'
+tacodevice = '//sans1srv.sans1.frm2/sans1/network/selector'
 
 devices = dict(
     selector_state = device('devices.vendor.astrium.SelectorState',
