@@ -69,7 +69,7 @@ done
 
 
 if [ $PYVERSIONMAJOR -eq 3 ] ; then
-   PYVERSION="3.3.4"
+   PYVERSION="3.4.2"
 else
    PYVERSION="2.7.6"
 fi
@@ -87,29 +87,29 @@ mkdir -p $BASEDIR/download
 cd $BASEDIR/download
 WGET="wget -c --no-check-certificate"
 $WGET https://forge.frm2.tum.de/externalpackages/Python-2.7.6.tar.xz
-$WGET https://forge.frm2.tum.de/externalpackages/Python-3.3.4.tar.xz
+$WGET https://forge.frm2.tum.de/externalpackages/Python-3.4.2.tar.xz
 $WGET https://forge.frm2.tum.de/externalpackages/PyQt-x11-gpl-4.10.1.tar.gz
 $WGET https://forge.frm2.tum.de/externalpackages/PyQwt-5.2.0.tar.gz
 $WGET https://forge.frm2.tum.de/externalpackages/pyqwt5.2.1-frm2.tar.gz
 $WGET https://forge.frm2.tum.de/externalpackages/sip-4.14.6.tar.gz
 $WGET https://forge.frm2.tum.de/externalpackages/QScintilla-gpl-2.7.1.tar.gz
 $WGET https://forge.frm2.tum.de/externalpackages/qt-everywhere-opensource-src-4.8.5.tar.gz
-$WGET https://forge.frm2.tum.de/externalpackages/virtualenv-1.11.2.tar.gz
-$WGET https://forge.frm2.tum.de/externalpackages/pip-1.5.2.tar.gz
-$WGET https://forge.frm2.tum.de/externalpackages/setuptools-2.1.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/virtualenv-13.1.2.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/pip-7.1.2.tar.gz
+$WGET https://forge.frm2.tum.de/externalpackages/setuptools-18.3.2.tar.gz
 
 # check downloaded files
 md5sum -c <<EOF
-5da30919f732d68b1c666e484e7676f5  pip-1.5.2.tar.gz
+3823d2343d9f3aaab21cf9c917710196  pip-7.1.2.tar.gz
 e5973c4ec0b0469f329bc00209d2ad9c  PyQt-x11-gpl-4.10.1.tar.gz
 fcd6c6029090d473dcc9df497516eae7  PyQwt-5.2.0.tar.gz
 bcf93efa8eaf383c98ed3ce40b763497  Python-2.7.6.tar.xz
-8fb961a20600aafafd249537af3ac637  Python-3.3.4.tar.xz
+36fc7327c02c6f12fa24fc9ba78039e3  Python-3.4.2.tar.xz
 da8939b5679a075e30c6632e54dc5abf  QScintilla-gpl-2.7.1.tar.gz
 1864987bdbb2f58f8ae8b350dfdbe133  qt-everywhere-opensource-src-4.8.5.tar.gz
-2044725530450d0517393882dc4b7508  setuptools-2.1.tar.gz
+d30c969065bd384266e411c446a86623  setuptools-18.3.2.tar.gz
 d6493b9f0a7911566545f694327314c4  sip-4.14.6.tar.gz
-d3d915836c1ada1be731ccaa12412b98  virtualenv-1.11.2.tar.gz
+b989598f068d64b32dead530eb25589a  virtualenv-13.1.2.tar.gz
 4856155c5c4fa53401154881da021a62  pyqwt5.2.1-frm2.tar.gz
 EOF
 if [ $? -ne 0 ]; then
@@ -130,18 +130,18 @@ cd Python-$PYVERSION/
 make $MAKEOPTS && make install
 
 cd $BASEDIR/build
-tar xzf $BASEDIR/download/setuptools-2.1.tar.gz
-cd setuptools-2.1/
+tar xzf $BASEDIR/download/setuptools-18.3.2.tar.gz
+cd setuptools-18.3.2/
 $BASEDIR/python-$PYVERSION/bin/$PYEXEC setup.py install
 
 cd $BASEDIR/build
-tar xzf $BASEDIR/download/pip-1.5.2.tar.gz
-cd pip-1.5.2/
+tar xzf $BASEDIR/download/pip-7.1.2.tar.gz
+cd pip-7.1.2/
 $BASEDIR/python-$PYVERSION/bin/$PYEXEC setup.py install
 
 cd $BASEDIR/build
 tar xzf $BASEDIR/download/virtualenv-1.11.2.tar.gz
-cd virtualenv-1.11.2/
+cd virtualenv-13.1.2/
 $BASEDIR/python-$PYVERSION/bin/$PYEXEC setup.py install
 
 cd $BASEDIR/build
