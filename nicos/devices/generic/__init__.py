@@ -40,4 +40,5 @@ from nicos.devices.generic.system import FreeSpace
 from nicos.devices.generic.virtual import VirtualMotor, VirtualCoder, \
     VirtualTimer, VirtualCounter, VirtualTemperature, VirtualCounterCard
 from nicos.devices.generic.sequence import LockedDevice, BaseSequencer
-from nicos.devices.generic.magnet import BipolarSwitchingMagnet
+from nicos.devices.generic.magnet import CalibratedMagnet, \
+    BipolarSwitchingMagnet
