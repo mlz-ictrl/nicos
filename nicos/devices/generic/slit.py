@@ -29,6 +29,7 @@ from time import sleep
 from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
     AutoDevice, InvalidValueError, tupleof, multiStatus, multiReset, \
     multiWait, Attach
+from nicos.core.utils import devIter
 from nicos.devices.abstract import CanReference
 
 
@@ -237,6 +238,11 @@ class Slit(CanReference, Moveable):
             return [-l, r, -b, t]
         else:
             return positions
+
+    def doPoll(self, n, maxage):
+        # also poll sub-AutoDevices we created
+        for dev in devIter(self.__dict__, baseclass=AutoDevice, onlydevs=True):
+            dev.poll(n, maxage)
 
     def valueInfo(self):
         if self.opmode == 'centered':
