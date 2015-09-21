@@ -109,7 +109,8 @@ class TimeSeries(object):
     """
     minsize = 500
 
-    def __init__(self, name, interval, window, signal_obj, info=None):
+    def __init__(self, name, interval, window, signal_obj, info=None,
+                 mapping=None):
         self.name = name
         self.signal_obj = signal_obj
         self.info = info
@@ -120,7 +121,7 @@ class TimeSeries(object):
         self.n = 0
         self.real_n = 0
         self.last_y = None
-        self.string_mapping = {}
+        self.string_mapping = mapping or {}
 
     @property
     def title(self):
@@ -183,8 +184,10 @@ class TimeSeries(object):
         y.resize((2 * i or 500,))
         self.x = x
         self.y = y
-        self.info = ', '.join('%s=%s' % (v, k)
-                              for (k, v) in iteritems(self.string_mapping))
+        if self.string_mapping:
+            self.info = ', '.join(
+                '%s=%s' % (v, k) for (k, v) in
+                sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
 
     def synthesize_value(self):
         if self.n and self.x[self.n - 1] < currenttime() - self.interval:
@@ -194,8 +197,9 @@ class TimeSeries(object):
         if not isinstance(value, number_types):
             if isinstance(value, string_types):
                 value = self.string_mapping.setdefault(value, len(self.string_mapping))
-                self.info = ', '.join('%s=%s' % (v, k)
-                                      for (k, v) in iteritems(self.string_mapping))
+                self.info = ', '.join(
+                    '%s=%s' % (v, k) for (k, v) in
+                    sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
             else:
                 return
         n, x, y = self.n, self.x, self.y

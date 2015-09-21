@@ -44,12 +44,13 @@ from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle, iteritems, OrderedDict
+from nicos.pycompat import cPickle as pickle, iteritems, OrderedDict, \
+    integer_types
 
 
 class View(QObject):
     def __init__(self, parent, name, keys_indices, interval, fromtime, totime,
-                 yfrom, yto, window, units, dlginfo, query_func):
+                 yfrom, yto, window, meta, dlginfo, query_func):
         QObject.__init__(self, parent)
         self.name = name
         self.dlginfo = dlginfo
@@ -93,7 +94,7 @@ class View(QObject):
             for index in real_indices:
                 name = '%s[%d]' % (key, index) if index > -1 else key
                 series = TimeSeries(name, interval, window, self,
-                                    units.get(key))
+                                    meta[0].get(key), meta[1].get(key))
                 self.series[key, index] = series
                 if history:
                     series.init_from_history(history, fromtime, index)
@@ -359,14 +360,10 @@ class BaseHistoryWindow(object):
             return
         keys_indices = [extractKeyAndIndex(d.strip())
                         for d in info['devices'].split(',')]
-        units = {}
         if hasattr(self, 'client'):
-            for key, _ in keys_indices:
-                if key not in units and key.endswith('/value'):
-                    devname = key[:-6]
-                    devunit = self.client.getDeviceParam(devname, 'unit')
-                    if devunit:
-                        units[key] = devunit
+            meta = self._getMetainfo(keys_indices)
+        else:
+            meta = ({}, {})
         name = info['name']
         if not name:
             name = info['devices']
@@ -407,13 +404,40 @@ class BaseHistoryWindow(object):
         else:
             yfrom = yto = None
         view = View(self, name, keys_indices, interval, fromtime, totime,
-                    yfrom, yto, window, units, info, self.gethistory_callback)
+                    yfrom, yto, window, meta, info, self.gethistory_callback)
         self.views.append(view)
         view.listitem = QListWidgetItem(view.name, self.viewList)
         self.openView(view)
         if view.totime is None:
             for key in view.uniq_keys:
                 self.keyviews.setdefault(key, []).append(view)
+
+    def _getMetainfo(self, keys_indices):
+        """Collect unit and string<->integer mapping for each key that
+        refers to a device main value.
+        """
+        units = {}
+        mappings = {}
+        seen = set()
+        for key, _ in keys_indices:
+            if key in seen or not key.endswith('/value'):
+                continue
+            seen.add(key)
+            devname = key[:-6]
+            devunit = self.client.getDeviceParam(devname, 'unit')
+            if devunit:
+                units[key] = devunit
+            devmapping = self.client.getDeviceParam(devname, 'mapping')
+            if devmapping:
+                mappings[key] = m = {}
+                i = 0
+                for k, v in sorted(devmapping.items()):
+                    if isinstance(v, integer_types):
+                        m[k] = v
+                    else:
+                        m[k] = i
+                        i += 1
+        return units, mappings
 
     @qtsig('')
     def on_actionNew_triggered(self):
