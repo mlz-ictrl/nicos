@@ -351,7 +351,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
 
     beststt0s = []
     bestmtt0s = []
-    bestrms = 0.1
+    bestrms = 1.0
     bestlines = []
     orig_data = data
     for j in [0] + [i * s for i in range(1, ksteps) for s in (-1, 1)]:
