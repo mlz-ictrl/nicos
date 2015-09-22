@@ -26,7 +26,7 @@ from nicos import session
 from nicos.core import UsageError, LimitError, ConfigurationError, \
     ComputationError, NicosError, PositionError, MoveError, status
 from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
-    acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args
+    acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, setalign
 from nicos.commands.measure import count
 from nicos.devices.tas import spacegroups
 from nicos.core.sessions.utils import MASTER
@@ -237,6 +237,13 @@ def test_tas_commands():
 
     assert raises(UsageError, calpos, 1, 0, 0, 0, 0, 0)
     assert raises(UsageError, pos, 1, 0, 0, 0, 0, 0)
+
+
+def test_setalign():
+    tas = session.getDevice('Tas')
+    pos(.5, .5, .5)
+    setalign((-.5, .5, .5))
+    assertPos(tas.read(0), [-.5, .5, .5, 0])
 
 
 def test_helper_commands():
