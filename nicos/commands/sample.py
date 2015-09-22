@@ -34,6 +34,7 @@ from nicos import session
 from nicos.core import UsageError, ConfigurationError
 from nicos.commands import usercommand
 from nicos.commands.output import printdebug, printinfo, printwarning
+from nicos.commands.analyze import FitResult
 from nicos.utils import printTable
 from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import urllib, xrange as range  # pylint: disable=W0622
@@ -388,10 +389,13 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
         for ki in sorted(data):
             new_ki = ki + j*dki*ki
             peaks = data[ki]
-            fit = Fit(model, ['ki', 'stt0'], [new_ki, 0])
-            res = fit.run('', [el[0] for el in peaks], [el[1] for el in peaks],
-                          [el[2] for el in peaks])
-            if res._failed:
+            failed = True
+            if len(peaks) > 2:
+                fit = Fit(model, ['ki', 'stt0'], [new_ki, 0])
+                res = fit.run('', [el[0] for el in peaks], [el[1] for el in peaks],
+                              [el[2] for el in peaks])
+                failed = res._failed
+            if failed:
                 restxt.append('%4.3f   %-6d | No fit!' % (ki, len(peaks)))
                 rms += 1e6
                 continue
@@ -444,3 +448,5 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
     printinfo('mtt.offset += %.4f' % meanmtt0)
     printinfo('mth.offset += %.4f' % (meanmtt0/2))
     printinfo('stt.offset += %.4f' % meanstt0)
+
+    return FitResult((meanmtt0, meanstt0))

@@ -30,10 +30,10 @@ import mock
 
 from nicos import session
 from nicos.core import UsageError
-from nicos.commands.sample import activation
+from nicos.commands.sample import activation, powderfit
 from nicos.pycompat import StringIO
 
-from test.utils import raises
+from test.utils import raises, assertAlmostEqual
 
 
 # pylint: disable=C0301
@@ -47,11 +47,12 @@ def mock_open_H2(url):
     return StringIO(json.dumps(H2_RESPONSE))
 
 
+
 def mock_open_Au(url):
     return StringIO(json.dumps(AU_RESPONSE))
 
 
-def test_01wronginput():
+def test_activation_wronginput():
     with mock.patch('nicos.pycompat.urllib.request.urlopen', new=mock_open_H2):
         assert raises(UsageError, activation)  # session has no formula up to now
         assert raises(UsageError, activation, formula='H2O')
@@ -60,7 +61,7 @@ def test_01wronginput():
                                          formula='H2', instrument='XXX', mass=1)
 
 
-def test_02function():
+def test_activation_function():
     with mock.patch('nicos.pycompat.urllib.request.urlopen', new=mock_open_H2):
         data = activation(formula='H2', flux=20, mass=1, getdata=True)
         assert data['curr'] == 'Manual'
@@ -69,3 +70,9 @@ def test_02function():
     with mock.patch('nicos.pycompat.urllib.request.urlopen', new=mock_open_Au):
         data = activation(formula='Au', flux=1e7, mass=1, getdata=True)
         assert data['result']['activation'] is not None
+
+
+def test_powderfit():
+    res = powderfit('YIG', ki=1.32, peaks=[55.22, 64.91, 91.04, 99.58])
+    assertAlmostEqual(res[0], 0.02, 2)
+    assertAlmostEqual(res[1], -1, 2)
