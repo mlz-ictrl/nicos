@@ -33,7 +33,7 @@ from numpy import sqrt, pi, sin, exp, log, arcsin, radians, degrees
 from nicos import session
 from nicos.core import UsageError, ConfigurationError
 from nicos.commands import usercommand
-from nicos.commands.output import printinfo, printwarning
+from nicos.commands.output import printdebug, printinfo, printwarning
 from nicos.utils import printTable
 from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import urllib
@@ -335,6 +335,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
             if num not in scans:
                 continue
             res = _extract_powder_data(num, dataset)
+            printdebug('powder_data from %d: %s' % (num, res))
             if res:
                 ki, peaks = res  # pylint: disable=W0633
                 data.setdefault(ki, []).extend([None, p, dp, '#%d ' % num]
@@ -413,12 +414,19 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
                        zip([el[1] for el in peaks], peaks_fit)) / len(peaks)
 
         out.extend(restxt)
+        printdebug('')
+        printdebug('-' * 80)
+        printdebug('Result from run with j=%d (RMS = %g):' % (j, rms))
+        for line in out:
+            printdebug(line)
 
         if rms < bestrms:
             beststt0s = stt0s
             bestmtt0s = mtt0s
             bestrms = rms
             bestlines = out
+            printdebug('')
+            printdebug('*** new best result: RMS = %g' % rms)
 
     if len(beststt0s) == 0:
         printwarning('no fitted offsets available')
@@ -430,7 +438,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
     meanstt0 = sum(beststt0s)/len(beststt0s)
     meanmtt0 = sum(bestmtt0s)/len(bestmtt0s)
 
-    printinfo('Check errors (dki, dstt0)!')
+    printinfo('Check errors (dki, dstt0)!  RMS = %.3g' % bestrms)
     printinfo('')
     printinfo('Adjust using:')
     printinfo('mtt.offset += %.4f' % meanmtt0)
