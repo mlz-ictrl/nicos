@@ -38,9 +38,16 @@ devices = dict(
                     abslimits = (-5, 5),
                    ),
 
-    tdev = device('test.utils.TestDevice',
-                  unit = 'mm',
-                  abslimits = (-5, 5),
-                  maxage = 0.0,  # no caching!
-                 ),
+    tdev   = device('test.utils.TestDevice',
+                    unit = 'mm',
+                    abslimits = (-5, 5),
+                    maxage = 0.0,  # no caching!
+                   ),
+
+    sry    = device('nicos.devices.generic.VirtualMotor',
+                    unit = 'deg',
+                    initval = 0,
+                    abslimits = (-360, 360),
+                   ),
+
 )

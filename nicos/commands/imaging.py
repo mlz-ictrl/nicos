@@ -35,6 +35,7 @@ from nicos.commands.scan import manualscan
 
 __all__ = ['tomo', 'openbeamimage', 'darkimage']
 
+
 @usercommand
 @helparglist('nangles, moveable, imgsperangle=1, [detectors], [presets]')
 def tomo(nangles, moveable=None, imgsperangle=1, *detlist, **preset):
@@ -43,8 +44,9 @@ def tomo(nangles, moveable=None, imgsperangle=1, *detlist, **preset):
 
     printinfo('Starting tomography scan.')
     if moveable is None:
-        # TODO: currently, sry the common name on nectar and antares for the sample roation (phi - around y axis).
-        # Is this convenience function ok, or should it be omitted and added to the instrument custom?
+        # TODO: currently, sry is the common name on nectar and antares for the
+        # sample rotation (phi - around y axis).  Is this convenience function
+        # ok, or should it be omitted and added to the instrument custom?
         moveable = session.getDevice('sry')
 
     printinfo('Performing 360 deg scan.')
@@ -101,7 +103,7 @@ def openbeamimage(shutter=None, *detlist, **preset):
 @usercommand
 @helparglist('shutter, [detectors], [presets]')
 def darkimage(shutter=None, *detlist, **preset):
-    """Acquire an dark image."""
+    """Acquire a dark image."""
     exp = session.experiment
     det = exp.detectors[0]
 

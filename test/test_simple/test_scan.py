@@ -33,6 +33,7 @@ from nicos.commands.measure import count, avg, minmax
 from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
     manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
+from nicos.commands.imaging import tomo
 from nicos.commands.tas import checkalign
 from nicos.core.sessions.utils import MASTER, SLAVE
 
@@ -328,3 +329,10 @@ def test_twodscan():
     dataset = session.experiment._last_datasets[-1]
     assert dataset.scaninfo.startswith('2d')
     assert dataset.xresults == [[0., 1.], [1., 1.]]
+
+
+def test_tomo():
+    sry = session.getDevice('sry')
+    sry.maw(0.0)
+    tomo(10)
+    assert sry.read() == 360.0
