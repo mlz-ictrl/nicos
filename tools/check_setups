@@ -38,28 +38,11 @@ default_dirs = [path.join(config.custom_path, p.strip(), 'setups')
                 for p in config.setup_subdirs.split(',')]
 
 
-class ConsoleHandler(ColoredConsoleHandler):
-    def emit(self, record):
-        # reintroduce standard logging behavior that the Nicos logger overrides
-        record.message = record.getMessage()
-        # remove this, the Nicos handler uses it differently
-        record.filename = ''
-        ColoredConsoleHandler.emit(self, record)
-
-
 class FileHandler(StreamHandler):
     def __init__(self, *args):
         StreamHandler.__init__(self, *args)
         self.setFormatter(
-            logging.Formatter('! %(name)s:%(line)s: %(levelname)s: %(message)s'))
-
-    def emit(self, record):
-        # reintroduce standard logging behavior that the Nicos logger overrides
-        record.message = record.getMessage()
-        # remove this, the Nicos handler uses it differently
-        record.filename = ''
-        record.line = str(record.line) if getattr(record, 'line', 0) else ''
-        StreamHandler.emit(self, record)
+            logging.Formatter('! %(name)s: %(levelname)s: %(message)s'))
 
 
 def nicos_import(clspath):
@@ -388,10 +371,23 @@ opts, args = parser.parse_args()
 if not args:
     args = default_dirs
 
+
+class Logger(logging.Logger):
+    def handle(self, record):
+        record.message = record.getMessage()
+        record.filename = ''
+        # the ColoredConsoleHandler does not use "line", make it part of name
+        if getattr(record, 'line', 0):
+            record.name = '%s:%s' % (record.name, record.line)
+            record.line = ''
+        logging.Logger.handle(self, record)
+
+
 logging.basicConfig()
+logging.setLoggerClass(Logger)
 root_log = logging.getLogger()
 root_log.removeHandler(root_log.handlers[0])
-root_log.addHandler(ConsoleHandler())
+root_log.addHandler(ColoredConsoleHandler())
 root_log.setLevel(logging.WARNING)
 
 if opts.verbose:
