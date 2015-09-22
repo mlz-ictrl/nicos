@@ -94,6 +94,10 @@ class Dev2(HasLimits, HasOffset, Moveable):
         methods_called.add('doIsCompleted')
         return True
 
+    def isAtTarget(self, pos):
+        methods_called.add('isAtTarget')
+        return self.target == pos
+
     def doStatus(self, maxage=0):
         return status.BUSY, 'busy'
 
@@ -222,6 +226,7 @@ def test_methods():
     assert 'doStop' in methods_called
     dev2.wait()
     assert 'doIsCompleted' in methods_called
+    assert 'isAtTarget' in methods_called
     # test info() method
     keys = set(value[1] for value in dev2.info())
     assert 'testkey' in keys
@@ -236,6 +241,18 @@ def test_methods():
 
     # test access control (test session always returns False for access check)
     assert raises(AccessError, dev2.calibrate)
+
+
+def test_is_at_target():
+    # check target warning behavior in isCompleted
+    dev2 = session.getDevice('dev2_3')
+    dev2.start(0)
+    assert not session.testhandler.warns(dev2.isCompleted)
+    dev2.start(1)
+    dev2._val = 0.5
+    assert session.testhandler.warns(dev2.isCompleted)
+    # warn only once!
+    assert not session.testhandler.warns(dev2.isCompleted)
 
 
 def test_fix_and_release():

@@ -846,6 +846,7 @@ class Readable(Device):
 
     def init(self):
         self._info_errcount = 0
+        self._target_warned = False
         self._sim_active = False
         Device.init(self)
         # value in simulation mode
@@ -1298,7 +1299,7 @@ class Moveable(HasIsCompleted, Readable):
         if isinstance(self, HasTimeout):
             self._timeoutActionCalled = False
             self._setROParam('_timesout', self._getTimeoutTimes(self.read(), pos,
-                                           currenttime()))
+                                                                currenttime()))
         if self._sim_active:
             self._setROParam('target', pos)
             self._sim_setValue(pos)
@@ -1312,6 +1313,7 @@ class Moveable(HasIsCompleted, Readable):
             # event in any case
             self._setROParam('target', None)
         self._setROParam('target', pos)
+        self._target_warned = False
         self.doStart(pos)
 
     move = start
@@ -1367,9 +1369,11 @@ class Moveable(HasIsCompleted, Readable):
             val = self.read(0)
             # check reached value to be equal to target
             if not self.isAtTarget(val):
-                self.log.warning('did not reach target %s, last value is %s.' %
-                                 (self.format(self.target, unit=True),
-                                  self.format(val, unit=True)))
+                if not self._target_warned:
+                    self._target_warned = True
+                    self.log.warning('did not reach target %s, last value is %s'
+                                     % (self.format(self.target, unit=True),
+                                        self.format(val, unit=True)))
         return done
 
     def doIsCompleted(self):
