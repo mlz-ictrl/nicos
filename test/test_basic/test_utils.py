@@ -27,12 +27,14 @@
 from __future__ import print_function
 
 import sys
+import time
 import socket
 
 from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
     bitDescription, parseConnectionString, formatExtendedFrame, \
     formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
     comparestrings, timedRetryOnExcept, tcpSocket, closeSocket
+from nicos.utils.timer import Timer
 from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
 
@@ -194,3 +196,37 @@ def test_tcpsocket():
         closeSocket(sock)
     finally:
         closeSocket(serv)
+
+
+def test_timer():
+    t = time.time()
+
+    def cb(tmr, x):
+        if x == 3:
+            tmr.cb_called = True
+    # a) test a (short) timed timer
+    tmr = Timer(0.1, cb, 3)
+    assert tmr.is_running()
+    while (time.time() - t < 1.5) and tmr.is_running():
+        time.sleep(0.05)
+    assert not tmr.is_running()
+    assert tmr.cb_called
+    assert tmr.elapsed_time() == 0.1
+    assert tmr.remaining_time() == 0
+    tmr.restart()
+    # timer timed out, can not restart
+    assert not tmr.is_running()
+
+    # b) test an unlimited timer (for a short while)
+    tmr.start()
+    assert tmr.is_running()
+    assert tmr.elapsed_time() > 0
+    assert tmr.remaining_time() is None
+    time.sleep(0.1)
+    assert 0.1 < tmr.elapsed_time() < 0.2
+    tmr.stop()
+    assert not(tmr.is_running())
+
+    # todo tests:
+    # - wait()
+    # - stopping before timeout and then restart
