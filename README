@@ -28,7 +28,7 @@ and/or
 Requirements
 ------------
 
-* At least Python 2.6
+* At least Python 2.7
 
 * nicos-pyctl
 
