@@ -154,8 +154,8 @@ _slitblock = Block('Sample slit', [
 _measblock = Block('Measurement', [
     BlockRow(Field(key='m/timechannels', name='Time channels'),),
     BlockRow(Field(key='m/laststats', item=0, name='Time', format='%.1f'),
-             Field(key='m/laststats', item=1, name='Monitor', format='%d'),
-             Field(key='m/laststats', item=2, name='Counts', format='%d'),
+             Field(key='m/laststats', item=3, name='Monitor', format='%.1f'),
+             Field(key='m/laststats', item=4, name='Counts', format='%.1f'),
             ),
     ],
 )
