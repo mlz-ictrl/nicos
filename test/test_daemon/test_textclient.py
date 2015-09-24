@@ -81,6 +81,7 @@ maw t_alpha 100
 /wait 0.1
 maw t_alpha 200
 Q
+/wait 0.1
 /pending
 /where
 /cancel *
