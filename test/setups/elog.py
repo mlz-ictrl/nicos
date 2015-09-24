@@ -22,41 +22,13 @@
 #
 # *****************************************************************************
 
-from __future__ import print_function
+name = 'elog setup'
 
-import os
-import sys
-import signal
-import subprocess
-from os import path
+from test.utils import getCacheNameAndPort
 
-from nicos import session
-
-from test.utils import TestSession, startCache, killCache, cleanup, rootdir
-
-cache = None
-elog = None
-
-
-def setup_package():
-    global cache, elog  # pylint: disable=W0603
-    sys.stderr.write('\nSetting up simple test, cleaning old test dir...')
-    session.__class__ = TestSession
-    session.__init__('test_simple')
-    cleanup()
-    cache = startCache()
-    sys.stderr.write('\n')
-
-    elog = subprocess.Popen([sys.executable,
-                             path.join(rootdir, '..', 'elog.py')])
-    sys.stderr.write(' [elog start... %s ok]\n' % elog.pid)
-
-
-def teardown_package():
-    session.shutdown()
-    sys.stderr.write('\n [elog kill %s...' % elog.pid)
-    os.kill(elog.pid, signal.SIGTERM)
-    if os.name == 'posix':
-        os.waitpid(elog.pid, 0)
-    sys.stderr.write(' ok]\n')
-    killCache(cache)
+devices = dict(
+    Logbook = device('services.elog.Logbook',
+                     prefix = 'logbook/',
+                     cache = getCacheNameAndPort('localhost'),
+                    ),
+)

@@ -299,7 +299,7 @@ class Handler(object):
         self.dir = directory
         self.logdir = path.join(directory, 'logbook')
         self.out.open(self.logdir, instr or 'NICOS', proposal)
-        self.log.info('Openend new output files in ' + self.logdir)
+        self.log.info('Opened new output files in ' + self.logdir)
 
     def handle_newexperiment(self, time, data):
         proposal, title = data
@@ -385,6 +385,8 @@ class Handler(object):
             + '</p>\n')
 
     def handle_attachment(self, time, data):
+        if not self.logdir:
+            return
         description, fpaths, names = data
         links = []
         for fpath, name in zip(fpaths, names):
@@ -467,8 +469,10 @@ class Handler(object):
         # plot link
         plotfmt = self.plotformat
         try:
-            plotDataset(dataset, path.join(self.logdir,
-                                           'scan-%d' % scannumber), plotfmt)
+            if self.logdir:
+                plotDataset(dataset,
+                            path.join(self.logdir, 'scan-%d' % scannumber),
+                            plotfmt)
         except Exception:
             self.log.warning('could not generate plot', exc=1)
             html.append('<td>&mdash;</td>')
@@ -477,7 +481,7 @@ class Handler(object):
                         '<a href="scan-%d-log.%s">Log</a></td>' %
                         (scannumber, plotfmt, scannumber, plotfmt))
         # file link
-        if dataset.sinkinfo.get('filepath'):
+        if self.logdir and dataset.sinkinfo.get('filepath'):
             relfile = path.relpath(dataset.sinkinfo.get('filepath'),
                                    self.logdir)
             html.append('<td><a href="%s" type="text/plain">File</a></td>'

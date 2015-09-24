@@ -34,7 +34,7 @@ def plotDataset(dataset, fn, fmt):
         raise ValueError('no points in dataset')
 
     gpProcess = subprocess.Popen('gnuplot', shell=True, stdin=subprocess.PIPE,
-                                 stdout=None)
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     def write(s):
         gpProcess.stdin.write(to_utf8(s))

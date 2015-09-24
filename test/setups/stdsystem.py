@@ -47,7 +47,7 @@ devices = dict(
     # test that both nicos.(...) and (...) work
     Exp      = device('nicos.devices.experiment.Experiment',
                       sample = 'Sample',
-                      elog = False,
+                      elog = True,
                       dataroot = 'test/root/data',
                       propprefix = 'p',
                       templates = '../../script_templates',

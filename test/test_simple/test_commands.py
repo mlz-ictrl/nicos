@@ -40,6 +40,7 @@ from nicos.commands.device import set  # pylint: disable=W0622
 from nicos.commands.basic import help, dir  # pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
     NewSetup, AddSetup, RemoveSetup, ListSetups, \
+    LogEntry, _LogAttach, \
     CreateDevice, RemoveDevice, CreateAllDevices, \
     NewExperiment, FinishExperiment, AddUser, NewSample, \
     Remark, SetMode, ClearCache, UserInfo, run
@@ -262,3 +263,9 @@ def test_command_exceptionhandling():
 
     session.experiment.errorbehavior = 'abort'
     assert raises(LimitError, wrapped_maw, dev, -150)
+
+
+def test_commands_elog():
+    LogEntry('== some subheading\n\nThis is a logbook entry.')
+    _LogAttach('some file description', [__file__],
+               ['newname.txt'])
