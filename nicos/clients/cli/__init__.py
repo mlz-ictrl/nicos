@@ -566,8 +566,8 @@ class NicosCmdClient(NicosClient):
             self.put_error('Need a file name as argument.')
             return
         fpath = path.join(self.scriptpath, arg)
-        if not os.getenv('EDITOR'):
-            os.putenv('EDITOR', 'vi')
+        if not os.environ.get('EDITOR'):
+            os.environ['EDITOR'] = 'vi'
         self.in_editing = True
         cwd = os.getcwd()
         if path.isdir(self.scriptpath):

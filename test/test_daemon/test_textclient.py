@@ -26,7 +26,6 @@
 
 import os
 import sys
-import time
 import signal
 import subprocess
 from os import path
@@ -65,7 +64,7 @@ def teardown_module():
 
 
 def test_textclient():
-    client.stdin.write(b'''\
+    stdout, _ = client.communicate(b'''\
 /log 100
 /help
 /edit test.py
@@ -95,9 +94,7 @@ S
 /disconnect
 /quit
 ''')
-    time.sleep(1)
-
-    res = from_utf8(client.stdout.read())
+    res = from_utf8(stdout)
     assert 'Simulated minimum runtime' in res
     assert 'Current stacktrace' in res
     assert 'Showing pending scripts' in res
