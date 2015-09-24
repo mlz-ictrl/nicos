@@ -46,6 +46,7 @@ from nicos.pycompat import itervalues
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 TOGETHER, COMBINE, ADD, SUBTRACT, DIVIDE = range(5)
 
+
 def combinestr(strings, **kwds):
     strings = list(strings)
     sep = kwds.pop('sep', ' | ')
@@ -56,8 +57,10 @@ def combinestr(strings, **kwds):
             last = item
     return res
 
+
 def combineattr(it, attr, sep=' | '):
     return combinestr((getattr(x, attr) for x in it), sep=sep)
+
 
 def itemuid(item):
     return str(item.data(32))
@@ -130,6 +133,7 @@ class ScansPanel(Panel):
         self.connect(client, SIGNAL('experiment'),
                      self.on_client_experiment)
 
+        self.setCurrentDataset(None)
         self.updateList()
 
     def loadSettings(self, settings):
@@ -179,7 +183,7 @@ class ScansPanel(Panel):
             self.actionXAxis, self.actionNormalized,
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
-            self.actionFitArby,
+            self.actionFitTc, self.actionFitArby,
         ]:
             action.setEnabled(on)
 
@@ -299,8 +303,10 @@ class ScansPanel(Panel):
         if plot is None:
             self.enablePlotActions(False)
         else:
-            try: self.setUidStack.remove(plot.dataset.uid)
-            except ValueError: pass
+            try:
+                self.setUidStack.remove(plot.dataset.uid)
+            except ValueError:
+                pass
             self.setUidStack.append(plot.dataset.uid)
 
             self.enablePlotActions(True)
