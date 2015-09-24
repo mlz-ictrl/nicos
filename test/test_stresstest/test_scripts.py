@@ -32,7 +32,7 @@ from nicos.core.sessions.simple import ScriptSession
 from nicos.pycompat import exec_
 
 # import all public symbols from nicos.core to get all nicos exceptions
-from nicos.core import *  # pylint: disable=W0611,W0401
+from nicos.core import *  # pylint: disable=unused-wildcard-import,wildcard-import
 
 
 from test.utils import raises, assert_raises
@@ -81,7 +81,7 @@ def run_script_session(setup, code):
 
 
 def test_simple():
-    run_script_session('startup', 'print "Test"')
+    run_script_session('startup', 'print("Test")')
 
 
 def test_raise_simple():
