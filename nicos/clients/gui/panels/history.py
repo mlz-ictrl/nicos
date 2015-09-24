@@ -49,9 +49,9 @@ from nicos.pycompat import cPickle as pickle, iteritems, OrderedDict, \
 
 
 class View(QObject):
-    def __init__(self, parent, name, keys_indices, interval, fromtime, totime,
+    def __init__(self, name, keys_indices, interval, fromtime, totime,
                  yfrom, yto, window, meta, dlginfo, query_func):
-        QObject.__init__(self, parent)
+        QObject.__init__(self)
         self.name = name
         self.dlginfo = dlginfo
 
@@ -63,6 +63,7 @@ class View(QObject):
         self._key_indices = {}
         self.uniq_keys = set()
         self.series = OrderedDict()
+        self.timer = None
 
         # + 60 seconds: get all values, also those added while querying
         hist_totime = self.totime or currenttime() + 60
@@ -112,6 +113,14 @@ class View(QObject):
             self.timer.start()
 
         self.connect(self, SIGNAL('timeSeriesUpdate'), self.on_timeSeriesUpdate)
+
+    def cleanup(self):
+        self.plot.cleanup()
+        self.plot.deleteLater()
+        if self.timer:
+            self.timer.stop()
+        for series in self.series.values():
+            series.signal_obj = None
 
     def on_timer_timeout(self):
         for series in self.series.values():
@@ -403,7 +412,7 @@ class BaseHistoryWindow(object):
                 return
         else:
             yfrom = yto = None
-        view = View(self, name, keys_indices, interval, fromtime, totime,
+        view = View(name, keys_indices, interval, fromtime, totime,
                     yfrom, yto, window, meta, info, self.gethistory_callback)
         self.views.append(view)
         view.listitem = QListWidgetItem(view.name, self.viewList)
@@ -411,6 +420,7 @@ class BaseHistoryWindow(object):
         if view.totime is None:
             for key in view.uniq_keys:
                 self.keyviews.setdefault(key, []).append(view)
+        return view
 
     def _getMetainfo(self, keys_indices):
         """Collect unit and string<->integer mapping for each key that
@@ -523,9 +533,8 @@ class BaseHistoryWindow(object):
             self.addPreset(info['name'], info)
         self.viewStack.pop()
         self.clearView(view)
-        self.setCurrentView(None)
-        self._createViewFromDialog(info)
-        if view.plot.HAS_AUTOSCALE:
+        new_view = self._createViewFromDialog(info)
+        if new_view.plot.HAS_AUTOSCALE:
             self._autoscale(True, False)
 
     @qtsig('')
@@ -564,6 +573,7 @@ class BaseHistoryWindow(object):
         if view.totime is None:
             for key in view.uniq_keys:
                 self.keyviews[key].remove(view)
+        view.cleanup()
 
     @qtsig('')
     def on_actionSavePlot_triggered(self):
@@ -665,13 +675,16 @@ class HistoryPanel(Panel, BaseHistoryWindow):
                 paction = QAction(preset, self)
                 pdelaction = QAction(preset, self)
                 info = pickle.loads(str(info))
+
                 def launchpreset(on, info=info):
                     self._createViewFromDialog(info)
+
                 def delpreset(on, name=preset, pact=paction, pdelact=pdelaction):
                     pmenu.removeAction(pact)
                     delmenu.removeAction(pdelact)
                     self.presetdict.pop(name, None)
                     self._refresh_presets()
+
                 self.connect(paction, SIGNAL('triggered(bool)'), launchpreset)
                 pmenu.addAction(paction)
                 self.connect(pdelaction, SIGNAL('triggered(bool)'), delpreset)
@@ -785,6 +798,7 @@ class HistoryPanel(Panel, BaseHistoryWindow):
     @qtsig('bool')
     def on_actionScaleY_toggled(self, on):
         self._autoscale(y=on)
+
 
 class StandaloneHistoryWindow(QMainWindow, BaseHistoryWindow, DlgUtils):
 

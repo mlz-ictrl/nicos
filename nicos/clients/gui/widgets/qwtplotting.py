@@ -586,6 +586,9 @@ class ViewPlot(ViewPlotMixin, NicosQwtPlot):
         ViewPlotMixin.__init__(self, view)
         NicosQwtPlot.__init__(self, parent, window, timeaxis=True)
 
+    def cleanup(self):
+        pass
+
     # pylint: disable=W0221
     def on_picker_moved(self, point, strf=strftime, local=localtime):
         # overridden to show the correct timestamp

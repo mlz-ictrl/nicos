@@ -137,14 +137,12 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self._plot.title = self.titleString()
         self.addPlot(self._plot)
 
-        self._guiConn = GUIConnector(self)
-        self._guiConn.connect(LegendEvent.ROI_CLICKED,
-                              self.on_legendItemClicked, LegendEvent)
-        self._guiConn.connect(ROIEvent.ROI_CLICKED,
-                              self.on_roiItemClicked, ROIEvent)
-        self._guiConn.connect(MouseEvent.MOUSE_PRESS,
-                              self.on_fitPicker_selected)
-        self._guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
+        guiConn = GUIConnector(self)
+        guiConn.connect(LegendEvent.ROI_CLICKED, self.on_legendItemClicked,
+                        LegendEvent)
+        guiConn.connect(ROIEvent.ROI_CLICKED, self.on_roiItemClicked, ROIEvent)
+        guiConn.connect(MouseEvent.MOUSE_PRESS, self.on_fitPicker_selected)
+        guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
         self.logXinDomain.connect(self.on_logXinDomain)
         self.logYinDomain.connect(self.on_logYinDomain)
         self.setLegend(True)
@@ -457,6 +455,10 @@ class ViewPlot(ViewPlotMixin, NicosGrPlot):
         ViewPlotMixin.__init__(self, view)
         NicosGrPlot.__init__(self, parent, window, timeaxis=True)
         self.setSymbols(False)
+
+    def cleanup(self):
+        self.view = None
+        self._axes.setXtickCallback(None)
 
     def titleString(self):
         return self.view.name
