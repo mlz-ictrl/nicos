@@ -39,6 +39,7 @@ from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
     String, SetupName, DeviceName
 from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.utils import formatDuration, printTable
+from nicos.utils.timer import Timer
 from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.output import printinfo, printwarning, printexception, printerror
@@ -145,18 +146,17 @@ def sleep(secs):
     if session.mode == SIMULATION:
         session.clock.tick(secs)
         return
-    MAX_INTERVAL = 5
-    # partition the whole preset time in slices of MAX_INTERVAL
-    full, fraction = divmod(secs, MAX_INTERVAL)
-    intervals = [MAX_INTERVAL] * int(full)
+
+    def f_notify(tmr):
+        session.breakpoint(2)  # allow break and continue here
+        session.action('%s left' % formatDuration(tmr.remaining_time()))
+
     printinfo('sleeping for %.1f seconds...' % secs)
-    if fraction:
-        intervals.append(fraction)
     session.beginActionScope('Sleeping')
+    session.action('%s left' % formatDuration(secs))
     try:
-        for interval in intervals:
-            session.breakpoint(2)  # allow break and continue here
-            time.sleep(interval)
+        tmr = Timer(secs)
+        tmr.wait(interval=1.0, notify_func=f_notify)
     finally:
         session.endActionScope()
 
