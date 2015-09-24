@@ -26,6 +26,7 @@
 
 import os
 import time
+import base64
 import socket
 import hashlib
 import threading
@@ -138,8 +139,9 @@ class NicosClient(object):
                 encodedkey = banner.get('rsakey', None)
                 if encodedkey is None:
                     raise ProtocolError('rsa requested, but rsakey missing in banner')
-                pubkey = rsa.PublicKey.load_pkcs1(encodedkey.decode('base64'))
-                password = 'RSA:' + rsa.encrypt(password, pubkey).encode('base64')
+                pubkey = rsa.PublicKey.load_pkcs1(base64.decodestring(encodedkey))
+                password = rsa.encrypt(to_utf8(password), pubkey)
+                password = 'RSA:' + base64.encodestring(password).decode()
             else:
                 pw_hashing = pw_hashing[4:]
         if pw_hashing == 'sha1':

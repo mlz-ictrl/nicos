@@ -28,6 +28,7 @@ The connection handler for the execution daemon, handling the protocol commands.
 
 import os
 import errno
+import base64
 import socket
 import tempfile
 try:
@@ -267,7 +268,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         authenticators, hashing = self.daemon.get_authenticators()
         if rsa is not None:
             pubkey, privkey = rsa.newkeys(512)
-            pubkeyStr = pubkey.save_pkcs1().encode('base64')
+            pubkeyStr = base64.encodestring(pubkey.save_pkcs1())
             bannerhashing = 'rsa,%s' % hashing
         else:
             pubkeyStr = ''
@@ -296,7 +297,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         passw = credentials['passwd']
         if passw[0:4] == 'RSA:':
             passw = passw[4:]
-            passw = rsa.decrypt(passw.decode('base64'), privkey)
+            passw = rsa.decrypt(base64.decodestring(passw.encode()), privkey)
             if hashing == 'sha1':
                 passw = hashlib.sha1(passw).hexdigest()
             elif hashing == 'md5':
