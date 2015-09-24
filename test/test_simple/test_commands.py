@@ -40,10 +40,11 @@ from nicos.commands.device import set  # pylint: disable=W0622
 from nicos.commands.basic import help, dir  # pylint: disable=W0622
 from nicos.commands.basic import ListCommands, sleep, \
     NewSetup, AddSetup, RemoveSetup, ListSetups, \
-    LogEntry, _LogAttach, \
+    LogEntry, _LogAttach, SetErrorAbort, \
     CreateDevice, RemoveDevice, CreateAllDevices, \
     NewExperiment, FinishExperiment, AddUser, NewSample, \
-    Remark, SetMode, ClearCache, UserInfo, run
+    Remark, SetMode, ClearCache, UserInfo, run, \
+    notify, SetMailReceivers
 from nicos.commands.output import printdebug, printinfo, printwarning, \
     printerror, printexception
 from nicos.core.sessions.utils import MASTER, SLAVE
@@ -253,7 +254,7 @@ def test_command_exceptionhandling():
     dev = session.getDevice('motor')
     assert dev.usermin == -100
 
-    session.experiment.errorbehavior = 'report'
+    SetErrorAbort(False)
     try:
         wrapped_maw(dev, -150)
     except ErrorLogged:
@@ -261,7 +262,7 @@ def test_command_exceptionhandling():
     else:
         assert False, 'no error raised and no error logged'
 
-    session.experiment.errorbehavior = 'abort'
+    SetErrorAbort(True)
     assert raises(LimitError, wrapped_maw, dev, -150)
 
 
@@ -269,3 +270,23 @@ def test_commands_elog():
     LogEntry('== some subheading\n\nThis is a logbook entry.')
     _LogAttach('some file description', [__file__],
                ['newname.txt'])
+
+
+def test_notifiers():
+    notifier = session.getDevice('testnotifier')
+
+    notifier.reset()
+    assert notifier.receivers == []
+    SetMailReceivers('receiver@example.com')
+    assert notifier.receivers == ['receiver@example.com']
+
+    notifier.clear()
+    notify('something\nimportant')
+    assert notifier._messages == [('something', 'something\nimportant',
+                                   None, None, False)]
+
+    notifier.clear()
+    notify('subject', 'body')
+    assert notifier._messages == [('subject', 'body', None, None, False)]
+
+    assert raises(UsageError, notify, 'lots', 'of', 'args')

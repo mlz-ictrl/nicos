@@ -32,6 +32,7 @@ sysconfig = dict(
     experiment = 'Exp',
     instrument = 'Tas',
     datasinks = ['testsink'],
+    notifiers = ['testnotifier'],
 )
 
 modules = ['nicos.commands.standard', 'nicos.commands.tas']
@@ -43,6 +44,10 @@ devices = dict(
 
     testsink = device('test.utils.TestSink',
                      ),
+
+    testnotifier = device('test.utils.TestNotifier',
+                          sender = 'sender@example.com',
+                         ),
 
     # test that both nicos.(...) and (...) work
     Exp      = device('nicos.devices.experiment.Experiment',

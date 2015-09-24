@@ -40,11 +40,12 @@ from nose.tools import assert_raises  # pylint: disable=E0611
 from nose.plugins.skip import SkipTest
 
 from nicos import config
-from nicos.utils import tcpSocket
 from nicos.core import Moveable, HasLimits, DataSink, status
 from nicos.core.sessions import Session
-from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 from nicos.core.sessions.utils import MASTER
+from nicos.devices.notifiers import Mailer
+from nicos.utils import tcpSocket
+from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 from nicos.pycompat import exec_
 
 
@@ -279,6 +280,19 @@ class TestSink(DataSink):
 
     def endDataset(self, dataset):
         self._calls.append('endDataset')
+
+
+class TestNotifier(Mailer):
+    # inherits from Mailer to be handled by SetMailReceivers
+
+    def doInit(self, mode):
+        self.clear()
+
+    def clear(self):
+        self._messages = []
+
+    def send(self, subject, body, what=None, short=None, important=True):
+        self._messages.append((subject, body, what, short, important))
 
 
 def cleanup():
