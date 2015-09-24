@@ -411,7 +411,7 @@ def parseConnectionString(s, defport):
     res = re.match(r"(?:(\w+)(?::([^@]*))?@)?([\w.]+)(?::(\d+))?", s)
     if res is None:
         return None
-    return res.group(1) or 'guest', res.group(2) or '', \
+    return res.group(1) or 'guest', res.group(2), \
         res.group(3), int(res.group(4) or defport)
 
 

@@ -108,6 +108,10 @@ def test_functions():
 
     assert parseConnectionString('user:pass@host:1301', 1302) == \
         ('user', 'pass', 'host', 1301)
+    assert parseConnectionString('user:@host:1301', 1302) == \
+        ('user', '', 'host', 1301)
+    assert parseConnectionString('user@host:1301', 1302) == \
+        ('user', None, 'host', 1301)
 
     assert list(map(tuple, chunks(range(10), 3))) == \
         [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]

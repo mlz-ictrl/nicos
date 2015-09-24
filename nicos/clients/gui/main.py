@@ -723,7 +723,9 @@ def main(argv):
         cdata = parseConnectionString(args[0], DEFAULT_PORT)
         if cdata:
             mainwindow.setConnData(*cdata)
-            if len(args) > 1:
+            if cdata[1] is not None:
+                mainwindow.client.connect(mainwindow.connectionData, cdata[1])
+            elif len(args) > 1:
                 mainwindow.client.connect(mainwindow.connectionData, args[1])
     mainwindow.startup()
 

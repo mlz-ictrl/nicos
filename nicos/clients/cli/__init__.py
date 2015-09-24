@@ -1104,7 +1104,7 @@ def main(argv):
             cd = parseConnectionString(argv[1], DEFAULT_PORT)
             server = '%s:%s' % cd[2:4]
             user = cd[0]
-            passwd = cd[1] or None
+            passwd = cd[1]
         if argv[3:] and argv[2] == 'via':
             via = argv[3]
 
@@ -1140,8 +1140,10 @@ def main(argv):
         # use a random (hopefully free) high numbered port on our side
         nport = random.randint(10000, 20000)
         os.execvp('sh', ['sh', '-c',
-                         'ssh -f -L "%s:%s:%s" "%s" %s && %s "%s:%s@localhost:%s"' %
-                         (nport, host, port, via, viacommand, argv[0], user, passwd, nport)])
+                         'ssh -f -L "%s:%s:%s" "%s" %s && %s "%s%s@localhost:%s"' %
+                         (nport, host, port, via, viacommand, argv[0], user,
+                          (':%s' % passwd if passwd is not None else ''),
+                          nport)])
 
     # this is the connection data format used by nicos.clients.base
     conndata = {
