@@ -51,7 +51,7 @@ Requirements
   - pyfits (for the handling of FITS formatted files)
   - rsa
   - pyasn1
-  - python-ldap (for ldap authentication)
+  - ldap3 (for ldap authentication)
   - sendsms tool to use the SMS notifier (See: http://smslink.sourceforge.net/)
 
 * For the GUI and status monitor:
@@ -117,7 +117,7 @@ xBuntu 12.04
 
 * Optional components:
 
-  apt-get install python-{mysqldb,pyxmpp,serial,matplotlib,pyfits,lxml,ldap}
+  apt-get install python-{mysqldb,pyxmpp,serial,matplotlib,pyfits,lxml,ldap3}
 
 * GUI and status monitor:
 
@@ -125,7 +125,7 @@ xBuntu 12.04
 
 * Development and documentation build:
 
-  apt-get install python-sip-dev python-qt4-dev python-nose python-coverage python-sphinx libldap2-dev libsasl2-dev
+  apt-get install python-sip-dev python-qt4-dev python-nose python-coverage python-sphinx
 
 * For the livewidget you have to install the Qwt and TIFF development packages:
 

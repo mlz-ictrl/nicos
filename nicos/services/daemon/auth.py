@@ -30,11 +30,9 @@ from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, ADMIN,
 from nicos.pycompat import string_types
 
 try:
-    import ldap  # pylint: disable=F0401
-    import ldap.ldapobject as ldapobject  # pylint: disable=F0401
+    import ldap3  # pylint: disable=F0401
 except ImportError:
-    ldap = None
-    ldapobject = None
+    ldap3 = None
 
 
 class AuthenticationError(Exception):
@@ -93,12 +91,13 @@ def auth_entry(val=None):
 
 
 class LDAPAuthenticator(Authenticator):
-    '''Authenticates against the configured LDAP server.
+    """Authenticates against the configured LDAP server.
 
     Basically it tries to bind on the server with the given userdn.
     Per default, all ldap users are rejected when there is no user level
     definition inside the 'roles' dictionary.
-    '''
+    """
+
     parameters = {
         'server': Param('Ldap server',
                         type=str,
@@ -125,13 +124,12 @@ class LDAPAuthenticator(Authenticator):
     }
 
     def doInit(self, mode):
-        # Refuse the usage of the ldap authenticator if the python-ldap package is missing
-        if not ldap:
-            raise NicosError('LDAP authentication not supported (python-ldap package missing)')
+        # refuse the usage of the ldap authenticator if the ldap3 package is missing
+        if not ldap3:
+            raise NicosError('LDAP authentication not supported (ldap3 package missing)')
 
-        # Create a ldap connection, that's capable of automatic reconnects for
-        # later authentications.
-        self._connection = ldapobject.ReconnectLDAPObject('ldap://%s:%i' % (self.server, self.port))
+        # create a ldap server object
+        self._server = ldap3.Server('%s:%d' % (self.server, self.port))
 
     def pw_hashing(self):
         # A plain password is necessary for ldap bind.
@@ -141,10 +139,9 @@ class LDAPAuthenticator(Authenticator):
         userdn = self._buildUserDn(username)
 
         # first of all: try a bind to check user existance and password
-        try:
-            self._connection.simple_bind(userdn, password)
-        except ldap.LDAPError as e:
-            raise AuthenticationError(str(e))
+        conn = ldap3.Connection(self._server, user=userdn, password=password)
+        if not conn.bind():
+            raise AuthenticationError('LDAP bind failed')
 
         userlevel = -1
 
@@ -154,7 +151,7 @@ class LDAPAuthenticator(Authenticator):
             return User(username, userlevel)
 
         # if no explicit user right was given, check group rights
-        groups = self._getUserGroups(username)
+        groups = self._getUserGroups(conn, username)
 
         for group in groups:
             if group in self.grouproles:
@@ -173,29 +170,35 @@ class LDAPAuthenticator(Authenticator):
         for levelCode, name in ACCESS_LEVELS.items():
             if name == role:
                 return levelCode
-
         return -1
 
     def _buildUserDn(self, username):
         return ('uid=%s,%s' % (username, self.userbasedn))
 
-    def _getGroupnameForGidnumber(self, gidnumber):
+    def _getGroupnameForGidnumber(self, conn, gidnumber):
         filterStr = self.groupfilter % {'gidnumber': gidnumber}
-        result = self._connection.search_s(self.groupbasedn, ldap.SCOPE_ONELEVEL, filterStr)
+        if not conn.search(self.groupbasedn, filterStr, ldap3.LEVEL,
+                           attributes=ldap3.ALL_ATTRIBUTES):
+            return None
+        try:
+            return conn.response[0]['attributes']['cn'][0]
+        except StandardError:
+            return None
 
-        if result:
-            return result[0][1]['cn'][0]
-
-    def _getUserGroups(self, username):
+    def _getUserGroups(self, conn, username):
         filterStr = self.userfilter % {'username': username}
-        userData = self._connection.search_s(self.userbasedn, ldap.SCOPE_ONELEVEL, filterStr)
+        if not conn.search(self.userbasedn, filterStr, ldap3.LEVEL,
+                           attributes=ldap3.ALL_ATTRIBUTES):
+            return []
 
-        gidnumbers = []
+        try:
+            gidnumbers = [int(num) for num in
+                          conn.response[0]['attributes']['gidNumber']]
+        except StandardError:
+            return []
 
-        if userData:
-            gidnumbers = userData[0][1]['gidNumber']
-
-        return [self._getGroupnameForGidnumber(entry) for entry in gidnumbers]
+        return [self._getGroupnameForGidnumber(conn, entry)
+                for entry in gidnumbers]
 
 
 class ListAuthenticator(Authenticator):
