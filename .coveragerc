@@ -1,12 +1,14 @@
 [run]
 source = nicos
 omit =
-	nicos/devices/taco/*
-	nicos/commands/taco.py
-	nicos/devices/tango/*
-	nicos/devices/vendor/*
-	nicos/services/monitor/qt.py
+	nicos/_vendor/*
 	nicos/clients/gui/*
+	nicos/commands/taco.py
+	nicos/devices/taco/*
+	nicos/devices/tango.py
+	nicos/devices/tas/plotting.py
+	nicos/devices/vendor/*
 	nicos/guisupport/*
-	nicos/_vendor
+	nicos/services/monitor/qt.py
+	nicos/services/web/*
 parallel = true
