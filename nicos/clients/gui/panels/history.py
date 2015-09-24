@@ -59,6 +59,7 @@ class View(QObject):
         self.totime = totime
         self.yfrom = yfrom
         self.yto = yto
+        self.window = window
 
         self._key_indices = {}
         self.uniq_keys = set()
@@ -514,6 +515,7 @@ class BaseHistoryWindow(object):
                 self._autoscale(x=mask & PlotAxes.SCALE_X,
                                 y=mask & PlotAxes.SCALE_Y)
                 view.plot.logYinDomain.connect(self.on_logYinDomain)
+            view.plot.setSlidingWindow(view.window)
             view.plot.show()
 
     def on_viewList_itemDoubleClicked(self, item):

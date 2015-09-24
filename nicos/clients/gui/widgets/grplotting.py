@@ -61,12 +61,28 @@ class NicosPlotAxes(PlotAxes):
 
 class NicosTimePlotAxes(NicosPlotAxes):
 
+    def __init__(self, viewport, xtick=None, ytick=None, majorx=None,
+                 majory=None, drawX=True, drawY=True, slidingwindow=None):
+        NicosPlotAxes.__init__(self, viewport, xtick, ytick, majorx, majory,
+                               drawX, drawY)
+        self.slidingwindow = slidingwindow
+
     def setWindow(self, xmin, xmax, ymin, ymax):
         res = NicosPlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
         if res:
             tickdist, self.majorx = buildTickDistAndSubTicks(xmin, xmax)
             self.xtick = tickdist / self.majorx
         return res
+
+    def doAutoScale(self, curvechanged=None):
+        vc = self.getVisibleCurves() or self.getCurves()
+        win = NicosPlotAxes.doAutoScale(self, curvechanged)
+        xmin, xmax, ymin, ymax = win  # pylint: disable=unpacking-non-sequence
+        if self.slidingwindow and self.autoscale & PlotAxes.SCALE_X and \
+           (vc.xmax - xmin) > self.slidingwindow:
+            xmin = vc.xmax - self.slidingwindow
+            self.setWindow(xmin, xmax, ymin, ymax)
+        return self.getWindow()
 
 
 class NicosPlotCurve(PlotCurve):
@@ -490,6 +506,9 @@ class ViewPlot(ViewPlotMixin, NicosGrPlot):
         plotcurve.legend = series.title
         self._axes.addCurves(plotcurve)
         InteractiveGRWidget.update(self)
+
+    def setSlidingWindow(self, window):
+        self._axes.slidingwindow = window
 
 
 class DataSetPlot(DataSetPlotMixin, NicosGrPlot):

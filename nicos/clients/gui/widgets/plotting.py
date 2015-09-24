@@ -686,6 +686,9 @@ class ViewPlotMixin(object):
                         strftime('%Y-%m-%d.%H:%M:%S', localtime(x[i])),
                         y[i]))
 
+    def setSlidingWindow(self, window):
+        pass
+
 
 # pylint: disable=W0611
 try:
