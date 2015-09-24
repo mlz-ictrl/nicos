@@ -48,11 +48,6 @@ class tabbed(tuple):
         return tuple.__new__(cls, children)
 
 
-class setups(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
-
-
 class docked(tuple):
     def __new__(cls, mainitem, *dockitems):
         return tuple.__new__(cls, (mainitem, dockitems))
@@ -133,5 +128,4 @@ def prepareGuiNamespace():
     ns['tool'] = tool
     ns['docked'] = docked
     ns['tabbed'] = tabbed
-    ns['setups'] = setups
     return ns

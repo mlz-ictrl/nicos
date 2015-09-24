@@ -91,10 +91,10 @@ class SetupDepGuiMixin(QObject):
         client.register(self, 'session/mastersetup')
 
     def setOptions(self, options):
-        setups = options.get('setups', ())
-        if isinstance(setups, str):
-            setups = (setups,)
-        self.setSetups(list(setups))
+        setups = options.get('setups', '')
+        if not isinstance(setups, str):
+            setups = list(setups)
+        self.setSetups(setups)
 
     def setSetups(self, setupSpec):
         self.setupSpec = setupSpec
