@@ -27,7 +27,7 @@
 from IO import StringIO
 
 from nicos.core import status, Moveable, Readable, HasLimits, \
-    HasWindowTimeout, Param, oneof, defaultIsCompleted
+    HasWindowTimeout, Param, oneof
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -63,6 +63,11 @@ class TemperatureController(Lascon, HasWindowTimeout, HasLimits, Moveable):
                                type=oneof('continue', 'raise'), settable=True),
     }
 
+    @property
+    def errorstates(self):
+        return (status.ERROR, status.NOTREACHED) \
+            if self.timeoutaction == 'raise' else (status.ERROR,)
+
     def doStart(self, target):
         self.writeLine('SetSTemp 1 0 %f' % target)
 
@@ -80,11 +85,6 @@ class TemperatureController(Lascon, HasWindowTimeout, HasLimits, Moveable):
 
     def doStop(self):
         self.start(self.doRead(0))
-
-    def doIsCompleted(self):
-        errorstates = (status.ERROR, status.NOTREACHED) \
-            if self.timeoutaction == 'raise' else (status.ERROR,)
-        return defaultIsCompleted(self, errorstates=errorstates)
 
     def doReadSetpoint(self):
         return float(self.communicate('GetSTemp 1')[3])

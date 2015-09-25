@@ -90,10 +90,6 @@ class Dev2(HasLimits, HasOffset, Moveable):
     def doStop(self):
         methods_called.add('doStop')
 
-    def doIsCompleted(self):
-        methods_called.add('doIsCompleted')
-        return True
-
     def doFinish(self):
         methods_called.add('doFinish')
 
@@ -102,7 +98,7 @@ class Dev2(HasLimits, HasOffset, Moveable):
         return self.target == pos
 
     def doStatus(self, maxage=0):
-        return status.BUSY, 'busy'
+        return status.OK, 'idle'
 
     def doReset(self):
         methods_called.add('doReset')
@@ -218,7 +214,7 @@ def test_methods():
     assert raises(LimitError, dev2.move, 5)
     # read() and status()
     assert dev2.read() == 10
-    assert dev2.status()[0] == status.BUSY
+    assert dev2.status()[0] == status.OK
     # __call__ interface
     dev2(7)
     assert dev2() == 7
@@ -228,7 +224,6 @@ def test_methods():
     dev2.stop()
     assert 'doStop' in methods_called
     dev2.wait()
-    assert 'doIsCompleted' in methods_called
     assert 'doFinish' in methods_called
     assert 'isAtTarget' in methods_called
     # test info() method
@@ -236,7 +231,7 @@ def test_methods():
     assert 'testkey' in keys
     assert 'param2' in keys
     assert 'value' in keys
-    assert 'status' in keys
+    assert 'status' not in keys  # it's not busy
     # loglevel
     dev2.loglevel = 'info'
     assert raises(ConfigurationError, setattr, dev2, 'loglevel', 'xxx')

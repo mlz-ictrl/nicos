@@ -461,6 +461,9 @@ class Wavevector(Moveable):
     def doStatus(self, maxage=0):
         return self._adevs['base'].status(maxage)
 
+    def _getWaiters(self):
+        return [self._adevs['base']]
+
     def doStart(self, pos):
         # first drive there, to determine if it is within limits
         tas = self._adevs['tas']
@@ -476,9 +479,6 @@ class Wavevector(Moveable):
         if msg:
             tas.log.info('scan mode is now %s at %s' %
                          (self.scanmode, self.format(pos, unit=True)))
-
-    def doIsCompleted(self):
-        return self._adevs['base'].isCompleted()
 
     def doStop(self):
         self._adevs['base'].stop()
@@ -516,6 +516,9 @@ class Energy(Moveable):
     def doStatus(self, maxage=0):
         return self._adevs['base'].status(maxage)
 
+    def _getWaiters(self):
+        return [self._adevs['base']]
+
     def doStart(self, pos_e):
         # first drive there, to determine if it is within limits
         tas = self._adevs['tas']
@@ -535,9 +538,6 @@ class Energy(Moveable):
 
     def doReadUnit(self):
         return self._adevs['tas'].energytransferunit
-
-    def doIsCompleted(self):
-        return self._adevs['base'].isCompleted()
 
     def doStop(self):
         self._adevs['base'].stop()
@@ -571,6 +571,9 @@ class Wavelength(Moveable):
         mono = self._adevs['base']
         return 2 * pi / to_k(mono.read(maxage), mono.unit)
 
+    def _getWaiters(self):
+        return [self._adevs['base']]
+
     def doStatus(self, maxage=0):
         return self._adevs['base'].status(maxage)
 
@@ -593,9 +596,6 @@ class Wavelength(Moveable):
 
     def doReadUnit(self):
         return 'AA'
-
-    def doIsCompleted(self):
-        return self._adevs['base'].isCompleted()
 
     def doStop(self):
         self._adevs['base'].stop()

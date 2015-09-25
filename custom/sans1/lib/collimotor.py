@@ -30,7 +30,7 @@ import struct
 from Modbus import Modbus
 
 from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
-    floatrange, intrange, status, defaultIsCompleted, InvalidValueError, Moveable, \
+    floatrange, intrange, status, InvalidValueError, Moveable, \
     UsageError, CommunicationError, PositionError, MoveError, SIMULATION, \
     HasTimeout, Attach, usermethod, requires
 from nicos.core.utils import multiStatus
@@ -547,11 +547,6 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         stati.sort(reverse=True)
         # return highest (worst) status
         return stati[0]
-
-    def doIsCompleted(self):
-        if self._seq_thread and self._seq_thread.isAlive():
-            return False
-        return defaultIsCompleted(self)
 
     @requires(level='admin')
     def doReference(self):

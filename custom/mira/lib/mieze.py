@@ -28,8 +28,8 @@ import copy
 from itertools import chain
 
 from nicos import session
-from nicos.core import dictof, listof, anytype, usermethod, multiStatus, \
-    Moveable, Param, Override, Value, NicosError, UsageError, multiIsCompleted
+from nicos.core import dictof, listof, anytype, usermethod, Moveable, Param, \
+    Override, Value, NicosError, UsageError
 from nicos.core.scan import Scan, ManualScan
 from nicos.utils import printTable
 from nicos.commands import usercommand
@@ -55,9 +55,6 @@ class MiezeMaster(Moveable):
         'unit':   Override(mandatory=False, default=''),
         'fmtstr': Override(default='%s'),
     }
-
-    def doInit(self, mode):
-        self._started_devs = []
 
     def doRead(self, maxage=0):
         if self.tuning == '':
@@ -87,7 +84,6 @@ class MiezeMaster(Moveable):
     def doStart(self, target):
         index = self._findsetting(target)
         setting = self.curtable[index]
-        self._started_devs = []
         devs = sorted(setting.items())
         for devname, devvalue in devs:
             if devname.startswith('amp'):
@@ -100,22 +96,13 @@ class MiezeMaster(Moveable):
             self.log.debug('moving %r to %r' % (devname, devvalue))
             dev = session.getDevice(devname)
             dev.move(devvalue)
-            self._started_devs.append(dev)
         for devname, devvalue in devs:
             if not devname.startswith('amp'):
                 continue
             self.log.debug('moving %r to %r' % (devname, devvalue))
             dev = session.getDevice(devname)
             dev.move(devvalue)
-            self._started_devs.append(dev)
         self.setting = index
-
-    def doIsCompleted(self):
-        return multiIsCompleted(self._started_devs)
-
-    def doStatus(self, maxage=0):
-        return multiStatus(((dev.name, dev) for dev in self._started_devs),
-                           maxage)
 
     def doWriteTuning(self, value):
         if value not in self.tunetables:

@@ -28,8 +28,8 @@
 from time import sleep
 
 from nicos.core import status, HasOffset, Override, ConfigurationError, \
-    NicosError, PositionError, MoveError, defaultIsCompleted, floatrange, \
-    Param, Attach, waitForStatus
+    NicosError, PositionError, MoveError, floatrange, Param, Attach, \
+    waitForStatus
 from nicos.devices.abstract import Axis as BaseAxis, Motor, Coder, CanReference
 from nicos.utils import createThread
 
@@ -60,6 +60,8 @@ class Axis(CanReference, BaseAxis):
                              'when determining current position', type=int,
                              default=100, settable=True),
     }
+
+    errorstates = ()
 
     def doInit(self, mode):
         # Check that motor and unit have the same unit
@@ -206,9 +208,6 @@ class Axis(CanReference, BaseAxis):
         # send a stop in case the motor was  started via
         # the lowlevel device or externally.
         self._adevs['motor'].stop()
-
-    def doIsCompleted(self):
-        return defaultIsCompleted(self, errorstates=())
 
     def doFinish(self):
         if self._errorstate:

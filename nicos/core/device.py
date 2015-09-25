@@ -34,13 +34,13 @@ from nicos import session
 from nicos.core import status
 from nicos.core.constants import MASTER, SIMULATION, SLAVE, POLLER
 from nicos.core.utils import formatStatus, statusString, \
-    defaultIsCompleted, multiIsCompleted, multiStop, multiStatus, multiWait
-from nicos.core.mixins import DeviceMixinMeta, HasIsCompleted, HasLimits, HasOffset, \
+    multiStop, multiStatus, multiWait
+from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
     HasTimeout, HasPrecision
 from nicos.core.params import Param, Override, Value, floatrange, oneof, \
     anytype, none_or, dictof, listof, tupleof, nicosdev, Attach
-from nicos.core.errors import NicosError, ConfigurationError, \
-    ProgrammingError, UsageError, LimitError, ModeError, \
+from nicos.core.errors import NicosError, ConfigurationError, MoveError, \
+    ProgrammingError, UsageError, LimitError, ModeError, PositionError, \
     CommunicationError, CacheLockError, InvalidValueError, AccessError
 from nicos.utils import loggers, getVersions, parseDateString
 from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
@@ -844,6 +844,9 @@ class Readable(Device):
                               type=none_or(tupleof(anytype, anytype))),
     }
 
+    busystates = (status.BUSY,)
+    errorstates = (status.NOTREACHED, status.ERROR)
+
     def init(self):
         self._info_errcount = 0
         self._sim_active = False
@@ -1148,7 +1151,7 @@ class Readable(Device):
         return ret + Device.info(self)
 
 
-class Moveable(HasIsCompleted, Readable):
+class Moveable(Readable):
     """
     Base class for moveable devices.
 
@@ -1252,8 +1255,7 @@ class Moveable(HasIsCompleted, Readable):
 
         This method should not generally wait for completion of the movement,
         although individual devices can implement it that way if it is
-        convenient.  In that case, :meth:`doIsCompleted` should be implemented
-        and always return True.
+        convenient.
 
         The validity of the given *pos* is checked by calling :meth:`isAllowed`
         before :meth:`doStart` is called.
@@ -1335,41 +1337,72 @@ class Moveable(HasIsCompleted, Readable):
             return abs(target - old_value) / (self.ramp / 60.)
         return 0.
 
-    @usermethod
+    def _getWaiters(self):
+        """Return a list (or adev-style dict) of all waiter adevs.
+
+        "Waiter" adevs are the subdevices whose status must become leave BUSY
+        when waiting on self.
+
+        By default, this includes *all* adevs (of which the non-waitables are
+        removed), but can be overridden to remove some waitable devices as well,
+        in case they are only used read-only.
+        """
+        return self._adevs
+
     def isCompleted(self):
-        """Return true if movement is complete.
+        """Check for completion of movement.
+
+        The default implementation, which should only be changed in special
+        cases, checks the device status and acts according to the
+        :attr:`busystates` and :attr:`errorstates` attributes of the device
+        (which are sequences of status constants).  If the device is in a busy
+        state, this method returns ``False``, if it is in an error state, it
+        raises.
+
+        .. attribute:: busystates
+
+           Status constants that indicate that the device is busy.  Default is
+           ``(status.BUSY,)``.
+
+        .. attribute:: errorstates
+
+           Status constants that indicate that the device movement has stopped
+           with an error.  Default is ``(status.ERROR, status.NOTREACHED)``.
+
+           This can be overridden in a derived class to provide different
+           behavior when waiting for a device.  For example, ``NOTREACHED``
+           could be taken out of the errorstates if the user wants to continue
+           in this case.
+
+           If the states depend on device parameters, this can be implemented
+           as a property.
 
         .. method:: doIsCompleted()
 
-           This method is called to check if a device is finished moving.
-           It should be implemented in derived classes requiring special
-           treatment.
-           The default implementation checks if the device status is no longer
-           BUSY.
-
-           Implementation hint: If you correctly implement :meth:`doStatus` and
-           your device is not very special, there is no need to implement
-           :meth:`doIsCompleted()`.
+           This method can be implemented to override :meth:`isCompleted`.
         """
-        return self.doIsCompleted()
-
-    def doIsCompleted(self):
-        """Query completion of movement of device.
-
-        This default implementation is supposed to be overridden in derived
-        classes and just checks for completion of all attached devices and
-        then the device itself.
-
-        If the device enters an error state during movement or movement times
-        out, this function should raise an exception.
-
-        Implementation hint: normally you would only need to override this in
-        very special cases as it already handles most cases correctly.
-        """
-        if self._adevs:
-            if not multiIsCompleted(self._adevs):
-                return False
-        return defaultIsCompleted(self)
+        if hasattr(self, 'doIsCompleted'):
+            return self.doIsCompleted()
+        st = self.status(0)
+        if self.loglevel == 'debug':
+            # only read and log the device position if debugging
+            # as this could be expensive and is not needed otherwise
+            try:
+                position = self.read(0)
+            except Exception:
+                # don't care about this, position would only be for nicer output
+                self.log.debug('isCompleted: status %r' % formatStatus(st))
+            else:
+                self.log.debug('isCompleted: status %r at %s' % (
+                    formatStatus(st), self.format(position, unit=True)))
+        if st[0] in self.busystates:
+            return False
+        elif st[0] in self.errorstates:
+            if st[0] == status.NOTREACHED:
+                raise PositionError(self, st[1])
+            else:
+                raise MoveError(self, st[1])
+        return True
 
     def finish(self):
         """Finish up movement of the device.
@@ -1535,7 +1568,7 @@ class Moveable(HasIsCompleted, Readable):
             return True
 
 
-class Measurable(HasIsCompleted, Readable):
+class Measurable(Readable):
     """
     Base class for devices used for data acquisition.
 
@@ -1634,6 +1667,9 @@ class Measurable(HasIsCompleted, Readable):
         a loop.  The *elapsed* argument is the time elapsed since the detector
         was started.
         """
+
+    def _getWaiters(self):
+        return []
 
     @usermethod
     def pause(self):

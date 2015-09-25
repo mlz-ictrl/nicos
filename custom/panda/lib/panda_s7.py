@@ -152,6 +152,7 @@ class S7Motor(HasTimeout, NicosMotor):
         sleep(0.5)
 
     def doIsCompleted(self):
+        # XXX this should be visible via status
         return self._posreached()
 
     def _gettarget(self):

@@ -36,7 +36,7 @@ from RS485Client import RS485Client  # pylint: disable=F0401
 from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
     none_or, usermethod, Device, Readable, Moveable, Param, Override, \
     NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
-    defaultIsCompleted, HasTimeout, HasCommunication, SIMULATION, Attach
+    HasTimeout, HasCommunication, SIMULATION, Attach
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.tango import PyTangoDevice
@@ -716,6 +716,8 @@ class Motor(HasTimeout, NicosMotor):
         'bus': Attach('The communication bus', IPCModBus),
     }
 
+    errorstates = ()
+
     def doInit(self, mode):
         bus = self._adevs['bus']
         if mode != SIMULATION:
@@ -964,9 +966,6 @@ class Motor(HasTimeout, NicosMotor):
         bus.send(self.addr, 45, minstep, 6)
         bus.send(self.addr, 44, maxstep, 6)
         bus.send(self.addr, 43, actpos, 6)
-
-    def doIsCompleted(self):
-        return defaultIsCompleted(self, errorstates=())
 
     def doStop(self):
         if self._hwtype == 'single':

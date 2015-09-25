@@ -28,7 +28,7 @@ import TACOStates
 import Temperature
 
 from nicos.core import status, oneof, Param, Readable, Moveable, HasLimits, \
-    Override, HasWindowTimeout, defaultIsCompleted
+    Override, HasWindowTimeout
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -75,6 +75,11 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
         'precision':  Override(mandatory=False),  # can be read from server
     }
 
+    @property
+    def errorstates(self):
+        return (status.ERROR, status.NOTREACHED) \
+            if self.timeoutaction == 'raise' else (status.ERROR,)
+
     def doStart(self, target):
         if self.status()[0] == status.BUSY:
             self.log.debug('stopping running temperature change')
@@ -95,11 +100,6 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
         # regardless of ramp
         if self.ramp and self.status(0)[0] == status.BUSY:
             self._taco_guard(self._dev.stop)
-
-    def doIsCompleted(self):
-        errorstates = (status.ERROR, status.NOTREACHED) \
-            if self.timeoutaction == 'raise' else (status.ERROR,)
-        return defaultIsCompleted(self, errorstates=errorstates)
 
     def doPoll(self, n, maxage):
         if self.ramp:

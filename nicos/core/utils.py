@@ -31,7 +31,6 @@ from collections import namedtuple
 
 from nicos import session
 from nicos.core import status
-from nicos.core.errors import MoveError, PositionError
 from nicos.pycompat import reraise, to_ascii_escaped, listitems
 
 
@@ -47,14 +46,16 @@ User = namedtuple('User', 'name, level')
 system_user = User('system', ADMIN)
 
 
-def devIter(devices, baseclass=None, onlydevs=True, recurse=False):
+def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):
     """Filtering generator over the given devices.
 
     Iterates over the given devices.  If the *baseclass* argument is specified
     (not ``None``), filter out (ignore) those devices which do not belong to the
-    given baseclass.  If the boolean *onlydevs* argument is false,
-    yield (name, devices) tuples otherwise just the devices.  If `recurse` is
-    true, include one level of attached devices.
+    given baseclass.  If the boolean *onlydevs* argument is false, yield
+    ``(name, devices)`` tuples otherwise just the devices.
+
+    If *allwaiters* is true, recursively include devices given by devices'
+    ``_getWaiters`` methods.
 
     The given devices argument can either be a dictionary (_adevs, _sdevs,...)
     or a list of (name, device) tuples or a simple list of devices.
@@ -79,14 +80,16 @@ def devIter(devices, baseclass=None, onlydevs=True, recurse=False):
         if isinstance(dev, (tuple, list)):
             for subdev in dev:
                 if isinstance(subdev, baseclass):
-                    if recurse and hasattr(subdev, '_adevs'):
-                        for subsubdev in devIter(subdev._adevs, baseclass, onlydevs, False):
+                    if allwaiters:
+                        for subsubdev in devIter(subdev._getWaiters(), baseclass,
+                                                 onlydevs, allwaiters):
                             yield subsubdev
                     yield subdev if onlydevs else (subdev.name, subdev)
         else:
             if isinstance(dev, baseclass):
-                if recurse and hasattr(dev, '_adevs'):
-                    for subdev in devIter(dev._adevs, baseclass, onlydevs, False):
+                if allwaiters:
+                    for subdev in devIter(dev._getWaiters(), baseclass,
+                                          onlydevs, allwaiters):
                         yield subdev
                 yield dev if onlydevs else (devname, dev)
 
@@ -94,7 +97,7 @@ def devIter(devices, baseclass=None, onlydevs=True, recurse=False):
 def multiStatus(devices, maxage=None):
     """Combine the status of multiple devices to form a single status value.
 
-    This is typically called in the `doStatus` method of "superdevices" that
+    This is called in the default `doStatus` method of "superdevices" that
     control several attached devices.
 
     The resulting state value is the highest value of all devices' values
@@ -128,44 +131,62 @@ def multiWait(devices, baseclass=None):
     Returns a dictionary mapping devices to current values after waiting.
 
     This is the main waiting loop to be used when waiting for multiple devices.
-    It calls `isCompleted()` until all devices return true.
+    It checks the device status until all devices are OK or errored.
 
     Errors raised are handled like in _multiMethod: the first one is reraised at
     the end, the others are only printed as errors.
 
     *baseclass* allows to restrict the devices waited on.
     """
+    def update_action():
+        session.action(', '.join('%s -> %s' % (dev, dev.format(dev.target))
+                                 if hasattr(dev, 'target') else str(dev)
+                                 for dev in reversed(devlist)))
     delay = 0.3
     first_exc = None
     if not baseclass:
-        from nicos.core.mixins import HasIsCompleted
-        baseclass = HasIsCompleted
-    devset = set(devIter(devices, baseclass=baseclass))
+        from nicos.core import Moveable, Measurable
+        baseclass = (Moveable, Measurable)
+    devlist = list(devIter(devices, baseclass=baseclass, allwaiters=True))
     values = {}
-    session.beginActionScope('Waiting: %s' % ', '.join(
-        '%s -> %s' % (dev, dev.format(dev.target)) for dev in devices))
+    loops = -2  # wait 2 iterations for full loop
+    session.beginActionScope('Waiting')
     try:
-        while devset:
-            for dev in list(devset):
+        update_action()
+        while devlist:
+            loops += 1
+            for dev in devlist[:]:
                 try:
                     done = dev.isCompleted()
-                    if done:
+                    if done and hasattr(dev, 'finish'):
                         dev.finish()
                 except Exception:
                     if not first_exc:
                         first_exc = sys.exc_info()
                     else:
                         dev.log.exception('while waiting')
-                    # include one level of subdevs
-                    devset.update(devIter([dev], baseclass=baseclass,
-                                          recurse=True))
-                    # but discard the parent immediately
-                    devset.discard(dev)
-                else:
-                    if done:
-                        devset.discard(dev)
-                        values[dev] = dev.read()
-            if devset:
+                    # remove this device from the waiters - we might still have
+                    # its subdevices in the list so that multiWait() should not
+                    # return until everything is either OK or ERROR
+                    devlist.remove(dev)
+                    continue
+                if not done:
+                    # we found one busy dev, normally go to next iteration
+                    # until this one is done (saves going through the whole
+                    # list of devices and doing unnecessary HW communication)
+                    if loops % 10:
+                        break
+                    # every 10 loops, go through everything to get an accurate
+                    # display in the action line
+                    continue
+                if dev in devices:
+                    # populate the results dictionary, but only with the values
+                    # of excplicitly given devices
+                    values[dev] = dev.read()
+                # this device is done: don't wait for it anymore
+                devlist.remove(dev)
+                update_action()
+            if devlist:
                 sleep(delay)
         if first_exc:
             reraise(*first_exc)
@@ -174,48 +195,12 @@ def multiWait(devices, baseclass=None):
     return values
 
 
-def defaultIsCompleted(device, busystates=(status.BUSY,),
-                       errorstates=(status.ERROR, status.NOTREACHED)):
-    """Check for completion of movement using the device status.
+def waitForStatus(dev, delay=0.3):
+    """Wait for *dev* to exit the busy state.
 
-    If *timeout* is given or the device has a timeout parameter, movement
-    is regarded as timed out after that number of seconds.  `TimeoutError`
-    is raised in this case.
-
-    *busystates* gives the state values that are considered as "busy" states;
-    by default only `status.BUSY`.
-
-    *errorstates* gives the state values that are considered as "error" states
-    and should raise a `PositionError` (for NOTREACHED) or `MoveError` if they
-    occur.
-
-    This is the default implementation of `~Device.doIsCompleted`.
+    Calls `isCompleted` until it returns true or raises.
     """
-    st = device.status(0)
-    if device.loglevel == 'debug':
-        # only read and log the device position if debugging
-        # as this could be expensive and is not needed otherwise
-        position = device.read(0)
-        device.log.debug('defaultIsCompleted: status %r at %s' % (
-            formatStatus(st),
-            device.format(position, unit=True)))
-    if st[0] in busystates:
-        return False
-    elif st[0] in errorstates:
-        if st[0] == status.NOTREACHED:
-            raise PositionError(device, st[1])
-        else:
-            raise MoveError(device, st[1])
-    return True
-
-
-def waitForStatus(device, delay=0.3, busystates=(status.BUSY,),
-                  errorstates=(status.ERROR, status.NOTREACHED)):
-    """Wait for *device* to exit the busy state.
-
-    Calls `defaultIsCompleted` until it returns true or raises.
-    """
-    while not defaultIsCompleted(device, busystates, errorstates):
+    while not dev.isCompleted():
         sleep(delay)
 
 
@@ -230,7 +215,7 @@ def statusString(*strs):
     return ', '.join(s for s in strs if s)
 
 
-def _multiMethod(baseclass, method, devices, *args, **kwargs):
+def _multiMethod(baseclass, method, devices):
     """Calls a method on a list of devices.
 
     The first given exception is re-raised after all method calls have been
@@ -239,12 +224,11 @@ def _multiMethod(baseclass, method, devices, *args, **kwargs):
     Additional arguments are used when calling the method.
     The same arguments are used for *ALL* calls.
     """
-    retvals = []
     first_exc = None
     for dev in devIter(devices, baseclass):
         try:
             # method has to be provided by baseclass!
-            retvals.append(getattr(dev, method)(*args, **kwargs))
+            getattr(dev, method)()
         except Exception:
             if not first_exc:
                 first_exc = sys.exc_info()
@@ -252,16 +236,6 @@ def _multiMethod(baseclass, method, devices, *args, **kwargs):
                 dev.log.exception('during %s()' % method)
     if first_exc:
         reraise(*first_exc)
-    return retvals
-
-
-def multiIsCompleted(devices):
-    """Check for completion of every "waitable" device in the *devices* list.
-
-    Returns true if all device movement is completed.
-    """
-    from nicos.core.mixins import HasIsCompleted
-    return all(_multiMethod(HasIsCompleted, 'isCompleted', devices))
 
 
 def multiStop(devices):
