@@ -149,6 +149,8 @@ def multiWait(devices, baseclass=None):
             for dev in list(devset):
                 try:
                     done = dev.isCompleted()
+                    if done:
+                        dev.finish()
                 except Exception:
                     if not first_exc:
                         first_exc = sys.exc_info()

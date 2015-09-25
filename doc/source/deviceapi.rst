@@ -343,6 +343,10 @@ possible with the device:
 
    .. automethod:: stop
 
+   .. automethod:: isCompleted
+
+   .. automethod:: finish
+
    .. automethod:: wait
 
    .. automethod:: maw

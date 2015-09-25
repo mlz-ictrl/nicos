@@ -846,7 +846,6 @@ class Readable(Device):
 
     def init(self):
         self._info_errcount = 0
-        self._target_warned = False
         self._sim_active = False
         Device.init(self)
         # value in simulation mode
@@ -1313,7 +1312,6 @@ class Moveable(HasIsCompleted, Readable):
             # event in any case
             self._setROParam('target', None)
         self._setROParam('target', pos)
-        self._target_warned = False
         self.doStart(pos)
 
     move = start
@@ -1353,28 +1351,7 @@ class Moveable(HasIsCompleted, Readable):
            your device is not very special, there is no need to implement
            :meth:`doIsCompleted()`.
         """
-        if self._sim_active:
-            time = 0
-            try:
-                time = self.doTime(self._sim_old_value, self._sim_value)
-            except Exception:
-                self.log.warning('could not time movement', exc=1)
-            if self._sim_started is not None:
-                session.clock.wait(self._sim_started + time)
-                self._sim_started = None
-            self._sim_old_value = self._sim_value
-            return True
-        done = self.doIsCompleted()
-        if done:
-            val = self.read(0)
-            # check reached value to be equal to target
-            if not self.isAtTarget(val):
-                if not self._target_warned:
-                    self._target_warned = True
-                    self.log.warning('did not reach target %s, last value is %s'
-                                     % (self.format(self.target, unit=True),
-                                        self.format(val, unit=True)))
-        return done
+        return self.doIsCompleted()
 
     def doIsCompleted(self):
         """Query completion of movement of device.
@@ -1394,18 +1371,54 @@ class Moveable(HasIsCompleted, Readable):
                 return False
         return defaultIsCompleted(self)
 
+    def finish(self):
+        """Finish up movement of the device.
+
+        This is the final step of waiting for a device, it is called by the wait
+        loop.  Devices must not rely on this method being called, since it is
+        not triggered when the movement is not waited upon.
+
+        Default implementation is to check if the target has been reached, and
+        to call :meth:`doFinish` if present.
+
+        .. method:: doFinish()
+
+           This method is called as part of finish().  If it returns False, the
+           target check is skipped.
+        """
+        if self._sim_active:
+            time = 0
+            try:
+                time = self.doTime(self._sim_old_value, self._sim_value)
+            except Exception:
+                self.log.warning('could not time movement', exc=1)
+            if self._sim_started is not None:
+                session.clock.wait(self._sim_started + time)
+                self._sim_started = None
+            self._sim_old_value = self._sim_value
+            return
+        # call doFinish
+        if hasattr(self, 'doFinish'):
+            if self.doFinish() is False:
+                return
+        # do a final read of the device
+        pos = self.read(0)
+        # check reached value to be equal to target
+        if not self.isAtTarget(pos):
+            self.log.warning('did not reach target %s, last value is %s'
+                             % (self.format(self.target, unit=True),
+                                self.format(pos, unit=True)))
+
     def isAtTarget(self, pos):
         """Check if the device has arrived at its target.
-
-        This is the final step of waiting for a device.  :meth:`isCompleted`
-        checks this when the device indicates that its movement is complete.
 
         The method calls :meth:`doIsAtTarget` if present.  Otherwise, it checks
         for equality if the value is of string or integer type, and returns
         true otherwise.
 
-        Currently, returning False here only means a warning, but may be
-        upgraded to an exception later.
+        This is the final step of waiting for a device, called by the
+        :meth:`finish` method.  Currently, returning False here only means a
+        warning, but may be upgraded to an exception later.
 
         .. method:: doIsAtTarget()
 
@@ -1416,7 +1429,7 @@ class Moveable(HasIsCompleted, Readable):
            exception, this method should emit a warning and still return True.
 
         For devices with float values, inherit from :class:`HasPrecision`,
-        which already comes with an implementation of `doIsAtTarget`.
+        which already comes with an implementation of :meth:`doIsAtTarget`.
         """
         if hasattr(self, 'doIsAtTarget'):
             return self.doIsAtTarget(pos)

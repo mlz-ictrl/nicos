@@ -208,12 +208,13 @@ class Axis(CanReference, BaseAxis):
         self._adevs['motor'].stop()
 
     def doIsCompleted(self):
-        done = defaultIsCompleted(self, errorstates=())
-        if done and self._errorstate:
+        return defaultIsCompleted(self, errorstates=())
+
+    def doFinish(self):
+        if self._errorstate:
             errorstate = self._errorstate
             self._errorstate = None
             raise errorstate  # pylint: disable=E0702
-        return done
 
     def doWriteSpeed(self, value):
         self._adevs['motor'].speed = value

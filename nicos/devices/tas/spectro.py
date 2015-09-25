@@ -28,8 +28,7 @@
 from math import pi
 
 from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
-    ConfigurationError, ComputationError, LimitError, oneof, multiStatus, \
-    Attach, defaultIsCompleted, multiIsCompleted
+    ConfigurationError, ComputationError, LimitError, oneof, multiStatus, Attach
 from nicos.devices.tas.cell import Cell
 from nicos.devices.tas.mono import Monochromator, THZ2MEV, from_k, to_k
 from nicos.devices.tas import spurions
@@ -180,16 +179,11 @@ class TAS(Instrument, Moveable):
         self._sim_min = tuple(map(min, pos, self._sim_min or pos))
         self._sim_max = tuple(map(max, pos, self._sim_max or pos))
 
-    def doIsCompleted(self):
-        if not multiIsCompleted(self._waiters):
-            return False
-        done = defaultIsCompleted(self)
+    def doFinish(self):
         # make sure index members read the latest value
-        if done:
-            for index in (self.h, self.k, self.l, self.E):
-                if index._cache:
-                    index._cache.invalidate(index, 'value')
-        return done
+        for index in (self.h, self.k, self.l, self.E):
+            if index._cache:
+                index._cache.invalidate(index, 'value')
 
     def doStatus(self, maxage=0):
         if self.scanmode == 'DIFF':

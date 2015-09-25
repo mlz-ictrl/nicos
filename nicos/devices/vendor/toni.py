@@ -124,13 +124,12 @@ class Valve(Moveable):
 
     def doStatus(self, maxage=0):
         ret = self._adevs['bus'].communicate('I?', self.addr, expect_hex=2)
-        if ret == 0:
-            return status.OK, 'idle'
-        else:
+        if ret != 0:
             return status.BUSY, 'busy'
-
-    def doIsCompleted(self):
-        return not self._started or self._started + self.waittime > currenttime()
+        if self._started and self._started + self.waittime < currenttime():
+            return status.BUSY, 'waiting'
+        else:
+            return status.OK, 'idle'
 
 
 class Leckmon(Readable):

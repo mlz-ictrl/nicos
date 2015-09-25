@@ -360,12 +360,6 @@ class VirtualTemperature(VirtualMotor):
         self.setpoint = pos
         VirtualMotor.doStart(self, pos)
 
-    def doIsCompleted(self):
-        if abs(self.read(0) - self.setpoint) < self.precision:
-            self.curstatus = (status.OK, 'idle')
-            return True
-        return False
-
     def _step(self, start, end, elapsed, speed):
         # calculate an exponential approximation to the setpoint with a time
         # constant given by self.speed
@@ -727,9 +721,6 @@ class Virtual2DDetector(ImageProducer, Measurable):
         return (Value(self.name + '.sum', unit='cts', type='counter',
                       errors='sqrt', fmtstr='%d'),
                 Value(self.name + '.file', type='info', fmtstr='%s'))
-
-    def doIsCompleted(self):
-        return not self._mythread
 
     def _generate(self, t):
         dst = (self._adevs['distance'].read() * 5) if self._adevs['distance'] \

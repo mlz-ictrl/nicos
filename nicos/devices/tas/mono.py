@@ -26,7 +26,6 @@
 """NICOS triple-axis instrument devices."""
 
 from math import asin, cos, degrees, pi, radians, sin, sqrt
-from time import time
 
 from nicos.core import Attach, ComputationError, HasLimits, HasPrecision, \
     LimitError, Moveable, Override, Param, ProgrammingError, listof, multiReset, \
@@ -134,8 +133,6 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                             category='instrument'),
         'vfocusflat': Param('vertical focus value for flat mono',
                             type=float, default=0, settable=True),
-        'warninterval': Param('interval between warnings about theta/two-theta '
-                              'mismatch', unit='s', default=5),
         'scatteringsense': Param('default scattering sense when not used '
                                  'in triple-axis mode', type=oneof(1, -1)),
     }
@@ -151,9 +148,6 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         # warnings about manual focus
         self._focwarnings = 3
 
-        # warnings about theta/twotheta
-        self._lastwarn = time() - self.warninterval # make sure for next warning
-
         # can be re-set by TAS object
         self._scatsense = self.scatteringsense
 
@@ -161,7 +155,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         # rounded to 0.010 so the combined axisprecision need to be larger than
         # the calculated value the following correction seems to work just fine
         self._axisprecision = self._adevs['twotheta'].precision + \
-                              2 * self._adevs['theta'].precision
+            2 * self._adevs['theta'].precision
         self._axisprecision *= 1.25
 
     def doReset(self):
@@ -228,7 +222,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             theta = thetaangle(self.dvalue, self.order, to_k(pos, self.unit))
         except ValueError:
             return False, 'wavelength not reachable with d=%.3f A and n=%s' % \
-                   (self.dvalue, self.order)
+                (self.dvalue, self.order)
         ttvalue = 2.0 * self._scatsense * theta
         ttdev = self._adevs['twotheta']
         ok, why = ttdev.isAllowed(ttvalue)
@@ -249,17 +243,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         return tt, th
 
     def doRead(self, maxage=0):
-        tt, th = self._get_angles(maxage)
-        if abs(tt - 2.0*th) > self._axisprecision:
-            if time() - self._lastwarn > self.warninterval:
-                self.log.warning('two theta and 2*theta axis mismatch: %s <-> '
-                                  '%s = 2 * %s' % (tt, 2.0*th, th))
-                self.log.info('precisions: tt:%s, th:%s, combined: %s' % (
-                    self._adevs['twotheta'].precision,
-                    self._adevs['theta'].precision, self._axisprecision))
-                self._lastwarn = time()
-
-        # even on mismatch, the scattering angle is deciding
+        # the scattering angle is deciding
+        tt = self._scatsense * self._adevs['twotheta'].read(maxage)
         return from_k(wavevector(self.dvalue, self.order, tt/2.0), self.unit)
 
     def doStatus(self, maxage=0):
@@ -274,6 +259,15 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
                     (tt, 2.0*th, th)
         return const, text
 
+    def doFinish(self):
+        tt, th = self._get_angles(0)
+        if abs(tt - 2.0*th) > self._axisprecision:
+            self.log.warning('two theta and 2*theta axis mismatch: %s <-> '
+                             '%s = 2 * %s' % (tt, 2.0*th, th))
+            self.log.info('precisions: tt:%s, th:%s, combined: %s' % (
+                self._adevs['twotheta'].precision,
+                self._adevs['theta'].precision, self._axisprecision))
+
     def doReadPrecision(self):
         if not hasattr(self, '_scatsense'):
             # object not yet intialized
@@ -281,7 +275,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         # the precision depends on the angular precision of theta and twotheta
         lam = from_k(to_k(self.read(), self.unit), 'A')
         dtheta = self._adevs['theta'].precision + \
-                 self._adevs['twotheta'].precision
+            self._adevs['twotheta'].precision
         dlambda = abs(2.0 * self.dvalue *
                       cos(self._adevs['twotheta'].read() * pi/360) *
                       dtheta / 180*pi)

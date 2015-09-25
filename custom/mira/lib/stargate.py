@@ -77,10 +77,9 @@ class Stargate(tango.DigitalOutput):
         return chevrons[:11]
 
     def doStatus(self, maxage=0):
+        if self._started and self._started + 3 > currenttime():
+            return status.BUSY, 'moving/waiting'
         return status.OK, ''
-
-    def doIsCompleted(self):
-        return not self._started or self._started + 3 < currenttime()
 
     def doStart(self, value):
         bitvals = [0, 0, 0]
@@ -149,10 +148,10 @@ class ATT(HoveringAxis):
 
     def doStatus(self, maxage=0):
         retval = HoveringAxis.doRead(self, maxage)
+        sgstat = self.stargate.status(maxage)[0]
+        if sgstat == status.BUSY:
+            return status.BUSY, 'stargate is moving'
         chevrons = list(self.stargate.read(maxage))
         if chevrons != self.stargate.get_chevrons_for_att(retval):
             return status.ERROR, 'invalid stargate position for att angle'
         return HoveringAxis.doStatus(self, maxage)
-
-    def doIsCompleted(self):
-        return HoveringAxis.doIsCompleted(self) and self.stargate.isCompleted()

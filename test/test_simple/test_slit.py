@@ -163,13 +163,13 @@ def test_slit_subaxes():
     assert slit.top() == 3
 
     slit.centerx.maw(0)
-    assert slit.read() == [0, 1, 4, 4]
+    assert slit.read(0) == [0, 1, 4, 4]
     slit.centery.maw(0)
-    assert slit.read() == [0, 0, 4, 4]
+    assert slit.read(0) == [0, 0, 4, 4]
     slit.width.maw(2)
-    assert slit.read() == [0, 0, 2, 4]
+    assert slit.read(0) == [0, 0, 2, 4]
     slit.height.maw(2)
-    assert slit.read() == [0, 0, 2, 2]
+    assert slit.read(0) == [0, 0, 2, 2]
 
     slit.left.maw(-3)
     assert slit.read(0) == [-1, 0, 4, 2]

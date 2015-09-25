@@ -104,7 +104,10 @@ class SeqDev(SequenceItem):
         # dont wait on fixed devices
         if hasattr(self.dev, 'fixed') and self.dev.fixed:
             return True
-        return self.dev.isCompleted()
+        done = self.dev.isCompleted()
+        if done:
+            self.dev.finish()
+        return done
 
     def __repr__(self):
         return '%s -> %s' % (self.dev.name, self.dev.format(self.target))
@@ -398,12 +401,9 @@ class SequencerMixin(DeviceMixinBase):
         except Exception as e:
             self.log.error(e, exc=1)
 
-    def doIsCompleted(self):
-        if self._seq_thread and self._seq_thread.isAlive():
-            return False
+    def doFinish(self):
         if self._seq_was_stopped:
             raise StopSequence(self, self._seq_status[1])
-        return True
 
     def doStatus(self, maxage=0):
         return self._seq_status
