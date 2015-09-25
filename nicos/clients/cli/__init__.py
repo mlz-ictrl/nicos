@@ -466,7 +466,8 @@ class NicosCmdClient(NicosClient):
                     timing, devinfo = data  # pylint: disable=W0633
                     self.put_client('Simulated minimum runtime: %s '
                                     '(finishes approximately %s). Device ranges:' %
-                                    (formatDuration(timing), formatEndtime(timing)))
+                                    (formatDuration(timing, precise=False),
+                                     formatEndtime(timing)))
                     if devinfo:
                         dnwidth = max(map(len, devinfo))
                         sorteditems = sorted(iteritems(devinfo),

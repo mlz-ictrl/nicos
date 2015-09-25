@@ -682,7 +682,7 @@ def _RunScript(filename, statdevices, debug=False):
     printinfo('finished user script: ' + fn)
     if session.mode == SIMULATION:
         printinfo('simulated minimum runtime: ' +
-                  formatDuration(session.clock.time - starttime))
+                  formatDuration(session.clock.time - starttime, precise=False))
         for dev in statdevices:
             if not isinstance(dev, Readable):
                 continue
@@ -703,7 +703,7 @@ def _RunCode(code, debug=False):
         raise
     if session.mode == SIMULATION:
         printinfo('simulated minimum runtime: ' +
-                  formatDuration(session.clock.time - starttime))
+                  formatDuration(session.clock.time - starttime, precise=False))
 
 
 @usercommand

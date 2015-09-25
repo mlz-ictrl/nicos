@@ -98,8 +98,12 @@ def test_repeater():
 
 
 def test_functions():
-    assert formatDuration(154) == '3 minutes'
-    assert formatDuration(24*3600 + 7240) == '1 day, 2 hours'
+    assert formatDuration(1) == '1 second'
+    assert formatDuration(4) == '4 seconds'
+    assert formatDuration(154, precise=False) == '3 min'
+    assert formatDuration(154, precise=True) == '2 min, 34 sec'
+    assert formatDuration(3700) == '1 h, 2 min'
+    assert formatDuration(24*3600 + 7240, precise=False) == '1 day, 2 h'
 
     assert bitDescription(0x5,
                           (0, 'a'),

@@ -634,7 +634,7 @@ class EditorPanel(Panel):
         self.waiting_sim_result = False
 
         # show timing
-        self.simTotalTime.setText(formatDuration(timing))
+        self.simTotalTime.setText(formatDuration(timing, precise=False))
         self.simFinished.setText(formatEndtime(timing))
 
         # device ranges

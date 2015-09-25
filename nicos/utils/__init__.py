@@ -187,20 +187,22 @@ class HardwareStub(object):
 
 
 def _s(n):
-    return int(n), (n != 1 and 's' or '')
+    return int(n), (int(n) != 1 and 's' or '')
 
 
-def formatDuration(secs):
+def formatDuration(secs, precise=True):
     if 0 <= secs < 60:
-        est = '%s second%s' % _s(secs)
+        est = '%s second%s' % _s(secs + 0.5)
     elif secs < 3600:
-        est = '%s minute%s' % _s(secs // 60 + 1)
+        if precise:
+            est = '%s min, %s sec' % (int(secs / 60.), int(secs % 60))
+        else:
+            est = '%s min' % int(secs / 60. + 0.5)
     elif secs < 86400:
-        est = '%s hour%s, %s minute%s' % (_s(secs // 3600) +
-                                          _s((secs % 3600) // 60))
+        est = '%s h, %s min' % (int(secs / 3600.), int((secs % 3600) / 60. + 0.5))
     else:
-        est = '%s day%s, %s hour%s' % (_s(secs // 86400) +
-                                       _s((secs % 86400) // 3600))
+        est = '%s day%s, %s h' % (_s(secs // 86400) +
+                                  (int((secs % 86400) / 3600. + 0.5),))
     return est
 
 
