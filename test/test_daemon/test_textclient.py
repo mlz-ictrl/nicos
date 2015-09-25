@@ -96,7 +96,6 @@ S
 /quit
 ''')
     res = from_utf8(stdout)
-    assert 'Simulated minimum runtime' in res
     assert 'Current stacktrace' in res
     assert 'Showing pending scripts' in res
     assert 'Printing current script' in res
