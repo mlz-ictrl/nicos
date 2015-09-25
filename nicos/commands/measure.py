@@ -35,6 +35,7 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.output import printinfo, printwarning
 from nicos.pycompat import iteritems, number_types, string_types, reraise
 from nicos.core.utils import waitForStatus
+from nicos.utils import formatDuration
 
 
 __all__ = [
@@ -99,6 +100,7 @@ def _count(detlist, preset, result, dataset=None):
         session.endActionScope()
         raise
     sleep(delay)
+    eta_update = 1 if delay else 0  # never update ETA in simulation
     try:
         while True:
             looptime = currenttime()
@@ -122,7 +124,21 @@ def _count(detlist, preset, result, dataset=None):
                 _wait_for_continuation(delay)
                 for det in detset:
                     det.resume()
+            if eta_update >= 1:
+                # update at most once per 1s
+                # note: as delay = 0 in SIMULATION, we are here always in !SIM
+                eta_update -= 1
+                eta = set()
+                for det in detset:
+                    eta.add(det.doEstimateTime(looptime - starttime))
+                eta.discard(None)
+                if eta:
+                    session.action('estimated %s left' %
+                                   formatDuration(max(eta)))
+                else:
+                    session.action('')
             sleep(delay)
+            eta_update += delay
     except BaseException:  # really ALL exceptions
         t, v, tb = sys.exc_info()
         if v.__class__.__name__ != 'ControlStop':

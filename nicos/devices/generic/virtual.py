@@ -34,6 +34,7 @@ import numpy as np
 
 from nicos import session
 from nicos.utils import clamp, createThread
+from nicos.utils.timer import Timer
 from nicos.core import status, Readable, HasOffset, HasLimits, Param, Override, \
     none_or, oneof, tupleof, floatrange, Measurable, Moveable, Value, \
     ImageProducer, ImageType, SIMULATION, POLLER, Attach, Device, HasWindowTimeout
@@ -662,12 +663,15 @@ class Virtual2DDetector(ImageProducer, Measurable):
     _buf = None
     _mythread = None
     _stopflag = False
+    _timer = None
 
     def doSetPreset(self, **preset):
         self._lastpreset = preset
 
     def doStart(self):
         t = self._lastpreset.get('t', 1)
+        self._timer = Timer()
+        self._timer.start(t)
         if self._mythread:
             self._stopflag = True
             self._mythread.join()
@@ -676,19 +680,19 @@ class Virtual2DDetector(ImageProducer, Measurable):
 
     def _run(self,  maxtime):
         try:
-            starttime = now = time.time()
-            while True:
-                array = self._generate(now - starttime).astype('<u4')
+
+            def f_update(tmr, self):  # correct signature!
+                array = self._generate(tmr.elapsed_time()).astype('<u4')
                 self._buf = array
                 self.lastcounts = array.sum()
                 self.updateImage(array)
-                if self._stopflag or now > (starttime + maxtime):
-                    break
-                time.sleep(min(1, maxtime - now + starttime))
-                now = time.time()
+                if self._stopflag:
+                    raise ValueError  # any will do
+            self._timer.wait(1, f_update, self)
         finally:
             self._stopflag = False
             self._mythread = None
+            self._remaining = None
 
     def doStop(self):
         self._stopflag = True
@@ -733,3 +737,6 @@ class Virtual2DDetector(ImageProducer, Measurable):
             t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy-dst)**2/sigma2) + \
             t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy+dst)**2/sigma2)
         return np.random.poisson(beam)
+
+    def doEstimateTime(self, elapsed):
+        return self._timer.remaining_time()

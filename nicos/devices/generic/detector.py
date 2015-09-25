@@ -191,6 +191,14 @@ class MultiChannelDetector(Measurable):
     def presetInfo(self):
         return set(self._presetkeys)
 
+    def doEstimateTime(self, elapsed):
+        eta = set(master.doEstimateTime(elapsed) for master in self._masters)
+        eta.discard(None)
+        if eta:
+            # first master stops, so take min
+            return min(eta)
+        return None
+
 
 class DetectorForecast(Readable):
     """Forecast device for a MultiChannelDetector.

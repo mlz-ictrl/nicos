@@ -29,7 +29,7 @@ import IOCommon
 import TACOStates
 from IO import Timer, Counter
 
-from nicos.core import Param, Override, Value, oneof, oneofdict
+from nicos.core import Param, Override, Value, oneof, oneofdict, status
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.generic.detector import Channel, MultiChannelDetector
 
@@ -41,10 +41,10 @@ class FRMChannel(TacoDevice, Channel):
     """
 
     parameter_overrides = {
-        'mode': Override(type=oneofdict({
-                             IOCommon.MODE_NORMAL: 'normal',
-                             IOCommon.MODE_RATEMETER: 'ratemeter',
-                             IOCommon.MODE_PRESELECTION: 'preselection'})),
+        'mode': Override(type=oneofdict(
+            {IOCommon.MODE_NORMAL: 'normal',
+             IOCommon.MODE_RATEMETER: 'ratemeter',
+             IOCommon.MODE_PRESELECTION: 'preselection'})),
     }
 
     def doStart(self):
@@ -119,6 +119,11 @@ class FRMTimerChannel(FRMChannel):
             return [self.preselection]
         return [0.0]
 
+    def doEstimateTime(self, elapsed):
+        if self.ismaster and self.doStatus()[0] == status.BUSY:
+            return self.preselection - elapsed
+        return None
+
 
 class FRMCounterChannel(FRMChannel):
     taco_class = Counter
@@ -143,6 +148,15 @@ class FRMCounterChannel(FRMChannel):
         if self.ismaster:
             return [int(self.preselection)]
         return [0]
+
+    def doEstimateTime(self, elapsed):
+        if self.ismaster and self.doStatus()[0] == status.BUSY:
+            counted = self.doRead()
+            # only estimated if we have more than 3% or at least 100 counts
+            if counted > 100 or counted > 0.03 * self.preselection:
+                if 0 <= counted <= self.preselection:
+                    return (self.preselection - counted) * elapsed / float(counted)
+        return None
 
 
 # backwards compatibility alias

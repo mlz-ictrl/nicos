@@ -341,6 +341,8 @@ possible with the device:
 
       This is implemented using :func:`nicos.core.utils.multiWait`.
 
+   .. automethod:: doEstimateTime
+
 
 ``Moveable``
 ============

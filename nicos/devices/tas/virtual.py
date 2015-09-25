@@ -108,3 +108,14 @@ class VirtualTasDetector(Measurable):
                              self.mcpoints)[0])
         self._counting_started = 0
         self._lastresult = [time, moni, counts]
+
+    def doEstimateTime(self, elapsed):
+        eta = set()
+        monrate = 50000. / self._adevs['tas']._adevs['mono'].read()
+        if 't' in self._lastpreset:
+            eta.add(float(self._lastpreset['t']) - elapsed)
+        if 'mon' in self._lastpreset:
+            eta.add(float(self._lastpreset['mon'])/monrate - elapsed)
+        if eta:
+            return min(eta)
+        return None

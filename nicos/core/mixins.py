@@ -506,6 +506,23 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
             return True
         return False
 
+    def doEstimateTime(self, elapsed):
+        if self.status()[0] != status.BUSY:
+            return None
+        if self.target is None:
+            return None
+        if self.setpoint == self.target:
+            # ramp finished, look at history to estimate from last point outside
+            now = currenttime()
+            for t, v in reversed(list(self._history)):
+                if abs(v - self.target) > self.precision:
+                    return max(0, t + self.window - now + 1)
+                if t < now - self.window:
+                    break
+            return 0.0
+        # ramp unfinished, estimate ramp + window
+        return abs(self.read() - self.target) * 60 / self.ramp + self.window
+
 
 class HasCommunication(DeviceMixinBase):
     """

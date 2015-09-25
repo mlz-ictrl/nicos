@@ -26,12 +26,13 @@
 """NICOS core utility functions."""
 
 import sys
-from time import sleep, localtime
+from time import sleep, localtime, time as currenttime
 from collections import namedtuple
 
 from nicos import session
-from nicos.core import status
+from nicos.core import status, SIMULATION
 from nicos.pycompat import reraise, to_ascii_escaped, listitems
+from nicos.utils import formatDuration
 
 
 # user access levels
@@ -140,19 +141,23 @@ def multiWait(devices):
     """
     from nicos.core import Waitable
 
-    def update_action():
-        session.action(', '.join('%s -> %s' % (dev, dev.format(dev.target))
-                                 if hasattr(dev, 'target') else str(dev)
-                                 for dev in reversed(devlist)))
+    def get_target_str():
+        return ', '.join('%s -> %s' % (dev, dev.format(dev.target))
+                         if hasattr(dev, 'target') else str(dev)
+                         for dev in reversed(devlist))
 
     delay = 0.3
     first_exc = None
     devlist = list(devIter(devices, baseclass=Waitable, allwaiters=True))
     values = {}
     loops = -2  # wait 2 iterations for full loop
+    eta_update = 1 if session.mode != SIMULATION else 0
+    first_ts = currenttime()
     session.beginActionScope('Waiting')
+    eta_str = ''
+    target_str = get_target_str()
+    session.action(target_str)
     try:
-        update_action()
         while devlist:
             loops += 1
             for dev in devlist[:]:
@@ -185,9 +190,21 @@ def multiWait(devices):
                     values[dev] = dev.read()
                 # this device is done: don't wait for it anymore
                 devlist.remove(dev)
-                update_action()
+                target_str = get_target_str()
+                session.action(eta_str + target_str)
             if devlist:
+                if eta_update >= 1:
+                    eta_update -= 1
+                    now = currenttime()
+                    eta = set(dev.doEstimateTime(now - first_ts)
+                              for dev in devlist)
+                    eta.discard(None)
+                    # use max here as we wait for ALL movements to finish
+                    eta_str = ('estimated %s left / ' % formatDuration(max(eta))
+                               if eta else '')
+                    session.action(eta_str + target_str)
                 sleep(delay)
+                eta_update += delay
         if first_exc:
             reraise(*first_exc)
     finally:
