@@ -382,9 +382,6 @@ class Channel(CARESSDevice, BaseChannel):
     def doResume(self):
         self._start(1)
 
-    def doIsCompleted(self):
-        return self.doStatus()[0] != status.BUSY
-
     def _reset(self):
         self._load_preset(RESETMODULE)
 

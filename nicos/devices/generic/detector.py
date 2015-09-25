@@ -64,9 +64,6 @@ class Channel(Measurable):
     def doStatus(self, maxage=0):
         return status.OK, 'idle'
 
-    def doIsCompleted(self):
-        return True
-
 
 class MultiChannelDetector(Measurable):
     """Standard counter type detector using multiple synchronized channels."""
@@ -183,14 +180,6 @@ class MultiChannelDetector(Measurable):
             if masterstatus[0] == status.OK:
                 return masterstatus
         return status.BUSY, 'counting'
-
-    def doIsCompleted(self):
-        for master in self._masters:
-            if master.isCompleted():
-                return True
-        if not self._masters:
-            return True
-        return False
 
     def doReset(self):
         for counter in self._counters:

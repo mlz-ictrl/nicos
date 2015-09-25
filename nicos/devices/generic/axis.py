@@ -61,7 +61,7 @@ class Axis(CanReference, BaseAxis):
                              default=100, settable=True),
     }
 
-    errorstates = ()
+    errorstates = {}
 
     def doInit(self, mode):
         # Check that motor and unit have the same unit

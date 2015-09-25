@@ -28,8 +28,9 @@ import time
 
 from nicos import session, nicos_version, __version__ as nicos_revision
 from nicos.utils import printTable, parseDateString, createThread
-from nicos.core import Device, Moveable, Measurable, Readable, HasOffset, \
-    HasLimits, UsageError, AccessError, formatStatus, INFO_CATEGORIES, multiWait
+from nicos.core import Device, Moveable, Waitable, Measurable, Readable, \
+    HasOffset, HasLimits, UsageError, AccessError, formatStatus, \
+    INFO_CATEGORIES, multiWait
 from nicos.core.status import OK, BUSY
 from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
 from nicos.devices.abstract import CanReference
@@ -121,7 +122,7 @@ def switch(*dev_pos_list):
 
 @usercommand
 @helparglist('dev, ...')
-@spmsyntax(Multi(Dev((Moveable, Measurable))))
+@spmsyntax(Multi(Dev(Waitable)))
 def wait(*devlist):
     """Wait until motion/action of one or more devices is complete.
 
@@ -136,13 +137,12 @@ def wait(*devlist):
     if not devlist:
         devlist = [session.devices[devname]
                    for devname in session.explicit_devices
-                   if isinstance(session.devices[devname],
-                                 (Moveable, Measurable))]
+                   if isinstance(session.devices[devname], Waitable)]
     for dev in devlist:
         if isinstance(dev, number_types):
             sleep(dev)
             continue
-        dev = session.getDevice(dev, (Moveable, Measurable))
+        dev = session.getDevice(dev, Waitable)
         dev.log.info('waiting for device')
         try:
             value = dev.wait()

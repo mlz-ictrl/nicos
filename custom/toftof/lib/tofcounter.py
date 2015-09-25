@@ -29,7 +29,6 @@ import numpy as np
 
 from SIS3400 import (Timer, MonitorCounter,  # pylint: disable=F0401
                      HistogramCounter)
-import TACOStates
 
 from nicos.core import Measurable, Param, Value, intrange, status, tacodev
 from nicos.devices.taco.core import TacoDevice
@@ -125,9 +124,6 @@ class TofCounter(TacoDevice, Measurable):
             return status.OK, 'idle'
         else:
             return status.ERROR, state
-
-    def doIsCompleted(self):
-        return self._taco_guard(self._dev.deviceState) != TACOStates.COUNTING
 
     def doRead(self, maxage=0):
         arr = self._taco_guard(self._dev.read)

@@ -35,8 +35,8 @@ from nicos.core.errors import NicosError, ProgrammingError, \
 from nicos.core.mixins import DeviceMixinBase, AutoDevice, HasLimits, \
     HasOffset, HasPrecision, HasMapping, HasTimeout, HasWindowTimeout, \
     HasCommunication
-from nicos.core.device import DeviceMeta, Device, Readable, Moveable, \
-    Measurable, DeviceAlias, NoDevice, usermethod, requires
+from nicos.core.device import DeviceMeta, Device, Readable, Waitable, \
+    Moveable, Measurable, DeviceAlias, NoDevice, usermethod, requires
 from nicos.core.params import Param, Override, Value, INFO_CATEGORIES, \
     listof, nonemptylistof, tupleof, dictof, tacodev, tangodev, anytype, \
     vec3, intrange, floatrange, oneof, oneofdict, none_or, nicosdev, \

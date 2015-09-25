@@ -125,7 +125,7 @@ def multiStatus(devices, maxage=None):
         return status.UNKNOWN, 'no status could be determined (no doStatus implemented?)'
 
 
-def multiWait(devices, baseclass=None):
+def multiWait(devices):
     """Wait for the *devices*.
 
     Returns a dictionary mapping devices to current values after waiting.
@@ -138,16 +138,16 @@ def multiWait(devices, baseclass=None):
 
     *baseclass* allows to restrict the devices waited on.
     """
+    from nicos.core import Waitable
+
     def update_action():
         session.action(', '.join('%s -> %s' % (dev, dev.format(dev.target))
                                  if hasattr(dev, 'target') else str(dev)
                                  for dev in reversed(devlist)))
+
     delay = 0.3
     first_exc = None
-    if not baseclass:
-        from nicos.core import Moveable, Measurable
-        baseclass = (Moveable, Measurable)
-    devlist = list(devIter(devices, baseclass=baseclass, allwaiters=True))
+    devlist = list(devIter(devices, baseclass=Waitable, allwaiters=True))
     values = {}
     loops = -2  # wait 2 iterations for full loop
     session.beginActionScope('Waiting')
@@ -158,7 +158,7 @@ def multiWait(devices, baseclass=None):
             for dev in devlist[:]:
                 try:
                     done = dev.isCompleted()
-                    if done and hasattr(dev, 'finish'):
+                    if done:
                         dev.finish()
                 except Exception:
                     if not first_exc:

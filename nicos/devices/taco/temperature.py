@@ -28,7 +28,7 @@ import TACOStates
 import Temperature
 
 from nicos.core import status, oneof, Param, Readable, Moveable, HasLimits, \
-    Override, HasWindowTimeout
+    Override, HasWindowTimeout, MoveError, PositionError
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -42,7 +42,8 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
     taco_class = Temperature.Controller
 
     _TACO_STATUS_MAPPING = dict(TacoDevice._TACO_STATUS_MAPPING)
-    _TACO_STATUS_MAPPING[TACOStates.UNDEFINED] = (status.NOTREACHED, 'temperature not reached')
+    _TACO_STATUS_MAPPING[TACOStates.UNDEFINED] = (status.NOTREACHED,
+                                                  'temperature not reached')
 
     parameters = {
         'setpoint':  Param('Current temperature setpoint', unit='main',
@@ -77,8 +78,8 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
 
     @property
     def errorstates(self):
-        return (status.ERROR, status.NOTREACHED) \
-            if self.timeoutaction == 'raise' else (status.ERROR,)
+        return {status.ERROR: MoveError, status.NOTREACHED: PositionError} \
+            if self.timeoutaction == 'raise' else {status.ERROR: MoveError}
 
     def doStart(self, target):
         if self.status()[0] == status.BUSY:

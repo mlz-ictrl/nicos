@@ -261,7 +261,6 @@ possible with the device:
    .. automethod:: _cachelock_release
 
 
-
 ``Readable``
 ============
 
@@ -323,12 +322,32 @@ possible with the device:
       ``warnlimits[0] <= value <= warnlimits[1]`` should be true.
 
 
+``Waitable``
+============
+
+.. class:: Waitable
+
+   This class inherits from :class:`Readable` and is the base class for all
+   devices that have some action that can be waited upon (movement or
+   measuring).
+
+   .. automethod:: isCompleted
+
+   .. automethod:: finish
+
+   .. automethod:: _getWaiters
+
+   .. automethod:: wait
+
+      This is implemented using :func:`nicos.core.utils.multiWait`.
+
+
 ``Moveable``
 ============
 
 .. class:: Moveable
 
-   This class inherits from :class:`Readable` and is the base class for all
+   This class inherits from :class:`Waitable` and is the base class for all
    devices that can be moved to different positions (continuously or
    discretely).
 
@@ -342,12 +361,6 @@ possible with the device:
    .. automethod:: isAllowed
 
    .. automethod:: stop
-
-   .. automethod:: isCompleted
-
-   .. automethod:: finish
-
-   .. automethod:: wait
 
    .. automethod:: maw
 
@@ -403,10 +416,6 @@ possible with the device:
 
    .. automethod:: duringMeasureHook
 
-   .. automethod:: isCompleted
-
-   .. automethod:: wait
-
    .. automethod:: save
 
    .. automethod:: valueInfo
@@ -418,6 +427,7 @@ possible with the device:
    All :meth:`Measurable.doRead` implementations must return tuples with values
    according to :meth:`valueInfo`.
 
+
 ----------------------
 Special device classes
 ----------------------
@@ -427,8 +437,9 @@ Special device classes
 
 .. autoclass:: DeviceAlias()
 
+
 ``NoDevice``
-===============
+============
 
 .. autoclass:: NoDevice()
 

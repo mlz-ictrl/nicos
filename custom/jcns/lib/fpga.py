@@ -79,9 +79,6 @@ class FPGAChannelBase(PyTangoDevice, Channel):
             res = (status.OK, '')
         return res
 
-    def doIsCompleted(self):
-        return (self.status(0)[0] != status.BUSY)
-
     def doReset(self):
         if self.status(0)[0] == status.BUSY:
             self.stop()

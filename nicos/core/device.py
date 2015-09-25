@@ -844,9 +844,6 @@ class Readable(Device):
                               type=none_or(tupleof(anytype, anytype))),
     }
 
-    busystates = (status.BUSY,)
-    errorstates = (status.NOTREACHED, status.ERROR)
-
     def init(self):
         self._info_errcount = 0
         self._sim_active = False
@@ -1151,7 +1148,105 @@ class Readable(Device):
         return ret + Device.info(self)
 
 
-class Moveable(Readable):
+class Waitable(Readable):
+    """
+    Base class for devices that can execute some action and can be waited upon.
+
+    Subclasses *can* implement:
+
+    * _getWaiters()
+    * doIsCompleted()
+    """
+
+    busystates = (status.BUSY,)
+    errorstates = {status.NOTREACHED: PositionError,
+                   status.ERROR: MoveError}
+
+    @usermethod
+    def wait(self):
+        """Wait until movement of device is completed.
+
+        Return current device value after waiting.  This is a no-op for hardware
+        devices in simulation mode.
+        """
+        return multiWait([self])[self]
+
+    def finish(self):
+        """Empty implementation of finish() for Measurables."""
+
+    def _getWaiters(self):
+        """Return a list (or adev-style dict) of all waiter adevs.
+
+        "Waiter" adevs are the subdevices whose status must become leave BUSY
+        when waiting on self.
+
+        By default, this includes *all* adevs (of which the non-waitables are
+        removed), but can be overridden to remove some waitable devices as well,
+        in case they are only used read-only.
+        """
+        return self._adevs
+
+    def doStatus(self, maxage=0):
+        # overridden from Readable to take only waiters into account
+        waiters = self._getWaiters()
+        if waiters:
+            return multiStatus(waiters, maxage)
+        return (status.UNKNOWN, 'doStatus not implemented')
+
+    def isCompleted(self):
+        """Check for completion of movement.
+
+        The default implementation, which should only be changed in special
+        cases, checks the device status and acts according to the
+        :attr:`busystates` and :attr:`errorstates` attributes of the device
+        (which are sequences of status constants).  If the device is in a busy
+        state, this method returns ``False``, if it is in an error state, it
+        raises.
+
+        .. attribute:: busystates
+
+           Status constants that indicate that the device is busy.  Default is
+           ``(status.BUSY,)``.
+
+        .. attribute:: errorstates
+
+           Mapping of status constants that indicate that the device movement
+           has stopped with an error to exception class to raise.  Default is
+           ``{status.ERROR: MoveError, status.NOTREACHED: PositionError}``.
+
+           This can be overridden in a derived class to provide different
+           behavior when waiting for a device.  For example, ``NOTREACHED``
+           could be taken out of the errorstates if the user wants to continue
+           in this case.
+
+           If the states depend on device parameters, this can be implemented
+           as a property.
+
+        .. method:: doIsCompleted()
+
+           This method can be implemented to override :meth:`isCompleted`.
+        """
+        if hasattr(self, 'doIsCompleted'):
+            return self.doIsCompleted()
+        st = self.status(0)
+        if self.loglevel == 'debug':
+            # only read and log the device position if debugging
+            # as this could be expensive and is not needed otherwise
+            try:
+                position = self.read(0)
+            except Exception:
+                self.log.debug('isCompleted: status %r' % formatStatus(st))
+            else:
+                self.log.debug('isCompleted: status %r at %s' % (
+                    formatStatus(st), self.format(position, unit=True)))
+        if st[0] in self.busystates:
+            return False
+        elif st[0] in self.errorstates:
+            raise self.errorstates[st[0]](self, st[1])
+        return True
+
+
+class Moveable(Waitable):
     """
     Base class for moveable devices.
 
@@ -1162,7 +1257,6 @@ class Moveable(Readable):
     Subclasses *can* implement:
 
     * doStop()
-    * doIsCompleted()
     * doIsAllowed()
     * doTime()
     * doIsAtTarget()
@@ -1337,73 +1431,6 @@ class Moveable(Readable):
             return abs(target - old_value) / (self.ramp / 60.)
         return 0.
 
-    def _getWaiters(self):
-        """Return a list (or adev-style dict) of all waiter adevs.
-
-        "Waiter" adevs are the subdevices whose status must become leave BUSY
-        when waiting on self.
-
-        By default, this includes *all* adevs (of which the non-waitables are
-        removed), but can be overridden to remove some waitable devices as well,
-        in case they are only used read-only.
-        """
-        return self._adevs
-
-    def isCompleted(self):
-        """Check for completion of movement.
-
-        The default implementation, which should only be changed in special
-        cases, checks the device status and acts according to the
-        :attr:`busystates` and :attr:`errorstates` attributes of the device
-        (which are sequences of status constants).  If the device is in a busy
-        state, this method returns ``False``, if it is in an error state, it
-        raises.
-
-        .. attribute:: busystates
-
-           Status constants that indicate that the device is busy.  Default is
-           ``(status.BUSY,)``.
-
-        .. attribute:: errorstates
-
-           Status constants that indicate that the device movement has stopped
-           with an error.  Default is ``(status.ERROR, status.NOTREACHED)``.
-
-           This can be overridden in a derived class to provide different
-           behavior when waiting for a device.  For example, ``NOTREACHED``
-           could be taken out of the errorstates if the user wants to continue
-           in this case.
-
-           If the states depend on device parameters, this can be implemented
-           as a property.
-
-        .. method:: doIsCompleted()
-
-           This method can be implemented to override :meth:`isCompleted`.
-        """
-        if hasattr(self, 'doIsCompleted'):
-            return self.doIsCompleted()
-        st = self.status(0)
-        if self.loglevel == 'debug':
-            # only read and log the device position if debugging
-            # as this could be expensive and is not needed otherwise
-            try:
-                position = self.read(0)
-            except Exception:
-                # don't care about this, position would only be for nicer output
-                self.log.debug('isCompleted: status %r' % formatStatus(st))
-            else:
-                self.log.debug('isCompleted: status %r at %s' % (
-                    formatStatus(st), self.format(position, unit=True)))
-        if st[0] in self.busystates:
-            return False
-        elif st[0] in self.errorstates:
-            if st[0] == status.NOTREACHED:
-                raise PositionError(self, st[1])
-            else:
-                raise MoveError(self, st[1])
-        return True
-
     def finish(self):
         """Finish up movement of the device.
 
@@ -1475,15 +1502,6 @@ class Moveable(Readable):
         """Wait until hardware status is not BUSY."""
         while self.doStatus(0)[0] == status.BUSY:
             sleep(self._base_loop_delay)
-
-    @usermethod
-    def wait(self):
-        """Wait until movement of device is completed.
-
-        Return current device value after waiting.  This is a no-op for hardware
-        devices in simulation mode.
-        """
-        return multiWait([self])[self]
 
     @usermethod
     def maw(self, target):
@@ -1568,7 +1586,7 @@ class Moveable(Readable):
             return True
 
 
-class Measurable(Readable):
+class Measurable(Waitable):
     """
     Base class for devices used for data acquisition.
 
@@ -1595,6 +1613,8 @@ class Measurable(Readable):
     parameter_overrides = {
         'unit':  Override(description='(not used)', mandatory=False),
     }
+
+    errorstates = {status.ERROR: NicosError}
 
     def _setMode(self, mode):
         # overwritten from Readable: don't read out detectors, it's not useful
@@ -1668,9 +1688,6 @@ class Measurable(Readable):
         was started.
         """
 
-    def _getWaiters(self):
-        return []
-
     @usermethod
     def pause(self):
         """Pause the measurement, if possible.
@@ -1729,28 +1746,6 @@ class Measurable(Readable):
         elif self._sim_active:
             return
         self.doStop()
-
-    @usermethod
-    def isCompleted(self):
-        """Return true if measurement is complete.
-
-        .. method:: doIsCompleted()
-
-           This method must be present and is called to determine if the
-           measurement is completed.
-        """
-        if self._sim_active:
-            return True
-        return self.doIsCompleted()
-
-    @usermethod
-    def wait(self):
-        """Wait for completion of the measurement.
-
-        This is implemented by calling :meth:`isCompleted` in a loop.
-        """
-        while not self.isCompleted():
-            sleep(self._base_loop_delay)
 
     @usermethod
     def read(self, maxage=None):

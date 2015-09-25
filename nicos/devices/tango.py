@@ -829,9 +829,6 @@ class Detector(PyTangoDevice, Measurable):
         self.doStop()
         return True
 
-    def doIsCompleted(self):
-        return self.doStatus()[0] not in (status.BUSY,)
-
     def doPrepare(self):
         self._dev.Prepare()
 

@@ -27,7 +27,7 @@
 from IO import StringIO
 
 from nicos.core import status, Moveable, Readable, HasLimits, \
-    HasWindowTimeout, Param, oneof
+    HasWindowTimeout, Param, oneof, MoveError, PositionError
 from nicos.devices.taco.core import TacoDevice
 
 
@@ -65,8 +65,8 @@ class TemperatureController(Lascon, HasWindowTimeout, HasLimits, Moveable):
 
     @property
     def errorstates(self):
-        return (status.ERROR, status.NOTREACHED) \
-            if self.timeoutaction == 'raise' else (status.ERROR,)
+        return {status.ERROR: MoveError, status.NOTREACHED: PositionError} \
+            if self.timeoutaction == 'raise' else {status.ERROR: MoveError}
 
     def doStart(self, target):
         self.writeLine('SetSTemp 1 0 %f' % target)

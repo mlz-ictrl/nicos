@@ -199,6 +199,3 @@ class THM(Measurable):
 
     def doStop(self):
         pass
-
-    def doIsCompleted(self):
-        return True

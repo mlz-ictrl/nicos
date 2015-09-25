@@ -65,9 +65,6 @@ class DSPec(Measurable):
     def doRead(self, maxage=0):
         return [self._lastpreset.get('t', 0)]
 
-    def doIsCompleted(self):
-        return self.status(0)[0] == status.OK
-
     def doStatus(self, maxage=0):
         if self._adevs['get_ready'].read(maxage) == 0:
             return status.BUSY, 'counting'

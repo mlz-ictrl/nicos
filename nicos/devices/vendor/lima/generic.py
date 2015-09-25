@@ -184,11 +184,6 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
 
         return (nicosStatus, limaStatus)
 
-    def doIsCompleted(self):
-        if self.status(0)[0] == status.BUSY:
-            return False
-        return True
-
     def doReadImagewidth(self):
         return self._dev.image_width
 

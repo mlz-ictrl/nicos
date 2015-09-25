@@ -34,6 +34,7 @@ from nicos.core import Device, DeviceMixinBase, LimitError, Attach, \
     Measurable, MoveError, Moveable, NicosError, Override, Param, \
     ProgrammingError, SIMULATION, anytype, none_or, status, tupleof
 from nicos.utils import createThread
+from nicos.core.utils import devIter
 
 
 class StopSequence(Exception):
@@ -406,7 +407,17 @@ class SequencerMixin(DeviceMixinBase):
             raise StopSequence(self, self._seq_status[1])
 
     def doStatus(self, maxage=0):
-        return self._seq_status
+        """returns highest statusvalue"""
+        stati = [dev.status(maxage) for dev in devIter(self._getWaiters())] + \
+                [self._seq_status]
+        # sort inplace by first element, i.e. status code
+        stati.sort(key=lambda st: st[0])
+        # select highest (worst) status
+        # if no status is 'worse' then _seq_status, this is _seq_status
+        _status = stati[-1]
+        if self._seq_thread:
+            return max(status.BUSY, _status[0]), _status[1]
+        return _status
 
     def doStop(self):
         if self._honor_stop:
@@ -587,16 +598,6 @@ class LockedDevice(BaseSequencer):
     def doRead(self, maxage=0):
         return self._adevs['device'].read(maxage)
 
-    def doStatus(self, maxage=0):
-        """returns highest statusvalue"""
-        stati = [dev.status(maxage) for dev in self._adevs.values()] + \
-                [self._seq_status]
-        # sort by first element, i.e. status code
-        stati.sort(reverse=True)
-        # select highest (worst) status
-        self._seq_status = stati[0]
-        return self._seq_status
-
     def doIsAllowed(self, target):
         return self._adevs['device'].isAllowed(target)
 
@@ -628,7 +629,3 @@ class MeasureSequencer(SequencerMixin, Measurable):
             else:
                 raise NicosError(self, "Cannot start device, it is still busy")
         self._startSequence(self._generateSequence())
-
-    def doIsCompleted(self):
-        """Returns true if the sequence has finished."""
-        return (self._seq_thread is None and self.status(0) != status.BUSY)

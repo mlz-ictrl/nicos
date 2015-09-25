@@ -109,11 +109,6 @@ class PSLDetector(ImageProducer, Measurable):
             return status.BUSY, 'Exposure ongoing'
         return status.OK, 'OK'
 
-    def doIsCompleted(self):
-        if self.status(0)[0] == status.BUSY:
-            return False
-        return True
-
     def doReadPreselection(self):
         if self.doStatus()[0] == status.OK:
             # the following call blocks during exposure

@@ -254,9 +254,6 @@ class Channel(BaseChannel):
         elif state == ACTIVE:
             return status.BUSY, ''
 
-    def doIsCompleted(self):
-        return self.doStatus()[0] != status.BUSY
-
     def doReadRunnumber(self):
         return readFileCounter(self.counterfile)
 

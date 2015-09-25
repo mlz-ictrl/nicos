@@ -211,9 +211,6 @@ class VirtualChannel(Channel):
             self._adevs['card'].finished(self)
             self.curstatus = (status.OK, 'idle')
 
-    def doIsCompleted(self):
-        return self.curstatus[0] == status.OK
-
     def doStatus(self, maxage=0):
         return self.curstatus
 

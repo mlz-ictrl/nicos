@@ -62,10 +62,6 @@ class FRMChannel(TacoDevice, Channel):
     def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read)
 
-    def doIsCompleted(self):
-        state = self._taco_guard(self._dev.deviceState)
-        return state in [TACOStates.PRESELECTION_REACHED, TACOStates.DEVICE_NORMAL]
-
     def doReset(self):
         if self._taco_guard(self._dev.deviceState) != TACOStates.STOPPED:
             self._taco_guard(self._dev.stop)

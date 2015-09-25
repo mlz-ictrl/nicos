@@ -61,10 +61,6 @@ class FlipperPresets(Measurable):
         raise NotImplementedError('Please provide an implementation for '
                                   'doStop.')
 
-    def doIsCompleted(self):
-        raise NotImplementedError('Please provide an implementation for '
-                                  'doIsCompleted.')
-
 
 class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
     """Basic Tango Device for TofDetector."""
