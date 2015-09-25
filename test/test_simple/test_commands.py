@@ -25,6 +25,8 @@
 """NICOS commands tests."""
 
 import os
+import shutil
+import tempfile
 
 from nicos import session
 from nicos.core import UsageError, LimitError
@@ -268,8 +270,10 @@ def test_command_exceptionhandling():
 
 def test_commands_elog():
     LogEntry('== some subheading\n\nThis is a logbook entry.')
-    _LogAttach('some file description', [__file__],
-               ['newname.txt'])
+    fd, tmpname = tempfile.mkstemp()
+    os.close(fd)
+    shutil.copyfile(__file__, tmpname)
+    _LogAttach('some file description', [tmpname], ['newname.txt'])
 
 
 def test_notifiers():
