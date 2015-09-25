@@ -241,7 +241,7 @@ class Slit(CanReference, Moveable):
 
     def doPoll(self, n, maxage):
         # also poll sub-AutoDevices we created
-        for dev in devIter(self.__dict__, baseclass=AutoDevice, onlydevs=True):
+        for dev in devIter(self.__dict__, baseclass=AutoDevice):
             dev.poll(n, maxage)
 
     def valueInfo(self):

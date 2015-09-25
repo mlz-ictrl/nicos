@@ -47,12 +47,12 @@ User = namedtuple('User', 'name, level')
 system_user = User('system', ADMIN)
 
 
-def devIter(devices, baseclass=None, onlydevs=False, recurse=False):
+def devIter(devices, baseclass=None, onlydevs=True, recurse=False):
     """Filtering generator over the given devices.
 
     Iterates over the given devices.  If the *baseclass* argument is specified
     (not ``None``), filter out (ignore) those devices which do not belong to the
-    given baseclass.  If the boolean *onlydevs* argument is false (default),
+    given baseclass.  If the boolean *onlydevs* argument is false,
     yield (name, devices) tuples otherwise just the devices.  If `recurse` is
     true, include one level of attached devices.
 
@@ -108,7 +108,7 @@ def multiStatus(devices, maxage=None):
     # get to work
     rettext = []
     retstate = status.OK
-    for devname, dev in devIter(devices, Readable):
+    for devname, dev in devIter(devices, Readable, onlydevs=False):
         state, text = dev.status(maxage)
         if '=' in text:
             rettext.append('%s=(%s)' % (devname, text))
@@ -140,7 +140,7 @@ def multiWait(devices, baseclass=None):
     if not baseclass:
         from nicos.core.mixins import HasIsCompleted
         baseclass = HasIsCompleted
-    devset = set(devIter(devices, baseclass=baseclass, onlydevs=True))
+    devset = set(devIter(devices, baseclass=baseclass))
     values = {}
     session.beginActionScope('Waiting: %s' % ', '.join(
         '%s -> %s' % (dev, dev.format(dev.target)) for dev in devices))
@@ -156,7 +156,7 @@ def multiWait(devices, baseclass=None):
                         dev.log.exception('while waiting')
                     # include one level of subdevs
                     devset.update(devIter([dev], baseclass=baseclass,
-                                          onlydevs=True, recurse=True))
+                                          recurse=True))
                     # but discard the parent immediately
                     devset.discard(dev)
                 else:
@@ -239,7 +239,7 @@ def _multiMethod(baseclass, method, devices, *args, **kwargs):
     """
     retvals = []
     first_exc = None
-    for dev in devIter(devices, baseclass, onlydevs=True):
+    for dev in devIter(devices, baseclass):
         try:
             # method has to be provided by baseclass!
             retvals.append(getattr(dev, method)(*args, **kwargs))

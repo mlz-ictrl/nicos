@@ -176,7 +176,7 @@ class RefAxis(Axis):
                                             m.doRead() - self.refpos,
                                             self.unit))
 
-            for d in devIter(self._adevs, onlydevs=True):
+            for d in devIter(self._adevs):
                 if hasattr(d, 'setPosition'):
                     try:
                         d.setPosition(self.refpos)
@@ -355,7 +355,7 @@ class RotAxis(RefAxis):
                                                              self.wraparound -
                                                              self.refpos),
                                             self.unit))
-            for d in devIter(self._adevs, onlydevs=True):
+            for d in devIter(self._adevs):
                 if hasattr(d, 'setPosition'):
                     try:
                         d.setPosition(self.refpos)
