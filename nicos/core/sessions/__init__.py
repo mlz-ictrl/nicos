@@ -1210,6 +1210,13 @@ class Session(object):
         if self.cache:
             self.cache.put('exp', 'action', joined, flag=FLAG_NO_STORE)
 
+    def clearActions(self):
+        if self._actionStack:
+            del self._actionStack[:]
+            self.log.action('')
+            if self.cache:
+                self.cache.put('exp', 'action', '', flag=FLAG_NO_STORE)
+
     # -- Simulation support ----------------------------------------------------
 
     def runSimulation(self, code, wait=True, prefix='(sim) '):

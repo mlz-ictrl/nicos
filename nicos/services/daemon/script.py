@@ -604,6 +604,7 @@ class ExecutionController(Controller):
                         pass
                 if self.debugger:
                     self.debug_end(tracing=False)
+                session.clearActions()
                 session.scriptEvent('finish', None)
         except Exception:
             self.log.exception('unhandled exception in script thread')
