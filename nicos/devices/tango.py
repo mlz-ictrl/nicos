@@ -51,14 +51,6 @@ __all__ = [
     'PartialDigitalOutput', 'StringIO', 'Detector', 'TofDetector',
 ]
 
-DEFAULT_STATUS_MAPPING = {
-    PyTango.DevState.ON:     status.OK,
-    PyTango.DevState.ALARM:  status.WARN,
-    PyTango.DevState.OFF:    status.ERROR,
-    PyTango.DevState.FAULT:  status.ERROR,
-    PyTango.DevState.MOVING: status.BUSY,
-}
-
 EXC_MAPPING = {
     PyTango.CommunicationFailed: CommunicationError,
     PyTango.WrongNameSyntax: ConfigurationError,
@@ -168,6 +160,14 @@ class PyTangoDevice(HasCommunication):
                              mandatory=True, preinit=True),
     }
 
+    tango_status_mapping = {
+        PyTango.DevState.ON:     status.OK,
+        PyTango.DevState.ALARM:  status.WARN,
+        PyTango.DevState.OFF:    status.ERROR,
+        PyTango.DevState.FAULT:  status.ERROR,
+        PyTango.DevState.MOVING: status.BUSY,
+    }
+
     def doPreinit(self, mode):
         # Wrap PyTango client creation (so even for the ctor, logging and
         # exception mapping is enabled).
@@ -180,13 +180,13 @@ class PyTangoDevice(HasCommunication):
         if mode != SIMULATION:
             self._dev = self._createPyTangoDevice(self.tangodevice)
 
-    def doStatus(self, maxage=0, mapping=DEFAULT_STATUS_MAPPING):  # pylint: disable=W0102
+    def doStatus(self, maxage=0):
         # Query status code and string
         tangoState = self._dev.State()
         tangoStatus = self._dev.Status()
 
         # Map status
-        nicosState = mapping.get(tangoState, status.UNKNOWN)
+        nicosState = self.tango_status_mapping.get(tangoState, status.UNKNOWN)
 
         return (nicosState, tangoStatus)
 

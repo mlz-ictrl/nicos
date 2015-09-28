@@ -85,7 +85,7 @@ class Andor3TemperatureController(PyTangoDevice, HasLimits, HasPrecision,
     def doRead(self, maxage=0):
         return self._dev.temperature
 
-    def doStatus(self, maxage=0):  # pylint: disable=W0221
+    def doStatus(self, maxage=0):
         coolerState = self._dev.cooling_status
         nicosState = self.COOLER_STATUS_MAP.get(coolerState, status.UNKNOWN)
 

@@ -71,7 +71,7 @@ class FPGAChannelBase(PyTangoDevice, Channel):
     def doRead(self, maxage=0):
         raise NotImplementedError
 
-    def doStatus(self, maxage=0, mapping=None):
+    def doStatus(self, maxage=0):
         # Workaround self._dev.State() does not return DevState.MOVING
         if self._dev.DevFPGACountGateStatus():
             res = (status.BUSY, "counting.")

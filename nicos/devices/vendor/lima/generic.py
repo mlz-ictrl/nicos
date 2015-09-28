@@ -157,7 +157,7 @@ class GenericLimaCCD(PyTangoDevice, ImageProducer, Measurable):
     def doStop(self):
         self._dev.stopAcq()
 
-    def doStatus(self, maxage=0):  # pylint: disable=W0221
+    def doStatus(self, maxage=0):
         statusMap = {
             'Ready': status.OK,
             'Running': status.BUSY,

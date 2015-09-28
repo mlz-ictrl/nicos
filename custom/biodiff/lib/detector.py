@@ -33,8 +33,7 @@ from nicos.utils import updateFileCounter
 from nicos.core import SIMULATION, waitForStatus
 import nicos.core.status as status
 from nicos.core.device import Moveable, Measurable
-from nicos.devices.tango import PyTangoDevice, \
-    DEFAULT_STATUS_MAPPING as DEFAULT_MAP_TANGO_STATUS
+from nicos.devices.tango import PyTangoDevice
 from nicos.devices.vendor.lima import Andor2LimaCCD
 from nicos.core.params import Attach, Param, Override, Value, oneof, tupleof
 from nicos.core.errors import NicosError, MoveError, InvalidValueError
@@ -48,12 +47,10 @@ class ImagePlateBase(PyTangoDevice):
     """Basic Tango Device for MAATEL Image Plate Detectors."""
 
     DEFAULT_URL_FMT = "tango://%s/EMBL/Microdiff/General#dbase=no"
-    MAP_STATUS = dict(DEFAULT_MAP_TANGO_STATUS)
-    MAP_STATUS[DevState.STANDBY] = status.OK
-    MAP_STATUS[DevState.ALARM] = status.ERROR
 
-    def doStatus(self, maxage=0, mapping=MAP_STATUS):  # pylint: disable=W0102
-        return PyTangoDevice.doStatus(self, maxage, mapping)
+    tango_status_mapping = dict(PyTangoDevice.tango_status_mapping)
+    tango_status_mapping[DevState.STANDBY] = status.OK
+    tango_status_mapping[DevState.ALARM] = status.ERROR
 
 
 class ImagePlateDrum(ImagePlateBase, Moveable):
@@ -131,16 +128,16 @@ class ImagePlateDrum(ImagePlateBase, Moveable):
     def doRead(self, maxage=0):
         return self.target
 
-    def doStatus(self, maxage=0, mapping=ImagePlateBase.MAP_STATUS):  # pylint: disable=W0102
+    def doStatus(self, maxage=0):
         # Workaround for status changes from busy to another state although the
         # operation has _not_ been completed.
-        st, msg = ImagePlateBase.doStatus(self, maxage, mapping)
+        st, msg = ImagePlateBase.doStatus(self, maxage)
         if self._lastStatus == status.BUSY and st != status.BUSY:
             self.log.debug("doStatus: leaving busy state (%d)? %d. "
                            "Check again after a short delay."
                            % (status.BUSY, st))
             time.sleep(5)
-            st, msg = ImagePlateBase.doStatus(self, 0, mapping)
+            st, msg = ImagePlateBase.doStatus(self, 0)
             self.log.debug("doStatus: recheck result: %d" % st)
         self._lastStatus = st
         return st, msg

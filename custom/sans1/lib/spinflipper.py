@@ -77,7 +77,7 @@ class SpinflipperPower(HasTimeout, AnalogOutput):
     def doTime(self, move_from, move_to):
         return self.busytime
 
-    def doStatus(self, maxage=0):  # pylint: disable=W0221
+    def doStatus(self, maxage=0):
         if self._timesout:
             if time.time() < self._timesout[-1][1]:
                 return status.BUSY, 'waiting %.1gs for stabilisation' % self.busytime

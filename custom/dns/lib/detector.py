@@ -215,7 +215,7 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         return self.readImage()
 
     # use the correct status (would inherit from PyTangoDevice otherwise)
-    def doStatus(self, maxage=0):  # pylint: disable=W0221
+    def doStatus(self, maxage=0):
         return MeasureSequencer.doStatus(self, maxage)
 
     def doReset(self):

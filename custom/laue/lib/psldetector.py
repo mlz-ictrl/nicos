@@ -101,7 +101,7 @@ class PSLDetector(ImageProducer, Measurable):
         self._communicate('AbortSnap')
         self._adevs['timer'].stop()
 
-    def doStatus(self, maxage=0):  # pylint: disable=W0221
+    def doStatus(self, maxage=0):
         if self._communicate('GetCamState') == 'ON':
             if self._adevs['timer']:
                 remain = self._preset - self._adevs['timer'].read(0)[0]

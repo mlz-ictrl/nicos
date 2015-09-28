@@ -76,7 +76,7 @@ class Stargate(tango.DigitalOutput):
 
         return chevrons[:11]
 
-    def doStatus(self, maxage=0):  # pylint: disable=W0221
+    def doStatus(self, maxage=0):
         return status.OK, ''
 
     def doIsCompleted(self):

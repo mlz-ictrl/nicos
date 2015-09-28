@@ -33,7 +33,7 @@ class CrappySensor(Sensor):
     If status is LOW, this is actually ok.
     """
 
-    def doStatus(self, maxage=0):  # pylint: disable=W0221
+    def doStatus(self, maxage=0):
         stval, st = Sensor.doStatus(self, maxage)
         if stval == status.WARN and st == 'low':
             return status.OK, 'below sensor threshold'

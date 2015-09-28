@@ -53,7 +53,7 @@ class Shutter(PyTangoDevice, Readable):
         if mode != SIMULATION:
             self._dev.WriteOutputWord([0x1120, 0])
 
-    def doStatus(self, maxage=0):  # pylint: disable=W0221
+    def doStatus(self, maxage=0):
         is_open = self._dev.ReadInputBit(self.openoffset)
         is_clsd = self._dev.ReadInputBit(self.closeoffset)
         if is_open + is_clsd == 1:
