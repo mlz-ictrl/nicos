@@ -54,7 +54,7 @@ class AntaresIkonLCCD(Andor2LimaCCD):
             # reset fast shutter if in error state (the shutter sometimes goes
             # into error state because it couldn't be opened, but it works
             # again after reset on the next try
-            fastshutter = self._adevs['fastshutter']
+            fastshutter = self._attached_fastshutter
             if fastshutter.status(0)[0] == status.ERROR:
                 self.log.warning('resetting fast shutter before opening: it is'
                                  ' in error state')

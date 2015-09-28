@@ -108,7 +108,7 @@ class MotorUntested(_Motor):
         if self._hwtype == 'triple':
             self.log.warning('Resetting a triple Motor cards, please check '
                              'the result carefully!')
-            bus = self._adevs['bus']
+            bus = self._attached_bus
             # make sure we are stopped.
             if self.status(0)[0] != status.OK:  # busy or error
                 bus.send(self.addr, 33)  # stop

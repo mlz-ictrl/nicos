@@ -253,7 +253,7 @@ class ImageProducer(DeviceMixinBase):
             self.clearImage()
         imageinfos = []
         imagetype = self.imagetype
-        for ff in self._adevs['fileformats']:
+        for ff in self._attached_fileformats:
             if ff.acceptImageType(imagetype):
                 imageinfo = ImageInfo()
                 imageinfo.detector = self

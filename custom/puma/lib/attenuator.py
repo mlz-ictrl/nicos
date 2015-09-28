@@ -46,11 +46,11 @@ class Attenuator(HasLimits, Moveable):
 
         if mode == SIMULATION:
             return
-        stat1 = self._adevs['io_status'].doRead()
+        stat1 = self._attached_io_status.doRead()
         stat2 = 0
         for i in range(0, 5):
             stat2 += (((stat1 >> (2*i+1)) & 1) << i)
-        self._adevs['io_set'].move(stat2)
+        self._attached_io_set.move(stat2)
         self.log.debug("device status read from hardware: %s" % stat1)
         self.log.debug("device status sent to hardware: %s" % stat2)
 
@@ -83,7 +83,7 @@ class Attenuator(HasLimits, Moveable):
                 self.log.debug("position: %d, temp: %d result: %d, "
                                "filterlist[i]: %d" %
                                (position, temp, result, self._filterlist[i]))
-            self._adevs['io_set'].move(result)
+            self._attached_io_set.move(result)
             time.sleep(3)
 
             if self.doStatus()[0] != status.OK:
@@ -100,7 +100,7 @@ class Attenuator(HasLimits, Moveable):
         if self.doStatus()[0] == status.OK:
             result = 0
             fil = 0
-            readvalue = self._adevs['io_status'].doRead()
+            readvalue = self._attached_io_status.doRead()
             for i in range(0, 5):
                 fil = (readvalue >> (i*2+1)) & 1
                 self.log.debug("filterstatus of %d: %d" % (i, fil))
@@ -114,7 +114,7 @@ class Attenuator(HasLimits, Moveable):
         self.start(0)
 
     def doStatus(self, maxage=0):
-        stat1 = self._adevs['io_set'].doRead()
+        stat1 = self._attached_io_set.doRead()
         checkstatus = self._checkstatus()
         stat2 = checkstatus[0] + checkstatus[1]
         stat3 = checkstatus[0]
@@ -124,7 +124,7 @@ class Attenuator(HasLimits, Moveable):
             return (status.ERROR, 'device undefined, please check')
 
     def _checkstatus(self):
-        stat1 = self._adevs['io_status'].doRead()
+        stat1 = self._attached_io_status.doRead()
         stat2 = 0
         stat3 = 0
         for i in range(5):

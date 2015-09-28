@@ -564,8 +564,8 @@ class LockedDevice(BaseSequencer):
     }
 
     def _generateSequence(self, target, *args, **kwargs):
-        device = self._adevs['device']
-        lock = self._adevs['lock']
+        device = self._attached_device
+        lock = self._attached_lock
         seq = []
 
         if self.keepfixed:
@@ -596,10 +596,10 @@ class LockedDevice(BaseSequencer):
         return seq
 
     def doRead(self, maxage=0):
-        return self._adevs['device'].read(maxage)
+        return self._attached_device.read(maxage)
 
     def doIsAllowed(self, target):
-        return self._adevs['device'].isAllowed(target)
+        return self._attached_device.isAllowed(target)
 
 
 class MeasureSequencer(SequencerMixin, Measurable):

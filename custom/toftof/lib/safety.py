@@ -52,9 +52,9 @@ class SafetyInputs(Readable):
     }
 
     def doRead(self, maxage=0):
-        state = (self._adevs['i7053_1'].read() |
-                 (self._adevs['i7053_2'].read() << 16) |
-                 (self._adevs['i7053_3'].read() << 32))
+        state = (self._attached_i7053_1.read() |
+                 (self._attached_i7053_2.read() << 16) |
+                 (self._attached_i7053_3.read() << 32))
         self.log.info('val description')
         for i, bit in enumerate(bin(state)[2:][::-1]):
             self.log.info('%s   %s' % (bit, bit_description[i]))
@@ -62,9 +62,9 @@ class SafetyInputs(Readable):
 
     def doStatus(self, maxage=0):
         # XXX define which bits may be active for normal state
-        state = (self._adevs['i7053_1'].read() |
-                 (self._adevs['i7053_2'].read() << 16) |
-                 (self._adevs['i7053_3'].read() << 32))
+        state = (self._attached_i7053_1.read() |
+                 (self._attached_i7053_2.read() << 16) |
+                 (self._attached_i7053_3.read() << 32))
         return status.OK, str(state)
 
 
@@ -86,20 +86,20 @@ class Shutter(Moveable):
 
     def doStart(self, target):
         if target == 'open':
-            self._adevs['open'].start(1)
+            self._attached_open.start(1)
             sleep(0.01)
-            self._adevs['open'].start(0)
+            self._attached_open.start(0)
         else:
-            self._adevs['close'].start(1)
+            self._attached_close.start(1)
             sleep(0.01)
-            self._adevs['close'].start(0)
+            self._attached_close.start(0)
 
     def doStop(self):
         self.log.info('note: shutter collimator does not use stop() anymore, '
                       'use move(%s, "closed")' % self)
 
     def doRead(self, maxage=0):
-        ret = self._adevs['status'].read(maxage)
+        ret = self._attached_status.read(maxage)
         if ret == 1:
             return 'closed'
         else:

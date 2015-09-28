@@ -48,18 +48,18 @@ class BeamElement(HasTimeout, Moveable):
     }
 
     def doStatus(self, maxage=0):
-        is_in = self._adevs['switch_in'].read(maxage)
-        is_out = self._adevs['switch_out'].read(maxage)
-        valvepos = self._adevs['valve'].read(maxage)
+        is_in = self._attached_switch_in.read(maxage)
+        is_out = self._attached_switch_out.read(maxage)
+        valvepos = self._attached_valve.read(maxage)
         if (is_in and valvepos == 'in') or (is_out and valvepos == 'out'):
             return status.OK, 'idle'
         return status.BUSY, 'moving'
 
     def doRead(self, maxage=0):
-        return self._adevs['valve'].read(maxage)
+        return self._attached_valve.read(maxage)
 
     def doStart(self, target):
-        self._adevs['valve'].start(target)
+        self._attached_valve.start(target)
 
     def doReset(self):
         multiReset(self._adevs)

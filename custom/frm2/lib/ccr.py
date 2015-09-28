@@ -74,11 +74,11 @@ class CCRControl(HasLimits, Moveable):
 
     @lazy_property
     def stick(self):
-        return self._adevs['stick']
+        return self._attached_stick
 
     @lazy_property
     def tube(self):
-        return self._adevs['tube']
+        return self._attached_tube
 
     def doInit(self, mode):
         if mode != SIMULATION:

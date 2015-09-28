@@ -40,7 +40,7 @@ class Coder(IPCCoder):
 
     def doWriteConfbyte(self, byte):
         self.log.warning('Config byte can\'t be changed like this.')
-#        self._adevs['bus'].send(self.addr, 154, byte, 3)
+#        self._attached_bus.send(self.addr, 154, byte, 3)
         return
 
 
@@ -54,7 +54,7 @@ class Motor(IPCMotor):
         self.log.warning('Config byte can\'t be changed like this.')
         return
 #       if self._hwtype == 'single':
-#           self._adevs['bus'].send(self.addr, 49, value, 3)
+#           self._attached_bus.send(self.addr, 49, value, 3)
 #       else:
 #           raise InvalidValueError(self, 'confbyte not supported by card')
 #       self.log.info('parameter change not permanent, use _store() '

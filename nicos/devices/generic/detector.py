@@ -81,18 +81,18 @@ class MultiChannelDetector(Measurable):
     def _presetiter(self):
         """yields name, device tuples for all 'preset-able' devices"""
         # a device may react to more than one presetkey....
-        dev = self._adevs['timer']
+        dev = self._attached_timer
         if dev:
             yield ('t', dev)
             yield ('time', dev)
-        for i, dev in enumerate(self._adevs['monitors']):
+        for i, dev in enumerate(self._attached_monitors):
             yield ('mon%d' % (i+1), dev)
-        for i, dev in enumerate(self._adevs['counters']):
+        for i, dev in enumerate(self._attached_counters):
             if i == 0:
                 yield ('n', dev)
             yield ('ctr%d' % (i+1), dev)
             yield ('det%d' % (i+1), dev)
-        for dev in self._adevs['monitors'] + self._adevs['counters']:
+        for dev in self._attached_monitors + self._attached_counters:
             yield (dev.name, dev)
 
     def doPreinit(self, mode):
@@ -220,11 +220,11 @@ class DetectorForecast(Readable):
     def doRead(self, maxage=0):
         # read all values of all counters and store them by device
         counter_values = dict((c, c.read(maxage)[0])
-                              for c in self._adevs['det']._counters)
+                              for c in self._attached_det._counters)
         # go through the master channels and determine the one
         # closest to the preselection
         fraction_complete = 0
-        for m in self._adevs['det']._masters:
+        for m in self._attached_det._masters:
             p = m.preselection
             if p > 0:
                 fraction_complete = max(fraction_complete, counter_values[m] / p)
@@ -233,10 +233,10 @@ class DetectorForecast(Readable):
             fraction_complete = 1.0
         # scale all counter values by that fraction
         return [counter_values[ctr] / fraction_complete
-                for ctr in self._adevs['det']._counters]
+                for ctr in self._attached_det._counters]
 
     def doStatus(self, maxage=0):
         return status.OK, ''
 
     def valueInfo(self):
-        return self._adevs['det'].valueInfo()
+        return self._attached_det.valueInfo()

@@ -51,28 +51,28 @@ class SH_Cylinder(Moveable):
             raise NicosError(self, 'No air! Please open the shutter with the '
                              'button near the door.')
 
-        self._adevs['io_air'].move(0)
+        self._attached_io_air.move(0)
         time.sleep(self.timedelay)
 
-        if self._adevs['io_ref'].read(0) != 1:
+        if self._attached_io_ref.read(0) != 1:
             raise NicosError(self, 'Cannot close the shutter!')
 
         if position != -1:
-            self._adevs['io_pos'].move(position)
+            self._attached_io_pos.move(position)
             time.sleep(self.timedelay)
-            self._adevs['io_air'].move(1)
+            self._attached_io_air.move(1)
             time.sleep(self.timedelay)
 
     def doRead(self, maxage=0):
-        if self._adevs['io_ref'].read(0) == 1:
+        if self._attached_io_ref.read(0) == 1:
             return -1
-        if self._adevs['io_air'].read(0) == 1:
-            return self._adevs['io_pos'].read(0)
+        if self._attached_io_air.read(0) == 1:
+            return self._attached_io_pos.read(0)
 
     def _checkAir(self):
-        if self._adevs['io_ref'].read(0) == 1:
-            self._adevs['io_air'].move(1)
+        if self._attached_io_ref.read(0) == 1:
+            self._attached_io_air.move(1)
             time.sleep(self.timedelay)
-            if self._adevs['io_ref'].read(0) == 1:
+            if self._attached_io_ref.read(0) == 1:
                 return 0
         return 1

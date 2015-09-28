@@ -48,9 +48,9 @@ class PGFilter(Moveable):
                 return
 
             if position == 'in':
-                self._adevs['io_set'].move(1)
+                self._attached_io_set.move(1)
             elif position == 'out':
-                self._adevs['io_set'].move(0)
+                self._attached_io_set.move(0)
             else:
                 # shouldn't happen...
                 self.log.info('PG filter: illegal input')
@@ -65,7 +65,7 @@ class PGFilter(Moveable):
             self.log.info('PG filter: ', self.read(0))
 
     def doRead(self, maxage=0):
-        result = self._adevs['io_status'].doRead(0)
+        result = self._attached_io_status.doRead(0)
         if result == 2:
             return 'in'
         elif result == 1:
@@ -74,7 +74,7 @@ class PGFilter(Moveable):
             raise NicosError(self, 'PG filter is not readable, check device!')
 
     def doStatus(self, maxage=0):
-        s = self._adevs['io_status'].doRead(0)
+        s = self._attached_io_status.doRead(0)
         if s in [1, 2]:
             return (status.OK, 'idle')
         else:

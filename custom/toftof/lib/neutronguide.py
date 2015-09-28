@@ -49,15 +49,15 @@ class Switcher(BaseSwitcher):
 
     def _startRaw(self, target):
         """Initiate movement of the moveable to the translated raw value."""
-        if isinstance(self._adevs['moveable'], CanReference):
-            self.log.info('referencing %s...' % self._adevs['moveable'])
-            self._adevs['moveable'].reference()
+        if isinstance(self._attached_moveable, CanReference):
+            self.log.info('referencing %s...' % self._attached_moveable)
+            self._attached_moveable.reference()
         else:
             self.log.warning('%s cannot be referenced!' %
-                             self._adevs['moveable'])
-        self._adevs['moveable'].start(target)
+                             self._attached_moveable)
+        self._attached_moveable.start(target)
         if self.blockingmove:
-            self._adevs['moveable'].wait()
+            self._attached_moveable.wait()
 
 
 class Motor(BaseMotor):
@@ -92,7 +92,7 @@ class Motor(BaseMotor):
     def _stepping_until(self, start, step, switch):
         self.log.debug('Set position : %d' % (start))
         self.doSetPosition(start)
-        while self._adevs['limitsw'].read(0) == switch:
+        while self._attached_limitsw.read(0) == switch:
             start += step
             BaseMotor.doStart(self, start)
         self.wait()
@@ -102,7 +102,7 @@ class Motor(BaseMotor):
         # move in steps to the min position until the limit switch is reached
         # move in steps until the limit switch is left
         # set the position to 0
-        if self._adevs['limitsw'].read(0) == 1:
+        if self._attached_limitsw.read(0) == 1:
             self._stepping_until(self.absmax, -100, 1)
         try:
             speed = self.speed

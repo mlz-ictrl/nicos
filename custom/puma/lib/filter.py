@@ -63,7 +63,7 @@ class PumaFilter(HasTimeout, Moveable):
     valuetype = oneof('in', 'out')
 
     def doStart(self, position):
-        motor = self._adevs['motor']
+        motor = self._attached_motor
         currentpos = self.read(0)
         motorpos = motor.read(0)
 
@@ -73,7 +73,7 @@ class PumaFilter(HasTimeout, Moveable):
         if abs(motorpos - self.justpos) > 0.5:
             motorpos = motor.maw(0)
 
-        self._adevs['io_set'].start(1 if position == 'in' else 0)
+        self._attached_io_set.start(1 if position == 'in' else 0)
         if self.wait() != position:
             raise PositionError(self, 'device returned wrong position')
 
@@ -83,7 +83,7 @@ class PumaFilter(HasTimeout, Moveable):
                           motor.format(motorpos, unit=True))
 
     def doRead(self, maxage=0):
-        res = self._adevs['io_status'].read(maxage)
+        res = self._attached_io_status.read(maxage)
         if res == 1:
             return 'in'
         elif res == 2:
@@ -95,8 +95,8 @@ class PumaFilter(HasTimeout, Moveable):
             raise PositionError(self, 'invalid value of I/O: %s' % res)
 
     def doStatus(self, maxage=0):
-        s1 = self._adevs['io_status'].read(maxage)
-        s2 = self._adevs['motor'].status(maxage)
+        s1 = self._attached_io_status.read(maxage)
+        s2 = self._attached_motor.status(maxage)
         if s1 in [0, 3] or s2[0] == status.BUSY:
             return status.BUSY, 'moving'
         elif s1 in [1, 2] and s2[0] == status.IDLE:

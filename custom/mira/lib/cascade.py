@@ -107,10 +107,10 @@ class MiraXMLFormat(ImageSink):
         tmp = cascadeclient.TmpImage()
         self._padimg.LoadMem(image.tostring(), 128*128*4)
         tmp.ConvertPAD(self._padimg)
-        mon = self._adevs['master']._adevs['monitors'][self.monchannel - 1]
-        timer = self._adevs['master']._adevs['timer']
-        mono = self._adevs['mono']
-        tmp.WriteXML(imageinfo.filepath, self._adevs['sampledet'].read(),
+        mon = self._attached_master._attached_monitors[self.monchannel - 1]
+        timer = self._attached_master._attached_timer
+        mono = self._attached_mono
+        tmp.WriteXML(imageinfo.filepath, self._attached_sampledet.read(),
                      from_k(to_k(mono.read(), mono.unit), 'A'),
                      timer.read()[0], mon.read()[0])
 
@@ -266,7 +266,7 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
         else:
             raise CommunicationError(self, 'could not connect to server')
         if self.slave:
-            self._adevs['master'].reset()
+            self._attached_master.reset()
         # reset parameters in case the server forgot them
         self.log.info('re-setting to %s mode' % self.mode.upper())
         self.doWriteMode(self.mode)
@@ -278,7 +278,7 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
         else:
             myvalues = self.lastcounts + [self.lastfilename]
         if self.slave:
-            return self._adevs['master'].read(maxage) + myvalues
+            return self._attached_master.read(maxage) + myvalues
         return myvalues
 
     def doStatus(self, maxage=0):
@@ -294,7 +294,7 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
             self.preselection = 1000000  # master controls preset
             if preset.get('t'):
                 self._last_preset = preset['t']
-            self._adevs['master'].setPreset(**preset)
+            self._attached_master.setPreset(**preset)
         elif preset.get('t'):
             self.preselection = self._last_preset = preset['t']
 
@@ -314,7 +314,7 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
                                   'could not start measurement')
 
         if self.slave:
-            self._adevs['master'].start()
+            self._attached_master.start()
         self._started = currenttime()
         self._lastlivetime = 0
 
@@ -330,7 +330,7 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
 
     def doStop(self):
         if self.slave:
-            self._adevs['master'].stop()
+            self._attached_master.stop()
         else:
             reply = str(self._client.communicate('CMD_stop'))
             if reply != 'OKAY':
@@ -362,7 +362,7 @@ class CascadeDetector(HasCommunication, ImageProducer, Measurable):
                              )
         cvals = cvals + (Value(self.name + '.file', type='info', fmtstr='%s'),)
         if self.slave:
-            return self._adevs['master'].valueInfo() + cvals
+            return self._attached_master.valueInfo() + cvals
         return cvals
 
     def presetInfo(self):

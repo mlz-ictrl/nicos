@@ -119,7 +119,7 @@ class TAS(Instrument, Moveable):
         qh, qk, ql, ny = pos
         ny = self._thz(ny)
         try:
-            angles = self._adevs['cell'].cal_angles(
+            angles = self._attached_cell.cal_angles(
                 [qh, qk, ql], ny, self.scanmode, self.scanconstant,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError as err:
@@ -149,11 +149,11 @@ class TAS(Instrument, Moveable):
     def doStart(self, pos):
         qh, qk, ql, ny = pos
         ny = self._thz(ny)
-        angles = self._adevs['cell'].cal_angles(
+        angles = self._attached_cell.cal_angles(
             [qh, qk, ql], ny, self.scanmode, self.scanconstant,
             self.scatteringsense[1], self.axiscoupling, self.psi360)
-        mono, ana, phi, psi, alpha = self._adevs['mono'], self._adevs['ana'], \
-            self._adevs['phi'], self._adevs['psi'], self._adevs['alpha']
+        mono, ana, phi, psi, alpha = self._attached_mono, self._attached_ana, \
+            self._attached_phi, self._attached_psi, self._attached_alpha
         self.log.debug('moving phi/stt to %s' % angles[2])
         phi.start(angles[2])
         self.log.debug('moving psi/sth to %s' % angles[3])
@@ -205,8 +205,8 @@ class TAS(Instrument, Moveable):
                              'position')
 
     def doUpdateScatteringsense(self, val):
-        self._adevs['mono']._scatsense = val[0]
-        self._adevs['ana']._scatsense = val[2]
+        self._attached_mono._scatsense = val[0]
+        self._attached_ana._scatsense = val[2]
 
     def doReadUnit(self):
         return 'rlu rlu rlu %s' % self.energytransferunit
@@ -226,21 +226,21 @@ class TAS(Instrument, Moveable):
             Value('E', unit=self.energytransferunit, fmtstr='%.4f')
 
     def doRead(self, maxage=0):
-        mono, ana, phi, psi = self._adevs['mono'], self._adevs['ana'], \
-                              self._adevs['phi'], self._adevs['psi']
+        mono, ana, phi, psi = self._attached_mono, self._attached_ana, \
+                              self._attached_phi, self._attached_psi
         # read out position
         monovalue = to_k(mono.read(maxage), mono.unit)
         if self.scanmode == 'DIFF':
-            hkl = self._adevs['cell'].angle2hkl(
+            hkl = self._attached_cell.angle2hkl(
                 [monovalue, monovalue, phi.read(maxage), psi.read(maxage)],
                 self.axiscoupling)
             ny = 0
         else:
             anavalue = to_k(ana.read(maxage), ana.unit)
-            hkl = self._adevs['cell'].angle2hkl(
+            hkl = self._attached_cell.angle2hkl(
                 [monovalue, anavalue, phi.read(maxage), psi.read(maxage)],
                 self.axiscoupling)
-            ny = self._adevs['cell'].cal_ny(monovalue, anavalue)
+            ny = self._attached_cell.cal_ny(monovalue, anavalue)
             if self.energytransferunit == 'meV':
                 ny *= THZ2MEV
         return [hkl[0], hkl[1], hkl[2], ny]
@@ -253,7 +253,7 @@ class TAS(Instrument, Moveable):
         if sc is None:
             sc = self.scanconstant
         try:
-            angles = self._adevs['cell'].cal_angles(
+            angles = self._attached_cell.cal_angles(
                 [qh, qk, ql], ny, sm, sc,
                 self.scatteringsense[1], self.axiscoupling, self.psi360)
         except ComputationError as err:
@@ -282,7 +282,7 @@ class TAS(Instrument, Moveable):
             self.log.info('kf:            %8.3f A-1' % angles[1])
         self.log.info('2theta sample: %8.3f deg' % angles[2])
         self.log.info('theta sample:  %8.3f deg' % angles[3])
-        if self._adevs['alpha'] is not None:
+        if self._attached_alpha is not None:
             self.log.info('alpha:         %8.3f deg' % angles[4])
         if ok:
             self._last_calpos = pos
@@ -299,10 +299,10 @@ class TAS(Instrument, Moveable):
             ny = self._thz(kwds['E'])
             if self.scanmode == 'CKI':
                 ki = self.scanconstant
-                kf = self._adevs['cell'].cal_kf(ny, ki)
+                kf = self._attached_cell.cal_kf(ny, ki)
             elif self.scanmode == 'CKF':
                 kf = self.scanconstant
-                ki = self._adevs['cell'].cal_ki1(ny, kf)
+                ki = self._attached_cell.cal_ki1(ny, kf)
             else:
                 self.log.error('cannot calculate position with scanmode %s' %
                                self.scanmode)
@@ -312,9 +312,9 @@ class TAS(Instrument, Moveable):
             if not ki or not kf:
                 self.log.error('must give both ki and kf arguments')
         else:
-            ki = self._adevs['mono'].read()
-            kf = self._adevs['ana'].read()
-        ny = self._adevs['cell'].cal_ny(ki, kf)
+            ki = self._attached_mono.read()
+            kf = self._attached_ana.read()
+        ny = self._attached_cell.cal_ny(ki, kf)
         if self.energytransferunit == 'meV':
             ny *= THZ2MEV
         hkl = self._calhkl([ki, kf, phi, psi])
@@ -324,7 +324,7 @@ class TAS(Instrument, Moveable):
                       (tuple(hkl) + (ny, self.energytransferunit)))
 
     def _calhkl(self, angles):
-        return self._adevs['cell'].angle2hkl(angles, self.axiscoupling)
+        return self._attached_cell.angle2hkl(angles, self.axiscoupling)
 
     def _getCollimation(self):
         """Return current Soller collimator acceptance angles in minutes of arc.
@@ -397,11 +397,11 @@ class TAS(Instrument, Moveable):
         for line in spurions.check_acc_bragg(self, *pos):
             self.log.info(line)
         for line in spurions.check_ho_spurions(
-                to_k(self._adevs['ana'].read(), self._adevs['ana'].unit),
+                to_k(self._attached_ana.read(), self._attached_ana.unit),
                 pos[3] - 0.25, pos[3] + 0.25):
             self.log.info(line)
-        kival = to_k(self._adevs['mono'].read(), self._adevs['mono'].unit)
-        phival = self._adevs['phi'].read()
+        kival = to_k(self._attached_mono.read(), self._attached_mono.unit)
+        phival = self._attached_phi.read()
         for line in spurions.check_powderrays(kival, spurions.alu_hkl, phival):
             self.log.info(line)
         for line in spurions.check_powderrays(kival, spurions.copper_hkl, phival):
@@ -426,12 +426,12 @@ class TASIndex(AutoDevice, Moveable):
     hardware_access = False
 
     def doRead(self, maxage=0):
-        return self._adevs['tas'].read(maxage)[self.index]
+        return self._attached_tas.read(maxage)[self.index]
 
     def doStart(self, pos):
-        current = list(self._adevs['tas'].read(0.5))
+        current = list(self._attached_tas.read(0.5))
         current[self.index] = pos
-        self._adevs['tas'].start(current)
+        self._attached_tas.start(current)
 
 
 class Wavevector(Moveable):
@@ -455,33 +455,33 @@ class Wavevector(Moveable):
     hardware_access = False
 
     def doRead(self, maxage=0):
-        base = self._adevs['base']
+        base = self._attached_base
         return to_k(base.read(maxage), base.unit)
 
     def doStatus(self, maxage=0):
-        return self._adevs['base'].status(maxage)
+        return self._attached_base.status(maxage)
 
     def _getWaiters(self):
-        return [self._adevs['base']]
+        return [self._attached_base]
 
     def doStart(self, pos):
         # first drive there, to determine if it is within limits
-        tas = self._adevs['tas']
-        mono = self._adevs['base']
+        tas = self._attached_tas
+        mono = self._attached_base
         mono.start(from_k(pos, mono.unit))
         msg = False
         if tas.scanmode != self.scanmode:
             tas.scanmode = self.scanmode
             msg = True
         if tas.scanconstant != pos:
-            self._adevs['tas'].scanconstant = pos
+            self._attached_tas.scanconstant = pos
             msg = True
         if msg:
             tas.log.info('scan mode is now %s at %s' %
                          (self.scanmode, self.format(pos, unit=True)))
 
     def doStop(self):
-        self._adevs['base'].stop()
+        self._attached_base.stop()
 
 
 class Energy(Moveable):
@@ -509,20 +509,20 @@ class Energy(Moveable):
     hardware_access = False
 
     def doRead(self, maxage=0):
-        mono = self._adevs['base']
+        mono = self._attached_base
         return from_k(to_k(mono.read(maxage), mono.unit),
-                      self._adevs['tas'].energytransferunit)
+                      self._attached_tas.energytransferunit)
 
     def doStatus(self, maxage=0):
-        return self._adevs['base'].status(maxage)
+        return self._attached_base.status(maxage)
 
     def _getWaiters(self):
-        return [self._adevs['base']]
+        return [self._attached_base]
 
     def doStart(self, pos_e):
         # first drive there, to determine if it is within limits
-        tas = self._adevs['tas']
-        mono = self._adevs['base']
+        tas = self._attached_tas
+        mono = self._attached_base
         pos = from_k(to_k(pos_e, tas.energytransferunit), mono.unit)
         mono.start(pos)
         msg = False
@@ -537,10 +537,10 @@ class Energy(Moveable):
                          (self.scanmode, self.format(pos_e, unit=True)))
 
     def doReadUnit(self):
-        return self._adevs['tas'].energytransferunit
+        return self._attached_tas.energytransferunit
 
     def doStop(self):
-        self._adevs['base'].stop()
+        self._attached_base.stop()
 
 
 class Wavelength(Moveable):
@@ -568,19 +568,19 @@ class Wavelength(Moveable):
     hardware_access = False
 
     def doRead(self, maxage=0):
-        mono = self._adevs['base']
+        mono = self._attached_base
         return 2 * pi / to_k(mono.read(maxage), mono.unit)
 
     def _getWaiters(self):
-        return [self._adevs['base']]
+        return [self._attached_base]
 
     def doStatus(self, maxage=0):
-        return self._adevs['base'].status(maxage)
+        return self._attached_base.status(maxage)
 
     def doStart(self, lam):
         # first drive there, to determine if it is within limits
-        tas = self._adevs['tas']
-        mono = self._adevs['base']
+        tas = self._attached_tas
+        mono = self._attached_base
         pos = from_k(to_k(lam, 'A'), mono.unit)
         mono.start(pos)
         msg = False
@@ -598,4 +598,4 @@ class Wavelength(Moveable):
         return 'AA'
 
     def doStop(self):
-        self._adevs['base'].stop()
+        self._attached_base.stop()

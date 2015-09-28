@@ -140,7 +140,7 @@ class VirtualCoder(HasOffset, Coder):
     }
 
     def doRead(self, maxage=0):
-        val = self._adevs['motor'] and self._adevs['motor'].read(maxage) or 0
+        val = self._attached_motor and self._attached_motor.read(maxage) or 0
         return val - self.offset
 
     def doStatus(self, maxage=0):
@@ -196,7 +196,7 @@ class VirtualChannel(Channel):
         self._finish = True
         if mode == MASTER:
             self.curvalue = 0
-        self._adevs['card'].addChannel(self)
+        self._attached_card.addChannel(self)
         if self.curstatus[0] < status.OK:  # clean up old status values
             self._setROParam('curstatus', (status.OK, ''))
 
@@ -209,7 +209,7 @@ class VirtualChannel(Channel):
     def _do_stop(self):
         if not self._finish:
             self._finish = True
-            self._adevs['card'].finished(self)
+            self._attached_card.finished(self)
             self.curstatus = (status.OK, 'idle')
 
     def doStatus(self, maxage=0):
@@ -227,7 +227,7 @@ class VirtualTimer(VirtualChannel):
     def doStart(self):
         if self._finish:
             self.curvalue = 0
-            self._adevs['card'].started(self)
+            self._attached_card.started(self)
             self._finish = False
             self.curstatus = (status.BUSY, 'counting')
             self._thread = createThread('virtual timer %s' % self,
@@ -291,7 +291,7 @@ class VirtualCounter(VirtualChannel):
     def doStart(self):
         if self._finish:
             self.curvalue = 0
-            self._adevs['card'].started(self)
+            self._attached_card.started(self)
             self._finish = False
             self.curstatus = (status.BUSY, 'virtual counting')
             self._thread = createThread('virtual counter %s' % self,
@@ -728,9 +728,9 @@ class Virtual2DDetector(ImageProducer, Measurable):
                 Value(self.name + '.file', type='info', fmtstr='%s'))
 
     def _generate(self, t):
-        dst = (self._adevs['distance'].read() * 5) if self._adevs['distance'] \
+        dst = (self._attached_distance.read() * 5) if self._attached_distance \
             else 5
-        coll = self._adevs['collimation'].read() if self._adevs['collimation'] \
+        coll = self._attached_collimation.read() if self._attached_collimation \
             else '15m'
         # pylint: disable=unbalanced-tuple-unpacking
         xx, yy = np.meshgrid(np.linspace(-64, 63, 128), np.linspace(-64, 63, 128))

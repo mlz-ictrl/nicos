@@ -548,7 +548,7 @@ class Experiment(Device):
     def doInit(self, mode):
         self._last_datasets = []
         instname = session.instrument and session.instrument.instrument or ''
-        if self._adevs['sample'].name != 'Sample':
+        if self._attached_sample.name != 'Sample':
             raise ConfigurationError(self, 'the sample device must now be '
                                      'named "Sample", please fix your system '
                                      'setup')
@@ -1140,7 +1140,7 @@ class Experiment(Device):
 
     @property
     def sample(self):
-        return self._adevs['sample']
+        return self._attached_sample
 
     #
     # Detectorlist

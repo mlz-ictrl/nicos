@@ -202,11 +202,11 @@ class SimpleCommReadable(Readable):
         pass
 
     def doRead(self, maxage=0):
-        data = self._adevs['comm'].communicate(self.name + '/value?')
+        data = self._attached_comm.communicate(self.name + '/value?')
         return data
 
     def doStatus(self, maxage=0):
-        data = self._adevs['comm'].communicate(self.name + '/status?')
+        data = self._attached_comm.communicate(self.name + '/status?')
         if isinstance(data, (list, tuple)):
             if data[0] == 'IDLE':
                 return status.OK, data[0].lower()
@@ -230,7 +230,7 @@ class SimpleCommMoveable(SimpleCommReadable, Moveable):
 
     def doStart(self, target):
         msg = self.name + '/target=' + str(target)
-        reTarget = self._adevs['comm'].communicate(msg)
+        reTarget = self._attached_comm.communicate(msg)
         if reTarget != target:
             self.log.warn('Target value has not been updated')
 
@@ -239,6 +239,6 @@ class SimpleCommMoveable(SimpleCommReadable, Moveable):
 
     def doWriteSpeed(self, newValue):
         msg = self.name + '/speed=' + str(newValue)
-        reValue = self._adevs['comm'].communicate(msg)
+        reValue = self._attached_comm.communicate(msg)
         if reValue != newValue:
             self.log.warn('Speed value has not been updated')

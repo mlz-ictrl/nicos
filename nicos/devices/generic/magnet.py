@@ -90,7 +90,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         which must be monotonic for this to work!
         """
         # binary search/bisection
-        maxcurr = self._adevs['currentsource'].abslimits[1]
+        maxcurr = self._attached_currentsource.abslimits[1]
         mincurr = -maxcurr
         maxfield = self._current2field(maxcurr)
         minfield = -maxfield
@@ -143,7 +143,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
     # pylint: disable=W0221
     def _generateSequence(self, value):
         sequence = []
-        currentsource = self._adevs['currentsource']
+        currentsource = self._attached_currentsource
         if value != 0:
             need_pol = +1 if value > 0 else -1
             curr_pol = self._get_field_polarity()
@@ -159,7 +159,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         return sequence
 
     def doRead(self, maxage=0):
-        absfield = self._current2field(self._adevs['currentsource'].read(maxage))
+        absfield = self._current2field(self._attached_currentsource.read(maxage))
         return self._get_field_polarity() * absfield
 
     def doStart(self, target):
@@ -172,16 +172,16 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
 
     def doReset(self):
         BaseSequencer.doReset(self)
-        return self._adevs['currentsource'].reset()
+        return self._attached_currentsource.reset()
 
     def doReadRamp(self):
-        return self.calibration[0]*abs(self._adevs['currentsource'].ramp)
+        return self.calibration[0]*abs(self._attached_currentsource.ramp)
 
     def doWriteRamp(self, newramp):
-        self._adevs['currentsource'].ramp = newramp / self.calibration[0]
+        self._attached_currentsource.ramp = newramp / self.calibration[0]
 
     def doReadAbslimits(self):
-        maxcurr = self._adevs['currentsource'].abslimits[1]
+        maxcurr = self._attached_currentsource.abslimits[1]
         maxfield = self._current2field(maxcurr)
         # get configured limits if any, or take max of source
         limits = self._config.get('abslimits', (-maxfield, maxfield))
@@ -191,7 +191,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
 
     def doWriteUserlimits(self, limits):
         HasLimits.doWriteUserlimits(self, limits)
-        currentsource = self._adevs['currentsource']
+        currentsource = self._attached_currentsource
         # all Ok, set source to max of pos/neg field current
         maxcurr = max(abs(self._field2current(i)) for i in limits)
         currentsource.userlimits = (0, maxcurr)
@@ -200,7 +200,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         # get difference in current
         delta = abs(self._field2current(target) - self._field2current(startval))
         # ramp is per minute, doTime should return seconds
-        return 60 * delta / self._adevs['currentsource'].ramp
+        return 60 * delta / self._attached_currentsource.ramp
 
     @usermethod
     def calibrate(self, fieldcolumn, *scannumbers):
@@ -217,7 +217,7 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         self.log.info('determining calibration from scans, please wait...')
         Is = []
         Bs = []
-        currentcolumn = self._adevs['currentsource'].name
+        currentcolumn = self._attached_currentsource.name
         for scan in scans:
             if scan.sinkinfo.get('number') not in scannumbers:
                 continue

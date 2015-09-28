@@ -421,7 +421,7 @@ def ho_spurions(kf=None, dEmin=0, dEmax=20):
     """
     instr = session.instrument
     if kf is None:
-        ana = instr._adevs['ana']
+        ana = instr._attached_ana
         kf = to_k(ana.read(), ana.unit)
     printinfo('calculation of potential weak spurions due to higher harmonic '
               'ki / kf combinations')
@@ -448,7 +448,7 @@ def powderrays(dlist, ki=None, phi=None):
     """Calculate powder ray positions."""
     instr = session.instrument
     if ki is None:
-        mono = instr._adevs['mono']
+        mono = instr._attached_mono
         ki = to_k(mono.read(), mono.unit)
     for line in check_powderrays(ki, dlist, phi):
         printinfo(line)
@@ -456,9 +456,9 @@ def powderrays(dlist, ki=None, phi=None):
 
 def _resmat_args(args, kwds):
     instr = session.instrument
-    cell = instr._adevs['cell']
-    mono = instr._adevs['mono']
-    ana = instr._adevs['ana']
+    cell = instr._attached_cell
+    mono = instr._attached_mono
+    ana = instr._attached_ana
 
     if not args:
         pos = instr.read(0)
@@ -502,14 +502,14 @@ def _resmat_args(args, kwds):
 
     collimation = instr._getCollimation()
     par = {
-        'dm': instr._adevs['mono'].dvalue,
-        'da': instr._adevs['ana'].dvalue,
+        'dm': instr._attached_mono.dvalue,
+        'da': instr._attached_ana.dvalue,
         'sm': instr.scatteringsense[0],
         'ss': instr.scatteringsense[1],
         'sa': instr.scatteringsense[2],
-        'etam': instr._adevs['mono'].mosaic * 60,
+        'etam': instr._attached_mono.mosaic * 60,
         'etas': cell.mosaic * 60,
-        'etaa': instr._adevs['ana'].mosaic * 60,
+        'etaa': instr._attached_ana.mosaic * 60,
         'alpha1': collimation[0],  # in minutes
         'alpha2': collimation[1],
         'alpha3': collimation[2],
@@ -624,20 +624,20 @@ def hklplot(**kwds):
     tasinfo = {
         'actpos': tas.read(),
         'calpos': tas._last_calpos,
-        'philim': tas._adevs['phi'].userlimits,
-        'psilim': tas._adevs['psi'].userlimits,
-        'monolim': tas._adevs['mono'].userlimits,
-        'analim': tas._adevs['ana'].userlimits,
-        'alphalim': tas._adevs['alpha'] and tas._adevs['alpha'].userlimits,
-        'phiname': tas._adevs['phi'].name,
-        'psiname': tas._adevs['psi'].name,
+        'philim': tas._attached_phi.userlimits,
+        'psilim': tas._attached_psi.userlimits,
+        'monolim': tas._attached_mono.userlimits,
+        'analim': tas._attached_ana.userlimits,
+        'alphalim': tas._attached_alpha and tas._attached_alpha.userlimits,
+        'phiname': tas._attached_phi.name,
+        'psiname': tas._attached_psi.name,
     }
     for p in ['scanmode', 'scanconstant', 'energytransferunit',
               'scatteringsense', 'axiscoupling', 'psi360']:
         tasinfo[p] = getattr(tas, p)
     for p in ['lattice', 'angles', 'orient1', 'orient2',
               'psi0', 'spacegroup']:
-        tasinfo[p] = getattr(tas._adevs['cell'], p)
+        tasinfo[p] = getattr(tas._attached_cell, p)
     session.clientExec(plot_hklmap, (cfg, par, tasinfo, kwds))
 
 
@@ -654,12 +654,12 @@ def setalign(hkl, psival=None):
     """
     tas = session.instrument
     target = tuple(hkl) + (0,)
-    psi = tas._adevs['psi']
+    psi = tas._attached_psi
     psicalc = tas._calpos(target + (None, None), printout=False)[3]
     if psival is None:
         psival = psi.read(0)
     diff = psicalc - psival
-    sample = tas._adevs['cell']
+    sample = tas._attached_cell
     printinfo('adjusting %s.psi0 by %s to %s' % (
         sample, psi.format(diff, True), psi.format(sample.psi0 + diff, True)))
     sample.psi0 += diff
@@ -691,7 +691,7 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
     accuracy = kwargs.pop('accuracy', None)
     target = tuple(hkl) + (0,)
     tas.maw(target)
-    psi = tas._adevs['psi']
+    psi = tas._attached_psi
     center = tas._calpos(target + (None, None), printout=False)[3]
     cscan(psi, center, step, numpoints, 'align check', *args, **kwargs)
     params, _ = gauss(ycol)
@@ -713,7 +713,7 @@ def checkalign(hkl, step, numpoints, *args, **kwargs):
             printinfo('alignment ok within %.3f degrees, not changing psi0'
                       % accuracy)
             return
-        sample = tas._adevs['cell']
+        sample = tas._attached_cell
         printwarning('adjusting %s.psi0 by %s' % (sample,
                                                   psi.format(diff, True)))
         sample.psi0 += diff

@@ -148,9 +148,9 @@ class ResiVAxis(Moveable):
         'mapped_axis': Param('Mapped axis', type=str, mandatory=True)
     }
     def doStart(self, value):
-        self._adevs['basedevice'].doStart({self.mapped_axis:value})
+        self._attached_basedevice.doStart({self.mapped_axis:value})
     def doRead(self, maxage=0):
-        return math.degrees(getattr(self._adevs['basedevice'].read(maxage), self.mapped_axis))
+        return math.degrees(getattr(self._attached_basedevice.read(maxage), self.mapped_axis))
     def doIsCompleted(self):
         # the moves are currently blocking due to restrictions in the underlying hardware access layer.
         return True
@@ -167,4 +167,4 @@ class ResiSample(Sample):
                          default=[90, 90, 90], unit='deg', category='sample'),
     }
     def doRead(self, maxage=0):
-        return repr(self._adevs['basedevice'].cell)
+        return repr(self._attached_basedevice.cell)

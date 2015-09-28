@@ -165,11 +165,11 @@ class GuideField(MappedMoveable):
 
     @lazy_property
     def coils(self):
-        return self._adevs['coils']
+        return self._attached_coils
 
     @lazy_property
     def alpha(self):
-        return self._adevs['alpha']
+        return self._attached_alpha
 
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)

@@ -59,16 +59,16 @@ class VoltageSwitcher(Switcher):
         if self.fallback is not None:
             return self.fallback
         raise PositionError(self, 'unknown position of %s: %s' %
-                            (self._adevs['moveable'],
-                             self._adevs['moveable'].format(pos, True))
+                            (self._attached_moveable,
+                             self._attached_moveable.format(pos, True))
                             )
 
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
         # reflect its status
-        move_status = self._adevs['moveable'].status(maxage)
+        move_status = self._attached_moveable.status(maxage)
         if move_status[0] == status.BUSY:
-            if self.target == 'LOW' and self._adevs['moveable'].read(0) < 70:
+            if self.target == 'LOW' and self._attached_moveable.read(0) < 70:
                 return status.OK, 'below 70V'
         return move_status
 
@@ -158,8 +158,8 @@ class Sans1HV(BaseSequencer):
     }
 
     def _generateSequence(self, target, *args, **kwargs):
-        hvdev = self._adevs['supply']
-        disdev = self._adevs['discharger']
+        hvdev = self._attached_supply
+        disdev = self._attached_discharger
         seq = [SeqMethod(hvdev, 'stop'), SeqMethod(hvdev, 'wait')]
 
         now = currenttime()
@@ -208,7 +208,7 @@ class Sans1HV(BaseSequencer):
         return seq
 
     def doRead(self, maxage=0):
-        voltage = self._adevs['supply'].read(maxage)
+        voltage = self._attached_supply.read(maxage)
         # everything below the last rampstep is no HV yet...
         # bugfix: avoid floating point rounding errors
         if voltage >= (self.rampsteps[-1][0] - 0.001):
@@ -217,7 +217,7 @@ class Sans1HV(BaseSequencer):
         return voltage
 
     def doIsAllowed(self, target):
-        return self._adevs['supply'].isAllowed(target)
+        return self._attached_supply.isAllowed(target)
 
     def doTime(self, pos, target):
         # duration is in minutes...
@@ -235,10 +235,10 @@ class Sans1HV(BaseSequencer):
 
     # convenience stuff
     def doReadRamp(self):
-        return self._adevs['supply'].ramp
+        return self._attached_supply.ramp
 
     def doWriteRamp(self, value):
-        self._adevs['supply'].ramp = value
+        self._attached_supply.ramp = value
         return self.doReadRamp()
 
 
@@ -253,8 +253,8 @@ class Sans1HVOffDuration(Readable):
     valuetype = str
 
     def doRead(self, maxage=0):
-        if self._adevs['hv_supply']:
-            secs = currenttime() - self._adevs['hv_supply'].lasthv
+        if self._attached_hv_supply:
+            secs = currenttime() - self._attached_hv_supply.lasthv
             hours = int(secs / 3600)
             mins = int(secs / 60) % 60
             secs = int(secs) % 60

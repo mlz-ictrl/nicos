@@ -100,8 +100,8 @@ class Slit(CanReference, Moveable):
     _delay = 0.25  # delay between starting to move opposite blades
 
     def doInit(self, mode):
-        self._axes = [self._adevs['left'], self._adevs['right'],
-                      self._adevs['bottom'], self._adevs['top']]
+        self._axes = [self._attached_left, self._attached_right,
+                      self._attached_bottom, self._attached_top]
         self._axnames = ['left', 'right', 'bottom', 'top']
 
         for name in self._axnames:
@@ -227,8 +227,8 @@ class Slit(CanReference, Moveable):
         positions = self._doReadPositions(maxage)
         l, r, b, t = positions
         if self.opmode == 'centered':
-            if abs((l+r)/2.) > self._adevs['left'].precision or \
-               abs((t+b)/2.) > self._adevs['top'].precision:
+            if abs((l+r)/2.) > self._attached_left.precision or \
+               abs((t+b)/2.) > self._attached_top.precision:
                 self.log.warning('slit seems to be offcentered, but is '
                                  'set to "centered" mode')
             return [r-l, t-b]
@@ -263,7 +263,7 @@ class Slit(CanReference, Moveable):
         return multiStatus(list(zip(self._axnames, self._axes)))
 
     def doReadUnit(self):
-        return self._adevs['left'].unit
+        return self._attached_left.unit
 
     def doWriteOpmode(self, value):
         if value in ('4blades', '4blades_opposite'):
@@ -297,18 +297,18 @@ class SlitAxis(AutoDevice, Moveable):
     hardware_access = False
 
     def doRead(self, maxage=0):
-        positions = self._adevs['slit']._doReadPositions(maxage)
+        positions = self._attached_slit._doReadPositions(maxage)
         return self._convertRead(positions)
 
     def doStart(self, target):
-        currentpos = self._adevs['slit']._doReadPositions(0.1)
+        currentpos = self._attached_slit._doReadPositions(0.1)
         positions = self._convertStart(target, currentpos)
-        self._adevs['slit']._doStartPositions(positions)
+        self._attached_slit._doStartPositions(positions)
 
     def doIsAllowed(self, target):
-        currentpos = self._adevs['slit']._doReadPositions(0.1)
+        currentpos = self._attached_slit._doReadPositions(0.1)
         positions = self._convertStart(target, currentpos)
-        return self._adevs['slit']._doIsAllowedPositions(positions)
+        return self._attached_slit._doIsAllowedPositions(positions)
 
 
 class CenterXSlitAxis(SlitAxis):
@@ -375,7 +375,7 @@ class TwoAxisSlit(CanReference, Moveable):
     hardware_access = False
 
     def doInit(self, mode):
-        self._slits = [self._adevs['horizontal'], self._adevs['vertical']]
+        self._slits = [self._attached_horizontal, self._attached_vertical]
         self._slitnames = ['horizontal', 'vertical']
 
         for name in self._slitnames:
@@ -395,8 +395,8 @@ class TwoAxisSlit(CanReference, Moveable):
 
     def doStart(self, target):
         th, tv = target
-        self._adevs['horizontal'].move(th)
-        self._adevs['vertical'].move(tv)
+        self._attached_horizontal.move(th)
+        self._attached_vertical.move(tv)
 
     def doReset(self):
         for ax in self._slits:
@@ -423,4 +423,4 @@ class TwoAxisSlit(CanReference, Moveable):
         return multiStatus(list(zip(self._slitnames, self._slits)))
 
     def doReadUnit(self):
-        return self._adevs['horizontal'].unit
+        return self._attached_horizontal.unit

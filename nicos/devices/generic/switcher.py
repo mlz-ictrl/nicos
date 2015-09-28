@@ -74,13 +74,13 @@ class Switcher(MappedMoveable):
 
     def _startRaw(self, target):
         """Initiate movement of the moveable to the translated raw value."""
-        self._adevs['moveable'].start(target)
+        self._attached_moveable.start(target)
         if self.blockingmove:
-            self._adevs['moveable'].wait()
+            self._attached_moveable.wait()
 
     def _readRaw(self, maxage=0):
         """Return raw position value of the moveable."""
-        return self._adevs['moveable'].read(maxage)
+        return self._attached_moveable.read(maxage)
 
     def _mapReadValue(self, pos):
         """Override default inverse mapping to allow a deviation <= precision"""
@@ -94,16 +94,16 @@ class Switcher(MappedMoveable):
         if self.fallback is not None:
             return self.fallback
         if self.relax_mapping:
-            return self._adevs['moveable'].format(pos, True)
+            return self._attached_moveable.format(pos, True)
         raise PositionError(self, 'unknown position of %s: %s' %
-                            (self._adevs['moveable'],
-                             self._adevs['moveable'].format(pos, True))
+                            (self._attached_moveable,
+                             self._attached_moveable.format(pos, True))
                             )
 
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
         # reflect its status
-        move_status = self._adevs['moveable'].status(maxage)
+        move_status = self._attached_moveable.status(maxage)
         if move_status[0] not in (status.OK, status.WARN):
             return move_status
         # otherwise, we have to check if we are at a known position,
@@ -113,18 +113,18 @@ class Switcher(MappedMoveable):
             if r not in self.mapping:
                 if self.fallback:
                     return (status.UNKNOWN, 'unconfigured position of %s, using '
-                                            'fallback' % self._adevs['moveable'])
+                                            'fallback' % self._attached_moveable)
                 return (status.NOTREACHED, 'unconfigured position of %s or still'
-                                           ' moving' % self._adevs['moveable'])
+                                           ' moving' % self._attached_moveable)
         except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
 
     def doReset(self):
-        self._adevs['moveable'].reset()
+        self._attached_moveable.reset()
 
     def doStop(self):
-        self._adevs['moveable'].stop()
+        self._attached_moveable.stop()
 
 
 class ReadonlySwitcher(MappedReadable):
@@ -147,7 +147,7 @@ class ReadonlySwitcher(MappedReadable):
     hardware_access = False
 
     def _readRaw(self, maxage=0):
-        return self._adevs['readable'].read(maxage)
+        return self._attached_readable.read(maxage)
 
     def _mapReadValue(self, pos):
         prec = self.precision
@@ -160,12 +160,12 @@ class ReadonlySwitcher(MappedReadable):
         if self.fallback is not None:
             return self.fallback
         raise PositionError(self, 'unknown position of %s' %
-                            self._adevs['readable'])
+                            self._attached_readable)
 
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,
         # reflect its status
-        move_status = self._adevs['readable'].status(maxage)
+        move_status = self._attached_readable.status(maxage)
         if move_status[0] not in (status.OK, status.WARN):
             return move_status
         # otherwise, we have to check if we are at a known position,
@@ -173,13 +173,13 @@ class ReadonlySwitcher(MappedReadable):
         try:
             if self.read(maxage) == self.fallback:
                 return status.NOTREACHED, 'unconfigured position of %s or '\
-                    'still moving' % self._adevs['moveable']
+                    'still moving' % self._attached_moveable
         except PositionError as e:
             return status.NOTREACHED, str(e)
         return status.OK, ''
 
     def doReset(self):
-        self._adevs['readable'].reset()
+        self._attached_readable.reset()
 
 
 class MultiSwitcher(MappedMoveable):
@@ -231,7 +231,7 @@ class MultiSwitcher(MappedMoveable):
 
     @lazy_property
     def devices(self):
-        return self._adevs['moveables'] + self._adevs['readables']
+        return self._attached_moveables + self._attached_readables
 
     def doInit(self, mode):
         MappedMoveable.doInit(self, mode)
@@ -249,7 +249,7 @@ class MultiSwitcher(MappedMoveable):
 
     def _startRaw(self, target):
         """target is the raw value, i.e. a list of positions"""
-        moveables = self._adevs['moveables']
+        moveables = self._attached_moveables
         if not isinstance(target, (tuple, list)) or \
                 len(target) < len(moveables):
             raise InvalidValueError(self, 'doStart needs a tuple of %d positions'

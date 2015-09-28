@@ -73,12 +73,12 @@ def test_movement():
     # moving out of limits?
     assert raises(LimitError, axis.move, 150)
     # simulate a busy motor
-    axis._adevs['motor'].curstatus = (status.BUSY, 'busy')
+    axis._attached_motor.curstatus = (status.BUSY, 'busy')
     # moving while busy?
     # assert raises(NicosError, axis.move, 10)
     # forwarding of motor status by doStatus()
     assert axis.status(0)[0] == status.BUSY
-    axis._adevs['motor'].curstatus = (status.OK, '')
+    axis._attached_motor.curstatus = (status.OK, '')
 
     # now move for a while
     axis.maw(0)

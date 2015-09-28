@@ -46,10 +46,10 @@ class CCRSwitch(Moveable):
 
     def doStart(self, target):
         if self.read(0) != target:
-            self._adevs['write'].start(1)
+            self._attached_write.start(1)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
 
     def doRead(self, maxage=0):
-        return self._adevs['feedback'].read(maxage)
+        return self._attached_feedback.read(maxage)

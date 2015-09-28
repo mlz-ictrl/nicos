@@ -44,7 +44,7 @@ class AnaBlocks(Moveable):
 
     @property
     def bhd(self):  # BeckHoffDevice
-        return self._adevs['beckhoff']
+        return self._attached_beckhoff
 
     def doInit(self, mode):
         self._timer = None
@@ -170,23 +170,23 @@ class ATT_Axis(Axis):
                 if lbl <= uwl:  # block is not right to window
                     blockup = 1
             code += blockup << j
-        self._adevs['anablocks'].start(code)
+        self._attached_anablocks.start(code)
 
     @usermethod
     def testblockup(self):
-        self._adevs['anablocks'].doTest19('01')
+        self._attached_anablocks.doTest19('01')
 
     @usermethod
     def testblockdown(self):
-        self._adevs['anablocks'].doTest19('10')
+        self._attached_anablocks.doTest19('10')
 
     @usermethod
     def allblocksdown(self):
-        self._adevs['anablocks'].start(0)
+        self._attached_anablocks.start(0)
 
     @usermethod
     def doorblocksup(self):
-        self._adevs['anablocks'].start(63 | self._adevs['anablocks'].target)
+        self._attached_anablocks.start(63 | self._attached_anablocks.target)
 
     @usermethod
     def doorblocksdown(self):
@@ -194,11 +194,11 @@ class ATT_Axis(Axis):
 
     @usermethod
     def allblocksup(self):
-        self._adevs['anablocks'].start(0x3ffff)   # all 18 blocks up
+        self._attached_anablocks.start(0x3ffff)   # all 18 blocks up
 
     @usermethod
     def printstatusinfo(self):
-        blocks = bin(self._adevs['anablocks'].read())[2:]
+        blocks = bin(self._attached_anablocks.read())[2:]
         # fill up to 18 chars
         blocks = '0' * (18 - len(blocks)) + blocks
         self.log.info('blocks up: %s' % blocks)

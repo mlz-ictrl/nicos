@@ -114,7 +114,7 @@ class QMesyDAQBase(TacoDevice, MultiChannelDetector):
     multi_master = False
 
     def _presetiter(self):
-        dev = self._adevs['events']
+        dev = self._attached_events
         if dev:
             yield ('events', dev)
         for name, dev in MultiChannelDetector._presetiter(self):
@@ -264,7 +264,7 @@ class QMesyDAQImage(ImageProducer, QMesyDAQBase):
     _filesavers = []
 
     def doInit(self, mode):
-        self._filesavers = [ff for ff in self._adevs['fileformats']
+        self._filesavers = [ff for ff in self._attached_fileformats
                             if not isinstance(ff, LiveViewSink)]
         self.readImage()  # also set imagetype
 

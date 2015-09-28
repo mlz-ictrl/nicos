@@ -213,12 +213,12 @@ class HoveringAxis(SequencerMixin, Axis):
 
     def _generateSequence(self, target):  # pylint: disable=W0221
         return [
-            SeqDev(self._adevs['switch'], self.switchvalues[1]),
+            SeqDev(self._attached_switch, self.switchvalues[1]),
             SeqSleep(self.startdelay),
             SeqCall(Axis.doStart, self, target),
             SeqCall(self._hw_wait),
             SeqSleep(self.stopdelay),
-            SeqDev(self._adevs['switch'], self.switchvalues[0]),
+            SeqDev(self._attached_switch, self.switchvalues[0]),
         ]
 
     def _hw_wait(self):

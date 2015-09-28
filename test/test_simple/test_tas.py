@@ -257,7 +257,7 @@ def test_helper_commands():
 def test_resolution():
     tas = session.getDevice('Tas')
     tas.collimation = '20 30 40 50'
-    cell = tas._adevs['cell']
+    cell = tas._attached_cell
     cfg, par = _resmat_args((1, 1, 0, 0), {})
     assert len(cfg) == 30
     assert par['qx'] == 1

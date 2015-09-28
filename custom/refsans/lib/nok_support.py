@@ -158,8 +158,8 @@ class NOKPosition(Coder):
         Then this is put into a correcting polynom of at least first order
         Result is then offset + mul * <previously calculated value>
         """
-        poti = self._adevs['measure'].read(maxage)
-        ref = self._adevs['reference'].read(maxage)
+        poti = self._attached_measure.read(maxage)
+        ref = self._attached_reference.read(maxage)
 
         self.log.debug('Poti vs. Reference value: %f / %f' %(poti, ref))
 
@@ -195,7 +195,7 @@ class NOKMotorIPC(CanReference, IPCMotor):
     }
 
     def doReference(self):
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         bus.send(self.addr, 34) # always go forward (positive)
         bus.send(self.addr, 47, self.speed, 3) # reference with normal speed
         # may need to sleep a little here....
@@ -254,7 +254,7 @@ class SingleMotorNOK(PseudoNOK, Axis):
             Axis.doStart(self, target)
 
     def doReference(self):
-        self._adevs['nok_motor'].doReference()
+        self._attached_nok_motor.doReference()
 
 
 class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Moveable):
@@ -287,7 +287,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
 
     @lazy_property
     def _devices(self):
-        return self._adevs['motor_r'], self._adevs['motor_s']
+        return self._attached_motor_r, self._attached_motor_s
 
     def doPreinit(self, mode):
         incmin, incmax = self.inclinationlimits

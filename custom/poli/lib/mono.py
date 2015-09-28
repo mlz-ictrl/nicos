@@ -37,7 +37,7 @@ class MultiSwitcher(BaseMultiSwitcher):
 
     def doInit(self, mode):
         BaseMultiSwitcher.doInit(self, mode)
-        self._xdev = self._adevs['moveables'][0]
+        self._xdev = self._attached_moveables[0]
         if self._xdev.name != 'x_m':
             raise NicosError(self, 'first attached device must be x_m')
 

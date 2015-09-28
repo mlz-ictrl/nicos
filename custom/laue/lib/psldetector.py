@@ -77,7 +77,7 @@ class PSLDetector(ImageProducer, Measurable):
         return self.lastfilename
 
     def doStart(self):
-        self._adevs['timer'].start()
+        self._attached_timer.start()
         self._communicate('Snap')
 
     _modemap = { 'I;16': '<u2',
@@ -85,7 +85,7 @@ class PSLDetector(ImageProducer, Measurable):
                  'F': '<f4',}
 
     def readFinalImage(self):
-        self._adevs['timer'].stop()
+        self._attached_timer.stop()
         (shape, data) = self._communicate('GetImage')
         mode = self._communicate('GetMode')
         self._setROParam('imagewidth', shape[0])
@@ -99,12 +99,12 @@ class PSLDetector(ImageProducer, Measurable):
 
     def doStop(self):
         self._communicate('AbortSnap')
-        self._adevs['timer'].stop()
+        self._attached_timer.stop()
 
     def doStatus(self, maxage=0):
         if self._communicate('GetCamState') == 'ON':
-            if self._adevs['timer']:
-                remain = self._preset - self._adevs['timer'].read(0)[0]
+            if self._attached_timer:
+                remain = self._preset - self._attached_timer.read(0)[0]
                 return status.BUSY, '%.1f s remaining' % remain
             return status.BUSY, 'Exposure ongoing'
         return status.OK, 'OK'
@@ -119,7 +119,7 @@ class PSLDetector(ImageProducer, Measurable):
         '''exposure in seconds, hardware wants ms)'''
         self._preset = exptime
         self._communicate('SetExposure;%f' % (( exptime * 1000.),))
-        self._adevs['timer'].preselection = exptime
+        self._attached_timer.preselection = exptime
 
     def doSetPreset(self, **presets):
         if 't' in presets:

@@ -126,7 +126,7 @@ class SelectorSpeed(HasCommunication, HasLimits, HasPrecision, HasTimeout, Movea
         pass
 
     def doRead(self, maxage=0):
-        st = self._adevs['statedev'].read(10)
+        st = self._attached_statedev.read(10)
         try:
             return int(st['ASPEED'])
         except (KeyError, ValueError):
@@ -135,7 +135,7 @@ class SelectorSpeed(HasCommunication, HasLimits, HasPrecision, HasTimeout, Movea
 
     def doStatus(self, maxage=0):
         try:
-            st = self._adevs['statedev'].read(10)['STATE']
+            st = self._attached_statedev.read(10)['STATE']
         except KeyError:
             raise CommunicationError(self, 'state not returned by selector')
         # manual specifies 'IDL', actual reply is 'IDLING'
@@ -173,7 +173,7 @@ class SelectorSpeed(HasCommunication, HasLimits, HasPrecision, HasTimeout, Movea
             return
         # the SPEED command is sometimes not accepted immediately; we try a few
         # times with lots of time in between
-        accepted = self._com_retry(target, self._adevs['statedev'].communicate,
+        accepted = self._com_retry(target, self._attached_statedev.communicate,
                                    'SPEED %05d' % target)
         if not accepted:
             raise InvalidValueError(self, 'speed of %d RPM not accepted'
@@ -199,7 +199,7 @@ class SelectorValue(Readable):
     }
 
     def doRead(self, maxage=0):
-        st = self._adevs['statedev'].read(10)  # <-- this is intended
+        st = self._attached_statedev.read(10)  # <-- this is intended
         try:
             return float(st[self.valuename])
         except ValueError:
@@ -242,16 +242,16 @@ class SelectorLambda(Moveable):
             (-A**2 * self.maxspeed * lambda0 * tan(radians(ang)) + A)
 
     def doRead(self, maxage=0):
-        spd = self._adevs['seldev'].read(maxage)
+        spd = self._attached_seldev.read(maxage)
         return self._constant() / spd if spd else -1
 
     def doIsAllowed(self, value):
         if value == 0:
             return False, 'zero wavelength not allowed'
         speed = int(self._constant() / value)
-        return self._adevs['seldev'].isAllowed(speed)
+        return self._attached_seldev.isAllowed(speed)
 
     def doStart(self, value):
         speed = int(self._constant() / value)
         self.log.debug('moving selector to %f rpm' % speed)
-        self._adevs['seldev'].start(speed)
+        self._attached_seldev.start(speed)

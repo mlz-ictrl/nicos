@@ -90,26 +90,26 @@ class EulerianCradle(Moveable):
                 raise NicosError(self,
                     'Please first set the Eulerian cradle orientation '
                     'with the reflex1/2 and angles1/2 parameters')
-        sense = self._adevs['tas'].scatteringsense[1]
+        sense = self._attached_tas.scatteringsense[1]
         self._omat = self.calc_or(sense)
         ang = self.euler_angles(r1, r2, 2, 2, sense,
-                                self._adevs['chi'].userlimits,
-                                self._adevs['omega'].userlimits)
+                                self._attached_chi.userlimits,
+                                self._attached_omega.userlimits)
         psi, chi, om, _phi = ang
         self.log.debug('euler angles: %s' % ang)
-        self.log.info('moving %s to %12s, %s to %12s' % (self._adevs['chi'],
-                         self._adevs['chi'].format(chi, unit=True),
-                         self._adevs['omega'],
-                         self._adevs['omega'].format(om, unit=True)))
-        self._adevs['chi'].move(chi)
-        self._adevs['omega'].move(om)
-        self._adevs['chi'].wait()
-        self._adevs['omega'].wait()
-        self._adevs['cell'].orient1 = r1
-        self._adevs['cell'].orient2 = r2
-        wantpsi = self._adevs['cell'].cal_angles(r1, 0, 'CKF', 2, sense,
-            self._adevs['tas'].axiscoupling, self._adevs['tas'].psi360)[3]
-        self._adevs['cell'].psi0 += wantpsi - psi
+        self.log.info('moving %s to %12s, %s to %12s' % (self._attached_chi,
+                         self._attached_chi.format(chi, unit=True),
+                         self._attached_omega,
+                         self._attached_omega.format(om, unit=True)))
+        self._attached_chi.move(chi)
+        self._attached_omega.move(om)
+        self._attached_chi.wait()
+        self._attached_omega.wait()
+        self._attached_cell.orient1 = r1
+        self._attached_cell.orient2 = r2
+        wantpsi = self._attached_cell.cal_angles(r1, 0, 'CKF', 2, sense,
+            self._attached_tas.axiscoupling, self._attached_tas.psi360)[3]
+        self._attached_cell.psi0 += wantpsi - psi
 
     def doStatus(self, maxage=0):
         return multiStatus(((name, self._adevs[name])
@@ -124,16 +124,16 @@ class EulerianCradle(Moveable):
                 raise NicosError(self,
                     'Please first set the Eulerian cradle orientation '
                     'with the reflex1/2 and angles1/2 parameters')
-        sense = self._adevs['tas'].scatteringsense[1]
+        sense = self._attached_tas.scatteringsense[1]
         self._omat = self.calc_or(sense)
         ang = self.euler_angles(r1, r2, 2, 2, sense,
-                                self._adevs['chi'].userlimits,
-                                self._adevs['omega'].userlimits)
+                                self._attached_chi.userlimits,
+                                self._attached_omega.userlimits)
         self.log.info('found scattering plane')
-        self.log.info('%s: %20s' % (self._adevs['chi'],
-                         self._adevs['chi'].format(ang[1], unit=True)))
-        self.log.info('%s: %20s' % (self._adevs['omega'],
-                         self._adevs['omega'].format(ang[2], unit=True)))
+        self.log.info('%s: %20s' % (self._attached_chi,
+                         self._attached_chi.format(ang[1], unit=True)))
+        self.log.info('%s: %20s' % (self._attached_omega,
+                         self._attached_omega.format(ang[2], unit=True)))
 
     def euler_angles(self, target_q, another, ki, kf, sense,
                      chilimits=(-180, 180), omlimits=(-180, 180)):
@@ -151,9 +151,9 @@ class EulerianCradle(Moveable):
         # calculate phi from q, ki, kf
         self.log.debug("Bmat = %s" % Bmat)
         ##was: ec_q = dot(Bmat, target_q)
-        ec_q = self._adevs['cell'].hkl2Qcart(*target_q)
+        ec_q = self._attached_cell.hkl2Qcart(*target_q)
         self.log.debug("ec_q = %s" % ec_q)
-        phi = self._adevs['cell'].cal_phi(ec_q, ki, kf, sense)
+        phi = self._attached_cell.cal_phi(ec_q, ki, kf, sense)
         self.log.debug("phi = %s" % phi)
         ec_ql = norm(ec_q)
         ec_a = dot(Bmat, another)
@@ -460,12 +460,12 @@ class EulerianCradle(Moveable):
         needs the sample's smat matrix
         """
         if sense is None:
-            sense = self._adevs['tas'].scatteringsense[1]
+            sense = self._attached_tas.scatteringsense[1]
         hkl1 = self.reflex1
         hkl2 = self.reflex2
         ang1 = self.angles1
         ang2 = self.angles2
-        cell = self._adevs['cell']
+        cell = self._attached_cell
         self.log.debug('re-setting orientation reflections of cell')
         cell.orient1 = [1, 0, 0]
         cell.orient2 = [0, 1, 0]

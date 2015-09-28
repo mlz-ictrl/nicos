@@ -102,7 +102,7 @@ class RefAxis(Axis):
 
             self.stop()  # make sure the axis code does not interfere
             self._referencing = True
-            m = self._adevs['motor']
+            m = self._attached_motor
             oldspeed = m.speed
 
             # figure out the final position (=current position or gotopos, if
@@ -221,7 +221,7 @@ class RotAxis(RefAxis):
             # as we mod current position
             if self.autoref and self.autoref < 0:
                 self._moves += 1  # always count wraparound moves.
-            d = self._adevs['motor']
+            d = self._attached_motor
             d.setPosition(d.read() - self.wraparound)
             self.poll()
             self._wrapped = True
@@ -274,7 +274,7 @@ class RotAxis(RefAxis):
 
             self.stop()  # make sure the axis code does not interfere
             self._referencing = True
-            m = self._adevs['motor']
+            m = self._attached_motor
             oldspeed = m.speed
 
             # figure out the final position (=current position or gotopos

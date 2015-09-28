@@ -94,20 +94,20 @@ class RFCurrent(HasLimits, Moveable):
             self._rfthread = createThread('RF thread', self._rfcontrol)
 
     def doReadUnit(self):
-        return self._adevs['readout'].unit
+        return self._attached_readout.unit
 
     def doStart(self, target):
         pass
 
     def doRead(self, maxage=0):
-        return self._adevs['readout'].read(maxage)
+        return self._attached_readout.read(maxage)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
 
     def _rfcontrol(self):
         self.log.debug('RF control thread started')
-        amp, cur = self._adevs['amplitude'], self._adevs['readout']
+        amp, cur = self._attached_amplitude, self._attached_readout
         while self._runthread:
             curamp = amp.read()
             while self.rfcontrol:

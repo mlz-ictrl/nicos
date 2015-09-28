@@ -48,15 +48,15 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
     }
 
     def _get_field_polarity(self):
-        sign = -1 if self._adevs['polswitch'].read() == '-' else +1
-        if self._adevs['onoffswitch'].read() == 'off':
+        sign = -1 if self._attached_polswitch.read() == '-' else +1
+        if self._attached_onoffswitch.read() == 'off':
             return 0
         return sign
 
     def _seq_set_field_polarity(self, polarity, sequence):
         if polarity == 0:
             return
-        pol, onoff = self._adevs['polswitch'], self._adevs['onoffswitch']
+        pol, onoff = self._attached_polswitch, self._attached_onoffswitch
         # handle switching polarity
 
         sequence.append(SeqDev(onoff, 'off'))
@@ -66,7 +66,7 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
         sequence.append(SeqDev(onoff, 'on'))
         sequence.append(SeqSleep(0.3, 'enabling power'))
         try:
-            sequence.append(SeqMethod(self._adevs['currentsource']._dev,
+            sequence.append(SeqMethod(self._attached_currentsource._dev,
                                       'deviceOn'))
             sequence.append(SeqSleep(0.3, 're-enabling power source'))
         except Exception:
@@ -91,13 +91,13 @@ class MiraMagnet(BipolarSwitchingMagnet):
     }
 
     def _get_field_polarity(self):
-        sign = self._adevs['switch'].read()
+        sign = self._attached_switch.read()
         self.log.debug('Field polarity is %s' % sign)
         return sign
 
     def _seq_set_field_polarity(self, polarity, sequence):
         # always switch to zero first
-        sequence.append(SeqDev(self._adevs['switch'], 0))
+        sequence.append(SeqDev(self._attached_switch, 0))
         sequence.append(SeqSleep(0.3, 'shorting output'))
         if polarity != 0:
-            sequence.append(SeqDev(self._adevs['switch'], polarity))
+            sequence.append(SeqDev(self._attached_switch, polarity))

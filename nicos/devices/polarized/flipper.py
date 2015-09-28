@@ -51,7 +51,7 @@ class BaseFlipper(Moveable):
     valuetype = oneof(ON, OFF)
 
     def doRead(self, maxage=0):
-        if abs(self._adevs['corr'].read(maxage)) > 0.05:
+        if abs(self._attached_corr.read(maxage)) > 0.05:
             return ON
         return OFF
 
@@ -71,11 +71,11 @@ class MezeiFlipper(BaseFlipper):
 
     def doStart(self, value):
         if value == ON:
-            self._adevs['flip'].start(self.currents[0])
-            self._adevs['corr'].start(self.currents[1])
+            self._attached_flip.start(self.currents[0])
+            self._attached_corr.start(self.currents[1])
         else:
-            self._adevs['flip'].start(0)
-            self._adevs['corr'].start(0)
+            self._attached_flip.start(0)
+            self._attached_corr.start(0)
 
 
 class KFlipper(BaseFlipper):
@@ -107,13 +107,13 @@ class KFlipper(BaseFlipper):
     def doStart(self, value):
         if value == ON:
             # query current momentum and calculate polinomial
-            k = self._adevs['kvalue'].read(0)
+            k = self._attached_kvalue.read(0)
             flip_current = sum(v * (k ** i) for i, v in enumerate(self.flipcurrent))
-            self._adevs['flip'].start(flip_current)
-            self._adevs['corr'].start(self.compcurrent)
+            self._attached_flip.start(flip_current)
+            self._attached_corr.start(self.compcurrent)
         else:
-            self._adevs['flip'].start(0)
-            self._adevs['corr'].start(0)
+            self._attached_flip.start(0)
+            self._attached_corr.start(0)
 
     def doStop(self):
         # doStop needs to be implemented this way to not stop the kvalue device!

@@ -134,7 +134,7 @@ class RadialCollimator(HasTimeout, Moveable):
         self._stime = 0
 
     def doStart(self, target):
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         if target == 'on':
             # self._stime = currenttime()
             # bus.write("osc%d:0" % (self.address,))
@@ -174,7 +174,7 @@ class RadialCollimator(HasTimeout, Moveable):
                 bus.write("start")
                 sleep(sleeptime)
         else:
-            # self._adevs['bus'].write("osc%d:0" % (self.address,))
+            # self._attached_bus.write("osc%d:0" % (self.address,))
             # sleep(0.1)
             # bus.write("q%d" % (self.address,))
             bus.write("q" % ())
@@ -185,7 +185,7 @@ class RadialCollimator(HasTimeout, Moveable):
 
     def _rc_status(self):
         try:
-            ret = self._adevs['bus'].write("?s%d" % (self.address,))
+            ret = self._attached_bus.write("?s%d" % (self.address,))
         except NicosError:
             raise CommunicationError(self, 'could not get the status of the '
                                      'motor axis of the radial collimator')
@@ -206,7 +206,7 @@ class RadialCollimator(HasTimeout, Moveable):
 
     def doRead(self, maxage=0):
         try:
-            ret = self._adevs['bus'].write("?p%d" % (self.address,))
+            ret = self._attached_bus.write("?p%d" % (self.address,))
             return float(ret[ret.find(":")+1:-1])
         except (NicosError, ValueError):
             raise CommunicationError(self, 'could not get the status of the '
@@ -216,7 +216,7 @@ class RadialCollimator(HasTimeout, Moveable):
         # doReset is blocking, may take a while!
         timeouterr = 'could not reach reset position within timeout'
         self._stime = currenttime()
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         # bus.write("osc%d:0" % (self.address,))
         bus.write("ffast%d:%f" % (self.address, 200))
         bus.write("frun%d:%f" % (self.address, 100))

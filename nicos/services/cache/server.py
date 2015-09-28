@@ -326,13 +326,13 @@ class CacheServer(Device):
         self._serversocket_udp = None
         # worker connections
         self._connected = {}
-        self._adevs['db']._server = self
+        self._attached_db._server = self
         self._connectionLock = threading.Lock()
 
     def start(self, *startargs):
         if config.instrument == 'demo' and 'clear' in startargs:
-            self._adevs['db'].clearDatabase()
-        self._adevs['db'].initDatabase()
+            self._attached_db.clearDatabase()
+        self._attached_db.initDatabase()
         self._worker = createThread('server', self._server_thread)
 
     def _bind_to(self, address, proto='tcp'):
@@ -416,14 +416,14 @@ class CacheServer(Device):
                     addr = 'tcp://%s:%d' % addr
                     self.log.info('new connection from %s' % addr)
                     self._connected[addr] = CacheWorker(
-                        self._adevs['db'], conn, name=addr, loglevel=self.loglevel)
+                        self._attached_db, conn, name=addr, loglevel=self.loglevel)
                 elif self._serversocket_udp in res[0]:
                     # UDP data came in
                     data, addr = self._serversocket_udp.recvfrom(3072)
                     nice_addr = 'udp://%s:%d' % addr
                     self.log.info('new connection from %s' % nice_addr)
                     self._connected[nice_addr] = CacheUDPWorker(
-                        self._adevs['db'], self._serversocket_udp, name=nice_addr,
+                        self._attached_db, self._serversocket_udp, name=nice_addr,
                         data=data, remoteaddr=addr, loglevel=self.loglevel)
         if self._serversocket:
             closeSocket(self._serversocket)

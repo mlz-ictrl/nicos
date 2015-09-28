@@ -65,7 +65,7 @@ class Mchanger(Moveable):
 #   hardware_access = False
 
     def doInit(self, mode):
-        # self._switchlist = self._adevs['holdstat']._iolist.keys()
+        # self._switchlist = self._attached_holdstat._iolist.keys()
         # self.valuetype = oneof(*self._switchlist)
         self.valuetype = oneof(*self.mapping)
         # replaced devicename by device and make a local copy
@@ -105,17 +105,17 @@ class Mchanger(Moveable):
         self._finalize()
 
     def doRead(self, maxage=0):
-        up = self._adevs['holdstat'].read(maxage)
-        down = self._adevs['mono_stat'].read(maxage)
+        up = self._attached_holdstat.read(maxage)
+        down = self._attached_mono_stat.read(maxage)
         if up != 'None':
             if up != down:
                 raise PositionError(self, 'unknown position of %s' %
                                     self.name)
-        return self._adevs['holdstat'].read(maxage)
+        return self._attached_holdstat.read(maxage)
 
     def _startCheck(self):
         carpos = self.doRead(0)
-        lift_pos = self._adevs['lift'].doRead(0)
+        lift_pos = self._attached_lift.doRead(0)
         if lift_pos != 'ref':
             raise PositionError(self, 'Lift is not at reference position.'
                                 'Please check if mono is fixed at the magazin '
@@ -139,7 +139,7 @@ class Mchanger(Moveable):
         for dev in self._changing_values:
             dev.fix('Monochromator change in progress')
         # may block change of alias!
-#       self._adevs['monochromator'].fix('Monochromator change in progress')
+#       self._attached_monochromator.fix('Monochromator change in progress')
 
         # test this!
 #       self.log.debug('Disabling Powerstages for %s' %
@@ -149,9 +149,9 @@ class Mchanger(Moveable):
 
     def _focusOut(self):
         self.log.info('Move focusing to the flat position')
-        aliasdevice = self._adevs['monochromator']
-        foch = session.getDevice(aliasdevice.alias)._adevs['focush']
-        focv = session.getDevice(aliasdevice.alias)._adevs['focusv']
+        aliasdevice = self._attached_monochromator
+        foch = session.getDevice(aliasdevice.alias)._attached_focush
+        focv = session.getDevice(aliasdevice.alias)._attached_focusv
         if foch is not None:
             foch.start(0)
         if focv is not None:
@@ -167,9 +167,9 @@ class Mchanger(Moveable):
             foch.motor.power = 'off'
 
     def _focusOn(self):
-        aliasdevice = self._adevs['monochromator']
-        foch = session.getDevice(aliasdevice.alias)._adevs['focush']
-        focv = session.getDevice(aliasdevice.alias)._adevs['focusv']
+        aliasdevice = self._attached_monochromator
+        foch = session.getDevice(aliasdevice.alias)._attached_focush
+        focv = session.getDevice(aliasdevice.alias)._attached_focusv
         self.log.info('Switch on the foch and focv motors')
         if focv is not None:
             focv.motor.power = 'on'
@@ -185,7 +185,7 @@ class Mchanger(Moveable):
 #           dev.power = 'on'
 
         self.log.info('releasing mono devices')
-#       self._adevs['monochromator'].release()
+#       self._attached_monochromator.release()
         for dev in self._changing_values:
             dev.release()
         self.log.info('move mono devices to the nominal positions')
@@ -238,7 +238,7 @@ class Mchanger(Moveable):
         changes the alias of the monochomator DeviceAlias
         '''
         aliastarget = self.mapping.get(pos, None)
-        aliasdevice = self._adevs['monochromator']
+        aliasdevice = self._attached_monochromator
         if aliastarget and hasattr(aliasdevice, 'alias'):
             self.log.info('switching alias %r to %r' % (aliasdevice,
                                                         aliastarget))

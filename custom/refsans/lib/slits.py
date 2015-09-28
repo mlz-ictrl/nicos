@@ -164,7 +164,7 @@ class Slit(CanReference, Moveable):
                                            unit=self.unit, lowlevel=True,
                                            index=idx, opmode=mode)
 
-        self._motors = [self._adevs['first'], self._adevs['second']]
+        self._motors = [self._attached_first, self._attached_second]
 
     #
     # raw methods (handling always RAW tuples)
@@ -248,7 +248,7 @@ class Slit(CanReference, Moveable):
     #
 
     def doReadUnit(self):
-        return self._adevs['first'].unit
+        return self._attached_first.unit
 
     def doWriteOpmode(self, mode):
         # interpretation of values may have changed, invalidate old values....
@@ -338,7 +338,7 @@ class SlitAxis(AutoDevice, Moveable):
 
     @lazy_property
     def slit(self):
-        return self._adevs['slit']
+        return self._attached_slit
 
     def doRead(self, maxage=0):
         """read main slit's raw values and convert to our opmode"""

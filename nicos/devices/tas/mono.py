@@ -154,8 +154,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         # need to consider rounding effects since a difference of 0.0104 is
         # rounded to 0.010 so the combined axisprecision need to be larger than
         # the calculated value the following correction seems to work just fine
-        self._axisprecision = self._adevs['twotheta'].precision + \
-            2 * self._adevs['theta'].precision
+        self._axisprecision = self._attached_twotheta.precision + \
+            2 * self._attached_theta.precision
         self._axisprecision *= 1.25
 
     def doReset(self):
@@ -177,14 +177,14 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         # analyser scattering side
         th += 90 * self.sidechange * (1 - self._scatsense)
 
-        self._adevs['twotheta'].start(tt)
-        self._adevs['theta'].start(th)
+        self._attached_twotheta.start(tt)
+        self._attached_theta.start(th)
         self._movefoci(self.focmode, self.hfocuspars, self.vfocuspars)
         self._sim_setValue(pos)
 
     def _movefoci(self, focmode, hfocuspars, vfocuspars):
         lam = from_k(to_k(self.target, self.unit), 'A')  # get goalposition in A
-        focusv, focush = self._adevs['focusv'], self._adevs['focush']
+        focusv, focush = self._attached_focusv, self._attached_focush
         if focmode == 'flat':
             if focusv:
                 focusv.move(self.vfocusflat)
@@ -224,7 +224,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             return False, 'wavelength not reachable with d=%.3f A and n=%s' % \
                 (self.dvalue, self.order)
         ttvalue = 2.0 * self._scatsense * theta
-        ttdev = self._adevs['twotheta']
+        ttdev = self._attached_twotheta
         ok, why = ttdev.isAllowed(ttvalue)
         if not ok:
             return ok, '[%s] moving to %s, ' % (
@@ -232,8 +232,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
         return True, ''
 
     def _get_angles(self, maxage):
-        tt = self._scatsense * self._adevs['twotheta'].read(maxage)
-        th = self._adevs['theta'].read(maxage)
+        tt = self._scatsense * self._attached_twotheta.read(maxage)
+        th = self._attached_theta.read(maxage)
         # analyser scattering side
         th -= 90 * self.sidechange * (1 - self._scatsense)
         th *= self._scatsense  # make it positive
@@ -244,7 +244,7 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
 
     def doRead(self, maxage=0):
         # the scattering angle is deciding
-        tt = self._scatsense * self._adevs['twotheta'].read(maxage)
+        tt = self._scatsense * self._attached_twotheta.read(maxage)
         return from_k(wavevector(self.dvalue, self.order, tt/2.0), self.unit)
 
     def doStatus(self, maxage=0):
@@ -265,8 +265,8 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             self.log.warning('two theta and 2*theta axis mismatch: %s <-> '
                              '%s = 2 * %s' % (tt, 2.0*th, th))
             self.log.info('precisions: tt:%s, th:%s, combined: %s' % (
-                self._adevs['twotheta'].precision,
-                self._adevs['theta'].precision, self._axisprecision))
+                self._attached_twotheta.precision,
+                self._attached_theta.precision, self._axisprecision))
 
     def doReadPrecision(self):
         if not hasattr(self, '_scatsense'):
@@ -274,10 +274,10 @@ class Monochromator(HasLimits, HasPrecision, Moveable):
             return 0
         # the precision depends on the angular precision of theta and twotheta
         lam = from_k(to_k(self.read(), self.unit), 'A')
-        dtheta = self._adevs['theta'].precision + \
-            self._adevs['twotheta'].precision
+        dtheta = self._attached_theta.precision + \
+            self._attached_twotheta.precision
         dlambda = abs(2.0 * self.dvalue *
-                      cos(self._adevs['twotheta'].read() * pi/360) *
+                      cos(self._attached_twotheta.read() * pi/360) *
                       dtheta / 180*pi)
         if self.unit == 'A-1':
             return 2*pi/lam**2 * dlambda

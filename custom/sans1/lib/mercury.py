@@ -156,8 +156,8 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
     }
 
     def doInit(self, mode):
-        if self._adevs['ps1'].unit != 'A' or \
-            self._adevs['ps2'].unit != 'A':
+        if self._attached_ps1.unit != 'A' or \
+            self._attached_ps2.unit != 'A':
             raise ConfigurationError(self, 'power supplies should have Ampere '
                                      'unit for asymmetrical mode')
 
@@ -167,20 +167,20 @@ class MercuryAsymmetricalMagnet(HasLimits, Moveable):
             return False, 'desired value exceeds maximum field allowed ' \
                 'for this asymmetry (%d%%)' % self.asymmetry
         scale = value / maxfield
-        ok, why = self._adevs['ps1'].isAllowed(scale * maxcurr1)
+        ok, why = self._attached_ps1.isAllowed(scale * maxcurr1)
         if not ok:
             return ok, why
-        return self._adevs['ps2'].isAllowed(scale * maxcurr2)
+        return self._attached_ps2.isAllowed(scale * maxcurr2)
 
     def doStart(self, value):
         maxfield, maxcurr1, maxcurr2 = self._scales[self.asymmetry]
         scale = value / maxfield
-        self._adevs['ps1'].start(scale * maxcurr1)
-        self._adevs['ps2'].start(scale * maxcurr2)
+        self._attached_ps1.start(scale * maxcurr1)
+        self._attached_ps2.start(scale * maxcurr2)
 
     def doRead(self, maxage=0):
         maxfield, maxcurr1, _maxcurr2 = self._scales[self.asymmetry]
-        return self._adevs['ps1'].read(maxage) / maxcurr1 * maxfield
+        return self._attached_ps1.read(maxage) / maxcurr1 * maxfield
 
     def doWriteAsymmetry(self, value):
         if abs(self.read(0)) > 0.01:

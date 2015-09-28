@@ -88,11 +88,11 @@ class VirtualTasDetector(Measurable):
     def doSave(self, exception=False):
         from nicos.devices.tas.rescalc import resmat, calc_MC, demosqw
         from nicos.commands.tas import _resmat_args
-        taspos = self._adevs['tas'].read(0)
+        taspos = self._attached_tas.read(0)
         mat = resmat(*_resmat_args(taspos, {}))
         # monitor rate (assume constant flux distribution from source)
         # is inversely proportional to k_i
-        ki = self._adevs['tas']._adevs['mono'].read(0)
+        ki = self._attached_tas._attached_mono.read(0)
         monrate = 50000. / ki
         if 't' in self._lastpreset:
             time = float(self._lastpreset['t'])
@@ -111,7 +111,7 @@ class VirtualTasDetector(Measurable):
 
     def doEstimateTime(self, elapsed):
         eta = set()
-        monrate = 50000. / self._adevs['tas']._adevs['mono'].read()
+        monrate = 50000. / self._attached_tas._attached_mono.read()
         if 't' in self._lastpreset:
             eta.add(float(self._lastpreset['t']) - elapsed)
         if 'mon' in self._lastpreset:

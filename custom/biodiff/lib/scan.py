@@ -43,7 +43,7 @@ class RScan(Scan):
         if wait:
             # movement and counting separate
             # do not use software based micro stepping
-            where = [(dev._adevs["motor"], pos) if isinstance(dev,
+            where = [(dev._attached_motor, pos) if isinstance(dev,
                                                               MicrostepMotor)
                      else (dev, pos)
                      for dev, pos in zip(self._devices, position)]

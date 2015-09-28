@@ -62,8 +62,8 @@ class Wavelength(Readable):
     }
 
     def doRead(self, maxage=0):
-        I = self._adevs['selector'].read(maxage)
-        Angle = self._adevs['tiltangle'].read(maxage)
+        I = self._attached_selector.read(maxage)
+        Angle = self._attached_tiltangle.read(maxage)
 
         if Angle <= -7.5:
             Lambda = 9.70 - (3.9536 * (10**-4) * I + 5.2364 * (10**-9) *(I**2))

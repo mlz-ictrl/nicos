@@ -63,7 +63,7 @@ class SR7Shutter(HasTimeout, Moveable):
     def doStart(self, pos):
         if pos == self.read(0):
             return
-        self._adevs['sr7set'].start(self.positions.index(pos))
+        self._attached_sr7set.start(self.positions.index(pos))
         if self.wait() != pos:
             raise PositionError(self, 'device returned wrong position')
         self.log.info('SR7: %s' % pos)
@@ -71,21 +71,21 @@ class SR7Shutter(HasTimeout, Moveable):
     def doRead(self, maxage=0):
         res = self.doStatus()[0]
         if res == status.OK:
-            if self._adevs['sr7cl'].doRead() == 1:
+            if self._attached_sr7cl.doRead() == 1:
                 return 'close'
-            elif self._adevs['sr7p1'].doRead() == 1:
+            elif self._attached_sr7p1.doRead() == 1:
                 return 'S1'
-            elif self._adevs['sr7p2'].doRead() == 1:
+            elif self._attached_sr7p2.doRead() == 1:
                 return 'S2'
-            elif self._adevs['sr7p3'].doRead() == 1:
+            elif self._attached_sr7p3.doRead() == 1:
                 return 'S3'
         else:
             raise PositionError(self, 'SR7 shutter moving or undefined')
 
     def doStatus(self, maxage=0):
-        cl, p1, p2, p3 = self._adevs['sr7cl'].doRead(), \
-            self._adevs['sr7p1'].doRead(), self._adevs['sr7p2'].doRead(), \
-            self._adevs['sr7p3'].doRead()
+        cl, p1, p2, p3 = self._attached_sr7cl.doRead(), \
+            self._attached_sr7p1.doRead(), self._attached_sr7p2.doRead(), \
+            self._attached_sr7p3.doRead()
         if p1 == 1 and p2 == 1 and p3 == 1:
             return status.BUSY, 'moving'
         elif cl == 1 or p1 == 1 or p2 == 1 or p3 == 1:

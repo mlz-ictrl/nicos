@@ -168,7 +168,7 @@ class NicosDaemon(Device):
 
         # check that all configured authenticators use the same hashing method
         self._pw_hashing = 'sha1'
-        auths = self._adevs['authenticators']
+        auths = self._attached_authenticators
         if auths:
             self._pw_hashing = auths[0].pw_hashing()
             for auth in auths[1:]:
@@ -273,4 +273,4 @@ class NicosDaemon(Device):
         return self._controller.current_script
 
     def get_authenticators(self):
-        return self._adevs['authenticators'], self._pw_hashing
+        return self._attached_authenticators, self._pw_hashing

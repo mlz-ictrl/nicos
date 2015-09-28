@@ -109,14 +109,14 @@ class focus_Axis(Axis):
         offset = self.offset
         tries = self.maxtries
         self._lastdiff = abs(target - self.read(0))
-        self._adevs['motor'].start(target + offset)
+        self._attached_motor.start(target + offset)
         moving = True
         stoptries = 0
 
         while moving:
             if self._stoprequest == 1:
                 self.log.debug('stopping motor')
-                self._adevs['motor'].stop()
+                self._attached_motor.stop()
                 self._stoprequest = 2
                 stoptries = 10
                 continue
@@ -124,7 +124,7 @@ class focus_Axis(Axis):
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
             _, pos = self.poll()
-            mstatus, mstatusinfo = self._adevs['motor'].status()
+            mstatus, mstatusinfo = self._attached_motor.status()
             if mstatus != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 2:
@@ -143,7 +143,7 @@ class focus_Axis(Axis):
                     self.log.debug('motor in error status (%s), trying reset' %
                                    mstatusinfo)
                     # motor in error state -> try resetting
-                    newstatus = self._adevs['motor'].reset()
+                    newstatus = self._attached_motor.reset()
                     # if that failed, stop immediately
                     if newstatus[0] == status.ERROR:
                         moving = False
@@ -160,8 +160,8 @@ class focus_Axis(Axis):
                     # motor to this position and restart it. _getReading is the
                     # 'real' value, may ask the coder again (so could slow
                     # down!)
-                    self._adevs['motor'].setPosition(self._getReading())
-                    self._adevs['motor'].start(target + self.offset)
+                    self._attached_motor.setPosition(self._getReading())
+                    self._attached_motor.start(target + self.offset)
                     tries -= 1
                 else:
                     moving = False
@@ -170,11 +170,11 @@ class focus_Axis(Axis):
                                                           self._errorstate))
             elif not self._checkMoveToTarget(target, pos):
                 self.log.debug('stopping motor because not moving to target')
-                self._adevs['motor'].stop()
+                self._attached_motor.stop()
                 # should now go into next try
             elif not self._checkDragerror():
                 self.log.debug('stopping motor due to drag error')
-                self._adevs['motor'].stop()
+                self._attached_motor.stop()
                 # should now go into next try
             elif self._stoprequest == 0:
                 try:

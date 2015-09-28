@@ -55,7 +55,7 @@ class Collector(BaseCacheClient):
 
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
-        self._global = self._adevs['globalcache']
+        self._global = self._attached_globalcache
         self._global._worker.start()
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):

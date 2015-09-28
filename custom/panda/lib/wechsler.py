@@ -344,7 +344,7 @@ class MonoWechsler(Device):
 
     @property
     def bhd(self):  # BeckHoffDevice
-        return self._adevs['beckhoff']
+        return self._attached_beckhoff
 
     def doInit(self, mode):
         self.bhd.WriteWordOutput(0x1120, 0)  # disable BK9100 Watchdog....

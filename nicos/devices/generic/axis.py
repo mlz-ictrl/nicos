@@ -65,38 +65,38 @@ class Axis(CanReference, BaseAxis):
 
     def doInit(self, mode):
         # Check that motor and unit have the same unit
-        if self._adevs['coder'].unit != self._adevs['motor'].unit:
+        if self._attached_coder.unit != self._attached_motor.unit:
             raise ConfigurationError(self, 'different units for motor and coder'
-                                     ' (%s vs %s)' % (self._adevs['motor'].unit,
-                                                      self._adevs['coder'].unit))
+                                     ' (%s vs %s)' % (self._attached_motor.unit,
+                                                      self._attached_coder.unit))
         # Check that all observers have the same unit as the motor
-        for ob in self._adevs['obs']:
-            if self._adevs['motor'].unit != ob.unit:
+        for ob in self._attached_obs:
+            if self._attached_motor.unit != ob.unit:
                 raise ConfigurationError(self, 'different units for motor '
                                          'and observer %s' % ob)
 
-        self._hascoder = self._adevs['motor'] != self._adevs['coder']
+        self._hascoder = self._attached_motor != self._attached_coder
         self._errorstate = None
         self._posthread = None
         self._stoprequest = 0
 
     @property
     def motor(self):
-        return self._adevs['motor']
+        return self._attached_motor
 
     @property
     def coder(self):
-        return self._adevs['coder']
+        return self._attached_coder
 
     def doReadUnit(self):
-        return self._adevs['motor'].unit
+        return self._attached_motor.unit
 
     def doReadAbslimits(self):
         # check axis limits against motor absolute limits (the motor should not
         # have user limits defined)
         if 'abslimits' in self._config:
             amin, amax = self._config['abslimits']
-            mmin, mmax = self._adevs['motor'].abslimits
+            mmin, mmax = self._attached_motor.abslimits
             if amin < mmin:
                 raise ConfigurationError(self, 'absmin (%s) below the motor '
                                          'absmin (%s)' % (amin, mmin))
@@ -104,13 +104,13 @@ class Axis(CanReference, BaseAxis):
                 raise ConfigurationError(self, 'absmax (%s) above the motor '
                                          'absmax (%s)' % (amax, mmax))
         else:
-            mmin, mmax = self._adevs['motor'].abslimits
+            mmin, mmax = self._attached_motor.abslimits
             amin, amax = mmin, mmax
         return amin, amax
 
     def doIsAllowed(self, target):
         # do limit check here already instead of in the thread
-        ok, why = self._adevs['motor'].isAllowed(target + self.offset)
+        ok, why = self._attached_motor.isAllowed(target + self.offset)
         if not ok:
             return ok, 'motor cannot move there: ' + why
         return True, ''
@@ -147,17 +147,17 @@ class Axis(CanReference, BaseAxis):
         elif self._errorstate:
             return (status.ERROR, str(self._errorstate))
         else:
-            return self._adevs['motor'].status(maxage)
+            return self._attached_motor.status(maxage)
 
     def doRead(self, maxage=0):
         """Returns the current position from coder controller."""
-        return self._adevs['coder'].read(maxage) - self.offset
+        return self._attached_coder.read(maxage) - self.offset
 
     def doPoll(self, i, maxage):
         if self._hascoder:
-            devs = [self._adevs['coder'], self._adevs['motor']] + self._adevs['obs']
+            devs = [self._attached_coder, self._attached_motor] + self._attached_obs
         else:
-            devs = [self._adevs['motor']] + self._adevs['obs']
+            devs = [self._attached_motor] + self._attached_obs
         for dev in devs:
             dev.poll(i, maxage)
 
@@ -168,24 +168,24 @@ class Axis(CanReference, BaseAxis):
         """
         # if coder != motor -> use coder (its more precise!)
         # if no observers, rely on coder (even if its == motor)
-        if self._hascoder or not self._adevs['obs']:
+        if self._hascoder or not self._attached_obs:
             # read the coder
-            return self._adevs['coder'].read(0)
-        obs = self._adevs['obs']
+            return self._attached_coder.read(0)
+        obs = self._attached_obs
         rounds = self.obsreadings
         pos = sum(o.doRead() for _ in range(rounds) for o in obs)
         return pos / float(rounds * len(obs))
 
     def doReset(self):
         """Resets the motor/coder controller."""
-        self._adevs['motor'].reset()
+        self._attached_motor.reset()
         if self._hascoder:
-            self._adevs['coder'].reset()
-        for obs in self._adevs['obs']:
+            self._attached_coder.reset()
+        for obs in self._attached_obs:
             obs.reset()
         if self.status(0)[0] != status.BUSY:
             self._errorstate = None
-        self._adevs['motor'].setPosition(self._getReading())
+        self._attached_motor.setPosition(self._getReading())
         if not self._hascoder:
             self.log.info('reset done; use %s.reference() to do a reference '
                           'drive' % self)
@@ -196,7 +196,7 @@ class Axis(CanReference, BaseAxis):
             self.log.error('this is an encoded axis, '
                            'referencing makes no sense')
             return
-        motor = self._adevs['motor']
+        motor = self._attached_motor
         if isinstance(motor, CanReference):
             motor.reference()
         else:
@@ -207,7 +207,7 @@ class Axis(CanReference, BaseAxis):
         self._stoprequest = 1
         # send a stop in case the motor was  started via
         # the lowlevel device or externally.
-        self._adevs['motor'].stop()
+        self._attached_motor.stop()
 
     def doFinish(self):
         if self._errorstate:
@@ -216,10 +216,10 @@ class Axis(CanReference, BaseAxis):
             raise errorstate  # pylint: disable=E0702
 
     def doWriteSpeed(self, value):
-        self._adevs['motor'].speed = value
+        self._attached_motor.speed = value
 
     def doReadSpeed(self):
-        return self._adevs['motor'].speed
+        return self._attached_motor.speed
 
     def doWriteOffset(self, value):
         """Called on adjust(), overridden to forbid adjusting while moving."""
@@ -261,7 +261,7 @@ class Axis(CanReference, BaseAxis):
         This method sets the error state and returns False if a drag error
         occurs, and returns True otherwise.
         """
-        diff = abs(self._adevs['motor'].read() - self._adevs['coder'].read())
+        diff = abs(self._attached_motor.read() - self._attached_coder.read())
         self.log.debug('motor/coder diff: %s' % diff)
         maxdiff = self.dragerror
         if maxdiff <= 0:
@@ -271,8 +271,8 @@ class Axis(CanReference, BaseAxis):
                 self, 'drag error (primary coder): difference %.4g, maximum %.4g' %
                 (diff, maxdiff))
             return False
-        for obs in self._adevs['obs']:
-            diff = abs(self._adevs['motor'].read() - obs.read())
+        for obs in self._attached_obs:
+            diff = abs(self._attached_motor.read() - obs.read())
             if diff > maxdiff:
                 self._errorstate = PositionError(
                     self, 'drag error (%s): difference %.4g, maximum %.4g' %
@@ -319,7 +319,7 @@ class Axis(CanReference, BaseAxis):
                     (diff, self.precision))
             return False
         maxdiff = self.dragerror
-        for obs in self._adevs['obs']:
+        for obs in self._attached_obs:
             diff = abs(target - obs.read())
             if maxdiff > 0 and diff > maxdiff:
                 if error:
@@ -386,18 +386,18 @@ class Axis(CanReference, BaseAxis):
 
         # enforce initial good agreement between motor and coder
         if not self._checkDragerror():
-            self._adevs['motor'].setPosition(self._getReading())
+            self._attached_motor.setPosition(self._getReading())
             self._errorstate = None
 
         self._lastdiff = abs(target - self.read(0))
-        self._adevs['motor'].start(target + offset)
+        self._attached_motor.start(target + offset)
         moving = True
         stoptries = 0
 
         while moving:
             if self._stoprequest == 1:
                 self.log.debug('stopping motor')
-                self._adevs['motor'].stop()
+                self._attached_motor.stop()
                 self._stoprequest = 2
                 stoptries = 10
                 continue
@@ -405,7 +405,7 @@ class Axis(CanReference, BaseAxis):
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
             _status, pos = self.poll()
-            mstatus, mstatusinfo = self._adevs['motor'].status(0)
+            mstatus, mstatusinfo = self._attached_motor.status(0)
             if mstatus != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 2:
@@ -424,7 +424,7 @@ class Axis(CanReference, BaseAxis):
                     self.log.debug('motor in error status (%s), trying reset' %
                                    mstatusinfo)
                     # motor in error state -> try resetting
-                    newstatus = self._adevs['motor'].reset()
+                    newstatus = self._attached_motor.reset()
                     # if that failed, stop immediately
                     if newstatus[0] == status.ERROR:
                         moving = False
@@ -441,8 +441,8 @@ class Axis(CanReference, BaseAxis):
                     # motor to this position and restart it. _getReading is the
                     # 'real' value, may ask the coder again (so could slow
                     # down!)
-                    self._adevs['motor'].setPosition(self._getReading())
-                    self._adevs['motor'].start(target + self.offset)
+                    self._attached_motor.setPosition(self._getReading())
+                    self._attached_motor.start(target + self.offset)
                     tries -= 1
                 else:
                     moving = False
@@ -451,11 +451,11 @@ class Axis(CanReference, BaseAxis):
                         (self.maxtries, self._errorstate))
             elif not self._checkMoveToTarget(target, pos):
                 self.log.debug('stopping motor because not moving to target')
-                self._adevs['motor'].stop()
+                self._attached_motor.stop()
                 # should now go into next try
             elif not self._checkDragerror():
                 self.log.debug('stopping motor due to drag error')
-                self._adevs['motor'].stop()
+                self._attached_motor.stop()
                 # should now go into next try
             elif self._stoprequest == 0:
                 try:

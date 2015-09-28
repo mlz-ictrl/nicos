@@ -62,7 +62,7 @@ class MCC2core(Device):
 
     @lazy_property
     def bus(self):
-        return self._adevs['bus']
+        return self._attached_bus
 
     def comm(self, cmd, forcechannel=True):
         if forcechannel:

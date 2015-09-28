@@ -232,15 +232,15 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
 
     @property
     def drum(self):
-        return self._adevs["imgdrum"]
+        return self._attached_imgdrum
 
     @property
     def gammashutter(self):
-        return self._adevs["gammashutter"]
+        return self._attached_gammashutter
 
     @property
     def photoshutter(self):
-        return self._adevs["photoshutter"]
+        return self._attached_photoshutter
 
     def doInit(self, mode):
         self._t = None
@@ -410,11 +410,11 @@ class Andor2LimaCCDFPGA(Andor2LimaCCD):
 
     def doSetPreset(self, **preset):
         if "t" in preset:
-            self._adevs["timer"].preselection = preset["t"]
+            self._attached_timer.preselection = preset["t"]
         Andor2LimaCCD.doSetPreset(self, **preset)
 
     def doStart(self):
-        self._adevs["timer"].start()
+        self._attached_timer.start()
         Andor2LimaCCD.doStart(self)
 
 
@@ -444,15 +444,15 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
 
     @property
     def ccd(self):
-        return self._adevs["ccd"]
+        return self._attached_ccd
 
     @property
     def gammashutter(self):
-        return self._adevs["gammashutter"]
+        return self._attached_gammashutter
 
     @property
     def photoshutter(self):
-        return self._adevs["photoshutter"]
+        return self._attached_photoshutter
 
     def doInit(self, mode):
         self.imagetype = self.ccd.imagetype

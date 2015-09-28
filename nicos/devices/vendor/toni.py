@@ -115,15 +115,15 @@ class Valve(Moveable):
         value = self.states.index(value)
         self._hw_wait()
         msg = '%s=%02x' % (value and 'O' or 'C', 1 << self.channel)
-        self._adevs['bus'].communicate(msg, self.addr, expect_ok=True)
+        self._attached_bus.communicate(msg, self.addr, expect_ok=True)
         self._started = currenttime()
 
     def doRead(self, maxage=0):
-        ret = self._adevs['bus'].communicate('R?', self.addr, expect_hex=2)
+        ret = self._attached_bus.communicate('R?', self.addr, expect_hex=2)
         return self.states[bool(ret & (1 << self.channel))]
 
     def doStatus(self, maxage=0):
-        ret = self._adevs['bus'].communicate('I?', self.addr, expect_hex=2)
+        ret = self._attached_bus.communicate('I?', self.addr, expect_hex=2)
         if ret != 0:
             return status.BUSY, 'busy'
         if self._started and self._started + self.waittime < currenttime():
@@ -144,7 +144,7 @@ class Leckmon(Readable):
     }
 
     def doRead(self, maxage=0):
-        return self._adevs['bus'].communicate('S?', self.addr)
+        return self._attached_bus.communicate('S?', self.addr)
 
 
 class Ratemeter(Readable):
@@ -160,7 +160,7 @@ class Ratemeter(Readable):
     }
 
     def doRead(self, maxage=0):
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         self._cachelock_acquire()
         try:
             # ratemeter is on channel 2
@@ -205,15 +205,15 @@ class Vacuum(Readable):
 
 #   @requires(level=ADMIN)
     def doReset(self):
-        self._adevs['bus'].communicate('P%1d=0' % (self.channel + 1),
+        self._attached_bus.communicate('P%1d=0' % (self.channel + 1),
                                        self.addr, expect_ok=True)
         sleep(1)
-        self._adevs['bus'].communicate('P%1d=1' % (self.channel + 1),
+        self._attached_bus.communicate('P%1d=1' % (self.channel + 1),
                                        self.addr, expect_ok=True)
         sleep(0.1)
 
     def doRead(self, maxage=0):
-        resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
+        resp = self._attached_bus.communicate('R%1d?' % (self.channel + 1),
                                               self.addr, expect_hex=8)
         pressure, config = resp >> 16, (resp >> 8) & 0xFF
         if config & 16:
@@ -233,7 +233,7 @@ class Vacuum(Readable):
         return ret
 
     def doReadUnit(self):
-        resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
+        resp = self._attached_bus.communicate('R%1d?' % (self.channel + 1),
                                               self.addr, expect_hex=8)
         config = (resp >> 8) & 0xFF
         if config & 16:
@@ -244,7 +244,7 @@ class Vacuum(Readable):
             return 'mbar'
 
     def doStatus(self, maxage=0):
-        resp = self._adevs['bus'].communicate('R%1d?' % (self.channel + 1),
+        resp = self._attached_bus.communicate('R%1d?' % (self.channel + 1),
                                               self.addr, expect_hex=8)
         state = resp & 0xFF
         if state == 0:
@@ -260,7 +260,7 @@ class Vacuum(Readable):
             return 0
 
     def doWritePower(self, value):
-        self._adevs['bus'].communicate(
+        self._attached_bus.communicate(
             'P%1d=%d' % (self.channel + 1, value), self.addr, expect_ok=True)
 
 
@@ -283,17 +283,17 @@ class LVPower(Moveable):
     valuetype = oneofdict({1: 'on', 0: 'off'})
 
     def doRead(self, maxage=0):
-        sval = self._adevs['bus'].communicate('S?', self.addr, expect_hex=2)
+        sval = self._attached_bus.communicate('S?', self.addr, expect_hex=2)
         return 'on' if sval >> 7 else 'off'
 
     def doStatus(self, maxage=0):
-        sval = self._adevs['bus'].communicate('S?', self.addr, expect_hex=2)
-        tval = self._adevs['bus'].communicate('T?', self.addr, expect_hex=2)
+        sval = self._attached_bus.communicate('S?', self.addr, expect_hex=2)
+        tval = self._attached_bus.communicate('T?', self.addr, expect_hex=2)
         return status.OK, 'status=%d, temperature=%d' % (sval, tval)
 
     @requires(level=ADMIN)
     def doStart(self, target):
-        self._adevs['bus'].communicate('P%d' % (target == 'on'),
+        self._attached_bus.communicate('P%d' % (target == 'on'),
                                        self.addr, expect_ok=True)
 
 
@@ -316,10 +316,10 @@ class DelayBox(Moveable):
     valuetype = int
 
     def doRead(self, maxage=0):
-        return self._adevs['bus'].communicate('D?', self.addr, expect_hex=4)
+        return self._attached_bus.communicate('D?', self.addr, expect_hex=4)
 
     def doStart(self, target):
-        self._adevs['bus'].communicate('D=%04X' % target, self.addr,
+        self._attached_bus.communicate('D=%04X' % target, self.addr,
                                        expect_ok=True)
 
     def doIsAllowed(self, target):

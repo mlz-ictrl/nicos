@@ -136,7 +136,7 @@ class MicroPythonServo(HasOffset, Motor):
 
     def doInit(self, mode):
         if mode != SIMULATION:
-            io = self._adevs['io']
+            io = self._attached_io
             io.communicate('import pyb')
             io.communicate('s%d=pyb.Servo(%d)' % (self.channel, self.channel))
             io.communicate('s%d.calibration(600,2400,1500,2400,2400)' %
@@ -145,7 +145,7 @@ class MicroPythonServo(HasOffset, Motor):
             io.addPollDev(self)
 
     def doRead(self, maxage=None):
-        return float(self._adevs['io'].communicate('s%d.angle()' %
+        return float(self._attached_io.communicate('s%d.angle()' %
                                                    self.channel)) - self.offset
 
     def doStart(self, target):
@@ -154,7 +154,7 @@ class MicroPythonServo(HasOffset, Motor):
         cmd = ("s%d.angle(%f,%d)" %
                (self.channel, target, int(duration * 1000)))
         self.log.debug(cmd)
-        self._adevs['io'].communicate(cmd)
+        self._attached_io.communicate(cmd)
         self._busytime = time.time() + duration
 
     def doStatus(self, maxage=None):
@@ -163,4 +163,4 @@ class MicroPythonServo(HasOffset, Motor):
         return status.OK, ''
 
     def doShutdown(self):
-        self._adevs['io'].delPollDev(self)
+        self._attached_io.delPollDev(self)

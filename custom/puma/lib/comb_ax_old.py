@@ -44,47 +44,47 @@ class CombAxis(Moveable):
 
     def doInit(self, mode):
         if self.iscomb:
-            self._fixpos = self._adevs['main_ax'].read(0) + \
-                self._adevs['fix_ax'].read(0)
+            self._fixpos = self._attached_main_ax.read(0) + \
+                self._attached_fix_ax.read(0)
         else:
             self._fixpos = None
 
     def doWriteIscomb(self, val):
         if val:
-            self._fixpos = self._adevs['main_ax'].read(0) + \
-                self._adevs['fix_ax'].read(0)
+            self._fixpos = self._attached_main_ax.read(0) + \
+                self._attached_fix_ax.read(0)
 
     def doIsAllowed(self, pos):
-        mainax = self._adevs['main_ax'].isAllowed(pos)
+        mainax = self._attached_main_ax.isAllowed(pos)
         if not self.iscomb:
             return mainax
         relpos = self._fixpos - pos
-        fixax = self._adevs['fix_ax'].isAllowed(relpos)
+        fixax = self._attached_fix_ax.isAllowed(relpos)
         if mainax[0] and fixax[0]:
             return (True, 'Ok')
         else:
-            return (False, '%s: %s, %s: %s' % (self._adevs['main_ax'],
+            return (False, '%s: %s, %s: %s' % (self._attached_main_ax,
                                                mainax[1],
-                                               self._adevs['fix_ax'],
+                                               self._attached_fix_ax,
                                                fixax[1]))
 
     def doRead(self, maxage=0):
-        return self._adevs['main_ax'].read(maxage)
+        return self._attached_main_ax.read(maxage)
 
     def doStart(self, pos):
-        self._adevs['main_ax'].start(pos)
+        self._attached_main_ax.start(pos)
 
     def doOldWait(self):
-        self._adevs['main_ax'].wait()
+        self._attached_main_ax.wait()
         if self.iscomb:
-            relpos = self._fixpos - self._adevs['main_ax'].read(0)
-            self._adevs['fix_ax'].start(relpos)  # ??? start here?????
-            self._adevs['fix_ax'].wait()
+            relpos = self._fixpos - self._attached_main_ax.read(0)
+            self._attached_fix_ax.start(relpos)  # ??? start here?????
+            self._attached_fix_ax.wait()
 
     def doStatus(self, maxage=0):
-        mainax = self._adevs['main_ax'].status(maxage)
+        mainax = self._attached_main_ax.status(maxage)
         if not self.iscomb:
             return mainax
         if mainax[0] == status.BUSY or mainax[0] == status.ERROR:
             return mainax
-        return self._adevs['fix_ax'].status(maxage)
+        return self._attached_fix_ax.status(maxage)

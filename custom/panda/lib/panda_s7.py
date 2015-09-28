@@ -88,7 +88,7 @@ class S7Coder(NicosCoder):
 
     def doRead(self, maxage=0):
         """Read the encoder value."""
-        return self._adevs['bus'].read('float', self.startbyte) * self.sign
+        return self._attached_bus.read('float', self.startbyte) * self.sign
 
     def doStatus(self, maxage=0):
         if -140 < self.doRead(maxage) < -20:
@@ -133,7 +133,7 @@ class S7Motor(HasTimeout, NicosMotor):
     def doStop(self):
         """Stop the motor movement."""
         self.log.debug('stopping at ' + self.fmtstr % self.doRead(0))
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         # Istwert als Sollwert schreiben
         bus.write(self.read() * self.sign, 'float', 8)
         bus.write(1, 'bit', 0, 3)  # Stopbit setzen
@@ -157,10 +157,10 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def _gettarget(self):
         """Returns current target."""
-        return self._adevs['bus'].readback('float', 8)
+        return self._attached_bus.readback('float', 8)
 
     def printstatusinfo(self):
-        bus = self._adevs['bus']
+        bus = self._attached_bus
 
         #        Bit-Beschreibung                  Sollwert  Name an/aus
         bit_desc = {
@@ -238,7 +238,7 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def _ack(self):
         ''' acks a sps/Nc error '''
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         sps_err = bus.read('byte', 27) + 256 * bus.read('byte', 26)
         if not(sps_err):
             # nothing to do
@@ -258,7 +258,7 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def _doStatus(self, maxage=0):
         """Asks hardware and figures out status."""
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         # first get all needed statusbytes
         nc_err = bus.read('byte', 19) + 256 * bus.read('byte', 18)
         nc_err_flag = bus.read('bit', 24, 5)
@@ -337,7 +337,7 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def _posreached(self):
         """Helper to figure out if we reached our target position."""
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         if abs(bus.read('float', 4) - bus.readback('float', 8)) <= 0.001:
             return True
         return False
@@ -358,7 +358,7 @@ class S7Motor(HasTimeout, NicosMotor):
         # sleep(0.2)
         # 20091116 EF: round to 1 thousands, or SPS doesn't switch air off
         position = float(self.fmtstr % position) * self.sign
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         # Sollwert schreiben
         bus.write(position, 'float', 8)
         self._minisleep()
@@ -372,7 +372,7 @@ class S7Motor(HasTimeout, NicosMotor):
 
     def doRead(self, maxage=0):
         """Read the incremental encoder."""
-        bus = self._adevs['bus']
+        bus = self._attached_bus
         self.log.debug('read: ' + self.fmtstr % self.sign*bus.read('float', 4)
                        + ' %s' % self.unit)
         self.log.debug('MBarm at: ' + self.fmtstr % bus.read('float', 12)

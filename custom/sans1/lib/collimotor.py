@@ -64,7 +64,7 @@ class Sans1ColliSlit(Switcher):
 
     def _mapReadValue(self, pos):
         prec = self.precision
-        if self._adevs['table'].read() != self.activeposition:
+        if self._attached_table.read() != self.activeposition:
             return 'N.A.'
         for name, value in self.mapping.items():
             if prec:
@@ -75,12 +75,12 @@ class Sans1ColliSlit(Switcher):
         if self.fallback is not None:
             return self.fallback
         if self.relax_mapping:
-            return self._adevs['moveable'].format(pos, True)
+            return self._attached_moveable.format(pos, True)
         raise PositionError(self, 'unknown position of %s' %
-                            self._adevs['moveable'])
+                            self._attached_moveable)
 
     def doStatus(self, maxage=0):
-        if self._adevs['table'].read() != self.activeposition:
+        if self._attached_table.read() != self.activeposition:
             return multiStatus(self._adevs, maxage)
         else:
             return Switcher.doStatus(self, maxage)
@@ -114,9 +114,9 @@ class Sans1ColliSwitcher(Switcher):
         if self.fallback is not None:
             return self.fallback
         if self.relax_mapping:
-            return self._adevs['moveable'].format(pos, True)
+            return self._attached_moveable.format(pos, True)
         raise PositionError(self, 'unknown position of %s' %
-                            self._adevs['moveable'])
+                            self._attached_moveable)
 
 
 class Sans1ColliCoder(TacoDevice, Coder):

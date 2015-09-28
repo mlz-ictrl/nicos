@@ -69,7 +69,7 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
 
     @property
     def motor(self):
-        return self._adevs["motor"]
+        return self._attached_motor
 
     def _maxmovetime(self, t):
         # maximum movement time including polling time plus additional code

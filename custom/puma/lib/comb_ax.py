@@ -43,28 +43,28 @@ class CombAxis(Axis):
     def doInit(self, mode):
         Axis.doInit(self, mode)
         if self.iscomb:
-            self._fixpos = self.read(0) + self._adevs['fix_ax'].read(0)
+            self._fixpos = self.read(0) + self._attached_fix_ax.read(0)
         else:
             self._fixpos = None
 
     def doWriteIscomb(self, val):
         if val:
-            self._fixpos = self.read(0) + self._adevs['fix_ax'].read(0)
+            self._fixpos = self.read(0) + self._attached_fix_ax.read(0)
 
     def doIsAllowed(self, pos):
         mainax = Axis.doIsAllowed(self, pos)
         if not self.iscomb:
             return mainax
         relpos = self._fixpos - pos
-        fixax = self._adevs['fix_ax'].isAllowed(relpos)
+        fixax = self._attached_fix_ax.isAllowed(relpos)
         if mainax[0] and fixax[0]:
             return (True, 'Ok')
         else:
             return (False, '%s: %s, %s: %s' %
-                    (self, mainax[1], self._adevs['fix_ax'], fixax[1]))
+                    (self, mainax[1], self._attached_fix_ax, fixax[1]))
 
     def _postMoveAction(self):
         if self.iscomb:
             relpos = self._fixpos - self.read(0)
-            self._adevs['fix_ax'].start(relpos)
-            self._adevs['fix_ax'].wait()
+            self._attached_fix_ax.start(relpos)
+            self._attached_fix_ax.wait()

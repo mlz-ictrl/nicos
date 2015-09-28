@@ -50,14 +50,14 @@ class ReadonlyParamDevice(Readable):
     }
 
     def doRead(self, maxage=0):
-        return getattr(self._adevs['device'], self.parameter)
+        return getattr(self._attached_device, self.parameter)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
 
     def doReadUnit(self):
-        devunit = getattr(self._adevs['device'], 'unit', '')
-        parunit = self._adevs['device'].parameters[self.parameter].unit or ''
+        devunit = getattr(self._attached_device, 'unit', '')
+        parunit = self._attached_device.parameters[self.parameter].unit or ''
         if devunit:
             parunit = parunit.replace('main', devunit)
         return parunit
@@ -70,7 +70,7 @@ class ParamDevice(ReadonlyParamDevice, Moveable):
     """
 
     def doInit(self, mode):
-        self.valuetype = self._adevs['device'].parameters[self.parameter].type
+        self.valuetype = self._attached_device.parameters[self.parameter].type
 
     def doStart(self, value):
-        setattr(self._adevs['device'], self.parameter, value)
+        setattr(self._attached_device, self.parameter, value)

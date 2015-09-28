@@ -52,12 +52,12 @@ class DSPec(Measurable):
         if self.doStatus()[0] == status.BUSY:
             self.doStop()
             self.doWait()
-        self._adevs['set_ready'].move(0)
+        self._attached_set_ready.move(0)
         time.sleep(self.startsleeptime)
-        self._adevs['set_ready'].move(1)
+        self._attached_set_ready.move(1)
 
     def doStop(self):
-        self._adevs['set_ready'].move(1)
+        self._attached_set_ready.move(1)
 
     def doPreset(self, **preset):
         pass
@@ -66,7 +66,7 @@ class DSPec(Measurable):
         return [self._lastpreset.get('t', 0)]
 
     def doStatus(self, maxage=0):
-        if self._adevs['get_ready'].read(maxage) == 0:
+        if self._attached_get_ready.read(maxage) == 0:
             return status.BUSY, 'counting'
         else:
             return status.OK, 'stopped'

@@ -52,7 +52,7 @@ class KL320xTemp(Readable):
 
     @property
     def bhd(self):  # BeckHoffDevice
-        return self._adevs['beckhoff']
+        return self._attached_beckhoff
 
     def _switch_to_K(self):
         self.log.debug('Switching to K')

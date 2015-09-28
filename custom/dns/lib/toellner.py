@@ -39,20 +39,20 @@ class Toellner(PowerSupply):
     }
 
     def _getsign(self):
-        return -1 if self._adevs['polchange'].read() == '-' else 1
+        return -1 if self._attached_polchange.read() == '-' else 1
 
     def _set_field_polarity(self, value):
-        polval = self._adevs['polchange'].read()
+        polval = self._attached_polchange.read()
         return (value < 0 and polval == '+') or (value >= 0 and polval == '-')
 
     def doStart(self, value):
-        polval = self._adevs['polchange'].read()
+        polval = self._attached_polchange.read()
         target = self.target
         if self._set_field_polarity(value):
             polval = '-' if value < 0 else '+'
             self._setROParam('target', 0)
             self._dev.value = 0
-            self._adevs['polchange'].start(polval)
+            self._attached_polchange.start(polval)
         self._setROParam('target', target)
         self._dev.value = abs(value)
 

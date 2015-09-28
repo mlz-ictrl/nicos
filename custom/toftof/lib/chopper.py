@@ -438,7 +438,7 @@ class SpeedReadout(Readable):
 
     def doRead(self, maxage=0):
         return [v / 279.618375
-                for v in self._adevs['chopper']._readspeeds_actual()]
+                for v in self._attached_chopper._readspeeds_actual()]
 
     def doStatus(self, maxage=0):
         return status.OK, 'no status info'
@@ -458,13 +458,13 @@ class PropertyChanger(Moveable):
         return status.OK, 'no status info'
 
     def doRead(self, maxage=0):
-        return getattr(self._adevs['chopper'], self._prop)
+        return getattr(self._attached_chopper, self._prop)
 
     def doStart(self, target):
-        self._adevs['chopper']._change(self._prop, target)
+        self._attached_chopper._change(self._prop, target)
 
     def doReadTarget(self):
-        return getattr(self._adevs['chopper'], self._prop)
+        return getattr(self._attached_chopper, self._prop)
 
 
 class Wavelength(HasLimits, PropertyChanger):

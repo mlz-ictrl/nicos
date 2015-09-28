@@ -185,7 +185,7 @@ def test_attached_devices_property():
 def test_params():
     dev2 = session.getDevice('dev2_1')
     # make sure adev instances are created
-    assert isinstance(dev2._adevs['attached'], Dev1)
+    assert isinstance(dev2._attached_attached, Dev1)
     # an inherited and writable parameter
     assert dev2.unit == 'mm'
     dev2.unit = 'deg'

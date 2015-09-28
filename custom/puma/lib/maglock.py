@@ -66,9 +66,9 @@ class MagLock(Moveable):
             return
 
         if position == 'closed':
-            self._adevs['io_set'].move(0)
+            self._attached_io_set.move(0)
         elif position == 'open':
-            self._adevs['io_set'].move(self._bitmask(magpos))
+            self._attached_io_set.move(self._bitmask(magpos))
         else:
             self.log.info('Maglock: illegal input')
             return
@@ -91,8 +91,8 @@ class MagLock(Moveable):
 #            return
         bitmask = self._bitmask(magpos)
         val = list(map(str,
-                       [(self._adevs['io_open'].read(0) & bitmask) / bitmask,
-                        (self._adevs['io_closed'].read(0) & bitmask) / bitmask]
+                       [(self._attached_io_open.read(0) & bitmask) / bitmask,
+                        (self._attached_io_closed.read(0) & bitmask) / bitmask]
                        ))
         self.log.debug('Sensing switches are in State %s' % val)
         return ''.join(val)
@@ -122,7 +122,7 @@ class MagLock(Moveable):
 
     @property
     def _magpos(self):
-        s = self._adevs['magazin'].read(0)
+        s = self._attached_magazin.read(0)
         for i, k in enumerate(self.states):
             if s == k:
                 return i

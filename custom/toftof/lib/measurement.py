@@ -113,7 +113,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self._devicelogs = {}
 
     def doSetPreset(self, **preset):
-        ctr = self._adevs['counter']
+        ctr = self._attached_counter
         ctr.stop()
         ctr.setPreset(**preset)
         self._curtitle = preset.get('info', '')
@@ -125,13 +125,13 @@ class TofTofMeasurement(ImageProducer, Measurable):
             self._last_preset = preset['t']
 
     def doReadTimechannels(self):
-        return self._adevs['counter'].timechannels
+        return self._attached_counter.timechannels
 
     def doWriteTimechannels(self, value):
-        self._adevs['counter'].timechannels = value
+        self._attached_counter.timechannels = value
 
     def doStart(self):
-        ctr = self._adevs['counter']
+        ctr = self._attached_counter
         ctr.stop()
 
         try:
@@ -142,7 +142,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
             self.log.warning('could not check radial collimator', exc=1)
 
         self.log.debug('reading chopper parameters')
-        chwl, chspeed, chratio, _, chst = self._adevs['chopper']._getparams()
+        chwl, chspeed, chratio, _, chst = self._attached_chopper._getparams()
 
         # select time interval from chopper parameters
         if self.timeinterval == 0:
@@ -154,11 +154,11 @@ class TofTofMeasurement(ImageProducer, Measurable):
         if chspeed > 150:
             # select chopper delay from chopper parameters
             self.log.debug('calculating chopper delay')
-            ch5_90deg_offset = self._adevs['chopper'].ch5_90deg_offset
+            ch5_90deg_offset = self._attached_chopper.ch5_90deg_offset
             chdelay = calc.calculateChopperDelay(chwl, chspeed, chratio, chst,
                                                  ch5_90deg_offset)
             self.log.debug('setting chopper delay to : %d' % chdelay)
-            self._adevs['chdelay'].start(chdelay)
+            self._attached_chdelay.start(chdelay)
 
             # select counter delay from chopper parameters
             self.log.debug('setting counter delay')
@@ -210,9 +210,9 @@ class TofTofMeasurement(ImageProducer, Measurable):
         self.log.info('self.lastfilename : %r' % self.lastfilename)
 
     def _startHeader(self, interval, chdelay):
-        ctr = self._adevs['counter']
+        ctr = self._attached_counter
         chwl, chspeed, chratio, chcrc, chst = \
-            self._adevs['chopper']._getparams()
+            self._attached_chopper._getparams()
         head = []
         head.append('File_Creation_Time: %s\n' % asctime())
         head.append('Title: %s\n' % from_maybe_utf8(self._curtitle))
@@ -242,7 +242,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
         head.append('TOF_Delay: %lu\n' % ctr.delay)
         head.append('TOF_MonitorInput: %d\n' % ctr.monitorchannel)
         head.append('TOF_Ch5_90deg_Offset: %d\n' %
-                    self._adevs['chopper'].ch5_90deg_offset)
+                    self._attached_chopper.ch5_90deg_offset)
         guess = round(4.0 * chwl * 1e-6 * calc.alpha / (calc.ttr *
                                                         ctr.channelwidth))
         head.append('TOF_ChannelOfElasticLine_Guess: %d\n' % guess)
@@ -358,7 +358,7 @@ class TofTofMeasurement(ImageProducer, Measurable):
 
     def _saveDataFile(self):
         try:
-            timeleft, moncounts, counts = self._adevs['counter'].read_full()
+            timeleft, moncounts, counts = self._attached_counter.read_full()
             if counts is None:
                 raise NicosError(self, 'detector returned no counts')
         except NicosError:
@@ -466,12 +466,12 @@ class TofTofMeasurement(ImageProducer, Measurable):
                           monrate_inst, detrate_inst, ]
 
     def doStop(self):
-        self._adevs['counter'].stop()
+        self._attached_counter.stop()
         self._measuring = False
         self._closeDeviceLogs()
 
     def doReset(self):
-        self._adevs['counter'].reset()
+        self._attached_counter.reset()
 
     def doSave(self, exception=False):
         _, moncounts, _, countsum, meastime, tempinfo = self._saveDataFile()
@@ -497,4 +497,4 @@ class TofTofMeasurement(ImageProducer, Measurable):
         return [self.lastfilename]
 
     def doIsCompleted(self):
-        return self._adevs['counter'].isCompleted()
+        return self._attached_counter.isCompleted()

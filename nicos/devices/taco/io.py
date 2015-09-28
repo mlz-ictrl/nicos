@@ -237,15 +237,15 @@ class MultiDigitalOutput(Moveable):
     valuetype = int
 
     def doStart(self, target):
-        for dev in self._adevs['outputs']:
+        for dev in self._attached_outputs:
             dev.start(target)
 
     def doRead(self, maxage=0):
         values = []
-        for dev in self._adevs['outputs']:
+        for dev in self._attached_outputs:
             values.append(dev.read(maxage))
         if len(set(values)) != 1:
-            devnames = [dev.name for dev in self._adevs['outputs']]
+            devnames = [dev.name for dev in self._attached_outputs]
             raise NicosError(self,
                 'outputs have different read values: '
                 + ', '.join('%s=%s' % x for x in zip(devnames, values)))

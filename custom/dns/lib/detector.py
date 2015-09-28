@@ -51,7 +51,7 @@ class FlipperPresets(Measurable):
 
     @property
     def flipper(self):
-        return self._adevs['flipper']
+        return self._attached_flipper
 
     def doStart(self):
         raise NotImplementedError('Please provide an implementation for '
@@ -96,7 +96,7 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
                                    numpy.uint32)
         if mode != SIMULATION:
             self._dev.set_timeout_millis(10000)
-        self._last_counter = self._adevs['timer']
+        self._last_counter = self._attached_timer
 
     def _generateSequence(self, *args, **kwargs):
         seq = []
@@ -120,11 +120,11 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
 
     def doSetPreset(self, **preset):
         if P_MON in preset:
-            self._adevs['monitor'].preselection = preset[P_MON]
-            self._last_counter = self._adevs['monitor']
+            self._attached_monitor.preselection = preset[P_MON]
+            self._last_counter = self._attached_monitor
         elif P_TIME in preset:
-            self._adevs['timer'].preselection = preset[P_TIME]
-            self._last_counter = self._adevs['timer']
+            self._attached_timer.preselection = preset[P_TIME]
+            self._last_counter = self._attached_timer
 
     def doReadTofmode(self):
         return self.TOFMODE[self._dev.mode]
@@ -188,14 +188,14 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         array = self._dev.value.tolist()
         start, end = self.readchannels
         res = array[start:end+1]
-        tval = self._adevs['timer'].read()
-        mval = self._adevs['monitor'].read()
+        tval = self._attached_timer.read()
+        mval = self._attached_monitor.read()
         return tval + mval + res
 
     def valueInfo(self):
         start, end = self.readchannels
-        return self._adevs['timer'].valueInfo() + \
-            self._adevs['monitor'].valueInfo() + \
+        return self._attached_timer.valueInfo() + \
+            self._attached_monitor.valueInfo() + \
             tuple(Value("chan-%d" % i, unit="cts", errors="sqrt",
                         type="counter", fmtstr="%d")
                   for i in range(start, end + 1))
@@ -240,8 +240,8 @@ class TofDetector(TofDetectorBase, FlipperPresets):
                 m = preset[P_MON_SF]
             else:
                 m = preset[P_MON_NSF]
-            self._adevs['monitor'].preselection = m
-            self._last_counter = self._adevs['monitor']
+            self._attached_monitor.preselection = m
+            self._last_counter = self._attached_monitor
         elif P_MON_SF in preset or P_MON_NSF in preset:
             self.log.warning('Incorrect preset setting. Specify either both '
                              '%s and %s or only %s.' %
@@ -251,15 +251,15 @@ class TofDetector(TofDetectorBase, FlipperPresets):
                 t = preset[P_TIME_SF]
             else:
                 t = preset[P_TIME_NSF]
-            self._adevs['timer'].preselection = t
-            self._last_counter = self._adevs['timer']
+            self._attached_timer.preselection = t
+            self._last_counter = self._attached_timer
         elif P_TIME_SF in preset or P_TIME_NSF in preset:
             self.log.warning('Incorrect preset setting. Specify either both '
                              '%s and %s or only %s.' %
                              (P_TIME_SF, P_TIME_NSF, P_TIME))
         elif P_MON in preset:
-            self._adevs['monitor'].preselection = preset[P_MON]
-            self._last_counter = self._adevs['monitor']
+            self._attached_monitor.preselection = preset[P_MON]
+            self._last_counter = self._attached_monitor
         elif P_TIME in preset:
-            self._adevs['timer'].preselection = preset[P_TIME]
-            self._last_counter = self._adevs['timer']
+            self._attached_timer.preselection = preset[P_TIME]
+            self._last_counter = self._attached_timer

@@ -140,7 +140,7 @@ class ATT(HoveringAxis):
 
     @property
     def stargate(self):
-        return self._adevs['stargate']
+        return self._attached_stargate
 
     def doStart(self, value):
         self.stargate.start(self.stargate.get_chevrons_for_att(value))
