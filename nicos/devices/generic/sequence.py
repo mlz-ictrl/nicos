@@ -104,7 +104,6 @@ class SeqDev(SequenceItem):
         # dont wait on fixed devices
         if hasattr(self.dev, 'fixed') and self.dev.fixed:
             return True
-        time.sleep(0.1)
         return self.dev.isCompleted()
 
     def __repr__(self):
@@ -288,6 +287,8 @@ class SequencerMixin(DeviceMixinBase):
                 self.log.debug(' - step %d:' % (i + 1))
                 for action in step:
                     self.log.debug('   - Action: %s' % repr(action))
+
+        self._set_seq_status(status.BUSY, '')
 
         self._asyncSequence(sequence)
 
