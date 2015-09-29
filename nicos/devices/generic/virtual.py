@@ -660,6 +660,7 @@ class Virtual2DDetector(ImageProducer, Measurable):
     }
 
     imagetype = ImageType((128, 128), '<u4')
+    _last_update = 0
     _buf = None
     _mythread = None
     _stopflag = False
@@ -669,6 +670,7 @@ class Virtual2DDetector(ImageProducer, Measurable):
         self._lastpreset = preset
 
     def doStart(self):
+        self._last_update = 0
         t = self._lastpreset.get('t', 1)
         self._timer = Timer()
         self._timer.start(t)
@@ -703,7 +705,9 @@ class Virtual2DDetector(ImageProducer, Measurable):
         return status.OK,  'idle'
 
     def duringMeasureHook(self, elapsed):
-        self.updateLiveImage()
+        if elapsed > self._last_update + 1:
+            self.updateLiveImage()
+            self._last_update = elapsed
 
     def readImage(self):
         return self._buf
