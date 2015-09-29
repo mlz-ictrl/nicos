@@ -53,8 +53,7 @@ tools = [
 # Please change the sender address to a valid, instrument specific address
          sender='powtex@frm2.tum.de',
         ),
-    tool('Calculator',
-         'nicos.clients.gui.tools.calculator.CalculatorTool'),
+    tool('Calculator', 'calculator.CalculatorTool'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup = True),
 ]

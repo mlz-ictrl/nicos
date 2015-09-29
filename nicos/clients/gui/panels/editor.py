@@ -45,14 +45,13 @@ except (ImportError, RuntimeError):
 else:
     has_scintilla = True
 
-from nicos.utils import formatDuration, formatEndtime, importString
+from nicos.utils import formatDuration, formatEndtime
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import showToolText, loadUi
+from nicos.clients.gui.tools import createToolMenu
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
-from nicos.pycompat import iteritems
-from nicos.clients.gui.config import tabbed
-from nicos.clients.gui.panels.tabwidget import firstWindow
 from nicos.guisupport.utils import setBackgroundColor
+from nicos.pycompat import iteritems
 
 COMMENT_STR = '## '
 
@@ -353,13 +352,6 @@ class EditorPanel(Panel):
         self.toolconfig = options.get('tools', '')
 
     def getMenus(self):
-        window = firstWindow(self)
-
-        isTabbed = False
-        if window:
-            if hasattr(window, 'gui_conf'):
-                isTabbed = isinstance(window.gui_conf.main_window, tabbed)
-
         menuFile = QMenu('&File', self)
         menuFile.addAction(self.actionNew)
         menuFile.addAction(self.actionOpen)
@@ -393,45 +385,15 @@ class EditorPanel(Panel):
         menuScript.addSeparator()
         menuScript.addAction(self.actionGet)
 
-        menuTools = None
-        self.menuToolsActions = []
-
         if self.toolconfig:
-            for i, tconfig in enumerate(self.toolconfig):
-                action = QAction(tconfig[0], self)
-                self.menuToolsActions.append(action)
-
-                def tool_callback(on, i=i):
-                    self.runTool(i)
-                self.connect(action, SIGNAL('triggered(bool)'), tool_callback)
-
-            if len(self.menuToolsActions) > 0:
-                if isTabbed:
-                    separator = QAction(self)
-                    separator.setSeparator(True)
-                    self.menuToolsActions.insert(0, separator)
-                else:
-                    menuTools = QMenu('&Tools', self)
-                    for action in self.menuToolsActions:
-                        menuTools.addAction(action)
-
-        if menuTools:
+            menuTools = QMenu('Editor t&ools', self)
+            createToolMenu(self, self.toolconfig, menuTools)
             menus = [menuFile, menuView, menuEdit, menuScript, menuTools]
         else:
             menus = [menuFile, menuView, menuEdit, menuScript]
 
         self.menus = menus
-
         return self.menus
-
-    def runTool(self, ttype):
-        tconfig = self.toolconfig[ttype]
-        toolclass = importString(tconfig[1])
-        dialog = toolclass(self, self.client, **tconfig[2])
-        self.connect(dialog, SIGNAL('addCode'), self.currentEditor.append)
-        dialog.setWindowModality(Qt.NonModal)
-        dialog.setAttribute(Qt.WA_DeleteOnClose, True)
-        dialog.show()
 
     def getToolbars(self):
         if not self.bar:

@@ -68,18 +68,14 @@ tools = [
          url='http://www.ncnr.nist.gov/resources/n-lengths/'),
     tool('Neutron activation', 'website.WebsiteTool',
          url='https://webapps.frm2.tum.de/intranet/activation/'),
-    tool('Neutron calculations',
-         'nicos.clients.gui.tools.website.WebsiteTool',
+    tool('Neutron calculations', 'website.WebsiteTool',
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
     tool('Emergency stop button', 'estop.EmergencyStopTool',
          runatstartup=False),
-    tool('Maintenance commands',
-             'nicos.clients.gui.tools.commands.CommandsTool',
-             commands=[
-                 ('TACO server control panel (beta)',
-                  'bash -c "source /etc/tacoenv.sh && sudo /usr/bin/python '
-                  '/opt/tacocp/tacocp.py nectarctrl.nectar.frm2"'),]
+    cmdtool('TACO server control panel (beta)',
+            ['bash', '-c', 'source /etc/tacoenv.sh && sudo /usr/bin/python '
+             '/opt/tacocp/tacocp.py nectarctrl.nectar.frm2'])
     ),
 
 ]

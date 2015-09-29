@@ -29,7 +29,7 @@ class hsplit(tuple):
     def __new__(cls, *children, **options):
         return tuple.__new__(cls, (children, options))
 
-    def __init__(self, *args, **kw):  # pylint: disable=W0231
+    def __init__(self, *args, **kw):  # pylint: disable=super-init-not-called
         self.children = self[0]
         self.options = self[1]
 
@@ -38,7 +38,7 @@ class vsplit(tuple):
     def __new__(cls, *children, **options):
         return tuple.__new__(cls, (children, options))
 
-    def __init__(self, *args, **kw):  # pylint: disable=W0231
+    def __init__(self, *args, **kw):  # pylint: disable=super-init-not-called
         self.children = self[0]
         self.options = self[1]
 
@@ -60,7 +60,7 @@ class window(tuple):
             args = args[0], args[1], args[3]
         return tuple.__new__(cls, args)
 
-    def __init__(self, *args):  # pylint: disable=W0231
+    def __init__(self, *args):  # pylint: disable=super-init-not-called
         self.name = self[0]
         self.icon = self[1]
         self.contents = self[2]
@@ -70,7 +70,7 @@ class panel(tuple):
     def __new__(cls, clsname, **options):
         return tuple.__new__(cls, (clsname, options))
 
-    def __init__(self, *args, **kw):  # pylint: disable=W0231
+    def __init__(self, *args, **kw):  # pylint: disable=super-init-not-called
         self.clsname = self[0]
         self.options = self[1]
 
@@ -79,10 +79,28 @@ class tool(tuple):
     def __new__(cls, name, clsname, **options):
         return tuple.__new__(cls, (name, clsname, options))
 
-    def __init__(self, *args, **kw):  # pylint: disable=W0231
+    def __init__(self, *args, **kw):  # pylint: disable=super-init-not-called
         self.name = self[0]
         self.clsname = self[1]
         self.options = self[2]
+
+
+class cmdtool(tuple):
+    def __new__(cls, name, cmdline):
+        return tuple.__new__(cls, (name, cmdline))
+
+    def __init__(self, *args):  # pylint: disable=super-init-not-called
+        self.name = self[0]
+        self.cmdline = self[1]
+
+
+class menu(tuple):
+    def __new__(cls, name, *items):
+        return tuple.__new__(cls, (name, items))
+
+    def __init__(self, *args):  # pylint: disable=super-init-not-called
+        self.name = self[0]
+        self.items = self[1]
 
 
 class gui_config(object):
@@ -126,6 +144,8 @@ def prepareGuiNamespace():
     ns['window'] = window
     ns['panel'] = panel
     ns['tool'] = tool
+    ns['cmdtool'] = cmdtool
+    ns['menu'] = menu
     ns['docked'] = docked
     ns['tabbed'] = tabbed
     return ns

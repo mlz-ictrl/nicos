@@ -30,7 +30,6 @@ from __future__ import print_function
 import sys
 import time
 import logging
-import subprocess
 import traceback
 import getopt
 from os import path
@@ -42,7 +41,7 @@ from PyQt4.QtCore import Qt, QTimer, QSize, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
 from nicos import nicos_version, config
-from nicos.utils import parseConnectionString, importString
+from nicos.utils import parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
 from nicos.clients.gui.data import DataHandler
@@ -52,6 +51,7 @@ from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
 from nicos.clients.gui.config import gui_config, prepareGuiNamespace
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
+from nicos.clients.gui.tools import createToolMenu, startStartupTools
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.dialogs.pnp import PnPSetupQuestion
@@ -184,13 +184,8 @@ class MainWindow(QMainWindow, DlgUtils):
         else:
             self.toolBarWindows.show()
 
-        # load tools menu
-        for i, tconfig in enumerate(self.gui_conf.tools):
-            action = QAction(tconfig.name, self)
-            self.menuTools.addAction(action)
-            def tool_callback(on, i=i):
-                self.runTool(i)
-            self.connect(action, SIGNAL('triggered(bool)'), tool_callback)
+        # create tools menu
+        createToolMenu(self, self.gui_conf.tools, self.menuTools)
 
         # timer for reconnecting
         self.reconnectTimer = QTimer(singleShot=True, timeout=self._reconnect)
@@ -263,20 +258,6 @@ class MainWindow(QMainWindow, DlgUtils):
         del self.windows[window.type]
         window.deleteLater()
 
-    def runTool(self, ttype):
-        tconfig = self.gui_conf.tools[ttype]
-        try:
-            # either it's a class name
-            toolclass = importString(tconfig.clsname, ('nicos.clients.gui.tools.',))
-        except ImportError:
-            # or it's a system command
-            subprocess.Popen(tconfig.clsname, shell=True)
-        else:
-            dialog = toolclass(self, self.client, **tconfig.options)
-            dialog.setWindowModality(Qt.NonModal)
-            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
-            dialog.show()
-
     def setConnData(self, login, passwd, host, port):
         self.connectionData['login'] = login
         self.connectionData['host'] = host
@@ -293,11 +274,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
     def startup(self):
         self.show()
-                # start autoload tools
-        for i, tconfig in enumerate(self.gui_conf.tools):
-            if tconfig.options and tconfig.options.get('runatstartup', False):
-                QTimer.singleShot(0,lambda: self.runTool(i))
-
+        startStartupTools(self, self.gui_conf.tools)
 
     def loadSettings(self, settings):
         # geometry and window appearance

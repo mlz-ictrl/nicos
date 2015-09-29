@@ -35,10 +35,9 @@ config = ('Default', [
         window('Errors', 'errors', True,
             panel('errors.ErrorPanel')),
     ], [
-        tool('Calculator',
-             'nicos.clients.gui.tools.calculator.CalculatorTool'),
+        tool('Calculator', 'calculator.CalculatorTool'),
         tool('Report NICOS bug or request enhancement', 'bugreport.BugreportTool'),
         tool('Emergency stop button', 'estop.EmergencyStopTool',
-            runatstartup=True),
+             runatstartup=True),
     ]
 )

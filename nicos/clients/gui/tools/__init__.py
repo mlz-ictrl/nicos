@@ -23,3 +23,63 @@
 # *****************************************************************************
 
 """NICOS GUI tools."""
+
+import subprocess
+
+from PyQt4.QtCore import Qt, QTimer
+from PyQt4.QtGui import QAction
+
+from nicos.utils import importString
+from nicos.clients.gui.config import tool, cmdtool, menu
+
+
+def runTool(window, tconfig):
+    """Run a tool from *tconfig*
+
+    If it is a tool dialog, use *window* as the parent.
+    """
+    if isinstance(tconfig, tool):
+        try:
+            toolclass = importString(tconfig.clsname,
+                                     ('nicos.clients.gui.tools.',))
+        except ImportError:
+            window.showError('Could not import class %r.' % tconfig.clsname)
+        else:
+            dialog = toolclass(window, window.client, **tconfig.options)
+            dialog.setWindowModality(Qt.NonModal)
+            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+            dialog.show()
+    elif isinstance(tconfig, cmdtool):
+        try:
+            subprocess.Popen(tconfig.cmdline)
+        except Exception as err:
+            window.showError('Could not execute command: %s' % err)
+
+
+def createToolMenu(window, config, menuitem):
+    """Create menu entries for tools in *config* under *menuitem*.
+
+    Use *window* as the parent window for dialogs.
+    """
+    for tconfig in config:
+        if isinstance(tconfig, menu):
+            submenu = menuitem.addMenu(tconfig.name)
+            createToolMenu(window, tconfig.items, submenu)
+        else:
+            def tool_callback(on, tconfig=tconfig):
+                runTool(window, tconfig)
+            action = QAction(tconfig.name, window)
+            menuitem.addAction(action)
+            action.triggered.connect(tool_callback)
+
+
+def startStartupTools(window, config):
+    """Start all tools that are set to *runatstartup* from *config*.
+
+    Use *window* as the parent window for dialogs.
+    """
+    for tconfig in config:
+        if isinstance(tconfig, menu):
+            startStartupTools(window, tconfig.items)
+        elif isinstance(tconfig, tool) and tconfig.options.get('runatstartup'):
+            QTimer.singleShot(0, lambda tc=tconfig: runTool(window, tc))

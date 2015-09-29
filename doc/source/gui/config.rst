@@ -343,6 +343,20 @@ Tools
 
    ``options`` are passed to the tool as for panels.
 
+.. function:: cmdtool(name, cmdline)
+
+   This represents an external tool that is started with a system command.
+   ``name`` is the menu entry label.
+
+   ``cmdline`` is a list of the executable and command-line arguments, e.g.
+   ``['quango', '-n', 'somehost']``.
+
+.. function:: menu(name, *subitems)
+
+   Represents a tool sub-menu.  The ``subitems`` are again ``tool``, ``cmdtool``
+   or ``menu`` items.
+
+
 Tools that come with NICOS are:
 
 ``calculator.CalculatorTool``
@@ -386,4 +400,3 @@ Tools that come with NICOS are:
      :scale: 50%
      :alt: website tool
      :align: center
-
