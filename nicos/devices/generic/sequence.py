@@ -89,16 +89,16 @@ class SeqDev(SequenceItem):
 
     Also works for Measurables/detectors by supporting keyworded arguments.
     """
-    def __init__(self, dev, *args, **kwargs):
-        SequenceItem.__init__(self, dev=dev, args=args, kwargs=kwargs)
+    def __init__(self, dev, target):
+        SequenceItem.__init__(self, dev=dev, target=target)
 
     def check(self):
-        res = self.dev.isAllowed(*self.args, **self.kwargs)
+        res = self.dev.isAllowed(self.target)
         if not res[0]:
             raise LimitError(self.dev, res[1])
 
     def run(self):
-        self.dev.start(*self.args, **self.kwargs)
+        self.dev.start(self.target)
 
     def wait(self):
         # dont wait on fixed devices
@@ -107,15 +107,7 @@ class SeqDev(SequenceItem):
         return self.dev.isCompleted()
 
     def __repr__(self):
-        if self.kwargs:
-            return '%s -> %s %s' % (
-                self.dev.name, ', '.join(map(repr, self.args)),
-                ', '.join('%s=%r' % v for v in self.kwargs.items()))
-        elif self.args:
-            return '%s -> %s' % (self.dev.name,
-                                 ', '.join(map(repr, self.args)))
-        else:
-            return self.dev.name
+        return '%s -> %s' % (self.dev.name, self.dev.format(self.target))
 
 
 class SeqParam(SequenceItem):

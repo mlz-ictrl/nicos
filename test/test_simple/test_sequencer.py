@@ -67,7 +67,7 @@ def test_seqdev():
     # Device move
     sm1 = session.getDevice('sm1')
     sd = SeqDev(sm1, 3)
-    assert repr(sd) == 'sm1 -> 3'
+    assert repr(sd) == 'sm1 -> 3.000'
     sm1.start(0)
     sm1.wait()
     assert sm1.read(0) == 0
