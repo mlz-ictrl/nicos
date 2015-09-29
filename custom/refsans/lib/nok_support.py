@@ -218,7 +218,7 @@ class SeqMoveOffLimitSwitch(SequenceItem):
         if 'limit switch - active' in self.dev.status(0)[1]:
             # use 0.5 as fallback value
             self.dev.start(self.kwargs.get('backoffby', 0.5))
-    def wait(self):
+    def isCompleted(self):
         self.dev.wait()
         return True
     def __repr__(self):

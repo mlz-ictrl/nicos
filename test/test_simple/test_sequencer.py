@@ -74,7 +74,7 @@ def test_seqdev():
 
     sd.check()
     sd.run()
-    while not sd.wait():
+    while not sd.isCompleted():
         pass
     assert sm1.read(0) == 3
 
@@ -90,7 +90,7 @@ def test_seqparam():
     assert sm2.speed == 5
     sp.check()
     sp.run()
-    while not sp.wait():
+    while not sp.isCompleted():
         pass
     assert sm2.speed == 1
 
@@ -105,7 +105,7 @@ def test_seqmethod():
 
     sm.check()
     sm.run()
-    while not sm.wait():
+    while not sm.isCompleted():
         pass
     assert 'blubb' in sm1.fixed
 
@@ -119,7 +119,7 @@ def test_seqsleep():
     a = time.time()
     sw.check()
     sw.run()
-    while not sw.wait():
+    while not sw.isCompleted():
         pass
     b = time.time()
 
@@ -133,7 +133,7 @@ def test_seqcall():
     a = time.time()
     sc.check()
     sc.run()
-    assert sc.wait() is True
+    assert sc.isCompleted() is True
     b = time.time()
     assert 0.09 <= b - a <= 0.13
 
@@ -143,7 +143,7 @@ def test_seqnop():
     sn = SeqNOP()
     sn.check()
     sn.run()
-    assert True == sn.wait()
+    assert True == sn.isCompleted()
     sn.stop()
     sn.retry(5)
 

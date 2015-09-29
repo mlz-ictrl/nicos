@@ -72,8 +72,8 @@ class SequenceItem(object):
             except Exception:
                 pass
 
-    def wait(self):
-        """Wait for completion of the initiated action.
+    def isCompleted(self):
+        """Check for completion of the initiated action.
 
         Should return True if completed or False if not yet completed,
         allowing a polling mode.
@@ -100,7 +100,7 @@ class SeqDev(SequenceItem):
     def run(self):
         self.dev.start(self.target)
 
-    def wait(self):
+    def isCompleted(self):
         # dont wait on fixed devices
         if hasattr(self.dev, 'fixed') and self.dev.fixed:
             return True
@@ -175,7 +175,7 @@ class SeqSleep(SequenceItem):
                                      timedelta(seconds = self.duration))
         self.endtime = currenttime() + self.duration
 
-    def wait(self):
+    def isCompleted(self):
         if not self.stopflag and self.endtime > currenttime():
             # arbitrary choice of max 5s
             time.sleep(min(5, self.endtime - currenttime()))
@@ -213,7 +213,7 @@ class SequencerMixin(DeviceMixinBase):
     """Mixin performing a given sequence to reach a certain value.
 
     The Sequence is a list of :class:`SequenceItems` or tuples of those.
-    A SequenceItem provides check, run and wait methods which are
+    A SequenceItem provides check, run and isCompleted methods which are
     executed in this order. A tuple of :class:`SequenceItems` gets each of
     those methods called on each member first, then the next method, allowing
     to perform 'parallel' executed actions.
@@ -337,16 +337,16 @@ class SequencerMixin(DeviceMixinBase):
                                          ';'.join(map(repr, waiters)))
                     for action in list(waiters):
                         try:
-                            if action.wait():
+                            if action.isCompleted():
                                 # wait finished
                                 waiters.remove(action)
                         except Exception as e:
-                            self.log.debug('action.wait failed with %r' % e)
+                            self.log.debug('action.isCompleted failed with %r' % e)
                             # if this raises, abort the sequence...
                             code = self._waitFailed(i, action, e)
                             self.log.debug('_waitFailed returned %r' % code)
                             if code:
-                                if action.wait():
+                                if action.isCompleted():
                                     waiters.remove(action)
                     if self._seq_stopflag:
                         self._seq_was_stopped = True
