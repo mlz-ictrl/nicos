@@ -308,7 +308,7 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
         time.sleep(5)
 
     def doStart(self):
-        waitForStatus(self, errorstates=())
+        waitForStatus(self, ignore_errors=True)
         expoTime = self._t if self._t is not None else self.exposure_time
         self._t = None
         self._startSequence(self._generateSequence(expoTime))

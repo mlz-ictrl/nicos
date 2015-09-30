@@ -30,7 +30,7 @@ from time import sleep, localtime, time as currenttime
 from collections import namedtuple
 
 from nicos import session
-from nicos.core import status, SIMULATION
+from nicos.core import status, NicosError, SIMULATION
 from nicos.pycompat import reraise, to_ascii_escaped, listitems
 from nicos.utils import formatDuration
 
@@ -212,13 +212,18 @@ def multiWait(devices):
     return values
 
 
-def waitForStatus(dev, delay=0.3):
+def waitForStatus(dev, delay=0.3, ignore_errors=False):
     """Wait for *dev* to exit the busy state.
 
     Calls `isCompleted` until it returns true or raises.
     """
-    while not dev.isCompleted():
-        sleep(delay)
+    try:
+        while not dev.isCompleted():
+            sleep(delay)
+    except NicosError:
+        if ignore_errors:
+            return
+        raise
 
 
 def formatStatus(st):

@@ -163,7 +163,7 @@ class TofDetectorBase(PyTangoDevice, ImageProducer, MeasureSequencer):
         return dshape
 
     def doStart(self):
-        waitForStatus(self, errorstates=())
+        waitForStatus(self, ignore_errors=True)
         self._startSequence(self._generateSequence())
 
     def doPause(self):

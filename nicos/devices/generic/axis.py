@@ -126,7 +126,7 @@ class Axis(CanReference, BaseAxis):
         if self.status(0)[0] == status.BUSY:
             self.log.debug('need to stop axis first')
             self.stop()
-            waitForStatus(self, errorstates=())
+            waitForStatus(self)
             #raise NicosError(self, 'axis is moving now, please issue a stop '
             #                 'command and try it again')
 
