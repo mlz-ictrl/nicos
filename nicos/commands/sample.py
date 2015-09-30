@@ -28,7 +28,7 @@
 import json
 from copy import deepcopy
 
-from numpy import sqrt, pi, sin, exp, log, arcsin, radians, degrees
+from numpy import sqrt, pi, sin, arcsin, radians, degrees
 
 from nicos import session
 from nicos.core import UsageError, ConfigurationError
@@ -38,7 +38,7 @@ from nicos.commands.analyze import FitResult
 from nicos.utils import printTable
 from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import urllib, xrange as range  # pylint: disable=W0622
-from nicos.utils.fitting import Fit
+from nicos.utils.fitting import Fit, GaussFit
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
 
 ACTIVATIONURL = 'https://webapps.frm2.tum.de/intranet/activation/'
@@ -251,17 +251,13 @@ def _extract_powder_data(num, dataset):
     peaks = []  # collects infos for all peaks we will find...
 
     fwhm, xpeak, ymax, ymin = estimateFWHM(xs, ys)
-    initpars = [ymax - ymin, xpeak, fwhm, ymin]
-
-    def model(x, a, c, w, b):
-        return abs(b) + abs(a)*exp(-log(2)*(x-c)**2/(2*w)**2)
-
-    fit = Fit(model, ['a', 'c', 'w', 'b'], initpars)
-    res = fit.run('', xs, ys, dys)
+    initpars = [xpeak, ymax - ymin, xpeak, fwhm, ymin]
+    fit = GaussFit(initpars)
+    res = fit.run(xs, ys, dys)
     if res._failed:
         printwarning('no Gauss fit found in dataset %d' % num)
         return
-    peaks.append([res.c, res.dc])
+    peaks.append([res.x0, res.dx0])
     return ki, peaks
 
 
@@ -391,8 +387,8 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
             peaks = data[ki]
             failed = True
             if len(peaks) > 2:
-                fit = Fit(model, ['ki', 'stt0'], [new_ki, 0])
-                res = fit.run('', [el[0] for el in peaks], [el[1] for el in peaks],
+                fit = Fit('ki', model, ['ki', 'stt0'], [new_ki, 0])
+                res = fit.run([el[0] for el in peaks], [el[1] for el in peaks],
                               [el[2] for el in peaks])
                 failed = res._failed
             if failed:

@@ -33,7 +33,7 @@ import numpy as np
 from nicos import session
 from nicos.core import NicosError, UsageError
 from nicos.utils import printTable
-from nicos.utils.fitting import Fit
+from nicos.utils.fitting import Fit, GaussFit, PolyFit
 from nicos.utils.analyze import estimateFWHM
 from nicos.pycompat import string_types, xrange as range  # pylint: disable=W0622
 from nicos.commands import usercommand, helparglist
@@ -195,17 +195,13 @@ def poly(n, *columns):
     where both *coefficients* and *coeff_errors* are tuples of *n+1* elements.
     """
     xs, ys, dys, _, ds = _getData(columns)
-
-    def model(x, *v):
-        return sum(v[i]*x**i for i in range(n+1))
-    fit = Fit(model, ['a%d' % i for i in range(n+1)], [1] * (n+1))
-    res = fit.run('poly', xs, ys, dys)
+    fit = PolyFit(n, [1] * (n+1))
+    res = fit.run(xs, ys, dys)
     if res._failed:
         printinfo('Fit failed.')
         return FitResult((None, None))
     for sink in ds.sinks:
-        xf = np.linspace(xs[0], xs[-1], 200)
-        sink.addFitCurve(ds, 'poly(%d)' % n, xf, model(xf, *res._pars[1]))
+        sink.addFitCurve(ds, res)
     descrs = ['a_%d' % i for i in range(n+1)]
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
@@ -230,7 +226,7 @@ def gauss(*columns):
 
     * x0 - center of the Gaussian
     * ampl - amplitude
-    * sigma - FWHM
+    * fwhm - FWHM
     * background
 
     If the fit failed, the result is ``(None, None)``.
@@ -244,18 +240,12 @@ def gauss(*columns):
             # now work with fitted peak center
     """
     xs, ys, dys, _, ds = _getData(columns)
-    c = 2 * np.sqrt(2 * np.log(2))
-
-    def model(x, x0, A, sigma, back):
-        return A * np.exp(-0.5 * (x - x0)**2 / (sigma / c)**2) + back
-    fit = Fit(model, ['x0', 'A', 'sigma', 'B'],
-              [0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0])
-    res = fit.run('gauss', xs, ys, dys)
+    fit = GaussFit([0.5*(xs[0]+xs[-1]), ys.max(), (xs[1]-xs[0])*5, 0])
+    res = fit.run(xs, ys, dys)
     if res._failed:
         return None, None
     for sink in ds.sinks:
-        xf = np.linspace(xs[0], xs[-1], 200)
-        sink.addFitCurve(ds, 'gauss', xf, model(xf, *res._pars[1]))
+        sink.addFitCurve(ds, res)
     descrs = ['center', 'amplitude', 'FWHM', 'background']
     vals = []
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
@@ -370,8 +360,8 @@ def findpeaks(*columns, **kwds):
             b = subys[np]
             s = (subys[0] - subys[np])/(subxs[0] - subxs[np])**2
             c = subxs[np]
-            fit = Fit(model, ['b', 's', 'c'], [b, s, c])
-            res = fit.run('findpeaks', subxs, subys, subdys)
+            fit = Fit('parabola', model, ['b', 's', 'c'], [b, s, c])
+            res = fit.run(subxs, subys, subdys)
             if not res._failed:
                 peaks.append(res._pars[1][2])
 

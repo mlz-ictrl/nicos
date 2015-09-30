@@ -40,8 +40,9 @@ from gr.pygr import Plot, PlotAxes, PlotCurve, ErrorBar, Text, \
 from gr.pygr.helper import ColorIndexGenerator
 
 from nicos.clients.gui.widgets.plotting import NicosPlot, ViewPlotMixin, \
-    DataSetPlotMixin, GaussFitter, prepareData, Fitter
+    DataSetPlotMixin, GaussFitter, prepareData
 from nicos.guisupport.timeseries import buildTickDistAndSubTicks
+from nicos.utils.fitting import FitResult
 from nicos.pycompat import string_types
 
 DATEFMT = "%Y-%m-%d"
@@ -286,7 +287,7 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
 
     def on_roiItemClicked(self, event):
         if event.getButtons() & MouseEvent.RIGHT_BUTTON:
-            if isinstance(event.roi.reference, Fitter):
+            if isinstance(event.roi.reference, FitResult):
                 menu = QMenu(self)
                 actionClipboard = QAction("Copy fit values to clipboard", menu)
                 menu.addAction(actionClipboard)
@@ -294,14 +295,14 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
                 selectedItem = menu.exec_(self.mapToGlobal(QPoint(p0dc.x,
                                                                   p0dc.y)))
                 if selectedItem == actionClipboard:
-                    fitter = event.roi.reference
+                    res = event.roi.reference
                     text = '\n'.join(
                         (n + '\t' if n else '\t') +
                         (v + '\t' if isinstance(v, string_types)
                          else '%g\t' % v) +
                         (dv if isinstance(dv, string_types)
                          else '%g' % dv)
-                        for (n, v, dv) in fitter.interesting)
+                        for (n, v, dv) in res.label_contents)
                     QApplication.clipboard().setText(text)
 
     def on_mouseMove(self, event):
@@ -424,10 +425,10 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
         self.setCursor(self._cursor)
         self.setMouseSelectionEnabled(self._mouseSelEnabled)
 
-    def _plotFit(self, fitter):
+    def _plotFit(self, res):
         color = self._color.getNextColorIndex()
-        resultcurve = NicosPlotCurve(fitter.xfit, fitter.yfit,
-                                     legend=fitter.title,
+        resultcurve = NicosPlotCurve(res.curve_x, res.curve_y,
+                                     legend=res._title,
                                      linecolor=color, markercolor=color)
         self.addPlotCurve(resultcurve, True)
         resultcurve.markertype = gr.MARKERTYPE_DOT
@@ -437,13 +438,13 @@ class NicosGrPlot(InteractiveGRWidget, NicosPlot):
             (n + ': ' if n else '') +
             (v if isinstance(v, string_types) else '%g' % v) +
             (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
-            for (n, v, dv) in fitter.interesting)
-        grtext = Text(fitter.labelx, fitter.labely, text, self._axes, .012,
+            for (n, v, dv) in res.label_contents)
+        grtext = Text(res.label_x, res.label_y, text, self._axes, .012,
                       hideviewport=False)
         resultcurve.dependent.append(grtext)
         coord = CoordConverter(self._axes.sizex, self._axes.sizey,
                                self._axes.getWindow())
-        roi = RegionOfInterest(reference=fitter, regionType=RegionOfInterest.TEXT,
+        roi = RegionOfInterest(reference=res, regionType=RegionOfInterest.TEXT,
                                axes=self._axes)
         for nxi, nyi in zip(*grtext.getBoundingBox()):
             coord.setNDC(nxi, nyi)

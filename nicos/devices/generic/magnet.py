@@ -247,10 +247,10 @@ class BipolarSwitchingMagnet(HasLimits, BaseSequencer):
         if not Is:
             self.log.error('no calibration data found')
             return
-        fit = Fit(self._current2field,
+        fit = Fit('calibration', self._current2field,
                   ['c%d' % i for i in range(len(self.calibration))],
                   [1] * len(self.calibration))
-        res = fit.run('calibration', Is, Bs, [1] * len(Bs))
+        res = fit.run(Is, Bs, [1] * len(Bs))
         if res._failed:
             self.log.warning('fit failed')
             return

@@ -128,8 +128,8 @@ class ScansPanel(Panel):
                      self.on_data_datasetAdded)
         self.connect(self.data, SIGNAL('pointsAdded'),
                      self.on_data_pointsAdded)
-        self.connect(self.data, SIGNAL('curveAdded'),
-                     self.on_data_curveAdded)
+        self.connect(self.data, SIGNAL('fitAdded'),
+                     self.on_data_fitAdded)
         self.connect(client, SIGNAL('experiment'),
                      self.on_client_experiment)
 
@@ -358,11 +358,9 @@ class ScansPanel(Panel):
         if dataset.uid in self.setplots:
             self.setplots[dataset.uid].pointsAdded()
 
-    def on_data_curveAdded(self, dataset):
+    def on_data_fitAdded(self, dataset, res):
         if dataset.uid in self.setplots:
-            self.setplots[dataset.uid].addCurve(len(dataset.curves) - 1,
-                                                dataset.curves[-1])
-            self.setplots[dataset.uid].update()
+            self.setplots[dataset.uid]._plotFit(res)
 
     def on_client_experiment(self, data):
         self.datasetList.clear()

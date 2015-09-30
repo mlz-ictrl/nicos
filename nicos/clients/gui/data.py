@@ -35,6 +35,8 @@ import numpy as np
 from PyQt4.QtGui import QApplication, QProgressDialog
 from PyQt4.QtCore import QObject, SIGNAL
 
+from nicos.utils.fitting import FitResult
+
 
 class DataError(Exception):
     pass
@@ -157,16 +159,17 @@ class DataHandler(QObject):
             self.emit(SIGNAL('pointsAdded'), depset)
 
     def on_client_datacurve(self, data):
-        (title, xvalues, yvalues) = data
         if not self.currentset:
             raise DataError('No current set, trying to add a curve')
-        newc = Curve()
-        newc.description = title
-        newc.datax = {self.currentset.default_xname: xvalues}
-        newc.datay = yvalues
-        newc.function = True
-        self.currentset.curves.append(newc)
-        self.emit(SIGNAL('curveAdded'), self.currentset)
+        if len(data) == 3:
+            # for compatibility with older daemons
+            title, dx, dy = data
+            res = FitResult(_failed=False, _message='', _title=title,
+                            curve_x=dx, curve_y=dy, chi2=0,
+                            label_x=0, label_y=0, label_contents=[])
+        else:
+            res = data[0]
+        self.emit(SIGNAL('fitAdded'), self.currentset, res)
 
     def on_client_experiment(self, data):
         # clear data

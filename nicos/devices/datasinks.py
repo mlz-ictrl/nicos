@@ -107,8 +107,8 @@ class DaemonSink(DataSink):
     def addPoint(self, dataset, xvalues, yvalues):
         session.emitfunc('datapoint', (xvalues, yvalues))
 
-    def addFitCurve(self, dataset, title, xvalues, yvalues):
-        session.emitfunc('datacurve', (title, xvalues, yvalues))
+    def addFitCurve(self, dataset, result):
+        session.emitfunc('datacurve', (result,))
 
 
 class DatafileSink(DataSink):

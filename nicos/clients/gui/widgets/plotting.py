@@ -31,18 +31,14 @@ from PyQt4.QtCore import SIGNAL, Qt
 
 import numpy as np
 
-from nicos.utils.fitting import Fit
+from nicos.utils.fitting import Fit, LinearFit, GaussFit, PseudoVoigtFit, \
+    PearsonVIIFit, TcFit, FitError
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi
 from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
 
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
-FWHM_TO_SIGMA = 2 * np.sqrt(2 * np.log(2))
-
-
-class FitError(Exception):
-    pass
 
 
 class Fitter(object):
@@ -58,14 +54,6 @@ class Fitter(object):
 
         self.values = []
         self.stage = 0
-
-        # results
-        self.xfit = None
-        self.yfit = None
-        self.labelx = None
-        self.labely = None
-        self.lineinfo = None
-        self.interesting = None
 
     def begin(self):
         self.plot._enterFitMode()
@@ -90,11 +78,11 @@ class Fitter(object):
     def finish(self):
         self.cancel()
         try:
-            self.do_fit()
+            res = self.do_fit()
         except FitError as e:
             self.plot.showInfo('Fitting failed: %s.' % e)
             return
-        self.plot._plotFit(self)
+        self.plot._plotFit(res)
 
     def do_fit(self):
         raise NotImplementedError
@@ -110,139 +98,49 @@ class LinearFitter(Fitter):
     def do_fit(self):
         (x1, y1), (x2, y2) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         m0 = (y2-y1) / (x2-x1)
-        f = Fit(self.model, ['a', 'b'], [m0, y1 - m0*x1], xmin=x1, xmax=x2)
-        res = f.run('', *self.data)
-        if res._failed:
-            raise FitError(res._message)
-        self.xfit = res.curve_x
-        self.yfit = res.curve_y
-        x2 = max(self.xfit)
-        self.labelx = x2
-        self.labely = res.a * x2 + res.b
-        self.interesting = [('Slope', '%.3f /s' % res.a, ''),
-                            ('', '%.3f /min' % (res.a * 60), ''),
-                            ('', '%.3f /h' % (res.a * 3600), '')]
+        f = LinearFit([m0, y1 - m0*x1], xmin=x1, xmax=x2, timeseries=True)
+        return f.run_or_raise(*self.data)
 
 
 class GaussFitter(Fitter):
     title = 'peak fit'
     picks = ['Background', 'Peak', 'Half Maximum']
 
-    def model(self, x, B, A, x0, sigma):
-        return abs(B) + A*np.exp(-(x - x0)**2 / (2 * sigma**2))
-
     def do_fit(self):
         (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
-        parstart = [yb, abs(y0-yb), x0, abs(x0-xw)/FWHM_TO_SIGMA]
+        parstart = [x0, abs(y0-yb), abs(x0-xw), yb]
         totalwidth = abs(x0 - xb)
-        f = Fit(self.model, ['B', 'A', 'x0', 'sigma'], parstart,
-                xmin=x0 - totalwidth, xmax=x0 + totalwidth)
-        res = f.run('', *self.data)
-        if res._failed:
-            raise FitError(res._message)
-        self.xfit = res.curve_x
-        self.yfit = res.curve_y
-        self.labelx = res.x0 + res.sigma / 2
-        self.labely = res.B + res.A
-        self.interesting = [
-            ('Center', res.x0, res.dx0),
-            ('FWHM', res.sigma * FWHM_TO_SIGMA, res.dsigma * FWHM_TO_SIGMA),
-            ('Ampl', res.A, res.dA),
-            ('Integr', res.A * res.sigma * np.sqrt(2 * np.pi), '')
-        ]
-        linefrom = res.x0 - res.sigma * FWHM_TO_SIGMA / 2
-        lineto = res.x0 + res.sigma * FWHM_TO_SIGMA / 2
-        liney = res.B + res.A / 2
-        self.lineinfo = (linefrom, lineto, liney)
+        f = GaussFit(parstart, xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        return f.run_or_raise(*self.data)
 
 
 class PseudoVoigtFitter(Fitter):
     title = 'peak fit (PV)'
     picks = ['Background', 'Peak', 'Half Maximum']
 
-    def model(self, x, B, A, x0, hwhm, eta):
-        eta = eta % 1.0
-        return abs(B) + A * (
-            # Lorentzian
-            eta / (1 + ((x-x0) / hwhm)**2) +
-            # Gaussian
-            (1 - eta) * np.exp(-np.log(2) * ((x-x0) / hwhm)**2))
-
     def do_fit(self):
         (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         parstart = [yb, abs(y0-yb), x0, abs(x0-xw), 0.5]
         totalwidth = abs(x0 - xb)
-        f = Fit(self.model, ['B', 'A', 'x0', 'hwhm', 'eta'], parstart,
-                xmin=x0 - totalwidth, xmax=x0 + totalwidth)
-        res = f.run('', *self.data)
-        if res._failed:
-            raise FitError(res._message)
-        self.xfit = res.curve_x
-        self.yfit = res.curve_y
-        self.labelx = res.x0 + res.hwhm / 2
-        self.labely = res.B + res.A
-        eta = res.eta % 1.0
-        integr = res.A * res.hwhm * (
-            eta * np.pi + (1 - eta) * np.sqrt(np.pi / np.log(2)))
-        self.interesting = [
-            ('Center', res.x0, res.dx0),
-            ('FWHM', res.hwhm * 2, res.dhwhm * 2),
-            ('Eta', eta, res.deta),
-            ('Integr', integr, '')
-        ]
-        linefrom = res.x0 - res.hwhm
-        lineto = res.x0 + res.hwhm
-        liney = res.B + res.A / 2
-        self.lineinfo = (linefrom, lineto, liney)
+        f = PseudoVoigtFit(parstart, xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        return f.run_or_raise(*self.data)
 
 
 class PearsonVIIFitter(Fitter):
     title = 'peak fit (PVII)'
     picks = ['Background', 'Peak', 'Half Maximum']
 
-    def model(self, x, B, A, x0, hwhm, m):
-        return abs(B) + A / (1 + (2**(1/m) - 1)*((x-x0) / hwhm)**2) ** m
-
     def do_fit(self):
         (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
         parstart = [yb, abs(y0-yb), x0, abs(x0-xw), 5.0]
         totalwidth = abs(x0 - xb)
-        f = Fit(self.model, ['B', 'A', 'x0', 'hwhm', 'm'], parstart,
-                xmin=x0 - totalwidth, xmax=x0 + totalwidth)
-        res = f.run('', *self.data)
-        if res._failed:
-            raise FitError(res._message)
-        self.xfit = res.curve_x
-        self.yfit = res.curve_y
-        self.labelx = res.x0 + res.hwhm / 2
-        self.labely = res.B + res.A
-        self.interesting = [
-            ('Center', res.x0, res.dx0),
-            ('FWHM', res.hwhm * 2, res.dhwhm * 2),
-            ('m', res.m, res.dm)
-        ]
-        linefrom = res.x0 - res.hwhm
-        lineto = res.x0 + res.hwhm
-        liney = res.B + res.A / 2
-        self.lineinfo = (linefrom, lineto, liney)
+        f = PearsonVIIFit(parstart, xmin=x0 - totalwidth, xmax=x0 + totalwidth)
+        return f.run_or_raise(*self.data)
 
 
 class TcFitter(Fitter):
     title = 'Tc fit'
     picks = ['Background', 'Tc']
-
-    def model(self, T, B, A, Tc, alpha):
-        # Model:
-        #   I(T) = B + A * (1 - T/Tc)**alpha   for T < Tc
-        #   I(T) = B                           for T > Tc
-
-        def tc_curve_1(T):
-            return A*(1 - T/Tc)**(alpha % 1.0) + abs(B)
-
-        def tc_curve_2(T):
-            return abs(B)
-
-        return np.piecewise(T, [T < Tc], [tc_curve_1, tc_curve_2])
 
     def do_fit(self):
         (_, Ib), (Tc, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
@@ -251,18 +149,8 @@ class TcFitter(Fitter):
         Tmin = min(self.data[0])
         A0 = max(self.data[1]) / ((Tc-Tmin)/Tc)**alpha0
         parstart = [Ib, A0, Tc, alpha0]
-        f = Fit(self.model, ['B', 'A', 'Tc', 'alpha'], parstart)
-        res = f.run('', *self.data)
-        if res._failed:
-            raise FitError(res._message)
-        self.xfit = res.curve_x
-        self.yfit = res.curve_y
-        self.labelx = res.Tc
-        self.labely = res.B + res.A  # at I_max
-        self.interesting = [
-            ('Tc', res.Tc, res.dTc),
-            ('alpha', res.alpha, res.dalpha)
-        ]
+        f = TcFit(parstart)
+        return f.run_or_raise(*self.data)
 
 
 class ArbitraryFitter(Fitter):
@@ -327,18 +215,16 @@ class ArbitraryFitter(Fitter):
             self.plot.showInfo('Syntax error in function: %s' % e)
             return
 
-        f = Fit(model, params, values, xmin, xmax)
-        res = f.run('', *self.data)
+        f = Fit('fit', model, params, values, xmin, xmax)
+        res = f.run(*self.data)
         if res._failed:
             self.plot.showInfo('Fitting failed: %s.' % res._message)
             return
-        self.xfit = res.curve_x
-        self.yfit = res.curve_y
-        self.labelx = self.xfit[0]
-        self.labely = self.yfit.max()
-        self.interesting = list(zip(*res._pars))
+        res.label_x = res.curve_x[0]
+        res.label_y = max(res.curve_y)
+        res.label_contents = list(zip(*res._pars))
 
-        self.plot._plotFit(self)
+        self.plot._plotFit(res)
 
 
 def prepareData(x, y, dy, norm):

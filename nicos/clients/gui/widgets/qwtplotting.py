@@ -508,25 +508,23 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         self.picker.active = True
         self.zoomer.setEnabled(True)
 
-    def _plotFit(self, fitter):
+    def _plotFit(self, res):
         color = [Qt.darkRed, Qt.darkMagenta, Qt.darkGreen,
                  Qt.darkGray][self.nfits % 4]
 
-        resultcurve = ErrorBarPlotCurve(title=fitter.title)
-        resultcurve.setYAxis(fitter.curve.yAxis())
+        resultcurve = ErrorBarPlotCurve(title=res._title)
         resultcurve.setRenderHint(QwtPlotItem.RenderAntialiased)
         resultcurve.setStyle(QwtPlotCurve.Lines)
         resultcurve.setPen(QPen(color, 2))
-        resultcurve.setData(fitter.xfit, fitter.yfit)
+        resultcurve.setData(res.curve_x, res.curve_y)
         resultcurve.attach(self)
 
         textmarker = QwtPlotMarker()
-        textmarker.setYAxis(fitter.curve.yAxis())
         textmarker.setLabel(QwtText('\n'.join(
             (n + ': ' if n else '') +
             (v if isinstance(v, string_types) else '%g' % v) +
             (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
-            for (n, v, dv) in fitter.interesting)))
+            for (n, v, dv) in res.label_contents)))
 
         # check that the given position is inside the viewport
         halign = Qt.AlignRight
@@ -534,7 +532,7 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         xmin, xmax = xi.minValue(), xi.maxValue()
         extentx = self.canvasMap(QwtPlot.xBottom).invTransform(
             textmarker.label().textSize().width())
-        labelx, labely = fitter.labelx, fitter.labely
+        labelx, labely = res.label_x, res.label_y
         if xmin < xmax:
             if labelx < xmin:
                 labelx = xmin
@@ -552,16 +550,6 @@ class NicosQwtPlot(QwtPlot, NicosPlot):
         textmarker.setValue(labelx, labely)
         textmarker.attach(self)
         resultcurve.dependent.append(textmarker)
-
-        # if fitter.lineinfo:
-        #     linefrom, lineto, liney = fitter.lineinfo
-        #     linemarker = QwtPlotCurve()
-        #     linemarker.setStyle(QwtPlotCurve.Lines)
-        #     linemarker.setPen(QPen(color, 1))
-        #     linemarker.setItemAttribute(QwtPlotItem.Legend, False)
-        #     linemarker.setData([linefrom, lineto], [liney, liney])
-        #     #linemarker.attach(self)
-        #     #resultcurve.dependent.append(linemarker)
 
         self.nfits += 1
         self.replot()
