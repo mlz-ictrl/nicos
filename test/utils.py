@@ -345,6 +345,7 @@ def killSubprocess(proc):
         proc.terminate()
         start = time.time()
         while time.time() < start + 2:
+            time.sleep(0.05)
             if proc.poll() is not None:
                 break
         else:
