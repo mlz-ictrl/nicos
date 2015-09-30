@@ -30,7 +30,7 @@ from nicos import session
 
 
 def setupPackage():
-    print('\nSetting up stresstest, cleaning old test dir...', file=sys.stderr)
+    sys.stderr.write('\nSetting up stresstest, cleaning old test dir...\n')
     session.__class__ = TestSession
     session.__init__('test_stresstest')
     cleanup()

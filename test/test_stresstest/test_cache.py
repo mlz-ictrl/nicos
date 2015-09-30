@@ -32,7 +32,7 @@ from time import sleep
 from nicos.devices.cacheclient import CacheError
 from nicos.core.sessions.utils import MASTER
 
-from test.utils import raises, killCache, startCache
+from test.utils import raises, startCache, killSubprocess
 
 
 def setup_module():
@@ -62,7 +62,7 @@ def basicCacheTest(name, setup):
         assert cachedval[2] == testval
         assert cachedval2[2] == testval
     finally:
-        killCache(cache)
+        killSubprocess(cache)
 
 
 def restartServerCacheTest(name, setup):
@@ -70,7 +70,7 @@ def restartServerCacheTest(name, setup):
     cc = session.cache
     testval = 'test2'
     key = 'value'
-    # killCache(cache)
+    # killSubprocess(cache)
     cc.put('testcache', key, testval)
     cachedval_local = cc.get('testcache', key, None)
     assert raises(CacheError, cc.get_explicit, 'testcache', key, None)
@@ -85,7 +85,7 @@ def restartServerCacheTest(name, setup):
         assert cachedval_local == testval
         assert cachedval2[2] == testval
     finally:
-        killCache(cache)
+        killSubprocess(cache)
 
 
 def test_different_dbs():

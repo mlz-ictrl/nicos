@@ -24,15 +24,12 @@
 
 from __future__ import print_function
 
-import os
 import sys
-import signal
-import subprocess
-from os import path
 
 from nicos import session
 
-from test.utils import TestSession, startCache, killCache, cleanup, rootdir
+from test.utils import TestSession, cleanup, startCache, startSubprocess, \
+    killSubprocess
 
 cache = None
 elog = None
@@ -40,23 +37,15 @@ elog = None
 
 def setup_package():
     global cache, elog  # pylint: disable=W0603
-    sys.stderr.write('\nSetting up simple test, cleaning old test dir...')
+    sys.stderr.write('\nSetting up simple test, cleaning old test dir...\n')
     session.__class__ = TestSession
     session.__init__('test_simple')
     cleanup()
     cache = startCache()
-    sys.stderr.write('\n')
-
-    elog = subprocess.Popen([sys.executable,
-                             path.join(rootdir, '..', 'elog.py')])
-    sys.stderr.write(' [elog start... %s ok]\n' % elog.pid)
+    elog = startSubprocess('elog.py')
 
 
 def teardown_package():
     session.shutdown()
-    sys.stderr.write('\n [elog kill %s...' % elog.pid)
-    os.kill(elog.pid, signal.SIGTERM)
-    if os.name == 'posix':
-        os.waitpid(elog.pid, 0)
-    sys.stderr.write(' ok]\n')
-    killCache(cache)
+    killSubprocess(elog)
+    killSubprocess(cache)

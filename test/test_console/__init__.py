@@ -24,14 +24,10 @@
 
 from __future__ import print_function
 
-import os
 import sys
-import signal
-import subprocess
-from os import path
 
-from test.utils import TestSession, cleanup, rootdir, startCache, killCache, \
-    adjustPYTHONPATH
+from test.utils import TestSession, cleanup, startCache, startSubprocess, \
+    killSubprocess
 from nicos import session
 
 cache = None
@@ -40,27 +36,15 @@ console = None
 
 def setup_package():
     global cache, console  # pylint: disable=W0603
-    sys.stderr.write('\nSetting up console test, cleaning old test dir...')
+    sys.stderr.write('\nSetting up console test, cleaning old test dir...\n')
     session.__class__ = TestSession
     session.__init__('testconsole')
     cleanup()
     cache = startCache()
-    sys.stderr.write('\n')
-    adjustPYTHONPATH()
-
-    console = subprocess.Popen([sys.executable,
-                                path.join(rootdir, '..', 'aio.py')],
-                               stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    sys.stderr.write(' [console start... %s ok]\n' % console.pid)
+    console = startSubprocess('aio.py', piped=True)
 
 
 def teardown_package():
-    sys.stderr.write('\n [console kill %s...' % console.pid)
-    if console.poll():  # usually should have exited already during the test
-        os.kill(console.pid, signal.SIGTERM)
-        if os.name == 'posix':
-            os.waitpid(console.pid, 0)
-    sys.stderr.write(' ok]\n')
+    killSubprocess(console)
     session.shutdown()
-    killCache(cache)
+    killSubprocess(cache)

@@ -24,16 +24,12 @@
 
 from __future__ import print_function
 
-import os
 import sys
 import time
-import signal
 import socket
-import subprocess
-from os import path
 
-from test.utils import TestSession, cleanup, rootdir, startCache, killCache, \
-    adjustPYTHONPATH, getDaemonPort
+from test.utils import TestSession, cleanup, startCache, startSubprocess, \
+    killSubprocess, getDaemonPort
 from nicos.protocols.daemon import ENQ, LENGTH, serialize, command2code
 from nicos import session
 from nicos.utils import tcpSocket
@@ -44,44 +40,37 @@ daemon = None
 
 def setup_package():
     global cache, daemon  # pylint: disable=W0603
-    sys.stderr.write('\nSetting up daemon test, cleaning old test dir...')
+
+    def daemon_wait_cb():
+        start = time.time()
+        wait = 5
+        while time.time() < start + wait:
+            try:
+                s = tcpSocket('localhost', getDaemonPort())
+            except socket.error:
+                time.sleep(0.02)
+            else:
+                auth = serialize(({'login': 'guest', 'passwd': '', 'display': ''},))
+                s.send((b'\x42' * 16) +  # ident
+                       ENQ + command2code['authenticate'] +
+                       LENGTH.pack(len(auth)) + auth)
+                s.recv(1024)
+                empty = serialize(())
+                s.send(ENQ + command2code['quit'] + LENGTH.pack(len(empty)) + empty)
+                s.recv(1024)
+                s.close()
+                break
+        else:
+            raise Exception('daemon failed to start within %s sec' % wait)
+    sys.stderr.write('\nSetting up daemon test, cleaning old test dir...\n')
     session.__class__ = TestSession
     session.__init__('testdaemon')
     cleanup()
     cache = startCache()
-    sys.stderr.write('\n')
-    adjustPYTHONPATH()
-
-    daemon = subprocess.Popen([sys.executable,
-                               path.join(rootdir, '..', 'daemon.py')])
-    start = time.time()
-    wait = 5
-    while time.time() < start + wait:
-        try:
-            s = tcpSocket('localhost', getDaemonPort())
-        except socket.error:
-            time.sleep(0.02)
-        else:
-            auth = serialize(({'login': 'guest', 'passwd': '', 'display': ''},))
-            s.send((b'\x42' * 16) +  # ident
-                   ENQ + command2code['authenticate'] +
-                   LENGTH.pack(len(auth)) + auth)
-            s.recv(1024)
-            empty = serialize(())
-            s.send(ENQ + command2code['quit'] + LENGTH.pack(len(empty)) + empty)
-            s.recv(1024)
-            s.close()
-            break
-    else:
-        raise Exception('daemon failed to start within %s sec' % wait)
-    sys.stderr.write(' [daemon start... %s ok]\n' % daemon.pid)
+    daemon = startSubprocess('daemon.py', wait_cb=daemon_wait_cb)
 
 
 def teardown_package():
-    sys.stderr.write('\n [daemon kill %s...' % daemon.pid)
-    os.kill(daemon.pid, signal.SIGTERM)
-    if os.name == 'posix':
-        os.waitpid(daemon.pid, 0)
-    sys.stderr.write(' ok]\n')
+    killSubprocess(daemon)
     session.shutdown()
-    killCache(cache)
+    killSubprocess(cache)

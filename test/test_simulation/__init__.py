@@ -33,19 +33,18 @@ from nicos.commands.scan import scan
 from nicos.commands.basic import sleep
 from nicos.core.sessions.utils import SIMULATION
 
-from test.utils import cleanup, TestSession, startCache, killCache
+from test.utils import cleanup, TestSession, startCache, killSubprocess
 
 cache = None
 
 
 def setup_package():
     global cache  # pylint: disable=W0603
-    sys.stderr.write('\nSetting up simulation test, cleaning old test dir...')
+    sys.stderr.write('\nSetting up simulation test, cleaning old test dir...\n')
     cleanup()
     # While the simulation doesn't use a cache, we start it to verify that
     # it isn't used.
     cache = startCache()
-    sys.stderr.write('\n')
     session.__class__ = TestSession
     session.__init__('test_simulation')
     session.loadSetup('simscan')
@@ -54,8 +53,7 @@ def setup_package():
 
 def teardown_package():
     session.shutdown()
-    sys.stderr.write('\n')
-    killCache(cache)
+    killSubprocess(cache)
 
 
 def test_simmode():

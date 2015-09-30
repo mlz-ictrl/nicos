@@ -312,45 +312,61 @@ def adjustPYTHONPATH():
         os.environ['PYTHONPATH'] = ':'.join(pythonpath)
 
 
-def startCache(setup='cache', wait=10):
-    global cache  # pylint: disable=W0603,W0601
-    sys.stderr.write('\n [cache start... ')
-
-    # start the cache server
+def startSubprocess(filename, *args, **kwds):
     adjustPYTHONPATH()
-    cache = subprocess.Popen([sys.executable,
-                              path.join(rootdir, '..', 'cache.py'), setup])
-    if wait:
-        start = time.time()
-        while time.time() < start + wait:
+    name = path.splitext(filename)[0]
+    sys.stderr.write(' [%s start... ' % name)
+    if kwds.get('piped'):
+        popen_kwds = dict(stdin=subprocess.PIPE,
+                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    else:
+        popen_kwds = dict()
+    proc = subprocess.Popen([sys.executable,
+                             path.join(rootdir, '..', filename)] + list(args),
+                            **popen_kwds)
+    proc.nicos_name = name
+    if 'wait_cb' in kwds:
+        try:
+            kwds['wait_cb']()
+        except Exception:
+            sys.stderr.write('%s failed]' % proc.pid)
             try:
-                s = tcpSocket('localhost', getCachePort())
-            except socket.error:
-                time.sleep(0.02)
-            except Exception as e:
-                sys.stderr.write('%r' % e)
-                raise
-            else:
-                s.close()
-                break
-        else:
-            try:
-                sys.stderr.write('%s failed]' % cache.pid)
+                proc.kill()
             except Exception:
-                sys.stderr.write('process already dead')
-            cache.kill()
-            cache.wait()
-            raise Exception('cache failed to start within %s sec' % wait)
-    sys.stderr.write('%s ok]' % cache.pid)
+                pass
+            proc.wait()
+    sys.stderr.write('%s ok]\n' % proc.pid)
+    return proc
+
+
+def killSubprocess(proc):
+    sys.stderr.write(' [%s kill %s...' % (proc.nicos_name, proc.pid))
+    if proc.poll() is None:
+        proc.kill()
+        proc.wait()
+    sys.stderr.write(' ok]\n')
+
+
+def startCache(setup='cache', wait=10):
+    # start the cache server
+    def cache_wait_cb():
+        if wait:
+            start = time.time()
+            while time.time() < start + wait:
+                try:
+                    s = tcpSocket('localhost', getCachePort())
+                except socket.error:
+                    time.sleep(0.02)
+                except Exception as e:
+                    sys.stderr.write('%r' % e)
+                    raise
+                else:
+                    s.close()
+                    break
+            else:
+                raise Exception('cache failed to start within %s sec' % wait)
+    cache = startSubprocess('cache.py', setup, wait_cb=cache_wait_cb)
     return cache
-
-
-def killCache(cache):
-    sys.stderr.write(' [cache kill %s... ' % cache.pid)
-    if cache.poll() is None:
-        cache.terminate()
-        cache.wait()
-    sys.stderr.write('ok]\n')
 
 
 def hasGnuplot():

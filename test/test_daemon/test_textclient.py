@@ -25,16 +25,12 @@
 # Test the text client.
 
 import os
-import sys
-import signal
-import subprocess
-from os import path
 
 import nose
 
 from nicos.pycompat import from_utf8
 
-from test.utils import rootdir, getDaemonPort
+from test.utils import getDaemonPort, startSubprocess, killSubprocess
 
 if os.name != 'posix':
     # text client needs the readline C library
@@ -46,21 +42,13 @@ client = None
 def setup_module():
     global client
     os.environ['EDITOR'] = 'cat'
-    client = subprocess.Popen([sys.executable,
-                               path.join(rootdir, '..', 'cliclient.py'),
-                               'guest:guest@localhost:%s' % getDaemonPort()],
-                              stdin=subprocess.PIPE,
-                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    sys.stderr.write(' [client start... %s ok]\n' % client.pid)
+    client = startSubprocess('cliclient.py',
+                             'guest:guest@localhost:%s' % getDaemonPort(),
+                             piped=True)
 
 
 def teardown_module():
-    sys.stderr.write('\n [client kill %s...' % client.pid)
-    if client.poll() is None:  # usually should have exited already during the test
-        os.kill(client.pid, signal.SIGTERM)
-        if os.name == 'posix':
-            os.waitpid(client.pid, 0)
-    sys.stderr.write(' ok]\n')
+    killSubprocess(client)
 
 
 def test_textclient():

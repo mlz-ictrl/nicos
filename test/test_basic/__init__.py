@@ -34,7 +34,3 @@ from test.utils import cleanup
 def setup_package():
     sys.stderr.write('\nSetting up basic test, cleaning old test dir...\n')
     cleanup()
-
-
-def teardown_package():
-    sys.stderr.write('\n')

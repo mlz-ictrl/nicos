@@ -37,3 +37,7 @@ for subdir in os.listdir(cuspath):
 
 def setup_package():
     sys.stderr.write('\nSetting up custom test...\n')
+
+
+def teardown_package():
+    sys.stderr.write('\n')
