@@ -167,6 +167,21 @@ class DevicesPanel(Panel):
     def loadSettings(self, settings):
         self._headerstate = settings.value('headers', '', QByteArray)
 
+    def _update_view(self):
+        with self.sgroup as settings:
+            for i in range(self.tree.topLevelItemCount()):
+                v = settings.value('%s/expanded' %
+                                   self.tree.topLevelItem(i).text(0),
+                                   True, bool)
+                self.tree.topLevelItem(i).setExpanded(v)
+
+    def _store_view(self):
+        with self.sgroup as settings:
+            for i in range(self.tree.topLevelItemCount()):
+                settings.setValue('%s/expanded' %
+                                  self.tree.topLevelItem(i).text(0),
+                                  self.tree.topLevelItem(i).isExpanded())
+
     def hideTitle(self):
         self.titleLbl.setVisible(False)
 
@@ -175,6 +190,8 @@ class DevicesPanel(Panel):
         self.on_client_connected()
 
     def clear(self):
+        if self.tree:
+            self._store_view()
         self._catitems = {}
         # map lowercased devname -> tree widget item
         self._devitems = {}
@@ -200,6 +217,7 @@ class DevicesPanel(Panel):
             self.tree.addTopLevelItem(self._catitems[cat])
             self._catitems[cat].setExpanded(True)
         self.tree.sortItems(0, Qt.AscendingOrder)
+        self._update_view()
 
     def on_client_disconnected(self):
         self.clear()
@@ -301,7 +319,9 @@ class DevicesPanel(Panel):
             for devname in devlist:
                 self._create_device_item(devname, add_cat=True)
             self.tree.sortItems(0, Qt.AscendingOrder)
+            self._update_view()
         elif action == 'destroy':
+            self._store_view()
             for devname in devlist:
                 if devname.lower() in self._devitems:
                     # remove device item...
@@ -320,6 +340,7 @@ class DevicesPanel(Panel):
                             self.tree.takeTopLevelItem(
                                 self.tree.indexOfTopLevelItem(catitem))
                             del self._catitems[catitem.text(0)]
+            self._update_view()
 
     def on_client_cache(self, data):
         (_time, key, op, value) = data
