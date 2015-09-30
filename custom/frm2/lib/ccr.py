@@ -29,9 +29,11 @@ import time
 
 from nicos.core import Moveable, HasLimits, Override, Param, SIMULATION, \
     ConfigurationError, InvalidValueError, ProgrammingError, oneof, \
-    floatrange, tacodev, status, Attach
+    floatrange, tacodev, status, Attach, limits
 from nicos.utils import clamp
 from nicos.devices.taco.io import NamedDigitalOutput
+
+from nicos.devices.tango import AnalogInput
 
 
 class CCRControl(HasLimits, Moveable):
@@ -236,6 +238,9 @@ class CCRControl(HasLimits, Moveable):
                                    'handle it!' % self.regulationmode)
 
 
+# following class is only used for old CCR's.
+# after an update of all CCR-Boxes it can be removed.
+# This is planned around end of 2015, beginning of 2016
 class CompressorSwitch(NamedDigitalOutput):
     """ The CCR box has two separate switches to switch the compressor 'on' and
     'off'.
@@ -313,3 +318,36 @@ class CompressorSwitch(NamedDigitalOutput):
         else:
             return status.UNKNOWN, 'UNKNOWN'
         return status.ERROR, 'target not reached'
+
+
+# This class is used to access the pressure regulation limits
+# on newer CCR-Boxes. Since requirements are not fully clear,
+# this is to be treated EXPERIMENTAL and may change drastically in the future.
+class PLCLimits(AnalogInput, Moveable):
+    """Device accessing the limits of an pressure PLC-device
+
+    1st Iteration. Implementation will adopt to requirements,
+    which are not yet fully defined.
+    Deriving from AnalogInput as this already handles the unit.
+    AnalogOutput has HasLimits mixin is therefore too complex.
+    Could also inherit from PyTangoDevice instead of AnalogInput,
+    but would need to duplicate unit handling.
+
+    In the future this may use the pressure sensor as attached_device
+    and use the tango_device of the sensor directly.
+    Also in the future, the limits may be calculated from a Temperature.
+
+    As long as none of the details of 'in the future we may...' is clear,
+    we stick with a minimalist implementation allowing setting and
+    reading the limits as an additional device (of this class).
+    """
+
+    valuetype = limits
+
+    def doStart(self, target):
+        self._dev.SetParam([[min(target)],['UserMin']])
+        self._dev.SetParam([[max(target)],['UserMax']])
+
+    def doRead(self, maxage=0):
+        return self._dev.GetParam('UserMin'),self._dev.GetParam('UserMax')
+
