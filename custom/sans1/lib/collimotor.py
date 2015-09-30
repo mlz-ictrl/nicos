@@ -472,7 +472,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
             msg.append('load=%d' % (statval & 0x0007))
 
         msg = ', '.join(msg)
-        self.log.debug('doStatus returns %r'%((code, msg), ))
+        self.log.debug('_HW_Status returns %r'%((code, msg), ))
         return code, msg
 
     #
@@ -540,13 +540,18 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     def doStatus(self, maxage=0):
         """returns highest statusvalue"""
         if self._mode == SIMULATION:
-            stati = [(100, 'simulation'), self._seq_status]
+            stati = [(status.OK, 'simulation'), self._seq_status]
         else:
             stati = [self._HW_status(), self._seq_status]
-        # sort by first element, i.e. status code
-        stati.sort(reverse=True)
-        # return highest (worst) status
-        return stati[0]
+        # sort inplace by first element, i.e. status code
+        stati.sort(key=lambda st: st[0])
+        # select highest (worst) status
+        # if no status is 'worse' then _seq_status, this is _seq_status
+        _status = stati[-1]
+        if self._seq_thread:
+            return max(status.BUSY, _status[0]), _status[1]
+        return _status
+
 
     @requires(level='admin')
     def doReference(self):
