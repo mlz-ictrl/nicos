@@ -340,10 +340,17 @@ def startSubprocess(filename, *args, **kwds):
 
 
 def killSubprocess(proc):
-    sys.stderr.write(' [%s kill %s...' % (proc.nicos_name, proc.pid))
+    sys.stderr.write(' [%s terminate %s...' % (proc.nicos_name, proc.pid))
     if proc.poll() is None:
-        proc.kill()
-        proc.wait()
+        proc.terminate()
+        start = time.time()
+        while time.time() < start + 2:
+            if proc.poll() is not None:
+                break
+        else:
+            sys.stderr.write(' kill...')
+            proc.kill()
+            proc.wait()
     sys.stderr.write(' ok]\n')
 
 
