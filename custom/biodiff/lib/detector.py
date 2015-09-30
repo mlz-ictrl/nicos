@@ -482,7 +482,8 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
         if self.ctrl_photoshutter:
             seq.append(SeqDev(self.photoshutter, Shutter.OPEN))
         # count
-        seq.append(SeqDev(self.ccd))
+        seq.append(SeqMethod(self.ccd, 'start'))
+        seq.append(SeqMethod(self.ccd, 'wait'))
         # check if shutter closed during measurement
         seq.append(SeqMethod(self, '_check_shutter'))
         # close shutter
