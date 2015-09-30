@@ -659,8 +659,8 @@ def tacodev(val=None):
 # without any attributes and properties
 # the device name must begin with 'tango://'
 tangodev_re = re.compile(
-    r'^(tango://)([\w.-]+(:[\d]+)?/)?([\w-]+/){2}[\w-]+(#dbase=(no|yes))?$', re.I)
-#   r'^(tango://)([\w.-]+(:[\d]+)?/)?([\w-]+/){2}[\w-]+(/[\w-]+)?(->[\w-]+)?(#dbase=(no|yes))?$', re.I)
+    r'^(tango://)([\w.-]+:[\d]+/)?([\w-]+/){2}[\w-]+(#dbase=(no|yes))?$', re.I)
+#   r'^(tango://)([\w.-]+:[\d]+/)?([\w-]+/){2}[\w-]+(/[\w-]+)?(->[\w-]+)?(#dbase=(no|yes))?$', re.I)
 
 
 def tangodev(val=None):
@@ -668,6 +668,8 @@ def tangodev(val=None):
     if val in ('', None):
         return ''
     val = str(val)
+    if not val.startswith('tango://'):
+        raise ValueError('%r should start with "tango://"' % val)
     if not tangodev_re.match(val):
         raise ValueError('%r is not a valid Tango device name' % val)
     return val

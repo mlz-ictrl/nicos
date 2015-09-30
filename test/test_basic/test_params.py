@@ -184,6 +184,7 @@ def test_tangodev():
         'tango://host:123/test/custom/device#dbase=yes',
     ]
     invalid_names = {
+        'Missing port': 'tango://host/test/custom/dev',
         'Invalid dbase setting': 'tango://host:123/test/custom/dev#dbase=y',
         'Typo in dbase setting': 'tango://host:123/test/custom/dev#dbas=no',
         'Wrong separator to dbase setting': 'tango://host:123/test/custom/dev~dbase=no',
