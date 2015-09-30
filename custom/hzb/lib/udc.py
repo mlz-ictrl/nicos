@@ -22,40 +22,41 @@
 #
 # *****************************************************************************
 
-"""UniversalDeviceClass (UDC)"""
+"""UniversalDeviceClient (UDC) to access devices provided by Corba servers such
+as CARESS or UniversalDeviceProxy.
+"""
 
-from nicos.core import Moveable, Readable, Override, status
-from nicos.core.device import HasPrecision, HasLimits
-from nicos.core.params import Param, Override
-from nicos.core.utils import waitForStatus
 import UniversalDeviceClient as UDC  # pylint: disable=import-error
 
+from nicos.core import Moveable, Readable, Param, Override, HasPrecision, \
+    HasLimits, status, ProgrammingError
+
+
 class UDCReadable(Readable):
+    """Abstract class for UDC Readable (Interface).
+
+    Please create no objects from this class, to create an object please use a
+    child class, e.g. UDCReadableDevice.  Please note everything inherited from
+    this class is readonly.
     """
-    Abstract class for UDC Readable (Interface)!
-    Please create no objects from this class,
-    to create an object please use a child class
-    e.g. UDCReadableDevice.
-    Please note everything which is inherited from this class, is read only.
-    """
+
     parameter_overrides = {
-                'pollinterval':     Override(default = 1),
-                'maxage':           Override(default = 1.1),
+        'pollinterval': Override(default = 1),
+        'maxage':       Override(default = 1.1),
     }
+
     parameters = {
-                  'dev_type':   Param('The device type as a string.'\
-                                      'e.g. CARESS_HWB, '\
-                                      'CARESS_GENERICDEVICE, DOLI, '\
-                                      'MODBUS_EUROTHERM_2400, '\
-                                      'MODBUS_EUROTHERM_2400_OUTPUTLEVEL, '\
-                                      'MODBUS_EUROTHERM_3500, '\
-                                      'MODBUS_EUROTHERM_3500_OUTPUTLEVEL',
-                                      type = str, settable = False,
-                                      mandatory = True, userparam = False),
+        'dev_type': Param('The device type as a string, '
+                          'e.g. CARESS_HWB, CARESS_GENERICDEVICE, DOLI, '
+                          'MODBUS_EUROTHERM_2400, '
+                          'MODBUS_EUROTHERM_2400_OUTPUTLEVEL, '
+                          'MODBUS_EUROTHERM_3500, '
+                          'MODBUS_EUROTHERM_3500_OUTPUTLEVEL',
+                          type=str, mandatory=True, userparam=False),
     }
 
     def _initPrivateMember(self):
-        # Init local Member
+        # Init local members
         self._last_value = 0
         self._last_status = status.UNKNOWN
         self._last_status_txt = 'UNKNOWN'
@@ -66,37 +67,31 @@ class UDCReadable(Readable):
         # Set Debug level of IDC
         # ToDo
         UDC.UDebug_setDebugLevel(UDC.UDebug.UDebugLevel_Info)
+
     def _checkIsCaress(self):
-        if ((self.dev_type == "CARESS_GENERICDEVICE") or
-            (self.dev_type == "CARESS_HWB")):
-            return True
-        else:
-            return False
+        return self.dev_type in ("CARESS_GENERICDEVICE", "CARESS_HWB")
+
     def _validateDevType(self):
         # ToDo check all elements of the device parameter list
         self.log.info("Attention: _validateDevType is not implemented!")
         return True
+
     def _setPrecisionAndRanges(self):
         self.log.debug("Attention: A readable has no precision or ranges!")
 
     def doPreinit(self, mode):
-        self.log.warning("It is not allowed to create a instance of this " \
-                         "abstract class!")
-        raise NotImplementedError
+        raise ProgrammingError("It is not allowed to create an instance of "
+                               "this abstract class!")
 
     def doInit(self, mode):
         if mode == 'simulation':
-            self.log.info("Init simulation mode: "\
-                           "release the connection to device="
-                           + self.name + "!")
+            self.log.debug("Init in simulation mode: release the connection")
             self._device.release()
             return
-        self.log.debug("Set internal polling interval to "
-                       + str(int(self.pollinterval) * 1000 / 2) + "ms!")
-        self._device.setPollingIntervalTime_ms(int(self.pollinterval)
-                                               * 1000 / 2)
-        self.log.info("Init no simulation mode: connect to device="
-                       + self.name + "!")
+        self.log.debug("Set internal polling interval to %d ms" %
+                       (int(self.pollinterval) * 500))
+        self._device.setPollingIntervalTime_ms(int(self.pollinterval) * 500)
+        self.log.debug("Init no simulation mode: connect to device")
 
         # Connect to CORBA Srv
         self._counterOfUnconnectedStatusRequests = 0
@@ -105,135 +100,106 @@ class UDCReadable(Readable):
             self._setPrecisionAndRanges()
 
     def doShutdown(self):
-        self.log.info("Shutdown: release the connection to device="
-                       + self.name + "!")
+        self.log.debug("shutdown: release the connection to device")
         self._device.release()
 
     def doVersion(self):
         return UDC.getVersion_UDC()
 
-    def doRead(self, maxage = 0):
+    def doRead(self, maxage=0):
         if self._device.getIsConnected():
             self._last_value = self._device.getValue()
 
         return self._last_value
 
-    def doStatus(self, maxage = 0):
+    def doStatus(self, maxage=0):
         if self._device.getIsConnected():
-            self.log.debug("Status: " + str(self._device.getStatus()))
-            if (self._device.getStatus() == UDC.status_done):
-                self._last_status = status.OK
-                self._last_status_txt = 'Done'
-            elif (self._device.getStatus() == UDC.status_run):
-                self._last_status = status.BUSY
-                self._last_status_txt = 'moving'
-            elif (self._device.getStatus() == UDC.status_error):
-                self._last_status = status.ERROR
-                self._last_status_txt = 'Error'
-            elif (self._device.getStatus() == UDC.status_wait):
-                self._last_status = status.BUSY
-                self._last_status_txt = 'wait'
+            devstatus = self._device.getStatus()
+            self.log.debug('status: %s' % devstatus)
+            if devstatus == UDC.status_done:
+                return status.OK, 'done'
+            elif devstatus == UDC.status_run:
+                return status.BUSY, 'moving'
+            elif devstatus == UDC.status_error:
+                return status.ERROR, 'error'
+            elif devstatus == UDC.status_wait:
+                return status.BUSY, 'wait'
+            return status.UNKNOWN, str(devstatus)
         else:
-            self._last_status = status.ERROR
-            self._last_status_txt = 'Error'
             # Try to reconnect
             self._counterOfUnconnectedStatusRequests += 1
-            if (self._counterOfUnconnectedStatusRequests
-                > self._numberOfStatusRequestsBeforeReinit):
-                self.log.debug("Init: Try connect to the device="
-                                 + self.name + " again!")
+            if self._counterOfUnconnectedStatusRequests \
+               > self._numberOfStatusRequestsBeforeReinit:
+                self.log.debug("Init: Try connect to the device again")
                 self.doReset()
-
-        return (self._last_status, self._last_status_txt)
+            return status.ERROR, 'device disconnected'
 
     def doReset(self):
         self.doShutdown()
         self.doInit(self._mode)
 
+
 class UDCWriteable(HasLimits, HasPrecision, UDCReadable, Moveable):
-    """
-    Abstract class for UDC Writeable (Interface)!
-    Please create no objects from this class,
-    to create an object please use a child class
-    e.g. UDCWriteableDevice.
-    Please note everything which is inherited from this class,
-    has the right to write. It is not allowed to create
-    more than one writable client for one real device.
+    """Abstract class for UDC Writeable (Interface).
+
+    Please create no objects from this class, to create an object please use a
+    child class e.g. UDCWriteableDevice.  Please note everything inherited from
+    this class has the right to write. It is not allowed to create more than one
+    writable client for one real device.
 
     Attention:
     It is not forbidden to create more than one client, but it can fail.
     """
     def _setPrecisionAndRanges(self):
-        self.log.debug("set Ranges of the device="
-                       + self.name + ": min="
-                       + str(self.abslimits[0])
-                       + " max="
-                       + str(self.abslimits[1])
-                       + "!")
-        self._device.setRanges(self.abslimits[0], self.abslimits[1])
-        self.log.debug("set Tolerance of the device="
-                       + self.name + ": precision="
-                       + str(self.precision) + "!")
+        self.log.debug("set Ranges: min=%s max=%s" % self.abslimits)
+        self._device.setRanges(*self.abslimits)
+        self.log.debug("set Tolerance: precision=%s" % self.precision)
         self._device.setToleranz(self.precision)
 
     # Functions from Moveable
     def doStart(self, pos):
-        self.log.debug("Start movement of "
-                       + self.name + ": target=" + str(pos) + "!")
+        self.log.debug("Start movement: target=%s" % pos)
         self._device.setTargetValue(pos)
         self._device.start()
         self._device.waitToCmdExecuted()
 
     def doStop(self):
-        self.log.debug("Stop movement of "
-                       + self.name + "!")
+        self.log.debug("Stop movement")
         self._device.stop()
         self._device.waitToCmdExecuted()
 
-    def doWait(self):
-        waitForStatus(self)
 
 class UDCReadableDevice(UDCReadable):
-    """
-    Full implemented Readable class for standard devices!
+    """Full implemented Readable class for standard devices.
+
     Please create for read only use of your device an object from this class.
     """
     parameters = {
         'path':   Param('The path string of the init-file for this device.',
-                        type = str, settable = False,
-                        mandatory = True, userparam = False),
+                        type=str, mandatory=True, userparam=False),
     }
 
     def doPreinit(self, mode):
         self._initPrivateMember()
 
-        if not (self._validateDevType()):
-            self.log.warning("The given type is wrong")
-            self._last_status = status.ERROR
-            self._last_status_txt = "wrong dev_type!"
-            raise NotImplementedError
+        if not self._validateDevType():
+            raise ProgrammingError(self, "The given dev_type is wrong")
 
-        if (self._checkIsCaress()):
-            self.log.info("Use the UDCReadableCaressDevice class "\
-                          "to create an instance with the type="
-                          + self.dev_type + "!")
-            self._last_status = status.ERROR
-            self._last_status_txt = ("wrong dev_type! "
-                                     + "Use UDCReadableCaressDevice class "\
-                                     "to create this instance")
-            return False
+        if self._checkIsCaress():
+            raise ProgrammingError(self, "Use UDCReadableCaressDevice "
+                                   "to create an instance with the type %s"
+                                   % self.dev_type)
 
-        self.log.debug("Create UDevice from the dev_type="
-                       + self.dev_type + "!")
+        self.log.debug("Create UDevice from the dev_type %s" % self.dev_type)
         self._device = UDC.UDevice(self.dev_type)
         self._device.setSettingsFilePath(self.path)
 
+
 class UDCWriteableDevice(UDCReadableDevice, UDCWriteable):
-    """
-    Full implemented Writeable class for standard devices!
-    Please create for writable use of your device an object from this class.
-    It is not allowed to create
-    more than one writable client for one real device.
+    """Full implemented Writeable class for standard devices.
+
+    Please create for writable use of your device an object from this class. It
+    is not allowed to create more than one writable client for one real device.
 
     Attention:
     It is not forbidden to create more than one client, but it can fail.
@@ -241,46 +207,34 @@ class UDCWriteableDevice(UDCReadableDevice, UDCWriteable):
     def doPreinit(self, mode):
         self._initPrivateMember()
 
-        if not (self._validateDevType()):
-            self.log.warning("The given type is wrong")
-            self._last_status = status.ERROR
-            self._last_status_txt = "wrong dev_type!"
-            raise NotImplementedError
+        if not self._validateDevType():
+            raise ProgrammingError(self, "The given dev_type is wrong")
 
-        if (self._checkIsCaress()):
-            self.log.info("Use the UDCWriteableCaressDevice class "\
-                          "to create an instance with the type="
-                          + self.dev_type + "!")
-            self._last_status = status.ERROR
-            self._last_status_txt = ("wrong dev_type! "
-                                     + "Use UDCWriteableCaressDevice class "\
-                                     "to create this instance")
-            return False
+        if self._checkIsCaress():
+            raise ProgrammingError(self, "Use UDCWriteableCaressDevice "
+                                   "to create an instance with the type %s"
+                                   % self.dev_type)
 
-        self.log.debug("Create UDeviceControllable from the dev_type="
-                       + self.dev_type + "!")
+        self.log.debug("Create UDeviceControllable from the dev_type %s"
+                       % self.dev_type)
         self._device = UDC.UDeviceControllable(self.dev_type)
         self._device.setSettingsFilePath(self.path)
 
+
 class UDCReadableCaressDevice(UDCReadable):
-    """
-    Special Readable child class for CARESS devices!
+    """Special Readable child class for CARESS devices.
+
     Please create for read only use of CARESS devices an object from this class.
     """
     parameters = {
-                  'corba_server_name':  Param('The name of the CORBA-Server '\
-                                              'as a string for this device.',
-                                              type = str, settable = False,
-                                              mandatory = True, userparam = False),
-                  'corba_device_name':  Param('The name of the device '\
-                                              'as a string.',
-                                              type = str, settable = False,
-                                              mandatory = True, userparam = False),
-                  'corba_init_line':    Param('The parameter line from '\
-                                              'the Hardware_Modules.dat '\
-                                              'as a string for this device.',
-                                              type = str, settable = False,
-                                              mandatory = True, userparam = False),
+        'corba_server_name': Param('The name of the CORBA-Server '
+                                   'as a string for this device',
+                                   type=str, mandatory=True, userparam=False),
+        'corba_device_name': Param('The name of the device as a string.',
+                                   type=str, mandatory=True, userparam=False),
+        'corba_init_line':   Param('The parameter line from the Hardware_'
+                                   'Modules.dat as a string for this device.',
+                                   type=str, mandatory=True, userparam=False),
     }
 
     def _setDeviceCaressParameter(self, device, mode):
@@ -307,25 +261,16 @@ class UDCReadableCaressDevice(UDCReadable):
     def doPreinit(self, mode):
         self._initPrivateMember()
 
-        if not (self._validateDevType()):
-            self.log.warning("The given type is wrong")
-            self._last_status = status.ERROR
-            self._last_status_txt = "wrong dev_type!"
-            raise NotImplementedError
+        if not self._validateDevType():
+            raise ProgrammingError(self, "The given dev_type is wrong")
 
-        if not (self._checkIsCaress()):
-            self.log.info("Use the UDCReadableDevice class "\
-                          "to create an instance with the type="
-                          + self.dev_type + "!")
-            self._last_status = status.ERROR
-            self._last_status_txt = ("wrong dev_type! "
-                                     + "Use UDCReadableDevice class "\
-                                     "to create this instance")
-            return False
+        if not self._checkIsCaress():
+            raise ProgrammingError(self, "Use UDCReadableDevice "
+                                   "to create an instance with the type %s"
+                                   % self.dev_type)
 
         # Create the instance of the device
-        self.log.debug("Create UDevice from the dev_type="
-                       + self.dev_type + "!")
+        self.log.debug("Create UDevice from the dev_type %s" % self.dev_type)
         self._device = UDC.UDevice(self.dev_type)
 
         # Create a casted instance of the device.
@@ -334,53 +279,38 @@ class UDCReadableCaressDevice(UDCReadable):
         deviceTemp = UDC.UDeviceCaress(self._device)
         self._setDeviceCaressParameter(deviceTemp, mode)
 
+
 class UDCWriteableCaressDevice(UDCReadableCaressDevice, UDCWriteable):
-    """
-    Special Writeable child class for CARESS devices!
+    """Special Writeable child class for CARESS devices.
+
     Please create for writable use of CARESS devices an object from this class.
-    It is not allowed to create
-    more than one writable client for one real device.
+    It is not allowed to create more than one writable client for one real
+    device.
 
     Attention:
     It is not forbidden to create more than one client, but it can fail.
 
-    Info:
-    For a correct status handling it is necessary
-    to create for slaves readOnly devices.
-    ReadOnly (UDevice) devices get the current status information direct
-    from the caress server.
-    Writable (UDeviceControllable) devices have a own state machine.
+    Info: For a correct status handling it is necessary to create readOnly
+    devices for slaves. ReadOnly (UDevice) devices get the current status
+    information directly from the caress server.
+    Writable (UDeviceControllable) devices have their own state machine.
     Hence, they don't get the original status from the server.
     """
     def doPreinit(self, mode):
         self._initPrivateMember()
 
-        if not (self._validateDevType()):
-            self.log.warning("The given type is wrong")
-            self._last_status = status.ERROR
-            self._last_status_txt = "wrong dev_type!"
-            raise NotImplementedError
+        if not self._validateDevType():
+            raise ProgrammingError(self, "The given dev_type is wrong")
 
-        if not (self._checkIsCaress()):
-            self.log.info("Use the UDCWriteableDevice class "\
-                          "to create an instance with the type="
-                          + self.dev_type + "!")
-            self._last_status = status.ERROR
-            self._last_status_txt = ("wrong dev_type! "
-                                     + "Use UDCWriteableDevice class "\
-                                     "to create this instance")
-            return False
+        if not self._checkIsCaress():
+            raise ProgrammingError(self, "Use UDCWriteableDevice "
+                                   "to create an instance with the type %s"
+                                   % self.dev_type)
 
-        # For a correct status handling it is necessary
-        # to create for slaves readOnly devices.
-        # ReadOnly (UDevice) devices get the current status information
-        # direct from the caress server.
-        # Writable (UDeviceControllable) devices have a own state machine.
-        # Hence, they don't get the original status from the server.
         if mode == 'slave':
             # Create the instance of the device
-            self.log.debug("Create UDevice from the dev_type="
-                           + self.dev_type + "!")
+            self.log.debug("Create UDevice from the dev_type %s" %
+                           self.dev_type)
             self._device = UDC.UDevice(self.dev_type)
             # Create a casted instance of the device.
             # Attention this is only reference copy and no new device.
@@ -389,12 +319,12 @@ class UDCWriteableCaressDevice(UDCReadableCaressDevice, UDCWriteable):
             self._setDeviceCaressParameter(deviceTemp, mode)
         else:
             # Create the instance of the device
-            self.log.debug("Create UDeviceControllable from the dev_type="
-                           + self.dev_type + "!")
+            self.log.debug("Create UDeviceControllable from the dev_type %s" %
+                           self.dev_type)
             self._device = UDC.UDeviceControllable(self.dev_type)
             # Create a casted instance of the device.
             # Attention this is only reference copy and no new device.
-            self.log.debug("Cast UDeviceControllable "\
+            self.log.debug("Cast UDeviceControllable "
                            "to UDeviceControllableCaress!")
             deviceTemp = UDC.UDeviceControllableCaress(self._device)
             self._setDeviceCaressParameter(deviceTemp, mode)
