@@ -115,6 +115,11 @@ possible with the device:
       the names of devices using this particular device as an
       attached device (two way linkage).
 
+      Each attached device is also available as an attribute of the Device, but
+      prefixed with ``_attached_`` (e.g. ``_attached_motor``).  Be aware that
+      these attributes can also be lists of devices, if the Attach option
+      ``multiple`` is set.
+
       The :attr:`attached_devices` attribute does *not* need to contain the
       entries of base classes again, they are automatically merged.
 
@@ -249,6 +254,12 @@ possible with the device:
 
       A dictionary mapping attached device names (as given by the
       :attr:`attached_devices` dictionary) to the actual device instances.
+
+   .. attribute:: _attached_<name>
+
+      Each entry of the _adevs dictionary is (with an "_attached_" prefix) also
+      available directly as an attribute.  Be aware that these attributes can
+      also be lists of devices, if the Attach option multiple is set.
 
    .. attribute:: _params
 
