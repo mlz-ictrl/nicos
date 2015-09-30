@@ -524,7 +524,7 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         return self._steps2phys(self._readPosition())
 
     def doStart(self, target):
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             raise MoveError(self, 'Cannot start device, it is still moving!')
         self._startSequence(self._gen_move_sequence(target))
 
@@ -548,14 +548,13 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
         # select highest (worst) status
         # if no status is 'worse' then _seq_status, this is _seq_status
         _status = stati[-1]
-        if self._seq_thread:
+        if self._seq_is_running():
             return max(status.BUSY, _status[0]), _status[1]
         return _status
 
-
     @requires(level='admin')
     def doReference(self):
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             raise MoveError(self, 'Cannot reference a moving device!')
         seq = self._gen_ref_sequence()
         if self.autopower == 'on':

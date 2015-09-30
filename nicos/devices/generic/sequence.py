@@ -256,6 +256,9 @@ class SequencerMixin(DeviceMixinBase):
             self._cache.put(self, 'status', self._seq_status,
                             time.time(), self.maxage)
 
+    def _seq_is_running(self):
+        return self._seq_thread and self._seq_thread.is_alive()
+
     def _startSequence(self, sequence):
         """Checks and starts the sequence"""
         # check sequence
@@ -273,7 +276,7 @@ class SequencerMixin(DeviceMixinBase):
                                    self._checkFailed(i, action, e))
                     # if the above does not raise, consider this as OK
 
-        if self._seq_thread:
+        if self._seq_is_running():
             raise ProgrammingError(self, 'sequence is still running!')
 
         # debug hint:
@@ -304,7 +307,6 @@ class SequencerMixin(DeviceMixinBase):
             self._sequence(sequence)
         finally:
             self._seq_stopflag = False
-            self._seq_thread = None
 
     def _sequence(self, sequence):
         """The Sequence 'interpreter', stepping through the sequence."""
@@ -415,7 +417,7 @@ class SequencerMixin(DeviceMixinBase):
         # select highest (worst) status
         # if no status is 'worse' then _seq_status, this is _seq_status
         _status = stati[-1]
-        if self._seq_thread:
+        if self._seq_is_running():
             return max(status.BUSY, _status[0]), _status[1]
         return _status
 
@@ -523,7 +525,7 @@ class BaseSequencer(SequencerMixin, Moveable):
 
         Just calls ``self._startSequence(self._generateSequence(target))``
         """
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             if self._mode == SIMULATION:
                 self._seq_thread.join()
                 self._seq_thread = None
@@ -622,7 +624,7 @@ class MeasureSequencer(SequencerMixin, Measurable):
         Just calls ``self._startSequence(self._generateSequence())``
 
         """
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             if self._mode == SIMULATION:
                 self._seq_thread.join()
                 self._seq_thread = None

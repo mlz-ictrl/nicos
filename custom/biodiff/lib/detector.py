@@ -295,7 +295,7 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
             self._t = preset["t"]
 
     def doPrepare(self):
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             raise MoveError(self, 'sequence is still running')
         # reset sequence status
         MeasureSequencer.doReset(self)
@@ -444,7 +444,7 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
                                     'exposure, check safety system')
 
     def doPrepare(self):
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             raise MoveError(self, 'sequence is still running')
         # reset sequence status
         MeasureSequencer.doReset(self)

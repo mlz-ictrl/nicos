@@ -331,7 +331,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
         to the final target.
         So, inbetween, the NOK should be parallel to the beam.
         """
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             raise MoveError(self, 'Cannot start device, it is still moving!')
 
         # check precision, only move if needed!
@@ -364,7 +364,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision, Move
         After referencing is done, we go to (0, 0).
         """
 
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             raise MoveError(self, 'Cannot reference device, it is still moving!')
 
         devices = self._devices

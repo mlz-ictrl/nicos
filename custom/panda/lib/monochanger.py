@@ -472,7 +472,7 @@ class Changer(BaseSequencer):
             raise UsageError(self, 'Position %r is empty!' % slot)
 
     def _start(self, seq):
-        if self._seq_thread is not None:
+        if self._seq_is_running():
             raise MoveError(self, 'Can not start sequence, device is still '
                             'busy')
         self._startSequence(seq)

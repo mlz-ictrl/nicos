@@ -227,7 +227,7 @@ class HoveringAxis(SequencerMixin, Axis):
             sleep(self._base_loop_delay)
 
     def doStart(self, target):
-        if self._seq_thread and self._seq_thread.isAlive():
+        if self._seq_is_running():
             self.stop()
             self.log.info('waiting for axis to stop...')
             self.wait()
