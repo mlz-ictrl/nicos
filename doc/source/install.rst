@@ -51,15 +51,19 @@ Requirements
   - pyserial (for TACO-less serial line communication)
   - gnuplot (for plots in the electronig logbook)
   - lxml (for U-Bahn service)
+  - pyfits (for the handling of FITS formatted files)
+  - rsa (for encrypted daemon authentication)
+  - ldap3 (for ldap authentication)
+  - sendsms tool to use the SMS notifier (See: http://smslink.sourceforge.net/)
 
 * For the client-server GUI and status monitor:
 
   - PyQt4
-  - numpy
   - gr (optional, for plots)
   - PyQwt (optional, for plots, alternate to gr)
+  - QScintilla-python (optional, for the script editor component)
   - scipy (optional, for fitting)
-  - nicoslivewidget (optional, for detector live view)
+  - nicos-livewidget (optional, for detector live view)
   - cfitisio (optional, required by nicos-livewidget)
   - python-redmine (optional, for the bug reporting dialog)
 
@@ -82,9 +86,8 @@ python package repository:
 
 pip can be obtained from http://www.pip-installer.org/en/latest/installing.html
 
-For xBuntu 12.04:
+For xBuntu 12.04: install pip ::
 
-Install pip:
   sudo apt-get install python-pip
 
 If your system pip is too old (pip >=1.4 is required) you can update with:
@@ -94,7 +97,7 @@ If your system pip is too old (pip >=1.4 is required) you can update with:
 
 
 Configure for experimenting
-----------------------------------------------
+---------------------------
 
 Now you can start the individual :ref:`components <components>`.  A setup that
 uses all the major components can be started using ::
