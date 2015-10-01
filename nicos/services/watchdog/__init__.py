@@ -28,6 +28,7 @@ import ast
 import subprocess
 from os import path
 from time import time as currenttime, strftime
+from collections import OrderedDict
 
 from nicos import session, config
 from nicos.core import Param, Override, listof, dictof, anytype, status
@@ -35,7 +36,7 @@ from nicos.utils import lc_dict
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.devices.notifiers import Notifier, Mailer
 from nicos.devices.cacheclient import BaseCacheClient
-from nicos.pycompat import OrderedDict, iteritems, listitems
+from nicos.pycompat import iteritems, listitems
 
 
 class Entry(object):

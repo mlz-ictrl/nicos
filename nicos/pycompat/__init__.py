@@ -31,7 +31,7 @@ __all__ = [
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
-    'OrderedDict', 'get_thread_id', 'escape_html',
+    'get_thread_id', 'escape_html',
 ]
 
 import threading
@@ -51,11 +51,6 @@ from nicos._vendor.six import string_types, integer_types, text_type, binary_typ
 from nicos._vendor.six import iteritems, itervalues, iterkeys
 
 # functionality in addition to what "six" provides
-
-try:
-    from collections import OrderedDict  # pylint: disable=E0611
-except ImportError:
-    from nicos._vendor.ordereddict import OrderedDict
 
 try:
     get_thread_id = threading._get_ident

@@ -28,6 +28,7 @@
 import os
 import sys
 from time import time as currenttime, localtime, mktime
+from collections import OrderedDict
 
 from PyQt4.QtGui import QDialog, QFont, QListWidgetItem, QToolBar, \
     QMenu, QStatusBar, QSizePolicy, QMainWindow, QApplication, QAction
@@ -44,8 +45,7 @@ from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.protocols.cache import cache_load
 from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle, iteritems, OrderedDict, \
-    integer_types
+from nicos.pycompat import cPickle as pickle, iteritems, integer_types
 
 
 class View(QObject):

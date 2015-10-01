@@ -24,10 +24,10 @@
 
 import time
 import numpy
-
+from collections import OrderedDict
 
 from nicos.core import ImageSink, NicosError
-from nicos.pycompat import iteritems, to_ascii_escaped, OrderedDict
+from nicos.pycompat import iteritems, to_ascii_escaped
 from nicos.utils import syncFile
 
 try:

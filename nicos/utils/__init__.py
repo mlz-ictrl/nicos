@@ -43,12 +43,7 @@ from time import time as currenttime, strftime, strptime, localtime, mktime, \
     sleep
 from itertools import islice, chain
 from functools import wraps
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    # python 2.6 only
-    from nicos._vendor.ordereddict import OrderedDict
+from collections import OrderedDict
 
 try:
     import pwd
