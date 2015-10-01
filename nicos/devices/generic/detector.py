@@ -192,7 +192,7 @@ class MultiChannelDetector(Measurable):
         return set(self._presetkeys)
 
     def doEstimateTime(self, elapsed):
-        eta = set(master.doEstimateTime(elapsed) for master in self._masters)
+        eta = set(master.estimateTime(elapsed) for master in self._masters)
         eta.discard(None)
         if eta:
             # first master stops, so take min

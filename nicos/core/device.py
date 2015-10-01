@@ -1264,20 +1264,29 @@ class Waitable(Readable):
             raise self.errorstates[st[0]](self, st[1])
         return True
 
-    def doEstimateTime(self, elapsed):
+    def estimateTime(self, elapsed):
         """Return the estimated time until end of measurement/counting or None.
-
-        This can be overridden in subclasses to calculate an estimation of the
-        remaining time needed to complete the measurement.
 
         Called by ``count()`` for every detector, and ``wait()``/``multiWait()``
         for moving devices.  The result is shown to the user.  The *elapsed*
         argument is the time elapsed since the detector was started.  If the
         time needed can not (yet) be estimated return None, otherwise a float.
 
-        If possible avoid recursion here as all active detectors are polled
-        anyway.
+        .. method:: doEstimateTime
+
+           This can be overridden in subclasses to calculate an estimation of
+           the remaining time needed to complete the measurement.
+
+           If possible avoid recursion here as all active detectors are polled
+           anyway.
         """
+        try:
+            return self.doEstimateTime(elapsed)
+        except Exception:
+            self.log.debug('could not estimate time', exc=1)
+            return None
+
+    def doEstimateTime(self, elapsed):
         return None
 
 
@@ -1632,8 +1641,8 @@ class Moveable(Waitable):
                 return remain
             return None
         for dev in waiters:
-            if hasattr(dev, 'doEstimateTime'):
-                eta.add(dev.doEstimateTime(elapsed))
+            if hasattr(dev, 'estimateTime'):
+                eta.add(dev.estimateTime(elapsed))
         eta.discard(None)
         if eta:
             return max(eta)

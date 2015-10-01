@@ -196,7 +196,7 @@ def multiWait(devices):
                 if eta_update >= 1:
                     eta_update -= 1
                     now = currenttime()
-                    eta = set(dev.doEstimateTime(now - first_ts)
+                    eta = set(dev.estimateTime(now - first_ts)
                               for dev in devlist)
                     eta.discard(None)
                     # use max here as we wait for ALL movements to finish

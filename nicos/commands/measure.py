@@ -130,7 +130,7 @@ def _count(detlist, preset, result, dataset=None):
                 eta_update -= 1
                 eta = set()
                 for det in detset:
-                    eta.add(det.doEstimateTime(looptime - starttime))
+                    eta.add(det.estimateTime(looptime - starttime))
                 eta.discard(None)
                 if eta:
                     session.action('estimated %s left' %
