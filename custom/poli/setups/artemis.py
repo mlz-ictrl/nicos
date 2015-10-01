@@ -5,6 +5,6 @@ group = 'optional'
 devices = dict(
     camera    = device('poli.artemis.ArtemisCapture',
                        description = 'Pseudo detector for camera',
-                       datapath = '/home/jcns/camera',
+                       datapath = '/home/jcns/camera/p11531',
                       ),
 )
