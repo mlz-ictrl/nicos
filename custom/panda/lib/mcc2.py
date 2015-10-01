@@ -404,13 +404,13 @@ class MCC2Motor(MCC2core, NicosMotor):
         return self.doReadSpeed()
 
     def doReadAccel(self):
-        return float(self.comm('XP15R')) / \
-            float(self.microstep * abs(self.slope)) ** 2
+        return (float(self.comm('XP15R')) /
+                float(self.microstep * abs(self.slope)))
 
     def doWriteAccel(self, value):
         f = max(4000, min(500000, 4000 *
                           round((value *
-                                 (abs(self.slope) * self.microstep) ** 2)
+                                 (abs(self.slope) * self.microstep))
                                 / 4000)))
         self.comm('XP15S%d' % int(f))
         return self.doReadAccel()
