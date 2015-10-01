@@ -31,7 +31,7 @@ The bug tracker and project wiki are at
 Requirements
 ------------
 
-* At least Python 2.6
+* At least Python 2.7
 
 * numpy
 

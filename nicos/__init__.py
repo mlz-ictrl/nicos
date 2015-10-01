@@ -36,9 +36,9 @@ from logging import getLogger
 from nicos._vendor.gitversion import get_nicos_version, get_git_version
 __version__ = nicos_version = get_nicos_version()
 
-# Check for Python version 2.6+.
-if sys.version_info[:2] < (2, 6):
-    raise ImportError('NICOS requires Python 2.6 or higher')
+# Check for Python version 2.7+.
+if sys.version_info[:2] < (2, 7):
+    raise ImportError('NICOS requires Python 2.7 or higher')
 
 
 # Create the nicos session object here to allow the import of submodules.

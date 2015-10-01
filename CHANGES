@@ -4,6 +4,10 @@ Changelog for NICOS 2
 Release 2.9.0
 -------------
 
+* Version requirements
+
+  - NICOS now requires Python 2.7.
+
 * General behavior
 
   - Better alias handling: alias preferences are now expressed in setups with
