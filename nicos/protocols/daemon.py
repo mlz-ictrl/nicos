@@ -36,13 +36,14 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 12
+PROTO_VERSION = 13
 
 # old versions with which the client is still compatible
 # 10 -> 11: added RSA encryption of transmitted password
 # 11 -> 12: added return value to 'queue' command
+# 12 -> 13: "authenticate" now returns user info dict
 
-COMPATIBLE_PROTO_VERSIONS = [10, 11]
+COMPATIBLE_PROTO_VERSIONS = [10, 11, 12]
 
 # message serialization/deserialization
 

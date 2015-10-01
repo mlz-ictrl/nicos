@@ -72,6 +72,7 @@ class NicosClient(object):
         self.disconnecting = False
         self.gzip = False
         self.last_reqno = None
+        self.user_level = None
 
         unique_id = to_utf8(str(time.time()) + str(os.getpid()))
         # spurious warning due to hashlib magic # pylint: disable=E1121
@@ -155,8 +156,15 @@ class NicosClient(object):
             'display': conndata['display'],
         }
 
-        if not self.tell('authenticate', auth_dict):
-            return
+        if 10 <= self.compat_proto <= 12:
+            if not self.tell('authenticate', auth_dict):
+                return
+            self.user_level = None
+        else:
+            response = self.ask('authenticate', auth_dict)
+            if not response:
+                return
+            self.user_level = response['user_level']
 
         if eventmask:
             self.tell('eventmask', eventmask)

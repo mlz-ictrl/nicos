@@ -46,6 +46,7 @@ class SettingsDialog(QDialog, DlgUtils):
         # general page
         self.instrument.setText(main.instrument)
         self.confirmExit.setChecked(main.confirmexit)
+        self.warnWhenAdmin.setChecked(main.warnwhenadmin)
         self.showTrayIcon.setChecked(main.showtrayicon)
         self.autoReconnect.setChecked(main.autoreconnect)
         self.autoSaveLayout.setChecked(main.autosavelayout)
@@ -60,6 +61,7 @@ class SettingsDialog(QDialog, DlgUtils):
     def saveSettings(self):
         self.main.instrument = self.instrument.text()
         self.main.confirmexit = self.confirmExit.isChecked()
+        self.main.warnwhenadmin = self.warnWhenAdmin.isChecked()
         self.main.showtrayicon = self.showTrayIcon.isChecked()
         self.main.autoreconnect = self.autoReconnect.isChecked()
         self.main.autosavelayout = self.autoSaveLayout.isChecked()
@@ -67,6 +69,7 @@ class SettingsDialog(QDialog, DlgUtils):
             settings.setValue('connpresets', self.connpresets)
             settings.setValue('instrument', self.main.instrument)
             settings.setValue('confirmexit', self.main.confirmexit)
+            settings.setValue('warnwhenadmin', self.main.warnwhenadmin)
             settings.setValue('showtrayicon', self.main.showtrayicon)
             settings.setValue('autoreconnect', self.main.autoreconnect)
             settings.setValue('autosavelayout', self.main.autosavelayout)

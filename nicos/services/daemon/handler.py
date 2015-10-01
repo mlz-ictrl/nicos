@@ -328,7 +328,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         # acknowledge the login
         self.log.info('login succeeded, access level %d' % self.user.level)
-        self.write(ACK)
+        self.write(STX, dict(
+            user_level = self.user.level,
+        ))
 
         # start main command loop
         while 1:

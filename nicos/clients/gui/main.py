@@ -44,6 +44,7 @@ from nicos import nicos_version, config
 from nicos.utils import parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
+from nicos.core.utils import ADMIN
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
@@ -79,6 +80,9 @@ class MainWindow(QMainWindow, DlgUtils):
         icon.addFile(':/appicon-16')
         icon.addFile(':/appicon-48')
         self.setWindowIcon(icon)
+
+        # hide admin label until we are connected as admin
+        self.adminLabel.hide()
 
         # our logger instance
         self.log = log
@@ -293,6 +297,7 @@ class MainWindow(QMainWindow, DlgUtils):
 
         self.instrument = settings.value('instrument', self.gui_conf.name)
         self.confirmexit = settings.value('confirmexit', True, bool)
+        self.warnwhenadmin = settings.value('warnwhenadmin', True, bool)
         self.showtrayicon = settings.value('showtrayicon', True, bool)
         self.autoreconnect = settings.value('autoreconnect', True, bool)
         self.autosavelayout = settings.value('autosavelayout', True, bool)
@@ -446,6 +451,12 @@ class MainWindow(QMainWindow, DlgUtils):
             # propagate info to all components
             self.client.signal('initstatus', initstatus)
 
+        # show warning label for admin users
+        self.adminLabel.setVisible(
+            self.warnwhenadmin and
+            self.client.user_level is not None
+            and self.client.user_level >= ADMIN)
+
         # set focus to command input, if present
         for panel in self.panels:
             if isinstance(panel, ConsolePanel) and panel.hasinput:
@@ -463,6 +474,7 @@ class MainWindow(QMainWindow, DlgUtils):
             self.setStatus('paused')
 
     def on_client_disconnected(self):
+        self.adminLabel.setVisible(False)
         self.setStatus('disconnected')
 
     def on_client_showhelp(self, data):
