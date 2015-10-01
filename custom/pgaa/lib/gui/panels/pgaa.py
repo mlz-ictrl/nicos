@@ -131,7 +131,7 @@ class PGAAPanel(Panel):
 
     def on_client_initstatus(self, state):
         self.on_client_mode(state['mode'])
-        messages = self.client.ask('getmessages', '10000')
+        messages = self.client.ask('getmessages', '2500')
         self.browser_log.clear()
         total = len(messages) // 2500 + 1
         for _, batch in enumerateWithProgress(chunks(messages, 2500),
