@@ -9,7 +9,7 @@ devices = dict(
                        description = 'monochromator tilt (chi axis)',
                        tangodevice = '%s/poli/fzjs7/chi_m' % (tango_host, ),
                        fmtstr = '%.2f',
-                       abslimits = (0, 12.7),
+                       abslimits = (0, 12.8),
                       ),
     theta_m   = device('devices.tango.Motor',
                        description = 'monochromator rotation (theta axis)',
