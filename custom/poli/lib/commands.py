@@ -170,7 +170,11 @@ def centerpeak(*args, **kwargs):
             printinfo('%-10s center: %8.6g -> %8.6g (delta %8.6g)' %
                       (dev, lastround[dev], thisround[dev], diff))
             if diff > convergence * stepsizes[dev]:
-                printinfo('=> needs another round')
+                if i == nrounds - 1:
+                    printinfo('=> would need another round, but command '
+                              'limited to %d rounds' % nrounds)
+                else:
+                    printinfo('=> needs another round')
                 again = True
         if not again:
             printinfo('=> found convergence on peak:')
