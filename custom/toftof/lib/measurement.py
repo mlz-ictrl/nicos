@@ -167,8 +167,8 @@ class TofTofMeasurement(ImageProducer, Measurable):
         else:
             chdelay = 0
 
-        # make sure to set the correct monitor input and number of time channels
-        # in the TACO server
+        # make sure to set the correct monitor input and number of time
+        # channels in the TACO server
         if ctr.timechannels is None:
             # detector disconnected?
             raise NicosError(self, 'detector device appears unavailable')
@@ -497,3 +497,13 @@ class TofTofMeasurement(ImageProducer, Measurable):
 
     def doIsCompleted(self):
         return self._attached_counter.isCompleted()
+
+    def doEstimateTime(self, elapsed):
+        if self.doStatus()[0] == status.BUSY:
+            if self._last_mode == 'monitor':
+                if self._lastmoncounts > 0 and self.laststats[5] > 0:
+                    rate = self.laststats[5]
+                    return (self._last_preset - self._lastmoncounts) / rate
+            else:
+                return self._last_preset - elapsed
+        return None

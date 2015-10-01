@@ -39,6 +39,7 @@ class TofCounter(TacoDevice, Measurable):
     """The TOFTOF histogram counter card accessed via TACO."""
 
     taco_class = HistogramCounter
+    _preselection = 0
 
     parameters = {
         'monitor':        Param('Monitor device',
@@ -95,10 +96,12 @@ class TofCounter(TacoDevice, Measurable):
             self._taco_guard(self._monitor.enableMaster, 0)
             self._taco_guard(self._timer.enableMaster, 1)
             self._taco_guard(self._timer.setPreselection, preset['t'])
+            self._preselection = preset['t']
         elif 'm' in preset:
             self._taco_guard(self._monitor.enableMaster, 1)
             self._taco_guard(self._timer.enableMaster, 0)
             self._taco_guard(self._monitor.setPreselection, int(preset['m']))
+            self._preselection = int(preset['m'])
 
     def doStart(self):
         self.doStop()
@@ -165,3 +168,14 @@ class TofCounter(TacoDevice, Measurable):
 
     def doReadNuminputs(self):
         return self._taco_guard(self._dev.numInputs)
+
+    def doEstimateTime(self, elapsed):
+        if self.doStatus()[0] == status.BUSY:
+            if self._timer.isMaster():
+                return self._preselection - elapsed
+            elif self._monitor.isMaster() and elapsed > 0:
+                mon = self._taco_guard(self._monitor.read)
+                rate = mon / elapsed
+                if rate > 0:
+                    return (self._preselection - mon) / rate
+        return None
