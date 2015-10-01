@@ -142,6 +142,11 @@ class Axis(CanReference, BaseAxis):
             self._posthread = createThread('positioning thread %s' % self,
                                            self.__positioningThread)
 
+    def _getWaiters(self):
+        # the Axis does its own status control, there is no need to wait for the
+        # motor as well
+        return []
+
     def doStatus(self, maxage=0):
         """Returns the status of the motor controller."""
         if self._posthread and self._posthread.isAlive():
