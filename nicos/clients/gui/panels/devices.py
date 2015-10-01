@@ -566,9 +566,10 @@ class DevicesPanel(Panel):
     def plot_history(self, dev):
         if self.mainwindow.history_wintype:
             win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
-            panel = win.getPanel('History viewer')
-            panel.newView(dev)
-            showPanel(panel)
+            if win:
+                panel = win.getPanel('History viewer')
+                panel.newView(dev)
+                showPanel(panel)
 
 
 class ControlDialog(QDialog):
