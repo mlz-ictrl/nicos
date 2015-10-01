@@ -34,7 +34,7 @@ from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
     QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
     QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
     QFileSystemModel, QTabWidget, QStyle, QInputDialog, QTextEdit, \
-    QTextFormat, QWidget, QPainter
+    QTextFormat, QWidget, QPainter, QFontMetrics
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QByteArray, \
     QFileSystemWatcher, QSize, QRect
 
@@ -557,6 +557,8 @@ class EditorPanel(Panel):
             editor.setIndentationGuidesForegroundColor(QColor("#CCC"))
             editor.setWrapMode(QsciScintilla.WrapCharacter)
             editor.setMarginLineNumbers(1, True)
+            editor.setMarginWidth(
+                1, 5 + 4 * QFontMetrics(editor.font()).averageCharWidth())
         else:
             editor = QScintillaCompatible(self)
             lexer = None
