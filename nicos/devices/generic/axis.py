@@ -222,6 +222,11 @@ class Axis(CanReference, BaseAxis):
             self._errorstate = None
             raise errorstate  # pylint: disable=E0702
 
+    def doTime(self, start, end):
+        if hasattr(self._attached_motor, 'doTime'):
+            return self._attached_motor.doTime(start, end)
+        return abs(end - start) / self.speed if self.speed != 0 else 0.
+
     def doWriteSpeed(self, value):
         self._attached_motor.speed = value
 

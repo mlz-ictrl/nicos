@@ -71,9 +71,11 @@ class Axis(CanReference, TacoDevice, BaseAxis):
 
     def doTime(self, start, end):
         s, v, a = abs(start - end), self.speed, self.accel
-        if s > v**2/a:  # do we reach nominal speed?
-            return s/v + v/a
-        return 2*(s/a)**0.5
+        if v <= 0 or a <= 0:
+            return 0
+        if s > v**2 / a:  # do we reach nominal speed?
+            return s / v + v / a
+        return 2 * (s / a)**0.5
 
     def doReset(self):
         self._taco_reset(self._dev, self.resetcall)

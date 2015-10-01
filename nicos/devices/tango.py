@@ -460,6 +460,14 @@ class Motor(CanReference, Actuator):
         self._dev.Reference()
         self.wait()
 
+    def doTime(self, start, end):
+        s, v, a, d = abs(start - end), self.speed, self.accel, self.decel
+        if v <= 0 or a <= 0 or d <= 0:
+            return 0
+        if s > v**2 / a:  # do we reach nominal speed?
+            return s / v + 0.5 * (v / a + v / d)
+        return 2 * (s / a)**0.5
+
 
 class TemperatureController(Actuator):
     """
