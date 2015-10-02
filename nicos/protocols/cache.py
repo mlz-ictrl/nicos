@@ -125,8 +125,8 @@ Locking
 
 Operation: ``OP_LOCK`` or ``'$'``
 
-The lock mechanism allows only one client at the same time to obtain a lock on a
-given identifier.  This can be used to synchronize access of multiple NICOS
+The lock mechanism allows only one client at the same time to obtain a lock on
+a given identifier.  This can be used to synchronize access of multiple NICOS
 clients to a shared resource (but is slow!).
 
 - ``time1`` is the time when the lock is requested (default current time).
@@ -162,9 +162,9 @@ For example, after ::
 
     nicos/t~nicos/tcryo
 
-all incoming keys with prefix "nicos/tcryo" will be set in the cache with prefix
-"nicos/tcryo" and "nicos/t" (and also written in the store files, if the cache
-is configured for that).
+all incoming keys with prefix "nicos/tcryo" will be set in the cache with
+prefix "nicos/tcryo" and "nicos/t" (and also written in the store files, if the
+cache is configured for that).
 
 Response: none.
 
@@ -177,9 +177,9 @@ the key.  So far only one flag is defined:
 FLAG_NO_STORE (``'#'``)
   Avoids storing the update in an on-disk-database.  The flag is removed by the
   cache server before any updates are handled, i.e. no client will ever see it.
-  Its use is intented for particular noisy actions which don't need to be stored
-  on disk.  Only the updates with this flag will not be stored, so a client can
-  select this feature for each request.
+  Its use is intented for particular noisy actions which don't need to be
+  stored on disk.  Only the updates with this flag will not be stored, so a
+  client can select this feature for each request.
 
 Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
