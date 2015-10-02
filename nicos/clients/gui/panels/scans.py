@@ -30,7 +30,8 @@ import time
 from math import sqrt
 
 from PyQt4.QtGui import QDialog, QMenu, QToolBar, QStatusBar, QFont, \
-    QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut
+    QListWidgetItem, QSizePolicy, QPalette, QKeySequence, QShortcut, \
+    QTableWidgetItem
 from PyQt4.QtCore import QByteArray, Qt, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
@@ -45,6 +46,12 @@ from nicos.pycompat import itervalues
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 TOGETHER, COMBINE, ADD, SUBTRACT, DIVIDE = range(5)
+INTERESTING_CATS = [  # from nicos.core.params
+    'Device positions and sample environment state',
+    'Sample and alignment',
+    'Instrument setup',
+    'Experiment information',
+]
 
 
 def combinestr(strings, **kwds):
@@ -122,7 +129,11 @@ class ScansPanel(Panel):
         # uids of automatically combined datasets -> uid of combined one
         self.contSetUids = {}
 
+        self.metaTable.setHorizontalHeaderLabels(['Name', 'Value'])
         self.splitter.restoreState(self.splitterstate)
+        if self.tablecolwidth0 > 0:
+            self.metaTable.setColumnWidth(0, self.tablecolwidth0)
+            self.metaTable.setColumnWidth(1, self.tablecolwidth1)
 
         self.connect(self.data, SIGNAL('datasetAdded'),
                      self.on_data_datasetAdded)
@@ -138,9 +149,13 @@ class ScansPanel(Panel):
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', '', QByteArray)
+        self.tablecolwidth0 = settings.value('tablecolwidth0', 0, int)
+        self.tablecolwidth1 = settings.value('tablecolwidth1', 0, int)
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
+        settings.setValue('tablecolwidth0', self.metaTable.columnWidth(0))
+        settings.setValue('tablecolwidth1', self.metaTable.columnWidth(1))
 
     def setCustomStyle(self, font, back):
         self.user_font = font
@@ -299,6 +314,7 @@ class ScansPanel(Panel):
         if self.currentPlot:
             self.plotLayout.removeWidget(self.currentPlot)
             self.currentPlot.hide()
+            self.metaTable.clear()
         self.currentPlot = plot
         if plot is None:
             self.enablePlotActions(False)
@@ -308,6 +324,32 @@ class ScansPanel(Panel):
             except ValueError:
                 pass
             self.setUidStack.append(plot.dataset.uid)
+
+            num_items = 0
+            for catname in INTERESTING_CATS:
+                if catname in plot.dataset.headerinfo:
+                    num_items += 2 + len(plot.dataset.headerinfo[catname])
+            num_items -= 1  # remove last empty row
+            self.metaTable.setRowCount(num_items)
+
+            i = 0
+            for catname in INTERESTING_CATS:
+                if catname in plot.dataset.headerinfo:
+                    values = plot.dataset.headerinfo[catname]
+                    catitem = QTableWidgetItem(catname)
+                    font = catitem.font()
+                    font.setBold(True)
+                    catitem.setFont(font)
+                    self.metaTable.setItem(i, 0, catitem)
+                    self.metaTable.setSpan(i, 0, 1, 2)
+                    i += 1
+                    for dev, name, value in values:
+                        key = '%s_%s' % (dev, name) if name != 'value' else dev
+                        self.metaTable.setItem(i, 0, QTableWidgetItem(key))
+                        self.metaTable.setItem(i, 1, QTableWidgetItem(value))
+                        i += 1
+                    i += 1
+            self.metaTable.resizeRowsToContents()
 
             self.enablePlotActions(True)
             self.enableAutoScaleActions(self.currentPlot.HAS_AUTOSCALE)
