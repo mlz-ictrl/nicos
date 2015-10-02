@@ -164,17 +164,16 @@ class DNSFileFormat(ImageSink):
                              (float(session.getDevice('ZT').read()), 0.0))
         imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
 
-        td, tb, tset = float('NaN'), float('NaN'), float('NaN')
-        if 'T_jlc3_D' in session.devices:
-            td = float(session.getDevice('T_jlc3_D').read())
-        if 'T_jlc3_B' in session.devices:
-            tb = float(session.getDevice('T_jlc3_B').read())
+        tsample, ttube, tset = float('NaN'), float('NaN'), float('NaN')
+        if 'Ts' in session.devices:
+            tsample = float(session.getDevice('Ts').read())
         if 'T_jlc3_tube' in session.devices:
+            ttube = float(session.getDevice('T_jlc3_tube').read())
             tset = float(session.getDevice('T_jlc3_tube').setpoint)
 
         imageinfo.file.write("# Temperatures/Lakeshore      T\n")
-        imageinfo.file.write("#  T1                         %6.3f K\n" % td)
-        imageinfo.file.write("#  T2                         %6.3f K\n" % tb)
+        imageinfo.file.write("#  T1                         %6.3f K\n" % ttube)
+        imageinfo.file.write("#  T2                         %6.3f K\n" % tsample)
         imageinfo.file.write("#  sample_setpoint            %6.3f K\n" % tset)
         imageinfo.file.write("#" + "-"*74 + "\n")  # separation line
 
