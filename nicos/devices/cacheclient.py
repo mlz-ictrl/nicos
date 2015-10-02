@@ -335,11 +335,18 @@ class BaseCacheClient(Device):
                 # self.log.debug("get_explicit: sending %r" % tosend)
                 self._secsocket.sendall(to_utf8(tosend))
 
+                # give 10 seconds time to get the whole reply
+                timeout = currenttime() + 10
                 # read response
-                data, n = b'', 0
-                while not data.endswith(sentinel) and n < 1000:
-                    data += self._secsocket.recv(BUFSIZE)
-                    n += 1
+                data = b''
+                while not data.endswith(sentinel):
+                    newdata = self._secsocket.recv(BUFSIZE)  # blocking read
+                    if not newdata:
+                        raise socket.error('cache closed connection')
+                    if currenttime() > timeout:
+                        # do not just break, we need to reopen the socket
+                        raise socket.error('getting response took too long')
+                    data += newdata
             except socket.error:
                 self.log.warning('error during cache query', exc=1)
                 closeSocket(self._secsocket)
