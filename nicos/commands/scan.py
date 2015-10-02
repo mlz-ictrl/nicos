@@ -121,7 +121,9 @@ def _infostr(fn, args, kwargs):
         elif isinstance(x, (list, tuple)):  # and x and isinstance(x[0], Device):
             return '[' + ', '.join(map(devrepr, x)) + ']'
         elif isinstance(x, float):
-            return str(x)
+            if abs(x) < 0.01:
+                return '%.4g' % x
+            return '%.4f' % x
         return repr(x)
     argsrepr = ', '.join(devrepr(a) for a in args
                          if not isinstance(a, string_types))
