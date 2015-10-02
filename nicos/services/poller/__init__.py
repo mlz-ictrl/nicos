@@ -454,11 +454,7 @@ class Poller(Device):
 
     def _start_child(self, setup):
         poller_script = path.join(config.nicos_root, 'bin', 'nicos-poller')
-        if os.name == 'nt':
-            execute = [sys.executable, poller_script, setup]
-        else:
-            execute = [poller_script, setup]
-        process = subprocess.Popen(execute)
+        process = subprocess.Popen([sys.executable, poller_script, setup])
         # we need to keep a reference to the Popen object, since it calls
         # os.wait() itself in __del__
         self._children[setup] = process

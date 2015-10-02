@@ -24,6 +24,7 @@
 
 """The NICOS watchdog daemon."""
 
+import sys
 import ast
 import subprocess
 from os import path
@@ -338,7 +339,8 @@ class Watchdog(BaseCacheClient):
     def _spawn_action(self, action):
         self.log.warning('will execute action %r' % action)
         script = path.join(config.nicos_root, 'bin', 'nicos-script')
-        subprocess.Popen([script,
+        subprocess.Popen([sys.executable,
+                          script,
                           '-M',                     # start in maintenance mode
                           '-S', '60',               # abort after 60 seconds
                           '-A', 'watchdog-action',  # appname for the logfiles
