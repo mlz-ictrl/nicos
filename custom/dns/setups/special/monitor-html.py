@@ -41,9 +41,6 @@ _secondcolumn = Column(
         BlockRow('field', 'flipper'),
         ],
     ),
-)
-
-_thirdcolumn = Column(
 
     Block('Selector', [
         BlockRow('selector_speed', 'selector_lift'),
@@ -51,6 +48,10 @@ _thirdcolumn = Column(
         ],
         setups='astrium',
     ),
+
+)
+
+_thirdcolumn = Column(
 
     Block('Cryostat (jlc3)', [
         BlockRow(Field(name='Temp. setpoint', key='T_jlc3_tube/setpoint',
@@ -63,13 +64,71 @@ _thirdcolumn = Column(
         ],
         setups='jlc3',
     ),
+    Block('3He insert (cci3he2)', [
+        BlockRow(Field(name='Setpoint', key='T_cci3he2/setpoint', unitkey='T_cci3he2/unit', format='%.2f'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cci3he2_p1'),
+                 Field(name='cycle', dev='cci3he2_p4'),
+                 ),
+        ],
+        setups='cci3he2',
+    ),
+    Block('3He-4He insert (cci3he4he1)', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cci3he4he1_p1'),
+                 Field(name='cycle', dev='cci3he4he1_p4'),
+                 ),
+        ],
+        setups='cci3he4he1',
+    ),
+    Block('3He-4He insert (cci3he4he2)', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cci3he4he2_p1'),
+                 Field(name='cycle', dev='cci3he4he2_p4'),
+                 ),
+        ],
+        setups='cci3he4he2',
+    ),
+    Block('3He insert (cci3he1)', [
+        BlockRow(Field(name='Setpoint', key='T_cci3he1/setpoint', unitkey='T_cci3he1/unit', format='%.2f'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cci3he1_p1'),
+                 Field(name='cycle', dev='cci3he1_p4'),
+                 ),
+        ],
+        setups='cci3he1',
+    ),
+    Block('3He insert (cci3he3)', [
+        BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
+                 Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
+        BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
+                 Field(name='D', key='t/d', width=4),
+                 Field(name='turbo', dev='cci3he3_p1'),
+                 Field(name='cycle', dev='cci3he3_p4'),
+                 ),
+        ],
+        setups='cci3he3',
+    ),
+
 )
 
 _plotcolumn = Column(
     Block('Temperature plots', [
         BlockRow(Field(dev='T_jlc3_tube', plot='T',
                        plotwindow=12*3600, plotinterval=20, width=100, height=40),
-                 Field(dev='T_jlc3_stick', plot='T'),),
+                 Field(dev='Ts', plot='T')),
+        BlockRow(Field(dev='Ts', plot='Ts',
+                       plotwindow=12*3600, plotinterval=20, width=100, height=40)),
         ],
         setups='jlc3',
     ),
