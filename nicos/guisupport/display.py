@@ -306,18 +306,18 @@ class ValueDisplay(NicosWidget, QWidget):
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         # check expired values
         self._expired = expired
-        if self._expired and self.props['showExpiration']:
-            setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
-        else:
-            setBackgroundColor(self.valuelabel, self._colorscheme['back'][BUSY])
+        self._lastvalue = value
+        self._lastchange = currenttime()
         if self.props['maxlen'] > -1:
             self.valuelabel.setText(from_maybe_utf8(strvalue[:self.props['maxlen']]))
         else:
             self.valuelabel.setText(from_maybe_utf8(strvalue))
-        self._lastvalue = value
-        self._lastchange = currenttime()
-        setForegroundColor(self.valuelabel, self._colorscheme['fore'][BUSY])
-        QTimer.singleShot(1000, self._applystatuscolor)
+        if self._expired and self.props['showExpiration']:
+            setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
+        elif not self.props['istext']:
+            setBackgroundColor(self.valuelabel, self._colorscheme['back'][BUSY])
+            setForegroundColor(self.valuelabel, self._colorscheme['fore'][BUSY])
+            QTimer.singleShot(1000, self._applystatuscolor)
 
     def _applystatuscolor(self):
         if self._expired and self.props['showExpiration']:
