@@ -66,6 +66,9 @@ class CommandPanel(Panel):
             self.console.outView.anchorClicked.connect(
                 self.on_consoleView_anchorClicked)
 
+    def setViewOnly(self, viewonly):
+        self.inputFrame.setVisible(not viewonly)
+
     def setOptions(self, options):
         Panel.setOptions(self, options)
         modules = options.get('modules', [])

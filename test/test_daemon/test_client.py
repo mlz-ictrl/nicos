@@ -26,10 +26,10 @@ from __future__ import print_function
 
 import time
 
-from test.utils import getDaemonPort
+from test.utils import getDaemonPort, raises
 
 from nicos import nicos_version
-from nicos.clients.base import NicosClient
+from nicos.clients.base import NicosClient, ConnectionData
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC
 from nicos.core.sessions.utils import MASTER
 
@@ -67,11 +67,7 @@ client = None
 def setup_module():
     global client
     client = TestClient()
-    client.connect({'host': 'localhost',
-                    'port': getDaemonPort(),
-                    'login': 'user',
-                    'passwd': 'user',
-                    'display': ''})
+    client.connect(ConnectionData('localhost', getDaemonPort(), 'user', 'user'))
     assert ('connected', None, None) in client._signals
 
 
@@ -121,6 +117,13 @@ def test_simple():
     assert status['requests'][-1]['script'] == 'printinfo 2'
     assert status['requests'][-1]['user'] == 'user'
     client.tell('unqueue', str(status['requests'][-1]['reqno']))
+
+    # test view-only mode
+    client.viewonly = True
+    try:
+        assert raises(AssertionError, client.tell, 'exec', 'sleep')
+    finally:
+        client.viewonly = False
 
     # wait until command is done
     while True:

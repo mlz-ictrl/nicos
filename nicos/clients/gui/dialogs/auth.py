@@ -35,6 +35,7 @@ except ImportError:
         pass
 
 from nicos.protocols.daemon import DEFAULT_PORT
+from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi
 
 
@@ -46,19 +47,15 @@ class ConnectionDialog(QDialog):
         self = cls(parent, connpresets, lastpreset, lastdata)
         ret = self.exec_()
         if ret != QDialog.Accepted:
-            return None, None, None, None
+            return None, None, None
         new_addr = self.presetOrAddr.currentText()
-        new_data = {}
         new_name = preset_name = ''
         if new_addr in connpresets:
-            cdata = connpresets[new_addr]
+            new_data = connpresets[new_addr].copy()
             new_name = new_addr
-            new_data['host'] = str(cdata[0])
-            new_data['port'] = int(cdata[1])
-            if self.userName.text() == '':
-                new_data['login'] = str(cdata[2])
-            else:
-                new_data['login'] = str(self.userName.text())
+            if self.userName.text():
+                new_data.user = self.userName.text()
+            new_data.password = self.password.text()
         else:
             try:
                 host, port = new_addr.split(':')
@@ -66,13 +63,12 @@ class ConnectionDialog(QDialog):
             except ValueError:
                 host = new_addr
                 port = DEFAULT_PORT
-            new_data['host'] = host
-            new_data['port'] = port
-            new_data['login'] = self.userName.text()
-        passwd = self.password.text()
+            new_data = ConnectionData(host, port, self.userName.text(),
+                                      self.password.text())
+        new_data.viewonly = self.viewonly.isChecked()
         if not new_name:
             preset_name = self.newPresetName.text()
-        return new_name, new_data, passwd, preset_name
+        return new_name, new_data, preset_name
 
     def __init__(self, parent, connpresets, lastpreset, lastdata):
         QDialog.__init__(self, parent)
@@ -110,9 +106,8 @@ class ConnectionDialog(QDialog):
         if not lastpreset:
             # if we have no stored last preset connection, put in the raw data
             self.presetOrAddr.setEditText(
-                '%s:%s' % (lastdata['host'], lastdata['port']))
-        if lastdata['login']:
-            self.userName.setText(lastdata['login'])
+                '%s:%s' % (lastdata.host, lastdata.port))
+        self.userName.setText(lastdata.user)
         self.password.setFocus()
         self.presetFrame.hide()
         self.resize(QSize(self.width(), self.minimumSize().height()))
@@ -120,7 +115,8 @@ class ConnectionDialog(QDialog):
     def on_presetOrAddr_editTextChanged(self, text):
         if text in self.connpresets:
             conn = self.connpresets[text]
-            self.userName.setText(conn[2])
+            self.userName.setText(conn.user)
+            self.viewonly.setChecked(conn.viewonly)
             self.presetFrame.hide()
         else:
             self.presetFrame.show()
@@ -128,11 +124,12 @@ class ConnectionDialog(QDialog):
     def on_quickList_itemClicked(self, item):
         conn = self.connpresets[item.text()]
         self.presetOrAddr.setEditText(item.text())
-        self.userName.setText(conn[2])
+        self.userName.setText(conn.user)
+        self.viewonly.setChecked(conn.viewonly)
         self.password.setFocus()
 
     def on_quickList_itemDoubleClicked(self, item):
         conn = self.connpresets[item.text()]
-        if conn[2] == 'guest':
+        if conn.user == 'guest':
             self.password.setText('')
             self.accept()

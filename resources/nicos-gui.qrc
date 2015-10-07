@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file alias="viewonly">icons/emblem-readonly.png</file>
     <file alias="appicon-48">icons/48x48/nicos.png</file>
     <file alias="appicon-16">icons/16x16/nicos.png</file>
     <file alias="appicon">icons/32x32/nicos.png</file>

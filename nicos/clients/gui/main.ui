@@ -74,6 +74,7 @@
      <string>&amp;Application</string>
     </property>
     <addaction name="actionConnect"/>
+    <addaction name="actionViewOnly"/>
     <addaction name="actionExpert"/>
     <addaction name="separator"/>
     <addaction name="actionFont"/>
@@ -102,6 +103,7 @@
    </attribute>
    <addaction name="actionConnect"/>
    <addaction name="actionExit"/>
+   <addaction name="actionViewOnly"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QToolBar" name="toolBarWindows">
@@ -207,6 +209,24 @@
   <action name="actionDebugConsole">
    <property name="text">
     <string>Debug &amp;console</string>
+   </property>
+  </action>
+  <action name="actionViewOnly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/nicos-gui.qrc">
+     <normaloff>:/viewonly</normaloff>:/viewonly</iconset>
+   </property>
+   <property name="text">
+    <string>View only mode</string>
+   </property>
+   <property name="iconText">
+    <string>View</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle view-only mode</string>
    </property>
   </action>
  </widget>

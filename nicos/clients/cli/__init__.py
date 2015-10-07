@@ -43,7 +43,7 @@ from os import path
 from time import strftime, localtime
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
-from nicos.clients.base import NicosClient
+from nicos.clients.base import NicosClient, ConnectionData
 from nicos.clients.cli.txtplot import txtplot
 from nicos.utils import colorize, which, formatDuration, formatEndtime, \
     terminalSize, parseConnectionString
@@ -101,7 +101,7 @@ class NicosCmdClient(NicosClient):
 
     def __init__(self, conndata):
         NicosClient.__init__(self, self.put_error)
-        # connection data as a dictionary
+        # connection data as an object
         self.conndata = conndata
         # whether to suppress printing history and other info on connection
         self.quiet_connect = False
@@ -119,7 +119,7 @@ class NicosCmdClient(NicosClient):
         # filename of last edited/simulated script
         self.last_filename = ''
         # instrument name from NICOS, pre-filled with server name
-        self.instrument = conndata['host'].split('.')[0]
+        self.instrument = conndata.host.split('.')[0]
         # script directory from NICOS
         self.scriptpath = '.'
         # execution mode of the NICOS session
@@ -279,7 +279,7 @@ class NicosCmdClient(NicosClient):
             self.put_client(
                 'Connected to %s:%s as %s. '
                 'Replaying output (enter "/log" to see more)...' %
-                (self.host, self.port, self.conndata['login']))
+                (self.host, self.port, self.conndata.user))
             output = self.ask('getmessages', str(self.tsize[1] - 3))
             for msg in output:
                 self.put_message(msg)
@@ -293,7 +293,7 @@ class NicosCmdClient(NicosClient):
                                 (', '.join(state['setups'][1]) or '(none)'))
         else:
             self.put_client('Connected to %s:%s as %s. ' %
-                            (self.host, self.port, self.conndata['login']))
+                            (self.host, self.port, self.conndata.user))
         self.signal('processing', {'script': state['script'], 'reqno': 0})
         self.signal('status', state['status'])
         self.current_mode = state['mode']
@@ -519,8 +519,7 @@ class NicosCmdClient(NicosClient):
     # -- command handlers
 
     def ask_connect(self, ask_all=True):
-        hostport = '%s:%s' % (self.conndata['host'],
-                              self.conndata['port'])
+        hostport = '%s:%s' % (self.conndata.host, self.conndata.port)
         if hostport in (':', ':1301') or ask_all:
             default = '' if hostport in (':', ':1301') else hostport
             default = default or 'localhost'
@@ -533,16 +532,16 @@ class NicosCmdClient(NicosClient):
             except ValueError:
                 host = server
                 port = DEFAULT_PORT
-            self.conndata['host'] = host
-            self.conndata['port'] = port
-        if not self.conndata['login'] or ask_all:
+            self.conndata.host = host
+            self.conndata.port = port
+        if not self.conndata.user or ask_all:
             user = self.ask_question('User name?',
-                                     default=self.conndata['login'] or 'guest')
-            self.conndata['login'] = user
-        if self.conndata['passwd'] is None or ask_all:
+                                     default=self.conndata.user or 'guest')
+            self.conndata.user = user
+        if self.conndata.password is None or ask_all:
             passwd = self.ask_passwd('Password?')
-            self.conndata['passwd'] = passwd
-        self.instrument = self.conndata['host'].split('.')[0]
+            self.conndata.password = passwd
+        self.instrument = self.conndata.host.split('.')[0]
         try:
             self.connect(self.conndata, eventmask=EVENTMASK)
         except RuntimeError as err:
@@ -1103,9 +1102,9 @@ def main(argv):
             configsection = argv[1]
         else:
             cd = parseConnectionString(argv[1], DEFAULT_PORT)
-            server = '%s:%s' % cd[2:4]
-            user = cd[0]
-            passwd = cd[1]
+            server = '%s:%s' % (cd['host'], cd['port'])
+            user = cd['user']
+            passwd = cd['password']
         if argv[3:] and argv[2] == 'via':
             via = argv[3]
 
@@ -1146,18 +1145,10 @@ def main(argv):
                           (':%s' % passwd if passwd is not None else ''),
                           nport)])
 
-    # this is the connection data format used by nicos.clients.base
-    conndata = {
-        'host': host,
-        'port': port,
-        'display': os.getenv('DISPLAY') or '',
-        'login': user,
-        'passwd': passwd,
-    }
-
     # don't interrupt event thread's system calls
     signal.siginterrupt(signal.SIGINT, False)
 
+    conndata = ConnectionData(host, port, user, passwd)
     client = NicosCmdClient(conndata)
     if command:
         return client.main_with_command(command)

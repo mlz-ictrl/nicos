@@ -27,7 +27,7 @@
 import time
 
 from PyQt4.QtGui import QToolBar, QMenu, QListWidgetItem, QIcon, \
-    QPixmap, QColor
+    QActionGroup, QPixmap, QColor
 from PyQt4.QtCore import Qt, QTimer, SIGNAL
 from PyQt4.QtCore import pyqtSignature as qtsig
 
@@ -144,6 +144,15 @@ class ScriptStatusPanel(Panel):
         self.mainwindow.menuBar().insertMenu(
             self.mainwindow.menuWindows.menuAction(), menu)
 
+        self.activeGroup = QActionGroup(self)
+        self.activeGroup.addAction(self.actionBreak)
+        self.activeGroup.addAction(self.actionBreak2)
+        self.activeGroup.addAction(self.actionBreakCount)
+        self.activeGroup.addAction(self.actionContinue)
+        self.activeGroup.addAction(self.actionStop)
+        self.activeGroup.addAction(self.actionStop2)
+        self.activeGroup.addAction(self.actionFinish)
+
     def setOptions(self, options):
         Panel.setOptions(self, options)
         self.stopcounting = bool(options.get('stopcounting', False))
@@ -152,6 +161,9 @@ class ScriptStatusPanel(Panel):
             self.actionStop.setToolTip(tooltip)
             self.actionStop.setText('Abort current script')
             self.actionStop2.setToolTip(tooltip)
+
+    def setViewOnly(self, viewonly):
+        self.activeGroup.setEnabled(not viewonly)
 
     def setCustomStyle(self, font, back):
         self.idle_color = back

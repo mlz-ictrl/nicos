@@ -29,8 +29,8 @@ from os import path
 from cgi import escape
 
 from PyQt4.QtGui import QMainWindow, QTextEdit, QDialog, QInputDialog, QMenu, \
-     QToolBar, QPrintDialog, QPrinter, QTextDocument, QDesktopServices, \
-     QPushButton, QLineEdit
+    QToolBar, QPrintDialog, QPrinter, QTextDocument, QDesktopServices, \
+    QPushButton, QLineEdit, QActionGroup
 from PyQt4.QtWebKit import QWebView, QWebPage
 from PyQt4.QtCore import SIGNAL, Qt, QTimer, QUrl, pyqtSignature as qtsig
 
@@ -55,6 +55,12 @@ class ELogPanel(Panel, DlgUtils):
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
         self.connect(self.client, SIGNAL('experiment'), self.on_client_experiment)
+
+        self.activeGroup = QActionGroup(self)
+        self.activeGroup.addAction(self.actionAddComment)
+        self.activeGroup.addAction(self.actionAddRemark)
+        self.activeGroup.addAction(self.actionAttachFile)
+        self.activeGroup.addAction(self.actionNewSample)
 
         self.preview.page().setForwardUnsupportedContent(True)
         self.connect(self.preview.page(),
@@ -106,6 +112,9 @@ class ELogPanel(Panel, DlgUtils):
             self.bar = bar
 
         return [self.bar]
+
+    def setViewOnly(self, viewonly):
+        self.activeGroup.setEnabled(not viewonly)
 
     def on_timer_timeout(self):
         sig = SIGNAL('loadFinished(bool)')

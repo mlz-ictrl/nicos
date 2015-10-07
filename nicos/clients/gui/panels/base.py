@@ -137,6 +137,9 @@ class Panel(QWidget, SetupDepGuiMixin, DlgUtils):
     def setExpertMode(self, expert):
         pass
 
+    def setViewOnly(self, viewonly):
+        pass
+
     def loadSettings(self, settings):
         pass
 

@@ -39,7 +39,7 @@ import numpy as np
 
 from nicos.protocols.daemon import serialize, unserialize, ENQ, ACK, STX, NAK, \
     LENGTH, PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS, DAEMON_EVENTS, \
-    command2code, code2event
+    ACTIVE_COMMANDS, command2code, code2event
 from nicos.pycompat import to_utf8
 from nicos.utils import createThread, tcpSocket
 
@@ -53,6 +53,22 @@ class ProtocolError(Exception):
 
 class ErrorResponse(Exception):
     pass
+
+
+class ConnectionData(object):
+    def __init__(self, host, port, user, password, viewonly=False):
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+        self.viewonly = viewonly
+
+    def copy(self):
+        return ConnectionData(self.host, self.port, self.user,
+                              self.password, self.viewonly)
+
+    def serialize(self):
+        return vars(self)
 
 
 class NicosClient(object):
@@ -72,6 +88,7 @@ class NicosClient(object):
         self.disconnecting = False
         self.gzip = False
         self.last_reqno = None
+        self.viewonly = True
         self.user_level = None
 
         unique_id = to_utf8(str(time.time()) + str(os.getpid()))
@@ -82,13 +99,10 @@ class NicosClient(object):
         # must be overwritten
         raise NotImplementedError
 
-    def connect(self, conndata, password=None, eventmask=None):
+    def connect(self, conndata, eventmask=None):
         """Connect to a NICOS daemon.
 
-        *conndata* is a dictionary with keys 'host', 'port', 'login'
-        (user name) and 'display' (X display to use; deprecated).
-
-        *password* is the password for logging in.
+        *conndata* is a ConnectionData object.
 
         *eventmask* is a tuple of event names that should not be sent to this
         client.
@@ -97,7 +111,7 @@ class NicosClient(object):
             raise RuntimeError('client already connected')
         self.disconnecting = False
         try:
-            self.socket = tcpSocket(conndata['host'], conndata['port'],
+            self.socket = tcpSocket(conndata.host, conndata.port,
                                     timeout=TIMEOUT)
         except socket.error as err:
             msg = err.args[1] if len(err.args) >= 2 else str(err)
@@ -127,12 +141,11 @@ class NicosClient(object):
                                         % (daemon_proto, PROTO_VERSION))
         except Exception as err:
             self.signal('failed', 'Server (%s:%d) handshake failed: %s.'
-                        % (conndata['host'], conndata['port'], err))
+                        % (conndata.host, conndata.port, err))
             return
 
         # log-in sequence
-        if password is None:
-            password = conndata['passwd']
+        password = conndata.password
         pw_hashing = banner.get('pw_hashing', 'sha1')
 
         if pw_hashing[0:4] == 'rsa,':
@@ -151,9 +164,9 @@ class NicosClient(object):
             password = hashlib.md5(to_utf8(password)).hexdigest()
 
         auth_dict = {
-            'login': conndata['login'],
+            'login': conndata.user,
             'passwd': password,
-            'display': conndata['display'],
+            'display': '',
         }
 
         if 10 <= self.compat_proto <= 12:
@@ -171,7 +184,7 @@ class NicosClient(object):
 
         # connect to event port
         try:
-            self.event_socket = tcpSocket(conndata['host'], conndata['port'])
+            self.event_socket = tcpSocket(conndata.host, conndata.port)
         except socket.error as err:
             msg = err.args[1]
             self.signal('failed', 'Event connection failed: %s.' % msg, err)
@@ -184,8 +197,9 @@ class NicosClient(object):
         self.event_thread = createThread('event handler', self.event_handler)
 
         self.connected = True
-        self.host, self.port = conndata['host'], conndata['port']
-        self.login = conndata['login']
+        self.host, self.port = conndata.host, conndata.port
+        self.login = conndata.user
+        self.viewonly = conndata.viewonly
 
         self.daemon_info = banner
         self.signal('connected')
@@ -329,6 +343,9 @@ class NicosClient(object):
         if not self.socket:
             self.signal('error', 'You are not connected to a server.')
             return
+        elif self.viewonly and command in ACTIVE_COMMANDS:
+            self.signal('error', 'Your client is set to view-only mode.')
+            return
         try:
             with self.lock:
                 self._write(command, args)
@@ -350,6 +367,9 @@ class NicosClient(object):
         if not self.socket:
             if not kwds.get('quiet', False):
                 self.signal('error', 'You are not connected to a server.')
+            return
+        elif self.viewonly and command in ACTIVE_COMMANDS:
+            self.signal('error', 'Your client is set to view-only mode.')
             return
         try:
             with self.lock:

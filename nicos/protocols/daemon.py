@@ -137,6 +137,11 @@ DAEMON_COMMANDS = {
     'authenticate':   0x64,  # only used during handshake
 }
 
+ACTIVE_COMMANDS = set((
+    'start', 'queue', 'unqueue', 'update',
+    'break', 'continue', 'stop', 'exec',  # 'emergency' is allowed
+))
+
 _codefmt = struct.Struct('>H')
 
 command2code, code2command = {}, {}

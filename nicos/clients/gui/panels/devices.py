@@ -450,7 +450,8 @@ class DevicesPanel(Panel):
         if item.type() == 1001:
             self._menu_dev = item.text(0)
             ldevname = self._menu_dev.lower()
-            if 'nicos.core.device.Moveable' in self._devinfo[ldevname][6]:
+            if 'nicos.core.device.Moveable' in self._devinfo[ldevname][6] and \
+               not self.client.viewonly:
                 self.devmenu.popup(self.tree.viewport().mapToGlobal(point))
             elif 'nicos.core.device.Readable' in self._devinfo[ldevname][6]:
                 self.devmenu_ro.popup(self.tree.viewport().mapToGlobal(point))
@@ -514,8 +515,7 @@ class DevicesPanel(Panel):
     @qtsig('')
     def on_actionHelp_triggered(self):
         if self._menu_dev:
-            self.exec_command('help(%s)' % self._menu_dev, self._menu_dev,
-                              immediate=True)
+            self.client.eval('session.showHelp(session.devices[%r])' % self._menu_dev)
 
     @qtsig('')
     def on_actionPlotHistory_triggered(self):
@@ -642,6 +642,8 @@ class ControlDialog(QDialog):
                     self.aliasTarget.setCurrentIndex(items.index(params['alias']))
             self.targetLayoutAlias.takeAt(1).widget().deleteLater()
             self.targetLayoutAlias.insertWidget(1, self.aliasTarget)
+            if self.client.viewonly:
+                self.setAliasBtn.setEnabled(False)
         else:
             self.aliasGroup.setVisible(False)
 
@@ -661,7 +663,7 @@ class ControlDialog(QDialog):
             historyBtn.clicked.connect(self.on_historyBtn_clicked)
 
         # show a "Control" group box if it is moveable
-        if 'nicos.core.device.Moveable' not in classes:
+        if 'nicos.core.device.Moveable' not in classes or self.client.viewonly:
             self.controlGroup.setVisible(False)
         else:
             if 'nicos.core.mixins.HasLimits' not in classes:
@@ -815,7 +817,7 @@ class ControlDialog(QDialog):
 
     def on_paramList_itemClicked(self, item):
         pname = item.text(0)
-        if not self.paraminfo[pname]['settable']:
+        if not self.paraminfo[pname]['settable'] or self.client.viewonly:
             return
         mainunit = self.paramvalues.get('unit', 'main')
         punit = (self.paraminfo[pname]['unit'] or '').replace('main', mainunit)

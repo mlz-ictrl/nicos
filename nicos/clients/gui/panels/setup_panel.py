@@ -98,6 +98,13 @@ class ExpPanel(Panel, DlgUtils):
             self.queryDBButton.setVisible(True)
         else:
             self.queryDBButton.setVisible(False)
+        if self.client.viewonly:
+            self.finishButton.setVisible(False)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+        else:
+            self.finishButton.setVisible(True)
+            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
+                                              QDialogButtonBox.Close)
 
     def on_client_experiment(self, data):
         # just reinitialize
@@ -279,8 +286,6 @@ class SetupsPanel(Panel, DlgUtils):
         self._loaded = set()
         self._loaded_basic = None
 
-        self.buttonBox.addButton('Reload current setup',
-                                 QDialogButtonBox.ResetRole)
         if self.client.connected:
             self.on_client_connected()
         self.connect(self.client, SIGNAL('connected'), self.on_client_connected)
@@ -325,6 +330,13 @@ class SetupsPanel(Panel, DlgUtils):
                     item.setCheckState(Qt.Checked if name in all_loaded
                                        else Qt.Unchecked)
         self.basicSetup.setCurrentItem(keep)
+        if self.client.viewonly:
+            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+        else:
+            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
+                                              QDialogButtonBox.Close)
+            self.buttonBox.addButton('Reload current setup',
+                                     QDialogButtonBox.ResetRole)
 
     def on_client_setup(self, data):
         self.on_client_connected()
@@ -503,6 +515,11 @@ class DetEnvPanel(Panel, DlgUtils):
             item.setFlags(default_flags)
             item.setCheckState(Qt.Checked if devname in self._orig_envlist
                                else Qt.Unchecked)
+        if self.client.viewonly:
+            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+        else:
+            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
+                                              QDialogButtonBox.Close)
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
@@ -550,6 +567,11 @@ class GenericSamplePanel(Panel, DlgUtils):
         loadUi(self, self.uiName, 'panels')
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)
+        if self.client.viewonly:
+            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+        else:
+            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
+                                              QDialogButtonBox.Close)
 
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)

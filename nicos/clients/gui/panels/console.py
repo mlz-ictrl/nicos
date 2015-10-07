@@ -84,6 +84,10 @@ class ConsolePanel(Panel):
         if not self.hasinput:
             self.inputFrame.setVisible(expert)
 
+    def setViewOnly(self, viewonly):
+        self.commandInput.setVisible(not viewonly)
+        self.promptLabel.setVisible(not viewonly)
+
     def loadSettings(self, settings):
         self.cmdhistory = settings.value('cmdhistory') or []
 
@@ -102,7 +106,7 @@ class ConsolePanel(Panel):
         for widget in (self.outView, self.commandInput):
             widget.setFont(font)
             setBackgroundColor(widget, back)
-        self.label.setFont(font)
+        self.promptLabel.setFont(font)
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
@@ -118,7 +122,7 @@ class ConsolePanel(Panel):
         self.outView._currentuser = self.client.login
 
     def on_client_mode(self, mode):
-        self.label.setText(modePrompt(mode))
+        self.promptLabel.setText(modePrompt(mode))
 
     def on_client_initstatus(self, state):
         self.on_client_mode(state['mode'])

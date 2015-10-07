@@ -34,7 +34,7 @@ from PyQt4.QtGui import QDialog, QPlainTextEdit, QHeaderView, QHBoxLayout, \
     QTreeWidgetItem, QMessageBox, QTextCursor, QTextDocument, QPen, QColor, \
     QFont, QAction, QPrintDialog, QPrinter, QFileDialog, QMenu, QToolBar, \
     QFileSystemModel, QTabWidget, QStyle, QInputDialog, QTextEdit, \
-    QTextFormat, QWidget, QPainter, QFontMetrics
+    QTextFormat, QWidget, QPainter, QFontMetrics, QActionGroup
 from PyQt4.QtCore import pyqtSignature as qtsig, SIGNAL, Qt, QByteArray, \
     QFileSystemWatcher, QSize, QRect
 
@@ -328,6 +328,11 @@ class EditorPanel(Panel):
         self.fileTree.setRootIndex(idx)
         self.actionShowScripts.setChecked(True)
 
+        self.activeGroup = QActionGroup(self)
+        self.activeGroup.addAction(self.actionRun)
+        self.activeGroup.addAction(self.actionSimulate)
+        self.activeGroup.addAction(self.actionUpdate)
+
         self.waiting_sim_result = False
         self.connect(self.client, SIGNAL('message'), self.on_client_message)
         self.connect(self.client, SIGNAL('simresult'), self.on_client_simresult)
@@ -350,6 +355,9 @@ class EditorPanel(Panel):
 
     def setOptions(self, options):
         self.toolconfig = options.get('tools', '')
+
+    def setViewOnly(self, viewonly):
+        self.activeGroup.setEnabled(not viewonly)
 
     def getMenus(self):
         menuFile = QMenu('&File', self)

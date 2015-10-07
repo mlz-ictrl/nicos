@@ -408,8 +408,12 @@ def parseConnectionString(s, defport):
     res = re.match(r"(?:(\w+)(?::([^@]*))?@)?([\w.]+)(?::(\d+))?", s)
     if res is None:
         return None
-    return res.group(1) or 'guest', res.group(2), \
-        res.group(3), int(res.group(4) or defport)
+    return {
+        'user': res.group(1) or 'guest',
+        'password': res.group(2),   # None if no password given
+        'host': res.group(3),
+        'port': int(res.group(4) or defport),
+    }
 
 
 def chunks(iterable, size):

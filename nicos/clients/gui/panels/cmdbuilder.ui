@@ -24,59 +24,70 @@
     <number>0</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="btnLayout">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>&gt;&gt;</string>
-       </property>
-       <property name="buddy">
-        <cstring>commandInput</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="CommandLineEdit" name="commandInput">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="simBtn">
-       <property name="focusPolicy">
-        <enum>Qt::TabFocus</enum>
-       </property>
-       <property name="text">
-        <string>Dry run</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
-         <normaloff>:/simulate</normaloff>:/simulate</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="runBtn">
-       <property name="focusPolicy">
-        <enum>Qt::TabFocus</enum>
-       </property>
-       <property name="text">
-        <string>Run</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
-         <normaloff>:/continue</normaloff>:/continue</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QFrame" name="inputFrame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>&gt;&gt;</string>
+        </property>
+        <property name="buddy">
+         <cstring>commandInput</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="CommandLineEdit" name="commandInput_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="simBtn_2">
+        <property name="focusPolicy">
+         <enum>Qt::TabFocus</enum>
+        </property>
+        <property name="text">
+         <string>Dry run</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../../resources/nicos-gui.qrc">
+          <normaloff>:/simulate</normaloff>:/simulate</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="runBtn_2">
+        <property name="focusPolicy">
+         <enum>Qt::TabFocus</enum>
+        </property>
+        <property name="text">
+         <string>Run</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../../resources/nicos-gui.qrc">
+          <normaloff>:/continue</normaloff>:/continue</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QFrame" name="frame">

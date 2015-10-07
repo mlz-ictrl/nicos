@@ -111,11 +111,11 @@ def test_functions():
                           (2, 'd', 'e')) == 'a, c, d'
 
     assert parseConnectionString('user:pass@host:1301', 1302) == \
-        ('user', 'pass', 'host', 1301)
+        {'user': 'user', 'password': 'pass', 'host': 'host', 'port': 1301}
     assert parseConnectionString('user:@host:1301', 1302) == \
-        ('user', '', 'host', 1301)
+        {'user': 'user', 'password': '', 'host': 'host', 'port': 1301}
     assert parseConnectionString('user@host:1301', 1302) == \
-        ('user', None, 'host', 1301)
+        {'user': 'user', 'password': None, 'host': 'host', 'port': 1301}
 
     assert list(map(tuple, chunks(range(10), 3))) == \
         [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]

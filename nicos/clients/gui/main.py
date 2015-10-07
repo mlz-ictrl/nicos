@@ -45,10 +45,11 @@ from nicos.utils import parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
 from nicos.core.utils import ADMIN
+from nicos.clients.base import ConnectionData
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.client import NicosGuiClient
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-    loadBasicWindowSettings, loadUserStyle, getXDisplay, DebugHandler
+    loadBasicWindowSettings, loadUserStyle, DebugHandler
 from nicos.clients.gui.config import gui_config, prepareGuiNamespace
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
@@ -100,13 +101,8 @@ class MainWindow(QMainWindow, DlgUtils):
         self.expertmode = False
 
         # set-up the initial connection data
-        self.connectionData = dict(
-            host    = 'localhost',
-            port    = 1301,
-            login   = '',
-            display = getXDisplay(),
-        )
-        self.lastpasswd = None
+        self.conndata = ConnectionData(host='localhost', port=1301,
+                                       user='guest', password=None)
 
         # state members
         self.current_status = None
@@ -262,14 +258,12 @@ class MainWindow(QMainWindow, DlgUtils):
         del self.windows[window.type]
         window.deleteLater()
 
-    def setConnData(self, login, passwd, host, port):
-        self.connectionData['login'] = login
-        self.connectionData['host'] = host
-        self.connectionData['port'] = port
+    def setConnData(self, data):
+        self.conndata = data
 
     def _reconnect(self):
-        if self.lastpasswd is not None:
-            self.client.connect(self.connectionData, self.lastpasswd)
+        if self.conndata.password is not None:
+            self.client.connect(self.conndata)
 
     def show(self):
         QMainWindow.show(self)
@@ -286,14 +280,18 @@ class MainWindow(QMainWindow, DlgUtils):
 
         self.autoconnect = settings.value('autoconnect', True, bool)
 
-        self.connpresets = dict((str(k), v) for (k, v) in
-                                iteritems(settings.value('connpresets', {})))
+        self.connpresets = {}
+        # new setting key, with dictionary values
+        for (k, v) in iteritems(settings.value('connpresets_new', {})):
+            self.connpresets[k] = ConnectionData(**v)
+        # if it was empty, try old setting key with list values
+        if not self.connpresets:
+            for (k, v) in iteritems(settings.value('connpresets', {})):
+                self.connpresets[k] = ConnectionData(
+                    host=v[0], port=int(v[1]), user=v[2], password=None)
         self.lastpreset = settings.value('lastpreset', '')
         if self.lastpreset in self.connpresets:
-            cdata = self.connpresets[self.lastpreset]
-            self.connectionData['host']  = str(cdata[0])
-            self.connectionData['port']  = int(cdata[1])
-            self.connectionData['login'] = str(cdata[2])
+            self.conndata = self.connpresets[self.lastpreset].copy()
 
         self.instrument = settings.value('instrument', self.gui_conf.name)
         self.confirmexit = settings.value('confirmexit', True, bool)
@@ -318,21 +316,22 @@ class MainWindow(QMainWindow, DlgUtils):
             settings.setValue('geometry', self.saveGeometry())
             settings.setValue('windowstate', self.saveState())
             settings.setValue('splitstate',
-                [sp.saveState() for sp in self.splitters])
+                              [sp.saveState() for sp in self.splitters])
             open_wintypes = list(self.windows)
             settings.setValue('auxwindows', open_wintypes)
 
     def saveSettings(self, settings):
         settings.setValue('autoconnect', self.client.connected)
-        settings.setValue('connpresets', self.connpresets)
+        settings.setValue('connpresets_new', dict((k, v.serialize()) for (k, v)
+                                                  in self.connpresets.items()))
         settings.setValue('lastpreset', self.lastpreset)
         settings.setValue('font', self.user_font)
         settings.setValue('color', self.user_color)
 
     def closeEvent(self, event):
         if self.confirmexit and QMessageBox.question(
-            self, 'Quit', 'Do you really want to quit?',
-            QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
+                self, 'Quit', 'Do you really want to quit?',
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.No:
             event.ignore()
             return
 
@@ -454,8 +453,10 @@ class MainWindow(QMainWindow, DlgUtils):
         # show warning label for admin users
         self.adminLabel.setVisible(
             self.warnwhenadmin and
-            self.client.user_level is not None
-            and self.client.user_level >= ADMIN)
+            self.client.user_level is not None and
+            self.client.user_level >= ADMIN)
+
+        self.actionViewOnly.setChecked(self.client.viewonly)
 
         # set focus to command input, if present
         for panel in self.panels:
@@ -526,6 +527,15 @@ class MainWindow(QMainWindow, DlgUtils):
             for panel in window.panels:
                 panel.setExpertMode(on)
 
+    def on_actionViewOnly_toggled(self, on):
+        # also triggered when the action is checked by on_client_connected
+        self.client.viewonly = on
+        for panel in self.panels:
+            panel.setViewOnly(on)
+        for window in self.windows.values():
+            for panel in window.panels:
+                panel.setViewOnly(on)
+
     @qtsig('')
     def on_actionNicosHelp_triggered(self):
         self.client.eval('session.showHelp("index")')
@@ -556,7 +566,7 @@ class MainWindow(QMainWindow, DlgUtils):
                 'custom_path': ''}
         if self.client.connected:
             dinfo = self.client.daemon_info
-            info['server_host'] = self.connectionData['host']
+            info['server_host'] = self.conndata['host']
             info['server_version'] = dinfo.get('daemon_version', 'unknown')
             info['custom_version'] = dinfo.get('custom_version', 'unknown')
             info['nicos_root'] = dinfo.get('nicos_root', 'unknown')
@@ -580,20 +590,17 @@ class MainWindow(QMainWindow, DlgUtils):
             return
 
         self.actionConnect.setChecked(False)  # gets set by connection event
-        new_name, new_data, passwd, save = ConnectionDialog.getConnectionData(
-            self, self.connpresets, self.lastpreset, self.connectionData)
+        new_name, new_data, save = ConnectionDialog.getConnectionData(
+            self, self.connpresets, self.lastpreset, self.conndata)
         if new_data is None:
             return
-        passwd = passwd.encode('utf8')
         if save:
             self.lastpreset = save
-            self.connpresets[save] = \
-                [new_data['host'], new_data['port'], new_data['login']]
+            self.connpresets[save] = new_data
         else:
             self.lastpreset = new_name
-        self.connectionData.update(new_data)
-        self.client.connect(self.connectionData, passwd)
-        self.lastpasswd = passwd
+        self.conndata = new_data
+        self.client.connect(self.conndata)
 
     @qtsig('')
     def on_actionPreferences_triggered(self):
@@ -659,17 +666,21 @@ def main(argv):
     configfile = path.join(config.custom_path, config.instrument,
                            'guiconfig.py')
     try:
-        opts, args = getopt.getopt(argv[1:], 'c:h', ['config-file=', 'help'])
+        opts, args = getopt.getopt(argv[1:], 'c:hv', ['config-file=', 'help'])
     except getopt.GetoptError as err:
         log.error('%r' % str(err))
         usage()
         sys.exit(1)
+
+    viewonly = False
     for o, a in opts:
         if o in ['-c', '--config-file']:
             configfile = a
         elif o in ['-h', '--help']:
             usage()
             sys.exit()
+        elif o == '-v':
+            viewonly = True
         else:
             assert False, 'unhandled option'
 
@@ -709,13 +720,14 @@ def main(argv):
     log.addHandler(DebugHandler(mainwindow))
 
     if len(args) > 0:
-        cdata = parseConnectionString(args[0], DEFAULT_PORT)
-        if cdata:
-            mainwindow.setConnData(*cdata)
-            if cdata[1] is not None:
-                mainwindow.client.connect(mainwindow.connectionData, cdata[1])
-            elif len(args) > 1:
-                mainwindow.client.connect(mainwindow.connectionData, args[1])
+        parsed = parseConnectionString(args[0], DEFAULT_PORT)
+        if parsed:
+            cdata = ConnectionData(**parsed)
+            cdata.viewonly = viewonly
+            if len(args) > 1:
+                cdata.password = args[1]
+            mainwindow.setConnData(cdata)
+            mainwindow.client.connect(mainwindow.conndata)
     mainwindow.startup()
 
     return app.exec_()

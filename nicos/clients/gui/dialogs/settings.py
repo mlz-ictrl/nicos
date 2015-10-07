@@ -27,6 +27,7 @@
 from PyQt4.QtGui import QDialog, QTreeWidgetItem, QListWidgetItem
 from PyQt4.QtCore import pyqtSignature as qtsig
 
+from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils
 
 
@@ -55,7 +56,7 @@ class SettingsDialog(QDialog, DlgUtils):
         # connection data page
         self.connpresets = main.connpresets
         for setting, cdata in main.connpresets.items():
-            QListWidgetItem(setting + ' (%s:%s)' % (cdata[0], cdata[1]),
+            QListWidgetItem(setting + ' (%s:%s)' % (cdata.host, cdata.port),
                             self.settinglist).setData(32, setting)
 
     def saveSettings(self):
@@ -66,7 +67,9 @@ class SettingsDialog(QDialog, DlgUtils):
         self.main.autoreconnect = self.autoReconnect.isChecked()
         self.main.autosavelayout = self.autoSaveLayout.isChecked()
         with self.sgroup as settings:
-            settings.setValue('connpresets', self.connpresets)
+            settings.setValue(
+                'connpresets_new', dict((k, v.serialize()) for (k, v)
+                                        in self.connpresets.items()))
             settings.setValue('instrument', self.main.instrument)
             settings.setValue('confirmexit', self.main.confirmexit)
             settings.setValue('warnwhenadmin', self.main.warnwhenadmin)
@@ -95,9 +98,10 @@ class SettingsDialog(QDialog, DlgUtils):
         name = dlg.name.text()
         while name in self.connpresets:
             name += '_'
-        cdata = [dlg.host.text(), dlg.port.value(), dlg.login.text()]
+        cdata = ConnectionData(dlg.host.text(), dlg.port.value(),
+                               dlg.login.text(), None, dlg.viewonly.isChecked())
         self.connpresets[name] = cdata
-        QListWidgetItem(name + ' (%s:%s)' % (cdata[0], cdata[1]),
+        QListWidgetItem(name + ' (%s:%s)' % (cdata.host, cdata.port),
                         self.settinglist).setData(32, name)
 
     @qtsig('')
@@ -105,7 +109,7 @@ class SettingsDialog(QDialog, DlgUtils):
         item = self.settinglist.currentItem()
         if item is None:
             return
-        del self.connpresets[str(item.data(32))]
+        del self.connpresets[item.data(32)]
         self.settinglist.takeItem(self.settinglist.row(item))
 
     @qtsig('')
@@ -113,19 +117,21 @@ class SettingsDialog(QDialog, DlgUtils):
         item = self.settinglist.currentItem()
         if item is None:
             return
-        cdata = self.connpresets[str(item.data(32))]
+        cdata = self.connpresets[item.data(32)]
         dlg = dialogFromUi(self, 'settings_conn.ui', 'dialogs')
         dlg.name.setText(item.data(32))
         dlg.name.setEnabled(False)
-        dlg.host.setText(cdata[0])
-        dlg.port.setValue(cdata[1])
-        dlg.login.setText(cdata[2])
+        dlg.host.setText(cdata.host)
+        dlg.port.setValue(cdata.port)
+        dlg.login.setText(cdata.user)
+        dlg.viewonly.setChecked(cdata.viewonly)
         if dlg.exec_() != QDialog.Accepted:
             return
-        cdata[0] = dlg.host.text()
-        cdata[1] = dlg.port.value()
-        cdata[2] = dlg.login.text()
-        item.setText('%s (%s:%s)' % (dlg.name.text(), cdata[0], cdata[1]))
+        cdata.host = dlg.host.text()
+        cdata.port = dlg.port.value()
+        cdata.user = dlg.login.text()
+        cdata.viewonly = dlg.viewonly.isChecked()
+        item.setText('%s (%s:%s)' % (dlg.name.text(), cdata.host, cdata.port))
 
     def on_settingsTree_itemClicked(self, item, column):
         self.on_settingsTree_itemActivated(item, column)
