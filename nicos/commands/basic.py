@@ -30,6 +30,7 @@ import sys
 import time
 import inspect
 import traceback
+import subprocess
 from os import path
 
 from nicos import session
@@ -298,6 +299,7 @@ def _Restart():
 
     @atexit.register
     def restart_nicos():  # pylint: disable=W0612
+        os.closerange(3, subprocess.MAXFD)
         os.execv(sys.executable, [sys.executable] + sys.argv)
     os.kill(os.getpid(), signal.SIGTERM)
 
