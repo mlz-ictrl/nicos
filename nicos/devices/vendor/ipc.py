@@ -377,6 +377,10 @@ class IPCModBusTCP(IPCModBusRS232):
         self._connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._connection.connect((self.host, self.port))
 
+    def doShutdown(self):
+        if self._connection:
+            closeSocket(self._connection)
+
     def _transmit(self, request, retlen, last_try=False):
         response = ''
         try:
