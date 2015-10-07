@@ -136,6 +136,7 @@ class DevicesPanel(Panel):
 
         self._menu_dev = None   # device for which context menu is shown
         self._dev2setup = {}
+        self._setupinfo = {}
 
         self._control_dialogs = {}
         self._show_lowlevel = self.mainwindow.expertmode
@@ -244,8 +245,8 @@ class DevicesPanel(Panel):
             state = self.client.ask('getstatus')
         loaded_setups = set(state['setups'][0])
         self._dev2setup = {}
-        setupinfo = self.client.eval('session.getSetupInfo()', {})
-        for setupname, info in iteritems(setupinfo):
+        self._setupinfo = self.client.eval('session.getSetupInfo()', {})
+        for setupname, info in iteritems(self._setupinfo):
             if info is None:
                 continue
             if setupname not in loaded_setups:
@@ -282,6 +283,7 @@ class DevicesPanel(Panel):
 
         if cat not in self._catitems:
             catitem = QTreeWidgetItem([cat, '', ''], 1000)
+            catitem.setToolTip(0, self._setupinfo[cat].get('description', ''))
             f = catitem.font(0)
             f.setBold(True)
             catitem.setFont(0, f)
