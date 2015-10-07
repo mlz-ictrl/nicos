@@ -122,6 +122,7 @@ class TimeSeries(object):
         self.real_n = 0
         self.last_y = None
         self.string_mapping = mapping or {}
+        self._last_update_time = 0
 
     @property
     def title(self):
@@ -190,8 +191,11 @@ class TimeSeries(object):
                 sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
 
     def synthesize_value(self):
-        if self.n and self.x[self.n - 1] < currenttime() - self.interval:
-            self.add_value(currenttime(), self.last_y, real=False)
+        if not self.n:
+            return
+        delta = currenttime() - self._last_update_time
+        if delta > self.interval:
+            self.add_value(self.x[self.n - 1] + delta, self.last_y, real=False)
 
     def add_value(self, vtime, value, real=True):
         if not isinstance(value, number_types):
@@ -208,6 +212,7 @@ class TimeSeries(object):
         # do not add value if it comes too fast
         if real_n > 0 and x[real_n - 1] > vtime - self.interval:
             return
+        self._last_update_time = currenttime()
         # double array size if array is full
         if n >= x.shape[0]:
             # we select a certain maximum # of points to avoid filling up memory
