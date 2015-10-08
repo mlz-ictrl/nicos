@@ -129,7 +129,6 @@ class ScansPanel(Panel):
         # uids of automatically combined datasets -> uid of combined one
         self.contSetUids = {}
 
-        self.metaTable.setHorizontalHeaderLabels(['Name', 'Value'])
         self.splitter.restoreState(self.splitterstate)
         if self.tablecolwidth0 > 0:
             self.metaTable.setColumnWidth(0, self.tablecolwidth0)
@@ -314,7 +313,7 @@ class ScansPanel(Panel):
         if self.currentPlot:
             self.plotLayout.removeWidget(self.currentPlot)
             self.currentPlot.hide()
-            self.metaTable.clear()
+            self.metaTable.clearContents()
         self.currentPlot = plot
         if plot is None:
             self.enablePlotActions(False)
