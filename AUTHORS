@@ -1,6 +1,6 @@
 NICOS version 2 is written and maintained by:
 
-* Georg Brandl <georg.brandl@frm2.tum.de>
+* Georg Brandl <g.brandl@fz-juelich.de>
 * Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 * Christian Felder <c.felder@fz-juelich.de>
 * Jens Krüger <jens.krueger@frm2.tum.de>
@@ -14,7 +14,10 @@ Contributors:
 * Klaudia Hradil <klaudia.hradil@tuwien.ac.at>
 * Peter Link <peter.link@frm2.tum.de>
 * Pascal Neubert <pascal.neubert@frm2.tum.de>
-* Joerg Pulz <Joerg.Pulz@frm2.tum.de>
+* Joerg Pulz <joerg.pulz@frm2.tum.de>
+* Stefan Rainow <s.rainow@fz-juelich.de>
+* Christian Randau <christian.randau@frm2.tum.de>
+* Andreas Schulz <andreas.schulz@frm2.tum.de>
 * Tobias Unruh <tobias.unruh@krist.uni-erlangen.de>
 
 Instrument-specific code was contributed by:
@@ -27,6 +30,7 @@ Instrument-specific code was contributed by:
 * Wiebke Lohstroh <wiebke.lohstroh@frm2.tum.de>
 * Michael Schulz <michael.schulz@frm2.tum.de>
 * Oleg Sobolev <oleg.sobolev@frm2.tum.de>
+* Stefan Söllradl <stefan.soellradl@frm2.tum.de>
 * Tobias Weber <tobias.weber@frm2.tum.de>
 * Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 * Aleks Wischolit <aleks.wischolit@frm2.tum.de>
