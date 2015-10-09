@@ -266,8 +266,9 @@ class ScriptStatusPanel(Panel):
     def on_actionStop_triggered(self):
         self.mainwindow.action_start_time = time.time()
         if self.stopcounting:
-            self.client.tell('break', BREAK_NOW)
-        self.client.tell('stop', BREAK_NOW)
+            self.client.tell('stop', BREAK_NOW)
+        else:
+            self.client.tell('stop', BREAK_AFTER_STEP)
 
     @qtsig('')
     def on_actionStop2_triggered(self):

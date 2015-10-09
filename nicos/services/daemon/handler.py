@@ -504,6 +504,8 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
                 session.log.info('Stop requested by %s' % self.user.name)
             self.controller.block_all_requests()
             self.controller.set_break(('stop', level, self.user.name))
+            if level >= BREAK_NOW:
+                session.should_pause_count = 'Stopped by %s' % self.user.name
             self.write(ACK)
         else:
             self.log.info('script stop request while in break')

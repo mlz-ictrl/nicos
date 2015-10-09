@@ -154,10 +154,12 @@ class ScriptRequest(Request):
 
     def execute(self, controller):
         """Execute the script in the given namespace, using "controller"
-        to execute individual blocks."""
+        to execute individual blocks.
+        """
+        session.scriptEvent('start', self.text)
+        session.should_pause_count = None  # reset any pause flag from before
         # this is to allow the traceback module to report the script's
         # source code correctly
-        session.scriptEvent('start', self.text)
         updateLinecache('<script>', self.text)
         if session.experiment and session.mode == MASTER:
             session.experiment.scripts += [self.text]
