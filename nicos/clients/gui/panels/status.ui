@@ -199,7 +199,7 @@
     <string>&amp;Stop after current scan point</string>
    </property>
    <property name="toolTip">
-    <string>Stop after current scan scan point or command</string>
+    <string>Stop after current scan, scan point, or command</string>
    </property>
   </action>
  </widget>
