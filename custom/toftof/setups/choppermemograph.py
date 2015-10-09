@@ -36,15 +36,15 @@ _group = 2
 
 devices = {
     't_in_%s_cooling' % system[:2]: device('frm2.memograph.MemographValue',
-                                            hostname = '%s' % memograph,
-                                            group = _group,
-                                            valuename = 'T_in %s' % channel,
-                                            description = 'inlet temperature %s cooling' % system,
-                                            fmtstr = '%.1f',
-                                            warnlimits = (-1, 17.5), #-1 no lower value
-                                            lowlevel = False,
-                                            unit = 'C',
-                                           ),
+                                           hostname = '%s' % memograph,
+                                           group = _group,
+                                           valuename = 'T_in %s' % channel,
+                                           description = 'inlet temperature %s cooling' % system,
+                                           fmtstr = '%.1f',
+                                           warnlimits = (-1, 17.5),  # -1 no lower value
+                                           lowlevel = False,
+                                           unit = 'C',
+                                          ),
     't_out_%s_cooling' % system[:2]: device('frm2.memograph.MemographValue',
                                             hostname = '%s' % memograph,
                                             group = _group,
@@ -78,7 +78,7 @@ devices = {
                                               valuename = 'FLOW_in %s' % channel,
                                               description = 'inlet flow %s cooling' % system,
                                               fmtstr = '%.1f',
-                                              warnlimits = (0.2, 100), # 100 no upper value
+                                              warnlimits = (0.2, 100),  # 100 no upper value
                                               lowlevel = False,
                                              ),
     'flow_out_%s_cooling' % system[:2]: device('frm2.memograph.MemographValue',
@@ -96,7 +96,7 @@ devices = {
                                            valuename = 'Leak %s' % channel,
                                            description = 'leakage %s cooling' % system,
                                            fmtstr = '%.1f',
-                                           warnlimits = (-1, 1), #-1 no lower value
+                                           warnlimits = (-1, 1),  # -1 no lower value
                                            lowlevel = False,
                                            unit = 'l/min',
                                           ),
