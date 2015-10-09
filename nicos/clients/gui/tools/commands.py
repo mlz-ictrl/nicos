@@ -26,9 +26,12 @@
 
 import time
 import subprocess
+from select import select
+from threading import Thread
+from os import path
 
-from PyQt4.QtGui import QDialog, QPushButton
-from PyQt4.QtCore import SIGNAL
+from PyQt4.QtGui import QDialog, QPushButton, QMessageBox
+from PyQt4.QtCore import SIGNAL, pyqtSignal, pyqtSlot
 
 from nicos.clients.gui.utils import loadUi
 from nicos.utils import createSubprocess
@@ -73,3 +76,83 @@ class CommandsTool(QDialog):
     def closeEvent(self, event):
         self.deleteLater()
         self.accept()
+
+
+class AsyncCommandsTool(CommandsTool):
+    """ A tool to run a long-running process in a background thread
+
+    The output is captured and displayed in the widget.
+    """
+
+    newText = pyqtSignal(str, name='newText')
+
+    def __init__(self, parent, client, **settings):
+        CommandsTool.__init__(self, parent, client, **settings)
+        self.setModal(False)
+        self.newText.connect(self.appendText)
+        self.proc = None
+        self.thread = None
+        self.client = client
+
+    def execute(self, cmd):
+        if self.proc and self.proc.poll() is None:
+            self.outputBox.appendPlainText('Tool is already running,'
+                                           ' not starting a new one.')
+        self.outputBox.setPlainText('[%s] Executing %s...\n' %
+                                    (time.strftime('%H:%M:%S'), cmd))
+
+        datapath = self.client.eval('session.experiment.datapath', '')
+        if not datapath or not path.isdir(datapath):
+            datapath = None
+        self.proc = createSubprocess(cmd, shell=False, stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT, bufsize=0,
+                                     cwd=datapath)
+        self.thread = Thread(target=self._pollOutput)
+        self.thread.start()
+
+    def _pollOutput(self):
+        while 1:
+            if self.proc and self.proc.poll() is not None:
+                self.proc = None
+                return
+            if self.proc is None:
+                return
+            (rl, _wl, _xl) = select([self.proc.stdout], [],
+                                    [self.proc.stdout], 1.)
+            if rl:
+                line = self.proc.stdout.readline()
+                while line:
+                    self.newText.emit(line)
+                    line = self.proc.stdout.readline()
+
+    @pyqtSlot(str)
+    def appendText(self, line):
+        self.outputBox.appendPlainText(line.strip('\n').decode())
+        sb = self.outputBox.verticalScrollBar()
+        sb.setValue(sb.maximum())
+
+    def closeEvent(self, event):
+        if not self.checkClose():
+            event.ignore()
+            return
+        self.deleteLater()
+        self.accept()
+
+    def checkClose(self):
+        if ((self.thread and self.thread.is_alive()) or
+                (self.proc and self.proc.poll is None)):
+            res = QMessageBox.question(self, 'Message',
+                                       'Close window and kill program?',
+                                       QMessageBox.Yes, QMessageBox.No)
+            if res == QMessageBox.No:
+                return False
+            else:
+                if self.proc:
+                    self.proc.kill()
+                    self.proc = None
+        return True
+
+    def close(self):
+        if not self.checkClose():
+            return
+        CommandsTool.close(self)
