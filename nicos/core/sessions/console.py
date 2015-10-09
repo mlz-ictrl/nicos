@@ -201,10 +201,10 @@ class ConsoleSession(Session):
                                        '-->' if self._spmode else '>>>')
         sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
         self._pscolor = dict(
-            slave  = 'brown',
-            master = 'darkblue',
-            maintenance = 'darkred',
-            simulation = 'turquoise'
+            slave='brown',
+            master='darkblue',
+            maintenance='darkred',
+            simulation='turquoise'
         )[self._mode]
 
     def console(self):

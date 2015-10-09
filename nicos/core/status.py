@@ -25,8 +25,8 @@
 """Status code definitions."""
 
 # The status constants are ordered by ascending "severity": this way the status
-# constant for a combined device is very easily determined as the maximum of the
-# subordinate device values.
+# constant for a combined device is very easily determined as the maximum of
+# the subordinate device values.
 OK = 200
 WARN = 210
 BUSY = 220

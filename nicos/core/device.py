@@ -494,9 +494,10 @@ class Device(object):
             if paraminfo.mandatory and param not in self._config:
                 raise ConfigurationError(self, 'missing configuration '
                                          'parameter %r' % param)
+            # Ellipsis representing "no value" since None is a valid value for
+            # some parameters
+            value = Ellipsis
             # try to get from cache
-            value = Ellipsis  # Ellipsis representing "no value" since None
-                              # is a valid value for some parameters
             if self._cache:
                 value = self._cache.get(self, param, Ellipsis)
                 if param == 'name':  # clean up legacy, wrong values
@@ -1080,8 +1081,8 @@ class Readable(Device):
             self._cache.put(self, 'value', ret[1], ct, self.maxage)
             return ret[0], ret[1]
         # updates shall always get through to the cache
-        #self._cache.invalidate(self, 'value')
-        #self._cache.invalidate(self, 'status')
+        # self._cache.invalidate(self, 'value')
+        # self._cache.invalidate(self, 'status')
         return self.status(maxage), self.read(maxage)
 
     def _pollParam(self, name, with_ttl=0):

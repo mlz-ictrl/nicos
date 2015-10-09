@@ -30,12 +30,12 @@ from nicos.pycompat import string_types
 class NicosError(Exception):
     """The basic exception class for exceptions raised by NICOS.
 
-    Every NicosError subclass has a "category" attribute, a string that is shown
-    to the user instead of the exception class.
+    Every NicosError subclass has a "category" attribute, a string that is
+    shown to the user instead of the exception class.
 
     The constructor also accepts a :class:`.Device` instance as its first
-    argument, which is then used to display the error to the user as coming from
-    this device.  For example::
+    argument, which is then used to display the error to the user as coming
+    from this device.  For example::
 
        def doRead(self, maxage=0):
            if not self._ready:
@@ -141,8 +141,8 @@ class HardwareError(NicosError):
 class TimeoutError(NicosError):
     """Exception to be raised when a timeout waiting for hardware occurs.
 
-    This is *not* a communication timeout; for that purpose `CommunicationError`
-    should be used.
+    This is *not* a communication timeout; for that purpose
+    `CommunicationError` should be used.
     """
     category = 'Timeout'
 
@@ -158,6 +158,7 @@ class ComputationError(NicosError):
 class CacheLockError(NicosError):
     """Exception to be raised when a :term:`cache lock` cannot be acquired."""
     category = 'Cannot lock device in cache'
+
     def __init__(self, locked_by):
         self.locked_by = locked_by
         NicosError.__init__(self, 'locked by ' + locked_by)

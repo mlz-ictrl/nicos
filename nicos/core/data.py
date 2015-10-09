@@ -133,7 +133,8 @@ class Dataset(object):
         self._npoints = value
 
     def updateHeaderInfo(self, updatedict=None):
-        # if updatedict is not empty, only update those devices & positions, else all
+        # if updatedict is not empty, only update those devices & positions,
+        # else all
         if updatedict:
             headerinfo = self.headerinfo
             devices = list(zip(*sorted(
@@ -150,7 +151,8 @@ class Dataset(object):
             if device.lowlevel:
                 continue
             for category, key, value in device.info():
-                bycategory.setdefault(category, []).append((device, key, value))
+                bycategory.setdefault(category, []).append((device, key,
+                                                            value))
         for catname, catinfo in INFO_CATEGORIES:
             if catname not in bycategory:
                 continue
@@ -158,14 +160,17 @@ class Dataset(object):
                 headerinfo[catinfo] = bycategory.pop(catname)
             else:
                 new_data = bycategory.pop(catname)
-                new_keys = set('%s_%s' % (dev, key) for (dev, key, val) in new_data)
+                new_keys = set('%s_%s' % (dev, key) for (dev, key, val) in
+                               new_data)
                 headerinfo[catinfo] = [(dev, key, val)
-                                       for (dev, key, val) in headerinfo[catinfo]
+                                       for (dev, key, val) in headerinfo[
+                                           catinfo]
                                        if '%s_%s' % (dev, key) not in new_keys]
                 headerinfo[catinfo].extend(new_data)
         for category, devlist in bycategory.items():
             for device, key, _ in devlist:
-                device.log.error('parameter %s uses illegal category %s!' % (key, category))
+                device.log.error('parameter %s uses illegal category %s!' % (
+                    key, category))
         self.headerinfo = headerinfo
 
     #
@@ -211,8 +216,8 @@ class DataSink(Device):
         Returns a list of info about the new dataset as ``(key, value)`` pairs.
         A list of all these pairs is then passed to all sinks' `beginDataset()`
         as the *sinkinfo* parameter.  This is meant for sinks that write files
-        to communicate the file name to sinks that write the info to the console
-        or display them otherwise.
+        to communicate the file name to sinks that write the info to the
+        console or display them otherwise.
         """
 
     def beginDataset(self, dataset):
@@ -232,8 +237,8 @@ class DataSink(Device):
     def addInfo(self, dataset, category, valuelist):
         """Add additional information to the dataset.
 
-        This is meant to record e.g. device values at scan startup.  *valuelist*
-        is a sequence of tuples ``(device, key, value)``.
+        This is meant to record e.g. device values at scan startup.
+        *valuelist* is a sequence of tuples ``(device, key, value)``.
         """
 
     def addPoint(self, dataset, xvalues, yvalues):

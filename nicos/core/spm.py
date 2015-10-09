@@ -53,7 +53,7 @@ from nicos.pycompat import iteritems, srepr
 id_re = re.compile('[a-zA-Z_][a-zA-Z0-9_]*$')
 string1_re = re.compile(r"'(\\\\|\\'|[^'])*'")
 string2_re = re.compile(r'"(\\\\|\\"|[^"])*"')
-spaces_re  = re.compile(r'\s+')
+spaces_re = re.compile(r'\s+')
 nospace_re = re.compile(r'[^ \t;]+')
 
 
@@ -222,7 +222,8 @@ class SetupName(Token):
 
     def complete(self, text, session, argsofar):
         all_setups = [name for (name, info) in iteritems(session._setup_info)
-                      if info and info['group'] in ('basic', 'optional', 'plugplay', '')]
+                      if info and info['group'] in ('basic', 'optional',
+                                                    'plugplay', '')]
         if self.what == 'all':
             candidates = all_setups
         elif self.what == 'unloaded':

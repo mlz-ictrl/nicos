@@ -91,7 +91,8 @@ class Scan(object):
         else:
             allenvlist = session.experiment.sampleenv
             if envlist is not None:
-                allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
+                allenvlist.extend(dev for dev in envlist if dev not in
+                                  allenvlist)
         self._waitbeforecount = waitbeforecount
         self._firstmoves = firstmoves
         self._multistep = self.dataset.multistep = multistep
@@ -151,7 +152,8 @@ class Scan(object):
                                   for det in dataset.detlist), ())
         if self._multistep:
             dataset.yvalueinfo = dataset.yvalueinfo * self._mscount
-        # advanceImageCounter can not be called later as the updated value may be used by the sinks...
+        # advanceImageCounter can not be called later as the updated value may
+        # be used by the sinks...
         session.experiment.advanceScanCounter()
         for sink in self._sinks:
             sink.prepareDataset(dataset)
@@ -163,7 +165,8 @@ class Scan(object):
             if device.lowlevel:
                 continue
             for category, key, value in device.info():
-                bycategory.setdefault(category, []).append((device, key, value))
+                bycategory.setdefault(category, []).append((device, key,
+                                                            value))
         for catname, catinfo in INFO_CATEGORIES:
             if catname not in bycategory:
                 continue
@@ -215,7 +218,8 @@ class Scan(object):
         try:
             session.elogEvent('scanend', self.dataset)
         except Exception:
-            session.log.debug('could not add scan to electronic logbook', exc=1)
+            session.log.debug('could not add scan to electronic logbook',
+                              exc=1)
         session.breakpoint(1)
 
     def handleError(self, what, err, dev=None):
@@ -290,7 +294,8 @@ class Scan(object):
             return {}
         wait_values = {}
         try:
-            # remember the read values so that they can be used for the data point
+            # remember the read values so that they can be used for the data
+            # point
             wait_values = multiWait(waitdevs)
         except NicosError as err:
             self.handleError('wait', err)
@@ -378,8 +383,8 @@ class Scan(object):
                         self.preparePoint(num(i), position)
                         if position:
                             if i != 0:
-                                dev_values = self.moveTo(position,
-                                                         wait=self._waitbeforecount)
+                                dev_values = self.moveTo(
+                                    position, wait=self._waitbeforecount)
                             elif not can_measure:
                                 continue
                         # update changed positions
@@ -394,21 +399,24 @@ class Scan(object):
                             result = []
                             if self._multistep:
                                 for i in range(self._mscount):
-                                    self.moveDevices(self._mswhere[i],
-                                                     wait=self._waitbeforecount)
+                                    self.moveDevices(
+                                        self._mswhere[i],
+                                        wait=self._waitbeforecount)
                                     _count(self._detlist, self._preset, result,
                                            dataset=self.dataset)
                             else:
                                 _count(self._detlist, self._preset, result,
                                        dataset=self.dataset)
                         finally:
-                            actualpos += self.readEnvironment(started, currenttime())
+                            actualpos += self.readEnvironment(started,
+                                                              currenttime())
                             # there are some values (or we are purposefully
                             # scanning without detectors)
                             if result or len(self.dataset.yvalueinfo) == 0:
                                 # add missing values
                                 result.extend(0 for _ in range(
-                                    len(self.dataset.yvalueinfo) - len(result)))
+                                    len(self.dataset.yvalueinfo) - len(result))
+                                )
                                 self.addPoint(actualpos, result)
                     except NicosError as err:
                         self.handleError('count', err)
@@ -509,7 +517,8 @@ class SweepScan(Scan):
         Scan.finishPoint(self)
         if session.mode == SIMULATION:
             if self._numpoints > 1:
-                session.log.info('skipping %d points...' % (self._numpoints - 1))
+                session.log.info('skipping %d points...' %
+                                 (self._numpoints - 1))
                 duration = session.clock.time - self._sim_start
                 session.clock.tick(duration * (self._numpoints - 1))
             elif self._numpoints < 0:
@@ -556,7 +565,8 @@ class ManualScan(Scan):
                 if self._multistep:
                     for i in range(self._mscount):
                         self.moveDevices(self._mswhere[i])
-                        _count(self._detlist, preset, result, dataset=self.dataset)
+                        _count(self._detlist, preset, result,
+                               dataset=self.dataset)
                 else:
                     _count(self._detlist, preset, result, dataset=self.dataset)
             finally:

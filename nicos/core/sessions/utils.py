@@ -103,21 +103,21 @@ class NicosCompleter(object):
     This is a custom version of rlcompleter.Completer that doesn't show private
     attributes when completing attribute access.
 
-    There is not enough shared code left with the rlcompleter version to warrant
-    inheriting from that class.
+    There is not enough shared code left with the rlcompleter version to
+    warrant inheriting from that class.
     """
 
     attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
                        'temporary', 'log', 'valuetype', 'mro'])
-    global_hidden = set(['basestring', 'buffer',
-                         'bytearray', 'bytes', 'callable', 'classmethod',
-                         'coerce', 'cmp', 'compile', 'delattr', 'eval',
-                         'execfile', 'filter', 'frozenset', 'getattr',
-                         'globals', 'hasattr', 'hash', 'id', 'input', 'intern',
-                         'isinstance', 'issubclass', 'iter', 'locals', 'long',
-                         'map', 'memoryview', 'property', 'raw_input', 'reduce',
-                         'reload', 'setattr', 'slice', 'staticmethod', 'super',
-                         'unichr', 'unicode', 'type', 'vars', 'xrange']) | BUILTIN_EXCEPTIONS
+    global_hidden = set(['basestring', 'buffer', 'bytearray', 'bytes',
+                         'callable', 'classmethod', 'coerce', 'cmp', 'compile',
+                         'delattr', 'eval', 'execfile', 'filter', 'frozenset',
+                         'getattr', 'globals', 'hasattr', 'hash', 'id',
+                         'input', 'intern', 'isinstance', 'issubclass', 'iter',
+                         'locals', 'long', 'map', 'memoryview', 'property',
+                         'raw_input', 'reduce', 'reload', 'setattr', 'slice',
+                         'staticmethod', 'super', 'unichr', 'unicode', 'type',
+                         'vars', 'xrange']) | BUILTIN_EXCEPTIONS
     hidden_keyword = set(['assert', 'class', 'del', 'exec', 'yield'])
     special_device = set(['move', 'drive', 'maw', 'switch', 'wait', 'read',
                           'status', 'stop', 'reset', 'set', 'get', 'fix',
@@ -126,8 +126,8 @@ class NicosCompleter(object):
                           'scan', 'cscan', 'contscan'])
     special_readable = set(['read', 'status', 'reset', 'history'])
     special_moveable = set(['move', 'drive', 'maw', 'switch', 'wait', 'stop',
-                            'fix', 'release', 'adjust', 'limits', 'resetlimits',
-                            'scan', 'cscan', 'contscan'])
+                            'fix', 'release', 'adjust', 'limits',
+                            'resetlimits', 'scan', 'cscan', 'contscan'])
     special_setups = set(['NewSetup', 'AddSetup', 'RemoveSetup'])
 
     def __init__(self, namespace):
@@ -219,7 +219,10 @@ class NicosCompleter(object):
                         isinstance(session.devices[k], cls)]
             elif command in self.special_setups:
                 all_setups = [name for (name, info) in iteritems(session._setup_info)
-                              if info and info['group'] in ('basic', 'optional', 'plugplay', '')]
+                              if info and info['group'] in ('basic',
+                                                            'optional',
+                                                            'plugplay',
+                                                            '')]
                 if command == 'NewSetup':
                     candidates = all_setups
                 elif command == 'AddSetup':
@@ -336,8 +339,8 @@ def guessCorrectCommand(source, attribute=False):
                     allowed_keys = set(dir(obj))
                     break
             else:
-                return  # whole object chain exists -- error comes from
-                        # somewhere else
+                # whole object chain exists -- error comes from somewhere else
+                return
         else:
             base = ''
             poi = object_parts[0]
@@ -354,13 +357,13 @@ def guessCorrectCommand(source, attribute=False):
                     session.log.info('Use CreateDevice(%r) to export the '
                                      'device of this name' % str(poi))
                 else:
-                    session.log.info('Use CreateDevice(%r) to try creating the '
-                                     'device of this name' % str(poi))
+                    session.log.info('Use CreateDevice(%r) to try creating '
+                                     'the device of this name' % str(poi))
                 return
         for key in allowed_keys:
             if key == poi:
-                return  # the error probably occurred with another object
-                        # on the line
+                # the error probably occurred with another object on the line
+                return
             comp[key] = compare(poi, key)
         comp = sorted(comp.items(), key=lambda t: t[1], reverse=True)
         suggestions = [(base and base + '.' or '') + m[0]

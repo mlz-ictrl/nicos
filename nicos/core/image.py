@@ -66,7 +66,8 @@ class ImageInfo(object):
     dataset = None
     # also keep a copy of the scanpoint number
     scanpoint = 0
-    # header data: mapping categories to lists of (devname, attribute, value) tupels
+    # header data: mapping categories to lists of
+    # (devname, attribute, value) tupels
     header = {}
     # starting timestamp
     begintime = 0
@@ -98,7 +99,8 @@ class ImageType(object):
     def __init__(self, shape, dtype=None, dimnames=None):
         """creates a datatype with given (numpy) shape and (numpy) data format
 
-        Also stores the 'names' of the used dimensions as a list called dimnames.
+        Also stores the 'names' of the used dimensions as a list called
+        dimnames.
         Defaults to 'X', 'Y' for 2D data and 'X', 'Y', 'Z' for 3D data.
         """
         if dtype is None:  # try to derive from a given numpy.array
@@ -126,7 +128,8 @@ class ImageType(object):
         return numpy.array(data, dtype=imagetype.dtype)
 
     def __repr__(self):
-        return 'ImageType(%r, %r, %r)' % (self.shape, self.dtype, self.dimnames)
+        return 'ImageType(%r, %r, %r)' % (self.shape, self.dtype,
+                                          self.dimnames)
 
 
 class ImageSink(Device):
@@ -156,7 +159,8 @@ class ImageSink(Device):
     """
 
     parameters = {
-        'subdir': Param('Filetype specific subdirectory name for the image files',
+        'subdir': Param('Filetype specific subdirectory name for the image '
+                        'files',
                         type=subdir, mandatory=False, default=''),
         'filenametemplate': Param('List of templates for data file names '
                                   '(will be hardlinked)', type=listof(str),
@@ -175,7 +179,8 @@ class ImageSink(Device):
         imagetype.
         """
         exp = session.experiment
-        s, l, f = exp.createImageFile(self.filenametemplate, subdir, self.subdir,
+        s, l, f = exp.createImageFile(self.filenametemplate, subdir,
+                                      self.subdir,
                                       scanpoint=imageinfo.scanpoint)
         if not f:
             raise NicosError(self, 'Could not create file %r' % l)
@@ -231,7 +236,8 @@ class ImageProducer(DeviceMixinBase):
     }
 
     parameters = {
-        'subdir': Param('Detector specific subdirectory name for the image files',
+        'subdir': Param('Detector specific subdirectory name for the image '
+                        'files',
                         type=subdir, mandatory=True, settable=True),
         'lastfilename': Param('Last written file by this detector',
                               type=str, default='', settable=True),
@@ -242,8 +248,9 @@ class ImageProducer(DeviceMixinBase):
     _saved = False
 
     need_clear = False
-    imagetype = None  # either None or an ImageType instance,
-                      # can also be made a property if variable
+    # either None or an ImageType instance, can also be made a property if
+    # variable
+    imagetype = None
 
     def prepareImageFile(self, dataset=None):
         """Should prepare an Image file."""
@@ -274,10 +281,12 @@ class ImageProducer(DeviceMixinBase):
                         continue
 
                     # Just update and don't remove anything
-                    oldCat = _devParamValTupleListToDict(imageinfo.header.get(catName, []))
+                    oldCat = _devParamValTupleListToDict(imageinfo.header.get(
+                        catName, []))
                     update = _devParamValTupleListToDict(cat)
                     oldCat.update(update)
-                    imageinfo.header[catName] = _devParamValDictToTupleList(oldCat)
+                    imageinfo.header[catName] = _devParamValDictToTupleList(
+                        oldCat)
 
             dataset.imageinfos = imageinfos
         self._imageinfos = imageinfos
@@ -294,7 +303,8 @@ class ImageProducer(DeviceMixinBase):
         update = _devParamValTupleListToDict(valuelist)
 
         for imageinfo in self._imageinfos:
-            cat = _devParamValTupleListToDict(imageinfo.header.get(category, []))
+            cat = _devParamValTupleListToDict(imageinfo.header.get(category,
+                                                                   []))
             cat.update(update)
             imageinfo.header[category] = _devParamValDictToTupleList(cat)
 
@@ -309,7 +319,8 @@ class ImageProducer(DeviceMixinBase):
         else:
             self._header = {category: valuelist}
         for imageinfo in self._imageinfos:
-            cat = _devParamValTupleListToDict(imageinfo.header.get(category, []))
+            cat = _devParamValTupleListToDict(imageinfo.header.get(category,
+                                                                   []))
             cat.update(update)
             imageinfo.header[category] = _devParamValDictToTupleList(cat)
 

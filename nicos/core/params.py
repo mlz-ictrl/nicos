@@ -55,9 +55,10 @@ class Param(object):
 
     - *description*: a concise parameter description.
 
-    - *type*: the parameter type; either a standard Python type (`int`, `float`,
-      `str`) or one of the type converter functions from this module that either
-      return a value of the correct type, or raises `TypeError` or `ValueError`.
+    - *type*: the parameter type; either a standard Python type (`int`,
+      `float`, `str`) or one of the type converter functions from this module
+      that either return a value of the correct type, or raises `TypeError`
+      or `ValueError`.
 
     - *default*: a default value, in case the parameter cannot be read from
       the hardware or the cache.
@@ -73,9 +74,9 @@ class Param(object):
     - *unit*: unit of the parameter for informational purposes; in there, the
       substring 'main' is replaced by the device unit when presented.
 
-    - *category*: category of the parameter when returned by `.Device.info()` or
-      ``None`` to ignore the parameter.  See `INFO_CATEGORIES` for the list of
-      possible categories.
+    - *category*: category of the parameter when returned by `.Device.info()`
+      or ``None`` to ignore the parameter.  See `INFO_CATEGORIES` for the list
+      of possible categories.
 
     - *preinit*: whether the parameter must be initialized before
       `.Device.preinit()` is called.
@@ -178,12 +179,12 @@ class Override(object):
     names to instances of this class.
 
     Overriding parameters allows to share parameters with the base class, but
-    still have slightly different behavior for the parameters.  For example, for
-    a general `.Moveable` device the *unit* parameter is mandatory.  However,
-    for some subclasses this will not be necessary, since the unit can either be
-    automatically determined from the device, or the value never has any unit.
-    Instead of redefining the *unit* parameter in subclasses, you only need to
-    override its *mandatory* property in the subclass like this::
+    still have slightly different behavior for the parameters.  For example,
+    for a general `.Moveable` device the *unit* parameter is mandatory.
+    However, for some subclasses this will not be necessary, since the unit can
+    either be automatically determined from the device, or the value never has
+    any unit.  Instead of redefining the *unit* parameter in subclasses, you
+    only need to override its *mandatory* property in the subclass like this::
 
         parameter_overrides = {'unit': Override(mandatory=False)}
 
@@ -359,11 +360,11 @@ class Attach(object):
 
 class Value(object):
     """This class defines the properties of the "value" read from `.Readable`
-    and `.Measurable` classes.  Their `.valueInfo` method must return a tuple of
-    instances of this class.
+    and `.Measurable` classes.  Their `.valueInfo` method must return a tuple
+    of instances of this class.
 
-    * The *name* parameter is the name of the value.  By convention, if only one
-      value is returned, this is the name of the device.  Otherwise, if the
+    * The *name* parameter is the name of the value.  By convention, if only
+      one value is returned, this is the name of the device.  Otherwise, if the
       values are collected from subdevices, the value names should be the
       subdevice names.  In all other cases, they should be called
       "devname.valuename" where *devname* is the device name.
@@ -395,7 +396,8 @@ class Value(object):
     # pylint: disable=W0622
     def __init__(self, name, type='other', errors='none', unit='',
                  fmtstr='%.3f', active=True):
-        if type not in ('counter', 'monitor', 'time', 'other', 'error', 'info'):
+        if type not in ('counter', 'monitor', 'time', 'other', 'error',
+                        'info'):
             raise ProgrammingError('invalid Value type parameter')
         if errors not in ('none', 'next', 'sqrt'):
             raise ProgrammingError('invalid Value errors parameter')
@@ -496,7 +498,8 @@ class tupleof(object):
     def __call__(self, val=None):
         if val is None:
             return tuple(type() for type in self.types)
-        if not isinstance(val, (list, tuple)) or not len(self.types) == len(val):
+        if not isinstance(val, (list, tuple)) or \
+           not len(self.types) == len(val):
             raise ValueError('value needs to be a %d-tuple' % len(self.types))
         return tuple(t(v) for (t, v) in zip(self.types, val))
 
@@ -565,8 +568,8 @@ class floatrange(object):
         if to is not None:
             to = float(to)
             if not fr <= to:
-                raise ValueError('floatrange must fulfill from <= to, given was '
-                                 '[%f, %f]' % (fr, to))
+                raise ValueError('floatrange must fulfill from <= to, given '
+                                 'was [%f, %f]' % (fr, to))
             self.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
         else:
             self.__doc__ = 'a float >= %f' % fr
@@ -694,7 +697,8 @@ def mailaddress(val=None):
     val = '@'.join(parts)
     if '>' in val and not val.strip().endswith('>'):
         raise ValueError('%r is not a valid email address' % val)
-    if not mailaddress_re.match(val.strip().partition('<')[-1].rpartition('>')[0] or val):
+    if not mailaddress_re.match(
+       val.strip().partition('<')[-1].rpartition('>')[0] or val):
         raise ValueError('%r is not a valid email address' % val)
     return val
 
@@ -716,7 +720,8 @@ def relative_path(val=''):
                          'with %r)' % (val, path.sep))
     if val[:2] != '..':
         return val
-    raise ValueError('%r is not a valid relative path (traverses outside)' % val)
+    raise ValueError('%r is not a valid relative path (traverses outside)' %
+                     val)
 
 
 def expanded_path(val=''):

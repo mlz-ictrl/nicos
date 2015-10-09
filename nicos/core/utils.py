@@ -37,7 +37,7 @@ from nicos.utils import formatDuration
 
 # user access levels
 GUEST = 0
-USER  = 10
+USER = 10
 ADMIN = 20
 ACCESS_LEVELS = {0: 'guest', 10: 'user', 20: 'admin'}
 
@@ -51,8 +51,8 @@ def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):
     """Filtering generator over the given devices.
 
     Iterates over the given devices.  If the *baseclass* argument is specified
-    (not ``None``), filter out (ignore) those devices which do not belong to the
-    given baseclass.  If the boolean *onlydevs* argument is false, yield
+    (not ``None``), filter out (ignore) those devices which do not belong to
+    the given baseclass.  If the boolean *onlydevs* argument is false, yield
     ``(name, devices)`` tuples otherwise just the devices.
 
     If *allwaiters* is true, recursively include devices given by devices'
@@ -82,8 +82,9 @@ def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):
             for subdev in dev:
                 if isinstance(subdev, baseclass):
                     if allwaiters:
-                        for subsubdev in devIter(subdev._getWaiters(), baseclass,
-                                                 onlydevs, allwaiters):
+                        for subsubdev in devIter(subdev._getWaiters(),
+                                                 baseclass, onlydevs,
+                                                 allwaiters):
                             yield subsubdev
                     yield subdev if onlydevs else (subdev.name, subdev)
         else:
@@ -102,8 +103,8 @@ def multiStatus(devices, maxage=None):
     control several attached devices.
 
     The resulting state value is the highest value of all devices' values
-    (i.e. if all devices are `OK`, it will be `OK`, if one is `BUSY`, it will be
-    `BUSY`, but if one is `ERROR`, it will be `ERROR`).
+    (i.e. if all devices are `OK`, it will be `OK`, if one is `BUSY`, it will
+    be `BUSY`, but if one is `ERROR`, it will be `ERROR`).
 
     The resulting state text is a combination of the status texts of all
     devices.
@@ -123,7 +124,8 @@ def multiStatus(devices, maxage=None):
     if rettext:
         return retstate, ', '.join(rettext)
     else:
-        return status.UNKNOWN, 'no status could be determined (no doStatus implemented?)'
+        return status.UNKNOWN, 'no status could be determined (no doStatus ' \
+                               'implemented?)'
 
 
 def multiWait(devices):
@@ -134,8 +136,8 @@ def multiWait(devices):
     This is the main waiting loop to be used when waiting for multiple devices.
     It checks the device status until all devices are OK or errored.
 
-    Errors raised are handled like in _multiMethod: the first one is reraised at
-    the end, the others are only printed as errors.
+    Errors raised are handled like in _multiMethod: the first one is reraised
+    at the end, the others are only printed as errors.
 
     *baseclass* allows to restrict the devices waited on.
     """
@@ -346,6 +348,7 @@ class DeviceValueDict(object):
                 else:
                     dev = session.getDevice(keys[0])
                 # we got a starting point, follow the chain of attribs...
+
                 def _keyiter(keys):
                     for key in keys:
                         extra = []
@@ -374,7 +377,7 @@ class DeviceValueDict(object):
                         dev = dev[val]
                     elif sub.endswith(')'):
                         args = sub[1:-1].split(',')
-                        args = [a for a in args if a] # strip empty args
+                        args = [a for a in args if a]  # strip empty args
                         for i, a in enumerate(args):
                             try:
                                 args[i] = float(a)
@@ -392,13 +395,16 @@ class DeviceValueDict(object):
                     elif hasattr(dev, '__contains__') and sub in dev:
                         dev = dev[sub]
                     else:
-                        session.log.warning("invalid key %r requested, returning %r" % (key, res), exc=1)
+                        session.log.warning("invalid key %r requested, "
+                                            "returning %r" % (key, res),
+                                            exc=1)
                         break
                 else:
                     # stringify result
                     res = str(dev)
         except Exception:
-            session.log.warning("invalid key %r requested, returning %r" % (key, res), exc=1)
+            session.log.warning("invalid key %r requested, returning %r" %
+                                (key, res), exc=1)
         finally:
             if isinstance(res, bytes):
                 res = to_ascii_escaped(res)

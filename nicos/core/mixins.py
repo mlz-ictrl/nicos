@@ -101,8 +101,8 @@ class HasLimits(DeviceMixinBase):
     and overrides :meth:`.isAllowed` to check if the given position is within
     the limits before moving.
 
-    .. note:: In a base class list, ``HasLimits`` must come before ``Moveable``,
-       e.g.::
+    .. note:: In a base class list, ``HasLimits`` must come before
+       ``Moveable``, e.g.::
 
           class MyDevice(HasLimits, Moveable): ...
 
@@ -237,8 +237,8 @@ class HasOffset(DeviceMixinBase):
     un-adjusted value is stored in the cache, which is wrong for monitoring
     purposes.
 
-    Instead, each class that provides an offset **must** inherit this mixin, and
-    subtract ``self.offset`` in `doRead()`, while adding it in `doStart()`.
+    Instead, each class that provides an offset **must** inherit this mixin,
+    and subtract ``self.offset`` in `doRead()`, while adding it in `doStart()`.
 
     The device position is ``hardware_position - offset``.
     """
@@ -273,8 +273,8 @@ class HasPrecision(DeviceMixinBase):
     the value is within the precision.
     """
     parameters = {
-        'precision': Param('Precision of the device value (allowed deviation of'
-                           ' stable values from target)', unit='main',
+        'precision': Param('Precision of the device value (allowed deviation '
+                           'of stable values from target)', unit='main',
                            type=floatrange(0),
                            settable=True, category='precisions'),
     }
@@ -300,8 +300,8 @@ class HasMapping(DeviceMixinBase):
         'mapping':  Param('Mapping of device values to raw (internal) values',
                           unit='', settable=False, mandatory=True,
                           type=dictof(str, anytype)),
-        'fallback': Param('Readback value if the raw device value is not in the '
-                          'mapping or None to disable', default=None,
+        'fallback': Param('Readback value if the raw device value is not in '
+                          'the mapping or None to disable', default=None,
                           unit='', type=anytype, settable=False),
     }
 
@@ -377,13 +377,14 @@ class HasTimeout(DeviceMixinBase):
         this.
         The last timestamp will be used as the final timestamp to determine if
         the device's movement timed out or not.
-        Additional timestamps (in between) may be set if need for _combinedStatus
-        returning individual status text's (e.g. to differentiate between
-        'ramping' and 'stabilization').
+        Additional timestamps (in between) may be set if need for
+        _combinedStatus returning individual status text's (e.g. to
+        differentiate between 'ramping' and 'stabilization').
         """
         res = [('start', current_time)]
         if hasattr(self, 'doTime'):
-            res.append(('', current_time + self.doTime(current_pos, target_pos)))
+            res.append(('', current_time + self.doTime(current_pos,
+                                                       target_pos)))
         res.append(('', res[-1][1] + (self.timeout or 0)))
         return res
 
@@ -512,7 +513,8 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         if self.target is None:
             return None
         if self.setpoint == self.target:
-            # ramp finished, look at history to estimate from last point outside
+            # ramp finished, look at history to estimate from last point
+            # outside
             now = currenttime()
             for t, v in reversed(list(self._history)):
                 if abs(v - self.target) > self.precision:
@@ -568,8 +570,8 @@ class HasCommunication(DeviceMixinBase):
     def _com_return(self, result, info):
         """Process *result*, the return value of communication.
 
-        Can raise an exception to initiate a retry.  Default is to return result
-        unchanged.
+        Can raise an exception to initiate a retry.  Default is to return
+        result unchanged.
         """
         return result
 
@@ -585,7 +587,8 @@ class HasCommunication(DeviceMixinBase):
     def _com_raise(self, err, info):
         """Process the exception raised either by communication or _com_return.
 
-        Should raise a NICOS exception.  Default is to raise CommunicationError.
+        Should raise a NICOS exception.  Default is to raise
+        CommunicationError.
         """
         raise CommunicationError(self, str(err))
 

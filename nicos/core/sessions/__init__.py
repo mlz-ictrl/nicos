@@ -66,8 +66,8 @@ class Session(object):
     """The Session class provides all low-level routines needed for NICOS
     operations and keeps the global state: devices, configuration, loggers.
 
-    Within one NICOS process, there is only one singleton session object that is
-    always importable using ::
+    Within one NICOS process, there is only one singleton session object that
+    is always importable using ::
 
         from nicos import session
 
@@ -159,8 +159,8 @@ class Session(object):
     def initNamespace(self):
         # add some useful mathematical functions
         for name in [
-                'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan',
-                'exp', 'log', 'radians', 'degrees', 'ceil', 'floor']:
+                'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos',
+                'arctan', 'exp', 'log', 'radians', 'degrees', 'ceil', 'floor']:
             self.namespace[name] = getattr(numpy, name)
         # remove interactive Python interpreter stuff
         for name in ['credits', 'copyright', 'license', 'exit', 'quit']:
@@ -187,7 +187,8 @@ class Session(object):
             raise UsageError('mode %r does not exist' % mode)
         if oldmode in [SIMULATION, MAINTENANCE]:
             # no way to switch back from special modes
-            raise ModeError('switching from %s mode is not supported' % oldmode)
+            raise ModeError('switching from %s mode is not supported' %
+                            oldmode)
         if mode == MASTER:
             # switching from slave to master
             if not cache:
@@ -261,7 +262,8 @@ class Session(object):
             raise NicosError('must be in simulation mode')
         if not self.current_sysconfig.get('cache'):
             raise NicosError('no cache is configured')
-        client = SyncCacheClient('Syncer', cache=self.current_sysconfig['cache'],
+        client = SyncCacheClient('Syncer',
+                                 cache=self.current_sysconfig['cache'],
                                  prefix='nicos/', lowlevel=True)
         try:
             db = client.get_values()
@@ -401,10 +403,10 @@ class Session(object):
     def getSetupInfo(self):
         """Return information about all existing setups.
 
-        This is a dictionary mapping setup name to another dictionary.  The keys
-        of that dictionary are those present in the setup files: 'description',
-        'group', 'sysconfig', 'includes', 'excludes', 'modules', 'devices',
-        'alias_config', 'startupcode', 'extended'.
+        This is a dictionary mapping setup name to another dictionary.  The
+        keys of that dictionary are those present in the setup files:
+        'description', 'group', 'sysconfig', 'includes', 'excludes', 'modules',
+        'devices', 'alias_config', 'startupcode', 'extended'.
 
         If a setup file could not be read or parsed, the value for that key is
         ``None``.
@@ -441,8 +443,8 @@ class Session(object):
 
         If *allow_special* is true, special setups (with group "special") are
         allowed, otherwise `.ConfigurationError` is raised.  If *raise_failed*
-        is true, errors when creating devices are re-raised (otherwise, they are
-        reported as warnings).
+        is true, errors when creating devices are re-raised (otherwise, they
+        are reported as warnings).
         """
         if not self._setup_info:
             self.readSetups()
@@ -505,15 +507,17 @@ class Session(object):
                 self.log.debug('loading include setup %r (%s)' %
                                (name, info['description']))
             if name in self.excluded_setups:
-                raise ConfigurationError('Cannot load setup %r, it is excluded '
-                                         'by one of the current setups' % name)
+                raise ConfigurationError('Cannot load setup %r, it is '
+                                         'excluded by one of the current '
+                                         'setups' % name)
 
             if info['group'] == 'special' and not allow_special:
                 raise ConfigurationError('Cannot load special setup %r' % name)
             for exclude in info['excludes']:
                 if exclude in self.loaded_setups:
                     raise ConfigurationError('Cannot load setup %r when setup '
-                                             '%r is already loaded' % (name, exclude))
+                                             '%r is already loaded' %
+                                             (name, exclude))
 
             self.loaded_setups.add(name)
             self.excluded_setups.update(info['excludes'])
@@ -539,7 +543,8 @@ class Session(object):
             startupcode.append(info['startupcode'])
             for aliasname, targets in info['alias_config'].items():
                 for target, prio in targets.items():
-                    self.alias_config.setdefault(aliasname, []).append((target, prio))
+                    self.alias_config.setdefault(aliasname,
+                                                 []).append((target, prio))
 
             return sysconfig, devlist, startupcode
 
@@ -550,7 +555,8 @@ class Session(object):
             load_setupnames.insert(0, 'system')
         for setupname in load_setupnames:
             self.log.info('loading setup %r (%s)' %
-                          (setupname, self._setup_info[setupname]['description']))
+                          (setupname,
+                           self._setup_info[setupname]['description']))
             ret = inner_load(setupname)
             if ret:
                 sysconfig.update(ret[0])
@@ -571,12 +577,14 @@ class Session(object):
                 else:
                     self.cache.shutdown()
             if not reuse_cache:
-                self.cache = self.cache_class('Cache', cache=sysconfig['cache'],
+                self.cache = self.cache_class('Cache',
+                                              cache=sysconfig['cache'],
                                               prefix='nicos/', lowlevel=True)
                 # be notified about plug-and-play sample environment devices
                 self.cache.addPrefixCallback('se/', self._pnpHandler)
                 # be notified about watchdog events
-                self.cache.addPrefixCallback('watchdog/', self._watchdogHandler)
+                self.cache.addPrefixCallback('watchdog/',
+                                             self._watchdogHandler)
                 # make sure we process all initial keys
                 self.cache.waitForStartup(1)
 
@@ -619,7 +627,8 @@ class Session(object):
                         # no local_namespace here
                         exec_(code, self.namespace)
                     except Exception:
-                        self.log.exception('error running startup code, ignoring')
+                        self.log.exception('error running startup code, '
+                                           'ignoring')
 
         if failed_devs:
             self.log.error('the following devices could not be created:')
@@ -669,7 +678,8 @@ class Session(object):
                     # This round (of outer loop) we had no deadlock, as we
                     # shutdown at least one device: remember this fact
                     deadlock = False
-            # inner loop complete: if we couldn't shutdown a single device, complain
+            # inner loop complete: if we couldn't shutdown a single device,
+            # complain
             if deadlock:
                 for dev in devs:
                     dev.log.error('can not unload, dependency still active!')
@@ -710,7 +720,8 @@ class Session(object):
         self.unloadSetup()
 
     def export(self, name, obj):
-        """Export an object *obj* into the NICOS namespace with given *name*."""
+        """Export an object *obj* into the NICOS namespace with given *name*.
+        """
         self.namespace.setForbidden(name, obj)
         self.namespace.addForbidden(name)
         self._exported_names.add(name)
@@ -723,13 +734,15 @@ class Session(object):
             return
         if name not in self._exported_names:
             if warn:
-                self.log.warning('unexport: name %r not exported by NICOS' % name)
+                self.log.warning('unexport: name %r not exported by NICOS' %
+                                 name)
         self.namespace.removeForbidden(name)
         del self.namespace[name]
         self._exported_names.discard(name)
 
     def getExportedObjects(self):
-        """Return an iterable of all objects exported to the NICOS namespace."""
+        """Return an iterable of all objects exported to the NICOS namespace.
+        """
         for name in self._exported_names:
             if name in self.namespace:
                 yield name, self.namespace[name]
@@ -876,7 +889,7 @@ class Session(object):
             user = self.getExecutingUser()
         return user.level >= level
 
-    # -- Device control --------------------------------------------------------
+    # -- Device control -------------------------------------------------------
 
     def startMultiCreate(self):
         """Store devices that fail to create so that they are not tried again
@@ -913,15 +926,16 @@ class Session(object):
             elif dev in self.configured_devices:
                 dev = self.createDevice(dev, replace_classes=replace_classes)
             else:
-                raise ConfigurationError(source,
-                                         'device %r not found in configuration' % dev)
+                raise ConfigurationError(source, 'device %r not found in '
+                                         'configuration' % dev)
         if not isinstance(dev, cls or Device):
             def clsrep(cls):
                 if isinstance(cls, tuple):
                     return ', '.join(clsrep(c) for c in cls)
                 return cls.__name__
             if isinstance(cls, tuple):
-                raise UsageError(source, 'device must be one of %s' % clsrep(cls))
+                raise UsageError(source,
+                                 'device must be one of %s' % clsrep(cls))
             raise UsageError(source,
                              'device must be a %s' % (cls or Device).__name__)
         return dev
@@ -946,9 +960,9 @@ class Session(object):
                     found_in.append(sname)
             if found_in:
                 raise ConfigurationError(
-                    'device %r not found in configuration,'
-                    ' but you can load one of these setups with AddSetup to '
-                    'create it: %s' % (devname, ', '.join(map(repr, found_in))))
+                    'device %r not found in configuration, but you can load '
+                    'one of these setups with AddSetup to create it: %s' %
+                    (devname, ', '.join(map(repr, found_in))))
             raise ConfigurationError('device %r not found in configuration'
                                      % devname)
         if devname in self.devices:
@@ -1027,7 +1041,7 @@ class Session(object):
         for notifier in self.notifiers:
             notifier.send(subject, body, what, short, important)
 
-    # -- Special cache handlers ------------------------------------------------
+    # -- Special cache handlers -----------------------------------------------
 
     def _pnpHandler(self, key, value, time, expired=False):
         if self._mode != MASTER:
@@ -1041,7 +1055,8 @@ class Session(object):
             setupname = value
             if (setupname in self._setup_info and
                     self._setup_info[setupname] is not None and
-                    self._setup_info[setupname]['group'] in ('plugplay', 'optional')):
+                    self._setup_info[setupname]['group'] in ('plugplay',
+                                                             'optional')):
                 description = self._pnp_cache['descriptions'].get(parts[1])
                 # an event is either generated if
                 # - the setup is unloaded and the key was added
@@ -1079,7 +1094,7 @@ class Session(object):
         elif event == 'action':
             self.log.warning('Executing watchdog action: %s' % data)
 
-    # -- Logging ---------------------------------------------------------------
+    # -- Logging --------------------------------------------------------------
 
     def _initLogging(self, prefix=None, console=True):
         prefix = prefix or self.appname
@@ -1160,8 +1175,8 @@ class Session(object):
     def scriptEvent(self, eventtype, data):
         """Call this when an command/script event happens.
 
-        eventtype can be "start", "finish" or "exception".  "exception" does not
-        need to mean that the script has been aborted.
+        eventtype can be "start", "finish" or "exception".  "exception" does
+        not need to mean that the script has been aborted.
 
         data is script text (for start), or an exc_info tuple (for exception).
         """
@@ -1188,7 +1203,7 @@ class Session(object):
             except Exception:
                 pass
 
-    # -- Action logging --------------------------------------------------------
+    # -- Action logging -------------------------------------------------------
 
     def beginActionScope(self, what):
         self._actionStack.append(what)
@@ -1217,7 +1232,7 @@ class Session(object):
             if self.cache:
                 self.cache.put('exp', 'action', '', flag=FLAG_NO_STORE)
 
-    # -- Simulation support ----------------------------------------------------
+    # -- Simulation support ---------------------------------------------------
 
     def runSimulation(self, code, wait=True, prefix='(sim) '):
         """Spawn a simulation of *code*.
@@ -1243,7 +1258,7 @@ class Session(object):
         if wait:
             supervisor.join()
 
-    # -- Session-specific behavior ---------------------------------------------
+    # -- Session-specific behavior --------------------------------------------
 
     def updateLiveData(self, tag, filename, dtype, nx, ny, nt, time, data):
         """Send new live data to clients.
