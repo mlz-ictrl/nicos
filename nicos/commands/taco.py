@@ -47,6 +47,7 @@ def _client(dev):
         return dev._dev
     return TACOClient.Client(dev)
 
+
 @usercommand
 def TacoRes(dev):
     """List all resources for the given TACO device."""
@@ -98,23 +99,30 @@ typedisplay = {
     'TemperatureSensor': 'TempSens',
 }
 
+
 @usercommand
 def TacoStatus(server=''):
     """List all TACO devices and check their status."""
     # "unused" locals -- pylint: disable=W0612
     def check_IOCounter(dev, client, state):
         return state in [st.COUNTING, st.STOPPED]
+
     def check_IOTimer(dev, client, state):
         return state in [st.STARTED, st.STOPPED, st.PRESELECTION_REACHED]
+
     def check_MotorMotor(dev, client, state):
         return state in [st.DEVICE_NORMAL, st.MOVING]
+
     def check_RS485(dev, client, state):
         return state == st.ON
+
     def check_TemperatureController(dev, client, state):
         return state in [st.PRESELECTION_REACHED, st.MOVING, st.DEVICE_NORMAL,
                          st.UNDEFINED]
+
     def check_TMCSAdmin(dev, client, state):
         return state in [st.STARTED, st.STOPPED]
+
     def check_PowerSupplyCurrentControl(dev, client, state):
         try:
             client.execute(cmds.READ_DOUBLE)
@@ -122,6 +130,7 @@ def TacoStatus(server=''):
             return 'not readable: %s' % err
         else:
             return True
+
     def check_IOAnalogInput(dev, client, state):
         try:
             client.execute(cmds.READ_DOUBLE)

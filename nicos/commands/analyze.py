@@ -35,7 +35,8 @@ from nicos.core import NicosError, UsageError
 from nicos.utils import printTable
 from nicos.utils.fitting import Fit, GaussFit, PolyFit
 from nicos.utils.analyze import estimateFWHM
-from nicos.pycompat import string_types, xrange as range  # pylint: disable=W0622
+from nicos.pycompat import string_types
+from nicos.pycompat import xrange as range  # pylint: disable=W0622
 from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import cscan
 from nicos.commands.device import maw
@@ -72,7 +73,8 @@ def _getData(columns=None):
     elif len(columns) == 2:
         xcol, ycol = columns[0], columns[1]
     else:
-        raise UsageError('you can give none, one or two columns names or numbers')
+        raise UsageError('you can give none, one or two columns names or '
+                         'numbers')
 
     if isinstance(xcol, string_types):
         try:
@@ -265,8 +267,8 @@ def center(dev, center, step, numpoints, *args, **kwargs):
 
     This supports all arguments and keyword arguments that `cscan()` supports,
     and additionally a keyword "ycol" that gives the Y column of the dataset to
-    use for the Gaussian fit (see the help for `gauss()` for the meaning of this
-    parameter).
+    use for the Gaussian fit (see the help for `gauss()` for the meaning of
+    this parameter).
     """
     ycol = kwargs.pop('ycol', -1)
     cscan(dev, center, step, numpoints, 'centering', *args, **kwargs)
@@ -289,14 +291,14 @@ def center(dev, center, step, numpoints, *args, **kwargs):
 def checkoffset(dev, center, step, numpoints, *args, **kwargs):
     """Readjust offset of the given device to the center of a scan.
 
-    The adjustment is done so that afterwards, the given *center* coincides with
-    the center of a Gaussian fit through the scan performed with the given
+    The adjustment is done so that afterwards, the given *center* coincides
+    with the center of a Gaussian fit through the scan performed with the given
     stepsize and number of points.
 
     This supports all arguments and keyword arguments that `cscan()` supports,
     and additionally a keyword "ycol" that gives the Y column of the dataset to
-    use for the Gaussian fit (see the help for `gauss()` for the meaning of this
-    parameter).
+    use for the Gaussian fit (see the help for `gauss()` for the meaning of
+    this parameter).
     """
     ycol = kwargs.pop('ycol', -1)
     cscan(dev, center, step, numpoints, 'offset check', *args, **kwargs)
@@ -312,7 +314,8 @@ def checkoffset(dev, center, step, numpoints, *args, **kwargs):
     else:
         diff = params[0] - center
         printinfo('center of Gaussian fit at %s' % dev.format(params[0], True))
-        printinfo('adjusting offset of %s by %s' % (dev, dev.format(diff, True)))
+        printinfo('adjusting offset of %s by %s' % (dev, dev.format(diff,
+                                                                    True)))
         dev.offset += diff
 
 
@@ -348,7 +351,8 @@ def findpeaks(*columns, **kwds):
             continue
         # peak must be bigger than sides - including errors!
         miny = subys[np] - subdys[np]
-        if (subys[0] + subdys[0] > miny) or (subys[2*np] + subdys[2*np] > miny):
+        if (subys[0] + subdys[0] > miny) or \
+           (subys[2*np] + subdys[2*np] > miny):
             continue
         # values must rise to peak and fall down
         for v in range(np):

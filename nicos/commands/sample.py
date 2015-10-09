@@ -262,14 +262,15 @@ def _extract_powder_data(num, dataset):
 
 
 @usercommand
-def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1):
+def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
+              spacegroup=1):
     """Fit powder peaks of a cubic powder sample to calibrate instrument
     wavelength.
 
     First argument is either a string that names a known material (currently
-    only ``'YIG'`` is available) or a cubic lattice parameter.  Then you need to
-    give either scan numbers (*scans*) or peak positions (*peaks*) and a neutron
-    wavevector (*ki*).  Examples:
+    only ``'YIG'`` is available) or a cubic lattice parameter.  Then you need
+    to give either scan numbers (*scans*) or peak positions (*peaks*) and a
+    neutron wavevector (*ki*).  Examples:
 
     >>> powderfit('YIG', scans=[1382, 1383, 1384, ...])
 
@@ -407,7 +408,8 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355, spacegroup=1
             p('peak       dval     measured fitpos   delta')
             for i, el in enumerate(peaks):
                 p('%-10s %-7.3f  %-7.3f  %-7.3f  %-7.3f%s' % (
-                    dhkls[el[0]], el[0], el[1], peaks_fit[i], peaks_fit[i] - el[1],
+                    dhkls[el[0]], el[0], el[1], peaks_fit[i],
+                    peaks_fit[i] - el[1],
                     '' if abs(peaks_fit[i] - el[1]) < 0.10 else " **"))
             p('')
             rms += sum((pobs - pfit)**2 for (pobs, pfit) in

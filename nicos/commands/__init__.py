@@ -79,8 +79,8 @@ def usercommandWrapper(func):
                 # try executing the original function with the given arguments
                 return func(*args, **kwds)
             except TypeError:
-                # find out if the call itself caused this error, which means that
-                # wrong arguments were given to the command
+                # find out if the call itself caused this error, which means
+                # that wrong arguments were given to the command
                 traceback = sys.exc_info()[2]
                 # find last call frame
                 while traceback.tb_next:
@@ -92,7 +92,8 @@ def usercommandWrapper(func):
                 else:
                     raise
             except UsageError:
-                # for usage errors, print the error and the help for the command
+                # for usage errors, print the error and the help for the
+                # command
                 printexception()
                 help(func)
         except RERAISE_EXCEPTIONS:

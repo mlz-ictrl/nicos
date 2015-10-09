@@ -124,7 +124,8 @@ def floatrange(start, end, step=None, **kw):
         if kw.get('num') is not None:
             raise UsageError('Both step and num given, only one is allowed.')
         if step <= 0.0:
-            raise UsageError('Increment has to be positive and greater than zero.')
+            raise UsageError('Increment has to be positive and greater than '
+                             'zero.')
         step = math.copysign(float(step), (end - start))
         return RangeListByStep(start, end, step)
     else:

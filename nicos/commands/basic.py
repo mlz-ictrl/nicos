@@ -43,7 +43,8 @@ from nicos.utils import formatDuration, printTable
 from nicos.utils.timer import Timer
 from nicos.devices.notifiers import Mailer
 from nicos.commands import usercommand, hiddenusercommand, helparglist
-from nicos.commands.output import printinfo, printwarning, printexception, printerror
+from nicos.commands.output import printinfo, printwarning, printexception, \
+    printerror
 from nicos.core import SIMULATION, MASTER, MAINTENANCE, ADMIN
 from nicos.pycompat import builtins, exec_, iteritems
 
@@ -64,7 +65,7 @@ __all__ = [
 ]
 
 
-# -- help and introspection ----------------------------------------------------
+# -- help and introspection ---------------------------------------------------
 
 @usercommand
 @helparglist('[object]')
@@ -162,7 +163,7 @@ def sleep(secs):
         session.endActionScope()
 
 
-# -- other basic commands ------------------------------------------------------
+# -- other basic commands -----------------------------------------------------
 
 @usercommand
 @helparglist('[setup, ...]')
@@ -357,19 +358,20 @@ def RemoveDevice(*devnames):
 def CreateAllDevices(**kwargs):
     """Try to create all possible devices in the current setup.
 
-    This is useful when a setup failed to load many devices, and another attempt
-    should be made.  Example:
+    This is useful when a setup failed to load many devices, and another
+    attempt should be made.  Example:
 
     >>> CreateAllDevices()
 
-    Note: Devices that are marked as lowlevel will not be automatically created,
-    unless you set the lowlevel flag like:
+    Note: Devices that are marked as lowlevel will not be automatically
+    created, unless you set the lowlevel flag like:
 
     >>> CreateAllDevices(lowlevel=True)
     """
     lowlevel = kwargs.get('lowlevel', False)
     if lowlevel and not session.checkUserLevel(ADMIN):
-        printerror('Creating all lowlevel devices is only allowed for admin users')
+        printerror('Creating all lowlevel devices is only allowed for admin '
+                   'users')
         lowlevel = False
 
     session.startMultiCreate()
@@ -393,7 +395,7 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
     You should also give a argument for the local contact and the primary user.
     More users can be added later with `AddUser`.  Example:
 
-    >>> NewExperiment(5401, 'Spin waves', 'L. Contact', 'F. User <user@abc.de>')
+    >>> NewExperiment(541, 'Spin waves', 'L. Contact', 'F. User <user@abc.de>')
 
     When configured, proposal information will be automatically filled in from
     the proposal database.
@@ -541,9 +543,9 @@ def sync():
     """Synchronize dry-run/simulation copy with master copy.
 
     This will fetch the current setups and state of the actual instrument and
-    apply it to the simulated devices in the current NICOS instance.  New setups
-    will be loaded, and the current values and parameters of simulated devices
-    will be updated.  Example:
+    apply it to the simulated devices in the current NICOS instance.  New
+    setups will be loaded, and the current values and parameters of simulated
+    devices will be updated.  Example:
 
     >>> sync()
     """
@@ -671,7 +673,8 @@ def _RunScript(filename, statdevices, debug=False):
         # quick guard against self-recursion
         if session.experiment and session.experiment.scripts and \
                 code.strip() == session.experiment.scripts[-1].strip():
-            raise NicosError('script %r would call itself, aborting' % filename)
+            raise NicosError('script %r would call itself, aborting' %
+                             filename)
         compiler = lambda src: compile(src + '\n', fn, 'exec', CO_DIVISION)
         compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
@@ -684,7 +687,8 @@ def _RunScript(filename, statdevices, debug=False):
     printinfo('finished user script: ' + fn)
     if session.mode == SIMULATION:
         printinfo('simulated minimum runtime: ' +
-                  formatDuration(session.clock.time - starttime, precise=False))
+                  formatDuration(session.clock.time - starttime,
+                                 precise=False))
         for dev in statdevices:
             if not isinstance(dev, Readable):
                 continue
@@ -705,7 +709,8 @@ def _RunCode(code, debug=False):
         raise
     if session.mode == SIMULATION:
         printinfo('simulated minimum runtime: ' +
-                  formatDuration(session.clock.time - starttime, precise=False))
+                  formatDuration(session.clock.time - starttime,
+                                 precise=False))
 
 
 @usercommand
@@ -758,13 +763,15 @@ def sim(what, *devices, **kwargs):
         try:
             compile(what + '\n', 'exec', 'exec')
         except Exception:
-            raise NicosError('Argument is neither a script file nor valid code')
+            raise NicosError('Argument is neither a script file nor valid '
+                             'code')
         session.runSimulation('_RunCode(%r, %s)' % (what, debug))
         return
     if session.mode == SIMULATION:
         return _RunScript(what, devices)
     session.runSimulation('_RunScript(%r, [%s], %s)' %
-                          (what, ', '.join(dev.name for dev in devices), debug))
+                          (what, ', '.join(dev.name for dev in devices),
+                           debug))
 
 
 @usercommand
@@ -859,7 +866,8 @@ def _LogAttach(description, paths, names):
     on which the electronic logbook daemon runs (i.e. on a common network
     share).  They will be moved to the logbook using the given *names*.
 
-    This is intended to be used from the NICOS GUI, from the respective dialogs.
+    This is intended to be used from the NICOS GUI, from the respective
+    dialogs.
     """
     session.elogEvent('attachment', (description, paths, names))
 
@@ -871,6 +879,7 @@ def SetErrorAbort(abort):
 
     If *abort* is True, abort script and notify.
 
-    If it is False, report the error, notify and continue with the next command.
+    If it is False, report the error, notify and continue with the next
+    command.
     """
     session.experiment.errorbehavior = abort and 'abort' or 'report'

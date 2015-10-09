@@ -32,7 +32,8 @@ from nicos.core import Device, Moveable, Waitable, Measurable, Readable, \
     HasOffset, HasLimits, UsageError, AccessError, formatStatus, \
     INFO_CATEGORIES, multiWait
 from nicos.core.status import OK, BUSY
-from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, Multi
+from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, \
+    Multi
 from nicos.devices.abstract import CanReference
 from nicos.commands import usercommand, hiddenusercommand, helparglist
 from nicos.commands.basic import sleep
@@ -188,7 +189,8 @@ def read(*devlist):
             target = dev.target
             if target is not None and dev.format(target) != dev.format(value):
                 dev.log.info('at %20s %-5s  (target: %20s %s)' %
-                             (dev.format(value), unit, dev.format(target), unit))
+                             (dev.format(value), unit, dev.format(target),
+                              unit))
             else:
                 dev.log.info('at %20s %-5s' % (dev.format(value), unit))
         else:
@@ -307,7 +309,8 @@ def set(dev, parameter, value):  # pylint: disable=W0622
     dev = session.getDevice(dev)
     prevalue = getattr(dev, parameter)
     setattr(dev, parameter, value)
-    if not dev.parameters[parameter].chatty:  # if yes, we already got a message
+    # if yes, we already got a message
+    if not dev.parameters[parameter].chatty:
         dev.log.info('%s set to %r (was %r)' %
                      (parameter, getattr(dev, parameter), prevalue))
 
@@ -506,8 +509,8 @@ def history(dev, key='value', fromtime=None, totime=None):
 
     *fromtime* and *totime* are eithernumbers giving **hours** in the past, or
     otherwise strings with a time specification (see below).  The default is to
-    list history of the last hour for "value" and "status", or from the last day
-    for other parameters.  For example:
+    list history of the last hour for "value" and "status", or from the last
+    day for other parameters.  For example:
 
     >>> history(mth)              # show value of mth in the last hour
     >>> history(mth, 48)          # show value of mth in the last two days
@@ -519,8 +522,8 @@ def history(dev, key='value', fromtime=None, totime=None):
     >>> history(mth, 'offset', '1 week')       # allowed: w/week/weeks
     >>> history(mth, 'speed', '30 minutes')    # allowed: m/min/minutes
 
-    >>> history(mth, 'speed', '2012-05-04 14:00')    # from that date/time on
-    >>> history(mth, 'speed', '14:00', '17:00')      # between 14h and 17h today
+    >>> history(mth, 'speed', '2012-05-04 14:00')  # from that date/time on
+    >>> history(mth, 'speed', '14:00', '17:00')    # between 14h and 17h today
     >>> history(mth, 'speed', '2012-05-04', '2012-05-08')  # between two days
     """
     # support calling history(dev, -3600)
@@ -639,7 +642,8 @@ def resetlimits(*devlist):
             newlim = alim
         if dev.userlimits != newlim:
             dev.userlimits = newlim
-            dev.log.info('limits reset to absolute limits, new range: %8s --- %8s %s'
+            dev.log.info('limits reset to absolute limits, new range: '
+                         '%8s --- %8s %s'
                          % (dev.format(dev.userlimits[0]),
                             dev.format(dev.userlimits[1]), dev.unit))
 

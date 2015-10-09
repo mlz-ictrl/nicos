@@ -64,7 +64,8 @@ def _fixType(dev, args, mkpos):
                     isinstance(args[1], (list, tuple))):
                 raise UsageError('start and step must be lists')
             if not len(dev) == len(args[0]) == len(args[1]):
-                raise UsageError('start and step lists must be of equal length')
+                raise UsageError('start and step lists must be of equal '
+                                 'length')
             values = mkpos(args[0], args[1], args[2])
             restargs = args[3:]
     else:
@@ -153,9 +154,10 @@ def scan(dev, *args, **kwargs):
                 for i in range(numpoints)]
     scanstr = _infostr('scan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep  = \
+    preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
-    Scan(devs, values, move, multistep, detlist, envlist, preset, scaninfo).run()
+    Scan(devs, values, move, multistep, detlist, envlist, preset,
+         scaninfo).run()
 
 
 @usercommand
@@ -175,9 +177,10 @@ def cscan(dev, *args, **kwargs):
                  in zip(centers, steps)] for i in range(2*numperside+1)]
     scanstr = _infostr('cscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
-    preset, scaninfo, detlist, envlist, move, multistep  = \
+    preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
-    Scan(devs, values, move, multistep, detlist, envlist, preset, scaninfo).run()
+    Scan(devs, values, move, multistep, detlist, envlist, preset,
+         scaninfo).run()
 
 
 @usercommand
@@ -226,8 +229,9 @@ def sweep(dev, start, end, *args, **kwargs):
 
     >>> sweep(T, 10, 100, t=2, delay=5)
     """
-    # XXX: the SweepScan supports a) max #points and b) multiple devices, but we
-    # don't offer that in this simplified interface until it's actually needed
+    # XXX: the SweepScan supports a) max #points and b) multiple devices, but
+    # we don't offer that in this simplified interface until it's actually
+    # needed
     scanstr = _infostr('sweep', (dev, start, end,) + args, kwargs)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(args, kwargs, scanstr)
@@ -259,7 +263,8 @@ def twodscan(dev1, start1, step1, numpoints1,
         except NicosError as err:
             if isinstance(err, CONTINUE_EXCEPTIONS):
                 printwarning('Positioning problem of %s at %s, scanning %s '
-                             'anyway' % (dev1, dev1.format(dev1value, unit=True),
+                             'anyway' % (dev1, dev1.format(dev1value,
+                                                           unit=True),
                                          dev2), exc=1)
             elif isinstance(err, SKIP_EXCEPTIONS):
                 printwarning('Skipping scan at %s = %s' %
@@ -271,8 +276,8 @@ def twodscan(dev1, start1, step1, numpoints1,
 
 
 ADDSCANHELP1 = """
-    The device can also be a list of devices that should be moved for each step.
-    In this case, the start and stepwidth also have to be lists:
+    The device can also be a list of devices that should be moved for each
+    step.  In this case, the start and stepwidth also have to be lists:
 
     >>> scan([dev1, dev2], [0, 0], [0.5, 1], 10)
 
@@ -297,8 +302,8 @@ ADDSCANHELP2 = """
     >>> scan(dev, ..., det1, det2)
 
     Other devices that should be recorded at every point (so-called environment
-    devices) are by default those selected by `SetEnvironment()`.  They can also
-    be overridden by giving them as arguments:
+    devices) are by default those selected by `SetEnvironment()`.  They can
+    also be overridden by giving them as arguments:
 
     >>> scan(dev, ..., T1, T2)
 
@@ -316,10 +321,10 @@ ADDSCANHELP2 = """
     *pol* moved to 'down'.
 """
 
-scan.__doc__     += ADDSCANHELP1 + ADDSCANHELP2
-cscan.__doc__    += (ADDSCANHELP1 + ADDSCANHELP2).replace('scan(', 'cscan(')
+scan.__doc__ += ADDSCANHELP1 + ADDSCANHELP2
+cscan.__doc__ += (ADDSCANHELP1 + ADDSCANHELP2).replace('scan(', 'cscan(')
 timescan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'timescan(5, ')
-sweep.__doc__    += ADDSCANHELP2.replace('scan(dev, ', 'sweep(dev, ')
+sweep.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'sweep(dev, ')
 twodscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'twodscan(dev1, ')
 
 
@@ -329,8 +334,8 @@ twodscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'twodscan(dev1, ')
 def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     """Scan a device continuously with low speed.
 
-    If the "speed" is not explicitly given, it is set to 1/5 of the normal speed
-    of the device.  This is very useful for peak searches.
+    If the "speed" is not explicitly given, it is set to 1/5 of the normal
+    speed of the device.  This is very useful for peak searches.
 
     Example:
 
@@ -338,11 +343,11 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
 
     The phi device will move continuously from 0 to 10, with reduced speed.  In
     contrast to a `sweep`, the detectors are read out every *timedelta* seconds
-    (the default is one second), and each delta between count values is one scan
-    point, so that no counts are lost.
+    (the default is one second), and each delta between count values is one
+    scan point, so that no counts are lost.
 
-    By default, the detectors are those selected by SetDetectors().  They can be
-    replaced by a custom set of detectors by giving them as arguments:
+    By default, the detectors are those selected by SetDetectors().  They can
+    be replaced by a custom set of detectors by giving them as arguments:
 
     >>> contscan(dev, ..., det1, det2)
     """
@@ -434,14 +439,15 @@ def appendscan(numpoints=5, stepsize=None):
 
     Examples:
 
-    >>> appendscan(5)     # append 5 more points to last scan
-    >>> appendscan(-5)    # append 5 more points to beginning of last scan
+    >>> appendscan(5)   # append 5 more points to last scan
+    >>> appendscan(-5)  # append 5 more points to beginning of last scan
 
-    The scan data will be plotted into the same live plot, if possible, but will
-    be saved into a separate data file.
+    The scan data will be plotted into the same live plot, if possible, but
+    will be saved into a separate data file.
     """
     if numpoints == 0:
-        raise UsageError('number of points must be either positive or negative')
+        raise UsageError('number of points must be either positive or '
+                         'negative')
     direction = numpoints / abs(numpoints)
     dslist = session.experiment._last_datasets
     if not dslist:
@@ -497,7 +503,8 @@ def appendscan(numpoints=5, stepsize=None):
     else:
         raise NicosError('cannot append to this scan')
     s = Scan(scan.devices, positions, None, scan.multistep, scan.detlist,
-             scan.envlist, scan.preset, '%d more steps of last scan' % numpoints)
+             scan.envlist, scan.preset, '%d more steps of last scan' %
+             numpoints)
     s.dataset.sinkinfo['continuation'] = ','.join(contuids)
     s.dataset.sinkinfo['cont_direction'] = direction
     s.dataset.xindex = scan.xindex

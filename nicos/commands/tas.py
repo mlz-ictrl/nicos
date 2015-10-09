@@ -33,7 +33,8 @@ from nicos.core.scan import QScan
 from nicos.devices.tas.mono import to_k
 from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
-from nicos.devices.tas.plotting import plot_hklmap, plot_resatpoint, plot_resscan
+from nicos.devices.tas.plotting import plot_hklmap, plot_resatpoint, \
+    plot_resscan
 from nicos.devices.tas.spurions import check_acc_bragg, check_ho_spurions, \
     check_powderrays, alu_hkl, copper_hkl
 from nicos.commands import usercommand, hiddenusercommand, helparglist
@@ -144,11 +145,14 @@ def qscan(Q, dQ, numpoints, *args, **kwargs):
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
               for i in range(numpoints)]
     if plotval == 'res':
-        resscan(*(p[0] for p in values), kf=kwargs.get('kf'), ki=kwargs.get('ki'))
+        resscan(*(p[0] for p in values), kf=kwargs.get('kf'),
+                ki=kwargs.get('ki'))
     elif plotval == 'hkl':
-        hklplot(scan=[p[0] for p in values], kf=kwargs.get('kf'), ki=kwargs.get('ki'))
+        hklplot(scan=[p[0] for p in values], kf=kwargs.get('kf'),
+                ki=kwargs.get('ki'))
     else:
-        scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
+        scan = QScan(values, move, multistep, detlist, envlist, preset,
+                     scaninfo)
         scan.run()
 
 
@@ -184,14 +188,17 @@ def qcscan(Q, dQ, numperside, *args, **kwargs):
     values = [[(Q[0]+i*dQ[0], Q[1]+i*dQ[1], Q[2]+i*dQ[2], Q[3]+i*dQ[3])]
               for i in range(-numperside, numperside+1)]
     if plotval == 'res':
-        resscan(*(p[0] for p in values), kf=kwargs.get('kf'), ki=kwargs.get('ki'))
+        resscan(*(p[0] for p in values), kf=kwargs.get('kf'),
+                ki=kwargs.get('ki'))
     elif plotval == 'hkl':
-        hklplot(scan=[p[0] for p in values], kf=kwargs.get('kf'), ki=kwargs.get('ki'))
+        hklplot(scan=[p[0] for p in values], kf=kwargs.get('kf'),
+                ki=kwargs.get('ki'))
     else:
-        scan = QScan(values, move, multistep, detlist, envlist, preset, scaninfo)
+        scan = QScan(values, move, multistep, detlist, envlist, preset,
+                     scaninfo)
         scan.run()
 
-qscan.__doc__  += ADDSCANHELP2.replace('scan(dev, ', 'qscan(Q, dQ, ')
+qscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qscan(Q, dQ, ')
 qcscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qcscan(Q, dQ, ')
 
 
@@ -550,7 +557,7 @@ def rescal(*args, **kwds):
 
     >>> rescal()           # display resolution at current Q/E point
     >>> rescal(1, 1, 0)    # display resolution at the given point
-    >>> rescal(1, 1, 0, 5, kf=2.662)  # at the given point with const kf = 2.662
+    >>> rescal(1, 1, 0, 5, kf=2.66)  # at the given point with const kf = 2.66
 
     Obviously, several sample and spectrometer parameters must be set correctly
     for the resolution calculation to work.
@@ -568,7 +575,7 @@ def resplot(*args, **kwds):
 
     >>> resplot()           # plot resolution at current Q/E point
     >>> resplot(1, 1, 0)    # plot resolution at the given point
-    >>> resplot(1, 1, 0, 5, kf=2.662) # at the given point with const kf = 2.662
+    >>> resplot(1, 1, 0, 5, kf=2.66)  # at the given point with const kf = 2.66
 
     Obviously, several sample and spectrometer parameters must be set correctly
     for the resolution calculation to work.
