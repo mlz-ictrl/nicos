@@ -78,14 +78,14 @@ devices = {
                                               valuename = 'FLOW_in %s' % channel,
                                               description = 'inlet flow %s cooling' % system,
                                               fmtstr = '%.1f',
-                                              warnlimits = (0.2, 100), #100 no upper value
+                                              warnlimits = (0.2, 100), # 100 no upper value
                                               lowlevel = False,
                                              ),
     'flow_out_%s_cooling' % system[:2]: device('frm2.memograph.MemographValue',
                                                hostname = '%s' % memograph,
                                                group = _group,
                                                valuename = 'FLOW_out %s' % channel,
-                                               description = 'outlet flow %s cooling % system',
+                                               description = 'outlet flow %s cooling' % system,
                                                fmtstr = '%.1f',
                                                lowlevel = False,
                                                unit = 'l/min',
