@@ -91,6 +91,7 @@ class ScriptStatusPanel(Panel):
         Panel.__init__(self, parent, client)
         loadUi(self, 'status.ui', 'panels')
 
+        self.stopcounting = False
         self.menus = None
         self.bar = None
         self.queueFrame.hide()
@@ -142,6 +143,15 @@ class ScriptStatusPanel(Panel):
         menu.addAction(self.actionEmergencyStop)
         self.mainwindow.menuBar().insertMenu(
             self.mainwindow.menuWindows.menuAction(), menu)
+
+    def setOptions(self, options):
+        Panel.setOptions(self, options)
+        self.stopcounting = bool(options.get('stopcounting', False))
+        if self.stopcounting:
+            tooltip = 'Aborts the current executed script'
+            self.actionStop.setToolTip(tooltip)
+            self.actionStop.setText('Abort current script')
+            self.actionStop2.setToolTip(tooltip)
 
     def setCustomStyle(self, font, back):
         self.idle_color = back
@@ -255,6 +265,8 @@ class ScriptStatusPanel(Panel):
     @qtsig('')
     def on_actionStop_triggered(self):
         self.mainwindow.action_start_time = time.time()
+        if self.stopcounting:
+            self.client.tell('break', BREAK_NOW)
         self.client.tell('stop', BREAK_NOW)
 
     @qtsig('')

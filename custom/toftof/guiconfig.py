@@ -26,7 +26,7 @@
 
 main_window = docked(
     vsplit(
-        panel('status.ScriptStatusPanel'),
+        panel('status.ScriptStatusPanel', stopcounting=True),
 #       panel('watch.WatchPanel'),
         panel('console.ConsolePanel'),
     ),
