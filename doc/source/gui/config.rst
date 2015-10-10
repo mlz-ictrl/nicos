@@ -292,6 +292,12 @@ Panels that come with NICOS are:
    Provides a view of the currently executed script, and the current position in
    it.  The panel also displays queued scripts.
 
+   Options:
+
+   * ``stopcounting`` (default False) -- Configure the stop button behaviour,
+     if is set to ``True``, the execution of a script will be aborted, otherwise
+     a counting will be finished first before the script will be stopped.
+
 .. figure:: scriptstatuspanel.png
      :alt: script status panel
      :align: center
