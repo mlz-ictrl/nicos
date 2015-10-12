@@ -10,7 +10,7 @@ tango_host = 'tango://phys.dns.frm2:10000'
 
 devices = dict(
 
-    expshutter = device('dns.shutter.Shutter',
+    expshutter = device('jcns.shutter.Shutter',
                         description = 'Experiment Shutter',
                         tangodevice = '%s/dns/FZJDP_Digital/ExpShutter' % tango_host,
                         mapping = dict(open=1, close=2),

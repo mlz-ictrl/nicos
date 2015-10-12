@@ -19,17 +19,24 @@
 #
 # Module authors:
 #   Christian Felder <c.felder@fz-juelich.de>
+#   Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
 #
 # *****************************************************************************
 
-from nicos.devices.generic.switcher import Switcher
+from nicos.devices.tango import NamedDigitalOutput
+from nicos.core.params import Param, oneof
 
 
-class Shutter(Switcher):
+class Shutter(NamedDigitalOutput):
+    """Shutter implements a NamedDigitalOutput which moves to `stoptarget`
+    position when the device is stopped. This can be used to close the
+    shutter in case of (emergency) stops. If the shutter should not move on
+    (emergency) stops please use `NamedDigitalOutput`."""
 
-    OPEN = "open"
-    CLOSED = "close"
+    parameters = {
+        'stoptarget': Param('Target position on Stop', type=oneof(int, str),
+                            default='close', userparam=False)
+    }
 
     def doStop(self):
-        self.start(Shutter.CLOSED)
-        self.wait()
+        self.maw(self.stoptarget)
