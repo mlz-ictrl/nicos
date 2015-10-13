@@ -25,20 +25,23 @@
 """Utilities for (de-)compressing files."""
 
 import os
+import errno
 import zipfile
 from os import path
 
 
 def zipFiles(zipfilename, rootdir, logger=None):
-    """Create a zipfile named <zipfile> containing all files from <rootdir> and therein
+    """Create a zipfile named <zipfile> containing all files from <rootdir>
+    and therein.
 
-    returns the name of the created zipfile
+    Returns the name of the created zipfile.
     """
     if not zipfilename.endswith('.zip'):
         zipfilename = zipfilename + '.zip'
     zipfilename = path.abspath(zipfilename)
     zf = zipfile.ZipFile(zipfilename, 'w', zipfile.ZIP_DEFLATED, True)
     nfiles = 0
+    remove_zip = False
     try:
         # os.walk will not follow symlinks
         for root, dirs, files in os.walk(rootdir):
@@ -50,11 +53,26 @@ def zipFiles(zipfilename, rootdir, logger=None):
                     continue  # ignore hidden files
                 if fn.endswith('.zip'):
                     continue  # ignore (potentially old data) zip files
-                zf.write(path.join(root, fn), path.join(xroot, fn))
+                try:
+                    zf.write(path.join(root, fn), path.join(xroot, fn))
+                except Exception as err:
+                    # ignore some OS errors:
+                    if isinstance(err, OSError) and \
+                       err.errno in (errno.EACCES, errno.ENOENT):
+                        # - EACCES means the user created a file with wrong
+                        #   permissions (NICOS doesn't do that)
+                        # - ENOENT means a dangling symlink
+                        logger.warning('could not add %s to zip: %s' % (
+                            path.join(xroot, fn), err))
+                    else:
+                        remove_zip = True
+                        raise
                 nfiles += 1
                 if nfiles % 500 == 0:
                     if logger:
                         logger.info('%d files processed' % nfiles)
     finally:
         zf.close()
+        if remove_zip:
+            os.unlink(zipfilename)
     return zipfilename
