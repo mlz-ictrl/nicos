@@ -122,7 +122,7 @@ class TimeSeries(object):
         self.real_n = 0
         self.last_y = None
         self.string_mapping = mapping or {}
-        self._last_update_time = 0
+        self._last_update_time = currenttime()
 
     @property
     def title(self):
