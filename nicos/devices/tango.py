@@ -30,6 +30,7 @@ FRM-II/JCNS TANGO interface for the respective device classes.
 """
 
 import re
+import numpy
 from time import sleep
 
 import PyTango
@@ -37,7 +38,8 @@ import PyTango
 from nicos.core import Param, Override, status, Readable, Moveable, Measurable, \
     HasLimits, Device, tangodev, HasCommunication, oneofdict, dictof, intrange, \
     nonemptylistof, NicosError, CommunicationError, ConfigurationError, \
-    ProgrammingError, HardwareError, InvalidValueError, HasTimeout
+    ProgrammingError, HardwareError, InvalidValueError, HasTimeout, \
+    ImageProducer, ImageType
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -844,7 +846,7 @@ class Detector(PyTangoDevice, Measurable):
         self._dev.Clear()
 
 
-class TofDetector(Detector):
+class TofDetector(ImageProducer, Detector):
     """
     Represents the client to a TANGO time-of-flight detector device.
     """
@@ -859,7 +861,22 @@ class TofDetector(Detector):
         'timeinterval': Param('Time for each time channel',
                               type=int, unit='ns', default=1, volatile=True,
                              ),
+        'timer': Param('Tango device for the timer',
+                       type=tangodev, settable=False, mandatory=True,)
     }
+
+    _timer = None
+
+    def doInit(self, mode):
+        self.imagetype = ImageType(shape=(1, ), dtype='<u4')
+        if mode != SIMULATION:
+            self._timer = self._createPyTangoDevice(self.timer)
+
+    def doRead(self, maxage=0):
+        if self._dev.syncMode == 'time' and self._timer:
+            return [self._timer.value.tolist()[0] / 1000., ]
+        else:
+            return [0, ]
 
     def doReadTimechannels(self):
         return self._dev.timeChannels
@@ -902,3 +919,25 @@ class TofDetector(Detector):
         elif 'cycles' in preset:
             self._dev.syncMode = 'cycles'
             self._dev.syncValue = preset['cycles']
+
+    def doEstimateTime(self, elapsed):
+        if self._dev.syncMode == 'time':
+            return self._dev.syncValue - self.doRead(0)[0]
+        return None
+
+    def clearImage(self):
+        self._dev.Clear()
+
+    def readImage(self):
+        res = self._dev.value.tolist()
+        self.imagetype = ImageType(shape=(self._dev.roiSize, ), dtype='<u4')
+        data = numpy.fromiter(res[self._dev.roiOffset:], '<u4',
+                              self._dev.roiSize)
+        # self.lastcounts = data.sum()
+        return data
+
+    def readFinalImage(self):
+        if self._dev.syncMode == 'time':
+            self.addHeader('detector', [(self, 'time',
+                                         '%f' % self.doRead()[0])])
+        return self.readImage()

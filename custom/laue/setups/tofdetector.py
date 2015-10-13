@@ -13,6 +13,7 @@ devices = dict(
     det = device('nicos.devices.tango.TofDetector',
                  description = 'TOF detector device',
                  tangodevice = 'tango://%s/test/tof/detector' % tangohost,
+                 timer = 'tango://%s/test/tof/timer' % tangohost,
                  subdir = '.',
                  fileformats = ['FileSaver', ],
                 ),
