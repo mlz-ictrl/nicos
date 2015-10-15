@@ -34,7 +34,7 @@ from nicos.commands import usercommand, helparglist
 from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.biodiff.motor import MicrostepMotor
 from nicos.biodiff.detector import ImagePlateDetector, Andor2LimaCCDDetector
-from nicos.biodiff.shutter import Shutter
+from nicos.jcns.shutter import Shutter
 
 
 class RScan(Scan):

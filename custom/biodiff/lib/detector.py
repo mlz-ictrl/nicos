@@ -30,17 +30,15 @@ from PyTango import DevState
 
 from nicos import session
 from nicos.utils import updateFileCounter
-from nicos.core import SIMULATION, waitForStatus
-import nicos.core.status as status
-from nicos.core.device import Moveable, Measurable
+from nicos.core import Moveable, Measurable, SIMULATION, waitForStatus, status
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.vendor.lima import Andor2LimaCCD
 from nicos.core.params import Attach, Param, Override, Value, oneof, tupleof
 from nicos.core.errors import NicosError, MoveError, InvalidValueError
-from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, SeqSleep, \
-    SeqMethod
+from nicos.devices.generic.sequence import MeasureSequencer, SeqDev, \
+    SeqSleep, SeqMethod
 from nicos.core.image import ImageProducer, ImageType
-from nicos.biodiff.shutter import Shutter
+from nicos.jcns.shutter import Shutter
 
 
 class ImagePlateBase(PyTangoDevice):
@@ -232,17 +230,18 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
 
     def doInit(self, mode):
         self._t = None
-        self.imagetype = ImageType(ImagePlateDetector.MAP_SHAPE[self.pixelsize],
-                                   numpy.uint16)
+        self.imagetype = ImageType(
+            ImagePlateDetector.MAP_SHAPE[self.pixelsize],
+            numpy.uint16)
 
     def _check_shutter(self):
         # TODO: reduce code duplication
-        if (self.ctrl_photoshutter
-                and self._attached_photoshutter.read() == Shutter.CLOSED):
+        if (self.ctrl_photoshutter and
+                self._attached_photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
                                     'exposure, check safety system')
-        if (self.ctrl_gammashutter
-                and self._attached_gammashutter.read() == Shutter.CLOSED):
+        if (self.ctrl_gammashutter and
+                self._attached_gammashutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
@@ -256,7 +255,8 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
                 seq.append(SeqDev(self._attached_gammashutter, Shutter.CLOSED))
             # erase and expo position
             if self.erase:
-                seq.append(SeqDev(self._attached_imgdrum, ImagePlateDrum.POS_ERASE))
+                seq.append(SeqDev(self._attached_imgdrum,
+                                  ImagePlateDrum.POS_ERASE))
             seq.append(SeqDev(self._attached_imgdrum, ImagePlateDrum.POS_EXPO))
         if expoTime > 0:
             # open shutter
@@ -336,8 +336,8 @@ class ImagePlateDetector(ImageProducer, MeasureSequencer):
             if self._mode != SIMULATION:
                 lastimagepath = os.path.join(exp.proposalpath,
                                              exp.lastimagefile)
-                if (os.path.isfile(lastimagepath)
-                        and os.path.getsize(lastimagepath) == 0):
+                if (os.path.isfile(lastimagepath) and
+                        os.path.getsize(lastimagepath) == 0):
                     self.log.debug("Remove empty file: %s" % exp.lastimagefile)
                     os.unlink(lastimagepath)
                 updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
@@ -434,12 +434,12 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
 
     def _check_shutter(self):
         # TODO: reduce code duplication
-        if (self.ctrl_photoshutter
-                and self._attached_photoshutter.read() == Shutter.CLOSED):
+        if (self.ctrl_photoshutter and
+                self._attached_photoshutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'photo shutter not open after '
                                     'exposure, check safety system')
-        if (self.ctrl_gammashutter
-                and self._attached_gammashutter.read() == Shutter.CLOSED):
+        if (self.ctrl_gammashutter and
+                self._attached_gammashutter.read() == Shutter.CLOSED):
             raise InvalidValueError(self, 'gamma shutter not open after '
                                     'exposure, check safety system')
 
@@ -485,8 +485,8 @@ class Andor2LimaCCDDetector(ImageProducer, MeasureSequencer):
             if self._mode != SIMULATION:
                 lastimagepath = os.path.join(exp.proposalpath,
                                              exp.lastimagefile)
-                if (os.path.isfile(lastimagepath)
-                        and os.path.getsize(lastimagepath) == 0):
+                if (os.path.isfile(lastimagepath) and
+                        os.path.getsize(lastimagepath) == 0):
                     self.log.debug("Remove empty file: %s" % exp.lastimagefile)
                     os.unlink(lastimagepath)
                 updateFileCounter(exp.imageCounterPath, exp.lastimage - 1)
