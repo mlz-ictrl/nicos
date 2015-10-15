@@ -25,6 +25,7 @@
 """Session class used with the NICOS daemon."""
 
 import sys
+import threading
 
 from nicos.core import AccessError, ACCESS_LEVELS, User
 from nicos.utils.loggers import INFO
@@ -36,10 +37,9 @@ from nicos.pycompat import builtins, exec_, string_types
 
 
 class DaemonSession(NoninteractiveSession):
-    """
-    Subclass of Session that configures the logging system for running under the
-    execution daemon: it adds the special daemon handler and installs a standard
-    output stream that logs stray output.
+    """Subclass of Session that configures the logging system for running under
+    the execution daemon: it adds the special daemon handler and installs a
+    standard output stream that logs stray output.
     """
 
     autocreate_devices = True
@@ -47,6 +47,9 @@ class DaemonSession(NoninteractiveSession):
 
     # later overwritten to send events to the client
     emitfunc = lambda self, event, args: None
+
+    # later overwritten to the real thread ID of the script thread
+    script_thread_id = None
 
     # to set a point where the "break" command can break, it suffices to execute
     # some piece of code in a frame with the filename starting with "<break>";
@@ -124,9 +127,13 @@ class DaemonSession(NoninteractiveSession):
             if script and rlevel > script.userlevel:
                 raise AccessError('%s access is not sufficient, %s access '
                                   'is required' % (
-                                      ACCESS_LEVELS.get(script.userlevel, str(script.userlevel)),
+                                      ACCESS_LEVELS.get(script.userlevel,
+                                                        str(script.userlevel)),
                                       ACCESS_LEVELS.get(rlevel, str(rlevel))))
         return NoninteractiveSession.checkAccess(self, required)
+
+    def checkParallel(self):
+        return self.script_thread_id != threading.current_thread().ident
 
     def showHelp(self, obj=None):
         try:
@@ -147,8 +154,8 @@ class DaemonSession(NoninteractiveSession):
 
     def clientExec(self, func, args):
         """Execute a function client-side."""
-        self.emitfunc_private('clientexec',
-                              ('%s.%s' % (func.__module__, func.__name__),) + args)
+        self.emitfunc_private(
+            'clientexec', ('%s.%s' % (func.__module__, func.__name__),) + args)
 
     def setupCallback(self, setupnames, explicit):
         self.emitfunc('setup', (setupnames, explicit))

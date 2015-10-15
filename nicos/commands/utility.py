@@ -35,7 +35,7 @@ import math
 import numpy
 
 from nicos.core import UsageError
-from nicos.commands import usercommand, helparglist
+from nicos.commands import usercommand, helparglist, parallel_safe
 
 
 __all__ = ['floatrange', 'RangeListLog', 'RangeListGeneral']
@@ -98,6 +98,7 @@ def RangeListByCount(start, end=None, num=2):
 
 @usercommand
 @helparglist('start, end, [step | num=n]')
+@parallel_safe
 def floatrange(start, end, step=None, **kw):
     """Generate a linear range of values.
 
@@ -139,6 +140,7 @@ def floatrange(start, end, step=None, **kw):
 
 
 @usercommand
+@parallel_safe
 def RangeListLog(start, end, num=10):
     """Generate a log spaced list with specified number of steps.
 
@@ -159,6 +161,7 @@ def identity(x):
 
 
 @usercommand
+@parallel_safe
 def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
     """Generate a list spaced evenly in arbitrary functions.
 

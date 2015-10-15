@@ -82,34 +82,37 @@ def teardown_module():
 
 
 def test_simple():
+
+    def wait_idle():
+        while True:
+            time.sleep(0.05)
+            st = client.ask('getstatus')
+            if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
+                break
+
     # getversion
     assert client.ask('getversion') == nicos_version
 
     # wait until initial setup is done
-    while True:
-        time.sleep(0.05)
-        st = client.ask('getstatus')
-        if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
-            break
+    wait_idle()
 
-    # eval/exec
-    if client.eval('session._spmode'):
-        client.tell('exec', 'SetSimpleMode false')
-    client.tell('exec', 'SetSimpleMode(True)')
-    client.tell('exec', 'NewSetup daemonmain')
+    # eval
+    setups = client.eval('session.explicit_setups')
+    assert setups == ['startup']
 
     # queue
-    client.run('printinfo 1')
-    time.sleep(0.05)
+    client.run('SetSimpleMode(True)')
+    client.run('NewSetup daemonmain')
+    wait_idle()
 
     # getstatus
     status = client.ask('getstatus')
-    assert status['status'] == (STATUS_IDLE, -1)   # execution status
-    assert status['script'] == 'printinfo 1'       # current script
-    assert status['mode']   == MASTER              # current mode
-    assert status['watch']  == {}                  # no watch expressions
-    assert status['setups'][1] == ['daemonmain']   # explicit setups
-    assert status['requests'] == []                # no requests queued
+    assert status['status'] == (STATUS_IDLE, -1)      # execution status
+    assert status['script'] == 'NewSetup daemonmain'  # current script
+    assert status['mode']   == MASTER                 # current mode
+    assert status['watch']  == {}                     # no watch expressions
+    assert status['setups'][1] == ['daemonmain']      # explicit setups
+    assert status['requests'] == []                   # no requests queued
 
     # queue/unqueue/emergency
     client.run('sleep 0.1')

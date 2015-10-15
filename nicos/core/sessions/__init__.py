@@ -1295,6 +1295,12 @@ class Session(object):
                 raise AccessError('requires %s mode' % required['mode'])
         return True
 
+    def checkParallel(self):
+        """Check if the current thread is running parallel to the main
+        NICOS scripts.
+        """
+        return False
+
     def clientExec(self, func, args):
         """Execute a function client-side."""
         raise NotImplementedError('clientExec is missing for this session')

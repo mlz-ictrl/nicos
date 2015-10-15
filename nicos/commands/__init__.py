@@ -24,6 +24,12 @@
 
 """Base package for NICOS commands."""
 
+import sys
+from functools import wraps
+
+from nicos import session
+from nicos.core.errors import UsageError
+
 
 def usercommand(func):
     """Decorator that marks a function as a user command."""
@@ -51,12 +57,12 @@ def helparglist(args):
     return deco
 
 
-import sys
-from functools import wraps
-
-from nicos import session
-from nicos.core.errors import UsageError
-from nicos.commands.output import printerror, printexception
+def parallel_safe(func):
+    """Decorator that marks a user command as safe for execution in
+    parallel to the main script.
+    """
+    func.is_parallel_safe = True
+    return func
 
 
 RERAISE_EXCEPTIONS = (
@@ -72,8 +78,13 @@ def usercommandWrapper(func):
     This is not done in the "usercommand" decorator since the function
     should stay usable as a regular function from nicos code.
     """
+    from nicos.commands.output import printerror, printexception
+    parallel_safe = getattr(func, 'is_parallel_safe', False)
+
     @wraps(func)
     def wrapped(*args, **kwds):
+        if not parallel_safe and session.checkParallel():
+            raise UsageError('the %s command cannot be used with "execute now"' % func.__name__)
         try:
             try:
                 # try executing the original function with the given arguments

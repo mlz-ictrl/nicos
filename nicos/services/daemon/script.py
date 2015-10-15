@@ -30,7 +30,7 @@ import weakref
 import traceback
 from os import path
 from bdb import BdbQuit
-from threading import Lock, Event
+from threading import Lock, Event, current_thread
 
 from nicos import session, config
 from nicos.utils import createThread
@@ -538,13 +538,13 @@ class ExecutionController(Controller):
                                    self.script_thread_entry, args=args)
 
     def script_thread_entry(self):
-        """
-        The script execution thread entry point.  This thread executes setup
-        code, then waits for scripts on self.queue.  The script is then executed
-        in the context of self.namespace, using the controller (self) to watch
-        execution.
+        """The script execution thread entry point.  This thread executes setup
+        code, then waits for scripts on self.queue.  The script is then
+        executed in the context of self.namespace, using the controller (self)
+        to watch execution.
         """
         self.log.debug('script_thread (re)started')
+        session.script_thread_id = current_thread().ident
         try:
             self.namespace['NicosSetup'] = self._setup
             # and put it in the queue as the first request

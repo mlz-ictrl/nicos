@@ -25,7 +25,8 @@
 """Module for output/logging user commands."""
 
 from nicos import session
-from nicos.commands import usercommand, hiddenusercommand, helparglist
+from nicos.commands import usercommand, hiddenusercommand, helparglist, \
+    parallel_safe
 
 
 __all__ = [
@@ -35,6 +36,7 @@ __all__ = [
 
 @hiddenusercommand
 @helparglist('message, ...')
+@parallel_safe
 def printdebug(*msgs, **kwds):
     """Print a debug message."""
     session.log.debug(*msgs, **kwds)
@@ -42,6 +44,7 @@ def printdebug(*msgs, **kwds):
 
 @usercommand
 @helparglist('message, ...')
+@parallel_safe
 def printinfo(*msgs, **kwds):
     """Print a message.
 
@@ -52,6 +55,7 @@ def printinfo(*msgs, **kwds):
 
 @usercommand
 @helparglist('message, ...')
+@parallel_safe
 def printwarning(*msgs, **kwds):
     """Print a warning message.
 
@@ -67,6 +71,7 @@ def printwarning(*msgs, **kwds):
 
 @usercommand
 @helparglist('message, ...')
+@parallel_safe
 def printerror(*msgs):
     """Print an error message.
 
@@ -82,6 +87,7 @@ def printerror(*msgs):
 
 @hiddenusercommand
 @helparglist('message, ...')
+@parallel_safe
 def printexception(*msgs):
     """Print an error message, and add info about the last exception."""
     session.log.exception(*msgs)

@@ -26,7 +26,7 @@
 
 from nicos.core import HasOffset, Readable
 from nicos.core.spm import spmsyntax, Dev, Bare, Multi, AnyDev, DevParam
-from nicos.commands import usercommand, helparglist
+from nicos.commands import usercommand, helparglist, parallel_safe
 from nicos.commands.device import adjust as _adjust, reset as _reset, \
     set as _set
 
@@ -34,6 +34,7 @@ from nicos.commands.device import adjust as _adjust, reset as _reset, \
 @usercommand
 @helparglist('dev, ...')
 @spmsyntax(Multi(Dev(Readable)))
+@parallel_safe
 def init(*devlist):
     """Initialize (reset) the given device(s).
 
@@ -63,6 +64,7 @@ def recalibrate(dev, value):
 
 @usercommand
 @spmsyntax(AnyDev, DevParam, Bare)
+@parallel_safe
 def configure(dev, parameter, value):
     """Set a the parameter of the device to a new value.
 

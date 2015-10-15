@@ -31,7 +31,7 @@ from nicos import session
 from nicos.core.device import Measurable
 from nicos.core.errors import UsageError
 from nicos.core.constants import SIMULATION
-from nicos.commands import usercommand, helparglist
+from nicos.commands import usercommand, helparglist, parallel_safe
 from nicos.commands.output import printinfo, printwarning
 from nicos.pycompat import iteritems, number_types, string_types, reraise
 from nicos.core.utils import waitForStatus
@@ -287,6 +287,7 @@ def AddDetector(*detlist):
 
 
 @usercommand
+@parallel_safe
 def ListDetectors():
     """List the standard detectors."""
     session.log.info('standard detectors are %s' %
@@ -326,6 +327,7 @@ def AddEnvironment(*devlist):
 
 
 @usercommand
+@parallel_safe
 def ListEnvironment():
     """List the standard environment devices."""
     session.log.info('standard environment is %s' %

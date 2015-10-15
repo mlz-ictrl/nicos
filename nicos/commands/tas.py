@@ -37,7 +37,8 @@ from nicos.devices.tas.plotting import plot_hklmap, plot_resatpoint, \
     plot_resscan
 from nicos.devices.tas.spurions import check_acc_bragg, check_ho_spurions, \
     check_powderrays, alu_hkl, copper_hkl
-from nicos.commands import usercommand, hiddenusercommand, helparglist
+from nicos.commands import usercommand, hiddenusercommand, helparglist, \
+    parallel_safe
 from nicos.commands.scan import _infostr, ADDSCANHELP2, cscan
 from nicos.commands.device import maw, read
 from nicos.commands.output import printinfo, printwarning
@@ -211,6 +212,7 @@ _Q = Q
 
 @usercommand
 @helparglist('[h, k, l, E]')
+@parallel_safe
 def Q(*args, **kwds):  # pylint: disable=E0102
     """A Q-E vector object that can be used for calculations.
 
@@ -310,6 +312,7 @@ def _convert_qe_args(args, kwds, funcname):
 
 @usercommand
 @helparglist('h, k, l, E[, SC]')
+@parallel_safe
 def calpos(*args, **kwds):
     """Calculate instrument position for a given (Q, E) position.
 
@@ -339,6 +342,7 @@ def calpos(*args, **kwds):
 
 @usercommand
 @helparglist('[phi, psi[, ki, kf][, E]]')
+@parallel_safe
 def pos2hkl(phi=None, psi=None, **kwds):
     """Calculate (Q, E) for a given instrument position.
 
@@ -408,6 +412,7 @@ def pos(*args, **kwds):
 
 @usercommand
 @helparglist('h, k, l, E[, SC]')
+@parallel_safe
 def acc_bragg(h, k, l, ny, sc=None):
     """Check accidental Bragg scattering conditions for type A or type M.
 
@@ -420,6 +425,7 @@ def acc_bragg(h, k, l, ny, sc=None):
 
 @usercommand
 @helparglist('[kf[, dEmin, dEmax]]')
+@parallel_safe
 def ho_spurions(kf=None, dEmin=0, dEmax=20):
     """Calculation of elastic spurions due to higher order neutrons.
 
@@ -439,6 +445,7 @@ def ho_spurions(kf=None, dEmin=0, dEmax=20):
 
 @usercommand
 @helparglist('[ki, phi]')
+@parallel_safe
 def alu(ki=None, phi=None):
     """Print powder ray positions of Al."""
     powderrays(alu_hkl, ki, phi)
@@ -446,6 +453,7 @@ def alu(ki=None, phi=None):
 
 @usercommand
 @helparglist('[ki, phi]')
+@parallel_safe
 def copper(ki=None, phi=None):
     """Print powder ray positions of Cu."""
     powderrays(copper_hkl, ki, phi)
@@ -550,6 +558,7 @@ def _resmat_args(args, kwds):
 
 @usercommand
 @helparglist('[h, k, l[, E]] [, ki|kf=const]')
+@parallel_safe
 def rescal(*args, **kwds):
     """Calculate and print resolution at the current or the given Q/E point.
 
@@ -568,6 +577,7 @@ def rescal(*args, **kwds):
 
 @usercommand
 @helparglist('[h, k, l[, E]] [, ki|kf=const]')
+@parallel_safe
 def resplot(*args, **kwds):
     """Calculate and plot resolution at the current or the given Q/E point.
 
@@ -587,6 +597,7 @@ def resplot(*args, **kwds):
 
 @hiddenusercommand
 @helparglist('hkle1, hkle2, ...')
+@parallel_safe
 def resscan(*hkles, **kwds):
     """Calculate and plot resolution at every given point.
 
@@ -602,6 +613,7 @@ def resscan(*hkles, **kwds):
 
 @usercommand
 @helparglist('...')
+@parallel_safe
 def hklplot(**kwds):
     """Plot a representation of the scattering plane with accessible Q space.
 

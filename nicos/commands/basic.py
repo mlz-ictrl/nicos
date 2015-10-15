@@ -42,7 +42,8 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.utils import formatDuration, printTable
 from nicos.utils.timer import Timer
 from nicos.devices.notifiers import Mailer
-from nicos.commands import usercommand, hiddenusercommand, helparglist
+from nicos.commands import usercommand, hiddenusercommand, helparglist, \
+    parallel_safe
 from nicos.commands.output import printinfo, printwarning, printexception, \
     printerror
 from nicos.core import SIMULATION, MASTER, MAINTENANCE, ADMIN
@@ -69,6 +70,7 @@ __all__ = [
 
 @usercommand
 @helparglist('[object]')
+@parallel_safe
 def help(obj=None):  # pylint: disable=W0622
     """Show help for a command, for a device or for any other object.
 
@@ -91,6 +93,7 @@ builtins.__orig_dir = builtins.dir
 
 @hiddenusercommand
 @helparglist('[object]')
+@parallel_safe
 def dir(obj=None):  # pylint: disable=W0622
     """Show all public attributes for the given object."""
     if obj is None:
@@ -100,6 +103,7 @@ def dir(obj=None):  # pylint: disable=W0622
 
 
 @usercommand
+@parallel_safe
 def ListCommands():
     """List all available commands.
 
@@ -264,6 +268,7 @@ def RemoveSetup(*setupnames):
 
 @usercommand
 @spmsyntax(listall=Bool)
+@parallel_safe
 def ListSetups(listall=False):
     """Print a list of setups.
 
@@ -293,6 +298,7 @@ def ListSetups(listall=False):
 
 
 @usercommand
+@parallel_safe
 def _Restart():
     """Restart the NICOS process.  Use with caution."""
     import atexit
@@ -306,6 +312,7 @@ def _Restart():
 
 
 @hiddenusercommand
+@parallel_safe
 def Keep(name, obj):
     """Export the given *obj* into the NICOS namespace under the *name*.
 
@@ -451,6 +458,7 @@ def NewSample(name, **parameters):
 
 @usercommand
 @spmsyntax(String)
+@parallel_safe
 def Remark(remark):
     """Change the data file remark about instrument configuration.
 
@@ -508,7 +516,7 @@ def SetMode(mode):
     >>> SetMode('slave')    # e.g. to let another master take over
     ...
     >>> SetMode('master')   # switch back to master in this copy
-"""
+    """
     if mode == 'sim':
         mode = SIMULATION
     elif mode == 'maint':
@@ -675,7 +683,9 @@ def _RunScript(filename, statdevices, debug=False):
                 code.strip() == session.experiment.scripts[-1].strip():
             raise NicosError('script %r would call itself, aborting' %
                              filename)
-        compiler = lambda src: compile(src + '\n', fn, 'exec', CO_DIVISION)
+
+        def compiler(src):
+            return compile(src + '\n', fn, 'exec', CO_DIVISION)
         compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
             try:
@@ -776,6 +786,7 @@ def sim(what, *devices, **kwargs):
 
 @usercommand
 @helparglist('[subject, ]bodytext')
+@parallel_safe
 def notify(*args):
     """Send a message via email and/or SMS.
 
@@ -799,6 +810,7 @@ def notify(*args):
 
 @usercommand
 @helparglist('email, ...')
+@parallel_safe
 def SetMailReceivers(*emails):
     """Set a list of email addresses for notifications.
 
@@ -842,6 +854,7 @@ timer = timer()
 
 
 @usercommand
+@parallel_safe
 def LogEntry(entry):
     """Make a free-form entry in the electronic logbook.
 
@@ -859,6 +872,7 @@ def LogEntry(entry):
 
 
 @hiddenusercommand
+@parallel_safe
 def _LogAttach(description, paths, names):
     """Attach one or more files to the electronic logbook.
 
@@ -874,6 +888,7 @@ def _LogAttach(description, paths, names):
 
 @usercommand
 @spmsyntax(Bool)
+@parallel_safe
 def SetErrorAbort(abort):
     """Set behavior on unhandled errors in commands.
 
