@@ -31,7 +31,6 @@ devices = dict(
                       mailserver = 'smtp.frm2.tum.de',
                       mailsender = 'panda@frm2.tum.de',
                       serviceexp = 'service',
-                      editor = '', #dont want editor anymore
                       scancounter = 'filecounter', #backwards compatibility
                       ),
 

@@ -25,22 +25,13 @@
 
 """NICOS PANDA Experiment."""
 
-import os
-import time
-import subprocess
 from os import path
 
-from nicos.core import Override, Param
-from nicos.utils import createThread
+from nicos.core import Override
 from nicos.frm2.experiment import Experiment
 
 
 class PandaExperiment(Experiment):
-    parameters = {
-        'editor': Param('User editor for new scripts', type=str,
-                        settable=True, default='Scite'),
-    }
-
     parameter_overrides = {
         'propprefix':    Override(default='p'),
         'templates':     Override(default='exp/template'),
@@ -51,36 +42,3 @@ class PandaExperiment(Experiment):
     def proposalsymlink(self):
         """deviating from default of <dataroot>/current"""
         return path.join(self.dataroot, 'currentexperiment')
-
-    def _afterNewHook(self):
-        if self.editor:
-            self._start_editor()
-
-    def _start_editor(self):
-        """Open all existing script files in an editor."""
-        filelist = [fn for fn in os.listdir(self.scriptpath)
-                    if fn.endswith('.py')]
-        # sort filelist to have the start_*.py as the last file
-        for fn in filelist:
-            if fn.startswith('start_'):
-                filelist.remove(fn)
-                filelist.append(fn)
-                break
-
-        def preexec():
-            os.setpgrp()  # create new process group -> doesn't get Ctrl-C
-            os.chdir(self.scriptpath)
-        # start it and forget it
-        s = subprocess.Popen([self.editor] + filelist, close_fds=True,
-                             stdin=subprocess.PIPE,
-                             stdout=os.tmpfile(),
-                             stderr=subprocess.STDOUT,
-                             preexec_fn=preexec,
-                             )
-
-        def checker():
-            while s.returncode is None:
-                time.sleep(1)
-                s.poll()
-        # something needs to check the return value, if the process ends
-        createThread('Checking Editor', checker)
