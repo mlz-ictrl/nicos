@@ -4,7 +4,7 @@ group = 'basic'
 sysconfig = dict(
 )
 
-tangohost = '%s:10000' % 'taco61.ictrl.frm2'
+tangohost = '%s:10000' % 'lauecounter.laue.frm2'
 
 devices = dict(
     FileSaver = device('nicos.laue.fileformats.ASCIIFileFormat',
@@ -12,8 +12,8 @@ devices = dict(
                       ),
     det = device('nicos.devices.tango.TofDetector',
                  description = 'TOF detector device',
-                 tangodevice = 'tango://%s/test/tof/detector' % tangohost,
-                 timer = 'tango://%s/test/tof/timer' % tangohost,
+                 tangodevice = 'tango://%s/laue/tof/detector' % tangohost,
+                 timer = 'tango://%s/laue/tof/timer' % tangohost,
                  subdir = '.',
                  fileformats = ['FileSaver', ],
                 ),
