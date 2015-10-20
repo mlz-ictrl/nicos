@@ -39,7 +39,7 @@ from nicos.core import Param, listof
 from nicos.utils import safeFilename
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, \
-    CompatSettings
+    enumerateWithProgress, CompatSettings
 from nicos.clients.gui.widgets.plotting import ViewPlot, LinearFitter
 from nicos.guisupport.utils import extractKeyAndIndex
 from nicos.guisupport.timeseries import TimeSeries
@@ -70,7 +70,12 @@ class View(QObject):
         hist_totime = self.totime or currenttime() + 60
         hist_cache = {}
 
-        for key, index in keys_indices:
+        iterator = enumerate(keys_indices)
+        if fromtime is not None:
+            iterator = enumerateWithProgress(keys_indices, 'Querying history...',
+                                             force_display=True)
+
+        for _, (key, index) in iterator:
             real_indices = [index]
             history = None
             self.uniq_keys.add(key)

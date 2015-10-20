@@ -82,14 +82,16 @@ def loadUserStyle(window, settings):
         window.user_color = QColor(Qt.white)
 
 
-def enumerateWithProgress(seq, text, every=1, parent=None, total=None):
+def enumerateWithProgress(seq, text, every=1, parent=None, total=None,
+                          force_display=False):
     total = total or len(seq)
     pd = QProgressDialog(parent, labelText=text)
     pd.setRange(0, total)
     pd.setCancelButton(None)
-    if total > every:
+    if total > every or force_display:
         pd.show()
     processEvents = QApplication.processEvents
+    processEvents()
     try:
         for i, item in enumerate(seq):
             if i % every == 0:
