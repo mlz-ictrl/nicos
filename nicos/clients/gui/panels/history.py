@@ -72,7 +72,8 @@ class View(QObject):
 
         iterator = enumerate(keys_indices)
         if fromtime is not None:
-            iterator = enumerateWithProgress(keys_indices, 'Querying history...',
+            iterator = enumerateWithProgress(keys_indices,
+                                             'Querying history...',
                                              force_display=True)
 
         for _, (key, index) in iterator:
@@ -112,13 +113,14 @@ class View(QObject):
         self.listitem = None
         self.plot = None
         if self.totime is None:
-            # add another point with the same value every interval time (but not
-            # more often than 11 seconds)
+            # add another point with the same value every interval time (but
+            # not more often than 11 seconds)
             self.timer = QTimer(self, interval=max(interval, 11) * 1000)
             self.timer.timeout.connect(self.on_timer_timeout)
             self.timer.start()
 
-        self.connect(self, SIGNAL('timeSeriesUpdate'), self.on_timeSeriesUpdate)
+        self.connect(self, SIGNAL('timeSeriesUpdate'),
+                     self.on_timeSeriesUpdate)
 
     def cleanup(self):
         self.plot.cleanup()
@@ -160,25 +162,22 @@ class NewViewDialog(QDialog, DlgUtils):
         self.fromdate.setDateTime(QDateTime.currentDateTime())
         self.todate.setDateTime(QDateTime.currentDateTime())
 
-        self.connect(self.customY, SIGNAL('toggled(bool)'), self.toggleCustomY)
+        self.customY.toggled.connect(self.toggleCustomY)
         self.toggleCustomY(False)
 
         if devlist:
             self.devices.addItems(devlist)
 
-        self.connect(self.simpleTime, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
-        self.connect(self.extTime, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
-        self.connect(self.frombox, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
-        self.connect(self.tobox, SIGNAL('toggled(bool)'), self.toggleSimpleExt)
+        self.simpleTime.toggled.connect(self.toggleSimpleExt)
+        self.extTime.toggled.connect(self.toggleSimpleExt)
+        self.frombox.toggled.connect(self.toggleSimpleExt)
+        self.tobox.toggled.connect(self.toggleSimpleExt)
         self.toggleSimpleExt(True)
 
-        self.connect(self.simpleTimeSpec,
-                     SIGNAL('textChanged(const QString&)'),
-                     self.setIntervalFromSimple)
+        self.simpleTimeSpec.textChanged.connect(self.setIntervalFromSimple)
 
-        self.connect(self.helpButton, SIGNAL('clicked()'), self.showDeviceHelp)
-        self.connect(self.simpleHelpButton, SIGNAL('clicked()'),
-                     self.showSimpleHelp)
+        self.helpButton.clicked.connect(self.showDeviceHelp)
+        self.simpleHelpButton.clicked.connect(self.showSimpleHelp)
 
         if info is not None:
             self.devices.setEditText(info['devices'])
@@ -686,9 +685,9 @@ class HistoryPanel(Panel, BaseHistoryWindow):
                 def launchpreset(on, info=info):
                     self._createViewFromDialog(info)
 
-                def delpreset(on, name=preset, pact=paction, pdelact=pdelaction):
-                    pmenu.removeAction(pact)
-                    delmenu.removeAction(pdelact)
+                def delpreset(on, name=preset, act=paction, delact=pdelaction):
+                    pmenu.removeAction(act)
+                    delmenu.removeAction(delact)
                     self.presetdict.pop(name, None)
                     self._refresh_presets()
 
@@ -791,7 +790,8 @@ class HistoryPanel(Panel, BaseHistoryWindow):
         pathname = self.currentPlot.saveQuietly()
         with open(pathname, 'rb') as fp:
             remotefn = self.client.ask('transfer', fp.read())
-        self.client.eval('_LogAttach(%r, [%r], [%r])' % (descr, remotefn, fname))
+        self.client.eval('_LogAttach(%r, [%r], [%r])' %
+                         (descr, remotefn, fname))
         os.unlink(pathname)
 
     @qtsig('bool')
