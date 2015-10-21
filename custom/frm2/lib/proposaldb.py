@@ -137,13 +137,14 @@ def queryProposal(pnumber, instrument=None):
         raise InvalidValueError('user does not exist in database')
     if not permissions:
         raise InvalidValueError('no permissions entry in database')
-    instrumentnames.replace('poli-heidi', 'poli')
+    instrumentnames = instrumentnames.replace('poli-heidi', 'poli')
     instruments = set(instrumentnames.split(','))
     if instrument is not None and (instrument.lower() not in instruments):
         session.log.error('proposal %s is not a proposal for '
                           '%s, but for %s, cannot use proposal information' %
                           (pnumber, instrument, instrumentnames))
-        return instrument, {'wrong_instrument': instruments}  # avoid data leakage
+        # avoid data leakage
+        return instrument, {'wrong_instrument': instruments}
     # structure of returned data: (title, user, prop_name, prop_value)
     info = {
         'instrument': instrument,
