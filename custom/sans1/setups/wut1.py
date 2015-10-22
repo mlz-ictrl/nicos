@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the FRM-II
-# Copyright (c) 2009-2015 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2014 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -22,16 +22,30 @@
 #
 # *****************************************************************************
 
-description = 'manual move devices'
+description = 'wut readout'
 
-group = 'lowlevel'
+includes = []
+
+#group = 'lowlevel'
 
 devices = dict(
-    sa2      = device('devices.generic.ManualMove',
-                      description = 'sample aperture 2',
-                      unit = 'mm',
-                      fmtstr = '%.0f',
-                      default = 0,
-                      warnlimits = (1, 50),
-                      abslimits = (0, 50)),
+    s1_wut1 = device('sans1.wut.WutValue',
+                            hostname = 'sans1wut1.office.frm2',
+                            port = '1',
+                            description = 'sensor 1 of wut box 1',
+                            fmtstr = '%.2F',
+                            lowlevel = False,
+                            loglevel = 'info',
+                            unit = 'mA',
+    ),
+    s2_wut2 = device('sans1.wut.WutValue',
+                            hostname = 'sans1wut1.office.frm2',
+                            port = '2',
+                            description = 'sensor 2 of wut box 1',
+                            fmtstr = '%.2F',
+                            lowlevel = False,
+                            loglevel = 'info',
+                            unit = 'mA',
+    ),
 )
+
