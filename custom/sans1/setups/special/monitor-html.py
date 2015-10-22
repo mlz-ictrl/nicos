@@ -129,7 +129,7 @@ _sans1det = Column(
                 ),
         BlockRow(
                  Field(name='det1_hv', dev='det1_hv_ax', width=13),
-                 Field(name='det1_z-1a', dev='det1_z', width=13),
+                 Field(name='det1_z', dev='det1_z', width=13),
                 ),
         BlockRow(
                  Field(name='det1_omg', dev='det1_omg', width=13),
@@ -361,7 +361,7 @@ _spinflipper = Column(
 )
 
 newports = []
-for k in range(1, 3 + 1):
+for k in range(1, 5 + 1):
     newports.append(Block('NewPort0%d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_newport0%d' % k,
@@ -412,6 +412,17 @@ for cryo in 'cci3he1 cci3he2 cci3he3 cci3he4he1 cci3he4he2'.split():
     ))
 _cryos = Column(*tuple(cryos))
 
+_julabo = Column(
+    Block('Julabo', [
+        BlockRow(
+            Field(name='Intern', dev='T_intern'),
+            Field(name='Extern', dev='T_extern'),
+        ),
+        ],
+        setups='julabo',
+    ),
+)
+
 devices = dict(
     Monitor = device('services.monitor.html.Monitor',
                      title = 'SANS-1 Status monitor',
@@ -432,7 +443,7 @@ devices = dict(
                                  Row(_ccmsans, _ccmsans_temperature,
                                      _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                                      _miramagnet, _amagnet, _htf03, _htf01,
-                                     _newports),
+                                     _newports, _julabo),
                                ],
                     ),
 )

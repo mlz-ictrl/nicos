@@ -97,6 +97,15 @@ _sans1general = Column(
     ),
 )
 
+_ubahncolumn = Column(
+    Block('U-Bahn', [
+        BlockRow(
+                 Field(name='Train', dev='Ubahn'),
+                ),
+        ],
+    ),
+)
+
 _collimationcolumn = Column(
     Block('Collimation',[
         BlockRow(
@@ -237,7 +246,7 @@ devices = dict(
                                  Row(_selcolumn, _collimationcolumn, _sampleaperture),
                                  Row(_sans1det),
                                  #Row(_sans1general),
-                                 Row(_pressurecolumn, _sans1wut_p_diff),
+                                 Row(_ubahncolumn, _pressurecolumn, _sans1wut_p_diff),
                                  Row(_expcolumn),
                                ],
                     ),

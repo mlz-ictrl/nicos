@@ -34,6 +34,13 @@ _sc1 = Block('Sample Changer 1', [
     setups='sc1',
 )
 
+_sc2 = Block('Sample Changer 2', [
+    BlockRow(Field(name='sc2_y', dev='sc2_y'),),
+    BlockRow(Field(name='SampleChanger 2', dev='sc2'),),
+    ],
+    setups='sc2',
+)
+
 _st2 = Block('Sample Table 2', [
     BlockRow(Field(name='st2_z', dev='st2_z'),),
     BlockRow(Field(name='st2_y', dev='st2_y'),),
@@ -265,7 +272,7 @@ _spinflipper = Block('Spin Flipper', [
 )
 
 newports = []
-for k in range(1, 3 + 1):
+for k in range(1, 5 + 1):
     newports.append(Block('NewPort0%d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_newport0%d' % k,
@@ -286,7 +293,7 @@ for i in range(10, 22 + 1):
         ),
         BlockRow(
             Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
-                   unitkey='t/unit'),
+                   format='%.3f', unitkey='t/unit'),
         ),
         BlockRow(
              Field(name='A', dev='T_ccr%d_A' % i),
@@ -385,6 +392,38 @@ _sans1crane = Column(
     ),
 )
 
+
+_sans1julabo = Block('Julabo', [
+    BlockRow(
+             Field(name='Setpoint', dev='T_control'),
+             ),
+    BlockRow(
+             Field(name='Intern', dev='T_intern'),
+             Field(name='Extern', dev='T_extern'),
+             ),
+    ],
+    setups='julabo',
+)
+
+_julabo_plot = Block('Julabo plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=1800,
+              devices=['T_control', 'T_intern', 'T_extern'],
+              names=['Setpoint', 'Intern 30min', 'Extern 30min'],
+              ),
+    ),
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=12*3600,
+              devices=['T_control', 'T_intern', 'T_extern'],
+              names=['Setpoint', 'Intern 12h', 'Extern 12h'],
+              ),
+    ),
+    ],
+    setups='julabo',
+)
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
                      description='Status monitor',
@@ -399,10 +438,10 @@ devices = dict(
                      layout=[
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _st2, _st1),
-                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet, *newports),
-                                    Column(_htf01_plot, _htf03_plot, _spinflipper, *cryos) + Column(*T_Ts_plot),
-                                    Column(*ccrs) + Column(_birmag),
+                                    Column(_sc1, _sc2, _st2, _st1, *newports),
+                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet, _sans1julabo),
+                                    Column(_htf01_plot, _htf03_plot, _spinflipper, _julabo_plot) + Column(*T_Ts_plot),
+                                    Column(*ccrs) + Column(*cryos) + Column(_birmag),
                                    ),
                                 Row(
                                     Column(_ccmsans_plot),

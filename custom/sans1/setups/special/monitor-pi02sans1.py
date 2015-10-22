@@ -36,7 +36,7 @@ _sc1 = Block('Sample Changer 1', [
 
 _sc2 = Block('Sample Changer 2', [
     BlockRow(Field(name='sc2_y', dev='sc2_y'),),
-    BlockRow(Field(name='SampleChanger', dev='sc2'),),
+    BlockRow(Field(name='SampleChanger 2', dev='sc2'),),
     ],
     setups='sc2',
 )
@@ -175,12 +175,12 @@ _ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
 _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=35, plotwindow=1800,
+              width=45, height=35, plotwindow=1800,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['30min', 'Target'],
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
-              width=65, height=35, plotwindow=12*3600,
+              width=45, height=35, plotwindow=12*3600,
               devices=['B_ccmsans', 'b_ccmsans/target'],
               names=['12h', 'Target'],
               ),
@@ -272,7 +272,7 @@ _spinflipper = Block('Spin Flipper', [
 )
 
 newports = []
-for k in range(1, 3 + 1):
+for k in range(1, 5 + 1):
     newports.append(Block('NewPort0%d' % k, [
         BlockRow(
             Field(name='Position', dev='sth_newport0%d' % k,
@@ -294,6 +294,9 @@ for i in range(10, 22 + 1):
         BlockRow(
             Field(name='Manual Heater Power', key='t_ccr%d_tube/heaterpower' % i,
                    format='%.3f', unitkey='t/unit'),
+        ),
+        BlockRow(
+            Field(name='P1 ', dev='ccr%d_p1' % i, format='%.3f'),
         ),
         BlockRow(
              Field(name='A', dev='T_ccr%d_A' % i),
@@ -392,13 +395,45 @@ _sans1crane = Column(
     ),
 )
 
+_sans1julabo = Block('Julabo', [
+    BlockRow(
+             Field(name='Target', key='T_control/target'),
+             Field(name='Setpoint', key='T_control/setpoint'),
+             ),
+    BlockRow(
+             Field(name='Intern', dev='T_intern'),
+             Field(name='Extern', dev='T_extern'),
+             ),
+    ],
+    setups='julabo',
+)
+
+_julabo_plot = Block('Julabo plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=1800,
+              devices=['T_control/target', 'T_intern', 'T_extern'],
+              names=['Target', 'Intern 30min', 'Extern 30min'],
+              ),
+    ),
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=70, height=35, plotwindow=12*3600,
+              devices=['T_control/target', 'T_intern', 'T_extern'],
+              names=['Target', 'Intern 12h', 'Extern 12h'],
+              ),
+    ),
+    ],
+    setups='julabo',
+)
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
                      description='Status monitor',
                      title='SANS-1 status monitor',
                      cache='sans1ctrl.sans1.frm2',
                      font='Luxi Sans',
-                     fontsize=13,#12
+                     fontsize=12,#12
                      loglevel='info',
                      padding=0,#3
                      prefix='nicos/',
@@ -406,13 +441,16 @@ devices = dict(
                      layout=[
                                 Row(_sans1reactor, _sans1general, _sans1crane),
                                 Row(
-                                    Column(_sc1, _sc2, _st2, _st1, *newports),
-                                    Column(_htf01, _htf03, _ccmsans, _ccmsans_temperature, _miramagnet, _amagnet),
-                                    Column(_htf01_plot, _htf03_plot, _spinflipper, *cryos) + Column(*T_Ts_plot),
+                                    Column(_sc1, _sc2, _st2, _st1),
+                                    Column(_htf01, _htf03, _ccmsans, _miramagnet, _amagnet, _sans1julabo, *newports),
+                                    Column(_ccmsans_temperature),
+                                    Column(_htf01_plot, _htf03_plot, _spinflipper, _julabo_plot),
                                     Column(*ccrs) + Column(_birmag),
+                                    Column(*cryos),
                                    ),
                                 Row(
                                     Column(_ccmsans_plot, _miramagnet_plot, _amagnet_plot),
+                                    Column(*T_Ts_plot),
                                    ),
                             ],
                     ),
