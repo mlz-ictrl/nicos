@@ -51,6 +51,7 @@ __all__ = [
     'TemperatureController', 'PowerSupply', 'DigitalInput', 'NamedDigitalInput',
     'PartialDigitalInput', 'DigitalOutput', 'NamedDigitalOutput',
     'PartialDigitalOutput', 'StringIO', 'Detector', 'TofDetector',
+    'WindowTimeoutAO',
 ]
 
 EXC_MAPPING = {
