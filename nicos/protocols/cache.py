@@ -334,6 +334,8 @@ def ast_eval(node):
                 return left + right
             else:
                 return left - right
+        elif isinstance(node, Call) and node.func.id == 'cache_unpickle':
+            return pickle.loads(b64decode(ast_eval(node.args[0])))
         raise ValueError('malformed literal string with %s' % node)
     return _convert(node)
 
@@ -342,9 +344,6 @@ def cache_load(entry):
     try:
         # parsing with 'eval' always gives an ast.Expression node
         expr = parse(entry, mode='eval').body
-        if isinstance(expr, Call) and expr.func.id == 'cache_unpickle':
-            return pickle.loads(b64decode(ast_eval(expr.args[0])))
-        else:
-            return ast_eval(expr)
+        return ast_eval(expr)
     except Exception as err:
         raise ValueError('corrupt cache entry: %r (%s)' % (entry, err))
