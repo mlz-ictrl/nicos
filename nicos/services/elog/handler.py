@@ -449,8 +449,10 @@ class Handler(object):
                     first = dataset.xresults[0][i]
                     last = dataset.xresults[-1][i]
                 else:
-                    first = min(dataset.xresults[j][i] for j in range(npoints))
-                    last = max(dataset.xresults[j][i] for j in range(npoints))
+                    first = min((dataset.xresults[j][i] for j in range(npoints)),
+                                key=lambda x: x or 0)
+                    last = max((dataset.xresults[j][i] for j in range(npoints)),
+                               key=lambda x: x or 0)
                 fmtstr = dataset.xvalueinfo[i].fmtstr
                 if first == last:
                     html.append('<td>%s</td>' % pretty1(fmtstr, first))
