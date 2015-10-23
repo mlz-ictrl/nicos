@@ -294,14 +294,15 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             self.write(NAK, 'invalid credentials')
             raise CloseConnection
 
-        passw = credentials['passwd']
-        if passw[0:4] == 'RSA:':
-            passw = passw[4:]
-            passw = rsa.decrypt(base64.decodestring(passw.encode()), privkey)
+        password = credentials['passwd']
+        if password[0:4] == 'RSA:':
+            password = password[4:]
+            password = rsa.decrypt(base64.decodestring(password.encode()),
+                                   privkey)
             if hashing == 'sha1':
-                passw = hashlib.sha1(passw).hexdigest()
+                password = hashlib.sha1(password).hexdigest()
             elif hashing == 'md5':
-                passw = hashlib.md5(passw).hexdigest()
+                password = hashlib.md5(password).hexdigest()
 
         # check login data according to configured authentication
         login = credentials['login']
@@ -311,7 +312,7 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
             auth_err = None
             for auth in authenticators:
                 try:
-                    self.user = auth.authenticate(login, passw)
+                    self.user = auth.authenticate(login, password)
                     break
                 except AuthenticationError as err:
                     auth_err = err  # Py3 clears "err" after the except block

@@ -163,18 +163,18 @@ class NicosClient(object):
         elif pw_hashing == 'md5':
             password = hashlib.md5(to_utf8(password)).hexdigest()
 
-        auth_dict = {
+        credentials = {
             'login': conndata.user,
             'passwd': password,
             'display': '',
         }
 
         if 10 <= self.compat_proto <= 12:
-            if not self.tell('authenticate', auth_dict):
+            if not self.tell('authenticate', credentials):
                 return
             self.user_level = None
         else:
-            response = self.ask('authenticate', auth_dict)
+            response = self.ask('authenticate', credentials)
             if not response:
                 return
             self.user_level = response['user_level']

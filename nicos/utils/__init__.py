@@ -853,6 +853,8 @@ def whyExited(status):
 def formatExtendedFrame(frame):
     ret = []
     for key, value in iteritems(frame.f_locals):
+        if key in ('credentials', 'password'):
+            continue
         try:
             valstr = repr(value)[:256]
         except Exception:

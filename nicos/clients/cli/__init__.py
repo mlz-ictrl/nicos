@@ -539,8 +539,8 @@ class NicosCmdClient(NicosClient):
                                      default=self.conndata.user or 'guest')
             self.conndata.user = user
         if self.conndata.password is None or ask_all:
-            passwd = self.ask_passwd('Password?')
-            self.conndata.password = passwd
+            password = self.ask_passwd('Password?')
+            self.conndata.password = password
         self.instrument = self.conndata.host.split('.')[0]
         try:
             self.connect(self.conndata, eventmask=EVENTMASK)
@@ -1069,7 +1069,7 @@ At any time:
 
 def main(argv):
     server = user = via = command = ''
-    passwd = None
+    password = None
 
     # to automatically close an SSH tunnel, we execute something on the remote
     # server that takes long enough for the client to connect to the daemon;
@@ -1104,7 +1104,7 @@ def main(argv):
             cd = parseConnectionString(argv[1], DEFAULT_PORT)
             server = '%s:%s' % (cd['host'], cd['port'])
             user = cd['user']
-            passwd = cd['password']
+            password = cd['password']
         if argv[3:] and argv[2] == 'via':
             via = argv[3]
 
@@ -1119,8 +1119,8 @@ def main(argv):
         server = config.get(configsection, 'server')
     if not user and config.has_option(configsection, 'user'):
         user = config.get(configsection, 'user')
-    if not passwd and config.has_option(configsection, 'passwd'):
-        passwd = config.get(configsection, 'passwd')
+    if not password and config.has_option(configsection, 'passwd'):
+        password = config.get(configsection, 'passwd')
     if not via and config.has_option(configsection, 'via'):
         via = config.get(configsection, 'via')
     if config.has_option(configsection, 'viacommand'):
@@ -1142,13 +1142,13 @@ def main(argv):
         os.execvp('sh', ['sh', '-c',
                          'ssh -f -L "%s:%s:%s" "%s" %s && %s "%s%s@localhost:%s"' %
                          (nport, host, port, via, viacommand, argv[0], user,
-                          (':%s' % passwd if passwd is not None else ''),
+                          (':%s' % password if password is not None else ''),
                           nport)])
 
     # don't interrupt event thread's system calls
     signal.siginterrupt(signal.SIGINT, False)
 
-    conndata = ConnectionData(host, port, user, passwd)
+    conndata = ConnectionData(host, port, user, password)
     client = NicosCmdClient(conndata)
     if command:
         return client.main_with_command(command)

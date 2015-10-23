@@ -179,8 +179,8 @@ def queryUser(user):
                                     'office database' % (user,))
         row = cur.fetchone()
     uid = int(row[0])
-    passwd = row[1]
-    return uid, passwd
+    password = row[1]
+    return uid, password
 
 
 class Authenticator(BaseAuthenticator):
@@ -193,8 +193,8 @@ class Authenticator(BaseAuthenticator):
 
     def authenticate(self, username, password):
         try:
-            _uid, passwd = queryUser(username)
-            if passwd != password:
+            credentials = queryUser(username)
+            if credentials[1] != password:
                 raise AuthenticationError('wrong password')
             return User(username, USER)
         except AuthenticationError:
