@@ -1,3 +1,5 @@
+.. _device-classes:
+
 Device classes
 ==============
 

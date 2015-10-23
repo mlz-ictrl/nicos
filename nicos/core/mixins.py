@@ -123,11 +123,6 @@ class HasLimits(DeviceMixinBase):
     and overrides :meth:`.isAllowed` to check if the given position is within
     the limits before moving.
 
-    .. note:: In a base class list, ``HasLimits`` must come before
-       ``Moveable``, e.g.::
-
-          class MyDevice(HasLimits, Moveable): ...
-
     The `abslimits` parameter cannot be set after creation of the device and
     must be given in the setup configuration.
 

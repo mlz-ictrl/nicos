@@ -41,6 +41,7 @@ extensions = [
     'sphinx.ext.graphviz',
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinx.ext.inheritance_diagram',
     'sphinx.ext.todo',
     'ext.setupdoc',
     'ext.daemondoc',
@@ -144,6 +145,20 @@ pygments_style = 'emacs'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# Definitions for the inheritance diagrams and module
+
+inheritance_edge_attrs = {
+    'arrowsize': 1.0,
+    'arrowtail': '"empty"',
+    'arrowhead': '"none"',
+    'dir': '"both"',
+    'style': '"setlinewidth(0.5)"',
+}
+
+inheritance_graph_attrs = {
+    'rankdir': 'TB',
+    'size': '"8.0, 12.0"',
+}
 
 # -- Options for HTML output ----------------------------------------------
 

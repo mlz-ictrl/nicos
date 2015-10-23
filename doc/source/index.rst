@@ -12,5 +12,6 @@ Welcome to NICOS
    documentation
    download
    howtos/index
+   tutorials/index
    indices
    changes

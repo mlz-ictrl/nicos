@@ -284,6 +284,9 @@ possible with the device:
 
 .. class:: Readable
 
+   Base class for all readable devices.
+
+   A readable is a device which reads one or more value into the system.
    This class inherits from :class:`Device` and additionally supports this
    public interface and implementation methods:
 
@@ -335,8 +338,9 @@ possible with the device:
       Lower and upper limits of a range in which the device value is allowed to
       be in normal operation. If specified, warnings may be triggered when
       it is outside these values.
-      In contrast to `HasLimits.abslimits` and `HasLimits.userlimits`, all valuetypes are allowed
-      and the check is based on the default python comparisons, i.e normally
+      In contrast to `HasLimits.abslimits` and `HasLimits.userlimits`, all
+      valuetypes are allowed and the check is based on the default python
+      comparisons, i.e normally
       ``warnlimits[0] <= value <= warnlimits[1]`` should be true.
 
 
@@ -344,6 +348,8 @@ possible with the device:
 ============
 
 .. class:: Waitable
+
+   Base class for devices that can execute some action and can be waited upon.
 
    This class inherits from :class:`Readable` and is the base class for all
    devices that have some action that can be waited upon (movement or
@@ -366,6 +372,16 @@ possible with the device:
 ============
 
 .. class:: Moveable
+
+   Base class for moveable devices.
+
+   A moveable device is a device which moves a value to a given target.
+   Normally these values are related to physical devices like motors. Other
+   physical examples are temperatures (with the help of temperature controllers
+   to heat up and/or cool down), currents, etc.  But they may also be logical
+   values only: typical applications are combined devices where some components
+   work together.  An example could be the wavelength of the incoming beam in a
+   neutron or x-ray diffraction experiment.
 
    This class inherits from :class:`Waitable` and is the base class for all
    devices that can be moved to different positions (continuously or
@@ -421,6 +437,9 @@ possible with the device:
 
 .. class:: Measurable
 
+   Base class for devices used for data acquisition, like counters, timers,
+   cameras, or any signals when used as the main measurement result.
+
    This class inherits from :class:`Waitable` and is the base for all devices
    used for data acquisition (usually detectors).
 
@@ -465,6 +484,8 @@ Special device classes
 .. autoclass:: NoDevice()
 
 
+.. _mixin-classes:
+
 -------------
 Mixin classes
 -------------
@@ -474,21 +495,36 @@ normally will be inherited together with one of the base classes to implement
 new device classes.  This technique avoids the multiplying of a lot of
 lines of code.  Besides the functions they also provide the needed parameters.
 
-In the list of the base classes the mixin classes **must** be written before
-the base device classes.
 
-Assuming we want to create a new device class, called ``MyDevice`` which should
-be a `Moveable` and having limits, inherites the `HasLimits` and `Moveable`
-classes.
+.. note::
 
-.. code-block:: python
+   In the list of the base classes the mixin classes **must** be written before
+   the base device classes.
 
-   class MyDevice(HasLimits, Moveable): ...
+   Assuming we want to create a new device class called ``MyDevice`` which
+   should be a `Moveable` and having limits, inherits the
+   :class:`~nicos.core.mixins.HasLimits` and `Moveable` classes::
+
+       class MyDevice(HasLimits, Moveable):
+           ...
 
 
-..
-   Mixin classes are contained in :mod:`nicos.core.mixins` and re-exported in
-   :mod:`nicos.core`.
+Currently NICOS supports the following list of common mixin classes:
+
+ - :class:`~nicos.core.mixins.HasLimits`
+ - :class:`~nicos.core.mixins.HasOffset`
+ - :class:`~nicos.core.mixins.HasPrecision`
+ - :class:`~nicos.core.mixins.HasMapping`
+ - :class:`~nicos.core.mixins.HasTimeout`
+ - :class:`~nicos.core.mixins.HasWindowTimeout`
+ - :class:`~nicos.core.mixins.HasCommunication`
+ - :class:`~nicos.core.mixins.IsController`
+ - :class:`~nicos.devices.abstract.CanReference`
+ - :class:`~nicos.devices.generic.detector.TimerChannelMixin`
+ - :class:`~nicos.devices.generic.detector.CounterChannelMixin`
+ - :class:`~nicos.devices.generic.detector.ImageChannelMixin`
+ - :class:`~nicos.devices.generic.sequence.SequencerMixin`
+
 
 .. module:: nicos.core.mixins
 

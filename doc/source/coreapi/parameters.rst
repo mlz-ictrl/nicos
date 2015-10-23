@@ -35,9 +35,11 @@ writing device classes.  They are re-exported in :mod:`nicos.core`.
 Converter functions
 -------------------
 
-These functions can be used to create parameter types (i.e. the *type* argument
-of `Param`) that not only convert to the correct type (such as `int`, `str`
-etc.), but also do more validation of the parameter.
+These functions can be used as (or used to create) parameter types (i.e. the
+*type* argument of `Param` and the *valuetype* attribute of devices) that not
+only convert to the correct type (such as `int`, `str` etc.), but also do more
+validation of the parameter.
+
 
 .. function:: anytype
 
@@ -45,42 +47,22 @@ etc.), but also do more validation of the parameter.
 
        Param(..., type=anytype)
 
-.. function:: tacodev
 
-   Converter that only accepts valid TACO device names.
 
-.. function:: tangodev
-
-   Converter that only accepts valid TANGO device names.
-
-.. function:: vec3
-
-   Converter that only accepts 3-vectors (i.e. lists or tuples) of floats.
-
-.. function:: limits
-
-   Converter that only accepts a list or tuple of two values, where the second
-   value must be greater than the first value.  The first value will be used as
-   a lower limit and the second as an upper limit.  Example::
-
-       Param(..., type=limits)
-
-.. function:: mailaddress
-
-   Converter that accepts only valid email addresses, but without a check for
-   the existence of the mailaddress itself.  Example::
-
-       Param(..., type=mailaddress)
+The following are converter function factories: when called with some arguments,
+they return a converter.
 
 .. function:: intrange(from, to)
 
-   Create a converter that accepts only integers in the ``range(from, to)``
-   (i.e., *to* is excluded).
+   Create a converter that accepts only integers in the ``range(from, to+1)``
+   (i.e., *to* is included).  Example::
+
+       Param(..., type=intrange(3, 6), ...)
 
 .. function:: floatrange(from, to)
 
    Create a converter that accepts only floats between *from* and *to*.
-   Examples::
+   Example::
 
        Param(..., type=floatrange(0, 10))
 
@@ -120,7 +102,10 @@ etc.), but also do more validation of the parameter.
 .. function:: dictof(key_converter, value_converter)
 
    Create a converter that accepts only dictionaries with key types given by
-   *key_converter* and value types given by *value_converter*.
+   *key_converter* and value types given by *value_converter*.  Examples::
+
+       Param(..., type=dictof(str, anytype), ...)
+       Param(..., type=dictof(str, int), ...)
 
 .. function:: dictwith(key=value_converter, ...)
 
@@ -141,7 +126,7 @@ etc.), but also do more validation of the parameter.
 
        Param(..., type=oneofdict({'up': 1, 'down': 0}))
 
-.. function:: setof
+.. function:: setof(element_converter)
 
    Create a converter that accepts only sets with element types given by the
    *element_converter*.  Examples::
@@ -149,23 +134,76 @@ etc.), but also do more validation of the parameter.
        Param(..., type=setof(int))
        Param(..., type=setof(tacodev))
 
+.. function:: host(defaulthost='', defaultport=None)
 
-.. autofunction:: nicosdev
+   Create a converter that accepts a string in the format ``"host:port"``.
+   Default host is empty.  If no default port is given, no port is added
+   automatically.  Example::
 
-.. autofunction:: host
+      Param(..., type=host(defaultport=14869))
 
-.. autofunction:: nonemptystring
+
+The following are simple converters: they are not customizable and can be used
+as-is as a parameter type.  Example::
+
+   Param(..., type=vec3, ...)
+
+
+.. function:: vec3
+
+   Converter that only accepts 3-vectors (i.e. lists or tuples) of floats.
+
+.. function:: limits
+
+   Converter that only accepts a list or tuple of two values, where the second
+   value must be greater than the first value.  The first value will be used as
+   a lower limit and the second as an upper limit.
+
+.. function:: mailaddress
+
+   Converter that accepts only valid email addresses, but without a check for
+   the existence of the mailaddress itself.
+
+.. function:: nonemptystring
+
+   Converter that accepts only a non-empty string.
+
+.. function:: nicosdev
+
+   Converter that only accepts valid NICOS device names.
+
+.. function:: tacodev
+
+   Converter that only accepts valid TACO device names.
+
+.. function:: tangodev
+
+   Converter that only accepts valid TANGO device names (must be of the
+   form ``tango://host:port/a/b/c``).
 
 .. autofunction:: pvname
 
+   Converter that only accepts valid Epics PV names.
+
 .. autofunction:: ipv4
+
+   Converter that only accepts an IPv4 in string form (``1.2.3.4``).
 
 .. autofunction:: absolute_path
 
+   Converter that only accepts an absolute path.
+
 .. autofunction:: relative_path
+
+   Converter that only accepts a relative path, which also can't go up the
+   directory hierarchy using ``../`` or similar.
 
 .. autofunction:: expanded_path
 
+   Converter that takes any path and expands user home (``~``) and environment
+   variables (``$var``).
+
 .. autofunction:: subdir
 
-.. autofunction:: string
+   Converter that only accepts a single subdirectory name, without path
+   separators.
