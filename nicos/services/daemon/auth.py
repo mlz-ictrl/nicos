@@ -25,14 +25,17 @@
 
 """NICOS daemon authentication and user abstraction."""
 
-from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, ADMIN, \
-    ACCESS_LEVELS, NicosError, User
+from nicos.core import Device, Param, dictof, listof, oneof, GUEST, USER, \
+    ADMIN, ACCESS_LEVELS, NicosError, User
 from nicos.pycompat import string_types
 
 try:
     import ldap3  # pylint: disable=F0401
 except ImportError:
     ldap3 = None
+else:
+    # do not use default repr, which might leak passwords
+    ldap3.Connection.__repr__ = object.__repr__
 
 
 class AuthenticationError(Exception):
@@ -108,25 +111,31 @@ class LDAPAuthenticator(Authenticator):
         'userbasedn':  Param('Base dn to query users.',
                              type=str,
                              mandatory=True),
-        'userfilter':  Param('Filter for querying users. Must contain "%(username)s"',
-                             type=str,
-                             default='(&(uid=%(username)s)(objectClass=posixAccount))'),
+        'userfilter':  Param('Filter for querying users. Must contain '
+                             '"%(username)s"', type=str,
+                             default='(&(uid=%(username)s)'
+                             '(objectClass=posixAccount))'),
         'groupbasedn': Param('Base dn to query groups.',
                              type=str,
                              mandatory=True),
-        'groupfilter': Param('Filter for querying groups. Must contain "%(gidnumber)s"',
-                             type=str,
-                             default='(&(gidNumber=%(gidnumber)s)(objectClass=posixGroup))'),
-        'userroles':   Param('Dictionary of allowed users with their associated role',
+        'groupfilter': Param('Filter for querying groups. '
+                             'Must contain "%(gidnumber)s"', type=str,
+                             default='(&(gidNumber=%(gidnumber)s)'
+                             '(objectClass=posixGroup))'),
+        'userroles':   Param('Dictionary of allowed users with their '
+                             'associated role',
                              type=dictof(str, oneof(*ACCESS_LEVELS.values()))),
-        'grouproles':  Param('Dictionary of allowed groups with their associated role',
+        'grouproles':  Param('Dictionary of allowed groups with their '
+                             'associated role',
                              type=dictof(str, oneof(*ACCESS_LEVELS.values()))),
     }
 
     def doInit(self, mode):
-        # refuse the usage of the ldap authenticator if the ldap3 package is missing
+        # refuse the usage of the ldap authenticator if the ldap3 package
+        # is missing
         if not ldap3:
-            raise NicosError('LDAP authentication not supported (ldap3 package missing)')
+            raise NicosError('LDAP authentication not supported (ldap3 '
+                             'package missing)')
 
         # create a ldap server object
         self._server = ldap3.Server('%s:%d' % (self.server, self.port))
@@ -138,16 +147,20 @@ class LDAPAuthenticator(Authenticator):
     def authenticate(self, username, password):
         userdn = self._buildUserDn(username)
 
-        # first of all: try a bind to check user existance and password
+        # first of all: try a bind to check user existence and password
         conn = ldap3.Connection(self._server, user=userdn, password=password)
-        if not conn.bind():
-            raise AuthenticationError('LDAP bind failed')
+        try:
+            if not conn.bind():
+                raise AuthenticationError('LDAP bind failed')
+        except Exception:
+            raise AuthenticationError('LDAP connection failed')
 
         userlevel = -1
 
         # check if the user has explicit rights
         if username in self.userroles:
-            userlevel = self._getUserLevelCodeForRoleName(self.userroles[username])
+            userlevel = self._getUserLevelCodeForRoleName(
+                self.userroles[username])
             return User(username, userlevel)
 
         # if no explicit user right was given, check group rights
@@ -155,11 +168,8 @@ class LDAPAuthenticator(Authenticator):
 
         for group in groups:
             if group in self.grouproles:
-                levelCode = self._getUserLevelCodeForRoleName(self.grouproles[group])
-                if levelCode > userlevel:
-                    userlevel = levelCode
-
-        self.log.warning('## %r' % userlevel)
+                userlevel = max(userlevel, self._getUserLevelCodeForRoleName(
+                    self.grouproles[group]))
 
         if userlevel >= 0:
             return User(username, userlevel)
@@ -226,7 +236,8 @@ class ListAuthenticator(Authenticator):
         username = username.strip()
         if not username:
             raise AuthenticationError('No username, please identify yourself!')
-        # check for exact match (also matches empty password if username matches)
+        # check for exact match (also matches empty password if username
+        # matches)
         for (user, pw, level) in self.passwd:
             if user == username:
                 if not pw or pw == password:
