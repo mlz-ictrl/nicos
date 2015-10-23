@@ -282,6 +282,7 @@ class Device(object):
     * doInit()
     * doShutdown()
     * doVersion()
+    * doInfo()
     """
 
     __mergedattrs__ = ['parameters', 'parameter_overrides', 'attached_devices',
@@ -831,13 +832,16 @@ class Readable(Device):
 
     Subclasses *need* to implement:
 
-    * doRead()
-    * doStatus()
+    * doRead(maxage)
 
     Subclasses *can* implement:
 
     * doReset()
-    * doPoll()
+    * doPoll(n, maxage)
+
+    Subclasses *can* override:
+
+    * doStatus(maxage)
     * valueInfo()
     """
 
@@ -1055,7 +1059,7 @@ class Readable(Device):
         into the cache.  For continuous polling, *n* should increase by one with
         every call to *poll*.
 
-        .. method:: doPoll(n)
+        .. method:: doPoll(n, maxage)
 
            If present, this method is called to perform additional polling,
            e.g. on parameters that can be changed from outside the NICOS system.
@@ -1175,9 +1179,13 @@ class Waitable(Readable):
 
     Subclasses *can* implement:
 
-    * _getWaiters()
-    * doEstimateTime()
     * doIsCompleted()
+
+    Subclasses *can* override:
+
+    * _getWaiters()
+    * doEstimateTime(elapsed)
+    * doStatus(maxage)
     """
 
     busystates = (status.BUSY,)
@@ -1658,22 +1666,27 @@ class Measurable(Waitable):
 
     Subclasses *need* to implement:
 
-    * doRead()
+    * doRead(maxage)
     * doSetPreset(**preset)
     * doStart()
     * doStop()
-    * doIsCompleted()
 
     Subclasses *can* implement:
 
+    * doIsCompleted()
     * doPause()
     * doResume()
-    * doTime()
-    * doSimulate()
-    * doSave()
+    * doTime(**preset)
+    * doSimulate(**preset)
+    * doSave(exception)
     * doPrepare()
+
+    Subclass *can* override:
+
+    * doStatus(maxage)
     * valueInfo()
     * presetInfo()
+    * duringMeasurementHook(elapsed)
     """
 
     parameter_overrides = {
