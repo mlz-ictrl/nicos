@@ -46,7 +46,7 @@
        </widget>
       </item>
       <item>
-       <widget class="CommandLineEdit" name="commandInput_2">
+       <widget class="CommandLineEdit" name="commandInput">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
           <horstretch>0</horstretch>
