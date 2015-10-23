@@ -12,15 +12,25 @@ can be used at an instrument will be present all the time, so they need not be
 loaded.
 
 A specific set of devices (and commands, which supports the notion of
-specialized commands) is collected in a "setup file", a Python module in the
-subdirectory ``setups`` of the site-specific NICOS root directory.
+specialized commands) is collected in a "setup file"[#f1]_.
+
+The syntax of the setup files is python-like.
+
+Each setup is available by the filename without the '.py' extension, e.g. the
+'test' setup is located in 'test.py' file.
 
 A setup named ``system``, if it exists, is always loaded by NICOS.
 
-A setup file can consist of the following entries, all of which are optional:
+A setup file can consist of the following entries, all of which are optional
+except the **description** entry:
 
 ``description``
-   A string describing the setup in more detail than the file name.
+   A string describing the setup in detail. The entry will be displayed to the
+   user in client interfaces, if the setup is not in one of the following
+   groups:
+
+   * ``'lowlevel'``
+   * ``'special'``
 
    Example::
 
@@ -233,3 +243,7 @@ The possible entries for the ``sysconfig`` dictionary are:
    must be defined somewhere in a ``devices`` dictionary and be of class
    :class:`nicos.devices.notifiers.Notifier` or a subclass.
 
+.. rubric:: Footnotes
+
+.. [#f1] A Python module in the subdirectory ``setups`` of the site-specific
+         NICOS root directory.
