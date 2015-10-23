@@ -1,0 +1,6 @@
+The Debian Package nicos-core
+-----------------------------
+
+NICOS is a network-based control system written for neutron scattering instruments at the MLZ.
+
+ -- Alexander Lenz <alexander.lenz@frm2.tum.de>  Tue, 13 May 2014 10:32:04 +0200

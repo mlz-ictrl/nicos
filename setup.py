@@ -121,7 +121,7 @@ from nicos import nicos_version
 
 
 scripts = ['bin/' + name for name in os.listdir('bin')
-           if name.startswith('nicos-')]
+           if name.startswith('nicos-')] + ['bin/designer-nicos']
 
 
 package_data = {'nicos': ['RELEASE-VERSION'],

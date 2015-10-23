@@ -1,0 +1,11 @@
+nicos-core (2.8.0) UNRELEASED; urgency=medium
+
+  * Changes.
+
+ -- Georg Brandl <georg.brandl@frm2.tum.de>  Fri, 23 Oct 2015 13:18:04 +0200
+
+nicos-core (2.0.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Alexander Lenz <alexander.lenz@frm2.tum.de>  Tue, 13 May 2014 10:32:04 +0200

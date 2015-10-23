@@ -1,0 +1,78 @@
+Source: nicos-core
+Section: misc
+Priority: extra
+Maintainer: Alexander Lenz <alexander.lenz@frm2.tum.de>
+Build-Depends: debhelper (>= 9.0.0),
+ python (>= 2.7),
+ python-setuptools
+Standards-Version: 3.9.3
+
+Package: nicos-core
+Architecture: all
+Depends: python (>= 2.7),
+ python-setuptools,
+ python-numpy,
+ python-zmq (>= 2.0),
+ python-psutil (>= 0.4),
+ nicos-pyctl
+Description: NICOS core system
+
+Package: nicos-services
+Architecture: all
+Depends: nicos-core
+Description: NICOS services
+
+Package: nicos-optional
+Architecture: all
+Depends: nicos-core,
+ python-scipy,
+ taco,
+ python-mysql.connector,
+ python-serial,
+ gnuplot,
+ python-lxml,
+ python-pyfits,
+ python-rsa,
+ python-ldap3
+Description: NICOS optional components
+
+Package: nicos-gui
+Architecture: all
+Depends: nicos-core,
+ python-setuptools,
+ python-qt4,
+ python-qwt5-qt4,
+ python-qscintilla2,
+ python-scipy,
+ python-matplotlib
+Description: NICOS gui tools
+
+Package: nicos-monitor
+Architecture: all
+Depends: nicos-core,
+ python-setuptools,
+ python-qt4,
+ python-qwt5-qt4,
+ python-matplotlib
+Description: NICOS status monitor(s)
+
+Package: nicos-dev
+Architecture: all
+Depends: nicos-core,
+ python-nose,
+ python-mock,
+ python-coverage,
+ rst2pdf,
+ texlive-latex-base,
+ python-sphinx
+Description: NICOS development tools
+
+Package: nicos
+Architecture: all
+Depends: nicos-core,
+ nicos-services,
+ nicos-optional,
+ nicos-gui,
+ nicos-monitor,
+ nicos-dev
+Description: Meta package for all NICOS components
