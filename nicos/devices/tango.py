@@ -35,11 +35,11 @@ from time import sleep
 
 import PyTango
 
-from nicos.core import Param, Override, status, Readable, Moveable, Measurable, \
-    HasLimits, Device, tangodev, HasCommunication, oneofdict, dictof, intrange, \
-    nonemptylistof, NicosError, CommunicationError, ConfigurationError, \
-    ProgrammingError, HardwareError, InvalidValueError, HasTimeout, \
-    ImageProducer, ImageType
+from nicos.core import Param, Override, status, Readable, Moveable, \
+    Measurable, HasLimits, Device, tangodev, HasCommunication, oneofdict, \
+    dictof, intrange, nonemptylistof, NicosError, CommunicationError, \
+    ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
+    HasTimeout, ImageProducer, ImageType
 from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
 from nicos.utils import HardwareStub
 from nicos.core import SIMULATION
@@ -48,10 +48,10 @@ from nicos.core.mixins import HasWindowTimeout
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [
     'AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'Motor',
-    'TemperatureController', 'PowerSupply', 'DigitalInput', 'NamedDigitalInput',
-    'PartialDigitalInput', 'DigitalOutput', 'NamedDigitalOutput',
-    'PartialDigitalOutput', 'StringIO', 'Detector', 'TofDetector',
-    'WindowTimeoutAO',
+    'TemperatureController', 'PowerSupply', 'DigitalInput',
+    'NamedDigitalInput', 'PartialDigitalInput', 'DigitalOutput',
+    'NamedDigitalOutput', 'PartialDigitalOutput', 'StringIO', 'Detector',
+    'TofDetector', 'WindowTimeoutAO',
 ]
 
 EXC_MAPPING = {
@@ -89,9 +89,9 @@ FATAL_REASONS = set((
 def describe_dev_error(exc):
     """Return a better description for a Tango exception.
 
-    Most Tango exceptions are quite verbose and not suitable for user consumption.
-    Map the most common ones, that can also happen during normal operation, to a
-    bit more friendly ones.
+    Most Tango exceptions are quite verbose and not suitable for user
+    consumption.  Map the most common ones, that can also happen during normal
+    operation, to a bit more friendly ones.
     """
     # general attributes
     reason = exc.reason.strip()
@@ -350,8 +350,9 @@ class Sensor(AnalogInput, Coder):
     """
     The sensor interface describes all analog read only devices.
 
-    The difference to AnalogInput is that the “value” attribute can be converted
-    from the “raw value” to a physical value with an offset and a formula.
+    The difference to AnalogInput is that the “value” attribute can be
+    converted from the “raw value” to a physical value with an offset and a
+    formula.
     """
 
     def doSetPosition(self, value):
@@ -410,7 +411,8 @@ class Actuator(AnalogOutput, NicosMotor):
     defined way.
 
     The difference to AnalogOutput is that there is a speed attribute, and the
-    value attribute is converted from the “raw value” with a formula and offset.
+    value attribute is converted from the “raw value” with a formula and
+    offset.
     """
 
     parameter_overrides = {
@@ -437,10 +439,10 @@ class Motor(CanReference, Actuator):
 
     parameters = {
         'refpos': Param('Reference position', type=float, unit='main'),
-        'accel':  Param('Acceleration', type=float, settable=True, volatile=True,
-                        unit='main/s^2'),
-        'decel':  Param('Deceleration', type=float, settable=True, volatile=True,
-                        unit='main/s^2'),
+        'accel':  Param('Acceleration', type=float, settable=True,
+                        volatile=True, unit='main/s^2'),
+        'decel':  Param('Deceleration', type=float, settable=True,
+                        volatile=True, unit='main/s^2'),
     }
 
     def doReadRefpos(self):
@@ -487,8 +489,8 @@ class TemperatureController(Actuator):
         'd':            Param('Derivative control parameter', type=float,
                               settable=True, category='general', chatty=True,
                               volatile=True),
-        'setpoint':     Param('Current setpoint', type=float, category='general',
-                              volatile=True),
+        'setpoint':     Param('Current setpoint', type=float,
+                              category='general', volatile=True),
         'heateroutput': Param('Heater output', type=float, category='general',
                               volatile=True),
         'ramp':         Param('Temperature ramp', unit='main/min',
@@ -618,7 +620,8 @@ class PartialDigitalInput(NamedDigitalInput):
 
 class DigitalOutput(PyTangoDevice, Moveable):
     """
-    A devices that can set and read a digital value corresponding to a bitfield.
+    A devices that can set and read a digital value corresponding to a
+    bitfield.
     """
 
     valuetype = int
@@ -762,24 +765,19 @@ class Detector(PyTangoDevice, Measurable):
     parameters = {
         'size': Param('Detector size',
                       type=nonemptylistof(int), unit='', settable=False,
-                      volatile=True,
-                     ),
+                      volatile=True),
         'roioffset': Param('ROI offset',
                            type=nonemptylistof(int), unit='', mandatory=False,
-                           volatile=True,
-                          ),
+                           volatile=True),
         'roisize': Param('ROI size',
                          type=nonemptylistof(int), unit='', mandatory=False,
-                         volatile=True,
-                        ),
+                         volatile=True),
         'binning': Param('Binning',
                          type=nonemptylistof(int), unit='', mandatory=False,
-                         volatile=True,
-                        ),
+                         volatile=True),
         'zeropoint': Param('Zero point',
                            type=nonemptylistof(int), unit='', settable=False,
-                           mandatory=False, volatile=True,
-                          ),
+                           mandatory=False, volatile=True),
     }
 
     def doReadSize(self):
@@ -854,14 +852,11 @@ class TofDetector(ImageProducer, Detector):
 
     parameters = {
         'delay': Param('Delay',
-                       type=int, unit='ns', default=0, volatile=True,
-                      ),
+                       type=int, unit='ns', default=0, volatile=True),
         'timechannels': Param('Number of time channels',
-                              type=int, default=1, volatile=True,
-                             ),
+                              type=int, default=1, volatile=True),
         'timeinterval': Param('Time for each time channel',
-                              type=int, unit='ns', default=1, volatile=True,
-                             ),
+                              type=int, unit='ns', default=1, volatile=True),
         'timer': Param('Tango device for the timer',
                        type=tangodev, settable=False, mandatory=True,)
     }
