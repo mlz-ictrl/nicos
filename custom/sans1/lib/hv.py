@@ -35,6 +35,8 @@ from nicos.devices.generic.sequence import BaseSequencer, \
 from nicos.pycompat import iteritems
 
 from nicos.devices.taco.power import VoltageSupply as TacoVoltageSupply
+from nicos.devices.taco.motor import Motor as TacoMotor
+import TACOStates
 
 
 class VoltageSwitcher(Switcher):
@@ -260,3 +262,8 @@ class Sans1HVOffDuration(Readable):
             secs = int(secs) % 60
             return "%g:%02d:%02d" % (hours, mins, secs)
         return "never"
+
+
+class Sans1ZMotor(TacoMotor):
+    _TACO_STATUS_MAPPING = TacoMotor._TACO_STATUS_MAPPING.copy()
+    _TACO_STATUS_MAPPING[TACOStates.TRIPPED] = (status.WARN, 'move inhibit')
