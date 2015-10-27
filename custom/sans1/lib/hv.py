@@ -117,7 +117,7 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
     def doReadPrecision(self):
         if self.target == 1:
             return 69
-        return 1
+        return 3
 
 class Sans1HV(BaseSequencer):
     valuetype = float
