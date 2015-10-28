@@ -851,11 +851,11 @@ class TofDetector(ImageProducer, Detector):
     """
 
     parameters = {
-        'delay': Param('Delay',
+        'delay': Param('Delay', settable=True,
                        type=int, unit='ns', default=0, volatile=True),
-        'timechannels': Param('Number of time channels',
+        'timechannels': Param('Number of time channels', settable=True,
                               type=int, default=1, volatile=True),
-        'timeinterval': Param('Time for each time channel',
+        'timeinterval': Param('Time for each time channel', settable=True,
                               type=int, unit='ns', default=1, volatile=True),
         'timer': Param('Tango device for the timer',
                        type=tangodev, settable=False, mandatory=True,)
