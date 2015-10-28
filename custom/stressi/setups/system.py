@@ -68,7 +68,8 @@ devices = dict(
     Stressi = device('devices.instrument.Instrument',
                      description = 'instrument object',
                      instrument = 'STRESSI',
-                     responsible = 'Michael Hofmann <michael.hofmann@frm2.tum.de>',
+                     responsible = 'Dr. Michael Hofmann '
+                                    '<michael.hofmann@frm2.tum.de>',
                      doi = 'http://dx.doi.org/10.17815/jlsrf-1-25',
                      website = 'http://www.mlz-garching.de/stress-spec',
                      operators = [u'Technische Universität München (TUM)',
