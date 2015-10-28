@@ -10,6 +10,8 @@ sysconfig = dict(
 
 modules = ['commands.standard']
 
+includes = ['notifiers', ]
+
 devices = dict(
     SE       = device('devices.instrument.Instrument',
                       description = 'instrument object',
@@ -37,18 +39,6 @@ devices = dict(
                      ),
 
     dmnsink  = device('devices.datasinks.DaemonSink',
-                      lowlevel = True,
-                     ),
-
-    emailer  = device('devices.notifiers.Mailer',
-                      sender = 'se-trouble@frm2.tum.de',
-                      copies = [],
-                      subject = 'SE',
-                      lowlevel = True,
-                     ),
-
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
                       lowlevel = True,
                      ),
 
