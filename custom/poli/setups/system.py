@@ -11,6 +11,8 @@ sysconfig = dict(
 
 modules = ['commands.standard', 'poli.commands']
 
+includes = ['notifiers']
+
 devices = dict(
     POLI     = device('devices.instrument.Instrument',
                       description = 'The POLI instrument',
@@ -58,24 +60,5 @@ devices = dict(
                       description = 'The amount of free space for storing data',
                       path = '/home/jcns/data',
                       minfree = 5,
-                     ),
-
-    # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'vladimir.hutanu@frm2.tum.de',
-                      copies = [('vladimir.hutanu@frm2.tum.de', 'all'),
-                                ('andrew.sazonov@frm2.tum.de', 'all'),
-                                ('alerts.sw.zea2@fz-juelich.de', 'important'),
-                               ],
-                      subject = 'NICOS',
-                      mailserver = 'mailhost.frm2.tum.de',
-                      lowlevel = True,
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
-                      lowlevel = True,
                      ),
 )

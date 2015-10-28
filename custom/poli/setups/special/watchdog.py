@@ -39,25 +39,14 @@ watchlist = [
         ),
 ]
 
+includes = ['notifiers', ]
+
 notifiers = {
-    'default':  ['mailer'],
-    'critical': ['mailer', 'smser'],
+    'default':  ['email'],
+    'critical': ['email', 'smser'],
 }
 
 devices = dict(
-    # Configure source and copy addresses to an existing address.
-    mailer   = device('devices.notifiers.Mailer',
-                      sender = 'vladimir.hutanu@frm2.tum.de',
-                      receivers = ['vladimir.hutanu@frm2.tum.de',],
-                      subject = 'NICOS Warning',
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
-                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'localhost:14869',
                       notifiers = notifiers,
