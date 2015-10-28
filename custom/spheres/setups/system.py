@@ -57,6 +57,8 @@ sysconfig = dict(
 
 modules = ['commands.standard']
 
+includes = ['notifiers', ]
+
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
 # The class name is fully qualified (i.e., includes the package/module name).
@@ -98,20 +100,5 @@ devices = dict(
                       description = 'The amount of free space for storing data',
                       path = None,
                       minfree = 5,
-                     ),
-
-    # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'spheres@frm2.tum.de',
-                      copies = [('s.rainow@fz-juelich.de', 'all'),],
-                      subject = 'NICOS',
-                      lowlevel = True,
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
-                      lowlevel = True,
                      ),
 )
