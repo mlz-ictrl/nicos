@@ -8,10 +8,12 @@ sysconfig = dict(
     instrument = 'dns',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = ['mailer', 'smser'],
+    notifiers = ['email', 'smser'],
 )
 
 modules = ['commands.standard']
+
+includes = ['notifiers']
 
 devices = dict(
     Sample   = device('devices.sample.Sample',
@@ -54,29 +56,11 @@ devices = dict(
                       description = 'Device storing console output.',
                      ),
     daemonsink = device('devices.datasinks.DaemonSink',
-                      description = 'Device storing deamon output.',
-                     ),
+                        description = 'Device storing deamon output.',
+                       ),
     Space    = device('devices.generic.FreeSpace',
                       description = 'The amount of free space for storing data',
                       path = None,
                       minfree = 5,
-                     ),
-
-    # Configure source and copy addresses to an existing address.
-    mailer    = device('devices.notifiers.Mailer',
-                      description = 'E-Mail notifier',
-                      sender = 'noreply@fz-juelich.de',
-                      copies = [('y.su@fz-juelich.de', 'all'),
-                                ('k.nemkovskiy@fz-juelich.de', 'all'),
-                                ('l.fleischhauer-fuss@fz-juelich.de', 'important'),
-                                ('alerts.sw.zea2@fz-juelich.de', 'important'),
-                               ],
-                      subject = '[NICOS] DNS',
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      description = 'SMS notifier',
-                      server = 'triton.admin.frm2',
                      ),
 )

@@ -32,27 +32,14 @@ watchlist = []
 #        ),
 #]
 
+includes = ['notifiers']
+
 notifiers = {
     'default':  ['email'],
-    'critical': ['email','smser'],
+    'critical': ['email', 'smser'],
 }
 
 devices = dict(
-    # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
-                      description = 'E-Mail notifier',
-                      sender = 'noreply@fz-juelich.de',
-                      copies = [('y.su@fz-juelich.de', 'all'),
-                                ('l.fleischhauer-fuss@fz-juelich.de', 'important')],
-                      subject = 'NICOS Warning DNS',
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      description = 'SMS notifier',
-                      server = 'triton.admin.frm2',
-                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'localhost:14869',
                       notifiers = notifiers,
