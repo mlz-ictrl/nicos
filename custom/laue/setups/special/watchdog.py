@@ -30,32 +30,21 @@ watchlist = [
          ),
 ]
 
+includes = ['notifiers']
+
 notifiers = {
-    'default':  ['mailer'],
-    'critical': ['mailer', 'smser'],
+    'default':  ['wemail'],
+    'critical': ['wemail', 'smser'],
 }
 
 devices = dict(
-    # Configure source and copy addresses to an existing address.
-    mailer   = device('devices.notifiers.Mailer',
-                      sender = 'noreply@frm2.tum.de',
-                      receivers = ['bjoern.pedersen@frm2.tum.de'],
-                      subject = 'NICOS Warning',
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
-                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       # use only 'localhost' if the cache is really running on
                       # the same machine, otherwise use the official computer
                       # name
                       cache = 'lauectrl.laue.frm2',
                       notifiers = notifiers,
-                      mailreceiverkey = 'email/receivers',
+                      mailreceiverkey = 'wemail/receivers',
                       watch = watchlist,
                      ),
 )

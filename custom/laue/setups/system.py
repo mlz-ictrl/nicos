@@ -63,9 +63,9 @@ modules = ['commands.standard']
 # The parameters are given as keyword arguments.
 devices = dict(
     Laue = device('devices.instrument.Instrument',
-                  description = 'instrument object',
+                  description = 'Laue camera',
                   instrument = 'Laue',
-                  responsible = 'R. Esponsible <noreply@frm2.tum.de>',
+                  responsible = 'Dr. B. Pedersen <bjoern.pedersen@frm2.tum.de>',
                   #  we do not have a dedicated responsible
                  ),
 
@@ -101,21 +101,6 @@ devices = dict(
                       path = None,
                       minfree = 5,
                      ),
-
-    # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'noreply@frm2.tum.de',
-                      copies = [],
-                      subject = 'NICOS',
-                      lowlevel = True,
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
-                      lowlevel = True,
-                     ),
 )
 
-includes = ['detector','kappa', 'reactor']
+includes = ['notifiers', 'detector','kappa', 'reactor']
