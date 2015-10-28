@@ -2,20 +2,22 @@ description = 'system setup'
 
 sysconfig = dict(
     cache = None, # 'sans1ctrl.sans1.frm2',
-    instrument = 'Instrument',
+    instrument = 'MEPHISTO',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    notifiers = ['email', ],
 )
 
 modules = ['commands.standard']
 
+includes = ['notifiers', ]
+
 devices = dict(
     Sample   = device('devices.sample.Sample',
-                      description = 'The sample',
+                      description = 'Container storing Sample properties',
                      ),
 
-    Instrument = device('devices.instrument.Instrument',
+    MEPHISTO = device('devices.instrument.Instrument',
                         description = 'Facility for particle physics with cold '
                                       'neutrons',
                         doi = 'http://dx.doi.org/10.17815/jlsrf-1-48',
@@ -23,20 +25,23 @@ devices = dict(
                        ),
 
     Exp      = device('devices.experiment.Experiment',
-                      description = 'The current running experiment',
+                      description = 'MEPHISTO Experiment ',
                       dataroot = '/localhome/data',
                       sample = 'Sample',
                      ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',
+                      description = 'Device storing scanfiles in Ascii output format.',
                       lowlevel = True,
                      ),
 
     conssink = device('devices.datasinks.ConsoleScanSink',
+                      description = 'Device storing console output.',
                       lowlevel = True,
                      ),
 
     daemonsink = device('devices.datasinks.DaemonSink',
+                        description = 'Device storing deamon output.',
                         lowlevel = True,
                        ),
 
