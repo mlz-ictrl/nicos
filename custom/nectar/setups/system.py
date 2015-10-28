@@ -36,7 +36,7 @@ devices = dict(
                         description = 'NECTAR instrument',
                         instrument = 'NECTAR',
                         doi = 'http://dx.doi.org/10.17815/jlsrf-1-45',
-                        responsible = 'Dr. Stefan Soellradl <stefan.soellradl@frm2.tum.de>',
+                        responsible = 'Christoph Genreith <christoph.genreith@frm2.tum.de>',
                        ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',

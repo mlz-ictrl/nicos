@@ -6,7 +6,9 @@ devices = dict(
     # Configure source and copy addresses to an existing address.
     email    = device('devices.notifiers.Mailer',
                       sender = 'nectar@frm2.tum.de',
-                      copies = [('Christoph.Genreith@frm2.tum.de', 'all'),],
+                      copies = [('Christoph.Genreith@frm2.tum.de', 'all'),
+                                ('thomas.buecherl@tum.de', 'all'),
+                               ],
                       subject = '[NECTAR]',
                       mailserver = 'smtp.frm2.tum.de',
                       lowlevel = True,
