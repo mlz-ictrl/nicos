@@ -9,10 +9,12 @@ sysconfig = dict(
     instrument = 'puma',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = [],
+    notifiers = ['email', ],
 )
 
 modules = ['commands.standard']
+
+includes = ['notifiers', ]
 
 devices = dict(
     puma   = device('devices.instrument.Instrument',
