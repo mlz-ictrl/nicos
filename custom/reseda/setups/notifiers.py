@@ -8,7 +8,14 @@ devices = dict(
                       sender = 'reseda@frm2.tum.de',
                       receivers = ['christian.franz@frm2.tum.de',
                                    'thorsten.schroeder@frm2.tum.de'],
-                      subject = 'Warning',
+                      subject = 'NICOS',
+                      lowlevel = True,
+                     ),
+
+    # Configure SMS receivers if wanted and registered with IT.
+    smser    = device('devices.notifiers.SMSer',
+                      server = 'triton.admin.frm2',
+                      receivers = [],
                       lowlevel = True,
                      ),
 )
