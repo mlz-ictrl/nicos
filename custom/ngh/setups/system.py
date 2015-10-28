@@ -55,6 +55,8 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
+includes = ['notifiers', ]
+
 modules = ['commands.standard']
 
 # devices: Contains all device definitions.
@@ -73,13 +75,5 @@ devices = dict(
                       sendmail = True,
                       serviceexp = '0',
                       sample = 'Sample',
-                     ),
-
-    # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'ictrl@frm2.tum.de',
-                      receivers = ['alexander.lenz@frm2.tum.de'],
-                      subject = 'NICOS Warning',
-                      lowlevel = True,
                      ),
 )
