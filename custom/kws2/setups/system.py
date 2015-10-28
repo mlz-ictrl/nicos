@@ -10,6 +10,8 @@ sysconfig = dict(
     notifiers = ['email'],
 )
 
+includes = ['notifiers']
+
 modules = ['nicos.commands.standard']
 
 devices = dict(
@@ -48,21 +50,5 @@ devices = dict(
                       description = 'The amount of free space for storing data',
                       path = None,
                       minfree = 5,
-                     ),
-
-    # Configure source and copy addresses to an existing address.
-    email    = device('devices.notifiers.Mailer',
-                      sender = 'kws2@frm2.tum.de',
-                      copies = [('g.brandl@fz-juelich.de', 'all'),   # for now
-                               ],
-                      subject = '[KWS-2]',
-                      lowlevel = True,
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      server = 'triton.admin.frm2',
-                      receivers = [],
-                      lowlevel = True,
                      ),
 )
