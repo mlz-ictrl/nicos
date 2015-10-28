@@ -52,10 +52,12 @@ sysconfig = dict(
     instrument = 'galaxi',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = ['mailer'],
+    notifiers = ['email'],
 )
 
 modules = ['commands.standard', 'galaxi.commands']
+
+includes = ['notifiers']
 
 # devices: Contains all device definitions.
 # A device definition consists of a call like device(classname, parameters).
@@ -102,15 +104,4 @@ devices = dict(
                       path = None,
                       minfree = 5,
                      ),
-    mailer    = device('devices.notifiers.Mailer',
-                      description = 'E-Mail notifier',
-                      mailserver = 'mail.fz-juelich.de',
-                      sender = 'noreply@fz-juelich.de',
-                      copies = [('u.ruecker@fz-juelich.de', 'important'),
-                                ('e.kentzinger@fz-juelich.de', 'important'),
-                                ('l.fleischhauer-fuss@fz-juelich.de', 'important'),
-                               ],
-                      subject = '[NICOS] GALAXI',
-                     ),
-
 )
