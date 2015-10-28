@@ -8,7 +8,7 @@ devices = dict(
                       sender = 'spodi@frm2.tum.de',
                       copies = [('markus.hoelzel@frm2.tum.de', 'all'),   # gets all messages
                                 ('anatoliy.senishyn@frm2.tum.de', 'all'),   # gets all messages
-                                ('markus.hoelzel@frm2.tum.de', 'important')], # gets only important messages
+                                ('josef.pfanzelt@frm2.tum.de', 'important')], # gets only important messages
                       subject = 'SPODI',
                       lowlevel = True,
                      ),
