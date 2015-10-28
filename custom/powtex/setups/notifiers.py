@@ -11,4 +11,11 @@ devices = dict(
                    subject = 'NICOS Warning POWTEX',
                    lowlevel = True,
                   ),
+
+    # Configure SMS receivers if wanted and registered with IT.
+    smser    = device('devices.notifiers.SMSer',
+                      server = 'triton.admin.frm2',
+                      receivers = [],
+                      lowlevel = True,
+                     ),
 )

@@ -49,7 +49,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'powtex',
+    instrument = 'POWTEX',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = [],
@@ -73,8 +73,7 @@ devices = dict(
                       description = 'POWTEX Experiment ',
                       dataroot = '/home/crandau/data',
                       sample = 'Sample',
-                      localcontact = 'Christian.Randau@frm2.tum.de',
-                      # mailsender = 'u.ruecker@fz-juelich.de',
+                      localcontact = 'andreas.houben@ac.rwth-aachen.de',
                       propprefix = 'p',
                       serviceexp = 'service',
                       servicescript = '',
@@ -84,10 +83,10 @@ devices = dict(
                      ),
 
 
-    powtex = device('devices.instrument.Instrument',
+    POWTEX = device('devices.instrument.Instrument',
                      description = 'POWTEX Instrument test',
                      instrument = 'POWTEX',
-                     responsible = 'Christian.Randau@frm2.tum.de'
+                     responsible = 'andreas.houben@ac.rwth-aachen.de'
                     ),
 
     filesink = device('devices.datasinks.AsciiScanfileSink',
