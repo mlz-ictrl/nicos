@@ -412,7 +412,7 @@ possible with the device:
 
 .. class:: Measurable
 
-   This class inherits from :class:`Readable` and is the base for all devices
+   This class inherits from :class:`Waitable` and is the base for all devices
    used for data acquisition (usually detectors).
 
    .. rubric:: Public methods
