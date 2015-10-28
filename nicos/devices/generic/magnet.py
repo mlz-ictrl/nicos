@@ -58,7 +58,7 @@ class CalibratedMagnet(HasLimits, Moveable):
                       volatile=True),
         'calibration': Param('Coefficients for calibration '
                              'function: [c0, c1, c2, c3, c4] calculates '
-                             'B(I) = Ic0 + c1*erf(c2*I) + c3*atan(c4*I)'
+                             'B(I) = c0*I + c1*erf(c2*I) + c3*atan(c4*I)'
                              ' in T',
                              type=tupleof(float, float, float, float, float),
                              default=(1.0, 0.0, 0.0, 0.0, 0.0), settable=True,
