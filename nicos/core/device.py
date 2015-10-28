@@ -1225,13 +1225,13 @@ class Waitable(Readable):
 
         .. attribute:: busystates
 
-           Status constants that indicate that the device is busy.  Default is
-           ``(status.BUSY,)``.
+           A tuple of status constants that indicate that the device is busy.
+           Default is: ``(status.BUSY,)``.
 
         .. attribute:: errorstates
 
            Mapping of status constants that indicate that the device movement
-           has stopped with an error to exception class to raise.  Default is
+           has stopped with an error to exception class to raise.  Default is:
            ``{status.ERROR: MoveError, status.NOTREACHED: PositionError}``.
 
            This can be overridden in a derived class to provide different

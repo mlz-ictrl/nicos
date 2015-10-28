@@ -218,12 +218,12 @@ possible with the device:
    .. parameter:: lowlevel : bool, optional
 
       Indicates whether the device is "low-level" and should neither be
-      presented to users, nor created automatically.  Default is false.
+      presented to users, nor created automatically.  Default is: ``False``.
 
    .. parameter:: loglevel : string, optional
 
       The loglevel for output from the device.  This must be set to one of the
-      loglevel constants.  Default is ``info``.
+      loglevel constants.  Default is: ``'info'``.
 
    .. parameter:: classes : list of strings
 
@@ -310,7 +310,7 @@ possible with the device:
 
    .. parameter:: maxage : float or None, optional
 
-      The maximum age of cached values from this device, in seconds.  Default is
+      The maximum age of cached values from this device, in seconds.  Default is:
       5 seconds.
 
       If set to ``0``, cached values are never used.  If set to ``None``, values
@@ -319,7 +319,7 @@ possible with the device:
    .. parameter:: pollinterval : float or None, optional
 
       The interval for polling this device from the :dfn:`NICOS poller`.
-      Default is 6 seconds.
+      Default is: 6 seconds.
 
       Can be ``None`` to disable polling.
 
