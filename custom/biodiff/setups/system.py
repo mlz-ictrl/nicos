@@ -52,8 +52,10 @@ sysconfig = dict(
     instrument = 'biodiff',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
-    notifiers = ['mailer', 'smser'],
+    notifiers = ['email', 'smser'],
 )
+
+includes = ['notifiers']
 
 modules = ['commands.standard', 'biodiff.scan']
 
@@ -110,24 +112,5 @@ devices = dict(
                       description = 'The amount of free space for storing data',
                       path = None,
                       minfree = 5,
-                     ),
-
-    # Configure source and copy addresses to an existing address.
-    mailer    = device('devices.notifiers.Mailer',
-                       description = 'E-Mail notifier',
-                       sender = 'biodiff@frm2.tum.de',
-                       copies = [('t.schrader@fz-juelich.de', 'all'),
-                                 ('andreas.ostermann@frm2.tum.de', 'all'),
-                                 ('c.felder@fz-juelich.de', 'important'),
-                                 ('alerts.sw.zea2@fz-juelich.de', 'important'),
-                                ],
-                       subject = '[NICOS] BIODIFF',
-                      ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      description = 'SMS notifier',
-                      server = 'triton.admin.frm2',
-                      receivers = ['01736746111'],
                      ),
 )

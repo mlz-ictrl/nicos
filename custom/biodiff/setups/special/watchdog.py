@@ -32,29 +32,14 @@ watchlist = []
 #        ),
 #]
 
+includes = ['notifiers']
+
 notifiers = {
-    'default':  ['mailer'],
-    'critical': ['mailer', 'smser'],
+    'default':  ['email'],
+    'critical': ['email', 'smser'],
 }
 
 devices = dict(
-    # Configure source and copy addresses to an existing address.
-    mailer    = device('devices.notifiers.Mailer',
-                      description = 'E-Mail notifier',
-                      sender = 'noreply@fz-juelich.de',
-                      copies = [('t.schrader@fz-juelich.de', 'all'),
-                                ('andreas.ostermann@frm2.tum.de', 'all'),
-                                ('c.felder@fz-juelich.de', 'important')],
-                      subject = '[NICOS] BIODIFF',
-                     ),
-
-    # Configure SMS receivers if wanted and registered with IT.
-    smser    = device('devices.notifiers.SMSer',
-                      description = 'SMS notifier',
-                      server = 'triton.admin.frm2',
-                      receivers = ['01736746111'],
-                     ),
-
     Watchdog = device('services.watchdog.Watchdog',
                       cache = 'phys.biodiff.frm2:14869',
                       notifiers = notifiers,
