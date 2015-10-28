@@ -663,7 +663,7 @@ class NicosCmdClient(NicosClient):
         self.put('# Please enter how to proceed:')
         self.put('# <I> ignore this interrupt')
         self.put('# <H> stop after current scan point')
-        self.put('# <L> stop after current scan')
+        self.put('# <L> stop after current command')
         self.put('# <S> immediate stop')
         res = self.ask_question('Your choice?', chars='ihls').upper()
         if res == 'I':
