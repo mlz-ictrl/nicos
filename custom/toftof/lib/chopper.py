@@ -336,7 +336,8 @@ class Controller(TacoDevice, HasTimeout, Readable):
             nominal = self.speed / rat
             maxdelta = self.speed_accuracy / rat
             if abs(speed - nominal) > maxdelta:
-                msg = 'ch %d: speed %.2f != nominal %.2f' % (ch, speed, nominal)
+                msg = 'ch %d: speed %.2f != nominal %.2f' % (ch, speed,
+                                                             nominal)
                 ret.append(msg)
                 if self.isTimedOut():
                     stval = status.OK  # NOTREACHED
@@ -345,31 +346,32 @@ class Controller(TacoDevice, HasTimeout, Readable):
                     stval = status.BUSY
         # read phases
         for ch in range(2, 8):
-            phase = self._read(ACT_PHASE + ch)
-            phase_diff = abs(phase - self.phases[ch])
+            phase = self._readphase(ch)
+            phase_diff = abs(phase - self.phases[ch] / 100.)
             if phase_diff > self.phase_accuracy:
                 if self.isTimedOut():
-                    # Due to some problems with the electronics the phase of the
-                    # chopper disc 5 may have a phase differs from real value in
-                    # the range of 360 or 270 degrees
+                    # Due to some problems with the electronics the phase of
+                    # the chopper disc 5 may have a phase differs from real
+                    # value in the range of 360 or 270 degrees
                     if ch == 5:
-                        if phase_diff > 360:
-                            self.log.warning('phase of chopper disc 5 : %.3f' %
-                                             phase)
+                        msg = 'cd 5 phase %.2f != %.2f' % (
+                            phase, self.phases[ch] / 100.)
+                        if phase_diff >= 360:
                             if phase_diff % 360 <= self.phase_accuracy:
+                                self.log.warning(msg)
                                 continue
                         elif phase_diff > 180:
-                            self.log.warning('phase of chopper disc 5 : %.3f' %
-                                             phase)
-                            if abs(phase_diff - 270) <= self.phase_accuracy:
+                            if phase_diff >= (360. - self.phase_accuracy) or \
+                               abs(phase_diff - 270) <= self.phase_accuracy:
+                                self.log.warning(msg)
                                 continue
                         stval = status.ERROR
                     else:
                         stval = status.ERROR
                 else:
                     stval = status.BUSY
-                msg = 'ch %d: phase %s != nominal %s' % (ch, phase,
-                                                         self.phases[ch])
+                msg = 'ch %d: phase %s != nominal %s' % (
+                    ch, phase, self.phases[ch] / 100.)
                 ret.append(msg)
                 if self.isTimedOut():
                     stval = status.OK  # NOTREACHED
