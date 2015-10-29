@@ -109,6 +109,8 @@ class ScriptRequest(Request):
         # a weakref to the handler of origin for this request
         self.handler = weakref.ref(handler) if handler else None
         # script text (SPM or Python commands)
+        if '\n' in text and not text.endswith('\n'):
+            text += '\n'
         self.text = text
         self.curblock = -1
 

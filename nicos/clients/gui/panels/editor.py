@@ -668,7 +668,7 @@ class EditorPanel(Panel):
                 getattr(self.currentEditor, 'print')(printer)
 
     def validateScript(self):
-        script = self.currentEditor.text() + '\n'
+        script = self.currentEditor.text()
         # XXX: this does not apply to .txt (SPM) scripts
         #try:
         #    compile(script, 'script', 'exec')
