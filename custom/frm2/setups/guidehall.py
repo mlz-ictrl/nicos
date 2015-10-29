@@ -15,7 +15,7 @@ devices = dict(
 
     Crane    = device('devices.taco.AnalogInput',
                       description = 'The position of the crane in the guide '
-                                    'hall West from Western end',
+                                    'hall West measured from the east end',
                       tacodevice = '//%s/frm2/smc10/pos' % (nethost, ),
                       pollinterval = 5,
                       maxage = 30,
