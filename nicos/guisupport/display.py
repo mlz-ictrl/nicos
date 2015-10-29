@@ -313,11 +313,14 @@ class ValueDisplay(NicosWidget, QWidget):
         else:
             self.valuelabel.setText(from_maybe_utf8(strvalue))
         if self._expired and self.props['showExpiration']:
+            setForegroundColor(self.valuelabel, self._colorscheme['fore'][OK])
             setBackgroundColor(self.valuelabel, self._colorscheme['expired'])
         elif not self.props['istext']:
             setBackgroundColor(self.valuelabel, self._colorscheme['back'][BUSY])
             setForegroundColor(self.valuelabel, self._colorscheme['fore'][BUSY])
             QTimer.singleShot(1000, self._applystatuscolor)
+        else:
+            self._applystatuscolor()
 
     def _applystatuscolor(self):
         if self._expired and self.props['showExpiration']:
