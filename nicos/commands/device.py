@@ -272,6 +272,7 @@ def stop(*devlist):
         finally:
             finished.append(dev)
     for dev in devlist:
+        dev = session.getDevice(dev)
         createThread('device stopper %s' % dev, stopdev, (dev,))
     while len(finished) != len(devlist):
         time.sleep(Device._base_loop_delay)

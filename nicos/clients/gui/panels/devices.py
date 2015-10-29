@@ -478,13 +478,13 @@ class DevicesPanel(Panel):
         if self._menu_dev:
             if self.askQuestion('This will unload the device until the setup '
                                 'is loaded again. Proceed?'):
-                self.exec_command('RemoveDevice(%s)' % self._menu_dev,
-                                  self._menu_dev, ask_queue=False)
+                self.exec_command('RemoveDevice(%r)' % self._menu_dev,
+                                  ask_queue=False)
 
     @qtsig('')
     def on_actionReset_triggered(self):
         if self._menu_dev:
-            self.exec_command('reset(%s)' % self._menu_dev, self._menu_dev)
+            self.exec_command('reset(%r)' % self._menu_dev)
 
     @qtsig('')
     def on_actionFix_triggered(self):
@@ -493,18 +493,17 @@ class DevicesPanel(Panel):
                 'Please enter the reason for fixing %s:' % self._menu_dev)
             if not ok:
                 return
-            self.exec_command('fix(%s, %r)' % (self._menu_dev, reason),
-                              self._menu_dev)
+            self.exec_command('fix(%r, %r)' % (self._menu_dev, reason))
 
     @qtsig('')
     def on_actionRelease_triggered(self):
         if self._menu_dev:
-            self.exec_command('release(%s)' % self._menu_dev, self._menu_dev)
+            self.exec_command('release(%r)' % self._menu_dev)
 
     @qtsig('')
     def on_actionStop_triggered(self):
         if self._menu_dev:
-            self.exec_command('stop(%s)' % self._menu_dev, self._menu_dev,
+            self.exec_command('stop(%r)' % self._menu_dev,
                               immediate=True)
 
     @qtsig('')
@@ -548,10 +547,7 @@ class DevicesPanel(Panel):
 
     # API shared with ControlDialog
 
-    def exec_command(self, command, needed_dev,
-                     ask_queue=True, immediate=False):
-        if needed_dev not in self.client.getDeviceList():
-            command = 'CreateDevice(%r)\n' % needed_dev + command
+    def exec_command(self, command, ask_queue=True, immediate=False):
         if ask_queue and not immediate and self._current_status != 'idle':
             qwindow = ScriptExecQuestion()
             result = qwindow.exec_()
@@ -677,9 +673,10 @@ class ControlDialog(QDialog):
             self.target = DeviceValueEdit(self, dev=self.devname,
                                           useButtons=True, allowEnter=False)
             self.target.setClient(self.client)
+
             def btn_callback(target):
                 self.device_panel.exec_command(
-                    'move(%s, %r)' % (self.devname, target), self.devname)
+                    'move(%r, %r)' % (self.devname, target))
             self.connect(self.target, SIGNAL('valueChosen'), btn_callback)
             self.targetLayout.takeAt(1).widget().deleteLater()
             self.targetLayout.insertWidget(1, self.target)
@@ -713,18 +710,17 @@ class ControlDialog(QDialog):
 
             def callback(button):
                 if button.text() == 'Reset':
-                    self.device_panel.exec_command('reset(%s)' % self.devname,
-                                                   self.devname)
+                    self.device_panel.exec_command('reset(%r)' % self.devname)
                 elif button.text() == 'Stop':
-                    self.device_panel.exec_command('stop(%s)' % self.devname,
-                                                   self.devname, immediate=True)
+                    self.device_panel.exec_command('stop(%r)' % self.devname,
+                                                   immediate=True)
                 elif button.text() == 'Move':
                     try:
                         target = self.target.getValue()
                     except ValueError:
                         return
                     self.device_panel.exec_command(
-                        'move(%s, %r)' % (self.devname, target), self.devname)
+                        'move(%r, %r)' % (self.devname, target))
             self.moveBtns.clicked.connect(callback)
 
     @qtsig('')
@@ -744,9 +740,10 @@ class ControlDialog(QDialog):
         target.setClient(self.client)
         btn = dlg.buttonBox.addButton('Reset to maximum range',
                                       QDialogButtonBox.ResetRole)
+
         def callback():
             self.device_panel.exec_command(
-                'resetlimits(%s)' % self.devname, self.devname)
+                'resetlimits(%r)' % self.devname)
             dlg.reject()
         btn.clicked.connect(callback)
         dlg.targetLayout.addWidget(target)
@@ -760,8 +757,8 @@ class ControlDialog(QDialog):
             # retry
             self.on_actionSetLimits_triggered()
             return
-        self.device_panel.exec_command('%s.userlimits = %s' %
-                                       (self.devname, newlimits), self.devname)
+        self.device_panel.exec_command('set(%r, "userlimits", %s)' %
+                                       (self.devname, newlimits))
 
     @qtsig('')
     def on_actionAdjustOffset_triggered(self):
@@ -776,7 +773,7 @@ class ControlDialog(QDialog):
         if res != QDialog.Accepted:
             return
         self.device_panel.exec_command(
-            'adjust(%s, %r)' % (self.devname, target.getValue()), self.devname)
+            'adjust(%r, %r)' % (self.devname, target.getValue()))
 
     @qtsig('')
     def on_actionReference_triggered(self):
@@ -788,19 +785,17 @@ class ControlDialog(QDialog):
             'Please enter the reason for fixing %s:' % self.devname)
         if not ok:
             return
-        self.device_panel.exec_command('fix(%s, %r)' % (self.devname, reason),
-                                       self.devname)
+        self.device_panel.exec_command('fix(%r, %r)' % (self.devname, reason))
 
     @qtsig('')
     def on_actionRelease_triggered(self):
-        self.device_panel.exec_command('release(%s)' % self.devname,
-                                       self.devname)
+        self.device_panel.exec_command('release(%r)' % self.devname)
 
     @qtsig('')
     def on_setAliasBtn_clicked(self):
         self.device_panel.exec_command(
-            '%s.alias = %r' % (self.devname, self.aliasTarget.currentText()),
-            self.devname)
+            'set(%r, "alias", %r)' %
+            (self.devname, self.aliasTarget.currentText()))
 
     def closeEvent(self, event):
         event.accept()
@@ -843,7 +838,7 @@ class ControlDialog(QDialog):
                                 'for this parameter.')
             return
         self.device_panel.exec_command(
-            '%s.%s = %r' % (self.devname, pname, new_value), self.devname)
+            'set(%r, %r, %r)' % (self.devname, pname, new_value))
 
     def on_historyBtn_clicked(self):
         self.device_panel.plot_history(self.devname)
