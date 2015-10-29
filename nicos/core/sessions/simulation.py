@@ -39,6 +39,7 @@ from nicos import session, config
 from nicos.core import SIMULATION
 from nicos.core.utils import User
 from nicos.core.sessions import Session
+from nicos.core.sessions.utils import LoggingStdout
 from nicos.protocols.daemon import serialize, unserialize
 from nicos.utils.loggers import TRANSMIT_ENTRIES
 from nicos.utils.messaging import nicos_zmq_ctx
@@ -132,6 +133,8 @@ class SimulationSession(Session):
         # errors during setup.
         session.log.info('setting up dry run...')
         session.log_sender.begin_setup()
+        # Handle "print" statements in the script.
+        sys.stdout = LoggingStdout(sys.stdout)
 
         try:
             # Load the initial setup and handle becoming master.
