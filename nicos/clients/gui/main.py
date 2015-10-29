@@ -566,7 +566,7 @@ class MainWindow(QMainWindow, DlgUtils):
                 'custom_path': ''}
         if self.client.connected:
             dinfo = self.client.daemon_info
-            info['server_host'] = self.conndata['host']
+            info['server_host'] = self.conndata.host
             info['server_version'] = dinfo.get('daemon_version', 'unknown')
             info['custom_version'] = dinfo.get('custom_version', 'unknown')
             info['nicos_root'] = dinfo.get('nicos_root', 'unknown')
