@@ -552,6 +552,8 @@ class ViewPlotMixin(object):
         curve = self.plotcurves[dlg.curveCombo.currentIndex()]
         fmtno = dlg.formatCombo.currentIndex()
         filename = dlg.selectedFiles()[0]
+        if '.' not in filename:
+            filename += '.dat'
 
         x, y, _ = self._getCurveData(curve)
         n = len(x)
