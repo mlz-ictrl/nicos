@@ -40,7 +40,8 @@ from nicos.services.daemon.utils import formatScript, fixupScript, \
     updateLinecache
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.debugger import Rpdb
-from nicos.protocols.daemon import BREAK_AFTER_LINE
+from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, STATUS_IDLE, \
+    STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING
 from nicos.core.sessions.utils import NicosCompleter
 from nicos.core import SIMULATION, SLAVE, MASTER
 from nicos.pycompat import queue, exec_, text_type
@@ -385,6 +386,42 @@ class ExecutionController(Controller):
     def block_requests(self, requests):
         self.blocked_reqs.update(requests)
         self.eventfunc('blocked', requests)
+
+    def script_stop(self, level, user):
+        """High-level "stop" routine."""
+        if self.status == STATUS_STOPPING:
+            return
+        elif self.status == STATUS_RUNNING:
+            self.log.info('script stop request while running')
+            if level == BREAK_AFTER_LINE:
+                session.log.info('Stop after command requested by %s' %
+                                 user.name)
+            else:
+                session.log.info('Stop requested by %s' % user.name)
+            self.block_all_requests()
+            self.set_break(('stop', level, user.name))
+            if level >= BREAK_NOW:
+                session.should_pause_count = 'Stopped by %s' % user.name
+        else:
+            self.log.info('script stop request while in break')
+            self.block_all_requests()
+            self.set_continue(('stop', level, user.name))
+
+    def script_immediate_stop(self, user):
+        """High-level "immediate stop"/estop routine."""
+        if self.status in (STATUS_IDLE, STATUS_IDLEEXC):
+            # only execute emergency stop functions
+            self.new_request(EmergencyStopRequest(user))
+            return
+        elif self.status == STATUS_STOPPING:
+            return
+        session.log.warn('Immediate stop requested by %s' % user.name)
+        self.block_all_requests()
+        if self.status == STATUS_RUNNING:
+            self.set_stop(('emergency stop', 5, user.name))
+        else:
+            # in break
+            self.set_continue(('emergency stop', 5, user.name))
 
     def get_queue(self):
         return [req.serialize() for req in self.queue.queue if

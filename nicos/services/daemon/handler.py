@@ -44,12 +44,12 @@ from nicos.core import ADMIN, ConfigurationError, SPMError, User
 from nicos.utils import closeSocket
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.utils import LoggerWrapper
-from nicos.services.daemon.script import EmergencyStopRequest, ScriptRequest, \
+from nicos.services.daemon.script import ScriptRequest, \
     ScriptError, RequestError
 from nicos.protocols.daemon import serialize, unserialize, STATUS_IDLE, \
     STATUS_IDLEEXC, STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, \
     ENQ, ACK, STX, NAK, LENGTH, PROTO_VERSION, BREAK_NOW, code2command, \
-    DAEMON_COMMANDS, BREAK_AFTER_LINE, event2code
+    DAEMON_COMMANDS, event2code
 from nicos.pycompat import queue, socketserver, string_types
 
 
@@ -498,25 +498,9 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
         :returns: ok or error
         """
         level = int(level)
-        if self.controller.status == STATUS_STOPPING:
-            self.write(ACK)
-        elif self.controller.status == STATUS_RUNNING:
-            self.log.info('script stop request while running')
-            if level == BREAK_AFTER_LINE:
-                session.log.info('Stop after command requested by %s' %
-                                 self.user.name)
-            else:
-                session.log.info('Stop requested by %s' % self.user.name)
-            self.controller.block_all_requests()
-            self.controller.set_break(('stop', level, self.user.name))
-            if level >= BREAK_NOW:
-                session.should_pause_count = 'Stopped by %s' % self.user.name
-            self.write(ACK)
-        else:
-            self.log.info('script stop request while in break')
-            self.controller.block_all_requests()
-            self.controller.set_continue(('stop', level, self.user.name))
-            self.write(ACK)
+        self.log.info('script stop request')
+        self.controller.script_stop(level, self.user)
+        self.write(ACK)
 
     @command()
     def emergency(self):
@@ -528,24 +512,12 @@ class ConnectionHandler(socketserver.BaseRequestHandler):
 
         :returns: ok or error
         """
-        if self.controller.status in (STATUS_IDLE, STATUS_IDLEEXC):
-            # only execute emergency stop functions
+        if self.status in (STATUS_IDLE, STATUS_IDLEEXC):
             self.log.warning('immediate stop without script running')
-            self.controller.new_request(EmergencyStopRequest(self.user))
-            self.write(ACK)
-            return
-        elif self.controller.status == STATUS_STOPPING:
-            self.write(ACK)
-            return
-        session.log.warn('Immediate stop requested by %s' % self.user.name)
-        self.log.warning('immediate stop request in %s' %
-                         self.controller.current_location(True))
-        self.controller.block_all_requests()
-        if self.controller.status == STATUS_RUNNING:
-            self.controller.set_stop(('emergency stop', 5, self.user.name))
         else:
-            # in break
-            self.controller.set_continue(('emergency stop', 5, self.user.name))
+            self.log.warning('immediate stop request in %s' %
+                             self.controller.current_location(True))
+        self.controller.script_immediate_stop(self.user)
         self.write(ACK)
 
     # -- Asynchronous script interaction --------------------------------------
