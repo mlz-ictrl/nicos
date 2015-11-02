@@ -200,6 +200,8 @@ class BaseCacheClient(Device):
             except Exception:
                 self.log.exception('exception in cache worker thread; '
                                    'restarting (please report a bug)')
+                if self._stoprequest:
+                    break  # ensure we do not restart during shutdown
             else:
                 # normal termination
                 break
