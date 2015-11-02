@@ -146,6 +146,9 @@ class SimulationSession(Session):
 
             # Synchronize setups and cache values.
             session.simulationSync()
+
+            # Set session to always abort on errors.
+            session.experiment.errorbehavior = 'abort'
         except:  # really *all* exceptions -- pylint: disable=W0702
             session.log.exception('Exception in dry run setup')
             session.log_sender.finish()

@@ -78,13 +78,14 @@ def usercommandWrapper(func):
     This is not done in the "usercommand" decorator since the function
     should stay usable as a regular function from nicos code.
     """
-    from nicos.commands.output import printerror, printexception
+    from nicos.commands.output import printerror
     parallel_safe = getattr(func, 'is_parallel_safe', False)
 
     @wraps(func)
     def wrapped(*args, **kwds):
         if not parallel_safe and session.checkParallel():
-            raise UsageError('the %s command cannot be used with "execute now"' % func.__name__)
+            raise UsageError('the %s command cannot be used with "execute now"'
+                             % func.__name__)
         try:
             try:
                 # try executing the original function with the given arguments
@@ -97,16 +98,14 @@ def usercommandWrapper(func):
                 while traceback.tb_next:
                     traceback = traceback.tb_next
                 if traceback.tb_frame.f_code is wrapped.__code__:
-                    printerror('Usage error: invalid arguments for %s()'
-                               % func.__name__)
+                    printerror('Invalid arguments for %s()' % func.__name__)
                     help(func)
-                else:
-                    raise
+                raise
             except UsageError:
                 # for usage errors, print the error and the help for the
                 # command
-                printexception()
                 help(func)
+                raise
         except RERAISE_EXCEPTIONS:
             # don't handle these, they should lead to an unconditional abort
             raise
