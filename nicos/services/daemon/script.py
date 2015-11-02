@@ -387,17 +387,19 @@ class ExecutionController(Controller):
         self.blocked_reqs.update(requests)
         self.eventfunc('blocked', requests)
 
-    def script_stop(self, level, user):
+    def script_stop(self, level, user, message=None):
         """High-level "stop" routine."""
         if self.status == STATUS_STOPPING:
             return
         elif self.status == STATUS_RUNNING:
             self.log.info('script stop request while running')
+            suffix = user.name
+            if message:
+                suffix += ': ' + message
             if level == BREAK_AFTER_LINE:
-                session.log.info('Stop after command requested by %s' %
-                                 user.name)
+                session.log.info('Stop after command requested by ' + suffix)
             else:
-                session.log.info('Stop requested by %s' % user.name)
+                session.log.info('Stop requested by ' + suffix)
             self.block_all_requests()
             self.set_break(('stop', level, user.name))
             if level >= BREAK_NOW:
@@ -407,7 +409,7 @@ class ExecutionController(Controller):
             self.block_all_requests()
             self.set_continue(('stop', level, user.name))
 
-    def script_immediate_stop(self, user):
+    def script_immediate_stop(self, user, message=None):
         """High-level "immediate stop"/estop routine."""
         if self.status in (STATUS_IDLE, STATUS_IDLEEXC):
             # only execute emergency stop functions
@@ -415,7 +417,10 @@ class ExecutionController(Controller):
             return
         elif self.status == STATUS_STOPPING:
             return
-        session.log.warn('Immediate stop requested by %s' % user.name)
+        suffix = user.name
+        if message:
+            suffix += ': ' + message
+        session.log.warn('Immediate stop requested by ' + suffix)
         self.block_all_requests()
         if self.status == STATUS_RUNNING:
             self.set_stop(('emergency stop', 5, user.name))

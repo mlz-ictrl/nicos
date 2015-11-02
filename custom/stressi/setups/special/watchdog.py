@@ -19,10 +19,10 @@ group = 'special'
 # 'message' -- warning message to display
 # 'type' -- for defining different types of warnings; this corresponds to the
 #     configured notifiers (default 'default')
-#     type '' does not emit warnings (useful together with 'pausecount'
-#     for conditions that should block counting but are not otherwise errors)
-# 'pausecount' -- if True, the count loop should be paused on the condition
-#     (default False)
+#     type '' does not emit warnings (useful together with scriptaction)
+# 'scriptaction' -- 'pausecount' to pause the count loop on the condition
+#     or 'stop' or 'immediatestop' to cancel script execution
+#     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = []
 

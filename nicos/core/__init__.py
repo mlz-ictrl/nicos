@@ -25,8 +25,8 @@
 """NICOS core APIs and classes."""
 
 from nicos.core import status
-from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE, MAIN,\
-    POLLER
+from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE, \
+    MAIN, POLLER
 from nicos.core.errors import NicosError, ProgrammingError, \
     ConfigurationError, UsageError, InvalidValueError, ModeError, \
     PositionError, MoveError, LimitError, CommunicationError, \
@@ -46,4 +46,4 @@ from nicos.core.scan import Scan
 from nicos.core.image import ImageInfo, ImageType, ImageSink, ImageProducer
 from nicos.core.utils import formatStatus, multiStatus, waitForStatus, \
     multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
-    User, system_user
+    User, system_user, watchdog_user

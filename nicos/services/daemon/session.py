@@ -27,11 +27,12 @@
 import sys
 import threading
 
-from nicos.core import AccessError, ACCESS_LEVELS, User
+from nicos.core import AccessError, ACCESS_LEVELS, User, watchdog_user
 from nicos.utils.loggers import INFO
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.cacheclient import DaemonCacheClient
+from nicos.protocols.daemon import BREAK_AFTER_STEP
 from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.pycompat import builtins, exec_, string_types
 
@@ -174,6 +175,18 @@ class DaemonSession(NoninteractiveSession):
     def pnpEvent(self, event, *data):
         self.emitfunc('plugplay', (event,) + data)
 
-    def watchdogEvent(self, event, time, data):
+    def _watchdogHandler(self, key, value, time, expired=False):
         """Handle a watchdog event."""
+        if key.endswith('/scriptaction'):
+            action, msg = value[1]
+            controller = self.daemon_device._controller
+            if action == 'stop':
+                controller.script_stop(BREAK_AFTER_STEP, watchdog_user, msg)
+            elif action == 'immediatestop':
+                controller.script_immediate_stop(watchdog_user, msg)
+        # handle other cases
+        NoninteractiveSession._watchdogHandler(self, key, value, time, expired)
+
+    def watchdogEvent(self, event, time, data):
+        """Handle a watchdog alarm event."""
         self.emitfunc('watchdog', (event, time, data))

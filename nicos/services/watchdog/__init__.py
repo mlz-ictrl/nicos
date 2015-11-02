@@ -47,7 +47,7 @@ class Entry(object):
     gracetime = 5
     message = ''
     priority = 1
-    pausecount = False
+    scriptaction = ''
     action = ''
     type = 'default'
     precondition = ''
@@ -127,6 +127,10 @@ class Watchdog(BaseCacheClient):
             if not entryd['message']:
                 self.log.warning('entry %s missing "message" key' % entryd)
                 continue
+            if entryd.pop('pausecount', False):
+                self.log.warning('detected "pausecount" key in entry, use '
+                                 '"scriptaction = \'pausecount\'" instead')
+                entryd['scriptaction'] = 'pausecount'
             entry = Entry(entryd)
             entry.id = i
             if entry.type and entry.type not in self._notifiers:
@@ -136,8 +140,8 @@ class Watchdog(BaseCacheClient):
                                 ', '.join(map(repr, self._notifiers))))
                 continue
             self._entries[i] = entry
-            # find all cache keys that the condition evaluates, to get a mapping
-            # of cache key -> interesting watchlist entries
+            # find all cache keys that the condition evaluates, to get a
+            # mapping of cache key -> interesting watchlist entries
             cond_parse = ast.parse(entry.condition)
             for node in ast.walk(cond_parse):
                 if isinstance(node, ast.Name):
@@ -273,7 +277,7 @@ class Watchdog(BaseCacheClient):
             if eid in self._warnings:
                 del self._warnings[eid]
                 self._update_warnings_str()
-            if entry.pausecount:
+            if entry.scriptaction == 'pausecount':
                 del self._pausecount[eid]
                 self._put_message('pausecount',
                                   ', '.join(self._pausecount.values()),
@@ -300,12 +304,15 @@ class Watchdog(BaseCacheClient):
             warning_desc = strftime('%Y-%m-%d %H:%M') + ' -- ' + entry.message
             if entry.action:
                 warning_desc += ' -- executing %r' % entry.action
-            if entry.pausecount:
+            if entry.scriptaction == 'pausecount':
                 self._pausecount[eid] = entry.message
                 self._put_message('pausecount',
                                   ', '.join(self._pausecount.values()),
                                   timestamp=False)
                 warning_desc += ' -- counting paused'
+            elif entry.scriptaction:
+                self._put_message('scriptaction', (entry.scriptaction,
+                                                   entry.message))
             if entry.type:
                 for notifier in self._notifiers[entry.type]:
                     notifier.send('New warning from NICOS', warning_desc)

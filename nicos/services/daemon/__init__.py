@@ -30,7 +30,6 @@ import socket
 import weakref
 import traceback
 import threading
-import collections
 
 from nicos import nicos_version
 from nicos.core import listof, Device, Param, ConfigurationError, host, Attach

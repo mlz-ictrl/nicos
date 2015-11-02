@@ -58,12 +58,12 @@ A simple setup file for the watchdog could look like this::
            action = 'maw(T, 290)'),
       dict(condition = 'tbefilter_value > 75',
            setup = 'befilter',
-           pausecount = True,
+           scriptaction = 'pausecount',
            message = 'Beryllium filter temperature too high',
            gracetime = 0),
       dict(condition = 'shutter_value == "closed"',
            type = '',
-           pausecount = True,
+           scriptaction = 'pausecount',
            message = 'Instrument shutter is closed',
            gracetime = 0),
       dict(condition = 'reactorpower_value < 15',
@@ -71,7 +71,7 @@ A simple setup file for the watchdog could look like this::
            precondtime = 600,
            gracetime = 120,
            message = 'reactor power loss',
-           pausecount = True),
+           scriptaction = 'stop'),
   ]
 
   devices = dict(
@@ -148,17 +148,27 @@ specification can have these keys:
    that send mail to different receivers.
 
    A type of ``''`` does not emit notifications.  This is only useful when
-   "pausecount" is set, see below.
+   "scriptaction" is set, see below.
 
    See :ref:`notifiers` for a list of classes that can be used as notifiers.
 
-**pausecount**
-   If this is True, if the condition is detected the NICOS master gets a request
-   to pause the count loop, if it is currently in a ``count()`` operation.  If
-   not, the master will halt at the beginning of the next count operation.  When
-   the condition is back to normal, the operation continues.
+**scriptaction**
+   This can be set to several different values.  The default is ``''``.
 
-   This requires all used detectors to support pause/resume.
+   * ``'pausecount'``: if the condition is detected the NICOS master gets a
+     request to pause the count loop, if it is currently in a ``count()``
+     operation.  If not, the master will halt at the beginning of the next count
+     operation.  When the condition is back to normal, the operation continues.
+
+     This requires all used detectors to support pause/resume.
+
+   * ``'stop'``: if the condition is detected, any script running in the NICOS
+     daemon is stopped at the next break point (after a scan step or a command).
+     It is not started again when the condition becomes normal.
+
+   * ``'immediatestop'``: if the condition is detected, any script running in
+     the NICOS daemon is stopped using the "immediate stop" procedure: stop as
+     quickly as possible and execute ``stop()`` on all devices.
 
 **action**
    An action, expressed as NICOS commands, to be executed when the condition is

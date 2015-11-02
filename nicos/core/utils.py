@@ -45,6 +45,7 @@ ACCESS_LEVELS = {0: 'guest', 10: 'user', 20: 'admin'}
 User = namedtuple('User', 'name, level')
 
 system_user = User('system', ADMIN)
+watchdog_user = User('watchdog', ADMIN)
 
 
 def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):

@@ -12,11 +12,12 @@ group = 'special'
 # 'gracetime' -- time in sec allowed for the condition to be true without
 #    emitting a warning (default 5 sec)
 # 'message' -- warning message to display
-# 'priority' -- normal priorities are 1 or 2, where 2 is more severe (default 1)
-#     priority 0 does not emit warnings (useful together with 'pausecount'
-#     for conditions that should block counting but are not otherwise errors)
-# 'pausecount' -- if True, the count loop should be paused on the condition
-#     (default False)
+# 'type' -- for defining different types of warnings; this corresponds to the
+#     configured notifiers (default 'default')
+#     type '' does not emit warnings (useful together with scriptaction)
+# 'scriptaction' -- 'pausecount' to pause the count loop on the condition
+#     or 'stop' or 'immediatestop' to cancel script execution
+#     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
     dict(condition = 't_in_memograph_kws123_value > 3',
